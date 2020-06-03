@@ -1,0 +1,70 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug census demo",
+            "program": "${workspaceFolder}/modules/demo/deck/census_prototype/index.js",
+            "stopOnEntry": false,
+            "runtimeArgs": ["-r", "esm"],
+            "cwd": "${workspaceFolder}/modules/demo/deck/census_prototype",
+            "env": { "NODE_ENV": "production" }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug umap demo",
+            "program": "${workspaceFolder}/modules/demo/umap/index.js",
+            "stopOnEntry": false,
+            "args": ["tcp://localhost:6000"],
+            "runtimeArgs": ["-r", "esm"],
+            "cwd": "${workspaceFolder}/modules/demo/umap",
+            "env": { "NODE_ENV": "production" }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug bezier demo",
+            "stopOnEntry": false,
+            "runtimeArgs": ["-r", "esm"],
+            "cwd": "${workspaceFolder}/modules/demo/deck/bezier",
+            "program": "${workspaceFolder}/modules/demo/deck/bezier/index.js",
+            "env": { "NODE_ENV": "production" }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug playground demo",
+            "stopOnEntry": false,
+            "runtimeArgs": ["-r", "esm"],
+            "cwd": "${workspaceFolder}/modules/demo/deck/playground",
+            "program": "${workspaceFolder}/modules/demo/deck/playground/index.js",
+            "env": { "NODE_ENV": "production" }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug luma lesson demo",
+            "stopOnEntry": false,
+            "runtimeArgs": ["-r", "esm"],
+            "cwd": "${workspaceFolder}/modules/demo/luma",
+            "program": "${workspaceFolder}/modules/demo/luma/index.js",
+            "args": ["09"],
+            "env": { "NODE_ENV": "production" }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug xterm demo",
+            "stopOnEntry": false,
+            "runtimeArgs": ["-r", "esm"],
+            "cwd": "${workspaceFolder}/modules/demo",
+            "program": "${workspaceFolder}/modules/demo/xterm.js",
+            "env": { "NODE_ENV": "production" }
+        }
+    ]
+}

@@ -1,0 +1,36 @@
+{
+  "private": true,
+  "name":  "interleaved-buffer",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "scripts": {
+    "start": "webpack-dev-server --progress --hot --open",
+    "start-local": "webpack-dev-server --env.local --progress --hot --open",
+    "build": "webpack -p"
+  },
+  "dependencies": {
+    "@deck.gl/core": "^8.1.0",
+    "@deck.gl/layers": "^8.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.5"
+  },
+  "esm": {
+    "cjs": true,
+    "force": true,
+    "mode": "auto",
+    "cache": false,
+    "sourceMap": true,
+    "mainFields": [
+      "esnext",
+      "module",
+      "main"
+    ]
+  }
+}

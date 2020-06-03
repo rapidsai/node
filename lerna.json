@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "npmClient": "yarn",
+  "skipGit": true,
+  "useWorkspaces": true,
+  "packages": [
+    "modules/*",
+    "modules/demo/luma",
+    "modules/demo/umap",
+    "modules/demo/xterm",
+    "modules/demo/deck/*"
+  ]
+}

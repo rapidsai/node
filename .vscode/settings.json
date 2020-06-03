@@ -1,0 +1,32 @@
+{
+    "files.exclude": {
+        "**/build/include": false,
+    },
+
+    "C_Cpp.formatting": "Disabled",
+    "C_Cpp.autocomplete": "Disabled",
+    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.intelliSenseEngine": "Disabled",
+    "C_Cpp.configurationWarnings": "Disabled",
+    "C_Cpp.autoAddFileAssociations": false,
+    "C_Cpp.vcpkg.enabled": false,
+
+    "clangd.syncFileEvents": true,
+    "clangd.path": "/usr/bin/clangd",
+    "clangd.semanticHighlighting": false,
+    "clangd.arguments": [
+        "-j=4",
+        "--log=info",
+        "--pch-storage=disk",
+        "--completion-parse=auto",
+        "--fallback-style=Google",
+        "--compile-commands-dir=",
+        "--background-index=true",
+        "--all-scopes-completion",
+        "--header-insertion=iwyu",
+        "--suggest-missing-includes",
+        "--completion-style=detailed",
+        "--header-insertion-decorators",
+    ],
+    "git.ignoreLimitWarning": true
+}

@@ -1,0 +1,212 @@
+// console.log(recordBatch);
+// This is a print of recordBatch, to help understand the data structure
+// (the dataset is too huge and have to stream the table to load in js)
+
+RecordBatch [StructVector<Struct>] {
+  _children: undefined,
+  numChildren: 7,
+  data: Data {
+    type: Struct { children: [Array] },
+    dictionary: undefined,
+    offset: 0,
+    length: 308745,
+    _nullCount: 0,
+    childData: [
+      [Data], [Data],
+      [Data], [Data],
+      [Data], [Data],
+      [Data]
+    ],
+    stride: 1,
+    nullBitmap: Uint8Array(0) []
+  },
+  _schema: Schema {
+    fields: [
+      [Field], [Field],
+      [Field], [Field],
+      [Field], [Field],
+      [Field]
+    ],
+    metadata: Map(1) {
+      'pandas' => '{"index_columns": [{"kind": "range", "name": null, "start": 0, "stop": 308745309, "step": 1}], "column_indexes": [{"name": null, "field_name": null, "pandas_type": "unicode", "numpy_type": "object", "metadata": {"encoding": "UTF-8"}}], "columns": [{"name": "x", "field_name": "x", "pandas_type": "float32", "numpy_type": "float32", "metadata": null}, {"name": "y", "field_name": "y", "pandas_type": "float32", "numpy_type": "float32", "metadata": null}, {"name": "sex", "field_name": "sex", "pandas_type": "int8", "numpy_type": "int8", "metadata": null}, {"name": "education", "field_name": "education", "pandas_type": "int8", "numpy_type": "int8", "metadata": null}, {"name": "income", "field_name": "income", "pandas_type": "int8", "numpy_type": "int8", "metadata": null}, {"name": "cow", "field_name": "cow", "pandas_type": "int8", "numpy_type": "int8", "metadata": null}, {"name": "age", "field_name": "age", "pandas_type": "int8", "numpy_type": "int8", "metadata": null}], "creator": {"library": "pyarrow", "version": "0.15.0"}, "pandas_version": "0.25.3"}'
+    },
+    dictionaries: Map(0) {}
+  }
+}
+
+
+// recordBatch.data.childData
+[
+  Data {
+    type: Float { precision: 1 },
+    dictionary: undefined,
+    offset: 0,
+    length: 308745,
+    _nullCount: 0,
+    childData: [],
+    stride: 1,
+    values: Float32Array(308746) [
+      -13051924, -13051979, -13051921, -13051818, -13051862, -13051802,
+      -13051667, -13051891, -13051657, -13051890, -13051432, -13051602,
+      -13051758, -13051857, -13051923, -13051594, -13051903, -13051552,
+      -13051624, -13051558, -13058210, -13058073, -13058201, -13058161,
+      -13058100, -13058062, -13058172, -13058222, -13058122, -13058056,
+      -13058077, -13058085, -13058144, -13058087, -13058142, -13058175,
+      -13058146, -13058145, -13058155, -13058215, -13058078, -13058189,
+      -13058115, -13058092, -13058101, -13058056, -13058057, -13058180,
+      -13059508, -13059527, -13059549, -13059571, -13052615, -13051552,
+      -13051928, -13051370, -13051641, -13051879, -13051310, -13051389,
+      -13052394, -13052348, -13051833, -13052126, -13052344, -13051722,
+      -13052505, -13052064, -13052090, -13051593, -13051312, -13051483,
+      -13052353, -13051721, -13051954, -13052064, -13052323, -13051812,
+      -13051316, -13052577, -13051647, -13052453, -13052136, -13051822,
+      -13059620, -13060283, -13060188, -13060666, -13060187, -13060212,
+      -13060567, -13060301, -13060403, -13060171, -13060392, -13060355,
+      -13060268, -13060242, -13060435, -13060538,
+      ... 308646 more items
+    ],
+    nullBitmap: Uint8Array(0) []
+  },
+  Data {
+    type: Float { precision: 1 },
+    dictionary: undefined,
+    offset: 0,
+    length: 308745,
+    _nullCount: 0,
+    childData: [],
+    stride: 1,
+    values: Float32Array(308746) [
+         3918963, 3918981.25, 3918847.75,    3918953, 3919112.25,    3918898,
+         3919237, 3919101.25,    3919102, 3918873.75,  3919097.5,    3919157,
+       3919217.5,  3919154.5,    3919096,  3919165.5, 3918742.75, 3919327.25,
+       3919216.5,    3919089,    3917611, 3917610.25, 3917593.75, 3917594.75,
+      3917609.75, 3917622.25,    3917613, 3917580.25, 3917638.75,  3917646.5,
+      3917613.75,  3917642.5,    3917630, 3917613.25,    3917591, 3917569.25,
+         3917627,    3917617,    3917618, 3917585.75, 3917599.25, 3917638.25,
+         3917621,  3917607.5, 3917620.25,  3917645.5, 3917656.25, 3917597.75,
+      3917689.75,  3917482.5,    3917904, 3917727.25,    3918946, 3919517.25,
+         3919831,  3919844.5,  3919511.5,  3919867.5, 3919775.75,    3919826,
+         3919886, 3919377.25, 3919770.25,    3919198,    3919971, 3919424.75,
+      3919076.75,    3919234, 3919983.25,  3919436.5, 3919779.75, 3919499.25,
+      3919350.25, 3919843.25,  3919925.5, 3919368.75,    3919117,  3919883.5,
+      3919928.25,    3919054, 3919481.25,  3919426.5, 3919316.25,    3919359,
+      3919072.25,    3919379,    3919231,    3919060,  3919321.5, 3919406.25,
+         3919382, 3919428.25, 3919164.75,  3919076.5,    3919057, 3919220.25,
+      3919178.75,  3919143.5,    3919434, 3919142.75,
+      ... 308646 more items
+    ],
+    nullBitmap: Uint8Array(0) []
+  },
+  Data {
+    type: Int_ [Int] { isSigned: true, bitWidth: 8 },
+    dictionary: undefined,
+    offset: 0,
+    length: 308745,
+    _nullCount: 0,
+    childData: [],
+    stride: 1,
+    values: Int8Array(308752) [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1,
+      ... 308652 more items
+    ],
+    nullBitmap: Uint8Array(0) []
+  },
+  Data {
+    type: Int_ [Int] { isSigned: true, bitWidth: 8 },
+    dictionary: undefined,
+    offset: 0,
+    length: 308745,
+    _nullCount: 0,
+    childData: [],
+    stride: 1,
+    values: Int8Array(308752) [
+      12, 12, 12, 12, 12, 12, 12, 12,  9,  9, 11, 11,
+      11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+      12, 12, 12, 12, 12,  8,  8,  8,  8,  8,  8,  8,
+       8,  9,  9,  9,  9,  9,  9,  9,  9,  9, 10, 10,
+      10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+      10, 10, 10, 10, 10, 10, 12, 12, 12, 12, 12, 12,
+      13,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
+      16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+      16, 16, 16, 16,
+      ... 308652 more items
+    ],
+    nullBitmap: Uint8Array(0) []
+  },
+  Data {
+    type: Int_ [Int] { isSigned: true, bitWidth: 8 },
+    dictionary: undefined,
+    offset: 0,
+    length: 308745,
+    _nullCount: 0,
+    childData: [],
+    stride: 1,
+    values: Int8Array(308752) [
+      18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 13, 13,
+      13, 13, 13, 13, 13, 13, 12, 12, 12, 12, 12, 12,
+      12, 12, 12, 12, 12, 10, 10, 10, 10, 10, 10, 10,
+      10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+      10, 10, 10, 18, 14, 14, 14, 14, 14, 14, 14, 14,
+      14, 14, 14, 14, 14, 14, 17, 17, 17, 17, 17, 17,
+      17, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+      20, 20, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17,
+      17, 17, 18, 18,
+      ... 308652 more items
+    ],
+    nullBitmap: Uint8Array(0) []
+  },
+  Data {
+    type: Int_ [Int] { isSigned: true, bitWidth: 8 },
+    dictionary: undefined,
+    offset: 0,
+    length: 308745,
+    _nullCount: 0,
+    childData: [],
+    stride: 1,
+    values: Int8Array(308752) [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3,
+      3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6, 6,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 1, 1, 1, 6, 6, 6, 6, 6, 6,
+      6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+      8, 8, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3,
+      3, 3, 3, 3,
+      ... 308652 more items
+    ],
+    nullBitmap: Uint8Array(0) []
+  },
+  Data {
+    type: Int_ [Int] { isSigned: true, bitWidth: 8 },
+    dictionary: undefined,
+    offset: 0,
+    length: 308745,
+    _nullCount: 0,
+    childData: [],
+    stride: 1,
+    values: Int8Array(308752) [
+      46, 48, 45, 48, 45, 45, 49, 46, 47, 49, 41, 44,
+      44, 44, 44, 43, 40, 40, 42, 44, 65, 65, 65, 66,
+      66, 65, 66, 65, 65, 57, 56, 57, 56, 55, 58, 58,
+      59, 55, 56, 55, 58, 58, 57, 55, 55, 58, 55, 58,
+      56, 58, 56, 55, 53, 50, 52, 54, 50, 54, 53, 51,
+      52, 50, 51, 54, 52, 50, 67, 68, 68, 67, 69, 67,
+      69, 45, 45, 45, 45, 48, 47, 48, 45, 47, 46, 47,
+      14, 12, 21, 21, 20, 20, 20, 20, 20, 20, 20, 20,
+      20, 20, 20, 20,
+      ... 308652 more items
+    ],
+    nullBitmap: Uint8Array(0) []
+  }
+]
+
+

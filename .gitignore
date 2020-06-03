@@ -1,0 +1,16 @@
+**/z-*
+**/build
+**/.clangd
+**/node_modules
+**/modules/*/lib
+**/lerna-debug.log
+**/compile_commands.json
+
+modules/*/include/thrust
+modules/*/include/napi.h
+modules/*/include/napi-inl.h
+modules/*/include/napi-inl.deprecated.h
+modules/*/include/node_api.h
+
+setup
+thirdparty

@@ -1,0 +1,26 @@
+{
+  "version": "0.0.0",
+  "private": true,
+  "name":  "luma.gl-lessons-05",
+  "scripts": {
+    "start": "webpack-dev-server --progress --hot --open -d",
+    "start-local": "webpack-dev-server --env.local --progress --hot --open -d"
+  },
+  "dependencies": {
+    "@luma.gl/constants": "8.1.2",
+    "@luma.gl/core": "8.1.2",
+    "math.gl": "^3.1.2"
+  },
+  "esm": {
+    "cjs": true,
+    "force": true,
+    "mode": "auto",
+    "cache": false,
+    "sourceMap": true,
+    "mainFields": [
+      "esnext",
+      "module",
+      "main"
+    ]
+  }
+}

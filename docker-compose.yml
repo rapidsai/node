@@ -1,0 +1,46 @@
+version: "3.8"
+
+x-service-settings: &service_settings
+  build: &build_settings
+    context: .
+    args:
+      UID: ${_UID:-1000}
+      GID: ${_GID:-1000}
+      PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
+      CUDA_VERSION: "${CUDA_VERSION:-10.2}"
+      RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
+      LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
+  environment:
+    - DISPLAY
+    - XAUTHORITY
+    - XDG_SESSION_TYPE
+    - TERM=xterm-256color
+    - FONTCONFIG_PATH=/etc/fonts
+    - NVIDIA_DRIVER_CAPABILITIES=all
+  cap_add:
+    - SYS_PTRACE
+  tty: true
+  user: "1000:1000"
+  network_mode: "host"
+  working_dir: "${PWD}"
+  volumes:
+    - "${PWD}:${PWD}:rw"
+    - "/etc/fonts:/etc/fonts:ro"
+    - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    - "/usr/share/fonts:/usr/share/fonts:ro"
+
+services:
+
+  devel:
+    <<: *service_settings
+    image: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-10.2}-devel-${LINUX_VERSION:-ubuntu18.04}
+    build:
+      <<: *build_settings
+      dockerfile: dockerfiles/devel.Dockerfile
+
+  runtime:
+    <<: *service_settings
+    image: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-10.2}-runtime-${LINUX_VERSION:-ubuntu18.04}
+    build:
+      <<: *build_settings
+      dockerfile: dockerfiles/runtime.Dockerfile

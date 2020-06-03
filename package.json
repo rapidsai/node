@@ -1,0 +1,60 @@
+{
+  "private": true,
+  "name": "rapids-js",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "scripts": {
+    "clean": "node scripts/exec clean",
+    "demo": "node scripts/exec demo",
+    "build": "npx lerna run --scope '@nvidia/*' --stream --concurrency 1 build",
+    "compile": "npx lerna run --scope '@nvidia/*' --stream --concurrency 1 compile",
+    "rebuild": "npx lerna run --scope '@nvidia/*' --stream --concurrency 1 rebuild",
+    "test": "npx lerna run --scope '@nvidia/*' --stream --concurrency 1 test",
+    "dev:relink-bin-dirs": "node scripts/exec relink-bin-dirs",
+    "dev:install-cpp-dependencies": "node modules/cmake-modules/bin/exec_install_deps.js",
+    "nuke:from:orbit": "yarn cache clean && npm run clean && yarn --silent && npm run compile",
+    "postinstall": "npm run dev:relink-bin-dirs"
+  },
+  "workspaces": [
+    "modules/*",
+    "modules/demo/luma",
+    "modules/demo/umap",
+    "modules/demo/xterm",
+    "modules/demo/deck/*"
+  ],
+  "dependencies": {
+    "cmake-js": "6.0.0",
+    "lerna": "3.20.2",
+    "npm-run-all": "4.1.5",
+    "rimraf": "3.0.0"
+  },
+  "resolutions": {
+    "**/jsdom": "^16.2.2",
+    "**/deck.gl": "8.1.4",
+    "**/@deck.gl/aggregation-layers": "8.1.4",
+    "**/@deck.gl/core": "8.1.4",
+    "**/@deck.gl/extensions": "8.1.4",
+    "**/@deck.gl/geo-layers": "8.1.4",
+    "**/@deck.gl/google-maps": "8.1.4",
+    "**/@deck.gl/json": "8.1.4",
+    "**/@deck.gl/jupyter-widget": "8.1.4",
+    "**/@deck.gl/layers": "8.1.4",
+    "**/@deck.gl/mapbox": "8.1.4",
+    "**/@deck.gl/mesh-layers": "8.1.4",
+    "**/@deck.gl/react": "8.1.4",
+    "**/@deck.gl/test-utils": "8.1.4",
+    "**/@luma.gl/constants": "8.1.2",
+    "**/@luma.gl/core": "8.1.2",
+    "**/@luma.gl/debug": "8.1.2",
+    "**/@luma.gl/engine": "8.1.2",
+    "**/@luma.gl/experimental": "8.1.2",
+    "**/@luma.gl/gltools": "8.1.2",
+    "**/@luma.gl/shadertools": "8.1.2",
+    "**/@luma.gl/test-utils": "8.1.2",
+    "**/@luma.gl/webgl": "8.1.2"
+  }
+}

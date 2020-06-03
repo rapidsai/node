@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "name":  "@nvidia/luma.gl-demos",
+  "main": "index.js",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "devDependencies": {
+    "esm": "3.2.25"
+  },
+  "dependencies": {
+    "@nvidia/glfw": "0.0.1"
+  },
+  "esm": {
+    "cjs": true,
+    "force": true,
+    "mode": "auto",
+    "cache": false,
+    "sourceMap": true,
+    "mainFields": [
+      "esnext",
+      "module",
+      "main"
+    ]
+  }
+}

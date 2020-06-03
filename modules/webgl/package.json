@@ -1,0 +1,48 @@
+{
+  "name": "@nvidia/webgl",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "types": "build/js",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "clean": "npx rimraf build compile_commands.json",
+    "test": "jest --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",
+    "build": "npm run cpp:build && npm run tsc:build",
+    "compile": "npm run cpp:compile && npm run tsc:build",
+    "rebuild": "npm run cpp:rebuild && npm run tsc:build",
+    "cpp:build": "nvidia-cmake-js -g build",
+    "cpp:compile": "nvidia-cmake-js -g compile",
+    "cpp:rebuild": "nvidia-cmake-js -g rebuild",
+    "tsc:build": "npx rimraf build/js && tsc -p ./tsconfig.json",
+    "tsc:watch": "npx rimraf build/js && tsc -p ./tsconfig.json -w"
+  },
+  "dependencies": {
+    "@nvidia/cmake-modules": "0.0.1",
+    "@types/node": "^14.0.0",
+    "node-addon-api": "^2.0.0",
+    "tslib": "^1.12.0"
+  },
+  "devDependencies": {
+    "@types/jest": "25.2.2",
+    "jest": "25.5.1",
+    "jest-silent-reporter": "0.1.2",
+    "rimraf": "3.0.0",
+    "ts-jest": "25.5.1",
+    "ts-node": "8.10.1",
+    "typescript": "3.9.2"
+  },
+  "files": [
+    "LICENSE",
+    "include",
+    "index.js",
+    "build/js",
+    "build/lib",
+    "package.json",
+    "build/Release",
+    "CMakeLists.txt"
+  ]
+}
