@@ -4,30 +4,26 @@ x-service-settings: &service_settings
   build: &build_settings
     context: .
     args:
-      UID: ${_UID:-1000}
-      GID: ${_GID:-1000}
+      UID: ${UID:-1000}
+      GID: ${GID:-1000}
       PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
       CUDA_VERSION: "${CUDA_VERSION:-10.2}"
       RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
       LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
-  environment:
-    - DISPLAY
-    - XAUTHORITY
-    - XDG_SESSION_TYPE
-    - TERM=xterm-256color
-    - FONTCONFIG_PATH=/etc/fonts
-    - NVIDIA_DRIVER_CAPABILITIES=all
+  environment: &common_env_vars
+    # Colorize the terminal in the container if possible
+    TERM: "${TERM}"
+    # Use the host's X11 display
+    DISPLAY: "${DISPLAY}"
+    XAUTHORITY: "${XAUTHORITY}"
+    XDG_SESSION_TYPE: "${XDG_SESSION_TYPE}"
+    NVIDIA_DRIVER_CAPABILITIES: "all"
   cap_add:
     - SYS_PTRACE
   tty: true
   user: "1000:1000"
   network_mode: "host"
   working_dir: "${PWD}"
-  volumes:
-    - "${PWD}:${PWD}:rw"
-    - "/etc/fonts:/etc/fonts:ro"
-    - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
-    - "/usr/share/fonts:/usr/share/fonts:ro"
 
 services:
 
@@ -37,6 +33,22 @@ services:
     build:
       <<: *build_settings
       dockerfile: dockerfiles/devel.Dockerfile
+    environment:
+      <<: *common_env_vars
+      # ccache configuration
+      CCACHE_MAXSIZE: 0 # unlimited
+      CCACHE_NOHASHDIR: "1"
+      CCACHE_DIR: "/ccache"
+      CCACHE_TEMPDIR: "/tmp/ccache"
+      CCACHE_COMPILERCHECK: "%compiler% --version"
+      # Set this to debug ccache preprocessor errors and cache misses
+      # CCACHE_LOGFILE: "/ccache/ccache.log"
+    volumes:
+      - &workdir "${PWD}:${PWD}:rw"
+      - &ccachedir "${PWD}/.ccache:/ccache:rw"
+      - &etc_fonts "/etc/fonts:/etc/fonts:ro"
+      - &x11_socket "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - &usr_share_fonts "/usr/share/fonts:/usr/share/fonts:ro"
 
   runtime:
     <<: *service_settings
@@ -44,3 +56,9 @@ services:
     build:
       <<: *build_settings
       dockerfile: dockerfiles/runtime.Dockerfile
+    environment:
+      <<: *common_env_vars
+    volumes:
+      - *etc_fonts
+      - *x11_socket
+      - *usr_share_fonts

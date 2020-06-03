@@ -8,15 +8,13 @@
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
   "scripts": {
+    "build": "node scripts/exec build",
     "clean": "node scripts/exec clean",
     "demo": "node scripts/exec demo",
-    "build": "npx lerna run --scope '@nvidia/*' --stream --concurrency 1 build",
-    "compile": "npx lerna run --scope '@nvidia/*' --stream --concurrency 1 compile",
-    "rebuild": "npx lerna run --scope '@nvidia/*' --stream --concurrency 1 rebuild",
-    "test": "npx lerna run --scope '@nvidia/*' --stream --concurrency 1 test",
+    "test": "node scripts/exec test",
     "dev:relink-bin-dirs": "node scripts/exec relink-bin-dirs",
     "dev:install-cpp-dependencies": "node modules/cmake-modules/bin/exec_install_deps.js",
-    "nuke:from:orbit": "yarn cache clean && npm run clean && yarn --silent && npm run compile",
+    "nuke:from:orbit": "yarn cache clean && npm run clean && yarn --silent && npm run build -- --clean",
     "postinstall": "npm run dev:relink-bin-dirs"
   },
   "workspaces": [

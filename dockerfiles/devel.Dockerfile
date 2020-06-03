@@ -69,6 +69,11 @@ RUN groupadd --gid $GID node \
  && unzip -d ccache-master ccache-master.zip && cd ccache-master/ccache-master \
  && ./autogen.sh && ./configure --disable-man && make install -j$PARALLEL_LEVEL && cd - && rm -rf ./ccache-master*
 
+# Setup ccache compiler launcher variables for CMake
+ENV CMAKE_C_COMPILER_LAUNCHER="/usr/local/bin/ccache"
+ENV CMAKE_CXX_COMPILER_LAUNCHER="/usr/local/bin/ccache"
+ENV CMAKE_CUDA_COMPILER_LAUNCHER="/usr/local/bin/ccache"
+
 SHELL ["/bin/bash", "-l"]
 
 ENTRYPOINT ["docker-entrypoint.sh"]

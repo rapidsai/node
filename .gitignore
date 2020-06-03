@@ -1,16 +1,18 @@
 **/z-*
-**/build
 **/.clangd
+**/.ccache/*
 **/node_modules
-**/modules/*/lib
+**/npm-debug.log
+**/yarn-debug.log
 **/lerna-debug.log
 **/compile_commands.json
 
+modules/**/*/lib
+modules/**/*/build
 modules/*/include/thrust
 modules/*/include/napi.h
 modules/*/include/napi-inl.h
 modules/*/include/napi-inl.deprecated.h
 modules/*/include/node_api.h
 
-setup
-thirdparty
+!.ccache/.keepDir

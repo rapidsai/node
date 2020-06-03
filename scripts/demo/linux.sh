@@ -49,8 +49,8 @@ fi
 
 ARGS="${@:-}";
 
-if [[ "$DEMO" =~ "modules/demo/luma/index.js" ]]; then ARGS="${@:-01}";
-elif [[ "$DEMO" =~ "modules/demo/umap/index.js" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
+if [[ "$DEMO" =~ "modules/demo/luma" ]]; then ARGS="${@:-01}";
+elif [[ "$DEMO" =~ "modules/demo/umap" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
 fi
 
 exec node -r esm --trace-uncaught "$DEMO" $ARGS
