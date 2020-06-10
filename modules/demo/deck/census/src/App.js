@@ -4,11 +4,10 @@
 import React from 'react';
 import DeckGL from '@deck.gl/react';
 import { StaticMap } from 'react-map-gl';
-import { COORDINATE_SYSTEM } from '@deck.gl/core';
+import { COORDINATE_SYSTEM, AmbientLight, PointLight, LightingEffect } from '@deck.gl/core';
 import { PointsLayer } from './layers/points-layer';
 import { Table, RecordBatchReader } from 'apache-arrow';
 import { GeoJsonLayer, PolygonLayer } from '@deck.gl/layers';
-import { GeoJsonDataLayer } from './layers/geojsondata-layer';
 import { ColumnLayer } from './layers/column-layer/column-layer';
 
 // import { log as deckLog } from '@deck.gl/core';
@@ -30,6 +29,25 @@ const INITIAL_VIEW_STATE = {
     pitch: 0,
     bearing: 0,
 };
+
+const ambientLight = new AmbientLight({
+    color: [255, 255, 255],
+    intensity: 1.0
+  });
+  
+  const pointLight1 = new PointLight({
+    color: [255, 255, 255],
+    intensity: 0.8,
+    position: [-0.144528, 49.739968, 80000]
+  });
+  
+  const pointLight2 = new PointLight({
+    color: [255, 255, 255],
+    intensity: 0.8,
+    position: [-3.807751, 54.104682, 8000]
+  });
+  
+  const lightingEffect = new LightingEffect({ambientLight, pointLight1, pointLight2});
  
 
 const landCover = [[[-123.0, 49.196], [-123.0, 49.324], [-123.306, 49.324], [-123.306, 49.196]]];
@@ -37,7 +55,9 @@ const landCover = [[[-123.0, 49.196], [-123.0, 49.324], [-123.306, 49.324], [-12
 export default class App extends React.Component {
     constructor(...args) {
         super(...args);
-        this.state = { chunks: [] };
+        this.state = { chunks: [], hoveredObject: null };
+        this._onHover = this._onHover.bind(this);
+        this._renderTooltip = this._renderTooltip.bind(this);
     }
     componentDidMount() {
         (async () => {
@@ -45,10 +65,13 @@ export default class App extends React.Component {
             // You can increase or decrease this number from 0-1000
             for await (const chunk of loadCensusData(1000)) {
                 this.setState({ chunks: [...this.state.chunks, chunk] });
-                console.log(chunk);
+                // console.log(chunk);
             }
         })();
     }
+    _onHover({x, y, object}) {
+        this.setState({x, y, hoveredObject: object});
+      }
     _renderLayers() {
         const {data = DATA_URL} = this.props;
         return [
@@ -60,8 +83,23 @@ export default class App extends React.Component {
                 radiusMaxPixels: 10,
                 chunks: this.state.chunks,
                 elements: this.state.elements,
-                coordinateOrigin: [1, 0],
+                coordinateOrigin: [0, 0],
                 // coordinateOrigin: [2 / 29, -1 / 27.5, 0.0],
+                coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+            }),
+            new ColumnLayer({
+                id: 'column',
+                radiusScale: 120,
+                radiusMinPixels: 0.1,
+                radiusMaxPixels: 10,
+                diskResolution: 12,
+                // getPosition: d => d.centroid,
+                // getFillColor: d => [48, 128, d.value * 255, 255],
+                // getLineColor: [0, 0, 0],
+                // getElevation: d => d.value,
+                chunks: this.state.chunks,
+                elements: this.state.elements,
+                coordinateOrigin: [1, 0],
                 coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
             }),
             new GeoJsonLayer({
@@ -69,7 +107,7 @@ export default class App extends React.Component {
                 data,
                 opacity: 0.1,
                 filled: !true,
-                stroked: true,
+                stroked: true,                       
                 extruded: true,
                 wireframe: true,
                 getElevation: 0,
@@ -88,6 +126,30 @@ export default class App extends React.Component {
             }),
         ];
     }
+
+    _renderTooltip() {
+        const {x, y, hoveredObject} = this.state;
+        console.log(hoveredObject);
+        return (
+          hoveredObject && (
+            <div className="tooltip" style={{top: y, left: x}}>
+              {/* <div>
+                <b>Time: </b>
+                <span>{new Date(hoveredObject.timestamp).toUTCString()}</span>
+              </div> */}
+              <div>
+                <b>Magnitude: </b>
+                <span>{hoveredObject.education}</span>
+              </div>
+              <div>
+                <b>Depth: </b>
+                <span>{hoveredObject.sex} km</span>
+              </div>
+            </div>
+          )
+        );
+      }
+
     render() {
         const { mapStyle = 'mapbox://styles/mapbox/dark-v9' } = this.props;
         return (
@@ -95,6 +157,7 @@ export default class App extends React.Component {
                 controller={true}
                 layers={this._renderLayers()}
                 initialViewState={INITIAL_VIEW_STATE}
+                effects={[lightingEffect]}
                 style={{ backgroundColor: '#2e2e2e' }}
                 onWebGLInitialized={(gl) => {
                     if (gl.opengl) {
@@ -168,7 +231,7 @@ async function* loadCensusData(maxNumBatches = Number.POSITIVE_INFINITY) {
             bufferedByteLength = 0;
         }
 
-        // console.log(
+        // (
         //     `received batch ${recordBatchIndex
         //     } size=${batch.byteLength
         //     } bytes (${batch.byteLength / (1024 ** 2)
@@ -176,7 +239,7 @@ async function* loadCensusData(maxNumBatches = Number.POSITIVE_INFINITY) {
         // );
 
         chunks.push(batch);
-        console.log(batch.data.childData);
+        // console.log(batch.data.childData);
         bufferedByteLength += batch.byteLength;
 
         if (++recordBatchIndex >= maxNumBatches) {

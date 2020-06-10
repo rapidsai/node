@@ -2,8 +2,9 @@
 
 import {Layer, project32, gouraudLighting, picking, CompositeLayer } from '@deck.gl/core';
 import GL from '@luma.gl/constants';
-import {Model} from '@luma.gl/core';
+import {Buffer, Model} from '@luma.gl/core';
 import ColumnGeometry from './column-geometry';
+import { createIndexBufferTransform, computeIndexBuffers } from '../index-buffers';
 
 export class ColumnLayer extends CompositeLayer {
   static get layerName() { return 'ColumnLayer'; }
@@ -43,13 +44,17 @@ export class ColumnLayer extends CompositeLayer {
                   highlightColor: [255, 255, 255, 100],
                   // render info
                   opacity: 1,
+                  // radius: 250,
+                  extruded: true,
+                  pickable: true,
+                  elevationScale: 5000,
                   radiusScale: this.props.radiusScale || 1,
                   radiusMinPixels: this.props.radiusMinPixels || 0,
                   radiusMaxPixels: this.props.radiusMaxPixels || 50,
                   // layer info
                   vertexCount: length,
                   // numElements: length,
-                  id: `node-layer-${chunks.length}`,
+                  id: `column-layer-${chunks.length}`,
                   // 
                   // Sub-sample which elements to render based on the zoom level.
                   // 
@@ -65,6 +70,7 @@ export class ColumnLayer extends CompositeLayer {
                       attributes: {
                           radius: new Buffer(gl, { data: age, accessor: { ...radiusAccessor } }),
                           fillColors: new Buffer(gl, { data: sex, accessor: { ...colorsAccessor } }),
+                          elevations: new Buffer(gl, { data: education, accessor: { ...elevationsAccessor } }),
                           xPositions: new Buffer(gl, { data: x, accessor: { ...xPositionsAccessor } }),
                           yPositions: new Buffer(gl, { data: y, accessor: { ...yPositionsAccessor } }),
                       }
@@ -87,14 +93,14 @@ export class ColumnLayer extends CompositeLayer {
           const { vertexCount, normalIndex, randomIndex } = chunk;
           const elements = zoom >= 10 ? normalIndex : randomIndex;
           const numElements = zoom >= 10 ? vertexCount : Math.round(sample * vertexCount);
-          // console.log({
-          //     i,
-          //     numElements,
-          //     elementsLen: elements.byteLength / elements.accessor.BYTES_PER_VERTEX,
-          //     zoom: +zoom.toPrecision(2),
-          //     sample: +sample.toPrecision(2),
-          // });
-          return new PointsChunkLayer(this.getSubLayerProps({
+          console.log({
+              i,
+              numElements,
+              elementsLen: elements.byteLength / elements.accessor.BYTES_PER_VERTEX,
+              zoom: +zoom.toPrecision(2),
+              sample: +sample.toPrecision(2),
+          });
+          return new ColumnChunkLayer(this.getSubLayerProps({
               ...chunk,
               vertexCount: numElements,
               data: {
@@ -116,33 +122,28 @@ import vs from './column-layer-vertex.glsl';
 import fs from './column-layer-fragment.glsl';
 
 // const DEFAULT_COLOR = [0, 0, 0, 255];
+const xPositionsAccessor = { type: GL.FLOAT, fp64: true };
+const yPositionsAccessor = { type: GL.FLOAT, fp64: true };
+const radiusAccessor = { type: GL.UNSIGNED_BYTE, integer: false };
+const elevationsAccessor = { type: GL.UNSIGNED_BYTE, integer: false };
+const colorsAccessor = { type: GL.UNSIGNED_BYTE, integer: false };
+const elementIndicesAccessor = { type: GL.UNSIGNED_INT, isIndexed: true };
 
 const defaultProps = {
   diskResolution: {type: 'number', min: 4, value: 20},
   vertices: null,
-  radius: {type: 'number', min: 0, value: 1000},
   angle: {type: 'number', value: 0},
   offset: {type: 'array', value: [0, 0]},
   coverage: {type: 'number', min: 0, max: 1, value: 1},
   elevationScale: {type: 'number', min: 0, value: 1},
-
-  lineWidthUnits: 'meters',
-  lineWidthScale: 1,
-  lineWidthMinPixels: 0,
-  lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
-
-  extruded: true,
-  wireframe: false,
-  filled: true,
-  stroked: false,
-
-  // getPosition: {type: 'accessor', value: x => x.position},
-  // getFillColor: {type: 'accessor', value: DEFAULT_COLOR},
-  // getLineColor: {type: 'accessor', value: DEFAULT_COLOR},
-  // getLineWidth: {type: 'accessor', value: 1},
-  // getElevation: {type: 'accessor', value: 1000},
-  // material: true,
-  // getColor: {deprecatedFor: ['getFillColor', 'getLineColor']}
+  extruded: { type: 'boolean', value: true },
+  wireframe: { type: 'boolean', value: false },
+  filled: { type: 'boolean', value: true },
+  stroked: { type: 'boolean', value: true },
+  opacity: { type: 'number', min: 0, value: 1 },
+  radius: { type: 'number', min: 0, value: 1000 },
+  radiusMinPixels: { type: 'number', min: 0, value: 0 }, //  min point radius in pixels
+  radiusMaxPixels: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER }, // max point radius in pixels
 };
 
 class ColumnChunkLayer extends Layer {
@@ -151,62 +152,34 @@ class ColumnChunkLayer extends Layer {
   }
 
   initializeState() {
-    const attributeManager = this.getAttributeManager();
-    /* eslint-disable max-len */
-    attributeManager.addInstanced({
-      instancePositions: {
-        size: 3,
-        type: GL.DOUBLE,
-        fp64: this.use64bitPositions(),
-        transition: true,
-        accessor: 'getPosition'
-      },
-      instanceElevations: {
-        size: 1,
-        transition: true,
-        accessor: 'getElevation'
-      },
-      instanceFillColors: {
-        size: this.props.colorFormat.length,
-        type: GL.UNSIGNED_BYTE,
-        normalized: true,
-        transition: true,
-        accessor: 'getFillColor',
-        defaultValue: DEFAULT_COLOR
-      },
-      instanceLineColors: {
-        size: this.props.colorFormat.length,
-        type: GL.UNSIGNED_BYTE,
-        normalized: true,
-        transition: true,
-        accessor: 'getLineColor',
-        defaultValue: DEFAULT_COLOR
-      },
-      instanceStrokeWidths: {
-        size: 1,
-        accessor: 'getLineWidth',
-        transition: true
-      }
+    this.getAttributeManager().remove('instancePickingColors');
+    this.getAttributeManager().add({
+        radius: { ...radiusAccessor, size: 1, accessor: 'getRadius' },
+        fillColors: { ...colorsAccessor, size: 1, accessor: 'getFillColors' },
+        elevations: { ...elevationsAccessor, size: 1, accessor: 'getElevations' },
+        xPositions: { ...xPositionsAccessor, size: 1, accessor: 'getXPositions' },
+        yPositions: { ...yPositionsAccessor, size: 1, accessor: 'getYPositions' },
+        elementIndices: { ...elementIndicesAccessor, size: 1, accessor: 'getElementIndices' },
     });
-    /* eslint-enable max-len */
   }
 
-  updateState({props, oldProps, changeFlags}) {
-    super.updateState({props, oldProps, changeFlags});
-
-    const regenerateModels = changeFlags.extensionsChanged;
-
-    if (regenerateModels) {
-      const {gl} = this.context;
-      if (this.state.model) {
-        this.state.model.delete();
-      }
-      this.setState({model: this._getModel(gl)});
-      this.getAttributeManager().invalidateAll();
+  updateState(opts = {}) {
+    console.log(opts);
+    super.updateState(opts);
+    const { gl } = this.context;
+    const { changeFlags } = opts;
+    if (changeFlags.extensionsChanged) {
+        if (this.state.model) {
+          this.state.model.delete();
+        }
+        this.setState({ model: this._getModel(gl) });
+        this.getAttributeManager().invalidateAll();
     }
 
+    // const regenerateModels = changeFlags.extensionsChanged;
+
     if (
-      regenerateModels ||
+      changeFlags.extensionsChanged ||
       props.diskResolution !== oldProps.diskResolution ||
       props.vertices !== oldProps.vertices
     ) {
@@ -260,7 +233,7 @@ class ColumnChunkLayer extends Layer {
     this.state.model.setProps({geometry});
   }
 
-  draw({uniforms}) {
+  draw({ uniforms = {} }) {
     const {viewport} = this.context;
     const {
       lineWidthUnits,
@@ -280,22 +253,19 @@ class ColumnChunkLayer extends Layer {
     } = this.props;
     const {model, fillVertexCount, wireframeVertexCount, edgeDistance} = this.state;
 
-    const widthMultiplier = lineWidthUnits === 'pixels' ? viewport.metersPerPixel : 1;
+    // const widthMultiplier = lineWidthUnits === 'pixels' ? viewport.metersPerPixel : 1;
 
-    model.setUniforms(
-      Object.assign({}, uniforms, {
-        radius,
-        angle: (angle / 180) * Math.PI,
-        offset,
-        extruded,
-        coverage,
-        elevationScale,
-        edgeDistance,
-        widthScale: lineWidthScale * widthMultiplier,
-        widthMinPixels: lineWidthMinPixels,
-        widthMaxPixels: lineWidthMaxPixels
-      })
-    );
+    // model.setUniforms(
+    //   Object.assign({}, uniforms, {
+    //     radius,
+    //     angle: (angle / 180) * Math.PI,this.props
+    //     elevationScale,
+    //     edgeDistance,
+    //     widthScale: lineWidthScale * widthMultiplier,
+    //     widthMinPixels: lineWidthMinPixels,
+    //     widthMaxPixels: lineWidthMaxPixels
+    //   })
+    // );
 
     // When drawing 3d: draw wireframe first so it doesn't get occluded by depth test
     if (extruded && wireframe) {
@@ -322,7 +292,11 @@ class ColumnChunkLayer extends Layer {
       model
         .setVertexCount((fillVertexCount * 2) / 3)
         .setDrawMode(GL.TRIANGLE_STRIP)
-        .setUniforms({isStroke: true})
+        .setUniforms({
+          ...uniforms,
+          ...this.props,
+          isStroke: true
+        })
         .draw();
     }
   }

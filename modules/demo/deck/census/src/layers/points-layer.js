@@ -49,7 +49,7 @@ export class PointsLayer extends CompositeLayer {
                     // layer info
                     vertexCount: length,
                     // numElements: length,
-                    id: `node-layer-${chunks.length}`,
+                    id: `points-layer-${chunks.length}`,
                     // 
                     // Sub-sample which elements to render based on the zoom level.
                     // 
@@ -63,7 +63,7 @@ export class PointsLayer extends CompositeLayer {
                     ...computeIndexBuffers(gl, length, this.state.computeStridedIndexBuffer),
                     data: {
                         attributes: {
-                            radius: new Buffer(gl, { data: age, accessor: { ...radiusAccessor } }),
+                            radius: new Buffer(gl, { data: income, accessor: { ...radiusAccessor } }),
                             fillColors: new Buffer(gl, { data: sex, accessor: { ...colorsAccessor } }),
                             xPositions: new Buffer(gl, { data: x, accessor: { ...xPositionsAccessor } }),
                             yPositions: new Buffer(gl, { data: y, accessor: { ...yPositionsAccessor } }),
@@ -145,6 +145,7 @@ class PointsChunkLayer extends Layer {
         });
     }
     updateState(opts = {}) {
+        // console.log(opts);
         super.updateState(opts);
         const { gl } = this.context;
         const { changeFlags } = opts;

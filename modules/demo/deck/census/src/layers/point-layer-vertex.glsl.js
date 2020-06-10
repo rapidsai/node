@@ -64,11 +64,19 @@ void main(void) {
     vec3(0., 0., 0.)
   );
 
+  // Dark model
   vFillColor = mix(
-    vec4(1., 1., 0, opacity), // female (fillColors != 1.0)
-    vec4(.32, 0, 1, opacity), // male   (fillColors == 1.0)
+    vec4(1, .7, 0, opacity), // female (fillColors != 1.0)
+    vec4(.1, .39, .75, opacity), // male   (fillColors == 1.0)
     step(1., fillColors)
   );
+
+  // Light model
+  // vFillColor = mix(
+  //   vec4(1, 0, .5, opacity), // female (fillColors != 1.0)
+  //   vec4(0, .5, 1, opacity), // male   (fillColors == 1.0)
+  //   step(1., fillColors)
+  // );
 
   // Set alpha to be inversely-proportional to radius, so as a point gets larger it is more transparent.
   vFillColor.w *= (1. - smoothstep(0., radiusScale, max(radius, 1.)));

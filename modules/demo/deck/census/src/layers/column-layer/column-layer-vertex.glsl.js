@@ -22,21 +22,31 @@ export default `\
 
 #define SHADER_NAME column-layer-vertex-shader
 
-attribute vec3 positions;
-attribute vec3 normals;
+// attribute vec3 positions;
+// attribute vec3 normals;
 
-attribute vec3 instancePositions;
-attribute float instanceElevations;
-attribute vec3 instancePositions64Low;
-attribute vec4 instanceFillColors;
-attribute vec4 instanceLineColors;
-attribute float instanceStrokeWidths;
+// attribute vec3 instancePositions;
+// attribute float instanceElevations;
+// attribute vec3 instancePositions64Low;
+// attribute vec4 instanceFillColors;
+// attribute vec4 instanceLineColors;
+// attribute float instanceStrokeWidths;
 
-attribute vec3 instancePickingColors;
+attribute float radius;
+attribute float fillColors;
+attribute float elevations;
+attribute float xPositions;
+attribute float yPositions;
+attribute float xPositions64Low;
+attribute float yPositions64Low;
+
+// attribute vec3 instancePickingColors;
 
 // Custom uniforms
 uniform float opacity;
-uniform float radius;
+uniform float radiusScale;
+uniform float radiusMinPixels;
+uniform float radiusMaxPixels;
 uniform float angle;
 uniform vec2 offset;
 uniform bool extruded;
@@ -52,7 +62,7 @@ uniform float widthMaxPixels;
 varying vec4 vColor;
 
 void main(void) {
-  geometry.worldPosition = instancePositions;
+  // geometry.worldPosition = instancePositions;
 
   vec4 color = isStroke ? instanceLineColors : instanceFillColors;
   // rotate primitive position and normal
@@ -65,7 +75,7 @@ void main(void) {
   float strokeOffsetRatio = 1.0;
 
   if (extruded) {
-    elevation = instanceElevations * (positions.z + 1.0) / 2.0 * elevationScale;
+    elevation = elevations * (positions.z + 1.0) / 2.0 * elevationScale;
   } else if (isStroke) {
     float widthPixels = clamp(project_size_to_pixel(instanceStrokeWidths * widthScale),
       widthMinPixels, widthMaxPixels) / 2.0;
@@ -73,20 +83,27 @@ void main(void) {
   }
 
   // if alpha == 0.0 or z < 0.0, do not render element
-  float shouldRender = float(color.a > 0.0 && instanceElevations >= 0.0);
+  float shouldRender = float(color.a > 0.0 && elevations >= 0.0);
   float dotRadius = radius * coverage * shouldRender;
 
   geometry.normal = project_normal(vec3(rotationMatrix * normals.xy, normals.z));
   geometry.pickingColor = instancePickingColors;
 
   // project center of column
-  vec3 centroidPosition = vec3(instancePositions.xy, instancePositions.z + elevation);
-  vec3 centroidPosition64Low = instancePositions64Low;
-  vec3 pos = vec3(project_size(rotationMatrix * positions.xy * strokeOffsetRatio + offset) * dotRadius, 0.);
-  DECKGL_FILTER_SIZE(pos, geometry);
+  // vec3 centroidPosition = vec3(instancePositions.xy, instancePositions.z + elevation);
+  // vec3 centroidPosition64Low = instancePositions64Low;
+  // vec3 pos = vec3(project_size(rotationMatrix * positions.xy * strokeOffsetRatio + offset) * dotRadius, 0.);
+  // DECKGL_FILTER_SIZE(pos, geometry);
 
-  gl_Position = project_position_to_clipspace(centroidPosition, centroidPosition64Low, pos, geometry.position);
-  DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
+  // gl_Position = project_position_to_clipspace(centroidPosition, centroidPosition64Low, pos, geometry.position);
+  // DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
+
+  gl_Position = project_position_to_clipspace(
+    vec3(xPositions,      yPositions      * 1., elevation), // extruded position
+    vec3(xPositions64Low, yPositions64Low * 1., 0.), // extruded position-64-low
+    vec3(0., 0., 0.)
+  );
+
 
   // Light calculations
   if (extruded && !isStroke) {
