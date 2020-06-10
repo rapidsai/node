@@ -77,7 +77,6 @@ install_vscode_extensions() {
 install_apt_deps jq \
     libjasper1 libjasper-dev \
     software-properties-common \
-    # GLEW
     build-essential libxmu-dev libxi-dev libgl-dev \
     libraw-dev libwebp-dev libwebpmux3 libopenjp2-7-dev \
     libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev \
