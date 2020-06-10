@@ -1,7 +1,7 @@
 {
-  "private": true,
-  "name":  "census",
+  "name": "census",
   "version": "0.0.0",
+  "private": true,
   "dependencies": {
     "@deck.gl/core": "8.1.4",
     "@deck.gl/react": "8.1.4",
@@ -32,18 +32,6 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-    ]
-  },
-  "esm": {
-    "cjs": true,
-    "force": true,
-    "mode": "auto",
-    "cache": false,
-    "sourceMap": true,
-    "mainFields": [
-      "esnext",
-      "module",
-      "main"
     ]
   }
 }
