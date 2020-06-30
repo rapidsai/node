@@ -178,8 +178,8 @@ nodes_df['size'] = (5 +
 
 edges_df['color'] = cudf.core.column.NumericalColumn(
     cudf.DataFrame({
-        'src_color': graph_df[['src']].merge(nodes_df.rename({'id': 'src'}, copy=False), on='src', how='left')['color'],
-        'dst_color': graph_df[['dst']].merge(nodes_df.rename({'id': 'dst'}, copy=False), on='dst', how='left')['color'],
+        'src_color': graph_df[['src']].merge(nodes_df.rename(columns={'id': 'src'}, copy=False), on='src', how='left')['color'],
+        'dst_color': graph_df[['dst']].merge(nodes_df.rename(columns={'id': 'dst'}, copy=False), on='dst', how='left')['color'],
     }).reset_index(drop=True).stack().reset_index(drop=True).data,
     dtype=np.uint32
 )
