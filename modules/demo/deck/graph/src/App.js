@@ -8,17 +8,16 @@ import { COORDINATE_SYSTEM } from '@deck.gl/core';
 import { PointsLayer } from './layers/points-layer';
 import { Table, RecordBatchReader } from 'apache-arrow';
 import { GeoJsonLayer, PolygonLayer } from '@deck.gl/layers';
-import { ColumnLayer } from './layers/column-layer/column-layer';
 
 // import { log as deckLog } from '@deck.gl/core';
 // import { log as lumaLog } from '@luma.gl/core';
 // lumaLog.level = 3;
 // deckLog.level = 3;
 
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoid21qcGlsbG93IiwiYSI6ImNrN2JldzdpbDA2Ym0zZXFzZ3oydXN2ajIifQ.qPOZDsyYgMMUhxEKrvHzRA'; // eslint-disable-line
+// const MAPBOX_TOKEN = 'pk.eyJ1Ijoid21qcGlsbG93IiwiYSI6ImNrN2JldzdpbDA2Ym0zZXFzZ3oydXN2ajIifQ.qPOZDsyYgMMUhxEKrvHzRA'; // eslint-disable-line
 
 // Source data GeoJSON
-const DATA_URL = 'https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json';
+// const DATA_URL = 'https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json';
 
 const INITIAL_VIEW_STATE = {
     longitude: -98.35,
@@ -42,7 +41,7 @@ export default class App extends React.Component {
         (async () => {
             // Meijie -- this is here so we don't use all your GPU memory
             // You can increase or decrease this number from 0-1000
-            for await (const chunk of loadCensusData(1000)) {
+            for await (const chunk of loadGraphData(1000)) {
                 this.setState({ chunks: [...this.state.chunks, chunk] });
                 // console.log(chunk);
             }
@@ -51,57 +50,40 @@ export default class App extends React.Component {
     _renderLayers() {
         const {data = DATA_URL} = this.props;
         return [
-            // new PointsLayer({
-            //     id: 'points',
-            //     // this is used as a divisor in the shader, i.e. `age/radiusScale`
-            //     radiusScale: 120,
-            //     radiusMinPixels: 0.1,
-            //     radiusMaxPixels: 10,
-            //     chunks: this.state.chunks,
-            //     elements: this.state.elements,
-            //     coordinateOrigin: [1, 0],
-            //     // coordinateOrigin: [2 / 29, -1 / 27.5, 0.0],
-            //     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-            // }),
-            new ColumnLayer({
-                id: 'column',
+            new PointsLayer({
+                id: 'points',
                 // this is used as a divisor in the shader, i.e. `age/radiusScale`
                 radiusScale: 120,
                 radiusMinPixels: 0.1,
                 radiusMaxPixels: 10,
-                diskResolution: 12,
-                // getPosition: d => d.centroid,
-                // getFillColor: d => [48, 128, d.value * 255, 255],
-                // getLineColor: [0, 0, 0],
-                // getElevation: d => d.value,
                 chunks: this.state.chunks,
                 elements: this.state.elements,
                 coordinateOrigin: [1, 0],
                 // coordinateOrigin: [2 / 29, -1 / 27.5, 0.0],
                 coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
             }),
-            new GeoJsonLayer({
-                id: 'geojson',
-                data,
-                opacity: 0.1,
-                filled: !true,
-                stroked: true,                       
-                extruded: true,
-                wireframe: true,
-                getElevation: 0,
-                // getElevation: 8000,
-                getFillColor: [65, 182, 196],
-                getLineColor: [255, 255, 255],
-                pickable: false,
-            }),
-            // only needed when using shadows - a plane for shadows to drop on
-            new PolygonLayer({
-                id: 'ground',
-                data: landCover,
-                stroked: false,
-                getPolygon: f => f,
-                getFillColor: [0, 0, 0, 0]
-            }),
+            // new GeoJsonLayer({
+            //     id: 'geojson',
+            //     data,
+            //     opacity: 0.1,
+            //     filled: !true,
+            //     stroked: true,                       
+            //     extruded: true,
+            //     wireframe: true,
+            //     getElevation: 0,
+            //     // getElevation: 8000,
+            //     getFillColor: [65, 182, 196],
+            //     getLineColor: [255, 255, 255],
+            //     pickable: false,
+            // }),
+            // // only needed when using shadows - a plane for shadows to drop on
+            // new PolygonLayer({
+            //     id: 'ground',
+            //     data: landCover,
+            //     stroked: false,
+            //     getPolygon: f => f,
+            //     getFillColor: [0, 0, 0, 0]
+            // }),
         ];
     }
     render() {
@@ -118,18 +100,12 @@ export default class App extends React.Component {
                         gl.enable(gl.POINT_SPRITE);
                     }
                 }}>
-                <StaticMap
-                    reuseMaps
-                    mapStyle={mapStyle}
-                    preventStyleDiffing={true}
-                    mapboxApiAccessToken={MAPBOX_TOKEN}
-                />
             </DeckGL>
         );
     }
 };
 
-async function* loadCensusData(maxNumBatches = Number.POSITIVE_INFINITY) {
+async function* loadGraphData(maxNumBatches = Number.POSITIVE_INFINITY) {
 
     let chunks = [];
     let recordBatchIndex = 0;
@@ -140,10 +116,10 @@ async function* loadCensusData(maxNumBatches = Number.POSITIVE_INFINITY) {
     const batches = await (async () => {
         if (WebGL2RenderingContext.prototype.opengl) {
             return await RecordBatchReader.from(require('fs')
-                .createReadStream('./public/census_data.arrow'));
+                .createReadStream('./public/01032018-webgl-nodes-small.arrow'));
         }
         controller = new AbortController();
-        const response = await fetch(`${process.env.PUBLIC_URL}/census_data.arrow`, {
+        const response = await fetch(`${process.env.PUBLIC_URL}/01032018-webgl-nodes-small.arrow`, {
             mode: 'cors',
             cache: 'no-store',
             credentials: 'omit',
@@ -163,13 +139,13 @@ async function* loadCensusData(maxNumBatches = Number.POSITIVE_INFINITY) {
         // for all the data across all of the chunks we've cached so far
         return {
             length: table.length,
-            x: table.getChildAt(0).toArray(),
-            y: table.getChildAt(1).toArray(),
-            sex: table.getChildAt(2).toArray(),
-            education: table.getChildAt(3).toArray(),
-            income: table.getChildAt(4).toArray(),
-            cow: table.getChildAt(5).toArray(),
-            age: table.getChildAt(6).toArray(),
+            // x: table.getChildAt(0).toArray(),
+            // y: table.getChildAt(1).toArray(),
+            // sex: table.getChildAt(2).toArray(),
+            // education: table.getChildAt(3).toArray(),
+            // income: table.getChildAt(4).toArray(),
+            // cow: table.getChildAt(5).toArray(),
+            // age: table.getChildAt(6).toArray(),
         };
     };
 
