@@ -40,6 +40,7 @@ export interface CUDABufferConstructor {
 }
 
 export interface CUDABuffer {
+    readonly ptr: number;
     readonly byteLength: number;
     slice(begin: number, end?: number): CUDABuffer;
 }

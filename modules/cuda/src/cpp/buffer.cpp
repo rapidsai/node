@@ -26,6 +26,7 @@ Napi::Object CUDABuffer::Init(Napi::Env env, Napi::Object exports) {
     "CUDABuffer",
     {
       InstanceAccessor("byteLength", &CUDABuffer::GetByteLength, nullptr, napi_enumerable),
+      InstanceAccessor("ptr", &CUDABuffer::GetPointer, nullptr, napi_enumerable),
       InstanceMethod("slice", &CUDABuffer::CopySlice),
     });
   CUDABuffer::constructor = Napi::Persistent(ctor);
@@ -61,6 +62,10 @@ void CUDABuffer::Finalize(Napi::Env env) {
 
 Napi::Value CUDABuffer::GetByteLength(Napi::CallbackInfo const& info) {
   return Napi::Number::New(info.Env(), size_);
+}
+
+Napi::Value CUDABuffer::GetPointer(Napi::CallbackInfo const& info) {
+  return Napi::Number::New(info.Env(), reinterpret_cast<int64_t>(Data()));
 }
 
 Napi::Value CUDABuffer::CopySlice(Napi::CallbackInfo const& info) {

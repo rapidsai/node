@@ -21,7 +21,7 @@ namespace node_cuda {
 // CUresult cuInit(unsigned int Flags)
 Napi::Value cuInit(Napi::CallbackInfo const& info) {
   auto env = info.Env();
-  CU_TRY(info.Env(), CUDAAPI::cuInit(0));
+  CU_TRY(env, CUDAAPI::cuInit(0));
   return info.This();
 }
 
