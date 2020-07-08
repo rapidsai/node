@@ -67,13 +67,11 @@ endif()
 set(GLFW_LIBRARIES ${GLFW_LIBRARY})
 set(GLFW_INCLUDE_DIRS ${GLFW_INCLUDE_DIR})
 
+# Handle REQUIRED argument, define *_FOUND variable
 find_package_handle_standard_args(GLFW
                                   FOUND_VAR GLFW_FOUND
                                   REQUIRED_VARS GLFW_INCLUDE_DIRS GLFW_LIBRARIES
                                   VERSION_VAR GLFW_VERSION)
-
-# Handle REQUIRED argument, define *_FOUND variable
-# find_package_handle_standard_args(GLFW DEFAULT_MSG GLFW_INCLUDE_DIR GLFW_LIBRARY)
 
 if(NOT GLFW_FOUND)
     message(STATUS "FindGLFW: could not find GLFW library.")
