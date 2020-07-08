@@ -39,7 +39,6 @@ export default class App extends React.Component {
     }
     componentDidMount() {
         (async () => {
-            // Meijie -- this is here so we don't use all your GPU memory
             // You can increase or decrease this number from 0-1000
             for await (const chunk of loadGraphData(1000)) {
                 this.setState({ chunks: [...this.state.chunks, chunk] });
@@ -141,11 +140,6 @@ async function* loadGraphData(maxNumBatches = Number.POSITIVE_INFINITY) {
             length: table.length,
             // x: table.getChildAt(0).toArray(),
             // y: table.getChildAt(1).toArray(),
-            // sex: table.getChildAt(2).toArray(),
-            // education: table.getChildAt(3).toArray(),
-            // income: table.getChildAt(4).toArray(),
-            // cow: table.getChildAt(5).toArray(),
-            // age: table.getChildAt(6).toArray(),
         };
     };
 
