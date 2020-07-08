@@ -116,10 +116,10 @@ async function* loadGraphData(maxNumBatches = Number.POSITIVE_INFINITY) {
     const batches = await (async () => {
         if (WebGL2RenderingContext.prototype.opengl) {
             return await RecordBatchReader.from(require('fs')
-                .createReadStream('./public/01032018-webgl-nodes-small.arrow'));
+                .createReadStream('./public/data/01032018-webgl-nodes-small.arrow'));
         }
         controller = new AbortController();
-        const response = await fetch(`${process.env.PUBLIC_URL}/01032018-webgl-nodes-small.arrow`, {
+        const response = await fetch(`${process.env.PUBLIC_URL}/data/01032018-webgl-nodes-small.arrow`, {
             mode: 'cors',
             cache: 'no-store',
             credentials: 'omit',
