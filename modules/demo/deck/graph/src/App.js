@@ -61,28 +61,6 @@ export default class App extends React.Component {
                 // coordinateOrigin: [2 / 29, -1 / 27.5, 0.0],
                 coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
             }),
-            // new GeoJsonLayer({
-            //     id: 'geojson',
-            //     data,
-            //     opacity: 0.1,
-            //     filled: !true,
-            //     stroked: true,                       
-            //     extruded: true,
-            //     wireframe: true,
-            //     getElevation: 0,
-            //     // getElevation: 8000,
-            //     getFillColor: [65, 182, 196],
-            //     getLineColor: [255, 255, 255],
-            //     pickable: false,
-            // }),
-            // // only needed when using shadows - a plane for shadows to drop on
-            // new PolygonLayer({
-            //     id: 'ground',
-            //     data: landCover,
-            //     stroked: false,
-            //     getPolygon: f => f,
-            //     getFillColor: [0, 0, 0, 0]
-            // }),
         ];
     }
     render() {
