@@ -84,10 +84,10 @@ function createJSDOMContext(dir = process.cwd(), runInThisContext = false, code 
 }
 
 const wrapScriptInOpenWindowFn = (code: string) => `
-function openGLFWWindow(x) {
+function openGLFWWindow(opts = {}) {
     try {
-        require('${__dirname}/globals')(x);
-        ${code};
+        require('${__dirname}/globals')(Object.assign({}, opts));
+        (${code})(Object.assign({}, opts));
     } catch (e) {
         console.error(e && (e.stack || e.message) || \`\${e}\`);
         process.exit(1);
@@ -97,32 +97,32 @@ const scriptToHTML = (code: string) => `
 <!DOCTYPE html><html><head><meta charset="utf-8"></head>
 <body><script type="text/javascript">${wrapScriptInOpenWindowFn(code)}</script></body></html>`;
 
-export function createWindow(code: string, runInThisContext = false) {
-    const context = createJSDOMContext(process.cwd(), runInThisContext, code);
-    context.open = context.window.openGLFWWindow.bind(context.window);
+export function createWindow(code: Function | string, runInThisContext = false) {
+    const context = createJSDOMContext(process.cwd(), runInThisContext, code.toString());
+    context.open = (opts: GLFWDOMWindowOptions = {}) => context.window.openGLFWWindow(opts);
     return context as (Types.JSDOMModule & { open(options?: GLFWDOMWindowOptions): void; });
-};
+}
 
 export function createModuleWindow(id: string, runInThisContext = false) {
-    const context = createJSDOMContext(process.cwd(), runInThisContext, `require('${id}');`);
-    context.open = context.window.openGLFWWindow.bind(context.window);
-    return context as (Types.JSDOMModule & { open(options?: GLFWDOMWindowOptions): void; });
-};
+    return createWindow(`function() { return require('${id}'); }`, runInThisContext);
+}
 
 export function createReactWindow(id: string, runInThisContext = false) {
-    const context = createJSDOMContext(process.cwd(), runInThisContext, `
-        const Component = require('${id}');
-        const {render, findDOMNode} = require('react-dom');
-        render(require('react').createElement(Component.default || Component,
-                {ref: (elt) => window._inputEventTarget = findDOMNode(elt)}),
-                document.body.appendChild(document.createElement('div')));`);
-    context.open = context.window.openGLFWWindow.bind(context.window);
-    return context as (Types.JSDOMModule & { open(options?: GLFWDOMWindowOptions): void; });
-};
+    return createWindow(`function (props = {}) {
+            const Component = require('${id}');
+            const {createElement} = require('react');
+            const {render, findDOMNode: FDN} = require('react-dom');
+            props.ref || (props.ref = e => window._inputEventTarget = FDN(e));
+            render(
+                createElement(Component.default || Component, props),
+                document.body.appendChild(document.createElement('div'))
+            );
+        }`, runInThisContext);
+}
 
 process.on(<any> 'uncaughtException', (err: Error, origin: any) => {
     process.stderr.write(
-      `Caught exception: ${err}\n` +
-      `Exception origin: ${origin}`
+        `Exception origin: ${origin}\n` +
+        `Caught exception: ${err && err.stack || err}\n`
     );
 });
