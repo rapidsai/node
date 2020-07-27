@@ -50,7 +50,7 @@ abstract class CUDAArray<T extends TypedArray | BigIntArray = any> {
     /**
      * @summary The constructor of this array's corresponding JS TypedArray.
      */
-    protected readonly _T!: TypedArrayConstructor<T>;
+    protected readonly TypedArray!: TypedArrayConstructor<T>;
 
     /**
      * @summary The length of the array.
@@ -62,7 +62,7 @@ abstract class CUDAArray<T extends TypedArray | BigIntArray = any> {
     constructor(buffer: ArrayLike<T[0]> | ArrayBufferLike | CUDABuffer, byteOffset: number, length?: number);
     constructor() {
         let [buffer, byteOffset, length] = arguments;
-        Object.assign(this, asCUDABuffer(buffer, this._T));
+        Object.assign(this, asCUDABuffer(buffer, this.TypedArray));
         switch (arguments.length) {
             // @ts-ignore
             case 3:
@@ -107,7 +107,7 @@ abstract class CUDAArray<T extends TypedArray | BigIntArray = any> {
      * @param offset The index in the current array at which the values are to be written.
      */
     public set(array: CUDAArray | ArrayLike<T[0]>, offset?: number) {
-        const source = asCUDAArray(array, this._T);
+        const source = asCUDAArray(array, this.TypedArray);
         const [start, length] = clamp(this, offset);
         mem.cpy(
             this.buffer,
@@ -276,8 +276,9 @@ function asCUDAArray<T extends TypedArray | BigIntArray>(x: ArrayLike<T[0]> | CU
 
 /** @internal */ 
 function asCUDABuffer<T extends TypedArray | BigIntArray>(x: number | Iterable<T[0]> | ArrayBufferLike | CUDABuffer | CUDAArray, T: TypedArrayConstructor<T>) {
+    let byteOffset = 0;
     let byteLength = 0;
-    let buffer = mem.alloc(0);
+    let buffer: CUDABuffer;
     if (isNumber(x)) {
         byteLength = x * T.BYTES_PER_ELEMENT;
         buffer = mem.alloc(x * T.BYTES_PER_ELEMENT);
@@ -305,8 +306,16 @@ function asCUDABuffer<T extends TypedArray | BigIntArray>(x: number | Iterable<T
         byteLength = b.byteLength;
         buffer = mem.alloc(byteLength);
         mem.cpy(buffer, 0, b, 0, byteLength);
+    } else if (('buffer' in x) && ('byteOffset' in x) && ('byteLength' in x)) {
+        buffer = x['buffer'];
+        byteLength = x['byteLength'];
+        byteOffset = x['byteOffset'];
+    } else {
+        byteOffset = 0;
+        byteLength = 0;
+        buffer = mem.alloc(0);
     }
-    return { buffer, byteLength, byteOffset: 0, length: byteLength / T.BYTES_PER_ELEMENT };
+    return { buffer, byteLength, byteOffset, length: byteLength / T.BYTES_PER_ELEMENT };
 }
 
 /** @ignore */ (<any> CUDAArray.prototype)[Symbol.species] = CUDAArray;
