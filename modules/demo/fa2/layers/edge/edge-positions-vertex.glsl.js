@@ -36,6 +36,7 @@ void main(void) {
             0.
         );
     }
+
     if (edge.y < loadedNodeCount) {
         ivec2 yIdx = getTexCoord(edge.y);
         targetPositions = vec3(
@@ -48,35 +49,24 @@ void main(void) {
     // Compute the quadratic bezier control point for this edge
     if ((sourcePositions.z + targetPositions.z) < 1.0) {
 
-        uint uindex = bundle.x;
-        float bundleSize = bundle.y;
-        float stroke = max(strokeWidth, 1.);
-        float eindex = uindex + mod(uindex, 2);
-        // int direction = int(mix(1, -1, mod(uindex, 2)));
-        int direction = int(mix(1, -1, mod(bundleSize, 2)));
+        float curvature = 2.5;
+        float stroke = strokeWidth * curvature;
+        float eindex = float(bundle.x) + mod(float(bundle.x), 2.);
+        float bcount = float(bundle.y);
+        float direction = mix(1., -1., mod(bcount, 2.));
 
         // If all the edges in the bundle fit into MAX_BUNDLE_SIZE,
         // separate the edges without overlap via 'stroke * eindex'.
         // Otherwise allow edges to overlap.
         float size = mix(
-            stroke * eindex,
-            (MAX_BUNDLE_SIZE * .5 / stroke)
-                * (eindex / bundleSize),
-            step(MAX_BUNDLE_SIZE, bundleSize * strokeWidth)
-        ) + 15.0;
+            stroke * eindex * curvature,
+            (MAX_BUNDLE_SIZE * .5 / stroke) * (eindex / bcount),
+            step(MAX_BUNDLE_SIZE, bcount * stroke)
+        );
 
-        vec3 midp = (sourcePositions + targetPositions) * 0.5;
-        vec3 dist = (targetPositions - sourcePositions);
-        vec3 unit = normalize(dist) * vec3(-1., 1., 1.);
-
-        // handle horizontal and vertical edges
-        if (unit.x == 0. || unit.y == 0.) {
-            unit = mix(
-                vec3(1., 0., unit.z), // if x is 0, x=1, y=0
-                vec3(0., 1., unit.z), // if y is 0, x=0, y=1
-                step(0.5, unit.x)
-            );
-        }
+        vec3 diff = normalize(targetPositions - sourcePositions);
+        vec3 midp = (targetPositions + sourcePositions) * .5;
+        vec3 unit = vec3(-diff.y, diff.x, 1.);
 
         controlPoints = vec3((midp + (unit * size * direction)).xy, 0.);
     }

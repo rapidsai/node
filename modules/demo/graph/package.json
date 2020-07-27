@@ -1,0 +1,42 @@
+{
+  "name": "graph-demo",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@deck.gl/core": "8.2.3",
+    "@deck.gl/react": "8.2.3",
+    "@luma.gl/core": "8.2.0",
+    "@nvidia/cuda": "0.0.1",
+    "@nvidia/glfw": "0.0.1",
+    "apache-arrow": "0.17.0",
+    "ix": "3.0.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-map-gl": "5.2.5",
+    "zeromq": "6.0.0-beta.6"
+  },
+  "devDependencies": {
+    "react-scripts": "3.4.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

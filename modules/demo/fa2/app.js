@@ -22,8 +22,8 @@ const deck = new Deck({
 
 window._inputEventTarget = deck.canvas;
 
-const useTestData = true;
-// const useTestData = false;
+// const useTestData = true;
+const useTestData = false;
 
 (useTestData ? localRenderLoop() : remoteRenderLoop())
     .catch((e) => console.error('Main loop error:', e) || process.exit(1));
@@ -142,22 +142,20 @@ async function remoteRenderLoop() {
             numNodes = nodeIPCBuffers.has('color') ? nodeIPCBuffers.get('color').byteLength / 4 : numNodes;
             numEdges = edgeIPCBuffers.has('color') ? edgeIPCBuffers.get('color').byteLength / 8 : numEdges;
             const nodeUpdates = nodeIPCBuffers.size === 0 ? [] : [{ length: numNodes, offset: 0, ...mapToObject(nodeIPCBuffers) }];
-            // console.log(nodeUpdates);
-            // console.log(nodeUpdates[0]);
+            // nodeUpdates[0] && console.log(nodeUpdates[0]);
             const edgeUpdates = edgeIPCBuffers.size === 0 ? [] : [{ length: numEdges, offset: 0, ...mapToObject(edgeIPCBuffers) }];
-            // console.log(nodeUpdates[0].x);
-            // console.log(nodeUpdates[0].y);
+            // edgeUpdates[0] && console.log(edgeUpdates[0]);
             await redraw({nodeUpdates, edgeUpdates, drawEdges: drawEdges = null, graphVersion: ++graphVersion});
             nodeIPCBuffers.forEach(closeMemHandle);
             edgeIPCBuffers.forEach(closeMemHandle);
-            await ready.send('ready');
-            if (`${await ready.receive()}` === 'close') {
-                break;
-            }
+        }
+        await ready.send('ready');
+        if (`${await ready.receive()}` === 'close') {
+            break;
         }
     }
 
-    // console.log('done');
+    console.log('done');
 
     ipchs.close();
     ready.close();
@@ -178,8 +176,8 @@ function redraw({ nodeUpdates = [], edgeUpdates = [], ...rest }) {
                     numNodes: numNodes,
                     numEdges: numEdges,
                     version: graphVersion,
-                    edgeWidth: useTestData ? 5 : 1,
-                    edgeOpacity: useTestData ? 0.5 : 0.01,
+                    edgeWidth: useTestData ? 5 : 10,
+                    edgeOpacity: useTestData ? 0.5 : 0.5,
                     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
                 },
                 { drawEdges }
