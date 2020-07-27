@@ -29,6 +29,7 @@ ARG GID=1000
 ARG PARALLEL_LEVEL=
 
 ENV CMAKE_VERSION=3.17.2
+ENV CCACHE_VERSION=3.7.11
 
 RUN groupadd --gid $GID node \
  && useradd --uid $UID --gid node -G sudo --shell /bin/bash --create-home node \
@@ -62,13 +63,15 @@ RUN groupadd --gid $GID node \
  # Install CMake
  && curl -fsSLO --compressed "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" \
  && tar -xvzf cmake-$CMAKE_VERSION.tar.gz && cd cmake-$CMAKE_VERSION \
- && ./bootstrap --system-curl --parallel=$(nproc) && make install -j$PARALLEL_LEVEL \
+ && ./bootstrap --system-curl --parallel=$PARALLEL_LEVEL && make install -j$PARALLEL_LEVEL \
  && cd - && rm -rf ./cmake-$CMAKE_VERSION ./cmake-$CMAKE_VERSION.tar.gz \
  # Install ccache
- && curl -s -L https://github.com/ccache/ccache/archive/master.zip -o ccache-master.zip \
- && unzip -d ccache-master ccache-master.zip && cd ccache-master/ccache-master \
- && ./autogen.sh && ./configure --disable-man && make install -j$PARALLEL_LEVEL && cd - && rm -rf ./ccache-master*
+ && curl -s -L https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz -o ccache-$CCACHE_VERSION.tar.gz \
+ && tar -xvzf ccache-$CCACHE_VERSION.tar.gz && cd ccache-$CCACHE_VERSION \
+ && ./configure --disable-man && make install -j$PARALLEL_LEVEL && cd - && rm -rf ./ccache-$CCACHE_VERSION*
 
+# avoid "OSError: library nvvm not found" error
+ENV CUDA_HOME="/usr/local/cuda-$CUDA_SHORT_VERSION"
 # Setup ccache compiler launcher variables for CMake
 ENV CMAKE_C_COMPILER_LAUNCHER="/usr/local/bin/ccache"
 ENV CMAKE_CXX_COMPILER_LAUNCHER="/usr/local/bin/ccache"
