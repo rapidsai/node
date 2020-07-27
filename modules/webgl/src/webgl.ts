@@ -59,6 +59,21 @@ OpenGLESRenderingContext.prototype.webgl2 = true;
 OpenGLESRenderingContext.prototype.opengl = true;
 OpenGLESRenderingContext.prototype._version = 2;
 
+export const WebGLActiveInfo = gl.WebGLActiveInfo;
+export const WebGLShaderPrecisionFormat = gl.WebGLShaderPrecisionFormat;
+export const WebGLBuffer = gl.WebGLBuffer;
+export const WebGLContextEvent = gl.WebGLContextEvent;
+export const WebGLFramebuffer = gl.WebGLFramebuffer;
+export const WebGLProgram = gl.WebGLProgram;
+export const WebGLQuery = gl.WebGLQuery;
+export const WebGLRenderbuffer = gl.WebGLRenderbuffer;
+export const WebGLSampler = gl.WebGLSampler;
+export const WebGLShader = gl.WebGLShader;
+export const WebGLSync = gl.WebGLSync;
+export const WebGLTexture = gl.WebGLTexture;
+export const WebGLTransformFeedback = gl.WebGLTransformFeedback;
+export const WebGLUniformLocation = gl.WebGLUniformLocation;
+export const WebGLVertexArrayObject = gl.WebGLVertexArrayObject;
 export { OpenGLESRenderingContext as WebGLRenderingContext };
 export { OpenGLESRenderingContext as WebGL2RenderingContext };
 

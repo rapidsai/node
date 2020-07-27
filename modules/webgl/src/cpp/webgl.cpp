@@ -33,7 +33,7 @@ Napi::Object WebGLActiveInfo::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLActiveInfo::constructor = Napi::Persistent(ctor);
   WebGLActiveInfo::constructor.SuppressDestruct();
-  // exports.Set("WebGLActiveInfo", ctor);
+  exports.Set("WebGLActiveInfo", ctor);
   return exports;
 };
 
@@ -80,7 +80,7 @@ Napi::Object WebGLShaderPrecisionFormat::Init(Napi::Env env, Napi::Object export
     });
   WebGLShaderPrecisionFormat::constructor = Napi::Persistent(ctor);
   WebGLShaderPrecisionFormat::constructor.SuppressDestruct();
-  // exports.Set("WebGLShaderPrecisionFormat", ctor);
+  exports.Set("WebGLShaderPrecisionFormat", ctor);
   return exports;
 };
 
@@ -131,7 +131,7 @@ Napi::Object WebGLBuffer::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLBuffer::constructor = Napi::Persistent(ctor);
   WebGLBuffer::constructor.SuppressDestruct();
-  // exports.Set("WebGLBuffer", ctor);
+  exports.Set("WebGLBuffer", ctor);
   return exports;
 };
 
@@ -164,7 +164,7 @@ Napi::Object WebGLContextEvent::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLContextEvent::constructor = Napi::Persistent(ctor);
   WebGLContextEvent::constructor.SuppressDestruct();
-  // exports.Set("WebGLContextEvent", ctor);
+  exports.Set("WebGLContextEvent", ctor);
   return exports;
 };
 
@@ -198,7 +198,7 @@ Napi::Object WebGLFramebuffer::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLFramebuffer::constructor = Napi::Persistent(ctor);
   WebGLFramebuffer::constructor.SuppressDestruct();
-  // exports.Set("WebGLFramebuffer", ctor);
+  exports.Set("WebGLFramebuffer", ctor);
   return exports;
 };
 
@@ -231,7 +231,7 @@ Napi::Object WebGLProgram::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLProgram::constructor = Napi::Persistent(ctor);
   WebGLProgram::constructor.SuppressDestruct();
-  // exports.Set("WebGLProgram", ctor);
+  exports.Set("WebGLProgram", ctor);
   return exports;
 };
 
@@ -263,7 +263,7 @@ Napi::Object WebGLQuery::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLQuery::constructor = Napi::Persistent(ctor);
   WebGLQuery::constructor.SuppressDestruct();
-  // exports.Set("WebGLQuery", ctor);
+  exports.Set("WebGLQuery", ctor);
   return exports;
 };
 
@@ -296,7 +296,7 @@ Napi::Object WebGLRenderbuffer::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLRenderbuffer::constructor = Napi::Persistent(ctor);
   WebGLRenderbuffer::constructor.SuppressDestruct();
-  // exports.Set("WebGLRenderbuffer", ctor);
+  exports.Set("WebGLRenderbuffer", ctor);
   return exports;
 };
 
@@ -329,7 +329,7 @@ Napi::Object WebGLSampler::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLSampler::constructor = Napi::Persistent(ctor);
   WebGLSampler::constructor.SuppressDestruct();
-  // exports.Set("WebGLSampler", ctor);
+  exports.Set("WebGLSampler", ctor);
   return exports;
 };
 
@@ -361,7 +361,7 @@ Napi::Object WebGLShader::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLShader::constructor = Napi::Persistent(ctor);
   WebGLShader::constructor.SuppressDestruct();
-  // exports.Set("WebGLShader", ctor);
+  exports.Set("WebGLShader", ctor);
   return exports;
 };
 
@@ -393,7 +393,7 @@ Napi::Object WebGLSync::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLSync::constructor = Napi::Persistent(ctor);
   WebGLSync::constructor.SuppressDestruct();
-  // exports.Set("WebGLSync", ctor);
+  exports.Set("WebGLSync", ctor);
   return exports;
 };
 
@@ -425,7 +425,7 @@ Napi::Object WebGLTexture::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLTexture::constructor = Napi::Persistent(ctor);
   WebGLTexture::constructor.SuppressDestruct();
-  // exports.Set("WebGLTexture", ctor);
+  exports.Set("WebGLTexture", ctor);
   return exports;
 };
 
@@ -458,7 +458,7 @@ Napi::Object WebGLTransformFeedback::Init(Napi::Env env, Napi::Object exports) {
     });
   WebGLTransformFeedback::constructor = Napi::Persistent(ctor);
   WebGLTransformFeedback::constructor.SuppressDestruct();
-  // exports.Set("WebGLTransformFeedback", ctor);
+  exports.Set("WebGLTransformFeedback", ctor);
   return exports;
 };
 
@@ -492,7 +492,7 @@ Napi::Object WebGLUniformLocation::Init(Napi::Env env, Napi::Object exports) {
                 });
   WebGLUniformLocation::constructor = Napi::Persistent(ctor);
   WebGLUniformLocation::constructor.SuppressDestruct();
-  // exports.Set("WebGLUniformLocation", ctor);
+  exports.Set("WebGLUniformLocation", ctor);
   return exports;
 };
 
@@ -526,7 +526,7 @@ Napi::Object WebGLVertexArrayObject::Init(Napi::Env env, Napi::Object exports) {
     });
   WebGLVertexArrayObject::constructor = Napi::Persistent(ctor);
   WebGLVertexArrayObject::constructor.SuppressDestruct();
-  // exports.Set("WebGLVertexArrayObject", ctor);
+  exports.Set("WebGLVertexArrayObject", ctor);
   return exports;
 };
 
