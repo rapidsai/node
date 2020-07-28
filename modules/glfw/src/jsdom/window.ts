@@ -21,7 +21,7 @@ import { wheelEvents, GLFWWheelEvent } from '../events/wheel';
 import { windowEvents, GLFWWindowEvent } from '../events/window';
 import { keyboardEvents, GLFWKeyboardEvent } from '../events/keyboard';
 import { isAltKey, isCtrlKey, isMetaKey, isShiftKey, isCapsLock } from '../events/event';
-import { glfw, GLFW, GLFWwindow, GLFWInputMode, GLFWModifierKey, GLFWWindowAttribute, GLFWParentWindow } from '../glfw';
+import { glfw, GLFW, GLFWwindow, GLFWInputMode, GLFWModifierKey, GLFWWindowAttribute, GLFWParentWindow, GLFWStandardCursor } from '../glfw';
 
 export type GLFWDOMWindowOptions = {
     x?: number;
@@ -33,6 +33,7 @@ export type GLFWDOMWindowOptions = {
     decorated?: boolean;
     resizable?: boolean;
     transparent?: boolean;
+    devicePixelRatio?: number;
 };
 
 export interface GLFWDOMWindow extends jsdom.DOMWindow {
@@ -97,6 +98,56 @@ export abstract class GLFWDOMWindow {
     protected _event: any = undefined;
     public get event() { return this._event; }
 
+    protected _cursor = GLFWStandardCursor.ARROW;
+    public get cursor() { return this._cursor; }
+    public set cursor(_: any) {
+        switch (_) {
+            case 'pointer':
+                _ = GLFWStandardCursor.HAND;
+                break;
+            case 'text':
+                _ = GLFWStandardCursor.IBEAM;
+                break;
+            case 'crosshair':
+                _ = GLFWStandardCursor.CROSSHAIR;
+                break;
+            case 'e-resize':
+            case 'w-resize':
+            case 'ew-resize':
+                _ = GLFWStandardCursor.HRESIZE;
+                break;
+            case 'n-resize':
+            case 's-resize':
+            case 'ns-resize':
+                _ = GLFWStandardCursor.VRESIZE;
+                break;
+            case 'auto':
+            case 'none':
+            case 'grab':
+            case 'grabbing':
+            case 'default':
+            default:
+                _ = GLFWStandardCursor.ARROW;
+                break;
+        }
+        if (this._cursor !== _) {
+            this._cursor = _;
+            if (this._id > 0) {
+                switch (_) {
+                    case GLFWStandardCursor.ARROW:
+                    case GLFWStandardCursor.IBEAM:
+                    case GLFWStandardCursor.CROSSHAIR:
+                    case GLFWStandardCursor.HAND:
+                    case GLFWStandardCursor.HRESIZE:
+                    case GLFWStandardCursor.VRESIZE:
+                        glfw.setCursor(this._id, _);
+                        break;
+                    default: break;
+                }
+            }
+        }
+    }
+
     protected _width = 800;
     public get width() { return this._width; }
     public set width(_: number) { this._width = this._cssToNumber('width', _); }
@@ -148,6 +199,7 @@ export abstract class GLFWDOMWindow {
 
     protected _devicePixelRatio = 1;
     public get devicePixelRatio() { return this._devicePixelRatio; }
+    public set devicePixelRatio(_: number) { this._devicePixelRatio = _; }
 
     public readonly debug = false;
 
@@ -196,6 +248,8 @@ export abstract class GLFWDOMWindow {
             set width(_: number) { self.width = _; },
             get height() { return self.height; },
             set height(_: number) { self.height = _; },
+            get cursor() { return self.cursor; },
+            set cursor(_: any) { self.cursor = _; },
         };
     }
 
@@ -249,6 +303,8 @@ export abstract class GLFWDOMWindow {
             const monitor = this._monitor ? this._monitor.id : null;
             const root = this._rootWindow ? this._rootWindow.id : null;
 
+            glfw.windowHint(GLFWWindowAttribute.SAMPLES, 4);
+            glfw.windowHint(GLFWWindowAttribute.DOUBLEBUFFER, true);
             glfw.windowHint(GLFWWindowAttribute.VISIBLE, this.visible);
             glfw.windowHint(GLFWWindowAttribute.DECORATED, this.decorated);
             glfw.windowHint(GLFWWindowAttribute.RESIZABLE, this.resizable);
@@ -272,6 +328,7 @@ export abstract class GLFWDOMWindow {
             this._frameBufferHeight = this._height * this._yscale;
             this._subscriptions && this._subscriptions.unsubscribe();
             this._subscriptions = new Subscription();
+            this.cursor = this._cursor;
 
             glfw.swapBuffers(id);
 

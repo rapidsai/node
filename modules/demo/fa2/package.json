@@ -1,0 +1,32 @@
+{
+  "private": true,
+  "name":  "fa2-demo",
+  "main": "index.js",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "dependencies": {
+    "@deck.gl/core": "8.2.3",
+    "@deck.gl/layers": "8.2.3",
+    "@luma.gl/constants": "8.2.0",
+    "@luma.gl/core": "8.2.0",
+    "zeromq": "6.0.0-beta.6",
+    "@nvidia/cuda": "0.0.1",
+    "@nvidia/glfw": "0.0.1"
+  },
+  "esm": {
+    "cjs": true,
+    "force": true,
+    "mode": "auto",
+    "cache": false,
+    "sourceMap": true,
+    "mainFields": [
+      "esnext",
+      "module",
+      "main"
+    ]
+  }
+}

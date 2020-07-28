@@ -37,6 +37,7 @@ class CUDABuffer : public Napi::ObjectWrap<CUDABuffer> {
   static Napi::FunctionReference constructor;
 
   Napi::Value GetByteLength(Napi::CallbackInfo const& info);
+  Napi::Value GetPointer(Napi::CallbackInfo const& info);
   Napi::Value CopySlice(Napi::CallbackInfo const& info);
 
   void* data_;

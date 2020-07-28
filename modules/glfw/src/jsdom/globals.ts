@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as gl from '@nvidia/webgl';
 import { installAnimationFrame } from './raf';
 import { installObjectURL } from './object-url';
-import { WebGL2RenderingContext } from '@nvidia/webgl';
 import { GLFWDOMWindow, GLFWDOMWindowOptions } from './window';
 
-class GLFWRenderingContext extends WebGL2RenderingContext {
+class GLFWRenderingContext extends gl.WebGL2RenderingContext {
     constructor(canvas: HTMLCanvasElement, window: GLFWDOMWindow, options?: WebGLContextAttributes) {
         super(options);
         this.canvas = canvas;
@@ -49,7 +49,21 @@ function getContext(this: HTMLCanvasElement, ...args: [OffscreenRenderingContext
     }
     return JSDOM_getContext.apply(this, args);
 }
-
+window.WebGLActiveInfo = gl.WebGLActiveInfo;
+window.WebGLShaderPrecisionFormat = gl.WebGLShaderPrecisionFormat;
+window.WebGLBuffer = gl.WebGLBuffer;
+window.WebGLContextEvent = gl.WebGLContextEvent;
+window.WebGLFramebuffer = gl.WebGLFramebuffer;
+window.WebGLProgram = gl.WebGLProgram;
+window.WebGLQuery = gl.WebGLQuery;
+window.WebGLRenderbuffer = gl.WebGLRenderbuffer;
+window.WebGLSampler = gl.WebGLSampler;
+window.WebGLShader = gl.WebGLShader;
+window.WebGLSync = gl.WebGLSync;
+window.WebGLTexture = gl.WebGLTexture;
+window.WebGLTransformFeedback = gl.WebGLTransformFeedback;
+window.WebGLUniformLocation = gl.WebGLUniformLocation;
+window.WebGLVertexArrayObject = gl.WebGLVertexArrayObject;
 window.WebGLRenderingContext = <any> GLFWRenderingContext;
 window.WebGL2RenderingContext = <any> GLFWRenderingContext;
 window.HTMLCanvasElement.prototype.getContext = getContext;
@@ -60,10 +74,26 @@ Object.defineProperties(
 
 const global_ = <any> global;
 
-global_.cancelAnimationFrame = window.cancelAnimationFrame;
-global_.requestAnimationFrame = window.requestAnimationFrame;
+global_.WebGLActiveInfo = window.WebGLActiveInfo;
+global_.WebGLShaderPrecisionFormat = window.WebGLShaderPrecisionFormat;
+global_.WebGLBuffer = window.WebGLBuffer;
+global_.WebGLContextEvent = window.WebGLContextEvent;
+global_.WebGLFramebuffer = window.WebGLFramebuffer;
+global_.WebGLProgram = window.WebGLProgram;
+global_.WebGLQuery = window.WebGLQuery;
+global_.WebGLRenderbuffer = window.WebGLRenderbuffer;
+global_.WebGLSampler = window.WebGLSampler;
+global_.WebGLShader = window.WebGLShader;
+global_.WebGLSync = window.WebGLSync;
+global_.WebGLTexture = window.WebGLTexture;
+global_.WebGLTransformFeedback = window.WebGLTransformFeedback;
+global_.WebGLUniformLocation = window.WebGLUniformLocation;
+global_.WebGLVertexArrayObject = window.WebGLVertexArrayObject;
 global_.WebGLRenderingContext = window.WebGLRenderingContext;
 global_.WebGL2RenderingContext = window.WebGL2RenderingContext;
+
+global_.cancelAnimationFrame = window.cancelAnimationFrame;
+global_.requestAnimationFrame = window.requestAnimationFrame;
 
 const origin = global_.idlUtils.implForWrapper(window.document)._origin;
 if (origin === 'null') {

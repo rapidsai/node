@@ -7,11 +7,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug census demo",
-            "program": "${workspaceFolder}/modules/demo/deck/census_prototype/index.js",
+            "name": "Debug graph demo",
+            "program": "${workspaceFolder}/modules/demo/graph/index.js",
             "stopOnEntry": false,
             "runtimeArgs": ["-r", "esm"],
-            "cwd": "${workspaceFolder}/modules/demo/deck/census_prototype",
+            "cwd": "${workspaceFolder}/modules/demo/graph",
             "env": { "NODE_ENV": "production" }
         },
         {

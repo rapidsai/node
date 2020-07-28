@@ -2,12 +2,10 @@ import os
 import cupy
 import numba
 import numpy as np
-import pandas as pd
 
 import rmm
 import zmq
 import traceback
-import cudf.utils.cudautils as cudautils
 from cudf.core.index import RangeIndex
 from cudf.core.column import CategoricalColumn
 from cuml.internals import GraphBasedDimRedCallback

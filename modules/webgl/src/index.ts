@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export { WebGLRenderingContext, WebGL2RenderingContext } from './webgl';
+export * from './webgl';
