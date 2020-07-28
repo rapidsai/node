@@ -26,7 +26,7 @@ COPY --from=node /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entry
 
 ARG UID=1000
 ARG GID=1000
-ARG PARALLEL_LEVEL=
+ARG PARALLEL_LEVEL=4
 
 ENV CMAKE_VERSION=3.17.2
 ENV CCACHE_VERSION=3.7.11
