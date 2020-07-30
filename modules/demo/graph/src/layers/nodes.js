@@ -20,7 +20,7 @@ import {
     nodeColorAccessor,
     nodeRadiusAccessor,
     nodePositionAccessor,
-    // nodeElementIndicesAccessor,
+    nodeElementIndicesAccessor,
 } from './nodes/attributes';
 
 export class NodeLayer extends Layer {
@@ -31,10 +31,15 @@ export class NodeLayer extends Layer {
             instanceLineColors: { ...nodeColorAccessor(gl), accessor: 'getLineColor' },
             instanceXPositions: { ...nodePositionAccessor(gl), accessor: 'getXPosition' },
             instanceYPositions: { ...nodePositionAccessor(gl), accessor: 'getYPosition' },
-            // elementIndices: { ...nodeElementIndicesAccessor(gl), accessor: 'getElementIndex' },
+            instanceNodeIndices: { ...nodeElementIndicesAccessor(gl), accessor: 'getNodeIndex' },
+            elementIndices: { ...nodeElementIndicesAccessor(gl), accessor: 'getElementIndex', isIndexed: true },
         };
     }
     initializeState(context) {
+        this.internalState.selectedNodeId = -1;
+        this.internalState.highlightedNodeId = -1;
+        this.internalState.selectedNodeIndex = -1;
+        this.internalState.highlightedNodeIndex = -1;
         this.getAttributeManager().addInstanced(NodeLayer.getAccessors(context));
     }
     updateState({ props, oldProps, context, changeFlags }) {
@@ -62,9 +67,30 @@ export class NodeLayer extends Layer {
                 radiusMaxPixels: this.props.radiusMaxPixels,
                 lineWidthMinPixels: this.props.lineWidthMinPixels,
                 lineWidthMaxPixels: this.props.lineWidthMaxPixels,
+                highlightedSourceNode: this.props.highlightedSourceNode,
+                highlightedTargetNode: this.props.highlightedTargetNode,
                 ...uniforms,
             }
         });
+    }
+    getPickingInfo({ mode, info }) {
+        if (info.index === -1) {
+            info.nodeId = info.index;
+        } else if (this.internalState.highlightedNodeIndex === info.index) {
+            info.nodeId = this.internalState.highlightedNodeId;
+        } else {
+            const { buffer, offset = 0 } = this.props.data.attributes.instanceNodeIndices;
+            ([info.nodeId] = buffer.getData({
+                length: 1, srcByteOffset: offset + (info.index * buffer.accessor.BYTES_PER_VERTEX),
+            }));
+        }
+        this.internalState.highlightedNodeId = info.nodeId;
+        this.internalState.highlightedNodeIndex = info.index;
+        if (mode === 'click') {
+            this.internalState.selectedNodeId = this.internalState.highlightedNodeId;
+            this.internalState.selectedNodeIndex = this.internalState.highlightedNodeIndex;
+        }
+        return info;
     }
     _getModel({ gl, shaderCache }) {
         return new Model(gl, {
@@ -108,4 +134,6 @@ NodeLayer.defaultProps = {
     radiusMaxPixels: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER }, // max point radius in pixels
     lineWidthMinPixels: { type: 'number', min: 0, value: 0 },
     lineWidthMaxPixels: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER },
-  };
+    highlightedSourceNode: { type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1 },
+    highlightedTargetNode: { type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1 },
+};

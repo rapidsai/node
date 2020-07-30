@@ -17,8 +17,6 @@ import DeckGL from '@deck.gl/react';
 import { GraphLayer } from './layers/graph';
 import { OrthographicView } from '@deck.gl/core';
 
-// import loadGraphData from './services/dummy';
-// import loadGraphData from './services/remote';
 const loadGraphData = require(
     process.env.REACT_APP_ENVIRONMENT === 'browser'
         ? './services/triangle'
@@ -54,11 +52,11 @@ export class App extends React.Component {
                 onAfterRender={this.state.onAfterRender}
                 onViewStateChange={() => this.setState({ autoCenter: false })}>
                 <GraphLayer
-                    edgeOpacity={0.05}
+                    edgeOpacity={.1}
                     nodesStroked={true}
                     edgeStrokeWidth={1.5}
                     nodeFillOpacity={.1}
-                    nodeStrokeOpacity={.95}
+                    nodeStrokeOpacity={.9}
                     {...this.state.graph}
                     />
             </DeckGL>
@@ -76,8 +74,6 @@ App.defaultProps = {
     onDragEnd: onDragEnd,
     onDragStart: onDragStart,
     initialViewState: {
-        // zoom: 1,
-        // target: [0, 0, 0],
         minZoom: Number.NEGATIVE_INFINITY,
         maxZoom: Number.POSITIVE_INFINITY,
     },
@@ -107,33 +103,6 @@ function onWebGLInitialized(gl) {
         gl.enable(gl.PROGRAM_POINT_SIZE);
         gl.enable(gl.POINT_SPRITE);
     }
-
-    // Trying out the point-in-polygon culling layer, doesn't seem to work at the moment
-
-    // const { Buffer } = require('./buffer');
-    // const { readPixelsToArray } = require('@luma.gl/core');
-    // const { NodesInViewport } = require('./layers/nodes/nodes-in-viewport');
-    // const count = 6;
-    // const polygons = [
-    //     [-100.0, -100.0],
-    //     [ 100.0, -100.0],
-    //     [ 100.0,  100.0],
-    //     [-100.0,  100.0],
-    //     [-100.0, -100.0]
-    // ];
-    // const xPosition = new Buffer(gl, new Float32Array([0, 5.0, 0.25, 0.25, -0.25, -3.45]));
-    // const yPosition = new Buffer(gl, new Float32Array([0, -0.25, -0.25, 8.25, 0.25, 0.45]));
-    // const filterValueIndexBuffer = new Buffer(gl, count * Float32Array.BYTES_PER_ELEMENT);
-
-    // const nodesInViewport = new NodesInViewport(gl);
-    // nodesInViewport.update({polygons});
-    // console.log('boundingBox:', nodesInViewport.boundingBox);
-    // console.log('idBuffer:', nodesInViewport.idBuffer.getData());
-    // console.log('indexBuffer:', nodesInViewport.indexBuffer.getData());
-    // console.log('positionBuffer:', nodesInViewport.positionBuffer.getData());
-    // console.log('polygonTexture:', new Uint32Array(readPixelsToArray(nodesInViewport.polygonTexture).buffer));
-    // nodesInViewport.filter({xPosition, yPosition, filterValueIndexBuffer, count});
-    // console.log('results:', filterValueIndexBuffer.getData());
 }
 
 function centerOnBbox([minX, maxX, minY, maxY]) {

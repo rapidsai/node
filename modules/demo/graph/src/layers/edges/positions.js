@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { Transform } from '@luma.gl/engine';
+import { getParameters } from '@luma.gl/core';
 import { EdgeComponentBuffer, EdgePositionTexture } from './attributes';
 import computePositionVertexShader from './compute-position-vertex.glsl';
 
@@ -23,7 +24,7 @@ export class ComputeEdgePositionsTransform extends Transform {
             isInstanced: false,
             vs: computePositionVertexShader,
             uniforms: {
-                textureWidth: TEXTURE_WIDTH,
+                textureWidth: 1,
                 nodeXPositions: new EdgePositionTexture(gl),
                 nodeYPositions: new EdgePositionTexture(gl),
             },
@@ -35,7 +36,14 @@ export class ComputeEdgePositionsTransform extends Transform {
             },
         });
     }
-    get textureWidth() { return this.model.getUniforms().textureWidth; }
+    getTextureWidth(size) {
+        return Math.min((size + 7) & ~7, getParameters(this.gl, this.gl.MAX_TEXTURE_SIZE));
+    }
+    roundSizeUpToTextureDimensions(size) {
+        const length = (size + 7) & ~7;
+        const width = this.getTextureWidth(length);
+        return width * Math.ceil(length / width); // width * height;
+    }
     call({
         offset = 0,
         length = 0,
@@ -54,6 +62,7 @@ export class ComputeEdgePositionsTransform extends Transform {
 
         if (length <= 0) return;
 
+        const textureWidth = this.getTextureWidth(numNodes);
         const internalControlPoints = this.getBuffer('controlPoint');
         const internalSourcePositions = this.getBuffer('sourcePosition');
         const internalTargetPositions = this.getBuffer('targetPosition');
@@ -62,13 +71,14 @@ export class ComputeEdgePositionsTransform extends Transform {
             nodeYPositions: nodeYPositionsTexture,
         } = this.model.getUniforms();
 
+
         // resize internal edge component buffers
         resizeBuffer(length, internalControlPoints);
         resizeBuffer(length, internalSourcePositions);
         resizeBuffer(length, internalTargetPositions);
         // resize x and y node position textures
-        resizeTexture(nodeXPositionsTexture, numNodes);
-        resizeTexture(nodeYPositionsTexture, numNodes);
+        resizeTexture(nodeXPositionsTexture, textureWidth, numNodes);
+        resizeTexture(nodeYPositionsTexture, textureWidth, numNodes);
         // copy x and y node positions into place
         if (nodesChanged) {
             setSubImageData(nodeXPositionsTexture, nodeXPositions, offset);
@@ -79,7 +89,7 @@ export class ComputeEdgePositionsTransform extends Transform {
             elementCount: length,
             sourceBuffers: { edge: edgeList, bundle: edgeBundles }
         });
-        this.run({ offset, uniforms: { numNodesLoaded, strokeWidth } });
+        this.run({ offset, uniforms: { numNodesLoaded, strokeWidth, textureWidth } });
 
         copyDtoD(edgeControlPoints, internalControlPoints, offset, length);
         copyDtoD(edgeSourcePositions, internalSourcePositions, offset, length);
@@ -87,12 +97,9 @@ export class ComputeEdgePositionsTransform extends Transform {
     }
 }
 
-const TEXTURE_WIDTH = 256;
-
 const resizeBuffer = (length, buffer) => buffer.reallocate(length * buffer.accessor.BYTES_PER_VERTEX);
-const resizeTexture = (texture, length) => {
-    const width =  TEXTURE_WIDTH;
-    const height = Math.ceil(length / TEXTURE_WIDTH);
+const resizeTexture = (texture, width, length) => {
+    const height = Math.ceil(length / width);
     if (texture.width !== width || texture.height !== height) {
         texture.resize({ width, height });
     }

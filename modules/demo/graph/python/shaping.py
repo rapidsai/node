@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import cudf
 import numpy as np
 import pandas as pd
@@ -43,7 +44,7 @@ def shape_hypergraph(graph=None,
         'id': nid.astype(np.uint32),
         'color': _category_to_color(nodes[CATEGORY]),
         'size': _degrees_to_size(graph).astype(np.uint8)
-    })
+    }).sort_values(by='id', ignore_index=True)
     elist = cudf.DataFrame({
         'src': edges[SOURCE],
         'dst': edges[TARGET],
@@ -58,13 +59,16 @@ def shape_hypergraph(graph=None,
 
 
 def _category_to_color(types):
-    types = types.astype('category')
-    color_indices = cudf.Series(types.cat.codes)
-    color_palette = cudf.Series([
+    # from random import shuffle
+    color_palette = [
         -12451426,-11583787,-12358156,-10375427,
         -7610114,-4194305,-6752794,-5972565,
         -5914010,-4356046,-6140066
-    ])
+    ]
+    # shuffle(color_palette)
+    types = types.astype('category')
+    color_indices = cudf.Series(types.cat.codes)
+    color_palette = cudf.Series(color_palette)
     color_palettes = []
     num_color_ids = color_indices.max() + 1
     for i in range(ceil(num_color_ids / len(color_palette))):

@@ -15,9 +15,9 @@
 import { Buffer } from '../../buffer';
 
 export const nodePositionAccessor = (gl) => ({ size: 1, type: gl.FLOAT });
-export const nodeColorAccessor = (gl) => ({ size: 4, type: gl.UNSIGNED_BYTE, normalized: true, });
+export const nodeColorAccessor = (gl) => ({ size: 4, type: gl.UNSIGNED_BYTE, normalized: true });
 export const nodeRadiusAccessor = (gl) => ({ size: 1, type: gl.UNSIGNED_BYTE });
-export const nodeElementIndicesAccessor = (gl) => ({ size: 1, type: gl.UNSIGNED_INT, isIndexed: true });
+export const nodeElementIndicesAccessor = (gl) => ({ size: 1, type: gl.UNSIGNED_INT });
 
 export class NodeColorBuffer extends Buffer {
     constructor(gl, byteLength = 0) {
@@ -45,7 +45,6 @@ export class NodeElementIndicesBuffer extends Buffer {
         byteLength = Math.max(byteLength || 0, 1);
         super(gl, {
             byteLength,
-            target: gl.ELEMENT_ARRAY_BUFFER,
             accessor: nodeElementIndicesAccessor(gl)
         });
     }

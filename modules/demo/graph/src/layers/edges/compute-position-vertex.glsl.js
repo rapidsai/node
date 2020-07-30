@@ -14,12 +14,10 @@
 
 export default `\
 #version 300 es
-// #version 410
 #define SHADER_NAME compute-position-vertex
 
 precision highp float;
-
-#define MAX_BUNDLE_SIZE 100.0
+precision highp sampler2D;
 
 uniform float strokeWidth;
 uniform uint textureWidth;
@@ -67,24 +65,24 @@ void main(void) {
     // Compute the quadratic bezier control point for this edge
     if ((sourcePosition.z + targetPosition.z) < 1.0) {
 
-        float curvature = 2.5;
-        float stroke = strokeWidth * curvature;
-        float eindex = float(bundle.x) + mod(float(bundle.x), 2.);// + 1.;
-        float bcount = float(bundle.y);
-        float direction = mix(1., -1., mod(bcount, 2.));
-
-        // If all the edges in the bundle fit into MAX_BUNDLE_SIZE,
-        // separate the edges without overlap via 'stroke * eindex'.
-        // Otherwise allow edges to overlap.
-        float size = mix(
-            stroke * eindex * curvature,
-            (MAX_BUNDLE_SIZE * .5 / stroke) * (eindex / bcount),
-            step(MAX_BUNDLE_SIZE, bcount * stroke)
-        );
-
         vec3 diff = normalize(targetPosition - sourcePosition);
         vec3 midp = (targetPosition + sourcePosition) * .5;
         vec3 unit = vec3(-diff.y, diff.x, 1.);
+
+        float stroke = strokeWidth;
+        float maxBundleSize = length(targetPosition - sourcePosition) * 0.15;
+        float eindex = float(bundle.x) + mod(float(bundle.x), 2.);
+        float bcount = float(bundle.y);
+        float direction = mix(1., -1., mod(bcount, 2.));
+
+        // If all the edges in the bundle fit into maxBundleSize,
+        // separate the edges without overlap via 'stroke * eindex'.
+        // Otherwise allow edges to overlap.
+        float size = mix(
+            (strokeWidth * 2. * eindex),
+            (maxBundleSize / strokeWidth) * (eindex / bcount),
+            step(maxBundleSize, bcount * strokeWidth)
+        ) + maxBundleSize;
 
         controlPoint = vec3((midp + (unit * size * direction)).xy, 0.);
     }
