@@ -20,7 +20,6 @@
 
 export default `\
 #version 300 es
-// #version 410
 #define SHADER_NAME edge-vertex-shader
 
 precision highp float;
@@ -28,8 +27,10 @@ precision highp float;
 uniform float numSegments;
 uniform float strokeWidth;
 uniform float opacity;
+uniform uint highlightedNode;
 
 in vec3 positions;
+in uvec2 instanceEdges;
 in vec3 instanceSourcePositions;
 in vec3 instanceTargetPositions;
 in vec3 instanceControlPoints;
@@ -70,7 +71,6 @@ vec4 computeBezierCurve(vec4 source, vec4 target, vec4 controlPoint, float segme
     vec4 ret = vec4(
         a * source.x + b * controlPoint.x + c * target.x,
         a * source.y + b * controlPoint.y + c * target.y,
-        // 0.0,
         a * source.z + b * controlPoint.z + c * target.z,
         1.0
     );
@@ -110,5 +110,10 @@ void main(void) {
 
     // Set color to be rendered to picking fbo (also used to check for selection highlight).
     picking_setPickingColor(instancePickingColors);
+
+    picking_vRGBcolor_Avalid.a = float(
+        bool(picking_vRGBcolor_Avalid.a) ||
+        instanceEdges.x == highlightedNode ||
+        instanceEdges.y == highlightedNode );
 }
 `;

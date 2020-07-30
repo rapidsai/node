@@ -20,7 +20,6 @@
 
 export default `\
 #version 300 es
-// #version 410
 #define SHADER_NAME edge-fragment-shader
 
 precision highp float;

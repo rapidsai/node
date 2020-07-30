@@ -12,39 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning)
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
-import os
-import sys
-# import rmm
+from python.shaping import shape_hypergraph
+from python.callback import GraphZmqCallback
+from python.test_data import (
+    make_large_dataframe,
+    make_small_dataframe,
+    make_complex_dataframe,
+)
+
 import zmq
 import cudf
 import cugraph
 import asyncio
 import zmq.asyncio
 
-sys.path.insert(0, os.path.abspath('./python'))
-
-from shaping import shape_hypergraph
-from callback import GraphZmqCallback
-from test_data import (
-    make_large_dataframe,
-    make_small_dataframe,
-    make_complex_dataframe,
-)
-
-# rmm.reinitialize(
-#     logging=True,
-#     log_file_name='/tmp/fa2.rmm.log'
-# )
-
 # df, kwargs = make_small_dataframe(direct=True)
 # df, kwargs = make_complex_dataframe(direct=True)
 df, kwargs = make_large_dataframe(direct=False)
-
-# rmm.mr._flush_logs()
 
 xs = cugraph.hypergraph(df, **kwargs)
 
@@ -53,21 +42,10 @@ del xs['entities']
 
 print('num_nodes:', xs['graph'].number_of_nodes())
 print('num_edges:', xs['graph'].number_of_edges())
-# print(list(dict(xs['nodes'].dtypes).items()))
-# print(xs['nodes'])
-
-# rmm.mr._flush_logs()
 
 graph, nodes, edges = shape_hypergraph(
     **xs, **kwargs, symmetrize=False
 )
-
-# rmm.mr._flush_logs()
-
-# print(nodes.dtypes)
-# print(nodes)
-# print(edges.dtypes)
-# print(edges)
 
 async def main(zmq_ctx):
 
@@ -89,8 +67,5 @@ async def main(zmq_ctx):
     )
     callback.update(msg=b'close')
     callback.close()
-    # await callback.update(msg=b'close')
-    # await callback.close()
 
 asyncio.run(main(zmq.Context.instance()))
-# asyncio.run(main(zmq.asyncio.Context()))

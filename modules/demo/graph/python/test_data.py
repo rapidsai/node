@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import cudf
+import json
 import pandas as pd
 import datetime as dt
 
@@ -33,7 +35,6 @@ def make_small_dataframe(**kwargs):
 def make_large_dataframe(**kwargs):
     df = cudf.read_csv(
         'data/Thursday-01-03-2018_TrafficForML_CICFlowMeter.csv',
-        # '/home/ptaylor/dev/rapids/compose/etc/notebooks/sandbox/data/Thursday-01-03-2018_TrafficForML_CICFlowMeter.csv',
         parse_dates=[2],
     ).dropna()
     df.reset_index(drop=True, inplace=True)

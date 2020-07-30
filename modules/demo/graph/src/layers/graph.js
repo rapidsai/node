@@ -14,7 +14,6 @@
 
 import { TextLayer } from '@deck.gl/layers';
 import { CompositeLayer } from '@deck.gl/core';
-import { ScatterplotLayer } from '@deck.gl/layers';
 
 import { Buffer } from '../buffer';
 import { NodeLayer } from './nodes';
@@ -43,6 +42,10 @@ export class GraphLayer extends CompositeLayer {
         this.setState({
             numNodesLoaded: 0,
             numEdgesLoaded: 0,
+            highlightedEdge: -1,
+            highlightedNode: -1,
+            highlightedSourceNode: -1,
+            highlightedTargetNode: -1,
             edgePositionRanges: new Set(),
             buffers: {
                 // edges
@@ -94,13 +97,12 @@ export class GraphLayer extends CompositeLayer {
             resizeBuffers(props.numEdges, edgeBufferNames.map((name) => this.state.buffers[name]));
         }
         if (changeFlags.numNodesChanged) {
-            const { textureWidth } = this.internalState.computeEdgePositions;
             nodeBufferNames.forEach((name) => {
                 let length = props.numNodes;
                 switch (name) {
                     case 'nodeXPositions':
                     case 'nodeYPositions':
-                        length = textureWidth * Math.ceil(length / textureWidth);
+                        length = this.internalState.computeEdgePositions.roundSizeUpToTextureDimensions(length);
                 }
                 resizeBuffer(length, this.state.buffers[name]);
             });
@@ -130,10 +132,16 @@ export class GraphLayer extends CompositeLayer {
 
         return super.finalizeState();
     }
-    onHover({ layer, x, y, index, coordinate }) {
+    onHover({ layer, x, y, index, coordinate, edgeId = -1, nodeId = -1, sourceNodeId = -1, targetNodeId = -1 }) {
         this.setState({
+            highlightedEdge: edgeId,
+            highlightedNode: nodeId,
+            highlightedSourceNode: sourceNodeId,
+            highlightedTargetNode: targetNodeId,
             labelColor: [255, 255, 255],
-            labelText: index === -1 ? `` : `${index}`,
+            labelText:
+                nodeId !== -1 ? `${nodeId}` :
+                edgeId !== -1 ? `${sourceNodeId}:${targetNodeId}` : ``,
             labelPosition: coordinate || layer.context.viewport.unproject([x, y]),
         });
     }
@@ -150,6 +158,7 @@ export class GraphLayer extends CompositeLayer {
             }
         };
 
+        props.edgesVisible &&
         renderChunks(this.state.numEdgesLoaded, EdgeLayer, (index, offset, length) => ({
             id: `${props.id}-edge-layer-${index}`, ...edgeLayerProps(props, state, offset, length),
         }));
@@ -158,6 +167,7 @@ export class GraphLayer extends CompositeLayer {
         // renderChunks(this.state.numEdgesLoaded, ScatterplotLayer, (index, offset, length) => ({
         //     id: `${props.id}-bezier-control-points-layer-${index}`,
         //     numInstances: length,
+        //     radiusScale: 2,
         //     data: {
         //         attributes: {
         //             instancePositions: { buffer: state.buffers.edgeControlPoints, offset: offset * 3 },
@@ -166,6 +176,7 @@ export class GraphLayer extends CompositeLayer {
         //     },
         // }));
 
+        props.nodesVisible &&
         renderChunks(this.state.numNodesLoaded, NodeLayer, (index, offset, length) => ({
             id: `${props.id}-node-layer-${index}`, ...nodeLayerProps(props, state, offset, length),
         }));
@@ -195,7 +206,6 @@ GraphLayer.defaultProps = {
     nodeFillOpacity: NodeLayer.defaultProps.fillOpacity,
     nodeStrokeRatio: NodeLayer.defaultProps.strokeRatio,
     nodeStrokeOpacity: NodeLayer.defaultProps.strokeOpacity,
-    nodeOpacity: NodeLayer.defaultProps.opacity,
     nodeRadiusScale: NodeLayer.defaultProps.radiusScale,
     nodeLineWidthScale: NodeLayer.defaultProps.lineWidthScale,
     nodeRadiusMinPixels: NodeLayer.defaultProps.radiusMinPixels,
@@ -297,6 +307,11 @@ const computePendingEdgePositions = ({
     return { edgePositionRanges };
 };
 
+const sliceLayerAttrib = (multiplier, buffer, offset = 0) => ({
+    buffer,
+    offset: buffer.accessor.BYTES_PER_VERTEX * multiplier + offset
+});
+
 const edgeLayerProps = (props, state, offset, length) => ({
     pickable: true,
     autoHighlight: true,
@@ -305,13 +320,15 @@ const edgeLayerProps = (props, state, offset, length) => ({
     opacity: props.edgeOpacity,
     visible: props.edgesVisible,
     width: props.edgeStrokeWidth,
+    highlightedNode: state.highlightedNode,
     data: {
         attributes: {
-            instanceSourceColors: { buffer: state.buffers.edgeColors, offset: offset * 4 },
-            instanceTargetColors: { buffer: state.buffers.edgeColors, offset: offset * 4 + 4 },
-            instanceControlPoints: { buffer: state.buffers.edgeControlPoints, offset: offset * 3 },
-            instanceSourcePositions: { buffer: state.buffers.edgeSourcePositions, offset: offset * 3 },
-            instanceTargetPositions: { buffer: state.buffers.edgeTargetPositions, offset: offset * 3 },
+            instanceEdges: sliceLayerAttrib(offset, state.buffers.edgeList),
+            instanceSourceColors: sliceLayerAttrib(offset, state.buffers.edgeColors),
+            instanceTargetColors: sliceLayerAttrib(offset, state.buffers.edgeColors, 4),
+            instanceControlPoints: sliceLayerAttrib(offset, state.buffers.edgeControlPoints),
+            instanceSourcePositions: sliceLayerAttrib(offset, state.buffers.edgeSourcePositions),
+            instanceTargetPositions: sliceLayerAttrib(offset, state.buffers.edgeTargetPositions),
         }
     }
 });
@@ -333,15 +350,19 @@ const nodeLayerProps = (props, state, offset, length) => ({
     lineWidthScale: props.nodeLineWidthScale,
     lineWidthMinPixels: props.nodeLineWidthMinPixels,
     lineWidthMaxPixels: props.nodeLineWidthMaxPixels,
+    highlightedSourceNode: state.highlightedSourceNode,
+    highlightedTargetNode: state.highlightedTargetNode,
     data: {
         attributes: {
-            instanceRadius: { buffer: state.buffers.nodeRadius, offset },
-            instanceFillColors: { buffer: state.buffers.nodeFillColors, offset },
-            instanceLineColors: { buffer: state.buffers.nodeFillColors, offset },
-            instanceXPositions: { buffer: state.buffers.nodeXPositions, offset },
-            instanceYPositions: { buffer: state.buffers.nodeYPositions, offset },
-            instanceXPositions64Low: { buffer: state.buffers.nodeXPositions, offset },
-            instanceYPositions64Low: { buffer: state.buffers.nodeYPositions, offset },
+            instanceRadius: sliceLayerAttrib(offset, state.buffers.nodeRadius),
+            instanceFillColors: sliceLayerAttrib(offset, state.buffers.nodeFillColors),
+            instanceLineColors: sliceLayerAttrib(offset, state.buffers.nodeFillColors),
+            instanceXPositions: sliceLayerAttrib(offset, state.buffers.nodeXPositions),
+            instanceYPositions: sliceLayerAttrib(offset, state.buffers.nodeYPositions),
+            instanceXPositions64Low: sliceLayerAttrib(offset, state.buffers.nodeXPositions),
+            instanceYPositions64Low: sliceLayerAttrib(offset, state.buffers.nodeYPositions),
+            instanceNodeIndices: sliceLayerAttrib(offset, state.buffers.nodeElementIndices),
+            elementIndices: sliceLayerAttrib(offset, state.buffers.nodeElementIndices),
         }
     },
 });

@@ -35,9 +35,12 @@ uniform float radiusMaxPixels;
 uniform float lineWidthScale;
 uniform float lineWidthMinPixels;
 uniform float lineWidthMaxPixels;
+uniform uint highlightedSourceNode;
+uniform uint highlightedTargetNode;
 
 in vec3 positions;
 in float instanceRadius;
+in uint instanceNodeIndices;
 // in float instanceLineWidths;
 in vec4 instanceFillColors;
 in vec4 instanceLineColors;
@@ -89,5 +92,10 @@ void main(void) {
     DECKGL_FILTER_COLOR(vFillColor, geometry);
     vLineColor = vec4(instanceLineColors.rgb, strokeOpacity);
     DECKGL_FILTER_COLOR(vLineColor, geometry);
+
+    picking_vRGBcolor_Avalid.a = float(
+        bool(picking_vRGBcolor_Avalid.a) ||
+        instanceNodeIndices == highlightedSourceNode ||
+        instanceNodeIndices == highlightedTargetNode );
 }
 `;
