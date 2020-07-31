@@ -81,7 +81,7 @@ void main(void) {
         float size = mix(
             (strokeWidth * 2. * eindex),
             (maxBundleSize / strokeWidth) * (eindex / bcount),
-            step(maxBundleSize, bcount * strokeWidth)
+            step(maxBundleSize, bcount * strokeWidth * 2.)
         ) + maxBundleSize;
 
         controlPoint = vec3((midp + (unit * size * direction)).xy, 0.);

@@ -20,18 +20,16 @@ from math import ceil
 from cugraph.structure import graph_new_wrapper
 
 
-def shape_hypergraph(graph=None,
-                     nodes=None,
-                     edges=None,
-                     symmetrize=False,
-                     SOURCE='src',
-                     TARGET='dst',
-                     NODEID='node_id',
-                     CATEGORY='category',
-                     **kwargs):
+def shape_graph(graph=None,
+                nodes=None,
+                symmetrize=False,
+                SOURCE="src",
+                TARGET="dst",
+                NODEID="node_id",
+                CATEGORY="category",
+                **kwargs):
     if symmetrize:
         graph = graph.to_directed()
-    nodes = nodes[[NODEID, CATEGORY]]
     edges = graph.edges()[[SOURCE, TARGET]]
     nodes = _filter_by(nodes, graph.nodes(), NODEID)
     nid, src, dst = _combine_categories(
@@ -39,20 +37,20 @@ def shape_hypergraph(graph=None,
     )
     edge, bundle = _compute_edge_bundles(src, dst)
     nlist = cudf.DataFrame({
-        'node': nodes[NODEID],
-        'category': nodes[CATEGORY],
-        'id': nid.astype(np.uint32),
-        'color': _category_to_color(nodes[CATEGORY]),
-        'size': _degrees_to_size(graph).astype(np.uint8)
-    }).sort_values(by='id', ignore_index=True)
+        "node": nodes[NODEID],
+        "category": nodes[CATEGORY],
+        "id": nid.astype(np.uint32),
+        "color": _category_to_color(nodes[CATEGORY]),
+        "size": _degrees_to_size(graph).astype(np.uint8)
+    }).sort_values(by="id", ignore_index=True)
     elist = cudf.DataFrame({
-        'src': edges[SOURCE],
-        'dst': edges[TARGET],
-        'edge': edge.astype(np.uint64),
-        'bundle': bundle.astype(np.uint64),
-        'color': _stack_columns(cudf.DataFrame({
-            'src': _filter_by(nlist[['id', 'color']], src, left_on='id')['color'],
-            'dst': _filter_by(nlist[['id', 'color']], dst, left_on='id')['color'],
+        "src": edges[SOURCE],
+        "dst": edges[TARGET],
+        "edge": edge.astype(np.uint64),
+        "bundle": bundle.astype(np.uint64),
+        "color": _stack_columns(cudf.DataFrame({
+            "src": _filter_by(nlist[["id", "color"]], src, left_on="id")["color"],
+            "dst": _filter_by(nlist[["id", "color"]], dst, left_on="id")["color"],
         }))
     })
     return (graph, nlist, elist)
@@ -66,7 +64,7 @@ def _category_to_color(types):
         -5914010,-4356046,-6140066
     ]
     # shuffle(color_palette)
-    types = types.astype('category')
+    types = types.astype("category")
     color_indices = cudf.Series(types.cat.codes)
     color_palette = cudf.Series(color_palette)
     color_palettes = []
@@ -81,7 +79,7 @@ def _category_to_color(types):
 
 
 def _combine_categories(*cols):
-    cols = [col.astype('category') for col in cols]
+    cols = [col.astype("category") for col in cols]
     cats = cudf.concat([col.cat.categories for col in cols]) \
         .to_series().drop_duplicates(ignore_index=True)._column
     cols = [
@@ -93,17 +91,17 @@ def _combine_categories(*cols):
 
 
 def _compute_edge_bundles(src, dst):
-    edges = cudf.DataFrame({'src': src, 'dst': dst})
-    edges = edges.reset_index().rename({'index': 'eid'}, axis=1, copy=False)
+    edges = cudf.DataFrame({"src": src, "dst": dst})
+    edges = edges.reset_index().rename({"index": "eid"}, axis=1, copy=False)
     # Create a duplicate table with:
     # * all the [src, dst] in the upper half
     # * all the [dst, src] pairs as the lower half, but flipped so dst->src, src->dst
     bundles = cudf.DataFrame({
-        'eid': cudf.concat([edges['eid'], edges['eid']]),
-        # concat [src, dst] into the 'src' column
-        'src': cudf.concat([edges['src'], edges['dst']]),
-        # concat [dst, src] into the 'dst' column
-        'dst': cudf.concat([edges['dst'], edges['src']]),
+        "eid": cudf.concat([edges["eid"], edges["eid"]]),
+        # concat [src, dst] into the "src" column
+        "src": cudf.concat([edges["src"], edges["dst"]]),
+        # concat [dst, src] into the "dst" column
+        "dst": cudf.concat([edges["dst"], edges["src"]]),
     })
 
     # Group the duplicated edgelist by [src, dst] and get the min edge id.
@@ -111,36 +109,36 @@ def _compute_edge_bundles(src, dst):
     # edge with the same [src, dst] or [dst, src] vertices will be assigned
     # the same bundle id
     bundles = bundles \
-        .groupby(['src', 'dst']).agg({'eid': 'min'}) \
-        .reset_index().rename({'eid': 'bid'}, axis=1, copy=False)
+        .groupby(["src", "dst"]).agg({"eid": "min"}) \
+        .reset_index().rename({"eid": "bid"}, axis=1, copy=False)
 
     # Join the bundle ids into the edgelist
-    edges = edges.merge(bundles, on=['src', 'dst'], how='inner')
+    edges = edges.merge(bundles, on=["src", "dst"], how="inner")
 
-    # Determine each bundle's size and relative offset
-    bundles = edges['bid'].sort_values()
+    # Determine each bundle"s size and relative offset
+    bundles = edges["bid"].sort_values()
     lengths = bundles.value_counts(sort=False)
     offsets = lengths.cumsum() - lengths
     # Join the bundle segment lengths + offsets into the edgelist
     edges = edges.merge(cudf.DataFrame({
-        'bid': bundles.unique().reset_index(drop=True),
-        'start': offsets.reset_index(drop=True).astype(np.uint32),
-        'count': lengths.reset_index(drop=True).astype(np.uint32),
-    }), on='bid', how='left')
+        "bid": bundles.unique().reset_index(drop=True),
+        "start": offsets.reset_index(drop=True).astype(np.uint32),
+        "count": lengths.reset_index(drop=True).astype(np.uint32),
+    }), on="bid", how="left")
 
-    # Determine each edge's index relative to its bundle
-    edges = edges.sort_values(by='bid').reset_index(drop=True)
-    edges['index'] = cudf.core.index.RangeIndex(0, len(edges)) - edges['start']
-    edges['index'] = edges['index'].astype(np.uint32)
+    # Determine each edge"s index relative to its bundle
+    edges = edges.sort_values(by="bid").reset_index(drop=True)
+    edges["index"] = cudf.core.index.RangeIndex(0, len(edges)) - edges["start"]
+    edges["index"] = edges["index"].astype(np.uint32)
 
     # Re-sort the edgelist by edge id and cleanup
-    edges = edges.sort_values('eid').reset_index(drop=True)
-    edges = edges.rename({'eid': 'id'}, axis=1, copy=False)
-    edges = edges[['id', 'src', 'dst', 'index', 'count']]
+    edges = edges.sort_values("eid").reset_index(drop=True)
+    edges = edges.rename({"eid": "id"}, axis=1, copy=False)
+    edges = edges[["id", "src", "dst", "index", "count"]]
 
     return (
-        _stack_columns(edges[['src', 'dst']]),
-        _stack_columns(edges[['index', 'count']])
+        _stack_columns(edges[["src", "dst"]]),
+        _stack_columns(edges[["index", "count"]])
     )
 
 
@@ -163,7 +161,7 @@ def _filter_by(df, sr, left_on=None, right_on=None, out_path=None):
     right_on = str(sr.name if right_on is None else right_on)
     sr = sr.to_frame(right_on).set_index(right_on, drop=True)
     df = df.drop_duplicates(left_on).set_index(left_on, drop=False)
-    return _reset_index(sr.join(df, how='left'))
+    return _reset_index(sr.join(df, how="left"))
 
 
 def _stack_columns(df):
