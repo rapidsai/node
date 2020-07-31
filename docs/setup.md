@@ -60,11 +60,11 @@ npm run demo modules/demo/luma 01
 
 ### Troubleshooting
 
-Some rememedies for potential error messages you may encounter
+Some rememedies for potential error messages you may encounter.
 
 * > unsupported GNU version! gcc versions later than 8 are not supported!
 
-  Set the configured gcc/g++ versions with these commands
+  Set the configured gcc/g++ versions with these commands:
 
   ```bash
   sudo update-alternatives --config gcc
@@ -73,7 +73,7 @@ Some rememedies for potential error messages you may encounter
 
 * >  missing clangd
 
-   Congfigure clang 12 with this command
+   Congfigure clang 12 with this command:
 
   ```bash
   sudo update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-12 100
