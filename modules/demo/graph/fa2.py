@@ -17,12 +17,13 @@ import warnings
 warnings.filterwarnings('ignore', category=UserWarning)
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
-from python.shaping import shape_hypergraph
+from python.shaping import shape_graph
 from python.callback import GraphZmqCallback
 from python.test_data import (
-    make_large_dataframe,
-    make_small_dataframe,
-    make_complex_dataframe,
+    make_large_dataset,
+    make_small_dataset,
+    make_complex_dataset,
+    make_cit_patents_dataset,
 )
 
 import zmq
@@ -31,21 +32,13 @@ import cugraph
 import asyncio
 import zmq.asyncio
 
-# df, kwargs = make_small_dataframe(direct=True)
-# df, kwargs = make_complex_dataframe(direct=True)
-df, kwargs = make_large_dataframe(direct=False)
+# graph, nodes, edges = make_complex_dataset(direct=True)
+# graph, nodes, edges = make_small_dataset(direct=True)
+graph, nodes, edges = make_large_dataset(direct=False)
+# graph, nodes, edges = make_cit_patents_dataset()
 
-xs = cugraph.hypergraph(df, **kwargs)
-
-del xs['events']
-del xs['entities']
-
-print('num_nodes:', xs['graph'].number_of_nodes())
-print('num_edges:', xs['graph'].number_of_edges())
-
-graph, nodes, edges = shape_hypergraph(
-    **xs, **kwargs, symmetrize=False
-)
+print('num_nodes:', graph.number_of_nodes())
+print('num_edges:', graph.number_of_edges())
 
 async def main(zmq_ctx):
 
