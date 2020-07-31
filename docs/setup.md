@@ -18,7 +18,7 @@ You can build and run the C++ and TypeScript in a [docker](https://docker.com/) 
 
 ### Installation
 
-See our [`docker`, `docker-compose`, and `nvidia-container-runtime` installation and setup instructions](docs/docker/installation.md).
+See our [`docker`, `docker-compose`, and `nvidia-container-runtime` installation and setup instructions](docker/installation.md).
 
 ### Usage
 
@@ -47,9 +47,8 @@ We assume you have [node, npm](https://github.com/nvm-sh/nvm#installing-and-upda
 <details>
 <summary>Click here to see Ubuntu 16.04+ CMake installation commands:</summary>
 <pre>
-# Install CMake v3.17.4
-# Select from any CMake 3.17.x release in https://github.com/Kitware/CMake/releases
-CMAKE_VERSION=3.17.4
+# Install CMake v3.17.4, or select any CMake 3.17.x release in https://github.com/Kitware/CMake/releases
+CMAKE_VERSION=3.17.4<br/>
 wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz \
  && tar -xvzf cmake-${CMAKE_VERSION}.tar.gz && cd cmake-${CMAKE_VERSION} \
  && ./bootstrap --system-curl --parallel=$(nproc) && sudo make install -j \

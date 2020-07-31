@@ -13,7 +13,7 @@ Follow the [official docker installation instructions](https://docs.docker.com/g
 <details>
 <summary>Click here to see Ubuntu 16.04+ docker-ce installation commands:</summary>
 <pre>
-# Install docker-ce in one command. Adds your current user to the docker user group.
+# Install docker-ce in one command. Adds your current user to the docker user group.<br/>
 release=$(lsb_release -cs) \
  && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - \
  && sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $release stable" \
@@ -32,9 +32,9 @@ Follow the [official nvidia-container-toolkit installation instructions](https:/
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
 curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list \
-    | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+    | sudo tee /etc/apt/sources.list.d/nvidia-docker.list<br/>
 # Install the nvidia-container-toolkit
-sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit<br/>
 # Restart the docker service to make the nvidia-container-toolkit available
 sudo systemctl restart docker
 </pre>
@@ -46,9 +46,8 @@ Follow the [official docker-compose installation instructions](https://docs.dock
 <details>
 <summary>Click here to see Ubuntu 16.04+ docker-compose installation commands:</summary>
 <pre>
-# Install the latest docker-compose release from GitHub
-# Select from any release in https://github.com/docker/compose/releases
-DOCKER_COMPOSE_VERSION=1.26.2
+# Install docker-compose v1.26.2, or select any release in https://github.com/docker/compose/releases
+DOCKER_COMPOSE_VERSION=1.26.2<br/>
 sudo curl \
     -L https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m` \
     -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
