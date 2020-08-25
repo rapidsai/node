@@ -47,6 +47,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   auto mem     = Napi::Object::New(env);
   auto program = Napi::Object::New(env);
   auto stream  = Napi::Object::New(env);
+  auto texture = Napi::Object::New(env);
 
   EXPORT_PROP(exports, "device", device);
   EXPORT_PROP(exports, "gl", gl);
@@ -56,6 +57,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_PROP(exports, "mem", mem);
   EXPORT_PROP(exports, "program", program);
   EXPORT_PROP(exports, "stream", stream);
+  EXPORT_PROP(exports, "texture", stream);
 
   node_cuda::device::initModule(env, device);
   node_cuda::gl::initModule(env, gl);
@@ -65,6 +67,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   node_cuda::mem::initModule(env, mem);
   node_cuda::program::initModule(env, program);
   node_cuda::stream::initModule(env, stream);
+  node_cuda::texture::initModule(env, stream);
 
   EXPORT_ENUM(env, exports, "VERSION", CUDA_VERSION);
   EXPORT_ENUM(env, exports, "IPC_HANDLE_SIZE", CU_IPC_HANDLE_SIZE);

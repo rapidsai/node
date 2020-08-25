@@ -1,8 +1,4 @@
 {
-    "files.exclude": {
-        "**/build/include": false,
-    },
-
     "C_Cpp.formatting": "Disabled",
     "C_Cpp.autocomplete": "Disabled",
     "C_Cpp.errorSquiggles": "Disabled",
@@ -28,5 +24,44 @@
         "--completion-style=detailed",
         "--header-insertion-decorators",
     ],
-    "git.ignoreLimitWarning": true
+
+    "git.ignoreLimitWarning": true,
+
+    "files.associations": {
+        "*.cu": "cuda",
+        "*.cuh": "cuda",
+    },
+
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/.cache": true,
+        "**/.cache/**": true,
+    },
+
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/build": true,
+        "**/build/**": true,
+        "**/.cache": true,
+        "**/.cache/**": true,
+        "**/.ccache": true,
+        "**/.ccache/**": true,
+        "**/node_modules/**": true,
+    },
+
+    "search.exclude": {
+        "**/napi.h": false,
+        "**/napi-inl.h": false,
+        "**/napi-inl.deprecated.h": false,
+        "**/node_api.h": false,
+        "**/build": true,
+        "**/build/**": true,
+        "**/.cache": true,
+        "**/.cache/**": true,
+        "**/.ccache": true,
+        "**/.ccache/**": true,
+        "**/node_modules/**": true,
+    },
 }

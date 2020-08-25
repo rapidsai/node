@@ -17,6 +17,7 @@
 #include <cudaGL.h>
 #include <cuda_gl_interop.h>
 
+#include <node_cuda/array.hpp>
 #include <node_cuda/buffer.hpp>
 #include <node_cuda/casting.hpp>
 #include <node_cuda/macros.hpp>
@@ -100,6 +101,24 @@ Napi::Value cudaGraphicsResourceGetMappedPointer(Napi::CallbackInfo const& info)
   return CUDABuffer::New(data, size, buffer_type::GL);
 }
 
+// cudaError_t CUDARTAPI cudaGraphicsSubResourceGetMappedArray(cudaArray_t *array,
+// cudaGraphicsResource_t resource, unsigned int arrayIndex, unsigned int mipLevel)
+Napi::Value cudaGraphicsSubResourceGetMappedArray(Napi::CallbackInfo const& info) {
+  auto env                        = info.Env();
+  cudaGraphicsResource_t resource = FromJS(info[0]);
+  uint32_t arrayIndex             = FromJS(info[1]);
+  uint32_t mipLevel               = FromJS(info[2]);
+  cudaArray_t array;
+  size_t size{};
+  CUDA_TRY(
+    env, CUDARTAPI::cudaGraphicsSubResourceGetMappedArray(&array, resource, arrayIndex, mipLevel));
+  uint32_t flags{};
+  cudaExtent extent{};
+  cudaChannelFormatDesc desc{};
+  CUDA_TRY(env, cudaArrayGetInfo(&desc, &extent, &flags, array));
+  return CUDAArray::New(array, extent, desc, flags, array_type::GL);
+}
+
 namespace gl {
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "getDevices", node_cuda::cudaGLGetDevices);
@@ -109,6 +128,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "mapResources", node_cuda::cudaGraphicsMapResources);
   EXPORT_FUNC(env, exports, "unmapResources", node_cuda::cudaGraphicsUnmapResources);
   EXPORT_FUNC(env, exports, "getMappedPointer", node_cuda::cudaGraphicsResourceGetMappedPointer);
+  EXPORT_FUNC(env, exports, "getMappedArray", node_cuda::cudaGraphicsSubResourceGetMappedArray);
 
   auto cudaGraphicsRegisterFlags = Napi::Object::New(env);
   EXPORT_ENUM(env, cudaGraphicsRegisterFlags, "none", CU_GRAPHICS_REGISTER_FLAGS_NONE);

@@ -52,8 +52,12 @@ namespace stream {
 Napi::Object initModule(Napi::Env env, Napi::Object exports);
 }  // namespace stream
 
+namespace texture {
+Napi::Object initModule(Napi::Env env, Napi::Object exports);
+}  // namespace texture
+
 namespace detail {
-void freeHostPtr(const Napi::Env& env, void* ptr);
+void freeHostPtr(Napi::Env const& env, void* ptr);
 }  // namespace detail
 
 // CUresult cuInit(unsigned int Flags)

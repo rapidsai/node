@@ -23,7 +23,7 @@
 namespace node_cuda {
 
 namespace detail {
-void freeHostPtr(const Napi::Env& env, void* ptr) {
+void freeHostPtr(Napi::Env const& env, void* ptr) {
   size_t size;
   CUdeviceptr base;
   CUdeviceptr dptr;

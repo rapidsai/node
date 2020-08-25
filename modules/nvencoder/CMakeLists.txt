@@ -15,27 +15,24 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
-project(node_webgl VERSION 0.0.1 LANGUAGES C CXX)
+project(node_nvencoder VERSION 0.0.1 LANGUAGES C CXX)
 
-# Set OpenGL_GL_PREFERENCE to "GLVND"
-cmake_policy(SET CMP0072 NEW)
-
-set(NODE_WEBGL_STATIC_LINK OFF)
-set(REQUIRED_GLEW_VERSION "2.1.0")
-set(REQUIRED_GLFW_VERSION "3.3.2")
+set(VIDEO_CODEC_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/sdk/Video_Codec_SDK_10.0.26")
+set(NODE_NVENCODER_STATIC_LINK OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(GLEW_USE_STATIC_LIBS ${NODE_WEBGL_STATIC_LINK})
-set(GLFW_USE_STATIC_LIBS ${NODE_WEBGL_STATIC_LINK})
+set(REQUIRED_GLEW_VERSION "2.1.0")
+set(GLEW_USE_STATIC_LIBS ${NODE_NVENCODER_STATIC_LINK})
 set(GLEW_USE_SHARED_LIBS ON)
-set(GLFW_USE_SHARED_LIBS ON)
 
-if(NODE_WEBGL_STATIC_LINK)
+if(NODE_NVENCODER_STATIC_LINK)
     set(GLEW_USE_STATIC_LIBS ON)
-    set(GLFW_USE_STATIC_LIBS ON)
     set(GLEW_USE_SHARED_LIBS OFF)
-    set(GLFW_USE_SHARED_LIBS OFF)
-endif(NODE_WEBGL_STATIC_LINK)
+endif(NODE_NVENCODER_STATIC_LINK)
+
+if(DEFINED ENV{VIDEO_CODEC_SDK_DIR})
+    set(VIDEO_CODEC_SDK_DIR $ENV{VIDEO_CODEC_SDK_DIR})
+endif(DEFINED ENV{VIDEO_CODEC_SDK_DIR})
 
 if(UNIX AND NOT APPLE)
     set(LINUX TRUE)
@@ -67,14 +64,27 @@ execute_process(COMMAND npx nvidia-cmake-modules-path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NVIDIA_CMAKE_MODULES_PATH}")
 
 include(ConfigureNapi)
-include(ConfigureDisplayServer)
+include(ConfigureCUDA)
 include(ConfigureOpenGL)
 include(ConfigureOpenGLEW)
-include(ConfigureOpenGLFW)
 
 include(FeatureSummary)
 include(CheckIncludeFiles)
 include(CheckLibraryExists)
+
+find_path(VIDEO_CODEC_SDK_INCLUDE_DIR nvEncodeAPI.h "${VIDEO_CODEC_SDK_DIR}/include")
+
+find_path(VIDEO_CODEC_SDK_INCLUDE_DIR NO_DEFAULT_PATH REQUIRED
+          NAMES nvEncodeAPI.h
+          HINTS "${VIDEO_CODEC_SDK_DIR}"
+          PATH_SUFFIXES "include" "Interface"
+          DOC "The nvEncodeAPI.h parent dir")
+
+find_library(CUVID_LIB nvcuvid)
+find_library(NVENCODEAPI_LIB nvidia-encode)
+
+message(STATUS "CUVID_LIB: ${CUVID_LIB}")
+message(STATUS "NVENCODEAPI_LIB: ${NVENCODEAPI_LIB}")
 
 ###################################################################################################
 # - compiler options ------------------------------------------------------------------------------
@@ -95,21 +105,21 @@ endif()
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
 
-include_directories("${GLEW_INCLUDE_DIRS}"
-                    "${GLFW_INCLUDE_DIRS}"
+include_directories("${CUDA_INCLUDE_DIRS}"
+                    "${GLEW_INCLUDE_DIRS}"
                     "${OPENGL_INCLUDE_DIR}"
-                    "${DISPLAY_SERVER_INCLUDE_DIRS}"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+                    "${VIDEO_CODEC_SDK_INCLUDE_DIR}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
-file(GLOB_RECURSE NODE_WEBGL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/*.cpp")
+link_directories("${CUDA_LIBRARIES}")
 
-add_library(${PROJECT_NAME} SHARED ${NODE_WEBGL_SRC_FILES} ${CMAKE_JS_SRC})
+file(GLOB_RECURSE NODE_NVENCODER_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/*.cpp")
+
+add_library(${PROJECT_NAME} SHARED ${NODE_NVENCODER_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 target_link_libraries(${PROJECT_NAME}
-                      ${CMAKE_JS_LIB}
-                      ${GLEW_LIBRARY}
-                      ${GLFW_LIBRARY}
-                      OpenGL::GL)
+                      ${CMAKE_JS_LIB} cuda cudart ${GLEW_LIBRARY} OpenGL::GL ${NVENCODEAPI_LIB} ${CUVID_LIB})

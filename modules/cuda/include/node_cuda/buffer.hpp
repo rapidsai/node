@@ -19,7 +19,7 @@
 
 namespace node_cuda {
 
-enum buffer_type { CUDA = 0, IPC = 1, GL = 2 };
+enum class buffer_type : uint8_t { CUDA = 0, IPC = 1, GL = 2 };
 
 class CUDABuffer : public Napi::ObjectWrap<CUDABuffer> {
  public:

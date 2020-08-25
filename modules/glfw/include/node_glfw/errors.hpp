@@ -38,7 +38,7 @@ inline std::string glfwGetErrorName(int code) {
 }  // namespace detail
 
 inline Napi::Error glfwError(
-  const Napi::Env& env, const int code, const char* err, const char* file, const uint32_t line) {
+  Napi::Env const& env, const int code, const char* err, const char* file, const uint32_t line) {
   auto name = detail::glfwGetErrorName(code);
   auto msg  = std::string{name} + " " + std::string{err} + "\n    at " + std::string{file} + ":" +
              std::to_string(line);

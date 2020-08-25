@@ -7,6 +7,16 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Debug nvencoder demo",
+            "program": "${workspaceFolder}/modules/nvencoder/test/zips/index.js",
+            "stopOnEntry": false,
+            "runtimeArgs": ["-r", "esm"],
+            "cwd": "${workspaceFolder}/modules/nvencoder/test/zips",
+            "env": { "NODE_ENV": "production" }
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Debug graph demo",
             "program": "${workspaceFolder}/modules/demo/graph/index.js",
             "stopOnEntry": false,

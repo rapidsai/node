@@ -19,7 +19,7 @@
 
 namespace node_webgl {
 
-inline Napi::Error glewError(const Napi::Env& env,
+inline Napi::Error glewError(Napi::Env const& env,
                              const int code,
                              const char* file,
                              const uint32_t line) {

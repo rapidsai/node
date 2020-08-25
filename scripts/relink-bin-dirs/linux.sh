@@ -16,7 +16,7 @@ NAPI_INCLUDE_DIR="$PWD/node_modules/node-addon-api"
 NODE_INCLUDE_DIR="${NODE_BIN_PATH%/bin/node}/include"
 THRUST_INCLUDE_DIR="${CUDA_HOME:-/usr/local/cuda}/include/thrust"
 
-for REPO in cuda glfw webgl; do
+for REPO in cuda glfw nvencoder webgl; do
     DIR=$(npx lerna exec --scope "@nvidia/$REPO" "echo \$PWD" | head -n1)
     # symlink node headers
     ln -sf "$NODE_INCLUDE_DIR/node/node_api.h" "$DIR/include/node_api.h"

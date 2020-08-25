@@ -248,7 +248,7 @@ struct FromJS {
 
 struct ToNapi {
   Napi::Env env;
-  inline ToNapi(const Napi::Env& env) : env(env) {}
+  inline ToNapi(Napi::Env const& env) : env(env) {}
 
   // Primitives
   Napi::Boolean inline operator()(const bool& val) const {

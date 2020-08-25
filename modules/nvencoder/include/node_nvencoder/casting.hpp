@@ -17,18 +17,16 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <napi.h>
-#include <nvrtc.h>
 
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <map>
 #include <string>
 #include <type_traits>
 
-#include "buffer.hpp"
-
-namespace node_rmm {
+namespace node_nvencoder {
 
 struct FromJS {
   Napi::Value val;
@@ -91,6 +89,19 @@ struct FromJS {
     return ptr;
   }
 
+  inline operator CUresult() const {
+    return static_cast<CUresult>(this->val.ToNumber().Int32Value());
+  }
+  inline operator CUstream() const {
+    return reinterpret_cast<CUstream>(this->val.ToNumber().Int64Value());
+  }
+  inline operator CUdevice_attribute() const {
+    return static_cast<CUdevice_attribute>(this->val.ToNumber().Uint32Value());
+  }
+  inline operator CUpointer_attribute() const {
+    return static_cast<CUpointer_attribute>(this->val.ToNumber().Uint32Value());
+  }
+
   //
   // Arrays
   //
@@ -105,6 +116,26 @@ struct FromJS {
       return vec;
     }
     return std::vector<T>{};
+  }
+
+  //
+  // Objects
+  //
+
+  template <typename Key, typename Val>
+  inline operator std::map<Key, Val>() const {
+    if (val.IsObject()) {
+      std::map<Key, Val> map{};
+      auto obj  = val.As<Napi::Object>();
+      auto keys = obj.GetPropertyNames();
+      for (uint32_t i = 0; i < keys.Length(); ++i) {
+        Key k  = FromJS(keys.Get(i));
+        Val v  = FromJS(obj.Get(keys.Get(i)));
+        map[k] = v;
+      }
+      return map;
+    }
+    return std::map<Key, Val>{};
   }
 
   //
@@ -136,8 +167,24 @@ struct FromJS {
     return reinterpret_cast<void*>(val.operator napi_value());
   }
 
+  inline operator cudaUUID_t() const {
+    return *reinterpret_cast<cudaUUID_t*>(this->operator void*());
+  }
+  inline operator CUcontext() const { return reinterpret_cast<CUcontext>(this->operator void*()); }
+  inline operator CUfunction() const {
+    return reinterpret_cast<CUfunction>(this->operator void*());
+  }
   inline operator CUdeviceptr() const {
     return reinterpret_cast<CUdeviceptr>(this->operator void*());
+  }
+  inline operator CUipcMemHandle() const {
+    return *reinterpret_cast<CUipcMemHandle*>(this->operator void*());
+  }
+  inline operator cudaGraphicsResource_t() const {
+    return reinterpret_cast<cudaGraphicsResource_t>(this->operator void*());
+  }
+  inline operator cudaIpcMemHandle_t() const {
+    return *reinterpret_cast<cudaIpcMemHandle_t*>(this->operator void*());
   }
 
 #define POINTER_CONVERSION_OPERATOR(T)                                     \
@@ -227,6 +274,9 @@ struct ToNapi {
   Napi::Number inline operator()(const uint64_t& val) const {
     return Napi::Number::New(this->env, val);
   }
+  Napi::Value inline operator()(CUstream val) const {
+    return Napi::Number::New(this->env, reinterpret_cast<int64_t>(val));
+  }
   Napi::String inline operator()(const char* val) const {
     return Napi::String::New(this->env, val);
   }
@@ -236,9 +286,11 @@ struct ToNapi {
   Napi::String inline operator()(const std::u16string& val) const {
     return Napi::String::New(this->env, val);
   }
+
   //
   // Arrays
   //
+
   template <int N>
   Napi::Array inline operator()(const int (&arr)[N]) const {
     return (*this)(std::vector<int>{arr, arr + N});
@@ -257,6 +309,15 @@ struct ToNapi {
   //
   // Objects
   //
+
+  template <typename Key, typename Val>
+  Napi::Object inline operator()(const std::map<Key, Val> map) const {
+    auto cast_t = *this;
+    auto obj    = Napi::Object::New(this->env);
+    for (auto pair : map) { obj.Set(cast_t(pair.first), cast_t(pair.second)); }
+    return obj;
+  }
+
   template <typename T>
   Napi::Object inline operator()(const std::vector<T>& vals,
                                  const std::vector<std::string>& keys) const {
@@ -275,6 +336,7 @@ struct ToNapi {
   //
   // Pointers
   //
+
   template <typename Finalizer>
   Napi::ArrayBuffer inline operator()(void* ptr, size_t size, Finalizer finalizer) const {
     return Napi::ArrayBuffer::New(this->env, ptr, size, finalizer);
@@ -282,5 +344,32 @@ struct ToNapi {
   Napi::ArrayBuffer inline operator()(void* ptr, size_t size) const {
     return Napi::ArrayBuffer::New(this->env, ptr, size);
   }
+  Napi::Uint8Array inline operator()(const cudaUUID_t& val) const {
+    auto arr = Napi::Uint8Array::New(this->env, sizeof(cudaUUID_t));
+    memcpy(arr.ArrayBuffer().Data(), &val.bytes, sizeof(cudaUUID_t));
+    return arr;
+  }
+  Napi::Uint8Array inline operator()(const CUipcMemHandle& ptr) const {
+    auto arr = Napi::Uint8Array::New(this->env, CU_IPC_HANDLE_SIZE);
+    memcpy(arr.ArrayBuffer().Data(), &ptr.reserved, CU_IPC_HANDLE_SIZE);
+    return arr;
+  }
+  Napi::Uint8Array inline operator()(const cudaIpcMemHandle_t& ptr) const {
+    auto arr = Napi::Uint8Array::New(this->env, CU_IPC_HANDLE_SIZE);
+    memcpy(arr.ArrayBuffer().Data(), &ptr.reserved, CU_IPC_HANDLE_SIZE);
+    return arr;
+  }
+  Napi::Value inline operator()(CUcontext val) const {
+    return (val == NULL) ? this->env.Null() : Napi::External<void>::New(this->env, val);
+  }
+  Napi::Value inline operator()(CUfunction val) const {
+    return (val == NULL) ? this->env.Null() : Napi::External<void>::New(this->env, val);
+  }
+  Napi::Value inline operator()(CUgraphicsResource val) const {
+    return (val == NULL) ? this->env.Null() : Napi::External<void>::New(this->env, val);
+  }
+  Napi::Value inline operator()(cudaGraphicsResource_t val) const {
+    return (val == NULL) ? this->env.Null() : Napi::External<void>::New(this->env, val);
+  }
 };
-}  // namespace node_rmm
+}  // namespace node_nvencoder

@@ -3,6 +3,7 @@ ARG LINUX_VERSION=ubuntu18.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 
 FROM node:14.4.0-stretch-slim as node
+FROM jrottenberg/ffmpeg:4.1-nvidia AS ffmpeg
 
 FROM nvidia/cudagl:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
@@ -76,6 +77,13 @@ ENV CUDA_HOME="/usr/local/cuda-$CUDA_SHORT_VERSION"
 ENV CMAKE_C_COMPILER_LAUNCHER="/usr/local/bin/ccache"
 ENV CMAKE_CXX_COMPILER_LAUNCHER="/usr/local/bin/ccache"
 ENV CMAKE_CUDA_COMPILER_LAUNCHER="/usr/local/bin/ccache"
+
+COPY --from=ffmpeg /usr/local/bin /usr/local/bin/
+COPY --from=ffmpeg /usr/local/share /usr/local/share/
+COPY --from=ffmpeg /usr/local/lib /usr/local/lib/
+COPY --from=ffmpeg /usr/local/include /usr/local/include/
+
+ENV FFMPEG_DIR="/usr/local"
 
 SHELL ["/bin/bash", "-l"]
 
