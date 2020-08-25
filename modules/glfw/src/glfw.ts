@@ -197,6 +197,15 @@ export namespace glfw {
     // export const createWindowSurface: () => void = GLFW.createWindowSurface;
 }
 
+export namespace GLFWStandardCursor {
+    export const ARROW: GLFWcursor = glfw.createStandardCursor(GLFW.ARROW_CURSOR);
+    export const IBEAM: GLFWcursor = glfw.createStandardCursor(GLFW.IBEAM_CURSOR);
+    export const CROSSHAIR: GLFWcursor = glfw.createStandardCursor(GLFW.CROSSHAIR_CURSOR);
+    export const HAND: GLFWcursor = glfw.createStandardCursor(GLFW.HAND_CURSOR);
+    export const HRESIZE: GLFWcursor = glfw.createStandardCursor(GLFW.HRESIZE_CURSOR);
+    export const VRESIZE: GLFWcursor = glfw.createStandardCursor(GLFW.VRESIZE_CURSOR);
+}
+
 export enum GLFWClientAPI {
     NONE = GLFW.NO_API,
     OPENGL = GLFW.OPENGL_API,

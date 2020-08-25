@@ -5,6 +5,8 @@
   "useWorkspaces": true,
   "packages": [
     "modules/*",
+    "modules/demo/fa2",
+    "modules/demo/graph",
     "modules/demo/luma",
     "modules/demo/umap",
     "modules/demo/xterm",

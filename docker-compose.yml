@@ -1,40 +1,51 @@
 version: "3.8"
 
-x-service-settings: &service_settings
-  build: &build_settings
-    context: .
-    args:
-      UID: ${UID:-1000}
-      GID: ${GID:-1000}
-      PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
-      CUDA_VERSION: "${CUDA_VERSION:-10.2}"
-      RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
-      LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
-  environment: &common_env_vars
-    # Colorize the terminal in the container if possible
-    TERM: "${TERM}"
-    # Use the host's X11 display
-    DISPLAY: "${DISPLAY}"
-    XAUTHORITY: "${XAUTHORITY}"
-    XDG_SESSION_TYPE: "${XDG_SESSION_TYPE}"
-    NVIDIA_DRIVER_CAPABILITIES: "all"
+x-common-service-settings: &common_service_settings
   cap_add:
     - SYS_PTRACE
   tty: true
-  user: "1000:1000"
   network_mode: "host"
   working_dir: "${PWD}"
+  user: "${UID:-1000}:${GID:-1000}"
 
 services:
 
+  runtime:
+    <<: *common_service_settings
+    image: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-10.2}-runtime-${LINUX_VERSION:-ubuntu18.04}
+    build: &runtime_build_settings
+      dockerfile: dockerfiles/runtime.Dockerfile
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+        PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
+        CUDA_VERSION: "${CUDA_VERSION:-10.2}"
+        RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
+        LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
+    environment: &runtime_environment_variables
+      # Colorize the terminal in the container if possible
+      TERM: "${TERM}"
+      # Use the host's X11 display
+      DISPLAY: "${DISPLAY}"
+      XAUTHORITY: "${XAUTHORITY}"
+      XDG_SESSION_TYPE: "${XDG_SESSION_TYPE}"
+      NVIDIA_DRIVER_CAPABILITIES: "all"
+    volumes:
+      - &workdir "${PWD}:${PWD}:rw"
+      - &etc_fonts "/etc/fonts:/etc/fonts:ro"
+      - &x11_socket "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - &usr_share_fonts "/usr/share/fonts:/usr/share/fonts:ro"
+      - &usr_share_icons "/usr/share/icons:/usr/share/icons:ro"
+
   devel:
-    <<: *service_settings
+    <<: *common_service_settings
     image: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-10.2}-devel-${LINUX_VERSION:-ubuntu18.04}
     build:
-      <<: *build_settings
+      <<: *runtime_build_settings
       dockerfile: dockerfiles/devel.Dockerfile
     environment:
-      <<: *common_env_vars
+      <<: *runtime_environment_variables
       # ccache configuration
       CCACHE_MAXSIZE: 0 # unlimited
       CCACHE_NOHASHDIR: "1"
@@ -44,21 +55,9 @@ services:
       # Set this to debug ccache preprocessor errors and cache misses
       # CCACHE_LOGFILE: "/ccache/ccache.log"
     volumes:
-      - &workdir "${PWD}:${PWD}:rw"
-      - &ccachedir "${PWD}/.ccache:/ccache:rw"
-      - &etc_fonts "/etc/fonts:/etc/fonts:ro"
-      - &x11_socket "/tmp/.X11-unix:/tmp/.X11-unix:rw"
-      - &usr_share_fonts "/usr/share/fonts:/usr/share/fonts:ro"
-
-  runtime:
-    <<: *service_settings
-    image: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-10.2}-runtime-${LINUX_VERSION:-ubuntu18.04}
-    build:
-      <<: *build_settings
-      dockerfile: dockerfiles/runtime.Dockerfile
-    environment:
-      <<: *common_env_vars
-    volumes:
+      - *workdir
       - *etc_fonts
       - *x11_socket
       - *usr_share_fonts
+      - *usr_share_icons
+      - &ccachedir "${PWD}/.ccache:/ccache:rw"

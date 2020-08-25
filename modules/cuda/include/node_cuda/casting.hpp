@@ -27,7 +27,6 @@
 #include <type_traits>
 #include <visit_struct/visit_struct.hpp>
 
-#include "buffer.hpp"
 #include "types.hpp"
 
 namespace node_cuda {
@@ -166,9 +165,10 @@ struct FromJS {
       auto obj = val.As<Napi::Object>();
       if (obj.Has("buffer")) { obj = obj.Get("buffer").As<Napi::Object>(); }
       if (obj.Has("byteLength")) {
-        try {
-          return CUDABuffer::Unwrap(obj)->Data();
-        } catch (Napi::Error e) {}
+        if (obj.Has("ptr") && obj.Get("ptr").IsNumber()) {
+          return reinterpret_cast<void*>(obj.Get("ptr").As<Napi::Number>().Int64Value());
+        }
+        NAPI_THROW("Expected object with a `ptr` field");
       }
     }
     return reinterpret_cast<void*>(val.operator napi_value());

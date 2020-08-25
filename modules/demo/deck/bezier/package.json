@@ -17,9 +17,9 @@
     "@babel/preset-env": "^7.4.0",
     "@babel/preset-react": "^7.4.0",
     "@babel/register": "^7.4.0",
-    "@deck.gl/react": "8.1.4",
-    "@deck.gl/core": "8.1.4",
-    "@deck.gl/layers": "8.1.4",
+    "@deck.gl/react": "8.2.3",
+    "@deck.gl/core": "8.2.3",
+    "@deck.gl/layers": "8.2.3",
     "@nvidia/glfw": "0.0.1",
     "react": "^16.3.0",
     "react-dom": "^16.3.0"
