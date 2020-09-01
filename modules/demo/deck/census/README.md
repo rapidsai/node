@@ -1,7 +1,6 @@
 # Plot.ly-Dash + RAPIDS | Census 2010 Visualization
 
-![](./demo.png)
-![](./demo2.png)
+![](./census_demo1.png)
 
 # Installation and Run Steps [Work In Progress]
 
