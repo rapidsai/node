@@ -7,7 +7,7 @@
 # Run Steps
 
 ## OpenGL Window Setup
-The visualization calls OpenGL window rendering from inside a docker container. Go to the demo root directory `rapids-js/`.
+The visualization calls OpenGL window rendering from inside a docker container. Go to the root directory `rapids-js/`.
 
 ```bash
 # run and access
