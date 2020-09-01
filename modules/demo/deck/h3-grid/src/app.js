@@ -1,5 +1,4 @@
 import React, {Component, Fragment} from 'react';
-import {render} from 'react-dom';
 import DeckGL from '@deck.gl/react';
 import {MapView} from '@deck.gl/core';
 
@@ -109,7 +108,3 @@ export default class App extends Component {
     );
   }
 }
-
-/* global document */
-document.body.style.overflow = 'hidden';
-render(<App />, document.body.appendChild(document.createElement('div')));
