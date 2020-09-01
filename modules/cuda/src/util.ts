@@ -55,7 +55,11 @@ export const isArrayBufferView = ArrayBuffer.isView;
 
 /** @ignore */
 export const isCUDABuffer = (x: any): x is CUDABuffer => {
-    return x && x.constructor && x.constructor.name === 'CUDABuffer';
+    switch (x && x.constructor && x.constructor.name) {
+        case 'CUDABuffer': return true;
+        case 'DeviceBuffer': return true;
+        default: return false;
+    }
 };
 
 /** @ignore */

@@ -13,13 +13,13 @@
 // limitations under the License.
 
 const { createWindow } = require('@nvidia/glfw');
-module.exports = createWindow('(' + createXTermJS.toString() + ')()', true);
+module.exports = createWindow(createXTermJS, true);
 
 if (require.main === module) {
     module.exports.open({ transparent: false });
 }
 
-function createXTermJS() {
+function createXTermJS(props = {}) {
 
     const { Terminal } = require('xterm');
     const { WebglAddon } = require('xterm-addon-webgl');
