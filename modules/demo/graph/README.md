@@ -1,6 +1,8 @@
-# Rapids.js + Deck.gl | Census Visualization
+# Rapids.js + Deck.gl | Graph Visualization
 
-![](./census_demo1.png)
+![](./graph_demo1.png)
+![](./graph_demo2.png)
+![](./graph_demo3.png)
 
 # Installation and Run Steps [Work In Progress]
 
