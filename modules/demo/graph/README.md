@@ -39,11 +39,21 @@ python fa2.py
 
 
 ## Data 
-There is 1 main dataset:
+There are 10 CSV files:
 
-- 2010 Census for Population Density (~2.9 GB) | download on first run
+- Friday-02-03-2018_TrafficForML_CICFlowMeter.csv
+- Friday-16-02-2018_TrafficForML_CICFlowMeter.csv
+- Friday-23-02-2018_TrafficForML_CICFlowMeter.csv
+- Thuesday-20-02-2018_TrafficForML_CICFlowMeter.csv
+- Thursday-01-03-2018_TrafficForML_CICFlowMeter.csv
+- Thursday-15-02-2018_TrafficForML_CICFlowMeter.csv
+- Thursday-22-02-2018_TrafficForML_CICFlowMeter.csv
+- Wednesday-14-02-2018_TrafficForML_CICFlowMeter.csv
+- Wednesday-21-02-2018_TrafficForML_CICFlowMeter.csv
+- Wednesday-28-02-2018_TrafficForML_CICFlowMeter.csv
 
-For more information on how the Census and ACS data was prepared to show individual points, refer to the `/data_prep` folder.
+The dataset comes from CSE-CIC-IDS2018 on AWS: A collaborative project between the Communications Security Establishment (CSE) & the Canadian Institute for Cybersecurity (CIC).
+For more information on how the data was extracted, refer to the CSE-CIC-IDS2018, [https://www.unb.ca/cic/datasets/ids-2018.html](https://www.unb.ca/cic/datasets/ids-2018.html).
 
 
 
@@ -51,21 +61,15 @@ For more information on how the Census and ACS data was prepared to show individ
 *What hardware do I need to run this locally?*
 To run you need an NVIDIA GPU with at least 24GB of memory, and a Linux OS as defined in the [RAPIDS requirements](https://rapids.ai/start.html#req).
 
-*How are the population and case counts filtered?*
-Zooming in or out of a region on the map filters the data to that only displayed. 
 
-*Why is the population data from 2010?*
-Only census data is recorded on a block level. For more details on census boundaries refer to the [TIGERweb app](https://tigerweb.geo.census.gov/tigerwebmain/TIGERweb_apps.html). 
+*How did you get source and destination nodes?*
+There’s no defined source and destination nodes in this dataset. the easiest way to do that is to run some sort of table -> graph transformation with a hypergraph.
+The graph demo is an example of using cuDF/cuGraph in Python, and sharing the CUDA buffers with OpenGL in node.js via node-cuda bindings.
 
-*How did you get individual point locations?*
-The population density points are randomly placed within a census block and associated to match distribution counts at a census block level. As such, they are not actual individuals, only a statistical representation of one.
 
 
 ## Acknowledgments and Data Sources
 
-- 2010 Population Census and 2018 ACS data used with permission from IPUMS NHGIS, University of Minnesota, [www.nhgis.org](www.nhgis.org) ( not for redistribution )
-- Base map layer provided by [mapbox](https://www.mapbox.com/)
-- Dashboard developed with Plot.ly [Dash](https://dash.plotly.com/)
-- Geospatial point rendering developed with [Datashader](https://datashader.org/)
-- GPU accelerated with [RAPIDS](https://rapids.ai/) [cudf](https://github.com/rapidsai/cudf) and [cupy](https://cupy.chainer.org/) libraries
-- For source code visit our [GitHub](https://github.com/rapidsai/plotly-dash-rapids-census-demo)
+- CSE-CIC-IDS2018 on AWS: A collaborative project between the Communications Security Establishment (CSE) & the Canadian Institute for Cybersecurity (CIC), [https://www.unb.ca/cic/datasets/ids-2018.html](https://www.unb.ca/cic/datasets/ids-2018.html) 
+- GPU accelerated with [RAPIDS](https://rapids.ai/) [cudf](https://github.com/rapidsai/cudf) and [cugraph](https://github.com/rapidsai/cugraph) libraries
+
