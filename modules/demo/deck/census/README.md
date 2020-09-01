@@ -1,6 +1,6 @@
 # Rapids.js + Deck.gl | Census Visualization
 
-![](./census_demo0.png)
+![](./census_demo.png)
 ![](./census_demo1.png)
 
 # Run Steps 
