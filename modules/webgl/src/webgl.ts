@@ -578,4 +578,5 @@ const extensionsMap: any = {
         loseContext() { },
         restoreContext() { },
     },
+    EXT_float_blend: {},
 };

@@ -28,10 +28,21 @@ WebGL2RenderingContext::WebGL2RenderingContext(Napi::CallbackInfo const& info)
   glewExperimental = GL_TRUE;
   GL_EXPECT_OK(Env(), GLEWAPIENTRY::glewInit());
   if (info[0].IsNull() || info[0].IsEmpty() || !info[0].IsObject()) {
-    this->context_attributes_ = Napi::Persistent(Napi::Object::New(Env()));
+    context_attributes_ = Napi::Persistent(Napi::Object::New(Env()));
   } else {
-    this->context_attributes_ = Napi::Persistent(info[0].As<Napi::Object>());
+    context_attributes_ = Napi::Persistent(info[0].As<Napi::Object>());
   }
+
+  // TODO: Is this necessary?
+  //
+  // auto attrs = context_attributes_.Value();
+  // if (attrs.Has("antialias") && attrs.Get("antialias").ToBoolean().Value() == true) {
+  //   GL_EXPORT::glEnable(GL_LINE_SMOOTH);
+  //   GL_EXPORT::glEnable(GL_POLYGON_SMOOTH);
+  // }
+  //
+  // GL_EXPORT::glEnable(GL_PROGRAM_POINT_SIZE);
+  // GL_EXPORT::glEnable(GL_POINT_SPRITE);
 };
 
 Napi::Object WebGL2RenderingContext::Init(Napi::Env env, Napi::Object exports) {
@@ -872,7 +883,6 @@ Napi::Object WebGL2RenderingContext::Init(Napi::Env env, Napi::Object exports) {
   WebGL2RenderingContext::constructor.SuppressDestruct();
 
   EXPORT_PROP(exports, "WebGL2RenderingContext", ctor);
-  // exports.Set("WebGL2RenderingContext", ctor);
 
   return exports;
 };
