@@ -15,7 +15,7 @@ The visualization calls OpenGL window rendering. Go to the root directory `rapid
 
 ## Rendering with mapbox on web browser
 
-The visualization calls OpenGL window rendering. Go to the demo folder `rapids-js//modules/demo/deck/census/`.
+The visualization integrates with react and mapbox rendering on web browser. Go to the demo folder `rapids-js//modules/demo/deck/census/`.
 
 ```bash
 # run and access
