@@ -15,6 +15,7 @@
 #include "NvEncoder/NvEncoder.h"
 #include "NvEncoder/NvEncoderCuda.h"
 #include "NvEncoder/NvEncoderGL.h"
+#include "nvEncodeAPI.h"
 
 #include <node_nvencoder/casting.hpp>
 #include <node_nvencoder/encoder.hpp>
@@ -54,11 +55,13 @@ void NvEncoderWrapper::Initialize(uint32_t width,
     } else {
       context = reinterpret_cast<CUcontext>(device);
     }
-    encoder_.reset(new NvEncoderCuda(context, width, height, NV_ENC_BUFFER_FORMAT_ARGB));
+    encoder_.reset(new NvEncoderCuda(context, width, height, NV_ENC_BUFFER_FORMAT_ABGR));
   }
 
   NV_ENC_INITIALIZE_PARAMS initializeParams = {NV_ENC_INITIALIZE_PARAMS_VER};
   NV_ENC_CONFIG encodeConfig                = {NV_ENC_CONFIG_VER};
+  initializeParams.encodeWidth              = width;
+  initializeParams.encodeHeight             = height;
   initializeParams.encodeConfig             = &encodeConfig;
   encoder_->CreateDefaultEncoderParams(&initializeParams,
                                        NV_ENC_CODEC_H264_GUID,          // TODO
@@ -100,6 +103,19 @@ Napi::Value NvEncoderWrapper::create(uint32_t width,
   return enc;
 }
 
+std::vector<napi_value> frames_to_arrays(Napi::Env env,
+                                         std::vector<std::vector<uint8_t>> const& frames_) {
+  std::vector<napi_value> results(frames_.size() + 1);
+  results.at(0) = env.Null();
+  std::transform(frames_.begin(), frames_.end(), results.begin() + 1, [&](auto& frame) {
+    auto buf = Napi::ArrayBuffer::New(env, frame.size());
+    auto ary = Napi::Uint8Array::New(env, buf.ByteLength(), buf, 0);
+    std::memcpy(buf.Data(), frame.data(), frame.size());
+    return ary;
+  });
+  return results;
+}
+
 class encode_resource_worker : public Napi::AsyncWorker {
  public:
   encode_resource_worker(NvEncoderWrapper& wrapper,
@@ -119,15 +135,7 @@ class encode_resource_worker : public Napi::AsyncWorker {
   }
 
   std::vector<napi_value> GetResult(Napi::Env env) override {
-    std::vector<napi_value> result(frames_.size() + 1);
-    result.at(0) = env.Null();
-    std::transform(frames_.begin(), frames_.end(), result.begin() + 1, [&](auto& frame) {
-      auto buf = Napi::ArrayBuffer::New(env, frame.size());
-      auto ary = Napi::Uint8Array::New(env, buf.ByteLength(), buf, 0);
-      std::memcpy(buf.Data(), frame.data(), frame.size());
-      return ary;
-    });
-    return result;
+    return frames_to_arrays(env, frames_);
   }
 
   bool end_encode_;
@@ -141,22 +149,23 @@ Napi::Value NvEncoderWrapper::EncodeArray(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value NvEncoderWrapper::EncodeBuffer(Napi::CallbackInfo const& info) {
-  encode_resource_worker* work;
+  auto env        = info.Env();
+  auto end_encode = false;
+  Napi::Function callback;
   if (info[0].IsFunction()) {
-    work = new encode_resource_worker(*this, FromJS(info[0]), true);
+    end_encode = true;
+    callback   = FromJS(info[0]);
   } else {
     void* data;
     size_t size;
-    std::tie(size, data)    = FromJS(info[0]).operator std::pair<size_t, uint8_t*>();
-    Napi::Function callback = FromJS(info[1]);
-    auto& frame             = const_cast<NvEncInputFrame&>(*encoder_->GetNextInputFrame());
-    frame.bufferFormat      = NV_ENC_BUFFER_FORMAT_ARGB;
-    frame.inputPtr          = data;
-    frame.pitch             = encoder_->GetEncodeWidth() * 4;
-    work                    = new encode_resource_worker(*this, callback, false);
+    std::tie(size, data) = FromJS(info[0]).operator std::pair<size_t, uint8_t*>();
+    callback             = FromJS(info[1]);
+    auto& frame          = const_cast<NvEncInputFrame&>(*encoder_->GetNextInputFrame());
+    size                 = std::min(size, static_cast<size_t>(encoder_->GetFrameSize()));
+    CUDA_TRY(CUDARTAPI::cudaMemcpy(frame.inputPtr, data, size, cudaMemcpyDefault), env);
   }
-  work->Queue();
-  return info.Env().Undefined();
+  (new encode_resource_worker(*this, callback, end_encode))->Queue();
+  return env.Undefined();
 }
 
 Napi::Value NvEncoderWrapper::EncodeTexture(Napi::CallbackInfo const& info) {

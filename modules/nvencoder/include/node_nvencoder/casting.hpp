@@ -187,40 +187,52 @@ struct FromJS {
     return *reinterpret_cast<cudaIpcMemHandle_t*>(this->operator void*());
   }
 
-#define POINTER_CONVERSION_OPERATOR(T)                                     \
-  inline operator T*() const {                                             \
-    if (val.IsArray()) {                                                   \
-      std::vector<T> vec = FromJS(val);                                    \
-      auto len           = vec.size() * sizeof(T);                         \
-      auto ptr           = std::malloc(vec.size() * sizeof(T));            \
-      auto ary           = reinterpret_cast<T*>(ptr);                      \
-      for (int32_t i = 0; i < vec.size(); ++i) { *(ary + i) = vec.at(i); } \
-      return ary;                                                          \
-    }                                                                      \
-    return reinterpret_cast<T*>(this->operator void*());                   \
-  }                                                                        \
-  inline operator std::pair<size_t, T*>() const {                          \
-    if (val.IsArray()) {                                                   \
-      auto ptr = this->operator T*();                                      \
-      auto ary = val.As<Napi::Array>();                                    \
-      return std::make_pair(ary.Length(), ptr);                            \
-    }                                                                      \
-    if (val.IsArrayBuffer()) {                                             \
-      auto ary = val.As<Napi::ArrayBuffer>();                              \
-      auto len = ary.ByteLength() / sizeof(T);                             \
-      return std::make_pair(len, this->operator T*());                     \
-    }                                                                      \
-    if (val.IsDataView()) {                                                \
-      auto ary = val.As<Napi::DataView>();                                 \
-      auto len = ary.ByteLength() / sizeof(T);                             \
-      return std::make_pair(len, this->operator T*());                     \
-    }                                                                      \
-    if (val.IsTypedArray()) {                                              \
-      auto ary = val.As<Napi::TypedArray>();                               \
-      auto len = ary.ByteLength() / sizeof(T);                             \
-      return std::make_pair(len, this->operator T*());                     \
-    }                                                                      \
-    return std::make_pair(size_t{0}, nullptr);                             \
+#define POINTER_CONVERSION_OPERATOR(T)                                             \
+  inline operator T*() const {                                                     \
+    if (val.IsArray()) {                                                           \
+      std::vector<T> vec = FromJS(val);                                            \
+      auto len           = vec.size() * sizeof(T);                                 \
+      auto ptr           = std::malloc(vec.size() * sizeof(T));                    \
+      auto ary           = reinterpret_cast<T*>(ptr);                              \
+      for (int32_t i = 0; i < vec.size(); ++i) { *(ary + i) = vec.at(i); }         \
+      return ary;                                                                  \
+    }                                                                              \
+    return reinterpret_cast<T*>(this->operator void*());                           \
+  }                                                                                \
+  inline operator std::pair<size_t, T*>() const {                                  \
+    if (val.IsArray()) {                                                           \
+      auto ptr = this->operator T*();                                              \
+      auto ary = val.As<Napi::Array>();                                            \
+      return std::make_pair(ary.Length(), ptr);                                    \
+    }                                                                              \
+    if (val.IsArrayBuffer()) {                                                     \
+      auto ary = val.As<Napi::ArrayBuffer>();                                      \
+      auto len = ary.ByteLength() / sizeof(T);                                     \
+      return std::make_pair(len, this->operator T*());                             \
+    }                                                                              \
+    if (val.IsDataView()) {                                                        \
+      auto ary = val.As<Napi::DataView>();                                         \
+      auto len = ary.ByteLength() / sizeof(T);                                     \
+      return std::make_pair(len, this->operator T*());                             \
+    }                                                                              \
+    if (val.IsTypedArray()) {                                                      \
+      auto ary = val.As<Napi::TypedArray>();                                       \
+      auto len = ary.ByteLength() / sizeof(T);                                     \
+      return std::make_pair(len, this->operator T*());                             \
+    }                                                                              \
+    if (val.IsObject()) {                                                          \
+      auto obj = val.As<Napi::Object>();                                           \
+      if (obj.Has("buffer")) { obj = obj.Get("buffer").As<Napi::Object>(); }       \
+      if (obj.Has("byteLength")) {                                                 \
+        if (obj.Has("ptr") && obj.Get("ptr").IsNumber()) {                         \
+          return std::make_pair(                                                   \
+            static_cast<size_t>(obj.Get("byteLength").ToNumber().Int64Value()),    \
+            reinterpret_cast<T*>(obj.Get("ptr").As<Napi::Number>().Int64Value())); \
+        }                                                                          \
+        NAPI_THROW("Expected object with a `ptr` field");                          \
+      }                                                                            \
+    }                                                                              \
+    return std::make_pair(size_t{0}, nullptr);                                     \
   }
 
   POINTER_CONVERSION_OPERATOR(long)
