@@ -1,0 +1,52 @@
+{
+	"folders": [
+        {
+            "path": "."
+        },
+        {
+            "path": "modules/cmake-modules"
+        },
+        {
+            "path": "modules/cuda"
+        },
+        {
+            "path": "modules/demo"
+        },
+        {
+            "path": "modules/glfw"
+        },
+        {
+            "path": "modules/nvencoder"
+        },
+        {
+            "path": "modules/rmm"
+        },
+        {
+            "path": "modules/webgl"
+        }
+    ],
+  "settings": {
+    "C_Cpp.autoAddFileAssociations": false,
+    "clangd.path": "/usr/bin/clangd",
+    "clangd.semanticHighlighting": false,
+    "clangd.arguments": [
+      "-j=4",
+      "--log=info",
+      "--pch-storage=disk",
+      "--completion-parse=auto",
+      "--fallback-style=Google",
+      "--compile-commands-dir=",
+      "--background-index=true",
+      "--all-scopes-completion",
+      "--header-insertion=iwyu",
+      "--suggest-missing-includes",
+      "--completion-style=detailed",
+      "--header-insertion-decorators"
+    ],
+    "git.ignoreLimitWarning": true,
+    "files.associations": {
+      "*.cu": "cuda",
+      "*.cuh": "cuda"
+    }
+  }
+}
