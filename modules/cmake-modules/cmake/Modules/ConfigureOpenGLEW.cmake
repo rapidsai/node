@@ -17,12 +17,14 @@
 include(get_cpm)
 
 CPMAddPackage(NAME glew
-    VERSION        ${REQUIRED_GLEW_VERSION}
+    VERSION        ${GLEW_VERSION}
     GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
-    GIT_TAG        glew-cmake-${REQUIRED_GLEW_VERSION}
+    GIT_TAG        glew-cmake-${GLEW_VERSION}
     GIT_SHALLOW    TRUE
     GIT_CONFIG     "advice.detachedhead=false"
     OPTIONS        "ONLY_LIBS 0"
+                   # Ignore glew's missing VERSION
+                   "CMAKE_POLICY_DEFAULT_CMP0048 NEW"
                    "glew-cmake_BUILD_MULTI_CONTEXT OFF"
                    "glew-cmake_BUILD_SINGLE_CONTEXT ON"
                    "glew-cmake_BUILD_SHARED ${GLEW_USE_SHARED_LIBS}"

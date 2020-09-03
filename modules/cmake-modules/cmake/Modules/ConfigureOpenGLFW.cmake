@@ -16,14 +16,14 @@
 
 include(get_cpm)
 
-if(REQUIRED_GLFW_VERSION VERSION_EQUAL 3.3)
+if(GLFW_VERSION VERSION_EQUAL 3.3)
     set(GLFW_GIT_BRANCH_NAME "3.3-stable")
 else()
-    set(GLFW_GIT_BRANCH_NAME "${REQUIRED_GLFW_VERSION}")
+    set(GLFW_GIT_BRANCH_NAME "${GLFW_VERSION}")
 endif()
 
 CPMAddPackage(NAME glfw
-    VERSION        ${REQUIRED_GLFW_VERSION}
+    VERSION        ${GLFW_VERSION}
     GIT_REPOSITORY https://github.com/glfw/glfw.git
     GIT_TAG        ${GLFW_GIT_BRANCH_NAME}
     GIT_SHALLOW    TRUE
