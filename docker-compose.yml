@@ -46,18 +46,9 @@ services:
       dockerfile: dockerfiles/devel.Dockerfile
     environment:
       <<: *runtime_environment_variables
-      # ccache configuration
-      CCACHE_MAXSIZE: 0 # unlimited
-      CCACHE_NOHASHDIR: "1"
-      CCACHE_DIR: "/ccache"
-      CCACHE_TEMPDIR: "/tmp/ccache"
-      CCACHE_COMPILERCHECK: "%compiler% --version"
-      # Set this to debug ccache preprocessor errors and cache misses
-      # CCACHE_LOGFILE: "/ccache/ccache.log"
     volumes:
       - *workdir
       - *etc_fonts
       - *x11_socket
       - *usr_share_fonts
       - *usr_share_icons
-      - &ccachedir "${PWD}/.ccache:/ccache:rw"
