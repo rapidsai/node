@@ -11,4 +11,4 @@ then CMD="rebuild";
 else CMD="build";
 fi
 
-npx lerna run --scope '@nvidia/*' --stream --concurrency 1 $CMD
+npx lerna run --scope '@nvidia/*' --stream $CMD

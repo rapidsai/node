@@ -1,7 +1,7 @@
 **/z-*
 **/.cache
 **/.clangd
-**/.ccache/*
+**/.ccache
 **/__pycache__
 **/node_modules
 **/npm-debug.log
@@ -11,10 +11,13 @@
 
 modules/**/*/lib
 modules/**/*/build
+modules/*/include/rmm
+modules/*/include/cudf
+modules/*/include/cuml
+modules/*/include/cugraph
+modules/*/include/cuspatial
 modules/*/include/thrust
 modules/*/include/napi.h
 modules/*/include/napi-inl.h
 modules/*/include/napi-inl.deprecated.h
 modules/*/include/node_api.h
-
-!.ccache/.keepDir

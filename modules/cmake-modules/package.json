@@ -10,8 +10,7 @@
   ],
   "bin": {
     "nvidia-cmake-js": "bin/exec_cmake.js",
-    "nvidia-cmake-install-deps": "bin/exec_install_deps.js",
-    "nvidia-cmake-modules-path": "bin/print_cmake_modules_path.js"
+    "nvidia-cmake-install-deps": "bin/exec_install_deps.js"
   },
   "scripts": {
     "postinstall": "cmake-js install"
