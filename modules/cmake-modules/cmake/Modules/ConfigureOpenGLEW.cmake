@@ -14,54 +14,25 @@
 # limitations under the License.
 #=============================================================================
 
-include(FindGLEW)
+include(get_cpm)
 
-if(NOT GLEW_FOUND OR (GLEW_VERSION VERSION_LESS ${REQUIRED_GLEW_VERSION}))
+CPMAddPackage(NAME glew
+    VERSION        ${REQUIRED_GLEW_VERSION}
+    GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
+    GIT_TAG        glew-cmake-${REQUIRED_GLEW_VERSION}
+    GIT_SHALLOW    TRUE
+    GIT_CONFIG     "advice.detachedhead=false"
+    OPTIONS        "ONLY_LIBS 0"
+                   "glew-cmake_BUILD_MULTI_CONTEXT OFF"
+                   "glew-cmake_BUILD_SINGLE_CONTEXT ON"
+                   "glew-cmake_BUILD_SHARED ${GLEW_USE_SHARED_LIBS}"
+                   "glew-cmake_BUILD_STATIC ${GLEW_USE_STATIC_LIBS}"
+)
 
-    message(STATUS "GLEW ${REQUIRED_GLEW_VERSION} not found, building from source")
+set(GLEW_INCLUDE_DIR "${glew_SOURCE_DIR}/include")
 
-    set(GLEW_ROOT "${CMAKE_BINARY_DIR}/glew")
-    set(GLEW_GIT_BRANCH_NAME "glew-cmake-${REQUIRED_GLEW_VERSION}")
-
-    set(GLEW_CMAKE_ARGS " -DONLY_LIBS=0"
-                        " -Dglew-cmake_BUILD_MULTI_CONTEXT=OFF"
-                        " -Dglew-cmake_BUILD_SINGLE_CONTEXT=ON"
-                        " -Dglew-cmake_BUILD_SHARED=${GLEW_USE_SHARED_LIBS}"
-                        " -Dglew-cmake_BUILD_STATIC=${GLEW_USE_STATIC_LIBS}")
-
-
-    configure_file("${CMAKE_CURRENT_LIST_DIR}/../Templates/GLEW.CMakeLists.txt.cmake"
-                   "${GLEW_ROOT}/CMakeLists.txt")
-
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -Wno-dev -G "${CMAKE_GENERATOR}" .
-        RESULT_VARIABLE GLEW_CONFIG
-        WORKING_DIRECTORY ${GLEW_ROOT})
-
-    if(GLEW_CONFIG)
-        message(FATAL_ERROR "Configuring GLEW failed: " ${GLEW_CONFIG})
-    endif(GLEW_CONFIG)
-
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} --build .. -- ${PARALLEL_BUILD}
-        RESULT_VARIABLE GLEW_BUILD
-        WORKING_DIRECTORY ${GLEW_ROOT}/build)
-
-    if(GLEW_BUILD)
-        message(FATAL_ERROR "Building GLEW failed: " ${GLEW_BUILD})
-    endif(GLEW_BUILD)
-
-    set(GLEW_LIBRARIES "${CMAKE_BINARY_DIR}/lib")
-    set(GLEW_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/include")
-
-    find_library(GLEW_LIBRARY glew NO_DEFAULT_PATH HINTS "${GLEW_LIBRARIES}")
-
-    if(GLEW_LIBRARY)
-        message(STATUS "GLEW library: ${GLEW_LIBRARY}")
-        set(GLEW_FOUND TRUE)
-    endif(GLEW_LIBRARY)
-endif()
-
-message(STATUS "GLEW_LIBRARY: ${GLEW_LIBRARY}")
-message(STATUS "GLEW_LIBRARIES: ${GLEW_LIBRARIES}")
-message(STATUS "GLEW_INCLUDE_DIRS: ${GLEW_INCLUDE_DIRS}")
+if(GLEW_USE_STATIC_LIBS)
+    set(GLEW_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/lib/libglew.a")
+else()
+    set(GLEW_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/lib/libglew.so")
+endif(GLEW_USE_STATIC_LIBS)

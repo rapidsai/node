@@ -22,6 +22,8 @@ execute_process(COMMAND node -p "require('node-addon-api').include.replace(/\"/g
                 OUTPUT_VARIABLE NODE_ADDON_API_DIR
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-include_directories("${CMAKE_JS_INC}"
-                    "${PROJECT_NAME}"
-            PRIVATE "${NODE_ADDON_API_DIR}")
+include_directories(
+    "${CMAKE_JS_INC}"
+    "${PROJECT_NAME}"
+    "${NODE_ADDON_API_DIR}"
+)

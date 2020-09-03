@@ -41,7 +41,6 @@ if(NVIDIA_USE_CCACHE)
     find_program(CCACHE_PROGRAM_PATH ccache)
     if(CCACHE_PROGRAM_PATH)
         message(STATUS "Using ccache: ${CCACHE_PROGRAM_PATH}")
-        # set(ENV{CCACHE_COMMENTS} "1")
         set(CCACHE_COMMAND CACHE STRING "${CCACHE_PROGRAM_PATH}")
         if(DEFINED ENV{CCACHE_DIR})
             message(STATUS "Using ccache directory: $ENV{CCACHE_DIR}")
@@ -78,8 +77,11 @@ endif(NVIDIA_USE_CCACHE)
 execute_process(COMMAND node -p
                 "require('@nvidia/cmake-modules').cpm_source_cache_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                OUTPUT_VARIABLE CPM_SOURCE_CACHE
+                OUTPUT_VARIABLE NVIDIA_CPM_SOURCE_CACHE
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+set(ENV{CPM_SOURCE_CACHE} ${NVIDIA_CPM_SOURCE_CACHE})
+message(STATUS "Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
 
 ###################################################################################################
 # - compiler options ------------------------------------------------------------------------------
@@ -88,6 +90,19 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_COMPILER $ENV{CC})
 set(CMAKE_CXX_COMPILER $ENV{CXX})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    option(CMAKE_CXX11_ABI "Enable the GLIBCXX11 ABI" ON)
+    string(APPEND CMAKE_CXX_FLAGS " -Werror -Wno-error=deprecated-declarations")
+    if(CMAKE_CXX11_ABI)
+        message(STATUS "Enabling the GLIBCXX11 ABI")
+    else()
+        message(STATUS "Disabling the GLIBCXX11 ABI")
+        string(APPEND CMAKE_C_FLAGS " -D_GLIBCXX_USE_CXX11_ABI=0")
+        string(APPEND CMAKE_CXX_FLAGS " -D_GLIBCXX_USE_CXX11_ABI=0")
+        string(APPEND CMAKE_CUDA_FLAGS " -Xcompiler -D_GLIBCXX_USE_CXX11_ABI=0")
+    endif(CMAKE_CXX11_ABI)
+endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(WIN32)
     string(APPEND CMAKE_C_FLAGS " -D_WIN32")

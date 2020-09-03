@@ -28,6 +28,8 @@ cmake_policy(SET CMP0072 NEW)
 set(REQUIRED_GLEW_VERSION "2.1.0")
 set(REQUIRED_GLFW_VERSION "3.3.2")
 
+set(GLEW_USE_SHARED_LIBS OFF)
+set(GLFW_USE_SHARED_LIBS OFF)
 set(GLEW_USE_STATIC_LIBS ${NODE_GLFW_STATIC_LINK})
 set(GLFW_USE_STATIC_LIBS ${NODE_GLFW_STATIC_LINK})
 
@@ -57,8 +59,8 @@ include(ConfigureOpenGLFW)
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
 
-include_directories("${GLEW_INCLUDE_DIRS}"
-                    "${GLFW_INCLUDE_DIRS}"
+include_directories("${GLEW_INCLUDE_DIR}"
+                    "${GLFW_INCLUDE_DIR}"
                     "${OPENGL_INCLUDE_DIR}"
                     "${DISPLAY_SERVER_INCLUDE_DIRS}"
                     "${CMAKE_CURRENT_SOURCE_DIR}/include")
