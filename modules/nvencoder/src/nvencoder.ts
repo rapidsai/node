@@ -30,17 +30,14 @@ const NVENCODER = (() => {
 
 export { NVENCODER };
 
-export interface NVENCODER {
-    NvEncoder: NvEncoderConstructor;
-}
+type ErrBack = (err?: Error, buf?: ArrayBuffer) => void;
 
-export interface NVEncoderOptions {
-
-    // hevc: boolean;
-    // device: number;
+export interface NvEncoderOptions {
     width: number;
     height: number;
-
+    format?: NvEncoderBufferFormat;
+    // hevc: boolean;
+    // device: number;
     // averageBitRate?: number;
     // maxBitRate?: number;
     // maxWidth?: number;
@@ -49,114 +46,111 @@ export interface NVEncoderOptions {
     // frameRateDenomenator?: number;
 }
 
-export interface NvEncoderConstructor {
-    readonly prototype: NvEncoder;
-    new(options: NVEncoderOptions & { deviceType: number }): NvEncoder;
+export interface GLNvEncoderConstructor {
+    readonly prototype: GLNvEncoder;
+    new(options: NvEncoderOptions): GLNvEncoder;
 }
 
-export interface NvEncoder {
-    // width: number;
-    // height: number;
+export interface GLNvEncoder {
+    readonly constructor: GLNvEncoderConstructor;
+    readonly encoderBufferCount: number;
+    close(cb: ErrBack): void;
+    encode(cb: ErrBack): void;
+    texture(): TextureInputFrame;
 }
 
-export const NvEncoder: NvEncoderConstructor = NVENCODER.NvEncoder;
+export const GLNvEncoder: GLNvEncoderConstructor = NVENCODER.GLNvEncoder;
 
-export enum NvEncoderDeviceType {
-    DIRECTX = 0x0,
-    CUDA    = 0x1,
-    OPENGL  = 0x2,
+export interface CUDANvEncoderConstructor {
+    readonly prototype: CUDANvEncoder;
+    new(options: NvEncoderOptions): CUDANvEncoder;
+}
+
+export interface CUDANvEncoder {
+    readonly constructor: CUDANvEncoderConstructor;
+    readonly encoderBufferCount: number;
+    close(cb: ErrBack): void;
+    encode(cb: ErrBack): void;
+    copyFromArray(array: any): void;
+    copyFromHostBuffer(buffer: any): void;
+    copyFromDeviceBuffer(buffer: any): void;
+}
+
+export const CUDANvEncoder: CUDANvEncoderConstructor = NVENCODER.CUDANvEncoder;
+
+interface InputFrame {
+    readonly pitch: number;
+    readonly format: NvEncoderBufferFormat;
+}
+
+export interface ArrayInputFrame extends InputFrame {
+    readonly array: number;
+}
+
+export interface BufferInputFrame extends InputFrame {
+    readonly buffer: number;
+    readonly byteLength: number;
+}
+
+export interface TextureInputFrame extends InputFrame {
+    readonly target: number;
+    readonly texture: number;
 }
 
 export enum NvEncoderBufferFormat {
     /** Undefined buffer format */
-    UNDEFINED                       = 0x00000000,
+    UNDEFINED                       = NVENCODER.bufferFormats.UNDEFINED,
     /** Semi-Planar YUV [Y plane followed by interleaved UV plane] */
-    NV12                            = 0x00000001,
+    NV12                            = NVENCODER.bufferFormats.NV12,
     /** Planar YUV [Y plane followed by V and U planes] */
-    YV12                            = 0x00000010,
+    YV12                            = NVENCODER.bufferFormats.YV12,
     /** Planar YUV [Y plane followed by U and V planes] */
-    IYUV                            = 0x00000100,
+    IYUV                            = NVENCODER.bufferFormats.IYUV,
     /** Planar YUV [Y plane followed by U and V planes] */
-    YUV444                          = 0x00001000,
+    YUV444                          = NVENCODER.bufferFormats.YUV444,
     /**
      * 10 bit Semi-Planar YUV [Y plane followed by interleaved UV plane].
      * Each pixel of size 2 bytes. Most Significant 10 bits contain pixel data.
      */
-    YUV420_10BIT                    = 0x00010000,
+    YUV420_10BIT                    = NVENCODER.bufferFormats.YUV420_10BIT,
     /**
      * 10 bit Planar YUV444 [Y plane followed by U and V planes].
      * Each pixel of size 2 bytes. Most Significant 10 bits contain pixel data.
      */
-    YUV444_10BIT                    = 0x00100000,
+    YUV444_10BIT                    = NVENCODER.bufferFormats.YUV444_10BIT,
     /**
      * 8 bit Packed A8R8G8B8. This is a word-ordered format
      * where a pixel is represented by a 32-bit word with B
      * in the lowest 8 bits, G in the next 8 bits, R in the
      * 8 bits after that and A in the highest 8 bits.
      */
-    ARGB                            = 0x01000000,
+    ARGB                            = NVENCODER.bufferFormats.ARGB,
     /**
      * 10 bit Packed A2R10G10B10. This is a word-ordered format
      * where a pixel is represented by a 32-bit word with B
      * in the lowest 10 bits, G in the next 10 bits, R in the
      * 10 bits after that and A in the highest 2 bits.
      */
-    ARGB10                          = 0x02000000,
+    ARGB10                          = NVENCODER.bufferFormats.ARGB10,
     /**
      * 8 bit Packed A8Y8U8V8. This is a word-ordered format
      * where a pixel is represented by a 32-bit word with V
      * in the lowest 8 bits, U in the next 8 bits, Y in the
      * 8 bits after that and A in the highest 8 bits.
      */
-    AYUV                            = 0x04000000,
+    AYUV                            = NVENCODER.bufferFormats.AYUV,
     /**
      * 8 bit Packed A8B8G8R8. This is a word-ordered format
      * where a pixel is represented by a 32-bit word with R
      * in the lowest 8 bits, G in the next 8 bits, B in the
      * 8 bits after that and A in the highest 8 bits.
      */
-    ABGR                            = 0x10000000,
+    ABGR                            = NVENCODER.bufferFormats.ABGR,
     /**
      * 10 bit Packed A2B10G10R10. This is a word-ordered format
      * where a pixel is represented by a 32-bit word with R
      * in the lowest 10 bits, G in the next 10 bits, B in the
      * 10 bits after that and A in the highest 2 bits.
      */
-    ABGR10                          = 0x20000000,
-}
-
-type ErrBack = (err?: Error, buf?: ArrayBuffer) => void;
-
-function encodeBuffer(this: NvEncoder, callback: ErrBack): void;
-function encodeBuffer(this: NvEncoder, source: any, callback?: ErrBack): void;
-function encodeBuffer(this: NvEncoder, ...args: any[]) {
-    return (<any> NvEncoder.prototype).encodeBuffer.call(this, ...args);
-}
-
-export class CUDAEncoder extends NvEncoder {
-    constructor(options: NVEncoderOptions) {
-        super({ ...options, deviceType: NvEncoderDeviceType.CUDA });
-    }
-    encodeFrame(options: { source: any; } | null | undefined, callback: ErrBack): void {
-        !options ?
-            encodeBuffer.call(this, callback) :
-            encodeBuffer.call(this, options.source, callback);
-    }
-}
-
-function encodeTexture(this: NvEncoder, callback: ErrBack): void;
-function encodeTexture(this: NvEncoder, texture: any, target?: number, callback?: ErrBack): void;
-function encodeTexture(this: NvEncoder, ...args: any[]) {
-    return (<any> NvEncoder.prototype).encodeTexture.call(this, ...args);
-}
-
-export class OpenGLEncoder extends NvEncoder {
-    constructor(opts: NVEncoderOptions) {
-        super({ ...opts, deviceType: NvEncoderDeviceType.OPENGL });
-    }
-    encodeFrame(options: { texture: any; target: number; } | null | undefined, callback: ErrBack): void {
-        !options ?
-            encodeTexture.call(this, callback) :
-            encodeTexture.call(this, options.texture, options.target, callback);
-    }
+    ABGR10                          = NVENCODER.bufferFormats.ABGR10,
 }

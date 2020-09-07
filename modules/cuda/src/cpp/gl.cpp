@@ -115,7 +115,7 @@ Napi::Value cudaGraphicsSubResourceGetMappedArray(Napi::CallbackInfo const& info
   uint32_t flags{};
   cudaExtent extent{};
   cudaChannelFormatDesc desc{};
-  CUDA_TRY(env, cudaArrayGetInfo(&desc, &extent, &flags, array));
+  CUDA_TRY(env, CUDARTAPI::cudaArrayGetInfo(&desc, &extent, &flags, array));
   return CUDAArray::New(array, extent, desc, flags, array_type::GL);
 }
 

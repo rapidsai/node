@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cuda_runtime.h>
-
 #include <node_cuda/array.hpp>
-#include <node_cuda/casting.hpp>
-#include <node_cuda/macros.hpp>
 
 namespace node_cuda {
 

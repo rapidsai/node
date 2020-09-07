@@ -181,6 +181,9 @@ struct FromJS {
   inline operator CUfunction() const {
     return reinterpret_cast<CUfunction>(this->operator void*());
   }
+  inline operator cudaArray_t() const {
+    return reinterpret_cast<cudaArray_t>(this->operator void*());
+  }
   inline operator CUdeviceptr() const {
     return reinterpret_cast<CUdeviceptr>(this->operator void*());
   }

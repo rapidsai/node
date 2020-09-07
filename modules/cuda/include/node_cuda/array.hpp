@@ -47,7 +47,7 @@ class CUDAArray : public Napi::ObjectWrap<CUDAArray> {
     return (x + y + z + w) >> 3;
   }
 
-  void Finalize(Napi::Env env) override;
+  // void Finalize(Napi::Env env) override;
 
  private:
   static Napi::FunctionReference constructor;

@@ -12,15 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export { glfw } from './glfw';
-export { GLFWKey } from './glfw';
-export { GLFWClientAPI } from './glfw';
-export { GLFWInputMode } from './glfw';
-export { GLFWModifierKey } from './glfw';
-export { GLFWMouseButton } from './glfw';
-export { GLFWOpenGLProfile } from './glfw';
-export { GLFWWindowAttribute } from './glfw';
-export { GLFWContextCreationAPI } from './glfw';
-export { createWindow, createModuleWindow, createReactWindow } from './jsdom';
+require('segfault-handler').registerHandler('./crash.log');
 
-if (process) { (process as any).browser = true; }
+require('@babel/register')({
+    cache: false,
+    babelrc: false,
+    presets: [
+        ["@babel/preset-env", { "targets": { "node": "current" }}],
+        ['@babel/preset-react', { "useBuiltIns": true }]
+    ]
+});
+
+const { createModuleWindow } = require('@nvidia/glfw');
+const { videoEncoderCallbacks } = require('@nvidia/deck.gl');
+module.exports = createModuleWindow(`${__dirname}/app.js`, true);
+
+if (require.main === module) {
+    module.exports.open({ transparent: false, ...videoEncoderCallbacks() });
+}

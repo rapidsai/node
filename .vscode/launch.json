@@ -8,10 +8,10 @@
             "type": "node",
             "request": "launch",
             "name": "Debug nvencoder demo",
-            "program": "${workspaceFolder}/modules/nvencoder/test/zips/index.js",
+            "program": "${workspaceFolder}/modules/deck.gl/demo/index.js",
             "stopOnEntry": false,
             "runtimeArgs": ["-r", "esm"],
-            "cwd": "${workspaceFolder}/modules/nvencoder/test/zips",
+            "cwd": "${workspaceFolder}/modules/deck.gl/demo",
             "env": { "NODE_ENV": "production" }
         },
         {

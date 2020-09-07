@@ -4,8 +4,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@nvidia/glfw": ["src/index"],
-            "@nvidia/glfw/*": ["src/*"]
+            "@nvidia/deck.gl": ["src/index"],
+            "@nvidia/deck.gl/*": ["src/*"]
         },
         "target": "ESNEXT",
         "module": "commonjs",

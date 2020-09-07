@@ -1,5 +1,5 @@
 {
-  "name": "@nvidia/rmm",
+  "name": "@nvidia/deck.gl",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
@@ -11,20 +11,19 @@
   "scripts": {
     "clean": "npx rimraf build compile_commands.json",
     "test": "jest --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",
-    "build": "npm run cpp:build && npm run tsc:build",
-    "compile": "npm run cpp:compile && npm run tsc:build",
-    "rebuild": "npm run cpp:rebuild && npm run tsc:build",
-    "cpp:build": "nvidia-cmake-js -g build",
-    "cpp:compile": "nvidia-cmake-js -g compile",
-    "cpp:rebuild": "nvidia-cmake-js -g rebuild",
+    "build": "npm run tsc:build",
+    "compile": "npm run tsc:build",
+    "rebuild": "npm run tsc:build",
     "tsc:build": "npx rimraf build/js && tsc -p ./tsconfig.json",
     "tsc:watch": "npx rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@nvidia/cmake-modules": "0.0.1",
+    "@luma.gl/engine": "8.2.0",
+    "@luma.gl/webgl": "8.2.0",
     "@nvidia/cuda": "0.0.1",
+    "@nvidia/nvencoder": "0.0.1",
     "@types/node": "^14.0.0",
-    "node-addon-api": "^2.0.0",
+    "fluent-ffmpeg": "2.1.2",
     "tslib": "^1.12.0"
   },
   "devDependencies": {

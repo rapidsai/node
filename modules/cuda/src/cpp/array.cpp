@@ -43,6 +43,8 @@ Napi::Object CUDAArray::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
+CUDAArray::CUDAArray(Napi::CallbackInfo const& info) : Napi::ObjectWrap<CUDAArray>(info) {}
+
 Napi::Value CUDAArray::New(cudaArray_t array,
                            cudaExtent extent,
                            cudaChannelFormatDesc channelFormatDesc,

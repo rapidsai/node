@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "NvEncoder/NvEncoder.h"
+
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <napi.h>
@@ -89,6 +91,9 @@ struct FromJS {
     return ptr;
   }
 
+  inline operator cudaArray_t() const {
+    return reinterpret_cast<cudaArray_t>(this->val.ToNumber().Int32Value());
+  }
   inline operator CUresult() const {
     return static_cast<CUresult>(this->val.ToNumber().Int32Value());
   }
@@ -100,6 +105,9 @@ struct FromJS {
   }
   inline operator CUpointer_attribute() const {
     return static_cast<CUpointer_attribute>(this->val.ToNumber().Uint32Value());
+  }
+  inline operator NV_ENC_BUFFER_FORMAT() const {
+    return static_cast<NV_ENC_BUFFER_FORMAT>(this->val.ToNumber().Uint32Value());
   }
 
   //

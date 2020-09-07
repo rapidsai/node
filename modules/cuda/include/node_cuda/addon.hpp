@@ -221,6 +221,14 @@ Napi::Value cudaHostUnregister(Napi::CallbackInfo const& info);
 // cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind);
 Napi::Value cudaMemcpy(Napi::CallbackInfo const& info);
 
+// cudaError_t cudaMemcpy2D(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width,
+// size_t height, enum cudaMemcpyKind kind);
+Napi::Value cudaMemcpy2D(Napi::CallbackInfo const& info);
+
+// cudaError_t cudaMemcpy2DFromArray(void *dst, size_t dpitch, cudaArray_const_t src, size_t
+// wOffset, size_t hOffset, size_t width, size_t height, enum cudaMemcpyKind kind);
+Napi::Value cudaMemcpy2DFromArray(Napi::CallbackInfo const& info);
+
 // cudaError_t cudaMemset(void *devPtr, int value, size_t count);
 Napi::Value cudaMemset(Napi::CallbackInfo const& info);
 

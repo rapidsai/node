@@ -7,6 +7,7 @@
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
   "main": "index.js",
+  "types": "build/js",
   "scripts": {
     "clean": "npx rimraf build compile_commands.json",
     "test": "jest --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",

@@ -4,8 +4,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@nvidia/cuda": ["src/index"],
-            "@nvidia/cuda/*": ["src/*"]
+            "@nvidia/nvencoder": ["src/index"],
+            "@nvidia/nvencoder/*": ["src/*"]
         },
         "target": "ESNEXT",
         "module": "commonjs",

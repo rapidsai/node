@@ -13,3 +13,5 @@
 // limitations under the License.
 
 export * from './nvencoder';
+export * from './gl';
+export * from './cuda';
