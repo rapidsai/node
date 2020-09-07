@@ -16,7 +16,11 @@ import { PassThrough } from 'stream';
 import { CUDADevice } from '@nvidia/cuda';
 import { CUDAEncoderTransform } from '@nvidia/nvencoder';
 
-export function videoEncoderCallbacks(_device = CUDADevice.new(0)) {
+export function videoEncoderCallbacks({
+    output = process.stdout,
+    // @ts-ignore
+    device = CUDADevice.new(0),
+} = {}) {
 
     const ffmpeg = require('fluent-ffmpeg');
     const { readPixelsToBuffer } = require('@luma.gl/webgl');
@@ -48,7 +52,7 @@ export function videoEncoderCallbacks(_device = CUDADevice.new(0)) {
                 // create a fragmented MP4 stream
                 // https://stackoverflow.com/a/55712208/3117331
                 .outputOptions('-movflags', 'frag_keyframe+empty_moov')
-                .pipe(process.stdout);
+                .pipe(output);
 
             framebuffer = new Framebuffer(gl, {
                 color: new Texture2D(gl, {
