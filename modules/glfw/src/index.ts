@@ -22,3 +22,5 @@ export { GLFWOpenGLProfile } from './glfw';
 export { GLFWWindowAttribute } from './glfw';
 export { GLFWContextCreationAPI } from './glfw';
 export { createWindow, createModuleWindow, createReactWindow } from './jsdom';
+
+if (process) { (process as any).browser = true; }

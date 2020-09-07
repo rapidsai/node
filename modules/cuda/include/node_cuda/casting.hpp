@@ -181,6 +181,9 @@ struct FromJS {
   inline operator CUfunction() const {
     return reinterpret_cast<CUfunction>(this->operator void*());
   }
+  inline operator cudaArray_t() const {
+    return reinterpret_cast<cudaArray_t>(this->operator void*());
+  }
   inline operator CUdeviceptr() const {
     return reinterpret_cast<CUdeviceptr>(this->operator void*());
   }
@@ -248,7 +251,7 @@ struct FromJS {
 
 struct ToNapi {
   Napi::Env env;
-  inline ToNapi(const Napi::Env& env) : env(env) {}
+  inline ToNapi(Napi::Env const& env) : env(env) {}
 
   // Primitives
   Napi::Boolean inline operator()(const bool& val) const {

@@ -3,6 +3,7 @@ ARG LINUX_VERSION=ubuntu18.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 
 FROM node:14.4.0-stretch-slim as node
+FROM jrottenberg/ffmpeg:4.1-nvidia AS ffmpeg
 
 FROM nvidia/cudagl:${CUDA_VERSION}-runtime-${LINUX_VERSION}
 
@@ -34,6 +35,11 @@ RUN groupadd --gid $GID node \
  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
  # smoke tests
  && node --version && npm --version && yarn --version
+
+COPY --from=ffmpeg /usr/local/bin /usr/local/bin/
+COPY --from=ffmpeg /usr/local/share /usr/local/share/
+COPY --from=ffmpeg /usr/local/lib /usr/local/lib/
+COPY --from=ffmpeg /usr/local/include /usr/local/include/
 
 SHELL ["/bin/bash", "-l"]
 

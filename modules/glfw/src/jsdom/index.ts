@@ -53,7 +53,10 @@ const jsdomOptions = {
 
 function createJSDOMContext(dir = process.cwd(), runInThisContext = false, code = '') {
     let context: any;
-    const processClone = Object.create(process, { browser: { value: true } });
+    const processClone = Object.create(process, {
+        browser: { value: true },
+        type:  { value: 'renderer' }
+    });
     if (runInThisContext) {
         if (!(global as any).window) {
             (global as any).idlUtils = idlUtils;
@@ -104,11 +107,18 @@ export function createWindow(code: Function | string, runInThisContext = false) 
 }
 
 export function createModuleWindow(id: string, runInThisContext = false) {
-    return createWindow(`function() { return require('${id}'); }`, runInThisContext);
+    return createWindow(`function(props) {
+        let result = require('${id}');
+        result = result.default || result;
+        if (typeof result === 'function') {
+            return result(props);
+        }
+        return result;
+    }`, runInThisContext);
 }
 
 export function createReactWindow(id: string, runInThisContext = false) {
-    return createWindow(`function (props = {}) {
+    return createWindow(`function (props) {
             const Component = require('${id}');
             const {createElement} = require('react');
             const {render, findDOMNode: FDN} = require('react-dom');

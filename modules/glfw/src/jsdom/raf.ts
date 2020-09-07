@@ -53,6 +53,7 @@ export function installAnimationFrame(window: any) {
         // hack: reset the private `gl._clearMask` field so we know whether
         // to call swapBuffers() after all the listeners have been executed
         window._clearMask = 0;
+        (window.id > 0) && glfw.makeContextCurrent(window.id);
         if (callbacks.size > 0) {
             const t_ = Date.now();
             if (callbacks === a) {

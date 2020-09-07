@@ -21,7 +21,7 @@
 
 namespace node_rmm {
 
-inline Napi::Error cuError(const Napi::Env& env, CUresult code, const char* file, uint32_t line) {
+inline Napi::Error cuError(Napi::Env const& env, CUresult code, const char* file, uint32_t line) {
   const char* name;
   const char* estr;
   CUDAAPI::cuGetErrorName(code, &name);
@@ -31,7 +31,7 @@ inline Napi::Error cuError(const Napi::Env& env, CUresult code, const char* file
   return Napi::Error::New(env, msg);
 }
 
-inline Napi::Error cudaError(const Napi::Env& env,
+inline Napi::Error cudaError(Napi::Env const& env,
                              cudaError_t code,
                              const char* file,
                              uint32_t line) {
@@ -42,7 +42,7 @@ inline Napi::Error cudaError(const Napi::Env& env,
   return Napi::Error::New(env, msg);
 }
 
-inline Napi::Error nvrtcError(const Napi::Env& env,
+inline Napi::Error nvrtcError(Napi::Env const& env,
                               nvrtcResult code,
                               const char* file,
                               uint32_t line) {

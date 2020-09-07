@@ -54,7 +54,7 @@ export abstract class GLFWDOMWindow {
             _mouseX: 0, _mouseY: 0, _scrollX: 0, _scrollY: 0,
             _buttons: 0, _modifiers: 0,
             _xscale: 1, _yscale: 1, _devicePixelRatio: 1,
-            _focused: false, _minimized: false, _maximized: false,
+            _focused: false, _minimized: false, _maximized: false, _swapInterval: 1,
             _visible: true, _decorated: true, _transparent: false, _resizable: true,
             _subscriptions: new Subscription()
         }, options);
@@ -187,6 +187,16 @@ export abstract class GLFWDOMWindow {
 
     protected _maximized = false;
     public get maximized() { return this._maximized; }
+
+    protected _swapInterval = 1;
+    public get swapInterval() { return this._swapInterval; }
+    public set swapInterval(_: number) {
+        if (this._swapInterval !== _) {
+            if (this._id > 0) {
+                glfw.swapInterval(this._swapInterval = _);
+            }
+        }
+    }
 
     protected _modifiers = 0;
     public get modifiers() { return this._modifiers; }
@@ -330,6 +340,7 @@ export abstract class GLFWDOMWindow {
             this._subscriptions = new Subscription();
             this.cursor = this._cursor;
 
+            glfw.swapInterval(this.swapInterval);
             glfw.swapBuffers(id);
 
             [

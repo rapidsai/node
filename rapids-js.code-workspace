@@ -1,28 +1,48 @@
 {
 	"folders": [
         {
+            "name": "rapids-js",
             "path": "."
         },
         {
+            "name": "cmake-modules",
             "path": "modules/cmake-modules"
         },
         {
+            "name": "cuda",
             "path": "modules/cuda"
         },
         {
+            "name": "deck.gl",
+            "path": "modules/deck.gl"
+        },
+        {
+            "name": "demo",
             "path": "modules/demo"
         },
         {
+            "name": "glfw",
             "path": "modules/glfw"
         },
         {
+            "name": "nvencoder",
             "path": "modules/nvencoder"
         },
         {
+            "name": "rmm",
             "path": "modules/rmm"
         },
         {
+            "name": "webgl",
             "path": "modules/webgl"
+        },
+        {
+            "name": "vis.gl",
+            "path": "../../vis.gl"
+        },
+        {
+            "name": "Samples",
+            "path": "../../../Downloads/Video_Codec_SDK_10.0.26/Samples"
         }
     ],
   "settings": {

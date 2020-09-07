@@ -3,11 +3,11 @@
   "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
-  "types": "build/js",
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
   "main": "index.js",
+  "types": "build/js",
   "scripts": {
     "clean": "npx rimraf build compile_commands.json",
     "test": "jest --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",

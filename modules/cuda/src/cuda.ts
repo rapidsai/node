@@ -34,6 +34,27 @@ export interface CUDA {
     CUDABuffer: CUDABufferConstructor;
 }
 
+export interface CUDAArrayConstructor {
+    readonly prototype: CUDAArray;
+    new(): CUDAArray;
+}
+
+export interface CUDAArray {
+    readonly ary: number;
+    readonly byteLength: number;
+    readonly bytesPerElement: number;
+    readonly width: number;
+    readonly height: number;
+    readonly depth: number;
+    readonly channelFormatX: number;
+    readonly channelFormatY: number;
+    readonly channelFormatZ: number;
+    readonly channelFormatW: number;
+    readonly channelFormatKind: number;
+}
+
+export declare var CUDAArray: CUDAArrayConstructor;
+
 export interface CUDABufferConstructor {
     readonly prototype: CUDABuffer;
     new(): CUDABuffer;
@@ -55,6 +76,7 @@ export type CUfunction = object;
 export type CUgraphicsResource = number;
 export type CUDAhostptr = ArrayBuffer | ArrayBufferView;
 export type CUdeviceptr = ArrayBuffer | ArrayBufferView | CUDABuffer;
+export type CUarrayptr = number;
 export type CUipcMemHandle = Uint8Array;
 
 export type GLImage = number;
@@ -88,6 +110,7 @@ export namespace gl {
     export const unregisterResource: (resource: CUgraphicsResource) => void = CUDA.gl.unregisterResource;
     export const mapResources: (resources: CUgraphicsResource[]) => void = CUDA.gl.mapResources;
     export const unmapResources: (resources: CUgraphicsResource[]) => void = CUDA.gl.unmapResources;
+    export const getMappedArray: (resource: CUgraphicsResource) => CUDAArray = CUDA.gl.getMappedArray;
     export const getMappedPointer: (resource: CUgraphicsResource) => CUDABuffer = CUDA.gl.getMappedPointer;
 }
 
@@ -138,7 +161,9 @@ export namespace mem {
     export const setAsync: (target: CUdeviceptr, offset: number, fillValue: bigint | number, length: number, stream: CUstream) => Promise<void> = CUDA.mem.setAsync;
     
     export const cpy: (target: CUdeviceptr, targetOffset: number, source: CUdeviceptr, sourceOffset: number, length: number) => void = CUDA.mem.cpy;
+    export const cpy2D: (target: CUarrayptr, targetPitch: number, source: CUarrayptr, sourcePitch: number, width: number, height: number) => void = CUDA.mem.cpy2D;
     export const cpyAsync: (target: CUdeviceptr, targetOffset: number, source: CUdeviceptr, sourceOffset: number, length: number, stream?: CUstream) => Promise<void> = CUDA.mem.cpyAsync;
+    export const cpy2DFromArray: (target: CUdeviceptr, targetPitch: number, source: CUarrayptr, x: number, y: number, width: number, height: number) => void = CUDA.mem.cpy2DFromArray;
     
     export const allocHost: (byteLength: number, flags?: CUDAMemHostAllocFlag) => CUDABuffer = CUDA.mem.allocHost;
     export const freeHost: (mem: CUDAhostptr) => void = CUDA.mem.freeHost;

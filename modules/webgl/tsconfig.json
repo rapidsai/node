@@ -4,8 +4,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@nvidia/cuda": ["src/index"],
-            "@nvidia/cuda/*": ["src/*"]
+            "@nvidia/webgl": ["src/index"],
+            "@nvidia/webgl/*": ["src/*"]
         },
         "target": "ESNEXT",
         "module": "commonjs",

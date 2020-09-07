@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cuda.h>
-#include <cuda_runtime.h>
-
 #include <node_cuda/buffer.hpp>
 #include <node_cuda/casting.hpp>
 #include <node_cuda/macros.hpp>
 #include <node_cuda/task.hpp>
 
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <napi.h>
+
 namespace node_cuda {
 
 namespace detail {
-void freeHostPtr(const Napi::Env& env, void* ptr) {
+void freeHostPtr(Napi::Env const& env, void* ptr) {
   size_t size;
   CUdeviceptr base;
   CUdeviceptr dptr;
@@ -104,11 +105,46 @@ Napi::Value cudaMemcpy(Napi::CallbackInfo const& info) {
   uint8_t* src_data = FromJS(info[2]);
   size_t src_offset = FromJS(info[3]);
   size_t size       = FromJS(info[4]);
+  std::cerr << "dst_data: " << reinterpret_cast<size_t>(dst_data) << "\n"
+            << "dst_offset: " << dst_offset << "\n"
+            << "src_data: " << reinterpret_cast<size_t>(src_data) << "\n"
+            << "src_offset: " << src_offset << "\n"
+            << "size: " << size << "\n"  //
+            << std::endl;
   if (dst_data != nullptr && src_data != nullptr && size > 0) {
     CUDA_TRY(
       env,
       CUDARTAPI::cudaMemcpy(dst_data + dst_offset, src_data + src_offset, size, cudaMemcpyDefault));
   }
+  return env.Undefined();
+}
+
+Napi::Value cudaMemcpy2D(Napi::CallbackInfo const& info) {
+  auto env         = info.Env();
+  uint8_t* dst_ary = FromJS(info[0]);
+  size_t dst_pitch = FromJS(info[1]);
+  uint8_t* src_ary = FromJS(info[2]);
+  size_t src_pitch = FromJS(info[3]);
+  size_t width     = FromJS(info[4]);
+  size_t height    = FromJS(info[5]);
+  CUDA_TRY(env,
+           CUDARTAPI::cudaMemcpy2D(
+             dst_ary, dst_pitch, src_ary, src_pitch, width, height, cudaMemcpyDefault));
+  return env.Undefined();
+}
+
+Napi::Value cudaMemcpy2DFromArray(Napi::CallbackInfo const& info) {
+  auto env            = info.Env();
+  void* dst_ary       = FromJS(info[0]);
+  size_t dst_pitch    = FromJS(info[1]);
+  cudaArray_t src_ary = FromJS(info[2]);
+  size_t x            = FromJS(info[3]);
+  size_t y            = FromJS(info[4]);
+  size_t width        = FromJS(info[5]);
+  size_t height       = FromJS(info[6]);
+  CUDA_TRY(env,
+           CUDARTAPI::cudaMemcpy2DFromArray(
+             dst_ary, dst_pitch, src_ary, x, y, width, height, cudaMemcpyDefault));
   return env.Undefined();
 }
 
@@ -235,6 +271,8 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "hostRegister", node_cuda::cudaHostRegister);
   EXPORT_FUNC(env, exports, "hostUnregister", node_cuda::cudaHostUnregister);
   EXPORT_FUNC(env, exports, "cpy", node_cuda::cudaMemcpy);
+  EXPORT_FUNC(env, exports, "cpy2D", node_cuda::cudaMemcpy2D);
+  EXPORT_FUNC(env, exports, "cpy2DFromArray", node_cuda::cudaMemcpy2DFromArray);
   EXPORT_FUNC(env, exports, "set", node_cuda::cudaMemset);
   EXPORT_FUNC(env, exports, "cpyAsync", node_cuda::cudaMemcpyAsync);
   EXPORT_FUNC(env, exports, "setAsync", node_cuda::cudaMemsetAsync);
