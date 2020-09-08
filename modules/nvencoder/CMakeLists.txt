@@ -61,10 +61,14 @@ find_path(VIDEO_CODEC_SDK_INCLUDE_DIR NO_DEFAULT_PATH REQUIRED
           PATH_SUFFIXES "include" "Interface"
           DOC "The nvEncodeAPI.h parent dir")
 
-find_library(CUVID_LIB nvcuvid)
-find_library(NVENCODEAPI_LIB nvidia-encode)
+# find_library(CUVID_LIB nvcuvid)
+find_library(NVENCODEAPI_LIB
+    NAMES nvidia-encode
+          libnvidia-encode
+          libnvidia-encode.so
+          libnvidia-encode.so.1)
 
-message(STATUS "CUVID_LIB: ${CUVID_LIB}")
+# message(STATUS "CUVID_LIB: ${CUVID_LIB}")
 message(STATUS "NVENCODEAPI_LIB: ${NVENCODEAPI_LIB}")
 
 ###################################################################################################
@@ -90,5 +94,4 @@ target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       cuda cudart OpenGL::GL
                       ${GLEW_LIBRARY}
-                      ${NVENCODEAPI_LIB}
-                      ${CUVID_LIB})
+                      ${NVENCODEAPI_LIB})
