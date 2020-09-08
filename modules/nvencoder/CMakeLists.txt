@@ -68,7 +68,7 @@ find_library(NVENCODEAPI_LIB
           libnvidia-encode.so
           libnvidia-encode.so.1)
 
-message(STATUS "CUVID_LIB: ${CUVID_LIB}")
+# message(STATUS "CUVID_LIB: ${CUVID_LIB}")
 message(STATUS "NVENCODEAPI_LIB: ${NVENCODEAPI_LIB}")
 
 ###################################################################################################
@@ -95,4 +95,3 @@ target_link_libraries(${PROJECT_NAME}
                       cuda cudart OpenGL::GL
                       ${GLEW_LIBRARY}
                       ${NVENCODEAPI_LIB})
-                    #   ${CUVID_LIB})
