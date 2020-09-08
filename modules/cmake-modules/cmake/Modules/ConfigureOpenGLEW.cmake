@@ -34,7 +34,7 @@ CPMAddPackage(NAME glew
 set(GLEW_INCLUDE_DIR "${glew_SOURCE_DIR}/include")
 
 if(GLEW_USE_STATIC_LIBS)
-    set(GLEW_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/lib/libglew.a")
+    set(GLEW_LIBRARY "libglew_static")
 else()
-    set(GLEW_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/lib/libglew.so")
+    set(GLEW_LIBRARY "libglew_shared")
 endif(GLEW_USE_STATIC_LIBS)
