@@ -38,7 +38,8 @@ export class CUDAEncoderTransform extends TransformStream {
     // TODO
     resize(_size: { width: number, height: number }) {}
     _copyToFrame(source: any) {
-        if (source.texture) {
+        if (!source) { return; }
+        else if (source.texture) {
             const resource = getRegisteredTextureResource(source.texture);
             CUDA.gl.mapResources([resource]);
             const src = CUDA.gl.getMappedArray(resource);
@@ -51,7 +52,7 @@ export class CUDAEncoderTransform extends TransformStream {
             CUDA.gl.unmapResources([resource]);
         } else if (ArrayBuffer.isView(source) || source instanceof ArrayBuffer) {
             this._encoder.copyFromHostBuffer(source);
-        } else {
+        } else if (source.buffer || source.ptr) {
             this._encoder.copyFromDeviceBuffer(source);
         }
     }

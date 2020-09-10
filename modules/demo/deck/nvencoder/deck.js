@@ -1,20 +1,15 @@
 import { Deck } from '@deck.gl/core';
 import { GeoJsonLayer } from '@deck.gl/layers';
+import { Framebuffer, Texture2D } from '@luma.gl/webgl';
+import { createDeckGLVideoEncoderStream } from '@nvidia/deck.gl';
+
 import sfZipcodes from './sf.zip.geo.json';
 
-export default function createDeckInstance({
-    createEncoderTarget,
-    destroyEncoderTarget,
-    onResize,
-    onAfterRender,
-    ...deckProps
-}) {
+export default function createDeckInstance() {
 
-    let numFrames = 0;
-    let framebuffer;
+    let numFrames = 0, framebuffer;
 
     const deck = new Deck({
-        ...deckProps,
         _animate: true,
         controller: true,
         initialViewState: {
@@ -24,10 +19,19 @@ export default function createDeckInstance({
             bearing: 0,
             pitch: 30
         },
-        onResize,
         onWebGLInitialized(gl) {
             deck.setProps({
-                _framebuffer: framebuffer = createEncoderTarget(gl)
+                _framebuffer: new Framebuffer(gl, {
+                    color: new Texture2D(gl, {
+                        mipmaps: false,
+                        parameters: {
+                            [gl.TEXTURE_MIN_FILTER]: gl.LINEAR,
+                            [gl.TEXTURE_MAG_FILTER]: gl.LINEAR,
+                            [gl.TEXTURE_WRAP_S]: gl.CLAMP_TO_EDGE,
+                            [gl.TEXTURE_WRAP_T]: gl.CLAMP_TO_EDGE
+                        }
+                    })
+                })
             });
         },
         onLoad() {
@@ -43,21 +47,23 @@ export default function createDeckInstance({
                 ]
             });
         },
-        onAfterRender(props) {
+        onAfterRender() {
             if (deck.props._framebuffer) {
-                onAfterRender(props);
+                framebuffer = deck.props._framebuffer;
                 deck.setProps({ _framebuffer: null });
                 deck.redraw(true);
             } else {
                 deck.setProps({ _framebuffer: framebuffer });
+                framebuffer = null;
                 if (++numFrames >= 1000) {
-                    destroyEncoderTarget();
+                    deck.setProps({ onAfterRender: () => {}});
+                    deck.finalize();
                     setTimeout(() => process.exit(0), 20);
-                    deck.setProps({ onAfterRender: () => {} });
                 }
             }
         }
     });
 
-    return deck;
+    return createDeckGLVideoEncoderStream(deck)
+        .then((outputs) => outputs.pipe(process.stdout, { end: false }));
 }

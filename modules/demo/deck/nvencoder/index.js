@@ -24,9 +24,12 @@ require('@babel/register')({
 });
 
 const { createModuleWindow } = require('@nvidia/glfw');
-const { videoEncoderCallbacks } = require('@nvidia/deck.gl');
-module.exports = createModuleWindow(`${__dirname}/app.js`, true);
+
+// Change cwd to the example dir so relative file paths are resolved
+process.chdir(__dirname);
+
+module.exports = createModuleWindow(`${__dirname}/${process.argv[2] || 'luma'}.js`, true);
 
 if (require.main === module) {
-    module.exports.open({ transparent: false, ...videoEncoderCallbacks() });
+    module.exports.open({ transparent: false });
 }
