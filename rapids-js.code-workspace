@@ -35,14 +35,6 @@
         {
             "name": "webgl",
             "path": "modules/webgl"
-        },
-        {
-            "name": "vis.gl",
-            "path": "../../vis.gl"
-        },
-        {
-            "name": "Samples",
-            "path": "../../../Downloads/Video_Codec_SDK_10.0.26/Samples"
         }
     ],
   "settings": {
