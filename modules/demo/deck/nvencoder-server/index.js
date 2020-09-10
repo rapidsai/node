@@ -12,6 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './buffer';
-export * from './encoder/deck';
-export * from './encoder/luma';
+require('segfault-handler').registerHandler('./crash.log');
+
+require('@babel/register')({
+    cache: false,
+    babelrc: false,
+    presets: [
+        ["@babel/preset-env", { "targets": { "node": "current" }}],
+        ['@babel/preset-react', { "useBuiltIns": true }]
+    ]
+});
+
+const { createModuleWindow } = require('@nvidia/glfw');
+
+// Change cwd to the example dir so relative file paths are resolved
+process.chdir(__dirname);
+
+module.exports = createModuleWindow(`${__dirname}/server.js`, true);
+
+if (require.main === module) {
+    module.exports.open({ transparent: false });
+}

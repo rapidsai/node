@@ -108,7 +108,7 @@ export function createWindow(code: Function | string, runInThisContext = false) 
 
 export function createModuleWindow(id: string, runInThisContext = false) {
     return createWindow(`function(props) {
-        let result = require('${id}');
+        var result = require('${id}');
         result = result.default || result;
         if (typeof result === 'function') {
             return result(props);
@@ -119,9 +119,10 @@ export function createModuleWindow(id: string, runInThisContext = false) {
 
 export function createReactWindow(id: string, runInThisContext = false) {
     return createWindow(`function (props) {
-            const Component = require('${id}');
-            const {createElement} = require('react');
-            const {render, findDOMNode: FDN} = require('react-dom');
+            var Component = require('${id}');
+            var reactDOM = require('react-dom');
+            var createElement = require('react').createElement;
+            var render = reactDOM.render, FDN = reactDOM.findDOMNode;
             props.ref || (props.ref = e => window._inputEventTarget = FDN(e));
             render(
                 createElement(Component.default || Component, props),
