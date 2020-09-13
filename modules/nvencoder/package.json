@@ -6,7 +6,7 @@
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
-  "main": "index.js",
+  "main": "build/js/index.js",
   "types": "build/js",
   "scripts": {
     "clean": "npx rimraf build compile_commands.json",

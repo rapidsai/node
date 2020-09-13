@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './image';
-export * from './encoder/gl';
-export * from './encoder/cuda';
+import NVENCODER from './addon';
+
+export const rgbaMirror: (width: number, height: number, axis: number, source: any, target?: any) => void = NVENCODER.image.rgbaMirror;
+export const bgraToYCrCb420: (width: number, height: number, source: any, target: any) => void = NVENCODER.image.bgraToYCrCb420;

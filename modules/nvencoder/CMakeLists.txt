@@ -78,15 +78,15 @@ include_directories("${CUDA_INCLUDE_DIRS}"
                     "${GLEW_INCLUDE_DIR}"
                     "${OPENGL_INCLUDE_DIR}"
                     "${VIDEO_CODEC_SDK_INCLUDE_DIR}"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/include"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp")
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
 link_directories("${CUDA_LIBRARIES}")
 
-file(GLOB_RECURSE NODE_NVENCODER_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/*.cpp")
+file(GLOB_RECURSE NODE_NVENCODER_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_NVENCODER_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")

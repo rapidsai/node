@@ -12,16 +12,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import NVENCODER from '../addon';
+import { NvEncoderOptions, NvEncoderBufferFormat } from '../interfaces';
 import { Transform as TransformStream, TransformOptions } from 'stream';
-import { GLNvEncoder, NvEncoderOptions, NvEncoderBufferFormat } from '../nvencoder';
 
-export class GLEncoder extends GLNvEncoder {
+type ErrBack = (err?: Error) => void;
+
+interface GLNvEncoderConstructor {
+    readonly prototype: GLNvEncoder;
+    new(options: NvEncoderOptions): GLNvEncoder;
+}
+
+interface GLNvEncoder {
+    readonly constructor: GLNvEncoderConstructor;
+    readonly frameSize: number;
+    readonly bufferCount: number;
+    readonly bufferFormat: NvEncoderBufferFormat;
+    close(cb: ErrBack): void;
+    encode(cb: ErrBack): void;
+    texture(): TextureInputFrame;
+}
+
+export interface TextureInputFrame {
+    readonly pitch: number;
+    readonly format: NvEncoderBufferFormat;
+    readonly target: number;
+    readonly texture: number;
+}
+
+export class GLEncoder extends (<GLNvEncoderConstructor> NVENCODER.GLNvEncoder) {
     constructor(options: NvEncoderOptions) {
         super({ format: NvEncoderBufferFormat.ABGR, ...options });
     }
 }
-
-type ErrBack = (err?: Error, buf?: ArrayBuffer) => void;
 
 export class GLEncoderTransform extends TransformStream {
     private _encoder: GLEncoder;

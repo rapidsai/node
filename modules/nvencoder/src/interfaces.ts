@@ -12,30 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const NVENCODER = (() => {
-    let NVENCODER: any, types = ['Release'];
-    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
-        types.push('Debug');
-    }
-    for (let type; type = types.pop();) {
-        try {
-            if (NVENCODER = require(`../${type}/node_nvencoder.node`)) {
-                break;
-            }
-        } catch (e) { console.error(e); continue; }
-    }
-    if (NVENCODER) return NVENCODER.init();
-    throw new Error('node_nvencoder not found');
-})();
-
-export { NVENCODER };
-
-export namespace image {
-    export const rgbaMirror: (width: number, height: number, axis: number, source: any, target?: any) => void = NVENCODER.image.rgbaMirror;
-    export const bgraToYCrCb420: (width: number, height: number, source: any, target: any) => void = NVENCODER.image.bgraToYCrCb420;
-}
-
-type ErrBack = (err?: Error, buf?: ArrayBuffer) => void;
+import NVENCODER from './addon';
 
 export interface NvEncoderOptions {
     width: number;
@@ -49,61 +26,6 @@ export interface NvEncoderOptions {
     // maxHeight?: number;
     // frameRateNumerator?: number;
     // frameRateDenomenator?: number;
-}
-
-export interface GLNvEncoderConstructor {
-    readonly prototype: GLNvEncoder;
-    new(options: NvEncoderOptions): GLNvEncoder;
-}
-
-export interface GLNvEncoder {
-    readonly constructor: GLNvEncoderConstructor;
-    readonly frameSize: number;
-    readonly bufferCount: number;
-    readonly bufferFormat: NvEncoderBufferFormat;
-    close(cb: ErrBack): void;
-    encode(cb: ErrBack): void;
-    texture(): TextureInputFrame;
-}
-
-export const GLNvEncoder: GLNvEncoderConstructor = NVENCODER.GLNvEncoder;
-
-export interface CUDANvEncoderConstructor {
-    readonly prototype: CUDANvEncoder;
-    new(options: NvEncoderOptions): CUDANvEncoder;
-}
-
-export interface CUDANvEncoder {
-    readonly constructor: CUDANvEncoderConstructor;
-    readonly frameSize: number;
-    readonly bufferCount: number;
-    readonly bufferFormat: NvEncoderBufferFormat;
-    close(cb: ErrBack): void;
-    encode(cb: ErrBack): void;
-    copyFromArray(array: any, format?: NvEncoderBufferFormat): void;
-    copyFromHostBuffer(buffer: any, format?: NvEncoderBufferFormat): void;
-    copyFromDeviceBuffer(buffer: any, format?: NvEncoderBufferFormat): void;
-}
-
-export const CUDANvEncoder: CUDANvEncoderConstructor = NVENCODER.CUDANvEncoder;
-
-interface InputFrame {
-    readonly pitch: number;
-    readonly format: NvEncoderBufferFormat;
-}
-
-export interface ArrayInputFrame extends InputFrame {
-    readonly array: number;
-}
-
-export interface BufferInputFrame extends InputFrame {
-    readonly buffer: number;
-    readonly byteLength: number;
-}
-
-export interface TextureInputFrame extends InputFrame {
-    readonly target: number;
-    readonly texture: number;
 }
 
 export enum NvEncoderBufferFormat {

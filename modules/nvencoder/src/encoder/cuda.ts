@@ -12,11 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import NVENCODER from '../addon';
 import { CUDA } from '@nvidia/cuda';
+import { NvEncoderOptions, NvEncoderBufferFormat } from '../interfaces';
 import { Transform as TransformStream, TransformOptions } from 'stream';
-import { CUDANvEncoder, NvEncoderOptions, NvEncoderBufferFormat } from '../nvencoder';
 
-export class CUDAEncoder extends CUDANvEncoder {
+interface CUDANvEncoderConstructor {
+    readonly prototype: CUDANvEncoder;
+    new(options: NvEncoderOptions): CUDANvEncoder;
+}
+
+interface CUDANvEncoder {
+    readonly constructor: CUDANvEncoderConstructor;
+    readonly frameSize: number;
+    readonly bufferCount: number;
+    readonly bufferFormat: NvEncoderBufferFormat;
+    close(cb: ErrBack): void;
+    encode(cb: ErrBack): void;
+    copyFromArray(array: any, format?: NvEncoderBufferFormat): void;
+    copyFromHostBuffer(buffer: any, format?: NvEncoderBufferFormat): void;
+    copyFromDeviceBuffer(buffer: any, format?: NvEncoderBufferFormat): void;
+}
+
+export class CUDAEncoder extends (<CUDANvEncoderConstructor> NVENCODER.CUDANvEncoder) {
     constructor(options: NvEncoderOptions) {
         super({ format: NvEncoderBufferFormat.ABGR, ...options });
     }

@@ -3,8 +3,8 @@ const Fastify = require('fastify');
 const Peer = require('simple-peer');
 
 import Loop from './luma';
-import { NVENCODER } from '@nvidia/nvencoder';
 import { CUDADevice, CUDAUint8Array } from '@nvidia/cuda';
+import { rgbaMirror, bgraToYCrCb420 } from '@nvidia/nvencoder';
 
 const device = CUDADevice.new(1);
 
@@ -58,9 +58,9 @@ function onConnect(sock) {
                     CUDA.gl.mapResources([resource]);
                     const rgbaDBuf = new CUDAUint8Array(CUDA.gl.getMappedPointer(resource));
                     // flip horizontally to account for WebGL's coordinate system (e.g. ffmpeg -vf vflip)
-                    NVENCODER.image.rgbaMirror(width, height, 0, rgbaDBuf);
+                    rgbaMirror(width, height, 0, rgbaDBuf);
                     // convert colorspace from OpenGL's RGBA to WebRTC's IYUV420
-                    NVENCODER.image.bgraToYCrCb420(yuvDBuf, rgbaDBuf, width, height);
+                    bgraToYCrCb420(yuvDBuf, rgbaDBuf, width, height);
                     CUDA.gl.unmapResources([resource]);
                     yuvDBuf.copyInto(yuvHBuf);
                     // Send the converted buffer to the client

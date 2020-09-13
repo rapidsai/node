@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './image';
-export * from './encoder/gl';
-export * from './encoder/cuda';
+export const NVENCODER = (() => {
+    let NVENCODER: any, types = ['Release'];
+    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
+        types.push('Debug');
+    }
+    for (let type; type = types.pop();) {
+        try {
+            if (NVENCODER = require(`../${type}/node_nvencoder.node`)) {
+                break;
+            }
+        } catch (e) { console.error(e); continue; }
+    }
+    if (NVENCODER) return NVENCODER.init();
+    throw new Error('node_nvencoder not found');
+})();
+
+export default NVENCODER;
