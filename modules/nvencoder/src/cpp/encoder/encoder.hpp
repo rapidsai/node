@@ -51,9 +51,12 @@ class CUDANvEncoder : public Napi::ObjectWrap<CUDANvEncoder> {
   Napi::Value CopyFromHostBuffer(Napi::CallbackInfo const& info);
   Napi::Value CopyFromDeviceBuffer(Napi::CallbackInfo const& info);
 
-  Napi::Value GetEncoderBufferCount(Napi::CallbackInfo const& info);
+  Napi::Value GetFrameSize(Napi::CallbackInfo const& info);
+  Napi::Value GetBufferCount(Napi::CallbackInfo const& info);
+  Napi::Value GetBufferFormat(Napi::CallbackInfo const& info);
 
   CUcontext context_{nullptr};
+  NV_ENC_BUFFER_FORMAT pixel_format_{};
   std::unique_ptr<NvEncoderCuda> encoder_{nullptr};
 };
 
@@ -77,8 +80,11 @@ class GLNvEncoder : public Napi::ObjectWrap<GLNvEncoder> {
   Napi::Value EncodeFrame(Napi::CallbackInfo const& info);
   Napi::Value GetNextTextureInputFrame(Napi::CallbackInfo const& info);
 
-  Napi::Value GetEncoderBufferCount(Napi::CallbackInfo const& info);
+  Napi::Value GetFrameSize(Napi::CallbackInfo const& info);
+  Napi::Value GetBufferCount(Napi::CallbackInfo const& info);
+  Napi::Value GetBufferFormat(Napi::CallbackInfo const& info);
 
+  NV_ENC_BUFFER_FORMAT pixel_format_{};
   std::unique_ptr<NvEncoderGL> encoder_{nullptr};
 };
 

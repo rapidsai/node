@@ -14,6 +14,7 @@
 
 #include "encoder/encoder.hpp"
 #include "encoder/frame.hpp"
+#include "nvEncodeAPI.h"
 
 #include <node_nvencoder/casting.hpp>
 #include <node_nvencoder/macros.hpp>
@@ -33,8 +34,9 @@ Napi::Object CUDANvEncoder::Init(Napi::Env env, Napi::Object exports) {
      InstanceMethod("copyFromArray", &CUDANvEncoder::CopyFromArray, napi_enumerable),
      InstanceMethod("copyFromHostBuffer", &CUDANvEncoder::CopyFromHostBuffer, napi_enumerable),
      InstanceMethod("copyFromDeviceBuffer", &CUDANvEncoder::CopyFromDeviceBuffer, napi_enumerable),
-     InstanceAccessor(
-       "encoderBufferCount", &CUDANvEncoder::GetEncoderBufferCount, nullptr, napi_enumerable)});
+     InstanceAccessor("frameSize", &CUDANvEncoder::GetFrameSize, nullptr, napi_enumerable),
+     InstanceAccessor("bufferCount", &CUDANvEncoder::GetBufferCount, nullptr, napi_enumerable),
+     InstanceAccessor("bufferFormat", &CUDANvEncoder::GetBufferFormat, nullptr, napi_enumerable)});
 
   CUDANvEncoder::constructor = Napi::Persistent(ctor);
   CUDANvEncoder::constructor.SuppressDestruct();
@@ -77,6 +79,7 @@ void CUDANvEncoder::Initialize(uint32_t encoderWidth,
   } else {
     context_ = reinterpret_cast<CUcontext>(device);
   }
+  pixel_format_ = bufferFormat;
   encoder_.reset(new NvEncoderCuda(context_, encoderWidth, encoderHeight, bufferFormat));
 
   NV_ENC_INITIALIZE_PARAMS initializeParams = {NV_ENC_INITIALIZE_PARAMS_VER};
@@ -84,10 +87,12 @@ void CUDANvEncoder::Initialize(uint32_t encoderWidth,
   initializeParams.encodeWidth              = encoderWidth;
   initializeParams.encodeHeight             = encoderHeight;
   initializeParams.encodeConfig             = &encodeConfig;
+  initializeParams.frameRateNum             = 60;
+  initializeParams.frameRateDen             = 1;
   encoder_->CreateDefaultEncoderParams(&initializeParams,
-                                       NV_ENC_CODEC_H264_GUID,          // TODO
-                                       NV_ENC_PRESET_P3_GUID,           // TODO
-                                       NV_ENC_TUNING_INFO_HIGH_QUALITY  // TODO
+                                       NV_ENC_CODEC_H264_GUID,         // TODO
+                                       NV_ENC_PRESET_P3_GUID,          // TODO
+                                       NV_ENC_TUNING_INFO_LOW_LATENCY  // TODO
   );
 
   encoder_->CreateEncoder(&initializeParams);
@@ -155,8 +160,16 @@ Napi::Value CUDANvEncoder::CopyFromDeviceBuffer(Napi::CallbackInfo const& info) 
   return info.Env().Undefined();
 }
 
-Napi::Value CUDANvEncoder::GetEncoderBufferCount(Napi::CallbackInfo const& info) {
+Napi::Value CUDANvEncoder::GetFrameSize(Napi::CallbackInfo const& info) {
+  return ToNapi(info.Env())(encoder_->GetFrameSize());
+}
+
+Napi::Value CUDANvEncoder::GetBufferCount(Napi::CallbackInfo const& info) {
   return ToNapi(info.Env())(encoder_->GetEncoderBufferCount());
+}
+
+Napi::Value CUDANvEncoder::GetBufferFormat(Napi::CallbackInfo const& info) {
+  return ToNapi(info.Env())(pixel_format_);
 }
 
 /**

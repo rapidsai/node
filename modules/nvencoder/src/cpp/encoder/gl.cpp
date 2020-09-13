@@ -31,8 +31,9 @@ Napi::Object GLNvEncoder::Init(Napi::Env env, Napi::Object exports) {
     {InstanceMethod("close", &GLNvEncoder::EndEncode, napi_enumerable),
      InstanceMethod("encode", &GLNvEncoder::EncodeFrame, napi_enumerable),
      InstanceMethod("texture", &GLNvEncoder::GetNextTextureInputFrame, napi_enumerable),
-     InstanceAccessor(
-       "encoderBufferCount", &GLNvEncoder::GetEncoderBufferCount, nullptr, napi_enumerable)});
+     InstanceAccessor("frameSize", &GLNvEncoder::GetFrameSize, nullptr, napi_enumerable),
+     InstanceAccessor("bufferCount", &GLNvEncoder::GetBufferCount, nullptr, napi_enumerable),
+     InstanceAccessor("bufferFormat", &GLNvEncoder::GetBufferFormat, nullptr, napi_enumerable)});
 
   GLNvEncoder::constructor = Napi::Persistent(ctor);
   GLNvEncoder::constructor.SuppressDestruct();
@@ -64,6 +65,7 @@ GLNvEncoder::GLNvEncoder(Napi::CallbackInfo const& info) : Napi::ObjectWrap<GLNv
 void GLNvEncoder::Initialize(uint32_t encoderWidth,
                              uint32_t encoderHeight,
                              NV_ENC_BUFFER_FORMAT bufferFormat) {
+  pixel_format_ = bufferFormat;
   encoder_.reset(new NvEncoderGL(encoderWidth, encoderHeight, bufferFormat));
 
   NV_ENC_INITIALIZE_PARAMS initializeParams = {NV_ENC_INITIALIZE_PARAMS_VER};
@@ -94,8 +96,16 @@ Napi::Value GLNvEncoder::GetNextTextureInputFrame(Napi::CallbackInfo const& info
   return TextureInputFrame::New(encoder_->GetNextInputFrame());
 }
 
-Napi::Value GLNvEncoder::GetEncoderBufferCount(Napi::CallbackInfo const& info) {
+Napi::Value GLNvEncoder::GetFrameSize(Napi::CallbackInfo const& info) {
+  return ToNapi(info.Env())(encoder_->GetFrameSize());
+}
+
+Napi::Value GLNvEncoder::GetBufferCount(Napi::CallbackInfo const& info) {
   return ToNapi(info.Env())(encoder_->GetEncoderBufferCount());
+}
+
+Napi::Value GLNvEncoder::GetBufferFormat(Napi::CallbackInfo const& info) {
+  return ToNapi(info.Env())(pixel_format_);
 }
 
 /**

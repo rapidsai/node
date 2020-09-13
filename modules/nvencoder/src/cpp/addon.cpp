@@ -40,6 +40,10 @@ Napi::Object init_module(Napi::Env env, Napi::Object exports) {
   node_nvencoder::GLNvEncoder::Init(env, exports);
   node_nvencoder::CUDANvEncoder::Init(env, exports);
 
+  auto image = Napi::Object::New(env);
+  EXPORT_PROP(exports, "image", image);
+  node_nvencoder::image::initModule(env, image);
+
   auto nvEncoderBufferFormats = Napi::Object::New(env);
   EXPORT_ENUM(env, nvEncoderBufferFormats, "UNDEFINED", NV_ENC_BUFFER_FORMAT_UNDEFINED);
   EXPORT_ENUM(env, nvEncoderBufferFormats, "NV12", NV_ENC_BUFFER_FORMAT_NV12);

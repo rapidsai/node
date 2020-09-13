@@ -57,25 +57,11 @@ export function createDeckGLVideoEncoderStream(deck: any, _device = CUDADevice.n
             outputs = new PassThrough({ objectMode: true, highWaterMark: 1 });
             (outputs as any).end();
         } else {
-            encoder = new CUDAEncoderTransform({
-                width: gl.drawingBufferWidth,
-                height: gl.drawingBufferHeight,
-            });
-
+            const { width, height } = gl.canvas;
+            encoder = new CUDAEncoderTransform({ width, height });
             buffers = new PassThrough({ objectMode: true, highWaterMark: 1 });
-
-            // Generates this ffmpeg command:
-            // ffmpeg -i pipe:0 -f mp4 -vf vflip -movflags frag_keyframe+empty_moov pipe:1
-            outputs = ffmpeg(buffers.pipe(encoder))
-                .outputFormat('mp4')
-                // flip vertically to account for WebGL's coordinate system
-                .outputOptions('-vf', 'vflip')
-                // create a fragmented MP4 stream
-                // https://stackoverflow.com/a/55712208/3117331
-                .outputOptions('-movflags', 'frag_keyframe+empty_moov');
-
-            outputs!.once('end', () => deck.animationLoop._running && deck.finalize());
-            outputs!.once('destroy', () => deck.animationLoop._running && deck.finalize());
+            // flip vertically to account for WebGL's coordinate system (ffmpeg -vf vflip)
+            outputs = ffmpeg(buffers.pipe(encoder)).outputOptions('-vf', 'vflip');
         }
 
         window.addEventListener('close', () => deck.animationLoop._running && deck.finalize());

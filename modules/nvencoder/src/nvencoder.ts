@@ -30,6 +30,11 @@ const NVENCODER = (() => {
 
 export { NVENCODER };
 
+export namespace image {
+    export const rgbaMirror: (width: number, height: number, axis: number, source: any, target?: any) => void = NVENCODER.image.rgbaMirror;
+    export const bgraToYCrCb420: (width: number, height: number, source: any, target: any) => void = NVENCODER.image.bgraToYCrCb420;
+}
+
 type ErrBack = (err?: Error, buf?: ArrayBuffer) => void;
 
 export interface NvEncoderOptions {
@@ -53,7 +58,9 @@ export interface GLNvEncoderConstructor {
 
 export interface GLNvEncoder {
     readonly constructor: GLNvEncoderConstructor;
-    readonly encoderBufferCount: number;
+    readonly frameSize: number;
+    readonly bufferCount: number;
+    readonly bufferFormat: NvEncoderBufferFormat;
     close(cb: ErrBack): void;
     encode(cb: ErrBack): void;
     texture(): TextureInputFrame;
@@ -68,12 +75,14 @@ export interface CUDANvEncoderConstructor {
 
 export interface CUDANvEncoder {
     readonly constructor: CUDANvEncoderConstructor;
-    readonly encoderBufferCount: number;
+    readonly frameSize: number;
+    readonly bufferCount: number;
+    readonly bufferFormat: NvEncoderBufferFormat;
     close(cb: ErrBack): void;
     encode(cb: ErrBack): void;
-    copyFromArray(array: any): void;
-    copyFromHostBuffer(buffer: any): void;
-    copyFromDeviceBuffer(buffer: any): void;
+    copyFromArray(array: any, format?: NvEncoderBufferFormat): void;
+    copyFromHostBuffer(buffer: any, format?: NvEncoderBufferFormat): void;
+    copyFromDeviceBuffer(buffer: any, format?: NvEncoderBufferFormat): void;
 }
 
 export const CUDANvEncoder: CUDANvEncoderConstructor = NVENCODER.CUDANvEncoder;

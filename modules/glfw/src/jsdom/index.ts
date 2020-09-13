@@ -107,14 +107,7 @@ export function createWindow(code: Function | string, runInThisContext = false) 
 }
 
 export function createModuleWindow(id: string, runInThisContext = false) {
-    return createWindow(`function(props) {
-        var result = require('${id}');
-        result = result.default || result;
-        if (typeof result === 'function') {
-            return result(props);
-        }
-        return result;
-    }`, runInThisContext);
+    return createWindow(`function() { return require('${id}'); }`, runInThisContext);
 }
 
 export function createReactWindow(id: string, runInThisContext = false) {

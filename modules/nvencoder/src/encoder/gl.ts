@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { Transform as TransformStream, TransformOptions } from 'stream';
-import { GLNvEncoder, NvEncoderOptions, NvEncoderBufferFormat } from './nvencoder';
+import { GLNvEncoder, NvEncoderOptions, NvEncoderBufferFormat } from '../nvencoder';
 
 export class GLEncoder extends GLNvEncoder {
     constructor(options: NvEncoderOptions) {
@@ -26,14 +26,19 @@ type ErrBack = (err?: Error, buf?: ArrayBuffer) => void;
 export class GLEncoderTransform extends TransformStream {
     private _encoder: GLEncoder;
     constructor({ width, height, format = NvEncoderBufferFormat.ABGR, ...opts }: NvEncoderOptions & TransformOptions) {
+        const encoder = new GLEncoder({ width, height, format });
         super({
-            ...opts,
+            writableHighWaterMark: 1,
             writableObjectMode: true,
             readableObjectMode: false,
+            readableHighWaterMark: encoder.frameSize,
+            ...opts,
         });
-        this._encoder = new GLEncoder({ width, height, format });
+        this._encoder = encoder;
     }
-    get encoderBufferCount() { return this._encoder.encoderBufferCount; }
+    get frameSize() { return this._encoder.frameSize; }
+    get bufferCount() { return this._encoder.bufferCount; }
+    get bufferFormat() { return this._encoder.bufferFormat; }
     // TODO
     resize(_size: { width: number, height: number }) {}
     _copyToFrame(source: any) {

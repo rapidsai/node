@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>nvencoder demo</title>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script> -->
+    </head>
+    <body style="background:#2e2e2e; margin:0;">
+        <!-- <video id="video" autoplay muted width="800" height="600">
+            Sorry, your browser doesn't support embedded videos.
+        </video> -->
+        <video autoplay muted width="800" height="600" preload="none">
+            <source src="/stream.mp4" type="video/mp4">
+            Sorry, your browser doesn't support embedded videos.
+        </video>
+        <!-- <script>
+            var video = document.getElementById('video');
+            // First check for native browser HLS support
+            if (Hls.isSupported()) {
+                // If no native HLS support, check if hls.js is supported
+                var hls = new Hls();
+                hls.loadSource('/stream.m3u8');
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() { video.play(); });
+                hls.on(Hls.Events.ERROR, function (event, data) { console.error(event, data); });
+
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = '/stream.m3u8';
+                video.addEventListener('loadedmetadata', function() { video.play(); });
+            }
+        </script> -->
+    </body>
+</html>

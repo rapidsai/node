@@ -14,7 +14,7 @@
 
 import { CUDA } from '@nvidia/cuda';
 import { Transform as TransformStream, TransformOptions } from 'stream';
-import { CUDANvEncoder, NvEncoderOptions, NvEncoderBufferFormat } from './nvencoder';
+import { CUDANvEncoder, NvEncoderOptions, NvEncoderBufferFormat } from '../nvencoder';
 
 export class CUDAEncoder extends CUDANvEncoder {
     constructor(options: NvEncoderOptions) {
@@ -27,38 +27,24 @@ type ErrBack = (err?: Error, buf?: ArrayBuffer) => void;
 export class CUDAEncoderTransform extends TransformStream {
     private _encoder: CUDAEncoder;
     constructor({ width, height, format = NvEncoderBufferFormat.ABGR, ...opts }: NvEncoderOptions & TransformOptions) {
+        const encoder = new CUDAEncoder({ width, height, format });
         super({
-            ...opts,
             writableObjectMode: true,
+            writableHighWaterMark: 1,
             readableObjectMode: false,
+            readableHighWaterMark: encoder.frameSize,
+            ...opts,
         });
-        this._encoder = new CUDAEncoder({ width, height, format });
+        this._encoder = encoder;
     }
-    get encoderBufferCount() { return this._encoder.encoderBufferCount; }
+    get frameSize() { return this._encoder.frameSize; }
+    get bufferCount() { return this._encoder.bufferCount; }
+    get bufferFormat() { return this._encoder.bufferFormat; }
     // TODO
     resize(_size: { width: number, height: number }) {}
-    _copyToFrame(source: any) {
-        if (!source) { return; }
-        else if (source.texture) {
-            const resource = getRegisteredTextureResource(source.texture);
-            CUDA.gl.mapResources([resource]);
-            const src = CUDA.gl.getMappedArray(resource);
-            this._encoder.copyFromArray(src.ary);
-            CUDA.gl.unmapResources([resource]);
-        } else if (source.handle) {
-            const resource = getRegisteredBufferResource(source);
-            CUDA.gl.mapResources([resource]);
-            this._encoder.copyFromDeviceBuffer(CUDA.gl.getMappedPointer(resource));
-            CUDA.gl.unmapResources([resource]);
-        } else if (ArrayBuffer.isView(source) || source instanceof ArrayBuffer) {
-            this._encoder.copyFromHostBuffer(source);
-        } else if (source.buffer || source.ptr) {
-            this._encoder.copyFromDeviceBuffer(source);
-        }
-    }
     _transform(source: any, _encoding: string, cb: ErrBack) {
         if (!source) return cb();
-        this._copyToFrame(source);
+        if (!this._copyToFrame(source)) return cb();
         this._encoder.encode((err, ...buffers) => {
             if (err) return cb(err);
             buffers.forEach((b) => this.push(b));
@@ -71,6 +57,43 @@ export class CUDAEncoderTransform extends TransformStream {
             buffers.forEach((b) => this.push(b));
             cb();
         });
+    }
+    _copyToFrame({ texture, buffer, format }: any) {
+        if (texture && texture.handle) {
+            this._copyTextureToFrame(texture, format);
+            return true;
+        } else if (buffer) {
+            if (buffer._ || buffer.handle) {
+                this._copyGLBufferToFrame(buffer.handle ? buffer : { handle: buffer }, format);
+                return true;
+            } else if (buffer.ptr) {
+                this._copyDeviceBufferToFrame(buffer, format);
+                return true;
+            } else if (ArrayBuffer.isView(buffer) || buffer instanceof ArrayBuffer) {
+                this._copyHostBufferToFrame(buffer, format);
+                return true;
+            }
+        }
+        return false;
+    }
+    _copyTextureToFrame(texture: any, format = NvEncoderBufferFormat.ABGR) {
+        const resource = getRegisteredTextureResource(texture);
+        CUDA.gl.mapResources([resource]);
+        const src = CUDA.gl.getMappedArray(resource);
+        this._encoder.copyFromArray(src.ary, format);
+        CUDA.gl.unmapResources([resource]);
+    }
+    _copyGLBufferToFrame(buffer: any, format = NvEncoderBufferFormat.ABGR) {
+        const resource = getRegisteredBufferResource(buffer);
+        CUDA.gl.mapResources([resource]);
+        this._encoder.copyFromDeviceBuffer(CUDA.gl.getMappedPointer(resource), format);
+        CUDA.gl.unmapResources([resource]);
+    }
+    _copyHostBufferToFrame(buffer: any, format = NvEncoderBufferFormat.ABGR) {
+        this._encoder.copyFromHostBuffer(buffer, format);
+    }
+    _copyDeviceBufferToFrame(buffer: any, format = NvEncoderBufferFormat.ABGR) {
+        this._encoder.copyFromDeviceBuffer(buffer, format);
     }
 }
 
