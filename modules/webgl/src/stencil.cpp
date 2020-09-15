@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_webgl/casting.hpp>
-#include <node_webgl/context.hpp>
-#include <node_webgl/macros.hpp>
+#include "casting.hpp"
+#include "context.hpp"
+#include "macros.hpp"
 
 namespace node_webgl {
 

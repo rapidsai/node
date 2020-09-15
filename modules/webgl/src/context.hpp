@@ -15,8 +15,8 @@
 #pragma once
 
 #include <napi.h>
-#include <node_webgl/gl.hpp>
-#include <node_webgl/webgl.hpp>
+#include "gl.hpp"
+#include "webgl.hpp"
 
 namespace node_webgl {
 

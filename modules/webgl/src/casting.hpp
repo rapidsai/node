@@ -22,7 +22,7 @@
 #include <tuple>
 #include <type_traits>
 
-#include <node_webgl/gl.hpp>
+#include "gl.hpp"
 
 namespace node_webgl {
 

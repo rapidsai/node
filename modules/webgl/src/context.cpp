@@ -15,9 +15,9 @@
 #include <iterator>
 #include <sstream>
 
-#include <node_webgl/casting.hpp>
-#include <node_webgl/context.hpp>
-#include <node_webgl/macros.hpp>
+#include "casting.hpp"
+#include "context.hpp"
+#include "macros.hpp"
 
 namespace node_webgl {
 

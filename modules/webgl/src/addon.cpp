@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_webgl/casting.hpp>
-#include <node_webgl/context.hpp>
-#include <node_webgl/webgl.hpp>
+#include "casting.hpp"
+#include "context.hpp"
+#include "webgl.hpp"
 
 std::ostream& operator<<(std::ostream& os, const node_webgl::FromJS& self) {
   return os << self.operator std::string();

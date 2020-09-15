@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_webgl/webgl.hpp>
+#include "webgl.hpp"
 
 namespace node_webgl {
 
