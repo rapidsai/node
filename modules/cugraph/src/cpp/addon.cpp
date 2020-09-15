@@ -14,7 +14,14 @@
 
 #include "addon.hpp"
 
+#include <node_cugraph/macros.hpp>
+
 namespace node_cugraph {
+Napi::Value cugraphInit(Napi::CallbackInfo const& info) {
+  // todo
+  return info.This();
+}
+}  // namespace node_cugraph
 
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "init", node_cugraph::cugraphInit);
