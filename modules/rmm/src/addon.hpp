@@ -12,21 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_rmm/addon.hpp>
-#include <node_rmm/buffer.hpp>
-#include <node_rmm/macros.hpp>
+#pragma once
 
-namespace node_rmm {
-Napi::Value rmmInit(Napi::CallbackInfo const& info) {
-  // todo
-  return info.This();
-}
-}  // namespace node_rmm
+#include <rmm/device_buffer.hpp>
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", node_rmm::rmmInit);
-  node_rmm::DeviceBuffer::Init(env, exports);
-  return exports;
-}
+#include <napi.h>
 
-NODE_API_MODULE(node_rmm, initModule);
+namespace nv {
+
+Napi::Value rmmInit(Napi::CallbackInfo const& info);
+
+Napi::Object initModule(Napi::Env env, Napi::Object exports);
+}  // namespace nv

@@ -32,7 +32,7 @@ if(NVIDIA_USE_CCACHE)
             set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM_PATH}")
         else()
             execute_process(COMMAND node -p
-                            "require('@nvidia/cmake-modules').ccache_path"
+                            "require('@nvidia/rapids-core').ccache_path"
                             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                             OUTPUT_VARIABLE NVIDIA_CMAKE_CCACHE_DIR
                             OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -59,13 +59,21 @@ if(NVIDIA_USE_CCACHE)
 endif(NVIDIA_USE_CCACHE)
 
 execute_process(COMMAND node -p
-                "require('@nvidia/cmake-modules').cpm_source_cache_path"
+                "require('@nvidia/rapids-core').cpm_source_cache_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NVIDIA_CPM_SOURCE_CACHE
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 set(ENV{CPM_SOURCE_CACHE} ${NVIDIA_CPM_SOURCE_CACHE})
 message(STATUS "Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
+
+execute_process(COMMAND node -p
+                "require('@nvidia/rapids-core').cpp_include_path"
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                OUTPUT_VARIABLE NVIDIA_RAPIDS_CORE_INCLUDE
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+message(STATUS "RAPIDS core include: ${NVIDIA_RAPIDS_CORE_INCLUDE}")
 
 ###################################################################################################
 # - compiler options ------------------------------------------------------------------------------

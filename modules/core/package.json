@@ -1,0 +1,31 @@
+{
+  "name": "@nvidia/rapids-core",
+  "description": "Shared CMake modules, TypeScript configurations, and C++ headers for RAPIDS node native modules",
+  "main": "index.js",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "bin": {
+    "nvidia-cmake-js": "bin/exec_cmake.js",
+    "nvidia-cmake-install-deps": "bin/exec_install_deps.js"
+  },
+  "scripts": {
+    "postinstall": "cmake-js install",
+    "clean": "npx rimraf build compile_commands.json",
+    "build": "npm run cpp:build",
+    "compile": "npm run cpp:compile",
+    "rebuild": "npm run cpp:rebuild",
+    "cpp:build": "nvidia-cmake-js -g build",
+    "cpp:compile": "nvidia-cmake-js -g compile",
+    "cpp:rebuild": "nvidia-cmake-js -g rebuild"
+  },
+  "dependencies": {
+    "cmake-js": "6.0.0"
+  },
+  "devDependencies": {
+    "segfault-handler": "1.3.0"
+  }
+}

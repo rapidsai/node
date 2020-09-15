@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_rmm/buffer.hpp>
-#include <node_rmm/casting.hpp>
-#include <node_rmm/macros.hpp>
+#include "buffer.hpp"
+#include "macros.hpp"
 
-namespace node_rmm {
+#include <nv_node/utility/args.hpp>
+
+namespace nv {
 
 Napi::FunctionReference DeviceBuffer::constructor;
 
@@ -46,15 +47,13 @@ Napi::Value DeviceBuffer::New(void* data, size_t size, cudaStream_t stream) {
 }
 
 DeviceBuffer::DeviceBuffer(Napi::CallbackInfo const& info) : Napi::ObjectWrap<DeviceBuffer>(info) {
-  auto env      = info.Env();
+  CallbackArgs args{info};
   this->size_   = 0;
   this->stream_ = 0;
-  if (info.Length() >= 1 && info[0].IsNumber()) { this->size_ = FromJS(info[0]); }
-  if (info.Length() >= 2 && info[1].IsNumber()) {
-    this->stream_ = reinterpret_cast<cudaStream_t>(FromJS(info[1]).operator int64_t());
-  }
+  if (args.Length() >= 1 && info[0].IsNumber()) { this->size_ = args[0]; }
+  if (args.Length() >= 2 && info[1].IsNumber()) { this->stream_ = args[1]; }
   this->buffer_.reset(new rmm::device_buffer(this->size_, this->stream_));
-  if (this->stream_ == NULL) { CUDA_TRY(env, cudaStreamSynchronize(this->stream_)); }
+  if (this->stream_ == NULL) { CUDA_TRY(info.Env(), cudaStreamSynchronize(this->stream_)); }
 }
 
 void DeviceBuffer::Finalize(Napi::Env env) {
@@ -79,13 +78,14 @@ Napi::Value DeviceBuffer::GetStream(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value DeviceBuffer::CopySlice(Napi::CallbackInfo const& info) {
-  auto env      = info.Env();
-  size_t offset = FromJS(info[0]);
+  CallbackArgs args{info};
+  size_t offset = args[0];
   size_t length = size_ - offset;
-  if (info.Length() > 1 && info[1].IsNumber()) {
-    length = FromJS(info[1]).operator size_t() - offset;
+  if (args.Length() > 1 && info[1].IsNumber()) {
+    length = args[1];
+    length -= offset;
   }
   return DeviceBuffer::New(Data() + offset, length, stream_);
 }
 
-}  // namespace node_rmm
+}  // namespace nv

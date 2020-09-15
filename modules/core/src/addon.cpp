@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
-
-#include <rmm/device_buffer.hpp>
+#include <nv_node/utility/args.hpp>
+#include <nv_node/utility/napi_to_cpp.hpp>
 
 #include <napi.h>
 
-namespace node_rmm {
+std::ostream& operator<<(std::ostream& os, const nv::NapiToCPP& self) {
+  return os << self.operator std::string();
+};
 
-Napi::Value rmmInit(Napi::CallbackInfo const& info);
+Napi::Object initModule(Napi::Env env, Napi::Object exports) { return exports; }
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports);
-}  // namespace node_rmm
+NODE_API_MODULE(node_rapids_core, initModule);

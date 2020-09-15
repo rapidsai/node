@@ -37,10 +37,21 @@ void freeHostPtr(Napi::Env const& env, void* ptr) {
 }  // namespace detail
 
 // cudaError_t cudaMalloc(void **devPtr, size_t size);
-Napi::Value cudaMalloc(Napi::CallbackInfo const& info) {
+// Napi::Value cudaMalloc(Napi::CallbackInfo const& info) {
+//   auto env = info.Env();
+//   void* data{nullptr};
+//   size_t size = FromJS(info[0]);
+//   if (size > 0) {
+//     CUDA_TRY(env, CUDARTAPI::cudaMalloc(&data, size));
+//     Napi::MemoryManagement::AdjustExternalMemory(env, size);
+//   }
+//   return CUDABuffer::New(data, size);
+// }
+
+Napi::Value cudaMalloc(CallbackArgs const& info) {
   auto env = info.Env();
   void* data{nullptr};
-  size_t size = FromJS(info[0]);
+  size_t size = info[0];
   if (size > 0) {
     CUDA_TRY(env, CUDARTAPI::cudaMalloc(&data, size));
     Napi::MemoryManagement::AdjustExternalMemory(env, size);

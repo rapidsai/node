@@ -12,4 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './buffer';
+#include "addon.hpp"
+#include "buffer.hpp"
+#include "macros.hpp"
+
+namespace nv {
+Napi::Value rmmInit(Napi::CallbackInfo const& info) {
+  // todo
+  return info.This();
+}
+}  // namespace nv
+
+Napi::Object initModule(Napi::Env env, Napi::Object exports) {
+  EXPORT_FUNC(env, exports, "init", nv::rmmInit);
+  nv::DeviceBuffer::Init(env, exports);
+  return exports;
+}
+
+NODE_API_MODULE(node_rmm, initModule);

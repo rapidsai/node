@@ -27,7 +27,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # - cmake modules ---------------------------------------------------------------------------------
 
 execute_process(COMMAND node -p
-                "require('@nvidia/cmake-modules').cmake_modules_path"
+                "require('@nvidia/rapids-core').cmake_modules_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -43,14 +43,15 @@ include(ConfigureCUDA)
 # - include paths ---------------------------------------------------------------------------------
 
 include_directories("${CUDA_INCLUDE_DIRS}"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+                    "${NVIDIA_RAPIDS_CORE_INCLUDE}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
 link_directories("${CUDA_LIBRARIES}")
 
-file(GLOB_RECURSE NODE_CUDA_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/*.cpp")
+file(GLOB_RECURSE NODE_CUDA_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_CUDA_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")

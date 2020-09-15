@@ -15,28 +15,13 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 
-project(node_webgl VERSION 0.0.1 LANGUAGES C CXX)
+project(node_rapids_core VERSION 0.0.1 LANGUAGES C CXX)
 
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
-option(NODE_WEBGL_STATIC_LINK "Statically link GLEW and GLFW libraries" OFF)
+option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
+set(RMM_VERSION "0.16")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-# Set OpenGL_GL_PREFERENCE to "GLVND"
-cmake_policy(SET CMP0072 NEW)
-
-set(GLEW_VERSION "2.1.0")
-set(GLFW_VERSION "3.3.2")
-
-set(GLEW_USE_SHARED_LIBS OFF)
-set(GLFW_USE_SHARED_LIBS OFF)
-set(GLEW_USE_STATIC_LIBS ${NODE_WEBGL_STATIC_LINK})
-set(GLFW_USE_STATIC_LIBS ${NODE_WEBGL_STATIC_LINK})
-
-if(NOT NODE_WEBGL_STATIC_LINK)
-    set(GLEW_USE_SHARED_LIBS ON)
-    set(GLFW_USE_SHARED_LIBS ON)
-endif(NOT NODE_WEBGL_STATIC_LINK)
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
@@ -51,29 +36,22 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NVIDIA_CMAKE_MODULES_PATH}")
 
 include(ConfigureCXX)
 include(ConfigureNapi)
-include(ConfigureDisplayServer)
-include(ConfigureOpenGL)
-include(ConfigureOpenGLEW)
-include(ConfigureOpenGLFW)
+include(ConfigureCUDA)
 
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
 
-include_directories("${GLEW_INCLUDE_DIR}"
-                    "${GLFW_INCLUDE_DIR}"
-                    "${OPENGL_INCLUDE_DIR}"
-                    "${DISPLAY_SERVER_INCLUDE_DIRS}"
+include_directories("${CUDA_INCLUDE_DIRS}"
                     "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
-file(GLOB_RECURSE NODE_WEBGL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/*.cpp")
+link_directories("${CUDA_LIBRARIES}")
 
-add_library(${PROJECT_NAME} SHARED ${NODE_WEBGL_SRC_FILES} ${CMAKE_JS_SRC})
+file(GLOB_RECURSE NODE_RAPIDS_CORE_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+
+add_library(${PROJECT_NAME} SHARED ${NODE_RAPIDS_CORE_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 target_link_libraries(${PROJECT_NAME}
-                      ${CMAKE_JS_LIB}
-                      ${GLEW_LIBRARY}
-                      ${GLFW_LIBRARY}
-                      OpenGL::GL)
+                      ${CMAKE_JS_LIB} cuda cudart)

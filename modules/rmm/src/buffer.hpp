@@ -14,11 +14,12 @@
 
 #pragma once
 
+#include <nv_node/utility/args.hpp>
 #include <rmm/device_buffer.hpp>
 
 #include <napi.h>
 
-namespace node_rmm {
+namespace nv {
 
 class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
  public:
@@ -46,4 +47,4 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   cudaStream_t stream_;
 };
 
-}  // namespace node_rmm
+}  // namespace nv
