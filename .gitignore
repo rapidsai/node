@@ -9,6 +9,7 @@
 **/lerna-debug.log
 **/compile_commands.json
 
+.cmake-js
 modules/**/*/lib
 modules/**/*/build
 modules/*/include/rmm

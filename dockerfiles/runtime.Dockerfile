@@ -1,14 +1,15 @@
-ARG CUDA_VERSION=10.2
+ARG CUDA_VERSION=11.0
+ARG NODE_VERSION=14.10.1
 ARG LINUX_VERSION=ubuntu18.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 
-FROM node:14.4.0-stretch-slim as node
+FROM node:$NODE_VERSION-stretch-slim as node
 FROM jrottenberg/ffmpeg:4.1-nvidia AS ffmpeg
 
 FROM nvidia/cudagl:${CUDA_VERSION}-runtime-${LINUX_VERSION}
 
-ENV NODE_VERSION 14.4.0
-ENV YARN_VERSION 1.22.4
+ENV NODE_VERSION=$NODE_VERSION
+ENV YARN_VERSION=1.22.5
 
 # Install node
 COPY --from=node /usr/local/bin/node /usr/local/bin/node

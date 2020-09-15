@@ -24,6 +24,5 @@ execute_process(COMMAND node -p "require('node-addon-api').include.replace(/\"/g
 
 include_directories(
     "${CMAKE_JS_INC}"
-    "${PROJECT_NAME}"
     "${NODE_ADDON_API_DIR}"
 )
