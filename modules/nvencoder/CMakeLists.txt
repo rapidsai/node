@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
-cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 
 project(node_nvencoder VERSION 0.0.1 LANGUAGES C CXX)
 
@@ -53,28 +53,25 @@ include(ConfigureCUDA)
 include(ConfigureOpenGL)
 include(ConfigureOpenGLEW)
 
-# find_path(VIDEO_CODEC_SDK_INCLUDE_DIR nvEncodeAPI.h "${VIDEO_CODEC_SDK_DIR}/include")
-
 find_path(VIDEO_CODEC_SDK_INCLUDE_DIR NO_DEFAULT_PATH REQUIRED
           NAMES nvEncodeAPI.h
           HINTS "${VIDEO_CODEC_SDK_DIR}"
           PATH_SUFFIXES "include" "Interface"
           DOC "The nvEncodeAPI.h parent dir")
 
-# find_library(CUVID_LIB nvcuvid)
 find_library(NVENCODEAPI_LIB
     NAMES nvidia-encode
           libnvidia-encode
           libnvidia-encode.so
           libnvidia-encode.so.1)
 
-# message(STATUS "CUVID_LIB: ${CUVID_LIB}")
 message(STATUS "NVENCODEAPI_LIB: ${NVENCODEAPI_LIB}")
 
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
 
 include_directories("${CUDA_INCLUDE_DIRS}"
+                    "${RAPIDS_CORE_INCLUDE_DIR}"
                     "${GLEW_INCLUDE_DIR}"
                     "${OPENGL_INCLUDE_DIR}"
                     "${VIDEO_CODEC_SDK_INCLUDE_DIR}"

@@ -18,7 +18,7 @@
 
 #include <napi.h>
 
-namespace node_nvencoder {
+namespace nv {
 
 class ArrayInputFrame : public Napi::ObjectWrap<ArrayInputFrame> {
  public:
@@ -73,4 +73,4 @@ class TextureInputFrame : public Napi::ObjectWrap<TextureInputFrame> {
   std::unique_ptr<NvEncInputFrame const> frame_{nullptr};
 };
 
-}  // namespace node_nvencoder
+}  // namespace nv

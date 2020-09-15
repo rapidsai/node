@@ -20,7 +20,7 @@
 #include <nvEncodeAPI.h>
 #include <stdexcept>
 
-namespace node_nvencoder {
+namespace nv {
 
 inline std::runtime_error cuError(CUresult code, std::string const& file, uint32_t line) {
   const char* name;
@@ -104,4 +104,4 @@ inline Napi::Error nvencError(NVENCSTATUS code,
   return Napi::Error::New(env, msg);
 }
 
-}  // namespace node_nvencoder
+}  // namespace nv

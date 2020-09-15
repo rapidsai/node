@@ -70,10 +70,10 @@ message(STATUS "Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
 execute_process(COMMAND node -p
                 "require('@nvidia/rapids-core').cpp_include_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                OUTPUT_VARIABLE NVIDIA_RAPIDS_CORE_INCLUDE
+                OUTPUT_VARIABLE RAPIDS_CORE_INCLUDE_DIR
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-message(STATUS "RAPIDS core include: ${NVIDIA_RAPIDS_CORE_INCLUDE}")
+message(STATUS "RAPIDS core include: ${RAPIDS_CORE_INCLUDE_DIR}")
 
 ###################################################################################################
 # - compiler options ------------------------------------------------------------------------------

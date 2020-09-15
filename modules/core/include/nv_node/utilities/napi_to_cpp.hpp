@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "nv_node/utility/span.hpp"
+#include "nv_node/utilities/span.hpp"
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -117,6 +117,7 @@ struct NapiToCPP {
   //
   // Pointers
   //
+  inline operator void*() const { return as_span<char>(); }
   template <typename T>
   inline operator T*() const {
     return as_span<T>();

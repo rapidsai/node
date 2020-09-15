@@ -15,7 +15,7 @@
 #include "buffer.hpp"
 #include "macros.hpp"
 
-#include <nv_node/utility/args.hpp>
+#include <nv_node/utilities/args.hpp>
 
 namespace nv {
 

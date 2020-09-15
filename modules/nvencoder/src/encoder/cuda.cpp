@@ -14,14 +14,15 @@
 
 #include "encoder/encoder.hpp"
 #include "encoder/frame.hpp"
+#include "macros.hpp"
 #include "nvEncodeAPI.h"
 
-#include <node_nvencoder/casting.hpp>
-#include <node_nvencoder/macros.hpp>
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
 
 #include <napi.h>
 
-namespace node_nvencoder {
+namespace nv {
 
 Napi::FunctionReference CUDANvEncoder::constructor;
 
@@ -58,10 +59,11 @@ CUDANvEncoder::CUDANvEncoder(Napi::CallbackInfo const& info)
   if ((opts.Has("width") and opts.Get("width").IsNumber()) and
       (opts.Has("height") and opts.Get("height").IsNumber()) and
       (opts.Has("format") and opts.Get("format").IsNumber())) {
-    size_t device = FromJS(opts.Get("device"));
-    Initialize(FromJS(opts.Get("width").ToNumber()),
-               FromJS(opts.Get("height").ToNumber()),
-               FromJS(opts.Get("format").ToNumber()),
+    size_t device   = NapiToCPP(opts.Get("device"));
+    uint32_t format = NapiToCPP(opts.Get("format"));
+    Initialize(NapiToCPP(opts.Get("width").ToNumber()),
+               NapiToCPP(opts.Get("height").ToNumber()),
+               static_cast<NV_ENC_BUFFER_FORMAT>(format),
                reinterpret_cast<void*>(device));
   } else {
     NAPI_THROW(Napi::Error::New(
@@ -99,12 +101,12 @@ void CUDANvEncoder::Initialize(uint32_t encoderWidth,
 }
 
 Napi::Value CUDANvEncoder::EndEncode(Napi::CallbackInfo const& info) {
-  (new end_encode_worker(encoder_.get(), FromJS(info[0])))->Queue();
+  (new end_encode_worker(encoder_.get(), NapiToCPP(info[0])))->Queue();
   return info.Env().Undefined();
 }
 
 Napi::Value CUDANvEncoder::EncodeFrame(Napi::CallbackInfo const& info) {
-  (new encode_frame_worker(encoder_.get(), FromJS(info[0])))->Queue();
+  (new encode_frame_worker(encoder_.get(), NapiToCPP(info[0])))->Queue();
   return info.Env().Undefined();
 }
 
@@ -112,7 +114,7 @@ Napi::Value CUDANvEncoder::CopyFromArray(Napi::CallbackInfo const& info) {
   // TODO
   // auto frame = encoder_->GetNextInputFrame();
   // encoder_->CopyToDeviceFrame(context_,
-  //                             FromJS(info[0]),
+  //                             NapiToCPP(info[0]),
   //                             0,
   //                             reinterpret_cast<CUdeviceptr>(frame->inputPtr),
   //                             frame->pitch,
@@ -129,7 +131,7 @@ Napi::Value CUDANvEncoder::CopyFromArray(Napi::CallbackInfo const& info) {
 Napi::Value CUDANvEncoder::CopyFromHostBuffer(Napi::CallbackInfo const& info) {
   auto frame = encoder_->GetNextInputFrame();
   encoder_->CopyToDeviceFrame(context_,
-                              FromJS(info[0]),
+                              NapiToCPP(info[0]),
                               0,
                               reinterpret_cast<CUdeviceptr>(frame->inputPtr),
                               frame->pitch,
@@ -146,7 +148,7 @@ Napi::Value CUDANvEncoder::CopyFromHostBuffer(Napi::CallbackInfo const& info) {
 Napi::Value CUDANvEncoder::CopyFromDeviceBuffer(Napi::CallbackInfo const& info) {
   auto frame = encoder_->GetNextInputFrame();
   encoder_->CopyToDeviceFrame(context_,
-                              FromJS(info[0]),
+                              NapiToCPP(info[0]),
                               0,
                               reinterpret_cast<CUdeviceptr>(frame->inputPtr),
                               frame->pitch,
@@ -161,15 +163,15 @@ Napi::Value CUDANvEncoder::CopyFromDeviceBuffer(Napi::CallbackInfo const& info) 
 }
 
 Napi::Value CUDANvEncoder::GetFrameSize(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(encoder_->GetFrameSize());
+  return CPPToNapi(info)(encoder_->GetFrameSize());
 }
 
 Napi::Value CUDANvEncoder::GetBufferCount(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(encoder_->GetEncoderBufferCount());
+  return CPPToNapi(info)(encoder_->GetEncoderBufferCount());
 }
 
 Napi::Value CUDANvEncoder::GetBufferFormat(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(pixel_format_);
+  return CPPToNapi(info)(pixel_format_);
 }
 
 /**
@@ -204,15 +206,15 @@ Napi::Object ArrayInputFrame::New(NvEncInputFrame const* frame) {
 }
 
 Napi::Value ArrayInputFrame::GetArray(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(frame_ != nullptr ? 0 : frame_->inputPtr);
+  return CPPToNapi(info)(frame_ != nullptr ? 0 : frame_->inputPtr);
 }
 
 Napi::Value ArrayInputFrame::GetPitch(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(frame_ == nullptr ? 0 : frame_->pitch);
+  return CPPToNapi(info)(frame_ == nullptr ? 0 : frame_->pitch);
 }
 
 Napi::Value ArrayInputFrame::GetBufferFormat(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(frame_ == nullptr ? 0 : frame_->bufferFormat);
+  return CPPToNapi(info)(frame_ == nullptr ? 0 : frame_->bufferFormat);
 }
 
 /**
@@ -249,19 +251,19 @@ Napi::Object BufferInputFrame::New(NvEncInputFrame const* frame, size_t size) {
 }
 
 Napi::Value BufferInputFrame::GetBuffer(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(frame_ != nullptr ? 0 : frame_->inputPtr);
+  return CPPToNapi(info)(frame_ != nullptr ? 0 : frame_->inputPtr);
 }
 
 Napi::Value BufferInputFrame::GetByteLength(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(frame_ == nullptr ? 0 : size_);
+  return CPPToNapi(info)(frame_ == nullptr ? 0 : size_);
 }
 
 Napi::Value BufferInputFrame::GetPitch(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(frame_ == nullptr ? 0 : frame_->pitch);
+  return CPPToNapi(info)(frame_ == nullptr ? 0 : frame_->pitch);
 }
 
 Napi::Value BufferInputFrame::GetBufferFormat(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(frame_ == nullptr ? 0 : frame_->bufferFormat);
+  return CPPToNapi(info)(frame_ == nullptr ? 0 : frame_->bufferFormat);
 }
 
-}  // namespace node_nvencoder
+}  // namespace nv

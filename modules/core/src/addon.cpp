@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <nv_node/utility/args.hpp>
-#include <nv_node/utility/napi_to_cpp.hpp>
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/napi_to_cpp.hpp>
 
 #include <napi.h>
 

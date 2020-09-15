@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "nv_node/utility/span.hpp"
+#include "nv_node/utilities/span.hpp"
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -107,9 +107,18 @@ struct CPPToNapi {
   //
   // Pointers
   //
+  inline Napi::ArrayBuffer operator()(void* data) const {
+    return this->operator()(static_cast<char*>(data), 0);
+  }
+
+  template <typename T>
+  inline Napi::ArrayBuffer operator()(T* data) const {
+    return this->operator()(data, 0);
+  }
+
   template <typename T>
   inline Napi::ArrayBuffer operator()(T const* data) const {
-    return this->operator()(data, sizeof(T));
+    return this->operator()(data, 0);
   }
 
   template <typename T>

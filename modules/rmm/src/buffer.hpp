@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include <nv_node/utility/args.hpp>
+#include <nv_node/utilities/args.hpp>
 #include <rmm/device_buffer.hpp>
 
 #include <napi.h>

@@ -16,7 +16,7 @@
 
 #include <napi.h>
 
-namespace node_nvencoder {
+namespace nv {
 
 class Task : public Napi::AsyncWorker {
  public:
@@ -92,4 +92,4 @@ class Task : public Napi::AsyncWorker {
   Napi::Promise::Deferred deferred_;
 };
 
-}  // namespace node_nvencoder
+}  // namespace nv

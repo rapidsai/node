@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "nv_node/utility/napi_to_cpp.hpp"
+#include "nv_node/utilities/napi_to_cpp.hpp"
 
 #include <napi.h>
 

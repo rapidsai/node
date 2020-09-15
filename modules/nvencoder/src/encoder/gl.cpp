@@ -14,13 +14,14 @@
 
 #include "encoder/encoder.hpp"
 #include "encoder/frame.hpp"
+#include "macros.hpp"
 
-#include <node_nvencoder/casting.hpp>
-#include <node_nvencoder/macros.hpp>
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
 
 #include <napi.h>
 
-namespace node_nvencoder {
+namespace nv {
 
 Napi::FunctionReference GLNvEncoder::constructor;
 
@@ -53,9 +54,10 @@ GLNvEncoder::GLNvEncoder(Napi::CallbackInfo const& info) : Napi::ObjectWrap<GLNv
   if ((opts.Has("width") and opts.Get("width").IsNumber()) and
       (opts.Has("height") and opts.Get("height").IsNumber()) and
       (opts.Has("format") and opts.Get("format").IsNumber())) {
-    Initialize(FromJS(opts.Get("width").ToNumber()),
-               FromJS(opts.Get("height").ToNumber()),
-               FromJS(opts.Get("format").ToNumber()));
+    uint32_t format = NapiToCPP(opts.Get("format"));
+    Initialize(NapiToCPP(opts.Get("width").ToNumber()),
+               NapiToCPP(opts.Get("height").ToNumber()),
+               static_cast<NV_ENC_BUFFER_FORMAT>(format));
   } else {
     NAPI_THROW(Napi::Error::New(info.Env(),
                                 "GLEncoder: Invalid options, expected width, height, and format"));
@@ -83,12 +85,12 @@ void GLNvEncoder::Initialize(uint32_t encoderWidth,
 }
 
 Napi::Value GLNvEncoder::EndEncode(Napi::CallbackInfo const& info) {
-  (new end_encode_worker(encoder_.get(), FromJS(info[0])))->Queue();
+  (new end_encode_worker(encoder_.get(), NapiToCPP(info[0])))->Queue();
   return info.Env().Undefined();
 }
 
 Napi::Value GLNvEncoder::EncodeFrame(Napi::CallbackInfo const& info) {
-  (new encode_frame_worker(encoder_.get(), FromJS(info[0])))->Queue();
+  (new encode_frame_worker(encoder_.get(), NapiToCPP(info[0])))->Queue();
   return info.Env().Undefined();
 }
 
@@ -97,15 +99,15 @@ Napi::Value GLNvEncoder::GetNextTextureInputFrame(Napi::CallbackInfo const& info
 }
 
 Napi::Value GLNvEncoder::GetFrameSize(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(encoder_->GetFrameSize());
+  return CPPToNapi(info)(encoder_->GetFrameSize());
 }
 
 Napi::Value GLNvEncoder::GetBufferCount(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(encoder_->GetEncoderBufferCount());
+  return CPPToNapi(info)(encoder_->GetEncoderBufferCount());
 }
 
 Napi::Value GLNvEncoder::GetBufferFormat(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(pixel_format_);
+  return CPPToNapi(info)(pixel_format_);
 }
 
 /**
@@ -142,23 +144,23 @@ Napi::Object TextureInputFrame::New(NvEncInputFrame const* frame) {
 }
 
 Napi::Value TextureInputFrame::GetTexture(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(
+  return CPPToNapi(info)(
     frame_ == nullptr ? 0
                       : static_cast<NV_ENC_INPUT_RESOURCE_OPENGL_TEX*>(frame_->inputPtr)->texture);
 }
 
 Napi::Value TextureInputFrame::GetTarget(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(
+  return CPPToNapi(info)(
     frame_ == nullptr ? 0
                       : static_cast<NV_ENC_INPUT_RESOURCE_OPENGL_TEX*>(frame_->inputPtr)->target);
 }
 
 Napi::Value TextureInputFrame::GetPitch(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(frame_ == nullptr ? 0 : frame_->pitch);
+  return CPPToNapi(info)(frame_ == nullptr ? 0 : frame_->pitch);
 }
 
 Napi::Value TextureInputFrame::GetBufferFormat(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(frame_ == nullptr ? 0 : frame_->bufferFormat);
+  return CPPToNapi(info)(frame_ == nullptr ? 0 : frame_->bufferFormat);
 }
 
-}  // namespace node_nvencoder
+}  // namespace nv

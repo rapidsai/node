@@ -43,6 +43,8 @@ struct Span {
     return Span<R>(data_, size_);
   }
 
+  inline operator void*() const { return static_cast<void*>(data_); }
+
   inline T* data() const { return data_; }
   inline operator T*() const { return data_; }
 

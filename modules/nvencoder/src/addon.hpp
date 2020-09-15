@@ -18,7 +18,7 @@
 #include <nppi.h>
 #include <nvEncodeAPI.h>
 
-namespace node_nvencoder {
+namespace nv {
 
 Napi::Value nvencoder_init(Napi::CallbackInfo const& info);
 
@@ -34,4 +34,4 @@ Napi::Value RGBAMirror(Napi::CallbackInfo const& info);
 // rDstStep[3], NppiSize oSizeROI);
 Napi::Value BGRAToYCrCb420(Napi::CallbackInfo const& info);
 
-}  // namespace node_nvencoder
+}  // namespace nv

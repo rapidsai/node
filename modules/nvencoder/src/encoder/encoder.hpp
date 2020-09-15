@@ -23,7 +23,7 @@
 #include <memory>
 #include <vector>
 
-namespace node_nvencoder {
+namespace nv {
 
 class CUDANvEncoder : public Napi::ObjectWrap<CUDANvEncoder> {
  public:
@@ -133,4 +133,4 @@ class encode_frame_worker : public Napi::AsyncWorker {
   std::vector<std::vector<uint8_t>> frames_{};
 };
 
-}  // namespace node_nvencoder
+}  // namespace nv

@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include <node_nvencoder/errors.hpp>
+#include "errors.hpp"
 
 #define EXPORT_PROP(exports, name, val) exports.Set(name, val);
 
@@ -30,8 +30,7 @@
     static_cast<napi_property_attributes>(napi_writable | napi_enumerable | napi_configurable), \
     nullptr));
 
-#define CU_THROW(code, ...) \
-  NAPI_THROW(node_nvencoder::cuError(code, __FILE__, __LINE__, ##__VA_ARGS__))
+#define CU_THROW(code, ...) NAPI_THROW(nv::cuError(code, __FILE__, __LINE__, ##__VA_ARGS__))
 
 #define CU_TRY(expr, ...)                                            \
   do {                                                               \
@@ -39,8 +38,7 @@
     if (status != CUDA_SUCCESS) { CU_THROW(status, ##__VA_ARGS__); } \
   } while (0)
 
-#define CUDA_THROW(code, ...) \
-  NAPI_THROW(node_nvencoder::cudaError(code, __FILE__, __LINE__, ##__VA_ARGS__))
+#define CUDA_THROW(code, ...) NAPI_THROW(nv::cudaError(code, __FILE__, __LINE__, ##__VA_ARGS__))
 
 #define CUDA_TRY(expr, ...)              \
   do {                                   \
@@ -69,13 +67,13 @@
     }                                  \
   } while (0)
 
-#define CUDA_THROW_ASYNC(task, status)                                                \
-  auto t = (task);                                                                    \
-  t->Reject(node_nvencoder::cudaError(status, __FILE__, __LINE__, t->Env()).Value()); \
+#define CUDA_THROW_ASYNC(task, status)                                    \
+  auto t = (task);                                                        \
+  t->Reject(nv::cudaError(status, __FILE__, __LINE__, t->Env()).Value()); \
   return t->Promise()
 
 // #define NVENC_THROW(e, c, m) \
-//   NAPI_THROW(node_nvencoder::nvencError(e, c, m, __FILE__, __LINE__), (e).Undefined())
+//   NAPI_THROW(nv::nvencError(e, c, m, __FILE__, __LINE__), (e).Undefined())
 
 // #define NVENC_TRY(env, expr, message)                                    \
 //   do {                                                                   \
@@ -84,7 +82,7 @@
 //   } while (0)
 
 #define NVENC_THROW(code, message, ...) \
-  NAPI_THROW(node_nvencoder::nvencError(code, message, __FILE__, __LINE__, ##__VA_ARGS__))
+  NAPI_THROW(nv::nvencError(code, message, __FILE__, __LINE__, ##__VA_ARGS__))
 
 #define NVENC_TRY(expr, message, ...)                                              \
   do {                                                                             \

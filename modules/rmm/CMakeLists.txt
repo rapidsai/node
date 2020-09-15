@@ -43,7 +43,7 @@ include(ConfigureCUDA)
 # - include paths ---------------------------------------------------------------------------------
 
 include_directories("${CUDA_INCLUDE_DIRS}"
-                    "${NVIDIA_RAPIDS_CORE_INCLUDE}"
+                    "${RAPIDS_CORE_INCLUDE_DIR}"
                     "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 ###################################################################################################

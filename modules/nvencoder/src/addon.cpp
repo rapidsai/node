@@ -12,17 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "addon.hpp"
 #include "encoder/encoder.hpp"
 #include "encoder/frame.hpp"
-
-#include <node_nvencoder/addon.hpp>
-#include <node_nvencoder/macros.hpp>
+#include "macros.hpp"
 
 #include <dlfcn.h>
 #include <napi.h>
 #include <nvEncodeAPI.h>
+#include <nv_node/utilities/napi_to_cpp.hpp>
 
-namespace node_nvencoder {
+std::ostream& operator<<(std::ostream& os, const nv::NapiToCPP& self) {
+  return os << self.operator std::string();
+};
+
+namespace nv {
 
 Napi::Value init(Napi::CallbackInfo const& info) {
   if (!dlopen("libnvidia-encode.so.1", RTLD_LAZY)) {
@@ -33,16 +37,16 @@ Napi::Value init(Napi::CallbackInfo const& info) {
   return info.This();
 }
 
-}  // namespace node_nvencoder
+}  // namespace nv
 
 Napi::Object init_module(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", node_nvencoder::init);
-  node_nvencoder::GLNvEncoder::Init(env, exports);
-  node_nvencoder::CUDANvEncoder::Init(env, exports);
+  EXPORT_FUNC(env, exports, "init", nv::init);
+  nv::GLNvEncoder::Init(env, exports);
+  nv::CUDANvEncoder::Init(env, exports);
 
   auto image = Napi::Object::New(env);
   EXPORT_PROP(exports, "image", image);
-  node_nvencoder::image::initModule(env, image);
+  nv::image::initModule(env, image);
 
   auto nvEncoderBufferFormats = Napi::Object::New(env);
   EXPORT_ENUM(env, nvEncoderBufferFormats, "UNDEFINED", NV_ENC_BUFFER_FORMAT_UNDEFINED);
