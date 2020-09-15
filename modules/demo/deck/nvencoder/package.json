@@ -1,0 +1,38 @@
+{
+  "private": true,
+  "name":  "nvencoder",
+  "main": "index.js",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "scripts": {
+  },
+  "dependencies": {
+    "@deck.gl/core": "8.2.3",
+    "@luma.gl/core": "8.2.0",
+    "@nvidia/deck.gl": "0.0.1",
+    "@nvidia/glfw": "0.0.1",
+    "@nvidia/nvencoder": "0.0.1",
+    "@nvidia/webgl": "0.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.5"
+  },
+  "esm": {
+    "cjs": true,
+    "force": true,
+    "mode": "auto",
+    "cache": false,
+    "sourceMap": true,
+    "mainFields": [
+      "esnext",
+      "module",
+      "main"
+    ]
+  }
+}
