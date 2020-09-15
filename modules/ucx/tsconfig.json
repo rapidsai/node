@@ -1,36 +1,43 @@
 {
-    "include": ["src"],
-    "exclude": ["node_modules"],
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@nvidia/cuda": ["src/index"],
-            "@nvidia/cuda/*": ["src/*"]
+            "@nvidia/ucx": [
+                "src/index"
+            ],
+            "@nvidia/ucx/*": [
+                "src/*"
+            ]
         },
         "target": "ESNEXT",
         "module": "commonjs",
         "outDir": "./build/js",
-
         /* Decorators */
         "experimentalDecorators": true,
-
         /* Basic stuff */
         "moduleResolution": "node",
         "skipLibCheck": true,
         "skipDefaultLibCheck": true,
-        "lib": ["dom", "esnext", "esnext.asynciterable"],
-
+        "lib": [
+            "dom",
+            "esnext",
+            "esnext.asynciterable"
+        ],
         /* Control what is emitted */
         "declaration": true,
         "noEmitOnError": true,
         "removeComments": false,
         "downlevelIteration": true,
-
         /* Create inline sourcemaps with sources */
         "sourceMap": false,
         "inlineSources": true,
         "inlineSourceMap": true,
-
         /* The most restrictive settings possible */
         "strict": true,
         "importHelpers": true,
