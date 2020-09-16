@@ -12,35 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "casting.hpp"
-#include "context.hpp"
 #include "macros.hpp"
+#include "webgl.hpp"
 
-namespace node_webgl {
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
+
+namespace nv {
 
 // GL_EXPORT void glDrawArraysInstanced (GLenum mode, GLint first, GLsizei count, GLsizei
 // primcount);
 Napi::Value WebGL2RenderingContext::DrawArraysInstanced(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glDrawArraysInstanced(
-    FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glDrawArraysInstanced(args[0], args[1], args[2], args[3]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDrawElementsInstanced (GLenum mode, GLsizei count, GLenum type, const void*
 // indices, GLsizei primcount);
 Napi::Value WebGL2RenderingContext::DrawElementsInstanced(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glDrawElementsInstanced(
-    FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]), FromJS(info[4]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glDrawElementsInstanced(args[0], args[1], args[2], args[3], args[4]);
+  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttribDivisor (GLuint index, GLuint divisor);
 Napi::Value WebGL2RenderingContext::VertexAttribDivisor(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glVertexAttribDivisor(FromJS(info[0]), FromJS(info[1]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glVertexAttribDivisor(args[0], args[1]);
+  return info.Env().Undefined();
 }
 
-}  // namespace node_webgl
+}  // namespace nv

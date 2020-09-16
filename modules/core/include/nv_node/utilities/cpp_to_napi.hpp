@@ -16,8 +16,9 @@
 
 #include "nv_node/utilities/span.hpp"
 
-#include <cuda.h>
-#include <cuda_runtime.h>
+// #include <cuda.h>
+// #include <cuda_runtime.h>
+
 #include <napi.h>
 
 #include <cstring>
@@ -27,6 +28,23 @@
 #include <vector>
 
 namespace nv {
+
+namespace casting {
+
+template <std::size_t I = 0, typename FuncT, typename... Tp>
+inline typename std::enable_if<I == sizeof...(Tp), void>::type for_each(
+  std::tuple<Tp...> const&,
+  FuncT)  // Unused arguments are given no names.
+{}
+
+template <std::size_t I = 0, typename FuncT, typename... Tp>
+  inline typename std::enable_if <
+  I<sizeof...(Tp), void>::type for_each(std::tuple<Tp...> const& t, FuncT f) {
+  f(std::get<I>(t));
+  for_each<I + 1, FuncT, Tp...>(t, f);
+}
+
+}  // namespace casting
 
 struct CPPToNapi {
   Napi::Env const env;
@@ -96,6 +114,19 @@ struct CPPToNapi {
     return obj;
   }
 
+  template <typename... Vals>
+  Napi::Object inline operator()(std::initializer_list<std::string> const& keys,
+                                 std::tuple<Vals...> const& vals) const {
+    auto cast_t = *this;
+    auto key    = keys.begin();
+    auto obj    = Napi::Object::New(this->env);
+    nv::casting::for_each(vals, [&](auto val) {
+      obj.Set(cast_t(*key), cast_t(val));
+      std::advance(key, 1);
+    });
+    return obj;
+  }
+
   // inline Napi::Object operator()(const CUDARTAPI::cudaDeviceProp& props) const {
   //   auto cast_t = *this;
   //   auto obj    = Napi::Object::New(env);
@@ -107,18 +138,18 @@ struct CPPToNapi {
   //
   // Pointers
   //
-  inline Napi::ArrayBuffer operator()(void* data) const {
-    return this->operator()(static_cast<char*>(data), 0);
+  // inline Napi::External<void> operator()(void* data) const {
+  //   return Napi::External<void>::New(env, static_cast<char*>(data));
+  // }
+
+  template <typename T>
+  inline Napi::External<T> operator()(T* data) const {
+    return Napi::External<T>::New(env, data);
   }
 
   template <typename T>
-  inline Napi::ArrayBuffer operator()(T* data) const {
-    return this->operator()(data, 0);
-  }
-
-  template <typename T>
-  inline Napi::ArrayBuffer operator()(T const* data) const {
-    return this->operator()(data, 0);
+  inline Napi::External<T const> operator()(T const* data) const {
+    return Napi::External<T const>::New(env, data);
   }
 
   template <typename T>
@@ -148,6 +179,7 @@ struct CPPToNapi {
   //
   // CUDA Runtime type conversions
   //
+#ifdef CUDART_VERSION
   inline Napi::ArrayBuffer operator()(cudaUUID_t const& data) const {
     return this->operator()(data.bytes, sizeof(cudaUUID_t));
   }
@@ -187,6 +219,13 @@ struct CPPToNapi {
   inline Napi::ArrayBuffer operator()(cudaIpcMemHandle_t const& data) const {
     return this->operator()(data.reserved, sizeof(cudaIpcMemHandle_t));
   }
+#endif
+
+#ifdef GLEW_VERSION
+  inline Napi::External<void> operator()(GLsync const& sync) const {
+    return Napi::External<void>::New(env, sync);
+  }
+#endif
 };
 
 }  // namespace nv

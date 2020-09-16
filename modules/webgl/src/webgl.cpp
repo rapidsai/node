@@ -14,7 +14,7 @@
 
 #include "webgl.hpp"
 
-namespace node_webgl {
+namespace nv {
 
 Napi::FunctionReference WebGLActiveInfo::constructor;
 
@@ -126,7 +126,7 @@ Napi::Object WebGLBuffer::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "WebGLBuffer",
                 {
-                  InstanceAccessor("_", &WebGLBuffer::GetValue, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &WebGLBuffer::GetValue, nullptr, napi_enumerable),
                   InstanceMethod("toString", &WebGLBuffer::ToString),
                 });
   WebGLBuffer::constructor = Napi::Persistent(ctor);
@@ -159,7 +159,7 @@ Napi::Object WebGLContextEvent::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "WebGLContextEvent",
                 {
-                  InstanceAccessor("_", &WebGLContextEvent::GetValue, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &WebGLContextEvent::GetValue, nullptr, napi_enumerable),
                   InstanceMethod("toString", &WebGLContextEvent::ToString),
                 });
   WebGLContextEvent::constructor = Napi::Persistent(ctor);
@@ -193,7 +193,7 @@ Napi::Object WebGLFramebuffer::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "WebGLFramebuffer",
                 {
-                  InstanceAccessor("_", &WebGLFramebuffer::GetValue, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &WebGLFramebuffer::GetValue, nullptr, napi_enumerable),
                   InstanceMethod("toString", &WebGLFramebuffer::ToString),
                 });
   WebGLFramebuffer::constructor = Napi::Persistent(ctor);
@@ -226,7 +226,7 @@ Napi::Object WebGLProgram::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "WebGLProgram",
                 {
-                  InstanceAccessor("_", &WebGLProgram::GetValue, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &WebGLProgram::GetValue, nullptr, napi_enumerable),
                   InstanceMethod("toString", &WebGLProgram::ToString),
                 });
   WebGLProgram::constructor = Napi::Persistent(ctor);
@@ -258,7 +258,7 @@ Napi::Object WebGLQuery::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "WebGLQuery",
                 {
-                  InstanceAccessor("_", &WebGLQuery::GetValue, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &WebGLQuery::GetValue, nullptr, napi_enumerable),
                   InstanceMethod("toString", &WebGLQuery::ToString),
                 });
   WebGLQuery::constructor = Napi::Persistent(ctor);
@@ -291,7 +291,7 @@ Napi::Object WebGLRenderbuffer::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "WebGLRenderbuffer",
                 {
-                  InstanceAccessor("_", &WebGLRenderbuffer::GetValue, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &WebGLRenderbuffer::GetValue, nullptr, napi_enumerable),
                   InstanceMethod("toString", &WebGLRenderbuffer::ToString),
                 });
   WebGLRenderbuffer::constructor = Napi::Persistent(ctor);
@@ -324,7 +324,7 @@ Napi::Object WebGLSampler::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "WebGLSampler",
                 {
-                  InstanceAccessor("_", &WebGLSampler::GetValue, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &WebGLSampler::GetValue, nullptr, napi_enumerable),
                   InstanceMethod("toString", &WebGLSampler::ToString),
                 });
   WebGLSampler::constructor = Napi::Persistent(ctor);
@@ -356,7 +356,7 @@ Napi::Object WebGLShader::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "WebGLShader",
                 {
-                  InstanceAccessor("_", &WebGLShader::GetValue, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &WebGLShader::GetValue, nullptr, napi_enumerable),
                   InstanceMethod("toString", &WebGLShader::ToString),
                 });
   WebGLShader::constructor = Napi::Persistent(ctor);
@@ -388,7 +388,7 @@ Napi::Object WebGLSync::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "WebGLSync",
                 {
-                  InstanceAccessor("_", &WebGLSync::GetValue, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &WebGLSync::GetValue, nullptr, napi_enumerable),
                   InstanceMethod("toString", &WebGLSync::ToString),
                 });
   WebGLSync::constructor = Napi::Persistent(ctor);
@@ -420,7 +420,7 @@ Napi::Object WebGLTexture::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "WebGLTexture",
                 {
-                  InstanceAccessor("_", &WebGLTexture::GetValue, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &WebGLTexture::GetValue, nullptr, napi_enumerable),
                   InstanceMethod("toString", &WebGLTexture::ToString),
                 });
   WebGLTexture::constructor = Napi::Persistent(ctor);
@@ -453,7 +453,7 @@ Napi::Object WebGLTransformFeedback::Init(Napi::Env env, Napi::Object exports) {
     env,
     "WebGLTransformFeedback",
     {
-      InstanceAccessor("_", &WebGLTransformFeedback::GetValue, nullptr, napi_enumerable),
+      InstanceAccessor("ptr", &WebGLTransformFeedback::GetValue, nullptr, napi_enumerable),
       InstanceMethod("toString", &WebGLTransformFeedback::ToString),
     });
   WebGLTransformFeedback::constructor = Napi::Persistent(ctor);
@@ -483,13 +483,13 @@ Napi::Object WebGLUniformLocation::New(GLuint value) {
 };
 
 Napi::Object WebGLUniformLocation::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLUniformLocation",
-                {
-                  InstanceAccessor("_", &WebGLUniformLocation::GetValue, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLUniformLocation::ToString),
-                });
+  Napi::Function ctor = DefineClass(
+    env,
+    "WebGLUniformLocation",
+    {
+      InstanceAccessor("ptr", &WebGLUniformLocation::GetValue, nullptr, napi_enumerable),
+      InstanceMethod("toString", &WebGLUniformLocation::ToString),
+    });
   WebGLUniformLocation::constructor = Napi::Persistent(ctor);
   WebGLUniformLocation::constructor.SuppressDestruct();
   exports.Set("WebGLUniformLocation", ctor);
@@ -521,7 +521,7 @@ Napi::Object WebGLVertexArrayObject::Init(Napi::Env env, Napi::Object exports) {
     env,
     "WebGLVertexArrayObject",
     {
-      InstanceAccessor("_", &WebGLVertexArrayObject::GetValue, nullptr, napi_enumerable),
+      InstanceAccessor("ptr", &WebGLVertexArrayObject::GetValue, nullptr, napi_enumerable),
       InstanceMethod("toString", &WebGLVertexArrayObject::ToString),
     });
   WebGLVertexArrayObject::constructor = Napi::Persistent(ctor);
@@ -539,4 +539,4 @@ Napi::Value WebGLVertexArrayObject::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-}  // namespace node_webgl
+}  // namespace nv

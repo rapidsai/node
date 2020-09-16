@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "macros.hpp"
+#include "webgl.hpp"
+
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
+
 #include <iterator>
 #include <sstream>
 
-#include "casting.hpp"
-#include "context.hpp"
-#include "macros.hpp"
-
-namespace node_webgl {
+namespace nv {
 
 Napi::FunctionReference WebGL2RenderingContext::constructor;
 
@@ -579,6 +581,8 @@ Napi::Object WebGL2RenderingContext::Init(Napi::Env env, Napi::Object exports) {
       INST_ENUM("STENCIL_BUFFER_BIT", GL_STENCIL_BUFFER_BIT),
       INST_ENUM("COLOR_BUFFER_BIT", GL_COLOR_BUFFER_BIT),
       INST_ENUM("POINTS", GL_POINTS),
+      INST_ENUM("POINT_SPRITE", GL_POINT_SPRITE),
+      INST_ENUM("PROGRAM_POINT_SIZE", GL_PROGRAM_POINT_SIZE),
       INST_ENUM("LINES", GL_LINES),
       INST_ENUM("LINE_LOOP", GL_LINE_LOOP),
       INST_ENUM("LINE_STRIP", GL_LINE_STRIP),
@@ -889,135 +893,135 @@ Napi::Object WebGL2RenderingContext::Init(Napi::Env env, Napi::Object exports) {
 
 // GL_EXPORT void glClear (GLbitfield mask);
 Napi::Value WebGL2RenderingContext::Clear(Napi::CallbackInfo const& info) {
-  auto env        = info.Env();
-  GLbitfield mask = FromJS(info[0]);
+  CallbackArgs args = info;
+  GLbitfield mask   = args[0];
   clear_mask_ |= mask;
   GL_EXPORT::glClear(mask);
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 Napi::Value WebGL2RenderingContext::ClearColor(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glClearColor(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glClearColor(args[0], args[1], args[2], args[3]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glClearDepth (GLclampd depth);
 Napi::Value WebGL2RenderingContext::ClearDepth(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glClearDepth(FromJS(info[0]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glClearDepth(args[0]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glColorMask (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 Napi::Value WebGL2RenderingContext::ColorMask(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glColorMask(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glColorMask(args[0], args[1], args[2], args[3]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCullFace (GLenum mode);
 Napi::Value WebGL2RenderingContext::CullFace(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glCullFace(FromJS(info[0]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glCullFace(args[0]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDepthFunc (GLenum func);
 Napi::Value WebGL2RenderingContext::DepthFunc(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glDepthFunc(FromJS(info[0]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glDepthFunc(args[0]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDepthMask (GLboolean flag);
 Napi::Value WebGL2RenderingContext::DepthMask(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glDepthMask(FromJS(info[0]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glDepthMask(args[0]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDepthRange (GLclampd zNear, GLclampd zFar);
 Napi::Value WebGL2RenderingContext::DepthRange(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glDepthRange(FromJS(info[0]), FromJS(info[1]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glDepthRange(args[0], args[1]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDisable (GLenum cap);
 Napi::Value WebGL2RenderingContext::Disable(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glDisable(FromJS(info[0]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glDisable(args[0]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDrawArrays (GLenum mode, GLint first, GLsizei count);
 Napi::Value WebGL2RenderingContext::DrawArrays(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glDrawArrays(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glDrawArrays(args[0], args[1], args[2]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDrawElements (GLenum mode, GLsizei count, GLenum type, const void *indices);
 Napi::Value WebGL2RenderingContext::DrawElements(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glDrawElements(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glDrawElements(args[0], args[1], args[2], args[3]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glEnable (GLenum cap);
 Napi::Value WebGL2RenderingContext::Enable(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glEnable(FromJS(info[0]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glEnable(args[0]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glFinish (void);
 Napi::Value WebGL2RenderingContext::Finish(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
+  CallbackArgs args = info;
   GL_EXPORT::glFinish();
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glFlush (void);
 Napi::Value WebGL2RenderingContext::Flush(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
+  CallbackArgs args = info;
   GL_EXPORT::glFlush();
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glFrontFace (GLenum mode);
 Napi::Value WebGL2RenderingContext::FrontFace(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glFrontFace(FromJS(info[0]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glFrontFace(args[0]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT GLenum glGetError (void);
 Napi::Value WebGL2RenderingContext::GetError(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(GL_EXPORT::glGetError());
+  return CPPToNapi(info.Env())(GL_EXPORT::glGetError());
 }
 
 // GL_EXPORT void glGetParameter (GLint pname);
 Napi::Value WebGL2RenderingContext::GetParameter(Napi::CallbackInfo const& info) {
-  auto env    = info.Env();
-  GLint pname = FromJS(info[0]);
+  CallbackArgs args = info;
+  GLint pname       = args[0];
   switch (pname) {
     case GL_GPU_DISJOINT:
-    case GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL: return ToNapi(env)(0);
+    case GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL: return CPPToNapi(info)(0);
 
     case GL_VENDOR:
     case GL_UNMASKED_VENDOR_WEBGL: {
       auto str = GL_EXPORT::glGetString(GL_VENDOR);
-      if (str == NULL) { return env.Null(); }
-      return ToNapi(env)(std::string{reinterpret_cast<const GLchar*>(str)});
+      if (str == NULL) { return info.Env().Null(); }
+      return CPPToNapi(info)(std::string{reinterpret_cast<const GLchar*>(str)});
     }
     case GL_RENDERER:
     case GL_UNMASKED_RENDERER_WEBGL: {
       auto str = GL_EXPORT::glGetString(GL_RENDERER);
-      if (str == NULL) { return env.Null(); }
-      return ToNapi(env)(std::string{reinterpret_cast<const GLchar*>(str)});
+      if (str == NULL) { return info.Env().Null(); }
+      return CPPToNapi(info)(std::string{reinterpret_cast<const GLchar*>(str)});
     }
 
     case GL_BLEND:
@@ -1033,13 +1037,13 @@ Napi::Value WebGL2RenderingContext::GetParameter(Napi::CallbackInfo const& info)
     case GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL: {
       GLubyte param{};
       GL_EXPORT::glGetBooleanv(pname, &param);
-      return ToNapi(env)(static_cast<bool>(param));
+      return CPPToNapi(info)(static_cast<bool>(param));
     }
 
     case GL_COLOR_WRITEMASK: {
       std::vector<GLboolean> params(4);
       GL_EXPORT::glGetBooleanv(pname, params.data());
-      return ToNapi(env)(std::vector<bool>{params.begin(), params.end()});
+      return CPPToNapi(info)(std::vector<bool>{params.begin(), params.end()});
     }
 
     case GL_ARRAY_BUFFER_BINDING:
@@ -1051,7 +1055,7 @@ Napi::Value WebGL2RenderingContext::GetParameter(Napi::CallbackInfo const& info)
     case GL_TEXTURE_BINDING_CUBE_MAP: {
       GLint params{};
       GL_EXPORT::glGetIntegerv(pname, &params);
-      return ToNapi(env)(params);
+      return CPPToNapi(info)(params);
     }
 
     case GL_DEPTH_CLEAR_VALUE:
@@ -1061,28 +1065,28 @@ Napi::Value WebGL2RenderingContext::GetParameter(Napi::CallbackInfo const& info)
     case GL_SAMPLE_COVERAGE_VALUE: {
       GLfloat param{};
       GL_EXPORT::glGetFloatv(pname, &param);
-      return ToNapi(env)(param);
+      return CPPToNapi(info)(param);
     }
 
     case GL_SHADING_LANGUAGE_VERSION:
     case GL_VERSION:
     case GL_EXTENSIONS: {
       auto str = GL_EXPORT::glGetString(pname);
-      if (str == NULL) { return env.Null(); }
-      return ToNapi(env)(std::string{reinterpret_cast<const GLchar*>(str)});
+      if (str == NULL) { return info.Env().Null(); }
+      return CPPToNapi(info)(std::string{reinterpret_cast<const GLchar*>(str)});
     }
 
     case GL_MAX_VIEWPORT_DIMS: {
       std::vector<GLint> params(2);
       GL_EXPORT::glGetIntegerv(pname, params.data());
-      return ToNapi(env)(params);
+      return CPPToNapi(info)(params);
     }
 
     case GL_VIEWPORT:
     case GL_SCISSOR_BOX: {
       std::vector<GLint> params(4);
       GL_EXPORT::glGetIntegerv(pname, params.data());
-      return ToNapi(env)(params);
+      return CPPToNapi(info)(params);
     }
 
     case GL_DEPTH_RANGE:
@@ -1090,136 +1094,133 @@ Napi::Value WebGL2RenderingContext::GetParameter(Napi::CallbackInfo const& info)
     case GL_ALIASED_POINT_SIZE_RANGE: {
       std::vector<GLfloat> params(2);
       GL_EXPORT::glGetFloatv(pname, params.data());
-      return ToNapi(env)(params);
+      return CPPToNapi(info)(params);
     }
 
     case GL_BLEND_COLOR:
     case GL_COLOR_CLEAR_VALUE: {
       std::vector<GLfloat> params(4);
       GL_EXPORT::glGetFloatv(pname, params.data());
-      return ToNapi(env)(params);
+      return CPPToNapi(info)(params);
     }
 
     default: {
       GLint params{};
       GL_EXPORT::glGetIntegerv(pname, &params);
-      return ToNapi(env)(params);
+      return CPPToNapi(info)(params);
     }
   }
 }
 
 // GL_EXPORT const GLubyte * glGetString (GL_EXTENSIONS);
 Napi::Value WebGL2RenderingContext::GetSupportedExtensions(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  auto str = reinterpret_cast<const GLchar*>(GL_EXPORT::glGetString(GL_EXTENSIONS));
-  if (str == NULL) { return env.Null(); }
+  CallbackArgs args = info;
+  auto str          = reinterpret_cast<const GLchar*>(GL_EXPORT::glGetString(GL_EXTENSIONS));
+  if (str == NULL) { return info.Env().Null(); }
   auto iss   = std::istringstream{str};
   auto begin = std::istream_iterator<std::string>{iss};
   auto end   = std::istream_iterator<std::string>{};
   std::vector<std::string> extensions{begin, end};
-  return ToNapi(env)(extensions);
+  return CPPToNapi(info)(extensions);
 }
 
 // GL_EXPORT void glHint (GLenum target, GLenum mode);
 Napi::Value WebGL2RenderingContext::Hint(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glHint(FromJS(info[0]), FromJS(info[1]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glHint(args[0], args[1]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT GLboolean glIsEnabled (GLenum cap);
 Napi::Value WebGL2RenderingContext::IsEnabled(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(GL_EXPORT::glIsEnabled(FromJS(info[0])));
+  CallbackArgs args = info;
+  auto enabled      = GL_EXPORT::glIsEnabled(args[0]);
+  return CPPToNapi(info.Env())(enabled);
 }
 
 // GL_EXPORT void glLineWidth (GLfloat width);
 Napi::Value WebGL2RenderingContext::LineWidth(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glLineWidth(FromJS(info[0]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glLineWidth(args[0]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glPixelStorei (GLenum pname, GLint param);
 Napi::Value WebGL2RenderingContext::PixelStorei(Napi::CallbackInfo const& info) {
-  auto env     = info.Env();
-  GLuint pname = FromJS(info[0]);
+  CallbackArgs args = info;
+  GLuint pname      = args[0];
   switch (pname) {
     case GL_PACK_ALIGNMENT:
-    case GL_UNPACK_ALIGNMENT: GL_EXPORT::glPixelStorei(pname, FromJS(info[1]));
+    case GL_UNPACK_ALIGNMENT: GL_EXPORT::glPixelStorei(pname, args[1]);
     case GL_UNPACK_FLIP_Y_WEBGL:
     case GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL:
     default: break;
   }
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glPolygonOffset (GLfloat factor, GLfloat units);
 Napi::Value WebGL2RenderingContext::PolygonOffset(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glPolygonOffset(FromJS(info[0]), FromJS(info[1]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glPolygonOffset(args[0], args[1]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format,
 // GLenum type, void *pixels);
 Napi::Value WebGL2RenderingContext::ReadPixels(Napi::CallbackInfo const& info) {
-  auto env       = info.Env();
-  GLint x        = FromJS(info[0]);
-  GLint y        = FromJS(info[1]);
-  GLsizei width  = FromJS(info[2]);
-  GLsizei height = FromJS(info[3]);
-  GLenum format  = FromJS(info[4]);
-  GLenum type    = FromJS(info[5]);
+  CallbackArgs args = info;
+  GLint x           = args[0];
+  GLint y           = args[1];
+  GLsizei width     = args[2];
+  GLsizei height    = args[3];
+  GLenum format     = args[4];
+  GLenum type       = args[5];
   if (!info[6].IsNumber()) {
-    std::pair<size_t, uint8_t*> ptr = FromJS(info[6]);
-    GL_EXPORT::glReadnPixels(x, y, width, height, format, type, ptr.first, ptr.second);
+    Span<char> ptr = args[6];
+    GL_EXPORT::glReadnPixels(x, y, width, height, format, type, ptr.size(), ptr.data());
   } else {
-    GLintptr ptr = FromJS(info[6]);
+    GLintptr ptr = args[6];
     GL_EXPORT::glReadPixels(x, y, width, height, format, type, reinterpret_cast<void*>(ptr));
   }
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glScissor (GLint x, GLint y, GLsizei width, GLsizei height);
 Napi::Value WebGL2RenderingContext::Scissor(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glScissor(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glScissor(args[0], args[1], args[2], args[3]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glViewport (GLint x, GLint y, GLsizei width, GLsizei height);
 Napi::Value WebGL2RenderingContext::Viewport(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glViewport(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glViewport(args[0], args[1], args[2], args[3]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDrawRangeElements (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum
 // type, const void *indices);
 Napi::Value WebGL2RenderingContext::DrawRangeElements(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glDrawRangeElements(FromJS(info[0]),
-                                 FromJS(info[1]),
-                                 FromJS(info[2]),
-                                 FromJS(info[3]),
-                                 FromJS(info[4]),
-                                 FromJS(info[5]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glDrawRangeElements(args[0], args[1], args[2], args[3], args[4], args[5]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glSampleCoverage (GLclampf value, GLboolean invert);
 Napi::Value WebGL2RenderingContext::SampleCoverage(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glSampleCoverage(FromJS(info[0]), FromJS(info[1]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glSampleCoverage(args[0], args[1]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT GLint glGetFragDataLocation (GLuint program, const GLchar* name);
 Napi::Value WebGL2RenderingContext::GetFragDataLocation(Napi::CallbackInfo const& info) {
-  auto env         = info.Env();
-  std::string name = FromJS(info[1]);
-  GL_EXPORT::glGetFragDataLocation(FromJS(info[0]), name.data());
-  return env.Undefined();
+  CallbackArgs args = info;
+  std::string name  = args[1];
+  GL_EXPORT::glGetFragDataLocation(args[0], name.data());
+  return info.Env().Undefined();
 }
 
 Napi::Value WebGL2RenderingContext::GetContextAttributes(Napi::CallbackInfo const& info) {
@@ -1227,12 +1228,12 @@ Napi::Value WebGL2RenderingContext::GetContextAttributes(Napi::CallbackInfo cons
 }
 
 Napi::Value WebGL2RenderingContext::GetClearMask_(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(this->clear_mask_);
+  return CPPToNapi(info.Env())(this->clear_mask_);
 }
 
 void WebGL2RenderingContext::SetClearMask_(Napi::CallbackInfo const& info,
                                            Napi::Value const& value) {
-  this->clear_mask_ = FromJS(value);
+  this->clear_mask_ = NapiToCPP(value);
 }
 
-}  // namespace node_webgl
+}  // namespace nv

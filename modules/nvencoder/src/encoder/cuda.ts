@@ -117,14 +117,14 @@ export class CUDAEncoderTransform extends TransformStream {
 
 function getRegisteredBufferResource({ handle }: any) {
     if (handle && handle.cudaGraphicsResource === undefined) {
-        handle.cudaGraphicsResource = CUDA.gl.registerBuffer(handle._, 0);
+        handle.cudaGraphicsResource = CUDA.gl.registerBuffer(handle.ptr, 0);
     }
     return handle.cudaGraphicsResource;
 }
 
 function getRegisteredTextureResource({ handle, target }: any) {
     if (handle && handle.cudaGraphicsResource === undefined) {
-        handle.cudaGraphicsResource = CUDA.gl.registerImage(handle._, target, 0);
+        handle.cudaGraphicsResource = CUDA.gl.registerImage(handle.ptr, target, 0);
     }
     return handle.cudaGraphicsResource;
 }

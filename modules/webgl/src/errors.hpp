@@ -14,10 +14,11 @@
 
 #pragma once
 
-#include <napi.h>
 #include "gl.hpp"
 
-namespace node_webgl {
+#include <napi.h>
+
+namespace nv {
 
 inline Napi::Error glewError(Napi::Env const& env,
                              const int code,
@@ -32,4 +33,4 @@ inline Napi::Error glewError(Napi::Env const& env,
   return Napi::Error::New(env, msg + ":" + std::to_string(line));
 }
 
-}  // namespace node_webgl
+}  // namespace nv

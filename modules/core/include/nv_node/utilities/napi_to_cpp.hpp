@@ -16,8 +16,8 @@
 
 #include "nv_node/utilities/span.hpp"
 
-#include <cuda.h>
-#include <cuda_runtime.h>
+// #include <cuda.h>
+// #include <cuda_runtime.h>
 #include <napi.h>
 
 #include <cstring>
@@ -65,18 +65,18 @@ struct NapiToCPP {
   // Primitives
   //
   inline operator bool() const { return val.ToBoolean(); }
-  inline operator float() const { return as_numeric<float>(); }
-  inline operator double() const { return as_numeric<double>(); }
-  inline operator int8_t() const { return as_numeric<int64_t>(); }
-  inline operator int16_t() const { return as_numeric<int64_t>(); }
-  inline operator int32_t() const { return as_numeric<int32_t>(); }
-  inline operator int64_t() const { return as_numeric<int64_t>(); }
-  inline operator uint8_t() const { return as_numeric<int64_t>(); }
-  inline operator uint16_t() const { return as_numeric<int64_t>(); }
-  inline operator uint32_t() const { return as_numeric<uint32_t>(); }
-  inline operator uint64_t() const { return as_numeric<int64_t>(); }
-  inline operator std::string() const { return val.As<Napi::String>(); }
-  inline operator std::u16string() const { return val.As<Napi::String>(); }
+  inline operator float() const { return to_numeric<float>(); }
+  inline operator double() const { return to_numeric<double>(); }
+  inline operator int8_t() const { return to_numeric<int64_t>(); }
+  inline operator int16_t() const { return to_numeric<int64_t>(); }
+  inline operator int32_t() const { return to_numeric<int32_t>(); }
+  inline operator int64_t() const { return to_numeric<int64_t>(); }
+  inline operator uint8_t() const { return to_numeric<int64_t>(); }
+  inline operator uint16_t() const { return to_numeric<int64_t>(); }
+  inline operator uint32_t() const { return to_numeric<uint32_t>(); }
+  inline operator uint64_t() const { return to_numeric<int64_t>(); }
+  inline operator std::string() const { return val.ToString(); }
+  inline operator std::u16string() const { return val.ToString(); }
   inline operator napi_value() const { return val.operator napi_value(); }
 
   //
@@ -91,6 +91,9 @@ struct NapiToCPP {
         vec.push_back(NapiToCPP(arr.Get(i)).operator T());
       }
       return vec;
+    }
+    if (!(val.IsNull() || val.IsEmpty())) {  //
+      return std::vector<T>{this->operator T()};
     }
     return std::vector<T>{};
   }
@@ -117,7 +120,12 @@ struct NapiToCPP {
   //
   // Pointers
   //
-  inline operator void*() const { return as_span<char>(); }
+  inline operator void*() const {  //
+    return static_cast<void*>(as_span<char>().data());
+  }
+  inline operator void const *() const {  //
+    return static_cast<void const*>(as_span<char>().data());
+  }
   template <typename T>
   inline operator T*() const {
     return as_span<T>();
@@ -127,6 +135,7 @@ struct NapiToCPP {
     return as_span<T>();
   }
 
+#ifdef CUDA_VERSION
   //
   // CUDA Driver type conversion helpers
   //
@@ -137,7 +146,9 @@ struct NapiToCPP {
   inline operator CUpointer_attribute() const {
     return static_cast<CUpointer_attribute>(this->operator int64_t());
   }
+#endif
 
+#ifdef CUDART_VERSION
   //
   // CUDA Runtime type conversion helpers
   //
@@ -156,6 +167,11 @@ struct NapiToCPP {
   inline operator cudaUUID_t*() const {
     return reinterpret_cast<cudaUUID_t*>(this->operator char*());
   }
+#endif
+
+#ifdef GLEW_VERSION
+  inline operator GLsync() const { return reinterpret_cast<GLsync>(this->operator char*()); }
+#endif
 
  protected:
   template <typename T>
@@ -174,37 +190,37 @@ struct NapiToCPP {
     }
 
     // Objects wrapping raw memory with some conventions:
-    // * Objects with numeric "byteLength" and "ptr" fields
+    // * Objects with a numeric "ptr" field and optional numeric "byteLength" field
     // * Objects with a "buffer" field, which itself has numeric "byteLength" and "ptr" fields
     // If the wrapping object has a numeric "byteOffset" field, it is propagated to the span.
     if (val.IsObject() and not val.IsNull()) {
-      size_t size{0}, offset{0};
+      size_t length{0};
+      size_t offset{0};
       auto obj = val.As<Napi::Object>();
       if (obj.Has("byteOffset") and obj.Get("byteOffset").IsNumber()) {
         offset = NapiToCPP(obj.Get("byteOffset"));
       }
+      if (obj.Has("byteLength") and obj.Get("byteLength").IsNumber()) {
+        length = NapiToCPP(obj.Get("byteLength"));
+      }
       if (obj.Has("buffer") and obj.Get("buffer").IsObject()) {
         obj = obj.Get("buffer").As<Napi::Object>();
       }
-      if (obj.Has("byteLength") and obj.Get("byteLength").IsNumber()) {
-        size = NapiToCPP(obj.Get("byteLength"));
-        if (obj.Has("ptr")) {
-          if (obj.Get("ptr").IsNumber()) {
-            auto addr = NapiToCPP(obj.Get("ptr")).operator size_t();
-            return Span<T>(reinterpret_cast<char*>(addr), size) + offset;
-          }
-          NAPI_THROW("Expected `ptr` to be numeric");
+      if (obj.Has("ptr")) {
+        if (obj.Get("ptr").IsNumber()) {
+          return Span<T>(static_cast<char*>(NapiToCPP(obj.Get("ptr"))) + offset, length);
         }
+        NAPI_THROW("Expected `ptr` to be numeric");
       }
     }
     return Span<T>(static_cast<char*>(nullptr), 0);
   }
 
   template <typename T>
-  inline T as_numeric() const {
+  inline T to_numeric() const {
     if (val.IsNull() || val.IsEmpty()) { return 0; }
-    if (val.IsNumber()) { return static_cast<T>(val.ToNumber()); }
-    if (val.IsBoolean()) { return static_cast<T>(val.ToBoolean().operator bool()); }
+    if (val.IsNumber() || val.IsString()) { return val.ToNumber(); }
+    if (val.IsBoolean()) { return val.ToBoolean().operator bool(); }
 
     // Accept single-element numeric Arrays (e.g. OpenGL)
     if (val.IsArray()) {

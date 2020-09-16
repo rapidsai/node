@@ -12,26 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { isElectron } from './iselectron';
+import gl from './addon';
 
-const gl = (() => {
-    let gl: any, types = ['Release'];
-    let name = `node_webgl${isElectron() ? '_electron' : ''}`;
-    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
-        types.push('Debug');
-    }
-    for (let type; type = types.pop();) {
-        try {
-            if (gl = require(`../${type}/${name}.node`)) {
-                break;
-            }
-        } catch (e) { console.error(e); continue; }
-    }
-    if (gl) return gl;
-    throw new Error('node_webgl not found');
-})();
-
-// const defaultContextAttributes: WebGLContextAttributes = {
+// default WebGLContextAttributes:
 //     alpha: true, 
 //     antialias: true, 
 //     depth: true, 
@@ -41,7 +24,6 @@ const gl = (() => {
 //     preserveDrawingBuffer: false, 
 //     stencil: false,
 //     desynchronized: false
-// };
 
 interface OpenGLESRenderingContext extends WebGL2RenderingContext {
     new(attrs?: WebGLContextAttributes): OpenGLESRenderingContext;

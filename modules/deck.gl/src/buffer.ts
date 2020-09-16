@@ -80,7 +80,7 @@ export const Buffer = ((Buffer) => {
                 if (handle && handle.cudaGraphicsResource === undefined) {
                     this._handle = handle;
                     handle.cudaGraphicsResourceMapped = false;
-                    handle.cudaGraphicsResource = CUDA.gl.registerBuffer(handle._, 0);
+                    handle.cudaGraphicsResource = CUDA.gl.registerBuffer(handle.ptr, 0);
                 }
                 return this;
             }

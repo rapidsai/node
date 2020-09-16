@@ -12,15 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "casting.hpp"
-#include "context.hpp"
 #include "macros.hpp"
+#include "webgl.hpp"
 
-namespace node_webgl {
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
+
+namespace nv {
 
 // GL_EXPORT void glCreateVertexArrays (GLsizei n, GLuint* arrays);
 Napi::Value WebGL2RenderingContext::CreateVertexArray(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
+  CallbackArgs args = info;
   GLuint vertex_array{};
   GL_EXPORT::glCreateVertexArrays(1, &vertex_array);
   return WebGLVertexArrayObject::New(vertex_array);
@@ -28,38 +30,40 @@ Napi::Value WebGL2RenderingContext::CreateVertexArray(Napi::CallbackInfo const& 
 
 // GL_EXPORT void glCreateVertexArrays (GLsizei n, GLuint* arrays);
 Napi::Value WebGL2RenderingContext::CreateVertexArrays(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  std::vector<GLuint> vertex_arrays(static_cast<size_t>(FromJS(info[0])));
+  CallbackArgs args = info;
+  std::vector<GLuint> vertex_arrays(static_cast<size_t>(args[0]));
   GL_EXPORT::glCreateVertexArrays(vertex_arrays.size(), vertex_arrays.data());
-  return ToNapi(env)(vertex_arrays);
+  return CPPToNapi(info.Env())(vertex_arrays);
 }
 
 // GL_EXPORT void glBindVertexArray (GLuint array);
 Napi::Value WebGL2RenderingContext::BindVertexArray(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glBindVertexArray(FromJS(info[0]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glBindVertexArray(args[0]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDeleteVertexArrays (GLsizei n, const GLuint* arrays);
 Napi::Value WebGL2RenderingContext::DeleteVertexArray(Napi::CallbackInfo const& info) {
-  auto env            = info.Env();
-  GLuint vertex_array = FromJS(info[0]);
+  CallbackArgs args   = info;
+  GLuint vertex_array = args[0];
   GL_EXPORT::glDeleteVertexArrays(1, &vertex_array);
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDeleteVertexArrays (GLsizei n, const GLuint* arrays);
 Napi::Value WebGL2RenderingContext::DeleteVertexArrays(Napi::CallbackInfo const& info) {
-  auto env                          = info.Env();
-  std::vector<GLuint> vertex_arrays = FromJS(info[0]);
+  CallbackArgs args                 = info;
+  std::vector<GLuint> vertex_arrays = args[0];
   GL_EXPORT::glDeleteVertexArrays(vertex_arrays.size(), vertex_arrays.data());
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT GLboolean glIsVertexArray (GLuint array);
 Napi::Value WebGL2RenderingContext::IsVertexArray(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(GL_EXPORT::glIsVertexArray(FromJS(info[0])));
+  CallbackArgs args    = info;
+  auto is_vertex_array = GL_EXPORT::glIsVertexArray(args[0]);
+  return CPPToNapi(info.Env())(is_vertex_array);
 }
 
-}  // namespace node_webgl
+}  // namespace nv

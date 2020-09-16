@@ -61,7 +61,8 @@ export const Buffer = ((Buffer) => {
                 return this;
             }
             _deleteHandle(handle = this._handle) {
-                return this._unregisterResource(handle)._deleteHandle(handle);
+                this._unregisterResource(handle)
+                return super._deleteHandle(handle);
             }
             _setData(data, offset = 0, byteLength = data.byteLength + offset) {
                 const mapped = this._handle.cudaGraphicsResourceMapped;
@@ -81,7 +82,7 @@ export const Buffer = ((Buffer) => {
                 if (handle && handle.cudaGraphicsResource === undefined) {
                     this._handle = handle;
                     handle.cudaGraphicsResourceMapped = false;
-                    handle.cudaGraphicsResource = CUDA.gl.registerBuffer(handle._, 0);
+                    handle.cudaGraphicsResource = CUDA.gl.registerBuffer(handle.ptr, 0);
                 }
                 return this;
             }

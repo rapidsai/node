@@ -12,47 +12,49 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "casting.hpp"
-#include "context.hpp"
 #include "macros.hpp"
+#include "webgl.hpp"
 
-namespace node_webgl {
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
+
+namespace nv {
 
 // GL_EXPORT void glBindBuffer (GLenum target, GLuint buffer);
 Napi::Value WebGL2RenderingContext::BindBuffer(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glBindBuffer(FromJS(info[0]), FromJS(info[1]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glBindBuffer(args[0], args[1]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBufferData (GLenum target, GLsizeiptr size, const void* data, GLenum usage);
 Napi::Value WebGL2RenderingContext::BufferData(Napi::CallbackInfo const& info) {
-  auto env      = info.Env();
-  GLuint target = FromJS(info[0]);
-  GLuint usage  = FromJS(info[2]);
+  CallbackArgs args = info;
+  GLuint target     = args[0];
+  GLuint usage      = args[2];
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsNumber()) {
-    GL_EXPORT::glBufferData(target, FromJS(info[1]), NULL, usage);
+    GL_EXPORT::glBufferData(target, args[1], NULL, usage);
   } else {
-    std::pair<size_t, uint8_t*> ptr = FromJS(info[1]);
-    GL_EXPORT::glBufferData(target, ptr.first, ptr.second, usage);
+    Span<char> ptr = args[1];
+    GL_EXPORT::glBufferData(target, ptr.size(), ptr.data(), usage);
   }
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const void*
 // data);
 Napi::Value WebGL2RenderingContext::BufferSubData(Napi::CallbackInfo const& info) {
-  auto env                        = info.Env();
-  std::pair<size_t, uint8_t*> ptr = FromJS(info[2]);
-  if (ptr.first > 0 && ptr.second != nullptr) {
-    GL_EXPORT::glBufferSubData(FromJS(info[0]), FromJS(info[1]), ptr.first, ptr.second);
+  CallbackArgs args = info;
+  Span<char> ptr    = args[2];
+  if (ptr.size() > 0 && ptr.data() != nullptr) {
+    GL_EXPORT::glBufferSubData(args[0], args[1], ptr.size(), ptr.data());
   }
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCreateBuffers (GLsizei n, GLuint* buffers);
 Napi::Value WebGL2RenderingContext::CreateBuffer(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
+  CallbackArgs args = info;
   GLuint buffer{};
   GL_EXPORT::glCreateBuffers(1, &buffer);
   return WebGLBuffer::New(buffer);
@@ -60,115 +62,113 @@ Napi::Value WebGL2RenderingContext::CreateBuffer(Napi::CallbackInfo const& info)
 
 // GL_EXPORT void glCreateBuffers (GLsizei n, GLuint* buffers);
 Napi::Value WebGL2RenderingContext::CreateBuffers(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  std::vector<GLuint> buffers(FromJS(info[0]).operator size_t());
+  CallbackArgs args = info;
+  std::vector<GLuint> buffers(args[0].operator size_t());
   GL_EXPORT::glCreateBuffers(buffers.size(), buffers.data());
-  return ToNapi(env)(buffers);
+  return CPPToNapi(info)(buffers);
 }
 
 // GL_EXPORT void glDeleteBuffers (GLsizei n, const GLuint* buffers);
 Napi::Value WebGL2RenderingContext::DeleteBuffer(Napi::CallbackInfo const& info) {
-  auto env            = info.Env();
-  const GLuint buffer = FromJS(info[0]);
+  CallbackArgs args   = info;
+  const GLuint buffer = args[0];
   GL_EXPORT::glDeleteBuffers(1, &buffer);
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDeleteBuffers (GLsizei n, const GLuint* buffers);
 Napi::Value WebGL2RenderingContext::DeleteBuffers(Napi::CallbackInfo const& info) {
-  auto env                    = info.Env();
-  std::vector<GLuint> buffers = FromJS(info[0]);
+  CallbackArgs args           = info;
+  std::vector<GLuint> buffers = args[0];
   GL_EXPORT::glDeleteBuffers(buffers.size(), buffers.data());
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGetBufferParameteriv (GLenum target, GLenum pname, GLint* params);
 Napi::Value WebGL2RenderingContext::GetBufferParameter(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
+  CallbackArgs args = info;
   GLint params{};
-  GL_EXPORT::glGetBufferParameteriv(FromJS(info[0]), FromJS(info[1]), &params);
-  return ToNapi(env)(params);
+  GL_EXPORT::glGetBufferParameteriv(args[0], args[1], &params);
+  return CPPToNapi(info)(params);
 }
 
 // GL_EXPORT GLboolean glIsBuffer (GLuint buffer);
 Napi::Value WebGL2RenderingContext::IsBuffer(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  return ToNapi(env)(GL_EXPORT::glIsBuffer(FromJS(info[0])));
+  CallbackArgs args = info;
+  return CPPToNapi(info)(GL_EXPORT::glIsBuffer(args[0]));
 }
 
 // GL_EXPORT void glBindBufferBase (GLenum target, GLuint index, GLuint buffer);
 Napi::Value WebGL2RenderingContext::BindBufferBase(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glBindBufferBase(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glBindBufferBase(args[0], args[1], args[2]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBindBufferRange (GLenum target, GLuint index, GLuint buffer, GLintptr offset,
 // GLsizeiptr size);
 Napi::Value WebGL2RenderingContext::BindBufferRange(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glBindBufferRange(
-    FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]), FromJS(info[4]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glBindBufferRange(args[0], args[1], args[2], args[3], args[4]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glClearBufferfv (GLenum buffer, GLint drawBuffer, const GLfloat* value);
 Napi::Value WebGL2RenderingContext::ClearBufferfv(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glClearBufferfv(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glClearBufferfv(args[0], args[1], args[2]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glClearBufferiv (GLenum buffer, GLint drawBuffer, const GLint* value);
 Napi::Value WebGL2RenderingContext::ClearBufferiv(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glClearBufferiv(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glClearBufferiv(args[0], args[1], args[2]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glClearBufferfi (GLenum buffer, GLint drawBuffer, GLfloat depth, GLint stencil);
 Napi::Value WebGL2RenderingContext::ClearBufferfi(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glClearBufferfi(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glClearBufferfi(args[0], args[1], args[2], args[3]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glClearBufferuiv (GLenum buffer, GLint drawBuffer, const GLuint* value);
 Napi::Value WebGL2RenderingContext::ClearBufferuiv(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glClearBufferuiv(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glClearBufferuiv(args[0], args[1], args[2]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCopyBufferSubData (GLenum readtarget, GLenum writetarget, GLintptr readoffset,
 // GLintptr writeoffset, GLsizeiptr size);
 Napi::Value WebGL2RenderingContext::CopyBufferSubData(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glCopyBufferSubData(
-    FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]), FromJS(info[4]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glCopyBufferSubData(args[0], args[1], args[2], args[3], args[4]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDrawBuffers (GLsizei n, const GLenum* bufs);
 Napi::Value WebGL2RenderingContext::DrawBuffers(Napi::CallbackInfo const& info) {
-  auto env                    = info.Env();
-  std::vector<GLuint> buffers = FromJS(info[0]);
+  CallbackArgs args           = info;
+  std::vector<GLuint> buffers = args[0];
   GL_EXPORT::glDrawBuffers(buffers.size(), buffers.data());
-  return env.Undefined();
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGetBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, void* data);
 Napi::Value WebGL2RenderingContext::GetBufferSubData(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glGetBufferSubData(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glGetBufferSubData(args[0], args[1], args[2], args[3]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glReadBuffer (GLenum mode);
 Napi::Value WebGL2RenderingContext::ReadBuffer(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glReadBuffer(FromJS(info[0]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glReadBuffer(args[0]);
+  return info.Env().Undefined();
 }
 
-}  // namespace node_webgl
+}  // namespace nv

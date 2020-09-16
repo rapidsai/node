@@ -14,8 +14,10 @@
 
 #pragma once
 
-#include <nv_node/utilities/args.hpp>
+#include <cuda_runtime.h>
 #include <rmm/device_buffer.hpp>
+
+#include <nv_node/utilities/args.hpp>
 
 #include <napi.h>
 
@@ -31,7 +33,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   auto Stream() { return stream_; }
   auto& Buffer() { return buffer_; }
   size_t ByteLength() { return size_; }
-  uint8_t* Data() { return static_cast<uint8_t*>(Buffer()->data()); }
+  char* Data() { return static_cast<char*>(Buffer()->data()); }
   void Finalize(Napi::Env env) override;
 
  private:

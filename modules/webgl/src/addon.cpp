@@ -12,31 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "casting.hpp"
-#include "context.hpp"
 #include "webgl.hpp"
 
-std::ostream& operator<<(std::ostream& os, const node_webgl::FromJS& self) {
+#include <nv_node/utilities/napi_to_cpp.hpp>
+
+std::ostream& operator<<(std::ostream& os, const nv::NapiToCPP& self) {
   return os << self.operator std::string();
 };
 
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  node_webgl::WebGL2RenderingContext::Init(env, exports);
-  node_webgl::WebGLActiveInfo::Init(env, exports);
-  node_webgl::WebGLShaderPrecisionFormat::Init(env, exports);
-  node_webgl::WebGLBuffer::Init(env, exports);
-  node_webgl::WebGLContextEvent::Init(env, exports);
-  node_webgl::WebGLFramebuffer::Init(env, exports);
-  node_webgl::WebGLProgram::Init(env, exports);
-  node_webgl::WebGLQuery::Init(env, exports);
-  node_webgl::WebGLRenderbuffer::Init(env, exports);
-  node_webgl::WebGLSampler::Init(env, exports);
-  node_webgl::WebGLShader::Init(env, exports);
-  node_webgl::WebGLSync::Init(env, exports);
-  node_webgl::WebGLTexture::Init(env, exports);
-  node_webgl::WebGLTransformFeedback::Init(env, exports);
-  node_webgl::WebGLUniformLocation::Init(env, exports);
-  node_webgl::WebGLVertexArrayObject::Init(env, exports);
+  nv::WebGL2RenderingContext::Init(env, exports);
+  nv::WebGLActiveInfo::Init(env, exports);
+  nv::WebGLShaderPrecisionFormat::Init(env, exports);
+  nv::WebGLBuffer::Init(env, exports);
+  nv::WebGLContextEvent::Init(env, exports);
+  nv::WebGLFramebuffer::Init(env, exports);
+  nv::WebGLProgram::Init(env, exports);
+  nv::WebGLQuery::Init(env, exports);
+  nv::WebGLRenderbuffer::Init(env, exports);
+  nv::WebGLSampler::Init(env, exports);
+  nv::WebGLShader::Init(env, exports);
+  nv::WebGLSync::Init(env, exports);
+  nv::WebGLTexture::Init(env, exports);
+  nv::WebGLTransformFeedback::Init(env, exports);
+  nv::WebGLUniformLocation::Init(env, exports);
+  nv::WebGLVertexArrayObject::Init(env, exports);
 
   return exports;
 }

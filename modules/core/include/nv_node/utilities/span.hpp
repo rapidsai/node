@@ -24,7 +24,7 @@ struct Span {
   Span(T* const& data, size_t const& size) : data_(data), size_(size) {}
   Span(void* const& data, size_t const& size) {
     this->data_ = reinterpret_cast<T*>(data);
-    this->size_ = 1.0 / sizeof(T) * size;
+    this->size_ = size;
   }
 
   template <typename R>
@@ -32,11 +32,17 @@ struct Span {
     : data_(reinterpret_cast<T*>(data)),  //
       size_(static_cast<float>(sizeof(R)) / sizeof(T) * size) {}
 
-  Span(Napi::External<T> const& external) : Span(external.Data(), 0) {}
-  Span(Napi::ArrayBuffer& buffer) : Span(buffer.Data(), buffer.ByteLength()) {}
-  Span(Napi::ArrayBuffer const& buffer) : Span(*const_cast<Napi::ArrayBuffer*>(&buffer)) {}
-  Span(Napi::DataView const& view) : Span(view.ArrayBuffer()) { *this += view.ByteOffset(); }
-  Span(Napi::TypedArray const& array) : Span(array.ArrayBuffer()) { *this += array.ByteOffset(); }
+  Span(Napi::External<T> const& external) : Span<T>(external.Data(), 0) {}
+  Span(Napi::ArrayBuffer& buffer) : Span<T>(buffer.Data(), buffer.ByteLength() / sizeof(T)) {}
+  Span(Napi::ArrayBuffer const& buffer) : Span<T>(*const_cast<Napi::ArrayBuffer*>(&buffer)) {}
+  Span(Napi::DataView const& view) {
+    this->data_ = reinterpret_cast<T*>(view.ArrayBuffer().Data()) + (view.ByteOffset() / sizeof(T));
+    this->size_ = view.ByteLength() / sizeof(T);
+  }
+  Span(Napi::TypedArray const& ary) {
+    this->data_ = reinterpret_cast<T*>(ary.ArrayBuffer().Data()) + (ary.ByteOffset() / sizeof(T));
+    this->size_ = ary.ByteLength() / sizeof(T);
+  }
 
   template <typename R>
   inline operator Span<R>() const {
@@ -50,6 +56,8 @@ struct Span {
 
   inline size_t size() const { return size_; }
   inline operator size_t() const { return size_; }
+
+  inline size_t addr() const { return reinterpret_cast<size_t>(data_); }
 
   Span<T>& operator+=(size_t const& offset) {
     this->data_ += offset;

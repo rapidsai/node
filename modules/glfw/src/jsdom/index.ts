@@ -126,7 +126,16 @@ export function createReactWindow(id: string, runInThisContext = false) {
 
 process.on(<any> 'uncaughtException', (err: Error, origin: any) => {
     process.stderr.write(
-        `Exception origin: ${origin}\n` +
-        `Caught exception: ${err && err.stack || err}\n`
+        `Uncaught Exception\n` +
+        (origin ? `Origin: ${origin}\n` : '') +
+        `Exception: ${err && err.stack || err}\n`
+    );
+});
+
+process.on(<any> 'unhandledRejection', (err: Error, promise: any) => {
+    process.stderr.write(
+        `Unhandled Promise Rejection\n` +
+        (promise ? `Promise: ${promise}\n` : '') +
+        `Exception: ${err && err.stack || err}\n`
     );
 });

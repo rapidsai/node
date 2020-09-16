@@ -12,47 +12,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "casting.hpp"
-#include "context.hpp"
 #include "macros.hpp"
+#include "webgl.hpp"
 
-namespace node_webgl {
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
+
+namespace nv {
 
 // GL_EXPORT void glBlendColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 Napi::Value WebGL2RenderingContext::BlendColor(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glBlendColor(FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glBlendColor(args[0], args[1], args[2], args[3]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBlendEquation (GLenum mode);
 Napi::Value WebGL2RenderingContext::BlendEquation(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glBlendEquation(FromJS(info[0]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glBlendEquation(args[0]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBlendEquationSeparate (GLenum modeRGB, GLenum modeAlpha);
 Napi::Value WebGL2RenderingContext::BlendEquationSeparate(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glBlendEquationSeparate(FromJS(info[0]), FromJS(info[1]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glBlendEquationSeparate(args[0], args[1]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBlendFunc (GLenum sfactor, GLenum dfactor);
 Napi::Value WebGL2RenderingContext::BlendFunc(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glBlendFunc(FromJS(info[0]), FromJS(info[1]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glBlendFunc(args[0], args[1]);
+  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBlendFuncSeparate (GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha,
 // GLenum dfactorAlpha);
 Napi::Value WebGL2RenderingContext::BlendFuncSeparate(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GL_EXPORT::glBlendFuncSeparate(
-    FromJS(info[0]), FromJS(info[1]), FromJS(info[2]), FromJS(info[3]));
-  return env.Undefined();
+  CallbackArgs args = info;
+  GL_EXPORT::glBlendFuncSeparate(args[0], args[1], args[2], args[3]);
+  return info.Env().Undefined();
 }
 
-}  // namespace node_webgl
+}  // namespace nv

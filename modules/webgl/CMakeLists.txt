@@ -62,6 +62,7 @@ include(ConfigureOpenGLFW)
 include_directories("${GLEW_INCLUDE_DIR}"
                     "${GLFW_INCLUDE_DIR}"
                     "${OPENGL_INCLUDE_DIR}"
+                    "${RAPIDS_CORE_INCLUDE_DIR}"
                     "${DISPLAY_SERVER_INCLUDE_DIRS}")
 
 ###################################################################################################

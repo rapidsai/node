@@ -31,10 +31,10 @@
     nullptr));
 
 #define GLEW_THROW(env, code) \
-  NAPI_THROW(node_webgl::glewError(env, code, __FILE__, __LINE__), (e).Undefined())
+  NAPI_THROW(nv::glewError(env, code, __FILE__, __LINE__), (e).Undefined())
 
-#define GLEW_THROW_ASYNC(task, code)                                                      \
-  (task)->Reject(node_webgl::glewError((task)->Env(), code, __FILE__, __LINE__).Value()); \
+#define GLEW_THROW_ASYNC(task, code)                                              \
+  (task)->Reject(nv::glewError((task)->Env(), code, __FILE__, __LINE__).Value()); \
   return (task)->Promise()
 
 #define GL_TRY(env, expr)                                 \
