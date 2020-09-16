@@ -16,15 +16,13 @@
 
 include(get_cpm)
 
-CPMAddPackage(NAME rmm
-    VERSION        ${RMM_VERSION}
-    GIT_REPOSITORY https://github.com/rapidsai/rmm.git
-    GIT_TAG        branch-${RMM_VERSION}
-    OPTIONS        "BUILD_TESTS OFF"
-                   "BUILD_BENCHMARKS OFF"
-                   "DISABLE_DEPRECATION_WARNINGS ${DISABLE_DEPRECATION_WARNINGS}"
+CPMAddPackage(NAME raft
+    VERSION        ${RAFT_VERSION}
+    GIT_REPOSITORY https://github.com/rapidsai/raft.git
+    GIT_TAG        branch-${RAFT_VERSION}
+    DOWNLOAD_ONLY
 )
 
 message(STATUS "rmm source dir: " ${rmm_SOURCE_DIR})
 
-set(RMM_INCLUDE_DIR "${rmm_SOURCE_DIR}/include")
+set(RAFT_INCLUDE_DIR "${raft_SOURCE_DIR}/cpp/include")

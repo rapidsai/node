@@ -16,6 +16,8 @@
 
 #include <node_cugraph/macros.hpp>
 
+#include <cugraph/graph.hpp>
+
 namespace node_cugraph {
 Napi::Value cugraphInit(Napi::CallbackInfo const& info) {
   // todo

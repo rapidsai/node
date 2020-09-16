@@ -20,7 +20,13 @@ CPMAddPackage(NAME cugraph
     VERSION        ${CUGRAPH_VERSION}
     GIT_REPOSITORY https://github.com/rapidsai/cugraph.git
     GIT_TAG        branch-${CUGRAPH_VERSION}
-    OPTIONS        "BUILD_TESTS OFF"
-                   "BUILD_BENCHMARKS OFF"
     DOWNLOAD_ONLY
 )
+
+message(STATUS "cugraph source dir: " ${cugraph_SOURCE_DIR})
+
+set(CUGRAPH_INCLUDE_DIR_REAL "${cugraph_SOURCE_DIR}/cpp/include")
+set(CUGRAPH_INCLUDE_DIR "${cugraph_SOURCE_DIR}/cpp/fake_include")
+
+execute_process(COMMAND mkdir -p "${CUGRAPH_INCLUDE_DIR}")
+execute_process(COMMAND ln -s -f ${CUGRAPH_INCLUDE_DIR_REAL} "${CUGRAPH_INCLUDE_DIR}/cugraph")
