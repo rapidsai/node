@@ -1,6 +1,7 @@
 version: "3.8"
 
 x-common-service-settings: &common_service_settings
+  env_file: .env
   cap_add:
     - SYS_PTRACE
   tty: true

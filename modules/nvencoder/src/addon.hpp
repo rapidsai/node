@@ -15,7 +15,6 @@
 #pragma once
 
 #include <napi.h>
-#include <nppi.h>
 #include <nvEncodeAPI.h>
 
 namespace nv {
