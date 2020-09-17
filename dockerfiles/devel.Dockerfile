@@ -29,6 +29,7 @@ COPY --from=node /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entry
 ARG PARALLEL_LEVEL=4
 ENV CMAKE_VERSION=3.17.2
 ENV CCACHE_VERSION=3.7.11
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dev dependencies and tools
 RUN apt update -y && apt upgrade -y \
