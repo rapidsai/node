@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Buffer } from '../../buffer';
+import { Buffer } from '@nvidia/deck.gl';
 
 export const nodePositionAccessor = (gl) => ({ size: 1, type: gl.FLOAT });
 export const nodeColorAccessor = (gl) => ({ size: 4, type: gl.UNSIGNED_BYTE, normalized: true });

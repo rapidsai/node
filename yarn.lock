@@ -7713,11 +7713,6 @@ float-regex@^1.0.0:
   resolved "https://registry.npmjs.org/float-regex/-/float-regex-1.0.0.tgz#f80fa91d672c6b924842034bd87a0dd72069d2ef"
   integrity sha1-+A+pHWcsa5JIQgNL2HoN1yBp0u8=
 
-fluent-ffmpeg-multistream@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/fluent-ffmpeg-multistream/-/fluent-ffmpeg-multistream-1.0.0.tgz#e4bdae0128337f7274e882e7d0c84f7fe2792ea4"
-  integrity sha512-wWampD8JAYY4Y/UHogqT0ilaxWWLD3vs0ybxsm2perp3ctL0Zq1hE+tIs2oehYBMKgsEPvuxV8aEbjyK+1NUBQ==
-
 fluent-ffmpeg@2.1.2:
   version "2.1.2"
   resolved "https://registry.npmjs.org/fluent-ffmpeg/-/fluent-ffmpeg-2.1.2.tgz#c952de2240f812ebda0aa8006d7776ee2acf7d74"
@@ -15129,13 +15124,6 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chunker@1.2.8:
-  version "1.2.8"
-  resolved "https://registry.npmjs.org/stream-chunker/-/stream-chunker-1.2.8.tgz#eb3af2c8aee5256cde76f0a1fea86348336d04f7"
-  integrity sha1-6zryyK7lJWzedvCh/qhjSDNtBPc=
-  dependencies:
-    through2 "~2.0.0"
-
 stream-each@^1.1.0:
   version "1.2.3"
   resolved "https://registry.npmjs.org/stream-each/-/stream-each-1.2.3.tgz#ebe27a0c389b04fbcc233642952e10731afa9bae"
@@ -15690,7 +15678,7 @@ through2@^0.6.3:
     readable-stream ">=1.0.33-1 <1.1.0-0"
     xtend ">=4.0.0 <4.1.0-0"
 
-through2@^2.0.0, through2@^2.0.2, through2@~2.0.0:
+through2@^2.0.0, through2@^2.0.2:
   version "2.0.5"
   resolved "https://registry.npmjs.org/through2/-/through2-2.0.5.tgz#01c1e39eb31d07cb7d03a96a70823260b23132cd"
   integrity sha512-/mrRod8xqpA+IHSLyGCQ2s8SPHiCDEeQJSep1jqLYeEUClOFG2Qsh+4FU6G9VeqpZnGW/Su8LQGc4YKni5rYSQ==

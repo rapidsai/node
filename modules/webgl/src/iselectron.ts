@@ -9,6 +9,9 @@ export function isElectron(mockUserAgent?: string) {
         typeof window.process === 'object' &&
         (<any> window.process).type === 'renderer'
     ) {
+        if ((<any> window.process).glfwWindow) {
+            return false;
+        }
         console.log('isElectron=true');
         return true;
     }

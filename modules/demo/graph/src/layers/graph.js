@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Buffer } from '@nvidia/deck.gl';
 import { TextLayer } from '@deck.gl/layers';
 import { CompositeLayer } from '@deck.gl/core';
 
-import { Buffer } from '../buffer';
 import { NodeLayer } from './nodes';
 import { EdgeLayer } from './edges';
 import { ComputeEdgePositionsTransform } from './edges/positions';

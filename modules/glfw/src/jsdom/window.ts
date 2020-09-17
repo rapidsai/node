@@ -21,7 +21,7 @@ import { wheelEvents, GLFWWheelEvent } from '../events/wheel';
 import { windowEvents, GLFWWindowEvent } from '../events/window';
 import { keyboardEvents, GLFWKeyboardEvent } from '../events/keyboard';
 import { isAltKey, isCtrlKey, isMetaKey, isShiftKey, isCapsLock } from '../events/event';
-import { glfw, GLFW, GLFWwindow, GLFWInputMode, GLFWModifierKey, GLFWWindowAttribute, GLFWParentWindow, GLFWStandardCursor } from '../glfw';
+import { glfw, GLFW, GLFWwindow, GLFWInputMode, GLFWModifierKey, GLFWMouseButton, GLFWWindowAttribute, GLFWParentWindow, GLFWStandardCursor } from '../glfw';
 
 export type GLFWDOMWindowOptions = {
     x?: number;
@@ -58,6 +58,7 @@ export abstract class GLFWDOMWindow {
             _xscale: 1, _yscale: 1, _devicePixelRatio: 1,
             _focused: false, _minimized: false, _maximized: false, _swapInterval: 0,
             _visible: true, _decorated: true, _transparent: false, _resizable: true,
+            _forceNewWindow: false,
             _subscriptions: new Subscription()
         }, options);
 
@@ -285,6 +286,7 @@ export abstract class GLFWDOMWindow {
     protected _frameBufferHeight = this._height;
     public get frameBufferHeight() { return this._frameBufferHeight; }
 
+    protected _forceNewWindow = false;
     // @ts-ignore
     protected _subscriptions: Subscription;
     protected _monitor: Monitor | undefined;
@@ -312,7 +314,10 @@ export abstract class GLFWDOMWindow {
     protected _create() {
         if (this._id) { return; }
         try {
-            const root = rootWindow ? rootWindow.id : null;
+            let root = null;
+            if (!this._forceNewWindow && rootWindow) {
+                root = rootWindow.id;
+            }
             const monitor = this._monitor ? this._monitor.id : null;
 
             glfw.windowHint(GLFWWindowAttribute.SAMPLES, 4);
@@ -337,7 +342,7 @@ export abstract class GLFWDOMWindow {
             ({ width: this._width, height: this._height } = glfw.getWindowSize(id));
             ({ xscale: this._xscale, yscale: this._yscale } = glfw.getWindowContentScale(id));
 
-            rootWindow || (rootWindow = this);
+            !this._forceNewWindow && !rootWindow && (rootWindow = this);
             this._frameBufferWidth = this._width * this._xscale;
             this._frameBufferHeight = this._height * this._yscale;
             this._subscriptions && this._subscriptions.unsubscribe();
@@ -362,18 +367,72 @@ export abstract class GLFWDOMWindow {
     }
 
     public dispatchEvent(event: any) {
+        let { x, y } = event || {};
+        let button = (() => {
+            switch (event && event.button) {
+                case 0: return GLFWMouseButton.MOUSE_BUTTON_LEFT;
+                case 1: return GLFWMouseButton.MOUSE_BUTTON_MIDDLE;
+                case 2: return GLFWMouseButton.MOUSE_BUTTON_RIGHT;
+                default: return -1;
+            }
+        })();
         switch (event && event.type) {
-            case 'blur': onGLFWWindowEvent.call(this, event); break;
-            case 'focus': onGLFWWindowEvent.call(this, event); break;
-            case 'wheel': onGLFWWheelEvent.call(this, event); break;
-            case 'keyup': onGLFWKeyboardEvent.call(this, event); break;
-            case 'keydown': onGLFWKeyboardEvent.call(this, event); break;
-            case 'keypress': onGLFWKeyboardEvent.call(this, event); break;
-            case 'mouseup': onGLFWMouseEvent.call(this, event); break;
-            case 'mousemove': onGLFWMouseEvent.call(this, event); break;
-            case 'mousedown': onGLFWMouseEvent.call(this, event); break;
-            case 'mouseenter': onGLFWMouseEvent.call(this, event); break;
-            case 'mouseleave': onGLFWMouseEvent.call(this, event); break;
+            case 'blur':
+                onGLFWWindowEvent.call(this, GLFWWindowEvent.fromFocus(this, false));
+                break;
+            case 'close':
+                onGLFWWindowEvent.call(this, event);
+                break;
+            case 'focus':
+                onGLFWWindowEvent.call(this, GLFWWindowEvent.fromFocus(this, true));
+                break;
+            case 'wheel':
+                onGLFWWheelEvent.call(this, GLFWWheelEvent.create(
+                    this,
+                    -event.deltaX / 10,
+                    -event.deltaY / 10
+                ));
+                break;
+            case 'keyup':
+                onGLFWKeyboardEvent.call(this, event);
+                break;
+            case 'keydown':
+                onGLFWKeyboardEvent.call(this, event);
+                break;
+            case 'keypress':
+                onGLFWKeyboardEvent.call(this, event);
+                break;
+            case 'mousemove':
+                onGLFWMouseEvent.call(this, GLFWMouseEvent.fromMouseMove(this, x, y));
+                break;
+            case 'mouseup':
+                if (button !== -1) {
+                    event = GLFWMouseEvent.fromMouseButton(this, button, glfw.RELEASE, event.modifiers);
+                    event._x = x;
+                    event._y = y;
+                    onGLFWMouseEvent.call(this, event);
+                }
+                break;
+            case 'mousedown':
+                if (button !== -1) {
+                    event = GLFWMouseEvent.fromMouseButton(this, button, glfw.PRESS, event.modifiers);
+                    event._x = x;
+                    event._y = y;
+                    onGLFWMouseEvent.call(this, event);
+                }
+                break;
+            case 'mouseenter':
+                event = GLFWMouseEvent.fromMouseEnter(this, +true);
+                event._x = x;
+                event._y = y;
+                onGLFWMouseEvent.call(this, event);
+                break;
+            case 'mouseleave':
+                event = GLFWMouseEvent.fromMouseEnter(this, +false);
+                event._x = x;
+                event._y = y;
+                onGLFWMouseEvent.call(this, event);
+                break;
             default: break;
         }
         return true;
@@ -385,7 +444,7 @@ export abstract class GLFWDOMWindow {
         if (id) {
             this._id = <any>undefined;
             glfw.destroyWindow(id);
-            if (rootWindow === this) {
+            if (!this._forceNewWindow && rootWindow === this) {
                 setImmediate(() => process.exit(0));
             }
         }
