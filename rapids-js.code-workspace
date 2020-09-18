@@ -13,6 +13,10 @@
             "path": "modules/cuda"
         },
         {
+            "name": "cudf",
+            "path": "modules/cudf"
+        },
+        {
             "name": "deck.gl",
             "path": "modules/deck.gl"
         },
