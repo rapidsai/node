@@ -21,7 +21,7 @@
     "tsc:watch": "npx rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@nvidia/cmake-modules": "0.0.1",
+    "@nvidia/rapids-core": "0.0.1",
     "@nvidia/webgl": "0.0.1",
     "@types/node": "^13.1.2",
     "@types/jsdom": "^12.2.4",

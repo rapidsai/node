@@ -13,8 +13,9 @@
     "demo": "node scripts/exec demo",
     "test": "node scripts/exec test",
     "dev:relink-bin-dirs": "node scripts/exec relink-bin-dirs",
-    "dev:install-cpp-dependencies": "node modules/cmake-modules/bin/exec_install_deps.js",
+    "dev:install-cpp-dependencies": "node modules/core/bin/exec_install_deps.js",
     "nuke:from:orbit": "yarn cache clean && npm run clean && yarn --silent && npm run build -- --clean",
+    "preinstall": "touch .env",
     "postinstall": "npm run dev:relink-bin-dirs"
   },
   "workspaces": [

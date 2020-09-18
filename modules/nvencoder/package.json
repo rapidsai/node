@@ -6,7 +6,7 @@
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
-  "main": "index.js",
+  "main": "build/js/index.js",
   "types": "build/js",
   "scripts": {
     "clean": "npx rimraf build compile_commands.json",
@@ -21,7 +21,7 @@
     "tsc:watch": "npx rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@nvidia/cmake-modules": "0.0.1",
+    "@nvidia/rapids-core": "0.0.1",
     "@nvidia/cuda": "0.0.1",
     "@types/node": "^14.0.0",
     "node-addon-api": "^2.0.0",

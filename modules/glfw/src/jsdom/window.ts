@@ -21,7 +21,7 @@ import { wheelEvents, GLFWWheelEvent } from '../events/wheel';
 import { windowEvents, GLFWWindowEvent } from '../events/window';
 import { keyboardEvents, GLFWKeyboardEvent } from '../events/keyboard';
 import { isAltKey, isCtrlKey, isMetaKey, isShiftKey, isCapsLock } from '../events/event';
-import { glfw, GLFW, GLFWwindow, GLFWInputMode, GLFWModifierKey, GLFWWindowAttribute, GLFWParentWindow, GLFWStandardCursor } from '../glfw';
+import { glfw, GLFW, GLFWwindow, GLFWInputMode, GLFWModifierKey, GLFWMouseButton, GLFWWindowAttribute, GLFWParentWindow, GLFWStandardCursor } from '../glfw';
 
 export type GLFWDOMWindowOptions = {
     x?: number;
@@ -40,6 +40,8 @@ export interface GLFWDOMWindow extends jsdom.DOMWindow {
     _inputEventTarget: any;
 }
 
+let rootWindow: GLFWDOMWindow | undefined = undefined;
+
 export abstract class GLFWDOMWindow {
 
     constructor(options: GLFWDOMWindowOptions = {}) {
@@ -54,8 +56,9 @@ export abstract class GLFWDOMWindow {
             _mouseX: 0, _mouseY: 0, _scrollX: 0, _scrollY: 0,
             _buttons: 0, _modifiers: 0,
             _xscale: 1, _yscale: 1, _devicePixelRatio: 1,
-            _focused: false, _minimized: false, _maximized: false, _swapInterval: 1,
+            _focused: false, _minimized: false, _maximized: false, _swapInterval: 0,
             _visible: true, _decorated: true, _transparent: false, _resizable: true,
+            _forceNewWindow: false,
             _subscriptions: new Subscription()
         }, options);
 
@@ -68,17 +71,18 @@ export abstract class GLFWDOMWindow {
         ([
             'x', 'y', 'width', 'height', 'mouseX', 'mouseY',
             'scrollX', 'scrollY', 'buttons', 'modifiers',
-            'xscale', 'yscale', 'devicePixelRatio'
+            'xscale', 'yscale', 'devicePixelRatio', 'swapInterval',
         ] as (keyof this)[]).forEach((prop) => validatePropType(prop, 'number'));
 
         ([
-            'debug', 'visible', 'decorated', 'resizable', 'transparent'
+            'debug', 'focused', 'minimized', 'maximized', 'visible',
+            'decorated', 'transparent', 'resizable',
         ] as (keyof this)[]).forEach((prop) => validatePropType(prop, 'boolean'));
 
         this._frameBufferWidth = this._width;
         this._frameBufferHeight = this._height;
 
-        return this;
+        return this._create();
     }
 
     protected _x = 0;
@@ -188,11 +192,11 @@ export abstract class GLFWDOMWindow {
     protected _maximized = false;
     public get maximized() { return this._maximized; }
 
-    protected _swapInterval = 1;
+    protected _swapInterval = 0;
     public get swapInterval() { return this._swapInterval; }
     public set swapInterval(_: number) {
         if (this._swapInterval !== _) {
-            if (this._id > 0) {
+            if (this._id > 0 && typeof _ === 'number') {
                 glfw.swapInterval(this._swapInterval = _);
             }
         }
@@ -282,10 +286,10 @@ export abstract class GLFWDOMWindow {
     protected _frameBufferHeight = this._height;
     public get frameBufferHeight() { return this._frameBufferHeight; }
 
+    protected _forceNewWindow = false;
     // @ts-ignore
     protected _subscriptions: Subscription;
     protected _monitor: Monitor | undefined;
-    protected _rootWindow: GLFWDOMWindow | undefined;
 
     public destroyGLFWWindow() { this._destroyGLFWWindow(); }
     public show() {
@@ -310,11 +314,16 @@ export abstract class GLFWDOMWindow {
     protected _create() {
         if (this._id) { return; }
         try {
+            let root = null;
+            if (!this._forceNewWindow && rootWindow) {
+                root = rootWindow.id;
+            }
             const monitor = this._monitor ? this._monitor.id : null;
-            const root = this._rootWindow ? this._rootWindow.id : null;
 
             glfw.windowHint(GLFWWindowAttribute.SAMPLES, 4);
             glfw.windowHint(GLFWWindowAttribute.DOUBLEBUFFER, true);
+            glfw.windowHint(GLFWWindowAttribute.FOCUSED, this.focused);
+            glfw.windowHint(GLFWWindowAttribute.FOCUS_ON_SHOW, this.focused);
             glfw.windowHint(GLFWWindowAttribute.VISIBLE, this.visible);
             glfw.windowHint(GLFWWindowAttribute.DECORATED, this.decorated);
             glfw.windowHint(GLFWWindowAttribute.RESIZABLE, this.resizable);
@@ -333,7 +342,7 @@ export abstract class GLFWDOMWindow {
             ({ width: this._width, height: this._height } = glfw.getWindowSize(id));
             ({ xscale: this._xscale, yscale: this._yscale } = glfw.getWindowContentScale(id));
 
-            this._rootWindow || (this._rootWindow = this);
+            !this._forceNewWindow && !rootWindow && (rootWindow = this);
             this._frameBufferWidth = this._width * this._xscale;
             this._frameBufferHeight = this._height * this._yscale;
             this._subscriptions && this._subscriptions.unsubscribe();
@@ -357,13 +366,85 @@ export abstract class GLFWDOMWindow {
         }
     }
 
+    public dispatchEvent(event: any) {
+        let { x, y } = event || {};
+        let button = (() => {
+            switch (event && event.button) {
+                case 0: return GLFWMouseButton.MOUSE_BUTTON_LEFT;
+                case 1: return GLFWMouseButton.MOUSE_BUTTON_MIDDLE;
+                case 2: return GLFWMouseButton.MOUSE_BUTTON_RIGHT;
+                default: return -1;
+            }
+        })();
+        switch (event && event.type) {
+            case 'blur':
+                onGLFWWindowEvent.call(this, GLFWWindowEvent.fromFocus(this, false));
+                break;
+            case 'close':
+                onGLFWWindowEvent.call(this, event);
+                break;
+            case 'focus':
+                onGLFWWindowEvent.call(this, GLFWWindowEvent.fromFocus(this, true));
+                break;
+            case 'wheel':
+                onGLFWWheelEvent.call(this, GLFWWheelEvent.create(
+                    this,
+                    -event.deltaX / 10,
+                    -event.deltaY / 10
+                ));
+                break;
+            case 'keyup':
+                onGLFWKeyboardEvent.call(this, event);
+                break;
+            case 'keydown':
+                onGLFWKeyboardEvent.call(this, event);
+                break;
+            case 'keypress':
+                onGLFWKeyboardEvent.call(this, event);
+                break;
+            case 'mousemove':
+                onGLFWMouseEvent.call(this, GLFWMouseEvent.fromMouseMove(this, x, y));
+                break;
+            case 'mouseup':
+                if (button !== -1) {
+                    event = GLFWMouseEvent.fromMouseButton(this, button, glfw.RELEASE, event.modifiers);
+                    event._x = x;
+                    event._y = y;
+                    onGLFWMouseEvent.call(this, event);
+                }
+                break;
+            case 'mousedown':
+                if (button !== -1) {
+                    event = GLFWMouseEvent.fromMouseButton(this, button, glfw.PRESS, event.modifiers);
+                    event._x = x;
+                    event._y = y;
+                    onGLFWMouseEvent.call(this, event);
+                }
+                break;
+            case 'mouseenter':
+                event = GLFWMouseEvent.fromMouseEnter(this, +true);
+                event._x = x;
+                event._y = y;
+                onGLFWMouseEvent.call(this, event);
+                break;
+            case 'mouseleave':
+                event = GLFWMouseEvent.fromMouseEnter(this, +false);
+                event._x = x;
+                event._y = y;
+                onGLFWMouseEvent.call(this, event);
+                break;
+            default: break;
+        }
+        return true;
+    }
+
     protected _destroyGLFWWindow() {
         const id = this._id;
         this._subscriptions.unsubscribe();
         if (id) {
             this._id = <any>undefined;
             glfw.destroyWindow(id);
-            if (this._rootWindow === this) {
+            if (!this._forceNewWindow && rootWindow === this) {
                 setImmediate(() => process.exit(0));
             }
         }

@@ -25,76 +25,73 @@ function keyboardEventHandler(e) {
     }
 }
 
-export default function createAnimationLoopInstance() {
+let numFrames = 0;
 
-    let numFrames = 0;
+const loop = new AnimationLoop({
+    createFramebuffer: true,
+    onInitialize({ gl }) {
 
-    const loop = new AnimationLoop({
-        createFramebuffer: true,
-        onInitialize({ gl }) {
+        document.addEventListener('keydown', keyboardEventHandler);
 
-            document.addEventListener('keydown', keyboardEventHandler);
+        setParameters(gl, {
+            clearColor: [0, 0, 0, 1],
+            clearDepth: 1,
+            blendFunc: [gl.SRC_ALPHA, gl.ONE],
+            blend: true
+        });
 
-            setParameters(gl, {
-                clearColor: [0, 0, 0, 1],
-                clearDepth: 1,
-                blendFunc: [gl.SRC_ALPHA, gl.ONE],
-                blend: true
-            });
+        const texture = new Texture2D(gl, 'star.gif');
 
-            const texture = new Texture2D(gl, 'star.gif');
-
-            const stars = [];
-            const numStars = 50;
-            for (let i = 0; i < numStars; i++) {
-                stars.push(
-                    new Star(gl, {
-                        startingDistance: (i / numStars) * 5.0,
-                        rotationSpeed: i / numStars,
-                        texture
-                    })
-                );
-            }
-
-            return { stars };
-        },
-        onRender({ gl, aspect, stars, framebuffer }) {
-            // Update Camera Position
-            const radTilt = (tilt / 180) * Math.PI;
-            const cameraY = Math.cos(radTilt) * zoom;
-            const cameraZ = Math.sin(radTilt) * zoom;
-
-            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-            if (framebuffer) {
-                framebuffer.clear({ color: true, depth: true });
-            }
-
-            for (const i in stars) {
-                const uMVMatrix = new Matrix4()
-                    .lookAt({ eye: [0, cameraY, cameraZ] })
-                    .multiplyRight(stars[i].matrix);
-
-                stars[i].setUniforms({
-                    uMVMatrix,
-                    uPMatrix: new Matrix4().perspective({ aspect })
-                });
-                stars[i].draw();
-                if (framebuffer) {
-                    stars[i].draw({ framebuffer });
-                }
-                stars[i].animate();
-            }
-
-            if (++numFrames >= 1000) {
-                loop.stop();
-            }
-        },
-        onFinalize() {
-            document.removeEventListener('keydown', keyboardEventHandler);
-            setTimeout(() => process.exit(0), 20);
+        const stars = [];
+        const numStars = 50;
+        for (let i = 0; i < numStars; i++) {
+            stars.push(
+                new Star(gl, {
+                    startingDistance: (i / numStars) * 5.0,
+                    rotationSpeed: i / numStars,
+                    texture
+                })
+            );
         }
-    });
 
-    return createAnimationLoopVideoEncoderStream(loop.start())
-       .then((outputs) => outputs.pipe(process.stdout, { end: false }));
-}
+        return { stars };
+    },
+    onRender({ gl, aspect, stars, framebuffer }) {
+        // Update Camera Position
+        const radTilt = (tilt / 180) * Math.PI;
+        const cameraY = Math.cos(radTilt) * zoom;
+        const cameraZ = Math.sin(radTilt) * zoom;
+
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        if (framebuffer) {
+            framebuffer.clear({ color: true, depth: true });
+        }
+
+        for (const i in stars) {
+            const uMVMatrix = new Matrix4()
+                .lookAt({ eye: [0, cameraY, cameraZ] })
+                .multiplyRight(stars[i].matrix);
+
+            stars[i].setUniforms({
+                uMVMatrix,
+                uPMatrix: new Matrix4().perspective({ aspect })
+            });
+            stars[i].draw();
+            if (framebuffer) {
+                stars[i].draw({ framebuffer });
+            }
+            stars[i].animate();
+        }
+
+        if (++numFrames >= 1000) {
+            loop.stop();
+        }
+    },
+    onFinalize() {
+        document.removeEventListener('keydown', keyboardEventHandler);
+        setTimeout(() => process.exit(0), 20);
+    }
+});
+
+createAnimationLoopVideoEncoderStream(loop.start())
+    .then((outputs) => outputs.pipe(process.stdout, { end: false }));

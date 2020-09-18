@@ -4,34 +4,35 @@ import { Star } from './star';
 
 import { createAnimationLoopVideoEncoderStream } from '@nvidia/deck.gl';
 
-let zoom = -15;
-let tilt = 90;
+export default function createAnimationLoopInstance(encoderOptions) {
 
-function keyboardEventHandler(e) {
-    switch (e.code) {
-        case 'ArrowUp':
-            tilt -= 1.5;
-            break;
-        case 'ArrowDown':
-            tilt += 1.5;
-            break;
-        case 'PageUp':
-            zoom -= 0.1;
-            break;
-        case 'PageDown':
-            zoom += 0.1;
-            break;
-        default:
+    let zoom = -15;
+    let tilt = 90;
+    
+    function keyboardEventHandler(e) {
+        switch (e.code) {
+            case 'ArrowUp':
+                tilt -= 1.5;
+                break;
+            case 'ArrowDown':
+                tilt += 1.5;
+                break;
+            case 'PageUp':
+                zoom -= 0.1;
+                break;
+            case 'PageDown':
+                zoom += 0.1;
+                break;
+            default:
+        }
     }
-}
-
-export default function createAnimationLoopInstance() {
 
     const loop = new AnimationLoop({
         createFramebuffer: true,
         onInitialize({ gl }) {
 
             document.addEventListener('keydown', keyboardEventHandler);
+            document.addEventListener('keypress', keyboardEventHandler);
 
             setParameters(gl, {
                 clearColor: [0, 0, 0, 1],
@@ -85,10 +86,9 @@ export default function createAnimationLoopInstance() {
         },
         onFinalize() {
             document.removeEventListener('keydown', keyboardEventHandler);
-            setTimeout(() => process.exit(0), 20);
+            document.removeEventListener('keypress', keyboardEventHandler);
         }
     });
 
-    return createAnimationLoopVideoEncoderStream(loop.start())
-       .then((outputs) => ({ loop, outputs }));
+    return createAnimationLoopVideoEncoderStream(loop, encoderOptions).then((frames) => ({ loop, frames }));
 }

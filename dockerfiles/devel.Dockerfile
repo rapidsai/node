@@ -1,14 +1,15 @@
-ARG CUDA_VERSION=10.2
+ARG CUDA_VERSION=11.0
+ARG NODE_VERSION=14.10.1
 ARG LINUX_VERSION=ubuntu18.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 
-FROM node:14.4.0-stretch-slim as node
+FROM node:$NODE_VERSION-stretch-slim as node
 FROM jrottenberg/ffmpeg:4.1-nvidia AS ffmpeg
 
 FROM nvidia/cudagl:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
-ENV NODE_VERSION 14.4.0
-ENV YARN_VERSION 1.22.4
+ENV NODE_VERSION=$NODE_VERSION
+ENV YARN_VERSION=1.22.5
 
 # Install node
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
@@ -25,27 +26,13 @@ COPY --from=node /opt/yarn-v$YARN_VERSION/lib/v8-compile-cache.js /usr/local/lib
 # Copy entrypoint
 COPY --from=node /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-ARG UID=1000
-ARG GID=1000
 ARG PARALLEL_LEVEL=4
-
 ENV CMAKE_VERSION=3.17.2
 ENV CCACHE_VERSION=3.7.11
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN groupadd --gid $GID node \
- && useradd --uid $UID --gid node -G sudo --shell /bin/bash --create-home node \
- && echo node:node | chpasswd \
- && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
- && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
- && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
- # smoke tests
- && node --version && npm --version && yarn --version \
- && sed -ri "s/32m/33m/g" /home/node/.bashrc \
- && sed -ri "s/34m/36m/g" /home/node/.bashrc \
- && mkdir -p /etc/bash_completion.d \
- && npm completion > /etc/bash_completion.d/npm \
- # Install dev dependencies and tools
- && apt update -y \
+# Install dev dependencies and tools
+RUN apt update -y && apt upgrade -y \
  && apt install -y software-properties-common \
  && add-apt-repository -y ppa:git-core/ppa \
  && apt install -y \
@@ -60,6 +47,7 @@ RUN groupadd --gid $GID node \
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
     # GLEW dependencies
     build-essential libxmu-dev libxi-dev libgl-dev libgl1-mesa-dev libglu1-mesa-dev \
+ && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
  # Install CMake
  && curl -fsSLO --compressed "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" \
@@ -70,6 +58,22 @@ RUN groupadd --gid $GID node \
  && curl -s -L https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz -o ccache-$CCACHE_VERSION.tar.gz \
  && tar -xvzf ccache-$CCACHE_VERSION.tar.gz && cd ccache-$CCACHE_VERSION \
  && ./configure --disable-man && make install -j$PARALLEL_LEVEL && cd - && rm -rf ./ccache-$CCACHE_VERSION*
+
+ARG UID=1000
+ARG GID=1000
+
+RUN groupadd --gid $GID node \
+ && useradd --uid $UID --gid node -G sudo --shell /bin/bash --create-home node \
+ && echo node:node | chpasswd \
+ && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
+ && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+ && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
+ # smoke tests
+ && node --version && npm --version && yarn --version \
+ && sed -ri "s/32m/33m/g" /home/node/.bashrc \
+ && sed -ri "s/34m/36m/g" /home/node/.bashrc \
+ && mkdir -p /etc/bash_completion.d \
+ && npm completion > /etc/bash_completion.d/npm
 
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda-$CUDA_SHORT_VERSION"

@@ -1,14 +1,14 @@
 **/z-*
+**/*.log
 **/.cache
 **/.clangd
 **/.ccache
 **/__pycache__
 **/node_modules
-**/npm-debug.log
-**/yarn-debug.log
-**/lerna-debug.log
 **/compile_commands.json
 
+.env
+.cmake-js
 modules/**/*/lib
 modules/**/*/build
 modules/*/include/rmm

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
-cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 
 project(node_nvencoder VERSION 0.0.1 LANGUAGES C CXX)
 
@@ -40,7 +40,7 @@ endif(DEFINED ENV{VIDEO_CODEC_SDK_DIR})
 # - cmake modules ---------------------------------------------------------------------------------
 
 execute_process(COMMAND node -p
-                "require('@nvidia/cmake-modules').cmake_modules_path"
+                "require('@nvidia/rapids-core').cmake_modules_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -53,45 +53,42 @@ include(ConfigureCUDA)
 include(ConfigureOpenGL)
 include(ConfigureOpenGLEW)
 
-# find_path(VIDEO_CODEC_SDK_INCLUDE_DIR nvEncodeAPI.h "${VIDEO_CODEC_SDK_DIR}/include")
-
 find_path(VIDEO_CODEC_SDK_INCLUDE_DIR NO_DEFAULT_PATH REQUIRED
           NAMES nvEncodeAPI.h
           HINTS "${VIDEO_CODEC_SDK_DIR}"
           PATH_SUFFIXES "include" "Interface"
           DOC "The nvEncodeAPI.h parent dir")
 
-# find_library(CUVID_LIB nvcuvid)
 find_library(NVENCODEAPI_LIB
     NAMES nvidia-encode
           libnvidia-encode
           libnvidia-encode.so
           libnvidia-encode.so.1)
 
-# message(STATUS "CUVID_LIB: ${CUVID_LIB}")
 message(STATUS "NVENCODEAPI_LIB: ${NVENCODEAPI_LIB}")
 
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
 
 include_directories("${CUDA_INCLUDE_DIRS}"
+                    "${RAPIDS_CORE_INCLUDE_DIR}"
                     "${GLEW_INCLUDE_DIR}"
                     "${OPENGL_INCLUDE_DIR}"
                     "${VIDEO_CODEC_SDK_INCLUDE_DIR}"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/include"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp")
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
 link_directories("${CUDA_LIBRARIES}")
 
-file(GLOB_RECURSE NODE_NVENCODER_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/*.cpp")
+file(GLOB_RECURSE NODE_NVENCODER_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_NVENCODER_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
-                      cuda cudart OpenGL::GL
+                      cuda cudart nppicc nppig OpenGL::GL
                       ${GLEW_LIBRARY}
                       ${NVENCODEAPI_LIB})

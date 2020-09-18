@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <node_cuda/casting.hpp>
+
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <napi.h>
@@ -201,7 +203,8 @@ Napi::Value cuLaunchKernel(Napi::CallbackInfo const& info);
  */
 
 // cudaError_t cudaMalloc(void **devPtr, size_t size);
-Napi::Value cudaMalloc(Napi::CallbackInfo const& info);
+// Napi::Value cudaMalloc(Napi::CallbackInfo const& info);
+Napi::Value cudaMalloc(CallbackArgs const& info);
 
 // cudaError_t cudaFree(void *devPtr);
 Napi::Value cudaFree(Napi::CallbackInfo const& info);

@@ -23,7 +23,7 @@ test('CUDA-GL interop', () => {
 
         lumaBuf.reallocate(cudaBuf.length * lumaBuf.accessor.BYTES_PER_VERTEX);
 
-        const cudaGLPtr = CUDA.gl.registerBuffer(lumaBuf.handle._, 0);
+        const cudaGLPtr = CUDA.gl.registerBuffer(lumaBuf.handle.ptr, 0);
         CUDA.gl.mapResources([cudaGLPtr]);
 
         new CUDAMemory(CUDA.gl.getMappedPointer(cudaGLPtr))

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { glfw } from '../glfw';
+import { performance } from 'perf_hooks';
 
 export function installAnimationFrame(window: any) {
 
@@ -55,7 +56,7 @@ export function installAnimationFrame(window: any) {
         window._clearMask = 0;
         (window.id > 0) && glfw.makeContextCurrent(window.id);
         if (callbacks.size > 0) {
-            const t_ = Date.now();
+            const t_ = performance.now();
             if (callbacks === a) {
                 callbacks = b;
                 a.forEach((_, cb) => cb(t_));

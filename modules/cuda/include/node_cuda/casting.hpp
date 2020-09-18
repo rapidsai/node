@@ -20,6 +20,7 @@
 #include <nvrtc.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -38,6 +39,7 @@ struct FromJS {
   //
   // Napi identities
   //
+  inline operator Napi::Value() const { return val; }
   inline operator Napi::Boolean() const { return val.ToBoolean(); }
   inline operator Napi::Number() const { return val.ToNumber(); }
   inline operator Napi::String() const { return val.ToString(); }
@@ -384,4 +386,30 @@ struct ToNapi {
     return (val == NULL) ? this->env.Null() : Napi::External<void>::New(this->env, val);
   }
 };
+
+struct CallbackArgs {
+  // Constructor that accepts the same arguments as the Napi::CallbackInfo constructor
+  CallbackArgs(napi_env env, napi_callback_info info)
+    : CallbackArgs(Napi::CallbackInfo(env, info)) {}
+
+  // Construct a CallbackArgs by proxying to an Napi::CallbackInfo instance
+  CallbackArgs(Napi::CallbackInfo const& info) : info_(&info){};
+
+  // Proxy all the normal public methods
+  Napi::Env Env() const { return info_->Env(); }
+  Napi::Value NewTarget() const { return info_->NewTarget(); }
+  bool IsConstructCall() const { return info_->IsConstructCall(); }
+  size_t Length() const { return info_->Length(); }
+  Napi::Value This() const { return info_->This(); }
+  void* Data() const { return info_->Data(); }
+  void SetData(void* data) { const_cast<Napi::CallbackInfo*>(info_)->SetData(data); }
+
+  // Replace the [] operator to return a FromJS() instance
+  // with implicit conversions from JS to C++ types
+  FromJS const inline operator[](size_t i) const { return FromJS(info_->operator[](i)); }
+
+ private:
+  Napi::CallbackInfo const* info_{nullptr};
+};
+
 }  // namespace node_cuda

@@ -31,5 +31,5 @@ process.chdir(__dirname);
 module.exports = createModuleWindow(`${__dirname}/server.js`, true);
 
 if (require.main === module) {
-    module.exports.open({ transparent: false });
+    module.exports.open({ transparent: false, visible: true });
 }

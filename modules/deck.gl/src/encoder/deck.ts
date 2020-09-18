@@ -13,109 +13,140 @@
 // limitations under the License.
 
 import { PassThrough } from 'stream';
-import { CUDADevice } from '@nvidia/cuda';
-import { CUDAEncoderTransform } from '@nvidia/nvencoder';
+import { CUDADevice, CUDAUint8Array } from '@nvidia/cuda';
+import { rgbaMirror, bgraToYCrCb420 } from '@nvidia/nvencoder';
 
-export function createDeckGLVideoEncoderStream(deck: any, _device = CUDADevice.new(0)): Promise<NodeJS.ReadableStream> {
+let DeckBuffer: any = undefined;
+let Texture2D: any = undefined;
+let Framebuffer: any = undefined;
+let readPixelsToBuffer: any = undefined;
 
-    const ffmpeg = require('fluent-ffmpeg');
-    const { readPixelsToBuffer } = require('@luma.gl/webgl');
+export function createDeckGLReactRef() {
 
-    let buffer: any = null;
-    let buffers: PassThrough | null = null;
-    let encoder: CUDAEncoderTransform | null = null;
-    let outputs: NodeJS.ReadableStream | null = null;
+    if (!DeckBuffer) {
+        DeckBuffer = require(`../buffer`).Buffer;
+    }
 
-    const {
-        onResize: originalOnResize,
-        onAfterRender: originalOnAfterRender,
-        onWebGLInitialized: originalOnWebGLInitialized
-    } = deck.props;
+    if (!Texture2D || !Framebuffer || !readPixelsToBuffer) {
+        ({ Texture2D, Framebuffer, readPixelsToBuffer } = require('@luma.gl/webgl'));
+    }
 
-    const {
-        onFinalize: originalOnFinalize,
-    } = deck.animationLoop.props;
+    let _framebuffer: any = null;
 
-    let onDeckError = (_?: any) => {};
-    let onDeckIntialized = (_?: any) => {};
-    let onDeckIntializedPromise = new Promise((resolve, reject) => {
-        onDeckIntialized = resolve;
-        onDeckError = reject;
-    });
-
-    deck.props.onWebGLInitialized = function onWebGLInitialized(gl: WebGL2RenderingContext) {
-
-        let result = undefined;
-
-        try {
-            if (originalOnWebGLInitialized) {
-                result = originalOnWebGLInitialized.call(this, gl);
+    return {
+        getRenderTarget() { return _framebuffer; },
+        onWebGLInitialized(this: any /* Deck.props */, gl: WebGL2RenderingContext) {
+            let result: any = undefined;
+            if (this._originalOnWebGLInitialized) {
+                result = this._originalOnWebGLInitialized.apply(this, arguments);
             }
-        } catch (e) { return onDeckError(e); }
 
-        if (!deck.props._framebuffer) {
-            outputs = new PassThrough({ objectMode: true, highWaterMark: 1 });
-            (outputs as any).end();
-        } else {
-            encoder = new CUDAEncoderTransform({
-                width: gl.drawingBufferWidth,
-                height: gl.drawingBufferHeight,
+            this._RGB_dbuffer = new DeckBuffer(gl, 0);
+            this._YUV_dbuffer = new CUDAUint8Array(0);
+            this._YUV_hbuffer = new Uint8ClampedArray(0);
+
+            _framebuffer = this._framebuffer || new Framebuffer(gl, {
+                color: new Texture2D(gl, {
+                    mipmaps: false,
+                    parameters: {
+                        [gl.TEXTURE_MIN_FILTER]: gl.LINEAR,
+                        [gl.TEXTURE_MAG_FILTER]: gl.LINEAR,
+                        [gl.TEXTURE_WRAP_S]: gl.CLAMP_TO_EDGE,
+                        [gl.TEXTURE_WRAP_T]: gl.CLAMP_TO_EDGE
+                    }
+                })
             });
 
-            buffers = new PassThrough({ objectMode: true, highWaterMark: 1 });
+            return result;
+        },
+        onResize(this: any /* Deck.props */, size: { width: number, height: number }) {
+            if (_framebuffer) {
+                _framebuffer.resize(size);
+            }
+            if (this._originalOnResize) {
+                this._originalOnResize.apply(this, arguments);
+            }
+        },
+        onBeforeRender(this: any /* Deck.props */) {
+            if (this._originalOnAfterRender) {
+                this._originalOnAfterRender.apply(this, arguments);
+            }
+        },
+        onAfterRender(this: any /* Deck.props */, { gl }: { gl: WebGL2RenderingContext }) {
+            if (this._originalOnAfterRender) {
+                this._originalOnAfterRender.apply(this, arguments);
+            }
+            if (this._frames && _framebuffer) {
 
-            // Generates this ffmpeg command:
-            // ffmpeg -i pipe:0 -f mp4 -vf vflip -movflags frag_keyframe+empty_moov pipe:1
-            outputs = ffmpeg(buffers.pipe(encoder))
-                .outputFormat('mp4')
-                // flip vertically to account for WebGL's coordinate system
-                .outputOptions('-vf', 'vflip')
-                // create a fragmented MP4 stream
-                // https://stackoverflow.com/a/55712208/3117331
-                .outputOptions('-movflags', 'frag_keyframe+empty_moov');
+                const { width, height } = _framebuffer;
+                // const width = gl.drawingBufferWidth;
+                // const height = gl.drawingBufferHeight;
 
-            outputs!.once('end', () => deck.animationLoop._running && deck.finalize());
-            outputs!.once('destroy', () => deck.animationLoop._running && deck.finalize());
-        }
+                const rgbByteLength = width * height * 4;
+                const yuvByteLength = width * height * 3 / 2;
 
-        window.addEventListener('close', () => deck.animationLoop._running && deck.finalize());
+                if (this._RGB_dbuffer.byteLength !== rgbByteLength) {
+                    this._RGB_dbuffer.delete({ deleteChildren: true });
+                    this._RGB_dbuffer = new DeckBuffer(gl, {
+                        byteLength: rgbByteLength,
+                        accessor: { type: gl.UNSIGNED_BYTE, size: 4 }
+                    });
+                }
 
-        onDeckIntialized();
+                if (this._YUV_dbuffer.byteLength !== yuvByteLength) {
+                    this._YUV_dbuffer = new CUDAUint8Array(yuvByteLength);
+                    this._YUV_hbuffer = new Uint8ClampedArray(yuvByteLength);
+                }
 
-        return result;
+                const rgbGLBuffer = this._RGB_dbuffer;
+                const yuvCUDABuffer = this._YUV_dbuffer;
+                const yuvHOSTBuffer = this._YUV_hbuffer;
+
+                // DtoD copy from framebuffer into pixelbuffer
+                readPixelsToBuffer(_framebuffer, { target: rgbGLBuffer });
+                // Map the GL buffer as a CUDA buffer for reading
+                DeckBuffer.mapResources([rgbGLBuffer]);
+                // Create a CUDA buffer view of the GL buffer
+                const rgbCUDABuffer = rgbGLBuffer.asCUDABuffer();
+                // flip horizontally to account for WebGL's coordinate system (e.g. ffmpeg -vf vflip)
+                rgbaMirror(width, height, 0, rgbCUDABuffer);
+                // convert colorspace from OpenGL's RGBA to WebRTC's IYUV420
+                bgraToYCrCb420(yuvCUDABuffer, rgbCUDABuffer, width, height);
+                // Unmap the GL buffer's CUDAGraphicsResource
+                DeckBuffer.unmapResources([rgbGLBuffer]);
+                // DtoH copy for output
+                yuvCUDABuffer.copyInto(yuvHOSTBuffer);
+
+                this._frames.onFrame({ width, height, data: yuvHOSTBuffer });
+            }
+        },
+        // onFinalize(this: any /* AnimationLoop.props */) {
+        //     if (this._originalOnFinalize) {
+        //         return this._originalOnFinalize.apply(this.props, arguments);
+        //     }
+        //     const { deckProps } = this.props;
+        //     if (deckProps) {
+        //         this._deckProps = null;
+        //         const { _frames, _RGB_dbuffer } = deckProps;
+        //         if (_frames && _frames.end) {
+        //             _frames.end();
+        //         }
+        //         if (_RGB_dbuffer) {
+        //             _RGB_dbuffer.delete({ deleteChildren: true });
+        //         }
+        //     }
+        // }
     };
+}
 
-    deck.props.onResize = function onResize(size: { width: number, height: number }) {
-        if (encoder) { encoder.resize(size); }
-        if (deck.props._framebuffer) {
-            deck.props._framebuffer.resize(size);
-        }
-        if (originalOnResize) {
-            originalOnResize.call(this, size);
-        }
-    };
-
-    deck.props.onAfterRender = function onAfterRender(props: { gl: WebGL2RenderingContext }) {
-        if (buffers && deck.animationLoop._running && deck.props._framebuffer) {
-            const { gl } = props;
-            buffers.write(buffer = readPixelsToBuffer(deck.props._framebuffer, {
-                target: buffer, sourceType: gl.UNSIGNED_BYTE,
-            }));
-        }
-        if (originalOnAfterRender) {
-            originalOnAfterRender.call(this, props);
-        }
-    };
-
-    deck.animationLoop.props.onFinalize = function onFinalize() {
-        if (buffers) { buffers.end(); }
-        if (encoder) { encoder.end(); }
-        if (buffer) { buffer.delete({ deleteChildren: true }); }
-        buffers = encoder = buffer = null;
-        if (originalOnFinalize) {
-            originalOnFinalize.apply(this, arguments);
-        }
-    };
-
-    return onDeckIntializedPromise.then(() => outputs!);
+export function createDeckGLVideoEncoderStream(
+    // @ts-ignore
+    deck: any,
+    // @ts-ignore
+    {
+        device = CUDADevice.new(0),
+        // format = NvEncoderBufferFormat.ABGR
+    }
+): Promise<NodeJS.ReadWriteStream> {
+    return Promise.resolve(new PassThrough());
 }

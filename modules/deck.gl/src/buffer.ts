@@ -39,7 +39,9 @@ export const Buffer = ((Buffer) => {
             }
             constructor(...args: any[]) {
                 super(...args);
-                this._registerResource(this.handle);
+                if (this.byteLength > 0) {
+                    this._registerResource(this.handle);
+                }
             }
             subData(props: any = {}) {
                 if (!this._handle || !this._handle.cudaGraphicsResourceMapped) {
@@ -49,14 +51,21 @@ export const Buffer = ((Buffer) => {
                          : ArrayBuffer.isView(props) ? { data: props, length: props.byteLength }
                                                      : { data: new Uint8Array(0), ...props };
                 const {
-                    data, offset = 0, srcOffset = 0,
-                    length = data.byteLength,
-                    byteLength = length,
+                    data: buffer,
+                    length = buffer.byteLength,
+                    byteLength: srcLength = length,
+                    offset = 0, srcOffset = 0,
                 } = props;
-                const ptr = CUDA.gl.getMappedPointer(this._handle.cudaGraphicsResource);
-                const ary = new CUDAUint8Array(ptr, offset, this.byteLength - offset);
-                ary.set({ buffer: data, byteOffset: srcOffset, byteLength });
+                this.asCUDABuffer(offset).set({
+                    buffer, byteOffset: srcOffset, byteLength: srcLength
+                });
                 return this;
+            }
+            asCUDABuffer(byteOffset = 0, byteLength = this.byteLength - byteOffset) {
+                if (this._handle.cudaGraphicsResourceMapped) {
+                    return new CUDAUint8Array(CUDA.gl.getMappedPointer(this._handle.cudaGraphicsResource), byteOffset, byteLength);
+                }
+                throw new Error('OpenGL Buffer must be mapped as a CUDAGraphicsResource to create a CUDA buffer');
             }
             _deleteHandle(handle: any = this._handle) {
                 this._unregisterResource(handle);
@@ -80,7 +89,7 @@ export const Buffer = ((Buffer) => {
                 if (handle && handle.cudaGraphicsResource === undefined) {
                     this._handle = handle;
                     handle.cudaGraphicsResourceMapped = false;
-                    handle.cudaGraphicsResource = CUDA.gl.registerBuffer(handle._, 0);
+                    handle.cudaGraphicsResource = CUDA.gl.registerBuffer(handle.ptr, 0);
                 }
                 return this;
             }

@@ -55,7 +55,8 @@ function createJSDOMContext(dir = process.cwd(), runInThisContext = false, code 
     let context: any;
     const processClone = Object.create(process, {
         browser: { value: true },
-        type:  { value: 'renderer' }
+        glfwWindow: { value: true },
+        type:  { value: 'renderer' },
     });
     if (runInThisContext) {
         if (!(global as any).window) {
@@ -76,8 +77,8 @@ function createJSDOMContext(dir = process.cwd(), runInThisContext = false, code 
         context = createJSDOMContextRequire(<any> {
             dir, html: scriptToHTML(code), ...jsdomOptions
         });
-        Object.assign(context, { ...global, global: context });
-        Object.assign(context.window, { ...global, global: context });
+        Object.assign(context, { ...global, global: context, Buffer: global.Buffer });
+        Object.assign(context.window, { ...global, global: context, Buffer: global.Buffer });
         JSDOM_KEYS.forEach((key) => { try { (context as any)[key] = context.window[key]; } catch (e) {} });
         NODE_GLOBAL_KEYS.forEach((key) => { try { (context.window as any)[key] = global[key]; } catch (e) {} });
     }
@@ -107,14 +108,7 @@ export function createWindow(code: Function | string, runInThisContext = false) 
 }
 
 export function createModuleWindow(id: string, runInThisContext = false) {
-    return createWindow(`function(props) {
-        var result = require('${id}');
-        result = result.default || result;
-        if (typeof result === 'function') {
-            return result(props);
-        }
-        return result;
-    }`, runInThisContext);
+    return createWindow(`function() { return require('${id}'); }`, runInThisContext);
 }
 
 export function createReactWindow(id: string, runInThisContext = false) {
@@ -133,7 +127,16 @@ export function createReactWindow(id: string, runInThisContext = false) {
 
 process.on(<any> 'uncaughtException', (err: Error, origin: any) => {
     process.stderr.write(
-        `Exception origin: ${origin}\n` +
-        `Caught exception: ${err && err.stack || err}\n`
+        `Uncaught Exception\n` +
+        (origin ? `Origin: ${origin}\n` : '') +
+        `Exception: ${err && err.stack || err}\n`
+    );
+});
+
+process.on(<any> 'unhandledRejection', (err: Error, promise: any) => {
+    process.stderr.write(
+        `Unhandled Promise Rejection\n` +
+        (promise ? `Promise: ${promise}\n` : '') +
+        `Exception: ${err && err.stack || err}\n`
     );
 });

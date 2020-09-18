@@ -5,12 +5,16 @@
             "path": "."
         },
         {
-            "name": "cmake-modules",
-            "path": "modules/cmake-modules"
+            "name": "core",
+            "path": "modules/core"
         },
         {
             "name": "cuda",
             "path": "modules/cuda"
+        },
+        {
+            "name": "cudf",
+            "path": "modules/cudf"
         },
         {
             "name": "cugraph",

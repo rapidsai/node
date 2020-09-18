@@ -42,7 +42,7 @@ endif(NOT NODE_WEBGL_STATIC_LINK)
 # - cmake modules ---------------------------------------------------------------------------------
 
 execute_process(COMMAND node -p
-                "require('@nvidia/cmake-modules').cmake_modules_path"
+                "require('@nvidia/rapids-core').cmake_modules_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -62,13 +62,13 @@ include(ConfigureOpenGLFW)
 include_directories("${GLEW_INCLUDE_DIR}"
                     "${GLFW_INCLUDE_DIR}"
                     "${OPENGL_INCLUDE_DIR}"
-                    "${DISPLAY_SERVER_INCLUDE_DIRS}"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+                    "${RAPIDS_CORE_INCLUDE_DIR}"
+                    "${DISPLAY_SERVER_INCLUDE_DIRS}")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
-file(GLOB_RECURSE NODE_WEBGL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/*.cpp")
+file(GLOB_RECURSE NODE_WEBGL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_WEBGL_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")

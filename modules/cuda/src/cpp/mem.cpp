@@ -37,10 +37,21 @@ void freeHostPtr(Napi::Env const& env, void* ptr) {
 }  // namespace detail
 
 // cudaError_t cudaMalloc(void **devPtr, size_t size);
-Napi::Value cudaMalloc(Napi::CallbackInfo const& info) {
+// Napi::Value cudaMalloc(Napi::CallbackInfo const& info) {
+//   auto env = info.Env();
+//   void* data{nullptr};
+//   size_t size = FromJS(info[0]);
+//   if (size > 0) {
+//     CUDA_TRY(env, CUDARTAPI::cudaMalloc(&data, size));
+//     Napi::MemoryManagement::AdjustExternalMemory(env, size);
+//   }
+//   return CUDABuffer::New(data, size);
+// }
+
+Napi::Value cudaMalloc(CallbackArgs const& info) {
   auto env = info.Env();
   void* data{nullptr};
-  size_t size = FromJS(info[0]);
+  size_t size = info[0];
   if (size > 0) {
     CUDA_TRY(env, CUDARTAPI::cudaMalloc(&data, size));
     Napi::MemoryManagement::AdjustExternalMemory(env, size);
@@ -105,12 +116,6 @@ Napi::Value cudaMemcpy(Napi::CallbackInfo const& info) {
   uint8_t* src_data = FromJS(info[2]);
   size_t src_offset = FromJS(info[3]);
   size_t size       = FromJS(info[4]);
-  std::cerr << "dst_data: " << reinterpret_cast<size_t>(dst_data) << "\n"
-            << "dst_offset: " << dst_offset << "\n"
-            << "src_data: " << reinterpret_cast<size_t>(src_data) << "\n"
-            << "src_offset: " << src_offset << "\n"
-            << "size: " << size << "\n"  //
-            << std::endl;
   if (dst_data != nullptr && src_data != nullptr && size > 0) {
     CUDA_TRY(
       env,

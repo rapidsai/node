@@ -38,8 +38,8 @@ export default async function* loadGraphData(props = {}) {
         ipcHandles,
         flatMap(async function* (buf) {
             const msg = tryJSONParse(buf);
-            numEdges = Math.max(numEdges, msg.num_edges);
-            numNodes = Math.max(numNodes, msg.num_nodes);
+            numEdges = Math.max(numEdges, msg.num_edges || 0);
+            numNodes = Math.max(numNodes, msg.num_nodes || 0);
             const edges = openMemHandles(msg.edge, edgeBufferNames);
             const nodes = openMemHandles(msg.node, nodeBufferNames);
             const bbox = [msg.x_min, msg.x_max, msg.y_min, msg.y_max];

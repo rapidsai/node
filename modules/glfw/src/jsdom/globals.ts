@@ -170,5 +170,5 @@ try {
 } catch (e) {}
 
 module.exports = function(options: GLFWDOMWindowOptions) {
-    (<any> window as GLFWDOMWindow).init({ width: 800, height: 600, ...options }).show();
+    (<any> window as GLFWDOMWindow).init({ width: 800, height: 600, ...options });
 };

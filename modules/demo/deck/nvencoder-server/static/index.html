@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>nvencoder demo</title>
+</head>
+<body style="background:#2e2e2e; margin:0;">
+    <video autoplay muted width="800" height="600"></video>
+    <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.7.2/simplepeer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script>
+        var video = document.querySelector('video');
+        var peer = new SimplePeer({ initiator: true, trickle: false });
+        var sock = io({ transports: ['websocket'], reconnection: false });
+
+        sock.on('signal', (data) => peer.signal(data));
+        peer.on('signal', (data) => sock.emit('signal', data));
+
+        peer.on('stream', (stream) => {
+
+            ('srcObject' in video)
+                ? (video.srcObject = stream)
+                : (video.src = window.URL.createObjectURL(stream));  // for older browsers
+            video.play();
+
+            peer.send('play');
+        });
+
+        dispatchRemoteEvent(video, 'blur');
+        dispatchRemoteEvent(video, 'focus');
+        dispatchRemoteEvent(video, 'wheel');
+        dispatchRemoteEvent(document, 'keyup');
+        dispatchRemoteEvent(document, 'keydown');
+        dispatchRemoteEvent(document, 'keypress');
+        dispatchRemoteEvent(video, 'mouseup');
+        dispatchRemoteEvent(video, 'mousemove');
+        dispatchRemoteEvent(video, 'mousedown');
+        dispatchRemoteEvent(video, 'mouseenter');
+        dispatchRemoteEvent(video, 'mouseleave');
+
+        function dispatchRemoteEvent(target, type) {
+            target.addEventListener(type, (e) => {
+                peer.send(JSON.stringify({
+                    event: Object
+                        .getOwnPropertyNames(Object.getPrototypeOf(e))
+                        .reduce((event, field) => {
+                            switch (typeof e[field]) {
+                                case 'object': break;
+                                case 'symbol': break;
+                                case 'function': break;
+                                default: event[field] = e[field];
+                            }
+                            return event;
+                        }, { type: e.type })
+                }));
+            });
+        };
+
+    </script>
+</body>
+</html>

@@ -17,7 +17,11 @@
     "@nvidia/glfw": "0.0.1",
     "@nvidia/nvencoder": "0.0.1",
     "@nvidia/webgl": "0.0.1",
-    "fastify": "3.3.0"
+    "fastify": "3.3.0",
+    "fastify-static": "3.2.0",
+    "fastify-socket.io": "0.0.1",
+    "simple-peer": "9.7.2",
+    "wrtc": "0.4.6"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",

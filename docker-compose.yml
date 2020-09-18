@@ -1,6 +1,7 @@
 version: "3.8"
 
 x-common-service-settings: &common_service_settings
+  env_file: .env
   cap_add:
     - SYS_PTRACE
   tty: true
@@ -12,7 +13,7 @@ services:
 
   runtime:
     <<: *common_service_settings
-    image: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-10.2}-runtime-${LINUX_VERSION:-ubuntu18.04}
+    image: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-11.0}-runtime-${LINUX_VERSION:-ubuntu18.04}
     build: &runtime_build_settings
       dockerfile: dockerfiles/runtime.Dockerfile
       context: .
@@ -20,16 +21,17 @@ services:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
         PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
-        CUDA_VERSION: "${CUDA_VERSION:-10.2}"
+        CUDA_VERSION: "${CUDA_VERSION:-11.0}"
+        NODE_VERSION: "${NODE_VERSION:-14.10.1}"
         RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
         LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
     environment: &runtime_environment_variables
       # Colorize the terminal in the container if possible
-      TERM: "${TERM}"
+      TERM: "${TERM:-}"
       # Use the host's X11 display
-      DISPLAY: "${DISPLAY}"
-      XAUTHORITY: "${XAUTHORITY}"
-      XDG_SESSION_TYPE: "${XDG_SESSION_TYPE}"
+      DISPLAY: "${DISPLAY:-}"
+      XAUTHORITY: "${XAUTHORITY:-}"
+      XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
       NVIDIA_DRIVER_CAPABILITIES: "all"
     volumes:
       - &workdir "${PWD}:${PWD}:rw"
@@ -40,7 +42,7 @@ services:
 
   devel:
     <<: *common_service_settings
-    image: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-10.2}-devel-${LINUX_VERSION:-ubuntu18.04}
+    image: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-11.0}-devel-${LINUX_VERSION:-ubuntu18.04}
     build:
       <<: *runtime_build_settings
       dockerfile: dockerfiles/devel.Dockerfile

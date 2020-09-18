@@ -39,7 +39,7 @@ function registerCUDAGraphicsResources(webGLToCUDABufferMap, cudaResourceToBuffe
     webGLBuffers.forEach((glBuffer) => {
         if (!webGLToCUDABufferMap.has(glBuffer) || !webGLToCUDABufferMap.get(glBuffer)[1]) {
             try {
-                const cuGraphicsResource = CUDA.gl.registerBuffer(glBuffer.handle._, 0);
+                const cuGraphicsResource = CUDA.gl.registerBuffer(glBuffer.handle.ptr, 0);
                 webGLToCUDABufferMap.set(glBuffer, [cuGraphicsResource, null]);
                 cudaResourceToBuffersMap.set(cuGraphicsResource, [glBuffer, null]);
             } catch (e) {}
