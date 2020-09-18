@@ -10,6 +10,7 @@
     "modules/demo/luma",
     "modules/demo/umap",
     "modules/demo/xterm",
+    "modules/demo/cugraph",
     "modules/demo/deck/*"
   ]
 }

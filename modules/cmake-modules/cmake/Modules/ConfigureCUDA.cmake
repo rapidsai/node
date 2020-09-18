@@ -34,6 +34,8 @@ endif()
 
 # Always set this convenience variable
 set(CUDA_VERSION_STRING "${CUDA_VERSION}")
+set(CMAKE_CUDA_STANDARD 14)
+set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 if(CUDA_VERSION VERSION_LESS "9.2")
   message(FATAL_ERROR "Unsupported CUDA toolkit version ${CUDA_VERSION_STRING}")
