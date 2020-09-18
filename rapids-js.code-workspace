@@ -17,6 +17,10 @@
             "path": "modules/cudf"
         },
         {
+            "name": "cugraph",
+            "path": "modules/cugraph"
+        },
+        {
             "name": "deck.gl",
             "path": "modules/deck.gl"
         },

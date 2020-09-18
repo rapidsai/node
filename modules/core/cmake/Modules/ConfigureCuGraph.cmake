@@ -16,15 +16,17 @@
 
 include(get_cpm)
 
-CPMAddPackage(NAME rmm
-    VERSION        ${RMM_VERSION}
-    GIT_REPOSITORY https://github.com/rapidsai/rmm.git
-    GIT_TAG        branch-${RMM_VERSION}
-    OPTIONS        "BUILD_TESTS OFF"
-                   "BUILD_BENCHMARKS OFF"
-                   "DISABLE_DEPRECATION_WARNINGS ${DISABLE_DEPRECATION_WARNINGS}"
+CPMAddPackage(NAME cugraph
+    VERSION        ${CUGRAPH_VERSION}
+    GIT_REPOSITORY https://github.com/rapidsai/cugraph.git
+    GIT_TAG        branch-${CUGRAPH_VERSION}
+    DOWNLOAD_ONLY
 )
 
-message(STATUS "rmm source dir: " ${rmm_SOURCE_DIR})
+message(STATUS "cugraph source dir: " ${cugraph_SOURCE_DIR})
 
-set(RMM_INCLUDE_DIR "${rmm_SOURCE_DIR}/include")
+set(CUGRAPH_INCLUDE_DIR_REAL "${cugraph_SOURCE_DIR}/cpp/include")
+set(CUGRAPH_INCLUDE_DIR "${cugraph_SOURCE_DIR}/cpp/fake_include")
+
+execute_process(COMMAND mkdir -p "${CUGRAPH_INCLUDE_DIR}")
+execute_process(COMMAND ln -s -f ${CUGRAPH_INCLUDE_DIR_REAL} "${CUGRAPH_INCLUDE_DIR}/cugraph")
