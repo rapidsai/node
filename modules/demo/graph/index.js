@@ -23,12 +23,25 @@ require('@babel/register')({
     ]
 });
 
-const { createReactWindow } = require('@nvidia/glfw');
-module.exports = createReactWindow(`${__dirname}/src/index.js`, true);
+const url = process.argv.slice(2).find((arg) => arg.includes('tcp://'));
+const serve = process.argv.slice(2).some((arg) => arg.includes('--serve'));
+
+if (!serve) {
+    module.exports = require('@nvidia/glfw').createReactWindow(`${__dirname}/src/index.js`, true);
+}
 
 if (require.main === module) {
-    module.exports.open({
-        transparent: false,
-        url: require('url').parse(process.argv[2])
-    });
+    if (serve) {
+        require(`./server.js`)({ url: require('url').parse(url) });
+        // require('@nvidia/glfw')
+        //     .createModuleWindow(`${__dirname}/src/server.js`, true)
+        //     .open({ ...opts, _title: 'graph server' });
+    } else {
+        module.exports.open({
+            visible: true,
+            transparent: false,
+            _title: 'graph client',
+            url: require('url').parse(url),
+        });
+    }
 }

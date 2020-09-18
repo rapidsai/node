@@ -55,7 +55,8 @@ function createJSDOMContext(dir = process.cwd(), runInThisContext = false, code 
     let context: any;
     const processClone = Object.create(process, {
         browser: { value: true },
-        type:  { value: 'renderer' }
+        glfwWindow: { value: true },
+        type:  { value: 'renderer' },
     });
     if (runInThisContext) {
         if (!(global as any).window) {
@@ -76,8 +77,8 @@ function createJSDOMContext(dir = process.cwd(), runInThisContext = false, code 
         context = createJSDOMContextRequire(<any> {
             dir, html: scriptToHTML(code), ...jsdomOptions
         });
-        Object.assign(context, { ...global, global: context });
-        Object.assign(context.window, { ...global, global: context });
+        Object.assign(context, { ...global, global: context, Buffer: global.Buffer });
+        Object.assign(context.window, { ...global, global: context, Buffer: global.Buffer });
         JSDOM_KEYS.forEach((key) => { try { (context as any)[key] = context.window[key]; } catch (e) {} });
         NODE_GLOBAL_KEYS.forEach((key) => { try { (context.window as any)[key] = global[key]; } catch (e) {} });
     }

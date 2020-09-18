@@ -13,5 +13,4 @@
 // limitations under the License.
 
 export * from './image';
-export * from './encoder/gl';
 export * from './encoder/cuda';

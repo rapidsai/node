@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "encoder/encoder.hpp"
-#include "encoder/frame.hpp"
 #include "macros.hpp"
 #include "nvEncodeAPI.h"
 
@@ -43,9 +42,6 @@ Napi::Object CUDANvEncoder::Init(Napi::Env env, Napi::Object exports) {
   CUDANvEncoder::constructor.SuppressDestruct();
 
   exports.Set("CUDANvEncoder", ctor);
-
-  ArrayInputFrame::Init(env, exports);
-  BufferInputFrame::Init(env, exports);
 
   return exports;
 }
@@ -172,98 +168,6 @@ Napi::Value CUDANvEncoder::GetBufferCount(Napi::CallbackInfo const& info) {
 
 Napi::Value CUDANvEncoder::GetBufferFormat(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(pixel_format_);
-}
-
-/**
- *
- * ArrayInputFrame
- *
- */
-
-Napi::FunctionReference ArrayInputFrame::constructor;
-
-Napi::Object ArrayInputFrame::Init(Napi::Env env, Napi::Object exports) {
-  auto ctor = DefineClass(
-    env,
-    "ArrayInputFrame",
-    {InstanceAccessor("array", &ArrayInputFrame::GetArray, nullptr, napi_enumerable),
-     InstanceAccessor("pitch", &ArrayInputFrame::GetPitch, nullptr, napi_enumerable),
-     InstanceAccessor("format", &ArrayInputFrame::GetBufferFormat, nullptr, napi_enumerable)});
-
-  ArrayInputFrame::constructor = Napi::Persistent(ctor);
-  ArrayInputFrame::constructor.SuppressDestruct();
-
-  return exports;
-}
-
-ArrayInputFrame::ArrayInputFrame(Napi::CallbackInfo const& info)
-  : Napi::ObjectWrap<ArrayInputFrame>(info) {}
-
-Napi::Object ArrayInputFrame::New(NvEncInputFrame const* frame) {
-  auto array = ArrayInputFrame::constructor.New({});
-  ArrayInputFrame::Unwrap(array)->frame_.reset(frame);
-  return array;
-}
-
-Napi::Value ArrayInputFrame::GetArray(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(frame_ != nullptr ? 0 : frame_->inputPtr);
-}
-
-Napi::Value ArrayInputFrame::GetPitch(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(frame_ == nullptr ? 0 : frame_->pitch);
-}
-
-Napi::Value ArrayInputFrame::GetBufferFormat(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(frame_ == nullptr ? 0 : frame_->bufferFormat);
-}
-
-/**
- *
- * BufferInputFrame
- *
- */
-
-Napi::FunctionReference BufferInputFrame::constructor;
-
-Napi::Object BufferInputFrame::Init(Napi::Env env, Napi::Object exports) {
-  auto ctor = DefineClass(
-    env,
-    "BufferInputFrame",
-    {InstanceAccessor("buffer", &BufferInputFrame::GetBuffer, nullptr, napi_enumerable),
-     InstanceAccessor("byteLength", &BufferInputFrame::GetByteLength, nullptr, napi_enumerable),
-     InstanceAccessor("pitch", &BufferInputFrame::GetPitch, nullptr, napi_enumerable),
-     InstanceAccessor("format", &BufferInputFrame::GetBufferFormat, nullptr, napi_enumerable)});
-
-  BufferInputFrame::constructor = Napi::Persistent(ctor);
-  BufferInputFrame::constructor.SuppressDestruct();
-
-  return exports;
-}
-
-BufferInputFrame::BufferInputFrame(Napi::CallbackInfo const& info)
-  : Napi::ObjectWrap<BufferInputFrame>(info) {}
-
-Napi::Object BufferInputFrame::New(NvEncInputFrame const* frame, size_t size) {
-  auto buffer = BufferInputFrame::constructor.New({});
-  BufferInputFrame::Unwrap(buffer)->frame_.reset(frame);
-  BufferInputFrame::Unwrap(buffer)->size_ = size;
-  return buffer;
-}
-
-Napi::Value BufferInputFrame::GetBuffer(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(frame_ != nullptr ? 0 : frame_->inputPtr);
-}
-
-Napi::Value BufferInputFrame::GetByteLength(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(frame_ == nullptr ? 0 : size_);
-}
-
-Napi::Value BufferInputFrame::GetPitch(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(frame_ == nullptr ? 0 : frame_->pitch);
-}
-
-Napi::Value BufferInputFrame::GetBufferFormat(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(frame_ == nullptr ? 0 : frame_->bufferFormat);
 }
 
 }  // namespace nv

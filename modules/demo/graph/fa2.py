@@ -32,7 +32,7 @@ import cugraph
 import asyncio
 import zmq.asyncio
 
-graph, nodes, edges = make_complex_dataset(direct=True)
+graph, nodes, edges = make_complex_dataset(direct=False)
 # graph, nodes, edges = make_small_dataset(direct=True)
 # graph, nodes, edges = make_large_dataset(direct=True)
 # graph, nodes, edges = make_cit_patents_dataset()
@@ -55,7 +55,7 @@ async def main(zmq_ctx):
     )
     cugraph.force_atlas2(
         graph,
-        max_iter=200,
+        max_iter=500,
         callback=callback,
     )
     callback.update(msg=b'close')

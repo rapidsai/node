@@ -208,10 +208,6 @@ struct CPPToNapi {
     return Napi::External<void>::New(env, graphExec);
   }
 
-  inline Napi::External<void> operator()(cudaFunction_t const& function) const {
-    return Napi::External<void>::New(env, function);
-  }
-
   inline Napi::External<void> operator()(cudaGraphicsResource_t const& resource) const {
     return Napi::External<void>::New(env, resource);
   }

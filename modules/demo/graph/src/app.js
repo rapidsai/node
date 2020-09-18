@@ -16,6 +16,7 @@ import React from 'react';
 import DeckGL from '@deck.gl/react';
 import { GraphLayer } from './layers/graph';
 import { OrthographicView } from '@deck.gl/core';
+import { createDeckGLReactRef } from '@nvidia/deck.gl';
 
 const loadGraphData = require(
     process.env.REACT_APP_ENVIRONMENT === 'browser'
@@ -26,9 +27,16 @@ const loadGraphData = require(
 import { as as asAsyncIterable } from 'ix/asynciterable/as';
 import { takeWhile } from 'ix/asynciterable/operators/takewhile';
 
+const composeFns = (fns) => function(...args) {
+    fns.forEach((fn) => fn && fn.apply(this, args));
+}
+
 export class App extends React.Component {
-    constructor(...args) {
-        super(...args);
+    constructor(props, context) {
+        if (props.serverRendered) {
+            Object.assign(props, createDeckGLReactRef());
+        }
+        super(props, context);
         this._isMounted = false;
         this.state = { graph: {}, autoCenter: true };
     }
@@ -42,20 +50,27 @@ export class App extends React.Component {
             .forEach((state) => this.setState(state));
     }
     render() {
-        const props = { ...this.props };
+        const { onAfterRender, ...props } = this.props;
         if (this.state.autoCenter && this.state.bbox) {
             const viewState = centerOnBbox(this.state.bbox);
             viewState && (props.initialViewState = viewState);
         }
         return (
             <DeckGL {...props}
-                onAfterRender={this.state.onAfterRender}
-                onViewStateChange={() => this.setState({ autoCenter: false })}>
+                onViewStateChange={() => this.setState({ autoCenter: false })}
+                _framebuffer={props.getRenderTarget ? props.getRenderTarget() : null}
+                onAfterRender={composeFns([onAfterRender, this.state.onAfterRender])}>
                 <GraphLayer
-                    edgeOpacity={.1}
+                    // edgeOpacity={.75}
+                    // nodesStroked={true}
+                    edgeStrokeWidth={2.5}
+                    // nodeFillOpacity={.75}
+                    // nodeStrokeOpacity={1}
+
+                    edgeOpacity={.25}
                     nodesStroked={true}
-                    edgeStrokeWidth={1.5}
-                    nodeFillOpacity={.1}
+                    // edgeStrokeWidth={1.5}
+                    nodeFillOpacity={.25}
                     nodeStrokeOpacity={.9}
                     {...this.state.graph}
                     />
@@ -68,7 +83,7 @@ export default App;
 
 App.defaultProps = {
     controller: true,
-    onWebGLInitialized,
+    // onWebGLInitialized,
     onHover: onDragEnd,
     onDrag: onDragStart,
     onDragEnd: onDragEnd,
@@ -80,7 +95,8 @@ App.defaultProps = {
     views: [
         new OrthographicView({
             clear: {
-                color: [...[51, 51, 57].map((x) => x / 255), 1]
+                // color: [...[0, 0, 0].map((x) => x / 255), 1]
+                color: [...[46, 46, 46].map((x) => x / 255), 1]
             }
         })
     ],

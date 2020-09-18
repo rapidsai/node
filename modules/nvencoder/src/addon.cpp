@@ -14,7 +14,6 @@
 
 #include "addon.hpp"
 #include "encoder/encoder.hpp"
-#include "encoder/frame.hpp"
 #include "macros.hpp"
 
 #include <dlfcn.h>
@@ -41,7 +40,7 @@ Napi::Value init(Napi::CallbackInfo const& info) {
 
 Napi::Object init_module(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "init", nv::init);
-  nv::GLNvEncoder::Init(env, exports);
+
   nv::CUDANvEncoder::Init(env, exports);
 
   auto image = Napi::Object::New(env);

@@ -60,34 +60,6 @@ class CUDANvEncoder : public Napi::ObjectWrap<CUDANvEncoder> {
   std::unique_ptr<NvEncoderCuda> encoder_{nullptr};
 };
 
-class GLNvEncoder : public Napi::ObjectWrap<GLNvEncoder> {
- public:
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
-  static Napi::Value New(uint32_t encoderWidth,
-                         uint32_t encoderHeight,
-                         NV_ENC_BUFFER_FORMAT bufferFormat);
-
-  GLNvEncoder(Napi::CallbackInfo const& info);
-
-  void Initialize(uint32_t encoderWidth, uint32_t encoderHeight, NV_ENC_BUFFER_FORMAT bufferFormat);
-
-  NvEncoderGL& encoder() { return *encoder_; }
-
- private:
-  static Napi::FunctionReference constructor;
-
-  Napi::Value EndEncode(Napi::CallbackInfo const& info);
-  Napi::Value EncodeFrame(Napi::CallbackInfo const& info);
-  Napi::Value GetNextTextureInputFrame(Napi::CallbackInfo const& info);
-
-  Napi::Value GetFrameSize(Napi::CallbackInfo const& info);
-  Napi::Value GetBufferCount(Napi::CallbackInfo const& info);
-  Napi::Value GetBufferFormat(Napi::CallbackInfo const& info);
-
-  NV_ENC_BUFFER_FORMAT pixel_format_{};
-  std::unique_ptr<NvEncoderGL> encoder_{nullptr};
-};
-
 inline std::vector<napi_value> encoded_frame_array_buffers(
   Napi::Env env, std::vector<std::vector<uint8_t>> const& frames_) {
   std::vector<napi_value> results(frames_.size() + 1);
