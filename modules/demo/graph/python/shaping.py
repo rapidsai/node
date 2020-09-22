@@ -17,7 +17,7 @@ import cudf
 import numpy as np
 import pandas as pd
 from math import ceil
-from cugraph.structure import graph_new_wrapper
+from cugraph.structure import graph_primtypes_wrapper
 
 
 def shape_graph(graph=None,
@@ -172,7 +172,7 @@ def _stack_columns(df):
 
 
 def _degrees_to_size(G):
-    degrees = graph_new_wrapper._degrees(G)
+    degrees = graph_primtypes_wrapper._degrees(G)
     degrees = cudf.Series(degrees[1], dtype=np.uint32) + \
               cudf.Series(degrees[2], dtype=np.uint32)
     return degrees.scale() * 250 + 5
