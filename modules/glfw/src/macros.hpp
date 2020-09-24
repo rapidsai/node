@@ -32,10 +32,10 @@
     nullptr));
 
 #define GLFW_THROW(env, code, err) \
-  NAPI_THROW(node_glfw::glfwError(env, code, err, __FILE__, __LINE__), (e).Undefined())
+  NAPI_THROW(nv::glfwError(env, code, err, __FILE__, __LINE__), (e).Undefined())
 
-#define GLFW_THROW_ASYNC(task, code, err)                                                     \
-  (task)->Reject(node_glfw::glfwError((task)->Env(), code, err, __FILE__, __LINE__).Value()); \
+#define GLFW_THROW_ASYNC(task, code, err)                                              \
+  (task)->Reject(nv::glfwError((task)->Env(), code, err, __FILE__, __LINE__).Value()); \
   return (task)->Promise()
 
 #define GLFW_TRY(env, expr)                                    \

@@ -16,7 +16,7 @@
 
 #include "glfw.hpp"
 
-namespace node_glfw {
+namespace nv {
 
 namespace detail {
 inline std::string glfwGetErrorName(int code) {
@@ -45,4 +45,4 @@ inline Napi::Error glfwError(
   return Napi::Error::New(env, msg);
 }
 
-}  // namespace node_glfw
+}  // namespace nv

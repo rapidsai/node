@@ -62,13 +62,14 @@ include(ConfigureOpenGLFW)
 include_directories("${GLEW_INCLUDE_DIR}"
                     "${GLFW_INCLUDE_DIR}"
                     "${OPENGL_INCLUDE_DIR}"
+                    "${RAPIDS_CORE_INCLUDE_DIR}"
                     "${DISPLAY_SERVER_INCLUDE_DIRS}"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
-file(GLOB_RECURSE NODE_GLFW_SRC_FILES "src/cpp/*.cpp")
+file(GLOB_RECURSE NODE_GLFW_SRC_FILES "src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_GLFW_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")

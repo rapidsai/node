@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_glfw/addon.hpp>
-#include <node_glfw/casting.hpp>
-#include <node_glfw/glfw.hpp>
-#include <node_glfw/macros.hpp>
+#include "addon.hpp"
+#include "glfw.hpp"
+#include "macros.hpp"
 
-std::ostream& operator<<(std::ostream& os, const node_glfw::FromJS& self) {
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
+
+std::ostream& operator<<(std::ostream& os, const nv::NapiToCPP& self) {
   return os << self.operator std::string();
 };
 
-namespace node_glfw {
+namespace nv {
 
 // GLFWAPI int glfwInit(void);
 Napi::Value glfwInit(Napi::CallbackInfo const& info) {
@@ -40,7 +42,8 @@ Napi::Value glfwTerminate(Napi::CallbackInfo const& info) {
 // GLFWAPI void glfwInitHint(int hint, int value);
 Napi::Value glfwInitHint(Napi::CallbackInfo const& info) {
   auto env = info.Env();
-  GLFW_TRY(env, GLFWAPI::glfwInitHint(FromJS(info[0]), FromJS(info[1])));
+  CallbackArgs args{info};
+  GLFW_TRY(env, GLFWAPI::glfwInitHint(args[0], args[1]));
   return env.Undefined();
 }
 
@@ -49,14 +52,17 @@ Napi::Value glfwGetVersion(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   int32_t major{}, minor{}, rev{};
   GLFW_TRY(env, GLFWAPI::glfwGetVersion(&major, &minor, &rev));
-  return ToNapi(env)(
-    std::map<std::string, int32_t>{{"major", major}, {"minor", minor}, {"rev", rev}});
+  return CPPToNapi(info)(std::map<std::string, int32_t>{//
+                                                        {"major", major},
+                                                        {"minor", minor},
+                                                        {"rev", rev}});
 }
 
 // GLFWAPI const char* glfwGetVersionString(void);
 Napi::Value glfwGetVersionString(Napi::CallbackInfo const& info) {
   auto env = info.Env();
-  return ToNapi(env)(GLFWAPI::glfwGetVersionString());
+  std::string version{GLFWAPI::glfwGetVersionString()};
+  return CPPToNapi(info)(version);
 }
 
 // GLFWAPI int glfwGetError(const char** description);
@@ -65,60 +71,69 @@ Napi::Value glfwGetError(Napi::CallbackInfo const& info) {
   const char* err = nullptr;
   const int code  = GLFWAPI::glfwGetError(&err);
   if (code == GLFW_NO_ERROR) { return env.Undefined(); }
-  return node_glfw::glfwError(env, code, err, __FILE__, __LINE__).Value();
+  return nv::glfwError(env, code, err, __FILE__, __LINE__).Value();
 }
 
 // GLFWAPI const char* glfwGetKeyName(int key, int scancode);
 Napi::Value glfwGetKeyName(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(GLFWAPI::glfwGetKeyName(FromJS(info[0]), FromJS(info[1])));
+  CallbackArgs args{info};
+  std::string name{GLFWAPI::glfwGetKeyName(args[0], args[1])};
+  return CPPToNapi(info)(name);
 }
 
 // GLFWAPI int glfwGetKeyScancode(int key);
 Napi::Value glfwGetKeyScancode(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(GLFWAPI::glfwGetKeyScancode(FromJS(info[0])));
+  CallbackArgs args{info};
+  return CPPToNapi(info)(GLFWAPI::glfwGetKeyScancode(args[0]));
 }
 
 // GLFWAPI double glfwGetTime(void);
 Napi::Value glfwGetTime(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(GLFWAPI::glfwGetTime());
+  return CPPToNapi(info)(GLFWAPI::glfwGetTime());
 }
 
 // GLFWAPI void glfwSetTime(double time);
 Napi::Value glfwSetTime(Napi::CallbackInfo const& info) {
   auto env = info.Env();
-  GLFW_TRY(env, GLFWAPI::glfwSetTime(FromJS(info[0])));
+  CallbackArgs args{info};
+  GLFW_TRY(env, GLFWAPI::glfwSetTime(args[0]));
   return env.Undefined();
 }
 
 // GLFWAPI uint64_t glfwGetTimerValue(void);
 Napi::Value glfwGetTimerValue(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(GLFWAPI::glfwGetTimerValue());
+  return CPPToNapi(info)(GLFWAPI::glfwGetTimerValue());
 }
 
 // GLFWAPI uint64_t glfwGetTimerFrequency(void);
 Napi::Value glfwGetTimerFrequency(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(GLFWAPI::glfwGetTimerFrequency());
+  return CPPToNapi(info)(GLFWAPI::glfwGetTimerFrequency());
 }
 
 // GLFWAPI void glfwSwapInterval(int interval);
 Napi::Value glfwSwapInterval(Napi::CallbackInfo const& info) {
   auto env = info.Env();
-  GLFW_TRY(env, GLFWAPI::glfwSwapInterval(FromJS(info[0])));
+  CallbackArgs args{info};
+  GLFW_TRY(env, GLFWAPI::glfwSwapInterval(args[0]));
   return env.Undefined();
 }
 
 // GLFWAPI int glfwExtensionSupported(const char* extension);
 Napi::Value glfwExtensionSupported(Napi::CallbackInfo const& info) {
-  auto env              = info.Env();
-  std::string extension = FromJS(info[0]);
-  return ToNapi(env)(static_cast<bool>(GLFWAPI::glfwExtensionSupported(extension.data())));
+  auto env = info.Env();
+  CallbackArgs args{info};
+  std::string extension       = args[0];
+  auto is_extension_supported = GLFWAPI::glfwExtensionSupported(extension.data());
+  return CPPToNapi(info)(static_cast<bool>(is_extension_supported));
 }
 
 // GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname);
 Napi::Value glfwGetProcAddress(Napi::CallbackInfo const& info) {
-  auto env             = info.Env();
-  std::string procname = FromJS(info[0]);
-  return ToNapi(env)(GLFWAPI::glfwGetProcAddress(procname.data()));
+  auto env = info.Env();
+  CallbackArgs args{info};
+  std::string name = args[0];
+  auto addr        = GLFWAPI::glfwGetProcAddress(name.data());
+  return CPPToNapi(info)(reinterpret_cast<char*>(addr));
 }
 
 // GLFWAPI const char** glfwGetRequiredInstanceExtensions(uint32_t* count);
@@ -126,127 +141,124 @@ Napi::Value glfwGetRequiredInstanceExtensions(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   uint32_t count{};
   const char** exts = GLFWAPI::glfwGetRequiredInstanceExtensions(&count);
-  return ToNapi(env)(std::vector<std::string>{exts, exts + count});
+  return CPPToNapi(info)(std::vector<std::string>{exts, exts + count});
 }
 
-}  // namespace node_glfw
+}  // namespace nv
 
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", node_glfw::glfwInit);
-  EXPORT_FUNC(env, exports, "terminate", node_glfw::glfwTerminate);
-  EXPORT_FUNC(env, exports, "initHint", node_glfw::glfwInitHint);
-  EXPORT_FUNC(env, exports, "getVersion", node_glfw::glfwGetVersion);
-  EXPORT_FUNC(env, exports, "getVersionString", node_glfw::glfwGetVersionString);
-  EXPORT_FUNC(env, exports, "setErrorCallback", node_glfw::glfwSetErrorCallback);
-  EXPORT_FUNC(env, exports, "getMonitors", node_glfw::glfwGetMonitors);
-  EXPORT_FUNC(env, exports, "getPrimaryMonitor", node_glfw::glfwGetPrimaryMonitor);
-  EXPORT_FUNC(env, exports, "getMonitorPos", node_glfw::glfwGetMonitorPos);
-  EXPORT_FUNC(env, exports, "getMonitorWorkarea", node_glfw::glfwGetMonitorWorkarea);
-  EXPORT_FUNC(env, exports, "getMonitorPhysicalSize", node_glfw::glfwGetMonitorPhysicalSize);
-  EXPORT_FUNC(env, exports, "getMonitorContentScale", node_glfw::glfwGetMonitorContentScale);
-  EXPORT_FUNC(env, exports, "getMonitorName", node_glfw::glfwGetMonitorName);
-  EXPORT_FUNC(env, exports, "setMonitorCallback", node_glfw::glfwSetMonitorCallback);
-  EXPORT_FUNC(env, exports, "getVideoModes", node_glfw::glfwGetVideoModes);
-  EXPORT_FUNC(env, exports, "getVideoMode", node_glfw::glfwGetVideoMode);
-  EXPORT_FUNC(env, exports, "setGamma", node_glfw::glfwSetGamma);
-  EXPORT_FUNC(env, exports, "getGammaRamp", node_glfw::glfwGetGammaRamp);
-  EXPORT_FUNC(env, exports, "setGammaRamp", node_glfw::glfwSetGammaRamp);
-  EXPORT_FUNC(env, exports, "defaultWindowHints", node_glfw::glfwDefaultWindowHints);
-  EXPORT_FUNC(env, exports, "windowHint", node_glfw::glfwWindowHint);
-  EXPORT_FUNC(env, exports, "windowHintString", node_glfw::glfwWindowHintString);
-  EXPORT_FUNC(env, exports, "createWindow", node_glfw::glfwCreateWindow);
+  EXPORT_FUNC(env, exports, "init", nv::glfwInit);
+  EXPORT_FUNC(env, exports, "terminate", nv::glfwTerminate);
+  EXPORT_FUNC(env, exports, "initHint", nv::glfwInitHint);
+  EXPORT_FUNC(env, exports, "getVersion", nv::glfwGetVersion);
+  EXPORT_FUNC(env, exports, "getVersionString", nv::glfwGetVersionString);
+  EXPORT_FUNC(env, exports, "setErrorCallback", nv::glfwSetErrorCallback);
+  EXPORT_FUNC(env, exports, "getMonitors", nv::glfwGetMonitors);
+  EXPORT_FUNC(env, exports, "getPrimaryMonitor", nv::glfwGetPrimaryMonitor);
+  EXPORT_FUNC(env, exports, "getMonitorPos", nv::glfwGetMonitorPos);
+  EXPORT_FUNC(env, exports, "getMonitorWorkarea", nv::glfwGetMonitorWorkarea);
+  EXPORT_FUNC(env, exports, "getMonitorPhysicalSize", nv::glfwGetMonitorPhysicalSize);
+  EXPORT_FUNC(env, exports, "getMonitorContentScale", nv::glfwGetMonitorContentScale);
+  EXPORT_FUNC(env, exports, "getMonitorName", nv::glfwGetMonitorName);
+  EXPORT_FUNC(env, exports, "setMonitorCallback", nv::glfwSetMonitorCallback);
+  EXPORT_FUNC(env, exports, "getVideoModes", nv::glfwGetVideoModes);
+  EXPORT_FUNC(env, exports, "getVideoMode", nv::glfwGetVideoMode);
+  EXPORT_FUNC(env, exports, "setGamma", nv::glfwSetGamma);
+  EXPORT_FUNC(env, exports, "getGammaRamp", nv::glfwGetGammaRamp);
+  EXPORT_FUNC(env, exports, "setGammaRamp", nv::glfwSetGammaRamp);
+  EXPORT_FUNC(env, exports, "defaultWindowHints", nv::glfwDefaultWindowHints);
+  EXPORT_FUNC(env, exports, "windowHint", nv::glfwWindowHint);
+  EXPORT_FUNC(env, exports, "windowHintString", nv::glfwWindowHintString);
+  EXPORT_FUNC(env, exports, "createWindow", nv::glfwCreateWindow);
 #ifdef __linux__
-  EXPORT_FUNC(env, exports, "reparentWindow", node_glfw::glfwReparentWindow);
+  EXPORT_FUNC(env, exports, "reparentWindow", nv::glfwReparentWindow);
 #endif
-  EXPORT_FUNC(env, exports, "destroyWindow", node_glfw::glfwDestroyWindow);
-  EXPORT_FUNC(env, exports, "windowShouldClose", node_glfw::glfwWindowShouldClose);
-  EXPORT_FUNC(env, exports, "setWindowShouldClose", node_glfw::glfwSetWindowShouldClose);
-  EXPORT_FUNC(env, exports, "setWindowTitle", node_glfw::glfwSetWindowTitle);
-  EXPORT_FUNC(env, exports, "setWindowIcon", node_glfw::glfwSetWindowIcon);
-  EXPORT_FUNC(env, exports, "getWindowPos", node_glfw::glfwGetWindowPos);
-  EXPORT_FUNC(env, exports, "setWindowPos", node_glfw::glfwSetWindowPos);
-  EXPORT_FUNC(env, exports, "getWindowSize", node_glfw::glfwGetWindowSize);
-  EXPORT_FUNC(env, exports, "setWindowSizeLimits", node_glfw::glfwSetWindowSizeLimits);
-  EXPORT_FUNC(env, exports, "setWindowAspectRatio", node_glfw::glfwSetWindowAspectRatio);
-  EXPORT_FUNC(env, exports, "setWindowSize", node_glfw::glfwSetWindowSize);
-  EXPORT_FUNC(env, exports, "getFramebufferSize", node_glfw::glfwGetFramebufferSize);
-  EXPORT_FUNC(env, exports, "getWindowFrameSize", node_glfw::glfwGetWindowFrameSize);
-  EXPORT_FUNC(env, exports, "getWindowContentScale", node_glfw::glfwGetWindowContentScale);
-  EXPORT_FUNC(env, exports, "getWindowOpacity", node_glfw::glfwGetWindowOpacity);
-  EXPORT_FUNC(env, exports, "setWindowOpacity", node_glfw::glfwSetWindowOpacity);
-  EXPORT_FUNC(env, exports, "iconifyWindow", node_glfw::glfwIconifyWindow);
-  EXPORT_FUNC(env, exports, "restoreWindow", node_glfw::glfwRestoreWindow);
-  EXPORT_FUNC(env, exports, "maximizeWindow", node_glfw::glfwMaximizeWindow);
-  EXPORT_FUNC(env, exports, "showWindow", node_glfw::glfwShowWindow);
-  EXPORT_FUNC(env, exports, "hideWindow", node_glfw::glfwHideWindow);
-  EXPORT_FUNC(env, exports, "focusWindow", node_glfw::glfwFocusWindow);
-  EXPORT_FUNC(env, exports, "requestWindowAttention", node_glfw::glfwRequestWindowAttention);
-  EXPORT_FUNC(env, exports, "getWindowMonitor", node_glfw::glfwGetWindowMonitor);
-  EXPORT_FUNC(env, exports, "setWindowMonitor", node_glfw::glfwSetWindowMonitor);
-  EXPORT_FUNC(env, exports, "getWindowAttrib", node_glfw::glfwGetWindowAttrib);
-  EXPORT_FUNC(env, exports, "setWindowAttrib", node_glfw::glfwSetWindowAttrib);
-  EXPORT_FUNC(env, exports, "setWindowPosCallback", node_glfw::glfwSetWindowPosCallback);
-  EXPORT_FUNC(env, exports, "setWindowSizeCallback", node_glfw::glfwSetWindowSizeCallback);
-  EXPORT_FUNC(env, exports, "setWindowCloseCallback", node_glfw::glfwSetWindowCloseCallback);
-  EXPORT_FUNC(env, exports, "setWindowRefreshCallback", node_glfw::glfwSetWindowRefreshCallback);
-  EXPORT_FUNC(env, exports, "setWindowFocusCallback", node_glfw::glfwSetWindowFocusCallback);
-  EXPORT_FUNC(env, exports, "setWindowIconifyCallback", node_glfw::glfwSetWindowIconifyCallback);
-  EXPORT_FUNC(env, exports, "setWindowMaximizeCallback", node_glfw::glfwSetWindowMaximizeCallback);
-  EXPORT_FUNC(
-    env, exports, "setFramebufferSizeCallback", node_glfw::glfwSetFramebufferSizeCallback);
-  EXPORT_FUNC(
-    env, exports, "setWindowContentScaleCallback", node_glfw::glfwSetWindowContentScaleCallback);
-  EXPORT_FUNC(env, exports, "pollEvents", node_glfw::glfwPollEvents);
-  EXPORT_FUNC(env, exports, "waitEvents", node_glfw::glfwWaitEvents);
-  EXPORT_FUNC(env, exports, "waitEventsTimeout", node_glfw::glfwWaitEventsTimeout);
-  EXPORT_FUNC(env, exports, "postEmptyEvent", node_glfw::glfwPostEmptyEvent);
-  EXPORT_FUNC(env, exports, "getInputMode", node_glfw::glfwGetInputMode);
-  EXPORT_FUNC(env, exports, "setInputMode", node_glfw::glfwSetInputMode);
-  EXPORT_FUNC(env, exports, "rawMouseMotionSupported", node_glfw::glfwRawMouseMotionSupported);
-  EXPORT_FUNC(env, exports, "getKeyName", node_glfw::glfwGetKeyName);
-  EXPORT_FUNC(env, exports, "getKeyScancode", node_glfw::glfwGetKeyScancode);
-  EXPORT_FUNC(env, exports, "getKey", node_glfw::glfwGetKey);
-  EXPORT_FUNC(env, exports, "getMouseButton", node_glfw::glfwGetMouseButton);
-  EXPORT_FUNC(env, exports, "getCursorPos", node_glfw::glfwGetCursorPos);
-  EXPORT_FUNC(env, exports, "setCursorPos", node_glfw::glfwSetCursorPos);
-  EXPORT_FUNC(env, exports, "createCursor", node_glfw::glfwCreateCursor);
-  EXPORT_FUNC(env, exports, "createStandardCursor", node_glfw::glfwCreateStandardCursor);
-  EXPORT_FUNC(env, exports, "destroyCursor", node_glfw::glfwDestroyCursor);
-  EXPORT_FUNC(env, exports, "setCursor", node_glfw::glfwSetCursor);
-  EXPORT_FUNC(env, exports, "setKeyCallback", node_glfw::glfwSetKeyCallback);
-  EXPORT_FUNC(env, exports, "setCharCallback", node_glfw::glfwSetCharCallback);
-  EXPORT_FUNC(env, exports, "setCharModsCallback", node_glfw::glfwSetCharModsCallback);
-  EXPORT_FUNC(env, exports, "setMouseButtonCallback", node_glfw::glfwSetMouseButtonCallback);
-  EXPORT_FUNC(env, exports, "setCursorPosCallback", node_glfw::glfwSetCursorPosCallback);
-  EXPORT_FUNC(env, exports, "setCursorEnterCallback", node_glfw::glfwSetCursorEnterCallback);
-  EXPORT_FUNC(env, exports, "setScrollCallback", node_glfw::glfwSetScrollCallback);
-  EXPORT_FUNC(env, exports, "setDropCallback", node_glfw::glfwSetDropCallback);
-  EXPORT_FUNC(env, exports, "joystickPresent", node_glfw::glfwJoystickPresent);
-  EXPORT_FUNC(env, exports, "getJoystickAxes", node_glfw::glfwGetJoystickAxes);
-  EXPORT_FUNC(env, exports, "getJoystickButtons", node_glfw::glfwGetJoystickButtons);
-  EXPORT_FUNC(env, exports, "getJoystickHats", node_glfw::glfwGetJoystickHats);
-  EXPORT_FUNC(env, exports, "getJoystickName", node_glfw::glfwGetJoystickName);
-  EXPORT_FUNC(env, exports, "getJoystickGUID", node_glfw::glfwGetJoystickGUID);
-  EXPORT_FUNC(env, exports, "joystickIsGamepad", node_glfw::glfwJoystickIsGamepad);
-  EXPORT_FUNC(env, exports, "setJoystickCallback", node_glfw::glfwSetJoystickCallback);
-  EXPORT_FUNC(env, exports, "updateGamepadMappings", node_glfw::glfwUpdateGamepadMappings);
-  EXPORT_FUNC(env, exports, "getGamepadName", node_glfw::glfwGetGamepadName);
-  EXPORT_FUNC(env, exports, "getGamepadState", node_glfw::glfwGetGamepadState);
-  EXPORT_FUNC(env, exports, "setClipboardString", node_glfw::glfwSetClipboardString);
-  EXPORT_FUNC(env, exports, "getClipboardString", node_glfw::glfwGetClipboardString);
-  EXPORT_FUNC(env, exports, "getTime", node_glfw::glfwGetTime);
-  EXPORT_FUNC(env, exports, "setTime", node_glfw::glfwSetTime);
-  EXPORT_FUNC(env, exports, "getTimerValue", node_glfw::glfwGetTimerValue);
-  EXPORT_FUNC(env, exports, "getTimerFrequency", node_glfw::glfwGetTimerFrequency);
-  EXPORT_FUNC(env, exports, "makeContextCurrent", node_glfw::glfwMakeContextCurrent);
-  EXPORT_FUNC(env, exports, "getCurrentContext", node_glfw::glfwGetCurrentContext);
-  EXPORT_FUNC(env, exports, "swapBuffers", node_glfw::glfwSwapBuffers);
-  EXPORT_FUNC(env, exports, "swapInterval", node_glfw::glfwSwapInterval);
-  EXPORT_FUNC(env, exports, "extensionSupported", node_glfw::glfwExtensionSupported);
-  EXPORT_FUNC(env, exports, "getProcAddress", node_glfw::glfwGetProcAddress);
-  EXPORT_FUNC(env, exports, "vulkanSupported", node_glfw::glfwVulkanSupported);
-  EXPORT_FUNC(
-    env, exports, "getRequiredInstanceExtensions", node_glfw::glfwGetRequiredInstanceExtensions);
+  EXPORT_FUNC(env, exports, "destroyWindow", nv::glfwDestroyWindow);
+  EXPORT_FUNC(env, exports, "windowShouldClose", nv::glfwWindowShouldClose);
+  EXPORT_FUNC(env, exports, "setWindowShouldClose", nv::glfwSetWindowShouldClose);
+  EXPORT_FUNC(env, exports, "setWindowTitle", nv::glfwSetWindowTitle);
+  EXPORT_FUNC(env, exports, "setWindowIcon", nv::glfwSetWindowIcon);
+  EXPORT_FUNC(env, exports, "getWindowPos", nv::glfwGetWindowPos);
+  EXPORT_FUNC(env, exports, "setWindowPos", nv::glfwSetWindowPos);
+  EXPORT_FUNC(env, exports, "getWindowSize", nv::glfwGetWindowSize);
+  EXPORT_FUNC(env, exports, "setWindowSizeLimits", nv::glfwSetWindowSizeLimits);
+  EXPORT_FUNC(env, exports, "setWindowAspectRatio", nv::glfwSetWindowAspectRatio);
+  EXPORT_FUNC(env, exports, "setWindowSize", nv::glfwSetWindowSize);
+  EXPORT_FUNC(env, exports, "getFramebufferSize", nv::glfwGetFramebufferSize);
+  EXPORT_FUNC(env, exports, "getWindowFrameSize", nv::glfwGetWindowFrameSize);
+  EXPORT_FUNC(env, exports, "getWindowContentScale", nv::glfwGetWindowContentScale);
+  EXPORT_FUNC(env, exports, "getWindowOpacity", nv::glfwGetWindowOpacity);
+  EXPORT_FUNC(env, exports, "setWindowOpacity", nv::glfwSetWindowOpacity);
+  EXPORT_FUNC(env, exports, "iconifyWindow", nv::glfwIconifyWindow);
+  EXPORT_FUNC(env, exports, "restoreWindow", nv::glfwRestoreWindow);
+  EXPORT_FUNC(env, exports, "maximizeWindow", nv::glfwMaximizeWindow);
+  EXPORT_FUNC(env, exports, "showWindow", nv::glfwShowWindow);
+  EXPORT_FUNC(env, exports, "hideWindow", nv::glfwHideWindow);
+  EXPORT_FUNC(env, exports, "focusWindow", nv::glfwFocusWindow);
+  EXPORT_FUNC(env, exports, "requestWindowAttention", nv::glfwRequestWindowAttention);
+  EXPORT_FUNC(env, exports, "getWindowMonitor", nv::glfwGetWindowMonitor);
+  EXPORT_FUNC(env, exports, "setWindowMonitor", nv::glfwSetWindowMonitor);
+  EXPORT_FUNC(env, exports, "getWindowAttrib", nv::glfwGetWindowAttrib);
+  EXPORT_FUNC(env, exports, "setWindowAttrib", nv::glfwSetWindowAttrib);
+  EXPORT_FUNC(env, exports, "setWindowPosCallback", nv::glfwSetWindowPosCallback);
+  EXPORT_FUNC(env, exports, "setWindowSizeCallback", nv::glfwSetWindowSizeCallback);
+  EXPORT_FUNC(env, exports, "setWindowCloseCallback", nv::glfwSetWindowCloseCallback);
+  EXPORT_FUNC(env, exports, "setWindowRefreshCallback", nv::glfwSetWindowRefreshCallback);
+  EXPORT_FUNC(env, exports, "setWindowFocusCallback", nv::glfwSetWindowFocusCallback);
+  EXPORT_FUNC(env, exports, "setWindowIconifyCallback", nv::glfwSetWindowIconifyCallback);
+  EXPORT_FUNC(env, exports, "setWindowMaximizeCallback", nv::glfwSetWindowMaximizeCallback);
+  EXPORT_FUNC(env, exports, "setFramebufferSizeCallback", nv::glfwSetFramebufferSizeCallback);
+  EXPORT_FUNC(env, exports, "setWindowContentScaleCallback", nv::glfwSetWindowContentScaleCallback);
+  EXPORT_FUNC(env, exports, "pollEvents", nv::glfwPollEvents);
+  EXPORT_FUNC(env, exports, "waitEvents", nv::glfwWaitEvents);
+  EXPORT_FUNC(env, exports, "waitEventsTimeout", nv::glfwWaitEventsTimeout);
+  EXPORT_FUNC(env, exports, "postEmptyEvent", nv::glfwPostEmptyEvent);
+  EXPORT_FUNC(env, exports, "getInputMode", nv::glfwGetInputMode);
+  EXPORT_FUNC(env, exports, "setInputMode", nv::glfwSetInputMode);
+  EXPORT_FUNC(env, exports, "rawMouseMotionSupported", nv::glfwRawMouseMotionSupported);
+  EXPORT_FUNC(env, exports, "getKeyName", nv::glfwGetKeyName);
+  EXPORT_FUNC(env, exports, "getKeyScancode", nv::glfwGetKeyScancode);
+  EXPORT_FUNC(env, exports, "getKey", nv::glfwGetKey);
+  EXPORT_FUNC(env, exports, "getMouseButton", nv::glfwGetMouseButton);
+  EXPORT_FUNC(env, exports, "getCursorPos", nv::glfwGetCursorPos);
+  EXPORT_FUNC(env, exports, "setCursorPos", nv::glfwSetCursorPos);
+  EXPORT_FUNC(env, exports, "createCursor", nv::glfwCreateCursor);
+  EXPORT_FUNC(env, exports, "createStandardCursor", nv::glfwCreateStandardCursor);
+  EXPORT_FUNC(env, exports, "destroyCursor", nv::glfwDestroyCursor);
+  EXPORT_FUNC(env, exports, "setCursor", nv::glfwSetCursor);
+  EXPORT_FUNC(env, exports, "setKeyCallback", nv::glfwSetKeyCallback);
+  EXPORT_FUNC(env, exports, "setCharCallback", nv::glfwSetCharCallback);
+  EXPORT_FUNC(env, exports, "setCharModsCallback", nv::glfwSetCharModsCallback);
+  EXPORT_FUNC(env, exports, "setMouseButtonCallback", nv::glfwSetMouseButtonCallback);
+  EXPORT_FUNC(env, exports, "setCursorPosCallback", nv::glfwSetCursorPosCallback);
+  EXPORT_FUNC(env, exports, "setCursorEnterCallback", nv::glfwSetCursorEnterCallback);
+  EXPORT_FUNC(env, exports, "setScrollCallback", nv::glfwSetScrollCallback);
+  EXPORT_FUNC(env, exports, "setDropCallback", nv::glfwSetDropCallback);
+  EXPORT_FUNC(env, exports, "joystickPresent", nv::glfwJoystickPresent);
+  EXPORT_FUNC(env, exports, "getJoystickAxes", nv::glfwGetJoystickAxes);
+  EXPORT_FUNC(env, exports, "getJoystickButtons", nv::glfwGetJoystickButtons);
+  EXPORT_FUNC(env, exports, "getJoystickHats", nv::glfwGetJoystickHats);
+  EXPORT_FUNC(env, exports, "getJoystickName", nv::glfwGetJoystickName);
+  EXPORT_FUNC(env, exports, "getJoystickGUID", nv::glfwGetJoystickGUID);
+  EXPORT_FUNC(env, exports, "joystickIsGamepad", nv::glfwJoystickIsGamepad);
+  EXPORT_FUNC(env, exports, "setJoystickCallback", nv::glfwSetJoystickCallback);
+  EXPORT_FUNC(env, exports, "updateGamepadMappings", nv::glfwUpdateGamepadMappings);
+  EXPORT_FUNC(env, exports, "getGamepadName", nv::glfwGetGamepadName);
+  EXPORT_FUNC(env, exports, "getGamepadState", nv::glfwGetGamepadState);
+  EXPORT_FUNC(env, exports, "setClipboardString", nv::glfwSetClipboardString);
+  EXPORT_FUNC(env, exports, "getClipboardString", nv::glfwGetClipboardString);
+  EXPORT_FUNC(env, exports, "getTime", nv::glfwGetTime);
+  EXPORT_FUNC(env, exports, "setTime", nv::glfwSetTime);
+  EXPORT_FUNC(env, exports, "getTimerValue", nv::glfwGetTimerValue);
+  EXPORT_FUNC(env, exports, "getTimerFrequency", nv::glfwGetTimerFrequency);
+  EXPORT_FUNC(env, exports, "makeContextCurrent", nv::glfwMakeContextCurrent);
+  EXPORT_FUNC(env, exports, "getCurrentContext", nv::glfwGetCurrentContext);
+  EXPORT_FUNC(env, exports, "swapBuffers", nv::glfwSwapBuffers);
+  EXPORT_FUNC(env, exports, "swapInterval", nv::glfwSwapInterval);
+  EXPORT_FUNC(env, exports, "extensionSupported", nv::glfwExtensionSupported);
+  EXPORT_FUNC(env, exports, "getProcAddress", nv::glfwGetProcAddress);
+  EXPORT_FUNC(env, exports, "vulkanSupported", nv::glfwVulkanSupported);
+  EXPORT_FUNC(env, exports, "getRequiredInstanceExtensions", nv::glfwGetRequiredInstanceExtensions);
 
   EXPORT_ENUM(env, exports, "VERSION_MAJOR", GLFW_VERSION_MAJOR);
   EXPORT_ENUM(env, exports, "VERSION_MINOR", GLFW_VERSION_MINOR);
@@ -566,4 +578,4 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
-NODE_API_MODULE(node_glfw, initModule);
+NODE_API_MODULE(nv, initModule);

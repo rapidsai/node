@@ -12,36 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_glfw/casting.hpp>
-#include <node_glfw/glfw.hpp>
-#include <node_glfw/macros.hpp>
+#include "glfw.hpp"
+#include "macros.hpp"
 
-namespace node_glfw {
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
+
+namespace nv {
 
 // GLFWAPI int glfwRawMouseMotionSupported(void);
 Napi::Value glfwRawMouseMotionSupported(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(static_cast<bool>(GLFWAPI::glfwRawMouseMotionSupported()));
+  return CPPToNapi(info)(static_cast<bool>(GLFWAPI::glfwRawMouseMotionSupported()));
 }
 
 // GLFWAPI GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot);
 Napi::Value glfwCreateCursor(Napi::CallbackInfo const& info) {
-  auto env                           = info.Env();
-  GLFWimage image                    = FromJS(info[0]);
-  std::map<std::string, int32_t> pos = FromJS(info[1]);
-  return ToNapi(env)(GLFWAPI::glfwCreateCursor(&image, pos["x"], pos["y"]));
+  auto env = info.Env();
+  CallbackArgs args{info};
+  auto obj = info[0].As<Napi::Object>();
+  GLFWimage image{//
+                  NapiToCPP(obj.Get("width")),
+                  NapiToCPP(obj.Get("height")),
+                  NapiToCPP(obj.Get("pixels"))};
+  std::map<std::string, int32_t> pos = args[1];
+  return CPPToNapi(info)(GLFWAPI::glfwCreateCursor(&image, pos["x"], pos["y"]));
 }
 
 // GLFWAPI GLFWcursor* glfwCreateStandardCursor(int shape);
 Napi::Value glfwCreateStandardCursor(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(GLFWAPI::glfwCreateStandardCursor(FromJS(info[0])));
+  CallbackArgs args{info};
+  GLFWcursor* cursor = GLFWAPI::glfwCreateStandardCursor(args[0]);
+  return CPPToNapi(info)(cursor);
 }
 
 // GLFWAPI void glfwDestroyCursor(GLFWcursor* cursor);
 Napi::Value glfwDestroyCursor(Napi::CallbackInfo const& info) {
-  auto env           = info.Env();
-  GLFWcursor* cursor = FromJS(info[0]);
+  auto env = info.Env();
+  CallbackArgs args{info};
+  GLFWcursor* cursor = args[0];
   GLFW_TRY(env, GLFWAPI::glfwDestroyCursor(cursor));
   return env.Undefined();
 }
 
-}  // namespace node_glfw
+}  // namespace nv

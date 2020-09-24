@@ -17,7 +17,7 @@
 #include <napi.h>
 #include "glfw.hpp"
 
-namespace node_glfw {
+namespace nv {
 
 // GLFWAPI int glfwInit(void);
 Napi::Value glfwInit(Napi::CallbackInfo const& info);
@@ -406,4 +406,4 @@ Napi::Value glfwGetRequiredInstanceExtensions(Napi::CallbackInfo const& info);
 
 // #endif
 
-}  // namespace node_glfw
+}  // namespace nv
