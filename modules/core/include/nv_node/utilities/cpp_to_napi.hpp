@@ -99,6 +99,14 @@ struct CPPToNapi {
   //
   // Objects
   //
+  template <typename Key, typename Val>
+  Napi::Object inline operator()(const std::map<Key, Val> map) const {
+    auto cast_t = *this;
+    auto obj    = Napi::Object::New(this->env);
+    for (auto pair : map) { obj.Set(cast_t(pair.first), cast_t(pair.second)); }
+    return obj;
+  }
+
   template <typename T>
   inline Napi::Object operator()(std::vector<T> const& vals,
                                  std::vector<std::string> const& keys) const {
@@ -142,6 +150,10 @@ struct CPPToNapi {
   //   return Napi::External<void>::New(env, static_cast<char*>(data));
   // }
 
+  // Napi::String inline operator()(const char* val) const {
+  //   return Napi::String::New(env, (val == NULL) ? "" : val);
+  // }
+
   template <typename T>
   inline Napi::External<T> operator()(T* data) const {
     return Napi::External<T>::New(env, data);
@@ -160,12 +172,12 @@ struct CPPToNapi {
   }
 
   template <typename T>
-  inline Napi::Uint8Array operator()(Span<T> const& span) const {
+  inline Napi::ArrayBuffer operator()(Span<T> const& span) const {
     return Napi::ArrayBuffer::New(env, span.data(), span.size());
   }
 
   template <typename T, typename Finalizer>
-  inline Napi::Uint8Array operator()(Span<T> const& span, Finalizer finalizer) const {
+  inline Napi::ArrayBuffer operator()(Span<T> const& span, Finalizer finalizer) const {
     return Napi::ArrayBuffer::New(env, span.data(), span.size(), finalizer);
   }
 
@@ -220,6 +232,21 @@ struct CPPToNapi {
 #ifdef GLEW_VERSION
   inline Napi::External<void> operator()(GLsync const& sync) const {
     return Napi::External<void>::New(env, sync);
+  }
+#endif
+
+#ifdef GLFW_APIENTRY_DEFINED
+  inline Napi::Number operator()(GLFWcursor* ptr) const {
+    return Napi::Number::New(env, reinterpret_cast<size_t>(ptr));
+  }
+  inline Napi::Number operator()(GLFWwindow* ptr) const {
+    return Napi::Number::New(env, reinterpret_cast<size_t>(ptr));
+  }
+  inline Napi::Number operator()(GLFWmonitor* ptr) const {
+    return Napi::Number::New(env, reinterpret_cast<size_t>(ptr));
+  }
+  inline Napi::Number operator()(GLFWglproc* ptr) const {
+    return Napi::Number::New(env, reinterpret_cast<size_t>(ptr));
   }
 #endif
 };

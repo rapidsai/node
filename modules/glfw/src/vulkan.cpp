@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_glfw/casting.hpp>
-#include <node_glfw/glfw.hpp>
-#include <node_glfw/macros.hpp>
+#include "glfw.hpp"
+#include "macros.hpp"
 
-namespace node_glfw {
+#include <nv_node/utilities/cpp_to_napi.hpp>
+
+namespace nv {
 
 // GLFWAPI int glfwVulkanSupported(void);
 Napi::Value glfwVulkanSupported(Napi::CallbackInfo const& info) {
-  return ToNapi(info.Env())(static_cast<bool>(GLFWAPI::glfwVulkanSupported()));
+  return CPPToNapi(info)(static_cast<bool>(GLFWAPI::glfwVulkanSupported()));
 }
 
 // TODO:
@@ -42,4 +43,4 @@ Napi::Value glfwVulkanSupported(Napi::CallbackInfo const& info) {
 
 // #endif /*VK_VERSION_1_0*/
 
-}  // namespace node_glfw
+}  // namespace nv

@@ -173,6 +173,21 @@ struct NapiToCPP {
   inline operator GLsync() const { return reinterpret_cast<GLsync>(this->operator char*()); }
 #endif
 
+#ifdef GLFW_APIENTRY_DEFINED
+  inline operator GLFWcursor*() const {
+    return reinterpret_cast<GLFWcursor*>(this->operator char*());
+  }
+  inline operator GLFWwindow*() const {
+    return reinterpret_cast<GLFWwindow*>(this->operator char*());
+  }
+  inline operator GLFWmonitor*() const {
+    return reinterpret_cast<GLFWmonitor*>(this->operator char*());
+  }
+  inline operator GLFWglproc*() const {
+    return reinterpret_cast<GLFWglproc*>(this->operator char*());
+  }
+#endif
+
  protected:
   template <typename T>
   inline Span<T> as_span() const {

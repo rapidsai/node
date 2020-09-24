@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_glfw/casting.hpp>
-#include <node_glfw/glfw.hpp>
-#include <node_glfw/macros.hpp>
+#include "glfw.hpp"
+#include "macros.hpp"
 
-namespace node_glfw {
+#include <nv_node/utilities/args.hpp>
+
+namespace nv {
 
 // GLFWAPI void glfwPollEvents(void);
 Napi::Value glfwPollEvents(Napi::CallbackInfo const& info) {
@@ -35,7 +36,8 @@ Napi::Value glfwWaitEvents(Napi::CallbackInfo const& info) {
 // GLFWAPI void glfwWaitEventsTimeout(double timeout);
 Napi::Value glfwWaitEventsTimeout(Napi::CallbackInfo const& info) {
   auto env = info.Env();
-  GLFW_TRY(env, GLFWAPI::glfwWaitEventsTimeout(FromJS(info[0])));
+  CallbackArgs args{info};
+  GLFW_TRY(env, GLFWAPI::glfwWaitEventsTimeout(args[0]));
   return env.Undefined();
 }
 
@@ -46,4 +48,4 @@ Napi::Value glfwPostEmptyEvent(Napi::CallbackInfo const& info) {
   return env.Undefined();
 }
 
-}  // namespace node_glfw
+}  // namespace nv
