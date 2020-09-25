@@ -12,17 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import RMM from './addon';
+import RMM from './addon'
 
 export interface DeviceBufferConstructor {
-    readonly prototype: DeviceBuffer;
-    new(byteLength?: number, stream?: number): DeviceBuffer;
+    readonly prototype: DeviceBuffer
+    new(byteLength?: number, stream?: number): DeviceBuffer
 }
 
 export interface DeviceBuffer {
-    readonly ptr: number;
-    readonly byteLength: number;
-    slice(begin: number, end?: number): DeviceBuffer;
+    readonly byteLength: number
+    readonly capacity: number
+    readonly isEmpty: boolean
+    readonly ptr: number
+    readonly stream: number 
+    resize(newSize: number, stream?: number): void
+    setStream(stream: number): void
+    shrinkToFit(stream: number): void
+    slice(begin: number, end?: number): DeviceBuffer
 }
 
-export const DeviceBuffer: DeviceBufferConstructor = RMM.DeviceBuffer;
+export const DeviceBuffer: DeviceBufferConstructor = RMM.DeviceBuffer
