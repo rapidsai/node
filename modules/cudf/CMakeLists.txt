@@ -52,15 +52,18 @@ include_directories(
     "${RMM_SOURCE_DIR}/include"
     "${spdlog_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
-    "${libcudf_SOURCE_DIR}/cpp/include"
+    "${cudf_SOURCE_DIR}/cpp/include"
 )
 
-if(libcudf_ADDED)
+if(cudf_ADDED)
     list(
-        APPEND libcudf_SOURCES
-        "${libcudf_SOURCE_DIR}/cpp/src/table/table.cpp"
+        APPEND cudf_SOURCES
+        "${cudf_SOURCE_DIR}/cpp/src/table/table.cpp"
+        # "${cudf_SOURCE_DIR}/cpp/src/table/table_view.cpp"
+        # "${cudf_SOURCE_DIR}/cpp/src/column/column_view.cpp"
+        # "${cudf_SOURCE_DIR}/cpp/src/column/column.cu"
     )
-    add_library(libcudf ${libcudf_SOURCES})
+    add_library(libcudf ${cudf_SOURCES})
 endif()
 
 ###################################################################################################
@@ -72,4 +75,4 @@ add_library(${PROJECT_NAME} SHARED ${NODE_CUDF_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
-                      rmm)
+                    cuda rmm)

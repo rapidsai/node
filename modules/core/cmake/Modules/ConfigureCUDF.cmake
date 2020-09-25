@@ -22,3 +22,7 @@ CPMAddPackage(NAME cudf
     GIT_TAG        branch-${CUDF_VERSION}
     DONWLOAD_ONLY 
 )
+
+message(STATUS "cudf source dir: " ${cudf_SOURCE_DIR})
+
+set(cudf_INCLUDE_DIR "${cudf_SOURCE_DIR}/include")
