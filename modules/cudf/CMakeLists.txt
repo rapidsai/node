@@ -40,7 +40,7 @@ include(ConfigureRMM)
 include(ConfigureNapi)
 include(ConfigureCUDA)
 include(ConfigureCUDF)
-
+include(ConfgureSIMT)
 
 
 ###################################################################################################
@@ -52,6 +52,7 @@ include_directories(
     "${RMM_SOURCE_DIR}/include"
     "${spdlog_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    "${libcudacxx_SOURCE_DIR}/include"
     "${cudf_SOURCE_DIR}/cpp/include"
 )
 
@@ -59,9 +60,9 @@ if(cudf_ADDED)
     list(
         APPEND cudf_SOURCES
         "${cudf_SOURCE_DIR}/cpp/src/table/table.cpp"
-        # "${cudf_SOURCE_DIR}/cpp/src/table/table_view.cpp"
-        # "${cudf_SOURCE_DIR}/cpp/src/column/column_view.cpp"
-        # "${cudf_SOURCE_DIR}/cpp/src/column/column.cu"
+        "${cudf_SOURCE_DIR}/cpp/src/table/table_view.cpp"
+        "${cudf_SOURCE_DIR}/cpp/src/column/column_view.cpp"
+        "${cudf_SOURCE_DIR}/cpp/src/column/column.cu"
     )
     add_library(libcudf ${cudf_SOURCES})
 endif()
