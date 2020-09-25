@@ -30,23 +30,24 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
 
   DeviceBuffer(Napi::CallbackInfo const& info);
 
-  auto Stream() { return stream_; }
   auto& Buffer() { return buffer_; }
-  size_t ByteLength() { return size_; }
   char* Data() { return static_cast<char*>(Buffer()->data()); }
   void Finalize(Napi::Env env) override;
 
  private:
   static Napi::FunctionReference constructor;
 
+  Napi::Value CopySlice(Napi::CallbackInfo const& info);
   Napi::Value GetByteLength(Napi::CallbackInfo const& info);
+  Napi::Value GetCapacity(Napi::CallbackInfo const& info);
+  Napi::Value GetIsEmpty(Napi::CallbackInfo const& info);
   Napi::Value GetPointer(Napi::CallbackInfo const& info);
   Napi::Value GetStream(Napi::CallbackInfo const& info);
-  Napi::Value CopySlice(Napi::CallbackInfo const& info);
+  Napi::Value Resize(Napi::CallbackInfo const& info);
+  Napi::Value SetStream(Napi::CallbackInfo const& info);
+  Napi::Value ShrinkToFit(Napi::CallbackInfo const& info);
 
   std::unique_ptr<rmm::device_buffer> buffer_;
-  size_t size_;
-  cudaStream_t stream_;
 };
 
 }  // namespace nv
