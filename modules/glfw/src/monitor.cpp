@@ -87,8 +87,8 @@ Napi::Value glfwGetMonitorContentScale(Napi::CallbackInfo const& info) {
 Napi::Value glfwGetMonitorName(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
-  std::string name{GLFWAPI::glfwGetMonitorName(args[0])};
-  return CPPToNapi(info)(name);
+  auto name = GLFWAPI::glfwGetMonitorName(args[0]);
+  return CPPToNapi(info)(std::string{name || ""});
 }
 
 // GLFWAPI void glfwSetMonitorUserPointer(GLFWmonitor* monitor, void* pointer);

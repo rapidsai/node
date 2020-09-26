@@ -21,7 +21,20 @@ import { wheelEvents, GLFWWheelEvent } from '../events/wheel';
 import { windowEvents, GLFWWindowEvent } from '../events/window';
 import { keyboardEvents, GLFWKeyboardEvent } from '../events/keyboard';
 import { isAltKey, isCtrlKey, isMetaKey, isShiftKey, isCapsLock } from '../events/event';
-import { glfw, GLFW, GLFWwindow, GLFWInputMode, GLFWModifierKey, GLFWMouseButton, GLFWWindowAttribute, GLFWParentWindow, GLFWStandardCursor } from '../glfw';
+import {
+    glfw,
+    GLFW,
+    GLFWwindow,
+    GLFWInputMode,
+    GLFWModifierKey,
+    GLFWMouseButton,
+    GLFWParentWindow,
+    GLFWWindowAttribute,
+    GLFWClientAPI,
+    GLFWOpenGLProfile,
+    GLFWStandardCursor,
+    GLFWContextCreationAPI,
+} from '../glfw';
 
 export type GLFWDOMWindowOptions = {
     x?: number;
@@ -34,6 +47,12 @@ export type GLFWDOMWindowOptions = {
     resizable?: boolean;
     transparent?: boolean;
     devicePixelRatio?: number;
+    openGLMajorVersion?: number;
+    openGLMinorVersion?: number;
+    openGLForwardCompat?: boolean;
+    openGLProfile?: GLFWOpenGLProfile;
+    openGLClientAPI?: GLFWClientAPI;
+    openGLContextCreationAPI?: GLFWContextCreationAPI;
 };
 
 export interface GLFWDOMWindow extends jsdom.DOMWindow {
@@ -51,6 +70,12 @@ export abstract class GLFWDOMWindow {
     public init(options: GLFWDOMWindowOptions = {}) {
         Object.assign(this, {
             debug: false,
+            openGLMajorVersion: 4,
+            openGLMinorVersion: 6,
+            openGLForwardCompat: true,
+            openGLProfile: GLFWOpenGLProfile.ANY,
+            openGLClientAPI: GLFWClientAPI.OPENGL,
+            openGLContextCreationAPI: GLFWContextCreationAPI.EGL,
             _title: 'Untitled',
             _x: 0, _y: 0, _width: 800, _height: 600,
             _mouseX: 0, _mouseY: 0, _scrollX: 0, _scrollY: 0,
@@ -215,7 +240,13 @@ export abstract class GLFWDOMWindow {
     public get devicePixelRatio() { return this._devicePixelRatio; }
     public set devicePixelRatio(_: number) { this._devicePixelRatio = _; }
 
-    public readonly debug = false;
+    public readonly debug!: boolean;
+    public readonly openGLMajorVersion!: number;
+    public readonly openGLMinorVersion!: number;
+    public readonly openGLForwardCompat!: boolean;
+    public readonly openGLProfile!: GLFWOpenGLProfile;
+    public readonly openGLClientAPI!: GLFWClientAPI;
+    public readonly openGLContextCreationAPI!: GLFWContextCreationAPI;
 
     protected _visible = true;
     public get visible() { return this._visible; }
@@ -327,8 +358,15 @@ export abstract class GLFWDOMWindow {
             glfw.windowHint(GLFWWindowAttribute.VISIBLE, this.visible);
             glfw.windowHint(GLFWWindowAttribute.DECORATED, this.decorated);
             glfw.windowHint(GLFWWindowAttribute.RESIZABLE, this.resizable);
-            glfw.windowHint(GLFWWindowAttribute.OPENGL_DEBUG_CONTEXT, this.debug);
             glfw.windowHint(GLFWWindowAttribute.TRANSPARENT_FRAMEBUFFER, this.transparent);
+
+            glfw.windowHint(GLFWWindowAttribute.CLIENT_API, this.openGLClientAPI);
+            glfw.windowHint(GLFWWindowAttribute.OPENGL_DEBUG_CONTEXT, this.debug);
+            glfw.windowHint(GLFWWindowAttribute.OPENGL_PROFILE, this.openGLProfile);
+            glfw.windowHint(GLFWWindowAttribute.CONTEXT_VERSION_MAJOR, this.openGLMajorVersion);
+            glfw.windowHint(GLFWWindowAttribute.CONTEXT_VERSION_MINOR, this.openGLMinorVersion);
+            glfw.windowHint(GLFWWindowAttribute.OPENGL_FORWARD_COMPAT, this.openGLForwardCompat);
+            glfw.windowHint(GLFWWindowAttribute.CONTEXT_CREATION_API, this.openGLContextCreationAPI);
 
             const id = glfw.createWindow(this.width, this.height, this.title, monitor, root);
 

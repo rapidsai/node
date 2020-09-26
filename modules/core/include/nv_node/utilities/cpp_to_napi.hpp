@@ -21,9 +21,10 @@
 
 #include <napi.h>
 
-#include <cstring>
+// #include <cstring>
 #include <initializer_list>
 #include <map>
+#include <string>
 #include <type_traits>
 #include <vector>
 

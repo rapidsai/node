@@ -58,15 +58,15 @@ Napi::Value glfwGetJoystickHats(Napi::CallbackInfo const& info) {
 // GLFWAPI const char* glfwGetJoystickName(int jid);
 Napi::Value glfwGetJoystickName(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  std::string name{GLFWAPI::glfwGetJoystickName(args[0])};
-  return CPPToNapi(info)(name);
+  auto name = GLFWAPI::glfwGetJoystickName(args[0]);
+  return CPPToNapi(info)(std::string{name || ""});
 }
 
 // GLFWAPI const char* glfwGetJoystickGUID(int jid);
 Napi::Value glfwGetJoystickGUID(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  std::string guid{GLFWAPI::glfwGetJoystickGUID(args[0])};
-  return CPPToNapi(info)(guid);
+  auto guid = GLFWAPI::glfwGetJoystickGUID(args[0]);
+  return CPPToNapi(info)(std::string{guid || ""});
 }
 
 // GLFWAPI void glfwSetJoystickUserPointer(int jid, void* pointer);
@@ -94,8 +94,8 @@ Napi::Value glfwUpdateGamepadMappings(Napi::CallbackInfo const& info) {
 // GLFWAPI const char* glfwGetGamepadName(int jid);
 Napi::Value glfwGetGamepadName(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  std::string name{GLFWAPI::glfwGetGamepadName(args[0])};
-  return CPPToNapi(info)(name);
+  auto name = GLFWAPI::glfwGetGamepadName(args[0]);
+  return CPPToNapi(info)(std::string{name || ""});
 }
 
 // GLFWAPI int glfwGetGamepadState(int jid, GLFWgamepadstate* state);
