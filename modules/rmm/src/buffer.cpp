@@ -53,7 +53,7 @@ Napi::Value DeviceBuffer::New(void* data, size_t size, cudaStream_t stream) {
 
 DeviceBuffer::DeviceBuffer(Napi::CallbackInfo const& info) : Napi::ObjectWrap<DeviceBuffer>(info) {
   CallbackArgs args{info};
-  size_t size = 0;
+  size_t size         = 0;
   cudaStream_t stream = 0;
   if (args.Length() >= 1 && info[0].IsNumber()) { size = args[0]; }
   if (args.Length() >= 2 && info[1].IsNumber()) { stream = args[1]; }
