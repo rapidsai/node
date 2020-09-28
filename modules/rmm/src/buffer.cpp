@@ -16,6 +16,7 @@
 #include "macros.hpp"
 
 #include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
 
 namespace nv {
 
@@ -85,11 +86,11 @@ Napi::Value DeviceBuffer::GetByteLength(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value DeviceBuffer::GetCapacity(Napi::CallbackInfo const& info) {
-  return Napi::Number::New(info.Env(), reinterpret_cast<size_t>(Buffer()->capacity()));
+  return CPPToNapi(info)(Buffer()->capacity());
 }
 
 Napi::Value DeviceBuffer::GetIsEmpty(Napi::CallbackInfo const& info) {
-  return Napi::Boolean::New(info.Env(), reinterpret_cast<bool>(Buffer()->is_empty()));
+  return CPPToNapi(info)(Buffer()->is_empty());
 }
 
 Napi::Value DeviceBuffer::GetPointer(Napi::CallbackInfo const& info) {
