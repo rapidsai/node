@@ -97,7 +97,7 @@ Napi::Value DeviceBuffer::GetPointer(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value DeviceBuffer::GetStream(Napi::CallbackInfo const& info) {
-  return Napi::Number::New(info.Env(), reinterpret_cast<int64_t>(Buffer()->stream()));
+  return CPPToNapi(info)(Buffer()->stream());
 }
 
 Napi::Value DeviceBuffer::Resize(Napi::CallbackInfo const& info) {
