@@ -1,6 +1,4 @@
-import { DeviceBuffer } from '@nvidia/rmm'
-
-import { devices, CUDADevice, CUDADeviceFlag } from '@nvidia/cuda';
+import { DeviceBuffer } from '@nvidia/rmm';
 
 test(`DeviceBuffer initialization`, () => {
     const db = new DeviceBuffer();
