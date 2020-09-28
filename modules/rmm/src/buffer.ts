@@ -20,8 +20,14 @@ export interface DeviceBufferConstructor {
 }
 
 export interface DeviceBuffer {
-    readonly ptr: number;
     readonly byteLength: number;
+    readonly capacity: number;
+    readonly isEmpty: boolean;
+    readonly ptr: number;
+    readonly stream: number; 
+    resize(newSize: number, stream?: number): void;
+    setStream(stream: number): void;
+    shrinkToFit(stream: number): void;
     slice(begin: number, end?: number): DeviceBuffer;
 }
 

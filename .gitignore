@@ -21,3 +21,4 @@ modules/*/include/napi.h
 modules/*/include/napi-inl.h
 modules/*/include/napi-inl.deprecated.h
 modules/*/include/node_api.h
+modules/demo/graph/data
