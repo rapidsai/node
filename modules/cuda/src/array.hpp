@@ -14,10 +14,10 @@
 
 #pragma once
 
-#include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
 #include <napi.h>
 
-namespace node_cuda {
+namespace nv {
 
 enum class array_type : uint8_t { CUDA = 0, IPC = 1, GL = 2 };
 
@@ -74,4 +74,4 @@ class CUDAArray : public Napi::ObjectWrap<CUDAArray> {
   cudaChannelFormatDesc channelFormatDesc_;
 };
 
-}  // namespace node_cuda
+}  // namespace nv

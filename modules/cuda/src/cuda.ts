@@ -12,61 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const CUDA = (() => {
-    let CUDA: any, types = ['Release'];
-    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
-        types.push('Debug');
-    }
-    for (let type; type = types.pop();) {
-        try {
-            if (CUDA = require(`../${type}/node_cuda.node`)) {
-                break;
-            }
-        } catch (e) { console.error(e); continue; }
-    }
-    if (CUDA) return CUDA.init();
-    throw new Error('node_cuda not found');
-})();
-
-export { CUDA };
-
-export interface CUDA {
-    CUDABuffer: CUDABufferConstructor;
-}
-
-export interface CUDAArrayConstructor {
-    readonly prototype: CUDAArray;
-    new(): CUDAArray;
-}
-
-export interface CUDAArray {
-    readonly ary: number;
-    readonly byteLength: number;
-    readonly bytesPerElement: number;
-    readonly width: number;
-    readonly height: number;
-    readonly depth: number;
-    readonly channelFormatX: number;
-    readonly channelFormatY: number;
-    readonly channelFormatZ: number;
-    readonly channelFormatW: number;
-    readonly channelFormatKind: number;
-}
-
-export declare var CUDAArray: CUDAArrayConstructor;
-
-export interface CUDABufferConstructor {
-    readonly prototype: CUDABuffer;
-    new(): CUDABuffer;
-}
-
-export interface CUDABuffer {
-    readonly ptr: number;
-    readonly byteLength: number;
-    slice(begin: number, end?: number): CUDABuffer;
-}
-
-export declare var CUDABuffer: CUDABufferConstructor;
+import CUDA, { CUDAArray, CUDABuffer } from './addon';
 
 export type CUdevice = number;
 export type CUresult = number;

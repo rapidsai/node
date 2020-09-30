@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cuda/array.hpp>
-#include <node_cuda/casting.hpp>
-#include <node_cuda/macros.hpp>
+#include "array.hpp"
+#include "macros.hpp"
+#include "utilities/cpp_to_napi.hpp"
+#include "utilities/napi_to_cpp.hpp"
 
-namespace node_cuda {
+#include <cuda_runtime_api.h>
+#include <nv_node/utilities/args.hpp>
+
+namespace nv {
 
 Napi::FunctionReference CUDAArray::constructor;
 
@@ -103,4 +107,4 @@ Napi::Value CUDAArray::GetDepth(Napi::CallbackInfo const& info) {
   return Napi::Number::New(info.Env(), Extent().depth);
 }
 
-}  // namespace node_cuda
+}  // namespace nv

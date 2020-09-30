@@ -12,44 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cuda_runtime.h>
+#include "macros.hpp"
+#include "utilities/cpp_to_napi.hpp"
+#include "utilities/napi_to_cpp.hpp"
 
-#include <node_cuda/casting.hpp>
-#include <node_cuda/macros.hpp>
+#include <cuda_runtime_api.h>
+#include <nv_node/utilities/args.hpp>
 
-namespace node_cuda {
+namespace nv {
 
 // cudaError_t cudaStreamCreate(cudaStream_t *pStream);
-Napi::Value cudaStreamCreate(Napi::CallbackInfo const& info) {
+Napi::Value cudaStreamCreate(CallbackArgs const& info) {
   auto env = info.Env();
   cudaStream_t stream;
   CUDA_TRY(env, CUDARTAPI::cudaStreamCreate(&stream));
-  return ToNapi(env)(stream);
+  return CPPToNapi(info)(stream);
 }
 
 // cudaError_t cudaStreamDestroy(cudaStream_t stream);
-Napi::Value cudaStreamDestroy(Napi::CallbackInfo const& info) {
+Napi::Value cudaStreamDestroy(CallbackArgs const& info) {
   auto env            = info.Env();
-  cudaStream_t stream = FromJS(info[0]);
+  cudaStream_t stream = info[0];
   CUDA_TRY(env, CUDARTAPI::cudaStreamDestroy(stream));
   return env.Undefined();
 }
 
 // cudaError_t cudaStreamSynchronize(cudaStream_t stream);
-Napi::Value cudaStreamSynchronize(Napi::CallbackInfo const& info) {
+Napi::Value cudaStreamSynchronize(CallbackArgs const& info) {
   auto env            = info.Env();
-  cudaStream_t stream = FromJS(info[0]);
+  cudaStream_t stream = info[0];
   CUDA_TRY(env, CUDARTAPI::cudaStreamSynchronize(stream));
   return env.Undefined();
 }
 
 namespace stream {
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "create", node_cuda::cudaStreamCreate);
-  EXPORT_FUNC(env, exports, "destroy", node_cuda::cudaStreamDestroy);
-  EXPORT_FUNC(env, exports, "synchronize", node_cuda::cudaStreamSynchronize);
+  EXPORT_FUNC(env, exports, "create", nv::cudaStreamCreate);
+  EXPORT_FUNC(env, exports, "destroy", nv::cudaStreamDestroy);
+  EXPORT_FUNC(env, exports, "synchronize", nv::cudaStreamSynchronize);
 
   return exports;
 }
 }  // namespace stream
-}  // namespace node_cuda
+}  // namespace nv

@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cuda_runtime.h>
+#include "macros.hpp"
+#include "utilities/napi_to_cpp.hpp"
 
-#include <node_cuda/casting.hpp>
-#include <node_cuda/macros.hpp>
+#include <cuda_runtime_api.h>
+#include <nv_node/utilities/args.hpp>
 
-namespace node_cuda {
+namespace nv {
 
 // CUresult cuLaunchKernel(CUfunction f,
 //                         unsigned int gridDimX, unsigned int gridDimY,
@@ -25,14 +26,14 @@ namespace node_cuda {
 //                         unsigned int blockDimY, unsigned int blockDimZ,
 //                         unsigned int sharedMemBytes, CUstream hStream,
 //                         void **kernelParams, void ** extra);
-Napi::Value cuLaunchKernel(Napi::CallbackInfo const& info) {
+Napi::Value cuLaunchKernel(CallbackArgs const& info) {
   auto env                       = info.Env();
-  CUfunction func                = FromJS(info[0]);
-  std::vector<uint32_t> grid     = FromJS(info[1]);
-  std::vector<uint32_t> block    = FromJS(info[2]);
-  uint32_t sharedMem             = FromJS(info[3]);
-  CUstream stream                = FromJS(info[4]);
-  std::vector<napi_value> params = FromJS(info[5]);
+  CUfunction func                = info[0];
+  std::vector<uint32_t> grid     = info[1];
+  std::vector<uint32_t> block    = info[2];
+  uint32_t sharedMem             = info[3];
+  CUstream stream                = info[4];
+  std::vector<napi_value> params = info[5];
 
   CU_TRY(env,
          CUDAAPI::cuLaunchKernel(func,
@@ -52,8 +53,8 @@ Napi::Value cuLaunchKernel(Napi::CallbackInfo const& info) {
 
 namespace kernel {
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "launch", node_cuda::cuLaunchKernel);
+  EXPORT_FUNC(env, exports, "launch", nv::cuLaunchKernel);
   return exports;
 }
 }  // namespace kernel
-}  // namespace node_cuda
+}  // namespace nv

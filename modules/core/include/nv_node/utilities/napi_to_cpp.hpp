@@ -36,6 +36,9 @@ struct NapiToCPP {
     return os << val.ToString().operator std::string();
   }
 
+  template <typename T>
+  operator T() const;
+
   //
   // Napi identities
   //
@@ -140,6 +143,9 @@ struct NapiToCPP {
   // CUDA Driver type conversion helpers
   //
   inline operator CUresult() const { return static_cast<CUresult>(this->operator int64_t()); }
+  inline operator CUfunction() const {
+    return reinterpret_cast<CUfunction>(this->operator char*());
+  }
   inline operator CUdevice_attribute() const {
     return static_cast<CUdevice_attribute>(this->operator int64_t());
   }

@@ -30,12 +30,12 @@
     static_cast<napi_property_attributes>(napi_writable | napi_enumerable | napi_configurable), \
     nullptr));
 
-#define CU_THROW(e, c) NAPI_THROW(node_cuda::cuError(e, c, __FILE__, __LINE__), (e).Undefined())
+#define CU_THROW(e, c) NAPI_THROW(nv::cuError(e, c, __FILE__, __LINE__), (e).Undefined())
 
-#define CUDA_THROW(e, c) NAPI_THROW(node_cuda::cudaError(e, c, __FILE__, __LINE__), (e).Undefined())
+#define CUDA_THROW(e, c) NAPI_THROW(nv::cudaError(e, c, __FILE__, __LINE__), (e).Undefined())
 
 #define NVRTC_THROW(e, c) \
-  NAPI_THROW(node_cuda::nvrtcError(e, c, __FILE__, __LINE__), (e).Undefined())
+  NAPI_THROW(nv::nvrtcError(e, c, __FILE__, __LINE__), (e).Undefined())
 
 #define CU_TRY(env, expr)                                  \
   do {                                                     \
@@ -80,9 +80,9 @@
   } while (0)
 
 #define CU_THROW_ASYNC(task, status)                                                     \
-  (task)->Reject(node_cuda::cuError((task)->Env(), status, __FILE__, __LINE__).Value()); \
+  (task)->Reject(nv::cuError((task)->Env(), status, __FILE__, __LINE__).Value()); \
   return (task)->Promise()
 
 #define CUDA_THROW_ASYNC(task, status)                                                     \
-  (task)->Reject(node_cuda::cudaError((task)->Env(), status, __FILE__, __LINE__).Value()); \
+  (task)->Reject(nv::cudaError((task)->Env(), status, __FILE__, __LINE__).Value()); \
   return (task)->Promise()

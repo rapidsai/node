@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cuda/buffer.hpp>
-#include <node_cuda/casting.hpp>
-#include <node_cuda/macros.hpp>
-#include <node_cuda/task.hpp>
+#include "buffer.hpp"
+#include "macros.hpp"
+#include "task.hpp"
+#include "utilities/cpp_to_napi.hpp"
+#include "utilities/napi_to_cpp.hpp"
 
 #include <cuda.h>
-#include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
 #include <napi.h>
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/span.hpp>
 
-namespace node_cuda {
+namespace nv {
 
 namespace detail {
 void freeHostPtr(Napi::Env const& env, void* ptr) {
@@ -37,10 +40,10 @@ void freeHostPtr(Napi::Env const& env, void* ptr) {
 }  // namespace detail
 
 // cudaError_t cudaMalloc(void **devPtr, size_t size);
-// Napi::Value cudaMalloc(Napi::CallbackInfo const& info) {
+// Napi::Value cudaMalloc(CallbackArgs const& info) {
 //   auto env = info.Env();
 //   void* data{nullptr};
-//   size_t size = FromJS(info[0]);
+//   size_t size = info[0];
 //   if (size > 0) {
 //     CUDA_TRY(env, CUDARTAPI::cudaMalloc(&data, size));
 //     Napi::MemoryManagement::AdjustExternalMemory(env, size);
@@ -60,39 +63,40 @@ Napi::Value cudaMalloc(CallbackArgs const& info) {
 }
 
 // cudaError_t cudaFree(void *devPtr);
-Napi::Value cudaFree(Napi::CallbackInfo const& info) {
+Napi::Value cudaFree(CallbackArgs const& info) {
   auto env = info.Env();
-  auto obj = info[0].As<Napi::Object>();
+  auto obj = info[0].val.As<Napi::Object>();
   CUDABuffer::Unwrap(obj)->Finalize(env);
   return env.Undefined();
 }
 
 // cudaError_t cudaMallocHost(void **ptr, size_t size);
-Napi::Value cudaMallocHost(Napi::CallbackInfo const& info) {
+Napi::Value cudaMallocHost(CallbackArgs const& info) {
   auto env = info.Env();
   void* data{nullptr};
-  size_t size = FromJS(info[0]);
+  size_t size = info[0];
   if (size > 0) {
     CUDA_TRY(env, CUDARTAPI::cudaMallocHost(&data, size));
     Napi::MemoryManagement::AdjustExternalMemory(env, size);
   }
-  return ToNapi(env)(data, size, detail::freeHostPtr);
+  auto ary = CPPToNapi(info)(Span<unsigned char>(data, size), detail::freeHostPtr);
+  return ary.As<Napi::Uint8Array>().ArrayBuffer();
 }
 
 // cudaError_t cudaFreeHost(void *ptr);
-Napi::Value cudaFreeHost(Napi::CallbackInfo const& info) {
+Napi::Value cudaFreeHost(CallbackArgs const& info) {
   auto env              = info.Env();
-  Napi::ArrayBuffer buf = FromJS(info[0]);
+  Napi::ArrayBuffer buf = info[0];
   if (buf.Data() != nullptr) { detail::freeHostPtr(env, buf.Data()); }
   return env.Undefined();
 }
 
 // cudaError_t cudaHostRegister(void *ptr, size_t size, unsigned int flags);
-Napi::Value cudaHostRegister(Napi::CallbackInfo const& info) {
+Napi::Value cudaHostRegister(CallbackArgs const& info) {
   auto env              = info.Env();
-  Napi::ArrayBuffer buf = FromJS(info[0]);
+  Napi::ArrayBuffer buf = info[0];
   size_t size           = buf.ByteLength();
-  uint32_t flags        = FromJS(info[1]);
+  uint32_t flags        = info[1];
   if (buf.Data() != nullptr) {
     CUDA_TRY(env, CUDARTAPI::cudaHostRegister(buf.Data(), size, flags));
   }
@@ -100,22 +104,22 @@ Napi::Value cudaHostRegister(Napi::CallbackInfo const& info) {
 }
 
 // cudaError_t cudaHostUnregister(void *ptr);
-Napi::Value cudaHostUnregister(Napi::CallbackInfo const& info) {
+Napi::Value cudaHostUnregister(CallbackArgs const& info) {
   auto env              = info.Env();
-  Napi::ArrayBuffer buf = FromJS(info[0]);
+  Napi::ArrayBuffer buf = info[0];
   if (buf.Data() != nullptr) { CUDA_TRY(env, CUDARTAPI::cudaHostUnregister(buf.Data())); }
   return env.Undefined();
 }
 
 // cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
 // cudaMemcpyKind kind);
-Napi::Value cudaMemcpy(Napi::CallbackInfo const& info) {
+Napi::Value cudaMemcpy(CallbackArgs const& info) {
   auto env          = info.Env();
-  uint8_t* dst_data = FromJS(info[0]);
-  size_t dst_offset = FromJS(info[1]);
-  uint8_t* src_data = FromJS(info[2]);
-  size_t src_offset = FromJS(info[3]);
-  size_t size       = FromJS(info[4]);
+  uint8_t* dst_data = info[0];
+  size_t dst_offset = info[1];
+  uint8_t* src_data = info[2];
+  size_t src_offset = info[3];
+  size_t size       = info[4];
   if (dst_data != nullptr && src_data != nullptr && size > 0) {
     CUDA_TRY(
       env,
@@ -124,29 +128,29 @@ Napi::Value cudaMemcpy(Napi::CallbackInfo const& info) {
   return env.Undefined();
 }
 
-Napi::Value cudaMemcpy2D(Napi::CallbackInfo const& info) {
+Napi::Value cudaMemcpy2D(CallbackArgs const& info) {
   auto env         = info.Env();
-  uint8_t* dst_ary = FromJS(info[0]);
-  size_t dst_pitch = FromJS(info[1]);
-  uint8_t* src_ary = FromJS(info[2]);
-  size_t src_pitch = FromJS(info[3]);
-  size_t width     = FromJS(info[4]);
-  size_t height    = FromJS(info[5]);
+  uint8_t* dst_ary = info[0];
+  size_t dst_pitch = info[1];
+  uint8_t* src_ary = info[2];
+  size_t src_pitch = info[3];
+  size_t width     = info[4];
+  size_t height    = info[5];
   CUDA_TRY(env,
            CUDARTAPI::cudaMemcpy2D(
              dst_ary, dst_pitch, src_ary, src_pitch, width, height, cudaMemcpyDefault));
   return env.Undefined();
 }
 
-Napi::Value cudaMemcpy2DFromArray(Napi::CallbackInfo const& info) {
+Napi::Value cudaMemcpy2DFromArray(CallbackArgs const& info) {
   auto env            = info.Env();
-  void* dst_ary       = FromJS(info[0]);
-  size_t dst_pitch    = FromJS(info[1]);
-  cudaArray_t src_ary = FromJS(info[2]);
-  size_t x            = FromJS(info[3]);
-  size_t y            = FromJS(info[4]);
-  size_t width        = FromJS(info[5]);
-  size_t height       = FromJS(info[6]);
+  void* dst_ary       = info[0];
+  size_t dst_pitch    = info[1];
+  cudaArray_t src_ary = info[2];
+  size_t x            = info[3];
+  size_t y            = info[4];
+  size_t width        = info[5];
+  size_t height       = info[6];
   CUDA_TRY(env,
            CUDARTAPI::cudaMemcpy2DFromArray(
              dst_ary, dst_pitch, src_ary, x, y, width, height, cudaMemcpyDefault));
@@ -154,91 +158,92 @@ Napi::Value cudaMemcpy2DFromArray(Napi::CallbackInfo const& info) {
 }
 
 // cudaError_t cudaMemset(void *devPtr, int value, size_t count);
-Napi::Value cudaMemset(Napi::CallbackInfo const& info) {
+Napi::Value cudaMemset(CallbackArgs const& info) {
   auto env      = info.Env();
-  uint8_t* data = FromJS(info[0]);
-  size_t offset = FromJS(info[1]);
-  int32_t value = FromJS(info[2]);
-  size_t count  = FromJS(info[3]);
+  uint8_t* data = info[0];
+  size_t offset = info[1];
+  int32_t value = info[2];
+  size_t count  = info[3];
   if (data != nullptr) { CUDA_TRY(env, CUDARTAPI::cudaMemset(data + offset, value, count)); }
   return env.Undefined();
 }
 
 // cudaError_t cudaMemcpyAsync(void *dst, const void *src, size_t count, enum
 // cudaMemcpyKind kind, cudaStream_t stream);
-Napi::Value cudaMemcpyAsync(Napi::CallbackInfo const& info) {
+Napi::Value cudaMemcpyAsync(CallbackArgs const& info) {
   auto env            = info.Env();
-  uint8_t* dst_data   = FromJS(info[0]);
-  size_t dst_offset   = FromJS(info[1]);
-  uint8_t* src_data   = FromJS(info[2]);
-  size_t src_offset   = FromJS(info[3]);
-  size_t size         = FromJS(info[4]);
-  cudaStream_t stream = FromJS(info[5]);
-  auto task           = new node_cuda::Task(env);
+  uint8_t* dst_data   = info[0];
+  size_t dst_offset   = info[1];
+  uint8_t* src_data   = info[2];
+  size_t src_offset   = info[3];
+  size_t size         = info[4];
+  cudaStream_t stream = info[5];
+  auto task           = new nv::Task(env);
   if (task->DelayResolve(dst_data != nullptr && src_data != nullptr && size > 0)) {
     CUDA_TRY_ASYNC(
       task,
       CUDARTAPI::cudaMemcpyAsync(
         dst_data + dst_offset, src_data + src_offset, size, cudaMemcpyDefault, stream));
-    CUDA_TRY_ASYNC(task, CUDARTAPI::cudaLaunchHostFunc(stream, node_cuda::Task::Notify, task));
+    CUDA_TRY_ASYNC(task, CUDARTAPI::cudaLaunchHostFunc(stream, nv::Task::Notify, task));
   }
   return task->Promise();
 }
 
 // cudaError_t cudaMemsetAsync(void *devPtr, int value, size_t count,
 // cudaStream_t stream);
-Napi::Value cudaMemsetAsync(Napi::CallbackInfo const& info) {
+Napi::Value cudaMemsetAsync(CallbackArgs const& info) {
   auto env            = info.Env();
-  uint8_t* data       = FromJS(info[0]);
-  size_t offset       = FromJS(info[1]);
-  int32_t value       = FromJS(info[2]);
-  size_t count        = FromJS(info[3]);
-  cudaStream_t stream = FromJS(info[4]);
-  auto task           = new node_cuda::Task(env);
+  uint8_t* data       = info[0];
+  size_t offset       = info[1];
+  int32_t value       = info[2];
+  size_t count        = info[3];
+  cudaStream_t stream = info[4];
+  auto task           = new nv::Task(env);
   if (task->DelayResolve(data != nullptr && count > 0)) {
     CUDA_TRY_ASYNC(task, CUDARTAPI::cudaMemsetAsync(data + offset, value, count, stream));
-    CUDA_TRY_ASYNC(task, CUDARTAPI::cudaLaunchHostFunc(stream, node_cuda::Task::Notify, task));
+    CUDA_TRY_ASYNC(task, CUDARTAPI::cudaLaunchHostFunc(stream, nv::Task::Notify, task));
   }
   return task->Promise();
 }
 
 // CUresult cudaMemGetInfo(size_t * free, size_t * total);
-Napi::Value cudaMemGetInfo(Napi::CallbackInfo const& info) {
+Napi::Value cudaMemGetInfo(CallbackArgs const& info) {
   auto env = info.Env();
   size_t free, total;
   CUDA_TRY(env, CUDARTAPI::cudaMemGetInfo(&free, &total));
-  return ToNapi(env)(std::vector<size_t>{free, total}, std::vector<std::string>{"free", "total"});
+  return CPPToNapi(info)(std::vector<size_t>{free, total},
+                         std::vector<std::string>{"free", "total"});
 }
 
 // CUresult cuPointerGetAttribute(void *data, CUpointer_attribute attribute,
 // CUdeviceptr ptr);
-Napi::Value cuPointerGetAttribute(Napi::CallbackInfo const& info) {
+Napi::Value cuPointerGetAttribute(CallbackArgs const& info) {
   auto env                      = info.Env();
-  CUdeviceptr dptr              = FromJS(info[0]);
-  CUpointer_attribute attribute = FromJS(info[1]);
+  CUdeviceptr dptr              = info[0];
+  CUpointer_attribute attribute = info[1];
 
   switch (attribute) {
     case CU_POINTER_ATTRIBUTE_SYNC_MEMOPS:
     case CU_POINTER_ATTRIBUTE_IS_MANAGED: {
       bool data;
       CU_TRY(env, CUDAAPI::cuPointerGetAttribute(&data, attribute, dptr));
-      return ToNapi(env)(data);
+      return CPPToNapi(info)(data);
     }
     case CU_POINTER_ATTRIBUTE_CONTEXT: {
       CUcontext data;
       CU_TRY(env, CUDAAPI::cuPointerGetAttribute(&data, attribute, dptr));
-      return ToNapi(env)(data);
+      return CPPToNapi(info)(data);
     }
     case CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL:
     case CU_POINTER_ATTRIBUTE_MEMORY_TYPE: {
       uint32_t data;
       CU_TRY(env, CUDAAPI::cuPointerGetAttribute(&data, attribute, dptr));
-      return ToNapi(env)(data);
+      return CPPToNapi(info)(data);
     }
     case CU_POINTER_ATTRIBUTE_BUFFER_ID: {
       uint64_t data;
       CU_TRY(env, CUDAAPI::cuPointerGetAttribute(&data, attribute, dptr));
-      return ToNapi(env)(data);
+      return CPPToNapi(info)(data);
     }
     // case CU_POINTER_ATTRIBUTE_DEVICE_POINTER: {
     //   size_t size;
@@ -251,10 +256,10 @@ Napi::Value cuPointerGetAttribute(Napi::CallbackInfo const& info) {
     case CU_POINTER_ATTRIBUTE_HOST_POINTER: {
       size_t size;
       CUdeviceptr base;
-      void* data{nullptr};
+      char* data{nullptr};
       CU_TRY(env, CUDAAPI::cuPointerGetAttribute(&data, attribute, dptr));
       CU_TRY(env, CUDAAPI::cuMemGetAddressRange(&base, &size, dptr));
-      return ToNapi(env)(data, size - (dptr - base));
+      return CPPToNapi(info)(data, size - (dptr - base));
     }
     // todo?
     case CU_POINTER_ATTRIBUTE_P2P_TOKENS: break;
@@ -267,22 +272,22 @@ Napi::Value cuPointerGetAttribute(Napi::CallbackInfo const& info) {
 namespace mem {
 
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  node_cuda::CUDABuffer::Init(env, exports);
+  nv::CUDABuffer::Init(env, exports);
 
-  EXPORT_FUNC(env, exports, "alloc", node_cuda::cudaMalloc);
-  EXPORT_FUNC(env, exports, "free", node_cuda::cudaFree);
-  EXPORT_FUNC(env, exports, "allocHost", node_cuda::cudaMallocHost);
-  EXPORT_FUNC(env, exports, "freeHost", node_cuda::cudaFreeHost);
-  EXPORT_FUNC(env, exports, "hostRegister", node_cuda::cudaHostRegister);
-  EXPORT_FUNC(env, exports, "hostUnregister", node_cuda::cudaHostUnregister);
-  EXPORT_FUNC(env, exports, "cpy", node_cuda::cudaMemcpy);
-  EXPORT_FUNC(env, exports, "cpy2D", node_cuda::cudaMemcpy2D);
-  EXPORT_FUNC(env, exports, "cpy2DFromArray", node_cuda::cudaMemcpy2DFromArray);
-  EXPORT_FUNC(env, exports, "set", node_cuda::cudaMemset);
-  EXPORT_FUNC(env, exports, "cpyAsync", node_cuda::cudaMemcpyAsync);
-  EXPORT_FUNC(env, exports, "setAsync", node_cuda::cudaMemsetAsync);
-  EXPORT_FUNC(env, exports, "getInfo", node_cuda::cudaMemGetInfo);
-  EXPORT_FUNC(env, exports, "getPointerAttribute", node_cuda::cuPointerGetAttribute);
+  EXPORT_FUNC(env, exports, "alloc", nv::cudaMalloc);
+  EXPORT_FUNC(env, exports, "free", nv::cudaFree);
+  EXPORT_FUNC(env, exports, "allocHost", nv::cudaMallocHost);
+  EXPORT_FUNC(env, exports, "freeHost", nv::cudaFreeHost);
+  EXPORT_FUNC(env, exports, "hostRegister", nv::cudaHostRegister);
+  EXPORT_FUNC(env, exports, "hostUnregister", nv::cudaHostUnregister);
+  EXPORT_FUNC(env, exports, "cpy", nv::cudaMemcpy);
+  EXPORT_FUNC(env, exports, "cpy2D", nv::cudaMemcpy2D);
+  EXPORT_FUNC(env, exports, "cpy2DFromArray", nv::cudaMemcpy2DFromArray);
+  EXPORT_FUNC(env, exports, "set", nv::cudaMemset);
+  EXPORT_FUNC(env, exports, "cpyAsync", nv::cudaMemcpyAsync);
+  EXPORT_FUNC(env, exports, "setAsync", nv::cudaMemsetAsync);
+  EXPORT_FUNC(env, exports, "getInfo", nv::cudaMemGetInfo);
+  EXPORT_FUNC(env, exports, "getPointerAttribute", nv::cuPointerGetAttribute);
 
   auto cudaMemoryTypeFlags = Napi::Object::New(env);
   EXPORT_ENUM(env, cudaMemoryTypeFlags, "unregistered", cudaMemoryTypeUnregistered);
@@ -322,4 +327,4 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 }  // namespace mem
-}  // namespace node_cuda
+}  // namespace nv

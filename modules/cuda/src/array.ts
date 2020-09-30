@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CUDABuffer, mem } from './cuda';
+import { mem } from './cuda';
+import { CUDABuffer } from './addon';
 import { isNumber, isArrayLike, isArrayBuffer, isArrayBufferView, isCUDABuffer, isIterable } from './util';
 
 /**

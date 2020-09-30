@@ -16,7 +16,7 @@
 
 #include <napi.h>
 
-namespace node_cuda {
+namespace nv {
 
 class Task : public Napi::AsyncWorker {
  public:
@@ -65,4 +65,4 @@ class Task : public Napi::AsyncWorker {
   Napi::Promise::Deferred deferred_;
 };
 
-}  // namespace node_cuda
+}  // namespace nv

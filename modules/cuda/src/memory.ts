@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import * as CUDA from './cuda';
+import { CUDABuffer } from './addon'; 
 import { CUDAMemoryType } from './cuda';
 import { CUDAPointerAttribute } from './cuda';
 import { cachedEnumLookup } from './util';
@@ -41,7 +42,7 @@ export class CUDAMemory implements ArrayBufferView {
         return source as CUDAMemory;
     }
 
-    protected constructor(buffer: CUDA.CUDABuffer | ArrayBufferLike, byteOffset = 0, byteLength = buffer.byteLength - byteOffset) {
+    protected constructor(buffer: CUDABuffer | ArrayBufferLike, byteOffset = 0, byteLength = buffer.byteLength - byteOffset) {
         this.buffer = buffer;
         this.byteOffset = byteOffset;
         this.byteLength = byteLength;
