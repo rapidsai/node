@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cuda_runtime.h>
+#include "macros.hpp"
+#include "utilities/cpp_to_napi.hpp"
+#include "utilities/napi_to_cpp.hpp"
 
-#include <node_cuda/casting.hpp>
-#include <node_cuda/macros.hpp>
+#include <cuda_runtime_api.h>
+#include <nv_node/utilities/args.hpp>
 
-namespace node_cuda {
+namespace nv {
 
 // nvrtcCreateProgram(nvrtcProgram *prog,
 //                    const char *src,
@@ -25,12 +27,12 @@ namespace node_cuda {
 //                    int numHeaders,
 //                    const char * const *headers,
 //                    const char * const *includeNames)
-Napi::Value createProgram(Napi::CallbackInfo const& info) {
+Napi::Value createProgram(CallbackArgs const& info) {
   auto env                          = info.Env();
-  std::string src                   = FromJS(info[0]);
-  std::string name                  = FromJS(info[1]);
-  std::vector<std::string> headers  = FromJS(info[2]);
-  std::vector<std::string> includes = FromJS(info[3]);
+  std::string src                   = info[0];
+  std::string name                  = info[1];
+  std::vector<std::string> headers  = info[2];
+  std::vector<std::string> includes = info[3];
 
   std::vector<const char*> cHeaders(headers.size());
   std::vector<const char*> cIncludes(includes.size());
@@ -49,13 +51,13 @@ Napi::Value createProgram(Napi::CallbackInfo const& info) {
   std::for_each(cHeaders.begin(), cHeaders.end(), free_str);
   std::for_each(cIncludes.begin(), cIncludes.end(), free_str);
 
-  return ToNapi(env)(prog);
+  return CPPToNapi(info)(reinterpret_cast<void*>(prog));
 }
 
 namespace program {
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "create", node_cuda::createProgram);
+  EXPORT_FUNC(env, exports, "create", nv::createProgram);
   return exports;
 }
 }  // namespace program
-}  // namespace node_cuda
+}  // namespace nv

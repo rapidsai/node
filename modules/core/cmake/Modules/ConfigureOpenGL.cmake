@@ -14,10 +14,16 @@
 # limitations under the License.
 #=============================================================================
 
-include(FindOpenGL REQUIRED)
+# include(FindOpenGL REQUIRED)
+
+find_package(OpenGL REQUIRED EGL OpenGL)
 
 if(NOT OPENGL_FOUND)
     message(FATAL_ERROR "OpenGL not found")
 endif()
+
 message(STATUS "OpenGL libraries: " ${OPENGL_LIBRARIES})
 message(STATUS "OpenGL includes: " ${OPENGL_INCLUDE_DIR})
+
+message(STATUS "OPENGL_egl_LIBRARY: " ${OPENGL_egl_LIBRARY})
+message(STATUS "OPENGL_EGL_INCLUDE_DIRS: " ${OPENGL_EGL_INCLUDE_DIRS})

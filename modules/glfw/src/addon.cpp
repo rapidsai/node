@@ -60,9 +60,9 @@ Napi::Value glfwGetVersion(Napi::CallbackInfo const& info) {
 
 // GLFWAPI const char* glfwGetVersionString(void);
 Napi::Value glfwGetVersionString(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  std::string version{GLFWAPI::glfwGetVersionString()};
-  return CPPToNapi(info)(version);
+  auto env     = info.Env();
+  auto version = GLFWAPI::glfwGetVersionString();
+  return CPPToNapi(info)(std::string{version || ""});
 }
 
 // GLFWAPI int glfwGetError(const char** description);
@@ -77,8 +77,8 @@ Napi::Value glfwGetError(Napi::CallbackInfo const& info) {
 // GLFWAPI const char* glfwGetKeyName(int key, int scancode);
 Napi::Value glfwGetKeyName(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  std::string name{GLFWAPI::glfwGetKeyName(args[0], args[1])};
-  return CPPToNapi(info)(name);
+  auto name = GLFWAPI::glfwGetKeyName(args[0], args[1]);
+  return CPPToNapi(info)(std::string{name || ""});
 }
 
 // GLFWAPI int glfwGetKeyScancode(int key);

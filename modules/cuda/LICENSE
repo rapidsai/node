@@ -202,7 +202,7 @@
 
 --------------------------------------------------------------------------------
 
-include/visit_struct/visit_struct.hpp (modified): BSL 1.0
+src/visit_struct/visit_struct.hpp (modified): BSL 1.0
 
 Boost Software License - Version 1.0 - August 17th, 2003
 

@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cuda/buffer.hpp>
-#include <node_cuda/casting.hpp>
-#include <node_cuda/macros.hpp>
+#include "buffer.hpp"
+#include "macros.hpp"
+#include "utilities/cpp_to_napi.hpp"
+#include "utilities/napi_to_cpp.hpp"
 
-namespace node_cuda {
+#include <nv_node/utilities/args.hpp>
+
+namespace nv {
 
 Napi::FunctionReference CUDABuffer::constructor;
 
@@ -69,11 +72,12 @@ Napi::Value CUDABuffer::GetPointer(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value CUDABuffer::CopySlice(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
   auto env      = info.Env();
-  size_t offset = FromJS(info[0]);
+  size_t offset = args[0];
   size_t length = size_ - offset;
-  if (info.Length() > 1 && info[1].IsNumber()) {
-    length = FromJS(info[1]).operator size_t() - offset;
+  if (info.Length() > 1 && info[1].IsNumber()) {  //
+    length = args[1].operator size_t() - offset;
   }
   void* data;
   CUDA_TRY(env, CUDARTAPI::cudaMalloc(&data, length));
@@ -82,4 +86,4 @@ Napi::Value CUDABuffer::CopySlice(Napi::CallbackInfo const& info) {
   return CUDABuffer::New(data, length);
 }
 
-}  // namespace node_cuda
+}  // namespace nv

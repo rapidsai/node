@@ -50,9 +50,10 @@
     "clangd.path": "/usr/bin/clangd",
     "clangd.semanticHighlighting": false,
     "clangd.arguments": [
-      "-j=4",
+      "-j=8",
       "--log=info",
       "--pch-storage=disk",
+      "--cross-file-rename",
       "--completion-parse=auto",
       "--fallback-style=Google",
       "--compile-commands-dir=",

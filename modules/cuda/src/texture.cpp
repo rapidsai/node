@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cuda/array.hpp>
+#include "array.hpp"
 
-namespace node_cuda {
+namespace nv {
 
 namespace texture {
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  node_cuda::CUDAArray::Init(env, exports);
+  nv::CUDAArray::Init(env, exports);
   return exports;
 }
 }  // namespace texture
-}  // namespace node_cuda
+}  // namespace nv

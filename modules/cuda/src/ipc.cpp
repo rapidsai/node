@@ -12,53 +12,54 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cuda_runtime.h>
+#include "buffer.hpp"
+#include "macros.hpp"
+#include "utilities/cpp_to_napi.hpp"
+#include "utilities/napi_to_cpp.hpp"
 
-#include <node_cuda/buffer.hpp>
-#include <node_cuda/casting.hpp>
-#include <node_cuda/macros.hpp>
+#include <cuda_runtime_api.h>
+#include <nv_node/utilities/args.hpp>
 
-namespace node_cuda {
+namespace nv {
 
 // cudaError_t cudaIpcGetMemHandle(cudaIpcMemHandle_t *handle, void *devPtr)
-Napi::Value cudaIpcGetMemHandle(Napi::CallbackInfo const& info) {
-  auto env   = info.Env();
-  void* dptr = FromJS(info[0]);
+Napi::Value cudaIpcGetMemHandle(CallbackArgs const& info) {
+  auto env = info.Env();
   cudaIpcMemHandle_t handle;
 
-  CUDA_TRY(env, CUDARTAPI::cudaIpcGetMemHandle(&handle, dptr));
-  return ToNapi(env)(handle);
+  CUDA_TRY(env, CUDARTAPI::cudaIpcGetMemHandle(&handle, info[0]));
+  return CPPToNapi(info)(handle);
 }
 
 // cudaError_t cudaIpcOpenMemHandle(void **devPtr, cudaIpcMemHandle_t handle,
 // unsigned int flags)
-Napi::Value cudaIpcOpenMemHandle(Napi::CallbackInfo const& info) {
+Napi::Value cudaIpcOpenMemHandle(CallbackArgs const& info) {
   auto env = info.Env();
   void* dptr;
   size_t size;
-  cudaIpcMemHandle_t handle = FromJS(info[0]);
+  cudaIpcMemHandle_t* handle = info[0];
 
-  CUDA_TRY(env, CUDARTAPI::cudaIpcOpenMemHandle(&dptr, handle, CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS));
+  CUDA_TRY(env,
+           CUDARTAPI::cudaIpcOpenMemHandle(&dptr, *handle, CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS));
   CU_TRY(env, CUDAAPI::cuMemGetAddressRange(nullptr, &size, reinterpret_cast<CUdeviceptr>(dptr)));
 
-  return node_cuda::CUDABuffer::New(dptr, size, buffer_type::IPC);
+  return nv::CUDABuffer::New(dptr, size, buffer_type::IPC);
 }
 
 // cudaError_t cudaIpcCloseMemHandle(void *devPtr)
-Napi::Value cudaIpcCloseMemHandle(Napi::CallbackInfo const& info) {
-  auto env   = info.Env();
-  void* dptr = FromJS(info[0]);
-  CUDA_TRY(env, CUDARTAPI::cudaIpcCloseMemHandle(dptr));
+Napi::Value cudaIpcCloseMemHandle(CallbackArgs const& info) {
+  auto env = info.Env();
+  CUDA_TRY(env, CUDARTAPI::cudaIpcCloseMemHandle(info[0]));
   return env.Undefined();
 }
 
 namespace ipc {
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "getMemHandle", node_cuda::cudaIpcGetMemHandle);
-  EXPORT_FUNC(env, exports, "openMemHandle", node_cuda::cudaIpcOpenMemHandle);
-  EXPORT_FUNC(env, exports, "closeMemHandle", node_cuda::cudaIpcCloseMemHandle);
+  EXPORT_FUNC(env, exports, "getMemHandle", nv::cudaIpcGetMemHandle);
+  EXPORT_FUNC(env, exports, "openMemHandle", nv::cudaIpcOpenMemHandle);
+  EXPORT_FUNC(env, exports, "closeMemHandle", nv::cudaIpcCloseMemHandle);
 
   return exports;
 }
 }  // namespace ipc
-}  // namespace node_cuda
+}  // namespace nv

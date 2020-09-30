@@ -12,32 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cuda/addon.hpp>
-#include <node_cuda/casting.hpp>
-#include <node_cuda/macros.hpp>
+#include "addon.hpp"
+#include "macros.hpp"
 
-namespace node_cuda {
+#include "utilities/cpp_to_napi.hpp"
+#include "utilities/napi_to_cpp.hpp"
+
+#include <nv_node/utilities/args.hpp>
+
+namespace nv {
 
 // CUresult cuInit(unsigned int Flags)
-Napi::Value cuInit(Napi::CallbackInfo const& info) {
+Napi::Value cuInit(CallbackArgs const& info) {
   auto env = info.Env();
   CU_TRY(env, CUDAAPI::cuInit(0));
   return info.This();
 }
 
 // CUresult cuDriverGetVersion(int* driverVersion);
-Napi::Value cuDriverGetVersion(Napi::CallbackInfo const& info) {
+Napi::Value cuDriverGetVersion(CallbackArgs const& info) {
   auto env = info.Env();
   int driverVersion;
   CU_TRY(info.Env(), CUDAAPI::cuDriverGetVersion(&driverVersion));
-  return node_cuda::ToNapi(info.Env())(driverVersion);
+  return CPPToNapi(info)(driverVersion);
 }
 
-}  // namespace node_cuda
+}  // namespace nv
 
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", node_cuda::cuInit);
-  EXPORT_FUNC(env, exports, "getDriverVersion", node_cuda::cuDriverGetVersion);
+  EXPORT_FUNC(env, exports, "init", nv::cuInit);
+  EXPORT_FUNC(env, exports, "getDriverVersion", nv::cuDriverGetVersion);
 
   auto device  = Napi::Object::New(env);
   auto gl      = Napi::Object::New(env);
@@ -59,15 +63,15 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_PROP(exports, "stream", stream);
   EXPORT_PROP(exports, "texture", stream);
 
-  node_cuda::device::initModule(env, device);
-  node_cuda::gl::initModule(env, gl);
-  node_cuda::ipc::initModule(env, ipc);
-  node_cuda::kernel::initModule(env, kernel);
-  node_cuda::math::initModule(env, math);
-  node_cuda::mem::initModule(env, mem);
-  node_cuda::program::initModule(env, program);
-  node_cuda::stream::initModule(env, stream);
-  node_cuda::texture::initModule(env, stream);
+  nv::device::initModule(env, device);
+  nv::gl::initModule(env, gl);
+  nv::ipc::initModule(env, ipc);
+  nv::kernel::initModule(env, kernel);
+  nv::math::initModule(env, math);
+  nv::mem::initModule(env, mem);
+  nv::program::initModule(env, program);
+  nv::stream::initModule(env, stream);
+  nv::texture::initModule(env, stream);
 
   EXPORT_ENUM(env, exports, "VERSION", CUDA_VERSION);
   EXPORT_ENUM(env, exports, "IPC_HANDLE_SIZE", CU_IPC_HANDLE_SIZE);

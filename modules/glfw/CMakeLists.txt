@@ -62,6 +62,7 @@ include(ConfigureOpenGLFW)
 include_directories("${GLEW_INCLUDE_DIR}"
                     "${GLFW_INCLUDE_DIR}"
                     "${OPENGL_INCLUDE_DIR}"
+                    "${OPENGL_EGL_INCLUDE_DIRS}"
                     "${RAPIDS_CORE_INCLUDE_DIR}"
                     "${DISPLAY_SERVER_INCLUDE_DIRS}"
                     "${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -77,4 +78,5 @@ target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       ${GLEW_LIBRARY}
                       ${GLFW_LIBRARY}
-                      OpenGL::GL)
+                      OpenGL::EGL
+                      OpenGL::OpenGL)

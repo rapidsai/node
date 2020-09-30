@@ -40,14 +40,15 @@ include(ConfigureCUDA)
 # - include paths ---------------------------------------------------------------------------------
 
 include_directories("${CUDA_INCLUDE_DIRS}"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+                    "${RAPIDS_CORE_INCLUDE_DIR}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
 link_directories("${CUDA_LIBRARIES}")
 
-file(GLOB_RECURSE NODE_CUDA_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/*.cpp")
+file(GLOB_RECURSE NODE_CUDA_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_CUDA_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")

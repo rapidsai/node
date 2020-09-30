@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cuda/task.hpp>
+#include "task.hpp"
 
-namespace node_cuda {
+namespace nv {
 
 Task::Task(Napi::Env env) : Task(env, env.Undefined()) {}
 
@@ -61,4 +61,4 @@ void Task::OnOK() {
   }
 }
 
-}  // namespace node_cuda
+}  // namespace nv

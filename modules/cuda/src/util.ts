@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CUDABuffer } from './cuda';
+import { CUDABuffer } from './addon';
 
 /** @ignore */
 export const isNumber = (x: any): x is number => typeof x === 'number';

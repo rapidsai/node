@@ -14,9 +14,10 @@
 
 #pragma once
 
-#include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
 #include <cstdlib>
-#include <visit_struct/visit_struct.hpp>
+
+#include "visit_struct/visit_struct.hpp"
 
 VISITABLE_STRUCT(CUDARTAPI::cudaPointerAttributes, type, device, devicePointer, hostPointer);
 

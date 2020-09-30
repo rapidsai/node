@@ -15,11 +15,11 @@
 #pragma once
 
 #include <cuda.h>
-#include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
 #include <napi.h>
 #include <nvrtc.h>
 
-namespace node_cuda {
+namespace nv {
 
 inline Napi::Error cuError(Napi::Env const& env, CUresult code, const char* file, uint32_t line) {
   const char* name;
@@ -51,4 +51,4 @@ inline Napi::Error nvrtcError(Napi::Env const& env,
   return Napi::Error::New(env, msg);
 }
 
-}  // namespace node_cuda
+}  // namespace nv

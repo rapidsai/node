@@ -87,8 +87,8 @@ Napi::Value glfwGetMonitorContentScale(Napi::CallbackInfo const& info) {
 Napi::Value glfwGetMonitorName(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
-  std::string name{GLFWAPI::glfwGetMonitorName(args[0])};
-  return CPPToNapi(info)(name);
+  auto name = GLFWAPI::glfwGetMonitorName(args[0]);
+  return CPPToNapi(info)(std::string{name || ""});
 }
 
 // GLFWAPI void glfwSetMonitorUserPointer(GLFWmonitor* monitor, void* pointer);
@@ -148,13 +148,10 @@ Napi::Value glfwGetGammaRamp(Napi::CallbackInfo const& info) {
   auto ramp               = GLFWAPI::glfwGetGammaRamp(args[0]);
   auto size               = ramp->size;
   auto js_ramp            = Napi::Object::New(env);
-  Napi::ArrayBuffer red   = CPPToNapi(info)(ramp->red, size);
-  Napi::ArrayBuffer green = CPPToNapi(info)(ramp->green, size);
-  Napi::ArrayBuffer blue  = CPPToNapi(info)(ramp->blue, size);
   js_ramp.Set("size", CPPToNapi(info)(ramp->size));
-  js_ramp.Set("red", Napi::Uint16Array::New(env, size, red, 0));
-  js_ramp.Set("green", Napi::Uint16Array::New(env, size, green, 0));
-  js_ramp.Set("blue", Napi::Uint16Array::New(env, size, blue, 0));
+  js_ramp.Set("red", CPPToNapi(info)(ramp->red, size));
+  js_ramp.Set("green", CPPToNapi(info)(ramp->green, size));
+  js_ramp.Set("blue", CPPToNapi(info)(ramp->blue, size));
   return js_ramp;
 }
 

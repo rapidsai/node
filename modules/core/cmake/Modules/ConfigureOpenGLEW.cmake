@@ -16,6 +16,8 @@
 
 include(get_cpm)
 
+add_compile_definitions(GLEW_EGL)
+
 CPMAddPackage(NAME glew
     VERSION        ${GLEW_VERSION}
     GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git

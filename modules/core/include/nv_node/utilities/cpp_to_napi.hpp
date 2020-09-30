@@ -16,14 +16,12 @@
 
 #include "nv_node/utilities/span.hpp"
 
-// #include <cuda.h>
-// #include <cuda_runtime.h>
-
 #include <napi.h>
 
-#include <cstring>
 #include <initializer_list>
 #include <map>
+#include <stdexcept>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -51,6 +49,9 @@ struct CPPToNapi {
   inline CPPToNapi(Napi::Env const& env) : env(env) {}
   inline CPPToNapi(Napi::CallbackInfo const& info) : CPPToNapi(info.Env()) {}
 
+  template <typename... Args>
+  Napi::Value operator()(Args const&...) const;
+
   // Primitives
   inline Napi::Boolean operator()(bool const& val) const { return Napi::Boolean::New(env, val); }
   inline Napi::Number operator()(float const& val) const { return Napi::Number::New(env, val); }
@@ -73,10 +74,10 @@ struct CPPToNapi {
   //
   // Arrays
   //
-  template <typename T, int N>
-  inline Napi::Array operator()(const T (&arr)[N]) const {
-    return (*this)(std::vector<T>{arr, arr + N});
-  }
+  // template <typename T, int N>
+  // inline Napi::Array operator()(const T (&arr)[N]) const {
+  //   return (*this)(std::vector<T>{arr, arr + N});
+  // }
 
   template <typename T>
   inline Napi::Array operator()(std::vector<T> const& vec) const {
@@ -135,14 +136,6 @@ struct CPPToNapi {
     return obj;
   }
 
-  // inline Napi::Object operator()(const CUDARTAPI::cudaDeviceProp& props) const {
-  //   auto cast_t = *this;
-  //   auto obj    = Napi::Object::New(env);
-  //   visit_struct::for_each(
-  //     props, [&](const char* name, const auto& value) { obj.Set(name, cast_t(value)); });
-  //   return obj;
-  // }
-
   //
   // Pointers
   //
@@ -160,25 +153,27 @@ struct CPPToNapi {
   }
 
   template <typename T>
-  inline Napi::External<T const> operator()(T const* data) const {
-    return Napi::External<T const>::New(env, data);
+  inline Napi::External<T> operator()(T const* data) const {
+    return Napi::External<T>::New(env, const_cast<T*>(data));
   }
 
   template <typename T>
-  inline Napi::ArrayBuffer operator()(T const* data, size_t size) const {
+  inline Napi::Value operator()(T const* data, size_t size) const {
     auto buf = Napi::ArrayBuffer::New(env, size);
     std::memcpy(buf.Data(), data, size);
-    return buf;
+    return buffer_to_typed_array<T>(buf);
   }
 
   template <typename T>
-  inline Napi::ArrayBuffer operator()(Span<T> const& span) const {
-    return Napi::ArrayBuffer::New(env, span.data(), span.size());
+  inline Napi::Value operator()(Span<T> const& span) const {
+    auto buf = Napi::ArrayBuffer::New(env, span.data(), span.size());
+    return buffer_to_typed_array<T>(buf);
   }
 
   template <typename T, typename Finalizer>
-  inline Napi::ArrayBuffer operator()(Span<T> const& span, Finalizer finalizer) const {
-    return Napi::ArrayBuffer::New(env, span.data(), span.size(), finalizer);
+  inline Napi::Value operator()(Span<T> const& span, Finalizer finalizer) const {
+    auto buf = Napi::ArrayBuffer::New(env, span.data(), span.size(), finalizer);
+    return buffer_to_typed_array<T>(buf);
   }
 
   //
@@ -191,43 +186,41 @@ struct CPPToNapi {
   //
   // CUDA Runtime type conversions
   //
-#ifdef CUDART_VERSION
-  inline Napi::ArrayBuffer operator()(cudaUUID_t const& data) const {
-    return this->operator()(data.bytes, sizeof(cudaUUID_t));
-  }
+  // inline Napi::Value operator()(cudaUUID_t const& data) const {
+  //   return this->operator()(data.bytes, sizeof(cudaUUID_t));
+  // }
 
-  inline Napi::Number operator()(cudaError_t const& error) const {
-    return Napi::Number::New(env, error);
-  }
+  // inline Napi::Number operator()(cudaError_t const& error) const {
+  //   return Napi::Number::New(env, error);
+  // }
 
-  inline Napi::Number operator()(cudaStream_t const& stream) const {
-    return Napi::Number::New(env, reinterpret_cast<size_t>(stream));
-  }
+  // inline Napi::Number operator()(cudaStream_t const& stream) const {
+  //   return Napi::Number::New(env, reinterpret_cast<size_t>(stream));
+  // }
 
-  inline Napi::External<void> operator()(cudaEvent_t const& event) const {
-    return Napi::External<void>::New(env, event);
-  }
+  // inline Napi::External<void> operator()(cudaEvent_t const& event) const {
+  //   return Napi::External<void>::New(env, event);
+  // }
 
-  inline Napi::External<void> operator()(cudaGraph_t const& graph) const {
-    return Napi::External<void>::New(env, graph);
-  }
+  // inline Napi::External<void> operator()(cudaGraph_t const& graph) const {
+  //   return Napi::External<void>::New(env, graph);
+  // }
 
-  inline Napi::External<void> operator()(cudaGraphNode_t const& graphNode) const {
-    return Napi::External<void>::New(env, graphNode);
-  }
+  // inline Napi::External<void> operator()(cudaGraphNode_t const& graphNode) const {
+  //   return Napi::External<void>::New(env, graphNode);
+  // }
 
-  inline Napi::External<void> operator()(cudaGraphExec_t const& graphExec) const {
-    return Napi::External<void>::New(env, graphExec);
-  }
+  // inline Napi::External<void> operator()(cudaGraphExec_t const& graphExec) const {
+  //   return Napi::External<void>::New(env, graphExec);
+  // }
 
-  inline Napi::External<void> operator()(cudaGraphicsResource_t const& resource) const {
-    return Napi::External<void>::New(env, resource);
-  }
+  // inline Napi::External<void> operator()(cudaGraphicsResource_t const& resource) const {
+  //   return Napi::External<void>::New(env, resource);
+  // }
 
-  inline Napi::ArrayBuffer operator()(cudaIpcMemHandle_t const& data) const {
-    return this->operator()(data.reserved, sizeof(cudaIpcMemHandle_t));
-  }
-#endif
+  // inline Napi::Value operator()(cudaIpcMemHandle_t const& data) const {
+  //   return this->operator()(data.reserved, sizeof(cudaIpcMemHandle_t));
+  // }
 
 #ifdef GLEW_VERSION
   inline Napi::External<void> operator()(GLsync const& sync) const {
@@ -249,6 +242,28 @@ struct CPPToNapi {
     return Napi::Number::New(env, reinterpret_cast<size_t>(ptr));
   }
 #endif
+
+ protected:
+  template <typename T>
+  Napi::Value buffer_to_typed_array(Napi::ArrayBuffer& buf) const {
+    if (std::is_same<T, int8_t>() || std::is_same<T, char>())
+      return Napi::Int8Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
+    if (std::is_same<T, uint8_t>() || std::is_same<T, unsigned char>())
+      return Napi::Uint8Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
+    if (std::is_same<T, int16_t>() || std::is_same<T, short>())
+      return Napi::Int16Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
+    if (std::is_same<T, uint16_t>() || std::is_same<T, unsigned short>())
+      return Napi::Uint16Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
+    if (std::is_same<T, int32_t>())
+      return Napi::Int32Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
+    if (std::is_same<T, uint32_t>())
+      return Napi::Uint32Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
+    if (std::is_same<T, float>())
+      return Napi::Float32Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
+    if (std::is_same<T, double>())
+      return Napi::Float64Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
+    NAPI_THROW(std::runtime_error{"Unknown TypedArray type"}, env.Undefined());
+  }
 };
 
 }  // namespace nv
