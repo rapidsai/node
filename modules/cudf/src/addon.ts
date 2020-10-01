@@ -12,23 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "addon.hpp"
-#include "column.hpp"
-#include "macros.hpp"
+export const CUDF = (() => {
+    let CUDF: any, types = ['Release'];
+    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
+        types.push('Debug');
+    }
+    for (let type; type = types.pop();) {
+        try {
+            if (CUDF = require(`../${type}/node_cudf.node`)) {
+                break;
+            }
+        } catch (e) { console.error(e); continue; }
+    }
+    if (CUDF) return CUDF.init();
+    throw new Error('node_cudf not found');
+})();
 
-namespace nv {
-
-Napi::Value cudfInit(Napi::CallbackInfo const& info) {
-  // todo
-  return info.This();
-}
-
-}  // namespace node_cudf
-
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", nv::cudfInit);
-  nv::Column::Init(env, exports);
-  return exports;
-}
-
-NODE_API_MODULE(node_cudf, initModule);
+export default CUDF;
