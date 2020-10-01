@@ -15,8 +15,11 @@
 #include "addon.hpp"
 #include "macros.hpp"
 
-#include "utilities/cpp_to_napi.hpp"
-#include "utilities/napi_to_cpp.hpp"
+#include "cuda/device.hpp"
+#include "cuda/memory.hpp"
+
+#include "cuda/utilities/cpp_to_napi.hpp"
+#include "cuda/utilities/napi_to_cpp.hpp"
 
 #include <nv_node/utilities/args.hpp>
 
@@ -75,6 +78,11 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 
   EXPORT_ENUM(env, exports, "VERSION", CUDA_VERSION);
   EXPORT_ENUM(env, exports, "IPC_HANDLE_SIZE", CU_IPC_HANDLE_SIZE);
+
+  nv::Device::Init(env, exports);
+  nv::HostMemory::Init(env, exports);
+  nv::DeviceMemory::Init(env, exports);
+  nv::ManagedMemory::Init(env, exports);
 
   return exports;
 }

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "cuda/utilities/cpp_to_napi.hpp"
+#include "cuda/utilities/napi_to_cpp.hpp"
 #include "macros.hpp"
 #include "types.hpp"
-#include "utilities/cpp_to_napi.hpp"
-#include "utilities/napi_to_cpp.hpp"
 
 #include <cuda_runtime_api.h>
 #include <napi.h>

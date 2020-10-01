@@ -19,8 +19,8 @@
 
 // #include <cuda_runtime_api.h>
 // #include <nv_node/utilities/args.hpp>
-// #include "utilities/napi_to_cpp.hpp"
-// #include "utilities/cpp_to_napi.hpp"
+// #include "cuda/utilities/napi_to_cpp.hpp"
+// #include "cuda/utilities/cpp_to_napi.hpp"
 
 // #include <type_traits>
 

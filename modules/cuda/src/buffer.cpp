@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include "buffer.hpp"
+#include "cuda/utilities/cpp_to_napi.hpp"
+#include "cuda/utilities/napi_to_cpp.hpp"
 #include "macros.hpp"
-#include "utilities/cpp_to_napi.hpp"
-#include "utilities/napi_to_cpp.hpp"
 
 #include <nv_node/utilities/args.hpp>
 
