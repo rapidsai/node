@@ -12,18 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cstddef>
 #include <cudf/column/column.hpp>
 #include <cudf/types.hpp>
-// #include "column_view.hpp"
-
-#include <memory>
 #include <rmm/device_buffer.hpp>
-#include <utility>
-#include <string>
 
 #include <napi.h>
-#include <nv_node/utilities/args.hpp>
+
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <utility>
 
 namespace nv{
 
@@ -41,8 +39,8 @@ public:
 
     Column(Napi::CallbackInfo const& info);
 
-    auto& Col(){ return column_; }
-    std::string dtype() {return dtype_;}
+    cudf::column& column() { return *column_; }
+    std::string const& dtype() { return dtype_; }
 
     // cudf::size_type getSize() {return size_;}
     // void set_null_count(cudf::size_type val) {null_count_ = val;}

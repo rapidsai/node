@@ -13,15 +13,15 @@
 // limitations under the License.
 
 #include "column.hpp"
-#include "cudf/types.hpp"
-#include "js_native_api.h"
 #include "macros.hpp"
-#include "napi.h"
+
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/cpp_to_napi.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
-#include <map>
+
+#include <napi.h>
 #include <iostream>
+#include <map>
 #include <string>
 
 static std::map<std::string, cudf::type_id> const map_test = {
@@ -119,27 +119,27 @@ Napi::Value Column::GetDataType(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value Column::GetSize(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(Col()->size());
+  return CPPToNapi(info)(column().size());
 }
 
 Napi::Value Column::HasNulls(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(Col()->has_nulls());
+  return CPPToNapi(info)(column().has_nulls());
 }
 
 Napi::Value Column::GetNullCount(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(Col()->null_count());
+  return CPPToNapi(info)(column().null_count());
 }
 
 Napi::Value Column::Release(Napi::CallbackInfo const& info){
-  Col()->release();
+  column().release();
   return info.Env().Undefined();
 }
 
 Napi::Value Column::SetNullCount(Napi::CallbackInfo const& info){
  CallbackArgs args{info};
 //  if(args.Length() == 1 && info[0].IsNumber()){
-   Col()->set_null_count(info[0].As<Napi::Number>());
-//  }
+ column().set_null_count(info[0].As<Napi::Number>());
+ //  }
  return info.Env().Undefined();
 }
 

@@ -1,5 +1,5 @@
 {
-    "name": "@rapidsai/cudf",
+    "name": "@nvidia/cudf",
     "version": "0.0.1",
     "license": "Apache-2.0",
     "author": "NVIDIA, Inc. (https://nvidia.com/)",
@@ -46,4 +46,3 @@
       "CMakeLists.txt"
     ]
   }
-  
