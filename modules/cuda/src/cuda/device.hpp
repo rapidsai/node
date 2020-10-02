@@ -39,9 +39,11 @@ class Device : public Napi::ObjectWrap<Device> {
   /**
    * @brief Construct a new Device instance from C++.
    *
-   * @param id The CUDA device id.
+   * @param id The zero-based CUDA device ordinal.
+   * @param flags Flags for the device's primary context.
    */
-  static Napi::Object New(int32_t id = current_device_id());
+  static Napi::Object New(int32_t id     = current_device_id(),
+                          uint32_t flags = cudaDeviceScheduleAuto);
 
   /**
    * @brief Retrieve the id of the current CUDA device for this thread.
@@ -55,6 +57,17 @@ class Device : public Napi::ObjectWrap<Device> {
   }
 
   /**
+   * @brief Check whether an Napi value is an instance of `Device`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `Device`
+   * @return false if the value is not a `Device`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+  }
+
+  /**
    * @brief Construct a new Device instance from JavaScript.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
@@ -64,9 +77,92 @@ class Device : public Napi::ObjectWrap<Device> {
   /**
    * @brief Initialize the Device instance created by either C++ or JavaScript.
    *
-   * @param id Size in bytes to allocate in memory.
+   * @param id The zero-based CUDA device id.
+   * @param flags Flags for the device's primary context.
    */
-  void Initialize(int32_t id = current_device_id());
+  void Initialize(int32_t id = current_device_id(), uint32_t flags = cudaDeviceScheduleAuto);
+
+  /**
+   * @brief Destroy all allocations and reset all state on the current
+   * device in the current process. Resets the device with the specified
+   * device flags.
+   *
+   * Explicitly destroys and cleans up all resources associated with the
+   * current device in the current process. Any subsequent API call to
+   * this device will reinitialize the device.
+   *
+   * Note that this function will reset the device immediately. It is the
+   * caller's responsibility to ensure that the device is not being accessed
+   * by any other host threads from the process when this function is called.
+   *
+   * @param flags Flags for the device's primary context.
+   *
+   * @return Device const&
+   */
+  Device const& reset(uint32_t flags = cudaDeviceScheduleAuto);
+
+  /**
+   * @brief Set this device to be used for GPU executions.
+   *
+   * Sets this device as the current device for the calling host thread.
+   *
+   * Any device memory subsequently allocated from this host thread
+   * will be physically resident on this device. Any host memory allocated
+   * from this host thread will have its lifetime associated with this
+   * device. Any streams or events created from this host thread will
+   * be associated with this device. Any kernels launched from this host
+   * thread will be executed on this device.
+   *
+   * This call may be made from any host thread, to any device, and at
+   * any time. This function will do no synchronization with the previous
+   * or new device, and should be considered a very low overhead call.
+   *
+   * @return Device const&
+   */
+  Device const& activate();
+
+  /**
+   * @brief Wait for this compute device to finish.
+   *
+   * Blocks execution of further device calls until the device has completed
+   * all preceding requested tasks.
+   *
+   * @throw an error if one of the preceding tasks has failed. If the
+   * `cudaDeviceScheduleBlockingSync` flag was set for this device, the
+   * host thread will block until the device has finished its work.
+   *
+   * @return Device const&
+   */
+  Device const& synchronize();
+
+  /**
+   * @brief Queries if a device may directly access a peer device's memory.
+   *
+   * If direct access of `peer` from this device is possible, then
+   * access may be enabled on two specific contexts by calling
+   * `enable_peer_access`.
+   *
+   * @param peer
+   * @return bool
+   */
+  bool can_access_peer_device(Device const& peer);
+
+  /**
+   * @brief Enables direct access to memory allocations in a peer device.
+   *
+   * @param peer
+   * @return Device const&
+   */
+  Device const& enable_peer_access(Device const& peer);
+
+  /**
+   * @brief Disables direct access to memory allocations in a peer device and unregisters any
+   * registered allocations.
+   *
+   * @param peer
+   * @return Device const&
+   */
+  Device const& disable_peer_access(Device const& peer);
 
   int32_t id() const { return id_; }
   cudaDeviceProp const& props() const { return props_; }
@@ -75,14 +171,39 @@ class Device : public Napi::ObjectWrap<Device> {
  private:
   static Napi::FunctionReference constructor;
 
+  int32_t id_{};              ///< The CUDA device identifer
+  cudaDeviceProp props_;      ///< The CUDA device properties
+  std::string pci_bus_name_;  ///< The CUDA device PCI bus id string
+
+  template <typename Function>
+  inline void call_in_context(Function const& do_work) {
+    auto cur_device_id = this->current_device_id();
+    auto change_device = [&](int32_t id) {
+      if (cur_device_id != this->id()) {  //
+        NODE_CUDA_TRY(cudaSetDevice(id), this->Env());
+      }
+    };
+    try {
+      change_device(this->id());
+      do_work();
+    } catch (...) {
+      change_device(cur_device_id);
+      throw std::current_exception();
+    }
+    change_device(cur_device_id);
+  }
+
+  Napi::Value reset(Napi::CallbackInfo const& info);
+  Napi::Value activate(Napi::CallbackInfo const& info);
+  Napi::Value synchronize(Napi::CallbackInfo const& info);
+  Napi::Value can_access_peer_device(Napi::CallbackInfo const& info);
+  Napi::Value enable_peer_access(Napi::CallbackInfo const& info);
+  Napi::Value disable_peer_access(Napi::CallbackInfo const& info);
+
   Napi::Value GetId(Napi::CallbackInfo const& info);
   Napi::Value GetName(Napi::CallbackInfo const& info);
   Napi::Value GetPCIBusId(Napi::CallbackInfo const& info);
   Napi::Value GetPCIBusName(Napi::CallbackInfo const& info);
-
-  int32_t id_{};                   ///< The CUDA device id
-  cudaDeviceProp props_{};         ///< The CUDA device properties
-  std::string pci_bus_name_{127};  ///< The CUDA device PCI bus id string
 };
 
 }  // namespace nv

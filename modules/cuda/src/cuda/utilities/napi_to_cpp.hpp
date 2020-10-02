@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "cuda/device.hpp"
+#include "napi.h"
 #include "types.hpp"
 #include "visit_struct/visit_struct.hpp"
 
@@ -89,6 +91,12 @@ inline NapiToCPP::operator cudaDeviceProp() const {
     });
   }
   return props;
+}
+
+template <>
+inline NapiToCPP::operator Device const &() const {
+  if (Device::is_instance(val)) { return *Device::Unwrap(val.ToObject()); }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a Device instance");
 }
 
 }  // namespace nv
