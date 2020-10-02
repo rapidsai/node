@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import CUDF from './addon';
+import { DeviceBuffer } from '@nvidia/rmm';
 
 // const data_types = [
 // "empty",
@@ -47,17 +48,18 @@ import CUDF from './addon';
 export interface ColumnConstructor {
     readonly prototype: Column;
     new(
-        dtype?: string, size?:number, data?: number,
-        null_mask?: number, null_count?: number
+        dtype?: string, size?:number, data?: DeviceBuffer,
+        null_mask?: DeviceBuffer, null_count?: number
     ): Column;
 }
 
 export interface Column {
     type(): string;
     size(): number;
-    set_null_count(count_:number): void;
-    has_nulls(): boolean;
     null_count(): number;
+    set_null_count(count_:number): void;
+    nullable(): boolean;
+    has_nulls(): boolean;
     release(): void;
 }
 
