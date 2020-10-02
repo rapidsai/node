@@ -94,7 +94,7 @@ inline NapiToCPP::operator cudaDeviceProp() const {
 }
 
 template <>
-inline NapiToCPP::operator Device const &() const {
+inline NapiToCPP::operator Device() const {
   if (Device::is_instance(val)) { return *Device::Unwrap(val.ToObject()); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a Device instance");
 }

@@ -15,6 +15,7 @@
 #include "cuda/device.hpp"
 #include "cuda/utilities/cpp_to_napi.hpp"
 #include "cuda/utilities/error.hpp"
+#include "cuda/utilities/napi_to_cpp.hpp"
 
 #include <cuda_runtime_api.h>
 #include <napi.h>
@@ -148,8 +149,9 @@ bool Device::can_access_peer_device(Device const& peer) {
 }
 
 Napi::Value Device::can_access_peer_device(Napi::CallbackInfo const& info) {
-  can_access_peer_device(CallbackArgs{info}[0].operator Device());
-  return info.This();
+  CallbackArgs args{info};
+  Device const& peer = args[0];
+  return CPPToNapi(info)(can_access_peer_device(peer));
 }
 
 Device const& Device::enable_peer_access(Device const& peer) {
@@ -158,7 +160,9 @@ Device const& Device::enable_peer_access(Device const& peer) {
 }
 
 Napi::Value Device::enable_peer_access(Napi::CallbackInfo const& info) {
-  enable_peer_access(CallbackArgs{info}[0].operator Device());
+  CallbackArgs args{info};
+  Device const& peer = args[0];
+  enable_peer_access(peer);
   return info.This();
 }
 
@@ -168,7 +172,9 @@ Device const& Device::disable_peer_access(Device const& peer) {
 }
 
 Napi::Value Device::disable_peer_access(Napi::CallbackInfo const& info) {
-  disable_peer_access(CallbackArgs{info}[0].operator Device());
+  CallbackArgs args{info};
+  Device const& peer = args[0];
+  disable_peer_access(peer);
   return info.This();
 }
 
