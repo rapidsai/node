@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "buffer.hpp"
+#include "device_buffer.hpp"
 #include "macros.hpp"
 #include "nv_node/utilities/args.hpp"
 #include "nv_node/utilities/cpp_to_napi.hpp"
