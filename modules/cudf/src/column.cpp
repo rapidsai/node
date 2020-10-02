@@ -88,7 +88,7 @@ Napi::Value Column::New(
 ) {
 
   auto buf = Column::constructor.New({});
-  Column::Unwrap(buf)->column_.reset(new cudf::column{dtype, size, data});
+  Column::Unwrap(buf)->column_.reset(new cudf::column{dtype, size, data, null_mask, null_count});
 
   return buf;
 }
@@ -110,10 +110,23 @@ Column::Column(Napi::CallbackInfo const& info) : Napi::ObjectWrap<Column>(info) 
   Span<char> data = args[2];
   cudf::size_type size = data.size();
 
-  this->column_.reset(
-    new cudf::column{dtype, size, data}
-  );
-  
+  if(args.Length() == 3){
+    this->column_.reset(
+      new cudf::column{dtype, size, data}
+    );
+  } else if(args.Length() == 4){
+    Span<char> null_mask = args[3];
+    this->column_.reset(
+      new cudf::column{dtype, size, data, null_mask}
+    );
+  } else if(args.Length() == 5){
+    Span<char> null_mask = args[3];
+    cudf::size_type null_count = args[4];
+    this->column_.reset(
+      new cudf::column{dtype, size, data, null_mask, null_count}
+    );
+  }
+
 }
 
 Napi::Value Column::GetDataType(Napi::CallbackInfo const& info) {
@@ -137,15 +150,14 @@ Napi::Value Column::Release(Napi::CallbackInfo const& info){
   return info.Env().Undefined();
 }
 
+Napi::Value Column::Nullable(Napi::CallbackInfo const& info){
+  return CPPToNapi(info)(column().nullable());
+}
+
 Napi::Value Column::SetNullCount(Napi::CallbackInfo const& info){
  CallbackArgs args{info};
  size_t new_null_count = args[0];
  column().set_null_count(new_null_count);
  return info.Env().Undefined();
 }
-
-Napi::Value Column::Nullable(Napi::CallbackInfo const& info){
-  return CPPToNapi(info)(column().nullable());
-}
-
 }
