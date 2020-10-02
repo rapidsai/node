@@ -15,6 +15,7 @@
 #include "column.hpp"
 #include "macros.hpp"
 
+#include <cstddef>
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/cpp_to_napi.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
@@ -68,6 +69,7 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
           InstanceMethod("size", &Column::GetSize),
           InstanceMethod("set_null_count", &Column::SetNullCount),
           InstanceMethod("null_count", &Column::GetNullCount),
+          InstanceMethod("nullable", &Column::Nullable),
           InstanceMethod("has_nulls", &Column::HasNulls),
           InstanceMethod("release", &Column::Release),
         }
@@ -137,10 +139,13 @@ Napi::Value Column::Release(Napi::CallbackInfo const& info){
 
 Napi::Value Column::SetNullCount(Napi::CallbackInfo const& info){
  CallbackArgs args{info};
-//  if(args.Length() == 1 && info[0].IsNumber()){
- column().set_null_count(info[0].As<Napi::Number>());
- //  }
+ size_t new_null_count = args[0];
+ column().set_null_count(new_null_count);
  return info.Env().Undefined();
+}
+
+Napi::Value Column::Nullable(Napi::CallbackInfo const& info){
+  return CPPToNapi(info)(column().nullable());
 }
 
 }

@@ -42,12 +42,6 @@ public:
     cudf::column& column() { return *column_; }
     std::string const& dtype() { return dtype_; }
 
-    // cudf::size_type getSize() {return size_;}
-    // void set_null_count(cudf::size_type val) {null_count_ = val;}
-    // int null_count(){return null_count_;}
-    // // bool has_nulls() {return null_count_ == 0;}
-    // // cudf::size_type null_count() {return null_count();}
-
 private:
     static Napi::FunctionReference constructor;
 
@@ -57,6 +51,7 @@ private:
     Napi::Value HasNulls(Napi::CallbackInfo const& info);
     Napi::Value SetNullCount(Napi::CallbackInfo const& info);
     Napi::Value GetNullCount(Napi::CallbackInfo const& info);
+    Napi::Value Nullable(Napi::CallbackInfo const& info);
     // Napi::Value SetNullMask(Napi::CallbackInfo const& info);
 
     std::string dtype_;
