@@ -14,28 +14,27 @@
 
 #include "buffer.hpp"
 #include "macros.hpp"
-
-#include <nv_node/utilities/args.hpp>
-#include <nv_node/utilities/cpp_to_napi.hpp>
+#include "nv_node/utilities/args.hpp"
+#include "nv_node/utilities/cpp_to_napi.hpp"
 
 namespace nv {
 
 Napi::FunctionReference DeviceBuffer::constructor;
 
 Napi::Object DeviceBuffer::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(
+  const Napi::Function ctor = DefineClass(
     env,
     "DeviceBuffer",
     {
-      InstanceAccessor("capacity", &DeviceBuffer::GetCapacity, nullptr, napi_enumerable),
-      InstanceAccessor("byteLength", &DeviceBuffer::GetByteLength, nullptr, napi_enumerable),
-      InstanceAccessor("isEmpty", &DeviceBuffer::GetIsEmpty, nullptr, napi_enumerable),
-      InstanceAccessor("ptr", &DeviceBuffer::GetPointer, nullptr, napi_enumerable),
-      InstanceAccessor("stream", &DeviceBuffer::GetStream, nullptr, napi_enumerable),
-      InstanceMethod("resize", &DeviceBuffer::Resize),
-      InstanceMethod("setStream", &DeviceBuffer::SetStream),
-      InstanceMethod("shrinkToFit", &DeviceBuffer::ShrinkToFit),
-      InstanceMethod("slice", &DeviceBuffer::CopySlice),
+      InstanceAccessor("capacity", &DeviceBuffer::capacity, nullptr, napi_enumerable),
+      InstanceAccessor("byteLength", &DeviceBuffer::byteLength, nullptr, napi_enumerable),
+      InstanceAccessor("isEmpty", &DeviceBuffer::isEmpty, nullptr, napi_enumerable),
+      InstanceAccessor("ptr", &DeviceBuffer::ptr, nullptr, napi_enumerable),
+      InstanceAccessor("stream", &DeviceBuffer::stream, nullptr, napi_enumerable),
+      InstanceMethod("resize", &DeviceBuffer::resize),
+      InstanceMethod("setStream", &DeviceBuffer::setStream),
+      InstanceMethod("shrinkToFit", &DeviceBuffer::shrinkToFit),
+      InstanceMethod("slice", &DeviceBuffer::slice),
     });
   DeviceBuffer::constructor = Napi::Persistent(ctor);
   DeviceBuffer::constructor.SuppressDestruct();
@@ -44,7 +43,7 @@ Napi::Object DeviceBuffer::Init(Napi::Env env, Napi::Object exports) {
 }
 
 Napi::Value DeviceBuffer::New(void* data, size_t size, cudaStream_t stream) {
-  auto buf = DeviceBuffer::constructor.New({});
+  const auto buf = DeviceBuffer::constructor.New({});
   DeviceBuffer::Unwrap(buf)->buffer_.reset(new rmm::device_buffer(data, size, stream));
   if (stream == NULL) { CUDA_TRY(buf.Env(), cudaStreamSynchronize(stream)); }
   Napi::MemoryManagement::AdjustExternalMemory(buf.Env(), size);
@@ -52,28 +51,69 @@ Napi::Value DeviceBuffer::New(void* data, size_t size, cudaStream_t stream) {
 }
 
 DeviceBuffer::DeviceBuffer(Napi::CallbackInfo const& info) : Napi::ObjectWrap<DeviceBuffer>(info) {
-  CallbackArgs args{info};
-  size_t size         = 0;
+  const CallbackArgs args{info};
+  const size_t size   = args[0];
   cudaStream_t stream = 0;
-  if (args.Length() >= 1 && info[0].IsNumber()) { size = args[0]; }
   if (args.Length() >= 2 && info[1].IsNumber()) { stream = args[1]; }
-  this->buffer_.reset(new rmm::device_buffer(size, stream));
+  buffer_.reset(new rmm::device_buffer(size, stream));
   if (stream == NULL) { CUDA_TRY(info.Env(), cudaStreamSynchronize(stream)); }
 }
 
 void DeviceBuffer::Finalize(Napi::Env env) {
-  size_t size = Buffer()->size();
+  const size_t size = Buffer()->size();
   if (buffer_.get() != nullptr && size > 0) {
-    this->buffer_.reset(nullptr);
+    buffer_.reset(nullptr);
     Napi::MemoryManagement::AdjustExternalMemory(env, -size);
   }
   buffer_ = nullptr;
 }
 
-Napi::Value DeviceBuffer::CopySlice(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  size_t offset = args[0];
-  size_t length = Buffer()->size() - offset;
+Napi::Value DeviceBuffer::byteLength(Napi::CallbackInfo const& info) {
+  return Napi::Number::New(info.Env(), Buffer()->size());
+}
+
+Napi::Value DeviceBuffer::capacity(Napi::CallbackInfo const& info) {
+  return CPPToNapi(info)(Buffer()->capacity());
+}
+
+Napi::Value DeviceBuffer::isEmpty(Napi::CallbackInfo const& info) {
+  return CPPToNapi(info)(Buffer()->is_empty());
+}
+
+Napi::Value DeviceBuffer::ptr(Napi::CallbackInfo const& info) {
+  return Napi::Number::New(info.Env(), reinterpret_cast<int64_t>(Data()));
+}
+
+Napi::Value DeviceBuffer::resize(Napi::CallbackInfo const& info) {
+  const CallbackArgs args{info};
+  const size_t new_size = args[0];
+  if (args.Length() > 1 && info[1].IsNumber()) {
+    cudaStream_t stream = args[1];
+    Buffer()->resize(new_size, stream);
+  } else {
+    Buffer()->resize(new_size);
+  }
+  return args.Env().Undefined();
+}
+
+Napi::Value DeviceBuffer::setStream(Napi::CallbackInfo const& info) {
+  const CallbackArgs args{info};
+  const cudaStream_t stream = args[0];
+  Buffer()->set_stream(stream);
+  return args.Env().Undefined();
+}
+
+Napi::Value DeviceBuffer::shrinkToFit(Napi::CallbackInfo const& info) {
+  const CallbackArgs args{info};
+  const cudaStream_t stream = args[0];
+  Buffer()->shrink_to_fit(stream);
+  return args.Env().Undefined();
+}
+
+Napi::Value DeviceBuffer::slice(Napi::CallbackInfo const& info) {
+  const CallbackArgs args{info};
+  const size_t offset = args[0];
+  size_t length       = Buffer()->size() - offset;
   if (args.Length() > 1 && info[1].IsNumber()) {
     length = args[1];
     length -= offset;
@@ -81,52 +121,8 @@ Napi::Value DeviceBuffer::CopySlice(Napi::CallbackInfo const& info) {
   return DeviceBuffer::New(Data() + offset, length, Buffer()->stream());
 }
 
-Napi::Value DeviceBuffer::GetByteLength(Napi::CallbackInfo const& info) {
-  return Napi::Number::New(info.Env(), Buffer()->size());
-}
-
-Napi::Value DeviceBuffer::GetCapacity(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(Buffer()->capacity());
-}
-
-Napi::Value DeviceBuffer::GetIsEmpty(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(Buffer()->is_empty());
-}
-
-Napi::Value DeviceBuffer::GetPointer(Napi::CallbackInfo const& info) {
-  return Napi::Number::New(info.Env(), reinterpret_cast<int64_t>(Data()));
-}
-
-Napi::Value DeviceBuffer::GetStream(Napi::CallbackInfo const& info) {
+Napi::Value DeviceBuffer::stream(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(Buffer()->stream());
-}
-
-Napi::Value DeviceBuffer::Resize(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  size_t new_size = args[0];
-  if (args.Length() > 1 && info[1].IsNumber()) {
-    cudaStream_t stream = args[1];
-    Buffer()->resize(new_size, stream);
-  } else {
-    Buffer()->resize(new_size);
-  }
-  return info.Env().Undefined();
-}
-
-Napi::Value DeviceBuffer::SetStream(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  cudaStream_t stream = args[0];
-
-  Buffer()->set_stream(stream);
-  return info.Env().Undefined();
-}
-
-Napi::Value DeviceBuffer::ShrinkToFit(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  cudaStream_t stream = args[0];
-
-  Buffer()->shrink_to_fit(stream);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

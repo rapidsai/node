@@ -14,10 +14,7 @@
 
 #pragma once
 
-#include <cuda_runtime.h>
-#include <rmm/device_buffer.hpp>
-
-#include <nv_node/utilities/args.hpp>
+#include "rmm/device_buffer.hpp"
 
 #include <napi.h>
 
@@ -26,26 +23,46 @@ namespace nv {
 class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
  public:
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
+
+  /**
+   * @brief Construct a new DeviceBuffer instance from C++.
+   *
+   * @param data - Pointer to the host or device memory to copy from.
+   * @param size - Size in bytes to copy.
+   * @param stream - CUDA stream on which memory may be allocated if the memory
+   * resource supports streams.
+   */
   static Napi::Value New(void* data, size_t size, cudaStream_t stream = 0);
 
+  /**
+   * @brief Construct a new DeviceBuffer instance from JavaScript.
+   *
+   */
   DeviceBuffer(Napi::CallbackInfo const& info);
 
-  auto& Buffer() { return buffer_; }
-  char* Data() { return static_cast<char*>(Buffer()->data()); }
+  /**
+   * @brief Destructor called when the JavaScript VM garbage collects this DeviceBuffer
+   * instance.
+   *
+   * @param env The active JavaScript environment.
+   */
   void Finalize(Napi::Env env) override;
 
  private:
   static Napi::FunctionReference constructor;
 
-  Napi::Value CopySlice(Napi::CallbackInfo const& info);
-  Napi::Value GetByteLength(Napi::CallbackInfo const& info);
-  Napi::Value GetCapacity(Napi::CallbackInfo const& info);
-  Napi::Value GetIsEmpty(Napi::CallbackInfo const& info);
-  Napi::Value GetPointer(Napi::CallbackInfo const& info);
-  Napi::Value GetStream(Napi::CallbackInfo const& info);
-  Napi::Value Resize(Napi::CallbackInfo const& info);
-  Napi::Value SetStream(Napi::CallbackInfo const& info);
-  Napi::Value ShrinkToFit(Napi::CallbackInfo const& info);
+  auto& Buffer() const { return buffer_; }
+  char* Data() const { return static_cast<char*>(Buffer()->data()); }
+
+  Napi::Value byteLength(Napi::CallbackInfo const& info);
+  Napi::Value capacity(Napi::CallbackInfo const& info);
+  Napi::Value isEmpty(Napi::CallbackInfo const& info);
+  Napi::Value ptr(Napi::CallbackInfo const& info);
+  Napi::Value stream(Napi::CallbackInfo const& info);
+  Napi::Value resize(Napi::CallbackInfo const& info);
+  Napi::Value setStream(Napi::CallbackInfo const& info);
+  Napi::Value shrinkToFit(Napi::CallbackInfo const& info);
+  Napi::Value slice(Napi::CallbackInfo const& info);
 
   std::unique_ptr<rmm::device_buffer> buffer_;
 };
