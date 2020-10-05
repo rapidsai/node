@@ -74,10 +74,15 @@ class CudaMemoryResource : public Napi::ObjectWrap<CudaMemoryResource> {
     return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
   }
 
+  /**
+   * @brief Get a pointer to the underlying `CudaMemoryResource`.
+   *
+   * @return pointer to `CudaMemoryResource`
+   */
+  auto const& Resource() const { return resource_; }
+
  private:
   static Napi::FunctionReference constructor;
-
-  auto const& Resource() const { return resource_; }
 
   Napi::Value allocate(Napi::CallbackInfo const& info);
   Napi::Value deallocate(Napi::CallbackInfo const& info);
