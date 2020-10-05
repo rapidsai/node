@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include "cuda/device.hpp"
-#include "cuda/utilities/cpp_to_napi.hpp"
-#include "cuda/utilities/error.hpp"
+#include "node_cuda/device.hpp"
+#include "node_cuda/utilities/cpp_to_napi.hpp"
+#include "node_cuda/utilities/error.hpp"
 
 #include <napi.h>
 

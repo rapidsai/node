@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cuda/memory.hpp"
-#include "cuda/utilities/error.hpp"
+#include "node_cuda/memory.hpp"
+#include "node_cuda/utilities/error.hpp"
 
 #include <cuda_runtime_api.h>
 #include <napi.h>

@@ -14,9 +14,9 @@
 
 #include "array.hpp"
 #include "buffer.hpp"
-#include "cuda/utilities/cpp_to_napi.hpp"
-#include "cuda/utilities/napi_to_cpp.hpp"
-#include "macros.hpp"
+#include "node_cuda/macros.hpp"
+#include "node_cuda/utilities/cpp_to_napi.hpp"
+#include "node_cuda/utilities/napi_to_cpp.hpp"
 
 #include <GL/gl.h>
 #include <cuda.h>

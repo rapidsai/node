@@ -13,13 +13,13 @@
 // limitations under the License.
 
 #include "addon.hpp"
-#include "macros.hpp"
+#include "node_cuda/macros.hpp"
 
-#include "cuda/device.hpp"
-#include "cuda/memory.hpp"
+#include "node_cuda/device.hpp"
+#include "node_cuda/memory.hpp"
 
-#include "cuda/utilities/cpp_to_napi.hpp"
-#include "cuda/utilities/napi_to_cpp.hpp"
+#include "node_cuda/utilities/cpp_to_napi.hpp"
+#include "node_cuda/utilities/napi_to_cpp.hpp"
 
 #include <nv_node/utilities/args.hpp>
 

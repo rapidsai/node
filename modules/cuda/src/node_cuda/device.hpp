@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "cuda/utilities/error.hpp"
+#include "node_cuda/utilities/error.hpp"
 
 #include <napi.h>
 
@@ -200,10 +200,10 @@ class Device : public Napi::ObjectWrap<Device> {
   Napi::Value enable_peer_access(Napi::CallbackInfo const& info);
   Napi::Value disable_peer_access(Napi::CallbackInfo const& info);
 
-  Napi::Value GetId(Napi::CallbackInfo const& info);
-  Napi::Value GetName(Napi::CallbackInfo const& info);
-  Napi::Value GetPCIBusId(Napi::CallbackInfo const& info);
-  Napi::Value GetPCIBusName(Napi::CallbackInfo const& info);
+  Napi::Value id(Napi::CallbackInfo const& info);
+  Napi::Value name(Napi::CallbackInfo const& info);
+  Napi::Value pci_bus_id(Napi::CallbackInfo const& info);
+  Napi::Value pci_bus_name(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

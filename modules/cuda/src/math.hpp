@@ -21,8 +21,8 @@
 #include <random>
 
 #include <nv_node/utilities/args.hpp>
-#include "cuda/utilities/cpp_to_napi.hpp"
-#include "cuda/utilities/napi_to_cpp.hpp"
+#include "node_cuda/utilities/cpp_to_napi.hpp"
+#include "node_cuda/utilities/napi_to_cpp.hpp"
 
 namespace nv {
 namespace math {

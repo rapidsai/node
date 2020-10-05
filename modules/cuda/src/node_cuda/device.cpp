@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cuda/device.hpp"
-#include "cuda/utilities/cpp_to_napi.hpp"
-#include "cuda/utilities/error.hpp"
-#include "cuda/utilities/napi_to_cpp.hpp"
+#include "node_cuda/device.hpp"
+#include "node_cuda/utilities/cpp_to_napi.hpp"
+#include "node_cuda/utilities/error.hpp"
+#include "node_cuda/utilities/napi_to_cpp.hpp"
 
 #include <cuda_runtime_api.h>
 #include <napi.h>
@@ -32,10 +32,10 @@ Napi::Object Device::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "Device",
                 {
-                  InstanceAccessor("id", &Device::GetId, nullptr, napi_enumerable),
-                  InstanceAccessor("name", &Device::GetName, nullptr, napi_enumerable),
-                  InstanceAccessor("pciBusId", &Device::GetPCIBusId, nullptr, napi_enumerable),
-                  InstanceAccessor("pciBusName", &Device::GetPCIBusName, nullptr, napi_enumerable),
+                  InstanceAccessor("id", &Device::id, nullptr, napi_enumerable),
+                  InstanceAccessor("name", &Device::name, nullptr, napi_enumerable),
+                  InstanceAccessor("pciBusId", &Device::pci_bus_id, nullptr, napi_enumerable),
+                  InstanceAccessor("pciBusName", &Device::pci_bus_name, nullptr, napi_enumerable),
                   InstanceMethod("reset", &Device::reset),
                   InstanceMethod("activate", &Device::activate),
                   InstanceMethod("synchronize", &Device::synchronize),
@@ -89,17 +89,17 @@ void Device::Initialize(int32_t id, uint32_t flags) {
   pci_bus_name_ = std::string{bus_id};
 }
 
-Napi::Value Device::GetId(Napi::CallbackInfo const& info) { return CPPToNapi(info)(id()); }
+Napi::Value Device::id(Napi::CallbackInfo const& info) { return CPPToNapi(info)(id()); }
 
-Napi::Value Device::GetName(Napi::CallbackInfo const& info) {
+Napi::Value Device::name(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(std::string{props().name});
 }
 
-Napi::Value Device::GetPCIBusId(Napi::CallbackInfo const& info) {
+Napi::Value Device::pci_bus_id(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(props().pciBusID);
 }
 
-Napi::Value Device::GetPCIBusName(Napi::CallbackInfo const& info) {
+Napi::Value Device::pci_bus_name(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(pci_bus_name());
 }
 
@@ -149,31 +149,32 @@ bool Device::can_access_peer_device(Device const& peer) {
 }
 
 Napi::Value Device::can_access_peer_device(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  Device const& peer = args[0];
+  Device const& peer = CallbackArgs{info}[0];
   return CPPToNapi(info)(can_access_peer_device(peer));
 }
 
 Device const& Device::enable_peer_access(Device const& peer) {
-  call_in_context([&]() { NODE_CUDA_TRY(cudaDeviceEnablePeerAccess(peer.id(), 0), Env()); });
+  call_in_context([&]() {  //
+    NODE_CUDA_TRY(cudaDeviceEnablePeerAccess(peer.id(), 0), Env());
+  });
   return *this;
 }
 
 Napi::Value Device::enable_peer_access(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  Device const& peer = args[0];
+  Device const& peer = CallbackArgs{info}[0];
   enable_peer_access(peer);
   return info.This();
 }
 
 Device const& Device::disable_peer_access(Device const& peer) {
-  call_in_context([&]() { NODE_CUDA_TRY(cudaDeviceDisablePeerAccess(peer.id()), Env()); });
+  call_in_context([&]() {  //
+    NODE_CUDA_TRY(cudaDeviceDisablePeerAccess(peer.id()), Env());
+  });
   return *this;
 }
 
 Napi::Value Device::disable_peer_access(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  Device const& peer = args[0];
+  Device const& peer = CallbackArgs{info}[0];
   disable_peer_access(peer);
   return info.This();
 }

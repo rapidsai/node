@@ -14,13 +14,13 @@
 
 #pragma once
 
-#include "cuda/device.hpp"
-#include "napi.h"
+#include "node_cuda/device.hpp"
 #include "types.hpp"
 #include "visit_struct/visit_struct.hpp"
 
 #include <cuda.h>
 #include <cuda_runtime_api.h>
+#include <napi.h>
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
 #include <type_traits>

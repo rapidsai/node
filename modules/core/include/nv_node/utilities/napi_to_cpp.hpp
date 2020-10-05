@@ -16,8 +16,6 @@
 
 #include "nv_node/utilities/span.hpp"
 
-// #include <cuda.h>
-// #include <cuda_runtime.h>
 #include <napi.h>
 
 #include <cstring>
@@ -157,45 +155,6 @@ struct NapiToCPP {
   inline operator Span<T>() const {
     return as_span<T>();
   }
-
-    /*
-    #ifdef CUDA_VERSION
-      //
-      // CUDA Driver type conversion helpers
-      //
-      inline operator CUresult() const { return static_cast<CUresult>(this->operator int64_t()); }
-      inline operator CUfunction() const {
-        return reinterpret_cast<CUfunction>(this->operator char*());
-      }
-      inline operator CUdevice_attribute() const {
-        return static_cast<CUdevice_attribute>(this->operator int64_t());
-      }
-      inline operator CUpointer_attribute() const {
-        return static_cast<CUpointer_attribute>(this->operator int64_t());
-      }
-    #endif
-
-    #ifdef CUDART_VERSION
-      //
-      // CUDA Runtime type conversion helpers
-      //
-      inline operator cudaArray_t() const {
-        return reinterpret_cast<cudaArray_t>(this->operator char*());
-      }
-      inline operator cudaGraphicsResource_t() const {
-        return reinterpret_cast<cudaGraphicsResource_t>(this->operator char*());
-      }
-      inline operator cudaIpcMemHandle_t*() const {
-        return reinterpret_cast<cudaIpcMemHandle_t*>(this->operator char*());
-      }
-      inline operator cudaStream_t() const {
-        return reinterpret_cast<cudaStream_t>(this->operator char*());
-      };
-      inline operator cudaUUID_t*() const {
-        return reinterpret_cast<cudaUUID_t*>(this->operator char*());
-      }
-    #endif
-    */
 
 #ifdef GLEW_VERSION
   inline operator GLsync() const { return reinterpret_cast<GLsync>(this->operator char*()); }

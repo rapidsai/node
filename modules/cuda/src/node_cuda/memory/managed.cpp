@@ -12,53 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cuda/memory.hpp"
+#include "node_cuda/memory.hpp"
 
 #include <cuda_runtime_api.h>
 #include <napi.h>
 
 namespace nv {
 
-Napi::FunctionReference DeviceMemory::constructor;
+Napi::FunctionReference ManagedMemory::constructor;
 
-Napi::Object DeviceMemory::Init(Napi::Env env, Napi::Object exports) {
+Napi::Object ManagedMemory::Init(Napi::Env env, Napi::Object exports) {
   Napi::Function ctor = DefineClass(
     env,
-    "DeviceMemory",
+    "ManagedMemory",
     {
-      InstanceAccessor("byteLength", &DeviceMemory::GetByteLength, nullptr, napi_enumerable),
-      InstanceAccessor("device", &DeviceMemory::GetDevice, nullptr, napi_enumerable),
-      InstanceAccessor("ptr", &DeviceMemory::GetPointer, nullptr, napi_enumerable),
-      InstanceMethod("slice", &DeviceMemory::CopySlice),
+      InstanceAccessor("byteLength", &ManagedMemory::GetByteLength, nullptr, napi_enumerable),
+      InstanceAccessor("device", &ManagedMemory::GetDevice, nullptr, napi_enumerable),
+      InstanceAccessor("ptr", &ManagedMemory::GetPointer, nullptr, napi_enumerable),
+      InstanceMethod("slice", &ManagedMemory::CopySlice),
     });
-  DeviceMemory::constructor = Napi::Persistent(ctor);
-  DeviceMemory::constructor.SuppressDestruct();
+  ManagedMemory::constructor = Napi::Persistent(ctor);
+  ManagedMemory::constructor.SuppressDestruct();
 
-  exports.Set("DeviceMemory", ctor);
+  exports.Set("ManagedMemory", ctor);
 
   return exports;
 }
 
-DeviceMemory::DeviceMemory(CallbackArgs const& args)
-  : Napi::ObjectWrap<DeviceMemory>(args), Memory(args) {
+ManagedMemory::ManagedMemory(CallbackArgs const& args)
+  : Napi::ObjectWrap<ManagedMemory>(args), Memory(args) {
   if (args.Length() == 1) { Initialize(args[0]); }
 }
 
-Napi::Object DeviceMemory::New(size_t size) {
-  auto inst = DeviceMemory::constructor.New({});
-  DeviceMemory::Unwrap(inst)->Initialize(size);
+Napi::Object ManagedMemory::New(size_t size) {
+  auto inst = ManagedMemory::constructor.New({});
+  ManagedMemory::Unwrap(inst)->Initialize(size);
   return inst;
 }
 
-void DeviceMemory::Initialize(size_t size) {
+void ManagedMemory::Initialize(size_t size) {
   size_ = size;
   if (size_ > 0) {
-    NODE_CUDA_TRY(cudaMalloc(&data_, size_));
+    NODE_CUDA_TRY(cudaMallocManaged(&data_, size_));
     Napi::MemoryManagement::AdjustExternalMemory(Env(), size_);
   }
 }
 
-void DeviceMemory::Finalize(Napi::Env env) {
+void ManagedMemory::Finalize(Napi::Env env) {
   if (data_ != nullptr && size_ > 0) {
     if (cudaFree(data_) == cudaSuccess) {
       Napi::MemoryManagement::AdjustExternalMemory(env, -size_);
@@ -66,15 +66,15 @@ void DeviceMemory::Finalize(Napi::Env env) {
   }
 }
 
-Napi::Value DeviceMemory::CopySlice(Napi::CallbackInfo const& info) {
+Napi::Value ManagedMemory::CopySlice(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   int64_t offset = args[0];
   int64_t size   = size_ - offset;
   if (args.Length() == 2 && args[1].IsNumber()) { size = args[1].operator int64_t() - offset; }
-  auto copy = DeviceMemory::New(size = std::max<int64_t>(size, 0));
+  auto copy = ManagedMemory::New(size = std::max<int64_t>(size, 0));
   if (size > 0) {
     NODE_CUDA_TRY(
-      cudaMemcpy(DeviceMemory::Unwrap(copy)->base(), base() + offset, size, cudaMemcpyDefault));
+      cudaMemcpy(ManagedMemory::Unwrap(copy)->base(), base() + offset, size, cudaMemcpyDefault));
   }
   return copy;
 }
