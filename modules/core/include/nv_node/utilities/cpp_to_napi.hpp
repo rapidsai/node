@@ -72,6 +72,18 @@ struct CPPToNapi {
   }
 
   //
+  // Pair
+  //
+  template <typename T>
+  Napi::Object inline operator()(std::pair<T, T> const& pair) const {
+    auto cast_t = *this;
+    auto obj    = Napi::Array::New(env, 2);
+    obj.Set(uint32_t(0), cast_t(pair.first));
+    obj.Set(uint32_t(1), cast_t(pair.second));
+    return obj;
+  }
+
+  //
   // Arrays
   //
   // template <typename T, int N>
