@@ -33,16 +33,14 @@ Napi::Object CudaMemoryResource::Init(Napi::Env env, Napi::Object exports) {
     env,
     "CudaMemoryResource",
     {
-      InstanceAccessor("supports_get_mem_info",
-                       &CudaMemoryResource::supports_get_mem_info,
-                       nullptr,
-                       napi_enumerable),
       InstanceAccessor(
-        "supports_streams", &CudaMemoryResource::supports_streams, nullptr, napi_enumerable),
+        "supportsGetMemInfo", &CudaMemoryResource::supportsGetMemInfo, nullptr, napi_enumerable),
+      InstanceAccessor(
+        "supportsStreams", &CudaMemoryResource::supportsStreams, nullptr, napi_enumerable),
       InstanceMethod("allocate", &CudaMemoryResource::allocate),
       InstanceMethod("deallocate", &CudaMemoryResource::deallocate),
-      InstanceMethod("get_mem_info", &CudaMemoryResource::get_mem_info),
-      InstanceMethod("is_equal", &CudaMemoryResource::is_equal),
+      InstanceMethod("getMemInfo", &CudaMemoryResource::getMemInfo),
+      InstanceMethod("isEqual", &CudaMemoryResource::isEqual),
     });
   CudaMemoryResource::constructor = Napi::Persistent(ctor);
   CudaMemoryResource::constructor.SuppressDestruct();
@@ -99,23 +97,23 @@ Napi::Value CudaMemoryResource::deallocate(Napi::CallbackInfo const& info) {
   return info.Env().Undefined();
 }
 
-Napi::Value CudaMemoryResource::get_mem_info(Napi::CallbackInfo const& info) {
+Napi::Value CudaMemoryResource::getMemInfo(Napi::CallbackInfo const& info) {
   const CallbackArgs args{info};
   const cudaStream_t stream = args[0];
   return CPPToNapi(info)(Resource()->get_mem_info(stream));
 }
 
-Napi::Value CudaMemoryResource::is_equal(Napi::CallbackInfo const& info) {
+Napi::Value CudaMemoryResource::isEqual(Napi::CallbackInfo const& info) {
   const CallbackArgs args{info};
   CudaMemoryResource* const other = args[0];
   return CPPToNapi(info)(Resource()->is_equal(*other->Resource()));
 }
 
-Napi::Value CudaMemoryResource::supports_streams(Napi::CallbackInfo const& info) {
+Napi::Value CudaMemoryResource::supportsStreams(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(Resource()->supports_streams());
 }
 
-Napi::Value CudaMemoryResource::supports_get_mem_info(Napi::CallbackInfo const& info) {
+Napi::Value CudaMemoryResource::supportsGetMemInfo(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(Resource()->supports_get_mem_info());
 }
 

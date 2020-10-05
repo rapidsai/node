@@ -81,10 +81,10 @@ class CudaMemoryResource : public Napi::ObjectWrap<CudaMemoryResource> {
 
   Napi::Value allocate(Napi::CallbackInfo const& info);
   Napi::Value deallocate(Napi::CallbackInfo const& info);
-  Napi::Value get_mem_info(Napi::CallbackInfo const& info);
-  Napi::Value is_equal(Napi::CallbackInfo const& info);
-  Napi::Value supports_streams(Napi::CallbackInfo const& info);
-  Napi::Value supports_get_mem_info(Napi::CallbackInfo const& info);
+  Napi::Value getMemInfo(Napi::CallbackInfo const& info);
+  Napi::Value isEqual(Napi::CallbackInfo const& info);
+  Napi::Value supportsStreams(Napi::CallbackInfo const& info);
+  Napi::Value supportsGetMemInfo(Napi::CallbackInfo const& info);
 
   std::unique_ptr<rmm::mr::cuda_memory_resource> resource_;
 };

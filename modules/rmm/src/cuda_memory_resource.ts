@@ -20,9 +20,9 @@ export interface CudaMemoryResourceConstructor {
 }
 
 export interface CudaMemoryResource {
-    readonly supports_streams: boolean;
+    readonly supportsStreams: boolean;
 
-    readonly supports_get_mem_info: boolean;
+    readonly supportsGetMemInfo: boolean;
 
    /**
    * Allocates memory of size at least `bytes`.
@@ -63,7 +63,7 @@ export interface CudaMemoryResource {
     *
     * @returns a tuple which contains `[free memory, total memory]` (in bytes)
     */
-    get_mem_info(stream: number): [number, number];
+    getMemInfo(stream: number): [number, number];
 
    /**
    * Compare this resource to another.
@@ -76,7 +76,7 @@ export interface CudaMemoryResource {
    * @returns true if the two resources are equal, else false
    *
    */
-    is_equal(other: CudaMemoryResource): boolean;
+    isEqual(other: CudaMemoryResource): boolean;
 }
 
 export const CudaMemoryResource: CudaMemoryResourceConstructor = RMM.CudaMemoryResource;
