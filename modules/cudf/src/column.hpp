@@ -41,13 +41,13 @@ public:
 
     cudf::column& column() { return *column_; }
     std::string const& dtype() { return dtype_; }
+    void Finalize(Napi::Env env) override;
 
 private:
     static Napi::FunctionReference constructor;
 
     Napi::Value GetDataType(Napi::CallbackInfo const& info);
     Napi::Value GetSize(Napi::CallbackInfo const& info);
-    Napi::Value Release(Napi::CallbackInfo const& info);
     Napi::Value HasNulls(Napi::CallbackInfo const& info);
     Napi::Value SetNullCount(Napi::CallbackInfo const& info);
     Napi::Value GetNullCount(Napi::CallbackInfo const& info);

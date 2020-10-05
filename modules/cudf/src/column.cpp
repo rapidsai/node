@@ -71,7 +71,6 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
           InstanceMethod("null_count", &Column::GetNullCount),
           InstanceMethod("nullable", &Column::Nullable),
           InstanceMethod("has_nulls", &Column::HasNulls),
-          InstanceMethod("release", &Column::Release),
         }
     );
 
@@ -129,6 +128,13 @@ Column::Column(Napi::CallbackInfo const& info) : Napi::ObjectWrap<Column>(info) 
 
 }
 
+void Column::Finalize(Napi::Env env) {
+  if (column_.get() != nullptr && column().size() > 0) {
+    this->column_.reset(nullptr);
+  }
+  column_ = nullptr;
+}
+
 Napi::Value Column::GetDataType(Napi::CallbackInfo const& info) {
   return Napi::String::New(info.Env(), dtype_);
 }
@@ -145,11 +151,6 @@ Napi::Value Column::GetNullCount(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(column().null_count());
 }
 
-Napi::Value Column::Release(Napi::CallbackInfo const& info){
-  column().release();
-  return info.Env().Undefined();
-}
-
 Napi::Value Column::Nullable(Napi::CallbackInfo const& info){
   return CPPToNapi(info)(column().nullable());
 }
@@ -160,4 +161,5 @@ Napi::Value Column::SetNullCount(Napi::CallbackInfo const& info){
  column().set_null_count(new_null_count);
  return info.Env().Undefined();
 }
+
 }
