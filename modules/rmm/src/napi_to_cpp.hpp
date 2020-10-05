@@ -12,23 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "addon.hpp"
+#pragma once
+
 #include "cuda_memory_resource.hpp"
-#include "device_buffer.hpp"
-#include "macros.hpp"
+#include "nv_node/utilities/napi_to_cpp.hpp"
 
 namespace nv {
-Napi::Value rmmInit(Napi::CallbackInfo const& info) {
-  // todo
-  return info.This();
+
+template <>
+inline NapiToCPP::operator CudaMemoryResource*() const {
+  if (CudaMemoryResource::is_instance(val)) { return CudaMemoryResource::Unwrap(val.ToObject()); }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a Device instance");
 }
+
 }  // namespace nv
-
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", nv::rmmInit);
-  nv::CudaMemoryResource::Init(env, exports);
-  nv::DeviceBuffer::Init(env, exports);
-  return exports;
-}
-
-NODE_API_MODULE(node_rmm, initModule);
