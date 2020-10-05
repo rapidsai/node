@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "addon.hpp"
-#include "buffer.hpp"
+#include "device_buffer.hpp"
 #include "macros.hpp"
 
 namespace nv {
