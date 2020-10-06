@@ -14,6 +14,7 @@
 
 #include "addon.hpp"
 #include "column.hpp"
+#include "napi.h"
 #include "macros.hpp"
 
 namespace nv {
@@ -27,7 +28,12 @@ Napi::Value cudfInit(Napi::CallbackInfo const& info) {
 
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "init", nv::cudfInit);
+
+  auto types = Napi::Object::New(env);
+  EXPORT_PROP(exports, "types", types);
+
   nv::Column::Init(env, exports);
+  nv::types::initModule(env, types);
   return exports;
 }
 

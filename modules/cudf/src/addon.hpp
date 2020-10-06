@@ -20,6 +20,8 @@ namespace nv {
 
 Napi::Value cudfInit(Napi::CallbackInfo const& info);
 
-}  // namespace node_example_native_module
+namespace types {
+    Napi::Object initModule(Napi::Env env, Napi::Object exports);
+}
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports);
+}
