@@ -38,6 +38,7 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
         {
           InstanceMethod("type", &Column::GetDataType),
           InstanceMethod("size", &Column::GetSize),
+          InstanceMethod("set_null_mask", &Column::SetNullMask),
           InstanceMethod("set_null_count", &Column::SetNullCount),
           InstanceMethod("null_count", &Column::GetNullCount),
           InstanceMethod("nullable", &Column::Nullable),
@@ -126,13 +127,17 @@ Napi::Value Column::SetNullCount(Napi::CallbackInfo const& info){
  return info.Env().Undefined();
 }
 
-// Napi::Value Column::SetNullMask(Napi::CallbackInfo const& info){
-//   CallbackArgs args{info};
-//   Span<char> new_null_mask = args[1];
-//   size_t new_null_count = args[0];
-//   column().set_null_count(new_null_mask, new_null_count);
-
-//   return info.Env().Undefined();
-// }
+Napi::Value Column::SetNullMask(Napi::CallbackInfo const& info){
+  CallbackArgs args{info};
+  
+  Span<char> new_null_mask = args[0];
+  if(args.Length() == 1){
+    column().set_null_mask(static_cast<rmm::device_buffer>(new_null_mask));  
+  }else{
+    size_t new_null_count = args[1];
+    column().set_null_mask(static_cast<rmm::device_buffer>(new_null_mask), new_null_count);
+  }
+  return info.Env().Undefined();
+}
 
 }

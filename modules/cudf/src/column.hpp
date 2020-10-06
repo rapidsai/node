@@ -51,7 +51,7 @@ private:
     Napi::Value SetNullCount(Napi::CallbackInfo const& info);
     Napi::Value GetNullCount(Napi::CallbackInfo const& info);
     Napi::Value Nullable(Napi::CallbackInfo const& info);
-    // Napi::Value SetNullMask(Napi::CallbackInfo const& info);
+    Napi::Value SetNullMask(Napi::CallbackInfo const& info);
 
     std::unique_ptr<cudf::column> column_;
 };

@@ -29,6 +29,7 @@ export interface Column {
     size(): number;
     null_count(): number;
     set_null_count(count_:number): void;
+    set_null_mask(new_null_mask:DeviceBuffer, new_null_count?:number): void;
     nullable(): boolean;
     has_nulls(): boolean;
 }
