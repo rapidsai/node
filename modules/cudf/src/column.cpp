@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "column.hpp"
+#include "cudf/types.hpp"
 #include "macros.hpp"
 
 #include <cstddef>
@@ -20,43 +21,13 @@
 #include <nv_node/utilities/cpp_to_napi.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
+#include <bits/stdint-intn.h>
 #include <napi.h>
 #include <iostream>
 #include <map>
 #include <string>
 
-static std::map<std::string, cudf::type_id> const map_test = {
-  {"empty", cudf::type_id::EMPTY},
-  {"int8", cudf::type_id::INT8},
-  {"int16", cudf::type_id::INT16},
-  {"int32", cudf::type_id::INT32},
-  {"int64", cudf::type_id::INT64},
-  {"uint8", cudf::type_id::UINT8},
-  {"uint16", cudf::type_id::UINT16},
-  {"uint32", cudf::type_id::UINT32},
-  {"uint64", cudf::type_id::UINT64},
-  {"float32", cudf::type_id::FLOAT32},
-  {"float64", cudf::type_id::FLOAT64},
-  {"bool8", cudf::type_id::BOOL8},
-  {"timestamp_days", cudf::type_id::TIMESTAMP_DAYS},
-  {"timestamp_seconds", cudf::type_id::TIMESTAMP_SECONDS},
-  {"timestamp_milliseconds", cudf::type_id::TIMESTAMP_MILLISECONDS},
-  {"timestamp_microseconds", cudf::type_id::TIMESTAMP_MICROSECONDS},
-  {"timestamp_nanoseconds", cudf::type_id::TIMESTAMP_NANOSECONDS},
-  {"duration_days", cudf::type_id::DURATION_DAYS },
-  {"duration_seconds", cudf::type_id::DURATION_SECONDS},
-  {"duration_milliseconds", cudf::type_id::DURATION_MILLISECONDS},
-  {"duration_microseconds", cudf::type_id::DURATION_MICROSECONDS},
-  {"duration_nanoseconds", cudf::type_id::DURATION_NANOSECONDS },
-  {"dictionary32", cudf::type_id::DICTIONARY32},
-  {"string", cudf::type_id::STRING          },
-  {"list", cudf::type_id::LIST                },
-  {"decimal32", cudf::type_id::DECIMAL32},
-  {"decimal64", cudf::type_id::DECIMAL64},
-};
-
 namespace nv {
-
 
 Napi::FunctionReference Column::constructor;
 
@@ -95,17 +66,10 @@ Napi::Value Column::New(
 Column::Column(Napi::CallbackInfo const& info) : Napi::ObjectWrap<Column>(info) {
   CallbackArgs args{info};
 
-  cudf::data_type dtype = cudf::data_type(cudf::type_id::EMPTY);
-  auto it = map_test.find(info[0].As<Napi::String>());
+  cudf::data_type dtype = cudf::data_type(
+    static_cast<cudf::type_id>(static_cast<int32_t>(args[0]))
+  );
   
-  if (it != map_test.end()) {
-    cudf::data_type dtype = cudf::data_type(it->second);
-    this->dtype_ = info[0].As<Napi::String>();
-  }else{
-    //temporary error handling
-    throw Napi::Error::New(info.Env(), "invalid dtype");
-  }
-
   Span<char> data = args[2];
   cudf::size_type size = data.size();
 
@@ -136,7 +100,7 @@ void Column::Finalize(Napi::Env env) {
 }
 
 Napi::Value Column::GetDataType(Napi::CallbackInfo const& info) {
-  return Napi::String::New(info.Env(), dtype_);
+  return Napi::Number::New(info.Env(), static_cast<int32_t>(column().type().id()));
 }
 
 Napi::Value Column::GetSize(Napi::CallbackInfo const& info) {
@@ -161,5 +125,14 @@ Napi::Value Column::SetNullCount(Napi::CallbackInfo const& info){
  column().set_null_count(new_null_count);
  return info.Env().Undefined();
 }
+
+// Napi::Value Column::SetNullMask(Napi::CallbackInfo const& info){
+//   CallbackArgs args{info};
+//   Span<char> new_null_mask = args[1];
+//   size_t new_null_count = args[0];
+//   column().set_null_count(new_null_mask, new_null_count);
+
+//   return info.Env().Undefined();
+// }
 
 }

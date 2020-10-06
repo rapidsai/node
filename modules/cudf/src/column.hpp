@@ -40,7 +40,6 @@ public:
     Column(Napi::CallbackInfo const& info);
 
     cudf::column& column() { return *column_; }
-    std::string const& dtype() { return dtype_; }
     void Finalize(Napi::Env env) override;
 
 private:
@@ -54,7 +53,6 @@ private:
     Napi::Value Nullable(Napi::CallbackInfo const& info);
     // Napi::Value SetNullMask(Napi::CallbackInfo const& info);
 
-    std::string dtype_;
     std::unique_ptr<cudf::column> column_;
 };
 
