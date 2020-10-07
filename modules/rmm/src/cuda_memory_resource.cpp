@@ -20,6 +20,8 @@
 #include "nv_node/utilities/cpp_to_napi.hpp"
 #include "rmm/mr/device/cuda_memory_resource.hpp"
 
+#include <node_cuda/utilities/napi_to_cpp.hpp>
+
 namespace nv {
 
 //

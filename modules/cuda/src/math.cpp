@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include "math.hpp"
-#include "macros.hpp"
-#include "utilities/napi_to_cpp.hpp"
+#include "node_cuda/macros.hpp"
+#include "node_cuda/utilities/napi_to_cpp.hpp"
 
 #include <nv_node/utilities/args.hpp>
 

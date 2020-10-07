@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include "buffer.hpp"
-#include "macros.hpp"
+#include "node_cuda/macros.hpp"
+#include "node_cuda/utilities/cpp_to_napi.hpp"
+#include "node_cuda/utilities/napi_to_cpp.hpp"
 #include "task.hpp"
-#include "utilities/cpp_to_napi.hpp"
-#include "utilities/napi_to_cpp.hpp"
 
 #include <cuda.h>
 #include <cuda_runtime_api.h>

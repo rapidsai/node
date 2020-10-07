@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "macros.hpp"
-#include "utilities/napi_to_cpp.hpp"
+#include "node_cuda/macros.hpp"
+#include "node_cuda/utilities/napi_to_cpp.hpp"
 
 #include <cuda_runtime_api.h>
 #include <nv_node/utilities/args.hpp>

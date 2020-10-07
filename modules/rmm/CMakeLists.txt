@@ -32,6 +32,12 @@ execute_process(COMMAND node -p
                 OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process(COMMAND node -p
+                "require('path').dirname(require.resolve('@nvidia/cuda'))"
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                OUTPUT_VARIABLE NVIDIA_CUDA_MODULE_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NVIDIA_CMAKE_MODULES_PATH}")
 
 include(ConfigureCXX)
@@ -44,6 +50,7 @@ include(ConfigureCUDA)
 
 include_directories("${CUDA_INCLUDE_DIRS}"
                     "${RAPIDS_CORE_INCLUDE_DIR}"
+                    "${NVIDIA_CUDA_MODULE_PATH}/src"
                     "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 ###################################################################################################

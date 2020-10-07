@@ -17,6 +17,8 @@
 #include "nv_node/utilities/args.hpp"
 #include "nv_node/utilities/cpp_to_napi.hpp"
 
+#include <node_cuda/utilities/napi_to_cpp.hpp>
+
 namespace nv {
 
 Napi::FunctionReference DeviceBuffer::constructor;
