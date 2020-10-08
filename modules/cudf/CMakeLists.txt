@@ -33,6 +33,12 @@ execute_process(COMMAND node -p
                 OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process(COMMAND node -p
+                "require('path').dirname(require.resolve('@nvidia/rmm'))"
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                OUTPUT_VARIABLE NVIDIA_RMM_MODULE_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NVIDIA_CMAKE_MODULES_PATH}")
 
 include(ConfigureCXX)
@@ -49,10 +55,11 @@ include(ConfgureSIMT)
 include_directories(
     "${CUDA_INCLUDE_DIRS}"
     "${RAPIDS_CORE_INCLUDE_DIR}"
-    "${RMM_SOURCE_DIR}/include"
+    "${RMM_SOURCE_DIR}/src"
     "${spdlog_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${libcudacxx_SOURCE_DIR}/include"
+    "${NVIDIA_RMM_MODULE_PATH}/src"
     "${cudf_SOURCE_DIR}/cpp/include"
 )
 
