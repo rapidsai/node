@@ -14,24 +14,35 @@
 
 import CUDF from './addon';
 import { types } from './types';
-import { DeviceBuffer } from '@nvidia/rmm';
+import { DeviceBuffer,  CudaMemoryResource } from '@nvidia/rmm';
 
 export interface ColumnConstructor {
     readonly prototype: Column;
     new(
-        dtype?: types, size?:number, data?: DeviceBuffer,
-        null_mask?: DeviceBuffer, null_count?: number
+        dtype: types, size:number, data: DeviceBuffer,
+        null_mask?: DeviceBuffer, null_count?: number,
+        children?: ArrayLike<Column>
+    ): Column;
+    new(
+        column: Column
+    ): Column;
+    new(
+        column: Column,
+        stream?: number,
+        mr?: CudaMemoryResource
     ): Column;
 }
 
 export interface Column {
     type(): types;
     size(): number;
-    null_count(): number;
-    set_null_count(count_:number): void;
-    set_null_mask(new_null_mask:DeviceBuffer, new_null_count?:number): void;
+    nullCount(): number;
+    setNullCount(count_:number): void;
+    setNullMask(new_null_mask:DeviceBuffer, new_null_count?:number): void;
     nullable(): boolean;
-    has_nulls(): boolean;
+    hasNulls(): boolean;
+    child(child_index: number): Column;
+    numChildren(): number;
 }
 
 export const Column: ColumnConstructor = CUDF.Column;

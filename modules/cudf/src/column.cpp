@@ -12,22 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "column.hpp"
-#include "cudf/types.hpp"
 #include "macros.hpp"
+#include "rmm/device_buffer.hpp"
+#include "utilities/napi_to_cpp.hpp"
 
-#include <cstddef>
+//from node_rmm
+#include "cuda_memory_resource.hpp" 
+
+#include "cudf/column/column.hpp"
+#include <cudf/types.hpp>
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/cpp_to_napi.hpp>
-#include <nv_node/utilities/napi_to_cpp.hpp>
 
 #include <bits/stdint-intn.h>
+#include <cstddef>
+#include <memory>
 #include <napi.h>
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
 
 namespace nv {
+
+//
+// Public API
+//
 
 Napi::FunctionReference Column::constructor;
 
@@ -36,13 +46,15 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
         env,
         "Column",
         {
-          InstanceMethod("type", &Column::GetDataType),
-          InstanceMethod("size", &Column::GetSize),
-          InstanceMethod("set_null_mask", &Column::SetNullMask),
-          InstanceMethod("set_null_count", &Column::SetNullCount),
-          InstanceMethod("null_count", &Column::GetNullCount),
-          InstanceMethod("nullable", &Column::Nullable),
-          InstanceMethod("has_nulls", &Column::HasNulls),
+          InstanceMethod("type", &Column::type),
+          InstanceMethod("size", &Column::size),
+          InstanceMethod("setNullMask", &Column::setNullMask),
+          InstanceMethod("setNullCount", &Column::setNullCount),
+          InstanceMethod("nullCount", &Column::nullCount),
+          InstanceMethod("nullable", &Column::nullable),
+          InstanceMethod("hasNulls", &Column::hasNulls),
+          InstanceMethod("child", &Column::child),
+          InstanceMethod("numChildren", &Column::numChildren),
         }
     );
 
@@ -55,41 +67,102 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
 
 Napi::Value Column::New(
   cudf::data_type dtype, cudf::size_type size, rmm::device_buffer&& data,
-  rmm::device_buffer&& null_mask, cudf::size_type null_count
+  rmm::device_buffer&& null_mask, cudf::size_type null_count,
+  std::vector< std::unique_ptr< cudf::column >>&& children
 ) {
 
   auto buf = Column::constructor.New({});
-  Column::Unwrap(buf)->column_.reset(new cudf::column{dtype, size, data, null_mask, null_count});
+  Column::Unwrap(buf)->column_.reset(
+      new cudf::column(dtype, size, data, null_mask, null_count, std::move(children))
+    );
+  return buf;
+}
 
+Napi::Value Column::New(
+  cudf::column const& column
+) {
+
+  auto buf = Column::constructor.New({});
+  Column::Unwrap(buf)->column_.reset(
+    new cudf::column(column)
+  );
+  return buf;
+}
+
+
+Napi::Value Column::New(
+  cudf::column const& column,
+  cudaStream_t stream,
+  rmm::mr::device_memory_resource* mr
+) {
+
+  auto buf = Column::constructor.New({});
+  Column::Unwrap(buf)->column_.reset(
+    new cudf::column(column, stream, mr)
+  );
   return buf;
 }
 
 Column::Column(Napi::CallbackInfo const& info) : Napi::ObjectWrap<Column>(info) {
   CallbackArgs args{info};
-
-  cudf::data_type dtype = cudf::data_type(
-    static_cast<cudf::type_id>(static_cast<int32_t>(args[0]))
-  );
   
-  Span<char> data = args[2];
-  cudf::size_type size = data.size();
+  if(args.Length() >= 1 && !info[0].IsNumber()){
+    Column* col = Column::Unwrap(info[0].As<Napi::Object>());
+    CudaMemoryResource* mr = {};
+    
+    if(args.Length() == 1){
+      this->column_.reset(
+        new cudf::column(col->column())
+      );
+    }
+    else if(args.Length() == 2){
+      cudaStream_t stream = args[1];
+      this->column_.reset(
+        new cudf::column(col->column(), stream)
+      );
+    }
+    else if(args.Length() == 3){
+      cudaStream_t stream = args[1];
+      CudaMemoryResource* mr = CudaMemoryResource::Unwrap(info[2].As<Napi::Object>());
+      this->column_.reset(
+        new cudf::column(col->column(), stream, mr->Resource().get())
+      );
+    }
+    
 
-  if(args.Length() == 3){
-    this->column_.reset(
-      new cudf::column{dtype, size, data}
-    );
-  } else if(args.Length() == 4){
-    Span<char> null_mask = args[3];
-    this->column_.reset(
-      new cudf::column{dtype, size, data, null_mask}
-    );
-  } else if(args.Length() == 5){
-    Span<char> null_mask = args[3];
-    cudf::size_type null_count = args[4];
-    this->column_.reset(
-      new cudf::column{dtype, size, data, null_mask, null_count}
-    );
+  }else if(args.Length() >= 3 ){
+    
+    cudf::data_type dtype = cudf::data_type(static_cast<cudf::type_id>(static_cast<int32_t>(args[0])));
+    Span<char> data = args[2];
+    cudf::size_type size = data.size();
+
+    if(args.Length() == 3){
+      this->column_.reset(
+        new cudf::column(dtype, size, data)
+      );
+    }
+    else if(args.Length() == 4){
+      Span<char> null_mask = args[3];
+      this->column_.reset(
+        new cudf::column(dtype, size, data, null_mask)
+      );
+    } else if(args.Length() == 5){
+      Span<char> null_mask = args[3];
+      cudf::size_type null_count = args[4];
+      this->column_.reset(
+        new cudf::column(dtype, size, data, null_mask, null_count)
+      );
+    } else if(args.Length() == 6){
+      Span<char> null_mask = args[3];
+      cudf::size_type null_count = args[4];
+      std::vector< std::unique_ptr< cudf::column >> children = args[5];
+      this->column_.reset(
+        new cudf::column(dtype, size, data, null_mask, null_count, std::move(children))
+      );
+    }
+
   }
+  
 
 }
 
@@ -100,34 +173,39 @@ void Column::Finalize(Napi::Env env) {
   column_ = nullptr;
 }
 
-Napi::Value Column::GetDataType(Napi::CallbackInfo const& info) {
+
+//
+// Private API
+//
+
+Napi::Value Column::type(Napi::CallbackInfo const& info) {
   return Napi::Number::New(info.Env(), static_cast<int32_t>(column().type().id()));
 }
 
-Napi::Value Column::GetSize(Napi::CallbackInfo const& info) {
+Napi::Value Column::size(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(column().size());
 }
 
-Napi::Value Column::HasNulls(Napi::CallbackInfo const& info) {
+Napi::Value Column::hasNulls(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(column().has_nulls());
 }
 
-Napi::Value Column::GetNullCount(Napi::CallbackInfo const& info) {
+Napi::Value Column::nullCount(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(column().null_count());
 }
 
-Napi::Value Column::Nullable(Napi::CallbackInfo const& info){
+Napi::Value Column::nullable(Napi::CallbackInfo const& info){
   return CPPToNapi(info)(column().nullable());
 }
 
-Napi::Value Column::SetNullCount(Napi::CallbackInfo const& info){
+Napi::Value Column::setNullCount(Napi::CallbackInfo const& info){
  CallbackArgs args{info};
  size_t new_null_count = args[0];
  column().set_null_count(new_null_count);
  return info.Env().Undefined();
 }
 
-Napi::Value Column::SetNullMask(Napi::CallbackInfo const& info){
+Napi::Value Column::setNullMask(Napi::CallbackInfo const& info){
   CallbackArgs args{info};
   
   Span<char> new_null_mask = args[0];
@@ -138,6 +216,25 @@ Napi::Value Column::SetNullMask(Napi::CallbackInfo const& info){
     column().set_null_mask(static_cast<rmm::device_buffer>(new_null_mask), new_null_count);
   }
   return info.Env().Undefined();
+}
+
+Napi::Value Column::child(Napi::CallbackInfo const& info){
+  CallbackArgs args{info};
+  
+  if(args.Length() == 1 && info[0].IsNumber()){
+    if(static_cast<int32_t>(args[0]) < static_cast<int32_t>(column().num_children())){
+      auto buf = Column::constructor.New({});
+      Column::Unwrap(buf)->column_.reset(&column().child(args[0]));
+      return buf; 
+    }else{
+      throw Napi::Error::New(info.Env(), "index out of range");
+    }
+  }
+  throw Napi::Error::New(info.Env(), "invalid index type");
+}
+
+Napi::Value Column::numChildren(Napi::CallbackInfo const& info){
+    return CPPToNapi(info)(column().num_children());
 }
 
 }
