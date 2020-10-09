@@ -13,9 +13,13 @@
 // limitations under the License.
 
 #include "device_buffer.hpp"
+#include "cuda_memory_resource.hpp"
 #include "macros.hpp"
 #include "nv_node/utilities/args.hpp"
 #include "nv_node/utilities/cpp_to_napi.hpp"
+#include "rmm/mr/device/cuda_memory_resource.hpp"
+#include "rmm/mr/device/device_memory_resource.hpp"
+#include "rmm/mr/device/per_device_resource.hpp"
 
 #include <node_cuda/utilities/napi_to_cpp.hpp>
 
@@ -44,7 +48,10 @@ Napi::Object DeviceBuffer::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
-Napi::Value DeviceBuffer::New(void* data, size_t size, cudaStream_t stream) {
+Napi::Value DeviceBuffer::New(void* data,
+                              size_t size,
+                              cudaStream_t stream,
+                              rmm::mr::cuda_memory_resource* mr) {
   const auto buf = DeviceBuffer::constructor.New({});
   DeviceBuffer::Unwrap(buf)->buffer_.reset(new rmm::device_buffer(data, size, stream));
   if (stream == NULL) { CUDA_TRY(buf.Env(), cudaStreamSynchronize(stream)); }
@@ -56,8 +63,16 @@ DeviceBuffer::DeviceBuffer(Napi::CallbackInfo const& info) : Napi::ObjectWrap<De
   const CallbackArgs args{info};
   const size_t size   = args[0];
   cudaStream_t stream = 0;
-  if (args.Length() >= 2 && info[1].IsNumber()) { stream = args[1]; }
-  buffer_.reset(new rmm::device_buffer(size, stream));
+  if (args.Length() == 2 && info[1].IsNumber()) {
+    stream = args[1];
+    buffer_.reset(new rmm::device_buffer(size, stream));
+  } else if (args.Length() >= 3 && info[1].IsNumber() && info[2].IsNumber()) {
+    stream                 = args[1];
+    CudaMemoryResource* mr = CudaMemoryResource::Unwrap(info[2].As<Napi::Object>());
+    resource_              = mr->Resource();
+    buffer_.reset(new rmm::device_buffer(size, stream, resource_.get()));
+  }
+
   if (stream == NULL) { CUDA_TRY(info.Env(), cudaStreamSynchronize(stream)); }
 }
 

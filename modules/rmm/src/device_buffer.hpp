@@ -15,6 +15,7 @@
 #pragma once
 
 #include "rmm/device_buffer.hpp"
+#include "rmm/mr/device/cuda_memory_resource.hpp"
 
 #include <napi.h>
 
@@ -32,7 +33,10 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * @param stream - CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
    */
-  static Napi::Value New(void* data, size_t size, cudaStream_t stream = 0);
+  static Napi::Value New(void* data,
+                         size_t size,
+                         cudaStream_t stream               = 0,
+                         rmm::mr::cuda_memory_resource* mr = nullptr);
 
   /**
    * @brief Construct a new DeviceBuffer instance from JavaScript.
@@ -65,6 +69,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   Napi::Value slice(Napi::CallbackInfo const& info);
 
   std::unique_ptr<rmm::device_buffer> buffer_;
+  std::shared_ptr<rmm::mr::cuda_memory_resource> resource_;
 };
 
 }  // namespace nv

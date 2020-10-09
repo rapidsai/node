@@ -13,10 +13,11 @@
 // limitations under the License.
 
 import RMM from './addon';
+import {CudaMemoryResource} from './cuda_memory_resource';
 
 export interface DeviceBufferConstructor {
     readonly prototype: DeviceBuffer;
-    new(byteLength?: number, stream?: number): DeviceBuffer;
+    new(byteLength?: number, stream?: number, mr?: CudaMemoryResource): DeviceBuffer;
 }
 
 export interface DeviceBuffer {

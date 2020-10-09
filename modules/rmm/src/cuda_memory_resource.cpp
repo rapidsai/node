@@ -64,7 +64,7 @@ Napi::Value CudaMemoryResource::New() {
 void CudaMemoryResource::Initialize() { resource_.reset(new rmm::mr::cuda_memory_resource()); }
 
 void CudaMemoryResource::Finalize(Napi::Env env) {
-  if (resource_.get() != nullptr) { this->resource_.reset(nullptr); }
+  if (resource_ != nullptr) { this->resource_ = nullptr; }
   resource_ = nullptr;
 }
 
