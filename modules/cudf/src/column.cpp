@@ -17,7 +17,7 @@
 //from node_rmm
 #include "cuda_memory_resource.hpp" 
 
-#include "cudf/column/column.hpp"
+#include <cudf/column/column.hpp>
 #include <cudf/types.hpp>
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/cpp_to_napi.hpp>
