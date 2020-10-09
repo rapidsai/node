@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "node_cudf/macros.hpp"
+
 #include <cudf/types.hpp>
-#include "macros.hpp"
+
 #include <napi.h>
 
 namespace nv {

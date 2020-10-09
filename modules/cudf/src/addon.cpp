@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "addon.hpp"
-#include "column.hpp"
-#include "napi.h"
-#include "macros.hpp"
+#include "node_cudf/addon.hpp"
+#include "node_cudf/column.hpp"
+#include "node_cudf/macros.hpp"
+
+#include <napi.h>
+
 
 namespace nv {
 

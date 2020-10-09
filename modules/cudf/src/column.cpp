@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "macros.hpp"
-#include "rmm/device_buffer.hpp"
+#include "node_cudf/macros.hpp"
 #include "utilities/napi_to_cpp.hpp"
-
 //from node_rmm
 #include "cuda_memory_resource.hpp" 
 
@@ -23,6 +21,7 @@
 #include <cudf/types.hpp>
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/cpp_to_napi.hpp>
+#include <rmm/device_buffer.hpp>
 
 #include <bits/stdint-intn.h>
 #include <cstddef>

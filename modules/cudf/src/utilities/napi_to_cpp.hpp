@@ -13,11 +13,12 @@
 // limitations under the License.
 
 #pragma once
-#include "column.hpp"
+#include "node_cudf/column.hpp"
+
 #include <cudf/column/column.hpp>
-#include <memory>
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
+#include <memory>
 #include <napi.h>
 #include <type_traits>
 
