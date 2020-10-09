@@ -80,6 +80,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_ENUM(env, exports, "IPC_HANDLE_SIZE", CU_IPC_HANDLE_SIZE);
 
   nv::Device::Init(env, exports);
+  nv::IpcMemory::Init(env, exports);
   nv::HostMemory::Init(env, exports);
   nv::DeviceMemory::Init(env, exports);
   nv::ManagedMemory::Init(env, exports);

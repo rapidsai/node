@@ -23,15 +23,15 @@ namespace nv {
 Napi::FunctionReference HostMemory::constructor;
 
 Napi::Object HostMemory::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(
-    env,
-    "HostMemory",
-    {
-      InstanceAccessor("byteLength", &HostMemory::GetByteLength, nullptr, napi_enumerable),
-      InstanceAccessor("device", &HostMemory::GetDevice, nullptr, napi_enumerable),
-      InstanceAccessor("ptr", &HostMemory::GetPointer, nullptr, napi_enumerable),
-      InstanceMethod("slice", &HostMemory::CopySlice),
-    });
+  Napi::Function ctor =
+    DefineClass(env,
+                "HostMemory",
+                {
+                  InstanceAccessor("byteLength", &HostMemory::size, nullptr, napi_enumerable),
+                  InstanceAccessor("device", &HostMemory::device, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &HostMemory::ptr, nullptr, napi_enumerable),
+                  InstanceMethod("slice", &HostMemory::slice),
+                });
   HostMemory::constructor = Napi::Persistent(ctor);
   HostMemory::constructor.SuppressDestruct();
 
@@ -67,7 +67,7 @@ void HostMemory::Finalize(Napi::Env env) {
   }
 }
 
-Napi::Value HostMemory::CopySlice(Napi::CallbackInfo const& info) {
+Napi::Value HostMemory::slice(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   int64_t offset = args[0];
   int64_t size   = size_ - offset;

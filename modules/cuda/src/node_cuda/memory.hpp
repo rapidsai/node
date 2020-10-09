@@ -50,9 +50,9 @@ class Memory {
   uintptr_t ptr() { return reinterpret_cast<uintptr_t>(data_); }
 
  protected:
-  Napi::Value GetDevice(Napi::CallbackInfo const& info) { return CPPToNapi(info)(device()); }
-  Napi::Value GetPointer(Napi::CallbackInfo const& info) { return CPPToNapi(info)(ptr()); }
-  Napi::Value GetByteLength(Napi::CallbackInfo const& info) { return CPPToNapi(info)(size_); }
+  Napi::Value device(Napi::CallbackInfo const& info) { return CPPToNapi(info)(device()); }
+  Napi::Value ptr(Napi::CallbackInfo const& info) { return CPPToNapi(info)(ptr()); }
+  Napi::Value size(Napi::CallbackInfo const& info) { return CPPToNapi(info)(size_); }
 
   void* data_{nullptr};  ///< Pointer to memory allocation
   size_t size_{0};       ///< Requested size of the memory allocation
@@ -103,7 +103,7 @@ class HostMemory : public Napi::ObjectWrap<HostMemory>, public Memory {
  private:
   static Napi::FunctionReference constructor;
 
-  Napi::Value CopySlice(Napi::CallbackInfo const& info);
+  Napi::Value slice(Napi::CallbackInfo const& info);
 };
 
 /**
@@ -150,7 +150,7 @@ class DeviceMemory : public Napi::ObjectWrap<DeviceMemory>, public Memory {
  private:
   static Napi::FunctionReference constructor;
 
-  Napi::Value CopySlice(Napi::CallbackInfo const& info);
+  Napi::Value slice(Napi::CallbackInfo const& info);
 };
 
 /**
@@ -197,7 +197,64 @@ class ManagedMemory : public Napi::ObjectWrap<ManagedMemory>, public Memory {
  private:
   static Napi::FunctionReference constructor;
 
-  Napi::Value CopySlice(Napi::CallbackInfo const& info);
+  Napi::Value slice(Napi::CallbackInfo const& info);
+};
+
+/**
+ * @brief An owning wrapper around a CUDA managed memory allocation.
+ *
+ */
+class IpcMemory : public Napi::ObjectWrap<IpcMemory>, public Memory {
+ public:
+  /**
+   * @brief Initialize and export the IPCMemory JavaScript constructor and prototype.
+   *
+   * @param env The active JavaScript environment.
+   * @param exports The exports object to decorate.
+   * @return Napi::Object The decorated exports object.
+   */
+  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+
+  /**
+   * @brief Construct a new IPCMemory instance from C++.
+   *
+   * @param size Size in bytes to allocate in CUDA managed memory.
+   */
+  static Napi::Object New(cudaIpcMemHandle_t const& handle);
+
+  /**
+   * @brief Construct a new IPCMemory instance from JavaScript.
+   *
+   * @param args The JavaScript arguments list wrapped in a conversion helper.
+   */
+  IpcMemory(CallbackArgs const& args);
+  /**
+   * @brief Initialize the IPCMemory instance created by either C++ or JavaScript.
+   *
+   * @param size Size in bytes to allocate in CUDA managed memory.
+   */
+  void Initialize(cudaIpcMemHandle_t const& handle);
+  /**
+   * @brief Destructor called when the JavaScript VM garbage collects this IPCMemory instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env env) override;
+
+  /**
+   * @brief Close the underlying IPC memory handle, allowing the exporting process to free the
+   * underlying device memory.
+   *
+   */
+  void close_handle();
+  void close_handle(Napi::Env const& env);
+
+ private:
+  static Napi::FunctionReference constructor;
+
+  Napi::Value slice(Napi::CallbackInfo const& info);
+
+  Napi::Value close_handle(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

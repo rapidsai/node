@@ -22,15 +22,15 @@ namespace nv {
 Napi::FunctionReference ManagedMemory::constructor;
 
 Napi::Object ManagedMemory::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(
-    env,
-    "ManagedMemory",
-    {
-      InstanceAccessor("byteLength", &ManagedMemory::GetByteLength, nullptr, napi_enumerable),
-      InstanceAccessor("device", &ManagedMemory::GetDevice, nullptr, napi_enumerable),
-      InstanceAccessor("ptr", &ManagedMemory::GetPointer, nullptr, napi_enumerable),
-      InstanceMethod("slice", &ManagedMemory::CopySlice),
-    });
+  Napi::Function ctor =
+    DefineClass(env,
+                "ManagedMemory",
+                {
+                  InstanceAccessor("byteLength", &ManagedMemory::size, nullptr, napi_enumerable),
+                  InstanceAccessor("device", &ManagedMemory::device, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &ManagedMemory::ptr, nullptr, napi_enumerable),
+                  InstanceMethod("slice", &ManagedMemory::slice),
+                });
   ManagedMemory::constructor = Napi::Persistent(ctor);
   ManagedMemory::constructor.SuppressDestruct();
 
@@ -66,7 +66,7 @@ void ManagedMemory::Finalize(Napi::Env env) {
   }
 }
 
-Napi::Value ManagedMemory::CopySlice(Napi::CallbackInfo const& info) {
+Napi::Value ManagedMemory::slice(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   int64_t offset = args[0];
   int64_t size   = size_ - offset;

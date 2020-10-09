@@ -22,15 +22,15 @@ namespace nv {
 Napi::FunctionReference DeviceMemory::constructor;
 
 Napi::Object DeviceMemory::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(
-    env,
-    "DeviceMemory",
-    {
-      InstanceAccessor("byteLength", &DeviceMemory::GetByteLength, nullptr, napi_enumerable),
-      InstanceAccessor("device", &DeviceMemory::GetDevice, nullptr, napi_enumerable),
-      InstanceAccessor("ptr", &DeviceMemory::GetPointer, nullptr, napi_enumerable),
-      InstanceMethod("slice", &DeviceMemory::CopySlice),
-    });
+  Napi::Function ctor =
+    DefineClass(env,
+                "DeviceMemory",
+                {
+                  InstanceAccessor("byteLength", &DeviceMemory::size, nullptr, napi_enumerable),
+                  InstanceAccessor("device", &DeviceMemory::device, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &DeviceMemory::ptr, nullptr, napi_enumerable),
+                  InstanceMethod("slice", &DeviceMemory::slice),
+                });
   DeviceMemory::constructor = Napi::Persistent(ctor);
   DeviceMemory::constructor.SuppressDestruct();
 
@@ -66,7 +66,7 @@ void DeviceMemory::Finalize(Napi::Env env) {
   }
 }
 
-Napi::Value DeviceMemory::CopySlice(Napi::CallbackInfo const& info) {
+Napi::Value DeviceMemory::slice(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   int64_t offset = args[0];
   int64_t size   = size_ - offset;
