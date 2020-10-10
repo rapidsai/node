@@ -103,7 +103,12 @@ export class DeviceBuffer extends (<RMMDeviceBufferConstructor> RMM.DeviceBuffer
     constructor(byteLength?: number, stream?: number, mr?: CudaMemoryResource);
     constructor(source?: DeviceBufferInput, stream?: number, mr?: CudaMemoryResource);
     constructor(sourceOrByteLength?: DeviceBufferInput | number, stream?: number, mr?: CudaMemoryResource) {
-        super(sourceOrByteLength, stream, mr);
+        switch (arguments.length) {
+            case 1: super(sourceOrByteLength); break;
+            case 2: super(sourceOrByteLength, stream); break;
+            case 3: super(sourceOrByteLength, stream, mr); break;
+            default: super();
+        }
         this._mr = mr;
     }
 
