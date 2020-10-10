@@ -13,14 +13,13 @@
 // limitations under the License.
 
 #include "cuda_memory_resource.hpp"
-
 #include "macros.hpp"
 #include "napi_to_cpp.hpp"
-#include "nv_node/utilities/args.hpp"
-#include "nv_node/utilities/cpp_to_napi.hpp"
-#include "rmm/mr/device/cuda_memory_resource.hpp"
 
 #include <node_cuda/utilities/napi_to_cpp.hpp>
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
+#include <rmm/mr/device/cuda_memory_resource.hpp>
 
 namespace nv {
 
@@ -107,8 +106,8 @@ Napi::Value CudaMemoryResource::getMemInfo(Napi::CallbackInfo const& info) {
 
 Napi::Value CudaMemoryResource::isEqual(Napi::CallbackInfo const& info) {
   const CallbackArgs args{info};
-  CudaMemoryResource* const other = args[0];
-  return CPPToNapi(info)(Resource()->is_equal(*other->Resource()));
+  CudaMemoryResource const& other = args[0];
+  return CPPToNapi(info)(Resource()->is_equal(*other.Resource()));
 }
 
 Napi::Value CudaMemoryResource::supportsStreams(Napi::CallbackInfo const& info) {

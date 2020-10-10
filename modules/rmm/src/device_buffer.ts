@@ -15,12 +15,27 @@
 import RMM from './addon';
 import {CudaMemoryResource} from './cuda_memory_resource';
 
-export interface DeviceBufferConstructor {
-    readonly prototype: DeviceBuffer;
-    new(byteLength?: number, stream?: number, mr?: CudaMemoryResource): DeviceBuffer;
+/** @ignore */
+type FloatArray = Float32Array | Float64Array;
+/** @ignore */
+type IntArray = Int8Array | Int16Array | Int32Array;
+/** @ignore */
+type UintArray = Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray;
+/** @ignore */
+type BigIntArray = BigInt64Array | BigUint64Array;
+/** @ignore */
+type TypedArray = FloatArray | IntArray | UintArray;
+/** @ignore */
+type DeviceBufferInput = BigIntArray | TypedArray | ArrayBufferLike;
+
+interface RMMDeviceBufferConstructor {
+    readonly prototype: RMMDeviceBuffer;
+    new(byteLength?: number, stream?: number, mr?: CudaMemoryResource): RMMDeviceBuffer;
+    new(source?: DeviceBufferInput, stream?: number, mr?: CudaMemoryResource): RMMDeviceBuffer;
+    new(sourceOrByteLength?: DeviceBufferInput | number, stream?: number, mr?: CudaMemoryResource): RMMDeviceBuffer;
 }
 
-export interface DeviceBuffer {
+interface RMMDeviceBuffer {
     readonly byteLength: number;
     readonly capacity: number;
     readonly isEmpty: boolean;
@@ -81,7 +96,16 @@ export interface DeviceBuffer {
      * @param end - the offset (in bytes) to end copying, or the end of the
      * buffer, if unspecified
      */
-    slice(begin: number, end?: number): DeviceBuffer;
+    slice(begin: number, end?: number): RMMDeviceBuffer;
 }
 
-export const DeviceBuffer: DeviceBufferConstructor = RMM.DeviceBuffer;
+export class DeviceBuffer extends (<RMMDeviceBufferConstructor> RMM.DeviceBuffer) {
+    constructor(byteLength?: number, stream?: number, mr?: CudaMemoryResource);
+    constructor(source?: DeviceBufferInput, stream?: number, mr?: CudaMemoryResource);
+    constructor(sourceOrByteLength?: DeviceBufferInput | number, stream?: number, mr?: CudaMemoryResource) {
+        super(sourceOrByteLength, stream, mr);
+        this._mr = mr;
+    }
+
+    protected _mr?: CudaMemoryResource;
+}

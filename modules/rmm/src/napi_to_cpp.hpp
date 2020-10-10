@@ -15,14 +15,23 @@
 #pragma once
 
 #include "cuda_memory_resource.hpp"
-#include "nv_node/utilities/napi_to_cpp.hpp"
+
+#include <nv_node/utilities/napi_to_cpp.hpp>
 
 namespace nv {
 
 template <>
-inline NapiToCPP::operator CudaMemoryResource*() const {
-  if (CudaMemoryResource::is_instance(val)) { return CudaMemoryResource::Unwrap(val.ToObject()); }
-  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a Device instance");
+inline NapiToCPP::operator CudaMemoryResource() const {
+  if (CudaMemoryResource::is_instance(val)) { return *CudaMemoryResource::Unwrap(val.ToObject()); }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a CudaMemoryResource instance");
+}
+
+template <>
+inline NapiToCPP::operator rmm::mr::device_memory_resource*() const {
+  if (CudaMemoryResource::is_instance(val)) {
+    return this->operator CudaMemoryResource().Resource().get();
+  }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a MemoryResource instance");
 }
 
 }  // namespace nv

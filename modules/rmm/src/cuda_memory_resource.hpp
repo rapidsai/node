@@ -14,9 +14,8 @@
 
 #pragma once
 
-#include "cuda_runtime.h"
-#include "nv_node/utilities/args.hpp"
-#include "rmm/mr/device/cuda_memory_resource.hpp"
+#include <nv_node/utilities/args.hpp>
+#include <rmm/mr/device/cuda_memory_resource.hpp>
 
 #include <napi.h>
 #include <memory>
