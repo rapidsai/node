@@ -34,8 +34,7 @@
 
 #define CUDA_THROW(e, c) NAPI_THROW(nv::cudaError(e, c, __FILE__, __LINE__), (e).Undefined())
 
-#define NVRTC_THROW(e, c) \
-  NAPI_THROW(nv::nvrtcError(e, c, __FILE__, __LINE__), (e).Undefined())
+#define NVRTC_THROW(e, c) NAPI_THROW(nv::nvrtcError(e, c, __FILE__, __LINE__), (e).Undefined())
 
 #define CU_TRY(env, expr)                                  \
   do {                                                     \
@@ -79,10 +78,10 @@
     if (status != cudaSuccess) { CUDA_THROW_ASYNC(task, status); } \
   } while (0)
 
-#define CU_THROW_ASYNC(task, status)                                                     \
+#define CU_THROW_ASYNC(task, status)                                              \
   (task)->Reject(nv::cuError((task)->Env(), status, __FILE__, __LINE__).Value()); \
   return (task)->Promise()
 
-#define CUDA_THROW_ASYNC(task, status)                                                     \
+#define CUDA_THROW_ASYNC(task, status)                                              \
   (task)->Reject(nv::cudaError((task)->Env(), status, __FILE__, __LINE__).Value()); \
   return (task)->Promise()

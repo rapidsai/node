@@ -13,40 +13,57 @@
 // limitations under the License.
 
 #include "node_cuda/device.hpp"
+#include "node_cuda/macros.hpp"
 #include "node_cuda/utilities/cpp_to_napi.hpp"
 #include "node_cuda/utilities/error.hpp"
 #include "node_cuda/utilities/napi_to_cpp.hpp"
 
-#include <cuda_runtime_api.h>
-#include <napi.h>
-#include <exception>
-#include <functional>
 #include <nv_node/utilities/args.hpp>
 
 namespace nv {
 
 Napi::FunctionReference Device::constructor;
 
+Napi::Value Device::get_num_devices(Napi::CallbackInfo const& info) {
+  return CPPToNapi(info)(Device::get_num_devices());
+}
+
+Napi::Value Device::active_device_id(Napi::CallbackInfo const& info) {
+  return CPPToNapi(info)(Device::active_device_id());
+}
+
 Napi::Object Device::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "Device",
-                {
-                  InstanceAccessor("id", &Device::id, nullptr, napi_enumerable),
-                  InstanceAccessor("name", &Device::name, nullptr, napi_enumerable),
-                  InstanceAccessor("pciBusId", &Device::pci_bus_id, nullptr, napi_enumerable),
-                  InstanceAccessor("pciBusName", &Device::pci_bus_name, nullptr, napi_enumerable),
-                  InstanceMethod("reset", &Device::reset),
-                  InstanceMethod("activate", &Device::activate),
-                  InstanceMethod("synchronize", &Device::synchronize),
-                  InstanceMethod("canAccessPeerDevice", &Device::can_access_peer_device),
-                  InstanceMethod("enablePeerAccess", &Device::enable_peer_access),
-                  InstanceMethod("disablePeerAccess", &Device::disable_peer_access),
-                });
+  Napi::Function ctor = DefineClass(
+    env,
+    "Device",
+    {
+      StaticAccessor("numDevices", &Device::get_num_devices, nullptr, napi_enumerable),
+      StaticAccessor("activeDeviceId", &Device::active_device_id, nullptr, napi_enumerable),
+      InstanceAccessor("id", &Device::id, nullptr, napi_enumerable),
+      InstanceAccessor("pciBusName", &Device::pci_bus_name, nullptr, napi_enumerable),
+      InstanceMethod("reset", &Device::reset),
+      InstanceMethod("activate", &Device::activate),
+      InstanceMethod("getFlags", &Device::get_flags),
+      InstanceMethod("getProperties", &Device::get_properties),
+      InstanceMethod("synchronize", &Device::synchronize),
+      InstanceMethod("canAccessPeerDevice", &Device::can_access_peer_device),
+      InstanceMethod("enablePeerAccess", &Device::enable_peer_access),
+      InstanceMethod("disablePeerAccess", &Device::disable_peer_access),
+      InstanceMethod("callInDeviceContext", &Device::call_in_device_context),
+    });
   Device::constructor = Napi::Persistent(ctor);
   Device::constructor.SuppressDestruct();
 
+  auto DeviceFlag = Napi::Object::New(env);
+  EXPORT_ENUM(env, DeviceFlag, "scheduleAuto", cudaDeviceScheduleAuto);
+  EXPORT_ENUM(env, DeviceFlag, "scheduleSpin", cudaDeviceScheduleSpin);
+  EXPORT_ENUM(env, DeviceFlag, "scheduleYield", cudaDeviceScheduleYield);
+  EXPORT_ENUM(env, DeviceFlag, "scheduleBlockingSync", cudaDeviceScheduleBlockingSync);
+  EXPORT_ENUM(env, DeviceFlag, "mapHost", cudaDeviceMapHost);
+  EXPORT_ENUM(env, DeviceFlag, "lmemResizeToMax", cudaDeviceLmemResizeToMax);
+
   exports.Set("Device", ctor);
+  exports.Set("DeviceFlag", DeviceFlag);
 
   return exports;
 }
@@ -65,7 +82,7 @@ Device::Device(CallbackArgs const& args) : Napi::ObjectWrap<Device>(args) {
                        "Device constructor requires a numeric deviceId argument");
       NODE_CUDA_EXPECT(args[1].IsNumber(),
                        "Device constructor requires a numeric CUDADeviceFlags argument");
-      Initialize(args[0], args[2]);
+      Initialize(args[0], args[1]);
       break;
     default:
       NODE_CUDA_EXPECT(false,
@@ -77,7 +94,7 @@ Device::Device(CallbackArgs const& args) : Napi::ObjectWrap<Device>(args) {
 
 Napi::Object Device::New(int32_t id, uint32_t flags) {
   auto inst = Device::constructor.New({});
-  Device::Unwrap(inst)->Initialize(id);
+  Device::Unwrap(inst)->Initialize(id, flags);
   return inst;
 }
 
@@ -87,23 +104,16 @@ void Device::Initialize(int32_t id, uint32_t flags) {
   NODE_CUDA_TRY(cudaGetDeviceProperties(&props_, id_), Env());
   NODE_CUDA_TRY(cudaDeviceGetPCIBusId(bus_id, 256, id_), Env());
   pci_bus_name_ = std::string{bus_id};
+  this->reset(flags).activate();
 }
 
 Napi::Value Device::id(Napi::CallbackInfo const& info) { return CPPToNapi(info)(id()); }
-
-Napi::Value Device::name(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(std::string{props().name});
-}
-
-Napi::Value Device::pci_bus_id(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(props().pciBusID);
-}
 
 Napi::Value Device::pci_bus_name(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(pci_bus_name());
 }
 
-Device const& Device::reset(uint32_t flags) {
+Device& Device::reset(uint32_t flags) {
   call_in_context([&]() {
     NODE_CUDA_TRY(cudaDeviceReset(), Env());
     NODE_CUDA_TRY(cudaSetDeviceFlags(flags), Env());
@@ -118,10 +128,20 @@ Napi::Value Device::reset(Napi::CallbackInfo const& info) {
   return info.This();
 }
 
-Device const& Device::activate() {
-  if (current_device_id() != id()) {  //
-    NODE_CUDA_TRY(cudaSetDevice(id()), Env());
-  }
+Napi::Value Device::get_flags(Napi::CallbackInfo const& info) {
+  uint32_t flags;
+  call_in_context([&]() {  //
+    NODE_CUDA_TRY(cudaGetDeviceFlags(&flags), Env());
+  });
+  return CPPToNapi(info)(flags - cudaDeviceMapHost);
+}
+
+Napi::Value Device::get_properties(Napi::CallbackInfo const& info) {
+  return CPPToNapi(info)(props_);
+}
+
+Device& Device::activate() {
+  if (active_device_id() != id()) { NODE_CUDA_TRY(cudaSetDevice(id()), Env()); }
   return *this;
 }
 
@@ -130,10 +150,8 @@ Napi::Value Device::activate(Napi::CallbackInfo const& info) {
   return info.This();
 }
 
-Device const& Device::synchronize() {
-  call_in_context([&]() {  //
-    NODE_CUDA_TRY(cudaDeviceSynchronize(), Env());
-  });
+Device& Device::synchronize() {
+  call_in_context([&]() { NODE_CUDA_TRY(cudaDeviceSynchronize(), Env()); });
   return *this;
 }
 
@@ -142,7 +160,7 @@ Napi::Value Device::synchronize(Napi::CallbackInfo const& info) {
   return info.This();
 }
 
-bool Device::can_access_peer_device(Device const& peer) {
+bool Device::can_access_peer_device(Device const& peer) const {
   int32_t can_access_peer{0};
   NODE_CUDA_TRY(cudaDeviceCanAccessPeer(&can_access_peer, id(), peer.id()), Env());
   return can_access_peer != 0;
@@ -153,10 +171,8 @@ Napi::Value Device::can_access_peer_device(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(can_access_peer_device(peer));
 }
 
-Device const& Device::enable_peer_access(Device const& peer) {
-  call_in_context([&]() {  //
-    NODE_CUDA_TRY(cudaDeviceEnablePeerAccess(peer.id(), 0), Env());
-  });
+Device& Device::enable_peer_access(Device const& peer) {
+  call_in_context([&]() { NODE_CUDA_TRY(cudaDeviceEnablePeerAccess(peer.id(), 0), Env()); });
   return *this;
 }
 
@@ -166,16 +182,22 @@ Napi::Value Device::enable_peer_access(Napi::CallbackInfo const& info) {
   return info.This();
 }
 
-Device const& Device::disable_peer_access(Device const& peer) {
-  call_in_context([&]() {  //
-    NODE_CUDA_TRY(cudaDeviceDisablePeerAccess(peer.id()), Env());
-  });
+Device& Device::disable_peer_access(Device const& peer) {
+  call_in_context([&]() { NODE_CUDA_TRY(cudaDeviceDisablePeerAccess(peer.id()), Env()); });
   return *this;
 }
 
 Napi::Value Device::disable_peer_access(Napi::CallbackInfo const& info) {
   Device const& peer = CallbackArgs{info}[0];
   disable_peer_access(peer);
+  return info.This();
+}
+
+Napi::Value Device::call_in_device_context(Napi::CallbackInfo const& info) {
+  if (info.Length() == 1 and info[0].IsFunction()) {
+    auto callback = info[0].As<Napi::Function>();
+    call_in_context([&] { callback({}); });
+  }
   return info.This();
 }
 

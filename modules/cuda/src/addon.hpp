@@ -20,10 +20,6 @@
 
 namespace nv {
 
-namespace device {
-Napi::Object initModule(Napi::Env env, Napi::Object exports);
-}  // namespace device
-
 namespace gl {
 Napi::Object initModule(Napi::Env env, Napi::Object exports);
 }  // namespace gl

@@ -1,16 +1,16 @@
-import { devices, CUDADeviceFlag } from '@nvidia/cuda';
+import { devices, DeviceFlag } from '@nvidia/cuda';
 
 test.each([
-    CUDADeviceFlag.scheduleAuto,
-    CUDADeviceFlag.scheduleSpin,
-    CUDADeviceFlag.scheduleYield,
-    CUDADeviceFlag.scheduleBlockingSync,
-    CUDADeviceFlag.lmemResizeToMax
-])(`Sets device flags to CUDADeviceFlag %i`, (flags) => {
+    DeviceFlag.scheduleAuto,
+    DeviceFlag.scheduleSpin,
+    DeviceFlag.scheduleYield,
+    DeviceFlag.scheduleBlockingSync,
+    DeviceFlag.lmemResizeToMax
+])(`Sets device flags to DeviceFlag %i`, (flags) => {
     for (const device of devices) {
         try {
             expect(device.id).toBeDefined();
-            expect(device.getFlags()).toBe(CUDADeviceFlag.scheduleAuto);
+            expect(device.getFlags()).toBe(DeviceFlag.scheduleAuto);
             const result = device.reset(flags).getFlags();
             expect(result).toBe(flags);
         } finally {

@@ -13,40 +13,11 @@
 // limitations under the License.
 
 import * as CUDA from './cuda';
-import { CUDADevice } from './device';
 
 export { CUDA };
 export * from './array';
-export { CUDADevice } from './device';
+export * from './device';
 export { CUDAMemory } from './memory';
-export { CUDADeviceFlag } from './cuda';
 export { CUDAMemHostAllocFlag } from './cuda';
 export { CUDAMemHostRegisterFlag } from './cuda';
 export { CUDAGraphicsRegisterFlag } from './cuda';
-
-interface CUDADeviceList extends Iterable<CUDADevice> {
-    length: number; [key: number]: CUDADevice;
-};
-
-export const devices = new Proxy<CUDADeviceList>({
-    length: CUDA.device.getCount(),
-    *[Symbol.iterator]() {
-        for (let i = -1, n = this.length; ++i < n; yield this[i]);
-    }
-}, {
-        isExtensible() { return false; },
-        set() { throw new Error('Invalid operation'); },
-        defineProperty() { throw new Error('Invalid operation'); },
-        deleteProperty() { throw new Error('Invalid operation'); },
-        has(target, key) {
-            return typeof key !== 'number' ? key in target : key > -1 && key < target.length;
-        },
-        get(target, key) {
-            let idx = typeof key !== 'symbol' ? +(key as any) : NaN;
-            if (idx == idx && idx > -1 && idx < target.length) {
-                return target[idx] ? target[idx].activate() : (target[idx] = CUDADevice.new(idx));
-            }
-            return target[key as any];
-        },
-    }
-);

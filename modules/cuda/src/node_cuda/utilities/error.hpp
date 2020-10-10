@@ -23,16 +23,16 @@ namespace nv {
 inline std::runtime_error cuError(CUresult code, std::string const& file, uint32_t line) {
   const char* name;
   const char* estr;
-  CUDAAPI::cuGetErrorName(code, &name);
-  CUDAAPI::cuGetErrorString(code, &estr);
+  cuGetErrorName(code, &name);
+  cuGetErrorString(code, &estr);
   auto msg =
     std::string{name} + " " + std::string{estr} + "\n    at " + file + ":" + std::to_string(line);
   return std::runtime_error(msg);
 }
 
 inline std::runtime_error cudaError(cudaError_t code, std::string const& file, uint32_t line) {
-  auto const name = CUDARTAPI::cudaGetErrorName(code);
-  auto const estr = CUDARTAPI::cudaGetErrorString(code);
+  auto const name = cudaGetErrorName(code);
+  auto const estr = cudaGetErrorString(code);
   auto const msg =
     std::string{name} + " " + std::string{estr} + "\n    at " + file + ":" + std::to_string(line);
   return std::runtime_error(msg);

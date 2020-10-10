@@ -16,10 +16,10 @@
 
 #include "node_cuda/utilities/error.hpp"
 
-#include <napi.h>
-
 #include <nv_node/utilities/args.hpp>
 
+#include <cuda_runtime_api.h>
+#include <napi.h>
 #include <cstddef>
 #include <cstdint>
 
@@ -42,18 +42,28 @@ class Device : public Napi::ObjectWrap<Device> {
    * @param id The zero-based CUDA device ordinal.
    * @param flags Flags for the device's primary context.
    */
-  static Napi::Object New(int32_t id     = current_device_id(),
-                          uint32_t flags = cudaDeviceScheduleAuto);
+  static Napi::Object New(int32_t id = active_device_id(), uint32_t flags = cudaDeviceScheduleAuto);
 
   /**
    * @brief Retrieve the id of the current CUDA device for this thread.
    *
    * @return int32_t The CUDA device id.
    */
-  static int32_t current_device_id() {
+  static int32_t active_device_id() {
     int32_t device;
     NODE_CUDA_TRY(cudaGetDevice(&device));
     return device;
+  }
+
+  /**
+   * @brief Retrieve the number of compute-capable CUDA devices.
+   *
+   * @return int32_t The number of compute-capable CUDA devices.
+   */
+  static int32_t get_num_devices() {
+    int32_t count;
+    NODE_CUDA_TRY(cudaGetDeviceCount(&count));
+    return count;
   }
 
   /**
@@ -80,7 +90,7 @@ class Device : public Napi::ObjectWrap<Device> {
    * @param id The zero-based CUDA device id.
    * @param flags Flags for the device's primary context.
    */
-  void Initialize(int32_t id = current_device_id(), uint32_t flags = cudaDeviceScheduleAuto);
+  void Initialize(int32_t id = active_device_id(), uint32_t flags = cudaDeviceScheduleAuto);
 
   /**
    * @brief Destroy all allocations and reset all state on the current
@@ -99,7 +109,7 @@ class Device : public Napi::ObjectWrap<Device> {
    *
    * @return Device const&
    */
-  Device const& reset(uint32_t flags = cudaDeviceScheduleAuto);
+  Device& reset(uint32_t flags = cudaDeviceScheduleAuto);
 
   /**
    * @brief Set this device to be used for GPU executions.
@@ -119,7 +129,7 @@ class Device : public Napi::ObjectWrap<Device> {
    *
    * @return Device const&
    */
-  Device const& activate();
+  Device& activate();
 
   /**
    * @brief Wait for this compute device to finish.
@@ -133,7 +143,7 @@ class Device : public Napi::ObjectWrap<Device> {
    *
    * @return Device const&
    */
-  Device const& synchronize();
+  Device& synchronize();
 
   /**
    * @brief Queries if a device may directly access a peer device's memory.
@@ -145,7 +155,7 @@ class Device : public Napi::ObjectWrap<Device> {
    * @param peer
    * @return bool
    */
-  bool can_access_peer_device(Device const& peer);
+  bool can_access_peer_device(Device const& peer) const;
 
   /**
    * @brief Enables direct access to memory allocations in a peer device.
@@ -153,7 +163,7 @@ class Device : public Napi::ObjectWrap<Device> {
    * @param peer
    * @return Device const&
    */
-  Device const& enable_peer_access(Device const& peer);
+  Device& enable_peer_access(Device const& peer);
 
   /**
    * @brief Disables direct access to memory allocations in a peer device and unregisters any
@@ -162,7 +172,7 @@ class Device : public Napi::ObjectWrap<Device> {
    * @param peer
    * @return Device const&
    */
-  Device const& disable_peer_access(Device const& peer);
+  Device& disable_peer_access(Device const& peer);
 
   int32_t id() const { return id_; }
   cudaDeviceProp const& props() const { return props_; }
@@ -177,7 +187,7 @@ class Device : public Napi::ObjectWrap<Device> {
 
   template <typename Function>
   inline void call_in_context(Function const& do_work) {
-    auto cur_device_id = this->current_device_id();
+    auto cur_device_id = this->active_device_id();
     auto change_device = [&](int32_t id) {
       if (cur_device_id != this->id()) {  //
         NODE_CUDA_TRY(cudaSetDevice(id), this->Env());
@@ -193,16 +203,20 @@ class Device : public Napi::ObjectWrap<Device> {
     change_device(cur_device_id);
   }
 
+  static Napi::Value get_num_devices(Napi::CallbackInfo const& info);
+  static Napi::Value active_device_id(Napi::CallbackInfo const& info);
+
   Napi::Value reset(Napi::CallbackInfo const& info);
   Napi::Value activate(Napi::CallbackInfo const& info);
+  Napi::Value get_flags(Napi::CallbackInfo const& info);
   Napi::Value synchronize(Napi::CallbackInfo const& info);
+  Napi::Value get_properties(Napi::CallbackInfo const& info);
   Napi::Value can_access_peer_device(Napi::CallbackInfo const& info);
   Napi::Value enable_peer_access(Napi::CallbackInfo const& info);
   Napi::Value disable_peer_access(Napi::CallbackInfo const& info);
+  Napi::Value call_in_device_context(Napi::CallbackInfo const& info);
 
   Napi::Value id(Napi::CallbackInfo const& info);
-  Napi::Value name(Napi::CallbackInfo const& info);
-  Napi::Value pci_bus_id(Napi::CallbackInfo const& info);
   Napi::Value pci_bus_name(Napi::CallbackInfo const& info);
 };
 
