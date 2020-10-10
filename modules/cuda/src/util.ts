@@ -86,3 +86,14 @@ export function cachedEnumLookup<TResult>(field: string, attr: any, getValue: (_
         return this[_prop];
     }
 }
+
+export function clampSliceArgs(len: number, lhs = 0, rhs = len): [number, number] {
+    // Adjust args similar to Array.prototype.slice. Normalize begin/end to
+    // clamp between 0 and length, and wrap around on negative indices, e.g.
+    // slice(-1, 5) or slice(5, -1)
+    // wrap around on negative start/end positions
+    if (lhs < 0) { lhs = ((lhs % len) + len) % len; }
+    if (rhs < 0) { rhs = ((rhs % len) + len) % len; }
+    // enforce lhs <= rhs and rhs <= count
+    return rhs < lhs ? [rhs, lhs] : [lhs, rhs > len ? len : rhs];
+}

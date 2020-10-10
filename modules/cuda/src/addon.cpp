@@ -44,7 +44,6 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "init", nv::cuInit);
   EXPORT_FUNC(env, exports, "getDriverVersion", nv::cuDriverGetVersion);
 
-  // auto device  = Napi::Object::New(env);
   auto gl      = Napi::Object::New(env);
   auto ipc     = Napi::Object::New(env);
   auto kernel  = Napi::Object::New(env);
@@ -54,7 +53,6 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   auto stream  = Napi::Object::New(env);
   auto texture = Napi::Object::New(env);
 
-  // EXPORT_PROP(exports, "device", device);
   EXPORT_PROP(exports, "gl", gl);
   EXPORT_PROP(exports, "ipc", ipc);
   EXPORT_PROP(exports, "kernel", kernel);
@@ -64,7 +62,6 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_PROP(exports, "stream", stream);
   EXPORT_PROP(exports, "texture", stream);
 
-  // nv::device::initModule(env, device);
   nv::gl::initModule(env, gl);
   nv::ipc::initModule(env, ipc);
   nv::kernel::initModule(env, kernel);
@@ -79,7 +76,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 
   nv::Device::Init(env, exports);
   nv::IpcMemory::Init(env, exports);
-  nv::HostMemory::Init(env, exports);
+  nv::PinnedMemory::Init(env, exports);
   nv::DeviceMemory::Init(env, exports);
   nv::ManagedMemory::Init(env, exports);
 

@@ -14,14 +14,14 @@
 
 #pragma once
 
-#include "node_cuda/device.hpp"
 #include "node_cuda/utilities/cpp_to_napi.hpp"
 #include "node_cuda/utilities/error.hpp"
-
-#include <napi.h>
+#include "node_cuda/utilities/napi_to_cpp.hpp"
 
 #include <nv_node/utilities/args.hpp>
 
+#include <cuda_runtime_api.h>
+#include <napi.h>
 #include <cstdint>
 
 namespace nv {
@@ -54,6 +54,33 @@ class Memory {
   Napi::Value ptr(Napi::CallbackInfo const& info) { return CPPToNapi(info)(ptr()); }
   Napi::Value size(Napi::CallbackInfo const& info) { return CPPToNapi(info)(size_); }
 
+  static void fill(Napi::CallbackInfo const& info) {
+    CallbackArgs args{info};
+    Span<char> target = args[0];
+    int32_t value     = args[1];
+    size_t count      = args[2];
+    if (args.Length() == 3) {
+      NODE_CUDA_TRY(cudaMemset(target.data(), value, count));
+    } else {
+      cudaStream_t stream = args[3];
+      NODE_CUDA_TRY(cudaMemsetAsync(target.data(), value, count, stream));
+    }
+  }
+
+  static void copy(Napi::CallbackInfo const& info) {
+    CallbackArgs args{info};
+    Span<char> target = args[0];
+    Span<char> source = args[1];
+    size_t count      = args[2];
+    if (args.Length() == 3) {
+      NODE_CUDA_TRY(cudaMemcpy(target.data(), source.data(), count, cudaMemcpyDefault));
+    } else {
+      cudaStream_t stream = args[3];
+      NODE_CUDA_TRY(
+        cudaMemcpyAsync(target.data(), source.data(), count, cudaMemcpyDefault, stream));
+    }
+  }
+
   void* data_{nullptr};  ///< Pointer to memory allocation
   size_t size_{0};       ///< Requested size of the memory allocation
   int32_t device_id_{0};
@@ -63,10 +90,10 @@ class Memory {
  * @brief An owning wrapper around a pinned host memory allocation.
  *
  */
-class HostMemory : public Napi::ObjectWrap<HostMemory>, public Memory {
+class PinnedMemory : public Napi::ObjectWrap<PinnedMemory>, public Memory {
  public:
   /**
-   * @brief Initialize and export the HostMemory JavaScript constructor and prototype.
+   * @brief Initialize and export the PinnedMemory JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
@@ -75,26 +102,26 @@ class HostMemory : public Napi::ObjectWrap<HostMemory>, public Memory {
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
 
   /**
-   * @brief Construct a new HostMemory instance from C++.
+   * @brief Construct a new PinnedMemory instance from C++.
    *
    * @param size Size in bytes to allocate in pinned host memory.
    */
   static Napi::Object New(size_t size);
 
   /**
-   * @brief Construct a new HostMemory instance from JavaScript.
+   * @brief Construct a new PinnedMemory instance from JavaScript.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
-  HostMemory(CallbackArgs const& args);
+  PinnedMemory(CallbackArgs const& args);
   /**
-   * @brief Initialize the HostMemory instance created by either C++ or JavaScript.
+   * @brief Initialize the PinnedMemory instance created by either C++ or JavaScript.
    *
    * @param size Size in bytes to allocate in pinned host memory.
    */
   void Initialize(size_t size);
   /**
-   * @brief Destructor called when the JavaScript VM garbage collects this HostMemory instance.
+   * @brief Destructor called when the JavaScript VM garbage collects this PinnedMemory instance.
    *
    * @param env The active JavaScript environment.
    */

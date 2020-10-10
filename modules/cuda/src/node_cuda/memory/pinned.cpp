@@ -13,45 +13,43 @@
 // limitations under the License.
 
 #include "node_cuda/memory.hpp"
-#include "node_cuda/utilities/error.hpp"
-
-#include <cuda_runtime_api.h>
-#include <napi.h>
 
 namespace nv {
 
-Napi::FunctionReference HostMemory::constructor;
+Napi::FunctionReference PinnedMemory::constructor;
 
-Napi::Object HostMemory::Init(Napi::Env env, Napi::Object exports) {
+Napi::Object PinnedMemory::Init(Napi::Env env, Napi::Object exports) {
   Napi::Function ctor =
     DefineClass(env,
-                "HostMemory",
+                "PinnedMemory",
                 {
-                  InstanceAccessor("byteLength", &HostMemory::size, nullptr, napi_enumerable),
-                  InstanceAccessor("device", &HostMemory::device, nullptr, napi_enumerable),
-                  InstanceAccessor("ptr", &HostMemory::ptr, nullptr, napi_enumerable),
-                  InstanceMethod("slice", &HostMemory::slice),
+                  StaticMethod("copy", &PinnedMemory::copy),
+                  StaticMethod("fill", &PinnedMemory::fill),
+                  InstanceAccessor("byteLength", &PinnedMemory::size, nullptr, napi_enumerable),
+                  InstanceAccessor("device", &PinnedMemory::device, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &PinnedMemory::ptr, nullptr, napi_enumerable),
+                  InstanceMethod("slice", &PinnedMemory::slice),
                 });
-  HostMemory::constructor = Napi::Persistent(ctor);
-  HostMemory::constructor.SuppressDestruct();
+  PinnedMemory::constructor = Napi::Persistent(ctor);
+  PinnedMemory::constructor.SuppressDestruct();
 
-  exports.Set("HostMemory", ctor);
+  exports.Set("PinnedMemory", ctor);
 
   return exports;
 }
 
-HostMemory::HostMemory(CallbackArgs const& args)
-  : Napi::ObjectWrap<HostMemory>(args), Memory(args) {
+PinnedMemory::PinnedMemory(CallbackArgs const& args)
+  : Napi::ObjectWrap<PinnedMemory>(args), Memory(args) {
   if (args.Length() == 1) { Initialize(args[0]); }
 }
 
-Napi::Object HostMemory::New(size_t size) {
-  auto inst = HostMemory::constructor.New({});
-  HostMemory::Unwrap(inst)->Initialize(size);
+Napi::Object PinnedMemory::New(size_t size) {
+  auto inst = PinnedMemory::constructor.New({});
+  PinnedMemory::Unwrap(inst)->Initialize(size);
   return inst;
 }
 
-void HostMemory::Initialize(size_t size) {
+void PinnedMemory::Initialize(size_t size) {
   size_ = size;
   if (size_ > 0) {
     NODE_CUDA_TRY(cudaMallocHost(&data_, size_));
@@ -59,7 +57,7 @@ void HostMemory::Initialize(size_t size) {
   }
 }
 
-void HostMemory::Finalize(Napi::Env env) {
+void PinnedMemory::Finalize(Napi::Env env) {
   if (data_ != nullptr && size_ > 0) {
     if (cudaFreeHost(data_) == cudaSuccess) {
       Napi::MemoryManagement::AdjustExternalMemory(env, -size_);
@@ -67,15 +65,15 @@ void HostMemory::Finalize(Napi::Env env) {
   }
 }
 
-Napi::Value HostMemory::slice(Napi::CallbackInfo const& info) {
+Napi::Value PinnedMemory::slice(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   int64_t offset = args[0];
   int64_t size   = size_ - offset;
   if (args.Length() == 2 && args[1].IsNumber()) { size = args[1].operator int64_t() - offset; }
-  auto copy = HostMemory::New(size = std::max<int64_t>(size, 0));
+  auto copy = PinnedMemory::New(size = std::max<int64_t>(size, 0));
   if (size > 0) {
     NODE_CUDA_TRY(
-      cudaMemcpy(HostMemory::Unwrap(copy)->base(), base() + offset, size, cudaMemcpyDefault));
+      cudaMemcpy(PinnedMemory::Unwrap(copy)->base(), base() + offset, size, cudaMemcpyDefault));
   }
   return copy;
 }

@@ -14,9 +14,6 @@
 
 #include "node_cuda/memory.hpp"
 
-#include <cuda_runtime_api.h>
-#include <napi.h>
-
 namespace nv {
 
 Napi::FunctionReference ManagedMemory::constructor;
@@ -26,6 +23,8 @@ Napi::Object ManagedMemory::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "ManagedMemory",
                 {
+                  StaticMethod("copy", &ManagedMemory::copy),
+                  StaticMethod("fill", &ManagedMemory::fill),
                   InstanceAccessor("byteLength", &ManagedMemory::size, nullptr, napi_enumerable),
                   InstanceAccessor("device", &ManagedMemory::device, nullptr, napi_enumerable),
                   InstanceAccessor("ptr", &ManagedMemory::ptr, nullptr, napi_enumerable),

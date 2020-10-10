@@ -13,10 +13,6 @@
 // limitations under the License.
 
 #include "node_cuda/memory.hpp"
-#include "node_cuda/utilities/error.hpp"
-
-#include <cuda_runtime_api.h>
-#include <napi.h>
 
 namespace nv {
 
@@ -27,6 +23,8 @@ Napi::Object IpcMemory::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "IPCMemory",
                 {
+                  StaticMethod("copy", &IpcMemory::copy),
+                  StaticMethod("fill", &IpcMemory::fill),
                   InstanceAccessor("byteLength", &IpcMemory::size, nullptr, napi_enumerable),
                   InstanceAccessor("device", &IpcMemory::device, nullptr, napi_enumerable),
                   InstanceAccessor("ptr", &IpcMemory::ptr, nullptr, napi_enumerable),
@@ -36,7 +34,7 @@ Napi::Object IpcMemory::Init(Napi::Env env, Napi::Object exports) {
   IpcMemory::constructor = Napi::Persistent(ctor);
   IpcMemory::constructor.SuppressDestruct();
 
-  exports.Set("IPCMemory", ctor);
+  exports.Set("IpcMemory", ctor);
 
   return exports;
 }

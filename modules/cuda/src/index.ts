@@ -17,6 +17,8 @@ import * as CUDA from './cuda';
 export { CUDA };
 export * from './array';
 export * from './device';
+export * from './node_cuda/buffer';
+export * from './node_cuda/memory';
 export { CUDAMemory } from './memory';
 export { CUDAMemHostAllocFlag } from './cuda';
 export { CUDAMemHostRegisterFlag } from './cuda';

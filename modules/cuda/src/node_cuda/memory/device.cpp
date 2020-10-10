@@ -14,9 +14,6 @@
 
 #include "node_cuda/memory.hpp"
 
-#include <cuda_runtime_api.h>
-#include <napi.h>
-
 namespace nv {
 
 Napi::FunctionReference DeviceMemory::constructor;
@@ -26,6 +23,8 @@ Napi::Object DeviceMemory::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "DeviceMemory",
                 {
+                  StaticMethod("copy", &DeviceMemory::copy),
+                  StaticMethod("fill", &DeviceMemory::fill),
                   InstanceAccessor("byteLength", &DeviceMemory::size, nullptr, napi_enumerable),
                   InstanceAccessor("device", &DeviceMemory::device, nullptr, napi_enumerable),
                   InstanceAccessor("ptr", &DeviceMemory::ptr, nullptr, napi_enumerable),
