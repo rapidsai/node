@@ -15,7 +15,6 @@
 #pragma once
 
 #include "rmm/device_buffer.hpp"
-#include "rmm/mr/device/cuda_memory_resource.hpp"
 
 #include <napi.h>
 
@@ -85,7 +84,6 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   Napi::Value slice(Napi::CallbackInfo const& info);
 
   std::unique_ptr<rmm::device_buffer> buffer_;
-  std::shared_ptr<rmm::mr::cuda_memory_resource> resource_;
 };
 
 }  // namespace nv

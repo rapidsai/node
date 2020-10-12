@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "device_buffer.hpp"
-#include "cuda_memory_resource.hpp"
 #include "macros.hpp"
 #include "napi_to_cpp.hpp"
 
@@ -21,8 +20,6 @@
 #include <node_cuda/utilities/napi_to_cpp.hpp>
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/cpp_to_napi.hpp>
-#include <rmm/mr/device/cuda_memory_resource.hpp>
-#include <rmm/mr/device/device_memory_resource.hpp>
 
 namespace nv {
 
