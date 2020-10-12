@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "device_buffer.hpp"
-#include "macros.hpp"
-#include "napi_to_cpp.hpp"
+#include "node_rmm/device_buffer.hpp"
+#include "node_rmm/macros.hpp"
+#include "node_rmm/utilities/napi_to_cpp.hpp"
 
 #include <node_cuda/utilities/error.hpp>
 #include <node_cuda/utilities/napi_to_cpp.hpp>

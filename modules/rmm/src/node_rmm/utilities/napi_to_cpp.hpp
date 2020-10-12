@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "cuda_memory_resource.hpp"
+#include "node_rmm/cuda_memory_resource.hpp"
 
 #include <nv_node/utilities/napi_to_cpp.hpp>
 

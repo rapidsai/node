@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cuda_memory_resource.hpp"
-#include "macros.hpp"
-#include "napi_to_cpp.hpp"
+#include "node_rmm/cuda_memory_resource.hpp"
+#include "node_rmm/macros.hpp"
+#include "node_rmm/utilities/napi_to_cpp.hpp"
 
 #include <node_cuda/utilities/napi_to_cpp.hpp>
 #include <nv_node/utilities/args.hpp>
