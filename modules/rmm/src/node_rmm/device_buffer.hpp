@@ -27,18 +27,37 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   /**
    * @brief Construct a new DeviceBuffer instance from C++.
    *
-   * @param data - Pointer to the host or device memory to copy from.
-   * @param size - Size in bytes to copy.
-   * @param stream - CUDA stream on which memory may be allocated if the memory
+   * @param data Pointer to the host or device memory to copy from.
+   * @param size Size in bytes to copy.
+   * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
+   * @param mr Memory resource to use for the device memory allocation.
    */
-  static Napi::Value New(void* data, size_t size, cudaStream_t stream = 0);
+  static Napi::Value New(
+    void* data,
+    size_t size,
+    cudaStream_t stream                 = 0,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   /**
    * @brief Construct a new DeviceBuffer instance from JavaScript.
    *
    */
   DeviceBuffer(Napi::CallbackInfo const& info);
+
+  /**
+   * @brief Initialize the DeviceBuffer instance created by either C++ or JavaScript.
+   *
+   * @param data Pointer to the host or device memory to copy from.
+   * @param size Size in bytes to copy.
+   * @param stream CUDA stream on which memory may be allocated if the memory
+   * resource supports streams.
+   * @param mr Memory resource to use for the device memory allocation.
+   */
+  void Initialize(void* data,
+                  size_t size,
+                  cudaStream_t stream                 = 0,
+                  rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this DeviceBuffer

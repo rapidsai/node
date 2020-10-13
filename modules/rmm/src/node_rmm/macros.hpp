@@ -30,7 +30,7 @@
     static_cast<napi_property_attributes>(napi_writable | napi_enumerable | napi_configurable), \
     nullptr));
 
-#define CUDA_THROW(e, c) NAPI_THROW(node_rmm::cudaError(e, c, __FILE__, __LINE__), (e).Undefined())
+#define CUDA_THROW(e, c) NAPI_THROW(nv::cudaError(e, c, __FILE__, __LINE__), (e).Undefined())
 
 #define CUDA_TRY(env, expr)                                 \
   do {                                                      \

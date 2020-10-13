@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cuda_memory_resource.hpp"
-
-#include "macros.hpp"
-#include "napi_to_cpp.hpp"
-#include "nv_node/utilities/args.hpp"
-#include "nv_node/utilities/cpp_to_napi.hpp"
-#include "rmm/mr/device/cuda_memory_resource.hpp"
+#include "node_rmm/cuda_memory_resource.hpp"
+#include "node_rmm/macros.hpp"
+#include "node_rmm/utilities/napi_to_cpp.hpp"
 
 #include <node_cuda/utilities/napi_to_cpp.hpp>
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
+#include <rmm/mr/device/cuda_memory_resource.hpp>
 
 namespace nv {
 
@@ -64,7 +63,7 @@ Napi::Value CudaMemoryResource::New() {
 void CudaMemoryResource::Initialize() { resource_.reset(new rmm::mr::cuda_memory_resource()); }
 
 void CudaMemoryResource::Finalize(Napi::Env env) {
-  if (resource_.get() != nullptr) { this->resource_.reset(nullptr); }
+  if (resource_ != nullptr) { this->resource_ = nullptr; }
   resource_ = nullptr;
 }
 
@@ -107,8 +106,8 @@ Napi::Value CudaMemoryResource::getMemInfo(Napi::CallbackInfo const& info) {
 
 Napi::Value CudaMemoryResource::isEqual(Napi::CallbackInfo const& info) {
   const CallbackArgs args{info};
-  CudaMemoryResource* const other = args[0];
-  return CPPToNapi(info)(Resource()->is_equal(*other->Resource()));
+  CudaMemoryResource const& other = args[0];
+  return CPPToNapi(info)(Resource()->is_equal(*other.Resource()));
 }
 
 Napi::Value CudaMemoryResource::supportsStreams(Napi::CallbackInfo const& info) {

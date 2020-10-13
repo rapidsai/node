@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "device_buffer.hpp"
-#include "macros.hpp"
-#include "nv_node/utilities/args.hpp"
-#include "nv_node/utilities/cpp_to_napi.hpp"
+#include "node_rmm/device_buffer.hpp"
+#include "node_rmm/macros.hpp"
+#include "node_rmm/utilities/napi_to_cpp.hpp"
 
+#include <node_cuda/utilities/error.hpp>
 #include <node_cuda/utilities/napi_to_cpp.hpp>
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
 
 namespace nv {
 
@@ -44,21 +46,49 @@ Napi::Object DeviceBuffer::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
-Napi::Value DeviceBuffer::New(void* data, size_t size, cudaStream_t stream) {
-  const auto buf = DeviceBuffer::constructor.New({});
-  DeviceBuffer::Unwrap(buf)->buffer_.reset(new rmm::device_buffer(data, size, stream));
-  if (stream == NULL) { CUDA_TRY(buf.Env(), cudaStreamSynchronize(stream)); }
-  Napi::MemoryManagement::AdjustExternalMemory(buf.Env(), size);
-  return buf;
+Napi::Value DeviceBuffer::New(void* data,
+                              size_t size,
+                              cudaStream_t stream,
+                              rmm::mr::device_memory_resource* mr) {
+  auto inst = DeviceBuffer::constructor.New({});
+  DeviceBuffer::Unwrap(inst)->Initialize(data, size, stream, mr);
+  return inst;
 }
 
 DeviceBuffer::DeviceBuffer(Napi::CallbackInfo const& info) : Napi::ObjectWrap<DeviceBuffer>(info) {
   const CallbackArgs args{info};
-  const size_t size   = args[0];
-  cudaStream_t stream = 0;
-  if (args.Length() >= 2 && info[1].IsNumber()) { stream = args[1]; }
-  buffer_.reset(new rmm::device_buffer(size, stream));
-  if (stream == NULL) { CUDA_TRY(info.Env(), cudaStreamSynchronize(stream)); }
+  char* data{nullptr};
+  size_t size{0};
+  if (args[0].IsNumber()) {
+    size = args[0];
+  } else if (args[0].IsObject()) {
+    Span<char> source = args[0];
+    data              = source.data();
+    size              = source.size();
+  }
+  switch (args.Length()) {
+    case 1: Initialize(data, size); break;
+    case 2: Initialize(data, size, args[1]); break;
+    case 3: Initialize(data, size, args[1], args[2]); break;
+    default:
+      NODE_CUDA_EXPECT(false,
+                       "DeviceBuffer constructor requires a numeric size, and optional "
+                       "stream and memory_resource arguments");
+      break;
+  }
+}
+
+void DeviceBuffer::Initialize(void* data,
+                              size_t size,
+                              cudaStream_t stream,
+                              rmm::mr::device_memory_resource* mr) {
+  if (data == nullptr) {
+    buffer_.reset(new rmm::device_buffer(size, stream, mr));
+  } else {
+    buffer_.reset(new rmm::device_buffer(data, size, stream, mr));
+  }
+  if (stream == NULL) { CUDA_TRY(Env(), cudaStreamSynchronize(stream)); }
+  Napi::MemoryManagement::AdjustExternalMemory(Env(), size);
 }
 
 void DeviceBuffer::Finalize(Napi::Env env) {
