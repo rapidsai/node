@@ -14,6 +14,8 @@
 
 import CUDA, { CUDAArray, CUDABuffer } from './addon';
 
+export { CUDA };
+
 export type CUdevice = number;
 export type CUresult = number;
 export type CUstream = number;

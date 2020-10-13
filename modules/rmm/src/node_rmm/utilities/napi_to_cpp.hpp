@@ -14,29 +14,24 @@
 
 #pragma once
 
-#include "types.hpp"
-#include "visit_struct/visit_struct.hpp"
+#include "node_rmm/cuda_memory_resource.hpp"
 
-#include <cuda_runtime_api.h>
 #include <nv_node/utilities/napi_to_cpp.hpp>
-
-#include <type_traits>
 
 namespace nv {
 
 template <>
-inline NapiToCPP::operator cudaDeviceProp() const {
-  cudaDeviceProp props{};
-  if (val.IsObject()) {
-    auto obj = val.As<Napi::Object>();
-    visit_struct::for_each(props, [&](char const* key, auto& val) {
-      if (obj.Has(key) && !obj.Get(key).IsUndefined()) {
-        using T                     = typename std::decay<decltype(val)>::type;
-        *reinterpret_cast<T*>(&val) = NapiToCPP(obj.Get(key)).operator T();
-      }
-    });
+inline NapiToCPP::operator CudaMemoryResource() const {
+  if (CudaMemoryResource::is_instance(val)) { return *CudaMemoryResource::Unwrap(val.ToObject()); }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a CudaMemoryResource instance");
+}
+
+template <>
+inline NapiToCPP::operator rmm::mr::device_memory_resource*() const {
+  if (CudaMemoryResource::is_instance(val)) {
+    return this->operator CudaMemoryResource().Resource().get();
   }
-  return props;
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a MemoryResource instance");
 }
 
 }  // namespace nv

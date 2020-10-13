@@ -14,11 +14,11 @@
 
 #pragma once
 
-#include "cuda_runtime.h"
-#include "nv_node/utilities/args.hpp"
-#include "rmm/mr/device/cuda_memory_resource.hpp"
+#include <nv_node/utilities/args.hpp>
+#include <rmm/mr/device/cuda_memory_resource.hpp>
 
 #include <napi.h>
+#include <memory>
 
 namespace nv {
 
@@ -91,7 +91,7 @@ class CudaMemoryResource : public Napi::ObjectWrap<CudaMemoryResource> {
   Napi::Value supportsStreams(Napi::CallbackInfo const& info);
   Napi::Value supportsGetMemInfo(Napi::CallbackInfo const& info);
 
-  std::unique_ptr<rmm::mr::cuda_memory_resource> resource_;
+  std::shared_ptr<rmm::mr::cuda_memory_resource> resource_;
 };
 
 }  // namespace nv

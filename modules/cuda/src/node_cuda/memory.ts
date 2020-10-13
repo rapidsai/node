@@ -11,18 +11,3 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
-
-#include "cuda_memory_resource.hpp"
-#include "nv_node/utilities/napi_to_cpp.hpp"
-
-namespace nv {
-
-template <>
-inline NapiToCPP::operator CudaMemoryResource*() const {
-  if (CudaMemoryResource::is_instance(val)) { return CudaMemoryResource::Unwrap(val.ToObject()); }
-  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a Device instance");
-}
-
-}  // namespace nv
