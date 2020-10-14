@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "addon.hpp"
-
-#include <node_cugraph/macros.hpp>
+#include "node_cugraph/addon.hpp"
+#include "node_cugraph/macros.hpp"
 
 #include <cugraph/graph.hpp>
 

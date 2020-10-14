@@ -70,7 +70,7 @@ include_directories("${CUDA_INCLUDE_DIRS}"
 
 link_directories("${CUDA_LIBRARIES}")
 
-file(GLOB_RECURSE NODE_CUGRAPH_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/*.cpp")
+file(GLOB_RECURSE NODE_CUGRAPH_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_CUGRAPH_SRC_FILES} ${CMAKE_JS_SRC}
             "${cugraph_SOURCE_DIR}/cpp/src/experimental/graph.cu"
