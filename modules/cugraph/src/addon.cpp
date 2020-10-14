@@ -17,16 +17,16 @@
 
 #include <cugraph/graph.hpp>
 
-namespace node_cugraph {
+namespace nv {
 Napi::Value cugraphInit(Napi::CallbackInfo const& info) {
   // todo
   return info.This();
 }
-}  // namespace node_cugraph
+}  // namespace nv
 
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", node_cugraph::cugraphInit);
+  EXPORT_FUNC(env, exports, "init", nv::cugraphInit);
   return exports;
 }
 
-NODE_API_MODULE(node_cuda, initModule);
+NODE_API_MODULE(node_cugraph, initModule);
