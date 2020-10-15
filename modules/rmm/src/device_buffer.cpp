@@ -13,11 +13,11 @@
 // limitations under the License.
 
 #include "node_rmm/device_buffer.hpp"
-#include "node_rmm/macros.hpp"
 #include "node_rmm/utilities/napi_to_cpp.hpp"
 
 #include <node_cuda/utilities/error.hpp>
 #include <node_cuda/utilities/napi_to_cpp.hpp>
+#include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/cpp_to_napi.hpp>
 
@@ -87,7 +87,7 @@ void DeviceBuffer::Initialize(void* data,
   } else {
     buffer_.reset(new rmm::device_buffer(data, size, stream, mr));
   }
-  if (stream == NULL) { CUDA_TRY(Env(), cudaStreamSynchronize(stream)); }
+  if (stream == NULL) { NODE_CUDA_TRY(cudaStreamSynchronize(stream), Env()); }
   Napi::MemoryManagement::AdjustExternalMemory(Env(), size);
 }
 
