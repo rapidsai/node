@@ -14,8 +14,6 @@
 
 #pragma once
 
-#include "node_cuda/utilities/error.hpp"
-
 #ifndef EXPORT_PROP
 #define EXPORT_PROP(exports, name, val) exports.Set(name, val);
 #endif

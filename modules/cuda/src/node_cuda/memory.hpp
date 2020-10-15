@@ -15,7 +15,6 @@
 #pragma once
 
 #include "node_cuda/utilities/cpp_to_napi.hpp"
-#include "node_cuda/utilities/error.hpp"
 
 #include <nv_node/utilities/args.hpp>
 

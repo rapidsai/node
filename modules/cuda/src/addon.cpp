@@ -14,11 +14,11 @@
 
 #include "node_cuda/addon.hpp"
 #include "node_cuda/device.hpp"
-#include "node_cuda/macros.hpp"
 #include "node_cuda/memory.hpp"
 #include "node_cuda/utilities/cpp_to_napi.hpp"
 #include "node_cuda/utilities/napi_to_cpp.hpp"
 
+#include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
 
 namespace nv {

@@ -13,16 +13,15 @@
 // limitations under the License.
 
 #include "node_cuda/array.hpp"
-#include "node_cuda/macros.hpp"
 #include "node_cuda/memory.hpp"
 #include "node_cuda/utilities/cpp_to_napi.hpp"
-#include "node_cuda/utilities/error.hpp"
 #include "node_cuda/utilities/napi_to_cpp.hpp"
 
 #include <GL/gl.h>
 #include <cuda.h>
 #include <cudaGL.h>
 #include <cuda_gl_interop.h>
+#include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
 
 namespace nv {
