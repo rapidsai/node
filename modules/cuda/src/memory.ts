@@ -99,3 +99,15 @@ export class IpcHandle extends (<IpcHandleConstructor> CUDA.IpcHandle) {
         };
     }
 }
+
+export interface MappedGLMemoryConstructor {
+    readonly prototype: MappedGLMemory;
+    new(resource: number): MappedGLMemory;
+}
+
+export interface MappedGLMemory extends Memory {
+    readonly [Symbol.toStringTag]: 'ManagedMemory';
+    slice(start?: number, end?: number): MappedGLMemory;
+}
+
+export const MappedGLMemory: MappedGLMemoryConstructor = CUDA.MappedGLMemory;

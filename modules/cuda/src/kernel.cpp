@@ -35,18 +35,18 @@ Napi::Value cuLaunchKernel(CallbackArgs const& info) {
   CUstream stream                = info[4];
   std::vector<napi_value> params = info[5];
 
-  CU_TRY(env,
-         CUDAAPI::cuLaunchKernel(func,
-                                 grid[0],
-                                 grid[1],
-                                 grid[2],
-                                 block[0],
-                                 block[1],
-                                 block[2],
-                                 sharedMem,
-                                 stream,
-                                 (void**)params.data(),
-                                 nullptr));
+  NODE_CU_TRY(CUDAAPI::cuLaunchKernel(func,
+                                      grid[0],
+                                      grid[1],
+                                      grid[2],
+                                      block[0],
+                                      block[1],
+                                      block[2],
+                                      sharedMem,
+                                      stream,
+                                      (void**)params.data(),
+                                      nullptr),
+              env);
 
   return env.Undefined();
 }

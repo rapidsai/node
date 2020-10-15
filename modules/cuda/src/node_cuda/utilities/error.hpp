@@ -17,6 +17,7 @@
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 #include <napi.h>
+#include <nvrtc.h>
 
 namespace nv {
 
@@ -38,6 +39,12 @@ inline std::runtime_error cudaError(cudaError_t code, std::string const& file, u
   return std::runtime_error(msg);
 }
 
+inline std::runtime_error nvrtcError(nvrtcResult code, std::string const& file, uint32_t line) {
+  auto const name = nvrtcGetErrorString(code);
+  auto const msg  = std::string{name} + "\n    at " + file + ":" + std::to_string(line);
+  return std::runtime_error(msg);
+}
+
 inline Napi::Error cuError(CUresult code,
                            std::string const& file,
                            uint32_t line,
@@ -50,6 +57,13 @@ inline Napi::Error cudaError(cudaError_t code,
                              uint32_t line,
                              Napi::Env const& env) {
   return Napi::Error::New(env, cudaError(code, file, line).what());
+}
+
+inline Napi::Error nvrtcError(nvrtcResult code,
+                              std::string const& file,
+                              uint32_t line,
+                              Napi::Env const& env) {
+  return Napi::Error::New(env, nvrtcError(code, file, line).what());
 }
 
 }  // namespace nv
@@ -92,4 +106,13 @@ inline Napi::Error cudaError(cudaError_t code,
       cudaGetLastError();                     \
       NODE_CUDA_THROW(status, ##__VA_ARGS__); \
     }                                         \
+  } while (0)
+
+#define NODE_NVRTC_THROW(code, ...) \
+  NAPI_THROW(nv::nvrtcError(code, __FILE__, __LINE__, ##__VA_ARGS__))
+
+#define NODE_NVRTC_TRY(expr, ...)                                             \
+  do {                                                                        \
+    nvrtcResult status = (expr);                                              \
+    if (status != NVRTC_SUCCESS) { NODE_NVRTC_THROW(status, ##__VA_ARGS__); } \
   } while (0)

@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "types.hpp"
+#include "node_cuda/types.hpp"
 #include "visit_struct/visit_struct.hpp"
 
 #include <cuda_runtime_api.h>

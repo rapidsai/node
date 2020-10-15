@@ -41,4 +41,5 @@ export type TypedArrayConstructor<T extends TypedArray | BigIntArray> = {
 export type MemoryData =
     TypedArray | BigIntArray | ArrayBufferView | ArrayBufferLike       |
     import('./memory').DeviceMemory  | import('./memory').PinnedMemory |
-    import('./memory').ManagedMemory | import('./memory').IpcMemory    ;
+    import('./memory').ManagedMemory | import('./memory').IpcMemory    |
+    import('./memory').MappedGLMemory                                  ;

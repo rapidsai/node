@@ -67,6 +67,8 @@ void IpcMemory::close(Napi::Env const& env) {
       Napi::MemoryManagement::AdjustExternalMemory(env, -size_);
     }
   }
+  data_ = nullptr;
+  size_ = 0;
 }
 
 Napi::Value IpcMemory::close(Napi::CallbackInfo const& info) {

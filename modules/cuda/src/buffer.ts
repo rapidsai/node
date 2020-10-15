@@ -157,7 +157,7 @@ abstract class MemoryView<T extends TypedArray | BigIntArray = any> implements A
     }
 
     /**
-     * Gets a new MemoryView view of the CUDABuffer store for this array,
+     * Creates a new MemoryView view over the underlying Memory of this array,
      * referencing the elements at begin, inclusive, up to end, exclusive.
      * @param begin The index of the beginning of the array.
      * @param end The index of the end of the array.

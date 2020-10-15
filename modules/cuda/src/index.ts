@@ -13,7 +13,6 @@
 // limitations under the License.
 
 export * from './addon';
-export * from './array';
 export * from './buffer';
 export * from './device';
 export * from './memory';

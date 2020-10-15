@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CUDABuffer } from './addon';
-
 /** @ignore */
 export const isNumber = (x: any): x is number => typeof x === 'number';
 /** @ignore */
@@ -52,15 +50,6 @@ export const isArrayBuffer = (x: any): x is ArrayBuffer => {
 
 /** @ignore */
 export const isArrayBufferView = ArrayBuffer.isView;
-
-/** @ignore */
-export const isCUDABuffer = (x: any): x is CUDABuffer => {
-    switch (x && x.constructor && x.constructor.name) {
-        case 'CUDABuffer': return true;
-        case 'DeviceBuffer': return true;
-        default: return false;
-    }
-};
 
 /** @ignore */
 export const isIteratorResult = <T = any>(x: any): x is IteratorResult<T> => {

@@ -89,7 +89,7 @@ interface CUDADeviceConstructor {
      */
     readonly activeDeviceId: number;
     readonly prototype: CUDADevice;
-    new(deviceId?: number, flags?: DeviceFlag): CUDADevice;
+    new(deviceId?: number, flags?: DeviceFlags): CUDADevice;
 }
 
 interface CUDADevice {
@@ -122,7 +122,7 @@ interface CUDADevice {
      * context.
      * <br/>
      */
-    reset(flags?: DeviceFlag): this;
+    reset(flags?: DeviceFlags): this;
 
     /**
      * @summary Set this device to be used for GPU executions.
@@ -146,7 +146,7 @@ interface CUDADevice {
     /**
      * @summary Queries the {@link DeviceFlag} flags used to initialize this device.
      */
-    getFlags(): DeviceFlag;
+    getFlags(): DeviceFlags;
 
     /**
      * @summary An object with information about the device.
@@ -204,50 +204,50 @@ interface CUDADevice {
  * interacts with the OS scheduler when waiting for results from the GPU.
  * Only one of the scheduling flags can be set when creating a context.
  */
-export enum DeviceFlag {
+export enum DeviceFlags {
     /**
      *  Uses a heuristic based on the number of active CUDA contexts in the
      *  process `C` and the number of logical processors in the system `P`.
      *  If `C` > `P`, then CUDA will yield to other OS threads when waiting
-     *  for the GPU (`DeviceFlag.scheduleYield`), otherwise CUDA will not
+     *  for the GPU (`DeviceFlags.scheduleYield`), otherwise CUDA will not
      *  yield while waiting for results and actively spin on the processor
-     *  (`DeviceFlag.scheduleSpin`).
+     *  (`DeviceFlags.scheduleSpin`).
      *  <br/>
-     *  Additionally, on Tegra devices, `DeviceFlag.scheduleAuto` uses a
+     *  Additionally, on Tegra devices, `DeviceFlags.scheduleAuto` uses a
      *  heuristic based on the power profile of the platform and may choose
-     *  `DeviceFlag.scheduleBlockingSync` for low-powered devices.
+     *  `DeviceFlags.scheduleBlockingSync` for low-powered devices.
      */
-    scheduleAuto = CUDA.DeviceFlag.scheduleAuto,
+    scheduleAuto = CUDA.DeviceFlags.scheduleAuto,
     /**
      *  Instruct CUDA to actively spin when waiting for results from the GPU.
      *  This can decrease latency when waiting for the GPU, but may lower the
      *  performance of CPU threads if they are performing work in parallel
      *  with the CUDA thread.
      */
-    scheduleSpin = CUDA.DeviceFlag.scheduleSpin,
+    scheduleSpin = CUDA.DeviceFlags.scheduleSpin,
     /**
      *  Instruct CUDA to yield its thread when waiting for results from the
      *  GPU. This can increase latency when waiting for the GPU, but can
      *  increase the performance of CPU threads performing work in parallel
      *  with the GPU.
      */
-    scheduleYield = CUDA.DeviceFlag.scheduleYield,
+    scheduleYield = CUDA.DeviceFlags.scheduleYield,
     /**
      *  Instruct CUDA to block the CPU thread on a synchronization primitive
      *  when waiting for the GPU to finish work.
      */
-    scheduleBlockingSync = CUDA.DeviceFlag.scheduleBlockingSync,
+    scheduleBlockingSync = CUDA.DeviceFlags.scheduleBlockingSync,
     /**
      * @ignore
      */
-    mapHost = CUDA.DeviceFlag.mapHost,
+    mapHost = CUDA.DeviceFlags.mapHost,
     /**
      *  Instruct CUDA to not reduce local memory after resizing local memory
      *  for a kernel. This can prevent thrashing by local memory allocations
      *  when launching many kernels with high local memory usage at the cost
      *  of potentially increased memory usage.
      */
-    lmemResizeToMax = CUDA.DeviceFlag.lmemResizeToMax,
+    lmemResizeToMax = CUDA.DeviceFlags.lmemResizeToMax,
 }
 
 export interface DeviceProperties {

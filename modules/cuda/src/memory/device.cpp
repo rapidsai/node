@@ -17,68 +17,70 @@
 
 namespace nv {
 
-Napi::FunctionReference PinnedMemory::constructor;
+Napi::FunctionReference DeviceMemory::constructor;
 
-Napi::Object PinnedMemory::Init(Napi::Env env, Napi::Object exports) {
+Napi::Object DeviceMemory::Init(Napi::Env env, Napi::Object exports) {
   Napi::Function ctor =
     DefineClass(env,
-                "PinnedMemory",
+                "DeviceMemory",
                 {
                   InstanceValue(Napi::Symbol::WellKnown(env, "toStringTag"),
-                                Napi::String::New(env, "PinnedMemory"),
+                                Napi::String::New(env, "DeviceMemory"),
                                 napi_enumerable),
-                  InstanceAccessor("byteLength", &PinnedMemory::size, nullptr, napi_enumerable),
-                  InstanceAccessor("device", &PinnedMemory::device, nullptr, napi_enumerable),
-                  InstanceAccessor("ptr", &PinnedMemory::ptr, nullptr, napi_enumerable),
-                  InstanceMethod("slice", &PinnedMemory::slice),
+                  InstanceAccessor("byteLength", &DeviceMemory::size, nullptr, napi_enumerable),
+                  InstanceAccessor("device", &DeviceMemory::device, nullptr, napi_enumerable),
+                  InstanceAccessor("ptr", &DeviceMemory::ptr, nullptr, napi_enumerable),
+                  InstanceMethod("slice", &DeviceMemory::slice),
                 });
-  PinnedMemory::constructor = Napi::Persistent(ctor);
-  PinnedMemory::constructor.SuppressDestruct();
+  DeviceMemory::constructor = Napi::Persistent(ctor);
+  DeviceMemory::constructor.SuppressDestruct();
 
-  exports.Set("PinnedMemory", ctor);
+  exports.Set("DeviceMemory", ctor);
 
   return exports;
 }
 
-PinnedMemory::PinnedMemory(CallbackArgs const& args)
-  : Napi::ObjectWrap<PinnedMemory>(args), Memory(args) {
-  NODE_CUDA_EXPECT(args.IsConstructCall(), "PinnedMemory constructor requires 'new'");
+DeviceMemory::DeviceMemory(CallbackArgs const& args)
+  : Napi::ObjectWrap<DeviceMemory>(args), Memory(args) {
+  NODE_CUDA_EXPECT(args.IsConstructCall(), "DeviceMemory constructor requires 'new'");
   NODE_CUDA_EXPECT(args.Length() == 0 || (args.Length() == 1 && args[0].IsNumber()),
-                   "PinnedMemory constructor requires a numeric byteLength argument");
+                   "DeviceMemory constructor requires a numeric byteLength argument");
   Initialize(args[0]);
 }
 
-Napi::Object PinnedMemory::New(size_t size) {
-  auto inst = PinnedMemory::constructor.New({});
-  PinnedMemory::Unwrap(inst)->Initialize(size);
+Napi::Object DeviceMemory::New(size_t size) {
+  auto inst = DeviceMemory::constructor.New({});
+  DeviceMemory::Unwrap(inst)->Initialize(size);
   return inst;
 }
 
-void PinnedMemory::Initialize(size_t size) {
+void DeviceMemory::Initialize(size_t size) {
   size_ = size;
   if (size_ > 0) {
-    NODE_CUDA_TRY(cudaMallocHost(&data_, size_));
+    NODE_CUDA_TRY(cudaMalloc(&data_, size_));
     Napi::MemoryManagement::AdjustExternalMemory(Env(), size_);
   }
 }
 
-void PinnedMemory::Finalize(Napi::Env env) {
+void DeviceMemory::Finalize(Napi::Env env) {
   if (data_ != nullptr && size_ > 0) {
-    if (cudaFreeHost(data_) == cudaSuccess) {
+    if (cudaFree(data_) == cudaSuccess) {
       Napi::MemoryManagement::AdjustExternalMemory(env, -size_);
     }
   }
+  data_ = nullptr;
+  size_ = 0;
 }
 
-Napi::Value PinnedMemory::slice(Napi::CallbackInfo const& info) {
+Napi::Value DeviceMemory::slice(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   int64_t lhs        = args.Length() > 0 ? args[0] : 0;
   int64_t rhs        = args.Length() > 1 ? args[1] : size_;
   std::tie(lhs, rhs) = clamp_slice_args(size_, lhs, rhs);
-  auto copy          = PinnedMemory::New(rhs - lhs);
+  auto copy          = DeviceMemory::New(rhs - lhs);
   if (rhs - lhs > 0) {
     NODE_CUDA_TRY(
-      cudaMemcpy(PinnedMemory::Unwrap(copy)->base(), base() + lhs, rhs - lhs, cudaMemcpyDefault));
+      cudaMemcpy(DeviceMemory::Unwrap(copy)->base(), base() + lhs, rhs - lhs, cudaMemcpyDefault));
   }
   return copy;
 }

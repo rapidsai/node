@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { devices, Device, DeviceFlag } from '@nvidia/cuda';
+import { devices, Device, DeviceFlags } from '@nvidia/cuda';
 
 test.each([
-    DeviceFlag.scheduleAuto,
-    DeviceFlag.scheduleSpin,
-    DeviceFlag.scheduleYield,
-    DeviceFlag.scheduleBlockingSync,
-    DeviceFlag.lmemResizeToMax
+    DeviceFlags.scheduleAuto,
+    DeviceFlags.scheduleSpin,
+    DeviceFlags.scheduleYield,
+    DeviceFlags.scheduleBlockingSync,
+    DeviceFlags.lmemResizeToMax
 ])(`Creates each device with DeviceFlag %i`, (flags) => {
     for (const i of Array.from({ length: devices.length }, (_, i) => i)) {
         const device = new Device(i, flags);

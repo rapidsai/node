@@ -396,4 +396,64 @@ class IpcHandle : public Napi::ObjectWrap<IpcHandle> {
   Napi::Value close(Napi::CallbackInfo const& info);
 };
 
+/**
+ * @brief An owning wrapper around a CUDA managed memory allocation.
+ *
+ */
+class MappedGLMemory : public Napi::ObjectWrap<MappedGLMemory>, public Memory {
+ public:
+  /**
+   * @brief Initialize and export the MappedGLMemory JavaScript constructor and prototype.
+   *
+   * @param env The active JavaScript environment.
+   * @param exports The exports object to decorate.
+   * @return Napi::Object The decorated exports object.
+   */
+  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+
+  /**
+   * @brief Construct a new MappedGLMemory instance from C++.
+   *
+   * @param resource The registered CUDA Graphics Resource for an OpenGL buffer.
+   */
+  static Napi::Object New(cudaGraphicsResource_t resource);
+
+  /**
+   * @brief Check whether an Napi value is an instance of `MappedGLMemory`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `MappedGLMemory`
+   * @return false if the value is not a `MappedGLMemory`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+  }
+
+  /**
+   * @brief Construct a new MappedGLMemory instance from JavaScript.
+   *
+   * @param args The JavaScript arguments list wrapped in a conversion helper.
+   */
+  MappedGLMemory(CallbackArgs const& args);
+
+  /**
+   * @brief Initialize the MappedGLMemory instance created by either C++ or JavaScript.
+   *
+   * @param resource The registered CUDA Graphics Resource for an OpenGL buffer.
+   */
+  void Initialize(cudaGraphicsResource_t resource);
+
+  /**
+   * @brief Destructor called when the JavaScript VM garbage collects this MappedGLMemory instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env env) override;
+
+ private:
+  static Napi::FunctionReference constructor;
+
+  Napi::Value slice(Napi::CallbackInfo const& info);
+};
+
 }  // namespace nv

@@ -54,16 +54,16 @@ Napi::Object Device::Init(Napi::Env env, Napi::Object exports) {
   Device::constructor = Napi::Persistent(ctor);
   Device::constructor.SuppressDestruct();
 
-  auto DeviceFlag = Napi::Object::New(env);
-  EXPORT_ENUM(env, DeviceFlag, "scheduleAuto", cudaDeviceScheduleAuto);
-  EXPORT_ENUM(env, DeviceFlag, "scheduleSpin", cudaDeviceScheduleSpin);
-  EXPORT_ENUM(env, DeviceFlag, "scheduleYield", cudaDeviceScheduleYield);
-  EXPORT_ENUM(env, DeviceFlag, "scheduleBlockingSync", cudaDeviceScheduleBlockingSync);
-  EXPORT_ENUM(env, DeviceFlag, "mapHost", cudaDeviceMapHost);
-  EXPORT_ENUM(env, DeviceFlag, "lmemResizeToMax", cudaDeviceLmemResizeToMax);
+  auto DeviceFlags = Napi::Object::New(env);
+  EXPORT_ENUM(env, DeviceFlags, "scheduleAuto", cudaDeviceScheduleAuto);
+  EXPORT_ENUM(env, DeviceFlags, "scheduleSpin", cudaDeviceScheduleSpin);
+  EXPORT_ENUM(env, DeviceFlags, "scheduleYield", cudaDeviceScheduleYield);
+  EXPORT_ENUM(env, DeviceFlags, "scheduleBlockingSync", cudaDeviceScheduleBlockingSync);
+  EXPORT_ENUM(env, DeviceFlags, "mapHost", cudaDeviceMapHost);
+  EXPORT_ENUM(env, DeviceFlags, "lmemResizeToMax", cudaDeviceLmemResizeToMax);
 
   exports.Set("Device", ctor);
-  exports.Set("DeviceFlag", DeviceFlag);
+  exports.Set("DeviceFlags", DeviceFlags);
 
   return exports;
 }

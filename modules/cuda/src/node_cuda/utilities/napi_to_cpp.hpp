@@ -16,7 +16,7 @@
 
 #include "node_cuda/device.hpp"
 #include "node_cuda/memory.hpp"
-#include "types.hpp"
+#include "node_cuda/types.hpp"
 #include "visit_struct/visit_struct.hpp"
 
 #include <cuda.h>
@@ -135,6 +135,14 @@ template <>
 inline NapiToCPP::operator IpcHandle() const {
   if (IpcHandle::is_instance(val)) { return std::move(*IpcHandle::Unwrap(val.ToObject())); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a IpcHandle instance");
+}
+
+template <>
+inline NapiToCPP::operator MappedGLMemory() const {
+  if (MappedGLMemory::is_instance(val)) {
+    return std::move(*MappedGLMemory::Unwrap(val.ToObject()));
+  }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a MappedGLMemory instance");
 }
 
 }  // namespace nv

@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "errors.hpp"
+#include "node_cuda/utilities/error.hpp"
 
 #define EXPORT_PROP(exports, name, val) exports.Set(name, val);
 
@@ -29,59 +29,3 @@
     func,                                                                                       \
     static_cast<napi_property_attributes>(napi_writable | napi_enumerable | napi_configurable), \
     nullptr));
-
-#define CU_THROW(e, c) NAPI_THROW(nv::cuError(e, c, __FILE__, __LINE__), (e).Undefined())
-
-#define CUDA_THROW(e, c) NAPI_THROW(nv::cudaError(e, c, __FILE__, __LINE__), (e).Undefined())
-
-#define NVRTC_THROW(e, c) NAPI_THROW(nv::nvrtcError(e, c, __FILE__, __LINE__), (e).Undefined())
-
-#define CU_TRY(env, expr)                                  \
-  do {                                                     \
-    CUresult const status = (expr);                        \
-    if (status != CUDA_SUCCESS) { CU_THROW(env, status); } \
-  } while (0)
-
-#define CUDA_TRY(env, expr)                                 \
-  do {                                                      \
-    cudaError_t const status = (expr);                      \
-    if (status != cudaSuccess) { CUDA_THROW(env, status); } \
-  } while (0)
-
-#define NVRTC_TRY(env, expr)                                   \
-  do {                                                         \
-    nvrtcResult status = (expr);                               \
-    if (status != NVRTC_SUCCESS) { NVRTC_THROW(env, status); } \
-  } while (0)
-
-#define CU_TRY_VOID(env, expr)              \
-  do {                                      \
-    CUresult const status = (expr);         \
-    if (status != CUDA_SUCCESS) { return; } \
-  } while (0)
-
-#define CUDA_TRY_VOID(env, expr)           \
-  do {                                     \
-    cudaError_t const status = (expr);     \
-    if (status != cudaSuccess) { return; } \
-  } while (0)
-
-#define CU_TRY_ASYNC(task, expr)                                  \
-  do {                                                            \
-    CUresult const status = (expr);                               \
-    if (status != CUDA_SUCCESS) { CU_THROW_ASYNC(task, status); } \
-  } while (0)
-
-#define CUDA_TRY_ASYNC(task, expr)                                 \
-  do {                                                             \
-    cudaError_t const status = (expr);                             \
-    if (status != cudaSuccess) { CUDA_THROW_ASYNC(task, status); } \
-  } while (0)
-
-#define CU_THROW_ASYNC(task, status)                                              \
-  (task)->Reject(nv::cuError((task)->Env(), status, __FILE__, __LINE__).Value()); \
-  return (task)->Promise()
-
-#define CUDA_THROW_ASYNC(task, status)                                              \
-  (task)->Reject(nv::cudaError((task)->Env(), status, __FILE__, __LINE__).Value()); \
-  return (task)->Promise()
