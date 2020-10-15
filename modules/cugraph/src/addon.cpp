@@ -13,9 +13,10 @@
 // limitations under the License.
 
 #include "node_cugraph/addon.hpp"
-#include "node_cugraph/macros.hpp"
+#include "node_cugraph/graph_coo.hpp"
 
 #include <cugraph/graph.hpp>
+#include <nv_node/macros.hpp>
 
 namespace nv {
 Napi::Value cugraphInit(Napi::CallbackInfo const& info) {
@@ -26,6 +27,7 @@ Napi::Value cugraphInit(Napi::CallbackInfo const& info) {
 
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "init", nv::cugraphInit);
+  nv::GraphCOO::Init(env, exports);
   return exports;
 }
 

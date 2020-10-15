@@ -83,6 +83,7 @@ if(cudf_ADDED)
         "${cudf_SOURCE_DIR}/cpp/src/column/column_view.cpp"
         "${cudf_SOURCE_DIR}/cpp/src/column/column_factories.cpp"
         "${cudf_SOURCE_DIR}/cpp/src/column/column_device_view.cu"
+        "${cudf_SOURCE_DIR}/cpp/src/reductions/minmax.cu"
         "${cudf_SOURCE_DIR}/cpp/src/scalar/scalar.cpp"
         "${cudf_SOURCE_DIR}/cpp/src/scalar/scalar_factories.cpp"
         "${cudf_SOURCE_DIR}/cpp/src/table/table.cpp"

@@ -25,4 +25,4 @@ CPMAddPackage(NAME cudf
 
 message(STATUS "cudf source dir: " ${cudf_SOURCE_DIR})
 
-set(cudf_INCLUDE_DIR "${cudf_SOURCE_DIR}/include")
+set(CUDF_INCLUDE_DIR "${cudf_SOURCE_DIR}/cpp/include")

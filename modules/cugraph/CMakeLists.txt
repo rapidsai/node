@@ -18,10 +18,12 @@ cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 project(node_cugraph VERSION 0.0.1 LANGUAGES C CXX CUDA)
 
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
+option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
 set(RMM_VERSION "0.16")
 set(RAFT_VERSION "0.16")
 set(CUGRAPH_VERSION "0.16")
+set(CUDF_VERSION "0.16")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ###################################################################################################
@@ -33,13 +35,33 @@ execute_process(COMMAND node -p
                 OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process(COMMAND node -p
+                "require('path').dirname(require.resolve('@nvidia/cuda'))"
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                OUTPUT_VARIABLE NVIDIA_CUDA_MODULE_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(COMMAND node -p
+                "require('path').dirname(require.resolve('@nvidia/cudf'))"
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                OUTPUT_VARIABLE NVIDIA_CUDF_MODULE_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(COMMAND node -p
+                "require('path').dirname(require.resolve('@nvidia/rmm'))"
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                OUTPUT_VARIABLE NVIDIA_RMM_MODULE_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NVIDIA_CMAKE_MODULES_PATH}")
 
 include(ConfigureCXX)
 include(ConfigureCUDA)
+include(ConfigureCUDF)
 include(ConfigureNapi)
 include(ConfigureRMM)
 include(ConfigureRAFT)
+include(ConfgureSIMT)
 include(ConfigureCuGraph)
 
 ###################################################################################################
@@ -59,11 +81,17 @@ endforeach()
 # - include paths ---------------------------------------------------------------------------------
 
 include_directories("${CUDA_INCLUDE_DIRS}"
+                    "${RAPIDS_CORE_INCLUDE_DIR}"
                     "${RMM_INCLUDE_DIR}"
+                    "${LIBCUDACXX_INCLUDE_DIR}"
+                    "${CUDF_INCLUDE_DIR}"
                     "${RAFT_INCLUDE_DIR}"
                     "${CUGRAPH_INCLUDE_DIR_REAL}"
                     "${CUGRAPH_INCLUDE_DIR}"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+                    "${NVIDIA_CUDA_MODULE_PATH}/src"
+                    "${NVIDIA_CUDF_MODULE_PATH}/src"
+                    "${NVIDIA_RMM_MODULE_PATH}/src"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
@@ -77,4 +105,6 @@ add_library(${PROJECT_NAME} SHARED ${NODE_CUGRAPH_SRC_FILES} ${CMAKE_JS_SRC}
             "${cugraph_SOURCE_DIR}/cpp/src/experimental/graph_view.cu")
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 target_link_libraries(${PROJECT_NAME}
-                      ${CMAKE_JS_LIB} cuda cudart_static nvrtc rmm)
+                      ${CMAKE_JS_LIB} cuda cudart_static nvrtc rmm
+                      "${NVIDIA_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
+                      "${NVIDIA_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node")
