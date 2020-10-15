@@ -13,8 +13,9 @@
 // limitations under the License.
 
 #include "node_cuda/memory.hpp"
-#include "node_cuda/macros.hpp"
 #include "node_cuda/utilities/napi_to_cpp.hpp"
+
+#include <nv_node/macros.hpp>
 
 namespace nv {
 

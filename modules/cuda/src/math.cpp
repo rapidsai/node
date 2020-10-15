@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include "node_cuda/math.hpp"
-#include "node_cuda/macros.hpp"
 #include "node_cuda/utilities/napi_to_cpp.hpp"
 
+#include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
 
 namespace nv {
