@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "macros.hpp"
-#include "utilities/cpp_to_napi.hpp"
-#include "utilities/napi_to_cpp.hpp"
+#include "node_cuda/utilities/cpp_to_napi.hpp"
+#include "node_cuda/utilities/napi_to_cpp.hpp"
 
 #include <cuda_runtime_api.h>
+#include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
 
 namespace nv {
@@ -25,7 +25,7 @@ namespace nv {
 Napi::Value cudaStreamCreate(CallbackArgs const& info) {
   auto env = info.Env();
   cudaStream_t stream;
-  CUDA_TRY(env, CUDARTAPI::cudaStreamCreate(&stream));
+  NODE_CUDA_TRY(CUDARTAPI::cudaStreamCreate(&stream), env);
   return CPPToNapi(info)(stream);
 }
 
@@ -33,7 +33,7 @@ Napi::Value cudaStreamCreate(CallbackArgs const& info) {
 Napi::Value cudaStreamDestroy(CallbackArgs const& info) {
   auto env            = info.Env();
   cudaStream_t stream = info[0];
-  CUDA_TRY(env, CUDARTAPI::cudaStreamDestroy(stream));
+  NODE_CUDA_TRY(CUDARTAPI::cudaStreamDestroy(stream), env);
   return env.Undefined();
 }
 
@@ -41,7 +41,7 @@ Napi::Value cudaStreamDestroy(CallbackArgs const& info) {
 Napi::Value cudaStreamSynchronize(CallbackArgs const& info) {
   auto env            = info.Env();
   cudaStream_t stream = info[0];
-  CUDA_TRY(env, CUDARTAPI::cudaStreamSynchronize(stream));
+  NODE_CUDA_TRY(CUDARTAPI::cudaStreamSynchronize(stream), env);
   return env.Undefined();
 }
 

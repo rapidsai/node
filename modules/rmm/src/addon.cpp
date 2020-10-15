@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "addon.hpp"
-#include "cuda_memory_resource.hpp"
-#include "device_buffer.hpp"
-#include "macros.hpp"
+#include "node_rmm/addon.hpp"
+#include "node_rmm/cuda_memory_resource.hpp"
+#include "node_rmm/device_buffer.hpp"
+#include "node_rmm/macros.hpp"
 
 namespace nv {
 Napi::Value rmmInit(Napi::CallbackInfo const& info) {

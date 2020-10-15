@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CUDABuffer } from './addon';
-
 /** @ignore */
 export const isNumber = (x: any): x is number => typeof x === 'number';
 /** @ignore */
@@ -54,15 +52,6 @@ export const isArrayBuffer = (x: any): x is ArrayBuffer => {
 export const isArrayBufferView = ArrayBuffer.isView;
 
 /** @ignore */
-export const isCUDABuffer = (x: any): x is CUDABuffer => {
-    switch (x && x.constructor && x.constructor.name) {
-        case 'CUDABuffer': return true;
-        case 'DeviceBuffer': return true;
-        default: return false;
-    }
-};
-
-/** @ignore */
 export const isIteratorResult = <T = any>(x: any): x is IteratorResult<T> => {
     return isObject(x) && ('done' in x) && ('value' in x);
 };
@@ -85,4 +74,15 @@ export function cachedEnumLookup<TResult>(field: string, attr: any, getValue: (_
         }
         return this[_prop];
     }
+}
+
+export function clampSliceArgs(len: number, lhs = 0, rhs = len): [number, number] {
+    // Adjust args similar to Array.prototype.slice. Normalize begin/end to
+    // clamp between 0 and length, and wrap around on negative indices, e.g.
+    // slice(-1, 5) or slice(5, -1)
+    // wrap around on negative start/end positions
+    if (lhs < 0) { lhs = ((lhs % len) + len) % len; }
+    if (rhs < 0) { rhs = ((rhs % len) + len) % len; }
+    // enforce lhs <= rhs and rhs <= count
+    return rhs < lhs ? [rhs, lhs] : [lhs, rhs > len ? len : rhs];
 }

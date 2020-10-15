@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { PassThrough } from 'stream';
-import { CUDADevice, CUDAUint8Array } from '@nvidia/cuda';
+import { Device, Uint8Buffer } from '@nvidia/cuda';
 import { rgbaMirror, bgraToYCrCb420 } from '@nvidia/nvencoder';
 
 let DeckBuffer: any = undefined;
@@ -42,7 +42,7 @@ export function createDeckGLReactRef() {
             }
 
             this._RGB_dbuffer = new DeckBuffer(gl, 0);
-            this._YUV_dbuffer = new CUDAUint8Array(0);
+            this._YUV_dbuffer = new Uint8Buffer(0);
             this._YUV_hbuffer = new Uint8ClampedArray(0);
 
             _framebuffer = this._framebuffer || new Framebuffer(gl, {
@@ -94,7 +94,7 @@ export function createDeckGLReactRef() {
                 }
 
                 if (this._YUV_dbuffer.byteLength !== yuvByteLength) {
-                    this._YUV_dbuffer = new CUDAUint8Array(yuvByteLength);
+                    this._YUV_dbuffer = new Uint8Buffer(yuvByteLength);
                     this._YUV_hbuffer = new Uint8ClampedArray(yuvByteLength);
                 }
 
@@ -144,7 +144,7 @@ export function createDeckGLVideoEncoderStream(
     deck: any,
     // @ts-ignore
     {
-        device = CUDADevice.new(0),
+        device = new Device(0),
         // format = NvEncoderBufferFormat.ABGR
     }
 ): Promise<NodeJS.ReadWriteStream> {

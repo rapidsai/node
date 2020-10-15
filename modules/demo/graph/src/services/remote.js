@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import * as zmq from 'zeromq';
-import { CUDA, CUDAUint8Array } from '@nvidia/cuda';
+import { IpcMemory, Uint8Buffer } from '@nvidia/cuda';
 
 import { pipe } from 'ix/asynciterable/pipe';
 import { flatMap } from 'ix/asynciterable/operators/flatmap';
@@ -110,7 +110,7 @@ function promiseSubject() {
 }
 
 function openMemHandle(handle) {
-    return new CUDAUint8Array(CUDA.ipc.openMemHandle(Buffer.from(handle)));
+    return new Uint8Buffer(new IpcMemory(handle));
 }
 
 function openMemHandles(handles, names) {
@@ -119,8 +119,8 @@ function openMemHandles(handles, names) {
         .reduce((xs, {name, data}) => xs.set(name, openMemHandle(data)), new Map());
 }
 
-function closeMemHandle({buffer}) {
-    try { CUDA.ipc.closeMemHandle(buffer); } catch (e) {}
+function closeMemHandle({ buffer }) {
+    try { buffer.close(); } catch (e) {}
 }
 
 function closeMemHandles(maps) {

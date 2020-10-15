@@ -115,3 +115,7 @@ if(DISABLE_DEPRECATION_WARNINGS)
     string(APPEND CMAKE_CXX_FLAGS " -Wno-deprecated-declarations")
     string(APPEND CMAKE_CUDA_FLAGS " -Xcompiler -Wno-deprecated-declarations")
 endif(DISABLE_DEPRECATION_WARNINGS)
+
+string(APPEND CMAKE_C_FLAGS " -fdiagnostics-color=always")
+string(APPEND CMAKE_CXX_FLAGS " -fdiagnostics-color=always")
+string(APPEND CMAKE_CUDA_FLAGS " -Xcompiler -fdiagnostics-color=always")

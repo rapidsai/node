@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "macros.hpp"
-#include "utilities/cpp_to_napi.hpp"
-#include "utilities/napi_to_cpp.hpp"
+#include "node_cuda/utilities/cpp_to_napi.hpp"
+#include "node_cuda/utilities/napi_to_cpp.hpp"
 
 #include <cuda_runtime_api.h>
+#include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
 
 namespace nv {
@@ -43,9 +43,10 @@ Napi::Value createProgram(CallbackArgs const& info) {
 
   nvrtcProgram prog;
 
-  NVRTC_TRY(env,
-            nvrtcCreateProgram(
-              &prog, src.c_str(), name.c_str(), headers.size(), cHeaders.data(), cIncludes.data()));
+  NODE_NVRTC_TRY(
+    nvrtcCreateProgram(
+      &prog, src.c_str(), name.c_str(), headers.size(), cHeaders.data(), cIncludes.data()),
+    env);
 
   auto free_str = [](const char* str) { delete str; };
   std::for_each(cHeaders.begin(), cHeaders.end(), free_str);

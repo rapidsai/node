@@ -16,14 +16,13 @@
 
 #include "nv_node/utilities/span.hpp"
 
-// #include <cuda.h>
-// #include <cuda_runtime.h>
 #include <napi.h>
 
 #include <cstring>
 #include <iostream>
 #include <map>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace nv {
@@ -34,6 +33,36 @@ struct NapiToCPP {
 
   inline std::ostream& operator<<(std::ostream& os) const {
     return os << val.ToString().operator std::string();
+  }
+
+  inline Napi::Env Env() const { return val.Env(); }
+  inline bool IsEmpty() const { return val.IsEmpty(); }
+  inline bool IsUndefined() const { return val.IsUndefined(); }
+  inline bool IsNull() const { return val.IsNull(); }
+  inline bool IsBoolean() const { return val.IsBoolean(); }
+  inline bool IsNumber() const { return val.IsNumber(); }
+  inline bool IsBigInt() const { return val.IsBigInt(); }
+  inline bool IsDate() const { return val.IsDate(); }
+  inline bool IsString() const { return val.IsString(); }
+  inline bool IsSymbol() const { return val.IsSymbol(); }
+  inline bool IsArray() const { return val.IsArray(); }
+  inline bool IsArrayBuffer() const { return val.IsArrayBuffer(); }
+  inline bool IsTypedArray() const { return val.IsTypedArray(); }
+  inline bool IsObject() const { return val.IsObject(); }
+  inline bool IsFunction() const { return val.IsFunction(); }
+  inline bool IsPromise() const { return val.IsPromise(); }
+  inline bool IsDataView() const { return val.IsDataView(); }
+  inline bool IsBuffer() const { return val.IsBuffer(); }
+  inline bool IsExternal() const { return val.IsExternal(); }
+
+  inline Napi::Boolean ToBoolean() const { return val.ToBoolean(); }
+  inline Napi::Number ToNumber() const { return val.ToNumber(); }
+  inline Napi::String ToString() const { return val.ToString(); }
+  inline Napi::Object ToObject() const { return val.ToObject(); }
+
+  template <typename T>
+  T As() const {
+    return val.As<T>();
   }
 
   template <typename T>
@@ -138,43 +167,6 @@ struct NapiToCPP {
     return as_span<T>();
   }
 
-#ifdef CUDA_VERSION
-  //
-  // CUDA Driver type conversion helpers
-  //
-  inline operator CUresult() const { return static_cast<CUresult>(this->operator int64_t()); }
-  inline operator CUfunction() const {
-    return reinterpret_cast<CUfunction>(this->operator char*());
-  }
-  inline operator CUdevice_attribute() const {
-    return static_cast<CUdevice_attribute>(this->operator int64_t());
-  }
-  inline operator CUpointer_attribute() const {
-    return static_cast<CUpointer_attribute>(this->operator int64_t());
-  }
-#endif
-
-#ifdef CUDART_VERSION
-  //
-  // CUDA Runtime type conversion helpers
-  //
-  inline operator cudaArray_t() const {
-    return reinterpret_cast<cudaArray_t>(this->operator char*());
-  }
-  inline operator cudaGraphicsResource_t() const {
-    return reinterpret_cast<cudaGraphicsResource_t>(this->operator char*());
-  }
-  inline operator cudaIpcMemHandle_t*() const {
-    return reinterpret_cast<cudaIpcMemHandle_t*>(this->operator char*());
-  }
-  inline operator cudaStream_t() const {
-    return reinterpret_cast<cudaStream_t>(this->operator char*());
-  };
-  inline operator cudaUUID_t*() const {
-    return reinterpret_cast<cudaUUID_t*>(this->operator char*());
-  }
-#endif
-
 #ifdef GLEW_VERSION
   inline operator GLsync() const { return reinterpret_cast<GLsync>(this->operator char*()); }
 #endif
@@ -241,6 +233,10 @@ struct NapiToCPP {
   inline T to_numeric() const {
     if (val.IsNull() || val.IsEmpty()) { return 0; }
     if (val.IsNumber() || val.IsString()) { return val.ToNumber(); }
+    if (val.IsBigInt()) {
+      return std::is_signed<T>() ? val.As<Napi::BigInt>().Int64Value(NULL)
+                                 : val.As<Napi::BigInt>().Uint64Value(NULL);
+    }
     if (val.IsBoolean()) { return val.ToBoolean().operator bool(); }
 
     // Accept single-element numeric Arrays (e.g. OpenGL)

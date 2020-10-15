@@ -28,7 +28,7 @@ struct Span {
   }
 
   template <typename R>
-  Span(R* const& data, size_t const& size)
+  Span(R* data, size_t const& size)
     : data_(reinterpret_cast<T*>(data)),  //
       size_(static_cast<float>(sizeof(R)) / sizeof(T) * size) {}
 
