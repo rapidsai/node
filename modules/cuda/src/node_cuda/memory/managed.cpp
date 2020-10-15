@@ -24,6 +24,9 @@ Napi::Object ManagedMemory::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "ManagedMemory",
                 {
+                  InstanceValue(Napi::Symbol::WellKnown(env, "toStringTag"),
+                                Napi::String::New(env, "ManagedMemory"),
+                                napi_enumerable),
                   InstanceAccessor("byteLength", &ManagedMemory::size, nullptr, napi_enumerable),
                   InstanceAccessor("device", &ManagedMemory::device, nullptr, napi_enumerable),
                   InstanceAccessor("ptr", &ManagedMemory::ptr, nullptr, napi_enumerable),

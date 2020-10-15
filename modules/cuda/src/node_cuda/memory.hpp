@@ -366,14 +366,14 @@ class IpcHandle : public Napi::ObjectWrap<IpcHandle> {
    */
   void Finalize(Napi::Env env) override;
 
-  int32_t device() {
+  int32_t device() const {
     if (!dmem_.IsEmpty()) {  //
       return DeviceMemory::Unwrap(dmem_.Value())->device();
     }
     return -1;
   }
 
-  cudaIpcMemHandle_t* handle() {
+  cudaIpcMemHandle_t* handle() const {
     return reinterpret_cast<cudaIpcMemHandle_t*>(handle_.Value().Data());
   }
 

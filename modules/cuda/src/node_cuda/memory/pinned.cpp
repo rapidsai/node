@@ -24,6 +24,9 @@ Napi::Object PinnedMemory::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "PinnedMemory",
                 {
+                  InstanceValue(Napi::Symbol::WellKnown(env, "toStringTag"),
+                                Napi::String::New(env, "PinnedMemory"),
+                                napi_enumerable),
                   InstanceAccessor("byteLength", &PinnedMemory::size, nullptr, napi_enumerable),
                   InstanceAccessor("device", &PinnedMemory::device, nullptr, napi_enumerable),
                   InstanceAccessor("ptr", &PinnedMemory::ptr, nullptr, napi_enumerable),

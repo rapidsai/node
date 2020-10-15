@@ -24,6 +24,9 @@ Napi::Object IpcMemory::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "IPCMemory",
                 {
+                  InstanceValue(Napi::Symbol::WellKnown(env, "toStringTag"),
+                                Napi::String::New(env, "IPCMemory"),
+                                napi_enumerable),
                   InstanceAccessor("byteLength", &IpcMemory::size, nullptr, napi_enumerable),
                   InstanceAccessor("device", &IpcMemory::device, nullptr, napi_enumerable),
                   InstanceAccessor("ptr", &IpcMemory::ptr, nullptr, napi_enumerable),
@@ -91,6 +94,9 @@ Napi::Object IpcHandle::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "IpcHandle",
                 {
+                  InstanceValue(Napi::Symbol::WellKnown(env, "toStringTag"),
+                                Napi::String::New(env, "IpcHandle"),
+                                napi_enumerable),
                   InstanceAccessor("buffer", &IpcHandle::buffer, nullptr, napi_enumerable),
                   InstanceAccessor("device", &IpcHandle::device, nullptr, napi_enumerable),
                   InstanceAccessor("handle", &IpcHandle::handle, nullptr, napi_enumerable),

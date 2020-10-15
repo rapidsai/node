@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './cuda';
+export * from './addon';
 export * from './array';
+export * from './buffer';
 export * from './device';
-export * from './node_cuda/buffer';
-export * from './node_cuda/memory';
-export { CUDAMemory } from './memory';
-export { CUDAMemHostAllocFlag } from './cuda';
-export { CUDAMemHostRegisterFlag } from './cuda';
-export { CUDAGraphicsRegisterFlag } from './cuda';
+export * from './memory';

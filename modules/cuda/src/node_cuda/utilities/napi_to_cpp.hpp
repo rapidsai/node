@@ -66,6 +66,13 @@ inline NapiToCPP::operator cudaGraphicsResource_t() const {
 
 template <>
 inline NapiToCPP::operator cudaIpcMemHandle_t() const {
+  if (val.IsArray()) {
+    auto ary = As<Napi::Array>();
+    auto buf = Napi::Uint8Array::New(Env(), 64);
+    for (size_t i = 0; i < ary.Length(); ++i) { buf.Set(i, ary.Get(i)); }
+    return *reinterpret_cast<cudaIpcMemHandle_t*>(buf.ArrayBuffer().Data());
+  }
+  if (IpcHandle::is_instance(val)) { return *(IpcHandle::Unwrap(ToObject())->handle()); }
   return *reinterpret_cast<cudaIpcMemHandle_t*>(this->operator char*());
 }
 

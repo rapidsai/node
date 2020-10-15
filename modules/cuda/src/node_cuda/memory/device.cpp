@@ -24,6 +24,9 @@ Napi::Object DeviceMemory::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "DeviceMemory",
                 {
+                  InstanceValue(Napi::Symbol::WellKnown(env, "toStringTag"),
+                                Napi::String::New(env, "DeviceMemory"),
+                                napi_enumerable),
                   InstanceAccessor("byteLength", &DeviceMemory::size, nullptr, napi_enumerable),
                   InstanceAccessor("device", &DeviceMemory::device, nullptr, napi_enumerable),
                   InstanceAccessor("ptr", &DeviceMemory::ptr, nullptr, napi_enumerable),

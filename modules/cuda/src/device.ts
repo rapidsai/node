@@ -14,7 +14,7 @@
 
 import CUDA from './addon';
 
-export class Device extends CUDA.Device {
+export class Device extends (<CUDADeviceConstructor> CUDA.Device) {
 
     /**
      * The number of compute-capable CUDA devices.
@@ -51,11 +51,6 @@ export class Device extends CUDA.Device {
     }
 }
 
-interface DeviceList extends Iterable<Device> {
-    length: number;
-    [key: number]: Device;
-};
-
 export const devices = new Proxy<DeviceList>({
     length: Device.numDevices,
     *[Symbol.iterator]() {
@@ -79,6 +74,127 @@ export const devices = new Proxy<DeviceList>({
     }
 );
 
+interface DeviceList extends Iterable<Device> {
+    length: number;
+    [key: number]: Device;
+};
+
+interface CUDADeviceConstructor {
+    /**
+     * The number of compute-capable CUDA devices.
+     */
+    readonly numDevices: number;
+    /**
+     * The id of this thread's active CUDA device.
+     */
+    readonly activeDeviceId: number;
+    readonly prototype: CUDADevice;
+    new(deviceId?: number, flags?: DeviceFlag): CUDADevice;
+}
+
+interface CUDADevice {
+
+    /**
+     * The CUDA device identifer
+     */
+    readonly id: number;
+
+    /**
+     * The CUDA device PCI bus string id
+     */
+    readonly pciBusName: string;
+
+    /**
+     * @summary Destroy all allocations and reset all state on the current
+     * device in the current process. Resets the device with the specified
+     * {@link DeviceFlag} device flags.
+     * 
+     * @description
+     * Explicitly destroys and cleans up all resources associated with the
+     * current device in the current process. Any subsequent API call to
+     * this device will reinitialize the device.
+     *
+     * Note that this function will reset the device immediately. It is the
+     * caller's responsibility to ensure that the device is not being accessed
+     * by any other host threads from the process when this function is called.
+     * 
+     * @param {DeviceFlag} flags The flags for the device's primary
+     * context.
+     * <br/>
+     */
+    reset(flags?: DeviceFlag): this;
+
+    /**
+     * @summary Set this device to be used for GPU executions.
+     * 
+     * @description
+     * Sets this device as the current device for the calling host thread.
+     *
+     * Any device memory subsequently allocated from this host thread
+     * will be physically resident on this device. Any host memory allocated
+     * from this host thread will have its lifetime associated with this
+     * device. Any streams or events created from this host thread will
+     * be associated with this device. Any kernels launched from this host
+     * thread will be executed on this device.
+     * 
+     * This call may be made from any host thread, to any device, and at
+     * any time. This function will do no synchronization with the previous
+     * or new device, and should be considered a very low overhead call.
+     */
+    activate(): this;
+
+    /**
+     * @summary Queries the {@link DeviceFlag} flags used to initialize this device.
+     */
+    getFlags(): DeviceFlag;
+
+    /**
+     * @summary An object with information about the device.
+     */
+    getProperties(): DeviceProperties;
+
+    /**
+     * @summary Wait for this compute device to finish.
+     * 
+     * @description
+     * Blocks execution of further device calls until the device has completed
+     * all preceding requested tasks.
+     * 
+     * @throws an error if one of the preceding tasks has failed. If the
+     * `cudaDeviceScheduleBlockingSync` flag was set for this device, the
+     * host thread will block until the device has finished its work.
+     */
+    synchronize(): this;
+
+    /**
+     * @summary Ensures this device is active, then executes the supplied @p `work` function. Restores the active
+     * device after executing the function (if the current device was not already the active device).
+     * @param work A function to execute
+     */
+    callInContext(work: Function): this;
+
+    /**
+     * @summary Queries if a device may directly access a peer device's memory.
+     * 
+     * If direct access of `peerDevice` from this device is possible, then
+     * access may be enabled on two specific contexts by calling
+     * {@link CUDAContext.prototype.enablePeerAccess}.
+     * 
+     * @returns `true` if this device's contexts are capable of directly
+     * accessing memory from contexts on `peerDevice` , otherwise `false`.
+     */
+    canAccessPeerDevice(peerDevice: Device): boolean;
+
+    /**
+     * @summary Enables direct access to memory allocations in a peer device.
+     */
+    enablePeerAccess(peerDevice: Device): this;
+
+    /**
+     * @summary Disables direct access to memory allocations in a peer device and unregisters any registered allocations.
+     */
+    disablePeerAccess(peerDevice: Device): this;
+}
 
 /**
  * @summary The flags for the {@link Device}'s primary context.
