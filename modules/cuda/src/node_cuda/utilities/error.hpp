@@ -68,12 +68,16 @@ inline Napi::Error nvrtcError(nvrtcResult code,
 
 }  // namespace nv
 
+#ifndef NODE_CUDA_EXPECT
 #define NODE_CUDA_EXPECT(expr, message)                   \
   do {                                                    \
     if (!(expr)) NAPI_THROW(std::runtime_error(message)); \
   } while (0)
+#endif
 
+#ifndef NODE_CU_THROW
 #define NODE_CU_THROW(code, ...) NAPI_THROW(nv::cuError(code, __FILE__, __LINE__, ##__VA_ARGS__))
+#endif
 
 /**
  * @brief Error checking macro for CUDA driver API functions.
@@ -82,14 +86,18 @@ inline Napi::Error nvrtcError(nvrtcResult code,
  * CUDA_SUCCESS, throws an exception detailing the CUDA error that occurred.
  *
  **/
+#ifndef NODE_CU_TRY
 #define NODE_CU_TRY(expr, ...)                                            \
   do {                                                                    \
     CUresult const status = (expr);                                       \
     if (status != CUDA_SUCCESS) { NODE_CU_THROW(status, ##__VA_ARGS__); } \
   } while (0)
+#endif
 
+#ifndef NODE_CUDA_THROW
 #define NODE_CUDA_THROW(code, ...) \
   NAPI_THROW(nv::cudaError(code, __FILE__, __LINE__, ##__VA_ARGS__))
+#endif
 
 /**
  * @brief Error checking macro for CUDA runtime API functions.
@@ -99,6 +107,7 @@ inline Napi::Error nvrtcError(nvrtcResult code,
  * exception detailing the CUDA error that occurred.
  *
  **/
+#ifndef NODE_CUDA_TRY
 #define NODE_CUDA_TRY(expr, ...)              \
   do {                                        \
     cudaError_t const status = (expr);        \
@@ -107,12 +116,17 @@ inline Napi::Error nvrtcError(nvrtcResult code,
       NODE_CUDA_THROW(status, ##__VA_ARGS__); \
     }                                         \
   } while (0)
+#endif
 
+#ifndef NODE_NVRTC_THROW
 #define NODE_NVRTC_THROW(code, ...) \
   NAPI_THROW(nv::nvrtcError(code, __FILE__, __LINE__, ##__VA_ARGS__))
+#endif
 
+#ifndef NODE_NVRTC_TRY
 #define NODE_NVRTC_TRY(expr, ...)                                             \
   do {                                                                        \
     nvrtcResult status = (expr);                                              \
     if (status != NVRTC_SUCCESS) { NODE_NVRTC_THROW(status, ##__VA_ARGS__); } \
   } while (0)
+#endif

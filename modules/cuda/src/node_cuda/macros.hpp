@@ -16,11 +16,16 @@
 
 #include "node_cuda/utilities/error.hpp"
 
+#ifndef EXPORT_PROP
 #define EXPORT_PROP(exports, name, val) exports.Set(name, val);
+#endif
 
+#ifndef EXPORT_ENUM
 #define EXPORT_ENUM(env, exports, name, val) \
   EXPORT_PROP(exports, name, Napi::Number::New(env, val));
+#endif
 
+#ifndef EXPORT_FUNC
 #define EXPORT_FUNC(env, exports, name, func)                                                   \
   exports.DefineProperty(Napi::PropertyDescriptor::Function(                                    \
     env,                                                                                        \
@@ -29,3 +34,4 @@
     func,                                                                                       \
     static_cast<napi_property_attributes>(napi_writable | napi_enumerable | napi_configurable), \
     nullptr));
+#endif
