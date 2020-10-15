@@ -15,7 +15,8 @@
 #include "node_rmm/addon.hpp"
 #include "node_rmm/cuda_memory_resource.hpp"
 #include "node_rmm/device_buffer.hpp"
-#include "node_rmm/macros.hpp"
+
+#include <nv_node/macros.hpp>
 
 namespace nv {
 Napi::Value rmmInit(Napi::CallbackInfo const& info) {
