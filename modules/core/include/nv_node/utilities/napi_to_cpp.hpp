@@ -35,6 +35,7 @@ struct NapiToCPP {
     return os << val.ToString().operator std::string();
   }
 
+  inline Napi::Env Env() const { return val.Env(); }
   inline bool IsEmpty() const { return val.IsEmpty(); }
   inline bool IsUndefined() const { return val.IsUndefined(); }
   inline bool IsNull() const { return val.IsNull(); }
@@ -53,6 +54,16 @@ struct NapiToCPP {
   inline bool IsDataView() const { return val.IsDataView(); }
   inline bool IsBuffer() const { return val.IsBuffer(); }
   inline bool IsExternal() const { return val.IsExternal(); }
+
+  inline Napi::Boolean ToBoolean() const { return val.ToBoolean(); }
+  inline Napi::Number ToNumber() const { return val.ToNumber(); }
+  inline Napi::String ToString() const { return val.ToString(); }
+  inline Napi::Object ToObject() const { return val.ToObject(); }
+
+  template <typename T>
+  T As() const {
+    return val.As<T>();
+  }
 
   template <typename T>
   operator T() const;

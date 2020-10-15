@@ -8,7 +8,7 @@ import EdgeLayer from './edge/bezier-curve-layer';
 
 import edgePositionsVS from './edge/edge-positions-vertex.glsl';
 
-import { CUDAMemory, CUDA } from '@nvidia/cuda';
+import { Uint8Buffer, CUDA } from '@nvidia/cuda';
 
 const defaultProps = {
     numNodes: 0,
@@ -52,7 +52,7 @@ function getCUDAGraphicsResourcesBuffers(webGLToCUDABufferMap, cudaResourceToBuf
         if (!webGLToCUDABufferMap.has(glBuffer) || !webGLToCUDABufferMap.get(glBuffer)[1]) {
             const [cuGraphicsResource] = webGLToCUDABufferMap.get(glBuffer);
             try {
-                const cuBuffer = new CUDAMemory(CUDA.gl.getMappedPointer(cuGraphicsResource));
+                const cuBuffer = new Uint8Buffer(CUDA.gl.getMappedPointer(cuGraphicsResource));
                 webGLToCUDABufferMap.set(glBuffer, [cuGraphicsResource, cuBuffer]);
                 cudaResourceToBuffersMap.set(cuGraphicsResource, [glBuffer, cuBuffer]);
             } catch (e) {}

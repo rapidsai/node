@@ -17,24 +17,31 @@
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 #include <napi.h>
+#include <nvrtc.h>
 
 namespace nv {
 
 inline std::runtime_error cuError(CUresult code, std::string const& file, uint32_t line) {
   const char* name;
   const char* estr;
-  CUDAAPI::cuGetErrorName(code, &name);
-  CUDAAPI::cuGetErrorString(code, &estr);
+  cuGetErrorName(code, &name);
+  cuGetErrorString(code, &estr);
   auto msg =
     std::string{name} + " " + std::string{estr} + "\n    at " + file + ":" + std::to_string(line);
   return std::runtime_error(msg);
 }
 
 inline std::runtime_error cudaError(cudaError_t code, std::string const& file, uint32_t line) {
-  auto const name = CUDARTAPI::cudaGetErrorName(code);
-  auto const estr = CUDARTAPI::cudaGetErrorString(code);
+  auto const name = cudaGetErrorName(code);
+  auto const estr = cudaGetErrorString(code);
   auto const msg =
     std::string{name} + " " + std::string{estr} + "\n    at " + file + ":" + std::to_string(line);
+  return std::runtime_error(msg);
+}
+
+inline std::runtime_error nvrtcError(nvrtcResult code, std::string const& file, uint32_t line) {
+  auto const name = nvrtcGetErrorString(code);
+  auto const msg  = std::string{name} + "\n    at " + file + ":" + std::to_string(line);
   return std::runtime_error(msg);
 }
 
@@ -52,14 +59,25 @@ inline Napi::Error cudaError(cudaError_t code,
   return Napi::Error::New(env, cudaError(code, file, line).what());
 }
 
+inline Napi::Error nvrtcError(nvrtcResult code,
+                              std::string const& file,
+                              uint32_t line,
+                              Napi::Env const& env) {
+  return Napi::Error::New(env, nvrtcError(code, file, line).what());
+}
+
 }  // namespace nv
 
+#ifndef NODE_CUDA_EXPECT
 #define NODE_CUDA_EXPECT(expr, message)                   \
   do {                                                    \
     if (!(expr)) NAPI_THROW(std::runtime_error(message)); \
   } while (0)
+#endif
 
+#ifndef NODE_CU_THROW
 #define NODE_CU_THROW(code, ...) NAPI_THROW(nv::cuError(code, __FILE__, __LINE__, ##__VA_ARGS__))
+#endif
 
 /**
  * @brief Error checking macro for CUDA driver API functions.
@@ -68,14 +86,18 @@ inline Napi::Error cudaError(cudaError_t code,
  * CUDA_SUCCESS, throws an exception detailing the CUDA error that occurred.
  *
  **/
+#ifndef NODE_CU_TRY
 #define NODE_CU_TRY(expr, ...)                                            \
   do {                                                                    \
     CUresult const status = (expr);                                       \
     if (status != CUDA_SUCCESS) { NODE_CU_THROW(status, ##__VA_ARGS__); } \
   } while (0)
+#endif
 
+#ifndef NODE_CUDA_THROW
 #define NODE_CUDA_THROW(code, ...) \
   NAPI_THROW(nv::cudaError(code, __FILE__, __LINE__, ##__VA_ARGS__))
+#endif
 
 /**
  * @brief Error checking macro for CUDA runtime API functions.
@@ -85,6 +107,7 @@ inline Napi::Error cudaError(cudaError_t code,
  * exception detailing the CUDA error that occurred.
  *
  **/
+#ifndef NODE_CUDA_TRY
 #define NODE_CUDA_TRY(expr, ...)              \
   do {                                        \
     cudaError_t const status = (expr);        \
@@ -93,3 +116,17 @@ inline Napi::Error cudaError(cudaError_t code,
       NODE_CUDA_THROW(status, ##__VA_ARGS__); \
     }                                         \
   } while (0)
+#endif
+
+#ifndef NODE_NVRTC_THROW
+#define NODE_NVRTC_THROW(code, ...) \
+  NAPI_THROW(nv::nvrtcError(code, __FILE__, __LINE__, ##__VA_ARGS__))
+#endif
+
+#ifndef NODE_NVRTC_TRY
+#define NODE_NVRTC_TRY(expr, ...)                                             \
+  do {                                                                        \
+    nvrtcResult status = (expr);                                              \
+    if (status != NVRTC_SUCCESS) { NODE_NVRTC_THROW(status, ##__VA_ARGS__); } \
+  } while (0)
+#endif

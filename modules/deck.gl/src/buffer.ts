@@ -19,7 +19,7 @@ export const Buffer = ((Buffer) => {
             static unmapResources(_buffers: any[] = []) {}
         };
     } else {
-        const { CUDA, CUDAUint8Array } = require('@nvidia/cuda');
+        const { CUDA, Uint8Buffer } = require('@nvidia/cuda');
         return class CUDABuffer extends Buffer {
             static mapResources(buffers: any[] = []) {
                 buffers = buffers.filter((buffer) =>
@@ -63,7 +63,7 @@ export const Buffer = ((Buffer) => {
             }
             asCUDABuffer(byteOffset = 0, byteLength = this.byteLength - byteOffset) {
                 if (this._handle.cudaGraphicsResourceMapped) {
-                    return new CUDAUint8Array(CUDA.gl.getMappedPointer(this._handle.cudaGraphicsResource), byteOffset, byteLength);
+                    return new Uint8Buffer(CUDA.gl.getMappedPointer(this._handle.cudaGraphicsResource), byteOffset, byteLength);
                 }
                 throw new Error('OpenGL Buffer must be mapped as a CUDAGraphicsResource to create a CUDA buffer');
             }

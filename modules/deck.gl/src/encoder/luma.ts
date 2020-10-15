@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { PassThrough } from 'stream';
-import { CUDADevice } from '@nvidia/cuda';
+import { Device } from '@nvidia/cuda';
 // import { CUDAEncoderTransform, NvEncoderBufferFormat } from '@nvidia/nvencoder';
 
 interface OnInitializeProps {
@@ -25,7 +25,7 @@ export function createAnimationLoopVideoEncoderStream(
     loop: any,
     // @ts-ignore
     {
-        device = CUDADevice.new(0),
+        device = new Device(0),
         // format = NvEncoderBufferFormat.ABGR
     }
 ): Promise<NodeJS.ReadWriteStream> {

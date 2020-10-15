@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "addon.hpp"
-#include "node_cuda/macros.hpp"
-
+#include "node_cuda/addon.hpp"
 #include "node_cuda/device.hpp"
+#include "node_cuda/macros.hpp"
 #include "node_cuda/memory.hpp"
-
 #include "node_cuda/utilities/cpp_to_napi.hpp"
 #include "node_cuda/utilities/napi_to_cpp.hpp"
 
@@ -27,16 +25,14 @@ namespace nv {
 
 // CUresult cuInit(unsigned int Flags)
 Napi::Value cuInit(CallbackArgs const& info) {
-  auto env = info.Env();
-  CU_TRY(env, CUDAAPI::cuInit(0));
+  NODE_CU_TRY(CUDAAPI::cuInit(0), info.Env());
   return info.This();
 }
 
 // CUresult cuDriverGetVersion(int* driverVersion);
 Napi::Value cuDriverGetVersion(CallbackArgs const& info) {
-  auto env = info.Env();
   int driverVersion;
-  CU_TRY(info.Env(), CUDAAPI::cuDriverGetVersion(&driverVersion));
+  NODE_CU_TRY(CUDAAPI::cuDriverGetVersion(&driverVersion), info.Env());
   return CPPToNapi(info)(driverVersion);
 }
 
@@ -46,9 +42,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "init", nv::cuInit);
   EXPORT_FUNC(env, exports, "getDriverVersion", nv::cuDriverGetVersion);
 
-  auto device  = Napi::Object::New(env);
   auto gl      = Napi::Object::New(env);
-  auto ipc     = Napi::Object::New(env);
   auto kernel  = Napi::Object::New(env);
   auto math    = Napi::Object::New(env);
   auto mem     = Napi::Object::New(env);
@@ -56,9 +50,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   auto stream  = Napi::Object::New(env);
   auto texture = Napi::Object::New(env);
 
-  EXPORT_PROP(exports, "device", device);
   EXPORT_PROP(exports, "gl", gl);
-  EXPORT_PROP(exports, "ipc", ipc);
   EXPORT_PROP(exports, "kernel", kernel);
   EXPORT_PROP(exports, "math", math);
   EXPORT_PROP(exports, "mem", mem);
@@ -66,12 +58,9 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_PROP(exports, "stream", stream);
   EXPORT_PROP(exports, "texture", stream);
 
-  nv::device::initModule(env, device);
   nv::gl::initModule(env, gl);
-  nv::ipc::initModule(env, ipc);
   nv::kernel::initModule(env, kernel);
   nv::math::initModule(env, math);
-  nv::mem::initModule(env, mem);
   nv::program::initModule(env, program);
   nv::stream::initModule(env, stream);
   nv::texture::initModule(env, stream);
@@ -79,10 +68,14 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_ENUM(env, exports, "VERSION", CUDA_VERSION);
   EXPORT_ENUM(env, exports, "IPC_HANDLE_SIZE", CU_IPC_HANDLE_SIZE);
 
+  auto driver  = Napi::Object::New(env);
+  auto runtime = Napi::Object::New(env);
+
+  EXPORT_PROP(exports, "driver", driver);
+  EXPORT_PROP(exports, "runtime", runtime);
+
   nv::Device::Init(env, exports);
-  nv::HostMemory::Init(env, exports);
-  nv::DeviceMemory::Init(env, exports);
-  nv::ManagedMemory::Init(env, exports);
+  nv::memory::initModule(env, exports, driver, runtime);
 
   return exports;
 }
