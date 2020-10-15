@@ -71,7 +71,10 @@ inline Napi::Value CPPToNapi::operator()(cudaGraphicsResource_t const& resource)
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaIpcMemHandle_t const& data) const {
-  return this->operator()(data.reserved, sizeof(cudaIpcMemHandle_t));
+  auto buf = Napi::ArrayBuffer::New(env, CUDA_IPC_HANDLE_SIZE);
+  std::memcpy(buf.Data(), &data, CUDA_IPC_HANDLE_SIZE);
+  return buffer_to_typed_array<uint8_t>(buf);
+  // return this->operator()(data.reserved, CUDA_IPC_HANDLE_SIZE);
 }
 
 template <>

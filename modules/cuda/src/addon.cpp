@@ -74,11 +74,17 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_ENUM(env, exports, "VERSION", CUDA_VERSION);
   EXPORT_ENUM(env, exports, "IPC_HANDLE_SIZE", CU_IPC_HANDLE_SIZE);
 
+  auto runtime = Napi::Object::New(env);
+
+  EXPORT_PROP(exports, "runtime", runtime);
+
   nv::Device::Init(env, exports);
-  nv::IpcMemory::Init(env, exports);
   nv::PinnedMemory::Init(env, exports);
   nv::DeviceMemory::Init(env, exports);
   nv::ManagedMemory::Init(env, exports);
+  nv::IpcMemory::Init(env, exports);
+  nv::IpcHandle::Init(env, exports);
+  nv::memory::initModule(env, runtime);
 
   return exports;
 }

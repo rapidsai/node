@@ -37,10 +37,9 @@ Napi::Value cudaIpcOpenMemHandle(CallbackArgs const& info) {
   auto env = info.Env();
   void* dptr;
   size_t size;
-  cudaIpcMemHandle_t* handle = info[0];
+  cudaIpcMemHandle_t const& handle = info[0];
 
-  CUDA_TRY(env,
-           CUDARTAPI::cudaIpcOpenMemHandle(&dptr, *handle, CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS));
+  CUDA_TRY(env, CUDARTAPI::cudaIpcOpenMemHandle(&dptr, handle, CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS));
   CU_TRY(env, CUDAAPI::cuMemGetAddressRange(nullptr, &size, reinterpret_cast<CUdeviceptr>(dptr)));
 
   return nv::CUDABuffer::New(dptr, size, buffer_type::IPC);

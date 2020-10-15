@@ -15,6 +15,7 @@
 #pragma once
 
 #include "node_cuda/device.hpp"
+#include "node_cuda/memory.hpp"
 #include "types.hpp"
 #include "visit_struct/visit_struct.hpp"
 
@@ -64,8 +65,8 @@ inline NapiToCPP::operator cudaGraphicsResource_t() const {
 }
 
 template <>
-inline NapiToCPP::operator cudaIpcMemHandle_t*() const {
-  return reinterpret_cast<cudaIpcMemHandle_t*>(this->operator char*());
+inline NapiToCPP::operator cudaIpcMemHandle_t() const {
+  return *reinterpret_cast<cudaIpcMemHandle_t*>(this->operator char*());
 }
 
 template <>
@@ -97,6 +98,36 @@ template <>
 inline NapiToCPP::operator Device() const {
   if (Device::is_instance(val)) { return *Device::Unwrap(val.ToObject()); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a Device instance");
+}
+
+template <>
+inline NapiToCPP::operator PinnedMemory() const {
+  if (PinnedMemory::is_instance(val)) { return *PinnedMemory::Unwrap(val.ToObject()); }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a PinnedMemory instance");
+}
+
+template <>
+inline NapiToCPP::operator DeviceMemory() const {
+  if (DeviceMemory::is_instance(val)) { return *DeviceMemory::Unwrap(val.ToObject()); }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a DeviceMemory instance");
+}
+
+template <>
+inline NapiToCPP::operator ManagedMemory() const {
+  if (ManagedMemory::is_instance(val)) { return *ManagedMemory::Unwrap(val.ToObject()); }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a ManagedMemory instance");
+}
+
+template <>
+inline NapiToCPP::operator IpcMemory() const {
+  if (IpcMemory::is_instance(val)) { return *IpcMemory::Unwrap(val.ToObject()); }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a IpcMemory instance");
+}
+
+template <>
+inline NapiToCPP::operator IpcHandle() const {
+  if (IpcHandle::is_instance(val)) { return std::move(*IpcHandle::Unwrap(val.ToObject())); }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a IpcHandle instance");
 }
 
 }  // namespace nv

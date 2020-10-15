@@ -16,13 +16,13 @@
 
 #include "node_cuda/utilities/cpp_to_napi.hpp"
 #include "node_cuda/utilities/error.hpp"
-#include "node_cuda/utilities/napi_to_cpp.hpp"
 
 #include <nv_node/utilities/args.hpp>
 
 #include <cuda_runtime_api.h>
 #include <napi.h>
 #include <cstdint>
+#include <tuple>
 
 namespace nv {
 
@@ -37,48 +37,29 @@ class Memory {
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
-  Memory(CallbackArgs const& args) {
-    NODE_CUDA_EXPECT(args.IsConstructCall(), "Memory constructor requires 'new'");
-    NODE_CUDA_EXPECT(args.Length() == 0 || (args.Length() == 1 && args[0].IsNumber()),
-                     "Memory constructor requires a numeric byteLength argument");
-  }
+  Memory(Napi::CallbackInfo const& args) {}
 
-  void* data() { return data_; }
-  size_t size() { return size_; }
-  int32_t device() { return device_id_; }
-  uint8_t* base() { return reinterpret_cast<uint8_t*>(data_); }
-  uintptr_t ptr() { return reinterpret_cast<uintptr_t>(data_); }
+  void* data() const { return data_; }
+  size_t size() const { return size_; }
+  int32_t device() const { return device_id_; }
+  uint8_t* base() const { return reinterpret_cast<uint8_t*>(data_); }
+  uintptr_t ptr() const { return reinterpret_cast<uintptr_t>(data_); }
 
  protected:
   Napi::Value device(Napi::CallbackInfo const& info) { return CPPToNapi(info)(device()); }
   Napi::Value ptr(Napi::CallbackInfo const& info) { return CPPToNapi(info)(ptr()); }
   Napi::Value size(Napi::CallbackInfo const& info) { return CPPToNapi(info)(size_); }
 
-  static void fill(Napi::CallbackInfo const& info) {
-    CallbackArgs args{info};
-    Span<char> target = args[0];
-    int32_t value     = args[1];
-    size_t count      = args[2];
-    if (args.Length() == 3) {
-      NODE_CUDA_TRY(cudaMemset(target.data(), value, count));
-    } else {
-      cudaStream_t stream = args[3];
-      NODE_CUDA_TRY(cudaMemsetAsync(target.data(), value, count, stream));
-    }
-  }
-
-  static void copy(Napi::CallbackInfo const& info) {
-    CallbackArgs args{info};
-    Span<char> target = args[0];
-    Span<char> source = args[1];
-    size_t count      = args[2];
-    if (args.Length() == 3) {
-      NODE_CUDA_TRY(cudaMemcpy(target.data(), source.data(), count, cudaMemcpyDefault));
-    } else {
-      cudaStream_t stream = args[3];
-      NODE_CUDA_TRY(
-        cudaMemcpyAsync(target.data(), source.data(), count, cudaMemcpyDefault, stream));
-    }
+  inline std::pair<int64_t, int64_t> clamp_slice_args(int64_t len, int64_t lhs, int64_t rhs) {
+    // Adjust args similar to Array.prototype.slice. Normalize begin/end to
+    // clamp between 0 and length, and wrap around on negative indices, e.g.
+    // slice(-1, 5) or slice(5, -1)
+    //
+    // wrap around on negative start/end positions
+    if (lhs < 0) { lhs = ((lhs % len) + len) % len; }
+    if (rhs < 0) { rhs = ((rhs % len) + len) % len; }
+    // enforce lhs <= rhs and rhs <= count
+    return rhs < lhs ? std::make_pair(rhs, lhs) : std::make_pair(lhs, rhs > len ? len : rhs);
   }
 
   void* data_{nullptr};  ///< Pointer to memory allocation
@@ -109,17 +90,30 @@ class PinnedMemory : public Napi::ObjectWrap<PinnedMemory>, public Memory {
   static Napi::Object New(size_t size);
 
   /**
+   * @brief Check whether an Napi value is an instance of `PinnedMemory`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `PinnedMemory`
+   * @return false if the value is not a `PinnedMemory`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+  }
+
+  /**
    * @brief Construct a new PinnedMemory instance from JavaScript.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
   PinnedMemory(CallbackArgs const& args);
+
   /**
    * @brief Initialize the PinnedMemory instance created by either C++ or JavaScript.
    *
    * @param size Size in bytes to allocate in pinned host memory.
    */
   void Initialize(size_t size);
+
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this PinnedMemory instance.
    *
@@ -156,17 +150,30 @@ class DeviceMemory : public Napi::ObjectWrap<DeviceMemory>, public Memory {
   static Napi::Object New(size_t size);
 
   /**
+   * @brief Check whether an Napi value is an instance of `DeviceMemory`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `DeviceMemory`
+   * @return false if the value is not a `DeviceMemory`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+  }
+
+  /**
    * @brief Construct a new DeviceMemory instance from JavaScript.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
   DeviceMemory(CallbackArgs const& args);
+
   /**
    * @brief Initialize the DeviceMemory instance created by either C++ or JavaScript.
    *
    * @param size Size in bytes to allocate in device memory.
    */
   void Initialize(size_t size);
+
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this DeviceMemory instance.
    *
@@ -203,17 +210,30 @@ class ManagedMemory : public Napi::ObjectWrap<ManagedMemory>, public Memory {
   static Napi::Object New(size_t size);
 
   /**
+   * @brief Check whether an Napi value is an instance of `ManagedMemory`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `ManagedMemory`
+   * @return false if the value is not a `ManagedMemory`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+  }
+
+  /**
    * @brief Construct a new ManagedMemory instance from JavaScript.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
   ManagedMemory(CallbackArgs const& args);
+
   /**
    * @brief Initialize the ManagedMemory instance created by either C++ or JavaScript.
    *
    * @param size Size in bytes to allocate in CUDA managed memory.
    */
   void Initialize(size_t size);
+
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this ManagedMemory instance.
    *
@@ -250,17 +270,30 @@ class IpcMemory : public Napi::ObjectWrap<IpcMemory>, public Memory {
   static Napi::Object New(cudaIpcMemHandle_t const& handle);
 
   /**
+   * @brief Check whether an Napi value is an instance of `IpcMemory`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `IpcMemory`
+   * @return false if the value is not a `IpcMemory`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+  }
+
+  /**
    * @brief Construct a new IPCMemory instance from JavaScript.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
   IpcMemory(CallbackArgs const& args);
+
   /**
    * @brief Initialize the IPCMemory instance created by either C++ or JavaScript.
    *
    * @param size Size in bytes to allocate in CUDA managed memory.
    */
   void Initialize(cudaIpcMemHandle_t const& handle);
+
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this IPCMemory instance.
    *
@@ -273,15 +306,94 @@ class IpcMemory : public Napi::ObjectWrap<IpcMemory>, public Memory {
    * underlying device memory.
    *
    */
-  void close_handle();
-  void close_handle(Napi::Env const& env);
+  void close();
+  void close(Napi::Env const& env);
 
  private:
   static Napi::FunctionReference constructor;
 
   Napi::Value slice(Napi::CallbackInfo const& info);
+  Napi::Value close(Napi::CallbackInfo const& info);
+};
 
-  Napi::Value close_handle(Napi::CallbackInfo const& info);
+class IpcHandle : public Napi::ObjectWrap<IpcHandle> {
+ public:
+  /**
+   * @brief Initialize and export the IpcMemoryHandle JavaScript constructor and prototype.
+   *
+   * @param env The active JavaScript environment.
+   * @param exports The exports object to decorate.
+   * @return Napi::Object The decorated exports object.
+   */
+  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+
+  /**
+   * @brief Construct a new IpcMemoryHandle instance from C++.
+   *
+   * @param dmem Device memory for which to create an IPC memory handle.
+   */
+  static Napi::Object New(DeviceMemory const& dmem);
+
+  /**
+   * @brief Check whether an Napi value is an instance of `IpcHandle`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `IpcHandle`
+   * @return false if the value is not a `IpcHandle`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+  }
+
+  /**
+   * @brief Construct a new IpcMemoryHandle instance from JavaScript.
+   *
+   * @param args The JavaScript arguments list wrapped in a conversion helper.
+   */
+  IpcHandle(CallbackArgs const& args);
+
+  /**
+   * @brief Initialize the IpcMemoryHandle instance created by either C++ or JavaScript.
+   *
+   * @param dmem Device memory for which to create an IPC memory handle.
+   */
+  void Initialize(DeviceMemory const& dmem);
+
+  /**
+   * @brief Destructor called when the JavaScript VM garbage collects this IpcMemoryHandle instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env env) override;
+
+  int32_t device() {
+    if (!dmem_.IsEmpty()) {  //
+      return DeviceMemory::Unwrap(dmem_.Value())->device();
+    }
+    return -1;
+  }
+
+  cudaIpcMemHandle_t* handle() {
+    return reinterpret_cast<cudaIpcMemHandle_t*>(handle_.Value().Data());
+  }
+
+  /**
+   * @brief Close the underlying IPC memory handle, allowing this process to free the underlying
+   * device memory.
+   */
+  void close();
+  void close(Napi::Env const& env);
+
+ private:
+  static Napi::FunctionReference constructor;
+
+  Napi::ObjectReference dmem_;
+  Napi::Reference<Napi::Uint8Array> handle_;
+
+  Napi::Value buffer(Napi::CallbackInfo const& info);
+  Napi::Value device(Napi::CallbackInfo const& info);
+  Napi::Value handle(Napi::CallbackInfo const& info);
+  Napi::Value close(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

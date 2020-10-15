@@ -17,7 +17,7 @@ const Fastify = require('fastify');
 const Peer = require('simple-peer');
 
 import Loop from './luma';
-import { CUDADevice, CUDAUint8Array } from '@nvidia/cuda';
+import { CUDADevice, Uint8ClampedBuffer } from '@nvidia/cuda';
 import { rgbaMirror, bgraToYCrCb420 } from '@nvidia/nvencoder';
 
 const device = CUDADevice.new(1);
@@ -53,7 +53,7 @@ function onConnect(sock) {
             stream.addTrack(source.createTrack());
             peer.addStream(stream);
 
-            let yuvDBuf = new CUDAUint8Array(width * height * 3 / 2);
+            let yuvDBuf = new Uint8ClampedBuffer(width * height * 3 / 2);
             let yuvHBuf = new Uint8ClampedArray(yuvDBuf.byteLength);
 
             opts.frames
@@ -64,13 +64,13 @@ function onConnect(sock) {
                 .on('data', ({ width, height, data }) => {
 
                     if (yuvDBuf.byteLength !== (width * height * 3 / 2)) {
-                        yuvDBuf = new CUDAUint8Array(width * height * 3 / 2);
+                        yuvDBuf = new Uint8ClampedBuffer(width * height * 3 / 2);
                         yuvHBuf = new Uint8ClampedArray(yuvDBuf.byteLength);
                     }
 
                     const resource = getRegisteredBufferResource(data);
                     CUDA.gl.mapResources([resource]);
-                    const rgbaDBuf = new CUDAUint8Array(CUDA.gl.getMappedPointer(resource));
+                    const rgbaDBuf = new Uint8ClampedBuffer(CUDA.gl.getMappedPointer(resource));
                     // flip horizontally to account for WebGL's coordinate system (e.g. ffmpeg -vf vflip)
                     rgbaMirror(width, height, 0, rgbaDBuf);
                     // convert colorspace from OpenGL's RGBA to WebRTC's IYUV420

@@ -14,76 +14,46 @@
 
 import CUDA from '../addon';
 
-import { clampSliceArgs as clamp } from '../util';
-import { TypedArray, BigIntArray } from '../interfaces';
-
-/** @ignore */
-export type MemoryData = TypedArray | BigIntArray | ArrayBufferView | ArrayBufferLike | Memory;
-
-interface MemoryOperations {
-    fill(target: MemoryData, value: number, count: number, stream?: number): number;
-    copy(target: MemoryData, source: MemoryData, count: number, stream?: number): number;
+export class DeviceMemory extends CUDA.DeviceMemory {
+    public get [Symbol.toStringTag]() { return 'DeviceMemory'; }
 }
 
-export interface MemoryConstructor extends MemoryOperations {
-    new(byteLength?: number): Memory;
+export class PinnedMemory extends CUDA.PinnedMemory {
+    public get [Symbol.toStringTag]() { return 'PinnedMemory'; }
 }
 
-export interface Memory extends ArrayBuffer {
-    readonly ptr: number;
-    readonly device: number;
-    readonly constructor: MemoryOperations;
-    slice(start?: number, end?: number): Memory;
+export class ManagedMemory extends CUDA.ManagedMemory {
+    public get [Symbol.toStringTag]() { return 'ManagedMemory'; }
 }
 
-interface IpcMemoryConstructor extends MemoryOperations {
-    readonly prototype: Memory;
-    new(ipcMemHandle: Uint8Array): Memory;
-}
-
-export class IpcMemory extends (<IpcMemoryConstructor> CUDA.IpcMemory) {
-    slice(start?: number, end?: number): DeviceMemory {
-        [start, end] = clamp(this.byteLength, start, end);
-        return super.slice(start, end - start) as DeviceMemory;
+export class IpcMemory extends CUDA.IpcMemory {
+    constructor(ipch: IpcHandle | Uint8Array | Buffer | Array<number>) {
+        if (Array.isArray(ipch)) {
+            ipch = Buffer.from(ipch);
+        } else if (ipch instanceof IpcHandle) {
+            ipch = Buffer.from(ipch.handle);
+        }
+        super(ipch);
     }
     public get [Symbol.toStringTag]() { return 'IpcMemory'; }
 }
 
-interface DeviceMemoryConstructor extends MemoryConstructor {
-    readonly prototype: Memory;
-    new(byteLength?: number): Memory;
-}
-
-export class DeviceMemory extends (<DeviceMemoryConstructor> CUDA.DeviceMemory) {
-    slice(start?: number, end?: number): DeviceMemory {
-        [start, end] = clamp(this.byteLength, start, end);
-        return super.slice(start, end - start) as DeviceMemory;
+export class IpcHandle extends CUDA.IpcHandle {
+    constructor(deviceMemory: DeviceMemory, byteOffset: number = 0) {
+        super(deviceMemory);
+        this.byteOffset = byteOffset;
     }
-    public get [Symbol.toStringTag]() { return 'DeviceMemory'; }
-}
-
-interface PinnedMemoryConstructor extends MemoryConstructor {
-    readonly prototype: Memory;
-    new(byteLength?: number): Memory;
-}
-
-export class PinnedMemory extends (<PinnedMemoryConstructor> CUDA.PinnedMemory) {
-    slice(start?: number, end?: number): PinnedMemory {
-        [start, end] = clamp(this.byteLength, start, end);
-        return super.slice(start, end - start) as PinnedMemory;
+    public readonly byteOffset: number;
+    public get [Symbol.toStringTag]() { return 'IpcHandle'; }
+    public [Symbol.for('nodejs.util.inspect.custom')]() {
+        return`${this[Symbol.toStringTag]} ${this.toString()}`;
     }
-    public get [Symbol.toStringTag]() { return 'PinnedMemory'; }
-}
-
-interface ManagedMemoryConstructor extends MemoryConstructor {
-    readonly prototype: Memory;
-    new(byteLength?: number): Memory;
-}
-
-export class ManagedMemory extends (<ManagedMemoryConstructor> CUDA.ManagedMemory) {
-    slice(start?: number, end?: number): ManagedMemory {
-        [start, end] = clamp(this.byteLength, start, end);
-        return super.slice(start, end - start) as ManagedMemory;
+    public toString() { return JSON.stringify(this.toJSON()); }
+    public toJSON() {
+        return {
+            device: this.device,
+            byteOffset: this.byteOffset,
+            handle: [...this.handle],
+        };
     }
-    public get [Symbol.toStringTag]() { return 'ManagedMemory'; }
 }

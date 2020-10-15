@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "node_cuda/memory.hpp"
+#include "node_cuda/utilities/napi_to_cpp.hpp"
 
 namespace nv {
 
@@ -23,8 +24,6 @@ Napi::Object DeviceMemory::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "DeviceMemory",
                 {
-                  StaticMethod("copy", &DeviceMemory::copy),
-                  StaticMethod("fill", &DeviceMemory::fill),
                   InstanceAccessor("byteLength", &DeviceMemory::size, nullptr, napi_enumerable),
                   InstanceAccessor("device", &DeviceMemory::device, nullptr, napi_enumerable),
                   InstanceAccessor("ptr", &DeviceMemory::ptr, nullptr, napi_enumerable),
@@ -40,7 +39,10 @@ Napi::Object DeviceMemory::Init(Napi::Env env, Napi::Object exports) {
 
 DeviceMemory::DeviceMemory(CallbackArgs const& args)
   : Napi::ObjectWrap<DeviceMemory>(args), Memory(args) {
-  if (args.Length() == 1) { Initialize(args[0]); }
+  NODE_CUDA_EXPECT(args.IsConstructCall(), "DeviceMemory constructor requires 'new'");
+  NODE_CUDA_EXPECT(args.Length() == 0 || (args.Length() == 1 && args[0].IsNumber()),
+                   "DeviceMemory constructor requires a numeric byteLength argument");
+  Initialize(args[0]);
 }
 
 Napi::Object DeviceMemory::New(size_t size) {
@@ -67,13 +69,13 @@ void DeviceMemory::Finalize(Napi::Env env) {
 
 Napi::Value DeviceMemory::slice(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  int64_t offset = args[0];
-  int64_t size   = size_ - offset;
-  if (args.Length() == 2 && args[1].IsNumber()) { size = args[1].operator int64_t() - offset; }
-  auto copy = DeviceMemory::New(size = std::max<int64_t>(size, 0));
-  if (size > 0) {
+  int64_t lhs        = args.Length() > 0 ? args[0] : 0;
+  int64_t rhs        = args.Length() > 1 ? args[1] : size_;
+  std::tie(lhs, rhs) = clamp_slice_args(size_, lhs, rhs);
+  auto copy          = DeviceMemory::New(rhs - lhs);
+  if (rhs - lhs > 0) {
     NODE_CUDA_TRY(
-      cudaMemcpy(DeviceMemory::Unwrap(copy)->base(), base() + offset, size, cudaMemcpyDefault));
+      cudaMemcpy(DeviceMemory::Unwrap(copy)->base(), base() + lhs, rhs - lhs, cudaMemcpyDefault));
   }
   return copy;
 }

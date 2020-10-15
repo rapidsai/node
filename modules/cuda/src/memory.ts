@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as CUDA from './cuda';
+import { CUDA, CUstream, CUDAMemHostRegisterFlag } from './addon';
 import { CUDABuffer } from './addon'; 
 import { CUDAMemoryType } from './cuda';
 import { CUDAPointerAttribute } from './cuda';
@@ -60,7 +60,7 @@ export class CUDAMemory implements ArrayBufferView {
     public isManaged() { return this.getMemoryType() === CUDAMemoryType.MANAGED; }
     public isUnregistered() { return this.getMemoryType() === CUDAMemoryType.UNREGISTERED; }
 
-    public register(flags: CUDA.CUDAMemHostRegisterFlag = CUDA.CUDAMemHostRegisterFlag.DEFAULT) {
+    public register(flags: CUDAMemHostRegisterFlag = CUDAMemHostRegisterFlag.DEFAULT) {
         if (this.isUnregistered()) {
             delete (<any> this)['_memoryType'];
             CUDA.mem.hostRegister(this.buffer, flags);
@@ -81,7 +81,7 @@ export class CUDAMemory implements ArrayBufferView {
         return this;
     }
 
-    public async copyFromAsync(source: CUDAMemory | ArrayLike<number>, start?: number, stream: CUDA.CUstream = 0) {
+    public async copyFromAsync(source: CUDAMemory | ArrayLike<number>, start?: number, stream: CUstream = 0) {
         await this.setAsync(source, start, stream);
         return this;
     }
@@ -91,7 +91,7 @@ export class CUDAMemory implements ArrayBufferView {
         return this;
     }
 
-    public async copyIntoAsync(target: CUDAMemory | ArrayBufferLike | ArrayBufferView, start?: number, stream: CUDA.CUstream = 0) {
+    public async copyIntoAsync(target: CUDAMemory | ArrayBufferLike | ArrayBufferView, start?: number, stream: CUstream = 0) {
         await CUDAMemory.as(target).setAsync(this, start, stream);
         return this;
     }
@@ -105,7 +105,7 @@ export class CUDAMemory implements ArrayBufferView {
                      Math.min(length, sourceLength));
     }
 
-    public async setAsync(values: CUDAMemory | ArrayLike<number>, start?: number, stream: CUDA.CUstream = 0): Promise<void> {
+    public async setAsync(values: CUDAMemory | ArrayLike<number>, start?: number, stream: CUstream = 0): Promise<void> {
         const source = CUDAMemory.as(values);
         const sourceLength = source.byteLength;
         const [offset, length] = clamp(this, start);
@@ -122,7 +122,7 @@ export class CUDAMemory implements ArrayBufferView {
         return this;
     }
 
-    public async fillAsync(value: number, start?: number, end?: number, stream: CUDA.CUstream = 0): Promise<this> {
+    public async fillAsync(value: number, start?: number, end?: number, stream: CUstream = 0): Promise<this> {
         [start, end] = clamp(this, start, end);
         await CUDA.mem.setAsync(this.buffer, this.byteOffset + start, value, (end - start), stream);
         return this;

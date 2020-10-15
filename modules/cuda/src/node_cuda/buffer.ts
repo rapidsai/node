@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Memory, MemoryData } from './memory';
-import { IpcMemory, DeviceMemory, PinnedMemory, ManagedMemory } from './memory';
+import CUDA, { Memory, MemoryData } from '../addon';
 import { TypedArray, BigIntArray, TypedArrayConstructor } from '../interfaces';
+import { DeviceMemory, PinnedMemory, ManagedMemory, IpcMemory, IpcHandle } from './memory';
 import { clampSliceArgs as clamp, isNumber, isArrayBuffer, isArrayBufferView, isIterable, isArrayLike } from '../util';
+
+const { runtime: { cudaMemcpy } } = CUDA;
+
 
 /** @ignore */
 type MemoryViewConstructor<T extends TypedArray | BigIntArray> = {
@@ -93,11 +96,11 @@ abstract class MemoryView<T extends TypedArray | BigIntArray = any> implements A
         if (target instanceof MemoryView) {
             target.set(this, start);
         } else if (isArrayBuffer(target)) {
-            this.buffer.constructor.copy(target, this, Math.min(this.byteLength, target.byteLength));
+            cudaMemcpy(target, this, Math.min(this.byteLength, target.byteLength));
         } else if (isArrayBufferView(target)) {
             let [offset, size] = clamp(this.length, start);
             size = Math.min(size * this.BYTES_PER_ELEMENT, target.byteLength);
-            this.buffer.constructor.copy(target, this.subarray(offset), size);
+            cudaMemcpy(target, this.subarray(offset), size);
         }
         return this;
     }
@@ -121,7 +124,7 @@ abstract class MemoryView<T extends TypedArray | BigIntArray = any> implements A
         let [offset, size] = clamp(this.length, start);
         const source = asMemoryView(array, this.TypedArray);
         size = Math.min(size * this.BYTES_PER_ELEMENT, source.byteLength);
-        this.buffer.constructor.copy(this.subarray(offset), source, size);
+        cudaMemcpy(this.subarray(offset), source, size);
     }
 
     /**
@@ -132,9 +135,9 @@ abstract class MemoryView<T extends TypedArray | BigIntArray = any> implements A
      * @param end index to stop filling the array at. If end is negative, it is treated as
      * length+end.
      */
-    public fill(value: number, start?: number, end?: number) {
+    public fill(value: T[0], start?: number, end?: number) {
         [start, end] = clamp(this.length, start, end);
-        this.buffer.constructor.fill(this.subarray(start, end), value, end - start);
+        this.set(new this.TypedArray(end - start).fill(<never> value), start);
         return this;
     }
 
@@ -177,6 +180,16 @@ abstract class MemoryView<T extends TypedArray | BigIntArray = any> implements A
             'type': this.buffer[Symbol.toStringTag],
         })}`;
     }
+
+    /**
+     * Gets an IpcHandle for the underlying CUDA device memory.
+     */
+    public getIpcHandle() {
+        if (!(this.buffer instanceof DeviceMemory)) {
+            throw new Error(`${this[Symbol.toStringTag]}'s buffer must be an instance of DeviceMemory`);
+        }
+        return new IpcHandle(this.buffer as DeviceMemory, this.byteOffset);
+    }
 }
 
 Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
@@ -190,7 +203,7 @@ Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
                 if (i > -1 && i < receiver.length) {
                     const { byteOffset, BYTES_PER_ELEMENT, E } = receiver;
                     receiver.byteOffset = byteOffset + i * BYTES_PER_ELEMENT;
-                    receiver.buffer.constructor.copy(E, receiver, BYTES_PER_ELEMENT);
+                    cudaMemcpy(E, receiver, BYTES_PER_ELEMENT);
                     receiver.byteOffset = byteOffset;
                     return E[0];
                 }
@@ -209,7 +222,7 @@ Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
                     const { byteOffset, BYTES_PER_ELEMENT, E } = receiver;
                     receiver.byteOffset = byteOffset + i * BYTES_PER_ELEMENT;
                     E[0] = value;
-                    receiver.buffer.constructor.copy(receiver, E, BYTES_PER_ELEMENT);
+                    cudaMemcpy(receiver, E, BYTES_PER_ELEMENT);
                     receiver.byteOffset = byteOffset;
                     return true;
                 }
@@ -289,21 +302,21 @@ function asMemory<T extends TypedArray | BigIntArray>(
     } else if (isArrayBuffer(source)) {
         byteLength = source.byteLength;
         buffer = new DeviceMemory(byteLength);
-        buffer.constructor.copy(buffer, source, byteLength);
+        cudaMemcpy(buffer, source, byteLength);
     } else if (isArrayBufferView(source)) {
         byteLength = source.byteLength;
         buffer = new DeviceMemory(byteLength);
-        buffer.constructor.copy(buffer, source, byteLength);
+        cudaMemcpy(buffer, source, byteLength);
     } else if (isIterable(source)) {
         const b = new TypedArray(source).buffer;
         byteLength = b.byteLength;
         buffer = new DeviceMemory(byteLength);
-        buffer.constructor.copy(buffer, b, byteLength);
+        cudaMemcpy(buffer, b, byteLength);
     } else if (isArrayLike(source)) {
         const b = TypedArray.from(source).buffer;
         byteLength = b.byteLength;
         buffer = new DeviceMemory(byteLength);
-        buffer.constructor.copy(buffer, b, byteLength);
+        cudaMemcpy(buffer, b, byteLength);
     } else if (('buffer' in source) && ('byteOffset' in source) && ('byteLength' in source)) {
         buffer = source['buffer'];
         byteLength = source['byteLength'];

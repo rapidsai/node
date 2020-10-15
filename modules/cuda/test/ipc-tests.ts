@@ -8,7 +8,7 @@ test(`ipc works between subprocesses`, async () => {
         src = spawnIPCSourceSubprocess(7, 8);
         const hndl = await readChildProcessOutput(src);
         if (hndl) {
-            dst = spawnIPCTargetSubprocess(hndl);
+            dst = spawnIPCTargetSubprocess(JSON.parse(hndl));
             const data = await readChildProcessOutput(dst);
             if (data) {
                 expect(data).toStrictEqual('[7,7,7,7,8,8,8,8]');
@@ -36,27 +36,22 @@ async function readChildProcessOutput(proc: ChildProcessByStdio<Writable, Readab
 
 function spawnIPCSourceSubprocess(first: number, second: number) {
     return spawn('node', [`-e`, `
-const { CUDAMemory, CUDA } = require(".");
-const dmem = CUDAMemory.alloc(8);
+const { Uint8Buffer } = require(".");
+const dmem = new Uint8Buffer(8);
+const hndl = dmem.getIpcHandle();
 dmem.fill(${first}, 0, 4).fill(${second}, 4, 8);
-const hndl = CUDA.ipc.getMemHandle(dmem.buffer);
-process.stdout.write(JSON.stringify([...hndl]));
-process.on("exit", () => {
-    CUDA.ipc.closeMemHandle(hndl);
-    CUDA.mem.free(dmem.buffer);
-});
+process.stdout.write(JSON.stringify(hndl));
+process.on("exit", () => hndl.close());
 setInterval(() => { }, 60 * 1000);
 `], { stdio: ['pipe', 'pipe', 'inherit'] });
 }
 
-function spawnIPCTargetSubprocess(hndl: string) {
+function spawnIPCTargetSubprocess({ handle }: { handle: Array<number> }) {
     return spawn('node', ['-e', `
-const { CUDAMemory, CUDA } = require(".");
-const hmem = new Buffer(8);
-const hndl = Buffer.from(JSON.parse("${hndl}"));
-const dmem = new CUDAMemory(CUDA.ipc.openMemHandle(hndl));
-dmem.copyInto(hmem);
+const { Uint8Buffer, IpcMemory } = require(".");
+const hmem = new Uint8Array(8);
+const dmem = new IpcMemory([${handle.toString()}]);
+new Uint8Buffer(dmem).copyInto(hmem).buffer.close();
 process.stdout.write(JSON.stringify([...hmem]));
-CUDA.ipc.closeMemHandle(dmem.buffer);
 `], { stdio: ['pipe', 'pipe', 'inherit'] });
 }

@@ -40,6 +40,10 @@ namespace mem {
 Napi::Object initModule(Napi::Env env, Napi::Object exports);
 }  // namespace mem
 
+namespace memory {
+Napi::Object initModule(Napi::Env env, Napi::Object exports);
+}  // namespace memory
+
 namespace program {
 Napi::Object initModule(Napi::Env env, Napi::Object exports);
 }  // namespace program

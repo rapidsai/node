@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as CUDA from './cuda';
-
-export { CUDA };
+export * from './cuda';
 export * from './array';
 export * from './device';
 export * from './node_cuda/buffer';
