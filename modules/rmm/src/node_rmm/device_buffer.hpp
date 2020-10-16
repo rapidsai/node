@@ -17,6 +17,7 @@
 #include "rmm/device_buffer.hpp"
 
 #include <napi.h>
+#include <memory>
 
 namespace nv {
 
@@ -33,11 +34,38 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
-  static Napi::Value New(
+  static Napi::Object New(
     void* data,
     size_t size,
     cudaStream_t stream                 = 0,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  /**
+   * @brief Construct a DeviceBuffer by copying an existing rmm::device_buffer.
+   *
+   * @param other The `device_buffer` whose contents will be copied into the
+   * newly constructed one.
+   */
+  static Napi::Object New(rmm::device_buffer const& other);
+
+  /**
+   * @brief Construct a DeviceBuffer by moving an existing rmm::device_buffer.
+   *
+   * @param other The `device_buffer` whose contents will be moved into the
+   * newly constructed one.
+   */
+  static Napi::Object New(rmm::device_buffer&& other);
+
+  /**
+   * @brief Check whether an Napi value is an instance of `DeviceBuffer`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `DeviceBuffer`
+   * @return false if the value is not a `DeviceBuffer`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+  }
 
   /**
    * @brief Construct a new DeviceBuffer instance from JavaScript.
@@ -67,11 +95,14 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    */
   void Finalize(Napi::Env env) override;
 
+  void* data() const { return Buffer()->data(); }
+  size_t size() const { return Buffer()->size(); }
+
  private:
   static Napi::FunctionReference constructor;
 
-  auto& Buffer() const { return buffer_; }
   char* Data() const { return static_cast<char*>(Buffer()->data()); }
+  std::unique_ptr<rmm::device_buffer> const& Buffer() const { return buffer_; }
 
   Napi::Value byteLength(Napi::CallbackInfo const& info);
   Napi::Value capacity(Napi::CallbackInfo const& info);

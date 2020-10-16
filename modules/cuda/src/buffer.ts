@@ -13,12 +13,11 @@
 // limitations under the License.
 
 import CUDA from './addon';
+import { Memory, DeviceMemory, IpcHandle } from './memory';
 import { MemoryData, TypedArray, BigIntArray, TypedArrayConstructor } from './interfaces';
-import { Memory, DeviceMemory, PinnedMemory, ManagedMemory, IpcMemory, IpcHandle } from './memory';
-import { clampSliceArgs as clamp, isNumber, isArrayBuffer, isArrayBufferView, isIterable, isArrayLike } from './util';
+import { clampSliceArgs as clamp, isNumber, isArrayBuffer, isArrayBufferView, isIterable, isMemoryLike, isArrayLike } from './util';
 
 const { runtime: { cudaMemcpy } } = CUDA;
-
 
 /** @ignore */
 type MemoryViewConstructor<T extends TypedArray | BigIntArray> = {
@@ -27,6 +26,12 @@ type MemoryViewConstructor<T extends TypedArray | BigIntArray> = {
     new(values: Iterable<T[0]>): MemoryView<T>;
     new(buffer: ArrayLike<T[0]> | MemoryData, byteOffset?: number, length?: number): MemoryView<T>;
 };
+
+let allocateMemory = (byteLength: number): Memory => new DeviceMemory(byteLength);
+
+export function setDefaultAllocator(allocate: (byteLength: number) => Memory) {
+    allocateMemory = allocate;
+}
 
 /**
  * @summary A base class for typed arrays of values in CUDA device memory.
@@ -313,34 +318,30 @@ function asMemory<T extends TypedArray | BigIntArray>(
     let buffer: Memory;
     if (isNumber(source)) {
         byteLength = source * TypedArray.BYTES_PER_ELEMENT;
-        buffer = new DeviceMemory(source * TypedArray.BYTES_PER_ELEMENT);
+        buffer = allocateMemory(source * TypedArray.BYTES_PER_ELEMENT);
     } else if (source instanceof MemoryView) {
         byteLength = source.byteLength;
         buffer = source.buffer.slice(source.byteOffset, byteLength);
-    } else if (
-        (source instanceof IpcMemory) ||
-        (source instanceof DeviceMemory) ||
-        (source instanceof PinnedMemory) ||
-        (source instanceof ManagedMemory)) {
+    } else if (isMemoryLike(source)) {
         buffer = source;
         byteLength = source.byteLength;
     } else if (isArrayBuffer(source)) {
         byteLength = source.byteLength;
-        buffer = new DeviceMemory(byteLength);
+        buffer = allocateMemory(byteLength);
         cudaMemcpy(buffer, source, byteLength);
     } else if (isArrayBufferView(source)) {
         byteLength = source.byteLength;
-        buffer = new DeviceMemory(byteLength);
+        buffer = allocateMemory(byteLength);
         cudaMemcpy(buffer, source, byteLength);
     } else if (isIterable(source)) {
         const b = new TypedArray(source).buffer;
         byteLength = b.byteLength;
-        buffer = new DeviceMemory(byteLength);
+        buffer = allocateMemory(byteLength);
         cudaMemcpy(buffer, b, byteLength);
     } else if (isArrayLike(source)) {
         const b = TypedArray.from(source).buffer;
         byteLength = b.byteLength;
-        buffer = new DeviceMemory(byteLength);
+        buffer = allocateMemory(byteLength);
         cudaMemcpy(buffer, b, byteLength);
     } else if (('buffer' in source) && ('byteOffset' in source) && ('byteLength' in source)) {
         buffer = source['buffer'];
@@ -349,7 +350,7 @@ function asMemory<T extends TypedArray | BigIntArray>(
     } else {
         byteOffset = 0;
         byteLength = 0;
-        buffer = new DeviceMemory(0);
+        buffer = allocateMemory(0);
     }
     return { buffer, byteLength, byteOffset, length: byteLength / TypedArray.BYTES_PER_ELEMENT };
 }

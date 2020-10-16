@@ -16,3 +16,4 @@ export * from './addon';
 export * from './buffer';
 export * from './device';
 export * from './memory';
+export * from './interfaces';

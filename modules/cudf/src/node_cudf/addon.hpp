@@ -21,7 +21,7 @@ namespace nv {
 Napi::Value cudfInit(Napi::CallbackInfo const& info);
 
 namespace types {
-    Napi::Object initModule(Napi::Env env, Napi::Object exports);
+Napi::Object initModule(Napi::Env env, Napi::Object exports);
 }
 
-}
+}  // namespace nv

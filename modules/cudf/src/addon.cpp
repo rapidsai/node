@@ -14,10 +14,12 @@
 
 #include "node_cudf/addon.hpp"
 #include "node_cudf/column.hpp"
-#include "node_cudf/macros.hpp"
+#include "node_cudf/scalar.hpp"
+#include "node_cudf/types.hpp"
+
+#include <nv_node/macros.hpp>
 
 #include <napi.h>
-
 
 namespace nv {
 
@@ -26,16 +28,15 @@ Napi::Value cudfInit(Napi::CallbackInfo const& info) {
   return info.This();
 }
 
-}  // namespace node_cudf
+}  // namespace nv
 
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "init", nv::cudfInit);
 
-  auto types = Napi::Object::New(env);
-  EXPORT_PROP(exports, "types", types);
-
   nv::Column::Init(env, exports);
-  nv::types::initModule(env, types);
+  nv::Scalar::Init(env, exports);
+  nv::DataType::Init(env, exports);
+
   return exports;
 }
 

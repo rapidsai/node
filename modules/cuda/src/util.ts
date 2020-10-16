@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Memory } from './memory';
+
 /** @ignore */
 export const isNumber = (x: any): x is number => typeof x === 'number';
 /** @ignore */
@@ -40,7 +42,12 @@ export const isAsyncIterable = <T = any>(x: any): x is AsyncIterable<T> => {
 
 /** @ignore */
 export const isArrayLike = <T = any>(x: any): x is ArrayLike<T> => {
-    return isObject(x) && isNumber(x['length']);
+    return isObject(x) && isNumber(x.length);
+};
+
+/** @ignore */
+export const isMemoryLike = (x: any): x is Memory => {
+    return isObject(x) && isNumber(x.ptr) && isNumber(x.byteLength);
 };
 
 /** @ignore */

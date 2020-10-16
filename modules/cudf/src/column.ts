@@ -13,36 +13,63 @@
 // limitations under the License.
 
 import CUDF from './addon';
-import { types } from './types';
-import { DeviceBuffer,  CudaMemoryResource } from '@nvidia/rmm';
+import { MemoryData } from '@nvidia/cuda';
+import { DataType, TypeId } from './types';
+import { DeviceBuffer } from '@nvidia/rmm';
 
 export interface ColumnConstructor {
     readonly prototype: Column;
     new(
-        dtype: types, size:number, data: DeviceBuffer,
-        null_mask?: DeviceBuffer, null_count?: number,
-        children?: ArrayLike<Column>
+        data: DeviceBuffer | MemoryData,
+        length: number,
+        dataType: DataType | TypeId,
+        nullMask?: DeviceBuffer | MemoryData,
+        nullCount?: number,
+        offset?: number,
+        children?: ReadonlyArray<Column>
     ): Column;
-    new(
-        column: Column
-    ): Column;
-    new(
-        column: Column,
-        stream?: number,
-        mr?: CudaMemoryResource
-    ): Column;
+    // new(
+    //     dtype: types, size:number, data: DeviceBuffer,
+    //     null_mask?: DeviceBuffer, null_count?: number,
+    //     children?: ArrayLike<Column>
+    // ): Column;
+    // new(
+    //     column: Column
+    // ): Column;
+    // new(
+    //     column: Column,
+    //     stream?: number,
+    //     mr?: CudaMemoryResource
+    // ): Column;
 }
 
 export interface Column {
-    type(): types;
+    type(): TypeId;
     size(): number;
     nullCount(): number;
-    setNullCount(count_:number): void;
-    setNullMask(new_null_mask:DeviceBuffer, new_null_count?:number): void;
-    nullable(): boolean;
-    hasNulls(): boolean;
-    child(child_index: number): Column;
-    numChildren(): number;
+    // setNullCount(count_:number): void;
+    // setNullMask(new_null_mask:DeviceBuffer, new_null_count?:number): void;
+    // nullable(): boolean;
+    // hasNulls(): boolean;
+    // child(child_index: number): Column;
+    // numChildren(): number;
 }
 
 export const Column: ColumnConstructor = CUDF.Column;
+
+Object.setPrototypeOf(CUDF.Column.prototype, new Proxy({}, {
+    get(target: {}, p: any, receiver: any) {
+        let i: number = p;
+        switch (typeof p) {
+            // @ts-ignore
+            case 'string':
+                if (isNaN(i = +p)) { break; }
+            case 'number':
+                if (i > -1 && i < receiver.length) {
+                    return receiver.get(i);
+                }
+                return undefined;
+        }
+        return Reflect.get(target, p, receiver);
+    }
+}));

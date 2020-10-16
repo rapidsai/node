@@ -46,10 +46,22 @@ Napi::Object DeviceBuffer::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
-Napi::Value DeviceBuffer::New(void* data,
-                              size_t size,
-                              cudaStream_t stream,
-                              rmm::mr::device_memory_resource* mr) {
+Napi::Object DeviceBuffer::New(rmm::device_buffer const& other) {
+  auto inst                           = DeviceBuffer::constructor.New({});
+  DeviceBuffer::Unwrap(inst)->buffer_ = std::make_unique<rmm::device_buffer>(other);
+  return inst;
+}
+
+Napi::Object DeviceBuffer::New(rmm::device_buffer&& other) {
+  auto inst                           = DeviceBuffer::constructor.New({});
+  DeviceBuffer::Unwrap(inst)->buffer_ = std::make_unique<rmm::device_buffer>(std::move(other));
+  return inst;
+}
+
+Napi::Object DeviceBuffer::New(void* data,
+                               size_t size,
+                               cudaStream_t stream,
+                               rmm::mr::device_memory_resource* mr) {
   auto inst = DeviceBuffer::constructor.New({});
   DeviceBuffer::Unwrap(inst)->Initialize(data, size, stream, mr);
   return inst;
@@ -67,6 +79,7 @@ DeviceBuffer::DeviceBuffer(Napi::CallbackInfo const& info) : Napi::ObjectWrap<De
     size              = source.size();
   }
   switch (args.Length()) {
+    case 0:
     case 1: Initialize(data, size); break;
     case 2: Initialize(data, size, args[1]); break;
     case 3: Initialize(data, size, args[1], args[2]); break;
@@ -86,8 +99,8 @@ void DeviceBuffer::Initialize(void* data,
     buffer_.reset(new rmm::device_buffer(size, stream, mr));
   } else {
     buffer_.reset(new rmm::device_buffer(data, size, stream, mr));
+    if (stream == NULL) { NODE_CUDA_TRY(cudaStreamSynchronize(stream), Env()); }
   }
-  if (stream == NULL) { NODE_CUDA_TRY(cudaStreamSynchronize(stream), Env()); }
   Napi::MemoryManagement::AdjustExternalMemory(Env(), size);
 }
 
