@@ -28,7 +28,7 @@
 namespace nv {
 
 struct NapiToCPP {
-  Napi::Value const val;
+  Napi::Value val;
   inline NapiToCPP(const Napi::Value& val) : val(val) {}
 
   inline std::ostream& operator<<(std::ostream& os) const {

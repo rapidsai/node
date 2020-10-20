@@ -16,6 +16,8 @@
 
 #include "rmm/device_buffer.hpp"
 
+#include <nv_node/utilities/span.hpp>
+
 #include <napi.h>
 #include <memory>
 
@@ -24,6 +26,21 @@ namespace nv {
 class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
  public:
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
+
+  /**
+   * @brief Construct a new DeviceBuffer instance from C++.
+   *
+   * @param data Pointer to the host or device memory to copy from.
+   * @param stream CUDA stream on which memory may be allocated if the memory
+   * resource supports streams.
+   * @param mr Memory resource to use for the device memory allocation.
+   */
+  static Napi::Object New(
+    Span<char> span,
+    cudaStream_t stream                 = 0,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) {
+    return DeviceBuffer::New(span.data(), span.size(), stream, mr);
+  }
 
   /**
    * @brief Construct a new DeviceBuffer instance from C++.

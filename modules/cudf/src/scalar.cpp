@@ -16,14 +16,62 @@
 #include "node_cudf/types.hpp"
 #include "node_cudf/utilities/cpp_to_napi.hpp"
 #include "node_cudf/utilities/napi_to_cpp.hpp"
+#include "nv_node/utilities/cpp_to_napi.hpp"
 
+#include <cudf/utilities/traits.hpp>
+#include <cudf/utilities/type_dispatcher.hpp>
 #include <node_cuda/utilities/error.hpp>
 #include <node_cuda/utilities/napi_to_cpp.hpp>
 #include <node_rmm/utilities/napi_to_cpp.hpp>
 
 #include <napi.h>
+#include <type_traits>
 
 namespace nv {
+
+namespace {
+
+struct set_scalar_value {
+  Napi::Value val;
+
+  template <typename T>
+  inline std::enable_if_t<cudf::is_numeric<T>(), void> operator()(
+    std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
+    static_cast<cudf::numeric_scalar<T>*>(scalar.get())->set_value(NapiToCPP(val), stream);
+  }
+  template <typename T>
+  inline std::enable_if_t<std::is_same<T, cudf::string_view>::value, void> operator()(
+    std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
+    scalar.reset(new cudf::string_scalar(val.ToString(), true, stream));
+  }
+  template <typename T>
+  inline std::enable_if_t<cudf::is_duration<T>(), void> operator()(
+    std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
+    static_cast<cudf::duration_scalar<T>*>(scalar.get())->set_value(NapiToCPP(val), stream);
+  }
+  template <typename T>
+  inline std::enable_if_t<cudf::is_timestamp<T>(), void> operator()(
+    std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
+    static_cast<cudf::timestamp_scalar<T>*>(scalar.get())->set_value(NapiToCPP(val), stream);
+  }
+  template <typename T>
+  inline std::enable_if_t<cudf::is_fixed_point<T>(), void> operator()(
+    std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
+    scalar.reset(new cudf::fixed_point_scalar<T>(val.ToNumber(), true, stream));
+  }
+  template <typename T>
+  inline std::enable_if_t<!(cudf::is_numeric<T>() ||                      //
+                            std::is_same<T, cudf::string_view>::value ||  //
+                            cudf::is_duration<T>() ||                     //
+                            cudf::is_timestamp<T>() ||                    //
+                            cudf::is_fixed_point<T>()),
+                          void>
+  operator()(std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
+    NAPI_THROW(Napi::Error::New(val.Env(), "Unsupported dtype"));
+  }
+};
+
+}  // namespace
 
 Napi::FunctionReference Scalar::constructor;
 
@@ -59,152 +107,17 @@ Napi::Value Scalar::type(Napi::CallbackInfo const& info) {
   return DataType::New(this->type().id());
 }
 
-Napi::Value Scalar::get_value() {
-  return this->is_valid(0) ? this->operator Napi::Value() : Env().Null();
-}
+Napi::Value Scalar::get_value() const { return CPPToNapi(Env())(scalar_); }
+
+Scalar::operator Napi::Value() const { return get_value(); }
 
 Napi::Value Scalar::get_value(Napi::CallbackInfo const& info) { return get_value(); }
-
-// TODO: Move these into type-dispatched functors
-
-Scalar::operator Napi::Value() const {
-  using namespace cudf;
-  auto cast = CPPToNapi(Env());
-  switch (type().id()) {
-    case type_id::BOOL8: return cast(static_cast<numeric_scalar<bool>*>(scalar_.get())->value());
-    case type_id::INT8: return cast(static_cast<numeric_scalar<int8_t>*>(scalar_.get())->value());
-    case type_id::INT16: return cast(static_cast<numeric_scalar<int16_t>*>(scalar_.get())->value());
-    case type_id::INT32: return cast(static_cast<numeric_scalar<int32_t>*>(scalar_.get())->value());
-    case type_id::INT64: return cast(static_cast<numeric_scalar<int64_t>*>(scalar_.get())->value());
-    case type_id::UINT8: return cast(static_cast<numeric_scalar<uint8_t>*>(scalar_.get())->value());
-    case type_id::UINT16:
-      return cast(static_cast<numeric_scalar<uint16_t>*>(scalar_.get())->value());
-    case type_id::UINT32:
-      return cast(static_cast<numeric_scalar<uint32_t>*>(scalar_.get())->value());
-    case type_id::UINT64:
-      return cast(static_cast<numeric_scalar<uint64_t>*>(scalar_.get())->value());
-    case type_id::FLOAT32: return cast(static_cast<numeric_scalar<float>*>(scalar_.get())->value());
-    case type_id::FLOAT64:
-      return cast(static_cast<numeric_scalar<double>*>(scalar_.get())->value());
-    case type_id::STRING: return cast(static_cast<string_scalar*>(scalar_.get())->to_string());
-    case type_id::TIMESTAMP_DAYS:
-      return cast(static_cast<timestamp_scalar<timestamp_D>*>(scalar_.get())->value());
-    case type_id::TIMESTAMP_SECONDS:
-      return cast(static_cast<timestamp_scalar<timestamp_s>*>(scalar_.get())->value());
-    case type_id::TIMESTAMP_MILLISECONDS:
-      return cast(static_cast<timestamp_scalar<timestamp_ms>*>(scalar_.get())->value());
-    case type_id::TIMESTAMP_MICROSECONDS:
-      return cast(static_cast<timestamp_scalar<timestamp_us>*>(scalar_.get())->value());
-    case type_id::TIMESTAMP_NANOSECONDS:
-      return cast(static_cast<timestamp_scalar<timestamp_ns>*>(scalar_.get())->value());
-    case type_id::DURATION_DAYS:
-      return cast(static_cast<duration_scalar<duration_D>*>(scalar_.get())->value());
-    case type_id::DURATION_SECONDS:
-      return cast(static_cast<duration_scalar<duration_s>*>(scalar_.get())->value());
-    case type_id::DURATION_MILLISECONDS:
-      return cast(static_cast<duration_scalar<duration_ms>*>(scalar_.get())->value());
-    case type_id::DURATION_MICROSECONDS:
-      return cast(static_cast<duration_scalar<duration_us>*>(scalar_.get())->value());
-    case type_id::DURATION_NANOSECONDS:
-      return cast(static_cast<duration_scalar<duration_ns>*>(scalar_.get())->value());
-    // TODO
-    case type_id::DICTIONARY32: return Env().Null();
-    // TODO
-    case type_id::LIST: return Env().Null();
-    case type_id::DECIMAL32:
-      return cast(static_cast<fixed_point_scalar<numeric::decimal32>*>(scalar_.get())->value(0));
-    case type_id::DECIMAL64:
-      return cast(static_cast<fixed_point_scalar<numeric::decimal64>*>(scalar_.get())->value(0));
-    // TODO
-    case type_id::STRUCT: return Env().Null();
-    default: return Env().Null();
-  }
-}
 
 void Scalar::set_value(Napi::CallbackInfo const& info, Napi::Value const& value) {
   if (value.IsNull() or value.IsUndefined()) {
     this->set_valid(false);
   } else {
-    using namespace cudf;
-    switch (type().id()) {
-      case type_id::BOOL8:
-        static_cast<numeric_scalar<bool>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::INT8:
-        static_cast<numeric_scalar<int8_t>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::INT16:
-        static_cast<numeric_scalar<int16_t>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::INT32:
-        static_cast<numeric_scalar<int32_t>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::INT64:
-        static_cast<numeric_scalar<int64_t>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::UINT8:
-        static_cast<numeric_scalar<uint8_t>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::UINT16:
-        static_cast<numeric_scalar<uint16_t>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::UINT32:
-        static_cast<numeric_scalar<uint32_t>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::UINT64:
-        static_cast<numeric_scalar<uint64_t>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::FLOAT32:
-        static_cast<numeric_scalar<float>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::FLOAT64:
-        static_cast<numeric_scalar<double>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::STRING: scalar_.reset(new string_scalar(value.ToString(), true)); break;
-      case type_id::TIMESTAMP_DAYS:
-        static_cast<timestamp_scalar<timestamp_D>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::TIMESTAMP_SECONDS:
-        static_cast<timestamp_scalar<timestamp_s>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::TIMESTAMP_MILLISECONDS:
-        static_cast<timestamp_scalar<timestamp_ms>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::TIMESTAMP_MICROSECONDS:
-        static_cast<timestamp_scalar<timestamp_us>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::TIMESTAMP_NANOSECONDS:
-        static_cast<timestamp_scalar<timestamp_ns>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::DURATION_DAYS:
-        static_cast<duration_scalar<duration_D>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::DURATION_SECONDS:
-        static_cast<duration_scalar<duration_s>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::DURATION_MILLISECONDS:
-        static_cast<duration_scalar<duration_ms>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::DURATION_MICROSECONDS:
-        static_cast<duration_scalar<duration_us>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      case type_id::DURATION_NANOSECONDS:
-        static_cast<duration_scalar<duration_ns>*>(scalar_.get())->set_value(NapiToCPP(value));
-        break;
-      // TODO
-      case type_id::DICTIONARY32: break;
-      // TODO
-      case type_id::LIST: break;
-      case type_id::DECIMAL32:
-        scalar_.reset(new fixed_point_scalar<numeric::decimal32>(value.ToNumber(), true));
-        break;
-      case type_id::DECIMAL64:
-        scalar_.reset(new fixed_point_scalar<numeric::decimal64>(value.ToNumber(), true));
-        break;
-      // TODO
-      case type_id::STRUCT: break;
-      default: break;
-    }
+    cudf::type_dispatcher(this->type(), set_scalar_value{value}, scalar_);
   }
 }
 

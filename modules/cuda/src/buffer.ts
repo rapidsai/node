@@ -65,7 +65,7 @@ abstract class MemoryView<T extends TypedArray | BigIntArray = any> implements A
      */
     public readonly length!: number;
 
-    [index: number]: T[0] | undefined;
+    [index: number]: T[0];
 
     /**
      * @summary The constructor of this array's corresponding JS TypedArray.

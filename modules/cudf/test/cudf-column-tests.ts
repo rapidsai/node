@@ -1,75 +1,82 @@
-import { Column, types } from '@nvidia/cudf';
-import { DeviceBuffer } from '@nvidia/rmm';
+import { Column, TypeId } from '@nvidia/cudf';
+import { DeviceBuffer, CudaMemoryResource } from '@nvidia/rmm';
+import { Uint8Buffer, Int32Buffer, setDefaultAllocator, Float32Buffer } from '@nvidia/cuda';
 
+const mr = new CudaMemoryResource();
+
+setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, 0, mr));
 
 test('Column initialization', () => {
-    const buffer_size = 100;
-    const db = new DeviceBuffer(buffer_size,10);
-    const col = new Column(types.INT32, 10, db);
+    const length = 100;
+    const col = new Column({ type: TypeId.INT32, data: new Int32Buffer(length) });
 
-    expect(col.type()).toBe(types.INT32);
-    expect(col.size()).toBe(buffer_size);
-    expect(col.nullCount()).toBe(0);
-    expect(col.hasNulls()).toBe(false);
-    expect(col.nullable()).toBe(false);
+    expect(col.type.id).toBe(TypeId.INT32);
+    expect(col.length).toBe(length);
+    expect(col.nullCount).toBe(0);
+    expect(col.hasNulls).toBe(false);
+    expect(col.nullable).toBe(false);
 });
-
 
 test('Column initialization with null_mask', () => {
-    const buffer_size = 100;
-    const db = new DeviceBuffer(buffer_size,10);
-    const null_mask = new DeviceBuffer(buffer_size,10);
-    const col = new Column(types.BOOL8, 10, db, null_mask);
+    const length = 100;
+    const col = new Column({
+        type: TypeId.BOOL8,
+        data: new Uint8Buffer(length),
+        nullMask: new Uint8Buffer(64),
+    });
 
-    expect(col.type()).toBe(types.BOOL8);
-    expect(col.size()).toBe(buffer_size);
-    expect(col.nullCount()).toBe(100);
-    expect(col.hasNulls()).toBe(true);
-    expect(col.nullable()).toBe(true);
+    expect(col.type.id).toBe(TypeId.BOOL8);
+    expect(col.length).toBe(length);
+    expect(col.nullCount).toBe(100);
+    expect(col.hasNulls).toBe(true);
+    expect(col.nullable).toBe(true);
 });
-
 
 test('Column null_mask, null_count', () => {
-    const buffer_size = 100;
-    const db = new DeviceBuffer(buffer_size,10);
-    const null_mask = new DeviceBuffer(buffer_size,10);
-    const col = new Column(types.FLOAT32, 10, db, null_mask, 1);
+    const length = 32;
+    const col = new Column({
+        type: TypeId.FLOAT32,
+        data: new Float32Buffer(length),
+        nullMask: new Uint8Buffer([254, 255, 255, 255])
+    });
 
-    expect(col.type()).toBe(types.FLOAT32);
-    expect(col.size()).toBe(buffer_size);
-    expect(col.nullCount()).toBe(1);
-    expect(col.hasNulls()).toBe(true);
-    expect(col.nullable()).toBe(true);
+    expect(col.type.id).toBe(TypeId.FLOAT32);
+    expect(col.length).toBe(length);
+    expect(col.nullCount).toBe(1);
+    expect(col.hasNulls).toBe(true);
+    expect(col.nullable).toBe(true);
 });
-
 
 test('test child(child_index), num_children', () => {
-    const buffer_size = 100;
-    const db = new DeviceBuffer(buffer_size,10);
-    const db1 = new DeviceBuffer(buffer_size*2,10);
-    const null_mask = new DeviceBuffer(buffer_size,10);
-    const col = new Column(types.FLOAT32, 10, db, null_mask, 1);
+    const utf8Col = new Column({ type: TypeId.UINT8, data: new Uint8Buffer(Buffer.from("hello")) });
+    const offsetsCol = new Column({ type: TypeId.INT32, data: new Int32Buffer([0, utf8Col.length]) });
+    const stringsCol = new Column({
+        type: TypeId.STRING,
+        length: 1,
+        nullMask: new Uint8Buffer([255]),
+        children: [offsetsCol, utf8Col],
+    });
 
-    const col1 = new Column(types.FLOAT64, 10, db1, null_mask, 20, [col]);
-
-    expect(col1.type()).toBe(types.FLOAT64);
-    expect(col1.numChildren()).toBe(1);
-    expect(col1.child(0).size()).toBe(col.size());
-    expect(col1.child(0).type()).toBe(col.type());
+    expect(stringsCol.type.id).toBe(TypeId.STRING);
+    expect(stringsCol.numChildren).toBe(2);
+    expect(stringsCol[0]).toBe("hello");
+    expect(stringsCol.getChild(0).length).toBe(offsetsCol.length);
+    expect(stringsCol.getChild(0).type.id).toBe(offsetsCol.type.id);
+    expect(stringsCol.getChild(1).length).toBe(utf8Col.length);
+    expect(stringsCol.getChild(1).type.id).toBe(utf8Col.type.id);
 });
 
+// test('test Column(column) constructor', () => {
+//     const buffer_size = 100;
+//     const db = new DeviceBuffer(buffer_size,10);
 
-test('test Column(column) constructor', () => {
-    const buffer_size = 100;
-    const db = new DeviceBuffer(buffer_size,10);
+//     const null_mask = new DeviceBuffer(buffer_size,10);
+//     const col = new Column(types.FLOAT32, 10, db, null_mask, 1);
+//     const col1 = new Column(col);
 
-    const null_mask = new DeviceBuffer(buffer_size,10);
-    const col = new Column(types.FLOAT32, 10, db, null_mask, 1);
-    const col1 = new Column(col);
-
-    expect(col1.type()).toBe(types.FLOAT32);
-    expect(col1.size()).toBe(buffer_size);
-    expect(col1.nullCount()).toBe(1);
-    expect(col1.hasNulls()).toBe(true);
-    expect(col1.nullable()).toBe(true);
-});
+//     expect(col1.type.id).toBe(TypeId.FLOAT32);
+//     expect(col1.length).toBe(buffer_size);
+//     expect(col1.nullCount).toBe(1);
+//     expect(col1.hasNulls).toBe(true);
+//     expect(col1.nullable).toBe(true);
+// });

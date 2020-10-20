@@ -14,12 +14,15 @@
 
 #pragma once
 
-#include <cudf/types.hpp>
-#include <cudf/wrappers/durations.hpp>
-#include <cudf/wrappers/timestamps.hpp>
 #include <nv_node/utilities/cpp_to_napi.hpp>
 
 #include <napi.h>
+#include <cudf/scalar/scalar.hpp>
+#include <cudf/types.hpp>
+#include <cudf/utilities/traits.hpp>
+#include <cudf/utilities/type_dispatcher.hpp>
+#include <cudf/wrappers/durations.hpp>
+#include <cudf/wrappers/timestamps.hpp>
 
 namespace nv {
 
@@ -76,6 +79,65 @@ inline Napi::Value CPPToNapi::operator()(cudf::timestamp_us const& val) const {
 template <>
 inline Napi::Value CPPToNapi::operator()(cudf::timestamp_ns const& val) const {
   return (*this)(val.time_since_epoch());
+}
+
+namespace detail {
+
+struct get_scalar_value {
+  Napi::Env env;
+  template <typename T>
+  inline std::enable_if_t<cudf::is_numeric<T>(), Napi::Value> operator()(
+    std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
+    return scalar->is_valid(stream)
+             ? CPPToNapi(env)(static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
+             : env.Null();
+  }
+  template <typename T>
+  inline std::enable_if_t<std::is_same<T, cudf::string_view>::value, Napi::Value> operator()(
+    std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
+    return scalar->is_valid(stream)
+             ? CPPToNapi(env)(static_cast<cudf::string_scalar*>(scalar.get())->to_string(stream))
+             : env.Null();
+  }
+  template <typename T>
+  inline std::enable_if_t<cudf::is_duration<T>(), Napi::Value> operator()(
+    std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
+    return scalar->is_valid(stream)
+             ? CPPToNapi(env)(static_cast<cudf::duration_scalar<T>*>(scalar.get())->value(stream))
+             : env.Null();
+  }
+  template <typename T>
+  inline std::enable_if_t<cudf::is_timestamp<T>(), Napi::Value> operator()(
+    std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
+    return scalar->is_valid(stream)
+             ? CPPToNapi(env)(static_cast<cudf::timestamp_scalar<T>*>(scalar.get())->value(stream))
+             : env.Null();
+  }
+  template <typename T>
+  inline std::enable_if_t<cudf::is_fixed_point<T>(), Napi::Value> operator()(
+    std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
+    return scalar->is_valid(stream)
+             ? CPPToNapi(env)(
+                 static_cast<cudf::fixed_point_scalar<T>*>(scalar.get())->value(stream))
+             : env.Null();
+  }
+  template <typename T>
+  inline std::enable_if_t<!(cudf::is_numeric<T>() ||                      //
+                            std::is_same<T, cudf::string_view>::value ||  //
+                            cudf::is_duration<T>() ||                     //
+                            cudf::is_timestamp<T>() ||                    //
+                            cudf::is_fixed_point<T>()),
+                          Napi::Value>
+  operator()(std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
+    NAPI_THROW(Napi::Error::New(env, "Unsupported dtype"));
+  }
+};
+
+}  // namespace detail
+
+template <>
+inline Napi::Value CPPToNapi::operator()(std::unique_ptr<cudf::scalar> const& scalar) const {
+  return cudf::type_dispatcher(scalar->type(), detail::get_scalar_value{env}, scalar);
 }
 
 }  // namespace nv

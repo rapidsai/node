@@ -95,4 +95,4 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       cuda cudart rmm
-                      "${NVIDIA_RMM_MODULE_PATH}/build/Release/node_rmm.node")
+                      "${NVIDIA_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node")

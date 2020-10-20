@@ -73,7 +73,7 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
    * @param other The scalar to move.
    */
   Scalar& operator=(std::unique_ptr<cudf::scalar>&& other) {
-    scalar_.reset(std::move(other.get()));
+    scalar_ = std::move(other);
     return *this;
   }
 
@@ -103,7 +103,7 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
 
   operator Napi::Value() const;
 
-  Napi::Value get_value();
+  Napi::Value get_value() const;
   void set_value(Napi::CallbackInfo const& info, Napi::Value const& value);
 
  private:

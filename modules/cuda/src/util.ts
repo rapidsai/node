@@ -63,26 +63,6 @@ export const isIteratorResult = <T = any>(x: any): x is IteratorResult<T> => {
     return isObject(x) && ('done' in x) && ('value' in x);
 };
 
-export function cachedLookup<TResult>(field: string, getValue: (_: any) => TResult) {
-    const _prop = `_${field}`;
-    return function(this: any): TResult {
-        if (typeof this[_prop] === 'undefined') {
-            this[_prop] = getValue(this.id);
-        }
-        return this[_prop];
-    }
-}
-
-export function cachedEnumLookup<TResult>(field: string, attr: any, getValue: (_: any, attr: any) => TResult) {
-    const _prop = `_${field}`;
-    return function(this: any): TResult {
-        if (typeof this[_prop] === 'undefined') {
-            this[_prop] = getValue(this.id, attr);
-        }
-        return this[_prop];
-    }
-}
-
 export function clampSliceArgs(len: number, lhs = 0, rhs = len): [number, number] {
     // Adjust args similar to Array.prototype.slice. Normalize begin/end to
     // clamp between 0 and length, and wrap around on negative indices, e.g.

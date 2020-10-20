@@ -126,20 +126,14 @@ class Column : public Napi::ObjectWrap<Column> {
   cudf::size_type size() const noexcept { return size_; }
 
   /**
-   * @brief Sets the column's null value indicator bitmask to `new_null_mask`.
-   *
-   * @throw cudf::logic_error if new_null_count is larger than 0 and the size
-   * of `new_null_mask` does not match the size of this column.
-   *
-   * @param new_null_mask New null value indicator bitmask (rvalue overload &
-   * moved) to set the column's null value indicator mask. May be empty if
-   * `new_null_count` is 0 or `UNKOWN_NULL_COUNT`.
-   * @param new_null_count Optional, the count of null elements. If unknown,
-   * specify `UNKNOWN_NULL_COUNT` to indicate that the null count should be
-   * computed on the first invocation of `null_count()`.
+   * @brief Return a const reference to the data buffer
    */
-  void set_null_mask(rmm::device_buffer&& new_null_mask,
-                     cudf::size_type new_null_count = cudf::UNKNOWN_NULL_COUNT);
+  DeviceBuffer const& data() const { return *DeviceBuffer::Unwrap(data_.Value()); }
+
+  /**
+   * @brief Return a const reference to the null bitmask buffer
+   */
+  DeviceBuffer const& null_mask() const { return *DeviceBuffer::Unwrap(null_mask_.Value()); }
 
   /**
    * @brief Sets the column's null value indicator bitmask to `new_null_mask`.
@@ -154,7 +148,7 @@ class Column : public Napi::ObjectWrap<Column> {
    * specify `UNKNOWN_NULL_COUNT` to indicate that the null count should be
    * computed on the first invocation of `null_count()`.
    */
-  void set_null_mask(rmm::device_buffer const& new_null_mask,
+  void set_null_mask(Napi::Value const& new_null_mask,
                      cudf::size_type new_null_count = cudf::UNKNOWN_NULL_COUNT);
 
   /**
@@ -258,16 +252,25 @@ class Column : public Napi::ObjectWrap<Column> {
 
   Napi::Value type(Napi::CallbackInfo const& info);
   Napi::Value size(Napi::CallbackInfo const& info);
+  Napi::Value data(Napi::CallbackInfo const& info);
+  Napi::Value null_mask(Napi::CallbackInfo const& info);
+  Napi::Value has_nulls(Napi::CallbackInfo const& info);
   Napi::Value null_count(Napi::CallbackInfo const& info);
+  Napi::Value is_nullable(Napi::CallbackInfo const& info);
+  Napi::Value num_children(Napi::CallbackInfo const& info);
 
-  Napi::Value get_element(Napi::CallbackInfo const& info);
-  // Napi::Value set_element(Napi::CallbackInfo const& info);
+  Napi::Value get_child(Napi::CallbackInfo const& info);
+  // Napi::Value set_child(Napi::CallbackInfo const& info);
+
+  Napi::Value get_value(Napi::CallbackInfo const& info);
+  // Napi::Value set_value(Napi::CallbackInfo const& info);
+
+  Napi::Value set_null_mask(Napi::CallbackInfo const& info);
+  Napi::Value set_null_count(Napi::CallbackInfo const& info);
 
   // Napi::Value hasNulls(Napi::CallbackInfo const& info);
   // Napi::Value setNullCount(Napi::CallbackInfo const& info);
   // Napi::Value nullCount(Napi::CallbackInfo const& info);
-  // Napi::Value nullable(Napi::CallbackInfo const& info);
-  // Napi::Value setNullMask(Napi::CallbackInfo const& info);
   // Napi::Value child(Napi::CallbackInfo const& info);
   // Napi::Value numChildren(Napi::CallbackInfo const& info);
 };
