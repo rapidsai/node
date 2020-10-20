@@ -62,8 +62,6 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   InstanceMethod("getValue", &Column::get_value),
                   InstanceMethod("setNullMask", &Column::set_null_mask),
                   InstanceMethod("setNullCount", &Column::set_null_count),
-                  // InstanceMethod("setValue", &Column::set_element),
-                  // InstanceMethod("child", &Column::child),
                 });
 
   Column::constructor = Napi::Persistent(ctor);
@@ -138,43 +136,6 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
   }();
 
   Initialize(data.Value(), length, DataType::New(type.id()), mask, offset, null_count, children);
-
-  // auto get_or_create_device_buffer = [&](auto const& arg, auto const device_buffer_size) {
-  //   if (arg.IsMemoryLike()) {
-  //     Napi::Value val = arg;
-  //     if (arg.IsMemoryViewLike()) { val = val.ToObject().Get("buffer"); }
-  //     // If the unwrapped buffer is a DeviceBuffer, return it
-  //     if (DeviceBuffer::is_instance(val)) { return val.As<Napi::Object>(); }
-  //     // If arg isn't a DeviceBuffer, copy the input data into a new DeviceBuffer
-  //     return DeviceBuffer::New(arg.operator char*(), device_buffer_size);
-  //   }
-  //   // Otherwise if not the right kind or enough arguments, construct a new DeviceBuffer
-  //   return DeviceBuffer::New(nullptr, device_buffer_size);
-  // };
-
-  // Napi::Object data          = get_or_create_device_buffer(args[0], 0);
-  // cudf::size_type size       = args.Length() > 1 ? args[1] : DeviceBuffer::Unwrap(data)->size();
-  // cudf::type_id id           = args.Length() > 2 ? args[2]
-  //                              : size > 0        ? cudf::type_id::UINT8
-  //                                                : cudf::type_id::EMPTY;
-  // Napi::Object mask          = get_or_create_device_buffer(args[3], 0);
-  // cudf::size_type null_count = args.Length() > 4 ? args[4] : cudf::UNKNOWN_NULL_COUNT;
-  // cudf::size_type offset     = args.Length() > 5 ? args[5] : 0;
-  // Napi::Array children = args.Length() > 6 ? args[6].As<Napi::Array>() : Napi::Array::New(Env(),
-  // 0);
-
-  // auto data_size = size * cudf::size_of(cudf::data_type{id});
-  // auto mask_size = cudf::bitmask_allocation_size_bytes(size);
-
-  // if (data_size > DeviceBuffer::Unwrap(data)->size()) {  //
-  //   data = get_or_create_device_buffer(args[0], data_size);
-  // }
-
-  // if (mask_size > DeviceBuffer::Unwrap(mask)->size() and null_count != 0) {
-  //   mask = get_or_create_device_buffer(args[3], mask_size);
-  // }
-
-  // Initialize(data, size, DataType::New(type), mask, offset, null_count, children);
 }
 
 void Column::Initialize(Napi::Object const& data,
@@ -358,45 +319,6 @@ Napi::Value Column::get_value(Napi::CallbackInfo const& info) {
 //   auto& scalar          = *Scalar::Unwrap(scalar_.Value());
 //   cudf::size_type index = args[0];
 //   scalar.set_value(info, info[1]);
-// }
-
-// Napi::Value Column::setNullCount(Napi::CallbackInfo const& info) {
-//   CallbackArgs args{info};
-//   size_t new_null_count = args[0];
-//   column().set_null_count(new_null_count);
-//   return info.Env().Undefined();
-// }
-
-// Napi::Value Column::setNullMask(Napi::CallbackInfo const& info) {
-//   CallbackArgs args{info};
-
-//   Span<char> new_null_mask = args[0];
-//   if (args.Length() == 1) {
-//     column().set_null_mask(static_cast<rmm::device_buffer>(new_null_mask));
-//   } else {
-//     size_t new_null_count = args[1];
-//     column().set_null_mask(static_cast<rmm::device_buffer>(new_null_mask), new_null_count);
-//   }
-//   return info.Env().Undefined();
-// }
-
-// Napi::Value Column::child(Napi::CallbackInfo const& info) {
-//   CallbackArgs args{info};
-
-//   if (args.Length() == 1 && info[0].IsNumber()) {
-//     if (static_cast<int32_t>(args[0]) < static_cast<int32_t>(column().num_children())) {
-//       auto buf = Column::constructor.New({});
-//       Column::Unwrap(buf)->column_.reset(&column().child(args[0]));
-//       return buf;
-//     } else {
-//       throw Napi::Error::New(info.Env(), "index out of range");
-//     }
-//   }
-//   throw Napi::Error::New(info.Env(), "invalid index type");
-// }
-
-// Napi::Value Column::numChildren(Napi::CallbackInfo const& info) {
-//   return CPPToNapi(info)(column().num_children());
 // }
 
 }  // namespace nv
