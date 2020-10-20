@@ -55,3 +55,5 @@ find_path(CUDA_INCLUDE_DIRS NAMES cuda.h cuda_runtime.h device_functions.h # CUD
     PATH_SUFFIXES include NO_DEFAULT_PATH
     HINTS "/usr/local/cuda-${CUDA_VERSION}/include"
           "/usr/local/cuda-${CUDA_VERSION}/targets/x86_64-linux/include")
+
+string(APPEND CMAKE_CUDA_FLAGS " --expt-extended-lambda --expt-relaxed-constexpr")

@@ -12,5 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './column';
-export * from './types';
+import '@nvidia/rmm';
+
+export const CUDF = (() => {
+    let CUDF: any, types = ['Release'];
+    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
+        types.push('Debug');
+    }
+    for (let type; type = types.pop();) {
+        try {
+            if (CUDF = require(`../${type}/node_cudf.node`)) {
+                break;
+            }
+        } catch (e) { console.error(e); continue; }
+    }
+    if (CUDF) return CUDF.init();
+    throw new Error('node_cudf not found');
+})();
+
+export default CUDF;

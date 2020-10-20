@@ -10,7 +10,7 @@
     "main": "index.js",
     "scripts": {
       "clean": "npx rimraf build compile_commands.json",
-      "test": "jest --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",
+      "test": "jest --runInBand --detectOpenHandles --verbose --no-cache -c jest.config.js test/*",
       "build": "npm run cpp:build && npm run tsc:build",
       "compile": "npm run cpp:compile && npm run tsc:build",
       "rebuild": "npm run cpp:rebuild && npm run tsc:build",
@@ -21,7 +21,9 @@
       "tsc:watch": "npx rimraf build/js && tsc -p ./tsconfig.json -w"
     },
     "dependencies": {
+      "@nvidia/cuda": "0.0.1",
       "@nvidia/rapids-core": "0.0.1",
+      "@nvidia/rmm": "0.0.1",
       "@types/node": "^14.0.0",
       "node-addon-api": "^2.0.0",
       "tslib": "^1.12.0"
@@ -46,4 +48,3 @@
       "CMakeLists.txt"
     ]
   }
-  

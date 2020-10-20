@@ -14,15 +14,14 @@
 # limitations under the License.
 #=============================================================================
 
+# ConfigureSimt.cmake
 include(get_cpm)
-
-CPMAddPackage(NAME cudf
-    VERSION        ${CUDF_VERSION}
-    GIT_REPOSITORY https://github.com/rapidsai/cudf.git
-    GIT_TAG        branch-${CUDF_VERSION}
-    DONWLOAD_ONLY 
+CPMAddPackage(NAME libcudacxx
+    VERSION        0.0.1
+    GIT_REPOSITORY https://github.com/rapidsai/thirdparty-freestanding.git
+    GIT_TAG        cudf
+    GIT_SHALLOW    FALSE
+    DOWNLOAD_ONLY
 )
-
-message(STATUS "cudf source dir: " ${cudf_SOURCE_DIR})
-
-set(cudf_INCLUDE_DIR "${cudf_SOURCE_DIR}/include")
+message(STATUS "libcudacxx source dir: " ${libcudacxx_SOURCE_DIR})
+set(LIBCUDACXX_INCLUDE_DIR "${libcudacxx_SOURCE_DIR}/include")

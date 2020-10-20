@@ -7,4 +7,8 @@ npx lerna run build --scope="@nvidia/cudf" --stream
 
 npx lerna run rebuild --scope="@nvidia/cudf" --stream
 
+
+# To run unit tests
+
+npx lerna run test --scope="@nvidia/cudf"
 ```

@@ -20,7 +20,7 @@
 
 #ifndef EXPORT_ENUM
 #define EXPORT_ENUM(env, exports, name, val) \
-  EXPORT_PROP(exports, name, Napi::Number::New(env, val));
+  EXPORT_PROP(exports, name, Napi::Number::New(env, static_cast<int64_t>(val)));
 #endif
 
 #ifndef EXPORT_FUNC
