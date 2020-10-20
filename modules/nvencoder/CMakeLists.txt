@@ -91,6 +91,6 @@ target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       ${GLEW_LIBRARY}
                       ${NVENCODEAPI_LIB}
-                      cuda cudart nppicc nppig
+                      cuda cudart_static nppicc nppig
                       OpenGL::EGL
                       OpenGL::OpenGL)
