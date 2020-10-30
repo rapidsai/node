@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "array.hpp"
-#include "node_cuda/macros.hpp"
+#include "node_cuda/array.hpp"
 #include "node_cuda/utilities/cpp_to_napi.hpp"
 #include "node_cuda/utilities/napi_to_cpp.hpp"
 

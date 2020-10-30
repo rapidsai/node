@@ -39,6 +39,12 @@ execute_process(COMMAND node -p
                 OUTPUT_VARIABLE NVIDIA_RMM_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process(COMMAND node -p
+                "require('path').dirname(require.resolve('@nvidia/cuda'))"
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                OUTPUT_VARIABLE NVIDIA_CUDA_MODULE_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NVIDIA_CMAKE_MODULES_PATH}")
 
 include(ConfigureCXX)
@@ -47,7 +53,6 @@ include(ConfigureNapi)
 include(ConfigureCUDA)
 include(ConfigureCUDF)
 include(ConfgureSIMT)
-
 
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
@@ -59,6 +64,7 @@ include_directories(
     "${spdlog_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${libcudacxx_SOURCE_DIR}/include"
+    "${NVIDIA_CUDA_MODULE_PATH}/src"
     "${NVIDIA_RMM_MODULE_PATH}/src"
     "${cudf_SOURCE_DIR}/cpp/include"
 )
@@ -71,11 +77,16 @@ file(GLOB_RECURSE NODE_CUDF_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 if(cudf_ADDED)
     list(
         APPEND NODE_CUDF_SRC_FILES
+        "${cudf_SOURCE_DIR}/cpp/src/bitmask/null_mask.cu"
+        "${cudf_SOURCE_DIR}/cpp/src/copying/get_element.cu"
+        "${cudf_SOURCE_DIR}/cpp/src/column/column.cu"
+        "${cudf_SOURCE_DIR}/cpp/src/column/column_view.cpp"
+        "${cudf_SOURCE_DIR}/cpp/src/column/column_factories.cpp"
+        "${cudf_SOURCE_DIR}/cpp/src/column/column_device_view.cu"
+        "${cudf_SOURCE_DIR}/cpp/src/scalar/scalar.cpp"
+        "${cudf_SOURCE_DIR}/cpp/src/scalar/scalar_factories.cpp"
         "${cudf_SOURCE_DIR}/cpp/src/table/table.cpp"
         "${cudf_SOURCE_DIR}/cpp/src/table/table_view.cpp"
-        "${cudf_SOURCE_DIR}/cpp/src/column/column_view.cpp"
-        "${cudf_SOURCE_DIR}/cpp/src/column/column.cu"
-        "${cudf_SOURCE_DIR}/cpp/src/bitmask/null_mask.cu"
     )
 endif()
 
@@ -83,4 +94,5 @@ add_library(${PROJECT_NAME} SHARED ${NODE_CUDF_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
-                      cuda cudart rmm)
+                      cuda cudart_static rmm
+                      "${NVIDIA_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node")

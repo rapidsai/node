@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import '@nvidia/rmm';
+
 export const CUDF = (() => {
     let CUDF: any, types = ['Release'];
     if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {

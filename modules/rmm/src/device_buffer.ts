@@ -35,11 +35,12 @@ interface RMMDeviceBufferConstructor {
     new(sourceOrByteLength?: DeviceBufferInput | number, stream?: number, mr?: CudaMemoryResource): RMMDeviceBuffer;
 }
 
-interface RMMDeviceBuffer {
+interface RMMDeviceBuffer extends ArrayBuffer {
     readonly byteLength: number;
     readonly capacity: number;
     readonly isEmpty: boolean;
     readonly ptr: number;
+    readonly device: number;
     readonly stream: number;
 
     /**

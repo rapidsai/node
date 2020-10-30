@@ -2,7 +2,7 @@ import Url from 'url';
 import * as zmq from 'zeromq';
 import { Deck, OrthographicView, COORDINATE_SYSTEM, log as deckLog } from '@deck.gl/core';
 import ArrowGraphLayer from './layers/arrow-graph-layer';
-import { CUDAMemory, CUDA } from '@nvidia/cuda';
+import { IpcMemory, Uint8Buffer } from '@nvidia/cuda';
 
 let numNodes = 0;
 let numEdges = 0;
@@ -107,13 +107,13 @@ async function localRenderLoop() {
 
 async function remoteRenderLoop() {
     const mapToObject = (m) => [...m.entries()].reduce((xs, [k, v]) => ({...xs, [k]: v}), {});
-    const loadIpcHandle = (handle) => new CUDAMemory(CUDA.ipc.openMemHandle(Buffer.from(handle)));
+    const loadIpcHandle = (handle) => new Uint8Buffer(new IpcMemory(handle));
     const loadIpcHandles = (handles, names) => handles.filter(Boolean)
         .filter(({name, data}) => (data || []).length > 0 && ~names.indexOf(name))
         // .filter(({name, data}) => (data || []).length > 0)
         .reduce((xs, {name, data}) => xs.set(name, loadIpcHandle(data)), new Map());
 
-    const closeMemHandle = ({buffer}) => { try { CUDA.ipc.closeMemHandle(buffer); } catch (e) {} };
+    const closeMemHandle = ({buffer}) => { try { buffer.close(); } catch (e) {} };
 
     const ipchs = new zmq.Pull();
     const ready = new zmq.Request();

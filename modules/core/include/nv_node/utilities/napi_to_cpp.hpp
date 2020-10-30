@@ -28,13 +28,14 @@
 namespace nv {
 
 struct NapiToCPP {
-  Napi::Value const val;
+  Napi::Value val;
   inline NapiToCPP(const Napi::Value& val) : val(val) {}
 
   inline std::ostream& operator<<(std::ostream& os) const {
     return os << val.ToString().operator std::string();
   }
 
+  inline Napi::Env Env() const { return val.Env(); }
   inline bool IsEmpty() const { return val.IsEmpty(); }
   inline bool IsUndefined() const { return val.IsUndefined(); }
   inline bool IsNull() const { return val.IsNull(); }
@@ -53,6 +54,36 @@ struct NapiToCPP {
   inline bool IsDataView() const { return val.IsDataView(); }
   inline bool IsBuffer() const { return val.IsBuffer(); }
   inline bool IsExternal() const { return val.IsExternal(); }
+
+  inline bool IsMemoryViewLike() const {
+    if (IsTypedArray() || IsDataView() || IsBuffer()) { return true; }
+    if (val.IsObject() and not val.IsNull() and val.As<Napi::Object>().Has("buffer")) {
+      return NapiToCPP(val.As<Napi::Object>().Get("buffer")).IsMemoryLike();
+    }
+    return false;
+  }
+
+  inline bool IsMemoryLike() const {
+    if (IsArrayBuffer() || IsTypedArray() || IsDataView() || IsBuffer()) { return true; }
+    if (val.IsObject() and not val.IsNull()) {
+      auto obj = val.As<Napi::Object>();
+      if (obj.Has("buffer")) {  //
+        return NapiToCPP(obj.Get("buffer")).IsMemoryLike();
+      }
+      return obj.Has("ptr") and obj.Get("ptr").IsNumber();
+    }
+    return false;
+  }
+
+  inline Napi::Boolean ToBoolean() const { return val.ToBoolean(); }
+  inline Napi::Number ToNumber() const { return val.ToNumber(); }
+  inline Napi::String ToString() const { return val.ToString(); }
+  inline Napi::Object ToObject() const { return val.ToObject(); }
+
+  template <typename T>
+  T As() const {
+    return val.As<T>();
+  }
 
   template <typename T>
   operator T() const;

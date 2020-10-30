@@ -77,4 +77,4 @@ add_library(${PROJECT_NAME} SHARED ${NODE_CUGRAPH_SRC_FILES} ${CMAKE_JS_SRC}
             "${cugraph_SOURCE_DIR}/cpp/src/experimental/graph_view.cu")
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 target_link_libraries(${PROJECT_NAME}
-                      ${CMAKE_JS_LIB} cuda cudart nvrtc rmm)
+                      ${CMAKE_JS_LIB} cuda cudart_static nvrtc rmm)

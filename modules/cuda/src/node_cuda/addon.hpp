@@ -20,17 +20,9 @@
 
 namespace nv {
 
-namespace device {
-Napi::Object initModule(Napi::Env env, Napi::Object exports);
-}  // namespace device
-
 namespace gl {
 Napi::Object initModule(Napi::Env env, Napi::Object exports);
 }  // namespace gl
-
-namespace ipc {
-Napi::Object initModule(Napi::Env env, Napi::Object exports);
-}  // namespace ipc
 
 namespace kernel {
 Napi::Object initModule(Napi::Env env, Napi::Object exports);
@@ -40,9 +32,12 @@ namespace math {
 Napi::Object initModule(Napi::Env env, Napi::Object exports);
 }  // namespace math
 
-namespace mem {
-Napi::Object initModule(Napi::Env env, Napi::Object exports);
-}  // namespace mem
+namespace memory {
+Napi::Object initModule(Napi::Env env,
+                        Napi::Object exports,
+                        Napi::Object driver,
+                        Napi::Object runtime);
+}  // namespace memory
 
 namespace program {
 Napi::Object initModule(Napi::Env env, Napi::Object exports);

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CUDABuffer } from './addon';
+import { Memory } from './memory';
 
 /** @ignore */
 export const isNumber = (x: any): x is number => typeof x === 'number';
@@ -42,7 +42,12 @@ export const isAsyncIterable = <T = any>(x: any): x is AsyncIterable<T> => {
 
 /** @ignore */
 export const isArrayLike = <T = any>(x: any): x is ArrayLike<T> => {
-    return isObject(x) && isNumber(x['length']);
+    return isObject(x) && isNumber(x.length);
+};
+
+/** @ignore */
+export const isMemoryLike = (x: any): x is Memory => {
+    return isObject(x) && isNumber(x.ptr) && isNumber(x.byteLength);
 };
 
 /** @ignore */
@@ -54,35 +59,17 @@ export const isArrayBuffer = (x: any): x is ArrayBuffer => {
 export const isArrayBufferView = ArrayBuffer.isView;
 
 /** @ignore */
-export const isCUDABuffer = (x: any): x is CUDABuffer => {
-    switch (x && x.constructor && x.constructor.name) {
-        case 'CUDABuffer': return true;
-        case 'DeviceBuffer': return true;
-        default: return false;
-    }
-};
-
-/** @ignore */
 export const isIteratorResult = <T = any>(x: any): x is IteratorResult<T> => {
     return isObject(x) && ('done' in x) && ('value' in x);
 };
 
-export function cachedLookup<TResult>(field: string, getValue: (_: any) => TResult) {
-    const _prop = `_${field}`;
-    return function(this: any): TResult {
-        if (typeof this[_prop] === 'undefined') {
-            this[_prop] = getValue(this.id);
-        }
-        return this[_prop];
-    }
-}
-
-export function cachedEnumLookup<TResult>(field: string, attr: any, getValue: (_: any, attr: any) => TResult) {
-    const _prop = `_${field}`;
-    return function(this: any): TResult {
-        if (typeof this[_prop] === 'undefined') {
-            this[_prop] = getValue(this.id, attr);
-        }
-        return this[_prop];
-    }
+export function clampSliceArgs(len: number, lhs = 0, rhs = len): [number, number] {
+    // Adjust args similar to Array.prototype.slice. Normalize begin/end to
+    // clamp between 0 and length, and wrap around on negative indices, e.g.
+    // slice(-1, 5) or slice(5, -1)
+    // wrap around on negative start/end positions
+    if (lhs < 0) { lhs = ((lhs % len) + len) % len; }
+    if (rhs < 0) { rhs = ((rhs % len) + len) % len; }
+    // enforce lhs <= rhs and rhs <= count
+    return rhs < lhs ? [rhs, lhs] : [lhs, rhs > len ? len : rhs];
 }

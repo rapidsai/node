@@ -5,7 +5,7 @@ test('CUDA-GL interop', () => {
     function testCUDAGLInterop() {
 
         const assert = require('assert');
-        const { CUDAMemory, CUDA } = require('@nvidia/cuda');
+        const { Uint8Buffer, CUDA } = require('@nvidia/cuda');
         const { Buffer: GLBuffer } = require('@luma.gl/core');
         const { WebGL2RenderingContext } = require('@nvidia/webgl');
 
@@ -17,7 +17,7 @@ test('CUDA-GL interop', () => {
 
         const hostBuf = Buffer.alloc(16).fill(7);
 
-        const cudaBuf = CUDAMemory.alloc(16).copyFrom(hostBuf).copyInto(hostResult1);
+        const cudaBuf = Uint8Buffer.alloc(16).copyFrom(hostBuf).copyInto(hostResult1);
 
         const lumaBuf = new GLBuffer(gl, { target: gl.ARRAY_BUFFER, accessor: {size: 1, type: gl.UNSIGNED_BYTE}});
 
@@ -26,7 +26,7 @@ test('CUDA-GL interop', () => {
         const cudaGLPtr = CUDA.gl.registerBuffer(lumaBuf.handle.ptr, 0);
         CUDA.gl.mapResources([cudaGLPtr]);
 
-        new CUDAMemory(CUDA.gl.getMappedPointer(cudaGLPtr))
+        new Uint8Buffer(CUDA.gl.getMappedPointer(cudaGLPtr))
             .copyFrom(hostBuf).copyInto(hostResult2);
 
         CUDA.gl.unmapResources([cudaGLPtr]);

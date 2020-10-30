@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "array.hpp"
-#include "buffer.hpp"
-#include "node_cuda/macros.hpp"
+#include "node_cuda/array.hpp"
+#include "node_cuda/memory.hpp"
 #include "node_cuda/utilities/cpp_to_napi.hpp"
 #include "node_cuda/utilities/napi_to_cpp.hpp"
 
@@ -22,6 +21,7 @@
 #include <cuda.h>
 #include <cudaGL.h>
 #include <cuda_gl_interop.h>
+#include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
 
 namespace nv {
@@ -33,11 +33,11 @@ Napi::Value cudaGLGetDevices(CallbackArgs const& info) {
   uint32_t cu_GL_device_list = info[0];
   uint32_t device_count{};
   std::vector<int> devices{};
-  CUDA_TRY(env,
-           CUDARTAPI::cudaGLGetDevices(&device_count,
-                                       devices.data(),
-                                       devices.capacity(),
-                                       static_cast<cudaGLDeviceList>(cu_GL_device_list)));
+  NODE_CUDA_TRY(CUDARTAPI::cudaGLGetDevices(&device_count,
+                                            devices.data(),
+                                            devices.capacity(),
+                                            static_cast<cudaGLDeviceList>(cu_GL_device_list)),
+                env);
   return CPPToNapi(info)(devices);
 }
 
@@ -48,7 +48,7 @@ Napi::Value cudaGraphicsGLRegisterBuffer(CallbackArgs const& info) {
   GLuint buffer  = info[0];
   uint32_t flags = info[1];
   cudaGraphicsResource_t resource;
-  CUDA_TRY(env, CUDARTAPI::cudaGraphicsGLRegisterBuffer(&resource, buffer, flags));
+  NODE_CUDA_TRY(CUDARTAPI::cudaGraphicsGLRegisterBuffer(&resource, buffer, flags), env);
   return CPPToNapi(info)(resource);
 }
 
@@ -60,7 +60,7 @@ Napi::Value cudaGraphicsGLRegisterImage(CallbackArgs const& info) {
   GLenum target  = info[1];
   uint32_t flags = info[2];
   cudaGraphicsResource_t resource;
-  CUDA_TRY(env, CUDARTAPI::cudaGraphicsGLRegisterImage(&resource, image, target, flags));
+  NODE_CUDA_TRY(CUDARTAPI::cudaGraphicsGLRegisterImage(&resource, image, target, flags), env);
   return CPPToNapi(info)(resource);
 }
 
@@ -68,7 +68,7 @@ Napi::Value cudaGraphicsGLRegisterImage(CallbackArgs const& info) {
 Napi::Value cudaGraphicsUnregisterResource(CallbackArgs const& info) {
   auto env                        = info.Env();
   cudaGraphicsResource_t resource = info[0];
-  CUDA_TRY(env, CUDARTAPI::cudaGraphicsUnregisterResource(resource));
+  NODE_CUDA_TRY(CUDARTAPI::cudaGraphicsUnregisterResource(resource), env);
   return env.Undefined();
 }
 
@@ -78,7 +78,8 @@ Napi::Value cudaGraphicsMapResources(CallbackArgs const& info) {
   auto env                                      = info.Env();
   std::vector<cudaGraphicsResource_t> resources = info[0];
   cudaStream_t stream                           = info[1];
-  CUDA_TRY(env, CUDARTAPI::cudaGraphicsMapResources(resources.size(), resources.data(), stream));
+  NODE_CUDA_TRY(CUDARTAPI::cudaGraphicsMapResources(resources.size(), resources.data(), stream),
+                env);
   return env.Undefined();
 }
 
@@ -88,19 +89,15 @@ Napi::Value cudaGraphicsUnmapResources(CallbackArgs const& info) {
   auto env                                      = info.Env();
   std::vector<cudaGraphicsResource_t> resources = info[0];
   cudaStream_t stream                           = info[1];
-  CUDA_TRY(env, CUDARTAPI::cudaGraphicsUnmapResources(resources.size(), resources.data(), stream));
+  NODE_CUDA_TRY(CUDARTAPI::cudaGraphicsUnmapResources(resources.size(), resources.data(), stream),
+                env);
   return env.Undefined();
 }
 
 // cudaError_t CUDARTAPI cudaGraphicsResourceGetMappedPointer(void **devPtr, size_t *size,
 // cudaGraphicsResource_t resource)
 Napi::Value cudaGraphicsResourceGetMappedPointer(CallbackArgs const& info) {
-  auto env                        = info.Env();
-  cudaGraphicsResource_t resource = info[0];
-  void* data;
-  size_t size;
-  CUDA_TRY(env, CUDARTAPI::cudaGraphicsResourceGetMappedPointer(&data, &size, resource));
-  return CUDABuffer::New(data, size, buffer_type::GL);
+  return MappedGLMemory::New(info[0]);
 }
 
 // cudaError_t CUDARTAPI cudaGraphicsSubResourceGetMappedArray(cudaArray_t *array,
@@ -112,12 +109,12 @@ Napi::Value cudaGraphicsSubResourceGetMappedArray(CallbackArgs const& info) {
   uint32_t mipLevel               = info[2];
   cudaArray_t array;
   size_t size{};
-  CUDA_TRY(
-    env, CUDARTAPI::cudaGraphicsSubResourceGetMappedArray(&array, resource, arrayIndex, mipLevel));
+  NODE_CUDA_TRY(
+    CUDARTAPI::cudaGraphicsSubResourceGetMappedArray(&array, resource, arrayIndex, mipLevel), env);
   uint32_t flags{};
   cudaExtent extent{};
   cudaChannelFormatDesc desc{};
-  CUDA_TRY(env, CUDARTAPI::cudaArrayGetInfo(&desc, &extent, &flags, array));
+  NODE_CUDA_TRY(CUDARTAPI::cudaArrayGetInfo(&desc, &extent, &flags, array), env);
   return CUDAArray::New(array, extent, desc, flags, array_type::GL);
 }
 
