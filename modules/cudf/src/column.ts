@@ -30,7 +30,7 @@ interface ColumnConstructor {
     }): Column;
 }
 
-interface Column {
+export interface Column {
 
     [index: number]: any;
 
