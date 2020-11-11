@@ -31,6 +31,7 @@ interface CUDFTable {
     readonly numRows: number;
     columns: ReadonlyArray<string> | null;
     _data: ColumnAccessor;
+    _index: CUDFTable | null;
     
     getColumn(index: number): Column;
     _select(columns: ReadonlyArray<number> | ReadonlyArray<string> | null): CUDFTable;
@@ -43,24 +44,31 @@ export type ColumnDictionary = {
 };
 
 export class Table extends (<TableConstructor> CUDF.Table) {
-    constructor(columns_input: ColumnDictionary | ColumnAccessor | {}){
-        switch (arguments.length){
-            case 1: {
-                let column_accessor: ColumnAccessor;
-                if(columns_input instanceof ColumnAccessor){
-                    column_accessor = columns_input;
-                }else{
-                    column_accessor = new ColumnAccessor(new Map(Object.entries(columns_input)));
-                }
-                
-                let res: ReadonlyArray<Column> = column_accessor.columns();
-                super({columns: res});
-                this._data = column_accessor;
-                //column names array
-                this.columns = this._data.columns_as_array();
-                break;
+    constructor(props: {
+        data?: ColumnDictionary | ColumnAccessor | {},
+        index?: Table | null
+    })
+    {
+        let column_accessor: ColumnAccessor;
+        let res: ReadonlyArray<Column>;
+        if (props.data != undefined){
+            if(props.data instanceof ColumnAccessor){
+                column_accessor = props.data;
+            }else{
+                column_accessor = new ColumnAccessor(new Map(Object.entries(props.data)));
             }
-            default: super({});
+        }else{
+            column_accessor = new ColumnAccessor(new Map());
+        }
+
+        res = column_accessor.columns();
+        super({columns: res});
+        this._data = column_accessor;
+        //column names array
+        this.columns = this._data.columns_as_array();
+
+        if(props.index != undefined && props.index instanceof Table){
+            this._index = props.index;
         }
     }
 
@@ -70,7 +78,7 @@ export class Table extends (<TableConstructor> CUDF.Table) {
         });
         
         const column_accessor = this._data.select_by_index_list_like(column_indices);
-        return new Table(column_accessor);
+        return new Table({data:column_accessor});
         
     }
 
@@ -78,7 +86,7 @@ export class Table extends (<TableConstructor> CUDF.Table) {
         start = this.transform_input_label(start);
         end = this.transform_input_label(end);
         const column_accessor = this._data.select_by_index_slice(start as number, end as number);
-        return new Table(column_accessor);
+        return new Table({data:column_accessor});
     }
 
     transform_input_label(label: number | string): number{
