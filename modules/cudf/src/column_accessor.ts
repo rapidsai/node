@@ -54,7 +54,6 @@ export class ColumnAccessor implements ColumnAccessorInterface{
     };
 
     select_by_index_slice(start: number, end: number){
-        console.log(start, end);
         if(start >=0){
             return new ColumnAccessor(
                 new Map(
