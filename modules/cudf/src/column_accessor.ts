@@ -5,11 +5,17 @@ interface ColumnAccessorInterface {
 
     insert(name: string, value: Column): void;
     select_by_label(key:string): ColumnAccessor | undefined;
+    select_by_label_slice(key: Array<string>): ColumnAccessor | undefined;
+    select_by_label_list_like(key: Array<string>): ColumnAccessor | undefined;
+
     select_by_index(index: number): ColumnAccessor | undefined;
     select_by_index_slice(start: number, end: number): ColumnAccessor | undefined;
     select_by_index_list_like(index: Array<number>): ColumnAccessor | undefined;
     
     set_by_index(index: number, value: Column): void;
+    label_to_index(label: string): number;
+    index_to_label(index: number): string;
+    label_array_to_index_array(label: Array<string>): Array<number>;
 }
 
 export class ColumnAccessor implements ColumnAccessorInterface{
@@ -43,6 +49,22 @@ export class ColumnAccessor implements ColumnAccessorInterface{
             }
         }
         return undefined;
+    };
+
+    select_by_label_slice(key: Array<string>){
+        const start: number = this.label_to_index(key[0]);
+        const end: number = this.label_to_index(key[1]);
+
+        return this.select_by_index_slice(start, end);
+    };
+
+    select_by_label_list_like(key: Array<string>) {
+        let return_map = new Map(Array.from(this._data).filter(
+            (x, _) => {
+                return key.includes(x[0]);
+            }
+        ))
+        return new ColumnAccessor(return_map);
     };
 
     select_by_index(index: number){
