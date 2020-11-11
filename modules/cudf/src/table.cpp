@@ -54,7 +54,7 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
                 {
                   InstanceAccessor("numColumns", &Table::num_columns, nullptr, napi_enumerable),
                   InstanceAccessor("numRows", &Table::num_rows, nullptr, napi_enumerable),
-                  // InstanceMethod("select", &Table::select),
+                  // InstanceMethod("_select", &Table::select),
                   InstanceMethod("getColumn", &Table::get_column),
                 });
 
@@ -143,5 +143,13 @@ Napi::Value Table::get_column(Napi::CallbackInfo const& info) {
   return columns_.Value().Get(CallbackArgs{info}[0].operator cudf::size_type());
 }
 
+// Napi::Value Table::select(Napi::CallbackInfo const& info) {
+//   Napi::Array column_indices = CallbackArgs{info}[0].As<Napi::Array>();
+//   Napi::Array columns = Napi::Array::New(info.Env(), column_indices.Length());
+//   for (auto i = 0; i < column_indices.Length(); ++i) {
+//     columns.Set(uint32_t(i), columns_.Value().Get(column_indices.Get(i)));
+//   }
+//   return nv::Table::New(columns);
+// }
 
 }  // namespace nv
