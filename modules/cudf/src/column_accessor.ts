@@ -1,9 +1,13 @@
 import { Column } from "./column";
 
 interface ColumnAccessorInterface {
-    _data: ReadonlyMap<string, Column>
+    _data: ReadonlyMap<string, Column>;
 
     insertByColumnName(name: string, value: Column): void;
+    insertByColumnIndex(index: number, value: Column): void;
+    removeByColumnName(name: string): void;
+    removeByColumnIndex(index: number): void;
+
     selectByColumnName(key:string | undefined): ColumnAccessor | undefined;
     sliceByColumnLabels(start: string, end: string): ColumnAccessor | undefined;
     selectByColumnNames(key: Array<string>): ColumnAccessor | undefined;
@@ -12,7 +16,6 @@ interface ColumnAccessorInterface {
     sliceByColumnIndices(start: number, end: number): ColumnAccessor | undefined;
     selectByColumnIndices(index: Array<number>): ColumnAccessor | undefined;
     
-    setByColumnIndex(index: number, value: Column): void;
     columnNameToColumnIndex(label: string): number | undefined;
     columnIndexToColumnName(index: number): string | undefined;
     columnNamesToColumnIndices(label: Array<string>): Array<number>;
@@ -29,6 +32,22 @@ export class ColumnAccessor implements ColumnAccessorInterface{
         this.#_labels_array.forEach((val, index)=>
             this.#_labels_to_indices.set(val, index)
         );
+    }
+
+    private addData(name: string, value: Column){
+        this._data.set(name, value);
+        this.#_labels_array.push(name);
+        this.#_labels_to_indices.set(name, this.#_labels_array.indexOf(name));
+    }
+
+    private removeData(name: string){
+        if(this._data.has(name)){
+            this._data.delete(name);
+            this.#_labels_to_indices.delete(name);
+            this.#_labels_array  = this.#_labels_array.filter(
+                x => x !== name
+            );
+        }
     }
 
     constructor(data: Map<string, Column>){
@@ -48,8 +67,26 @@ export class ColumnAccessor implements ColumnAccessorInterface{
     }
 
     insertByColumnName(name: string, value: Column) {
-        this._data.set(name, value);
+        this.addData(name, value);
     }
+    
+    insertByColumnIndex(index: number, value: Column){
+        const label = this.columnIndexToColumnName(index);
+        if(label != undefined){
+            this.insertByColumnName(label, value)
+        }
+    };
+
+    removeByColumnName(name: string) {
+        this.removeData(name);
+    }
+
+    removeByColumnIndex(index: number){
+        const label = this.columnIndexToColumnName(index);
+        if(label != undefined){
+            this.removeByColumnName(label)
+        }
+    };
 
     selectByColumnName(key:string | undefined) {
         if(key != undefined && this._data.has(key)){
@@ -106,13 +143,6 @@ export class ColumnAccessor implements ColumnAccessorInterface{
             }
         ))
         return new ColumnAccessor(return_map);
-    };
-
-    setByColumnIndex(index: number, value: Column){
-        const label = this.columnIndexToColumnName(index);
-        if(label != undefined){
-            this.insertByColumnName(label, value)
-        }
     };
 
     columnNameToColumnIndex(label: string): number | undefined{
