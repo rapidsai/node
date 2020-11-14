@@ -14,18 +14,11 @@
 
 #pragma once
 
-#include "node_cudf/scalar.hpp"
-#include "node_cudf/types.hpp"
-
-#include <node_rmm/device_buffer.hpp>
 #include <nv_node/utilities/args.hpp>
 
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
-#include <cudf/types.hpp>
 
-#include <rmm/device_buffer.hpp>
-#include <rmm/mr/device/device_memory_resource.hpp>
 
 #include <napi.h>
 

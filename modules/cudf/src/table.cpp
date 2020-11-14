@@ -14,28 +14,10 @@
 
 #include "node_cudf/table.hpp"
 #include "node_cudf/column.hpp"
-#include "cudf/utilities/traits.hpp"
-#include "node_cudf/utilities/cpp_to_napi.hpp"
 #include "node_cudf/utilities/error.hpp"
 #include "node_cudf/utilities/napi_to_cpp.hpp"
-#include "nv_node/utilities/napi_to_cpp.hpp"
 
-#include <node_cuda/utilities/cpp_to_napi.hpp>
-#include <node_cuda/utilities/napi_to_cpp.hpp>
-
-#include <node_rmm/device_buffer.hpp>
-#include <node_rmm/utilities/napi_to_cpp.hpp>
-
-#include <nv_node/macros.hpp>
-#include <nv_node/utilities/args.hpp>
-
-#include <cudf/table/table.hpp>
 #include <cudf/column/column.hpp>
-#include <cudf/copying.hpp>
-#include <cudf/detail/nvtx/ranges.hpp>
-#include <cudf/types.hpp>
-
-#include <rmm/device_buffer.hpp>
 
 #include <napi.h>
 
@@ -72,7 +54,7 @@ Napi::Object Table::New(Napi::Array const& columns) {
 }
 
 Table::Table(CallbackArgs const& args) : Napi::ObjectWrap<Table>(args) {
-  NODE_CUDA_EXPECT(args.IsConstructCall(), "Table constructor requires 'new'");
+  NODE_CUDF_EXPECT(args.IsConstructCall(), "Table constructor requires 'new'");
 
   if (args.Length() != 1 || !args[0].IsObject()) { return; }
 
@@ -90,7 +72,7 @@ void Table::Initialize(Napi::Array const& columns) {
   if(num_columns_ > 0u){
     num_rows_ = nv::Column::Unwrap(columns.Get(0u).As<Napi::Object>())->size();
     for (auto i = 1; i < columns.Length(); ++i) {
-      NODE_CUDA_EXPECT(
+      NODE_CUDF_EXPECT(
         (nv::Column::Unwrap(columns.Get(i).As<Napi::Object>())->size() == num_rows_),
         "All Columns must be of same length"
       );
