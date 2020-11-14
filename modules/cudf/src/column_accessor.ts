@@ -4,9 +4,7 @@ interface ColumnAccessorInterface {
     _data: ReadonlyMap<string, Column>;
 
     insertByColumnName(name: string, value: Column): void;
-    insertByColumnIndex(index: number, value: Column): void;
     removeByColumnName(name: string): void;
-    removeByColumnIndex(index: number): void;
 
     selectByColumnName(key:string | undefined): ColumnAccessor | undefined;
     sliceByColumnLabels(start: string, end: string): ColumnAccessor | undefined;
@@ -70,23 +68,9 @@ export class ColumnAccessor implements ColumnAccessorInterface{
         this.addData(name, value);
     }
     
-    insertByColumnIndex(index: number, value: Column){
-        const label = this.columnIndexToColumnName(index);
-        if(label != undefined){
-            this.insertByColumnName(label, value)
-        }
-    };
-
     removeByColumnName(name: string) {
         this.removeData(name);
     }
-
-    removeByColumnIndex(index: number){
-        const label = this.columnIndexToColumnName(index);
-        if(label != undefined){
-            this.removeByColumnName(label)
-        }
-    };
 
     selectByColumnName(key:string | undefined) {
         if(key != undefined && this._data.has(key)){

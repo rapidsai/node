@@ -35,6 +35,9 @@ interface CUDFTable {
     getColumn(index: number): Column;
     select(columns: ReadonlyArray<number> | ReadonlyArray<string> | null): CUDFTable;
     slice(start: number | string, end: number | string): CUDFTable;
+    updateColumns(props:{
+        columns?: ReadonlyArray<Column> | null
+    }): void;
 }
 
 export class Table extends (<TableConstructor> CUDF.Table) {
@@ -47,8 +50,10 @@ export class Table extends (<TableConstructor> CUDF.Table) {
         }
         super({columns: props.data.columns});
         this._data = props.data;
-        //column names array
-        this.columns = this._data.names;
+    }
+
+    get columns(): ReadonlyArray<string> | null{
+        return this._data.names;
     }
 
     select(columns: Array<number> | Array<string>): CUDFTable{
@@ -68,6 +73,18 @@ export class Table extends (<TableConstructor> CUDF.Table) {
                 this.transformInputLabel(end)
             )
         });
+    }
+
+    addColumn(name: string, column: Column){
+        this._data.insertByColumnName(name, column);
+        super.updateColumns({columns:this._data.columns});
+    }
+
+    drop(props:{columns: Array<string>}){
+        props.columns.forEach((value, _)=> {
+            this._data.removeByColumnName(value);
+        })
+        super.updateColumns({columns:this._data.columns});
     }
 
     private transformInputLabel(label: number | string): number | undefined{

@@ -132,6 +132,7 @@ class Table : public Napi::ObjectWrap<Table> {
   Napi::Value num_rows(Napi::CallbackInfo const& info);
   Napi::Value select(Napi::CallbackInfo const& info);
   Napi::Value get_column(Napi::CallbackInfo const& info);
+  Napi::Value update_columns(Napi::CallbackInfo const& info);
 
 };
 
