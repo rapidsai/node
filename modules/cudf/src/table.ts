@@ -31,69 +31,50 @@ interface CUDFTable {
     readonly numRows: number;
     columns: ReadonlyArray<string> | null;
     _data: ColumnAccessor;
-    _index: CUDFTable | null;
     
     getColumn(index: number): Column;
-    _select(columns: ReadonlyArray<number> | ReadonlyArray<string> | null): CUDFTable;
-    select_cols_by_index_array(column_indices: Array<number>): CUDFTable;
-    select_cols_by_label_array(column_labels: Array<string>): CUDFTable
+    select(columns: ReadonlyArray<number> | ReadonlyArray<string> | null): CUDFTable;
+    slice(start: number | string, end: number | string): CUDFTable;
 }
-
-export type ColumnDictionary = {
-    string: Column
-};
 
 export class Table extends (<TableConstructor> CUDF.Table) {
     constructor(props: {
-        data?: ColumnDictionary | ColumnAccessor | {},
-        index?: Table | null
+        data?: ColumnAccessor,
     })
-    {
-        let column_accessor: ColumnAccessor;
-        let res: ReadonlyArray<Column>;
-        if (props.data != undefined){
-            if(props.data instanceof ColumnAccessor){
-                column_accessor = props.data;
-            }else{
-                column_accessor = new ColumnAccessor(new Map(Object.entries(props.data)));
-            }
-        }else{
-            column_accessor = new ColumnAccessor(new Map());
+    {   
+        if(!(props.data instanceof ColumnAccessor)){
+            props.data = new ColumnAccessor(new Map(Object.entries(typeof props.data === 'object' ? props.data || {} : {})));
         }
-
-        res = column_accessor.columns();
-        super({columns: res});
-        this._data = column_accessor;
+        super({columns: props.data.columns});
+        this._data = props.data;
         //column names array
-        this.columns = this._data.columns_as_array();
-
-        if(props.index != undefined && props.index instanceof Table){
-            this._index = props.index;
-        }
+        this.columns = this._data.names;
     }
 
     select(columns: Array<number> | Array<string>): CUDFTable{
-        const column_indices: Array<number> =  (columns as any[]).map((value) => {
-            return this.transform_input_label(value);
+        const column_indices: Array<number | undefined> =  (columns as any[]).map((value) => {
+            return this.transformInputLabel(value);
         });
         
-        const column_accessor = this._data.select_by_index_list_like(column_indices);
+        const column_accessor = this._data.selectByColumnIndices(column_indices);
         return new Table({data:column_accessor});
         
     }
 
     slice(start: number | string, end: number | string): CUDFTable{
-        start = this.transform_input_label(start);
-        end = this.transform_input_label(end);
-        const column_accessor = this._data.select_by_index_slice(start as number, end as number);
-        return new Table({data:column_accessor});
+        return new Table({
+            data: this._data.sliceByColumnIndices(
+                this.transformInputLabel(start),
+                this.transformInputLabel(end)
+            )
+        });
     }
 
-    transform_input_label(label: number | string): number{
-        if(typeof(label) == "string" && this.columns?.includes(label)){
-            label = this._data.label_to_index(label)
+    private transformInputLabel(label: number | string): number | undefined{
+        if(typeof label == "string" && this.columns?.includes(label)){
+            return this._data.columnNameToColumnIndex(label)
         }
-        return label as number;
+        return label as number | undefined;
     }
     
 }

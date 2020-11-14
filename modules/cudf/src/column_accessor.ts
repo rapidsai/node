@@ -1,64 +1,73 @@
 import { Column } from "./column";
 
 interface ColumnAccessorInterface {
-    _data: Map<string, Column>
+    _data: ReadonlyMap<string, Column>
 
-    insert(name: string, value: Column): void;
-    select_by_label(key:string): ColumnAccessor | undefined;
-    select_by_label_slice(key: Array<string>): ColumnAccessor | undefined;
-    select_by_label_list_like(key: Array<string>): ColumnAccessor | undefined;
+    insertByColumnName(name: string, value: Column): void;
+    selectByColumnName(key:string | undefined): ColumnAccessor | undefined;
+    sliceByColumnLabels(start: string, end: string): ColumnAccessor | undefined;
+    selectByColumnNames(key: Array<string>): ColumnAccessor | undefined;
 
-    select_by_index(index: number): ColumnAccessor | undefined;
-    select_by_index_slice(start: number, end: number): ColumnAccessor | undefined;
-    select_by_index_list_like(index: Array<number>): ColumnAccessor | undefined;
+    selectByColumnIndex(index: number): ColumnAccessor | undefined;
+    sliceByColumnIndices(start: number, end: number): ColumnAccessor | undefined;
+    selectByColumnIndices(index: Array<number>): ColumnAccessor | undefined;
     
-    set_by_index(index: number, value: Column): void;
-    label_to_index(label: string): number;
-    index_to_label(index: number): string;
-    label_array_to_index_array(label: Array<string>): Array<number>;
+    setByColumnIndex(index: number, value: Column): void;
+    columnNameToColumnIndex(label: string): number | undefined;
+    columnIndexToColumnName(index: number): string | undefined;
+    columnNamesToColumnIndices(label: Array<string>): Array<number>;
 }
 
 export class ColumnAccessor implements ColumnAccessorInterface{
     _data = new Map();
+    #_labels_array = new Array();
+    #_labels_to_indices: Map<string, number> = new Map();
+
+    set data(value: Map<String, Column>){
+        this._data = value;
+        this.#_labels_array = Array.from(this._data.keys());
+        this.#_labels_array.forEach((val, index)=>
+            this.#_labels_to_indices.set(val, index)
+        );
+    }
 
     constructor(data: Map<string, Column>){
-        this._data = data
+        this.data = data;
     }
 
-    columns_as_array(): ReadonlyArray<string>{
-        return Array.from(this._data.keys());
+    get names(): ReadonlyArray<string>{
+        return this.#_labels_array;
     }
 
-    columns(): ReadonlyArray<Column>{
+    get columns(): ReadonlyArray<Column>{
         return Array.from(this._data.values());
     }
 
-    length(){
+    get length(){
         return this._data.size;
     }
 
-    insert(name: string, value: Column) {
+    insertByColumnName(name: string, value: Column) {
         this._data.set(name, value);
     }
 
-    select_by_label(key:string) {
-        if(this._data.has(key)){
+    selectByColumnName(key:string | undefined) {
+        if(key != undefined && this._data.has(key)){
             let temp_val = this._data.get(key);
             if (temp_val != undefined){
                 return new ColumnAccessor(new Map([[key, temp_val]]));
             }
         }
-        return undefined;
+        return new ColumnAccessor(new Map());
     };
 
-    select_by_label_slice(key: Array<string>){
-        const start: number = this.label_to_index(key[0]);
-        const end: number = this.label_to_index(key[1]);
-
-        return this.select_by_index_slice(start, end);
+    sliceByColumnLabels(start: string, end: string){
+        return this.sliceByColumnIndices(
+            this.columnNameToColumnIndex(start), this.columnNameToColumnIndex(end)
+        );
     };
 
-    select_by_label_list_like(key: Array<string>) {
+    selectByColumnNames(key: Array<string>) {
         let return_map = new Map(Array.from(this._data).filter(
             (x, _) => {
                 return key.includes(x[0]);
@@ -67,54 +76,59 @@ export class ColumnAccessor implements ColumnAccessorInterface{
         return new ColumnAccessor(return_map);
     };
 
-    select_by_index(index: number){
-        const label: string = this.index_to_label(index);
-        if(this._data.has(label)){
-            return this.select_by_label(label)
-        }
-        return undefined;
+    selectByColumnIndex(index: number){
+        const label = this.columnIndexToColumnName(index);
+        return this.selectByColumnName(label);
     };
 
-    select_by_index_slice(start: number, end: number){
-        if(start >=0){
+    sliceByColumnIndices(start: number | undefined, end: number | undefined){
+        let _start: number = (typeof start == "undefined")? 0: start as number;
+        let _end = (typeof end == "undefined")? this.#_labels_array.length: end as number;
+        
+        if(_start >= 0){
             return new ColumnAccessor(
                 new Map(
-                    Array.from(this._data).slice(start, end + 1)
+                    Array.from(this._data).slice(_start, _end + 1)
                 )
             )
         }
         return new ColumnAccessor(new Map());
     };
 
-    select_by_index_list_like(index: Array<number>){
+    selectByColumnIndices(index: Array<number | undefined>){
         let return_map = new Map(Array.from(this._data).filter(
-            (_, i) => {
-                return index.includes(i);
+            (x, _) => {
+                let temp_val = this.columnNameToColumnIndex(x[0]);
+                if(temp_val != undefined){
+                    return index.includes(temp_val);
+                }
+                return false;
             }
         ))
         return new ColumnAccessor(return_map);
     };
 
-    set_by_index(index: number, value: Column){
-        this.insert(
-            this.index_to_label(index),
-            value
-        )
+    setByColumnIndex(index: number, value: Column){
+        const label = this.columnIndexToColumnName(index);
+        if(label != undefined){
+            this.insertByColumnName(label, value)
+        }
     };
 
-    label_to_index(label: string): number{
-        return Array.from(this._data.keys()).indexOf(label);
+    columnNameToColumnIndex(label: string): number | undefined{
+        return this.#_labels_to_indices.get(label);
     }
 
-    index_to_label(index: number): string{
-        return Array.from(this._data.keys())[index];
+    columnIndexToColumnName(index: number): string | undefined{
+        return this.#_labels_array[index];
     }
 
-    label_array_to_index_array(label: Array<string>): Array<number>{
+    columnNamesToColumnIndices(label: Array<string>): Array<number>{
         let return_array: Array<number> = new Array();
         for(let _label of label){
-            if(this._data.has(_label)){
-                return_array.push(this.label_to_index(_label));
+            let temp_index = this.columnNameToColumnIndex(_label);
+            if(this._data.has(_label) && temp_index != undefined){
+                return_array.push(temp_index);
             }
         }
 
