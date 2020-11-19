@@ -21,28 +21,28 @@ interface ColumnAccessorInterface {
 
 export class ColumnAccessor implements ColumnAccessorInterface{
     _data = new Map();
-    #_labels_array = new Array();
-    #_labels_to_indices: Map<string, number> = new Map();
+    private _labels_array = new Array();
+    private _labels_to_indices: Map<string, number> = new Map();
 
     set data(value: Map<String, Column>){
         this._data = value;
-        this.#_labels_array = Array.from(this._data.keys());
-        this.#_labels_array.forEach((val, index)=>
-            this.#_labels_to_indices.set(val, index)
+        this._labels_array = Array.from(this._data.keys());
+        this._labels_array.forEach((val, index)=>
+            this._labels_to_indices.set(val, index)
         );
     }
 
     private addData(name: string, value: Column){
         this._data.set(name, value);
-        this.#_labels_array.push(name);
-        this.#_labels_to_indices.set(name, this.#_labels_array.indexOf(name));
+        this._labels_array.push(name);
+        this._labels_to_indices.set(name, this._labels_array.indexOf(name));
     }
 
     private removeData(name: string){
         if(this._data.has(name)){
             this._data.delete(name);
-            this.#_labels_to_indices.delete(name);
-            this.#_labels_array  = this.#_labels_array.filter(
+            this._labels_to_indices.delete(name);
+            this._labels_array  = this._labels_array.filter(
                 x => x !== name
             );
         }
@@ -53,7 +53,7 @@ export class ColumnAccessor implements ColumnAccessorInterface{
     }
 
     get names(): ReadonlyArray<string>{
-        return this.#_labels_array;
+        return this._labels_array;
     }
 
     get columns(): ReadonlyArray<Column>{
@@ -104,7 +104,7 @@ export class ColumnAccessor implements ColumnAccessorInterface{
 
     sliceByColumnIndices(start: number | undefined, end: number | undefined){
         let _start: number = (typeof start == "undefined")? 0: start as number;
-        let _end = (typeof end == "undefined")? this.#_labels_array.length: end as number;
+        let _end = (typeof end == "undefined")? this._labels_array.length: end as number;
         
         if(_start >= 0){
             return new ColumnAccessor(
@@ -130,11 +130,11 @@ export class ColumnAccessor implements ColumnAccessorInterface{
     };
 
     columnNameToColumnIndex(label: string): number | undefined{
-        return this.#_labels_to_indices.get(label);
+        return this._labels_to_indices.get(label);
     }
 
     columnIndexToColumnName(index: number): string | undefined{
-        return this.#_labels_array[index];
+        return this._labels_array[index];
     }
 
     columnNamesToColumnIndices(label: Array<string>): Array<number>{
