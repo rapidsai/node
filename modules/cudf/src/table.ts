@@ -52,7 +52,7 @@ export class Table extends (<TableConstructor> CUDF.Table) {
         this._data = props.data;
     }
 
-    get columns(): ReadonlyArray<string> | null{
+    get columns(): ReadonlyArray<string>{
         return this._data.names;
     }
 
@@ -91,7 +91,10 @@ export class Table extends (<TableConstructor> CUDF.Table) {
         if(typeof label == "string" && this.columns?.includes(label)){
             return this._data.columnNameToColumnIndex(label)
         }
-        return label as number | undefined;
+        else if(typeof label == "number" && label < this.columns?.length){
+            return label as number | undefined;
+        }
+        return undefined;
     }
     
 }
