@@ -88,11 +88,11 @@ export class Table extends (<TableConstructor> CUDF.Table) {
     }
 
     private transformInputLabel(label: number | string): number | undefined{
-        if(typeof label == "string" && this.columns?.includes(label)){
+        if(typeof label === "string" && this.columns?.includes(label)){
             return this._data.columnNameToColumnIndex(label)
         }
-        else if(typeof label == "number" && label < this.columns?.length){
-            return label as number | undefined;
+        else if(typeof label === "number" && label < this.columns?.length){
+            return label;
         }
         return undefined;
     }
@@ -106,8 +106,7 @@ Object.setPrototypeOf(CUDF.Table.prototype, new Proxy({}, {
             // @ts-ignore
             case 'string':
                 if (table.columns.includes(i)) {
-                    let column_index: number = table.columns.indexOf(i);
-                    return table.getColumn(column_index);
+                    return table.getColumn(table.columns.indexOf(i));
                 }
                 break;
         }

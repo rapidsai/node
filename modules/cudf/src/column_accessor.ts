@@ -103,8 +103,8 @@ export class ColumnAccessor implements ColumnAccessorInterface{
     };
 
     sliceByColumnIndices(start: number | undefined, end: number | undefined){
-        let _start: number = (typeof start == "undefined")? 0: start as number;
-        let _end = (typeof end == "undefined")? this._labels_array.length: end as number;
+        let _start: number = (typeof start === "undefined")? 0: start as number;
+        let _end = (typeof end === "undefined")? this._labels_array.length: end as number;
         
         if(_start >= 0){
             return new ColumnAccessor(
