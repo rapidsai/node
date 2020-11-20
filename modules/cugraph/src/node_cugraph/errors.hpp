@@ -19,7 +19,7 @@
 #include <napi.h>
 #include <nvrtc.h>
 
-namespace node_rmm {
+namespace nv {
 
 inline Napi::Error cuError(Napi::Env const& env, CUresult code, const char* file, uint32_t line) {
   const char* name;
