@@ -14,38 +14,15 @@
 
 import CuGraph from './addon'
 
-import { Column } from '@nvidia/cudf';
-
 export interface CuGraphGraphCOOConstructor {
     readonly prototype: CuGraphGraphCOO;
     new(): CuGraphGraphCOO;
 }
 
-class Edgelist{
-    readonly src: Column;
-    readonly dst: Column;
-
-    constructor(src: Column, dst: Column) {
-        this.src = src;
-        this.dst = dst;
-    }
-}
-
 interface CuGraphGraphCOO {
     readonly numberOfEdges: number;
     readonly numberOfNodes: number;
-    from_edge_list(src: Column, dst: Column): void;    
-    clear(): void;
 }
 
 export class GraphCOO extends  (<CuGraphGraphCOOConstructor> CuGraph.GraphCOO)  {
-    from_edge_list(src: Column, dst: Column): void {
-        this.edgelist = new Edgelist(src, dst)
-    }
-
-    clear(): void {
-        delete this.edgelist;
-    }
-
-    edgelist?: Edgelist;
 }

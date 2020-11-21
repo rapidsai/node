@@ -16,8 +16,11 @@
 
 #include "rmm/device_buffer.hpp"
 
-#include <nv_node/utilities/args.hpp>
 #include <cugraph/graph.hpp>
+#undef CUDA_TRY
+
+#include <node_cudf/column.hpp>
+#include <nv_node/utilities/args.hpp>
 
 #include <napi.h>
 
@@ -37,18 +40,19 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
   /**
    * @brief Construct a new GraphCOO instance from C++.
    *
-   * @param  number_of_vertices    The number of vertices in the graph
-   * @param  number_of_edges       The number of edges in the graph
-   * @param  has_data              Whether or not the class has data, default = False.
+   * @param  src The source node indices for edges
+   * @param  dst The destination node indices for edges
+   * @param  has_data Whether or not the class has data, default = False.
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
-  static Napi::Object New(int number_of_vertices,
-                  int number_of_edges,
-                  bool has_data,
-                  cudaStream_t stream = 0,
-                  rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+  static Napi::Object New(
+    nv::Column const& src,
+    nv::Column const& dst,
+    bool has_data,
+    cudaStream_t stream                 = 0,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   /**
    * @brief Construct a new GraphCOO instance from JavaScript.
@@ -59,17 +63,17 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
   /**
    * @brief Initialize the GraphCOO instance created by either C++ or JavaScript.
    *
-   * @param  number_of_vertices    The number of vertices in the graph
-   * @param  number_of_edges       The number of edges in the graph
-   * @param  has_data              Whether or not the class has data, default = False.
+   * @param  src The source node indices for edges
+   * @param  dst The source node indices for edges
+   * @param  has_data Whether or not the class has data, default = False.
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
-  void Initialize(int number_of_vertices,
-                  int number_of_edges,
+  void Initialize(Napi::Object const& src,
+                  Napi::Object const& dst,
                   bool has_data,
-                  cudaStream_t stream = 0,
+                  cudaStream_t stream                 = 0,
                   rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   /**
@@ -92,37 +96,31 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
   }
 
   /**
-   * @brief Get a pointer to the underlying `GraphCOO`.
-   *
-   * @return pointer to `GraphCOO`
-   */
-  auto const& Resource() const { return resource_; }
-
-  /**
    * @brief Get the number of edges in the graph
-   * 
+   *
    */
   size_t NumberOfEdges() const;
 
   /**
    * @brief Get the number of nodes in the graph
-   * 
+   *
    */
   size_t NumberOfNodes() const;
 
   /**
    * @brief Get a non-owning view of the Graph
-   * 
+   *
    */
   cugraph::GraphCOOView<int, int, float> View() const;
 
  private:
   static Napi::FunctionReference constructor;
 
+  Napi::ObjectReference src_{};
+  Napi::ObjectReference dst_{};
+
   Napi::Value numberOfEdges(Napi::CallbackInfo const& info);
   Napi::Value numberOfNodes(Napi::CallbackInfo const& info);
-
-  std::shared_ptr<cugraph::GraphCOO<int, int, float>> resource_;
 };
 
 }  // namespace nv
