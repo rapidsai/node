@@ -24,6 +24,30 @@ test('Table initialization', () => {
 });
 
 
+test('Table getColumn', () => {
+    const length = 100;
+    const col_0 = new Column({ type: TypeId.INT32, data: new Int32Buffer(length) });
+
+    const col_1 = new Column({
+        type: TypeId.BOOL8,
+        data: new Uint8Buffer(length),
+        nullMask: new Uint8Buffer(64),
+    });
+    const table_0 = new Table({data:{"col_0": col_0, "col_1": col_1}});
+    expect(table_0.getColumnByName("col_0").type.id).toBe(col_0.type.id);
+    expect(table_0.getColumnByIndex(1).type.id).toBe(col_1.type.id);
+    expect(() => {
+        table_0.getColumnByIndex(2);
+    }).toThrow();
+    expect(() => {
+        table_0.getColumnByName(2);
+    }).toThrow();
+
+    expect(() => {
+        table_0.getColumnByName("junk");
+    }).toThrow();    
+});
+
 test('Table.select', () => {
     const length = 100;
     const col_0 = new Column({ type: TypeId.INT32, data: new Int32Buffer(length) });

@@ -80,6 +80,21 @@ export class Table extends (<TableConstructor> CUDF.Table) {
         super.updateColumns({columns:this._data.columns});
     }
 
+    getColumnByIndex(index: number): Column{
+        if(typeof this.transformInputLabel(index) !== "undefined"){
+            return super.getColumn(index);
+        }
+        throw new Error("Column does not exist in the table: "+index);
+    }
+
+    getColumnByName(label: string): Column{
+        let index = typeof label === "string" ? this.transformInputLabel(label) : undefined;
+        if(typeof index !== "undefined"){
+            return this.getColumnByIndex(index);
+        }
+        throw new Error("Column does not exist in the table: "+label);
+    }
+
     drop(props:{columns: Array<string>}){
         props.columns.forEach((value, _)=> {
             this._data.removeByColumnName(value);
@@ -106,7 +121,7 @@ Object.setPrototypeOf(CUDF.Table.prototype, new Proxy({}, {
             // @ts-ignore
             case 'string':
                 if (table.columns.includes(i)) {
-                    return table.getColumn(table.columns.indexOf(i));
+                    return table.getColumnByName(i);
                 }
                 break;
         }
