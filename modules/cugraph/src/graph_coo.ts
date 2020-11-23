@@ -14,9 +14,15 @@
 
 import CuGraph from './addon'
 
+import {Column, Table} from '@nvidia/cudf';
+import {CudaMemoryResource} from '@nvidia/rmm';
+
+
 export interface CuGraphGraphCOOConstructor {
     readonly prototype: CuGraphGraphCOO;
-    new(): CuGraphGraphCOO;
+    new(src: Column, dst: Column): CuGraphGraphCOO;
+    new(src: Column, dst: Column, stream?: number): CuGraphGraphCOO;
+    new(src: Column, dst: Column, stream?: number, mr?: CudaMemoryResource): CuGraphGraphCOO;
 }
 
 interface CuGraphGraphCOO {
@@ -25,4 +31,15 @@ interface CuGraphGraphCOO {
 }
 
 export class GraphCOO extends  (<CuGraphGraphCOOConstructor> CuGraph.GraphCOO)  {
+    constructor(data: Table, src_name: string, dst_name: string, stream?: number, mr?: CudaMemoryResource) {
+        const src_index = data.columns.indexOf(src_name);
+        const dst_index = data.columns.indexOf(dst_name);
+        const src = data.getColumn(src_index);
+        const dst = data.getColumn(dst_index);
+        switch (arguments.length) {
+            case 3: super(src, dst); break;
+            case 4: super(src, dst, stream); break;
+            case 5: super(src, dst, stream, mr); break;
+        }
+    }
 }
