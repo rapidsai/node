@@ -42,7 +42,6 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
    *
    * @param  src The source node indices for edges
    * @param  dst The destination node indices for edges
-   * @param  has_data Whether or not the class has data, default = False.
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
@@ -50,7 +49,6 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
   static Napi::Object New(
     nv::Column const& src,
     nv::Column const& dst,
-    bool has_data,
     cudaStream_t stream                 = 0,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
@@ -65,14 +63,12 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
    *
    * @param  src The source node indices for edges
    * @param  dst The source node indices for edges
-   * @param  has_data Whether or not the class has data, default = False.
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
   void Initialize(Napi::Object const& src,
                   Napi::Object const& dst,
-                  bool has_data,
                   cudaStream_t stream                 = 0,
                   rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 

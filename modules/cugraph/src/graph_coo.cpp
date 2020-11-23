@@ -51,36 +51,32 @@ GraphCOO::GraphCOO(Napi::CallbackInfo const& info) : Napi::ObjectWrap<GraphCOO>(
 
   // TODO: (bev) type check
 
-  bool has_data = args[2];
-
   switch (args.Length()) {
     // TODO: mediate New / JS with zero args
     case 0: break;
-    case 3: Initialize(src, dst, has_data); break;
-    case 4: Initialize(src, dst, args[3]); break;
-    case 5: Initialize(src, dst, args[3], args[4]); break;
+    case 2: Initialize(src, dst); break;
+    case 3: Initialize(src, dst, args[2]); break;
+    case 4: Initialize(src, dst, args[2], args[3]); break;
     default:
       NODE_CUDA_EXPECT(false,
                        "GraphCOO constructor requires a numeric number of vertices and edges, "
-                       "bool has_data, and optional stream and memory_resource arguments");
+                       "and optional stream and memory_resource arguments");
       break;
   }
 }
 
 Napi::Object GraphCOO::New(nv::Column const& src,
                            nv::Column const& dst,
-                           bool has_data,
                            cudaStream_t stream,
                            rmm::mr::device_memory_resource* mr) {
   const auto inst = GraphCOO::constructor.New({});
 
-  GraphCOO::Unwrap(inst)->Initialize(src.Value(), dst.Value(), has_data, stream, mr);
+  GraphCOO::Unwrap(inst)->Initialize(src.Value(), dst.Value(), stream, mr);
   return inst;
 }
 
 void GraphCOO::Initialize(Napi::Object const& src,
                           Napi::Object const& dst,
-                          bool has_data,
                           cudaStream_t stream,
                           rmm::mr::device_memory_resource* mr) {
   src_.Reset(src, 1);
