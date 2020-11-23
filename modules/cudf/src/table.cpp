@@ -36,7 +36,7 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
                 {
                   InstanceAccessor("numColumns", &Table::num_columns, nullptr, napi_enumerable),
                   InstanceAccessor("numRows", &Table::num_rows, nullptr, napi_enumerable),
-                  InstanceMethod("getColumn", &Table::get_column),
+                  InstanceMethod("getColumnByIndex", &Table::get_column),
                   InstanceMethod("updateColumns", &Table::update_columns),
                 });
 

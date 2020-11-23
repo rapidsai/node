@@ -32,7 +32,7 @@ interface CUDFTable {
     columns: ReadonlyArray<string> | null;
     _data: ColumnAccessor;
     
-    getColumn(index: number): Column;
+    getColumnByIndex(index: number): Column;
     select(columns: ReadonlyArray<number> | ReadonlyArray<string> | null): CUDFTable;
     slice(start: number | string, end: number | string): CUDFTable;
     updateColumns(props:{
@@ -82,7 +82,7 @@ export class Table extends (<TableConstructor> CUDF.Table) {
 
     getColumnByIndex(index: number): Column{
         if(typeof this.transformInputLabel(index) !== "undefined" && typeof index === "number"){
-            return super.getColumn(index);
+            return super.getColumnByIndex(index);
         }
         throw new Error("Column does not exist in the table: "+index);
     }
