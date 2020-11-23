@@ -81,7 +81,7 @@ export class Table extends (<TableConstructor> CUDF.Table) {
     }
 
     getColumnByIndex(index: number): Column{
-        if(typeof this.transformInputLabel(index) !== "undefined"){
+        if(typeof this.transformInputLabel(index) !== "undefined" && typeof index === "number"){
             return super.getColumn(index);
         }
         throw new Error("Column does not exist in the table: "+index);
