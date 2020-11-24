@@ -32,10 +32,8 @@ interface CuGraphGraphCOO {
 
 export class GraphCOO extends  (<CuGraphGraphCOOConstructor> CuGraph.GraphCOO)  {
     constructor(data: Table, src_name: string, dst_name: string, stream?: number, mr?: CudaMemoryResource) {
-        const src_index = data.columns.indexOf(src_name);
-        const dst_index = data.columns.indexOf(dst_name);
-        const src = data.getColumn(src_index);
-        const dst = data.getColumn(dst_index);
+        const src = data.getColumnByName(src_name);
+        const dst = data.getColumnByName(dst_name);
         switch (arguments.length) {
             case 3: super(src, dst); break;
             case 4: super(src, dst, stream); break;
