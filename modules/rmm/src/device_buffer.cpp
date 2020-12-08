@@ -60,7 +60,7 @@ Napi::Object DeviceBuffer::New(rmm::device_buffer&& other) {
 
 Napi::Object DeviceBuffer::New(void* data,
                                size_t size,
-                               cudaStream_t stream,
+                               rmm::cuda_stream_view stream,
                                rmm::mr::device_memory_resource* mr) {
   auto inst = DeviceBuffer::constructor.New({});
   DeviceBuffer::Unwrap(inst)->Initialize(data, size, stream, mr);
@@ -93,13 +93,13 @@ DeviceBuffer::DeviceBuffer(Napi::CallbackInfo const& info) : Napi::ObjectWrap<De
 
 void DeviceBuffer::Initialize(void* data,
                               size_t size,
-                              cudaStream_t stream,
+                              rmm::cuda_stream_view stream,
                               rmm::mr::device_memory_resource* mr) {
   if (data == nullptr) {
     buffer_.reset(new rmm::device_buffer(size, stream, mr));
   } else {
     buffer_.reset(new rmm::device_buffer(data, size, stream, mr));
-    if (stream == NULL) { NODE_CUDA_TRY(cudaStreamSynchronize(stream), Env()); }
+    if (stream.value() == NULL) { NODE_CUDA_TRY(cudaStreamSynchronize(stream.value()), Env()); }
   }
   Napi::MemoryManagement::AdjustExternalMemory(Env(), size);
 }

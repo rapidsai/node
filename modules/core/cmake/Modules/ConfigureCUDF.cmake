@@ -20,6 +20,7 @@ CPMAddPackage(NAME cudf
     VERSION        ${CUDF_VERSION}
     GIT_REPOSITORY https://github.com/rapidsai/cudf.git
     GIT_TAG        branch-${CUDF_VERSION}
+    GIT_SHALLOW    TRUE
     DONWLOAD_ONLY 
 )
 

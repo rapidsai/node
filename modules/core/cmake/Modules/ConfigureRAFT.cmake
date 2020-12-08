@@ -19,10 +19,11 @@ include(get_cpm)
 CPMAddPackage(NAME raft
     VERSION        ${RAFT_VERSION}
     GIT_REPOSITORY https://github.com/rapidsai/raft.git
-    GIT_TAG        branch-${RAFT_VERSION}
+    GIT_TAG        ${RAFT_BRANCH}
+    GIT_SHALLOW    TRUE
     DOWNLOAD_ONLY
 )
 
-message(STATUS "rmm source dir: " ${rmm_SOURCE_DIR})
+message(STATUS "RAFT source dir: " ${raft_SOURCE_DIR})
 
 set(RAFT_INCLUDE_DIR "${raft_SOURCE_DIR}/cpp/include")

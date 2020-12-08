@@ -14,9 +14,10 @@
 
 #pragma once
 
-#include "rmm/device_buffer.hpp"
-
 #include <nv_node/utilities/span.hpp>
+
+#include <rmm/cuda_stream_view.hpp>
+#include <rmm/device_buffer.hpp>
 
 #include <napi.h>
 #include <memory>
@@ -37,7 +38,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    */
   static Napi::Object New(
     Span<char> span,
-    cudaStream_t stream                 = 0,
+    rmm::cuda_stream_view stream        = 0,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) {
     return DeviceBuffer::New(span.data(), span.size(), stream, mr);
   }
@@ -54,7 +55,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   static Napi::Object New(
     void* data,
     size_t size,
-    cudaStream_t stream                 = 0,
+    rmm::cuda_stream_view stream        = 0,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   /**
@@ -101,7 +102,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    */
   void Initialize(void* data,
                   size_t size,
-                  cudaStream_t stream                 = 0,
+                  rmm::cuda_stream_view stream        = 0,
                   rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   /**

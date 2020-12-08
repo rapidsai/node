@@ -19,9 +19,10 @@ cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 project(node_cudf VERSION 0.0.1 LANGUAGES C CXX CUDA)
 
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
+option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
-set(CUDF_VERSION "0.16")
-set(RMM_VERSION "0.16")
+set(RMM_VERSION "0.18")
+set(CUDF_VERSION "0.18")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ###################################################################################################
@@ -52,7 +53,7 @@ include(ConfigureRMM)
 include(ConfigureNapi)
 include(ConfigureCUDA)
 include(ConfigureCUDF)
-include(ConfgureSIMT)
+include(ConfgureCUDACXX)
 
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
