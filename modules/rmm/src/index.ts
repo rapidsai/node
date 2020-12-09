@@ -13,4 +13,4 @@
 // limitations under the License.
 
 export * from './device_buffer';
-export * from './cuda_memory_resource';
+export * from './memory_resource';

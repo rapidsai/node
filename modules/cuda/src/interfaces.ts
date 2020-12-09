@@ -32,7 +32,6 @@ export type TypedArrayConstructor<T extends TypedArray | BigIntArray> = {
     readonly BYTES_PER_ELEMENT: number;
     new(length?: number): T;
     new(values: Iterable<T[0]>): T;
-    // new(values: Iterable<T[0]> | ArrayLike<T[0]>): T;
     new(buffer: ArrayBufferLike, byteOffset?: number, length?: number): T;
     from(arrayLike: ArrayLike<T[0]>): T;
 };

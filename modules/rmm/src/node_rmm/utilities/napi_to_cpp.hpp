@@ -14,24 +14,35 @@
 
 #pragma once
 
-#include "node_rmm/cuda_memory_resource.hpp"
+#include <node_rmm/memory_resource.hpp>
 
 #include <node_cuda/utilities/napi_to_cpp.hpp>
+
 #include <nv_node/utilities/napi_to_cpp.hpp>
+
 #include <rmm/cuda_stream_view.hpp>
 
 namespace nv {
 
 template <>
-inline NapiToCPP::operator CudaMemoryResource() const {
-  if (CudaMemoryResource::is_instance(val)) { return *CudaMemoryResource::Unwrap(val.ToObject()); }
-  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a CudaMemoryResource instance");
-}
-
-template <>
 inline NapiToCPP::operator rmm::mr::device_memory_resource*() const {
   if (CudaMemoryResource::is_instance(val)) {
-    return this->operator CudaMemoryResource().Resource().get();
+    return CudaMemoryResource::Unwrap(val.ToObject())->get_mr().get();
+  }
+  if (ManagedMemoryResource::is_instance(val)) {
+    return ManagedMemoryResource::Unwrap(val.ToObject())->get_mr().get();
+  }
+  if (PoolMemoryResource::is_instance(val)) {
+    return PoolMemoryResource::Unwrap(val.ToObject())->get_mr().get();
+  }
+  if (FixedSizeMemoryResource::is_instance(val)) {
+    return FixedSizeMemoryResource::Unwrap(val.ToObject())->get_mr().get();
+  }
+  if (BinningMemoryResource::is_instance(val)) {
+    return BinningMemoryResource::Unwrap(val.ToObject())->get_mr().get();
+  }
+  if (LoggingResourceAdapter::is_instance(val)) {
+    return LoggingResourceAdapter::Unwrap(val.ToObject())->get_mr().get();
   }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a MemoryResource instance");
 }

@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "nv_node/utilities/span.hpp"
+#include "span.hpp"
 
 #include <napi.h>
 

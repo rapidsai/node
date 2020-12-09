@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import RMM from './addon';
-import {CudaMemoryResource} from './cuda_memory_resource';
+import { MemoryResource } from './memory_resource';
 
 /** @ignore */
 type FloatArray = Float32Array | Float64Array;
@@ -30,9 +30,9 @@ type DeviceBufferInput = BigIntArray | TypedArray | ArrayBufferLike;
 
 interface RMMDeviceBufferConstructor {
     readonly prototype: RMMDeviceBuffer;
-    new(byteLength?: number, stream?: number, mr?: CudaMemoryResource): RMMDeviceBuffer;
-    new(source?: DeviceBufferInput, stream?: number, mr?: CudaMemoryResource): RMMDeviceBuffer;
-    new(sourceOrByteLength?: DeviceBufferInput | number, stream?: number, mr?: CudaMemoryResource): RMMDeviceBuffer;
+    new(byteLength?: number, stream?: number, mr?: MemoryResource): RMMDeviceBuffer;
+    new(source?: DeviceBufferInput, stream?: number, mr?: MemoryResource): RMMDeviceBuffer;
+    new(sourceOrByteLength?: DeviceBufferInput | number, stream?: number, mr?: MemoryResource): RMMDeviceBuffer;
 }
 
 interface RMMDeviceBuffer extends ArrayBuffer {
@@ -101,9 +101,9 @@ interface RMMDeviceBuffer extends ArrayBuffer {
 }
 
 export class DeviceBuffer extends (<RMMDeviceBufferConstructor> RMM.DeviceBuffer) {
-    constructor(byteLength?: number, stream?: number, mr?: CudaMemoryResource);
-    constructor(source?: DeviceBufferInput, stream?: number, mr?: CudaMemoryResource);
-    constructor(sourceOrByteLength?: DeviceBufferInput | number, stream?: number, mr?: CudaMemoryResource) {
+    constructor(byteLength?: number, stream?: number, mr?: MemoryResource);
+    constructor(source?: DeviceBufferInput, stream?: number, mr?: MemoryResource);
+    constructor(sourceOrByteLength?: DeviceBufferInput | number, stream?: number, mr?: MemoryResource) {
         switch (arguments.length) {
             case 1: super(sourceOrByteLength); break;
             case 2: super(sourceOrByteLength, stream); break;
@@ -113,5 +113,5 @@ export class DeviceBuffer extends (<RMMDeviceBufferConstructor> RMM.DeviceBuffer
         this._mr = mr;
     }
 
-    protected _mr?: CudaMemoryResource;
+    protected _mr?: MemoryResource;
 }

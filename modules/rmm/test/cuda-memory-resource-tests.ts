@@ -1,4 +1,4 @@
-import { CudaMemoryResource } from '@nvidia/rmm';
+import { DeviceBuffer, CudaMemoryResource } from '@nvidia/rmm';
 
 test(`CudaMemoryResource initialization`, () => {
     const mr = new CudaMemoryResource();
@@ -8,20 +8,23 @@ test(`CudaMemoryResource initialization`, () => {
 
 test(`CudaMemoryResource getMemInfo`, () => {
     const mr = new CudaMemoryResource();
-    const [free, avail] = mr.getMemInfo(0);
+    const [free, total] = mr.getMemInfo(0);
     expect(typeof free).toBe('number');
-    expect(typeof avail).toBe('number');
+    expect(typeof total).toBe('number');
 });
 
-test(`CudaMemoryResource allocate and deallocate`, () => {
+test(`CudaMemoryResource allocate and deallocate`, (done) => {
     const mr = new CudaMemoryResource();
-    const start = mr.getMemInfo(0);
-    const ptr = mr.allocate(1000000);
-    const end = mr.getMemInfo(0);
-    expect(start[0] - end[0]).toBeGreaterThanOrEqual(1000000);
-    mr.deallocate(ptr, 1000000);
-    const final = mr.getMemInfo(0);
-    expect(final[0]).toEqual(start[0]);
+    const [start] = mr.getMemInfo(0);
+    let buf = new DeviceBuffer(1000000, 0, mr);
+    const [end] = mr.getMemInfo(0);
+    expect(start - end).toBeGreaterThanOrEqual(1000000);
+    buf = null!;
+    setTimeout(() => {
+        const [final] = mr.getMemInfo(0);
+        expect(final).toEqual(start);
+        done();
+    }, 1000);
 });
 
 test(`CudaMemoryResource isEqual`, () => {
