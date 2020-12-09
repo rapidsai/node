@@ -20,6 +20,7 @@ CPMAddPackage(NAME cugraph
     VERSION        ${CUGRAPH_VERSION}
     GIT_REPOSITORY https://github.com/rapidsai/cugraph.git
     GIT_TAG        branch-${CUGRAPH_VERSION}
+    GIT_SHALLOW    TRUE
     DOWNLOAD_ONLY
 )
 

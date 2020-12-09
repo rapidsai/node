@@ -21,7 +21,7 @@ if(NOT CMAKE_CUDA_COMPILER)
   message(FATAL_ERROR "CMake cannot locate a CUDA compiler")
 endif()
 
-option(CUDA_HOME "Path to the current CUDA Toolkit root (e.g. /usr/local/cuda)" $ENV{CUDA_HOME})
+set(CUDA_HOME "Path to the current CUDA Toolkit root (e.g. /usr/local/cuda)" $ENV{CUDA_HOME})
 option(CUDA_SEPARABLE_COMPILATION "Compile CUDA objects with separable compilation enabled.  Requires CUDA 5.0+" OFF)
 
 if(CMAKE_CUDA_COMPILER_VERSION)
@@ -57,3 +57,35 @@ find_path(CUDA_INCLUDE_DIRS NAMES cuda.h cuda_runtime.h device_functions.h # CUD
           "/usr/local/cuda-${CUDA_VERSION}/targets/x86_64-linux/include")
 
 string(APPEND CMAKE_CUDA_FLAGS " --expt-extended-lambda --expt-relaxed-constexpr")
+string(APPEND CMAKE_CUDA_FLAGS " -Werror=cross-execution-space-call")
+
+# Auto-detect available GPU compute architectures
+set(CUDA_ARCHITECTURES "$ENV{CUDA_ARCHITECTURES}" CACHE STRING
+  "List of GPU architectures (semicolon-separated) to be compiled for. Pass 'ALL' if you want to compile for all supported GPU architectures. Empty string means to auto-detect the GPUs on the current system")
+
+if("${CUDA_ARCHITECTURES}" STREQUAL "")
+  execute_process(COMMAND node -p
+                  "require('@nvidia/rapids-core').cmake_modules_path"
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                  OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+  include(${NVIDIA_CMAKE_MODULES_PATH}/EvalGpuArchs.cmake)
+  evaluate_gpu_archs(CUDA_ARCHITECTURES)
+endif()
+
+if("${CUDA_ARCHITECTURES}" STREQUAL "ALL")
+    # This is being built for an x86 or x86_64 architecture
+    set(CUDA_ARCHITECTURES "60")
+    if((CUDA_VERSION_MAJOR EQUAL 9) OR (CUDA_VERSION_MAJOR GREATER 9))
+        list(APPEND CUDA_ARCHITECTURES "70")
+    endif()
+    if((CUDA_VERSION_MAJOR EQUAL 10) OR (CUDA_VERSION_MAJOR GREATER 10))
+        list(APPEND CUDA_ARCHITECTURES "75")
+    endif()
+    if((CUDA_VERSION_MAJOR EQUAL 11) OR (CUDA_VERSION_MAJOR GREATER 11))
+        list(APPEND CUDA_ARCHITECTURES "80")
+    endif()
+endif()
+
+message("CUDA_ARCHITECTURES: ${CUDA_ARCHITECTURES}")
+set(CMAKE_CUDA_ARCHITECTURES ${CUDA_ARCHITECTURES})

@@ -16,7 +16,9 @@
 
 #include "node_rmm/cuda_memory_resource.hpp"
 
+#include <node_cuda/utilities/napi_to_cpp.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
+#include <rmm/cuda_stream_view.hpp>
 
 namespace nv {
 
@@ -32,6 +34,12 @@ inline NapiToCPP::operator rmm::mr::device_memory_resource*() const {
     return this->operator CudaMemoryResource().Resource().get();
   }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a MemoryResource instance");
+}
+
+template <>
+inline NapiToCPP::operator rmm::cuda_stream_view() const {
+  if (this->IsNumber()) { return rmm::cuda_stream_view{this->operator cudaStream_t()}; }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a numeric cudaStream_t");
 }
 
 }  // namespace nv

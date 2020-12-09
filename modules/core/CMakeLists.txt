@@ -20,7 +20,12 @@ project(node_rapids_core VERSION 0.0.1 LANGUAGES C CXX)
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
-set(RMM_VERSION "0.16")
+# Example
+# set(RMM_VERSION "0.18")
+# set(CUGRAPH_VERSION "0.18")
+# set(RAFT_VERSION "0.18")
+# set(RAFT_BRANCH "f75d7b437bf1da3df749108161b8a0505fb6b7b3")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ###################################################################################################

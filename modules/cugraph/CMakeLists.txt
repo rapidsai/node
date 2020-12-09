@@ -18,10 +18,12 @@ cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 project(node_cugraph VERSION 0.0.1 LANGUAGES C CXX CUDA)
 
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
+option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
-set(RMM_VERSION "0.16")
-set(RAFT_VERSION "0.16")
-set(CUGRAPH_VERSION "0.16")
+set(RMM_VERSION "0.18")
+set(CUGRAPH_VERSION "0.18")
+set(RAFT_VERSION "0.18")
+set(RAFT_BRANCH "f75d7b437bf1da3df749108161b8a0505fb6b7b3")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ###################################################################################################
@@ -45,15 +47,8 @@ include(ConfigureCuGraph)
 ###################################################################################################
 # - cuda compiler flags ---------------------------------------------------------------------------
 
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda")
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Werror=cross-execution-space-call -Wno-deprecated-declarations -Xptxas --disable-warnings")
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wall,-Wno-error=sign-compare,-Wno-error=unused-but-set-variable")
-
-set(GPU_ARCHS "${GPU_ARCHS};75")
-
-foreach(arch ${GPU_ARCHS})
-  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -gencode arch=compute_${arch},code=sm_${arch}")
-endforeach()
+string(APPEND CMAKE_CUDA_FLAGS " -Xptxas --disable-warnings")
+string(APPEND CMAKE_CUDA_FLAGS " -Xcompiler -Wall,-Wno-error=sign-compare,-Wno-error=unused-but-set-variable")
 
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------

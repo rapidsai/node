@@ -20,7 +20,7 @@ project(node_rmm VERSION 0.0.1 LANGUAGES C CXX)
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
-set(RMM_VERSION "0.16")
+set(RMM_VERSION "0.18")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ###################################################################################################
