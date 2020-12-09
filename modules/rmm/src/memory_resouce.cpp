@@ -321,7 +321,8 @@ LoggingResourceAdapter::LoggingResourceAdapter(CallbackArgs const& args)
   NODE_CUDA_EXPECT(MemoryResource::is_instance(args[0]),
                    "LoggingResourceAdapter constructor expects an upstream MemoryResource.");
 
-  log_file_path_ = args[1].operator std::string();
+  log_file_path_  = args[1].operator std::string();
+  bool auto_flush = args[2].IsBoolean() ? args[2] : false;
 
   if (log_file_path_ == "") {
     log_file_path_ = args.Env()
@@ -338,8 +339,8 @@ LoggingResourceAdapter::LoggingResourceAdapter(CallbackArgs const& args)
                    "LoggingResourceAdapter constructor expects an RMM log file name string "
                    "argument or RMM_LOG_FILE environment variable");
 
-  mr_.reset(new rmm::mr::logging_resource_adaptor<rmm::mr::device_memory_resource>(args[0],
-                                                                                   log_file_path_));
+  mr_.reset(new rmm::mr::logging_resource_adaptor<rmm::mr::device_memory_resource>(
+    args[0], log_file_path_, auto_flush));
 
   upstream_mr_.Reset(args[0], 1);
 }

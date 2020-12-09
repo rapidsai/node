@@ -165,10 +165,10 @@ export interface LoggingResourceAdapterConstructor {
     /**
      * @summary Constructs a MemoryResource that logs information about allocations/deallocations performed by an upstream MemoryResource.
      * @param upstreamMemoryResource The upstream MemoryResource to log.
-     * @param logFilePath Path to the file to which logs are written.
-     * If not provided, falls back to the `RMM_LOG_FILE` environment variable.
+     * @param logFilePath Path to the file to which logs are written. If not provided, falls back to the `RMM_LOG_FILE` environment variable.
+     * @param autoFlush If true, flushes the log for every (de)allocation. Warning, this will degrade performance.
      */
-    new(upstreamMemoryResource: MemoryResource, logFilePath?: string): LoggingResourceAdapter;
+    new(upstreamMemoryResource: MemoryResource, logFilePath?: string, autoFlush?: boolean): LoggingResourceAdapter;
 }
 
 export interface LoggingResourceAdapter extends MemoryResource {
