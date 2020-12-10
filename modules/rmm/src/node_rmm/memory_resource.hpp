@@ -108,14 +108,6 @@ class CudaMemoryResource : public Napi::ObjectWrap<CudaMemoryResource>, public M
   CudaMemoryResource(CallbackArgs const& args);
 
   /**
-   * @brief Destructor called when the JavaScript VM garbage collects this CudaMemoryResource
-   * instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
-
-  /**
    * @brief Check whether an Napi value is an instance of `CudaMemoryResource`.
    *
    * @param val The Napi::Value to test
@@ -153,14 +145,6 @@ class ManagedMemoryResource : public Napi::ObjectWrap<ManagedMemoryResource>,
   ManagedMemoryResource(CallbackArgs const& args);
 
   /**
-   * @brief Destructor called when the JavaScript VM garbage collects this ManagedMemoryResource
-   * instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
-
-  /**
    * @brief Check whether an Napi value is an instance of `ManagedMemoryResource`.
    *
    * @param val The Napi::Value to test
@@ -195,14 +179,6 @@ class PoolMemoryResource : public Napi::ObjectWrap<PoolMemoryResource>, public M
    *
    */
   PoolMemoryResource(CallbackArgs const& args);
-
-  /**
-   * @brief Destructor called when the JavaScript VM garbage collects this PoolMemoryResource
-   * instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
 
   /**
    * @brief Check whether an Napi value is an instance of `PoolMemoryResource`.
@@ -245,14 +221,6 @@ class FixedSizeMemoryResource : public Napi::ObjectWrap<FixedSizeMemoryResource>
   FixedSizeMemoryResource(CallbackArgs const& args);
 
   /**
-   * @brief Destructor called when the JavaScript VM garbage collects this FixedSizeMemoryResource
-   * instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
-
-  /**
    * @brief Check whether an Napi value is an instance of `FixedSizeMemoryResource`.
    *
    * @param val The Napi::Value to test
@@ -291,14 +259,6 @@ class BinningMemoryResource : public Napi::ObjectWrap<BinningMemoryResource>,
    *
    */
   BinningMemoryResource(CallbackArgs const& args);
-
-  /**
-   * @brief Destructor called when the JavaScript VM garbage collects this BinningMemoryResource
-   * instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
 
   /**
    * @brief Check whether an Napi value is an instance of `BinningMemoryResource`.
@@ -362,14 +322,6 @@ class LoggingResourceAdapter : public Napi::ObjectWrap<LoggingResourceAdapter>,
    *
    */
   LoggingResourceAdapter(CallbackArgs const& args);
-
-  /**
-   * @brief Destructor called when the JavaScript VM garbage collects this LoggingResourceAdapter
-   * instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
 
   /**
    * @brief Check whether an Napi value is an instance of `LoggingResourceAdapter`.

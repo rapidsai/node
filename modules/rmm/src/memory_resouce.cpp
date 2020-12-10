@@ -102,10 +102,6 @@ CudaMemoryResource::CudaMemoryResource(CallbackArgs const& args)
   }
 }
 
-void CudaMemoryResource::Finalize(Napi::Env env) {
-  Device::call_in_context(device_id_, [&]() { mr_.reset(); });
-}
-
 // ManagedMemoryResource
 
 Napi::FunctionReference ManagedMemoryResource::constructor;
@@ -134,10 +130,6 @@ ManagedMemoryResource::ManagedMemoryResource(CallbackArgs const& args)
   : Napi::ObjectWrap<ManagedMemoryResource>(args) {
   device_id_ = Device::active_device_id();
   mr_.reset(new rmm::mr::managed_memory_resource());
-}
-
-void ManagedMemoryResource::Finalize(Napi::Env env) {
-  Device::call_in_context(device_id_, [&]() { mr_.reset(); });
 }
 
 // PoolMemoryResource
@@ -182,10 +174,6 @@ PoolMemoryResource::PoolMemoryResource(CallbackArgs const& args)
     maximum_pool_size == -1 ? thrust::nullopt : thrust::make_optional(maximum_pool_size)));
 
   upstream_mr_.Reset(args[0], 1);
-}
-
-void PoolMemoryResource::Finalize(Napi::Env env) {
-  Device::call_in_context(device(), [&]() { mr_.reset(); });
 }
 
 int32_t PoolMemoryResource::device() const {
@@ -242,10 +230,6 @@ FixedSizeMemoryResource::FixedSizeMemoryResource(CallbackArgs const& args)
   upstream_mr_.Reset(args[0], 1);
 }
 
-void FixedSizeMemoryResource::Finalize(Napi::Env env) {
-  Device::call_in_context(device(), [&]() { mr_.reset(); });
-}
-
 int32_t FixedSizeMemoryResource::device() const {
   return NapiToCPP(upstream_mr_.Value()).operator rmm::cuda_device_id().value();
 }
@@ -300,10 +284,6 @@ BinningMemoryResource::BinningMemoryResource(CallbackArgs const& args)
                   mr, min_size_exponent, max_size_exponent));
 
   upstream_mr_.Reset(args[0], 1);
-}
-
-void BinningMemoryResource::Finalize(Napi::Env env) {
-  Device::call_in_context(device(), [&]() { mr_.reset(); });
 }
 
 int32_t BinningMemoryResource::device() const {
@@ -392,10 +372,6 @@ LoggingResourceAdapter::LoggingResourceAdapter(CallbackArgs const& args)
     args[0], log_file_path_, auto_flush));
 
   upstream_mr_.Reset(args[0], 1);
-}
-
-void LoggingResourceAdapter::Finalize(Napi::Env env) {
-  Device::call_in_context(device(), [&]() { mr_.reset(); });
 }
 
 int32_t LoggingResourceAdapter::device() const {
