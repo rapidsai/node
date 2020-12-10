@@ -67,7 +67,7 @@ export const devices = new Proxy<DeviceList>({
         get(target, key) {
             let idx = typeof key !== 'symbol' ? +(key as any) : NaN;
             if (idx == idx && idx > -1 && idx < Device.numDevices) {
-                return target[idx] ? target[idx].activate() : (target[idx] = new Device(idx));
+                return target[idx] ? target[idx] : (target[idx] = new Device(idx));
             }
             return target[key as any];
         },
@@ -106,8 +106,7 @@ interface CUDADevice {
 
     /**
      * @summary Destroy all allocations and reset all state on the current
-     * device in the current process. Resets the device with the specified
-     * {@link DeviceFlag} device flags.
+     * device in the current process.
      * 
      * @description
      * Explicitly destroys and cleans up all resources associated with the
@@ -117,12 +116,8 @@ interface CUDADevice {
      * Note that this function will reset the device immediately. It is the
      * caller's responsibility to ensure that the device is not being accessed
      * by any other host threads from the process when this function is called.
-     * 
-     * @param {DeviceFlag} flags The flags for the device's primary
-     * context.
-     * <br/>
      */
-    reset(flags?: DeviceFlags): this;
+    reset(): this;
 
     /**
      * @summary Set this device to be used for GPU executions.
@@ -144,9 +139,16 @@ interface CUDADevice {
     activate(): this;
 
     /**
-     * @summary Queries the {@link DeviceFlag} flags used to initialize this device.
+     * @summary Get the {@link DeviceFlag} flags used to initialize this device.
      */
     getFlags(): DeviceFlags;
+
+    /**
+     * @summary Set the {@link DeviceFlag} flags for the device's primary context.
+     * 
+     * @param {DeviceFlag} newFlags The new flags for the device's primary context.
+     */
+    setFlags(newFlags: DeviceFlags): void;
 
     /**
      * @summary An object with information about the device.

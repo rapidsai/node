@@ -14,23 +14,9 @@
 
 import { MemoryData } from './interfaces';
 import { MappedGLMemory } from './memory';
+const { loadNativeModule } = require('@nvidia/rapids-core');
 
-export const CUDA = (() => {
-    let CUDA: any, types = ['Release'];
-    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
-        types.push('Debug');
-    }
-    for (let type; type = types.pop();) {
-        try {
-            if (CUDA = require(`../${type}/node_cuda.node`)) {
-                break;
-            }
-        } catch (e) { console.error(e); continue; }
-    }
-    if (CUDA) return CUDA.init();
-    throw new Error('node_cuda not found');
-})();
-
+export const CUDA = loadNativeModule(module, 'node_cuda');
 export default CUDA;
 
 export type CUdevice = number;

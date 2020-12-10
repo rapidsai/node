@@ -13,4 +13,37 @@
 // limitations under the License.
 
 export * from './device_buffer';
-export * from './cuda_memory_resource';
+export * from './memory_resource';
+
+import RMM from './addon';
+import { Device } from '@nvidia/cuda';
+import { MemoryResource } from './memory_resource';
+
+const rmmSetPerDeviceResource: typeof setPerDeviceResource = RMM.setPerDeviceResource;
+const perDeviceMemoryResources = new Map<number, MemoryResource>();
+
+RMM.setPerDeviceResource = setPerDeviceResource;
+
+export function getPerDeviceResource(deviceId: number) {
+    if (!perDeviceMemoryResources.has(deviceId)) {
+        setPerDeviceResource(deviceId, new RMM.CudaMemoryResource(deviceId));
+    }
+    return perDeviceMemoryResources.get(deviceId)!;
+}
+
+export function setPerDeviceResource(deviceId: number, memoryResource: MemoryResource = new RMM.CudaMemoryResource()) {
+    perDeviceMemoryResources.set(deviceId, memoryResource);
+    rmmSetPerDeviceResource(deviceId, memoryResource);
+}
+
+export function getPerDeviceResourceType(deviceId: number) {
+    return getPerDeviceResource(deviceId)?.constructor;
+}
+
+export function getCurrentDeviceResource() {
+    return getPerDeviceResource(Device.activeDeviceId);
+}
+
+export function setCurrentDeviceResource(memoryResource: MemoryResource = new RMM.CudaMemoryResource()) {
+    return setPerDeviceResource(Device.activeDeviceId, memoryResource);
+}

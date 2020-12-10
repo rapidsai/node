@@ -12,8 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '@nvidia/cuda';
-const { loadNativeModule } = require('@nvidia/rapids-core');
+#pragma once
 
-export const RMM = loadNativeModule(module, 'node_rmm');
-export default RMM;
+#include <node_cuda/utilities/cpp_to_napi.hpp>
+
+#include <nv_node/utilities/cpp_to_napi.hpp>
+
+#include <rmm/cuda_stream_view.hpp>
+#include <rmm/mr/device/per_device_resource.hpp>
+
+namespace nv {
+
+template <>
+inline Napi::Value CPPToNapi::operator()(rmm::cuda_device_id const& device) const {
+  return this->operator()(device.value());
+}
+
+template <>
+inline Napi::Value CPPToNapi::operator()(rmm::cuda_stream_view const& stream) const {
+  return this->operator()(stream.value());
+}
+
+}  // namespace nv

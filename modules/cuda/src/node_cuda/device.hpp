@@ -77,6 +77,24 @@ class Device : public Napi::ObjectWrap<Device> {
     return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
   }
 
+  template <typename Function>
+  static inline void call_in_context(int32_t new_device_id, Function const& do_work) {
+    auto cur_device_id = active_device_id();
+    auto change_device = [&](int32_t cur_id, int32_t new_id) {
+      if (cur_id != new_id) {  //
+        NODE_CUDA_TRY(cudaSetDevice(new_id), constructor.Env());
+      }
+    };
+    try {
+      change_device(cur_device_id, new_device_id);
+      do_work();
+    } catch (...) {
+      change_device(new_device_id, cur_device_id);
+      throw std::current_exception();
+    }
+    change_device(new_device_id, cur_device_id);
+  }
+
   /**
    * @brief Construct a new Device instance from JavaScript.
    *
@@ -105,11 +123,9 @@ class Device : public Napi::ObjectWrap<Device> {
    * caller's responsibility to ensure that the device is not being accessed
    * by any other host threads from the process when this function is called.
    *
-   * @param flags Flags for the device's primary context.
-   *
    * @return Device const&
    */
-  Device& reset(uint32_t flags = cudaDeviceScheduleAuto);
+  Device& reset();
 
   /**
    * @brief Set this device to be used for GPU executions.
@@ -144,6 +160,20 @@ class Device : public Napi::ObjectWrap<Device> {
    * @return Device const&
    */
   Device& synchronize();
+
+  /**
+   * @brief Get the flags for the device's primary context.
+   *
+   * @return uint32_t Flags for the device's primary context.
+   */
+  uint32_t get_flags();
+
+  /**
+   * @brief Set the flags for the device's primary context.
+   *
+   * @param new_flags New flags for the device's primary context.
+   */
+  void set_flags(uint32_t new_flags);
 
   /**
    * @brief Queries if a device may directly access a peer device's memory.
@@ -187,20 +217,7 @@ class Device : public Napi::ObjectWrap<Device> {
 
   template <typename Function>
   inline void call_in_context(Function const& do_work) {
-    auto cur_device_id = this->active_device_id();
-    auto change_device = [&](int32_t id) {
-      if (cur_device_id != this->id()) {  //
-        NODE_CUDA_TRY(cudaSetDevice(id), this->Env());
-      }
-    };
-    try {
-      change_device(this->id());
-      do_work();
-    } catch (...) {
-      change_device(cur_device_id);
-      throw std::current_exception();
-    }
-    change_device(cur_device_id);
+    Device::call_in_context(this->id(), do_work);
   }
 
   static Napi::Value get_num_devices(Napi::CallbackInfo const& info);
@@ -209,6 +226,7 @@ class Device : public Napi::ObjectWrap<Device> {
   Napi::Value reset(Napi::CallbackInfo const& info);
   Napi::Value activate(Napi::CallbackInfo const& info);
   Napi::Value get_flags(Napi::CallbackInfo const& info);
+  Napi::Value set_flags(Napi::CallbackInfo const& info);
   Napi::Value synchronize(Napi::CallbackInfo const& info);
   Napi::Value get_properties(Napi::CallbackInfo const& info);
   Napi::Value can_access_peer_device(Napi::CallbackInfo const& info);

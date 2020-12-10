@@ -43,12 +43,13 @@ Napi::Object Device::Init(Napi::Env env, Napi::Object exports) {
       InstanceMethod("reset", &Device::reset),
       InstanceMethod("activate", &Device::activate),
       InstanceMethod("getFlags", &Device::get_flags),
+      InstanceMethod("setFlags", &Device::set_flags),
       InstanceMethod("getProperties", &Device::get_properties),
       InstanceMethod("synchronize", &Device::synchronize),
       InstanceMethod("canAccessPeerDevice", &Device::can_access_peer_device),
       InstanceMethod("enablePeerAccess", &Device::enable_peer_access),
       InstanceMethod("disablePeerAccess", &Device::disable_peer_access),
-      InstanceMethod("callInDeviceContext", &Device::call_in_device_context),
+      InstanceMethod("callInContext", &Device::call_in_device_context),
     });
   Device::constructor = Napi::Persistent(ctor);
   Device::constructor.SuppressDestruct();
@@ -103,7 +104,7 @@ void Device::Initialize(int32_t id, uint32_t flags) {
   NODE_CUDA_TRY(cudaGetDeviceProperties(&props_, id_), Env());
   NODE_CUDA_TRY(cudaDeviceGetPCIBusId(bus_id, 256, id_), Env());
   pci_bus_name_ = std::string{bus_id};
-  this->reset(flags).activate();
+  this->set_flags(flags);
 }
 
 Napi::Value Device::id(Napi::CallbackInfo const& info) { return CPPToNapi(info)(id()); }
@@ -112,27 +113,36 @@ Napi::Value Device::pci_bus_name(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(pci_bus_name());
 }
 
-Device& Device::reset(uint32_t flags) {
-  call_in_context([&]() {
-    NODE_CUDA_TRY(cudaDeviceReset(), Env());
-    NODE_CUDA_TRY(cudaSetDeviceFlags(flags), Env());
-    NODE_CUDA_TRY(cudaDeviceSynchronize(), Env());
-  });
+Device& Device::reset() {
+  call_in_context([&]() { NODE_CUDA_TRY(cudaDeviceReset(), Env()); });
   return *this;
 }
 
 Napi::Value Device::reset(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  reset(args[0].IsNumber() ? args[0] : cudaDeviceScheduleAuto);
+  reset();
   return info.This();
 }
 
-Napi::Value Device::get_flags(Napi::CallbackInfo const& info) {
+uint32_t Device::get_flags() {
   uint32_t flags;
-  call_in_context([&]() {  //
-    NODE_CUDA_TRY(cudaGetDeviceFlags(&flags), Env());
+  call_in_context([&]() { NODE_CUDA_TRY(cudaGetDeviceFlags(&flags), Env()); });
+  return flags & ~cudaDeviceMapHost;
+}
+
+Napi::Value Device::get_flags(Napi::CallbackInfo const& info) {
+  return CPPToNapi(info)(get_flags());
+}
+
+void Device::set_flags(uint32_t new_flags) {
+  call_in_context([&]() {
+    if (get_flags() != new_flags) { NODE_CUDA_TRY(cudaSetDeviceFlags(new_flags), Env()); }
   });
-  return CPPToNapi(info)(flags - cudaDeviceMapHost);
+}
+
+Napi::Value Device::set_flags(Napi::CallbackInfo const& info) {
+  uint32_t flags = CallbackArgs{info}[0];
+  set_flags(flags);
+  return info.This();
 }
 
 Napi::Value Device::get_properties(Napi::CallbackInfo const& info) {

@@ -47,28 +47,6 @@ class Column : public Napi::ObjectWrap<Column> {
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
 
   /**
-   * @brief Construct a new Column instance from existing device memory.
-   *
-   * @param data The column's data.
-   * @param size The number of elements in the column.
-   * @param type The element data type.
-   * @param null_mask Optional, column's null value indicator bitmask.
-   * May be empty if null_count is 0 or UNKNOWN_NULL_COUNT.
-   * @param offset The element offset from the start of the underlying data.
-   * @param null_count Optional, the count of null elements. If unknown, specify
-   * UNKNOWN_NULL_COUNT to indicate that the null count should be computed on the first invocation
-   * of `null_count()`.
-   * @param children Optional Array of child columns
-   */
-  static Napi::Object New(rmm::device_buffer&& data,
-                          cudf::size_type size,
-                          cudf::data_type type,
-                          rmm::device_buffer&& null_mask = {},
-                          cudf::size_type offset         = 0,
-                          cudf::size_type null_count     = cudf::UNKNOWN_NULL_COUNT,
-                          Napi::Array const& children    = {});
-
-  /**
    * @brief Construct a new Column instance from JavaScript.
    *
    */

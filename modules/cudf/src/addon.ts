@@ -13,21 +13,7 @@
 // limitations under the License.
 
 import '@nvidia/rmm';
+const { loadNativeModule } = require('@nvidia/rapids-core');
 
-export const CUDF = (() => {
-    let CUDF: any, types = ['Release'];
-    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
-        types.push('Debug');
-    }
-    for (let type; type = types.pop();) {
-        try {
-            if (CUDF = require(`../${type}/node_cudf.node`)) {
-                break;
-            }
-        } catch (e) { console.error(e); continue; }
-    }
-    if (CUDF) return CUDF.init();
-    throw new Error('node_cudf not found');
-})();
-
+export const CUDF = loadNativeModule(module, 'node_cudf');
 export default CUDF;

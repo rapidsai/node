@@ -10,7 +10,7 @@
   "types": "build/js",
   "scripts": {
     "clean": "npx rimraf build compile_commands.json",
-    "test": "jest --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",
+    "test": "jest --no-cache --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",
     "build": "npm run cpp:build && npm run tsc:build",
     "compile": "npm run cpp:compile && npm run tsc:build",
     "rebuild": "npm run cpp:rebuild && npm run tsc:build",

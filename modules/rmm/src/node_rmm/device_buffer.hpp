@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <node_rmm/utilities/napi_to_cpp.hpp>
+
 #include <nv_node/utilities/span.hpp>
 
 #include <rmm/cuda_stream_view.hpp>
@@ -36,10 +38,9 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
-  static Napi::Object New(
-    Span<char> span,
-    rmm::cuda_stream_view stream        = 0,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) {
+  static Napi::Object New(Span<char> span,
+                          rmm::cuda_stream_view stream = rmm::cuda_stream_default,
+                          Napi::Object const& mr       = CudaMemoryResource::New()) {
     return DeviceBuffer::New(span.data(), span.size(), stream, mr);
   }
 
@@ -52,27 +53,10 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
-  static Napi::Object New(
-    void* data,
-    size_t size,
-    rmm::cuda_stream_view stream        = 0,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
-
-  /**
-   * @brief Construct a DeviceBuffer by copying an existing rmm::device_buffer.
-   *
-   * @param other The `device_buffer` whose contents will be copied into the
-   * newly constructed one.
-   */
-  static Napi::Object New(rmm::device_buffer const& other);
-
-  /**
-   * @brief Construct a DeviceBuffer by moving an existing rmm::device_buffer.
-   *
-   * @param other The `device_buffer` whose contents will be moved into the
-   * newly constructed one.
-   */
-  static Napi::Object New(rmm::device_buffer&& other);
+  static Napi::Object New(void* data,
+                          size_t size,
+                          rmm::cuda_stream_view stream = rmm::cuda_stream_default,
+                          Napi::Object const& mr       = CudaMemoryResource::New());
 
   /**
    * @brief Check whether an Napi value is an instance of `DeviceBuffer`.
@@ -89,21 +73,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * @brief Construct a new DeviceBuffer instance from JavaScript.
    *
    */
-  DeviceBuffer(Napi::CallbackInfo const& info);
-
-  /**
-   * @brief Initialize the DeviceBuffer instance created by either C++ or JavaScript.
-   *
-   * @param data Pointer to the host or device memory to copy from.
-   * @param size Size in bytes to copy.
-   * @param stream CUDA stream on which memory may be allocated if the memory
-   * resource supports streams.
-   * @param mr Memory resource to use for the device memory allocation.
-   */
-  void Initialize(void* data,
-                  size_t size,
-                  rmm::cuda_stream_view stream        = 0,
-                  rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+  DeviceBuffer(CallbackArgs const& info);
 
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this DeviceBuffer
@@ -113,26 +83,35 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    */
   void Finalize(Napi::Env env) override;
 
-  void* data() const { return Buffer()->data(); }
-  size_t size() const { return Buffer()->size(); }
+  inline void* data() const { return buffer().data(); }
+
+  inline size_t size() const { return buffer().size(); }
+
+  inline int32_t device() const { return (this->operator rmm::cuda_device_id()).value(); }
+
+  inline explicit operator rmm::cuda_device_id() const { return NapiToCPP(mr_.Value()); }
+
+  inline rmm::mr::device_memory_resource* get_mr() const { return NapiToCPP(mr_.Value()); }
 
  private:
   static Napi::FunctionReference constructor;
 
-  char* Data() const { return static_cast<char*>(Buffer()->data()); }
-  std::unique_ptr<rmm::device_buffer> const& Buffer() const { return buffer_; }
+  rmm::device_buffer& buffer() const { return *buffer_; }
 
-  Napi::Value byteLength(Napi::CallbackInfo const& info);
+  Napi::Value get_mr(Napi::CallbackInfo const& info);
+  Napi::Value byte_length(Napi::CallbackInfo const& info);
   Napi::Value capacity(Napi::CallbackInfo const& info);
-  Napi::Value isEmpty(Napi::CallbackInfo const& info);
+  Napi::Value is_empty(Napi::CallbackInfo const& info);
   Napi::Value ptr(Napi::CallbackInfo const& info);
+  Napi::Value device(Napi::CallbackInfo const& info);
   Napi::Value stream(Napi::CallbackInfo const& info);
   Napi::Value resize(Napi::CallbackInfo const& info);
-  Napi::Value setStream(Napi::CallbackInfo const& info);
-  Napi::Value shrinkToFit(Napi::CallbackInfo const& info);
+  Napi::Value set_stream(Napi::CallbackInfo const& info);
+  Napi::Value shrink_to_fit(Napi::CallbackInfo const& info);
   Napi::Value slice(Napi::CallbackInfo const& info);
 
-  std::unique_ptr<rmm::device_buffer> buffer_;
+  Napi::ObjectReference mr_;  ///< Reference to the JS MemoryResource used by this device_buffer
+  std::unique_ptr<rmm::device_buffer> buffer_;  ///< Pointer to the underlying rmm::device_buffer
 };
 
 }  // namespace nv

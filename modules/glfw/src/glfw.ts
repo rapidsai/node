@@ -12,23 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const GLFW = (() => {
-    let GLFW: any, types = ['Release'];
-    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
-        types.push('Debug');
-    }
-    for (let type; type = types.pop();) {
-        try {
-            if (GLFW = require(`../${type}/node_glfw.node`)) {
-                break;
-            }
-        } catch (e) { console.error(e); continue; }
-    }
-    if (GLFW) return GLFW.init();
-    throw new Error('node_glfw not found');
-})();
+const { loadNativeModule } = require('@nvidia/rapids-core');
 
-export { GLFW };
+export const GLFW = loadNativeModule(module, 'node_glfw');
+export default GLFW;
 
 export type GLFWmonitor = number;
 export type GLFWwindow = number;

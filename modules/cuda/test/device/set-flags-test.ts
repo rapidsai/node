@@ -25,10 +25,10 @@ test.each([
         try {
             expect(device.id).toBeDefined();
             expect(device.getFlags()).toBe(DeviceFlags.scheduleAuto);
-            const result = device.reset(flags).getFlags();
-            expect(result).toBe(flags);
+            device.reset().setFlags(flags);
+            expect(device.getFlags()).toBe(flags);
         } finally {
-            device.reset();
+            device.reset().synchronize();
         }
     }
 });
