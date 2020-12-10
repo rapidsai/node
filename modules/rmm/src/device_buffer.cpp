@@ -97,11 +97,7 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBu
 }
 
 void DeviceBuffer::Finalize(Napi::Env env) {
-  if (buffer_.get() != nullptr && !mr_.IsEmpty()) {
-    if (size() > 0) { Napi::MemoryManagement::AdjustExternalMemory(env, -size()); }
-    Device::call_in_context(device(), [&]() { buffer_.reset(nullptr); });
-    mr_.Reset();
-  }
+  Napi::MemoryManagement::AdjustExternalMemory(env, -size());
 }
 
 Napi::Value DeviceBuffer::byte_length(Napi::CallbackInfo const& info) {
