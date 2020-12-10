@@ -48,6 +48,30 @@ inline NapiToCPP::operator rmm::mr::device_memory_resource*() const {
 }
 
 template <>
+inline NapiToCPP::operator rmm::cuda_device_id() const {
+  if (this->IsNumber()) { return rmm::cuda_device_id{this->operator int32_t()}; }
+  if (CudaMemoryResource::is_instance(val)) {
+    return rmm::cuda_device_id{CudaMemoryResource::Unwrap(val.ToObject())->device()};
+  }
+  if (ManagedMemoryResource::is_instance(val)) {
+    return rmm::cuda_device_id{ManagedMemoryResource::Unwrap(val.ToObject())->device()};
+  }
+  if (PoolMemoryResource::is_instance(val)) {
+    return rmm::cuda_device_id{PoolMemoryResource::Unwrap(val.ToObject())->device()};
+  }
+  if (FixedSizeMemoryResource::is_instance(val)) {
+    return rmm::cuda_device_id{FixedSizeMemoryResource::Unwrap(val.ToObject())->device()};
+  }
+  if (BinningMemoryResource::is_instance(val)) {
+    return rmm::cuda_device_id{BinningMemoryResource::Unwrap(val.ToObject())->device()};
+  }
+  if (LoggingResourceAdapter::is_instance(val)) {
+    return rmm::cuda_device_id{LoggingResourceAdapter::Unwrap(val.ToObject())->device()};
+  }
+  NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a numeric device ordinal");
+}
+
+template <>
 inline NapiToCPP::operator rmm::cuda_stream_view() const {
   if (this->IsNumber()) { return rmm::cuda_stream_view{this->operator cudaStream_t()}; }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a numeric cudaStream_t");

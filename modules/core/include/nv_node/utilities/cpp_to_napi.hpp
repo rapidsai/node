@@ -52,6 +52,26 @@ struct CPPToNapi {
   template <typename... Args>
   Napi::Value operator()(Args const&...) const;
 
+  //
+  // Napi identities
+  //
+  inline napi_value operator()(napi_value const& val) const { return val; }
+  inline Napi::Value operator()(Napi::Value const& val) const { return val; }
+  inline Napi::Boolean operator()(Napi::Boolean const& val) const { return val; }
+  inline Napi::Number operator()(Napi::Number const& val) const { return val; }
+  inline Napi::String operator()(Napi::String const& val) const { return val; }
+  inline Napi::Object operator()(Napi::Object const& val) const { return val; }
+  inline Napi::Array operator()(Napi::Array const& val) const { return val; }
+  inline Napi::Function operator()(Napi::Function const& val) const { return val; }
+  inline Napi::Error operator()(Napi::Error const& val) const { return val; }
+  inline Napi::ArrayBuffer operator()(Napi::ArrayBuffer const& val) const { return val; }
+  inline Napi::DataView operator()(Napi::DataView const& val) const { return val; }
+  inline Napi::TypedArray operator()(Napi::TypedArray const& val) const { return val; }
+  template <typename T>
+  inline Napi::Buffer<T> operator()(Napi::Buffer<T> const& val) const {
+    return val;
+  }
+
   // Primitives
   inline Napi::Boolean operator()(bool const& val) const { return Napi::Boolean::New(env, val); }
   inline Napi::Number operator()(float const& val) const { return Napi::Number::New(env, val); }

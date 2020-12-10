@@ -17,8 +17,9 @@
 #include "node_cudf/scalar.hpp"
 #include "node_cudf/types.hpp"
 
-#include <cudf/types.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
+
+#include <cudf/types.hpp>
 
 #include <napi.h>
 #include <memory>

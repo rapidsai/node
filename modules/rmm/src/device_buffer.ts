@@ -28,20 +28,21 @@ type TypedArray = FloatArray | IntArray | UintArray;
 /** @ignore */
 type DeviceBufferInput = BigIntArray | TypedArray | ArrayBufferLike;
 
-interface RMMDeviceBufferConstructor {
-    readonly prototype: RMMDeviceBuffer;
-    new(byteLength?: number, stream?: number, mr?: MemoryResource): RMMDeviceBuffer;
-    new(source?: DeviceBufferInput, stream?: number, mr?: MemoryResource): RMMDeviceBuffer;
-    new(sourceOrByteLength?: DeviceBufferInput | number, stream?: number, mr?: MemoryResource): RMMDeviceBuffer;
+export interface DeviceBufferConstructor {
+    readonly prototype: DeviceBuffer;
+    new(byteLength?: number, stream?: number, mr?: MemoryResource): DeviceBuffer;
+    new(source?: DeviceBufferInput, stream?: number, mr?: MemoryResource): DeviceBuffer;
+    new(sourceOrByteLength?: DeviceBufferInput | number, stream?: number, mr?: MemoryResource): DeviceBuffer;
 }
 
-interface RMMDeviceBuffer extends ArrayBuffer {
+export interface DeviceBuffer extends ArrayBuffer {
     readonly byteLength: number;
     readonly capacity: number;
     readonly isEmpty: boolean;
     readonly ptr: number;
     readonly device: number;
     readonly stream: number;
+    readonly memoryResource: MemoryResource;
 
     /**
      * Resize the device memory allocation
@@ -97,21 +98,7 @@ interface RMMDeviceBuffer extends ArrayBuffer {
      * @param end - the offset (in bytes) to end copying, or the end of the
      * buffer, if unspecified
      */
-    slice(begin: number, end?: number): RMMDeviceBuffer;
+    slice(begin: number, end?: number): DeviceBuffer;
 }
 
-export class DeviceBuffer extends (<RMMDeviceBufferConstructor> RMM.DeviceBuffer) {
-    constructor(byteLength?: number, stream?: number, mr?: MemoryResource);
-    constructor(source?: DeviceBufferInput, stream?: number, mr?: MemoryResource);
-    constructor(sourceOrByteLength?: DeviceBufferInput | number, stream?: number, mr?: MemoryResource) {
-        switch (arguments.length) {
-            case 1: super(sourceOrByteLength); break;
-            case 2: super(sourceOrByteLength, stream); break;
-            case 3: super(sourceOrByteLength, stream, mr); break;
-            default: super();
-        }
-        this._mr = mr;
-    }
-
-    protected _mr?: MemoryResource;
-}
+export const DeviceBuffer: DeviceBufferConstructor = RMM.DeviceBuffer;

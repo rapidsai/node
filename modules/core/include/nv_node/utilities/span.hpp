@@ -21,7 +21,8 @@ namespace nv {
 
 template <typename T>
 struct Span {
-  Span(T* const& data, size_t const& size) : data_(data), size_(size) {}
+  Span(size_t const& size) : data_{nullptr}, size_{size} {}
+  Span(T* const& data, size_t const& size) : data_{data}, size_{size} {}
   Span(void* const& data, size_t const& size) {
     this->data_ = reinterpret_cast<T*>(data);
     this->size_ = size;

@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "node_cudf/column.hpp"
-#include "cudf/utilities/traits.hpp"
-#include "node_cudf/utilities/cpp_to_napi.hpp"
-#include "node_cudf/utilities/error.hpp"
-#include "node_cudf/utilities/napi_to_cpp.hpp"
-#include "nv_node/utilities/napi_to_cpp.hpp"
+#include <node_cudf/column.hpp>
+#include <node_cudf/utilities/cpp_to_napi.hpp>
+#include <node_cudf/utilities/error.hpp>
+#include <node_cudf/utilities/napi_to_cpp.hpp>
 
 #include <node_cuda/utilities/cpp_to_napi.hpp>
 #include <node_cuda/utilities/napi_to_cpp.hpp>
@@ -27,13 +25,13 @@
 
 #include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/napi_to_cpp.hpp>
 
 #include <cudf/column/column.hpp>
 #include <cudf/copying.hpp>
 #include <cudf/detail/nvtx/ranges.hpp>
 #include <cudf/types.hpp>
-
-#include <rmm/device_buffer.hpp>
+#include <cudf/utilities/traits.hpp>
 
 #include <napi.h>
 
@@ -69,24 +67,6 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
   exports.Set("Column", ctor);
 
   return exports;
-}
-
-Napi::Object Column::New(rmm::device_buffer&& data,
-                         cudf::size_type size,
-                         cudf::data_type type,
-                         rmm::device_buffer&& null_mask,
-                         cudf::size_type null_count,
-                         cudf::size_type offset,
-                         Napi::Array const& children) {
-  auto inst = Column::constructor.New({});
-  Column::Unwrap(inst)->Initialize(DeviceBuffer::New(data),
-                                   size,
-                                   DataType::New(type.id()),
-                                   DeviceBuffer::New(null_mask),
-                                   offset,
-                                   null_count,
-                                   children);
-  return inst;
 }
 
 Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {

@@ -14,8 +14,6 @@
 
 #pragma once
 
-#include <node_cuda/utilities/napi_to_cpp.hpp>
-
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/cpp_to_napi.hpp>
 
@@ -76,9 +74,9 @@ class MemoryResource {
    */
   inline bool supports_get_mem_info() { return get_mr()->supports_get_mem_info(); }
 
-  inline operator rmm::mr::device_memory_resource*() const { return mr_.get(); }
+  inline explicit operator rmm::mr::device_memory_resource*() const { return mr_.get(); }
 
-  std::shared_ptr<rmm::mr::device_memory_resource> get_mr() const { return mr_; }
+  inline std::shared_ptr<rmm::mr::device_memory_resource> get_mr() const { return mr_; }
 
  protected:
   Napi::Value is_equal(Napi::CallbackInfo const& info);
@@ -100,11 +98,22 @@ class CudaMemoryResource : public Napi::ObjectWrap<CudaMemoryResource>, public M
    */
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
 
+  static Napi::Object New();
+  static Napi::Object New(int32_t device_id);
+
   /**
    * @brief Construct a new CudaMemoryResource instance from JavaScript.
    *
    */
   CudaMemoryResource(CallbackArgs const& args);
+
+  /**
+   * @brief Destructor called when the JavaScript VM garbage collects this CudaMemoryResource
+   * instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env env) override;
 
   /**
    * @brief Check whether an Napi value is an instance of `CudaMemoryResource`.
@@ -117,8 +126,12 @@ class CudaMemoryResource : public Napi::ObjectWrap<CudaMemoryResource>, public M
     return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
   }
 
+  inline int32_t device() const { return device_id_; }
+
  private:
   static Napi::FunctionReference constructor;
+
+  int32_t device_id_{};
 };
 
 class ManagedMemoryResource : public Napi::ObjectWrap<ManagedMemoryResource>,
@@ -140,6 +153,14 @@ class ManagedMemoryResource : public Napi::ObjectWrap<ManagedMemoryResource>,
   ManagedMemoryResource(CallbackArgs const& args);
 
   /**
+   * @brief Destructor called when the JavaScript VM garbage collects this ManagedMemoryResource
+   * instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env env) override;
+
+  /**
    * @brief Check whether an Napi value is an instance of `ManagedMemoryResource`.
    *
    * @param val The Napi::Value to test
@@ -150,8 +171,12 @@ class ManagedMemoryResource : public Napi::ObjectWrap<ManagedMemoryResource>,
     return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
   }
 
+  inline int32_t device() const { return device_id_; }
+
  private:
   static Napi::FunctionReference constructor;
+
+  int32_t device_id_{};
 };
 
 class PoolMemoryResource : public Napi::ObjectWrap<PoolMemoryResource>, public MemoryResource {
@@ -172,6 +197,14 @@ class PoolMemoryResource : public Napi::ObjectWrap<PoolMemoryResource>, public M
   PoolMemoryResource(CallbackArgs const& args);
 
   /**
+   * @brief Destructor called when the JavaScript VM garbage collects this PoolMemoryResource
+   * instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env env) override;
+
+  /**
    * @brief Check whether an Napi value is an instance of `PoolMemoryResource`.
    *
    * @param val The Napi::Value to test
@@ -182,13 +215,15 @@ class PoolMemoryResource : public Napi::ObjectWrap<PoolMemoryResource>, public M
     return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
   }
 
+  int32_t device() const;
+
  private:
   static Napi::FunctionReference constructor;
 
   Napi::Value get_upstream_mr(Napi::CallbackInfo const& info);
 
   Napi::ObjectReference
-    upstream_mr_{};  ///< The MemoryResource from which to allocate blocks for the pool.
+    upstream_mr_;  ///< The MemoryResource from which to allocate blocks for the pool.
 };
 
 class FixedSizeMemoryResource : public Napi::ObjectWrap<FixedSizeMemoryResource>,
@@ -210,6 +245,14 @@ class FixedSizeMemoryResource : public Napi::ObjectWrap<FixedSizeMemoryResource>
   FixedSizeMemoryResource(CallbackArgs const& args);
 
   /**
+   * @brief Destructor called when the JavaScript VM garbage collects this FixedSizeMemoryResource
+   * instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env env) override;
+
+  /**
    * @brief Check whether an Napi value is an instance of `FixedSizeMemoryResource`.
    *
    * @param val The Napi::Value to test
@@ -220,13 +263,15 @@ class FixedSizeMemoryResource : public Napi::ObjectWrap<FixedSizeMemoryResource>
     return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
   }
 
+  int32_t device() const;
+
  private:
   static Napi::FunctionReference constructor;
 
   Napi::Value get_upstream_mr(Napi::CallbackInfo const& info);
 
   Napi::ObjectReference
-    upstream_mr_{};  ///< The MemoryResource from which to allocate blocks for the pool.
+    upstream_mr_;  ///< The MemoryResource from which to allocate blocks for the pool.
 };
 
 class BinningMemoryResource : public Napi::ObjectWrap<BinningMemoryResource>,
@@ -248,6 +293,14 @@ class BinningMemoryResource : public Napi::ObjectWrap<BinningMemoryResource>,
   BinningMemoryResource(CallbackArgs const& args);
 
   /**
+   * @brief Destructor called when the JavaScript VM garbage collects this BinningMemoryResource
+   * instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env env) override;
+
+  /**
    * @brief Check whether an Napi value is an instance of `BinningMemoryResource`.
    *
    * @param val The Napi::Value to test
@@ -257,6 +310,8 @@ class BinningMemoryResource : public Napi::ObjectWrap<BinningMemoryResource>,
   inline static bool is_instance(Napi::Value const& val) {
     return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
   }
+
+  int32_t device() const;
 
   /**
    * @brief Adds a bin of the specified maximum allocation size to this memory resource. If
@@ -285,7 +340,7 @@ class BinningMemoryResource : public Napi::ObjectWrap<BinningMemoryResource>,
   Napi::Value get_upstream_mr(Napi::CallbackInfo const& info);
 
   Napi::ObjectReference
-    upstream_mr_{};  ///< The MemoryResource to use for allocations larger than any of the bins.
+    upstream_mr_;  ///< The MemoryResource to use for allocations larger than any of the bins.
 
   std::vector<Napi::ObjectReference> bin_mrs_;
 };
@@ -309,6 +364,14 @@ class LoggingResourceAdapter : public Napi::ObjectWrap<LoggingResourceAdapter>,
   LoggingResourceAdapter(CallbackArgs const& args);
 
   /**
+   * @brief Destructor called when the JavaScript VM garbage collects this LoggingResourceAdapter
+   * instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env env) override;
+
+  /**
    * @brief Check whether an Napi value is an instance of `LoggingResourceAdapter`.
    *
    * @param val The Napi::Value to test
@@ -323,6 +386,8 @@ class LoggingResourceAdapter : public Napi::ObjectWrap<LoggingResourceAdapter>,
     return static_cast<rmm::mr::logging_resource_adaptor<rmm::mr::device_memory_resource>*>(
       mr_.get());
   }
+
+  int32_t device() const;
 
   /**
    * @copydoc rmm::mr::logging_resource_adaptor::flush()
@@ -339,7 +404,7 @@ class LoggingResourceAdapter : public Napi::ObjectWrap<LoggingResourceAdapter>,
   Napi::Value get_upstream_mr(Napi::CallbackInfo const& info);
 
   std::string log_file_path_{};
-  Napi::ObjectReference upstream_mr_{};  ///< The upstream MemoryResource.
+  Napi::ObjectReference upstream_mr_;  ///< The upstream MemoryResource.
 };
 
 }  // namespace nv

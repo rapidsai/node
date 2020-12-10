@@ -13,21 +13,13 @@
 // limitations under the License.
 
 #include <node_rmm/memory_resource.hpp>
+#include <node_rmm/utilities/cpp_to_napi.hpp>
 #include <node_rmm/utilities/napi_to_cpp.hpp>
 
 #include <node_cuda/utilities/cpp_to_napi.hpp>
 #include <node_cuda/utilities/error.hpp>
 
-#include <rmm/cuda_stream_view.hpp>
-#include <rmm/mr/device/binning_memory_resource.hpp>
-#include <rmm/mr/device/cuda_memory_resource.hpp>
-#include <rmm/mr/device/device_memory_resource.hpp>
-#include <rmm/mr/device/fixed_size_memory_resource.hpp>
-#include <rmm/mr/device/logging_resource_adaptor.hpp>
-#include <rmm/mr/device/managed_memory_resource.hpp>
-#include <rmm/mr/device/per_device_resource.hpp>
-#include <rmm/mr/device/pool_memory_resource.hpp>
-#include <rmm/mr/device/thread_safe_resource_adaptor.hpp>
+#include <nv_node/utilities/args.hpp>
 
 #include <thrust/optional.h>
 
@@ -53,9 +45,8 @@ Napi::Value MemoryResource::is_equal(Napi::CallbackInfo const& info) {
 
 Napi::Value MemoryResource::get_mem_info(Napi::CallbackInfo const& info) {
   if (supports_get_mem_info()) {
-    cudaStream_t stream = CallbackArgs{info}[0];
     return CPPToNapi(info)(
-      get_mem_info(info.Length() != 1 ? rmm::cuda_stream_default : rmm::cuda_stream_view{stream}));
+      get_mem_info(info.Length() != 1 ? rmm::cuda_stream_default : CallbackArgs{info}[0]));
   }
   return CPPToNapi(info)(std::make_pair<std::size_t, std::size_t>(0, 0));
 }
@@ -73,30 +64,46 @@ Napi::Value MemoryResource::supports_get_mem_info(Napi::CallbackInfo const& info
 Napi::FunctionReference CudaMemoryResource::constructor;
 
 Napi::Object CudaMemoryResource::Init(Napi::Env env, Napi::Object exports) {
-  CudaMemoryResource::constructor = Napi::Persistent(DefineClass(
-    env,
-    "CudaMemoryResource",
-    {InstanceMethod("isEqual", &CudaMemoryResource::is_equal),
-     InstanceMethod("getMemInfo", &CudaMemoryResource::get_mem_info),
-     InstanceAccessor(
-       "supportsStreams", &CudaMemoryResource::supports_streams, nullptr, napi_enumerable),
-     InstanceAccessor("supportsGetMemInfo",
-                      &CudaMemoryResource::supports_get_mem_info,
-                      nullptr,
-                      napi_enumerable)}));
-  CudaMemoryResource::constructor.SuppressDestruct();
-  exports.Set("CudaMemoryResource", CudaMemoryResource::constructor.Value());
+  exports.Set("CudaMemoryResource", [&]() {
+    CudaMemoryResource::constructor = Napi::Persistent(DefineClass(
+      env,
+      "CudaMemoryResource",
+      {InstanceMethod("isEqual", &CudaMemoryResource::is_equal),
+       InstanceMethod("getMemInfo", &CudaMemoryResource::get_mem_info),
+       InstanceAccessor(
+         "supportsStreams", &CudaMemoryResource::supports_streams, nullptr, napi_enumerable),
+       InstanceAccessor("supportsGetMemInfo",
+                        &CudaMemoryResource::supports_get_mem_info,
+                        nullptr,
+                        napi_enumerable)}));
+    CudaMemoryResource::constructor.SuppressDestruct();
+    return CudaMemoryResource::constructor.Value();
+  }());
   return exports;
+}
+
+Napi::Object CudaMemoryResource::New() {
+  return CudaMemoryResource::New(Device::active_device_id());
+}
+
+Napi::Object CudaMemoryResource::New(int32_t device_id) {
+  CPPToNapiValues args{CudaMemoryResource::constructor.Env()};
+  return CudaMemoryResource::constructor.New(args(device_id));
 }
 
 CudaMemoryResource::CudaMemoryResource(CallbackArgs const& args)
   : Napi::ObjectWrap<CudaMemoryResource>(args) {
-  int32_t device = args[0].IsNumber() ? args[0] : -1;
-  if (device == -1) {
+  if (!args[0].IsNumber()) {
+    device_id_ = Device::active_device_id();
     mr_.reset(new rmm::mr::cuda_memory_resource());
   } else {
-    mr_.reset(rmm::mr::get_per_device_resource(rmm::cuda_device_id(device)), [](auto* p) {});
+    device_id_ = args[0];
+    mr_.reset(rmm::mr::get_per_device_resource(rmm::cuda_device_id(device_id_)), [](auto* p) {});
   }
+}
+
+void CudaMemoryResource::Finalize(Napi::Env env) {
+  Device::call_in_context(device_id_, [&]() { mr_.reset(); });
 }
 
 // ManagedMemoryResource
@@ -104,25 +111,33 @@ CudaMemoryResource::CudaMemoryResource(CallbackArgs const& args)
 Napi::FunctionReference ManagedMemoryResource::constructor;
 
 Napi::Object ManagedMemoryResource::Init(Napi::Env env, Napi::Object exports) {
-  ManagedMemoryResource::constructor = Napi::Persistent(DefineClass(
-    env,
-    "ManagedMemoryResource",
-    {InstanceMethod("isEqual", &ManagedMemoryResource::is_equal),
-     InstanceMethod("getMemInfo", &ManagedMemoryResource::get_mem_info),
-     InstanceAccessor(
-       "supportsStreams", &ManagedMemoryResource::supports_streams, nullptr, napi_enumerable),
-     InstanceAccessor("supportsGetMemInfo",
-                      &ManagedMemoryResource::supports_get_mem_info,
-                      nullptr,
-                      napi_enumerable)}));
-  ManagedMemoryResource::constructor.SuppressDestruct();
-  exports.Set("ManagedMemoryResource", ManagedMemoryResource::constructor.Value());
+  exports.Set("ManagedMemoryResource", [&]() {
+    (ManagedMemoryResource::constructor = Napi::Persistent(DefineClass(
+       env,
+       "ManagedMemoryResource",
+       {InstanceMethod("isEqual", &ManagedMemoryResource::is_equal),
+        InstanceMethod("getMemInfo", &ManagedMemoryResource::get_mem_info),
+        InstanceAccessor(
+          "supportsStreams", &ManagedMemoryResource::supports_streams, nullptr, napi_enumerable),
+        InstanceAccessor("supportsGetMemInfo",
+                         &ManagedMemoryResource::supports_get_mem_info,
+                         nullptr,
+                         napi_enumerable)})))
+      .SuppressDestruct();
+    return ManagedMemoryResource::constructor.Value();
+  }());
+
   return exports;
 }
 
 ManagedMemoryResource::ManagedMemoryResource(CallbackArgs const& args)
   : Napi::ObjectWrap<ManagedMemoryResource>(args) {
+  device_id_ = Device::active_device_id();
   mr_.reset(new rmm::mr::managed_memory_resource());
+}
+
+void ManagedMemoryResource::Finalize(Napi::Env env) {
+  Device::call_in_context(device_id_, [&]() { mr_.reset(); });
 }
 
 // PoolMemoryResource
@@ -130,21 +145,23 @@ ManagedMemoryResource::ManagedMemoryResource(CallbackArgs const& args)
 Napi::FunctionReference PoolMemoryResource::constructor;
 
 Napi::Object PoolMemoryResource::Init(Napi::Env env, Napi::Object exports) {
-  PoolMemoryResource::constructor = Napi::Persistent(DefineClass(
-    env,
-    "PoolMemoryResource",
-    {InstanceMethod("isEqual", &PoolMemoryResource::is_equal),
-     InstanceMethod("getMemInfo", &PoolMemoryResource::get_mem_info),
-     InstanceAccessor(
-       "upstreamMemoryResource", &PoolMemoryResource::get_upstream_mr, nullptr, napi_enumerable),
-     InstanceAccessor(
-       "supportsStreams", &PoolMemoryResource::supports_streams, nullptr, napi_enumerable),
-     InstanceAccessor("supportsGetMemInfo",
-                      &PoolMemoryResource::supports_get_mem_info,
-                      nullptr,
-                      napi_enumerable)}));
-  PoolMemoryResource::constructor.SuppressDestruct();
-  exports.Set("PoolMemoryResource", PoolMemoryResource::constructor.Value());
+  exports.Set("PoolMemoryResource", [&]() {
+    PoolMemoryResource::constructor = Napi::Persistent(DefineClass(
+      env,
+      "PoolMemoryResource",
+      {InstanceMethod("isEqual", &PoolMemoryResource::is_equal),
+       InstanceMethod("getMemInfo", &PoolMemoryResource::get_mem_info),
+       InstanceAccessor(
+         "upstreamMemoryResource", &PoolMemoryResource::get_upstream_mr, nullptr, napi_enumerable),
+       InstanceAccessor(
+         "supportsStreams", &PoolMemoryResource::supports_streams, nullptr, napi_enumerable),
+       InstanceAccessor("supportsGetMemInfo",
+                        &PoolMemoryResource::supports_get_mem_info,
+                        nullptr,
+                        napi_enumerable)}));
+    PoolMemoryResource::constructor.SuppressDestruct();
+    return PoolMemoryResource::constructor.Value();
+  }());
   return exports;
 }
 
@@ -167,6 +184,14 @@ PoolMemoryResource::PoolMemoryResource(CallbackArgs const& args)
   upstream_mr_.Reset(args[0], 1);
 }
 
+void PoolMemoryResource::Finalize(Napi::Env env) {
+  Device::call_in_context(device(), [&]() { mr_.reset(); });
+}
+
+int32_t PoolMemoryResource::device() const {
+  return NapiToCPP(upstream_mr_.Value()).operator rmm::cuda_device_id().value();
+}
+
 Napi::Value PoolMemoryResource::get_upstream_mr(Napi::CallbackInfo const& info) {
   return upstream_mr_.Value();
 }
@@ -176,23 +201,25 @@ Napi::Value PoolMemoryResource::get_upstream_mr(Napi::CallbackInfo const& info) 
 Napi::FunctionReference FixedSizeMemoryResource::constructor;
 
 Napi::Object FixedSizeMemoryResource::Init(Napi::Env env, Napi::Object exports) {
-  FixedSizeMemoryResource::constructor = Napi::Persistent(DefineClass(
-    env,
-    "FixedSizeMemoryResource",
-    {InstanceMethod("isEqual", &FixedSizeMemoryResource::is_equal),
-     InstanceMethod("getMemInfo", &FixedSizeMemoryResource::get_mem_info),
-     InstanceAccessor("upstreamMemoryResource",
-                      &FixedSizeMemoryResource::get_upstream_mr,
-                      nullptr,
-                      napi_enumerable),
-     InstanceAccessor(
-       "supportsStreams", &FixedSizeMemoryResource::supports_streams, nullptr, napi_enumerable),
-     InstanceAccessor("supportsGetMemInfo",
-                      &FixedSizeMemoryResource::supports_get_mem_info,
-                      nullptr,
-                      napi_enumerable)}));
-  FixedSizeMemoryResource::constructor.SuppressDestruct();
-  exports.Set("FixedSizeMemoryResource", FixedSizeMemoryResource::constructor.Value());
+  exports.Set("FixedSizeMemoryResource", [&]() {
+    FixedSizeMemoryResource::constructor = Napi::Persistent(DefineClass(
+      env,
+      "FixedSizeMemoryResource",
+      {InstanceMethod("isEqual", &FixedSizeMemoryResource::is_equal),
+       InstanceMethod("getMemInfo", &FixedSizeMemoryResource::get_mem_info),
+       InstanceAccessor("upstreamMemoryResource",
+                        &FixedSizeMemoryResource::get_upstream_mr,
+                        nullptr,
+                        napi_enumerable),
+       InstanceAccessor(
+         "supportsStreams", &FixedSizeMemoryResource::supports_streams, nullptr, napi_enumerable),
+       InstanceAccessor("supportsGetMemInfo",
+                        &FixedSizeMemoryResource::supports_get_mem_info,
+                        nullptr,
+                        napi_enumerable)}));
+    FixedSizeMemoryResource::constructor.SuppressDestruct();
+    return FixedSizeMemoryResource::constructor.Value();
+  }());
   return exports;
 }
 
@@ -215,6 +242,14 @@ FixedSizeMemoryResource::FixedSizeMemoryResource(CallbackArgs const& args)
   upstream_mr_.Reset(args[0], 1);
 }
 
+void FixedSizeMemoryResource::Finalize(Napi::Env env) {
+  Device::call_in_context(device(), [&]() { mr_.reset(); });
+}
+
+int32_t FixedSizeMemoryResource::device() const {
+  return NapiToCPP(upstream_mr_.Value()).operator rmm::cuda_device_id().value();
+}
+
 Napi::Value FixedSizeMemoryResource::get_upstream_mr(Napi::CallbackInfo const& info) {
   return upstream_mr_.Value();
 }
@@ -224,22 +259,26 @@ Napi::Value FixedSizeMemoryResource::get_upstream_mr(Napi::CallbackInfo const& i
 Napi::FunctionReference BinningMemoryResource::constructor;
 
 Napi::Object BinningMemoryResource::Init(Napi::Env env, Napi::Object exports) {
-  BinningMemoryResource::constructor = Napi::Persistent(DefineClass(
-    env,
-    "BinningMemoryResource",
-    {InstanceMethod("isEqual", &BinningMemoryResource::is_equal),
-     InstanceMethod("getMemInfo", &BinningMemoryResource::get_mem_info),
-     InstanceMethod("addBin", &BinningMemoryResource::add_bin),
-     InstanceAccessor(
-       "upstreamMemoryResource", &BinningMemoryResource::get_upstream_mr, nullptr, napi_enumerable),
-     InstanceAccessor(
-       "supportsStreams", &BinningMemoryResource::supports_streams, nullptr, napi_enumerable),
-     InstanceAccessor("supportsGetMemInfo",
-                      &BinningMemoryResource::supports_get_mem_info,
-                      nullptr,
-                      napi_enumerable)}));
-  BinningMemoryResource::constructor.SuppressDestruct();
-  exports.Set("BinningMemoryResource", BinningMemoryResource::constructor.Value());
+  exports.Set("BinningMemoryResource", [&]() {
+    BinningMemoryResource::constructor = Napi::Persistent(DefineClass(
+      env,
+      "BinningMemoryResource",
+      {InstanceMethod("isEqual", &BinningMemoryResource::is_equal),
+       InstanceMethod("getMemInfo", &BinningMemoryResource::get_mem_info),
+       InstanceMethod("addBin", &BinningMemoryResource::add_bin),
+       InstanceAccessor("upstreamMemoryResource",
+                        &BinningMemoryResource::get_upstream_mr,
+                        nullptr,
+                        napi_enumerable),
+       InstanceAccessor(
+         "supportsStreams", &BinningMemoryResource::supports_streams, nullptr, napi_enumerable),
+       InstanceAccessor("supportsGetMemInfo",
+                        &BinningMemoryResource::supports_get_mem_info,
+                        nullptr,
+                        napi_enumerable)}));
+    BinningMemoryResource::constructor.SuppressDestruct();
+    return BinningMemoryResource::constructor.Value();
+  }());
   return exports;
 }
 
@@ -251,16 +290,24 @@ BinningMemoryResource::BinningMemoryResource(CallbackArgs const& args)
                    "BinningMemoryResource constructor expects an upstream MemoryResource to use "
                    "for allocations larger than any of the bins.");
 
-  int8_t const min_size_exponent = args[1].IsNumber() ? args[1] : -1;
-  int8_t const max_size_exponent = args[2].IsNumber() ? args[2] : -1;
+  rmm::mr::device_memory_resource* mr = args[0];
+  int8_t const min_size_exponent      = args[1].IsNumber() ? args[1] : -1;
+  int8_t const max_size_exponent      = args[2].IsNumber() ? args[2] : -1;
 
-  mr_.reset(min_size_exponent > -1 && max_size_exponent > -1
-              ? new rmm::mr::binning_memory_resource<rmm::mr::device_memory_resource>(
-                  args[0], min_size_exponent, max_size_exponent)
+  mr_.reset(min_size_exponent <= -1 || max_size_exponent <= -1
+              ? new rmm::mr::binning_memory_resource<rmm::mr::device_memory_resource>(mr)
               : new rmm::mr::binning_memory_resource<rmm::mr::device_memory_resource>(
-                  args[0].operator rmm::mr::device_memory_resource*()));
+                  mr, min_size_exponent, max_size_exponent));
 
   upstream_mr_.Reset(args[0], 1);
+}
+
+void BinningMemoryResource::Finalize(Napi::Env env) {
+  Device::call_in_context(device(), [&]() { mr_.reset(); });
+}
+
+int32_t BinningMemoryResource::device() const {
+  return NapiToCPP(upstream_mr_.Value()).operator rmm::cuda_device_id().value();
 }
 
 Napi::Value BinningMemoryResource::get_upstream_mr(Napi::CallbackInfo const& info) {
@@ -292,25 +339,27 @@ Napi::Value BinningMemoryResource::add_bin(Napi::CallbackInfo const& info) {
 Napi::FunctionReference LoggingResourceAdapter::constructor;
 
 Napi::Object LoggingResourceAdapter::Init(Napi::Env env, Napi::Object exports) {
-  LoggingResourceAdapter::constructor = Napi::Persistent(DefineClass(
-    env,
-    "LoggingResourceAdapter",
-    {InstanceMethod("isEqual", &LoggingResourceAdapter::is_equal),
-     InstanceMethod("getMemInfo", &LoggingResourceAdapter::get_mem_info),
-     InstanceAccessor(
-       "logFilePath", &LoggingResourceAdapter::get_file_path, nullptr, napi_enumerable),
-     InstanceAccessor("upstreamMemoryResource",
-                      &LoggingResourceAdapter::get_upstream_mr,
-                      nullptr,
-                      napi_enumerable),
-     InstanceAccessor(
-       "supportsStreams", &LoggingResourceAdapter::supports_streams, nullptr, napi_enumerable),
-     InstanceAccessor("supportsGetMemInfo",
-                      &LoggingResourceAdapter::supports_get_mem_info,
-                      nullptr,
-                      napi_enumerable)}));
-  LoggingResourceAdapter::constructor.SuppressDestruct();
-  exports.Set("LoggingResourceAdapter", LoggingResourceAdapter::constructor.Value());
+  exports.Set("LoggingResourceAdapter", [&]() {
+    LoggingResourceAdapter::constructor = Napi::Persistent(DefineClass(
+      env,
+      "LoggingResourceAdapter",
+      {InstanceMethod("isEqual", &LoggingResourceAdapter::is_equal),
+       InstanceMethod("getMemInfo", &LoggingResourceAdapter::get_mem_info),
+       InstanceAccessor(
+         "logFilePath", &LoggingResourceAdapter::get_file_path, nullptr, napi_enumerable),
+       InstanceAccessor("upstreamMemoryResource",
+                        &LoggingResourceAdapter::get_upstream_mr,
+                        nullptr,
+                        napi_enumerable),
+       InstanceAccessor(
+         "supportsStreams", &LoggingResourceAdapter::supports_streams, nullptr, napi_enumerable),
+       InstanceAccessor("supportsGetMemInfo",
+                        &LoggingResourceAdapter::supports_get_mem_info,
+                        nullptr,
+                        napi_enumerable)}));
+    LoggingResourceAdapter::constructor.SuppressDestruct();
+    return LoggingResourceAdapter::constructor.Value();
+  }());
   return exports;
 }
 
@@ -343,6 +392,14 @@ LoggingResourceAdapter::LoggingResourceAdapter(CallbackArgs const& args)
     args[0], log_file_path_, auto_flush));
 
   upstream_mr_.Reset(args[0], 1);
+}
+
+void LoggingResourceAdapter::Finalize(Napi::Env env) {
+  Device::call_in_context(device(), [&]() { mr_.reset(); });
+}
+
+int32_t LoggingResourceAdapter::device() const {
+  return NapiToCPP(upstream_mr_.Value()).operator rmm::cuda_device_id().value();
 }
 
 Napi::Value LoggingResourceAdapter::get_upstream_mr(Napi::CallbackInfo const& info) {

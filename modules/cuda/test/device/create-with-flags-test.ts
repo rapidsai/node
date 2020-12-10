@@ -27,7 +27,7 @@ test.each([
             expect(device.id).toBeDefined();
             expect(device.getFlags()).toBe(flags);
         } finally {
-            device.reset();
+            device.reset().synchronize();
         }
     }
 });
