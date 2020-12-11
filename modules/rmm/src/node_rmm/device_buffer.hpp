@@ -31,6 +31,26 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
 
   /**
+   * @brief Construct a new DeviceBuffer instance from an rmm::device_buffer.
+   *
+   * @param buffer Pointer the rmm::device_buffer to own.
+   */
+  static DeviceBuffer New(std::unique_ptr<rmm::device_buffer> buffer);
+
+  /**
+   * @brief Construct a new uninitialized DeviceBuffer instance from C++.
+   *
+   * @param data Pointer to the host or device memory to copy from.
+   * @param stream CUDA stream on which memory may be allocated if the memory
+   * resource supports streams.
+   * @param mr Memory resource to use for the device memory allocation.
+   */
+  static DeviceBuffer New(rmm::cuda_stream_view stream = rmm::cuda_stream_default,
+                          Napi::Object const& mr       = CudaMemoryResource::New()) {
+    return DeviceBuffer::New(Span<char>(0), stream, mr);
+  }
+
+  /**
    * @brief Construct a new DeviceBuffer instance from C++.
    *
    * @param data Pointer to the host or device memory to copy from.
@@ -38,7 +58,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
-  static Napi::Object New(Span<char> span,
+  static DeviceBuffer New(Span<char> span,
                           rmm::cuda_stream_view stream = rmm::cuda_stream_default,
                           Napi::Object const& mr       = CudaMemoryResource::New()) {
     return DeviceBuffer::New(span.data(), span.size(), stream, mr);
@@ -53,7 +73,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
-  static Napi::Object New(void* data,
+  static DeviceBuffer New(void* data,
                           size_t size,
                           rmm::cuda_stream_view stream = rmm::cuda_stream_default,
                           Napi::Object const& mr       = CudaMemoryResource::New());
@@ -86,6 +106,8 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   inline void* data() const { return buffer().data(); }
 
   inline size_t size() const { return buffer().size(); }
+
+  inline rmm::cuda_stream_view stream() { return buffer().stream(); }
 
   inline int32_t device() const { return (this->operator rmm::cuda_device_id()).value(); }
 

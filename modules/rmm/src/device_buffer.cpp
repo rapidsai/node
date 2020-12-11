@@ -53,14 +53,22 @@ Napi::Object DeviceBuffer::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
-Napi::Object DeviceBuffer::New(void* data,
+DeviceBuffer DeviceBuffer::New(std::unique_ptr<rmm::device_buffer> buffer) {
+  auto mr     = CPPToNapi(constructor.Env())(buffer->memory_resource());
+  auto buf    = DeviceBuffer::New(buffer->stream(), mr.ToObject());
+  buf.buffer_ = std::move(buffer);
+  return std::move(buf);
+}
+
+DeviceBuffer DeviceBuffer::New(void* data,
                                size_t size,
                                rmm::cuda_stream_view stream,
                                Napi::Object const& mr) {
   NODE_CUDA_EXPECT(MemoryResource::is_instance(mr),
                    "DeviceBuffer constructor requires a valid MemoryResource");
   CPPToNapiValues const args{DeviceBuffer::constructor.Env()};
-  return DeviceBuffer::constructor.New(args(Span<char>(data, size), stream, mr));
+  auto buf = DeviceBuffer::constructor.New(args(Span<char>(data, size), stream, mr));
+  return std::move(*DeviceBuffer::Unwrap(buf));
 }
 
 DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBuffer>(args) {
@@ -152,7 +160,9 @@ Napi::Value DeviceBuffer::slice(Napi::CallbackInfo const& info) {
     length = args[1];
     length -= offset;
   }
-  return DeviceBuffer::New(static_cast<char*>(data()) + offset, length, buffer().stream());
+  auto ptr = static_cast<char*>(data()) + offset;
+  auto buf = DeviceBuffer::New(ptr, length, stream(), mr_.Value());
+  return buf.Value();
 }
 
 Napi::Value DeviceBuffer::device(Napi::CallbackInfo const& info) {
@@ -160,7 +170,7 @@ Napi::Value DeviceBuffer::device(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value DeviceBuffer::stream(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(buffer().stream());
+  return CPPToNapi(info)(stream());
 }
 
 }  // namespace nv

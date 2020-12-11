@@ -36,7 +36,14 @@ class DataType : public Napi::ObjectWrap<DataType> {
    *
    * @param id The type's identifier.
    */
-  static Napi::Object New(cudf::type_id id);
+  static DataType New(cudf::data_type type) { return New(type.id()); }
+
+  /**
+   * @brief Construct a new DataType instance with a given type id.
+   *
+   * @param id The type's identifier.
+   */
+  static DataType New(cudf::type_id id);
 
   /**
    * @brief Check whether an Napi value is an instance of `DataType`.
@@ -54,13 +61,6 @@ class DataType : public Napi::ObjectWrap<DataType> {
    *
    */
   DataType(CallbackArgs const& args);
-
-  /**
-   * @brief Initialize the DataType instance created by either C++ or JavaScript.
-   *
-   * @param id The type's identifier.
-   */
-  void Initialize(cudf::type_id id);
 
   operator cudf::data_type() const noexcept { return cudf::data_type{id_}; }
 

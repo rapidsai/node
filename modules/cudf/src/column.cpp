@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <node_cudf/column.hpp>
+#include <node_cudf/scalar.hpp>
 #include <node_cudf/utilities/cpp_to_napi.hpp>
 #include <node_cudf/utilities/error.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
@@ -27,13 +28,18 @@
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
+#include <cudf/binaryop.hpp>
 #include <cudf/column/column.hpp>
 #include <cudf/copying.hpp>
 #include <cudf/detail/nvtx/ranges.hpp>
+#include <cudf/reduction.hpp>
 #include <cudf/types.hpp>
 #include <cudf/utilities/traits.hpp>
 
 #include <napi.h>
+
+#include <memory>
+#include <utility>
 
 namespace nv {
 
@@ -69,6 +75,34 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
+Column Column::New(std::unique_ptr<cudf::column> column) {
+  auto env   = constructor.Env();
+  auto props = Napi::Object::New(env);
+
+  props.Set("offset", 0);
+  props.Set("length", column->size());
+  props.Set("type", column->type().id());
+  props.Set("nullCount", column->null_count());
+
+  auto contents = std::move(column->release());
+  auto data     = std::move(contents.data);
+  auto mask     = std::move(contents.null_mask);
+  auto children = std::move(contents.children);
+
+  props.Set("children", [&]() {
+    auto ary = Napi::Array::New(env, children.size());
+    for (size_t i = 0; i < children.size(); ++i) {  //
+      ary.Set(i, New(std::move(children.at(i))));
+    }
+    return ary;
+  }());
+
+  props.Set("data", DeviceBuffer::New(std::move(data)));
+  props.Set("nullMask", DeviceBuffer::New(std::move(mask)));
+
+  return std::move(*Unwrap(constructor.New({props})));
+}
+
 Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
   NODE_CUDA_EXPECT(args.IsConstructCall(), "Column constructor requires 'new'");
 
@@ -85,52 +119,50 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
                            ? props.Get("children").As<Napi::Array>()
                            : Napi::Array::New(Env(), 0);
 
-  DeviceBuffer& data = *DeviceBuffer::Unwrap([&]() {
+  DeviceBuffer data = std::move([&]() {
     if (cudf::is_fixed_width(type) && props.Has("data")) {
       auto data = NapiToCPP(props.Get("data"));
       if (data.IsMemoryLike()) {
         if (data.IsMemoryViewLike()) { data = NapiToCPP(data.ToObject().Get("buffer")); }
-        if (DeviceBuffer::is_instance(data)) { return data.As<Napi::Object>(); }
-        Span<char> externalData = data;
-        return DeviceBuffer::New(externalData.data(), externalData.size());
+        if (DeviceBuffer::is_instance(data)) { return data.As<DeviceBuffer>(); }
+        return DeviceBuffer::New(data.operator Span<char>());
       }
     }
-    return DeviceBuffer::New(nullptr, 0);
+    return DeviceBuffer::New();
   }());
 
   if (length == 0 && data.size() > 0 && cudf::is_fixed_width(type)) {
     length = data.size() / cudf::size_of(type);
   }
 
-  Napi::Object mask = [&]() {
+  DeviceBuffer mask = std::move([&]() {
     if (props.Has("nullMask")) {
       auto mask = NapiToCPP(props.Get("nullMask"));
       if (mask.IsMemoryLike()) {
         if (mask.IsMemoryViewLike()) { mask = NapiToCPP(mask.ToObject().Get("buffer")); }
-        if (DeviceBuffer::is_instance(mask)) { return mask.As<Napi::Object>(); }
-        Span<char> externalMask = mask;
-        return DeviceBuffer::New(externalMask.data(), externalMask.size());
+        if (DeviceBuffer::is_instance(mask)) { return mask.As<DeviceBuffer>(); }
+        return DeviceBuffer::New(mask.operator Span<char>());
       }
     }
-    return DeviceBuffer::New(nullptr, 0);
-  }();
+    return DeviceBuffer::New();
+  }());
 
-  Initialize(data.Value(), length, DataType::New(type.id()), mask, offset, null_count, children);
+  Initialize(data, length, DataType::New(type), mask, offset, null_count, children);
 }
 
-void Column::Initialize(Napi::Object const& data,
+void Column::Initialize(DeviceBuffer const& data,
                         cudf::size_type size,
-                        Napi::Object const& type,
-                        Napi::Object const& null_mask,
+                        DataType const& type,
+                        DeviceBuffer const& null_mask,
                         cudf::size_type offset,
                         cudf::size_type null_count,
                         Napi::Array const& children) {
   size_       = size;
   offset_     = offset;
   null_count_ = null_count;
-  type_.Reset(type, 1);
-  data_.Reset(data, 1);
-  null_mask_.Reset(null_mask, 1);
+  type_.Reset(type.Value(), 1);
+  data_.Reset(data.Value(), 1);
+  null_mask_.Reset(null_mask.Value(), 1);
   children_.Reset(children, 1);
 }
 
@@ -155,7 +187,7 @@ cudf::size_type Column::null_count() const {
 void Column::set_null_mask(Napi::Value const& new_null_mask, cudf::size_type new_null_count) {
   null_count_ = new_null_count;
   if (new_null_mask.IsNull() || new_null_mask.IsUndefined()) {
-    null_mask_.Reset(DeviceBuffer::New(nullptr, 0), 1);
+    null_mask_.Reset(DeviceBuffer::New().Value(), 1);
   } else {
     auto& new_mask = *DeviceBuffer::Unwrap(new_null_mask.ToObject());
     if (new_null_count > 0) {
@@ -229,6 +261,64 @@ cudf::mutable_column_view Column::mutable_view() {
                                    child_views};
 }
 
+std::pair<Scalar, Scalar> Column::minmax() const {
+  auto result = std::move(cudf::minmax(*this));
+  return {Scalar::New(std::move(result.first)),  //
+          Scalar::New(std::move(result.second))};
+}
+
+Column Column::operator==(Column const& other) const {
+  return this->binary_operation<cudf::binary_operator::EQUAL, cudf::type_id::BOOL8>(other);
+}
+
+Column Column::operator==(Scalar const& other) const {
+  return this->binary_operation<cudf::binary_operator::EQUAL, cudf::type_id::BOOL8>(other);
+}
+
+Column Column::operator<(Column const& other) const {
+  return this->binary_operation<cudf::binary_operator::LESS, cudf::type_id::BOOL8>(other);
+}
+
+Column Column::operator<(Scalar const& other) const {
+  return this->binary_operation<cudf::binary_operator::LESS, cudf::type_id::BOOL8>(other);
+}
+
+Column Column::operator<=(Column const& other) const {
+  return this->binary_operation<cudf::binary_operator::LESS_EQUAL, cudf::type_id::BOOL8>(other);
+}
+
+Column Column::operator<=(Scalar const& other) const {
+  return this->binary_operation<cudf::binary_operator::LESS_EQUAL, cudf::type_id::BOOL8>(other);
+}
+
+Column Column::operator>(Column const& other) const {
+  return this->binary_operation<cudf::binary_operator::GREATER, cudf::type_id::BOOL8>(other);
+}
+
+Column Column::operator>(Scalar const& other) const {
+  return this->binary_operation<cudf::binary_operator::GREATER, cudf::type_id::BOOL8>(other);
+}
+
+Column Column::operator>=(Column const& other) const {
+  return this->binary_operation<cudf::binary_operator::GREATER_EQUAL, cudf::type_id::BOOL8>(other);
+}
+
+Column Column::operator>=(Scalar const& other) const {
+  return this->binary_operation<cudf::binary_operator::GREATER_EQUAL, cudf::type_id::BOOL8>(other);
+}
+
+template <cudf::binary_operator op, cudf::type_id output_type>
+Column Column::binary_operation(Column const& rhs) const {
+  return Column::New(
+    std::move(cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type})));
+}
+
+template <cudf::binary_operator op, cudf::type_id output_type>
+Column Column::binary_operation(Scalar const& rhs) const {
+  return Column::New(
+    std::move(cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type})));
+}
+
 //
 // Private API
 //
@@ -267,7 +357,9 @@ Napi::Value Column::set_null_mask(Napi::CallbackInfo const& info) {
   if (mask.IsMemoryViewLike()) { mask = NapiToCPP(mask.ToObject().Get("buffer")); }
 
   // If arg isn't a DeviceBuffer, copy the input data into a new DeviceBuffer
-  if (!DeviceBuffer::is_instance(mask)) { mask = DeviceBuffer::New(mask.operator Span<char>()); }
+  if (!DeviceBuffer::is_instance(mask)) {
+    mask = DeviceBuffer::New(mask.operator Span<char>()).Value();
+  }
 
   set_null_mask(mask, size);
 

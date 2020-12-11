@@ -12,19 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "node_cugraph/graph_coo.hpp"
-
-#include <napi.h>
-#include <cstddef>
-#include <cugraph/graph.hpp>
-#undef CUDA_TRY
+#include <node_cugraph/graph_coo.hpp>
 
 #include <node_cuda/utilities/error.hpp>
 #include <node_cuda/utilities/napi_to_cpp.hpp>
 
 #include <cudf/reduction.hpp>
+#include <cudf/types.hpp>
+
+#include <napi.h>
 
 #include <algorithm>
+#include <cstddef>
 
 namespace nv {
 
@@ -44,76 +43,45 @@ Napi::Object GraphCOO::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
-GraphCOO::GraphCOO(Napi::CallbackInfo const& info) : Napi::ObjectWrap<GraphCOO>(info) {
-  const CallbackArgs args{info};
-  Napi::Object const& src = args[0];
-  Napi::Object const& dst = args[1];
-
-  // TODO: (bev) type check
-
-  switch (args.Length()) {
-    // TODO: mediate New / JS with zero args
-    case 0: break;
-    case 2: Initialize(src, dst); break;
-    case 3: Initialize(src, dst, args[2]); break;
-    case 4: Initialize(src, dst, args[2], args[3]); break;
-    default:
-      NODE_CUDA_EXPECT(false,
-                       "GraphCOO constructor requires a numeric number of vertices and edges, "
-                       "and optional stream and memory_resource arguments");
-      break;
-  }
+Napi::Object GraphCOO::New(nv::Column const& src, nv::Column const& dst) {
+  CPPToNapiValues const args{GraphCOO::constructor.Env()};
+  return GraphCOO::constructor.New({src.Value(), dst.Value()});
 }
 
-Napi::Object GraphCOO::New(nv::Column const& src,
-                           nv::Column const& dst,
-                           cudaStream_t stream,
-                           rmm::mr::device_memory_resource* mr) {
-  const auto inst = GraphCOO::constructor.New({});
+GraphCOO::GraphCOO(CallbackArgs const& args) : Napi::ObjectWrap<GraphCOO>(args) {
+  Napi::Value const& src = args[0];
+  Napi::Value const& dst = args[1];
 
-  GraphCOO::Unwrap(inst)->Initialize(src.Value(), dst.Value(), stream, mr);
-  return inst;
-}
+  NODE_CUDA_EXPECT(Column::is_instance(src), "GraphCOO requires src argument to a Column");
+  NODE_CUDA_EXPECT(Column::is_instance(dst), "GraphCOO requires dst argument to a Column");
 
-void GraphCOO::Initialize(Napi::Object const& src,
-                          Napi::Object const& dst,
-                          cudaStream_t stream,
-                          rmm::mr::device_memory_resource* mr) {
-  src_.Reset(src, 1);
-  dst_.Reset(dst, 1);
+  src_.Reset(src.ToObject(), 1);
+  dst_.Reset(dst.ToObject(), 1);
 }
 
 void GraphCOO::Finalize(Napi::Env env) {}
 
-size_t GraphCOO::NumberOfNodes() const {
-  auto& src = *nv::Column::Unwrap(src_.Value());
-  auto& dst = *nv::Column::Unwrap(dst_.Value());
+size_t GraphCOO::NumberOfNodes() {
+  if (!node_count_computed_) {
+    using ScalarType = cudf::scalar_type_t<int32_t>;
 
-  int* src_indices = reinterpret_cast<int*>(src.data().data());
-  int* dst_indices = reinterpret_cast<int*>(dst.data().data());
+    auto src_max = std::move(src_column().minmax()).second;
+    auto dst_max = std::move(dst_column().minmax()).second;
 
-  size_t N = src.size();
-
-  // TODO: (BEV) all this assumes does not need re-numbering
-
-  auto src_mm = cudf::minmax(src.view());
-  auto dst_mm = cudf::minmax(dst.view());
-
-  using ScalarType = cudf::scalar_type_t<int>;
-  int src_max      = static_cast<ScalarType*>(src_mm.second.get())->value();
-  int dst_max      = static_cast<ScalarType*>(dst_mm.second.get())->value();
-
-  return 1 + std::max(src_max, dst_max);
+    node_count_ = 1 + std::max(static_cast<ScalarType*>(src_max)->value(),
+                               static_cast<ScalarType*>(dst_max)->value());
+  }
+  return node_count_;
 }
 
-size_t GraphCOO::NumberOfEdges() const {
-  // TODO (bev) most of Python version still to be ported
+size_t GraphCOO::NumberOfEdges() {
+  auto distinct_edges = src_column() >= dst_column();
 
   auto& src = *nv::Column::Unwrap(src_.Value());
   return src.size();
 }
 
-cugraph::GraphCOOView<int, int, float> GraphCOO::View() const {
+cugraph::GraphCOOView<int, int, float> GraphCOO::View() {
   auto edge_list = this->Value().Get("edgelist").ToObject();
 
   auto& src = *nv::Column::Unwrap(src_.Value());

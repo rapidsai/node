@@ -72,6 +72,7 @@ file(GLOB_RECURSE NODE_CUDF_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 if(cudf_ADDED)
     list(
         APPEND NODE_CUDF_SRC_FILES
+        "${cudf_SOURCE_DIR}/cpp/src/binaryop/binaryop.cpp"
         "${cudf_SOURCE_DIR}/cpp/src/bitmask/null_mask.cu"
         "${cudf_SOURCE_DIR}/cpp/src/copying/get_element.cu"
         "${cudf_SOURCE_DIR}/cpp/src/column/column.cu"

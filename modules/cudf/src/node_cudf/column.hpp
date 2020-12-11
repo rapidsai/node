@@ -14,18 +14,16 @@
 
 #pragma once
 
-#include "node_cudf/scalar.hpp"
-#include "node_cudf/types.hpp"
+#include <node_cudf/scalar.hpp>
+#include <node_cudf/types.hpp>
 
 #include <node_rmm/device_buffer.hpp>
 #include <nv_node/utilities/args.hpp>
 
+#include <cudf/binaryop.hpp>
 #include <cudf/column/column.hpp>
 #include <cudf/column/column_view.hpp>
 #include <cudf/types.hpp>
-
-#include <rmm/device_buffer.hpp>
-#include <rmm/mr/device/device_memory_resource.hpp>
 
 #include <napi.h>
 
@@ -47,6 +45,24 @@ class Column : public Napi::ObjectWrap<Column> {
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
 
   /**
+   * @brief Construct a new Column instance from a cudf::column.
+   *
+   * @param column The column in device memory.
+   */
+  static Column New(std::unique_ptr<cudf::column> column);
+
+  /**
+   * @brief Check whether an Napi value is an instance of `Column`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `Column`
+   * @return false if the value is not a `Column`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+  }
+
+  /**
    * @brief Construct a new Column instance from JavaScript.
    *
    */
@@ -59,8 +75,8 @@ class Column : public Napi::ObjectWrap<Column> {
    * @param size The number of elements in the column.
    * @param type The element data type.
    */
-  void Initialize(Napi::Object const& data, cudf::size_type size, Napi::Object const& type) {
-    Initialize(data, size, type, DeviceBuffer::New(nullptr, 0), 0, 0, Napi::Array::New(Env(), 0));
+  void Initialize(DeviceBuffer const& data, cudf::size_type size, DataType const& type) {
+    Initialize(data, size, type, DeviceBuffer::New(), 0, 0, Napi::Array::New(Env(), 0));
   }
 
   /**
@@ -77,10 +93,10 @@ class Column : public Napi::ObjectWrap<Column> {
    * of `null_count()`.
    * @param children Optional Array of child columns
    */
-  void Initialize(Napi::Object const& data,
+  void Initialize(DeviceBuffer const& data,
                   cudf::size_type size,
-                  Napi::Object const& type,
-                  Napi::Object const& null_mask,
+                  DataType const& type,
+                  DeviceBuffer const& null_mask,
                   cudf::size_type offset,
                   cudf::size_type null_count  = cudf::UNKNOWN_NULL_COUNT,
                   Napi::Array const& children = {});
@@ -214,6 +230,28 @@ class Column : public Napi::ObjectWrap<Column> {
    */
   operator cudf::mutable_column_view() { return this->mutable_view(); };
 
+  /**
+   * @copydoc cudf::minmax(cudf::column_view const& col, rmm::mr::device_memory_resource* mr)
+   *
+   * @return std::pair<Scalar, Scalar>
+   */
+  std::pair<Scalar, Scalar> minmax() const;
+
+  Column operator<(Column const& other) const;
+  Column operator<(Scalar const& other) const;
+
+  Column operator<=(Column const& other) const;
+  Column operator<=(Scalar const& other) const;
+
+  Column operator>(Column const& other) const;
+  Column operator>(Scalar const& other) const;
+
+  Column operator>=(Column const& other) const;
+  Column operator>=(Scalar const& other) const;
+
+  Column operator==(Column const& other) const;
+  Column operator==(Scalar const& other) const;
+
  private:
   static Napi::FunctionReference constructor;
 
@@ -251,6 +289,12 @@ class Column : public Napi::ObjectWrap<Column> {
   // Napi::Value nullCount(Napi::CallbackInfo const& info);
   // Napi::Value child(Napi::CallbackInfo const& info);
   // Napi::Value numChildren(Napi::CallbackInfo const& info);
+
+  template <cudf::binary_operator Op, cudf::type_id TypeOut>
+  Column binary_operation(Scalar const& other) const;
+
+  template <cudf::binary_operator Op, cudf::type_id TypeOut>
+  Column binary_operation(Column const& other) const;
 };
 
 }  // namespace nv

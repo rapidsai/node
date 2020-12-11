@@ -14,10 +14,11 @@
 
 #pragma once
 
-#include "rmm/device_buffer.hpp"
-
 #include <cugraph/graph.hpp>
 #undef CUDA_TRY
+
+#include <node_rmm/device_buffer.hpp>
+#include <node_rmm/memory_resource.hpp>
 
 #include <node_cudf/column.hpp>
 #include <nv_node/utilities/args.hpp>
@@ -42,35 +43,13 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
    *
    * @param  src The source node indices for edges
    * @param  dst The destination node indices for edges
-   * @param stream CUDA stream on which memory may be allocated if the memory
-   * resource supports streams.
-   * @param mr Memory resource to use for the device memory allocation.
    */
-  static Napi::Object New(
-    nv::Column const& src,
-    nv::Column const& dst,
-    cudaStream_t stream                 = 0,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+  static Napi::Object New(nv::Column const& src, nv::Column const& dst);
 
   /**
    * @brief Construct a new GraphCOO instance from JavaScript.
-   *
    */
-  GraphCOO(Napi::CallbackInfo const& info);
-
-  /**
-   * @brief Initialize the GraphCOO instance created by either C++ or JavaScript.
-   *
-   * @param  src The source node indices for edges
-   * @param  dst The source node indices for edges
-   * @param stream CUDA stream on which memory may be allocated if the memory
-   * resource supports streams.
-   * @param mr Memory resource to use for the device memory allocation.
-   */
-  void Initialize(Napi::Object const& src,
-                  Napi::Object const& dst,
-                  cudaStream_t stream                 = 0,
-                  rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+  GraphCOO(CallbackArgs const& args);
 
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this GraphCOO
@@ -95,28 +74,37 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
    * @brief Get the number of edges in the graph
    *
    */
-  size_t NumberOfEdges() const;
+  size_t NumberOfEdges();
 
   /**
    * @brief Get the number of nodes in the graph
    *
    */
-  size_t NumberOfNodes() const;
+  size_t NumberOfNodes();
 
   /**
    * @brief Get a non-owning view of the Graph
    *
    */
-  cugraph::GraphCOOView<int, int, float> View() const;
+  cugraph::GraphCOOView<int32_t, int32_t, float> View();
+
+  Column const& src_column() const { return *Column::Unwrap(src_.Value()); }
+  Column const& dst_column() const { return *Column::Unwrap(dst_.Value()); }
 
  private:
   static Napi::FunctionReference constructor;
 
-  Napi::ObjectReference src_{};
-  Napi::ObjectReference dst_{};
-
   Napi::Value numberOfEdges(Napi::CallbackInfo const& info);
   Napi::Value numberOfNodes(Napi::CallbackInfo const& info);
+
+  size_t edge_count_{};
+  bool edge_count_computed_{false};
+
+  size_t node_count_{};
+  bool node_count_computed_{false};
+
+  Napi::ObjectReference src_{};
+  Napi::ObjectReference dst_{};
 };
 
 }  // namespace nv

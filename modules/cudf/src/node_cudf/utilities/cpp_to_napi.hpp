@@ -16,13 +16,14 @@
 
 #include <nv_node/utilities/cpp_to_napi.hpp>
 
-#include <napi.h>
 #include <cudf/scalar/scalar.hpp>
 #include <cudf/types.hpp>
 #include <cudf/utilities/traits.hpp>
 #include <cudf/utilities/type_dispatcher.hpp>
 #include <cudf/wrappers/durations.hpp>
 #include <cudf/wrappers/timestamps.hpp>
+
+#include <napi.h>
 
 namespace nv {
 

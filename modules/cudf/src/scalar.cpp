@@ -91,10 +91,10 @@ Napi::Object Scalar::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
-Napi::Object Scalar::New(std::unique_ptr<cudf::scalar> scalar) {
+Scalar Scalar::New(std::unique_ptr<cudf::scalar> scalar) {
   auto inst                     = Scalar::constructor.New({});
   Scalar::Unwrap(inst)->scalar_ = std::move(scalar);
-  return inst;
+  return std::move(*Scalar::Unwrap(inst));
 }
 
 Scalar::Scalar(CallbackArgs const& args) : Napi::ObjectWrap<Scalar>(args) {
@@ -104,12 +104,14 @@ Scalar::Scalar(CallbackArgs const& args) : Napi::ObjectWrap<Scalar>(args) {
 void Scalar::Finalize(Napi::Env env) { this->scalar_.reset(nullptr); }
 
 Napi::Value Scalar::type(Napi::CallbackInfo const& info) {
-  return DataType::New(this->type().id());
+  return DataType::New(this->type()).Value();
 }
 
 Napi::Value Scalar::get_value() const { return CPPToNapi(Env())(scalar_); }
 
 Scalar::operator Napi::Value() const { return get_value(); }
+
+Scalar::operator cudf::scalar&() const { return *scalar_; }
 
 Napi::Value Scalar::get_value(Napi::CallbackInfo const& info) { return get_value(); }
 
