@@ -22,29 +22,14 @@
     },
     "dependencies": {
       "@nvidia/cuda": "0.0.1",
-      "@nvidia/rapids-core": "0.0.1",
-      "@nvidia/rmm": "0.0.1",
-      "@types/node": "^14.0.0",
-      "node-addon-api": "^2.0.0",
-      "tslib": "^1.12.0"
-    },
-    "devDependencies": {
-      "@types/jest": "25.2.2",
-      "jest": "25.5.1",
-      "jest-silent-reporter": "0.1.2",
-      "rimraf": "3.0.0",
-      "ts-jest": "25.5.1",
-      "ts-node": "8.10.1",
-      "typescript": "3.9.2"
+      "@nvidia/rmm": "0.0.1"
     },
     "files": [
       "LICENSE",
-      "include",
+      "src",
+      "build",
       "index.js",
-      "build/js",
-      "build/lib",
       "package.json",
-      "build/Release",
       "CMakeLists.txt"
     ]
   }
