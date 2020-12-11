@@ -19,10 +19,12 @@ add_compile_definitions(NAPI_EXPERIMENTAL
 
 execute_process(COMMAND node -p "require('node-addon-api').include.replace(/\"/g, '')"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                OUTPUT_VARIABLE NODE_ADDON_API_DIR
+                OUTPUT_VARIABLE NAPI_INCLUDE_DIR
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-include_directories(
-    "${CMAKE_JS_INC}"
-    "${NODE_ADDON_API_DIR}"
-)
+list(APPEND NAPI_INCLUDE_DIRS ${CMAKE_JS_INC})
+list(APPEND NAPI_INCLUDE_DIRS ${NAPI_INCLUDE_DIR})
+
+message(STATUS "CMAKE_JS_INC: ${CMAKE_JS_INC}")
+message(STATUS "NAPI_INCLUDE_DIR: ${NAPI_INCLUDE_DIR}")
+message(STATUS "NAPI_INCLUDE_DIRS: ${NAPI_INCLUDE_DIRS}")

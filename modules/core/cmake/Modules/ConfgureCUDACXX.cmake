@@ -30,6 +30,6 @@ if(NOT libcudacxx_POPULATED)
   # libcudacxx has no CMake targets, so no need to call `add_subdirectory()`.
 endif()
 
-message(STATUS "libcudacxx source dir: " ${libcudacxx_SOURCE_DIR})
-
 set(LIBCUDACXX_INCLUDE_DIR "${libcudacxx_SOURCE_DIR}/include")
+
+message(STATUS "LIBCUDACXX_INCLUDE_DIR: ${LIBCUDACXX_INCLUDE_DIR}")

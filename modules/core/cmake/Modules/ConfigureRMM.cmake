@@ -23,9 +23,6 @@ CPMAddPackage(NAME rmm
     GIT_SHALLOW    TRUE
     OPTIONS        "BUILD_TESTS OFF"
                    "BUILD_BENCHMARKS OFF"
+                   "CUDA_STATIC_RUNTIME ON"
                    "DISABLE_DEPRECATION_WARNINGS ${DISABLE_DEPRECATION_WARNINGS}"
 )
-
-message(STATUS "rmm source dir: " ${rmm_SOURCE_DIR})
-
-set(RMM_INCLUDE_DIR "${rmm_SOURCE_DIR}/include")

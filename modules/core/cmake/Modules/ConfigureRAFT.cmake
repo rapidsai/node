@@ -24,6 +24,6 @@ CPMAddPackage(NAME raft
     DOWNLOAD_ONLY
 )
 
-message(STATUS "RAFT source dir: " ${raft_SOURCE_DIR})
-
 set(RAFT_INCLUDE_DIR "${raft_SOURCE_DIR}/cpp/include")
+
+message(STATUS "RAFT_INCLUDE_DIR: ${RAFT_INCLUDE_DIR}")

@@ -17,14 +17,13 @@ cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 
 project(node_nvencoder VERSION 0.0.1 LANGUAGES C CXX)
 
+option(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(NODE_NVENCODER_STATIC_LINK "Statically link GLEW library" OFF)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(VIDEO_CODEC_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(GLEW_VERSION "2.1.0")
-
 set(GLEW_USE_SHARED_LIBS OFF)
 set(GLEW_USE_STATIC_LIBS ${NODE_NVENCODER_STATIC_LINK})
 
@@ -48,8 +47,8 @@ execute_process(COMMAND node -p
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NVIDIA_CMAKE_MODULES_PATH}")
 
 include(ConfigureCXX)
-include(ConfigureNapi)
 include(ConfigureCUDA)
+include(ConfigureNapi)
 include(ConfigureOpenGL)
 include(ConfigureOpenGLEW)
 
@@ -70,27 +69,30 @@ message(STATUS "NVENCODEAPI_LIB: ${NVENCODEAPI_LIB}")
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
 
-include_directories("${CUDA_INCLUDE_DIRS}"
-                    "${RAPIDS_CORE_INCLUDE_DIR}"
-                    "${GLEW_INCLUDE_DIR}"
-                    "${OPENGL_INCLUDE_DIR}"
-                    "${VIDEO_CODEC_SDK_INCLUDE_DIR}"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/src"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src
+                    ${CMAKE_CURRENT_SOURCE_DIR}/include
+                    ${RAPIDS_CORE_INCLUDE_DIR}
+                    ${VIDEO_CODEC_SDK_INCLUDE_DIR}
+                    ${GLEW_INCLUDE_DIR}
+                    ${OPENGL_INCLUDE_DIR}
+                    ${NAPI_INCLUDE_DIRS})
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
-link_directories("${CUDA_LIBRARIES}")
-
 file(GLOB_RECURSE NODE_NVENCODER_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_NVENCODER_SRC_FILES} ${CMAKE_JS_SRC})
+
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       ${GLEW_LIBRARY}
                       ${NVENCODEAPI_LIB}
-                      cuda cudart_static nppicc nppig
+                      CUDA::nppig
+                      CUDA::nppicc
+                      CUDA::cuda_driver
+                      CUDA::cudart_static
                       OpenGL::EGL
                       OpenGL::OpenGL)

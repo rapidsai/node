@@ -14,6 +14,8 @@
 # limitations under the License.
 #=============================================================================
 
+include(ConfgureCUDACXX)
+
 include(get_cpm)
 
 CPMAddPackage(NAME cudf
@@ -21,9 +23,13 @@ CPMAddPackage(NAME cudf
     GIT_REPOSITORY https://github.com/rapidsai/cudf.git
     GIT_TAG        branch-${CUDF_VERSION}
     GIT_SHALLOW    TRUE
-    DONWLOAD_ONLY 
+    DONWLOAD_ONLY
 )
 
-message(STATUS "cudf source dir: " ${cudf_SOURCE_DIR})
-
 set(CUDF_INCLUDE_DIR "${cudf_SOURCE_DIR}/cpp/include")
+
+list(APPEND CUDF_INCLUDE_DIRS ${CUDF_INCLUDE_DIR})
+list(APPEND CUDF_INCLUDE_DIRS ${LIBCUDACXX_INCLUDE_DIR})
+
+message(STATUS "CUDF_INCLUDE_DIR: ${CUDF_INCLUDE_DIR}")
+message(STATUS "CUDF_INCLUDE_DIRS: ${CUDF_INCLUDE_DIRS}")

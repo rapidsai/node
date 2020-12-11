@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
 }
 ")
   execute_process(
-    COMMAND ${CMAKE_CUDA_COMPILER}
+    COMMAND ${CUDAToolkit_NVCC_EXECUTABLE}
       -std=c++11
       -o ${eval_exe}
       --run
