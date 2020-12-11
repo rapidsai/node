@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <nv_node/utilities/args.hpp>
-#include <nv_node/utilities/napi_to_cpp.hpp>
+import * as Path from 'path';
 
-#include <napi.h>
+export * from './loadnativemodule';
 
-std::ostream& operator<<(std::ostream& os, const nv::NapiToCPP& self) {
-  return os << self.operator std::string();
-};
+export const cpp_include_path = Path.resolve(__dirname, '..', '..', 'include');
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports) { return exports; }
+export const ccache_path = Path.resolve(__dirname, '..', '..', '.cache', 'ccache');
 
-NODE_API_MODULE(node_rapids_core, initModule);
+export const cpm_source_cache_path = Path.resolve(__dirname, '..', '..', '.cache', 'cpm');
+
+export const cmake_modules_path = Path.resolve(__dirname, '..', '..', 'cmake', 'Modules');
