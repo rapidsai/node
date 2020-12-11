@@ -13,21 +13,7 @@
 // limitations under the License.
 
 import '@nvidia/cudf';
+const { loadNativeModule } = require('@nvidia/rapids-core');
 
-export const CuGraph = (() => {
-    let CuGraph: any, types = ['Release'];
-    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
-        types.push('Debug');
-    }
-    for (let type; type = types.pop();) {
-        try {
-            if (CuGraph = require(`../${type}/node_cugraph.node`)) {
-                break;
-            }
-        } catch (e) { console.error(e); continue; }
-    }
-    if (CuGraph) return CuGraph.init();
-    throw new Error('node_cugraph not found');
-})();
-
+export const CuGraph = loadNativeModule(module, 'node_cugraph');
 export default CuGraph;

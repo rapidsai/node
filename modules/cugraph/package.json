@@ -21,7 +21,7 @@
     "tsc:watch": "npx rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@nvidia/rapids-core": "0.0.1"
+    "@nvidia/cudf": "0.0.1"
   },
   "files": [
     "src",
