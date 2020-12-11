@@ -12,20 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const RMM = (() => {
-    let RMM: any, types = ['Release'];
-    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
-        types.push('Debug');
-    }
-    for (let type; type = types.pop();) {
-        try {
-            if (RMM = require(`../${type}/node_rmm.node`)) {
-                break;
-            }
-        } catch (e) { console.error(e); continue; }
-    }
-    if (RMM) return RMM.init();
-    throw new Error('node_rmm not found');
-})();
+import '@nvidia/cuda';
+const { loadNativeModule } = require('@nvidia/rapids-core');
 
+export const RMM = loadNativeModule(module, 'node_rmm');
 export default RMM;

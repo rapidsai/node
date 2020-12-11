@@ -20,7 +20,7 @@ project(node_rmm VERSION 0.0.1 LANGUAGES C CXX)
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
-set(RMM_VERSION "0.16")
+set(RMM_VERSION "0.18")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ###################################################################################################
@@ -63,4 +63,5 @@ file(GLOB_RECURSE NODE_CUDA_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 add_library(${PROJECT_NAME} SHARED ${NODE_CUDA_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 target_link_libraries(${PROJECT_NAME}
-                      ${CMAKE_JS_LIB} cuda cudart_static nvrtc rmm)
+                      ${CMAKE_JS_LIB} cuda cudart_static nvrtc rmm
+                      "${NVIDIA_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")

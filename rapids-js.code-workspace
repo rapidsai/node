@@ -46,7 +46,14 @@
         }
     ],
   "settings": {
+    "C_Cpp.formatting": "Disabled",
+    "C_Cpp.autocomplete": "Disabled",
+    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.intelliSenseEngine": "Disabled",
+    "C_Cpp.configurationWarnings": "Disabled",
     "C_Cpp.autoAddFileAssociations": false,
+    "C_Cpp.vcpkg.enabled": false,
+
     "clangd.path": "/usr/bin/clangd",
     "clangd.semanticHighlighting": false,
     "clangd.arguments": [
@@ -64,7 +71,14 @@
       "--completion-style=detailed",
       "--header-insertion-decorators"
     ],
+
     "git.ignoreLimitWarning": true,
+
+    "markdownlint.config": {
+        "default": true,
+        "MD033": false
+    },
+
     "files.associations": {
       "*.cu": "cuda",
       "*.cuh": "cuda"
@@ -97,5 +111,5 @@
         "**/.ccache/**": true,
         "**/node_modules/**": true,
     },
-  }
+  },
 }

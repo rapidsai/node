@@ -10,7 +10,7 @@
   "types": "build/js",
   "scripts": {
     "clean": "npx rimraf build compile_commands.json",
-    "test": "jest --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",
+    "test": "jest --no-cache --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",
     "build": "npm run cpp:build && npm run tsc:build",
     "compile": "npm run cpp:compile && npm run tsc:build",
     "rebuild": "npm run cpp:rebuild && npm run tsc:build",
@@ -23,7 +23,6 @@
   "dependencies": {
     "@nvidia/rapids-core": "0.0.1",
     "@nvidia/webgl": "0.0.1",
-    "@types/node": "^13.1.2",
     "@types/jsdom": "^12.2.4",
     "@types/react": "^16.0.0",
     "canvas": "^2.6.1",
@@ -33,20 +32,8 @@
     "jsdom-global": "^3.0.2",
     "context-require": "^1.0.4",
     "lasso-resolve-from": "^1.2.0",
-    "node-addon-api": "^2.0.0",
     "rxjs": "^6.5.4",
-    "tslib": "^1.12.0",
     "web-streams-polyfill": "^2.0.3"
-  },
-  "devDependencies": {
-    "@types/jest": "25.2.2",
-    "esm": "3.2.25",
-    "jest": "25.5.1",
-    "jest-silent-reporter": "0.1.2",
-    "rimraf": "3.0.0",
-    "ts-jest": "25.5.1",
-    "ts-node": "8.10.1",
-    "typescript": "3.9.2"
   },
   "peerDependencies": {
     "hammerjs": "^2.0.8",
@@ -55,13 +42,12 @@
     "react-dom": ">=16.0"
   },
   "files": [
+    "src",
+    "build",
     "LICENSE",
-    "include",
     "index.js",
-    "build/js",
-    "build/lib",
+    "README.md",
     "package.json",
-    "build/Release",
     "CMakeLists.txt"
   ]
 }

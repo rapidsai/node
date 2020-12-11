@@ -31,42 +31,41 @@ interface CUDFTable {
     readonly numRows: number;
     columns: ReadonlyArray<string> | null;
     _data: ColumnAccessor;
-    
+
     getColumnByIndex(index: number): Column;
     select(columns: ReadonlyArray<number> | ReadonlyArray<string> | null): CUDFTable;
     slice(start: number | string, end: number | string): CUDFTable;
-    updateColumns(props:{
+    updateColumns(props: {
         columns?: ReadonlyArray<Column> | null
     }): void;
 }
 
-export class Table extends (<TableConstructor> CUDF.Table) {
+export class Table extends (<TableConstructor>CUDF.Table) {
     constructor(props: {
         data?: ColumnAccessor,
-    })
-    {   
-        if(!(props.data instanceof ColumnAccessor)){
+    }) {
+        if (!(props.data instanceof ColumnAccessor)) {
             props.data = new ColumnAccessor(new Map(Object.entries(typeof props.data === 'object' ? props.data || {} : {})));
         }
-        super({columns: props.data.columns});
+        super({ columns: props.data.columns });
         this._data = props.data;
     }
 
-    get columns(): ReadonlyArray<string>{
+    get columns(): ReadonlyArray<string> {
         return this._data.names;
     }
 
-    select(columns: Array<number> | Array<string>): CUDFTable{
-        const column_indices: Array<number | undefined> =  (columns as any[]).map((value) => {
+    select(columns: Array<number> | Array<string>): CUDFTable {
+        const column_indices: Array<number | undefined> = (columns as any[]).map((value) => {
             return this.transformInputLabel(value);
         });
-        
+
         const column_accessor = this._data.selectByColumnIndices(column_indices);
-        return new Table({data:column_accessor});
-        
+        return new Table({ data: column_accessor });
+
     }
 
-    slice(start: number | string, end: number | string): CUDFTable{
+    slice(start: number | string, end: number | string): CUDFTable {
         return new Table({
             data: this._data.sliceByColumnIndices(
                 this.transformInputLabel(start),
@@ -75,43 +74,43 @@ export class Table extends (<TableConstructor> CUDF.Table) {
         });
     }
 
-    addColumn(name: string, column: Column){
+    addColumn(name: string, column: Column) {
         this._data.insertByColumnName(name, column);
-        super.updateColumns({columns:this._data.columns});
+        super.updateColumns({ columns: this._data.columns });
     }
 
-    getColumnByIndex(index: number): Column{
-        if(typeof this.transformInputLabel(index) !== "undefined" && typeof index === "number"){
+    getColumnByIndex(index: number): Column {
+        if (typeof this.transformInputLabel(index) !== "undefined" && typeof index === "number") {
             return super.getColumnByIndex(index);
         }
-        throw new Error("Column does not exist in the table: "+index);
+        throw new Error("Column does not exist in the table: " + index);
     }
 
-    getColumnByName(label: string): Column{
+    getColumnByName(label: string): Column {
         let index = typeof label === "string" ? this.transformInputLabel(label) : undefined;
-        if(typeof index !== "undefined"){
+        if (typeof index !== "undefined") {
             return this.getColumnByIndex(index);
         }
-        throw new Error("Column does not exist in the table: "+label);
+        throw new Error("Column does not exist in the table: " + label);
     }
 
-    drop(props:{columns: Array<string>}){
-        props.columns.forEach((value, _)=> {
+    drop(props: { columns: Array<string> }) {
+        props.columns.forEach((value, _) => {
             this._data.removeByColumnName(value);
         })
-        super.updateColumns({columns:this._data.columns});
+        super.updateColumns({ columns: this._data.columns });
     }
 
-    private transformInputLabel(label: number | string): number | undefined{
-        if(typeof label === "string" && this.columns?.includes(label)){
+    private transformInputLabel(label: number | string): number | undefined {
+        if (typeof label === "string" && this.columns?.includes(label)) {
             return this._data.columnNameToColumnIndex(label)
         }
-        else if(typeof label === "number" && label < this.columns?.length){
+        else if (typeof label === "number" && label < this.columns?.length) {
             return label;
         }
         return undefined;
     }
-    
+
 }
 
 Object.setPrototypeOf(CUDF.Table.prototype, new Proxy({}, {

@@ -14,14 +14,22 @@
 # limitations under the License.
 #=============================================================================
 
-# ConfigureSimt.cmake
-include(get_cpm)
-CPMAddPackage(NAME libcudacxx
-    VERSION        0.0.1
-    GIT_REPOSITORY https://github.com/rapidsai/thirdparty-freestanding.git
-    GIT_TAG        cudf
-    GIT_SHALLOW    FALSE
-    DOWNLOAD_ONLY
+# https://cmake.org/cmake/help/v3.18/module/FetchContent.html
+include(FetchContent)
+
+FetchContent_Declare(
+    libcudacxx
+    GIT_REPOSITORY https://github.com/NVIDIA/libcudacxx.git
+    GIT_TAG        1.4.0
+    GIT_SHALLOW    true
 )
+
+FetchContent_GetProperties(libcudacxx)
+if(NOT libcudacxx_POPULATED)
+  FetchContent_Populate(libcudacxx)
+  # libcudacxx has no CMake targets, so no need to call `add_subdirectory()`.
+endif()
+
 message(STATUS "libcudacxx source dir: " ${libcudacxx_SOURCE_DIR})
+
 set(LIBCUDACXX_INCLUDE_DIR "${libcudacxx_SOURCE_DIR}/include")

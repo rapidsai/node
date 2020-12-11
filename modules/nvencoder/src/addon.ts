@@ -12,20 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const NVENCODER = (() => {
-    let NVENCODER: any, types = ['Release'];
-    if (process.env.NODE_DEBUG !== undefined || process.env.NODE_ENV === 'debug') {
-        types.push('Debug');
-    }
-    for (let type; type = types.pop();) {
-        try {
-            if (NVENCODER = require(`../${type}/node_nvencoder.node`)) {
-                break;
-            }
-        } catch (e) { console.error(e); continue; }
-    }
-    if (NVENCODER) return NVENCODER.init();
-    throw new Error('node_nvencoder not found');
-})();
+const { loadNativeModule } = require('@nvidia/rapids-core');
 
+export const NVENCODER = loadNativeModule(module, 'node_nvencoder');
 export default NVENCODER;

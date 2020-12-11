@@ -14,11 +14,32 @@
 
 #pragma once
 
-#include "nv_node/utilities/napi_to_cpp.hpp"
+#include "cpp_to_napi.hpp"
+#include "napi_to_cpp.hpp"
 
 #include <napi.h>
 
 namespace nv {
+
+struct CPPToNapiValues {
+  CPPToNapiValues(Napi::Env const& env) : env_(env) {}
+
+  inline Napi::Env Env() const { return env_; }
+  inline operator Napi::Env() const { return Env(); }
+
+  template <typename... Ts>
+  inline std::vector<napi_value> operator()(Ts&&... args) const {
+    CPPToNapi cast_t{env_};
+    std::vector<napi_value> napi_values{};
+    napi_values.reserve(sizeof...(Ts));
+    nv::casting::for_each(std::make_tuple<Ts...>(std::forward<Ts>(args)...),
+                          [&](auto x) { napi_values.push_back(cast_t(x)); });
+    return napi_values;
+  }
+
+ private:
+  Napi::Env env_;
+};
 
 struct CallbackArgs {
   // Constructor that accepts the same arguments as the Napi::CallbackInfo constructor
