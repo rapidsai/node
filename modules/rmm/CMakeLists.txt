@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 
 project(node_rmm VERSION 0.0.1 LANGUAGES C CXX)
 
-option(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 

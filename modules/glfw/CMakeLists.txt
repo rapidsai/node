@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 
 project(node_glfw VERSION 0.0.1 LANGUAGES C CXX)
 
-option(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(NODE_GLFW_STATIC_LINK "Statically link GLEW and GLFW libraries" OFF)
 
