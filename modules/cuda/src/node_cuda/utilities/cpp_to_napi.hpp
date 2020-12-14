@@ -18,6 +18,7 @@
 #include "visit_struct/visit_struct.hpp"
 
 #include <cuda_runtime_api.h>
+#include <cstdint>
 #include <nv_node/utilities/cpp_to_napi.hpp>
 
 #include <string>
@@ -46,27 +47,27 @@ inline Napi::Value CPPToNapi::operator()(cudaStream_t const& stream) const {
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaEvent_t const& event) const {
-  return Napi::External<void>::New(env, event);
+  return Napi::Number::New(env, reinterpret_cast<uintptr_t>(event));
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaGraph_t const& graph) const {
-  return Napi::External<void>::New(env, graph);
+  return Napi::Number::New(env, reinterpret_cast<uintptr_t>(graph));
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaGraphNode_t const& graphNode) const {
-  return Napi::External<void>::New(env, graphNode);
+  return Napi::Number::New(env, reinterpret_cast<uintptr_t>(graphNode));
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaGraphExec_t const& graphExec) const {
-  return Napi::External<void>::New(env, graphExec);
+  return Napi::Number::New(env, reinterpret_cast<uintptr_t>(graphExec));
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaGraphicsResource_t const& resource) const {
-  return Napi::External<void>::New(env, resource);
+  return Napi::Number::New(env, reinterpret_cast<uintptr_t>(resource));
 }
 
 template <>

@@ -75,6 +75,28 @@
             "cwd": "${workspaceFolder}/modules/demo",
             "program": "${workspaceFolder}/modules/demo/xterm.js",
             "env": { "NODE_ENV": "production" }
+        },
+        {
+            "type": "node",
+            "name": "Debug glfw tests",
+            "cwd": "${workspaceFolder}/modules/glfw",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/node_modules/**"
+            ],
+            "env": {
+                "NODE_NO_WARNINGS": "1",
+                "READABLE_STREAM": "disable",
+            },
+            "args": [
+                "--verbose",
+                "--no-cache",
+                "--runInBand",
+                "-c", "jest.config.js",
+                "test/*",
+            ]
         }
     ]
 }

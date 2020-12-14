@@ -3,7 +3,7 @@ import * as path from "path";
 import * as jsdom from 'jsdom';
 import createContextRequire, {
     Types as TContextRequire
-} from "context-require";
+} from "./context-require";
 
 const browserResolve = require('lasso-resolve-from');
 

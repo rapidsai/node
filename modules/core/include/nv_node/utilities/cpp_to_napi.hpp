@@ -180,13 +180,13 @@ struct CPPToNapi {
   // }
 
   template <typename T>
-  inline Napi::External<T> operator()(T* data) const {
-    return Napi::External<T>::New(env, data);
+  inline Napi::Value operator()(T* data) const {
+    return Napi::Number::New(env, reinterpret_cast<uintptr_t>(data));
   }
 
   template <typename T>
-  inline Napi::External<T> operator()(T const* data) const {
-    return Napi::External<T>::New(env, const_cast<T*>(data));
+  inline Napi::Value operator()(T const* data) const {
+    return Napi::Number::New(env, reinterpret_cast<uintptr_t>(data));
   }
 
   template <typename T>
