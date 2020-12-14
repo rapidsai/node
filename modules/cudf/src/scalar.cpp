@@ -16,13 +16,16 @@
 #include "node_cudf/types.hpp"
 #include "node_cudf/utilities/cpp_to_napi.hpp"
 #include "node_cudf/utilities/napi_to_cpp.hpp"
-#include "nv_node/utilities/cpp_to_napi.hpp"
+
+#include <node_cuda/utilities/error.hpp>
+#include <node_cuda/utilities/napi_to_cpp.hpp>
+
+#include <node_rmm/utilities/napi_to_cpp.hpp>
+
+#include <nv_node/utilities/cpp_to_napi.hpp>
 
 #include <cudf/utilities/traits.hpp>
 #include <cudf/utilities/type_dispatcher.hpp>
-#include <node_cuda/utilities/error.hpp>
-#include <node_cuda/utilities/napi_to_cpp.hpp>
-#include <node_rmm/utilities/napi_to_cpp.hpp>
 
 #include <napi.h>
 #include <type_traits>
@@ -91,9 +94,9 @@ Napi::Object Scalar::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
-Napi::Object Scalar::New(std::unique_ptr<cudf::scalar> scalar) {
-  auto inst                     = Scalar::constructor.New({});
-  Scalar::Unwrap(inst)->scalar_ = std::move(scalar);
+ObjectUnwrap<Scalar> Scalar::New(std::unique_ptr<cudf::scalar> scalar) {
+  ObjectUnwrap<Scalar> inst{Scalar::constructor.New({})};
+  inst->scalar_ = std::move(scalar);
   return inst;
 }
 
@@ -103,13 +106,13 @@ Scalar::Scalar(CallbackArgs const& args) : Napi::ObjectWrap<Scalar>(args) {
 
 void Scalar::Finalize(Napi::Env env) { this->scalar_.reset(nullptr); }
 
-Napi::Value Scalar::type(Napi::CallbackInfo const& info) {
-  return DataType::New(this->type().id());
-}
+Napi::Value Scalar::type(Napi::CallbackInfo const& info) { return DataType::New(this->type()); }
 
 Napi::Value Scalar::get_value() const { return CPPToNapi(Env())(scalar_); }
 
 Scalar::operator Napi::Value() const { return get_value(); }
+
+Scalar::operator cudf::scalar&() const { return *scalar_; }
 
 Napi::Value Scalar::get_value(Napi::CallbackInfo const& info) { return get_value(); }
 

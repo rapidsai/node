@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "node_cuda/array.hpp"
+#include "node_cuda/device.hpp"
 #include "node_cuda/memory.hpp"
 #include "node_cuda/utilities/cpp_to_napi.hpp"
 #include "node_cuda/utilities/napi_to_cpp.hpp"
@@ -33,11 +34,14 @@ Napi::Value cudaGLGetDevices(CallbackArgs const& info) {
   uint32_t cu_GL_device_list = info[0];
   uint32_t device_count{};
   std::vector<int> devices{};
+  devices.reserve(Device::get_num_devices());
   NODE_CUDA_TRY(CUDARTAPI::cudaGLGetDevices(&device_count,
                                             devices.data(),
-                                            devices.capacity(),
+                                            devices.size(),
                                             static_cast<cudaGLDeviceList>(cu_GL_device_list)),
                 env);
+  devices.resize(device_count);
+  devices.shrink_to_fit();
   return CPPToNapi(info)(devices);
 }
 

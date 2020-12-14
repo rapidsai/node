@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "node_cudf/types.hpp"
-#include "node_cudf/utilities/cpp_to_napi.hpp"
-#include "node_cudf/utilities/napi_to_cpp.hpp"
-
-#include <cudf/types.hpp>
 #include <node_cuda/utilities/error.hpp>
+
+#include <node_cudf/types.hpp>
+#include <node_cudf/utilities/cpp_to_napi.hpp>
+#include <node_cudf/utilities/napi_to_cpp.hpp>
+
 #include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
+
+#include <cudf/types.hpp>
 
 #include <napi.h>
 
@@ -73,19 +75,21 @@ Napi::Object DataType::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
-Napi::Object DataType::New(cudf::type_id id) {
-  auto inst = DataType::constructor.New({});
-  DataType::Unwrap(inst)->Initialize(id);
-  return inst;
+ObjectUnwrap<DataType> DataType::New(cudf::type_id id) {
+  return constructor.New({Napi::Value::From(constructor.Env(), id)});
 }
 
 DataType::DataType(CallbackArgs const& args) : Napi::ObjectWrap<DataType>(args) {
-  NODE_CUDA_EXPECT(args.IsConstructCall(), "DataType constructor requires 'new'");
-  if (args.Length() == 1) { Initialize(args[0]); }
+  NODE_CUDA_EXPECT(args[0].IsNumber(), "DataType constructor requires a numeric TypeId");
+  id_ = args[0];
 }
 
-void DataType::Initialize(cudf::type_id id) { id_ = id; }
+DataType::operator Napi::Value() const noexcept { return Value(); }
 
-Napi::Value DataType::id(Napi::CallbackInfo const& info) { return CPPToNapi(info)(id()); }
+DataType::operator cudf::data_type() const noexcept { return cudf::data_type{id()}; }
+
+ValueWrap<cudf::type_id> DataType::id() const noexcept { return {Env(), id_}; }
+
+Napi::Value DataType::id(Napi::CallbackInfo const& info) { return id(); }
 
 }  // namespace nv

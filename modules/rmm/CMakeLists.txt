@@ -13,15 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
-cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
 project(node_rmm VERSION 0.0.1 LANGUAGES C CXX)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
 set(RMM_VERSION "0.18")
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
@@ -41,27 +41,31 @@ execute_process(COMMAND node -p
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NVIDIA_CMAKE_MODULES_PATH}")
 
 include(ConfigureCXX)
-include(ConfigureRMM)
-include(ConfigureNapi)
 include(ConfigureCUDA)
+include(ConfigureNapi)
+include(ConfigureRMM)
 
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
 
-include_directories("${CUDA_INCLUDE_DIRS}"
-                    "${RAPIDS_CORE_INCLUDE_DIR}"
-                    "${NVIDIA_CUDA_MODULE_PATH}/src"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/src")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src
+                    ${NVIDIA_CUDA_MODULE_PATH}/src
+                    ${RAPIDS_CORE_INCLUDE_DIR}
+                    ${NAPI_INCLUDE_DIRS})
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
-link_directories("${CUDA_LIBRARIES}")
-
 file(GLOB_RECURSE NODE_CUDA_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_CUDA_SRC_FILES} ${CMAKE_JS_SRC})
+
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+
 target_link_libraries(${PROJECT_NAME}
-                      ${CMAKE_JS_LIB} cuda cudart_static nvrtc rmm
+                      ${CMAKE_JS_LIB}
+                      rmm::rmm
+                      CUDA::nvrtc
+                      CUDA::cuda_driver
+                      CUDA::cudart_static
                       "${NVIDIA_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")

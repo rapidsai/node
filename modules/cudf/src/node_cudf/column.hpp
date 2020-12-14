@@ -14,18 +14,17 @@
 
 #pragma once
 
-#include "node_cudf/scalar.hpp"
-#include "node_cudf/types.hpp"
+#include <node_cudf/scalar.hpp>
+#include <node_cudf/types.hpp>
 
 #include <node_rmm/device_buffer.hpp>
+
 #include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/wrap.hpp>
 
-#include <cudf/column/column.hpp>
+#include <cudf/binaryop.hpp>
 #include <cudf/column/column_view.hpp>
-#include <cudf/types.hpp>
-
-#include <rmm/device_buffer.hpp>
-#include <rmm/mr/device/device_memory_resource.hpp>
+#include <cudf/copying.hpp>
 
 #include <napi.h>
 
@@ -47,21 +46,28 @@ class Column : public Napi::ObjectWrap<Column> {
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
 
   /**
+   * @brief Construct a new Column instance from a cudf::column.
+   *
+   * @param column The column in device memory.
+   */
+  static ObjectUnwrap<Column> New(std::unique_ptr<cudf::column> column);
+
+  /**
+   * @brief Check whether an Napi value is an instance of `Column`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `Column`
+   * @return false if the value is not a `Column`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+  }
+
+  /**
    * @brief Construct a new Column instance from JavaScript.
    *
    */
   Column(CallbackArgs const& args);
-
-  /**
-   * @brief Initialize the Column instance created by either C++ or JavaScript.
-   *
-   * @param data The column's data.
-   * @param size The number of elements in the column.
-   * @param type The element data type.
-   */
-  void Initialize(Napi::Object const& data, cudf::size_type size, Napi::Object const& type) {
-    Initialize(data, size, type, DeviceBuffer::New(nullptr, 0), 0, 0, Napi::Array::New(Env(), 0));
-  }
 
   /**
    * @brief Initialize the Column instance created by either C++ or JavaScript.
@@ -77,10 +83,10 @@ class Column : public Napi::ObjectWrap<Column> {
    * of `null_count()`.
    * @param children Optional Array of child columns
    */
-  void Initialize(Napi::Object const& data,
+  void Initialize(DeviceBuffer const& data,
                   cudf::size_type size,
-                  Napi::Object const& type,
-                  Napi::Object const& null_mask,
+                  DataType const& type,
+                  DeviceBuffer const& null_mask,
                   cudf::size_type offset,
                   cudf::size_type null_count  = cudf::UNKNOWN_NULL_COUNT,
                   Napi::Array const& children = {});
@@ -96,22 +102,22 @@ class Column : public Napi::ObjectWrap<Column> {
   /**
    * @brief Returns the column's logical element type
    */
-  cudf::data_type type() const noexcept { return *DataType::Unwrap(type_.Value()); }
+  inline cudf::data_type type() const noexcept { return *DataType::Unwrap(type_.Value()); }
 
   /**
    * @brief Returns the number of elements
    */
-  cudf::size_type size() const noexcept { return size_; }
+  inline cudf::size_type size() const noexcept { return size_; }
 
   /**
    * @brief Return a const reference to the data buffer
    */
-  DeviceBuffer const& data() const { return *DeviceBuffer::Unwrap(data_.Value()); }
+  inline DeviceBuffer const& data() const { return *DeviceBuffer::Unwrap(data_.Value()); }
 
   /**
    * @brief Return a const reference to the null bitmask buffer
    */
-  DeviceBuffer const& null_mask() const { return *DeviceBuffer::Unwrap(null_mask_.Value()); }
+  inline DeviceBuffer const& null_mask() const { return *DeviceBuffer::Unwrap(null_mask_.Value()); }
 
   /**
    * @brief Sets the column's null value indicator bitmask to `new_null_mask`.
@@ -154,7 +160,7 @@ class Column : public Napi::ObjectWrap<Column> {
    * @return true The column can hold null values
    * @return false The column cannot hold null values
    */
-  bool nullable() const noexcept { return (DeviceBuffer::Unwrap(null_mask_.Value())->size() > 0); }
+  inline bool nullable() const noexcept { return null_mask().size() > 0; }
 
   /**
    * @brief Returns the count of null elements.
@@ -214,16 +220,53 @@ class Column : public Napi::ObjectWrap<Column> {
    */
   operator cudf::mutable_column_view() { return this->mutable_view(); };
 
+  /**
+   * @copydoc cudf::minmax(cudf::column_view const& col, rmm::mr::device_memory_resource* mr)
+   *
+   * @return std::pair<Scalar, Scalar>
+   */
+  std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> minmax() const;
+
+  ObjectUnwrap<Column> operator==(Column const& other) const;
+  ObjectUnwrap<Column> operator==(Scalar const& other) const;
+  ObjectUnwrap<Column> operator<(Column const& other) const;
+  ObjectUnwrap<Column> operator<(Scalar const& other) const;
+  ObjectUnwrap<Column> operator<=(Column const& other) const;
+  ObjectUnwrap<Column> operator<=(Scalar const& other) const;
+  ObjectUnwrap<Column> operator>(Column const& other) const;
+  ObjectUnwrap<Column> operator>(Scalar const& other) const;
+  ObjectUnwrap<Column> operator>=(Column const& other) const;
+  ObjectUnwrap<Column> operator>=(Scalar const& other) const;
+
+  ObjectUnwrap<Column> operator[](Column const& gather_map) const;
+
+  ObjectUnwrap<Column> apply_boolean_mask(
+    Column const& boolean_mask,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  ObjectUnwrap<Column> gather(
+    Column const& gather_map,
+    cudf::out_of_bounds_policy bounds_policy = cudf::out_of_bounds_policy::DONT_CHECK,
+    rmm::mr::device_memory_resource* mr      = rmm::mr::get_current_device_resource()) const;
+
+  ObjectUnwrap<Column> binary_operation(Column const& rhs,
+                                        cudf::binary_operator op,
+                                        cudf::type_id output_type) const;
+
+  ObjectUnwrap<Column> binary_operation(Scalar const& rhs,
+                                        cudf::binary_operator op,
+                                        cudf::type_id output_type) const;
+
  private:
   static Napi::FunctionReference constructor;
 
-  Napi::ObjectReference type_{};       ///< Logical type of elements in the column
-  cudf::size_type size_{};             ///< The number of elements in the column
-  cudf::size_type offset_{};           ///< The number of elements in the column
-  Napi::ObjectReference data_{};       ///< Dense, contiguous, type erased device memory
-                                       ///< buffer containing the column elements
-  Napi::ObjectReference null_mask_{};  ///< Bitmask used to represent null values.
-                                       ///< May be empty if `null_count() == 0`
+  cudf::size_type size_{};                     ///< The number of elements in the column
+  cudf::size_type offset_{};                   ///< The number of elements in the column
+  Napi::Reference<Napi::Object> type_{};       ///< Logical type of elements in the column
+  Napi::Reference<Napi::Object> data_{};       ///< Dense, contiguous, type erased device memory
+                                               ///< buffer containing the column elements
+  Napi::Reference<Napi::Object> null_mask_{};  ///< Bitmask used to represent null values.
+                                               ///< May be empty if `null_count() == 0`
   mutable cudf::size_type null_count_{cudf::UNKNOWN_NULL_COUNT};  ///< The number of null elements
   Napi::Reference<Napi::Array> children_{};  ///< Depending on element type, child
                                              ///< columns may contain additional data
@@ -251,6 +294,9 @@ class Column : public Napi::ObjectWrap<Column> {
   // Napi::Value nullCount(Napi::CallbackInfo const& info);
   // Napi::Value child(Napi::CallbackInfo const& info);
   // Napi::Value numChildren(Napi::CallbackInfo const& info);
+
+  Napi::Value min(Napi::CallbackInfo const& info);
+  Napi::Value max(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

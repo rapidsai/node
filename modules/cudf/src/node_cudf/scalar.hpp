@@ -14,12 +14,15 @@
 
 #pragma once
 
-#include <cudf/scalar/scalar.hpp>
-#include <cudf/types.hpp>
+#include <node_cudf/utilities/error.hpp>
+
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/cpp_to_napi.hpp>
+#include <nv_node/utilities/wrap.hpp>
 
-#include <cuda_runtime_api.h>
+#include <cudf/scalar/scalar.hpp>
+#include <cudf/types.hpp>
+
 #include <napi.h>
 #include <memory>
 
@@ -41,7 +44,7 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
    *
    * @param scalar The scalar in device memory.
    */
-  static Napi::Object New(std::unique_ptr<cudf::scalar> scalar);
+  static ObjectUnwrap<Scalar> New(std::unique_ptr<cudf::scalar> scalar);
 
   /**
    * @brief Check whether an Napi value is an instance of `Scalar`.
@@ -101,9 +104,20 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
    */
   bool is_valid(cudaStream_t stream = 0) const { return scalar_->is_valid(stream); };
 
+  template <typename scalar_type>
+  inline operator scalar_type*() const {
+    NODE_CUDF_EXPECT(cudf::type_to_id<typename scalar_type::value_type>() == type().id(),
+                     "Invalid conversion from node_cudf::Scalar to cudf::scalar",
+                     Env());
+    return static_cast<scalar_type*>(scalar_.get());
+  }
+
+  operator cudf::scalar&() const;
+
   operator Napi::Value() const;
 
   Napi::Value get_value() const;
+
   void set_value(Napi::CallbackInfo const& info, Napi::Value const& value);
 
  private:

@@ -13,6 +13,10 @@
             "path": "modules/cuda"
         },
         {
+            "name": "rmm",
+            "path": "modules/rmm"
+        },
+        {
             "name": "cudf",
             "path": "modules/cudf"
         },
@@ -35,10 +39,6 @@
         {
             "name": "nvencoder",
             "path": "modules/nvencoder"
-        },
-        {
-            "name": "rmm",
-            "path": "modules/rmm"
         },
         {
             "name": "webgl",

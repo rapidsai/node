@@ -30,7 +30,6 @@
     "fetch-readablestream": "^0.2.0",
     "jsdom": "^16.2.2",
     "jsdom-global": "^3.0.2",
-    "context-require": "^1.0.4",
     "lasso-resolve-from": "^1.2.0",
     "rxjs": "^6.5.4",
     "web-streams-polyfill": "^2.0.3"

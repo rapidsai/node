@@ -12,14 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#include <node_cudf/column.hpp>
 
-#include <napi.h>
+#include <cudf/reduction.hpp>
+#include <cudf/table/table_view.hpp>
 
-namespace node_cugraph {
+#include <memory>
 
-Napi::Value cugraphInit(Napi::CallbackInfo const& info);
+namespace nv {
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports);
+std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> Column::minmax() const {
+  auto result = std::move(cudf::minmax(*this));
+  return {Scalar::New(std::move(result.first)),  //
+          Scalar::New(std::move(result.second))};
+}
 
-}  // namespace node_cugraph
+Napi::Value Column::min(Napi::CallbackInfo const& info) { return minmax().first; }
+
+Napi::Value Column::max(Napi::CallbackInfo const& info) { return minmax().second; }
+
+}  // namespace nv

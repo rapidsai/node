@@ -8,6 +8,14 @@ FROM jrottenberg/ffmpeg:4.1-nvidia AS ffmpeg
 
 FROM nvidia/cudagl:${CUDA_VERSION}-runtime-${LINUX_VERSION}
 
+# Install dependencies
+RUN apt update -y \
+ && apt install -y \
+    # cuDF dependencies
+    libboost-filesystem1.71.0 \
+ && apt autoremove -y \
+ && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 ENV NODE_VERSION=$NODE_VERSION
 ENV YARN_VERSION=1.22.5
 

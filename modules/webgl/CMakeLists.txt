@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
-cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
 project(node_webgl VERSION 0.0.1 LANGUAGES C CXX)
 
@@ -59,12 +59,13 @@ include(ConfigureOpenGLFW)
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
 
-include_directories("${GLEW_INCLUDE_DIR}"
-                    "${GLFW_INCLUDE_DIR}"
-                    "${OPENGL_INCLUDE_DIR}"
-                    "${OPENGL_EGL_INCLUDE_DIRS}"
-                    "${RAPIDS_CORE_INCLUDE_DIR}"
-                    "${DISPLAY_SERVER_INCLUDE_DIRS}")
+include_directories(${RAPIDS_CORE_INCLUDE_DIR}
+                    ${GLEW_INCLUDE_DIR}
+                    ${GLFW_INCLUDE_DIR}
+                    ${OPENGL_INCLUDE_DIR}
+                    ${OPENGL_EGL_INCLUDE_DIRS}
+                    ${DISPLAY_SERVER_INCLUDE_DIRS}
+                    ${NAPI_INCLUDE_DIRS})
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------

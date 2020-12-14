@@ -18,7 +18,7 @@ import { ImageData } from 'canvas';
 import { tmpdir } from './object-url';
 import { parse as parseURL } from 'url';
 import { GLFWDOMWindowOptions } from './window';
-import createContextRequire from "context-require";
+import createContextRequire from './context-require';
 import { JSDOM_KEYS, NODE_GLOBAL_KEYS } from './keys';
 import createJSDOMContextRequire, { Types } from './require';
 

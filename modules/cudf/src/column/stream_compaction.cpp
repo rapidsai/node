@@ -12,14 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as Path from 'path';
+#include <node_cudf/column.hpp>
 
-export * from './loadnativemodule';
+#include <cudf/stream_compaction.hpp>
+#include <cudf/table/table_view.hpp>
 
-export const cpp_include_path = Path.resolve(__dirname, '..', 'include');
+#include <memory>
 
-export const ccache_path = Path.resolve(__dirname, '..', '.cache', 'ccache');
+namespace nv {
 
-export const cpm_source_cache_path = Path.resolve(__dirname, '..', '.cache', 'cpm');
+ObjectUnwrap<Column> Column::apply_boolean_mask(Column const& boolean_mask,
+                                                rmm::mr::device_memory_resource* mr) const {
+  auto result = std::move(cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr));
+  std::vector<std::unique_ptr<cudf::column>> contents = std::move(result->release());
+  return Column::New(std::move(contents[0]));
+}
 
-export const cmake_modules_path = Path.resolve(__dirname, '..', 'cmake', 'Modules');
+}  // namespace nv

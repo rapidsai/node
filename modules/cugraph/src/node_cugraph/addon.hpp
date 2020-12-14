@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as Path from 'path';
+#pragma once
 
-export * from './loadnativemodule';
+#include <napi.h>
 
-export const cpp_include_path = Path.resolve(__dirname, '..', 'include');
+namespace nv {
 
-export const ccache_path = Path.resolve(__dirname, '..', '.cache', 'ccache');
+Napi::Value cugraphInit(Napi::CallbackInfo const& info);
 
-export const cpm_source_cache_path = Path.resolve(__dirname, '..', '.cache', 'cpm');
+Napi::Object initModule(Napi::Env env, Napi::Object exports);
 
-export const cmake_modules_path = Path.resolve(__dirname, '..', 'cmake', 'Modules');
+}  // namespace nv

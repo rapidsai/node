@@ -12,14 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as Path from 'path';
+#include "node_cugraph/addon.hpp"
+#include "node_cugraph/graph_coo.hpp"
 
-export * from './loadnativemodule';
+#include <cugraph/graph.hpp>
+#include <nv_node/macros.hpp>
 
-export const cpp_include_path = Path.resolve(__dirname, '..', 'include');
+namespace nv {
+Napi::Value cugraphInit(Napi::CallbackInfo const& info) {
+  // todo
+  return info.This();
+}
+}  // namespace nv
 
-export const ccache_path = Path.resolve(__dirname, '..', '.cache', 'ccache');
+Napi::Object initModule(Napi::Env env, Napi::Object exports) {
+  EXPORT_FUNC(env, exports, "init", nv::cugraphInit);
+  nv::GraphCOO::Init(env, exports);
+  return exports;
+}
 
-export const cpm_source_cache_path = Path.resolve(__dirname, '..', '.cache', 'cpm');
-
-export const cmake_modules_path = Path.resolve(__dirname, '..', 'cmake', 'Modules');
+NODE_API_MODULE(node_cugraph, initModule);

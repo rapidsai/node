@@ -12,14 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as Path from 'path';
+import '@nvidia/cudf';
+const { loadNativeModule } = require('@nvidia/rapids-core');
 
-export * from './loadnativemodule';
-
-export const cpp_include_path = Path.resolve(__dirname, '..', 'include');
-
-export const ccache_path = Path.resolve(__dirname, '..', '.cache', 'ccache');
-
-export const cpm_source_cache_path = Path.resolve(__dirname, '..', '.cache', 'cpm');
-
-export const cmake_modules_path = Path.resolve(__dirname, '..', 'cmake', 'Modules');
+export const CuGraph = loadNativeModule(module, 'node_cugraph');
+export default CuGraph;

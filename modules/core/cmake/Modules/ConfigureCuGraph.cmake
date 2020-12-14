@@ -14,6 +14,8 @@
 # limitations under the License.
 #=============================================================================
 
+include(ConfigureRAFT)
+
 include(get_cpm)
 
 CPMAddPackage(NAME cugraph
@@ -24,10 +26,16 @@ CPMAddPackage(NAME cugraph
     DOWNLOAD_ONLY
 )
 
-message(STATUS "cugraph source dir: " ${cugraph_SOURCE_DIR})
-
 set(CUGRAPH_INCLUDE_DIR_REAL "${cugraph_SOURCE_DIR}/cpp/include")
 set(CUGRAPH_INCLUDE_DIR "${cugraph_SOURCE_DIR}/cpp/fake_include")
 
-execute_process(COMMAND mkdir -p "${CUGRAPH_INCLUDE_DIR}")
-execute_process(COMMAND ln -s -f ${CUGRAPH_INCLUDE_DIR_REAL} "${CUGRAPH_INCLUDE_DIR}/cugraph")
+execute_process(COMMAND mkdir -p ${CUGRAPH_INCLUDE_DIR})
+execute_process(COMMAND ln -s -f ${CUGRAPH_INCLUDE_DIR_REAL} ${CUGRAPH_INCLUDE_DIR}/cugraph)
+
+list(APPEND CUGRAPH_INCLUDE_DIRS ${RAFT_INCLUDE_DIR})
+list(APPEND CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIR})
+list(APPEND CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIR_REAL})
+
+message(STATUS "CUGRAPH_INCLUDE_DIR: ${CUGRAPH_INCLUDE_DIR}")
+message(STATUS "CUGRAPH_INCLUDE_DIR_REAL: ${CUGRAPH_INCLUDE_DIR_REAL}")
+message(STATUS "CUGRAPH_INCLUDE_DIRS: ${CUGRAPH_INCLUDE_DIRS}")

@@ -80,7 +80,8 @@ install_apt_deps jq \
     build-essential libxmu-dev libxi-dev libgl-dev \
     libraw-dev libwebp-dev libwebpmux3 libopenjp2-7-dev \
     libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev \
-    libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+    libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
+    libboost-filesystem-dev
 
 # libjasper is only available in xenial-security. If we need libjasper,
 # first check whether we already have it as an apt source. If not, add it.

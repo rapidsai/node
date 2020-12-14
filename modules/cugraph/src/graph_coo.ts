@@ -12,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as Path from 'path';
+import CuGraph from './addon'
 
-export * from './loadnativemodule';
+import { Column } from '@nvidia/cudf';
 
-export const cpp_include_path = Path.resolve(__dirname, '..', 'include');
+export interface CuGraphGraphCOOConstructor {
+    readonly prototype: CuGraphGraphCOO;
+    new(src: Column, dst: Column): CuGraphGraphCOO;
+}
 
-export const ccache_path = Path.resolve(__dirname, '..', '.cache', 'ccache');
+interface CuGraphGraphCOO {
+    readonly numberOfEdges: number;
+    readonly numberOfNodes: number;
+}
 
-export const cpm_source_cache_path = Path.resolve(__dirname, '..', '.cache', 'cpm');
-
-export const cmake_modules_path = Path.resolve(__dirname, '..', 'cmake', 'Modules');
+export const GraphCOO: CuGraphGraphCOOConstructor = CuGraph.GraphCOO;

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <node_cudf/column.hpp>
+#include <node_cudf/scalar.hpp>
 #include <node_cudf/utilities/cpp_to_napi.hpp>
 #include <node_cudf/utilities/error.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
@@ -25,15 +26,18 @@
 
 #include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/cpp_to_napi.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
 #include <cudf/column/column.hpp>
-#include <cudf/copying.hpp>
 #include <cudf/detail/nvtx/ranges.hpp>
 #include <cudf/types.hpp>
 #include <cudf/utilities/traits.hpp>
 
 #include <napi.h>
+
+#include <memory>
+#include <utility>
 
 namespace nv {
 
@@ -60,6 +64,8 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   InstanceMethod("getValue", &Column::get_value),
                   InstanceMethod("setNullMask", &Column::set_null_mask),
                   InstanceMethod("setNullCount", &Column::set_null_count),
+                  InstanceMethod("min", &Column::min),
+                  InstanceMethod("max", &Column::max),
                 });
 
   Column::constructor = Napi::Persistent(ctor);
@@ -69,69 +75,84 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
+ObjectUnwrap<Column> Column::New(std::unique_ptr<cudf::column> column) {
+  auto env   = constructor.Env();
+  auto props = Napi::Object::New(env);
+
+  props.Set("offset", 0);
+  props.Set("length", column->size());
+  props.Set("type", column->type().id());
+  props.Set("nullCount", column->null_count());
+
+  auto contents = std::move(column->release());
+  auto data     = std::move(contents.data);
+  auto mask     = std::move(contents.null_mask);
+  auto children = std::move(contents.children);
+
+  props.Set("children", [&]() {
+    auto ary = Napi::Array::New(env, children.size());
+    for (size_t i = 0; i < children.size(); ++i) {  //
+      ary.Set(i, New(std::move(children.at(i)))->Value());
+    }
+    return ary;
+  }());
+
+  props.Set("data", DeviceBuffer::New(std::move(data))->Value());
+  props.Set("nullMask", DeviceBuffer::New(std::move(mask))->Value());
+
+  return constructor.New({props});
+}
+
 Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
   NODE_CUDA_EXPECT(args.IsConstructCall(), "Column constructor requires 'new'");
-
-  if (args.Length() != 1 || !args[0].IsObject()) { return; }
+  NODE_CUDF_EXPECT(args[0].IsObject(), "Column constructor requires a properties Object");
 
   Napi::Object props = args[0];
 
-  cudf::size_type offset{props.Has("offset") ? NapiToCPP(props.Get("offset")) : 0};
   cudf::size_type length{props.Has("length") ? NapiToCPP(props.Get("length")) : 0};
+  cudf::size_type offset{props.Has("offset") ? NapiToCPP(props.Get("offset")) : 0};
   cudf::size_type null_count{props.Has("nullCount") ? NapiToCPP(props.Get("nullCount"))
                                                     : cudf::UNKNOWN_NULL_COUNT};
-  cudf::data_type type{props.Has("type") ? NapiToCPP(props.Get("type")) : cudf::type_id::EMPTY};
-  Napi::Array children = props.Has("children")  //
-                           ? props.Get("children").As<Napi::Array>()
-                           : Napi::Array::New(Env(), 0);
 
-  DeviceBuffer& data = *DeviceBuffer::Unwrap([&]() {
-    if (cudf::is_fixed_width(type) && props.Has("data")) {
-      auto data = NapiToCPP(props.Get("data"));
+  // cudf::data_type type{props.Has("type") ? NapiToCPP(props.Get("type")) : cudf::type_id::EMPTY};
+  auto type =
+    DataType::New(props.Has("type") ? NapiToCPP(props.Get("type")) : cudf::type_id::EMPTY);
+
+  auto children =
+    props.Has("children") ? props.Get("children").As<Napi::Array>() : Napi::Array::New(Env(), 0);
+
+  auto get_or_create_device_buffer_arg = [&](std::string const& key) {
+    if (cudf::is_fixed_width(type) && props.Has(key)) {
+      auto data = NapiToCPP(props.Get(key));
       if (data.IsMemoryLike()) {
-        if (data.IsMemoryViewLike()) { data = NapiToCPP(data.ToObject().Get("buffer")); }
-        if (DeviceBuffer::is_instance(data)) { return data.As<Napi::Object>(); }
-        Span<char> externalData = data;
-        return DeviceBuffer::New(externalData.data(), externalData.size());
+        if (data.IsMemoryViewLike()) {  //
+          data = NapiToCPP(data.ToObject().Get("buffer"));
+        }
+        if (DeviceBuffer::is_instance(data)) {  //
+          return data.ToObject();
+        }
+        return DeviceBuffer::New(data.operator Span<char>())->Value();
       }
     }
-    return DeviceBuffer::New(nullptr, 0);
-  }());
+    return DeviceBuffer::New()->Value();
+  };
+
+  auto const& data = *DeviceBuffer::Unwrap(get_or_create_device_buffer_arg("data"));
+  auto const& mask = *DeviceBuffer::Unwrap(get_or_create_device_buffer_arg("nullMask"));
 
   if (length == 0 && data.size() > 0 && cudf::is_fixed_width(type)) {
     length = data.size() / cudf::size_of(type);
   }
 
-  Napi::Object mask = [&]() {
-    if (props.Has("nullMask")) {
-      auto mask = NapiToCPP(props.Get("nullMask"));
-      if (mask.IsMemoryLike()) {
-        if (mask.IsMemoryViewLike()) { mask = NapiToCPP(mask.ToObject().Get("buffer")); }
-        if (DeviceBuffer::is_instance(mask)) { return mask.As<Napi::Object>(); }
-        Span<char> externalMask = mask;
-        return DeviceBuffer::New(externalMask.data(), externalMask.size());
-      }
-    }
-    return DeviceBuffer::New(nullptr, 0);
-  }();
-
-  Initialize(data.Value(), length, DataType::New(type.id()), mask, offset, null_count, children);
-}
-
-void Column::Initialize(Napi::Object const& data,
-                        cudf::size_type size,
-                        Napi::Object const& type,
-                        Napi::Object const& null_mask,
-                        cudf::size_type offset,
-                        cudf::size_type null_count,
-                        Napi::Array const& children) {
-  size_       = size;
+  size_       = length;
   offset_     = offset;
   null_count_ = null_count;
-  type_.Reset(type, 1);
-  data_.Reset(data, 1);
-  null_mask_.Reset(null_mask, 1);
-  children_.Reset(children, 1);
+  type_       = Napi::Persistent(type->Value());
+  data_       = Napi::Persistent(data.Value());
+  null_mask_  = Napi::Persistent(mask.Value());
+  children_   = Napi::Persistent(children);
+
+  if (!nullable()) { null_count_ = 0; }
 }
 
 void Column::Finalize(Napi::Env env) {
@@ -155,7 +176,7 @@ cudf::size_type Column::null_count() const {
 void Column::set_null_mask(Napi::Value const& new_null_mask, cudf::size_type new_null_count) {
   null_count_ = new_null_count;
   if (new_null_mask.IsNull() || new_null_mask.IsUndefined()) {
-    null_mask_.Reset(DeviceBuffer::New(nullptr, 0), 1);
+    null_mask_.Reset(DeviceBuffer::New()->Value(), 1);
   } else {
     auto& new_mask = *DeviceBuffer::Unwrap(new_null_mask.ToObject());
     if (new_null_count > 0) {
@@ -229,6 +250,13 @@ cudf::mutable_column_view Column::mutable_view() {
                                    child_views};
 }
 
+ObjectUnwrap<Column> Column::operator[](Column const& selection) const {
+  if (selection.type().id() == cudf::type_id::BOOL8) {  //
+    return this->apply_boolean_mask(selection);
+  }
+  return this->gather(selection);
+}
+
 //
 // Private API
 //
@@ -267,7 +295,9 @@ Napi::Value Column::set_null_mask(Napi::CallbackInfo const& info) {
   if (mask.IsMemoryViewLike()) { mask = NapiToCPP(mask.ToObject().Get("buffer")); }
 
   // If arg isn't a DeviceBuffer, copy the input data into a new DeviceBuffer
-  if (!DeviceBuffer::is_instance(mask)) { mask = DeviceBuffer::New(mask.operator Span<char>()); }
+  if (!DeviceBuffer::is_instance(mask)) {
+    mask = DeviceBuffer::New(mask.operator Span<char>())->Value();
+  }
 
   set_null_mask(mask, size);
 

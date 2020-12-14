@@ -12,22 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "addon.hpp"
+#include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/napi_to_cpp.hpp>
 
-#include <node_cugraph/macros.hpp>
+#include <napi.h>
 
-#include <cugraph/graph.hpp>
+std::ostream& operator<<(std::ostream& os, const nv::NapiToCPP& self) {
+  return os << self.operator std::string();
+};
 
-namespace node_cugraph {
-Napi::Value cugraphInit(Napi::CallbackInfo const& info) {
-  // todo
-  return info.This();
-}
-}  // namespace node_cugraph
+Napi::Object initModule(Napi::Env env, Napi::Object exports) { return exports; }
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", node_cugraph::cugraphInit);
-  return exports;
-}
-
-NODE_API_MODULE(node_cuda, initModule);
+NODE_API_MODULE(node_rapids_core, initModule);

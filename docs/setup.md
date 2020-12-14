@@ -9,7 +9,7 @@
   * [Dependencies](#dependencies)
 * [Setup yarn workspaces](#setup-yarn-workspaces)
 * [Build the node modules](#build-the-node-modules)
-* [Running the demos](#tunning-the-demos)
+* [Running the demos](#running-the-demos)
 * [Troubleshooting](#troubleshooting)
 
 ## Develop with docker
@@ -36,7 +36,7 @@ Now execute the following commands inside this running container:
 
 * [Setup yarn workspaces](#setup-yarn-workspaces)
 * [Build the node modules](#build-the-node-modules)
-* [Running the demos](#tunning-the-demos)
+* [Running the demos](#running-the-demos)
 
 ## Develop without docker
 
