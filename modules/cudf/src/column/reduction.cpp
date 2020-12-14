@@ -12,18 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CuGraph from './addon'
+#include <node_cudf/column.hpp>
 
-import { Column } from '@nvidia/cudf';
+#include <cudf/reduction.hpp>
+#include <cudf/table/table_view.hpp>
 
-export interface CuGraphGraphCOOConstructor {
-    readonly prototype: CuGraphGraphCOO;
-    new(src: Column, dst: Column): CuGraphGraphCOO;
+#include <memory>
+
+namespace nv {
+
+std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> Column::minmax() const {
+  auto result = std::move(cudf::minmax(*this));
+  return {Scalar::New(std::move(result.first)),  //
+          Scalar::New(std::move(result.second))};
 }
 
-interface CuGraphGraphCOO {
-    readonly numberOfEdges: number;
-    readonly numberOfNodes: number;
-}
+Napi::Value Column::min(Napi::CallbackInfo const& info) { return minmax().first; }
 
-export const GraphCOO: CuGraphGraphCOOConstructor = CuGraph.GraphCOO;
+Napi::Value Column::max(Napi::CallbackInfo const& info) { return minmax().second; }
+
+}  // namespace nv

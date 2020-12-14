@@ -53,22 +53,20 @@ Napi::Object DeviceBuffer::Init(Napi::Env env, Napi::Object exports) {
   return exports;
 }
 
-DeviceBuffer DeviceBuffer::New(std::unique_ptr<rmm::device_buffer> buffer) {
-  auto mr     = CPPToNapi(constructor.Env())(buffer->memory_resource());
-  auto buf    = DeviceBuffer::New(buffer->stream(), mr.ToObject());
-  buf.buffer_ = std::move(buffer);
-  return std::move(buf);
+ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(std::unique_ptr<rmm::device_buffer> buffer) {
+  auto buf     = New(buffer->stream());
+  buf->buffer_ = std::move(buffer);
+  return buf;
 }
 
-DeviceBuffer DeviceBuffer::New(void* data,
-                               size_t size,
-                               rmm::cuda_stream_view stream,
-                               Napi::Object const& mr) {
+ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(void* data,
+                                             size_t size,
+                                             rmm::cuda_stream_view stream,
+                                             Napi::Object const& mr) {
   NODE_CUDA_EXPECT(MemoryResource::is_instance(mr),
                    "DeviceBuffer constructor requires a valid MemoryResource");
   CPPToNapiValues const args{DeviceBuffer::constructor.Env()};
-  auto buf = DeviceBuffer::constructor.New(args(Span<char>(data, size), stream, mr));
-  return std::move(*DeviceBuffer::Unwrap(buf));
+  return constructor.New(args(Span<char>(data, size), stream, mr));
 }
 
 DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBuffer>(args) {
@@ -87,7 +85,7 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBu
     case 1:
     case 2:
     case 3: {
-      if (input.data() == nullptr) {
+      if (input.data() == nullptr || input.size() == 0) {
         buffer_.reset(new rmm::device_buffer(input.size(), stream, NapiToCPP(mr_.Value())));
       } else {
         buffer_.reset(new rmm::device_buffer(input, input.size(), stream, NapiToCPP(mr_.Value())));
@@ -105,7 +103,7 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBu
 }
 
 void DeviceBuffer::Finalize(Napi::Env env) {
-  Napi::MemoryManagement::AdjustExternalMemory(env, -size());
+  if (size() > 0) { Napi::MemoryManagement::AdjustExternalMemory(env, -size()); }
 }
 
 Napi::Value DeviceBuffer::byte_length(Napi::CallbackInfo const& info) {
@@ -160,9 +158,7 @@ Napi::Value DeviceBuffer::slice(Napi::CallbackInfo const& info) {
     length = args[1];
     length -= offset;
   }
-  auto ptr = static_cast<char*>(data()) + offset;
-  auto buf = DeviceBuffer::New(ptr, length, stream(), mr_.Value());
-  return buf.Value();
+  return DeviceBuffer::New(static_cast<char*>(data()) + offset, length, stream(), mr_.Value());
 }
 
 Napi::Value DeviceBuffer::device(Napi::CallbackInfo const& info) {

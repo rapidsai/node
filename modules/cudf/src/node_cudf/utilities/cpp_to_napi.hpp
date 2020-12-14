@@ -142,3 +142,67 @@ inline Napi::Value CPPToNapi::operator()(std::unique_ptr<cudf::scalar> const& sc
 }
 
 }  // namespace nv
+
+namespace Napi {
+
+template <>
+inline Value Value::From(napi_env env, cudf::type_id const& id) {
+  return Value::From(env, static_cast<int32_t>(id));
+}
+
+template <>
+inline Value Value::From(napi_env env, cudf::duration_D const& val) {
+  return Value::From(env, val.count());
+}
+
+template <>
+inline Value Value::From(napi_env env, cudf::duration_s const& val) {
+  return Value::From(env, val.count());
+}
+
+template <>
+inline Value Value::From(napi_env env, cudf::duration_ms const& val) {
+  return Value::From(env, val.count());
+}
+
+template <>
+inline Value Value::From(napi_env env, cudf::duration_us const& val) {
+  return Value::From(env, val.count());
+}
+
+template <>
+inline Value Value::From(napi_env env, cudf::duration_ns const& val) {
+  return Value::From(env, val.count());
+}
+
+template <>
+inline Value Value::From(napi_env env, cudf::timestamp_D const& val) {
+  return Value::From(env, val.time_since_epoch());
+}
+
+template <>
+inline Value Value::From(napi_env env, cudf::timestamp_s const& val) {
+  return Value::From(env, val.time_since_epoch());
+}
+
+template <>
+inline Value Value::From(napi_env env, cudf::timestamp_ms const& val) {
+  return Value::From(env, val.time_since_epoch());
+}
+
+template <>
+inline Value Value::From(napi_env env, cudf::timestamp_us const& val) {
+  return Value::From(env, val.time_since_epoch());
+}
+
+template <>
+inline Value Value::From(napi_env env, cudf::timestamp_ns const& val) {
+  return Value::From(env, val.time_since_epoch());
+}
+
+template <>
+inline Value Value::From(napi_env env, std::unique_ptr<cudf::scalar> const& scalar) {
+  return cudf::type_dispatcher(scalar->type(), nv::detail::get_scalar_value{env}, scalar);
+}
+
+}  // namespace Napi

@@ -12,18 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CuGraph from './addon'
+#include <node_cudf/column.hpp>
 
-import { Column } from '@nvidia/cudf';
+#include <cudf/stream_compaction.hpp>
+#include <cudf/table/table_view.hpp>
 
-export interface CuGraphGraphCOOConstructor {
-    readonly prototype: CuGraphGraphCOO;
-    new(src: Column, dst: Column): CuGraphGraphCOO;
+#include <memory>
+
+namespace nv {
+
+ObjectUnwrap<Column> Column::apply_boolean_mask(Column const& boolean_mask,
+                                                rmm::mr::device_memory_resource* mr) const {
+  auto result = std::move(cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr));
+  std::vector<std::unique_ptr<cudf::column>> contents = std::move(result->release());
+  return Column::New(std::move(contents[0]));
 }
 
-interface CuGraphGraphCOO {
-    readonly numberOfEdges: number;
-    readonly numberOfNodes: number;
-}
-
-export const GraphCOO: CuGraphGraphCOOConstructor = CuGraph.GraphCOO;
+}  // namespace nv

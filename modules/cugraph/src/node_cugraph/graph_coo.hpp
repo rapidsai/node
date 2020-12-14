@@ -17,11 +17,13 @@
 #include <cugraph/graph.hpp>
 #undef CUDA_TRY
 
+#include <node_cudf/column.hpp>
+
 #include <node_rmm/device_buffer.hpp>
 #include <node_rmm/memory_resource.hpp>
 
-#include <node_cudf/column.hpp>
 #include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/wrap.hpp>
 
 #include <napi.h>
 
@@ -44,7 +46,7 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
    * @param  src The source node indices for edges
    * @param  dst The destination node indices for edges
    */
-  static Napi::Object New(nv::Column const& src, nv::Column const& dst);
+  static ObjectUnwrap<GraphCOO> New(nv::Column const& src, nv::Column const& dst);
 
   /**
    * @brief Construct a new GraphCOO instance from JavaScript.
@@ -74,13 +76,13 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
    * @brief Get the number of edges in the graph
    *
    */
-  size_t NumberOfEdges();
+  ValueWrap<size_t> num_edges();
 
   /**
    * @brief Get the number of nodes in the graph
    *
    */
-  size_t NumberOfNodes();
+  ValueWrap<size_t> num_nodes();
 
   /**
    * @brief Get a non-owning view of the Graph
@@ -88,14 +90,14 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
    */
   cugraph::GraphCOOView<int32_t, int32_t, float> View();
 
-  Column const& src_column() const { return *Column::Unwrap(src_.Value()); }
-  Column const& dst_column() const { return *Column::Unwrap(dst_.Value()); }
+  ObjectUnwrap<Column> src_column() const { return src_.Value(); }
+  ObjectUnwrap<Column> dst_column() const { return dst_.Value(); }
 
  private:
   static Napi::FunctionReference constructor;
 
-  Napi::Value numberOfEdges(Napi::CallbackInfo const& info);
-  Napi::Value numberOfNodes(Napi::CallbackInfo const& info);
+  Napi::Value num_edges(Napi::CallbackInfo const& info);
+  Napi::Value num_nodes(Napi::CallbackInfo const& info);
 
   size_t edge_count_{};
   bool edge_count_computed_{false};

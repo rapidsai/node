@@ -14,9 +14,12 @@
 
 #pragma once
 
-#include <napi.h>
-#include <cudf/types.hpp>
 #include <nv_node/utilities/args.hpp>
+#include <nv_node/utilities/wrap.hpp>
+
+#include <cudf/types.hpp>
+
+#include <napi.h>
 
 namespace nv {
 
@@ -36,14 +39,14 @@ class DataType : public Napi::ObjectWrap<DataType> {
    *
    * @param id The type's identifier.
    */
-  static DataType New(cudf::data_type type) { return New(type.id()); }
+  static inline ObjectUnwrap<DataType> New(cudf::data_type type) { return New(type.id()); }
 
   /**
    * @brief Construct a new DataType instance with a given type id.
    *
    * @param id The type's identifier.
    */
-  static DataType New(cudf::type_id id);
+  static ObjectUnwrap<DataType> New(cudf::type_id id);
 
   /**
    * @brief Check whether an Napi value is an instance of `DataType`.
@@ -62,9 +65,11 @@ class DataType : public Napi::ObjectWrap<DataType> {
    */
   DataType(CallbackArgs const& args);
 
-  operator cudf::data_type() const noexcept { return cudf::data_type{id_}; }
+  operator Napi::Value() const noexcept;
 
-  cudf::type_id id() const noexcept { return id_; }
+  operator cudf::data_type() const noexcept;
+
+  ValueWrap<cudf::type_id> id() const noexcept;
 
  private:
   static Napi::FunctionReference constructor;

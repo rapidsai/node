@@ -2,4 +2,4 @@
 
 set -Eeo pipefail
 
-npx lerna run --scope '@nvidia/*' --stream --concurrency 1 test
+npx lerna run --no-bail --scope '@nvidia/*' --stream --concurrency 1 test
