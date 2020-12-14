@@ -4,13 +4,12 @@ ARG LINUX_VERSION=ubuntu18.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 
 FROM node:$NODE_VERSION-stretch-slim as node
-FROM jrottenberg/ffmpeg:4.1-nvidia AS ffmpeg
 
 FROM nvidia/cudagl:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
 ARG PARALLEL_LEVEL=4
 ENV CMAKE_VERSION=3.18.5
-ENV CCACHE_VERSION=3.7.11
+ENV CCACHE_VERSION=4.1
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dev dependencies and tools
@@ -32,16 +31,31 @@ RUN apt update -y && apt upgrade -y \
     # cuDF dependencies
     libboost-filesystem1.71-dev \
  && apt autoremove -y \
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
- # Install CMake
- && curl -fsSLO --compressed "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" \
- && tar -xvzf cmake-$CMAKE_VERSION.tar.gz && cd cmake-$CMAKE_VERSION \
- && ./bootstrap --system-curl --parallel=$PARALLEL_LEVEL && make install -j$PARALLEL_LEVEL \
- && cd - && rm -rf ./cmake-$CMAKE_VERSION ./cmake-$CMAKE_VERSION.tar.gz \
+ && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install CMake
+RUN cd /tmp \
+ && curl -fsSLO --compressed "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
+ && tar -xvzf /tmp/cmake-$CMAKE_VERSION.tar.gz && cd /tmp/cmake-$CMAKE_VERSION \
+ && /tmp/cmake-$CMAKE_VERSION/bootstrap \
+    --system-curl \
+    --parallel=$PARALLEL_LEVEL \
+ && make install -j$PARALLEL_LEVEL \
+ && cd /tmp && rm -rf /tmp/cmake-$CMAKE_VERSION*
+
  # Install ccache
- && curl -s -L https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz -o ccache-$CCACHE_VERSION.tar.gz \
- && tar -xvzf ccache-$CCACHE_VERSION.tar.gz && cd ccache-$CCACHE_VERSION \
- && ./configure --disable-man && make install -j$PARALLEL_LEVEL && cd - && rm -rf ./ccache-$CCACHE_VERSION*
+RUN cd /tmp \
+ && curl -fsSLO --compressed https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz -o /tmp/ccache-$CCACHE_VERSION.tar.gz \
+ && tar -xvzf /tmp/ccache-$CCACHE_VERSION.tar.gz && cd /tmp/ccache-$CCACHE_VERSION \
+ && mkdir -p /tmp/ccache-$CCACHE_VERSION/build \
+ && cd /tmp/ccache-$CCACHE_VERSION/build \
+ && cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DZSTD_FROM_INTERNET=ON \
+    -DENABLE_TESTING=OFF \
+    /tmp/ccache-$CCACHE_VERSION \
+ && make install -j$PARALLEL_LEVEL \
+ && cd /tmp && rm -rf /tmp/ccache-$CCACHE_VERSION*
 
 ENV NODE_VERSION=$NODE_VERSION
 ENV YARN_VERSION=1.22.5
@@ -79,17 +93,6 @@ RUN groupadd --gid $GID node \
 
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda-$CUDA_SHORT_VERSION"
-# Setup ccache compiler launcher variables for CMake
-ENV CMAKE_C_COMPILER_LAUNCHER="/usr/local/bin/ccache"
-ENV CMAKE_CXX_COMPILER_LAUNCHER="/usr/local/bin/ccache"
-ENV CMAKE_CUDA_COMPILER_LAUNCHER="/usr/local/bin/ccache"
-
-COPY --from=ffmpeg /usr/local/bin /usr/local/bin/
-COPY --from=ffmpeg /usr/local/share /usr/local/share/
-COPY --from=ffmpeg /usr/local/lib /usr/local/lib/
-COPY --from=ffmpeg /usr/local/include /usr/local/include/
-
-ENV FFMPEG_DIR="/usr/local"
 
 SHELL ["/bin/bash", "-l"]
 
