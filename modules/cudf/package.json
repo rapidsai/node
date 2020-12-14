@@ -11,12 +11,15 @@
     "scripts": {
       "clean": "npx rimraf build compile_commands.json",
       "test": "jest --no-cache --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",
-      "build": "npm run cpp:build && npm run tsc:build",
-      "compile": "npm run cpp:compile && npm run tsc:build",
-      "rebuild": "npm run cpp:rebuild && npm run tsc:build",
+      "build": "npm run tsc:build && npm run cpp:build",
+      "compile": "npm run tsc:build && npm run cpp:compile",
+      "rebuild": "npm run tsc:build && npm run cpp:rebuild",
       "cpp:build": "nvidia-cmake-js -g build",
+    "cpp:build:debug": "nvidia-cmake-js -g build -D",
       "cpp:compile": "nvidia-cmake-js -g compile",
+    "cpp:compile:debug": "nvidia-cmake-js -g compile -D",
       "cpp:rebuild": "nvidia-cmake-js -g rebuild",
+    "cpp:rebuild:debug": "nvidia-cmake-js -g rebuild -D",
       "tsc:build": "npx rimraf build/js && tsc -p ./tsconfig.json",
       "tsc:watch": "npx rimraf build/js && tsc -p ./tsconfig.json -w"
     },

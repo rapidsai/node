@@ -108,13 +108,14 @@ if(cudf_ADDED)
     )
 endif()
 
-add_compile_definitions(JITIFY_USE_CACHE)
-
 add_library(${PROJECT_NAME} SHARED ${NODE_CUDF_SRC_FILES} ${CMAKE_JS_SRC})
 
 add_dependencies(${PROJECT_NAME} stringify_run)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+set_target_properties(${PROJECT_NAME} PROPERTIES
+                      PREFIX ""
+                      SUFFIX ".node"
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}

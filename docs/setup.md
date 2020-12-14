@@ -82,13 +82,25 @@ yarn
 To build the C++ and Typescript, issue any of the following commands:
 
 ```bash
-# Run CMake configuration, find/build native dependencies, and compile C++ and TypeScript
+# Run CMake configure, find native dependencies, and compile C++/TypeScript
 npm run build
-# Perform a fast recompile (without the CMake configuration step):
-npm run build -- --fast
-# Perform a clean build:
-npm run build -- --clean
+# Perform a fast recompile (without the CMake configure step):
+npm run compile
+# Perform a clean reconfigure/rebuild:
+npm run rebuild
 ```
+
+### C++-only builds
+
+Issue the above commands with the `cpp:` prefix to only build the C++ modules. The `:debug` suffix will run each command with `CMAKE_BUILD_TYPE=Debug`.
+
+```bash
+npm run cpp:build # or cpp:build:debug
+npm run cpp:compile # or cpp:compile:debug
+npm run cpp:rebuild # or cpp:rebuild:debug
+```
+
+These npm scripts are also available in each module. Running them from each module's directory will output GCC colors.
 
 ## Running the demos
 

@@ -63,8 +63,8 @@ ValueWrap<size_t> GraphCOO::num_nodes() {
   if (!node_count_computed_) {
     using ScalarType = cudf::scalar_type_t<int32_t>;
 
-    Scalar const& src_max = src_column()->minmax().second;
-    Scalar const& dst_max = dst_column()->minmax().second;
+    auto src_max = src_column()->minmax().second;
+    auto dst_max = dst_column()->minmax().second;
 
     node_count_          = 1 + std::max(static_cast<ScalarType*>(src_max)->value(),
                                static_cast<ScalarType*>(dst_max)->value());
@@ -75,8 +75,10 @@ ValueWrap<size_t> GraphCOO::num_nodes() {
 
 ValueWrap<size_t> GraphCOO::num_edges() {
   if (!edge_count_computed_) {
-    Column const& src    = *src_column();
-    Column const& dst    = *dst_column();
+    auto src_            = src_column();
+    auto dst_            = dst_column();
+    Column const& src    = src_;
+    Column const& dst    = dst_;
     edge_count_          = src[src >= dst]->size();
     edge_count_computed_ = true;
   }

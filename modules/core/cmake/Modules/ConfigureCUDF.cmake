@@ -14,6 +14,9 @@
 # limitations under the License.
 #=============================================================================
 
+include(ConfigureJitify)
+include(ConfigureCUDACXX)
+
 include(get_cpm)
 
 CPMAddPackage(NAME cudf
@@ -23,8 +26,6 @@ CPMAddPackage(NAME cudf
     GIT_SHALLOW    TRUE
     DONWLOAD_ONLY
 )
-
-add_subdirectory(${cudf_SOURCE_DIR}/thirdparty ${cudf_BINARY_DIR})
 
 set(CUDF_INCLUDE_DIR "${cudf_SOURCE_DIR}/cpp/include")
 
@@ -53,6 +54,9 @@ endif(Boost_FOUND)
 
 ###################################################################################################
 # - jitify ----------------------------------------------------------------------------------------
+
+# Instruct jitify to use the kernel cache
+add_compile_definitions(JITIFY_USE_CACHE)
 
 # Creates executable stringify and uses it to convert types.h to c-str for use in JIT code
 add_executable(stringify "${JITIFY_INCLUDE_DIR}/stringify.cpp")
@@ -199,13 +203,13 @@ add_custom_target(stringify_run DEPENDS
 list(APPEND CUDF_INCLUDE_DIRS ${CUDF_INCLUDE_DIR})
 list(APPEND CUDF_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 list(APPEND CUDF_INCLUDE_DIRS ${JITIFY_INCLUDE_DIR})
-list(APPEND CUDF_INCLUDE_DIRS ${THRUST_INCLUDE_DIR})
+# list(APPEND CUDF_INCLUDE_DIRS ${THRUST_INCLUDE_DIR})
 list(APPEND CUDF_INCLUDE_DIRS ${LIBCUDACXX_INCLUDE_DIR})
 list(APPEND CUDF_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/include)
 
 message(STATUS "CUDF_INCLUDE_DIR: ${CUDF_INCLUDE_DIR}")
 message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
 message(STATUS "JITIFY_INCLUDE_DIR: ${JITIFY_INCLUDE_DIR}")
-message(STATUS "THRUST_INCLUDE_DIR: ${THRUST_INCLUDE_DIR}")
+# message(STATUS "THRUST_INCLUDE_DIR: ${THRUST_INCLUDE_DIR}")
 message(STATUS "LIBCUDACXX_INCLUDE_DIR: ${LIBCUDACXX_INCLUDE_DIR}")
 message(STATUS "CUDF_INCLUDE_DIRS: ${CUDF_INCLUDE_DIRS}")
