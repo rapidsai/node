@@ -47,6 +47,8 @@ RUN apt update -y && apt upgrade -y \
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
     # GLEW dependencies
     build-essential libxmu-dev libxi-dev libgl-dev libgl1-mesa-dev libglu1-mesa-dev \
+    # cuDF dependencies
+    libboost-filesystem1.71-dev \
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
  # Install CMake
