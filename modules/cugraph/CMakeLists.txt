@@ -67,7 +67,7 @@ include(ConfigureCuGraph)
 # - cuda compiler flags ---------------------------------------------------------------------------
 
 string(APPEND CMAKE_CUDA_FLAGS " -Xptxas --disable-warnings")
-string(APPEND CMAKE_CUDA_FLAGS " -Xcompiler -Wall,-Wno-error=sign-compare,-Wno-error=unused-but-set-variable")
+string(APPEND CMAKE_CUDA_FLAGS " -Xcompiler=-Wall,-Wno-error=sign-compare,-Wno-error=unused-but-set-variable")
 
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
