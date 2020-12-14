@@ -120,3 +120,7 @@ Some rememedies for potential error messages you may encounter.
   
   source ~/.bashrc
   ```
+  
+ * > ninja: error: loading 'build.ninja': No such file or directory
+
+   Need to execure `npm run build -- --clean` from the top, or `npm run rebuild` from inside the module 
