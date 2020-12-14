@@ -14,9 +14,6 @@
 
 #pragma once
 
-#include <cugraph/graph.hpp>
-#undef CUDA_TRY
-
 #include <node_cudf/column.hpp>
 
 #include <node_rmm/device_buffer.hpp>
@@ -24,6 +21,20 @@
 
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/wrap.hpp>
+
+#ifdef CUDA_TRY
+#undef CUDA_TRY
+#endif
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif
+#include <cugraph/graph.hpp>
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif
+#ifdef CUDA_TRY
+#undef CUDA_TRY
+#endif
 
 #include <napi.h>
 

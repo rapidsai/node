@@ -14,8 +14,15 @@
 
 #pragma once
 
-#include <napi.h>
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif
 #include <cudf/utilities/error.hpp>
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif
+
+#include <napi.h>
 
 namespace nv {
 

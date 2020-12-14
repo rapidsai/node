@@ -62,7 +62,10 @@ file(GLOB_RECURSE NODE_RAPIDS_CORE_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/includ
 
 add_library(${PROJECT_NAME} SHARED ${NODE_RAPIDS_CORE_SRC_FILES} ${CMAKE_JS_SRC})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+set_target_properties(${PROJECT_NAME} PROPERTIES
+                      PREFIX ""
+                      SUFFIX ".node"
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}

@@ -16,10 +16,10 @@ import * as Path from 'path';
 
 export * from './loadnativemodule';
 
-export const cpp_include_path = Path.resolve(__dirname, '..', 'include');
+export const cpp_include_path = Path.resolve(__dirname, '..', '..', 'include');
 
-export const ccache_path = Path.resolve(__dirname, '..', '.cache', 'ccache');
+export const ccache_path = Path.resolve(__dirname, '..', '..', '.cache', 'ccache');
 
-export const cpm_source_cache_path = Path.resolve(__dirname, '..', '.cache', 'cpm');
+export const cpm_source_cache_path = Path.resolve(__dirname, '..', '..', '.cache', 'cpm');
 
-export const cmake_modules_path = Path.resolve(__dirname, '..', 'cmake', 'Modules');
+export const cmake_modules_path = Path.resolve(__dirname, '..', '..', 'cmake', 'Modules');

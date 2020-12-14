@@ -15,7 +15,6 @@
 #include "node_cugraph/addon.hpp"
 #include "node_cugraph/graph_coo.hpp"
 
-#include <cugraph/graph.hpp>
 #include <nv_node/macros.hpp>
 
 namespace nv {

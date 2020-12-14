@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Shared CMake modules, TypeScript configurations, and C++ headers for RAPIDS node native modules",
   "main": "index.js",
-  "types": "lib",
+  "types": "build/js",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -20,10 +20,13 @@
     "compile": "npm run tsc:build && npm run cpp:compile",
     "rebuild": "npm run tsc:build && npm run cpp:rebuild",
     "cpp:build": "nvidia-cmake-js -g build",
+    "cpp:build:debug": "nvidia-cmake-js -g build -D",
     "cpp:compile": "nvidia-cmake-js -g compile",
+    "cpp:compile:debug": "nvidia-cmake-js -g compile -D",
     "cpp:rebuild": "nvidia-cmake-js -g rebuild",
-    "tsc:build": "npx rimraf lib && tsc -p ./tsconfig.json",
-    "tsc:watch": "npx rimraf lib && tsc -p ./tsconfig.json -w"
+    "cpp:rebuild:debug": "nvidia-cmake-js -g rebuild -D",
+    "tsc:build": "npx rimraf build/js && tsc -p ./tsconfig.json",
+    "tsc:watch": "npx rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
     "@types/node": "^14.0.0",
@@ -43,7 +46,6 @@
   },
   "files": [
     "bin",
-    "lib",
     "src",
     "build",
     "cmake",
