@@ -15,6 +15,9 @@
 import { sizes } from '../utils';
 import { devices } from '@nvidia/cuda';
 
+import * as Path from 'path';
+import { mkdtempSync, unlinkSync, rmdirSync } from 'fs';
+
 import {
     MemoryResource,
     CudaMemoryResource,
@@ -31,6 +34,18 @@ type TestConfig = {
     supportsGetMemInfo: boolean;
     createMemoryResource(): MemoryResource;
 };
+
+let logFileDir = '', logFilePath = '';
+
+beforeAll(() => {
+    logFileDir = mkdtempSync(Path.join('/tmp', 'node_rmm'));
+    logFilePath = Path.join(logFileDir, 'log');
+});
+
+afterAll(() => {
+    unlinkSync(logFilePath);
+    rmdirSync(logFileDir);
+});
 
 export const memoryResourceTestConfigs = [
     [`CudaMemoryResource (no device)`, {
@@ -75,6 +90,6 @@ export const memoryResourceTestConfigs = [
         comparable: true,
         supportsStreams: false,
         supportsGetMemInfo: true,
-        createMemoryResource: () => new LoggingResourceAdapter(new CudaMemoryResource(), '/dev/stdout', true),
+        createMemoryResource: () => new LoggingResourceAdapter(new CudaMemoryResource(), logFilePath, true),
     }],
 ] as [string, TestConfig][];
