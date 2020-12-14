@@ -9,7 +9,7 @@
         },
         "target": "ESNEXT",
         "module": "commonjs",
-        "outDir": "./build/js",
+        "outDir": "./lib",
 
         /* Decorators */
         "experimentalDecorators": false,
