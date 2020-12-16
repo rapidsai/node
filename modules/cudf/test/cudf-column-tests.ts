@@ -94,3 +94,23 @@ test('test child(child_index), num_children', () => {
 //     expect(col1.hasNulls).toBe(true);
 //     expect(col1.nullable).toBe(true);
 // });
+
+
+test('Column argsort', () => {
+    const arr = new Column({ type: TypeId.INT32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]) });
+    const result = arr.argsort();
+
+    expect(result.type.id).toBe(TypeId.INT32);
+    expect(result.length).toBe(arr.length);
+    expect(result.nullCount).toBe(0);
+    expect(result.hasNulls).toBe(false);
+    expect(result.nullable).toBe(false);
+
+    // TODO (bev) need a better way to do this. E.g. perhaps a to_array to copy
+    // to host, then implement a helper similar to assert_eq on the python side?
+    // https://github.com/rapidsai/cudf/blob/branch-0.18/python/cudf/cudf/tests/utils.py#L69
+    const expected = [5, 0, 4, 1, 3, 2];
+    for (const ind in expected) {
+        expect(result[ind]).toBe(expected[ind])
+    }
+});

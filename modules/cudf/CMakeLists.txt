@@ -85,6 +85,7 @@ if(cudf_ADDED)
         "${cudf_SOURCE_DIR}/cpp/src/copying/get_element.cu"
         # column
         "${cudf_SOURCE_DIR}/cpp/src/column/column.cu"
+        "${cudf_SOURCE_DIR}/cpp/src/column/column_device_view.cu"
         "${cudf_SOURCE_DIR}/cpp/src/column/column_view.cpp"
         "${cudf_SOURCE_DIR}/cpp/src/column/column_factories.cpp"
         "${cudf_SOURCE_DIR}/cpp/src/column/column_device_view.cu"
@@ -102,8 +103,11 @@ if(cudf_ADDED)
         # scalar
         "${cudf_SOURCE_DIR}/cpp/src/scalar/scalar.cpp"
         "${cudf_SOURCE_DIR}/cpp/src/scalar/scalar_factories.cpp"
+        # sort
+        "${cudf_SOURCE_DIR}/cpp/src/sort/sort.cu"
         # table
         "${cudf_SOURCE_DIR}/cpp/src/table/table.cpp"
+        "${cudf_SOURCE_DIR}/cpp/src/table/table_device_view.cu"
         "${cudf_SOURCE_DIR}/cpp/src/table/table_view.cpp"
     )
 endif()

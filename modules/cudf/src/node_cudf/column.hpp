@@ -240,6 +240,8 @@ class Column : public Napi::ObjectWrap<Column> {
 
   ObjectUnwrap<Column> operator[](Column const& gather_map) const;
 
+  operator Napi::Value() { return Value(); }
+
   ObjectUnwrap<Column> apply_boolean_mask(
     Column const& boolean_mask,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;

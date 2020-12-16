@@ -38,6 +38,8 @@ interface CUDFTable {
     updateColumns(props: {
         columns?: ReadonlyArray<Column> | null
     }): void;
+
+    _orderBy(ascending: Array<boolean>, na_position_flag: number): Column
 }
 
 export class Table extends (<TableConstructor>CUDF.Table) {
@@ -53,6 +55,11 @@ export class Table extends (<TableConstructor>CUDF.Table) {
 
     get columns(): ReadonlyArray<string> {
         return this._data.names;
+    }
+
+    // TODO (bev) enum for na_position
+    argsort(ascending: boolean | Array<boolean> = true, na_position: string = "last"): Column {
+        return this._getSortedInds(ascending, na_position)
     }
 
     select(columns: Array<number> | Array<string>): CUDFTable {
@@ -109,6 +116,33 @@ export class Table extends (<TableConstructor>CUDF.Table) {
             return label;
         }
         return undefined;
+    }
+ 
+    // TODO (bev) enum for na_position
+    private _getSortedInds(ascending: boolean | Array<boolean>, na_position: string): Column {
+        let na_position_flag: 0 | 1;
+        if (ascending == true) {
+            if (na_position == "last")
+                na_position_flag = 0;
+            else
+                na_position_flag = 1;
+        }
+        else if (ascending == false) {
+            if (na_position == "last")
+                na_position_flag = 1;
+            else
+                na_position_flag = 0;
+        }
+        else {
+            // TODO (bev) warning here 
+            na_position_flag = 0
+        }
+
+        if (!Array.isArray(ascending)) {
+            ascending = Array<boolean>(this.numColumns).fill(ascending);
+        }
+
+        return this._orderBy(ascending, na_position_flag);
     }
 
 }

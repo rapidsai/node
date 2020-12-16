@@ -14,7 +14,9 @@
 
 import CUDF from './addon';
 import { MemoryData } from '@nvidia/cuda';
+import { ColumnAccessor } from './column_accessor';
 import { DataType, TypeId } from './types';
+import { Table } from './table';
 import { DeviceBuffer } from '@nvidia/rmm';
 
 interface ColumnConstructor {
@@ -27,10 +29,10 @@ interface ColumnConstructor {
         nullCount?: number,
         nullMask?: DeviceBuffer | MemoryData | null,
         children?: ReadonlyArray<Column> | null
-    }): Column;
+    }): CUDFColumn;
 }
 
-export interface Column {
+export interface CUDFColumn {
 
     [index: number]: any;
 
@@ -44,7 +46,9 @@ export interface Column {
     readonly nullCount: number;
     readonly numChildren: number;
 
-    getChild(index: number): Column;
+    argsort(ascending: boolean | Array<boolean>, na_position: string): CUDFColumn;
+
+    getChild(index: number): CUDFColumn;
 
     getValue(index: number): this[0];
     // setValue(index: number, value?: this[0] | null): void;
@@ -53,7 +57,14 @@ export interface Column {
     setNullMask(mask: DeviceBuffer, nullCount?: number): void;
 }
 
-export const Column: ColumnConstructor = CUDF.Column;
+export class Column extends (<ColumnConstructor > CUDF.Column) {
+    argsort(ascending: boolean | Array<boolean> = true, na_position: string = "last"): Column {
+        const tmp = new Table({
+            "data": new ColumnAccessor(new Map(new Array(["col", this])))
+        })
+        return tmp.argsort(ascending, na_position);
+    }
+}
 
 Object.setPrototypeOf(CUDF.Column.prototype, new Proxy({}, {
     get(target: {}, p: any, column: any) {
