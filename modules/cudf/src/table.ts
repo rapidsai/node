@@ -39,7 +39,7 @@ interface CUDFTable {
         columns?: ReadonlyArray<Column> | null
     }): void;
 
-    _orderBy(ascending: Array<boolean>, na_position_flag: number): Column
+    _orderBy(ascending: Array<boolean>, na_position_flag: boolean): Column
 }
 
 export class Table extends (<TableConstructor>CUDF.Table) {
@@ -58,7 +58,7 @@ export class Table extends (<TableConstructor>CUDF.Table) {
     }
 
     // TODO (bev) enum for na_position
-    argsort(ascending: boolean | Array<boolean> = true, na_position: string = "last"): Column {
+    argsort(ascending: boolean | Array<boolean> = true, na_position: "first" | "last" = "last"): Column {
         return this._getSortedInds(ascending, na_position)
     }
 
@@ -119,23 +119,21 @@ export class Table extends (<TableConstructor>CUDF.Table) {
     }
  
     // TODO (bev) enum for na_position
-    private _getSortedInds(ascending: boolean | Array<boolean>, na_position: string): Column {
-        let na_position_flag: 0 | 1;
+    private _getSortedInds(ascending: boolean | Array<boolean>, na_position: "first" | "last"): Column {
+        let na_position_flag: boolean;
         if (ascending == true) {
-            if (na_position == "last")
-                na_position_flag = 0;
-            else
-                na_position_flag = 1;
+            na_position_flag = na_position == "first";
         }
         else if (ascending == false) {
-            if (na_position == "last")
-                na_position_flag = 1;
-            else
-                na_position_flag = 0;
+            na_position_flag = na_position == "last";
         }
         else {
-            // TODO (bev) warning here 
-            na_position_flag = 0
+            console.warn(
+                "When using a sequence of booleans for `ascending`, " +
+                "`na_position` flag is not yet supported and defaults to " +
+                "treating nulls as greater than all numbers"
+            );
+            na_position_flag = false;
         }
 
         if (!Array.isArray(ascending)) {

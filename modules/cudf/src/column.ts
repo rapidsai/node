@@ -46,7 +46,7 @@ export interface CUDFColumn {
     readonly nullCount: number;
     readonly numChildren: number;
 
-    argsort(ascending: boolean | Array<boolean>, na_position: string): CUDFColumn;
+    argsort(ascending: boolean | Array<boolean>, na_position: "first" | "last"): CUDFColumn;
 
     getChild(index: number): CUDFColumn;
 
@@ -58,7 +58,7 @@ export interface CUDFColumn {
 }
 
 export class Column extends (<ColumnConstructor > CUDF.Column) {
-    argsort(ascending: boolean | Array<boolean> = true, na_position: string = "last"): Column {
+    argsort(ascending: boolean | Array<boolean> = true, na_position: "first" | "last" = "last"): Column {
         const tmp = new Table({
             "data": new ColumnAccessor(new Map(new Array(["col", this])))
         })

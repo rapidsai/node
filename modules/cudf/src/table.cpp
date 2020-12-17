@@ -139,6 +139,10 @@ Napi::Value Table::update_columns(Napi::CallbackInfo const& info) {
 
 Napi::Value Table::order_by(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
+
+  NODE_CUDF_EXPECT(args[0].IsArray(), "order_by ascending argument expects an array");
+  NODE_CUDF_EXPECT(args[1].IsBoolean(), "order_by na_position argument expects a boolean");
+
   std::vector<bool> ascending = args[0];
   bool na_position            = args[1];
 
