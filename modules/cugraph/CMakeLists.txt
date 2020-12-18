@@ -102,9 +102,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       rmm::rmm
-                      # Because libcudf.so doesn't contain any symbols, the linker will determine
-                      # that it's okay to prune it before copying `DT_NEEDED` entries from it.
-                      "-Wl,--no-as-needed" cudf::cudf "-Wl,--as-needed"
+                      ${CUDF_LIBRARY}
                       CUDA::cuda_driver
                       CUDA::cudart_static
                       "${NVIDIA_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"

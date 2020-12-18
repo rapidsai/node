@@ -43,6 +43,10 @@ function(find_and_configure_cudf VERSION)
                         "CUDA_STATIC_RUNTIME ON"
                         "AUTO_DETECT_CUDA_ARCHITECTURES ON"
                         "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
+
+    # Because libcudf.so doesn't contain any symbols, the linker will determine
+    # that it's okay to prune it before copying `DT_NEEDED` entries from it.
+    set(CUDF_LIBRARY "-Wl,--no-as-needed" cudf::cudf "-Wl,--as-needed" PARENT_SCOPE)
 endfunction()
 
 find_and_configure_cudf(${CUDF_VERSION})
