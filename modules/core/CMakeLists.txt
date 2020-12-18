@@ -17,6 +17,9 @@ cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
 project(node_rapids_core VERSION 0.0.1 LANGUAGES C CXX)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
@@ -26,8 +29,6 @@ set(CUDF_VERSION "0.18")
 set(CUGRAPH_VERSION "0.18")
 set(RAFT_VERSION "0.18")
 set(RAFT_BRANCH "f75d7b437bf1da3df749108161b8a0505fb6b7b3")
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
@@ -51,7 +52,6 @@ include(ConfigureCuGraph)
 # - include paths ---------------------------------------------------------------------------------
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
-                    ${CUDF_INCLUDE_DIRS}
                     ${CUGRAPH_INCLUDE_DIRS}
                     ${NAPI_INCLUDE_DIRS})
 
@@ -62,13 +62,9 @@ file(GLOB_RECURSE NODE_RAPIDS_CORE_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/includ
 
 add_library(${PROJECT_NAME} SHARED ${NODE_RAPIDS_CORE_SRC_FILES} ${CMAKE_JS_SRC})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-                      PREFIX ""
-                      SUFFIX ".node"
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       rmm::rmm
-                      CUDA::cuda_driver
-                      CUDA::cudart_static)
+                      ${CUDF_LIBRARY})

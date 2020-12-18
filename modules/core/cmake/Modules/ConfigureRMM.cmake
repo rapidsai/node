@@ -14,15 +14,25 @@
 # limitations under the License.
 #=============================================================================
 
-include(get_cpm)
+function(find_and_configure_rmm VERSION)
 
-CPMAddPackage(NAME rmm
-    VERSION        ${RMM_VERSION}
-    GIT_REPOSITORY https://github.com/rapidsai/rmm.git
-    GIT_TAG        branch-${RMM_VERSION}
-    GIT_SHALLOW    TRUE
-    OPTIONS        "BUILD_TESTS OFF"
-                   "BUILD_BENCHMARKS OFF"
-                   "CUDA_STATIC_RUNTIME ON"
-                   "DISABLE_DEPRECATION_WARNINGS ${DISABLE_DEPRECATION_WARNINGS}"
-)
+    include(get_cpm)
+
+    CPMAddPackage(NAME rmm
+        VERSION        ${RMM_VERSION}
+        # GIT_REPOSITORY https://github.com/rapidsai/rmm.git
+        # GIT_TAG        branch-${RMM_VERSION}
+        GIT_REPOSITORY  https://github.com/trxcllnt/rmm.git
+        # Can also use a local path to your repo clone for testing
+        # GIT_REPOSITORY /home/ptaylor/dev/rapids/rmm
+        GIT_TAG        fix/rmm-cmake-version
+        GIT_SHALLOW    TRUE
+        OPTIONS        "BUILD_TESTS OFF"
+                       "BUILD_BENCHMARKS OFF"
+                       "CUDA_STATIC_RUNTIME ON"
+                       "CMAKE_CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES}"
+                       "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}"
+    )
+endfunction()
+
+find_and_configure_rmm(${RMM_VERSION})

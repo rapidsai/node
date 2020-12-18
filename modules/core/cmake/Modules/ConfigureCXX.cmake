@@ -32,24 +32,24 @@ if(NVIDIA_USE_CCACHE)
             set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM_PATH}")
         else()
             execute_process(COMMAND node -p
+                            "require('@nvidia/rapids-core').modules_path"
+                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                            OUTPUT_VARIABLE NVIDIA_MODULES_BASE_DIR
+                            OUTPUT_STRIP_TRAILING_WHITESPACE)
+            execute_process(COMMAND node -p
+                            "require('@nvidia/rapids-core').cmake_modules_path"
+                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                            OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
+                            OUTPUT_STRIP_TRAILING_WHITESPACE)
+            execute_process(COMMAND node -p
                             "require('@nvidia/rapids-core').ccache_path"
                             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                             OUTPUT_VARIABLE NVIDIA_CMAKE_CCACHE_DIR
                             OUTPUT_STRIP_TRAILING_WHITESPACE)
             message(STATUS "Using ccache directory: ${NVIDIA_CMAKE_CCACHE_DIR}")
-            if(NOT EXISTS "${NVIDIA_CMAKE_CCACHE_DIR}/ccache.conf")
-                # Write the ccache configuration file
-                file(WRITE "${NVIDIA_CMAKE_CCACHE_DIR}/ccache.conf"
-                    "max_size = 0\n"
-                    "hash_dir = false\n"
-                    "# let ccache preserve C++ comments, because some of them may be meaningful to the compiler\n"
-                    "keep_comments_cpp = true\n"
-                    "cache_dir = ${NVIDIA_CMAKE_CCACHE_DIR}\n"
-                    "compiler_check = %compiler% --version\n"
-                    "# Uncomment to debug ccache preprocessor errors/cache misses\n"
-                    "# log_file = ${NVIDIA_CMAKE_CCACHE_DIR}/ccache.log\n"
-                )
-            endif()
+            # Write or update the ccache configuration file
+            configure_file("${NVIDIA_CMAKE_MODULES_PATH}/ccache.conf.in" "${NVIDIA_CMAKE_CCACHE_DIR}/ccache.conf")
+            set(ENV{CCACHE_CONFIGPATH} "${NVIDIA_CMAKE_CCACHE_DIR}/ccache.conf")
             set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK
                 "CCACHE_CONFIGPATH=${NVIDIA_CMAKE_CCACHE_DIR}/ccache.conf ${CCACHE_PROGRAM_PATH}")
             set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE

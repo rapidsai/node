@@ -18,6 +18,8 @@ cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 project(node_cugraph VERSION 0.0.1 LANGUAGES C CXX CUDA)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
@@ -77,7 +79,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src
                     ${NVIDIA_RMM_MODULE_PATH}/src
                     ${NVIDIA_CUDA_MODULE_PATH}/src
                     ${RAPIDS_CORE_INCLUDE_DIR}
-                    ${CUDF_INCLUDE_DIRS}
                     ${CUGRAPH_INCLUDE_DIRS}
                     ${NAPI_INCLUDE_DIRS})
 
@@ -96,14 +97,12 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${NODE_CUGRAPH_SRC_FILES} ${CMAKE_JS_SRC})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-                      PREFIX ""
-                      SUFFIX ".node"
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       rmm::rmm
+                      ${CUDF_LIBRARY}
                       CUDA::cuda_driver
                       CUDA::cudart_static
                       "${NVIDIA_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"

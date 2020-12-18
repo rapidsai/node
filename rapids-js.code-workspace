@@ -45,6 +45,18 @@
             "path": "modules/webgl"
         }
     ],
+    "extensions": {
+        "recommendations": [
+            "twxs.cmake",
+            "ms-vscode.cpptools",
+            "xaver.clang-format",
+            "cschlosser.doxdocgen",
+            "kriegalex.vscode-cudacpp",
+            "augustocdias.tasks-shell-input",
+            "dotiful.dotfiles-syntax-highlighting",
+            "llvm-vs-code-extensions.vscode-clangd",
+        ]
+    },
   "settings": {
     "C_Cpp.formatting": "Disabled",
     "C_Cpp.autocomplete": "Disabled",
@@ -53,6 +65,13 @@
     "C_Cpp.configurationWarnings": "Disabled",
     "C_Cpp.autoAddFileAssociations": false,
     "C_Cpp.vcpkg.enabled": false,
+
+    // Configure the xaver.clang-format plugin
+    "clang-format.fallbackStyle": "Google",
+    "clang-format.executable": "clang-format-12",
+    "[c]": { "editor.defaultFormatter": "xaver.clang-format" },
+    "[cpp]": { "editor.defaultFormatter": "xaver.clang-format" },
+    "[cuda]": { "editor.defaultFormatter": "xaver.clang-format" },
 
     "clangd.path": "/usr/bin/clangd",
     "clangd.semanticHighlighting": false,
@@ -66,7 +85,7 @@
       "--compile-commands-dir=",
       "--background-index=true",
       "--all-scopes-completion",
-      "--header-insertion=iwyu",
+      "--header-insertion=never",
       "--suggest-missing-includes",
       "--completion-style=detailed",
       "--header-insertion-decorators"

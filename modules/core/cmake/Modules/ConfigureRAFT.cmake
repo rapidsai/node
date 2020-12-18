@@ -14,16 +14,20 @@
 # limitations under the License.
 #=============================================================================
 
-include(get_cpm)
+function(find_and_configure_raft VERSION)
 
-CPMAddPackage(NAME raft
-    VERSION        ${RAFT_VERSION}
-    GIT_REPOSITORY https://github.com/rapidsai/raft.git
-    GIT_TAG        ${RAFT_BRANCH}
-    GIT_SHALLOW    TRUE
-    DOWNLOAD_ONLY
-)
+    include(get_cpm)
 
-set(RAFT_INCLUDE_DIR "${raft_SOURCE_DIR}/cpp/include")
+    CPMAddPackage(NAME raft
+        VERSION        ${RAFT_VERSION}
+        GIT_REPOSITORY https://github.com/rapidsai/raft.git
+        GIT_TAG        ${RAFT_BRANCH}
+        GIT_SHALLOW    TRUE
+        DOWNLOAD_ONLY
+    )
 
-message(STATUS "RAFT_INCLUDE_DIR: ${RAFT_INCLUDE_DIR}")
+    set(RAFT_INCLUDE_DIR "${raft_SOURCE_DIR}/cpp/include" PARENT_SCOPE)
+    message(STATUS "RAFT_INCLUDE_DIR: ${RAFT_INCLUDE_DIR}")
+endfunction()
+
+find_and_configure_raft(${RAFT_VERSION})
