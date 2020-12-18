@@ -18,15 +18,10 @@ for DIR in $DIRS; do
     mkdir -p "$DIR/node_modules"
     rm -rf "$DIR/node_modules/.bin"
     ln -sf "$BIN" "$DIR/node_modules/.bin"
-    # symlink shared modules .cache dir
-    rm -rf "$DIR/.cache"
-    ln -sf "$RAPIDS_MODULES_PATH/.cache" "$DIR/.cache"
     # # remove and recreate the local .cache dir
-    # rm -rf "$DIR/.cache" && mkdir -p "$DIR/.cache"
-    # ln -sf "$RAPIDS_MODULES_PATH/.cache/cpm" "$DIR/.cache/cpm"
-    # ln -sf "$RAPIDS_MODULES_PATH/.cache/ccache" "$DIR/.cache/ccache"
-    # # symlink the local clangd index to the shared clangd index
-    # ln -sf "$RAPIDS_MODULES_PATH/.cache/clangd" "$DIR/.cache/clangd"
+    rm -rf "$DIR/.cache"
+    # symlink to the shared .cache dir under modules
+    ln -sf "$RAPIDS_MODULES_PATH/.cache" "$DIR/.cache"
 done
 
 NODE_BIN_PATH="$(which node)"
