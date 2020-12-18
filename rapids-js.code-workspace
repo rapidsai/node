@@ -1,5 +1,5 @@
 {
-	"folders": [
+    "folders": [
         {
             "name": "rapids-js",
             "path": "."
@@ -51,84 +51,148 @@
             "ms-vscode.cpptools",
             "xaver.clang-format",
             "cschlosser.doxdocgen",
-            "kriegalex.vscode-cudacpp",
+            "dbaeumer.vscode-eslint",
+            "esbenp.prettier-vscode",
+            "davidanson.vscode-markdownlint",
             "augustocdias.tasks-shell-input",
             "dotiful.dotfiles-syntax-highlighting",
             "llvm-vs-code-extensions.vscode-clangd",
         ]
     },
-  "settings": {
-    "C_Cpp.formatting": "Disabled",
-    "C_Cpp.autocomplete": "Disabled",
-    "C_Cpp.errorSquiggles": "Disabled",
-    "C_Cpp.intelliSenseEngine": "Disabled",
-    "C_Cpp.configurationWarnings": "Disabled",
-    "C_Cpp.autoAddFileAssociations": false,
-    "C_Cpp.vcpkg.enabled": false,
+    "settings": {
+        "C_Cpp.formatting": "Disabled",
+        "C_Cpp.autocomplete": "Disabled",
+        "C_Cpp.errorSquiggles": "Disabled",
+        "C_Cpp.intelliSenseEngine": "Disabled",
+        "C_Cpp.configurationWarnings": "Disabled",
+        "C_Cpp.autoAddFileAssociations": false,
+        "C_Cpp.vcpkg.enabled": false,
 
-    // Configure the xaver.clang-format plugin
-    "clang-format.fallbackStyle": "Google",
-    "clang-format.executable": "clang-format-12",
-    "[c]": { "editor.defaultFormatter": "xaver.clang-format" },
-    "[cpp]": { "editor.defaultFormatter": "xaver.clang-format" },
-    "[cuda]": { "editor.defaultFormatter": "xaver.clang-format" },
+        // Configure ESLint plugin
+        "eslint.debug": true,
+        "eslint.nodeEnv": "production",
+        "eslint.lintTask.enable": true,
+        // "eslint.trace.server": "verbose",
+        "eslint.run": "onType",
+        "eslint.probe": [
+            // "javascript",
+            // "javascriptreact",
+            "typescript",
+            // "typescriptreact",
+            // "html",
+            // "vue",
+            // "markdown"
+        ],
+        "eslint.workingDirectories": [
+            "./rapids-js",
+            "./rapids-js/modules/core",
+            "./rapids-js/modules/cuda",
+            "./rapids-js/modules/cudf",
+            "./rapids-js/modules/cugraph",
+            "./rapids-js/modules/deck.gl",
+            "./rapids-js/modules/demo",
+            "./rapids-js/modules/glfw",
+            "./rapids-js/modules/nvencoder",
+            "./rapids-js/modules/webgl",
+        ],
+        "eslint.options": {
+            "configFile": ".eslintrc.js",
+        },
 
-    "clangd.path": "/usr/bin/clangd",
-    "clangd.semanticHighlighting": false,
-    "clangd.arguments": [
-      "-j=8",
-      "--log=info",
-      "--pch-storage=disk",
-      "--cross-file-rename",
-      "--completion-parse=auto",
-      "--fallback-style=Google",
-      "--compile-commands-dir=",
-      "--background-index=true",
-      "--all-scopes-completion",
-      "--header-insertion=never",
-      "--suggest-missing-includes",
-      "--completion-style=detailed",
-      "--header-insertion-decorators"
-    ],
-
-    "git.ignoreLimitWarning": true,
-
-    "markdownlint.config": {
-        "default": true,
-        "MD033": false
+        // Configure prettier plugin
+        "prettier.enable": true,
+        "prettier.configPath": ".prettierrc",
+        // "prettier.requireConfig": true,
+        // Don't format JSON or JS files
+        "prettier.disableLanguages": [
+            "json",
+            "javascript"
+        ],
+        // "prettier.prettierPath": "node_modules/prettier",
+        // Configure the xaver.clang-format plugin
+        "clang-format.fallbackStyle": "Google",
+        "clang-format.executable": "clang-format-12",
+        // Set the formatters and formatting options for each language
+        "[c]": {
+            "editor.tabSize": 2,
+            "editor.formatOnSave": true,
+            "editor.formatOnSaveMode": "file",
+            "editor.defaultFormatter": "xaver.clang-format"
+        },
+        "[cpp]": {
+            "editor.tabSize": 2,
+            "editor.formatOnSave": true,
+            "editor.formatOnSaveMode": "file",
+            "editor.defaultFormatter": "xaver.clang-format"
+        },
+        "[cuda]": {
+            "editor.tabSize": 2,
+            "editor.formatOnSave": true,
+            "editor.formatOnSaveMode": "file",
+            "editor.defaultFormatter": "xaver.clang-format"
+        },
+        "[typescript]": {
+            "editor.tabSize": 2,
+            "editor.formatOnSave": true,
+            "editor.formatOnSaveMode": "file",
+            "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "clangd.path": "/usr/bin/clangd",
+        "clangd.semanticHighlighting": false,
+        "clangd.arguments": [
+            "-j=8",
+            "--log=info",
+            "--pch-storage=disk",
+            "--cross-file-rename",
+            "--completion-parse=auto",
+            "--fallback-style=Google",
+            "--compile-commands-dir=",
+            "--background-index=true",
+            "--all-scopes-completion",
+            "--header-insertion=never",
+            "--suggest-missing-includes",
+            "--completion-style=detailed",
+            "--header-insertion-decorators"
+        ],
+        "git.ignoreLimitWarning": true,
+        "markdownlint.config": {
+            "default": true,
+            "MD033": false
+        },
+        "files.trimFinalNewlines": true,
+        "files.insertFinalNewline": true,
+        "files.associations": {
+            "*.cu": "cuda",
+            "*.cuh": "cuda",
+            "*.glsl.js": "glsl"
+        },
+        "files.exclude": {
+            "**/.git": true,
+            "**/.DS_Store": true,
+        },
+        "files.watcherExclude": {
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/build": true,
+            "**/build/**": true,
+            "**/.cache": true,
+            "**/.cache/**": true,
+            "**/.ccache": true,
+            "**/.ccache/**": true,
+            "**/node_modules/**": true,
+        },
+        "search.exclude": {
+            "**/napi.h": false,
+            "**/napi-inl.h": false,
+            "**/napi-inl.deprecated.h": false,
+            "**/node_api.h": false,
+            "**/build": true,
+            "**/build/**": true,
+            "**/.cache": true,
+            "**/.cache/**": true,
+            "**/.ccache": true,
+            "**/.ccache/**": true,
+            "**/node_modules/**": true,
+        },
     },
-
-    "files.associations": {
-      "*.cu": "cuda",
-      "*.cuh": "cuda"
-    },
-    "files.exclude": {
-        "**/.git": true,
-        "**/.DS_Store": true,
-    },
-    "files.watcherExclude": {
-        "**/.git/objects/**": true,
-        "**/.git/subtree-cache/**": true,
-        "**/build": true,
-        "**/build/**": true,
-        "**/.cache": true,
-        "**/.cache/**": true,
-        "**/.ccache": true,
-        "**/.ccache/**": true,
-        "**/node_modules/**": true,
-    },
-    "search.exclude": {
-        "**/napi.h": false,
-        "**/napi-inl.h": false,
-        "**/napi-inl.deprecated.h": false,
-        "**/node_api.h": false,
-        "**/build": true,
-        "**/build/**": true,
-        "**/.cache": true,
-        "**/.cache/**": true,
-        "**/.ccache": true,
-        "**/.ccache/**": true,
-        "**/node_modules/**": true,
-    },
-  },
 }

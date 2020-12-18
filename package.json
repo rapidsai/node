@@ -11,6 +11,7 @@
     "clean": "node scripts/exec clean",
     "demo": "node scripts/exec demo",
     "test": "node scripts/exec test",
+    "lint": "node scripts/exec lint",
     "build": "npx lerna run --scope '@nvidia/*' --stream --concurrency 1 build",
     "compile": "npx lerna run --scope '@nvidia/*' --stream --concurrency 1 compile",
     "rebuild": "npx lerna run --scope '@nvidia/*' --stream --concurrency 1 rebuild",
@@ -38,10 +39,33 @@
     "modules/demo/deck/*"
   ],
   "dependencies": {
+    "@typescript-eslint/eslint-plugin": "4.10.0",
+    "@typescript-eslint/parser": "4.10.0",
     "cmake-js": "6.0.0",
+    "eslint": "7.15.0",
     "lerna": "3.20.2",
     "npm-run-all": "4.1.5",
+    "lint-staged": "10.5.1",
+    "pre-git": "3.17.1",
+    "prettier": "2.2.1",
     "rimraf": "3.0.0"
+  },
+  "config": {
+    "pre-git": {
+      "allow-untracked-files": true,
+      "pre-commit": [
+        "npx lint-staged --relative"
+      ],
+      "pre-push": [],
+      "post-commit": [],
+      "post-checkout": [],
+      "post-merge": []
+    }
+  },
+  "lint-staged": {
+    "modules/**/@(src|test|include)/**/*.@(ts|h|cc?|cuh?|(c|h)pp)": [
+      "node scripts/exec lint"
+    ]
   },
   "resolutions": {
     "**/jsdom": "^16.2.2",
@@ -67,5 +91,8 @@
     "**/@luma.gl/shadertools": "8.2.0",
     "**/@luma.gl/test-utils": "8.2.0",
     "**/@luma.gl/webgl": "8.2.0"
+  },
+  "release": {
+    "analyzeCommits": "simple-commit-message"
   }
 }
