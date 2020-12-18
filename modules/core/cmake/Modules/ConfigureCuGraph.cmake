@@ -14,28 +14,33 @@
 # limitations under the License.
 #=============================================================================
 
-include(ConfigureRAFT)
+function(find_and_configure_cugraph VERSION)
 
-include(get_cpm)
+    include(get_cpm)
+    include(ConfigureRAFT)
 
-CPMAddPackage(NAME cugraph
-    VERSION        ${CUGRAPH_VERSION}
-    GIT_REPOSITORY https://github.com/rapidsai/cugraph.git
-    GIT_TAG        branch-${CUGRAPH_VERSION}
-    GIT_SHALLOW    TRUE
-    DOWNLOAD_ONLY
-)
+    CPMAddPackage(NAME cugraph
+        VERSION        ${CUGRAPH_VERSION}
+        GIT_REPOSITORY https://github.com/rapidsai/cugraph.git
+        GIT_TAG        branch-${CUGRAPH_VERSION}
+        GIT_SHALLOW    TRUE
+        DOWNLOAD_ONLY
+    )
 
-set(CUGRAPH_INCLUDE_DIR_REAL "${cugraph_SOURCE_DIR}/cpp/include")
-set(CUGRAPH_INCLUDE_DIR "${cugraph_SOURCE_DIR}/cpp/fake_include")
+    set(CUGRAPH_INCLUDE_DIR_REAL "${cugraph_SOURCE_DIR}/cpp/include")
+    set(CUGRAPH_INCLUDE_DIR "${cugraph_SOURCE_DIR}/cpp/fake_include")
 
-execute_process(COMMAND mkdir -p ${CUGRAPH_INCLUDE_DIR})
-execute_process(COMMAND ln -s -f ${CUGRAPH_INCLUDE_DIR_REAL} ${CUGRAPH_INCLUDE_DIR}/cugraph)
+    list(APPEND CUGRAPH_INCLUDE_DIRS ${RAFT_INCLUDE_DIR})
+    list(APPEND CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIR})
+    list(APPEND CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIR_REAL})
+    set(CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIRS} PARENT_SCOPE)
 
-list(APPEND CUGRAPH_INCLUDE_DIRS ${RAFT_INCLUDE_DIR})
-list(APPEND CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIR})
-list(APPEND CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIR_REAL})
+    execute_process(COMMAND mkdir -p ${CUGRAPH_INCLUDE_DIR})
+    execute_process(COMMAND ln -s -f ${CUGRAPH_INCLUDE_DIR_REAL} ${CUGRAPH_INCLUDE_DIR}/cugraph)
 
-message(STATUS "CUGRAPH_INCLUDE_DIR: ${CUGRAPH_INCLUDE_DIR}")
-message(STATUS "CUGRAPH_INCLUDE_DIR_REAL: ${CUGRAPH_INCLUDE_DIR_REAL}")
-message(STATUS "CUGRAPH_INCLUDE_DIRS: ${CUGRAPH_INCLUDE_DIRS}")
+    message(STATUS "CUGRAPH_INCLUDE_DIR: ${CUGRAPH_INCLUDE_DIR}")
+    message(STATUS "CUGRAPH_INCLUDE_DIR_REAL: ${CUGRAPH_INCLUDE_DIR_REAL}")
+    message(STATUS "CUGRAPH_INCLUDE_DIRS: ${CUGRAPH_INCLUDE_DIRS}")
+endfunction()
+
+find_and_configure_cugraph(${CUGRAPH_VERSION})

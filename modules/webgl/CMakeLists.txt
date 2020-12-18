@@ -17,10 +17,11 @@ cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
 project(node_webgl VERSION 0.0.1 LANGUAGES C CXX)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(NODE_WEBGL_STATIC_LINK "Statically link GLEW and GLFW libraries" OFF)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Set OpenGL_GL_PREFERENCE to "GLVND"
 cmake_policy(SET CMP0072 NEW)
@@ -74,10 +75,7 @@ file(GLOB_RECURSE NODE_WEBGL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_WEBGL_SRC_FILES} ${CMAKE_JS_SRC})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-                      PREFIX ""
-                      SUFFIX ".node"
-                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}

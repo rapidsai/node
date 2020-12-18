@@ -21,17 +21,19 @@ else
     compile_commands_json="build/Debug/compile_commands.json";
 fi
 
-RAPIDS_CORE_HOME=$(dirname $(realpath "$0"))
-RAPIDS_CORE_HOME=$(realpath "$RAPIDS_CORE_HOME/../../")
+RAPIDS_CORE_PATH=$(dirname $(realpath "$0"))
+RAPIDS_CORE_PATH=$(realpath "$RAPIDS_CORE_PATH/../../")
+RAPIDS_MODULES_PATH=$(realpath "$RAPIDS_CORE_PATH/../")
 
 JOBS=$(node -e "console.log(require('os').cpus().length)") \
     PARALLEL_LEVEL=$JOBS CMAKE_BUILD_PARALLEL_LEVEL=$JOBS  \
-    HOME="$RAPIDS_CORE_HOME"                               \
+    CCACHE_CONFIGPATH="$RAPIDS_MODULES_PATH/.cache/ccache" \
+    HOME="$RAPIDS_CORE_PATH"                               \
     npx cmake-js $args                                     \
  && ln -f -s $compile_commands_json compile_commands.json
 
 if [[ "$debug" == "false" ]]; then
-    if [[ $(basename $(realpath -m "$RAPIDS_CORE_HOME/../")) == "modules" ]]; then
+    if [[ $(basename $RAPIDS_MODULES_PATH) == "modules" ]]; then
         if [[ "$(which jq)" != "" ]]; then
             jq -s '.|flatten' \
                 $(find .. -type f -path "*$compile_commands_json") \
