@@ -16,63 +16,62 @@ import { glfw } from '../glfw';
 import { performance } from 'perf_hooks';
 
 export function installAnimationFrame(window: any) {
+  const notMacOs = process.platform !== 'darwin';
 
-    const notMacOs = process.platform !== 'darwin';
+  let a = new Map<(time: number) => any, any>();
+  let b = new Map<(time: number) => any, any>();
 
-    let a = new Map<Function, any>();
-    let b = new Map<Function, any>();
+  let callbacks = a;
+  let animationframe: NodeJS.Immediate | null = null;
 
-    let callbacks = a;
-    let animationframe: NodeJS.Immediate | null = null;
+  return Object.assign(window, { requestAnimationFrame, cancelAnimationFrame });
 
-    return Object.assign(window, { requestAnimationFrame, cancelAnimationFrame });
-
-    function cancelAnimationFrame(cb: (evt: Event) => any) {
-        if (typeof cb === 'function') {
-            callbacks.delete(cb);
-            if (animationframe !== null) {
-                if (callbacks.size === 0) {
-                    const af = animationframe;
-                    animationframe = null;
-                    clearImmediate(af);
-                }
-            }
+  function cancelAnimationFrame(cb: (time: number) => any) {
+    if (typeof cb === 'function') {
+      callbacks.delete(cb);
+      if (animationframe !== null) {
+        if (callbacks.size === 0) {
+          const af = animationframe;
+          animationframe = null;
+          clearImmediate(af);
         }
+      }
     }
+  }
 
-    function requestAnimationFrame(cb: (evt: Event) => any = () => {}) {
-        if (animationframe === null) {
-            animationframe = setImmediate(flushAnimationFrame);
-        }
-        callbacks.set(cb, null);
-        return cb;
+  function requestAnimationFrame(cb: (time: number) => any = () => {}) {
+    if (animationframe === null) {
+      animationframe = setImmediate(flushAnimationFrame);
     }
+    callbacks.set(cb, null);
+    return cb;
+  }
 
-    function flushAnimationFrame() {
-        animationframe = null;
-        const initialState = window._clearMask || 0;
-        // hack: reset the private `gl._clearMask` field so we know whether
-        // to call swapBuffers() after all the listeners have been executed
-        window._clearMask = 0;
-        (window.id > 0) && glfw.makeContextCurrent(window.id);
-        if (callbacks.size > 0) {
-            const t_ = performance.now();
-            if (callbacks === a) {
-                callbacks = b;
-                a.forEach((_, cb) => cb(t_));
-                a = new Map<Function, any>();
-            } else {
-                callbacks = a;
-                b.forEach((_, cb) => cb(t_));
-                b = new Map<Function, any>();
-            }
-        }
-        const resultState = window._clearMask || 0;
-        window._clearMask = 0;
-        // Fix for MacOS: only swap buffers if gl.clear() was called
-        if (notMacOs || (initialState || resultState)) {
-            (window.id > 0) && glfw.swapBuffers(window.id);
-        }
-        glfw.pollEvents();
+  function flushAnimationFrame() {
+    animationframe = null;
+    const initialState = window._clearMask || 0;
+    // hack: reset the private `gl._clearMask` field so we know whether
+    // to call swapBuffers() after all the listeners have been executed
+    window._clearMask = 0;
+    window.id > 0 && glfw.makeContextCurrent(window.id);
+    if (callbacks.size > 0) {
+      const t_ = performance.now();
+      if (callbacks === a) {
+        callbacks = b;
+        a.forEach((_, cb) => cb(t_));
+        a = new Map<(time: number) => any, any>();
+      } else {
+        callbacks = a;
+        b.forEach((_, cb) => cb(t_));
+        b = new Map<(time: number) => any, any>();
+      }
     }
+    const resultState = window._clearMask || 0;
+    window._clearMask = 0;
+    // Fix for MacOS: only swap buffers if gl.clear() was called
+    if (notMacOs || initialState || resultState) {
+      window.id > 0 && glfw.swapBuffers(window.id);
+    }
+    glfw.pollEvents();
+  }
 }

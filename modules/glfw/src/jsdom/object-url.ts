@@ -19,30 +19,29 @@ import { writeFileSync, unlinkSync, mkdtempSync } from 'fs';
 export const tmpdir = mkdtempSync(os.tmpdir() + Path.sep);
 
 export function installObjectURL(global: any, window: any) {
+  let filesCount = 0;
+  const map: any = {};
+  const implForWrapper = global.idlUtils.implForWrapper;
 
-    let filesCount = 0;
-    const map: any = {};
-    const implForWrapper = global.idlUtils.implForWrapper;
+  window.URL || Object.defineProperty(window, 'URL', {});
 
-    window.URL || Object.defineProperty(window, 'URL', {});
+  Object.assign(window.URL, { createObjectURL, revokeObjectURL });
 
-    Object.assign(window.URL, { createObjectURL, revokeObjectURL });
+  return window;
 
-    return window;
+  function createObjectURL(blob: any) {
+    const path = Path.join(tmpdir, `${filesCount++}`);
+    writeFileSync(path, implForWrapper(blob)._buffer);
+    const url = `file://${path}`;
+    map[url] = path;
+    return url;
+  }
 
-    function createObjectURL(blob: any) {
-        const path = Path.join(tmpdir, `${filesCount++}`);
-        writeFileSync(path, implForWrapper(blob)._buffer);
-        const url = `file://${path}`;
-        map[url] = path;
-        return url;
+  function revokeObjectURL(url: any) {
+    if (url in map) {
+      const p = map[url];
+      delete map[url];
+      unlinkSync(p);
     }
-
-    function revokeObjectURL(url: any) {
-        if (url in map) {
-            const p = map[url];
-            delete map[url];
-            unlinkSync(p);
-        }
-    }
+  }
 }

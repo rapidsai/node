@@ -28,63 +28,89 @@ const idlUtils = require('jsdom/lib/jsdom/living/generated/utils');
 const localhostUrl = `http://${Path.basename(tmpdir)}/`.toLowerCase();
 
 class ImageLoader extends jsdom.ResourceLoader {
-    fetch(url: string, options: jsdom.FetchOptions) {
-        // Hack since JSDOM 16.2.2: If loading a relative file
-        // from our dummy localhost URI, translate to a file:// URI.
-        if (url.startsWith(localhostUrl)) {
-            url = url.slice(localhostUrl.length);
-        }
-        // url.endsWith('/') && (url = url.slice(0, -1));
-        const isDataURI = url && url.startsWith('data:');
-        const isFilePath = !isDataURI && !parseURL(url).protocol;
-        return super.fetch(isFilePath ? `file://${url}` : url, options);
+  fetch(url: string, options: jsdom.FetchOptions) {
+    // Hack since JSDOM 16.2.2: If loading a relative file
+    // from our dummy localhost URI, translate to a file:// URI.
+    if (url.startsWith(localhostUrl)) {
+      url = url.slice(localhostUrl.length);
     }
+    // url.endsWith('/') && (url = url.slice(0, -1));
+    const isDataURI = url && url.startsWith('data:');
+    const isFilePath = !isDataURI && !parseURL(url).protocol;
+    return super.fetch(isFilePath ? `file://${url}` : url, options);
+  }
 }
 
 const jsdomOptions = {
-    url: localhostUrl,
-    // probably need this
-    pretendToBeVisual: true,
-    // make event dispatching work
-    runScripts: 'dangerously',
-    // load local resources
-    resources: new ImageLoader(),
+  url: localhostUrl,
+  // probably need this
+  pretendToBeVisual: true,
+  // make event dispatching work
+  runScripts: 'dangerously',
+  // load local resources
+  resources: new ImageLoader(),
 };
 
 function createJSDOMContext(dir = process.cwd(), runInThisContext = false, code = '') {
-    let context: any;
-    const processClone = Object.create(process, {
-        browser: { value: true },
-        glfwWindow: { value: true },
-        type:  { value: 'renderer' },
-    });
-    if (runInThisContext) {
-        if (!(global as any).window) {
-            (global as any).idlUtils = idlUtils;
-            (global as any).ImageData = ImageData;
-            (global as any).uninstallJSDOM = jsdomGlobal(undefined, { ...jsdomOptions });
-        }
-        context = Object.create(global, {
-            window: { value: undefined, writable: true, configurable: true },
-            require: { value: undefined, writable: true, configurable: true },
-        });
-        context.window = Object.create((global as any).window);
-        context.require = createContextRequire({ dir, context, resolve: browserResolve });
-        context.window.openGLFWWindow = eval(`(() => ${wrapScriptInOpenWindowFn(code)})()`);
-        JSDOM_KEYS.forEach((key) => { try { (context as any)[key] = context.window[key]; } catch (e) {} });
-        NODE_GLOBAL_KEYS.forEach((key) => { try { (context.window as any)[key] = global[key]; } catch (e) {} });
-    } else {
-        context = createJSDOMContextRequire(<any> {
-            dir, html: scriptToHTML(code), ...jsdomOptions
-        });
-        Object.assign(context, { ...global, global: context, Buffer: global.Buffer });
-        Object.assign(context.window, { ...global, global: context, Buffer: global.Buffer });
-        JSDOM_KEYS.forEach((key) => { try { (context as any)[key] = context.window[key]; } catch (e) {} });
-        NODE_GLOBAL_KEYS.forEach((key) => { try { (context.window as any)[key] = global[key]; } catch (e) {} });
+  let context: any;
+  const processClone = Object.create(process, {
+    browser: { value: true },
+    glfwWindow: { value: true },
+    type: { value: 'renderer' },
+  });
+  if (runInThisContext) {
+    if (!(global as any).window) {
+      (global as any).idlUtils = idlUtils;
+      (global as any).ImageData = ImageData;
+      (global as any).uninstallJSDOM = jsdomGlobal(undefined, { ...jsdomOptions });
     }
-    Object.assign(context, { ImageData, process: processClone, global: context, idlUtils });
-    Object.assign(context.window, { ImageData, process: processClone, require: context.require });
-    return context;
+    context = Object.create(global, {
+      window: { value: undefined, writable: true, configurable: true },
+      require: { value: undefined, writable: true, configurable: true },
+    });
+    context.window = Object.create((global as any).window);
+    context.require = createContextRequire({ dir, context, resolve: browserResolve });
+    context.window.openGLFWWindow = eval(`(() => ${wrapScriptInOpenWindowFn(code)})()`);
+    JSDOM_KEYS.forEach((key) => {
+      try {
+        context[key] = context.window[key];
+      } catch (e) {
+        /**/
+      }
+    });
+    NODE_GLOBAL_KEYS.forEach((key) => {
+      try {
+        context.window[key] = global[key];
+      } catch (e) {
+        /**/
+      }
+    });
+  } else {
+    context = createJSDOMContextRequire(<any>{
+      dir,
+      html: scriptToHTML(code),
+      ...jsdomOptions,
+    });
+    Object.assign(context, { ...global, global: context, Buffer: global.Buffer });
+    Object.assign(context.window, { ...global, global: context, Buffer: global.Buffer });
+    JSDOM_KEYS.forEach((key) => {
+      try {
+        context[key] = context.window[key];
+      } catch (e) {
+        /**/
+      }
+    });
+    NODE_GLOBAL_KEYS.forEach((key) => {
+      try {
+        context.window[key] = global[key];
+      } catch (e) {
+        /**/
+      }
+    });
+  }
+  Object.assign(context, { ImageData, process: processClone, global: context, idlUtils });
+  Object.assign(context.window, { ImageData, process: processClone, require: context.require });
+  return context;
 }
 
 const wrapScriptInOpenWindowFn = (code: string) => `
@@ -101,18 +127,19 @@ const scriptToHTML = (code: string) => `
 <!DOCTYPE html><html><head><meta charset="utf-8"></head>
 <body><script type="text/javascript">${wrapScriptInOpenWindowFn(code)}</script></body></html>`;
 
-export function createWindow(code: Function | string, runInThisContext = false) {
-    const context = createJSDOMContext(process.cwd(), runInThisContext, code.toString());
-    context.open = (opts: GLFWDOMWindowOptions = {}) => context.window.openGLFWWindow(opts);
-    return context as (Types.JSDOMModule & { open(options?: GLFWDOMWindowOptions): void; });
+export function createWindow(code: (() => any) | string, runInThisContext = false) {
+  const context = createJSDOMContext(process.cwd(), runInThisContext, code.toString());
+  context.open = (opts: GLFWDOMWindowOptions = {}) => context.window.openGLFWWindow(opts);
+  return context as Types.JSDOMModule & { open(options?: GLFWDOMWindowOptions): void };
 }
 
 export function createModuleWindow(id: string, runInThisContext = false) {
-    return createWindow(`function() { return require('${id}'); }`, runInThisContext);
+  return createWindow(`function() { return require('${id}'); }`, runInThisContext);
 }
 
 export function createReactWindow(id: string, runInThisContext = false) {
-    return createWindow(`function (props) {
+  return createWindow(
+    `function (props) {
             var Component = require('${id}');
             var reactDOM = require('react-dom');
             var createElement = require('react').createElement;
@@ -122,21 +149,25 @@ export function createReactWindow(id: string, runInThisContext = false) {
                 createElement(Component.default || Component, props),
                 document.body.appendChild(document.createElement('div'))
             );
-        }`, runInThisContext);
+        }`,
+    runInThisContext,
+  );
 }
 
-process.on(<any> 'uncaughtException', (err: Error, origin: any) => {
-    process.stderr.write(
-        `Uncaught Exception\n` +
-        (origin ? `Origin: ${origin}\n` : '') +
-        `Exception: ${err && err.stack || err}\n`
-    );
+process.on(<any>'uncaughtException', (err: Error, origin: any) => {
+  /* eslint-disable @typescript-eslint/restrict-template-expressions */
+  process.stderr.write(
+    'Uncaught Exception\n' +
+      (origin ? `Origin: ${origin}\n` : '') +
+      `Exception: ${(err && err.stack) || err}\n`,
+  );
 });
 
-process.on(<any> 'unhandledRejection', (err: Error, promise: any) => {
-    process.stderr.write(
-        `Unhandled Promise Rejection\n` +
-        (promise ? `Promise: ${promise}\n` : '') +
-        `Exception: ${err && err.stack || err}\n`
-    );
+process.on(<any>'unhandledRejection', (err: Error, promise: any) => {
+  /* eslint-disable @typescript-eslint/restrict-template-expressions */
+  process.stderr.write(
+    'Unhandled Promise Rejection\n' +
+      (promise ? `Promise: ${promise}\n` : '') +
+      `Exception: ${(err && err.stack) || err}\n`,
+  );
 });

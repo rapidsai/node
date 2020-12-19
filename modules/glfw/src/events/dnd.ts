@@ -18,24 +18,27 @@ import { map, publish, refCount } from 'rxjs/operators';
 import { windowCallbackAsObservable, GLFWEvent } from './event';
 
 export function dndEvents(window: GLFWDOMWindow) {
-    return windowCallbackAsObservable(glfw.setDropCallback, window)
-        .pipe(map(([_, ...rest]) => GLFWDndEvent.create(window, ...rest)))
-        .pipe(publish(), refCount())
+  return windowCallbackAsObservable(glfw.setDropCallback, window)
+    .pipe(map(([, ...rest]) => GLFWDndEvent.create(window, ...rest)))
+    .pipe(publish(), refCount());
 }
 
 export class GLFWDndEvent extends GLFWEvent {
+  public static create(window: GLFWDOMWindow, files: string[]) {
+    const evt = new GLFWDndEvent('drop');
+    evt.target = window;
+    evt._files = files;
+    return evt;
+  }
 
-    public static create(window: GLFWDOMWindow, files: string[]) {
-        const evt = new GLFWDndEvent('drop');
-        evt.target = window;
-        evt._files = files;
-        return evt;
-    }
-
-    private _files: string[] = [];
-    public readonly types = [];
-    public readonly dropEffect = 'none';
-    public readonly effectAllowed = 'all';
-    public get items() { return this._files; }
-    public get files() { return this._files; }
+  private _files: string[] = [];
+  public readonly types = [];
+  public readonly dropEffect = 'none';
+  public readonly effectAllowed = 'all';
+  public get items() {
+    return this._files;
+  }
+  public get files() {
+    return this._files;
+  }
 }

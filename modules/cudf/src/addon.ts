@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import '@nvidia/rmm';
-const { loadNativeModule } = require('@nvidia/rapids-core');
+import { loadNativeModule } from '@nvidia/rapids-core';
 
-export const CUDF = loadNativeModule(module, 'node_cudf');
+export const CUDF = loadNativeModule<any>(module, 'node_cudf');
 export default CUDF;

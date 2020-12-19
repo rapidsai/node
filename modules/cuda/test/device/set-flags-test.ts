@@ -15,20 +15,20 @@
 import { devices, DeviceFlags } from '@nvidia/cuda';
 
 test.each([
-    DeviceFlags.scheduleAuto,
-    DeviceFlags.scheduleSpin,
-    DeviceFlags.scheduleYield,
-    DeviceFlags.scheduleBlockingSync,
-    DeviceFlags.lmemResizeToMax
-])(`Sets device flags to DeviceFlag %i`, (flags) => {
-    for (const device of devices) {
-        try {
-            expect(device.id).toBeDefined();
-            expect(device.getFlags()).toBe(DeviceFlags.scheduleAuto);
-            device.reset().setFlags(flags);
-            expect(device.getFlags()).toBe(flags);
-        } finally {
-            device.reset().synchronize();
-        }
+  DeviceFlags.scheduleAuto,
+  DeviceFlags.scheduleSpin,
+  DeviceFlags.scheduleYield,
+  DeviceFlags.scheduleBlockingSync,
+  DeviceFlags.lmemResizeToMax,
+])('Sets device flags to DeviceFlag %i', (flags) => {
+  for (const device of devices) {
+    try {
+      expect(device.id).toBeDefined();
+      expect(device.getFlags()).toBe(DeviceFlags.scheduleAuto);
+      device.reset().setFlags(flags);
+      expect(device.getFlags()).toBe(flags);
+    } finally {
+      device.reset().synchronize();
     }
+  }
 });

@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CuGraph from './addon'
+import CuGraph from './addon';
 
 import { Column } from '@nvidia/cudf';
 
 export interface CuGraphGraphCOOConstructor {
-    readonly prototype: CuGraphGraphCOO;
-    new(src: Column, dst: Column): CuGraphGraphCOO;
+  readonly prototype: GraphCOO;
+  new (src: Column, dst: Column): GraphCOO;
 }
 
-interface CuGraphGraphCOO {
-    readonly numberOfEdges: number;
-    readonly numberOfNodes: number;
+interface GraphCOO {
+  readonly numberOfEdges: number;
+  readonly numberOfNodes: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const GraphCOO: CuGraphGraphCOOConstructor = CuGraph.GraphCOO;

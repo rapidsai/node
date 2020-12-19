@@ -25,25 +25,31 @@ const perDeviceMemoryResources = new Map<number, MemoryResource>();
 RMM.setPerDeviceResource = setPerDeviceResource;
 
 export function getPerDeviceResource(deviceId: number) {
-    if (!perDeviceMemoryResources.has(deviceId)) {
-        setPerDeviceResource(deviceId, new RMM.CudaMemoryResource(deviceId));
-    }
-    return perDeviceMemoryResources.get(deviceId)!;
+  if (!perDeviceMemoryResources.has(deviceId)) {
+    setPerDeviceResource(deviceId, new RMM.CudaMemoryResource(deviceId));
+  }
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return perDeviceMemoryResources.get(deviceId)!;
 }
 
-export function setPerDeviceResource(deviceId: number, memoryResource: MemoryResource = new RMM.CudaMemoryResource()) {
-    perDeviceMemoryResources.set(deviceId, memoryResource);
-    rmmSetPerDeviceResource(deviceId, memoryResource);
+export function setPerDeviceResource(
+  deviceId: number,
+  memoryResource: MemoryResource = new RMM.CudaMemoryResource(),
+) {
+  perDeviceMemoryResources.set(deviceId, memoryResource);
+  rmmSetPerDeviceResource(deviceId, memoryResource);
 }
 
 export function getPerDeviceResourceType(deviceId: number) {
-    return getPerDeviceResource(deviceId)?.constructor;
+  return getPerDeviceResource(deviceId)?.constructor;
 }
 
 export function getCurrentDeviceResource() {
-    return getPerDeviceResource(Device.activeDeviceId);
+  return getPerDeviceResource(Device.activeDeviceId);
 }
 
-export function setCurrentDeviceResource(memoryResource: MemoryResource = new RMM.CudaMemoryResource()) {
-    return setPerDeviceResource(Device.activeDeviceId, memoryResource);
+export function setCurrentDeviceResource(
+  memoryResource: MemoryResource = new RMM.CudaMemoryResource(),
+) {
+  return setPerDeviceResource(Device.activeDeviceId, memoryResource);
 }

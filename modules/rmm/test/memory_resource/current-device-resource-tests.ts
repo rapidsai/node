@@ -18,13 +18,13 @@ import { sizes, testForEachDevice } from '../utils';
 import { memoryResourceTestConfigs } from './utils';
 import { DeviceBuffer, getCurrentDeviceResource, setCurrentDeviceResource } from '@nvidia/rmm';
 
-describe.each(memoryResourceTestConfigs)(`%s`, (_, { createMemoryResource }) => {
-    testForEachDevice(`set/get current device resource`, () => {
-        const mr = createMemoryResource();
-        setCurrentDeviceResource(mr);
-        expect(getCurrentDeviceResource()).toBe(mr);
-        // Fill the buffer with 1s, because CUDA Managed
-        // memory is only allocated when it's actually used.
-        new Uint8Buffer(new DeviceBuffer(sizes['2_MiB'], 0, mr)).fill(1);
-    });
+describe.each(memoryResourceTestConfigs)('%s', (_, { createMemoryResource }) => {
+  testForEachDevice('set/get current device resource', () => {
+    const mr = createMemoryResource();
+    setCurrentDeviceResource(mr);
+    expect(getCurrentDeviceResource()).toBe(mr);
+    // Fill the buffer with 1s, because CUDA Managed
+    // memory is only allocated when it's actually used.
+    new Uint8Buffer(new DeviceBuffer(sizes['2_MiB'], 0, mr)).fill(1);
+  });
 });

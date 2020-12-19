@@ -1,7 +1,8 @@
-import Module = require("module");
-import * as vm from "vm";
-import * as path from "path";
-const builtinModules = require("builtins");
+/* eslint-disable */
+import Module = require('module');
+import * as vm from 'vm';
+import * as path from 'path';
+const builtinModules = require('builtins');
 
 const BUILTIN: string[] = builtinModules();
 let moduleId = 0;
@@ -66,7 +67,7 @@ export class ContextModule extends Module {
     this._hooks = extensions;
     this._cache = {};
 
-    if (!vm.isContext(context) && typeof context.runVMScript !== "function") {
+    if (!vm.isContext(context) && typeof context.runVMScript !== 'function') {
       vm.createContext(context);
     }
   }
@@ -86,11 +87,7 @@ function createContextRequire(options: Types.Options) {
  * @param parentModule The module requiring this file.
  * @param isMain
  */
-function loadFile(
-  request: string,
-  parentModule: Module | ContextModule,
-  isMain: boolean
-): string {
+function loadFile(request: string, parentModule: Module | ContextModule, isMain: boolean): string {
   const isNotBuiltin = BUILTIN.indexOf(request) === -1;
   const contextModule = isNotBuiltin && findNearestContextModule(parentModule);
   const previousCache = (Module as any)._cache;
@@ -108,10 +105,7 @@ function loadFile(
  * @param request The file to resolve.
  * @param parentModule The module requiring this file.
  */
-function resolveFileHook(
-  request: string,
-  parentModule: Module | ContextModule
-): string {
+function resolveFileHook(request: string, parentModule: Module | ContextModule): string {
   const isNotBuiltin = BUILTIN.indexOf(request) === -1;
   const contextModule = isNotBuiltin && findNearestContextModule(parentModule);
 
@@ -125,8 +119,8 @@ function resolveFileHook(
       if (path.isAbsolute(request)) {
         request = path.relative(dir, request);
 
-        if (request[0] !== ".") {
-          request = "./" + request;
+        if (request[0] !== '.') {
+          request = './' + request;
         }
       }
 
@@ -169,11 +163,7 @@ function protoLoad(this: Module, filename: string) {
  * @param content The file contents of the script.
  * @param filename The filename for the script.
  */
-function compileHook(
-  this: Module | ContextModule,
-  content: string,
-  filename: string
-) {
+function compileHook(this: Module | ContextModule, content: string, filename: string) {
   const contextModule = findNearestContextModule(this);
 
   if (contextModule) {
@@ -181,7 +171,7 @@ function compileHook(
     const script = new vm.Script(Module.wrap(content), {
       filename,
       lineOffset: 0,
-      displayErrors: true
+      displayErrors: true,
     });
 
     return runScript(context, script).call(
@@ -190,7 +180,7 @@ function compileHook(
       createRequire(this),
       this,
       filename,
-      path.dirname(filename)
+      path.dirname(filename),
     );
   }
 
@@ -207,7 +197,7 @@ function findNearestContextModule(cur: Module): ContextModule | void {
     if (cur instanceof ContextModule) {
       return cur;
     }
-  } while (Boolean((cur = cur.parent!)));
+  } while ((cur = cur.parent!));
 }
 
 /**
@@ -218,9 +208,7 @@ function findNearestContextModule(cur: Module): ContextModule | void {
  * @param script The vm script to run.
  */
 function runScript(context: any, script: vm.Script) {
-  return context.runVMScript
-    ? context.runVMScript(script)
-    : script.runInContext(context);
+  return context.runVMScript ? context.runVMScript(script) : script.runInContext(context);
 }
 
 /**

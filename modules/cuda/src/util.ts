@@ -21,55 +21,62 @@ export const isBigInt = (x: any): x is bigint => typeof x === 'bigint';
 /** @ignore */
 export const isBoolean = (x: any): x is boolean => typeof x === 'boolean';
 /** @ignore */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export const isFunction = (x: any): x is Function => typeof x === 'function';
 /** @ignore */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export const isObject = (x: any): x is Object => x != null && Object(x) === x;
 
 /** @ignore */
 export const isPromise = <T = any>(x: any): x is PromiseLike<T> => {
-    return isObject(x) && isFunction(x.then);
+  return isObject(x) && isFunction(x.then);
 };
 
 /** @ignore */
 export const isIterable = <T = any>(x: any): x is Iterable<T> => {
-    return isObject(x) && isFunction(x[Symbol.iterator]);
+  return isObject(x) && isFunction(x[Symbol.iterator]);
 };
 
 /** @ignore */
 export const isAsyncIterable = <T = any>(x: any): x is AsyncIterable<T> => {
-    return isObject(x) && isFunction(x[Symbol.asyncIterator]);
+  return isObject(x) && isFunction(x[Symbol.asyncIterator]);
 };
 
 /** @ignore */
 export const isArrayLike = <T = any>(x: any): x is ArrayLike<T> => {
-    return isObject(x) && isNumber(x.length);
+  return isObject(x) && isNumber(x.length);
 };
 
 /** @ignore */
 export const isMemoryLike = (x: any): x is Memory => {
-    return isObject(x) && isNumber(x.ptr) && isNumber(x.byteLength);
+  return isObject(x) && isNumber(x.ptr) && isNumber(x.byteLength);
 };
 
 /** @ignore */
 export const isArrayBuffer = (x: any): x is ArrayBuffer => {
-    return x && x.constructor && x.constructor.name === 'ArrayBuffer';
+  return x && x.constructor && x.constructor.name === 'ArrayBuffer';
 };
 
 /** @ignore */
+// eslint-disable-next-line @typescript-eslint/unbound-method
 export const isArrayBufferView = ArrayBuffer.isView;
 
 /** @ignore */
 export const isIteratorResult = <T = any>(x: any): x is IteratorResult<T> => {
-    return isObject(x) && ('done' in x) && ('value' in x);
+  return isObject(x) && 'done' in x && 'value' in x;
 };
 
 export function clampSliceArgs(len: number, lhs = 0, rhs = len): [number, number] {
-    // Adjust args similar to Array.prototype.slice. Normalize begin/end to
-    // clamp between 0 and length, and wrap around on negative indices, e.g.
-    // slice(-1, 5) or slice(5, -1)
-    // wrap around on negative start/end positions
-    if (lhs < 0) { lhs = ((lhs % len) + len) % len; }
-    if (rhs < 0) { rhs = ((rhs % len) + len) % len; }
-    // enforce lhs <= rhs and rhs <= count
-    return rhs < lhs ? [rhs, lhs] : [lhs, rhs > len ? len : rhs];
+  // Adjust args similar to Array.prototype.slice. Normalize begin/end to
+  // clamp between 0 and length, and wrap around on negative indices, e.g.
+  // slice(-1, 5) or slice(5, -1)
+  // wrap around on negative start/end positions
+  if (lhs < 0) {
+    lhs = ((lhs % len) + len) % len;
+  }
+  if (rhs < 0) {
+    rhs = ((rhs % len) + len) % len;
+  }
+  // enforce lhs <= rhs and rhs <= count
+  return rhs < lhs ? [rhs, lhs] : [lhs, rhs > len ? len : rhs];
 }

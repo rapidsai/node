@@ -17,113 +17,111 @@ import { Column } from './column';
 import { ColumnAccessor } from './column_accessor';
 
 interface TableConstructor {
-    readonly prototype: CUDFTable;
-    new(props: {
-        columns?: ReadonlyArray<Column> | null
-    }): CUDFTable;
+  readonly prototype: CUDFTable;
+  new (props: { columns?: ReadonlyArray<Column> | null }): CUDFTable;
 }
 
 interface CUDFTable {
+  [index: number]: Column;
 
-    [index: number]: any;
+  readonly numColumns: number;
+  readonly numRows: number;
+  columns: ReadonlyArray<string> | null;
+  _data: ColumnAccessor;
 
-    readonly numColumns: number;
-    readonly numRows: number;
-    columns: ReadonlyArray<string> | null;
-    _data: ColumnAccessor;
-
-    getColumnByIndex(index: number): Column;
-    select(columns: ReadonlyArray<number> | ReadonlyArray<string> | null): CUDFTable;
-    slice(start: number | string, end: number | string): CUDFTable;
-    updateColumns(props: {
-        columns?: ReadonlyArray<Column> | null
-    }): void;
+  getColumnByIndex(index: number): Column;
+  select(columns: ReadonlyArray<number> | ReadonlyArray<string> | null): CUDFTable;
+  slice(start: number | string, end: number | string): CUDFTable;
+  updateColumns(props: { columns?: ReadonlyArray<Column> | null }): void;
 }
 
 export class Table extends (<TableConstructor>CUDF.Table) {
-    constructor(props: {
-        data?: ColumnAccessor,
-    }) {
-        if (!(props.data instanceof ColumnAccessor)) {
-            props.data = new ColumnAccessor(new Map(Object.entries(typeof props.data === 'object' ? props.data || {} : {})));
-        }
-        super({ columns: props.data.columns });
-        this._data = props.data;
+  constructor(props: { data?: ColumnAccessor | Record<string, Column> }) {
+    if (!(props.data instanceof ColumnAccessor)) {
+      props.data = new ColumnAccessor(
+        new Map(Object.entries(typeof props.data === 'object' ? props.data || {} : {})),
+      );
     }
+    super({ columns: props.data.columns });
+    this._data = props.data;
+  }
 
-    get columns(): ReadonlyArray<string> {
-        return this._data.names;
+  get columns(): ReadonlyArray<string> {
+    return this._data.names;
+  }
+
+  select(columns: Array<number> | Array<string>): CUDFTable {
+    const column_indices: Array<number | undefined> = (columns as any[]).map((value) => {
+      return this.transformInputLabel(value);
+    });
+
+    const column_accessor = this._data.selectByColumnIndices(column_indices);
+    return new Table({ data: column_accessor });
+  }
+
+  slice(start: number | string, end: number | string): CUDFTable {
+    return new Table({
+      data: this._data.sliceByColumnIndices(
+        this.transformInputLabel(start),
+        this.transformInputLabel(end),
+      ),
+    });
+  }
+
+  addColumn(name: string, column: Column) {
+    this._data.insertByColumnName(name, column);
+    super.updateColumns({ columns: this._data.columns });
+  }
+
+  getColumnByIndex(index: number): Column {
+    if (typeof this.transformInputLabel(index) !== 'undefined' && typeof index === 'number') {
+      return super.getColumnByIndex(index);
     }
+    throw new Error(`Column does not exist in the table: ${index}`);
+  }
 
-    select(columns: Array<number> | Array<string>): CUDFTable {
-        const column_indices: Array<number | undefined> = (columns as any[]).map((value) => {
-            return this.transformInputLabel(value);
-        });
-
-        const column_accessor = this._data.selectByColumnIndices(column_indices);
-        return new Table({ data: column_accessor });
-
+  getColumnByName(label: string): Column {
+    const index = typeof label === 'string' ? this.transformInputLabel(label) : undefined;
+    if (typeof index !== 'undefined') {
+      return this.getColumnByIndex(index);
     }
+    throw new Error(`Column does not exist in the table: ${label}`);
+  }
 
-    slice(start: number | string, end: number | string): CUDFTable {
-        return new Table({
-            data: this._data.sliceByColumnIndices(
-                this.transformInputLabel(start),
-                this.transformInputLabel(end)
-            )
-        });
+  drop(props: { columns: Array<string> }) {
+    props.columns.forEach((value) => {
+      this._data.removeByColumnName(value);
+    });
+    super.updateColumns({ columns: this._data.columns });
+  }
+
+  private transformInputLabel(label: number | string): number | undefined {
+    if (typeof label === 'string' && this.columns?.includes(label)) {
+      return this._data.columnNameToColumnIndex(label);
+    } else if (typeof label === 'number' && label < this.columns?.length) {
+      return label;
     }
-
-    addColumn(name: string, column: Column) {
-        this._data.insertByColumnName(name, column);
-        super.updateColumns({ columns: this._data.columns });
-    }
-
-    getColumnByIndex(index: number): Column {
-        if (typeof this.transformInputLabel(index) !== "undefined" && typeof index === "number") {
-            return super.getColumnByIndex(index);
-        }
-        throw new Error("Column does not exist in the table: " + index);
-    }
-
-    getColumnByName(label: string): Column {
-        let index = typeof label === "string" ? this.transformInputLabel(label) : undefined;
-        if (typeof index !== "undefined") {
-            return this.getColumnByIndex(index);
-        }
-        throw new Error("Column does not exist in the table: " + label);
-    }
-
-    drop(props: { columns: Array<string> }) {
-        props.columns.forEach((value, _) => {
-            this._data.removeByColumnName(value);
-        })
-        super.updateColumns({ columns: this._data.columns });
-    }
-
-    private transformInputLabel(label: number | string): number | undefined {
-        if (typeof label === "string" && this.columns?.includes(label)) {
-            return this._data.columnNameToColumnIndex(label)
-        }
-        else if (typeof label === "number" && label < this.columns?.length) {
-            return label;
-        }
-        return undefined;
-    }
-
+    return undefined;
+  }
 }
 
-Object.setPrototypeOf(CUDF.Table.prototype, new Proxy({}, {
-    get(target: {}, p: any, table: any) {
-        let i: string = p;
+Object.setPrototypeOf(
+  CUDF.Table.prototype,
+  new Proxy(
+    {},
+    {
+      get(target: any, p: any, table: any) {
+        const i: string = p;
         switch (typeof p) {
-            // @ts-ignore
-            case 'string':
-                if (table.columns.includes(i)) {
-                    return table.getColumnByName(i);
-                }
-                break;
+          // @ts-ignore
+          case 'string':
+            if (table.columns.includes(i)) {
+              return table.getColumnByName(i);
+            }
+            break;
         }
         return Reflect.get(target, p, table);
-    }
-}));
+      },
+    },
+  ),
+);

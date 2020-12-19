@@ -14,8 +14,8 @@
 
 #include "node_cudf/addon.hpp"
 #include "node_cudf/column.hpp"
-#include "node_cudf/table.hpp"
 #include "node_cudf/scalar.hpp"
+#include "node_cudf/table.hpp"
 #include "node_cudf/types.hpp"
 
 #include <nv_node/macros.hpp>

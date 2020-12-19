@@ -18,36 +18,67 @@ import { installObjectURL } from './object-url';
 import { GLFWDOMWindow, GLFWDOMWindowOptions } from './window';
 
 class GLFWRenderingContext extends gl.WebGL2RenderingContext {
-    constructor(canvas: HTMLCanvasElement, window: GLFWDOMWindow, options?: WebGLContextAttributes) {
-        super(options);
-        this.canvas = canvas;
-        this.window = window;
-    }
-    private readonly window: GLFWDOMWindow;
-    public readonly canvas: HTMLCanvasElement;
-    public get drawingBufferWidth() { return this.window.frameBufferWidth; }
-    public get drawingBufferHeight() { return this.window.frameBufferHeight; }
+  constructor(canvas: HTMLCanvasElement, window: GLFWDOMWindow, options?: WebGLContextAttributes) {
+    super(options);
+    this.canvas = canvas;
+    this.window = window;
+  }
+  private readonly window: GLFWDOMWindow;
+  public readonly canvas: HTMLCanvasElement;
+  public get drawingBufferWidth() {
+    return this.window.frameBufferWidth;
+  }
+  public get drawingBufferHeight() {
+    return this.window.frameBufferHeight;
+  }
 }
 
+// eslint-disable-next-line @typescript-eslint/unbound-method
 const JSDOM_getContext = window.HTMLCanvasElement.prototype.getContext;
 
-type RenderingContextSettings = CanvasRenderingContext2DSettings | ImageBitmapRenderingContextSettings | WebGLContextAttributes;
+type RenderingContextSettings =
+  | CanvasRenderingContext2DSettings
+  | ImageBitmapRenderingContextSettings
+  | WebGLContextAttributes;
 
-function getContext(contextId: "2d", options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D | null;
-function getContext(contextId: "bitmaprenderer", options?: ImageBitmapRenderingContextSettings): ImageBitmapRenderingContext | null;
-function getContext(contextId: "webgl", options?: WebGLContextAttributes): WebGLRenderingContext | null;
-function getContext(contextId: "webgl2", options?: WebGLContextAttributes): WebGL2RenderingContext | null;
-function getContext(this: HTMLCanvasElement, ...args: [OffscreenRenderingContextId, RenderingContextSettings?]): RenderingContext | null {
-    if ((this as any)['_webgl2_ctx']) {
-        return (this as any)['_webgl2_ctx'];
-    }
-    switch (args[0]) {
-        case 'webgl':
-            return ((this as any)['_webgl2_ctx'] = new GLFWRenderingContext(this, <any> window, args[1] || {}));
-        case 'webgl2':
-            return ((this as any)['_webgl2_ctx'] = new GLFWRenderingContext(this, <any> window, args[1] || {}));
-    }
-    return JSDOM_getContext.apply(this, args);
+function getContext(
+  contextId: '2d',
+  options?: CanvasRenderingContext2DSettings,
+): CanvasRenderingContext2D | null;
+function getContext(
+  contextId: 'bitmaprenderer',
+  options?: ImageBitmapRenderingContextSettings,
+): ImageBitmapRenderingContext | null;
+function getContext(
+  contextId: 'webgl',
+  options?: WebGLContextAttributes,
+): WebGLRenderingContext | null;
+function getContext(
+  contextId: 'webgl2',
+  options?: WebGLContextAttributes,
+): WebGL2RenderingContext | null;
+function getContext(
+  this: HTMLCanvasElement,
+  ...args: [OffscreenRenderingContextId, RenderingContextSettings?]
+): RenderingContext | null {
+  if ((this as any)['_webgl2_ctx']) {
+    return (this as any)['_webgl2_ctx'];
+  }
+  switch (args[0]) {
+    case 'webgl':
+      return ((this as any)['_webgl2_ctx'] = new GLFWRenderingContext(
+        this,
+        <any>window,
+        args[1] || {},
+      ));
+    case 'webgl2':
+      return ((this as any)['_webgl2_ctx'] = new GLFWRenderingContext(
+        this,
+        <any>window,
+        args[1] || {},
+      ));
+  }
+  return JSDOM_getContext.apply(this, args);
 }
 window.WebGLActiveInfo = gl.WebGLActiveInfo;
 window.WebGLShaderPrecisionFormat = gl.WebGLShaderPrecisionFormat;
@@ -64,15 +95,16 @@ window.WebGLTexture = gl.WebGLTexture;
 window.WebGLTransformFeedback = gl.WebGLTransformFeedback;
 window.WebGLUniformLocation = gl.WebGLUniformLocation;
 window.WebGLVertexArrayObject = gl.WebGLVertexArrayObject;
-window.WebGLRenderingContext = <any> GLFWRenderingContext;
-window.WebGL2RenderingContext = <any> GLFWRenderingContext;
+window.WebGLRenderingContext = <any>GLFWRenderingContext;
+window.WebGL2RenderingContext = <any>GLFWRenderingContext;
 window.HTMLCanvasElement.prototype.getContext = getContext;
 
 Object.defineProperties(
-    installAnimationFrame(installObjectURL(global, window)),
-    Object.getOwnPropertyDescriptors(GLFWDOMWindow.prototype));
+  installAnimationFrame(installObjectURL(global, window)),
+  Object.getOwnPropertyDescriptors(GLFWDOMWindow.prototype),
+);
 
-const global_ = <any> global;
+const global_ = <any>global;
 
 global_.WebGLActiveInfo = window.WebGLActiveInfo;
 global_.WebGLShaderPrecisionFormat = window.WebGLShaderPrecisionFormat;
@@ -97,78 +129,136 @@ global_.requestAnimationFrame = window.requestAnimationFrame;
 
 const origin = global_.idlUtils.implForWrapper(window.document)._origin;
 if (origin === 'null') {
-    global_.idlUtils.implForWrapper(window.document)._origin = '';
+  global_.idlUtils.implForWrapper(window.document)._origin = '';
 }
 
 if (typeof global_['fetch'] === 'undefined') {
-    const xfetch = require('cross-fetch');
-    const xfetchDefs = {
-        'fetch': { get() { return xfetch.fetch; } },
-        'Response': { get() { return xfetch.Response; } },
-        'Headers': { get() { return xfetch.Headers; } },
-        'Request': { get() { return xfetch.Request; } },
-    };
-    Object.defineProperties(global, xfetchDefs);
-    Object.defineProperties(window, xfetchDefs);
+  const xfetch = require('cross-fetch');
+  const xfetchDefs = {
+    'fetch': {
+      get() {
+        return xfetch.fetch;
+      },
+    },
+    'Response': {
+      get() {
+        return xfetch.Response;
+      },
+    },
+    'Headers': {
+      get() {
+        return xfetch.Headers;
+      },
+    },
+    'Request': {
+      get() {
+        return xfetch.Request;
+      },
+    },
+  };
+  Object.defineProperties(global, xfetchDefs);
+  Object.defineProperties(window, xfetchDefs);
 }
 
 if (typeof global_['ReadableStream'] === 'undefined') {
-    const streams = require('web-streams-polyfill');
-    const streamsDefs = {
-        'ReadableStream': { get() { return streams.ReadableStream; } },
-        'WritableStream': { get() { return streams.WritableStream; } },
-        'TransformStream': { get() { return streams.TransformStream; } },
-        'CountQueuingStrategy': { get() { return streams.CountQueuingStrategy; } },
-        'ByteLengthQueuingStrategy': { get() { return streams.ByteLengthQueuingStrategy; } },
-    };
-    Object.defineProperties(global, streamsDefs);
-    Object.defineProperties(window, streamsDefs);
+  const streams = require('web-streams-polyfill');
+  const streamsDefs = {
+    'ReadableStream': {
+      get() {
+        return streams.ReadableStream;
+      },
+    },
+    'WritableStream': {
+      get() {
+        return streams.WritableStream;
+      },
+    },
+    'TransformStream': {
+      get() {
+        return streams.TransformStream;
+      },
+    },
+    'CountQueuingStrategy': {
+      get() {
+        return streams.CountQueuingStrategy;
+      },
+    },
+    'ByteLengthQueuingStrategy': {
+      get() {
+        return streams.ByteLengthQueuingStrategy;
+      },
+    },
+  };
+  Object.defineProperties(global, streamsDefs);
+  Object.defineProperties(window, streamsDefs);
 }
 
 const defineLayoutProps = (elt: any) => {
-    const w = window as any;
-    [
-        'width', 'height',
-        'screenY', 'screenX',
-        'screenTop', 'screenLeft',
-        'scrollTop', 'scrollLeft',
-        'pageXOffset', 'pageYOffset',
-        'clientWidth', 'clientHeight',
-        'innerWidth', 'innerHeight',
-        'offsetWidth', 'offsetHeight',
-    ].forEach((k) => Object.defineProperty(elt, k, {
-        get: () => w[k],
-        set: () => {},
-        enumerable: true,
-        configurable: true,
-    }));
-    elt.getBoundingClientRect = w.getBoundingClientRect.bind(window);
-    return elt;
+  const w = window as any;
+  [
+    'width',
+    'height',
+    'screenY',
+    'screenX',
+    'screenTop',
+    'screenLeft',
+    'scrollTop',
+    'scrollLeft',
+    'pageXOffset',
+    'pageYOffset',
+    'clientWidth',
+    'clientHeight',
+    'innerWidth',
+    'innerHeight',
+    'offsetWidth',
+    'offsetHeight',
+  ].forEach((k) =>
+    Object.defineProperty(elt, k, {
+      get: () => w[k],
+      set: () => {},
+      enumerable: true,
+      configurable: true,
+    }),
+  );
+  elt.getBoundingClientRect = w.getBoundingClientRect.bind(window);
+  return elt;
 };
 
 defineLayoutProps(window.Document.prototype);
 defineLayoutProps(window.HTMLElement.prototype);
 
 Object.defineProperties(window.SVGElement.prototype, {
-    width: { get() { return { baseVal: { value: window.innerWidth }}}},
-    height: { get() { return { baseVal: { value: window.innerHeight }}}},
+  width: {
+    get() {
+      return { baseVal: { value: window.innerWidth } };
+    },
+  },
+  height: {
+    get() {
+      return { baseVal: { value: window.innerHeight } };
+    },
+  },
 });
 
 try {
-    const hammerjs = require('hammerjs');
-    for (const x of ['es5', 'es6', 'esm']) {
-        try {
-            const b = 'mjolnir.js/dist/' + x;
-            const o = require(b + '/utils/hammer-overrides');
-            o.enhancePointerEventInput(hammerjs.PointerEventInput);
-            o.enhanceMouseInput(hammerjs.MouseInput);
-            const mjolnirHammer = require(b + '/utils/hammer');
-            mjolnirHammer.Manager = hammerjs.Manager;
-            mjolnirHammer.default = hammerjs;
-        } catch (e) {}
+  const hammerjs = require('hammerjs');
+  for (const x of ['es5', 'es6', 'esm']) {
+    try {
+      const b = 'mjolnir.js/dist/' + x;
+      const o = require(b + '/utils/hammer-overrides');
+      o.enhancePointerEventInput(hammerjs.PointerEventInput);
+      o.enhanceMouseInput(hammerjs.MouseInput);
+      const mjolnirHammer = require(b + '/utils/hammer');
+      mjolnirHammer.Manager = hammerjs.Manager;
+      mjolnirHammer.default = hammerjs;
+    } catch (e) {
+      /**/
     }
-} catch (e) {}
+  }
+} catch (e) {
+  /**/
+}
 
-module.exports = function(options: GLFWDOMWindowOptions) {
-    (<any> window as GLFWDOMWindow).init({ width: 800, height: 600, ...options });
+module.exports = function (options: GLFWDOMWindowOptions) {
+  ((<any>window) as GLFWDOMWindow).init({ width: 800, height: 600, ...options });
 };
