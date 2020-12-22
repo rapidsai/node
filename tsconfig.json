@@ -1,0 +1,66 @@
+{
+    "include": [
+        "modules/*/src/**/*.ts",
+        "modules/*/test/**/*.ts"
+    ],
+    "exclude": ["node_modules"],
+    "compilerOptions": {
+        "baseUrl": "./",
+        "paths": {
+            "@nvidia/rapids-core":    ["modules/rapids-core/src/index"],
+            "@nvidia/rapids-core/*":  ["modules/rapids-core/src/*"],
+            "@nvidia/cuda":           ["modules/cuda/src/index"],
+            "@nvidia/cuda/*":         ["modules/cuda/src/*"],
+            "@nvidia/rmm":            ["modules/rmm/src/index"],
+            "@nvidia/rmm/*":          ["modules/rmm/src/*"],
+            "@nvidia/cudf":           ["modules/cudf/src/index"],
+            "@nvidia/cudf/*":         ["modules/cudf/src/*"],
+            "@nvidia/cugraph":        ["modules/cugraph/src/index"],
+            "@nvidia/cugraph/*":      ["modules/cugraph/src/*"],
+            "@nvidia/deck.gl":        ["modules/deck.gl/src/index"],
+            "@nvidia/deck.gl/*":      ["modules/deck.gl/src/*"],
+            "@nvidia/glfw":           ["modules/glfw/src/index"],
+            "@nvidia/glfw/*":         ["modules/glfw/src/*"],
+            "@nvidia/nvencoder":      ["modules/nvencoder/src/index"],
+            "@nvidia/nvencoder/*":    ["modules/nvencoder/src/*"],
+            "@nvidia/webgl":          ["modules/webgl/src/index"],
+            "@nvidia/webgl/*":        ["modules/webgl/src/*"],
+        },
+        "target": "ESNEXT",
+        "module": "commonjs",
+        "outDir": "./build/js",
+
+        /* Decorators */
+        "experimentalDecorators": true,
+
+        /* Basic stuff */
+        "moduleResolution": "node",
+        "skipLibCheck": true,
+        "skipDefaultLibCheck": true,
+        "lib": ["dom", "esnext", "esnext.asynciterable"],
+
+        /* Control what is emitted */
+        "declaration": true,
+        "noEmitOnError": true,
+        "removeComments": false,
+        "downlevelIteration": true,
+
+        /* Create inline sourcemaps with sources */
+        "sourceMap": false,
+        "inlineSources": true,
+        "inlineSourceMap": true,
+
+        /* The most restrictive settings possible */
+        "strict": true,
+        "importHelpers": true,
+        "noEmitHelpers": true,
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "noImplicitReturns": true,
+        "allowUnusedLabels": false,
+        "noUnusedParameters": true,
+        "allowUnreachableCode": false,
+        "noFallthroughCasesInSwitch": true,
+        "forceConsistentCasingInFileNames": true
+    }
+}

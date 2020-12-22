@@ -18,6 +18,8 @@ for DIR in $DIRS; do
     mkdir -p "$DIR/node_modules"
     rm -rf "$DIR/node_modules/.bin"
     ln -sf "$BIN" "$DIR/node_modules/.bin"
+    # copy the ESLint settings file (for the VSCode ESLint plugin)
+    cp ".eslintrc.js" "$DIR/.eslintrc.js"
     # # remove and recreate the local .cache dir
     rm -rf "$DIR/.cache"
     # symlink to the shared .cache dir under modules
