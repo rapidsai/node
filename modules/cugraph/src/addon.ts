@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import '@nvidia/cudf';
-const { loadNativeModule } = require('@nvidia/rapids-core');
+import {loadNativeModule} from '@nvidia/rapids-core';
 
-export const CuGraph = loadNativeModule(module, 'node_cugraph');
+export const CuGraph = loadNativeModule<any>(module, 'node_cugraph');
 export default CuGraph;

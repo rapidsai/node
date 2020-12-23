@@ -14,34 +14,34 @@
 
 import * as Path from 'path';
 
-const NODE_DEBUG = (
-    (<any> process.env).NODE_DEBUG ||
-    (<any> process.env).NODE_ENV === 'debug'
-);
+const NODE_DEBUG = ((<any>process.env).NODE_DEBUG || (<any>process.env).NODE_ENV === 'debug');
 
-export function loadNativeModule<T = any>({ id }: import('module'), name: string): T {
-    let moduleBasePath = Path.dirname(id);
-    let nativeModule: T | undefined = undefined;
-    let errors = [`\nFailed to load "${name}:"\n`];
-    // HACK: Adjust base path if running in Jest.
-    // TODO: Figure out how to use Jest's moduleNameMapper config
-    // even though this file is in a module Jest doesn't compile.
-    if (Path.basename(moduleBasePath) == 'src') {
-        moduleBasePath = Path.dirname(moduleBasePath);
-        moduleBasePath = Path.join(moduleBasePath, 'build', 'js');
+export function loadNativeModule<T = any>({id}: import('module'), name: string): T {
+  let moduleBasePath            = Path.dirname(id);
+  let nativeModule: T|undefined = undefined;
+  const errors                  = [`\nFailed to load "${name}:"\n`];
+  // HACK: Adjust base path if running in Jest.
+  // TODO: Figure out how to use Jest's moduleNameMapper config
+  // even though this file is in a module Jest doesn't compile.
+  if (Path.basename(moduleBasePath) == 'src') {
+    moduleBasePath = Path.dirname(moduleBasePath);
+    moduleBasePath = Path.join(moduleBasePath, 'build', 'js');
+  }
+  for (const type of (NODE_DEBUG ? ['Debug', 'Release'] : ['Release'])) {
+    try {
+      if ((nativeModule = require(Path.join(moduleBasePath, '..', type, `${name}.node`)))) {
+        break;
+      }
+    } catch (e) {
+      errors.push(e);
+      continue;
     }
-    for (let type of (NODE_DEBUG ? ['Debug', 'Release'] : ['Release'])) {
-        try {
-            if (nativeModule = require(Path.join(moduleBasePath, '..', type, `${name}.node`))) {
-                break;
-            }
-        } catch (e) { errors.push(e); continue; }
+  }
+  if (nativeModule) {
+    if (typeof (<any>nativeModule).init === 'function') {
+      return (<any>nativeModule).init() || nativeModule;
     }
-    if (nativeModule) {
-        if (typeof (<any> nativeModule).init === 'function') {
-            return (<any> nativeModule).init() || nativeModule;
-        }
-        return nativeModule;
-    }
-    throw new Error(errors.join('\n'));
+    return nativeModule;
+  }
+  throw new Error(errors.join('\n'));
 }

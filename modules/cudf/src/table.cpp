@@ -61,30 +61,26 @@ Table::Table(CallbackArgs const& args) : Napi::ObjectWrap<Table>(args) {
   Napi::Object props = args[0];
 
   Napi::Array columns = props.Has("columns")  //
-                           ? props.Get("columns").As<Napi::Array>()
-                           : Napi::Array::New(Env(), 0);
+                          ? props.Get("columns").As<Napi::Array>()
+                          : Napi::Array::New(Env(), 0);
 
   Initialize(columns);
 }
 
 void Table::Initialize(Napi::Array const& columns) {
   num_columns_ = columns.Length();
-  if(num_columns_ > 0u){
+  if (num_columns_ > 0u) {
     num_rows_ = nv::Column::Unwrap(columns.Get(0u).As<Napi::Object>())->size();
     for (auto i = 1; i < columns.Length(); ++i) {
-      NODE_CUDF_EXPECT(
-        (nv::Column::Unwrap(columns.Get(i).As<Napi::Object>())->size() == num_rows_),
-        "All Columns must be of same length"
-      );
+      NODE_CUDF_EXPECT((nv::Column::Unwrap(columns.Get(i).As<Napi::Object>())->size() == num_rows_),
+                       "All Columns must be of same length");
     }
   }
-  
+
   columns_.Reset(columns, 1);
 }
 
-void Table::Finalize(Napi::Env env) {
-  columns_.Reset();
-}
+void Table::Finalize(Napi::Env env) { columns_.Reset(); }
 
 cudf::table_view Table::view() const {
   auto columns = columns_.Value().As<Napi::Array>();
@@ -117,7 +113,9 @@ cudf::mutable_table_view Table::mutable_view() {
 //
 // Private API
 //
-Napi::Value Table::num_columns(Napi::CallbackInfo const& info) { return CPPToNapi(info)(num_columns()); }
+Napi::Value Table::num_columns(Napi::CallbackInfo const& info) {
+  return CPPToNapi(info)(num_columns());
+}
 
 Napi::Value Table::num_rows(Napi::CallbackInfo const& info) { return CPPToNapi(info)(num_rows()); }
 
@@ -129,8 +127,8 @@ Napi::Value Table::update_columns(Napi::CallbackInfo const& info) {
   Napi::Object props = CallbackArgs{info}[0];
 
   Napi::Array columns = props.Has("columns")  //
-                           ? props.Get("columns").As<Napi::Array>()
-                           : Napi::Array::New(Env(), 0);
+                          ? props.Get("columns").As<Napi::Array>()
+                          : Napi::Array::New(Env(), 0);
 
   Initialize(columns);
   return info.Env().Undefined();

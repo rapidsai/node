@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { isElectron } from './iselectron';
-const { loadNativeModule } = require('@nvidia/rapids-core');
+import {loadNativeModule} from '@nvidia/rapids-core';
 
-export const gl = loadNativeModule(module, `node_webgl${isElectron() ? '_electron' : ''}`);
+import {isElectron} from './iselectron';
+
+export const gl = loadNativeModule<any>(module, `node_webgl${isElectron() ? '_electron' : ''}`);
 export default gl;

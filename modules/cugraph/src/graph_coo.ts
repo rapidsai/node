@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Column} from '@nvidia/cudf';
+
 import CuGraph from './addon'
 
-import { Column } from '@nvidia/cudf';
-
 export interface CuGraphGraphCOOConstructor {
-    readonly prototype: CuGraphGraphCOO;
-    new(src: Column, dst: Column): CuGraphGraphCOO;
+  readonly prototype: CuGraphGraphCOO;
+  new(src: Column, dst: Column): CuGraphGraphCOO;
 }
 
 interface CuGraphGraphCOO {
-    readonly numberOfEdges: number;
-    readonly numberOfNodes: number;
+  readonly numberOfEdges: number;
+  readonly numberOfNodes: number;
 }
 
 export const GraphCOO: CuGraphGraphCOOConstructor = CuGraph.GraphCOO;

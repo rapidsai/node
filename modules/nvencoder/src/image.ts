@@ -14,5 +14,7 @@
 
 import NVENCODER from './addon';
 
-export const rgbaMirror: (width: number, height: number, axis: number, source: any, target?: any) => void = NVENCODER.image.rgbaMirror;
-export const bgraToYCrCb420: (width: number, height: number, source: any, target: any) => void = NVENCODER.image.bgraToYCrCb420;
+export const rgbaMirror: (width: number, height: number, axis: number, source: any, target?: any) =>
+  void = NVENCODER.image.rgbaMirror;
+export const bgraToYCrCb420: (width: number, height: number, source: any, target: any) => void =
+  NVENCODER.image.bgraToYCrCb420;
