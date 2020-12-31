@@ -29,7 +29,7 @@ JOBS=$(node -e "console.log(require('os').cpus().length)") \
     PARALLEL_LEVEL=$JOBS CMAKE_BUILD_PARALLEL_LEVEL=$JOBS  \
     CCACHE_CONFIGPATH="$RAPIDS_MODULES_PATH/.cache/ccache" \
     HOME="$RAPIDS_CORE_PATH"                               \
-    npx cmake-js $args                                     \
+    cmake-js $args                                         \
  && ln -f -s $compile_commands_json compile_commands.json
 
 if [[ "$debug" == "false" ]]; then

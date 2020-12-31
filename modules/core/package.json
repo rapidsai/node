@@ -15,18 +15,18 @@
   },
   "scripts": {
     "postinstall": "cmake-js install",
-    "clean": "npx rimraf build compile_commands.json",
-    "build": "npm run tsc:build && npm run cpp:build",
-    "compile": "npm run tsc:build && npm run cpp:compile",
-    "rebuild": "npm run tsc:build && npm run cpp:rebuild",
+    "clean": "rimraf build compile_commands.json",
+    "build": "yarn tsc:build && yarn cpp:build",
+    "compile": "yarn tsc:build && yarn cpp:compile",
+    "rebuild": "yarn tsc:build && yarn cpp:rebuild",
     "cpp:build": "nvidia-cmake-js -g build",
     "cpp:build:debug": "nvidia-cmake-js -g build -D",
     "cpp:compile": "nvidia-cmake-js -g compile",
     "cpp:compile:debug": "nvidia-cmake-js -g compile -D",
     "cpp:rebuild": "nvidia-cmake-js -g rebuild",
     "cpp:rebuild:debug": "nvidia-cmake-js -g rebuild -D",
-    "tsc:build": "npx rimraf build/js && tsc -p ./tsconfig.json",
-    "tsc:watch": "npx rimraf build/js && tsc -p ./tsconfig.json -w"
+    "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
+    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
     "@types/node": "^14.0.0",

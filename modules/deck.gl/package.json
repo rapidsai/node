@@ -9,13 +9,13 @@
   "main": "index.js",
   "types": "build/js",
   "scripts": {
-    "clean": "npx rimraf build compile_commands.json",
+    "clean": "rimraf build compile_commands.json",
     "test": "jest --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",
-    "build": "npm run tsc:build",
-    "compile": "npm run tsc:build",
-    "rebuild": "npm run tsc:build",
-    "tsc:build": "npx rimraf build/js && tsc -p ./tsconfig.json",
-    "tsc:watch": "npx rimraf build/js && tsc -p ./tsconfig.json -w"
+    "build": "yarn tsc:build",
+    "compile": "yarn tsc:build",
+    "rebuild": "yarn tsc:build",
+    "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
+    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
     "@luma.gl/engine": "8.2.0",
