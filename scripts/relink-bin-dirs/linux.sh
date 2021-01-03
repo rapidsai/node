@@ -16,7 +16,7 @@ mkdir -p "$RAPIDS_MODULES_PATH/.cache/cpm" \
 for DIR in $DIRS; do
     # symlink node_modules/.bin dirs to the root node_modules/.bin
     mkdir -p "$DIR/node_modules"
-    if [[ "$BIN" != "$DIR/node_modules/.bin" ]]; then
+    if [[ "$BIN" != $DIR/node_modules/.bin ]]; then
         rm -rf "$DIR/node_modules/.bin"
         ln -sf "$BIN" "$DIR/node_modules/.bin"
         # copy the ESLint settings file (for the VSCode ESLint plugin)
@@ -29,7 +29,7 @@ for DIR in $DIRS; do
 done
 
 # use `which npm` because yarn prepends its own path to /tmp/yarn-XXX/node
-NPM_BIN_PATH="$(which npm)"
+NPM_BIN_PATH="${npm_node_execpath:-$(which npm)}"
 NAPI_INCLUDE_DIR="$PWD/node_modules/node-addon-api"
 NODE_INCLUDE_DIR="${NPM_BIN_PATH%/bin/npm}/include"
 
