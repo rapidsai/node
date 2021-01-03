@@ -2,4 +2,4 @@
 
 set -Eeo pipefail
 
-exec lerna run --scope '@nvidia/*' --stream "$@"
+exec lerna run $@ --stream --include-dependencies --scope '@nvidia/*'
