@@ -12,23 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { devices, DeviceFlags } from '@nvidia/cuda';
+import {DeviceFlags, devices} from '@nvidia/cuda';
 
 test.each([
-    DeviceFlags.scheduleAuto,
-    DeviceFlags.scheduleSpin,
-    DeviceFlags.scheduleYield,
-    DeviceFlags.scheduleBlockingSync,
-    DeviceFlags.lmemResizeToMax
+  DeviceFlags.scheduleAuto,
+  DeviceFlags.scheduleSpin,
+  DeviceFlags.scheduleYield,
+  DeviceFlags.scheduleBlockingSync,
+  DeviceFlags.lmemResizeToMax
 ])(`Sets device flags to DeviceFlag %i`, (flags) => {
-    for (const device of devices) {
-        try {
-            expect(device.id).toBeDefined();
-            expect(device.getFlags()).toBe(DeviceFlags.scheduleAuto);
-            device.reset().setFlags(flags);
-            expect(device.getFlags()).toBe(flags);
-        } finally {
-            device.reset().synchronize();
-        }
-    }
+  for (const device of devices) {
+    try {
+      expect(device.id).toBeDefined();
+      expect(device.getFlags()).toBe(DeviceFlags.scheduleAuto);
+      device.reset().setFlags(flags);
+      expect(device.getFlags()).toBe(flags);
+    } finally { device.reset().synchronize(); }
+  }
 });

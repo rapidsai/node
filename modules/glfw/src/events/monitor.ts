@@ -12,21 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Monitor } from '../monitor';
-import { glfw, GLFW, GLFWmonitor } from '../glfw';
-import { map, publish, refCount } from 'rxjs/operators';
-import { glfwCallbackAsObservable, GLFWEvent } from './event';
+import {map, publish, refCount} from 'rxjs/operators';
+
+import {glfw, GLFW, GLFWmonitor} from '../glfw';
+import {Monitor} from '../monitor';
+
+import {glfwCallbackAsObservable, GLFWEvent} from './event';
 
 export function monitorEvents() {
-    return glfwCallbackAsObservable(glfw.setMonitorCallback)
-        .pipe(map(([_, ...rest]) => GLFWMonitorEvent.create(_, ...rest)))
-        .pipe(publish(), refCount())
+  return glfwCallbackAsObservable(glfw.setMonitorCallback)
+    .pipe(map(([_, ...rest]) => GLFWMonitorEvent.create(_, ...rest)))
+    .pipe(publish(), refCount())
 }
 
 class GLFWMonitorEvent extends GLFWEvent {
-    public static create(monitor: GLFWmonitor, event: number) {
-        const evt = new GLFWMonitorEvent(event === GLFW.CONNECTED ? 'monitorconnected' : 'monitordisconnected');
-        evt.target = new Monitor(monitor, event === GLFW.CONNECTED);
-        return evt;
-    }
+  public static create(monitor: GLFWmonitor, event: number) {
+    const evt =
+      new GLFWMonitorEvent(event === GLFW.CONNECTED ? 'monitorconnected' : 'monitordisconnected');
+    evt.target = new Monitor(monitor, event === GLFW.CONNECTED);
+    return evt;
+  }
 }

@@ -19,7 +19,6 @@
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
 
-
 #include <napi.h>
 
 namespace nv {
@@ -119,21 +118,20 @@ class Table : public Napi::ObjectWrap<Table> {
    *`mutable_table_view `. The conversion is automatic.
    * @return cudf::mutable_table_view  Mutable, non-owning `mutable_table_view `
    */
-  operator cudf::mutable_table_view () { return this->mutable_view(); };
+  operator cudf::mutable_table_view() { return this->mutable_view(); };
 
  private:
   static Napi::FunctionReference constructor;
 
-  cudf::size_type num_columns_{};      ///< The number of columns in the table
-  cudf::size_type num_rows_{};         ///< The number of rows
-  Napi::Reference<Napi::Array> columns_{}; ///< columns of table
+  cudf::size_type num_columns_{};           ///< The number of columns in the table
+  cudf::size_type num_rows_{};              ///< The number of rows
+  Napi::Reference<Napi::Array> columns_{};  ///< columns of table
 
   Napi::Value num_columns(Napi::CallbackInfo const& info);
   Napi::Value num_rows(Napi::CallbackInfo const& info);
   Napi::Value select(Napi::CallbackInfo const& info);
   Napi::Value get_column(Napi::CallbackInfo const& info);
   Napi::Value update_columns(Napi::CallbackInfo const& info);
-
 };
 
 }  // namespace nv

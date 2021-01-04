@@ -13,32 +13,31 @@
 // limitations under the License.
 
 /** @ignore */
-export type FloatArray = Float32Array | Float64Array;
+export type FloatArray = Float32Array|Float64Array;
 
 /** @ignore */
-export type IntArray = Int8Array | Int16Array | Int32Array;
+export type IntArray = Int8Array|Int16Array|Int32Array;
 
 /** @ignore */
-export type UintArray = Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray;
+export type UintArray = Uint8Array|Uint16Array|Uint32Array|Uint8ClampedArray;
 
 /** @ignore */
-export type BigIntArray = BigInt64Array | BigUint64Array;
+export type BigIntArray = BigInt64Array|BigUint64Array;
 
 /** @ignore */
-export type TypedArray = FloatArray | IntArray | UintArray;
+export type TypedArray = FloatArray|IntArray|UintArray;
 
 /** @ignore */
-export type TypedArrayConstructor<T extends TypedArray | BigIntArray> = {
-    readonly BYTES_PER_ELEMENT: number;
-    new(length?: number): T;
-    new(values: Iterable<T[0]>): T;
-    new(buffer: ArrayBufferLike, byteOffset?: number, length?: number): T;
-    from(arrayLike: ArrayLike<T[0]>): T;
+export type TypedArrayConstructor<T extends TypedArray|BigIntArray> = {
+  readonly BYTES_PER_ELEMENT: number; new (length?: number): T; new (values: Iterable<T [0]>): T;
+  new (buffer: ArrayBufferLike, byteOffset?: number, length?: number): T;
+  from(arrayLike: ArrayLike<T [0]>): T;
 };
 
 /** @ignore */
-export type MemoryData =
-    TypedArray | BigIntArray | ArrayBufferView | ArrayBufferLike       |
-    import('./memory').DeviceMemory  | import('./memory').PinnedMemory |
-    import('./memory').ManagedMemory | import('./memory').IpcMemory    |
-    import('./memory').MappedGLMemory                                  ;
+export type MemoryData = TypedArray|BigIntArray|ArrayBufferView|ArrayBufferLike|import('./memory')
+                           .DeviceMemory|import('./memory')
+                           .PinnedMemory|import('./memory')
+                           .ManagedMemory|import('./memory')
+                           .IpcMemory|import('./memory')
+                           .MappedGLMemory;

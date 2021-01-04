@@ -12,68 +12,71 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { GLFWDOMWindow } from '../jsdom/window';
-import { GLFWModifierKey } from '../glfw';
-import { Observable, Observer } from 'rxjs';
+import {Observable, Observer} from 'rxjs';
 
-export const isAltKey   = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_ALT)         !== 0;
-export const isCtrlKey  = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_CONTROL)     !== 0;
-export const isMetaKey  = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_SUPER)       !== 0;
-export const isShiftKey = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_SHIFT)       !== 0;
-export const isCapsLock = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_CAPS_LOCK)   !== 0;
+import {GLFWModifierKey} from '../glfw';
+import {GLFWDOMWindow} from '../jsdom/window';
+
+export const isAltKey = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_ALT) !== 0;
+export const isCtrlKey = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_CONTROL) !== 0;
+export const isMetaKey = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_SUPER) !== 0;
+export const isShiftKey = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_SHIFT) !== 0;
+export const isCapsLock = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_CAPS_LOCK) !== 0;
 
 export class GLFWEvent {
+  public target: any;
+  public bubbles    = false;
+  public composed   = false;
+  public cancelable = true;
+  public readonly type: string;
 
-    public target: any;
-    public bubbles = false;
-    public composed = false;
-    public cancelable = true;
-    public readonly type: string;
+  constructor(type: string) { this.type = type; }
 
-    constructor(type: string) {
-        this.type = type;
-    }
+  public preventDefault() {}
+  public stopPropagation() {}
+  public stopImmediatePropagation() {}
 
-    public preventDefault() {}
-    public stopPropagation() {}
-    public stopImmediatePropagation() {}
-
-    public get defaultPrevented() { return false; }
-    public get srcElement() { return this.target; }
-    public get relatedTarget() { return null; }
-    public get currentTarget() { return this.target; }
+  public get defaultPrevented() { return false; }
+  public get srcElement() { return this.target; }
+  public get relatedTarget() { return null; }
+  public get currentTarget() { return this.target; }
 }
 
-type SetGLFWCallback = (cb: null | ((...args: any) => void)) => void;
-type GLFWCallbackArgs<T extends SetGLFWCallback> = T extends (cb: (...args: infer P) => void) => any ? P : never;
+type SetGLFWCallback = (cb: null|((...args: any) => void)) => void;
+type GLFWCallbackArgs<T extends SetGLFWCallback> = T extends(cb: (...args: infer P) => void) =>
+                                                              any ? P : never;
 
-type SetWindowCallback = (ptr: number, cb: null | ((...args: any) => void)) => void;
-type WindowCallbackArgs<T extends SetWindowCallback> = T extends (ptr: number, cb: (...args: infer P) => void) => any ? P : never;
+type SetWindowCallback = (ptr: number, cb: null|((...args: any) => void)) => void;
+type WindowCallbackArgs<T extends SetWindowCallback>                      = T extends(ptr: number,
+                                                                                      cb: (...args: infer P) => void) =>
+                                                                  any ? P : never;
 
 export function glfwCallbackAsObservable<C extends SetGLFWCallback>(setCallback: C) {
-    type Args = GLFWCallbackArgs<C>;
-    return new Observable<Args>((observer: Observer<Args>) => {
-        const next = (..._: Args) => observer.next(_);
-        const dispose = () => trySetCallback(setCallback.name, () => setCallback(null));
-        return trySetCallback(setCallback.name, () => setCallback(next)) ? dispose : () => {};
-    });
+  type Args = GLFWCallbackArgs<C>;
+  return new Observable<Args>((observer: Observer<Args>) => {
+    const next = (..._: Args) => observer.next(_);
+    const dispose = () => trySetCallback(setCallback.name, () => setCallback(null));
+    return trySetCallback(setCallback.name, () => setCallback(next)) ? dispose : () => {};
+  });
 }
 
-export function windowCallbackAsObservable<C extends SetWindowCallback>(setCallback: C, window: GLFWDOMWindow) {
-    type Args = WindowCallbackArgs<C>;
-    return new Observable<Args>((observer: Observer<Args>) => {
-        const next = (..._: Args) => observer.next(_);
-        const dispose = () => trySetCallback(setCallback.name, () => setCallback(window.id, null));
-        return trySetCallback(setCallback.name, () => setCallback(window.id, next)) ? dispose : () => {};
-    });
+export function windowCallbackAsObservable<C extends SetWindowCallback>(setCallback: C,
+                                                                        window: GLFWDOMWindow) {
+  type Args = WindowCallbackArgs<C>;
+  return new Observable<Args>((observer: Observer<Args>) => {
+    const next = (..._: Args) => observer.next(_);
+    const dispose = () => trySetCallback(setCallback.name, () => setCallback(window.id, null));
+    return trySetCallback(setCallback.name, () => setCallback(window.id, next)) ? dispose
+                                                                                : () => {};
+  });
 }
 
 function trySetCallback(name: string, work: () => void) {
-    try {
-        work();
-    } catch (e) {
-        console.error(`glfw.${name} error:`, e);
-        return false;
-    }
-    return true;
+  try {
+    work();
+  } catch (e) {
+    console.error(`glfw.${name} error:`, e);
+    return false;
+  }
+  return true;
 }

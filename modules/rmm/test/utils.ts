@@ -12,35 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { describe, test } from '@jest/globals';
-import { devices, Device } from '@nvidia/cuda';
+import {describe, test} from '@jest/globals';
+import {Device, devices} from '@nvidia/cuda';
 
 export const sizes = {
-    '1_MiB': 1 << 20,
-    '2_MiB': 1 << 21,
-    '4_MiB': 1 << 23,
-    '16_MiB': 1 << 24,
+  '1_MiB': 1 << 20,
+  '2_MiB': 1 << 21,
+  '4_MiB': 1 << 23,
+  '16_MiB': 1 << 24,
 };
 
-export const testForEachDevice = (name: string, fn: (() => void) | ((d: Device) => void)) =>
-    test.each([...devices])(name, (d: Device) => { d.callInContext(() => fn(d)); });
+export const testForEachDevice = (name: string, fn: (() => void)|((d: Device) => void)) =>
+  test.each([...devices])(name, (d: Device) => { d.callInContext(() => fn(d));});
 
-export const describeForEachDevice = (name: string, fn: (() => void) | ((d: Device) => void)) =>
-    describe.each([...devices])(name, (d: Device) => { d.callInContext(() => fn(d)); });
+export const describeForEachDevice = (name: string, fn: (() => void)|((d: Device) => void)) =>
+  describe.each([...devices])(name, (d: Device) => { d.callInContext(() => fn(d));});
 
-import { beforeAll, afterAll, beforeEach, afterEach, } from '@jest/globals';
+import {
+  beforeAll,
+  afterAll,
+  beforeEach,
+  afterEach,
+} from '@jest/globals';
 
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 beforeAll(flushStdout);
 afterAll(flushStdout);
 beforeEach(flushStdout);
 afterEach(flushStdout);
 
 function flushStdout() {
-    return new Promise((done) => {
-        if (process.stdout.write('')) {
-            done();
-        } else {
-            process.stdout.once('drain', () => { done(); });
-        }
-    });
+  return new Promise((done) => {
+    if (process.stdout.write('')) {
+      done(undefined);
+    } else {
+      process.stdout.once('drain', () => { done(undefined); });
+    }
+  });
 }

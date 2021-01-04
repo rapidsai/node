@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const { loadNativeModule } = require('@nvidia/rapids-core');
+import {loadNativeModule} from '@nvidia/rapids-core';
 
-export const NVENCODER = loadNativeModule(module, 'node_nvencoder');
+export const NVENCODER = loadNativeModule<any>(module, 'node_nvencoder');
 export default NVENCODER;

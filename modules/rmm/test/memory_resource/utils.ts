@@ -12,84 +12,104 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { sizes } from '../utils';
-import { devices } from '@nvidia/cuda';
-
-import * as Path from 'path';
-import { mkdtempSync, unlinkSync, rmdirSync } from 'fs';
-
+import {devices} from '@nvidia/cuda';
 import {
-    MemoryResource,
-    CudaMemoryResource,
-    ManagedMemoryResource,
-    PoolMemoryResource,
-    FixedSizeMemoryResource,
-    BinningMemoryResource,
-    LoggingResourceAdapter,
+  BinningMemoryResource,
+  CudaMemoryResource,
+  FixedSizeMemoryResource,
+  LoggingResourceAdapter,
+  ManagedMemoryResource,
+  MemoryResource,
+  PoolMemoryResource,
 } from '@nvidia/rmm';
+import {mkdtempSync, rmdirSync, unlinkSync} from 'fs';
+import * as Path from 'path';
+
+import {sizes} from '../utils';
 
 type TestConfig = {
-    comparable: boolean;
-    supportsStreams: boolean;
-    supportsGetMemInfo: boolean;
-    createMemoryResource(): MemoryResource;
+  comparable: boolean; supportsStreams: boolean; supportsGetMemInfo: boolean;
+  createMemoryResource(): MemoryResource;
 };
 
 let logFileDir = '', logFilePath = '';
 
 beforeAll(() => {
-    logFileDir = mkdtempSync(Path.join('/tmp', 'node_rmm'));
-    logFilePath = Path.join(logFileDir, 'log');
+  logFileDir  = mkdtempSync(Path.join('/tmp', 'node_rmm'));
+  logFilePath = Path.join(logFileDir, 'log');
 });
 
 afterAll(() => {
-    unlinkSync(logFilePath);
-    rmdirSync(logFileDir);
+  unlinkSync(logFilePath);
+  rmdirSync(logFileDir);
 });
 
 export const memoryResourceTestConfigs = [
-    [`CudaMemoryResource (no device)`, {
-        comparable: true,
-        supportsStreams: false,
-        supportsGetMemInfo: true,
-        createMemoryResource: () => new CudaMemoryResource(),
-    }],
-    ...[...devices].map((_, i) => (
-        [`CudaMemoryResource (device ${i})`, {
-            comparable: true,
-            supportsStreams: false,
-            supportsGetMemInfo: true,
-            createMemoryResource: () => new CudaMemoryResource(i),
-        }]
-    )),
-    [`ManagedMemoryResource`, {
-        comparable: true,
-        supportsStreams: false,
-        supportsGetMemInfo: true,
-        createMemoryResource: () => new ManagedMemoryResource(),
-    }],
-    [`PoolMemoryResource`, {
-        comparable: false,
-        supportsStreams: true,
-        supportsGetMemInfo: false,
-        createMemoryResource: () => new PoolMemoryResource(new CudaMemoryResource(), sizes['1_MiB'], sizes['16_MiB']),
-    }],
-    [`FixedSizeMemoryResource`, {
-        comparable: false,
-        supportsStreams: true,
-        supportsGetMemInfo: false,
-        createMemoryResource: () => new FixedSizeMemoryResource(new CudaMemoryResource(), sizes['4_MiB'], 1),
-    }],
-    [`BinningMemoryResource`, {
-        comparable: false,
-        supportsStreams: true,
-        supportsGetMemInfo: false,
-        createMemoryResource: () => new BinningMemoryResource(new CudaMemoryResource(), Math.log2(sizes['1_MiB']), Math.log2(sizes['4_MiB'])),
-    }],
-    [`LoggingResourceAdapter`, {
-        comparable: true,
-        supportsStreams: false,
-        supportsGetMemInfo: true,
-        createMemoryResource: () => new LoggingResourceAdapter(new CudaMemoryResource(), logFilePath, true),
-    }],
+  [
+    `CudaMemoryResource (no device)`,
+    {
+      comparable: true,
+      supportsStreams: false,
+      supportsGetMemInfo: true,
+      createMemoryResource: () => new CudaMemoryResource(),
+    }
+  ],
+  ...[...devices].map((_, i) => ([
+                        `CudaMemoryResource (device ${i})`,
+                        {
+                          comparable: true,
+                          supportsStreams: false,
+                          supportsGetMemInfo: true,
+                          createMemoryResource: () => new CudaMemoryResource(i),
+                        }
+                      ])),
+  [
+    `ManagedMemoryResource`,
+    {
+      comparable: true,
+      supportsStreams: false,
+      supportsGetMemInfo: true,
+      createMemoryResource: () => new ManagedMemoryResource(),
+    }
+  ],
+  [
+    `PoolMemoryResource`,
+    {
+      comparable: false,
+      supportsStreams: true,
+      supportsGetMemInfo: false,
+      createMemoryResource: () =>
+        new PoolMemoryResource(new CudaMemoryResource(), sizes ['1_MiB'], sizes ['16_MiB']),
+    }
+  ],
+  [
+    `FixedSizeMemoryResource`,
+    {
+      comparable: false,
+      supportsStreams: true,
+      supportsGetMemInfo: false,
+      createMemoryResource: () =>
+        new FixedSizeMemoryResource(new CudaMemoryResource(), sizes ['4_MiB'], 1),
+    }
+  ],
+  [
+    `BinningMemoryResource`,
+    {
+      comparable: false,
+      supportsStreams: true,
+      supportsGetMemInfo: false,
+      createMemoryResource: () => new BinningMemoryResource(
+        new CudaMemoryResource(), Math.log2(sizes ['1_MiB']), Math.log2(sizes ['4_MiB'])),
+    }
+  ],
+  [
+    `LoggingResourceAdapter`,
+    {
+      comparable: true,
+      supportsStreams: false,
+      supportsGetMemInfo: true,
+      createMemoryResource: () =>
+        new LoggingResourceAdapter(new CudaMemoryResource(), logFilePath, true),
+    }
+  ],
 ] as [string, TestConfig][];

@@ -12,54 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { MemoryData } from './interfaces';
-import { MappedGLMemory } from './memory';
-const { loadNativeModule } = require('@nvidia/rapids-core');
+import {loadNativeModule} from '@nvidia/rapids-core';
 
-export const CUDA = loadNativeModule(module, 'node_cuda');
+import {MemoryData} from './interfaces';
+import {MappedGLMemory} from './memory';
+
+export const CUDA = loadNativeModule<any>(module, 'node_cuda');
 export default CUDA;
 
-export type CUdevice = number;
-export type CUresult = number;
-export type CUstream = number;
-export type CUcontext = object;
-export type CUfunction = object;
+export type CUdevice           = number;
+export type CUresult           = number;
+export type CUstream           = number;
+export type CUcontext          = Record<string, unknown>;
+export type CUfunction         = Record<string, unknown>;
 export type CUgraphicsResource = number;
-export type CUDAhostptr = ArrayBuffer | ArrayBufferView;
-export type CUdeviceptr = ArrayBuffer | ArrayBufferView | MemoryData;
-export type CUarrayptr = number;
-export type CUipcMemHandle = Uint8Array;
+export type CUDAhostptr        = ArrayBuffer|ArrayBufferView;
+export type CUdeviceptr        = ArrayBuffer|ArrayBufferView|MemoryData;
+export type CUarrayptr         = number;
+export type CUipcMemHandle     = Uint8Array;
 
-export type GLImage = number;
-export type GLBuffer = number;
-export type nvrtcProgram = object;
+export type GLImage      = number;
+export type GLBuffer     = number;
+export type nvrtcProgram = Record<string, unknown>;
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export interface CUDA {
-    readonly VERSION: number;
-    readonly IPC_HANDLE_SIZE: number;
+  readonly VERSION: number;
+  readonly IPC_HANDLE_SIZE: number;
 
-    readonly CUDAArray: CUDAArrayConstructor;
+  readonly CUDAArray: CUDAArrayConstructor;
 
-    getDriverVersion(): number;
+  getDriverVersion(): number;
 
-    readonly gl: {
-        getDevices(list: 0 | 1 | 2): number[];
-        registerBuffer(glBuffer: GLBuffer, flags: number): CUgraphicsResource;
-        registerImage(glImage: GLImage, target: number, flags: number): CUgraphicsResource;
-        unregisterResource(resource: CUgraphicsResource): void;
-        mapResources(resources: CUgraphicsResource[]): void;
-        unmapResources(resources: CUgraphicsResource[]): void;
-        getMappedArray(resource: CUgraphicsResource): CUDAArray;
-        getMappedPointer(resource: CUgraphicsResource): MappedGLMemory;
+  readonly gl: {
+    getDevices(list: 0|1|2): number [];
+    registerBuffer(glBuffer: GLBuffer, flags: number): CUgraphicsResource;
+    registerImage(glImage: GLImage, target: number, flags: number): CUgraphicsResource;
+    unregisterResource(resource: CUgraphicsResource): void;
+    mapResources(resources: CUgraphicsResource []): void;
+    unmapResources(resources: CUgraphicsResource []): void;
+    getMappedArray(resource: CUgraphicsResource): CUDAArray;
+    getMappedPointer(resource: CUgraphicsResource): MappedGLMemory;
 
-        readonly graphicsRegisterFlags: {
-            readonly none: number;
-            readonly read_only: number;
-            readonly write_discard: number;
-        }
-    };
+    readonly graphicsRegisterFlags:
+               {readonly none: number; readonly read_only: number; readonly write_discard: number;}
+  };
 
-    readonly driver: {
+  readonly driver: {
         cuPointerGetAttribute(mem: CUdeviceptr | CUDAhostptr, attr: CUDAPointerAttribute): any;
         readonly PointerAttributes: {
             readonly context: number;
@@ -74,47 +73,49 @@ export interface CUDA {
         };
     };
 
-    readonly runtime: {
-        cudaMemGetInfo(): { free: number, total: number };
-        cudaMemset(target: MemoryData, value: number, count: number, stream?: number): void;
-        cudaMemcpy(target: MemoryData, source: MemoryData, count: number, stream?: number): void;
-    }
+  readonly runtime: {
+    cudaMemGetInfo(): {free: number, total: number};
+    cudaMemset(target: MemoryData, value: number, count: number, stream?: number) : void;
+    cudaMemcpy(target: MemoryData, source: MemoryData, count: number, stream?: number) : void;
+  }
 
-    readonly DeviceFlags: {
-        readonly scheduleAuto: number;
-        readonly scheduleSpin: number;
-        readonly scheduleYield: number;
-        readonly scheduleBlockingSync: number;
-        readonly mapHost: number;
-        readonly lmemResizeToMax: number;
-    }
+  readonly DeviceFlags: {
+    readonly scheduleAuto: number; //
+    readonly scheduleSpin : number;
+    readonly scheduleYield : number;
+    readonly scheduleBlockingSync : number;
+    readonly mapHost : number;
+    readonly lmemResizeToMax : number;
+  }
 }
 
 export interface CUDAArrayConstructor {
-    readonly prototype: CUDAArray;
-    new(): CUDAArray;
+  readonly prototype: CUDAArray;
+  new(): CUDAArray;
 }
 
 export interface CUDAArray {
-    readonly ary: number;
-    readonly byteLength: number;
-    readonly bytesPerElement: number;
-    readonly width: number;
-    readonly height: number;
-    readonly depth: number;
-    readonly channelFormatX: number;
-    readonly channelFormatY: number;
-    readonly channelFormatZ: number;
-    readonly channelFormatW: number;
-    readonly channelFormatKind: number;
+  readonly ary: number;
+  readonly byteLength: number;
+  readonly bytesPerElement: number;
+  readonly width: number;
+  readonly height: number;
+  readonly depth: number;
+  readonly channelFormatX: number;
+  readonly channelFormatY: number;
+  readonly channelFormatZ: number;
+  readonly channelFormatW: number;
+  readonly channelFormatKind: number;
 }
 
-export declare var CUDAArray: CUDAArrayConstructor;
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export declare const CUDAArray: CUDAArrayConstructor;
 
-export enum CUDAGraphicsRegisterFlag {
-    NONE = CUDA.gl.graphicsRegisterFlags.none,
-    READ_ONLY = CUDA.gl.graphicsRegisterFlags.read_only,
-    WRITE_DISCARD = CUDA.gl.graphicsRegisterFlags.write_discard,
+export enum CUDAGraphicsRegisterFlag
+{
+  NONE          = CUDA.gl.graphicsRegisterFlags.none,
+  READ_ONLY     = CUDA.gl.graphicsRegisterFlags.read_only,
+  WRITE_DISCARD = CUDA.gl.graphicsRegisterFlags.write_discard,
 }
 
 // export enum CUDAMemHostAllocFlag {
@@ -138,14 +139,15 @@ export enum CUDAGraphicsRegisterFlag {
 //     MANAGED = CUDA.mem.memoryTypes.managed,
 // }
 
-export enum CUDAPointerAttribute {
-    CONTEXT = CUDA.driver.PointerAttributes.context,
-    MEMORY_TYPE = CUDA.driver.PointerAttributes.memory_type,
-    DEVICE_POINTER = CUDA.driver.PointerAttributes.device_pointer,
-    HOST_POINTER = CUDA.driver.PointerAttributes.host_pointer,
-    // P2P_TOKENS = CUDA.driver.PointerAttributes.p2p_tokens,
-    SYNC_MEMOPS = CUDA.driver.PointerAttributes.sync_memops,
-    BUFFER_ID = CUDA.driver.PointerAttributes.buffer_id,
-    IS_MANAGED = CUDA.driver.PointerAttributes.is_managed,
-    DEVICE_ORDINAL = CUDA.driver.PointerAttributes.device_ordinal,
+export enum CUDAPointerAttribute
+{
+  CONTEXT        = CUDA.driver.PointerAttributes.context,
+  MEMORY_TYPE    = CUDA.driver.PointerAttributes.memory_type,
+  DEVICE_POINTER = CUDA.driver.PointerAttributes.device_pointer,
+  HOST_POINTER   = CUDA.driver.PointerAttributes.host_pointer,
+  // P2P_TOKENS = CUDA.driver.PointerAttributes.p2p_tokens,
+  SYNC_MEMOPS    = CUDA.driver.PointerAttributes.sync_memops,
+  BUFFER_ID      = CUDA.driver.PointerAttributes.buffer_id,
+  IS_MANAGED     = CUDA.driver.PointerAttributes.is_managed,
+  DEVICE_ORDINAL = CUDA.driver.PointerAttributes.device_ordinal,
 }

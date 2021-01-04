@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { devices } from '@nvidia/cuda';
+import {devices} from '@nvidia/cuda';
 
 test(`device.properties`, () => {
-    for (const device of devices) {
-        const props = device.getProperties();
-        expect(props).toBeDefined();
-        expect(props.name).toBeDefined();
-        expect(props.name).toBe(device.name);
-    }
+  for (const device of devices) {
+    const props = device.getProperties();
+    expect(props).toBeDefined();
+    expect(props.name).toBeDefined();
+    expect(props.name).toBe(device.name);
+  }
 });
