@@ -10,10 +10,6 @@ var opts = {
         PATH: `${process.env.PATH}:${binp}` })
 };
 
-opts.env = Object.keys(opts.env)
-    .filter((k) => !k.startsWith('npm_'))
-    .reduce((xs, k) => ({ ...xs, [k]: opts.env[k] }), {});
-
 module.exports = function(cmd, args) {
 
     var name = (() => {

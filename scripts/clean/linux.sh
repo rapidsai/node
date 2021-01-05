@@ -9,6 +9,6 @@ if [[ ! -d node_modules || ! -d node_modules/lerna || ! -d node_modules/rimraf ]
 fi
 
 # clean modules/*/build dirs
-npx lerna run --no-bail clean || true;
-npx lerna clean --loglevel error --yes || true;
-rm -rf yarn.lock build node_modules compile_commands.json
+lerna run --no-bail clean || true;
+lerna clean --loglevel error --yes || true;
+rimraf yarn.lock build node_modules compile_commands.json
