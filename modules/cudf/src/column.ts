@@ -18,17 +18,19 @@ import {DeviceBuffer} from '@nvidia/rmm';
 import CUDF from './addon';
 import {DataType, TypeId} from './types';
 
+export type ColumnProps = {
+  type: DataType|TypeId,
+  data?: DeviceBuffer|MemoryData|null,
+  offset?: number,
+  length?: number,
+  nullCount?: number,
+  nullMask?: DeviceBuffer|MemoryData|null,
+  children?: ReadonlyArray<Column>|null
+};
+
 interface ColumnConstructor {
   readonly prototype: Column;
-  new(props: {
-    type: DataType|TypeId,
-    data?: DeviceBuffer|MemoryData|null,
-    offset?: number,
-    length?: number,
-    nullCount?: number,
-    nullMask?: DeviceBuffer|MemoryData|null,
-    children?: ReadonlyArray<Column>|null
-  }): Column;
+  new(props: ColumnProps): Column;
 }
 
 export interface Column {

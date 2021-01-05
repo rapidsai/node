@@ -13,5 +13,6 @@
 // limitations under the License.
 
 export * from './column';
+export * from './series';
 export * from './table';
 export * from './types';
