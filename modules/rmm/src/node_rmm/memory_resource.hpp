@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,11 @@
 
 #pragma once
 
-#include <nv_node/utilities/args.hpp>
-#include <nv_node/utilities/cpp_to_napi.hpp>
+#include "utilities/cpp_to_napi.hpp"
+
+#include <node_cuda/device.hpp>
+
+#include <nv_node/utilities/wrap.hpp>
 
 #include <rmm/cuda_stream_view.hpp>
 #include <rmm/mr/device/binning_memory_resource.hpp>
@@ -33,245 +36,90 @@
 
 namespace nv {
 
-/**
- * @brief Base class for an owning wrapper around an RMM device_memory_resource.
- *
- */
-class MemoryResource {
- public:
+struct MemoryResource : public ObjectWrapMixin<MemoryResource>,
+                        public Napi::ObjectWrap<MemoryResource> {
+  static std::string const class_path;
+
+  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+
+  inline static ObjectUnwrap<MemoryResource> Cuda(Napi::Env const& env,
+                                                  int32_t device_id = Device::active_device_id()) {
+    return constructor(env).New(mr_type::cuda, device_id);
+  }
+
+  inline static ObjectUnwrap<MemoryResource> Managed(
+    Napi::Env const& env, int32_t device_id = Device::active_device_id()) {
+    return constructor(env).New(mr_type::managed, device_id);
+  }
+
+  inline static ObjectUnwrap<MemoryResource> Pool(Napi::Env const& env,
+                                                  Napi::Object const& upstream_mr,
+                                                  size_t initial_pool_size = -1,
+                                                  size_t maximum_pool_size = -1) {
+    return constructor(env).New(mr_type::pool, upstream_mr, initial_pool_size, maximum_pool_size);
+  }
+
+  inline static ObjectUnwrap<MemoryResource> FixedSize(Napi::Env const& env,
+                                                       Napi::Object const& upstream_mr,
+                                                       size_t block_size            = 1 << 20,
+                                                       size_t blocks_to_preallocate = 128) {
+    return constructor(env).New(mr_type::fixedsize, upstream_mr, block_size, blocks_to_preallocate);
+  }
+
+  inline static ObjectUnwrap<MemoryResource> Binning(Napi::Env const& env,
+                                                     Napi::Object const& upstream_mr,
+                                                     size_t min_size_exponent = -1,
+                                                     size_t max_size_exponent = -1) {
+    return constructor(env).New(
+      mr_type::binning, upstream_mr, min_size_exponent, max_size_exponent);
+  }
+
+  inline static ObjectUnwrap<MemoryResource> Logging(Napi::Env const& env,
+                                                     Napi::Object const& upstream_mr,
+                                                     std::string const& log_file_path = "",
+                                                     bool auto_flush                  = false) {
+    return constructor(env).New(mr_type::logging, upstream_mr, log_file_path, auto_flush);
+  }
+
+  MemoryResource(CallbackArgs const& args);
+
+  inline operator rmm::mr::device_memory_resource*() const { return mr_.get(); }
+
   /**
-   * @brief Check whether an Napi value is an instance of `MemoryResource`.
+   * @brief Get the device id for the MemoryResource.
    *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `MemoryResource`
-   * @return false if the value is not a `MemoryResource`
+   * @return ValueWrap<int32_t> The wrapped Device id
    */
-  static bool is_instance(Napi::Value const& val);
+  ValueWrap<int32_t> device() const;
+
+  ValueWrap<std::string const> file_path() const;
 
   /**
    * @copydoc rmm::mr::device_memory_resource::is_equal(
    *            rmm::mr::device_memory_resource const& other)
    */
-  inline bool is_equal(rmm::mr::device_memory_resource const& other) const noexcept {
-    return get_mr()->is_equal(other);
-  }
+  ValueWrap<bool> is_equal(rmm::mr::device_memory_resource const& other) const noexcept;
 
   /**
    * @copydoc rmm::mr::device_memory_resource::get_mem_info(
    *            rmm::cuda_stream_view stream)
    */
-  inline std::pair<std::size_t, std::size_t> get_mem_info(rmm::cuda_stream_view stream) {
-    return get_mr()->get_mem_info(stream);
-  }
+  ValueWrap<std::pair<std::size_t, std::size_t>> get_mem_info(rmm::cuda_stream_view stream) const;
 
   /**
    * @copydoc rmm::mr::device_memory_resource::supports_streams()
    */
-  inline bool supports_streams() { return get_mr()->supports_streams(); }
+  ValueWrap<bool> supports_streams() const noexcept;
 
   /**
    * @copydoc rmm::mr::device_memory_resource::supports_get_mem_info()
    */
-  inline bool supports_get_mem_info() { return get_mr()->supports_get_mem_info(); }
-
-  inline explicit operator rmm::mr::device_memory_resource*() const { return mr_.get(); }
-
-  inline std::shared_ptr<rmm::mr::device_memory_resource> get_mr() const { return mr_; }
-
- protected:
-  Napi::Value is_equal(Napi::CallbackInfo const& info);
-  Napi::Value get_mem_info(Napi::CallbackInfo const& info);
-  Napi::Value supports_streams(Napi::CallbackInfo const& info);
-  Napi::Value supports_get_mem_info(Napi::CallbackInfo const& info);
-
-  std::shared_ptr<rmm::mr::device_memory_resource> mr_;
-};
-
-class CudaMemoryResource : public Napi::ObjectWrap<CudaMemoryResource>, public MemoryResource {
- public:
-  /**
-   * @brief Initialize and export the CudaMemoryResource JavaScript constructor and prototype.
-   *
-   * @param env The active JavaScript environment.
-   * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
-   */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
-
-  static Napi::Object New();
-  static Napi::Object New(int32_t device_id);
+  ValueWrap<bool> supports_get_mem_info() const noexcept;
 
   /**
-   * @brief Construct a new CudaMemoryResource instance from JavaScript.
-   *
+   * @copydoc rmm::mr::logging_resource_adaptor::flush()
    */
-  CudaMemoryResource(CallbackArgs const& args);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `CudaMemoryResource`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `CudaMemoryResource`
-   * @return false if the value is not a `CudaMemoryResource`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
-
-  inline int32_t device() const { return device_id_; }
-
- private:
-  static Napi::FunctionReference constructor;
-
-  int32_t device_id_{};
-};
-
-class ManagedMemoryResource : public Napi::ObjectWrap<ManagedMemoryResource>,
-                              public MemoryResource {
- public:
-  /**
-   * @brief Initialize and export the ManagedMemoryResource JavaScript constructor and prototype.
-   *
-   * @param env The active JavaScript environment.
-   * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
-   */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
-
-  /**
-   * @brief Construct a new ManagedMemoryResource instance from JavaScript.
-   *
-   */
-  ManagedMemoryResource(CallbackArgs const& args);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `ManagedMemoryResource`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `ManagedMemoryResource`
-   * @return false if the value is not a `ManagedMemoryResource`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
-
-  inline int32_t device() const { return device_id_; }
-
- private:
-  static Napi::FunctionReference constructor;
-
-  int32_t device_id_{};
-};
-
-class PoolMemoryResource : public Napi::ObjectWrap<PoolMemoryResource>, public MemoryResource {
- public:
-  /**
-   * @brief Initialize and export the PoolMemoryResource JavaScript constructor and prototype.
-   *
-   * @param env The active JavaScript environment.
-   * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
-   */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
-
-  /**
-   * @brief Construct a new PoolMemoryResource instance from JavaScript.
-   *
-   */
-  PoolMemoryResource(CallbackArgs const& args);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `PoolMemoryResource`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `PoolMemoryResource`
-   * @return false if the value is not a `PoolMemoryResource`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
-
-  int32_t device() const;
-
- private:
-  static Napi::FunctionReference constructor;
-
-  Napi::Value get_upstream_mr(Napi::CallbackInfo const& info);
-
-  Napi::ObjectReference
-    upstream_mr_;  ///< The MemoryResource from which to allocate blocks for the pool.
-};
-
-class FixedSizeMemoryResource : public Napi::ObjectWrap<FixedSizeMemoryResource>,
-                                public MemoryResource {
- public:
-  /**
-   * @brief Initialize and export the FixedSizeMemoryResource JavaScript constructor and prototype.
-   *
-   * @param env The active JavaScript environment.
-   * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
-   */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
-
-  /**
-   * @brief Construct a new FixedSizeMemoryResource instance from JavaScript.
-   *
-   */
-  FixedSizeMemoryResource(CallbackArgs const& args);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `FixedSizeMemoryResource`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `FixedSizeMemoryResource`
-   * @return false if the value is not a `FixedSizeMemoryResource`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
-
-  int32_t device() const;
-
- private:
-  static Napi::FunctionReference constructor;
-
-  Napi::Value get_upstream_mr(Napi::CallbackInfo const& info);
-
-  Napi::ObjectReference
-    upstream_mr_;  ///< The MemoryResource from which to allocate blocks for the pool.
-};
-
-class BinningMemoryResource : public Napi::ObjectWrap<BinningMemoryResource>,
-                              public MemoryResource {
- public:
-  /**
-   * @brief Initialize and export the BinningMemoryResource JavaScript constructor and prototype.
-   *
-   * @param env The active JavaScript environment.
-   * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
-   */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
-
-  /**
-   * @brief Construct a new BinningMemoryResource instance from JavaScript.
-   *
-   */
-  BinningMemoryResource(CallbackArgs const& args);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `BinningMemoryResource`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `BinningMemoryResource`
-   * @return false if the value is not a `BinningMemoryResource`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
-
-  int32_t device() const;
+  void flush();
 
   /**
    * @brief Adds a bin of the specified maximum allocation size to this memory resource. If
@@ -286,77 +134,38 @@ class BinningMemoryResource : public Napi::ObjectWrap<BinningMemoryResource>,
    * @return void
    */
   void add_bin(size_t allocation_size);
-  void add_bin(size_t allocation_size, Napi::Object const& bin_resource);
+  void add_bin(size_t allocation_size, ObjectUnwrap<MemoryResource> const& bin_resource);
 
-  rmm::mr::binning_memory_resource<rmm::mr::device_memory_resource>* get_bin_mr() {
+ protected:
+  inline rmm::mr::binning_memory_resource<rmm::mr::device_memory_resource>* get_bin_mr() {
     return static_cast<rmm::mr::binning_memory_resource<rmm::mr::device_memory_resource>*>(
       mr_.get());
   }
 
- private:
-  static Napi::FunctionReference constructor;
-
-  Napi::Value add_bin(Napi::CallbackInfo const& info);
-  Napi::Value get_upstream_mr(Napi::CallbackInfo const& info);
-
-  Napi::ObjectReference
-    upstream_mr_;  ///< The MemoryResource to use for allocations larger than any of the bins.
-
-  std::vector<Napi::ObjectReference> bin_mrs_;
-};
-
-class LoggingResourceAdapter : public Napi::ObjectWrap<LoggingResourceAdapter>,
-                               public MemoryResource {
- public:
-  /**
-   * @brief Initialize and export the LoggingResourceAdapter JavaScript constructor and prototype.
-   *
-   * @param env The active JavaScript environment.
-   * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
-   */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
-
-  /**
-   * @brief Construct a new LoggingResourceAdapter instance from JavaScript.
-   *
-   */
-  LoggingResourceAdapter(CallbackArgs const& args);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `LoggingResourceAdapter`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `LoggingResourceAdapter`
-   * @return false if the value is not a `LoggingResourceAdapter`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
-
-  rmm::mr::logging_resource_adaptor<rmm::mr::device_memory_resource>* get_log_mr() {
+  inline rmm::mr::logging_resource_adaptor<rmm::mr::device_memory_resource>* get_log_mr() {
     return static_cast<rmm::mr::logging_resource_adaptor<rmm::mr::device_memory_resource>*>(
       mr_.get());
   }
 
-  int32_t device() const;
-
-  /**
-   * @copydoc rmm::mr::logging_resource_adaptor::flush()
-   */
-  void flush() { get_log_mr()->flush(); }
-
-  std::string const& get_file_path() { return log_file_path_; };
-
- private:
-  static Napi::FunctionReference constructor;
-
   Napi::Value flush(Napi::CallbackInfo const& info);
+  Napi::Value add_bin(Napi::CallbackInfo const& info);
+  Napi::Value is_equal(Napi::CallbackInfo const& info);
+  Napi::Value get_mem_info(Napi::CallbackInfo const& info);
+
+  Napi::Value get_device(Napi::CallbackInfo const& info);
   Napi::Value get_file_path(Napi::CallbackInfo const& info);
   Napi::Value get_upstream_mr(Napi::CallbackInfo const& info);
 
+  Napi::Value supports_streams(Napi::CallbackInfo const& info);
+  Napi::Value supports_get_mem_info(Napi::CallbackInfo const& info);
+
+  int32_t device_id_{-1};
   std::string log_file_path_{};
-  Napi::ObjectReference upstream_mr_;  ///< The upstream MemoryResource.
+  mr_type type_{mr_type::cuda};
+
+  Napi::ObjectReference upstream_mr_;
+  std::vector<Napi::ObjectReference> bin_mrs_;
+  std::shared_ptr<rmm::mr::device_memory_resource> mr_;
 };
 
 }  // namespace nv

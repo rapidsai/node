@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_rmm/addon.hpp>
-#include <node_rmm/device_buffer.hpp>
-#include <node_rmm/memory_resource.hpp>
-#include <node_rmm/utilities/napi_to_cpp.hpp>
+#include "node_rmm/addon.hpp"
+#include "node_rmm/device_buffer.hpp"
+#include "node_rmm/memory_resource.hpp"
 
 #include <nv_node/macros.hpp>
 
@@ -35,13 +34,15 @@ Napi::Value set_per_device_resource(CallbackArgs const& args) {
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "init", nv::rmmInit);
   EXPORT_FUNC(env, exports, "setPerDeviceResource", nv::set_per_device_resource);
-  nv::CudaMemoryResource::Init(env, exports);
-  nv::ManagedMemoryResource::Init(env, exports);
-  nv::PoolMemoryResource::Init(env, exports);
-  nv::FixedSizeMemoryResource::Init(env, exports);
-  nv::BinningMemoryResource::Init(env, exports);
-  nv::LoggingResourceAdapter::Init(env, exports);
+  nv::MemoryResource::Init(env, exports);
   nv::DeviceBuffer::Init(env, exports);
+
+  // Create a persistent reference to the exports object as the add-on instance data.
+  // This will allow this add-on to support multiple instances of itself running on multiple worker
+  // threads, as well as multiple instances of itself running in different contexts on the same
+  // thread.
+  env.SetInstanceData<Napi::ObjectReference>(new Napi::ObjectReference(Napi::Persistent(exports)));
+
   return exports;
 }
 

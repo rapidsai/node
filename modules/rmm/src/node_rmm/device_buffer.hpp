@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <node_rmm/memory_resource.hpp>
 #include <node_rmm/utilities/napi_to_cpp.hpp>
 
 #include <nv_node/utilities/span.hpp>
@@ -48,7 +49,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    */
   inline static ObjectUnwrap<DeviceBuffer> New(
     rmm::cuda_stream_view stream = rmm::cuda_stream_default,
-    Napi::Object const& mr       = CudaMemoryResource::New()) {
+    Napi::Object const& mr       = MemoryResource::Cuda(constructor.Env())) {
     return DeviceBuffer::New(Span<char>(0), stream, mr);
   }
 
@@ -63,7 +64,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   inline static ObjectUnwrap<DeviceBuffer> New(
     Span<char> span,
     rmm::cuda_stream_view stream = rmm::cuda_stream_default,
-    Napi::Object const& mr       = CudaMemoryResource::New()) {
+    Napi::Object const& mr       = MemoryResource::Cuda(constructor.Env())) {
     return DeviceBuffer::New(span.data(), span.size(), stream, mr);
   }
 
@@ -76,10 +77,11 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
-  static ObjectUnwrap<DeviceBuffer> New(void* data,
-                                        size_t size,
-                                        rmm::cuda_stream_view stream = rmm::cuda_stream_default,
-                                        Napi::Object const& mr       = CudaMemoryResource::New());
+  static ObjectUnwrap<DeviceBuffer> New(
+    void* data,
+    size_t size,
+    rmm::cuda_stream_view stream = rmm::cuda_stream_default,
+    Napi::Object const& mr       = MemoryResource::Cuda(constructor.Env()));
 
   /**
    * @brief Check whether an Napi value is an instance of `DeviceBuffer`.
@@ -112,9 +114,9 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
 
   inline bool is_empty() const { return buffer_->is_empty(); }
 
-  inline rmm::cuda_stream_view stream() { return buffer_->stream(); }
+  inline ValueWrap<rmm::cuda_stream_view> stream() { return {Env(), buffer_->stream()}; }
 
-  inline int32_t device() const { return (this->operator rmm::cuda_device_id()).value(); }
+  ValueWrap<int32_t> device() const;
 
   inline explicit operator rmm::cuda_device_id() const { return NapiToCPP(mr_.Value()); }
 

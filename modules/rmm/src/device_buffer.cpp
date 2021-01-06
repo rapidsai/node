@@ -12,18 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_rmm/device_buffer.hpp>
-#include <node_rmm/memory_resource.hpp>
-#include <node_rmm/utilities/cpp_to_napi.hpp>
-#include <node_rmm/utilities/napi_to_cpp.hpp>
+#include "node_rmm/device_buffer.hpp"
+#include "node_rmm/memory_resource.hpp"
+#include "node_rmm/utilities/cpp_to_napi.hpp"
+#include "node_rmm/utilities/napi_to_cpp.hpp"
 
-#include <node_cuda/device.hpp>
 #include <node_cuda/utilities/error.hpp>
-#include <node_cuda/utilities/napi_to_cpp.hpp>
-
-#include <nv_node/macros.hpp>
-#include <nv_node/utilities/args.hpp>
-#include <nv_node/utilities/cpp_to_napi.hpp>
 
 namespace nv {
 
@@ -78,7 +72,11 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBu
                                  : Span<char>(0);
 
   rmm::cuda_stream_view stream = arg1.IsNumber() ? arg1 : rmm::cuda_stream_default;
-  mr_.Reset(MemoryResource::is_instance(arg2) ? arg2.ToObject() : CudaMemoryResource::New(), 1);
+  if (MemoryResource::is_instance(arg2.val)) {
+    mr_ = Napi::Persistent(arg2.ToObject());
+  } else {
+    mr_ = MemoryResource::Cuda(args.Env()).reference();
+  }
 
   switch (args.Length()) {
     case 0:
@@ -104,6 +102,10 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBu
 
 void DeviceBuffer::Finalize(Napi::Env env) {
   if (size() > 0) { Napi::MemoryManagement::AdjustExternalMemory(env, -size()); }
+}
+
+ValueWrap<int32_t> DeviceBuffer::device() const {
+  return MemoryResource::Unwrap(mr_.Value())->device();
 }
 
 Napi::Value DeviceBuffer::byte_length(Napi::CallbackInfo const& info) {
@@ -161,12 +163,8 @@ Napi::Value DeviceBuffer::slice(Napi::CallbackInfo const& info) {
   return DeviceBuffer::New(static_cast<char*>(data()) + offset, length, stream(), mr_.Value());
 }
 
-Napi::Value DeviceBuffer::device(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(device());
-}
+Napi::Value DeviceBuffer::device(Napi::CallbackInfo const& info) { return device(); }
 
-Napi::Value DeviceBuffer::stream(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(stream());
-}
+Napi::Value DeviceBuffer::stream(Napi::CallbackInfo const& info) { return stream(); }
 
 }  // namespace nv

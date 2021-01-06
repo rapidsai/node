@@ -78,4 +78,36 @@ struct CallbackArgs {
   Napi::CallbackInfo const* info_{nullptr};
 };
 
+struct ConstructorReference : public Napi::FunctionReference {
+  inline static ConstructorReference Persistent(Napi::Function const& value) {
+    return Napi::Reference<Napi::Function>::New(value, 1);
+  }
+
+  inline ConstructorReference(napi_env env, napi_ref ref) : Napi::FunctionReference(env, ref) {}
+
+  // A reference can be moved but cannot be copied.
+  inline ConstructorReference(Napi::Reference<Napi::Function>&& other)
+    : Napi::FunctionReference(std::move(other)){};
+  inline ConstructorReference& operator=(Napi::Reference<Napi::Function>&& other) {
+    static_cast<Napi::Reference<Napi::Function>*>(this)->operator=(std::move(other));
+    return *this;
+  }
+  inline ConstructorReference(ConstructorReference&& other)
+    : Napi::FunctionReference(std::move(other)){};
+  inline ConstructorReference& operator=(ConstructorReference&& other) {
+    static_cast<Napi::Reference<Napi::Function>*>(this)->operator=(std::move(other));
+    return *this;
+  }
+
+  template <typename... Args>
+  inline Napi::Object New(Args&&... xs) const {
+    Napi::HandleScope scope(_env);
+    std::vector<napi_value> ys{};
+    ys.reserve(sizeof...(Args));
+    nv::casting::for_each(std::make_tuple<Args...>(std::forward<Args>(xs)...),
+                          [&](auto const& x) { ys.push_back(Napi::Value::From(_env, x)); });
+    return Napi::FunctionReference::New(ys);
+  }
+};
+
 }  // namespace nv

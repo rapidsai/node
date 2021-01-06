@@ -14,14 +14,18 @@
 
 #pragma once
 
+#include <node_rmm/types.hpp>
+
 #include <node_cuda/utilities/cpp_to_napi.hpp>
 
-#include <nv_node/utilities/cpp_to_napi.hpp>
-
-#include <rmm/cuda_stream_view.hpp>
 #include <rmm/mr/device/per_device_resource.hpp>
 
 namespace nv {
+
+template <>
+inline Napi::Value CPPToNapi::operator()(mr_type const& type) const {
+  return this->operator()(static_cast<uint8_t>(type));
+}
 
 template <>
 inline Napi::Value CPPToNapi::operator()(rmm::cuda_device_id const& device) const {
@@ -34,3 +38,22 @@ inline Napi::Value CPPToNapi::operator()(rmm::cuda_stream_view const& stream) co
 }
 
 }  // namespace nv
+
+namespace Napi {
+
+template <>
+inline Value Value::From(napi_env env, nv::mr_type const& type) {
+  return Value::From(env, static_cast<uint8_t>(type));
+}
+
+template <>
+inline Value Value::From(napi_env env, rmm::cuda_device_id const& device) {
+  return Value::From(env, static_cast<int32_t>(device.value()));
+}
+
+template <>
+inline Value Value::From(napi_env env, rmm::cuda_stream_view const& stream) {
+  return Value::From(env, reinterpret_cast<uintptr_t>(stream.value()));
+}
+
+}  // namespace Napi

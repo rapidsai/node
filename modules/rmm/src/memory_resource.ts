@@ -14,9 +14,36 @@
 
 import RMM from './addon';
 
-export interface MemoryResourceConstructor {
+const enum MemoryResourceType
+{
+  CUDA      = 0,
+  MANAGED   = 1,
+  POOL      = 2,
+  FIXEDSIZE = 3,
+  BINNING   = 4,
+  LOGGING   = 5,
+}
+
+interface MemoryResourceConstructor {
   readonly prototype: MemoryResource;
-  new(): MemoryResource;
+  new(type: MemoryResourceType.CUDA, device?: number): MemoryResource;
+  new(type: MemoryResourceType.MANAGED): MemoryResource;
+  new(type: MemoryResourceType.POOL,
+      upstreamMemoryResource: MemoryResource,
+      initialPoolSize?: number,
+      maximumPoolSize?: number): MemoryResource;
+  new(type: MemoryResourceType.FIXEDSIZE,
+      upstreamMemoryResource: MemoryResource,
+      blockSize?: number,
+      blocksToPreallocate?: number): MemoryResource;
+  new(type: MemoryResourceType.BINNING,
+      upstreamMemoryResource: MemoryResource,
+      minSizeExponent?: number,
+      maxSizeExponent?: number): MemoryResource;
+  new(type: MemoryResourceType.LOGGING,
+      upstreamMemoryResource: MemoryResource,
+      logFilePath?: string,
+      autoFlush?: boolean): MemoryResource;
 }
 
 export interface MemoryResource {
@@ -53,38 +80,32 @@ export interface MemoryResource {
   isEqual(other: MemoryResource): boolean;
 }
 
-export interface CudaMemoryResourceConstructor {
-  readonly prototype: CudaMemoryResource;
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+const MemoryResource: MemoryResourceConstructor = RMM.MemoryResource;
 
+export class CudaMemoryResource extends MemoryResource {
   /**
    * @summary Constructs a MemoryResource which allocates distinct chunks of CUDA GPU memory.
    * @param device The device ordinal on which to allocate memory (optional).
    */
-  new(device?: number): CudaMemoryResource;
+  constructor(device?: number) { super(MemoryResourceType.CUDA, device); }
 }
 
-export type CudaMemoryResource = MemoryResource
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const CudaMemoryResource: CudaMemoryResourceConstructor = RMM.CudaMemoryResource;
-
-export interface ManagedMemoryResourceConstructor {
-  readonly prototype: ManagedMemoryResource;
-
+export class ManagedMemoryResource extends MemoryResource {
   /**
    * @summary Constructs a MemoryResource which allocates distinct chunks of CUDA Managed memory.
    */
-  new(): ManagedMemoryResource;
+  constructor() { super(MemoryResourceType.MANAGED); }
 }
 
-export type ManagedMemoryResource = MemoryResource
+export interface PoolMemoryResource extends MemoryResource {
+  /**
+   * @summary The MemoryResource from which to allocate blocks for the pool.
+   */
+  readonly memoryResource: MemoryResource;
+}
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const ManagedMemoryResource: ManagedMemoryResourceConstructor = RMM.ManagedMemoryResource;
-
-export interface PoolMemoryResourceConstructor {
-  readonly prototype: PoolMemoryResource;
-
+export class PoolMemoryResource extends MemoryResource {
   /**
    * @summary Constructs a coalescing best-fit suballocator which uses a pool of memory allocated
    * from an upstream MemoryResource.
@@ -93,73 +114,41 @@ export interface PoolMemoryResourceConstructor {
    *   size is used.
    * @param maximumPoolSize Maximum size in bytes, that the pool can grow to.
    */
-  new(upstreamMemoryResource: MemoryResource, initialPoolSize?: number, maximumPoolSize?: number):
-    PoolMemoryResource;
-}
-
-export interface PoolMemoryResource extends MemoryResource {
-  /**
-   * @summary The MemoryResource from which to allocate blocks for the pool.
-   */
-  readonly upstreamMemoryResource: MemoryResource;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const PoolMemoryResource: PoolMemoryResourceConstructor = RMM.PoolMemoryResource;
-
-export interface FixedSizeMemoryResourceConstructor {
-  readonly prototype: FixedSizeMemoryResource;
-
-  /**
-   * @summary Constructs a MemoryResource which allocates memory blocks of a single fixed size from
-   * an upstream MemoryResource.
-   * @param upstreamMemoryResource The MemoryResource from which to allocate blocks for the pool.
-   * @param blockSize The size of blocks to allocate (default is 1MiB).
-   * @param blocksToPreallocate The number of blocks to allocate to initialize the pool.
-   */
-  new(upstreamMemoryResource: MemoryResource, blockSize?: number, blocksToPreallocate?: number):
-    FixedSizeMemoryResource;
+  constructor(upstreamMemoryResource: MemoryResource,
+              initialPoolSize?: number,
+              maximumPoolSize?: number) {
+    super(MemoryResourceType.POOL, upstreamMemoryResource, initialPoolSize, maximumPoolSize);
+  }
 }
 
 export interface FixedSizeMemoryResource extends MemoryResource {
   /**
    * @summary The MemoryResource from which to allocate blocks for the pool.
    */
-  readonly upstreamMemoryResource: MemoryResource;
+  readonly memoryResource: MemoryResource;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const FixedSizeMemoryResource: FixedSizeMemoryResourceConstructor =
-  RMM.FixedSizeMemoryResource;
-
-export interface BinningMemoryResourceConstructor {
-  readonly prototype: BinningMemoryResource;
-
+export class FixedSizeMemoryResource extends MemoryResource {
   /**
-   * @summary Constructs a MemoryResource which allocates memory from a set of specified "bin" sizes
-   * based on a specified allocation size from an upstream MemoryResource.
-   *
-   * @detail If minSizeExponent and maxSizeExponent are specified, initializes with one or more
-   * FixedSizeMemoryResource bins in the range [2^minSizeExponent, 2^maxSizeExponent].
-   *
-   * Call addBin to add additional bin allocators.
-   *
-   * @param upstreamMemoryResource The MemoryResource to use for allocations larger than any of the
-   *   bins.
-   * @param minSizeExponent The base-2 exponent of the minimum size FixedSizeMemoryResource bin to
-   *   create (optional).
-   * @param maxSizeExponent The base-2 exponent of the maximum size FixedSizeMemoryResource bin to
-   *   create (optional).
+   * @summary Constructs a MemoryResource which allocates memory blocks of a single fixed size
+   from
+   * an upstream MemoryResource.
+   * @param upstreamMemoryResource The MemoryResource from which to allocate blocks for the pool.
+   * @param blockSize The size of blocks to allocate (default is 1MiB).
+   * @param blocksToPreallocate The number of blocks to allocate to initialize the pool.
    */
-  new(upstreamMemoryResource: MemoryResource, minSizeExponent?: number, maxSizeExponent?: number):
-    BinningMemoryResource;
+  constructor(upstreamMemoryResource: MemoryResource,
+              blockSize?: number,
+              blocksToPreallocate?: number) {
+    super(MemoryResourceType.FIXEDSIZE, upstreamMemoryResource, blockSize, blocksToPreallocate);
+  }
 }
 
 export interface BinningMemoryResource extends MemoryResource {
   /**
    * The MemoryResource to use for allocations larger than any of the bins.
    */
-  readonly upstreamMemoryResource: MemoryResource;
+  readonly memoryResource: MemoryResource;
 
   /**
    * @summary Adds a bin of the specified maximum allocation size to this MemoryResource.
@@ -176,23 +165,28 @@ export interface BinningMemoryResource extends MemoryResource {
   addBin(byteLength: number, binResource?: MemoryResource): void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const BinningMemoryResource: BinningMemoryResourceConstructor = RMM.BinningMemoryResource;
-
-export interface LoggingResourceAdapterConstructor {
-  readonly prototype: LoggingResourceAdapter;
-
+export class BinningMemoryResource extends MemoryResource {
   /**
-   * @summary Constructs a MemoryResource that logs information about allocations/deallocations
-   * performed by an upstream MemoryResource.
-   * @param upstreamMemoryResource The upstream MemoryResource to log.
-   * @param logFilePath Path to the file to which logs are written. If not provided, falls back to
-   *   the `RMM_LOG_FILE` environment variable.
-   * @param autoFlush If true, flushes the log for every (de)allocation. Warning, this will degrade
-   *   performance.
+   * @summary Constructs a MemoryResource which allocates memory from a set of specified "bin" sizes
+   * based on a specified allocation size from an upstream MemoryResource.
+   *
+   * @detail If minSizeExponent and maxSizeExponent are specified, initializes with one or more
+   * FixedSizeMemoryResource bins in the range [2^minSizeExponent, 2^maxSizeExponent].
+   *
+   * Call addBin to add additional bin allocators.
+   *
+   * @param upstreamMemoryResource The MemoryResource to use for allocations larger than any of the
+   *   bins.
+   * @param minSizeExponent The base-2 exponent of the minimum size FixedSizeMemoryResource bin to
+   *   create (optional).
+   * @param maxSizeExponent The base-2 exponent of the maximum size FixedSizeMemoryResource bin to
+   *   create (optional).
    */
-  new(upstreamMemoryResource: MemoryResource, logFilePath?: string, autoFlush?: boolean):
-    LoggingResourceAdapter;
+  constructor(upstreamMemoryResource: MemoryResource,
+              minSizeExponent?: number,
+              maxSizeExponent?: number) {
+    super(MemoryResourceType.BINNING, upstreamMemoryResource, minSizeExponent, maxSizeExponent);
+  }
 }
 
 export interface LoggingResourceAdapter extends MemoryResource {
@@ -204,7 +198,7 @@ export interface LoggingResourceAdapter extends MemoryResource {
   /**
    * The MemoryResource to use for allocations larger than any of the bins.
    */
-  readonly upstreamMemoryResource: MemoryResource;
+  readonly memoryResource: MemoryResource;
 
   /**
    * @summary Flushes the buffered log contents.
@@ -212,5 +206,17 @@ export interface LoggingResourceAdapter extends MemoryResource {
   flush(): void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const LoggingResourceAdapter: LoggingResourceAdapterConstructor = RMM.LoggingResourceAdapter;
+export class LoggingResourceAdapter extends MemoryResource {
+  /**
+   * @summary Constructs a MemoryResource that logs information about allocations/deallocations
+   * performed by an upstream MemoryResource.
+   * @param upstreamMemoryResource The upstream MemoryResource to log.
+   * @param logFilePath Path to the file to which logs are written. If not provided, falls back to
+   *   the `RMM_LOG_FILE` environment variable.
+   * @param autoFlush If true, flushes the log for every (de)allocation. Warning, this will degrade
+   *   performance.
+   */
+  constructor(upstreamMemoryResource: MemoryResource, logFilePath?: string, autoFlush?: boolean) {
+    super(MemoryResourceType.LOGGING, upstreamMemoryResource, logFilePath, autoFlush);
+  }
+}
