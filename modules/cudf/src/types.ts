@@ -79,31 +79,31 @@ export class Int64 extends DataType<TypeId.INT64> {
   constructor() { super(TypeId.INT64); }
 }
 
-export interface UInt8 extends DataType<TypeId.UINT8> {
+export interface Uint8 extends DataType<TypeId.UINT8> {
   valueType: number;
 }
-export class UInt8 extends DataType<TypeId.UINT8> {
+export class Uint8 extends DataType<TypeId.UINT8> {
   constructor() { super(TypeId.UINT8); }
 }
 
-export interface UInt16 extends DataType<TypeId.UINT16> {
+export interface Uint16 extends DataType<TypeId.UINT16> {
   valueType: number;
 }
-export class UInt16 extends DataType<TypeId.UINT16> {
+export class Uint16 extends DataType<TypeId.UINT16> {
   constructor() { super(TypeId.UINT16); }
 }
 
-export interface UInt32 extends DataType<TypeId.UINT32> {
+export interface Uint32 extends DataType<TypeId.UINT32> {
   valueType: number;
 }
-export class UInt32 extends DataType<TypeId.UINT32> {
+export class Uint32 extends DataType<TypeId.UINT32> {
   constructor() { super(TypeId.UINT32); }
 }
 
-export interface UInt64 extends DataType<TypeId.UINT64> {
+export interface Uint64 extends DataType<TypeId.UINT64> {
   valueType: number;
 }
-export class UInt64 extends DataType<TypeId.UINT64> {
+export class Uint64 extends DataType<TypeId.UINT64> {
   constructor() { super(TypeId.UINT64); }
 }
 
