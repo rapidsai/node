@@ -19,8 +19,9 @@ enable_language(CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
-string(APPEND CMAKE_CUDA_FLAGS " --expt-extended-lambda --expt-relaxed-constexpr")
 string(APPEND CMAKE_CUDA_FLAGS " -Werror=cross-execution-space-call")
+string(APPEND CMAKE_CUDA_FLAGS " --expt-extended-lambda --expt-relaxed-constexpr")
+string(APPEND CMAKE_CUDA_FLAGS " -Xcompiler=-Wall,-Werror,-Wno-error=sign-compare")
 
 # Auto-detect available GPU compute architectures
 set(CUDA_ARCHITECTURES "$ENV{CUDA_ARCHITECTURES}" CACHE STRING
