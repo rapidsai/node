@@ -107,8 +107,8 @@ export class GLFWKeyboardEvent extends GLFWEvent {
     const name = glfw.getKeyName(key, scancode);
 
     evt._key   = name || 'Unidentified';
-    evt._which = evt._charCode = glfwToDOMKey [key] || key;
-    evt._code                  = keyToCode [evt.which] || name || 'Unidentified';
+    evt._which = evt._charCode = glfwToDOMKey[key] || key;
+    evt._code                  = keyToCode[evt.which] || name || 'Unidentified';
 
     const isCaps  = key === GLFWKey.KEY_CAPS_LOCK;
     const isAlt   = !isCaps && (key === GLFWKey.KEY_LEFT_ALT || key === GLFWKey.KEY_RIGHT_ALT);
@@ -148,7 +148,7 @@ export class GLFWKeyboardEvent extends GLFWEvent {
     evt._rawScanCode = this._rawScanCode;
     evt._key         = String.fromCharCode(charCode);
     evt._repeat      = this._repeat || this.type === 'keypress';
-    evt._code        = keyToCode [this._which] || `Key${evt._key.toUpperCase()}`;
+    evt._code        = keyToCode[this._which] || `Key${evt._key.toUpperCase()}`;
     evt._altKey      = isAltKey(modifiers) || this._altKey;
     evt._ctrlKey     = isCtrlKey(modifiers) || this._ctrlKey;
     evt._metaKey     = isMetaKey(modifiers) || this._metaKey;

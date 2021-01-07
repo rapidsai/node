@@ -82,7 +82,7 @@ export const memoryResourceTestConfigs = [
       supportsStreams: true,
       supportsGetMemInfo: false,
       createMemoryResource: () =>
-        new PoolMemoryResource(new CudaMemoryResource(), sizes ['1_MiB'], sizes ['16_MiB']),
+        new PoolMemoryResource(new CudaMemoryResource(), sizes['1_MiB'], sizes['16_MiB']),
     }
   ],
   [
@@ -92,7 +92,7 @@ export const memoryResourceTestConfigs = [
       supportsStreams: true,
       supportsGetMemInfo: false,
       createMemoryResource: () =>
-        new FixedSizeMemoryResource(new CudaMemoryResource(), sizes ['4_MiB'], 1),
+        new FixedSizeMemoryResource(new CudaMemoryResource(), sizes['4_MiB'], 1),
     }
   ],
   [
@@ -102,7 +102,7 @@ export const memoryResourceTestConfigs = [
       supportsStreams: true,
       supportsGetMemInfo: false,
       createMemoryResource: () => new BinningMemoryResource(
-        new CudaMemoryResource(), Math.log2(sizes ['1_MiB']), Math.log2(sizes ['4_MiB'])),
+        new CudaMemoryResource(), Math.log2(sizes['1_MiB']), Math.log2(sizes['4_MiB'])),
     }
   ],
   [

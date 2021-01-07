@@ -33,11 +33,11 @@ export const isPromise =
 
 /** @ignore */
 export const isIterable =
-  <T = any>(x: any): x is Iterable<T> => { return isObject(x) && isFunction(x [Symbol.iterator]);};
+  <T = any>(x: any): x is Iterable<T> => { return isObject(x) && isFunction(x[Symbol.iterator]);};
 
 /** @ignore */
 export const isAsyncIterable = <T = any>(x: any):
-  x is AsyncIterable<T>      => { return isObject(x) && isFunction(x [Symbol.asyncIterator]);};
+  x is AsyncIterable<T>      => { return isObject(x) && isFunction(x[Symbol.asyncIterator]);};
 
 /** @ignore */
 export const isArrayLike =

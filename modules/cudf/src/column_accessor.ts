@@ -33,7 +33,7 @@ interface ColumnAccessorInterface {
 
 export class ColumnAccessor implements ColumnAccessorInterface {
   private _data                                   = new Map<string, Column>();
-  private _labels_array: string []                = [];
+  private _labels_array: string[]                 = [];
   private _labels_to_indices: Map<string, number> = new Map();
 
   set data(value: Map<string, Column>) {
@@ -82,8 +82,7 @@ export class ColumnAccessor implements ColumnAccessorInterface {
   }
 
   selectByColumnNames(key: Array<string>) {
-    const return_map =
-      new Map(Array.from(this._data).filter((x) => { return key.includes(x [0]); }))
+    const return_map = new Map(Array.from(this._data).filter((x) => { return key.includes(x[0]); }))
     return new ColumnAccessor(return_map);
   }
 
@@ -104,7 +103,7 @@ export class ColumnAccessor implements ColumnAccessorInterface {
 
   selectByColumnIndices(index: Array<number|undefined>) {
     const return_map = new Map(Array.from(this._data).filter((x) => {
-      const temp_val = this.columnNameToColumnIndex(x [0]);
+      const temp_val = this.columnNameToColumnIndex(x[0]);
       if (temp_val != undefined) { return index.includes(temp_val); }
       return false;
     }))
@@ -115,7 +114,7 @@ export class ColumnAccessor implements ColumnAccessorInterface {
     return this._labels_to_indices.get(label);
   }
 
-  columnIndexToColumnName(index: number): string|undefined { return this._labels_array [index]; }
+  columnIndexToColumnName(index: number): string|undefined { return this._labels_array[index]; }
 
   columnNamesToColumnIndices(label: Array<string>): Array<number> {
     const return_array: Array<number> = [];

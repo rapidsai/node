@@ -40,7 +40,7 @@ function createJSDOMContextRequire(options: Types.Options): Types.JSDOMModule {
   const {window}      = context;
   const resolveConfig = {
     remaps: loadRemaps,
-    extensions: extensions && ([] as string [])
+    extensions: extensions && ([] as string[])
                                 .concat(Object.keys(require.extensions))
                                 .concat(Object.keys(extensions))
                                 .filter(unique)
@@ -76,7 +76,7 @@ function createJSDOMContextRequire(options: Types.Options): Types.JSDOMModule {
 /**
  * Array filter for uniqueness.
  */
-function unique(item: any, i: number, list: any []): boolean { return list.indexOf(item) === i; }
+function unique(item: any, i: number, list: any[]): boolean { return list.indexOf(item) === i; }
 
 const remapCache = Object.create(null);
 
@@ -88,16 +88,16 @@ const remapCache = Object.create(null);
 function loadRemaps(dir: string) {
   const file = path.join(dir, "browser.json");
 
-  if (file in remapCache) { return remapCache [file]; }
+  if (file in remapCache) { return remapCache[file]; }
 
   let result: Record<string, string>|undefined = undefined;
   const remaps                                 = fs.existsSync(file) && require(file).requireRemap;
 
   if (remaps) {
     result = {};
-    for (const remap of remaps) { result [path.join(dir, remap.from)] = path.join(dir, remap.to); }
+    for (const remap of remaps) { result[path.join(dir, remap.from)] = path.join(dir, remap.to); }
   }
 
-  remapCache [file] = result;
+  remapCache[file] = result;
   return result;
 }

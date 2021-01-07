@@ -29,7 +29,7 @@ describe.each(memoryResourceTestConfigs)(`%s`, (_, {createMemoryResource}) => {
       expect(getPerDeviceResource(device.id)).toBe(mr);
       // Fill the buffer with 1s, because CUDA Managed
       // memory is only allocated when it's actually used.
-      new Uint8Buffer(new DeviceBuffer(sizes ['2_MiB'], mr)).fill(1);
+      new Uint8Buffer(new DeviceBuffer(sizes['2_MiB'], mr)).fill(1);
     } finally { setPerDeviceResource(device.id, currentMr); }
   });
 });

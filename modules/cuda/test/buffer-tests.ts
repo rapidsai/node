@@ -60,13 +60,13 @@ describe.each([
 
   test(`reads ${Buffer.name} values via subscript accessor`, () => {
     const dbuf = new Buffer(testBuffer);
-    for (let i = -1; ++i < dbuf.length;) { expect(dbuf [i]).toEqual(testBuffer [i]); }
+    for (let i = -1; ++i < dbuf.length;) { expect(dbuf[i]).toEqual(testBuffer[i]); }
   });
 
   test(`writes ${Buffer.name} values via subscript accessor`, () => {
     const dbuf = new Buffer(testBuffer);
-    const mult = testBuffer [testBuffer.length * .25 | 0];
-    for (let i = -1; ++i < dbuf.length;) { dbuf [i] = testBuffer [i] * mult; }
+    const mult = testBuffer[testBuffer.length * .25 | 0];
+    for (let i = -1; ++i < dbuf.length;) { dbuf[i] = testBuffer[i] * mult; }
     expect(dbuf.toArray()).toEqual(testBuffer.map((i: any) => i * mult));
   });
 

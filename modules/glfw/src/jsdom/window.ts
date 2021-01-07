@@ -104,7 +104,7 @@ export abstract class GLFWDOMWindow {
 
     const validatePropType = (name: keyof this, type: string) => {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      if (typeof this [name] !== type) { throw new TypeError(`options.${name} must be a ${type}`); }
+      if (typeof this[name] !== type) { throw new TypeError(`options.${name} must be a ${type}`); }
     };
 
     ([
@@ -122,7 +122,7 @@ export abstract class GLFWDOMWindow {
       'yscale',
       'devicePixelRatio',
       'swapInterval',
-    ] as (keyof this) [])
+    ] as (keyof this)[])
       .forEach((prop) => validatePropType(prop, 'number'));
 
     ([
@@ -134,7 +134,7 @@ export abstract class GLFWDOMWindow {
       'decorated',
       'transparent',
       'resizable',
-    ] as (keyof this) [])
+    ] as (keyof this)[])
       .forEach((prop) => validatePropType(prop, 'boolean'));
 
     this._frameBufferWidth  = this._width;
@@ -309,7 +309,7 @@ export abstract class GLFWDOMWindow {
   }
 
   public setAttribute(name: any, value: any) {
-    if (name in this) { (this as any) [name] = value; }
+    if (name in this) { (this as any)[name] = value; }
   }
 
   public getBoundingClientRect() {
@@ -480,9 +480,9 @@ export abstract class GLFWDOMWindow {
     }
   }
 
-  public [Symbol.toStringTag]: string;
+  public[Symbol.toStringTag]: string;
   public inspect() { return this.toString(); }
-  public [Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }
+  public[Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }
   public toString() {
     return `${this[Symbol.toStringTag]} {
             id: ${this.id},
@@ -504,15 +504,15 @@ export abstract class GLFWDOMWindow {
         if (value.endsWith('px')) {
           return +(value.slice(0, -1));
         } else if (value.endsWith('%')) {
-          return +this [prop] * (+value.slice(0, -1) / 100);
+          return +this[prop] * (+value.slice(0, -1) / 100);
         }
       }
     }
-    return ((value = +value) !== value) ? +this [prop] : value;
+    return ((value = +value) !== value) ? +this[prop] : value;
   }
 }
 
-GLFWDOMWindow.prototype [Symbol.toStringTag] = 'GLFWDOMWindow';
+GLFWDOMWindow.prototype[Symbol.toStringTag] = 'GLFWDOMWindow';
 
 defineDOMEventListenerProperties(GLFWDOMWindow.prototype, [
   'onblur',
@@ -604,11 +604,11 @@ function dispatchGLFWEvent(window: GLFWDOMWindow, glfwEvent: any, EventCtor: any
 function asJSDOMEvent(EventCtor: any, glfwEvent: any, jsdomTarget: any) {
   glfwEvent.target     = jsdomTarget;
   const jsdomEvent     = new EventCtor(glfwEvent.type, glfwEvent);
-  const jsdomEventImpl = jsdomEvent [implSymbol];
+  const jsdomEventImpl = jsdomEvent[implSymbol];
   for (const key in glfwEvent) {
     if (!key.startsWith('_')) {
       try {
-        jsdomEventImpl [key] = glfwEvent [key];
+        jsdomEventImpl[key] = glfwEvent[key];
       } catch (e) { /**/
       }
     }
@@ -616,29 +616,28 @@ function asJSDOMEvent(EventCtor: any, glfwEvent: any, jsdomTarget: any) {
   return jsdomEvent;
 }
 
-function defineDOMEventListenerProperties(proto: any, propertyNames: string []) {
+function defineDOMEventListenerProperties(proto: any, propertyNames: string[]) {
   propertyNames.forEach((name) => {
     const type  = name.slice(2);
     const pname = `_${name}Listener`;
     Object.defineProperty(proto, name, {
-      get() { return this [pname] || undefined; },
-      set(listener: (...args: any []) => any) {
-        if (typeof this [pname] === 'function') { this.removeEventListener(type, this [pname]); }
+      get() { return this[pname] || undefined; },
+      set(listener: (...args: any[]) => any) {
+        if (typeof this[pname] === 'function') { this.removeEventListener(type, this[pname]); }
         if (typeof listener === 'function') {
-          this [pname] = (e: any) => {
+          this[pname] = (e: any) => {
             e.preventDefault();
             e.stopImmediatePropagation();
             listener(e);
           };
-          this.addEventListener(type, this [pname], true);
+          this.addEventListener(type, this[pname], true);
         }
       }
     });
   });
 }
 
-function defineDOMElementPropertyAliases(proto: any,
-                                         aliases: {name: string, aliases: string []} []) {
+function defineDOMElementPropertyAliases(proto: any, aliases: {name: string, aliases: string[]}[]) {
   /* eslint-disable @typescript-eslint/unbound-method */
   aliases.forEach(({name, aliases = []}) => {
     const descriptor = Object.getOwnPropertyDescriptor(proto, name);

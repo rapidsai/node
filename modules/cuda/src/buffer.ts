@@ -30,8 +30,8 @@ const {runtime: {cudaMemcpy}} = CUDA;
 /** @ignore */
 type MemoryViewConstructor<T extends TypedArray|BigIntArray> = {
   readonly BYTES_PER_ELEMENT: number; new (length?: number): MemoryView<T>;
-  new (values: Iterable<T [0]>): MemoryView<T>;
-  new (buffer: ArrayLike<T [0]>|MemoryData, byteOffset?: number, length?: number): MemoryView<T>;
+  new (values: Iterable<T[0]>): MemoryView<T>;
+  new (buffer: ArrayLike<T[0]>|MemoryData, byteOffset?: number, length?: number): MemoryView<T>;
 };
 
 let allocateMemory = (byteLength: number): Memory => new DeviceMemory(byteLength);
@@ -71,7 +71,7 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
    */
   public readonly length!: number;
 
-  [index: number]: T [0];
+  [index: number]: T[0];
 
   /**
    * @summary The constructor of this array's corresponding JS TypedArray.
@@ -81,11 +81,11 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
   /**
    * @summary The length of the array.
    */
-  public readonly [Symbol.species]!: MemoryViewConstructor<T>;
+  public readonly[Symbol.species]!: MemoryViewConstructor<T>;
 
   constructor(length?: number);
-  constructor(arrayOrArrayBuffer: Iterable<T [0]>|ArrayLike<T [0]>|MemoryData);
-  constructor(buffer: ArrayLike<T [0]>|MemoryData, byteOffset: number, length?: number);
+  constructor(arrayOrArrayBuffer: Iterable<T[0]>|ArrayLike<T[0]>|MemoryData);
+  constructor(buffer: ArrayLike<T[0]>|MemoryData, byteOffset: number, length?: number);
   constructor() {
     // eslint-disable-next-line prefer-const, prefer-rest-params
     let [buffer, byteOffset, length] = arguments;
@@ -135,7 +135,7 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
    * @param array A typed or untyped array of values to set.
    * @param start The index in the current array at which the values are to be written.
    */
-  public set(array: MemoryData|ArrayLike<T [0]>, start?: number) {
+  public set(array: MemoryData|ArrayLike<T[0]>, start?: number) {
     // eslint-disable-next-line prefer-const
     let [offset, size] = clamp(this.length, start);
     const source       = asMemoryView(array, this.TypedArray);
@@ -151,7 +151,7 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
    * @param end index to stop filling the array at. If end is negative, it is treated as
    * length+end.
    */
-  public fill(value: T [0], start?: number, end?: number) {
+  public fill(value: T[0], start?: number, end?: number) {
     [start, end] = clamp(this.length, start, end);
     this.set(new this.TypedArray(end - start).fill(<never>value), start);
     return this;
@@ -165,7 +165,7 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
    */
   public slice(start?: number, end?: number) {
     [start, end] = clamp(this.length, start, end);
-    return new this [Symbol.species](
+    return new this[Symbol.species](
       this.buffer.slice(this.byteOffset + (start * this.BYTES_PER_ELEMENT),
                         this.byteOffset + (end * this.BYTES_PER_ELEMENT)));
   }
@@ -178,19 +178,19 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
    */
   public subarray(begin?: number, end?: number) {
     [begin, end] = clamp(this.length, begin, end);
-    return new this [Symbol.species](
+    return new this[Symbol.species](
       this.buffer, this.byteOffset + (begin * this.BYTES_PER_ELEMENT), end - begin);
   }
 
-  public get [Symbol.toStringTag]() { return this.constructor.name; }
-  public [Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }
+  public get[Symbol.toStringTag]() { return this.constructor.name; }
+  public[Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }
   public toString() {
-    return `${this [Symbol.toStringTag]} ${JSON.stringify({
+    return `${this[Symbol.toStringTag]} ${JSON.stringify({
       'length': this.length,
       'byteOffset': this.byteOffset,
       'byteLength': this.byteLength,
       'device': this.buffer.device,
-      'type': this.buffer [Symbol.toStringTag],
+      'type': this.buffer[Symbol.toStringTag],
     })}`;
   }
 
@@ -199,7 +199,7 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
    */
   public getIpcHandle() {
     if (!(this.buffer instanceof DeviceMemory)) {
-      throw new Error(`${this [Symbol.toStringTag]}'s buffer must be an instance of DeviceMemory`);
+      throw new Error(`${this[Symbol.toStringTag]}'s buffer must be an instance of DeviceMemory`);
     }
     return new IpcHandle(this.buffer, this.byteOffset);
   }
@@ -220,7 +220,7 @@ Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
                                 receiver.byteOffset = byteOffset + i * BYTES_PER_ELEMENT;
                                 cudaMemcpy(E, receiver, BYTES_PER_ELEMENT);
                                 receiver.byteOffset = byteOffset;
-                                return E [0];
+                                return E[0];
                               }
                               return undefined;
                           }
@@ -238,7 +238,7 @@ Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
                                 const {byteOffset, BYTES_PER_ELEMENT, E} = receiver;
                                 // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                                 receiver.byteOffset = byteOffset + i * BYTES_PER_ELEMENT;
-                                E [0]               = value;
+                                E[0]                = value;
                                 cudaMemcpy(receiver, E, BYTES_PER_ELEMENT);
                                 receiver.byteOffset = byteOffset;
                                 return true;
@@ -248,7 +248,7 @@ Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
                         }
                       }));
 
-/** @ignore */ (<any>MemoryView.prototype) [Symbol.species]  = MemoryView;
+/** @ignore */ (<any>MemoryView.prototype)[Symbol.species]   = MemoryView;
 /** @ignore */ (<any>MemoryView.prototype).TypedArray        = Uint8ClampedArray;
 /** @ignore */ (<any>MemoryView.prototype).E                 = new Uint8ClampedArray(8);
 /** @ignore */ (<any>MemoryView.prototype).BYTES_PER_ELEMENT = Uint8ClampedArray.BYTES_PER_ELEMENT;
@@ -311,16 +311,15 @@ export class Uint64Buffer extends MemoryView<BigUint64Array> {
  {0: Uint64Buffer, 1: BigUint64Array},
 ].forEach(({0: MemoryViewCtor, 1: TypedArrayCtor}) => {
   (<any>MemoryViewCtor.prototype).TypedArray        = TypedArrayCtor;
-  (<any>MemoryViewCtor.prototype) [Symbol.species]  = MemoryViewCtor;
+  (<any>MemoryViewCtor.prototype)[Symbol.species]   = MemoryViewCtor;
   (<any>MemoryViewCtor).BYTES_PER_ELEMENT           = TypedArrayCtor.BYTES_PER_ELEMENT;
   (<any>MemoryViewCtor.prototype).BYTES_PER_ELEMENT = TypedArrayCtor.BYTES_PER_ELEMENT;
   (<any>MemoryViewCtor.prototype).E = new TypedArrayCtor((<any>MemoryView.prototype).E.buffer);
 });
 
 /** @internal */
-function asMemory<T extends TypedArray|BigIntArray>(source: number|Iterable<T [0]>|ArrayLike<T [0]>|
-                                                    MemoryData,
-                                                    TypedArray: TypedArrayConstructor<T>) {
+function asMemory<T extends TypedArray|BigIntArray>(
+  source: number|Iterable<T[0]>|ArrayLike<T[0]>|MemoryData, TypedArray: TypedArrayConstructor<T>) {
   let byteOffset = 0;
   let byteLength = 0;
   let buffer: Memory;
@@ -352,9 +351,9 @@ function asMemory<T extends TypedArray|BigIntArray>(source: number|Iterable<T [0
     buffer     = allocateMemory(byteLength);
     cudaMemcpy(buffer, b, byteLength);
   } else if (('buffer' in source) && ('byteOffset' in source) && ('byteLength' in source)) {
-    buffer     = source ['buffer'];
-    byteLength = source ['byteLength'];
-    byteOffset = source ['byteOffset'];
+    buffer     = source['buffer'];
+    byteLength = source['byteLength'];
+    byteOffset = source['byteOffset'];
   } else {
     byteOffset = 0;
     byteLength = 0;
@@ -365,7 +364,7 @@ function asMemory<T extends TypedArray|BigIntArray>(source: number|Iterable<T [0
 
 /** @internal */
 function asMemoryView<T extends TypedArray|BigIntArray>(
-  source: Iterable<T [0]>|ArrayLike<T [0]>|MemoryData, TypedArray: TypedArrayConstructor<T>) {
+  source: Iterable<T[0]>|ArrayLike<T[0]>|MemoryData, TypedArray: TypedArrayConstructor<T>) {
   if (source instanceof MemoryView) { return source; }
   switch (TypedArray.name) {
     case 'Int8Array': return new Int8Buffer(source as MemoryData);

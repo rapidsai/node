@@ -46,7 +46,7 @@ export interface Column {
 
   getChild(index: number): Column;
 
-  getValue(index: number): this [0];
+  getValue(index: number): this[0];
   // setValue(index: number, value?: this[0] | null): void;
 
   setNullCount(nullCount: number): void;

@@ -45,14 +45,14 @@ function getContext(contextId: "webgl", options?: WebGLContextAttributes): WebGL
 function getContext(contextId: "webgl2", options?: WebGLContextAttributes): WebGL2RenderingContext|
   null;
 function getContext(this: HTMLCanvasElement, ...args: [OffscreenRenderingContextId, RenderingContextSettings?]): RenderingContext | null {
-  if ((this as any) ['_webgl2_ctx']) { return (this as any) ['_webgl2_ctx']; }
-  switch (args [0]) {
+  if ((this as any)['_webgl2_ctx']) { return (this as any)['_webgl2_ctx']; }
+  switch (args[0]) {
     case 'webgl':
-      return ((this as any) ['_webgl2_ctx'] =
-                new GLFWRenderingContext(this, <any>window, args [1] || {}));
+      return ((this as any)['_webgl2_ctx'] =
+                new GLFWRenderingContext(this, <any>window, args[1] || {}));
     case 'webgl2':
-      return ((this as any) ['_webgl2_ctx'] =
-                new GLFWRenderingContext(this, <any>window, args [1] || {}));
+      return ((this as any)['_webgl2_ctx'] =
+                new GLFWRenderingContext(this, <any>window, args[1] || {}));
   }
   return JSDOM_getContext.apply(this, args);
 }
@@ -104,7 +104,7 @@ global_.requestAnimationFrame = window.requestAnimationFrame;
 const origin = global_.idlUtils.implForWrapper(window.document)._origin;
 if (origin === 'null') { global_.idlUtils.implForWrapper(window.document)._origin = ''; }
 
-if (typeof global_ ['fetch'] === 'undefined') {
+if (typeof global_['fetch'] === 'undefined') {
   const xfetch     = require('cross-fetch');
   const xfetchDefs = {
     'fetch': {get() { return xfetch.fetch; }},
@@ -116,7 +116,7 @@ if (typeof global_ ['fetch'] === 'undefined') {
   Object.defineProperties(window, xfetchDefs);
 }
 
-if (typeof global_ ['ReadableStream'] === 'undefined') {
+if (typeof global_['ReadableStream'] === 'undefined') {
   const streams     = require('web-streams-polyfill');
   const streamsDefs = {
     'ReadableStream': {get() { return streams.ReadableStream; }},
@@ -148,7 +148,7 @@ const defineLayoutProps = (elt: any) => {
    'offsetWidth',
    'offsetHeight',
   ].forEach((k) => Object.defineProperty(elt, k, {
-    get: () => w [k],
+    get: () => w[k],
     set: () => {},
     enumerable: true,
     configurable: true,

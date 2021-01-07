@@ -62,11 +62,11 @@ export class Monitor extends EventEmitter {
   private _connected = true;
   public get connected() { return this._connected; }
 
-  public [Symbol.toStringTag]: string;
+  public[Symbol.toStringTag]: string;
   public inspect() { return this.toString(); }
-  public [Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }
+  public[Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }
   public toString() {
-    return `${this [Symbol.toStringTag]} ${JSON.stringify({
+    return `${this[Symbol.toStringTag]} ${JSON.stringify({
       id: this.id,
       x: this.x,
       y: this.y,
@@ -80,4 +80,4 @@ export class Monitor extends EventEmitter {
   }
 }
 
-Monitor.prototype [Symbol.toStringTag] = 'Monitor';
+Monitor.prototype[Symbol.toStringTag] = 'Monitor';

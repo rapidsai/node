@@ -26,14 +26,14 @@ export function dndEvents(window: GLFWDOMWindow) {
 }
 
 export class GLFWDndEvent extends GLFWEvent {
-  public static create(window: GLFWDOMWindow, files: string []) {
+  public static create(window: GLFWDOMWindow, files: string[]) {
     const evt  = new GLFWDndEvent('drop');
     evt.target = window;
     evt._files = files;
     return evt;
   }
 
-  private _files: string []     = [];
+  private _files: string[]      = [];
   public readonly types         = [];
   public readonly dropEffect    = 'none';
   public readonly effectAllowed = 'all';

@@ -45,12 +45,12 @@ export interface CUDA {
   getDriverVersion(): number;
 
   readonly gl: {
-    getDevices(list: 0|1|2): number [];
+    getDevices(list: 0|1|2): number[];
     registerBuffer(glBuffer: GLBuffer, flags: number): CUgraphicsResource;
     registerImage(glImage: GLImage, target: number, flags: number): CUgraphicsResource;
     unregisterResource(resource: CUgraphicsResource): void;
-    mapResources(resources: CUgraphicsResource []): void;
-    unmapResources(resources: CUgraphicsResource []): void;
+    mapResources(resources: CUgraphicsResource[]): void;
+    unmapResources(resources: CUgraphicsResource[]): void;
     getMappedArray(resource: CUgraphicsResource): CUDAArray;
     getMappedPointer(resource: CUgraphicsResource): MappedGLMemory;
 

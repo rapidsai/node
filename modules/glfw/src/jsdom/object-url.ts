@@ -33,14 +33,14 @@ export function installObjectURL(global: any, window: any) {
     const path = Path.join(tmpdir, `${filesCount++}`);
     writeFileSync(path, implForWrapper(blob)._buffer);
     const url = `file://${path}`;
-    map [url] = path;
+    map[url]  = path;
     return url;
   }
 
   function revokeObjectURL(url: any) {
     if (url in map) {
-      const p = map [url];
-      delete map [url];
+      const p = map[url];
+      delete map[url];
       unlinkSync(p);
     }
   }

@@ -33,8 +33,8 @@ test('Table initialization', () => {
   expect(table_0.numColumns).toBe(2);
   expect(table_0.numRows).toBe(length);
   expect(table_0.columns).toStrictEqual(['col_0', 'col_1']);
-  expect(table_0 ["col_0"].type.id).toBe(col_0.type.id);
-  expect(table_0 ["col_1"].type.id).toBe(col_1.type.id);
+  expect(table_0["col_0"].type.id).toBe(col_0.type.id);
+  expect(table_0["col_1"].type.id).toBe(col_1.type.id);
 });
 
 test('Table getColumn', () => {

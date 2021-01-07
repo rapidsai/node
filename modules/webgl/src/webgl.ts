@@ -125,19 +125,19 @@ function getBufferSubData(this: WebGL2RenderingContext,
 // @ts-ignore
 // const gl_getExtension = OpenGLESRenderingContext.prototype.getExtension;
 OpenGLESRenderingContext.prototype.getExtension = getExtension;
-function getExtension(this: WebGL2RenderingContext, name: string) { return extensionsMap [name]; }
+function getExtension(this: WebGL2RenderingContext, name: string) { return extensionsMap[name]; }
 
 const gl_getShaderInfoLog = OpenGLESRenderingContext.prototype.getShaderInfoLog;
 OpenGLESRenderingContext.prototype.getShaderInfoLog = getShaderInfoLog;
 function getShaderInfoLog(this: WebGL2RenderingContext, shader: WebGLShader): string {
-  const lines: string [] = (gl_getShaderInfoLog.call(this, shader) || '').split(/(\n|\r)/g);
+  const lines: string[] = (gl_getShaderInfoLog.call(this, shader) || '').split(/(\n|\r)/g);
   // Reformat the error lines to look like webgl errors (todo: is this nvidia-specific?)
   return lines
     .map((line) => {
       let errIndex, numIndex, errMatch, numMatch, type, num;
       ({index: errIndex, [0]: errMatch, [1]: type} =
          // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-       (lines [0] || '').match(/\s?(warning|error) (\w+|\d+):/) || {...['', '']});
+       (lines[0] || '').match(/\s?(warning|error) (\w+|\d+):/) || {...['', '']});
       ({index: numIndex, [0]: numMatch, [1]: num} =
          // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
        (line.match(/0\((\d+)\) :/) || {...['', '']}));
@@ -203,20 +203,20 @@ function texImage2D(this: WebGL2RenderingContext, ...args: [GLenum, GLint, GLint
     case 8:
     case 9:
     case 10: {
-      if (typeof args [8] === 'number') {
+      if (typeof args[8] === 'number') {
         [target, level, internalformat, width, height, border, format, type, src] =
           (args as [GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, GLintptr]);
         break;
       }
-      if (args [8] === null || args [8] === undefined || ArrayBuffer.isView(args [8]) ||
-          (args [8] instanceof ArrayBuffer)) {
+      if (args[8] === null || args[8] === undefined || ArrayBuffer.isView(args[8]) ||
+          (args[8] instanceof ArrayBuffer)) {
         [target, level, internalformat, width, height, border, format, type, src] =
           (args as
              [GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, ArrayBufferView]);
         src = toArrayBufferViewSlice(src, offset);
         break;
       }
-      if (args [8] && typeof args [8] === 'object') {
+      if (args[8] && typeof args[8] === 'object') {
         [target, level, internalformat, width, height, border, format, type, src] =
           (args as [GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, TexImageSource]);
         [width = src.width, height = src.height] = [width, height];
@@ -294,13 +294,13 @@ function texSubImage2D(this: WebGL2RenderingContext, ...args: [GLenum, GLint, GL
     case 8:
     case 9:
     case 10: {
-      if (typeof args [8] === 'number') {
+      if (typeof args[8] === 'number') {
         [target, level, x, y, width, height, format, type, src] =
           (args as [GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, GLintptr]);
         break;
       }
-      if (args [8] === null || args [8] === undefined || ArrayBuffer.isView(args [8]) ||
-          (args [8] instanceof ArrayBuffer)) {
+      if (args[8] === null || args[8] === undefined || ArrayBuffer.isView(args[8]) ||
+          (args[8] instanceof ArrayBuffer)) {
         [target, level, x, y, width, height, format, type, src] =
           (args as [GLenum,
                     GLint,
@@ -314,7 +314,7 @@ function texSubImage2D(this: WebGL2RenderingContext, ...args: [GLenum, GLint, GL
         src = toArrayBufferViewSlice(src, offset);
         break;
       }
-      if (args [8] && typeof args [8] === 'object') {
+      if (args[8] && typeof args[8] === 'object') {
         [target, level, x, y, width, height, format, type, src] =
           (args as [GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, TexImageSource]);
         [width = src.width, height = src.height] = [width, height];
@@ -361,13 +361,13 @@ function readPixels(this: WebGL2RenderingContext, ...args: [GLint, GLint, GLsize
   switch (args.length) {
     case 6:
     case 7: {
-      if (typeof args [6] === 'number') {
+      if (typeof args[6] === 'number') {
         [x, y, width, height, format, type, dst] =
           (args as [GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, GLintptr]);
         break;
       }
-      if (args [6] === null || args [6] === undefined || ArrayBuffer.isView(args [6]) ||
-          (args [6] instanceof ArrayBuffer)) {
+      if (args[6] === null || args[6] === undefined || ArrayBuffer.isView(args[6]) ||
+          (args[6] instanceof ArrayBuffer)) {
                 [x, y, width, height, format, type, dst] = (args as [GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, (ArrayBufferView | null)?]);
                 dst                                      = toArrayBufferViewSlice(dst, offset);
                 break;
@@ -516,12 +516,12 @@ function wrapAndLogGLMethods(proto: any) {
         if (x === null) return 'null';
         if (Array.isArray(x)) return listToString(x);
         if (ArrayBuffer.isView(x)) return `${x.constructor.name}${listToString(x)}`;
-        if (nodeCustomInspectSym in x) return x [nodeCustomInspectSym]();
+        if (nodeCustomInspectSym in x) return x[nodeCustomInspectSym]();
         if (`${x}` === '[object Object]') return JSON.stringify(x);
         return `${x}`;
     }
   };
-  const logArguments = (name: string, fn: any) => function(this: any, ...args: any []) {
+  const logArguments = (name: string, fn: any) => function(this: any, ...args: any[]) {
     const str = `gl.${name}(${args.map(toString).join(', ')})`;
     process.stderr.write(str);
     try {
@@ -534,8 +534,8 @@ function wrapAndLogGLMethods(proto: any) {
     }
   };
   Object.keys(proto)
-    .filter((key: any) => typeof proto [key] === 'function')
-    .forEach((key) => proto [key] = logArguments(key, proto [key]));
+    .filter((key: any) => typeof proto[key] === 'function')
+    .forEach((key) => proto[key] = logArguments(key, proto[key]));
 }
 
 function toArrayBufferViewSlice(source?: ArrayBuffer|ArrayBufferView|null, offset = 0) {
