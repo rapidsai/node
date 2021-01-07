@@ -26,8 +26,8 @@ RMM.setPerDeviceResource = setPerDeviceResource;
 
 export function getPerDeviceResource(deviceId: number) {
   if (!perDeviceMemoryResources.get(deviceId)) {
-    devices [deviceId].callInContext(() =>
-                                       setPerDeviceResource(deviceId, new RMM.MemoryResource(0)));
+    devices[deviceId].callInContext(() =>
+                                      setPerDeviceResource(deviceId, new RMM.MemoryResource(0)));
   }
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return perDeviceMemoryResources.get(deviceId)!;

@@ -1694,8 +1694,9 @@ typedef struct _NV_ENC_CONFIG_HEVC {
                                        maximum # of           bytes in each slice (except last slice)
                                        sliceMode = 2,           sliceModeData           specifies # of CTU
                                        rows in each           slice (except last           slice)           sliceMode =
-                                       3,           sliceModeData specifies number of slices in           the picture.
-                                       Driver will           divide picture into slices optimally */
+                                       3,           sliceModeData specifies number of slices in           the
+                                       picture.           Driver will           divide picture into slices
+                                       optimally */
   uint32_t maxTemporalLayersMinus1; /**< [in]: Specifies the max temporal layer used for
                                        hierarchical coding. */
   NV_ENC_CONFIG_HEVC_VUI_PARAMETERS
@@ -2183,9 +2184,10 @@ typedef struct _NV_ENC_PIC_PARAMS {
                             size of       NV_ENC_ENCODE_OUT_PARAMS struct and twice the input frame size
                             for       lower resolution eg. CIF and 1.5 times the input frame size for
                             higher       resolutions. If encoded bitstream size is     greater than the
-                            allocated       buffer       size for encoded bitstream, then the output buffer will
-                            have       encoded       bitstream data equal to buffer size. All CUDA operations on
-                            this       buffer must       use     the default stream. */
+                            allocated       buffer       size for encoded bitstream, then the output
+                            buffer will       have       encoded       bitstream data equal to buffer
+                            size. All       CUDA operations on       this       buffer must       use     the
+                            default stream. */
   void* completionEvent; /**< [in]: Specifies an event to be signaled on completion of encoding of
                             this Frame [only if operating in Asynchronous mode]. Each output buffer
                             should be associated with a distinct event pointer. */

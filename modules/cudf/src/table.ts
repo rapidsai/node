@@ -51,7 +51,7 @@ export class Table extends(<TableConstructor>CUDF.Table) {
 
   select(columns: Array<number>|Array<string>): CUDFTable {
     const column_indices: Array<number|undefined> =
-      (columns as any []).map((value) => { return this.transformInputLabel(value); });
+      (columns as any[]).map((value) => { return this.transformInputLabel(value); });
 
     const column_accessor = this._data.selectByColumnIndices(column_indices);
     return new Table({data: column_accessor});

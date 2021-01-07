@@ -72,13 +72,13 @@ function createJSDOMContext(dir = process.cwd(), runInThisContext = false, code 
     context.window.openGLFWWindow = eval(`(() => ${wrapScriptInOpenWindowFn(code)})()`);
     JSDOM_KEYS.forEach((key) => {
       try {
-        (context) [key] = context.window [key];
+        (context)[key] = context.window[key];
       } catch (e) { /**/
       }
     });
     NODE_GLOBAL_KEYS.forEach((key) => {
       try {
-        (context.window) [key] = global [key];
+        (context.window)[key] = global[key];
       } catch (e) { /**/
       }
     });
@@ -88,13 +88,13 @@ function createJSDOMContext(dir = process.cwd(), runInThisContext = false, code 
     Object.assign(context.window, {...global, global: context, Buffer: global.Buffer});
     JSDOM_KEYS.forEach((key) => {
       try {
-        (context) [key] = context.window [key];
+        (context)[key] = context.window[key];
       } catch (e) { /**/
       }
     });
     NODE_GLOBAL_KEYS.forEach((key) => {
       try {
-        (context.window) [key] = global [key];
+        (context.window)[key] = global[key];
       } catch (e) { /**/
       }
     });

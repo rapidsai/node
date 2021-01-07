@@ -26,7 +26,7 @@ export interface DeviceMemoryConstructor {
 }
 
 export interface DeviceMemory extends Memory {
-  readonly [Symbol.toStringTag]: 'DeviceMemory';
+  readonly[Symbol.toStringTag]: 'DeviceMemory';
   slice(start?: number, end?: number): DeviceMemory;
 }
 
@@ -39,7 +39,7 @@ export interface PinnedMemoryConstructor {
 }
 
 export interface PinnedMemory extends Memory {
-  readonly [Symbol.toStringTag]: 'PinnedMemory';
+  readonly[Symbol.toStringTag]: 'PinnedMemory';
   slice(start?: number, end?: number): PinnedMemory;
 }
 
@@ -52,7 +52,7 @@ export interface ManagedMemoryConstructor {
 }
 
 export interface ManagedMemory extends Memory {
-  readonly [Symbol.toStringTag]: 'ManagedMemory';
+  readonly[Symbol.toStringTag]: 'ManagedMemory';
   slice(start?: number, end?: number): ManagedMemory;
 }
 
@@ -65,7 +65,7 @@ export interface IpcMemoryConstructor {
 }
 
 export interface IpcMemory extends Memory {
-  readonly [Symbol.toStringTag]: 'IpcMemory';
+  readonly[Symbol.toStringTag]: 'IpcMemory';
   slice(start?: number, end?: number): DeviceMemory;
 }
 
@@ -78,7 +78,7 @@ export interface IpcHandleConstructor {
 }
 
 interface CUDAIpcHandle {
-  readonly [Symbol.toStringTag]: 'IpcHandle';
+  readonly[Symbol.toStringTag]: 'IpcHandle';
   readonly buffer: DeviceMemory;
   readonly device: number;
   readonly handle: Uint8Array;
@@ -91,8 +91,8 @@ export class IpcHandle extends(<IpcHandleConstructor>CUDA.IpcHandle) {
     this.byteOffset = byteOffset;
   }
   public readonly byteOffset: number;
-  public [Symbol.for('nodejs.util.inspect.custom')]() {
-    return `${this [Symbol.toStringTag]} ${this.toString()}`;
+  public[Symbol.for('nodejs.util.inspect.custom')]() {
+    return `${this[Symbol.toStringTag]} ${this.toString()}`;
   }
   public toString() { return JSON.stringify(this.toJSON()); }
   public toJSON() {
@@ -110,7 +110,7 @@ export interface MappedGLMemoryConstructor {
 }
 
 export interface MappedGLMemory extends Memory {
-  readonly [Symbol.toStringTag]: 'ManagedMemory';
+  readonly[Symbol.toStringTag]: 'ManagedMemory';
   slice(start?: number, end?: number): MappedGLMemory;
 }
 

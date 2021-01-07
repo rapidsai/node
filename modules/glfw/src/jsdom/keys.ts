@@ -191,7 +191,7 @@ export const LIVING_KEYS =
       'WebGL2RenderingContext',
     ]
 
-  export const JSDOM_KEYS = LIVING_KEYS.concat(OTHER_KEYS) as (keyof Window) [];
+  export const JSDOM_KEYS = LIVING_KEYS.concat(OTHER_KEYS) as (keyof Window)[];
 
 export default JSDOM_KEYS;
 
@@ -263,4 +263,4 @@ export const NODE_GLOBAL_KEYS = [
   'unescape',
   'gc',
   'v8debug',
-] as (keyof NodeJS.Global) [];
+] as (keyof NodeJS.Global)[];

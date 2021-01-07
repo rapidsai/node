@@ -35,11 +35,11 @@ export class Device extends(<CUDADeviceConstructor>CUDA.Device) {
    */
   public getProperties() { return this._properties || (this._properties = super.getProperties()); }
 
-  public get [Symbol.toStringTag]() { return 'CUDADevice'; }
-  public [Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }
+  public get[Symbol.toStringTag]() { return 'CUDADevice'; }
+  public[Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }
   public toString() {
     const {name, major, minor} = this.getProperties();
-    return `${this [Symbol.toStringTag]} ${
+    return `${this[Symbol.toStringTag]} ${
       JSON.stringify({'id': this.id, 'name': name, 'compute_capability': [major, minor]})}`;
   }
 }
@@ -48,7 +48,7 @@ export const devices = new Proxy<DeviceList>(
   {
     length: Device.numDevices,
     * [Symbol.iterator]() {
-        for (let i = -1, n = this.length; ++i < n; yield this [i])
+        for (let i = -1, n = this.length; ++i < n; yield this[i])
           ;
       }
   },
@@ -63,9 +63,9 @@ export const devices = new Proxy<DeviceList>(
     get(target, key) {
       const idx = typeof key !== 'symbol' ? +(key as any) : NaN;
       if (idx == idx && idx > -1 && idx < Device.numDevices) {
-        return target [idx] ? target [idx] : (target [idx] = new Device(idx));
+        return target[idx] ? target[idx] : (target[idx] = new Device(idx));
       }
-      return target [key as any];
+      return target[key as any];
     },
   });
 

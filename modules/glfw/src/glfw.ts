@@ -70,9 +70,9 @@ export interface GLFWvidmode {
 }
 
 export interface GLFWgammaramp {
-  /** An array of value describing the response of the red channel.   */ red: number [];
-  /** An array of value describing the response of the green channel. */ green: number [];
-  /** An array of value describing the response of the blue channel.  */ blue: number [];
+  /** An array of value describing the response of the red channel.   */ red: number[];
+  /** An array of value describing the response of the green channel. */ green: number[];
+  /** An array of value describing the response of the blue channel.  */ blue: number[];
 }
 
 export interface GLFWimage {
@@ -83,8 +83,8 @@ export interface GLFWimage {
 }
 
 export interface GLFWgamepadstate {
-  /** The states of each gamepad button], `GLFW_PRESS` or `GLFW_RELEASE`. */ buttons: number [];
-  /** The states of each gamepad axis], in the range -1.0 to 1.0 inclusive.  */ axes: number [];
+  /** The states of each gamepad button], `GLFW_PRESS` or `GLFW_RELEASE`. */ buttons: number[];
+  /** The states of each gamepad axis], in the range -1.0 to 1.0 inclusive.  */ axes: number[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -102,7 +102,7 @@ export const initHint: (hint: number, value: number|boolean) => void = GLFW.init
 export const getVersion: () => GLFWVersion = GLFW.getVersion;
 export const getVersionString: () => string = GLFW.getVersionString;
 export const getError: () => Error | undefined = GLFW.getError;
-export const getMonitors: () => GLFWmonitor [] = GLFW.getMonitors;
+export const getMonitors: () => GLFWmonitor[] = GLFW.getMonitors;
 export const getPrimaryMonitor: () => GLFWmonitor  = GLFW.getPrimaryMonitor;
 export const getMonitorPos: (monitor: GLFWmonitor) => GLFWPosition = GLFW.getMonitorPos;
 export const getMonitorWorkarea:
@@ -112,7 +112,7 @@ export const getMonitorPhysicalSize:
 export const getMonitorContentScale:
   (monitor: GLFWmonitor) => GLFWScale               = GLFW.getMonitorContentScale;
 export const getMonitorName: (monitor: GLFWmonitor) => string = GLFW.getMonitorName;
-export const getVideoModes: (monitor: GLFWmonitor) => GLFWvidmode [] = GLFW.getVideoModes;
+export const getVideoModes: (monitor: GLFWmonitor) => GLFWvidmode[] = GLFW.getVideoModes;
 export const getVideoMode: (monitor: GLFWmonitor) => GLFWvidmode = GLFW.getVideoMode;
 export const setGamma: (monitor: GLFWmonitor, gamma: number) => void = GLFW.setGamma;
 export const getGammaRamp: (monitor: GLFWmonitor) => GLFWgammaramp     = GLFW.getGammaRamp;
@@ -187,9 +187,9 @@ export const destroyCursor: (cursor: GLFWcursor) => void         = GLFW.destroyC
 export const setCursor: (window: GLFWwindow, cursor: GLFWcursor) => void = GLFW.setCursor;
 
 export const joystickPresent: (joystickId: number) => boolean = GLFW.joystickPresent;
-export const getJoystickAxes: (joystickId: number) => number [] = GLFW.getJoystickAxes;
-export const getJoystickButtons: (joystickId: number) => number [] = GLFW.getJoystickButtons;
-export const getJoystickHats: (joystickId: number) => number [] = GLFW.getJoystickHats;
+export const getJoystickAxes: (joystickId: number) => number[] = GLFW.getJoystickAxes;
+export const getJoystickButtons: (joystickId: number) => number[] = GLFW.getJoystickButtons;
+export const getJoystickHats: (joystickId: number) => number[] = GLFW.getJoystickHats;
 export const getJoystickName: (joystickId: number) => string = GLFW.getJoystickName;
 export const getJoystickGUID: (joystickId: number) => string = GLFW.getJoystickGUID;
 export const joystickIsGamepad: (joystickId: number) => boolean = GLFW.joystickIsGamepad;
@@ -210,7 +210,7 @@ export const swapInterval: (interval: number) => void = GLFW.swapInterval;
 export const extensionSupported: (extension: string) => boolean = GLFW.extensionSupported;
 export const getProcAddress: (procname: string) => GLFWglproc = GLFW.getProcAddress;
 export const vulkanSupported: () => boolean    = GLFW.vulkanSupported;
-export const getRequiredInstanceExtensions: () => string [] = GLFW.getRequiredInstanceExtensions;
+export const getRequiredInstanceExtensions: () => string[] = GLFW.getRequiredInstanceExtensions;
 
 export const setErrorCallback:
   (callback: null|
@@ -284,7 +284,7 @@ export const setScrollCallback:
     GLFW.setScrollCallback;
 export const setDropCallback:
   (window: GLFWwindow,
-   callback: null|((window: GLFWwindow, items: string []) => void)) => void = GLFW.setDropCallback;
+   callback: null|((window: GLFWwindow, items: string[]) => void)) => void = GLFW.setDropCallback;
 
 // export const getInstanceProcAddress: () => void = GLFW.getInstanceProcAddress;
 // export const getPhysicalDevicePresentationSupport: () => void =

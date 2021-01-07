@@ -53,10 +53,10 @@ describe.each(memoryResourceTestConfigs)(`%s`, (_, testConfig) => {
     // Fill the buffer with 1s, because CUDA Managed
     // memory is only allocated when it's actually used.
     // @ts-ignore
-    let buf: Uint8Buffer|null = new Uint8Buffer(new DeviceBuffer(sizes ['2_MiB'], mr)).fill(1);
+    let buf: Uint8Buffer|null = new Uint8Buffer(new DeviceBuffer(sizes['2_MiB'], mr)).fill(1);
     mr.supportsGetMemInfo && ([free1, total1] = mr.getMemInfo(0));
     expect(total0).toEqual(total1);
-    if (mr.supportsGetMemInfo) { expect(free0 - free1).toBeGreaterThanOrEqual(sizes ['2_MiB']); }
+    if (mr.supportsGetMemInfo) { expect(free0 - free1).toBeGreaterThanOrEqual(sizes['2_MiB']); }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     buf = null;
   });

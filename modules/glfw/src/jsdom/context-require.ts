@@ -4,8 +4,8 @@ import * as vm from "vm";
 import * as path from "path";
 const builtinModules = require("builtins");
 
-const BUILTIN: string [] = builtinModules();
-let moduleId             = 0;
+const BUILTIN: string[] = builtinModules();
+let moduleId            = 0;
 
 /**
  * Patch nodejs module system to support context,
@@ -117,7 +117,7 @@ function resolveFileHook(request: string, parentModule: Module|ContextModule): s
       if (path.isAbsolute(request)) {
         request = path.relative(dir, request);
 
-        if (request [0] !== ".") { request = "./" + request; }
+        if (request[0] !== ".") { request = "./" + request; }
       }
 
       return resolver(dir, request);
@@ -139,13 +139,13 @@ function protoLoad(this: Module, filename: string) {
   if (contextModule) {
     const extensions = contextModule._hooks;
     const ext        = path.extname(filename);
-    const compiler   = extensions && extensions [ext];
+    const compiler   = extensions && extensions[ext];
     if (compiler) {
-      const originalCompiler            = (Module as any)._extensions [ext];
-      (Module as any)._extensions [ext] = compiler;
+      const originalCompiler           = (Module as any)._extensions[ext];
+      (Module as any)._extensions[ext] = compiler;
       try {
         return originalProtoLoad.apply(this, arguments);
-      } finally { (Module as any)._extensions [ext] = originalCompiler; }
+      } finally { (Module as any)._extensions[ext] = originalCompiler; }
     }
   }
   return originalProtoLoad.apply(this, arguments);

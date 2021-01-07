@@ -178,7 +178,7 @@ SpaceAfterCStyleCast: true
 SpaceAfterLogicalNot: false
 SpaceAroundPointerQualifiers: Both
 SpaceBeforeCpp11BracedList: true
-SpaceBeforeSquareBrackets: true
+SpaceBeforeSquareBrackets: false
 SpaceBeforeCtorInitializerColon: false
 SpaceBeforeInheritanceColon: false
 SpaceBeforeRangeBasedForLoopColon: false
