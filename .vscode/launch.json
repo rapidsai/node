@@ -97,6 +97,29 @@
                 "-c", "jest.config.js",
                 "test/*",
             ]
+        },
+        {
+            "type": "node",
+            "name": "Debug rmm tests",
+            "cwd": "${workspaceFolder}/modules/rmm",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/node_modules/**"
+            ],
+            "env": {
+                "NODE_NO_WARNINGS": "1",
+                "READABLE_STREAM": "disable",
+            },
+            "args": [
+                "--verbose",
+                "--no-cache",
+                "--runInBand",
+                "-c", "jest.config.js",
+                // "test/*",
+                "test/memory_resource/current-device-resource-tests.ts"
+            ]
         }
     ]
 }

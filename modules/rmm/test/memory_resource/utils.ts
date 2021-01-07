@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@ import {
   MemoryResource,
   PoolMemoryResource,
 } from '@nvidia/rmm';
-import {mkdtempSync, rmdirSync, unlinkSync} from 'fs';
+import {mkdtempSync} from 'fs';
 import * as Path from 'path';
 
 import {sizes} from '../utils';
+
+const rimraf = require('rimraf');
 
 type TestConfig = {
   comparable: boolean; supportsStreams: boolean; supportsGetMemInfo: boolean;
@@ -40,8 +42,9 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  unlinkSync(logFilePath);
-  rmdirSync(logFileDir);
+  return new Promise<void>((resolve, reject) => {  //
+    rimraf(logFileDir, (err?: Error|null) => err ? reject(err) : resolve());
+  });
 });
 
 export const memoryResourceTestConfigs = [

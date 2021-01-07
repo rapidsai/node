@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 namespace nv {
 
-std::string const MemoryResource::class_path{"MemoryResource"};
+std::vector<std::string> const MemoryResource::export_path{"MemoryResource"};
 
 Napi::Object MemoryResource::Init(Napi::Env env, Napi::Object exports) {
   exports.Set(
@@ -49,15 +49,19 @@ MemoryResource::MemoryResource(CallbackArgs const& args)
   auto& arg3 = args[3];
 
   NODE_CUDA_EXPECT(arg0.IsNumber(),
-                   "MemoryResource constructor expects a numeric mr_type argument.");
+                   "MemoryResource constructor expects a numeric MemoryResourceType argument.");
   type_ = arg0;
   switch (type_) {
     case mr_type::cuda: {
-      device_id_ = arg1.IsNumber() && static_cast<int32_t>(arg1) > -1 &&
-                       static_cast<int32_t>(arg1) < Device::get_num_devices()
-                     ? static_cast<int32_t>(arg1)
-                     : Device::active_device_id();
-      mr_.reset(rmm::mr::get_per_device_resource(rmm::cuda_device_id(device_id_)), [](auto* p) {});
+      bool const has_device_id = arg1.IsNumber() && static_cast<int32_t>(arg1) > -1 &&
+                                 static_cast<int32_t>(arg1) < Device::get_num_devices();
+      device_id_ = has_device_id ? static_cast<int32_t>(arg1) : Device::active_device_id();
+      if (has_device_id) {
+        mr_.reset(new rmm::mr::cuda_memory_resource());
+      } else {
+        mr_.reset(rmm::mr::get_per_device_resource(rmm::cuda_device_id(device_id_)),
+                  [](auto* p) {});
+      }
       break;
     }
 
@@ -71,12 +75,12 @@ MemoryResource::MemoryResource(CallbackArgs const& args)
       NODE_CUDA_EXPECT(MemoryResource::is_instance(arg1.val),
                        "PoolMemoryResource constructor expects an upstream MemoryResource from "
                        "which to allocate blocks for the pool.");
-
-      size_t const initial_pool_size = arg2.IsNumber() ? arg2 : -1;
-      size_t const maximum_pool_size = arg3.IsNumber() ? arg3 : -1;
-      upstream_mr_                   = Napi::Persistent(arg1.ToObject());
+      rmm::mr::device_memory_resource* mr = arg1;
+      size_t const initial_pool_size      = arg2.IsNumber() ? arg2 : -1;
+      size_t const maximum_pool_size      = arg3.IsNumber() ? arg3 : -1;
+      upstream_mr_                        = Napi::Persistent(arg1.ToObject());
       mr_.reset(new rmm::mr::pool_memory_resource<rmm::mr::device_memory_resource>(
-        arg1,
+        mr,
         initial_pool_size == -1 ? thrust::nullopt : thrust::make_optional(initial_pool_size),
         maximum_pool_size == -1 ? thrust::nullopt : thrust::make_optional(maximum_pool_size)));
       break;
@@ -114,8 +118,9 @@ MemoryResource::MemoryResource(CallbackArgs const& args)
       NODE_CUDA_EXPECT(MemoryResource::is_instance(arg1.val),
                        "LoggingResourceAdapter constructor expects an upstream MemoryResource.");
 
-      std::string log_file_path = arg2.operator std::string();
-      bool auto_flush           = arg3.IsBoolean() ? arg3 : false;
+      rmm::mr::device_memory_resource* mr = arg1;
+      auto log_file_path                  = arg2.IsString() ? arg2.operator std::string() : "";
+      bool auto_flush                     = arg3.IsBoolean() ? arg3 : false;
 
       if (log_file_path == "") {
         log_file_path = args.Env()
@@ -134,7 +139,7 @@ MemoryResource::MemoryResource(CallbackArgs const& args)
 
       upstream_mr_ = Napi::Persistent(arg1.ToObject());
       mr_.reset(new rmm::mr::logging_resource_adaptor<rmm::mr::device_memory_resource>(
-        arg1, log_file_path, auto_flush));
+        mr, log_file_path, auto_flush));
       break;
     }
   }
@@ -149,6 +154,24 @@ ValueWrap<int32_t> MemoryResource::device() const {
 }
 
 ValueWrap<std::string const> MemoryResource::file_path() const { return {Env(), log_file_path_}; };
+
+ValueWrap<bool> MemoryResource::is_equal(
+  rmm::mr::device_memory_resource const& other) const noexcept {
+  return {Env(), mr_->is_equal(other)};
+}
+
+ValueWrap<std::pair<std::size_t, std::size_t>> MemoryResource::get_mem_info(
+  rmm::cuda_stream_view stream) const {
+  return {Env(), mr_->get_mem_info(stream)};
+}
+
+ValueWrap<bool> MemoryResource::supports_streams() const noexcept {
+  return {Env(), mr_->supports_streams()};
+}
+
+ValueWrap<bool> MemoryResource::supports_get_mem_info() const noexcept {
+  return {Env(), mr_->supports_get_mem_info()};
+}
 
 void MemoryResource::flush() {
   if (type_ == mr_type::logging) { get_log_mr()->flush(); }
@@ -185,17 +208,23 @@ Napi::Value MemoryResource::add_bin(Napi::CallbackInfo const& info) {
   return info.Env().Undefined();
 }
 
-ValueWrap<bool> MemoryResource::is_equal(
-  rmm::mr::device_memory_resource const& other) const noexcept {
-  return {Env(), mr_->is_equal(other)};
-}
-
-ValueWrap<std::pair<std::size_t, std::size_t>> MemoryResource::get_mem_info(
-  rmm::cuda_stream_view stream) const {
-  return {Env(), mr_->get_mem_info(stream)};
+Napi::Value MemoryResource::is_equal(Napi::CallbackInfo const& info) {
+  if (info.Length() != 1 || !is_instance(info[0])) {  //
+    return Napi::Boolean::New(info.Env(), false);
+  }
+  rmm::mr::device_memory_resource* other = CallbackArgs{info}[0];
+  return is_equal(*other);
 }
 
 Napi::Value MemoryResource::get_device(Napi::CallbackInfo const& info) { return device(); }
+
+Napi::Value MemoryResource::get_mem_info(Napi::CallbackInfo const& info) {
+  if (supports_get_mem_info()) {
+    if (info.Length() != 1) { return get_mem_info(rmm::cuda_stream_default); }
+    return get_mem_info(CallbackArgs{info}[0].operator rmm::cuda_stream_view());
+  }
+  return Napi::Value::From(info.Env(), std::make_pair<std::size_t, std::size_t>(0, 0));
+}
 
 Napi::Value MemoryResource::get_file_path(Napi::CallbackInfo const& info) { return file_path(); }
 
@@ -203,12 +232,12 @@ Napi::Value MemoryResource::get_upstream_mr(Napi::CallbackInfo const& info) {
   return upstream_mr_.Value();
 }
 
-ValueWrap<bool> MemoryResource::supports_streams() const noexcept {
-  return {Env(), mr_->supports_streams()};
+Napi::Value MemoryResource::supports_streams(Napi::CallbackInfo const& info) {
+  return supports_streams();
 }
 
-ValueWrap<bool> MemoryResource::supports_get_mem_info() const noexcept {
-  return {Env(), mr_->supports_get_mem_info()};
+Napi::Value MemoryResource::supports_get_mem_info(Napi::CallbackInfo const& info) {
+  return supports_get_mem_info();
 }
 
 }  // namespace nv

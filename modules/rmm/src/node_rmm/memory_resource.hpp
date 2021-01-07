@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,12 +38,15 @@ namespace nv {
 
 struct MemoryResource : public ObjectWrapMixin<MemoryResource>,
                         public Napi::ObjectWrap<MemoryResource> {
-  static std::string const class_path;
+  static std::vector<std::string> const export_path;
 
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
 
-  inline static ObjectUnwrap<MemoryResource> Cuda(Napi::Env const& env,
-                                                  int32_t device_id = Device::active_device_id()) {
+  inline static ObjectUnwrap<MemoryResource> Cuda(Napi::Env const& env) {
+    return constructor(env).New(mr_type::cuda);
+  }
+
+  inline static ObjectUnwrap<MemoryResource> Cuda(Napi::Env const& env, int32_t device_id) {
     return constructor(env).New(mr_type::cuda, device_id);
   }
 
@@ -150,9 +153,9 @@ struct MemoryResource : public ObjectWrapMixin<MemoryResource>,
   Napi::Value flush(Napi::CallbackInfo const& info);
   Napi::Value add_bin(Napi::CallbackInfo const& info);
   Napi::Value is_equal(Napi::CallbackInfo const& info);
-  Napi::Value get_mem_info(Napi::CallbackInfo const& info);
 
   Napi::Value get_device(Napi::CallbackInfo const& info);
+  Napi::Value get_mem_info(Napi::CallbackInfo const& info);
   Napi::Value get_file_path(Napi::CallbackInfo const& info);
   Napi::Value get_upstream_mr(Napi::CallbackInfo const& info);
 

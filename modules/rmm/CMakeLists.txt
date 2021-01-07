@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ file(GLOB_RECURSE NODE_CUDA_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 add_library(${PROJECT_NAME} SHARED ${NODE_CUDA_SRC_FILES} ${CMAKE_JS_SRC})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+target_compile_definitions(${PROJECT_NAME} PUBLIC CUDA_API_PER_THREAD_DEFAULT_STREAM)
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}

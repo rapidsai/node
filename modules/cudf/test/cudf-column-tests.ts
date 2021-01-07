@@ -18,7 +18,7 @@ import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 
 const mr = new CudaMemoryResource();
 
-setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, 0, mr));
+setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
 
 test('Column initialization', () => {
   const length = 100;
@@ -82,9 +82,9 @@ test('test child(child_index), num_children', () => {
 
 // test('test Column(column) constructor', () => {
 //     const buffer_size = 100;
-//     const db = new DeviceBuffer(buffer_size,10);
+//     const db = new DeviceBuffer(buffer_size);
 
-//     const null_mask = new DeviceBuffer(buffer_size,10);
+//     const null_mask = new DeviceBuffer(buffer_size);
 //     const col = new Column(types.FLOAT32, 10, db, null_mask, 1);
 //     const col1 = new Column(col);
 

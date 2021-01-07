@@ -95,9 +95,13 @@ struct ObjectWrapMixin {
    * @return Napi::FunctionReference The constructor for type `
    */
   inline static ConstructorReference constructor(Napi::Env const& env) {
-    auto exports = const_cast<Napi::Env&>(env).GetInstanceData<Napi::ObjectReference>();
-    auto ctor    = exports->Get(T::class_path).template As<Napi::Function>();
-    return ConstructorReference::Persistent(ctor);
+    auto exports     = const_cast<Napi::Env&>(env).GetInstanceData<Napi::ObjectReference>();
+    Napi::Value node = exports->Value();
+    for (std::string const& part : T::export_path) {
+      node = node.As<Napi::Object>().Get(part);
+      if (node.IsFunction()) { break; }
+    }
+    return ConstructorReference::Persistent(node.As<Napi::Function>());
   }
   inline static ConstructorReference constructor(Napi::CallbackInfo const& info) {
     return ObjectWrapMixin<T>::constructor(info.Env());
