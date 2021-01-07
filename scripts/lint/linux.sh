@@ -9,11 +9,11 @@ tsc_regex="^(\./)?modules/\w+?/(src|test)/.*?\.ts$"
 cpp_regex="^(\./)?modules/\w+?/(src|include)/.*?\.(h|cc?|cuh?|(c|h)pp)$"
 
 if [[ "$cmd_input" != "" ]]; then
-    tsc_files=$(echo "$cmd_input" | grep -xiE --color=never "$tsc_regex")
-    cpp_files=$(echo "$cmd_input" | grep -xiE --color=never "$cpp_regex")
+    tsc_files=$(echo "$cmd_input" | grep -xiE --color=never "$tsc_regex" || echo "")
+    cpp_files=$(echo "$cmd_input" | grep -xiE --color=never "$cpp_regex" || echo "")
 else
-    tsc_files=$(find . -type f -regextype posix-extended -iregex "$tsc_regex")
-    cpp_files=$(find . -type f -regextype posix-extended -iregex "$cpp_regex")
+    tsc_files=$(find . -type f -regextype posix-extended -iregex "$tsc_regex" || echo "")
+    cpp_files=$(find . -type f -regextype posix-extended -iregex "$cpp_regex" || echo "")
 fi
 
 J=$(nproc --ignore=2)

@@ -83,6 +83,7 @@ struct ConstructorReference : public Napi::FunctionReference {
     return Napi::Reference<Napi::Function>::New(value, 1);
   }
 
+  inline ConstructorReference() : Napi::FunctionReference() {}
   inline ConstructorReference(napi_env env, napi_ref ref) : Napi::FunctionReference(env, ref) {}
 
   // A reference can be moved but cannot be copied.
@@ -101,12 +102,7 @@ struct ConstructorReference : public Napi::FunctionReference {
 
   template <typename... Args>
   inline Napi::Object New(Args&&... xs) const {
-    Napi::HandleScope scope(_env);
-    std::vector<napi_value> ys{};
-    ys.reserve(sizeof...(Args));
-    nv::casting::for_each(std::make_tuple<Args...>(std::forward<Args>(xs)...),
-                          [&](auto const& x) { ys.push_back(Napi::Value::From(_env, x)); });
-    return Napi::FunctionReference::New(ys);
+    return Napi::FunctionReference::New(CPPToNapiValues{_env}(std::forward<Args>(xs)...));
   }
 };
 

@@ -36,52 +36,63 @@
 
 namespace nv {
 
-struct MemoryResource : public ObjectWrapMixin<MemoryResource>,
-                        public Napi::ObjectWrap<MemoryResource> {
-  static std::vector<std::string> const export_path;
-
+struct MemoryResource : public Napi::ObjectWrap<MemoryResource> {
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
 
-  inline static ObjectUnwrap<MemoryResource> Cuda(Napi::Env const& env) {
-    return constructor(env).New(mr_type::cuda);
-  }
+  inline static ObjectUnwrap<MemoryResource> Cuda() { return constructor.New(mr_type::cuda); }
 
-  inline static ObjectUnwrap<MemoryResource> Cuda(Napi::Env const& env, int32_t device_id) {
-    return constructor(env).New(mr_type::cuda, device_id);
+  inline static ObjectUnwrap<MemoryResource> Cuda(int32_t device_id) {
+    return constructor.New(mr_type::cuda, device_id);
   }
 
   inline static ObjectUnwrap<MemoryResource> Managed(
-    Napi::Env const& env, int32_t device_id = Device::active_device_id()) {
-    return constructor(env).New(mr_type::managed, device_id);
+    int32_t device_id = Device::active_device_id()) {
+    return constructor.New(mr_type::managed, device_id);
   }
 
-  inline static ObjectUnwrap<MemoryResource> Pool(Napi::Env const& env,
-                                                  Napi::Object const& upstream_mr,
+  inline static ObjectUnwrap<MemoryResource> Pool(Napi::Object const& upstream_mr,
                                                   size_t initial_pool_size = -1,
                                                   size_t maximum_pool_size = -1) {
-    return constructor(env).New(mr_type::pool, upstream_mr, initial_pool_size, maximum_pool_size);
+    return constructor.New(mr_type::pool, upstream_mr, initial_pool_size, maximum_pool_size);
   }
 
-  inline static ObjectUnwrap<MemoryResource> FixedSize(Napi::Env const& env,
-                                                       Napi::Object const& upstream_mr,
+  inline static ObjectUnwrap<MemoryResource> FixedSize(Napi::Object const& upstream_mr,
                                                        size_t block_size            = 1 << 20,
                                                        size_t blocks_to_preallocate = 128) {
-    return constructor(env).New(mr_type::fixedsize, upstream_mr, block_size, blocks_to_preallocate);
+    return constructor.New(mr_type::fixedsize, upstream_mr, block_size, blocks_to_preallocate);
   }
 
-  inline static ObjectUnwrap<MemoryResource> Binning(Napi::Env const& env,
-                                                     Napi::Object const& upstream_mr,
+  inline static ObjectUnwrap<MemoryResource> Binning(Napi::Object const& upstream_mr,
                                                      size_t min_size_exponent = -1,
                                                      size_t max_size_exponent = -1) {
-    return constructor(env).New(
-      mr_type::binning, upstream_mr, min_size_exponent, max_size_exponent);
+    return constructor.New(mr_type::binning, upstream_mr, min_size_exponent, max_size_exponent);
   }
 
-  inline static ObjectUnwrap<MemoryResource> Logging(Napi::Env const& env,
-                                                     Napi::Object const& upstream_mr,
+  inline static ObjectUnwrap<MemoryResource> Logging(Napi::Object const& upstream_mr,
                                                      std::string const& log_file_path = "",
                                                      bool auto_flush                  = false) {
-    return constructor(env).New(mr_type::logging, upstream_mr, log_file_path, auto_flush);
+    return constructor.New(mr_type::logging, upstream_mr, log_file_path, auto_flush);
+  }
+
+  /**
+   * @brief Check whether an Napi object is an instance of `MemoryResource`.
+   *
+   * @param val The Napi::Object to test
+   * @return true if the object is a `MemoryResource`
+   * @return false if the object is not a `MemoryResource`
+   */
+  inline static bool is_instance(Napi::Object const& val) {
+    return val.InstanceOf(constructor.Value());
+  }
+  /**
+   * @brief Check whether an Napi value is an instance of `MemoryResource`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `MemoryResource`
+   * @return false if the value is not a `MemoryResource`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and is_instance(val.As<Napi::Object>());
   }
 
   MemoryResource(CallbackArgs const& args);
@@ -139,7 +150,9 @@ struct MemoryResource : public ObjectWrapMixin<MemoryResource>,
   void add_bin(size_t allocation_size);
   void add_bin(size_t allocation_size, ObjectUnwrap<MemoryResource> const& bin_resource);
 
- protected:
+ private:
+  static ConstructorReference constructor;
+
   inline rmm::mr::binning_memory_resource<rmm::mr::device_memory_resource>* get_bin_mr() {
     return static_cast<rmm::mr::binning_memory_resource<rmm::mr::device_memory_resource>*>(
       mr_.get());

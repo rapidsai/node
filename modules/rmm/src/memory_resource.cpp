@@ -19,30 +19,32 @@
 
 namespace nv {
 
-std::vector<std::string> const MemoryResource::export_path{"MemoryResource"};
+ConstructorReference MemoryResource::constructor;
 
 Napi::Object MemoryResource::Init(Napi::Env env, Napi::Object exports) {
-  exports.Set(
-    "MemoryResource",
-    DefineClass(env,
-                "MemoryResource",
-                {
-                  InstanceAccessor<&MemoryResource::get_device>("device"),
-                  InstanceAccessor<&MemoryResource::supports_streams>("supportsStreams"),
-                  InstanceAccessor<&MemoryResource::supports_get_mem_info>("supportsGetMemInfo"),
-                  InstanceMethod<&MemoryResource::is_equal>("isEqual"),
-                  InstanceMethod<&MemoryResource::get_mem_info>("getMemInfo"),
-                  InstanceMethod<&MemoryResource::add_bin>("addBin"),
-                  InstanceMethod<&MemoryResource::flush>("flush"),
-                  InstanceAccessor<&MemoryResource::get_file_path>("logFilePath"),
-                  InstanceAccessor<&MemoryResource::get_upstream_mr>("memoryResource"),
-                }));
+  exports.Set("MemoryResource", [&]() {
+    (MemoryResource::constructor = Napi::Persistent(
+       DefineClass(env,
+                   "MemoryResource",
+                   {
+                     InstanceAccessor<&MemoryResource::get_device>("device"),
+                     InstanceAccessor<&MemoryResource::supports_streams>("supportsStreams"),
+                     InstanceAccessor<&MemoryResource::supports_get_mem_info>("supportsGetMemInfo"),
+                     InstanceMethod<&MemoryResource::is_equal>("isEqual"),
+                     InstanceMethod<&MemoryResource::get_mem_info>("getMemInfo"),
+                     InstanceMethod<&MemoryResource::add_bin>("addBin"),
+                     InstanceMethod<&MemoryResource::flush>("flush"),
+                     InstanceAccessor<&MemoryResource::get_file_path>("logFilePath"),
+                     InstanceAccessor<&MemoryResource::get_upstream_mr>("memoryResource"),
+                   })))
+      .SuppressDestruct();
+    return MemoryResource::constructor.Value();
+  }());
 
   return exports;
 }
 
-MemoryResource::MemoryResource(CallbackArgs const& args)
-  : ObjectWrapMixin<MemoryResource>(), Napi::ObjectWrap<MemoryResource>(args) {
+MemoryResource::MemoryResource(CallbackArgs const& args) : Napi::ObjectWrap<MemoryResource>(args) {
   auto& arg0 = args[0];
   auto& arg1 = args[1];
   auto& arg2 = args[2];

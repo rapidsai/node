@@ -14,8 +14,6 @@
 
 #pragma once
 
-#include "args.hpp"
-
 #include <napi.h>
 
 #include <type_traits>
@@ -83,49 +81,6 @@ struct ObjectUnwrap {
 
  private:
   Napi::Object obj_;
-};
-
-template <typename T>
-struct ObjectWrapMixin {
-  /**
-   * @brief Retrieve the FunctionReference constructor for `T` from the environment's exports
-   * object.
-   *
-   * @param env The current environment
-   * @return Napi::FunctionReference The constructor for type `
-   */
-  inline static ConstructorReference constructor(Napi::Env const& env) {
-    auto exports     = const_cast<Napi::Env&>(env).GetInstanceData<Napi::ObjectReference>();
-    Napi::Value node = exports->Value();
-    for (std::string const& part : T::export_path) {
-      node = node.As<Napi::Object>().Get(part);
-      if (node.IsFunction()) { break; }
-    }
-    return ConstructorReference::Persistent(node.As<Napi::Function>());
-  }
-  inline static ConstructorReference constructor(Napi::CallbackInfo const& info) {
-    return ObjectWrapMixin<T>::constructor(info.Env());
-  }
-  /**
-   * @brief Check whether an Napi object is an instance of `T`.
-   *
-   * @param val The Napi::Object to test
-   * @return true if the object is a `T`
-   * @return false if the object is not a `T`
-   */
-  inline static bool is_instance(Napi::Object const& val) {
-    return val.InstanceOf(constructor(val.Env()).Value());
-  }
-  /**
-   * @brief Check whether an Napi value is an instance of `T`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `T`
-   * @return false if the value is not a `T`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and is_instance(val.As<Napi::Object>());
-  }
 };
 
 }  // namespace nv

@@ -28,9 +28,7 @@
 
 namespace nv {
 
-struct DeviceBuffer : public ObjectWrapMixin<DeviceBuffer>, public Napi::ObjectWrap<DeviceBuffer> {
-  static std::vector<std::string> const export_path;
-
+struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
 
   /**
@@ -38,20 +36,19 @@ struct DeviceBuffer : public ObjectWrapMixin<DeviceBuffer>, public Napi::ObjectW
    *
    * @param buffer Pointer the rmm::device_buffer to own.
    */
-  static ObjectUnwrap<DeviceBuffer> New(Napi::Env const& env,
-                                        std::unique_ptr<rmm::device_buffer> buffer);
+  static ObjectUnwrap<DeviceBuffer> New(std::unique_ptr<rmm::device_buffer> buffer);
 
   /**
    * @brief Construct a new uninitialized DeviceBuffer instance from C++.
    *
-   * @param data Pointer to the host or device memory to copy from.
+   * @param mr Memory resource to use for the device memory allocation.
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
-   * @param mr Memory resource to use for the device memory allocation.
    */
   inline static ObjectUnwrap<DeviceBuffer> New(
-    Napi::Env const& env, rmm::cuda_stream_view stream = rmm::cuda_stream_default) {
-    return DeviceBuffer::New(env, Span<char>(0), stream, MemoryResource::Cuda(env));
+    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
+    rmm::cuda_stream_view stream           = rmm::cuda_stream_default) {
+    return DeviceBuffer::New(nullptr, 0, mr, stream);
   }
 
   /**
@@ -60,13 +57,12 @@ struct DeviceBuffer : public ObjectWrapMixin<DeviceBuffer>, public Napi::ObjectW
    * @param data Pointer to the host or device memory to copy from.
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
-   * @param mr Memory resource to use for the device memory allocation.
    */
-  inline static ObjectUnwrap<DeviceBuffer> New(Napi::Env const& env,
-                                               Span<char> span,
-                                               rmm::cuda_stream_view stream,
-                                               Napi::Object const& mr) {
-    return DeviceBuffer::New(env, span.data(), span.size(), stream, mr);
+  inline static ObjectUnwrap<DeviceBuffer> New(
+    Span<char> data,
+    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
+    rmm::cuda_stream_view stream           = rmm::cuda_stream_default) {
+    return DeviceBuffer::New(data.data(), data.size(), mr, stream);
   }
 
   /**
@@ -78,11 +74,31 @@ struct DeviceBuffer : public ObjectWrapMixin<DeviceBuffer>, public Napi::ObjectW
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
-  static ObjectUnwrap<DeviceBuffer> New(Napi::Env const& env,
-                                        void* data,
+  static ObjectUnwrap<DeviceBuffer> New(void* data,
                                         size_t size,
-                                        rmm::cuda_stream_view stream,
-                                        Napi::Object const& mr);
+                                        ObjectUnwrap<MemoryResource> const& mr,
+                                        rmm::cuda_stream_view stream);
+
+  /**
+   * @brief Check whether an Napi object is an instance of `DeviceBuffer`.
+   *
+   * @param val The Napi::Object to test
+   * @return true if the object is a `DeviceBuffer`
+   * @return false if the object is not a `DeviceBuffer`
+   */
+  inline static bool is_instance(Napi::Object const& val) {
+    return val.InstanceOf(constructor.Value());
+  }
+  /**
+   * @brief Check whether an Napi value is an instance of `DeviceBuffer`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `DeviceBuffer`
+   * @return false if the value is not a `DeviceBuffer`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and is_instance(val.As<Napi::Object>());
+  }
 
   /**
    * @brief Construct a new DeviceBuffer instance from JavaScript.
@@ -115,6 +131,8 @@ struct DeviceBuffer : public ObjectWrapMixin<DeviceBuffer>, public Napi::ObjectW
   inline operator Napi::Value() const { return Value(); }
 
  private:
+  static ConstructorReference constructor;
+
   rmm::device_buffer& buffer() const { return *buffer_; }
 
   Napi::Value get_mr(Napi::CallbackInfo const& info);

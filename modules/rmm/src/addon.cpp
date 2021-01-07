@@ -36,13 +36,6 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "setPerDeviceResource", nv::set_per_device_resource);
   nv::MemoryResource::Init(env, exports);
   nv::DeviceBuffer::Init(env, exports);
-
-  // Create a persistent reference to the exports object as the add-on instance data.
-  // This will allow this add-on to support multiple instances of itself running on multiple worker
-  // threads, as well as multiple instances of itself running in different contexts on the same
-  // thread.
-  env.SetInstanceData<Napi::ObjectReference>(new Napi::ObjectReference(Napi::Persistent(exports)));
-
   return exports;
 }
 
