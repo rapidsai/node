@@ -299,3 +299,19 @@ struct CPPToNapi {
 };
 
 }  // namespace nv
+
+namespace Napi {
+namespace details {
+
+template <typename T>
+struct vf_fallback<std::pair<T, T>> {
+  static Value From(napi_env env, std::pair<T, T> const& pair) {
+    auto obj = Array::New(env, 2);
+    obj.Set(uint32_t{0}, Value::From(env, pair.first));
+    obj.Set(uint32_t{1}, Value::From(env, pair.second));
+    return obj;
+  }
+};
+
+}  // namespace details
+}  // namespace Napi

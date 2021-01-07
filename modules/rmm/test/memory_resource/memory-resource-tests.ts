@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ describe.each(memoryResourceTestConfigs)(`%s`, (_, testConfig) => {
     // Fill the buffer with 1s, because CUDA Managed
     // memory is only allocated when it's actually used.
     // @ts-ignore
-    let buf: Uint8Buffer|null = new Uint8Buffer(new DeviceBuffer(sizes ['2_MiB'], 0, mr)).fill(1);
+    let buf: Uint8Buffer|null = new Uint8Buffer(new DeviceBuffer(sizes ['2_MiB'], mr)).fill(1);
     mr.supportsGetMemInfo && ([free1, total1] = mr.getMemInfo(0));
     expect(total0).toEqual(total1);
     if (mr.supportsGetMemInfo) { expect(free0 - free1).toBeGreaterThanOrEqual(sizes ['2_MiB']); }

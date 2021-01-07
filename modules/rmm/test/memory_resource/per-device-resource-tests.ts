@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,11 +22,14 @@ import {memoryResourceTestConfigs} from './utils';
 
 describe.each(memoryResourceTestConfigs)(`%s`, (_, {createMemoryResource}) => {
   testForEachDevice(`set/get per-device resource`, (device) => {
-    const mr = createMemoryResource();
-    setPerDeviceResource(device.id, mr);
-    expect(getPerDeviceResource(device.id)).toBe(mr);
-    // Fill the buffer with 1s, because CUDA Managed
-    // memory is only allocated when it's actually used.
-    new Uint8Buffer(new DeviceBuffer(sizes ['2_MiB'], 0, mr)).fill(1);
+    const currentMr = getPerDeviceResource(device.id);
+    try {
+      const mr = createMemoryResource();
+      setPerDeviceResource(device.id, mr);
+      expect(getPerDeviceResource(device.id)).toBe(mr);
+      // Fill the buffer with 1s, because CUDA Managed
+      // memory is only allocated when it's actually used.
+      new Uint8Buffer(new DeviceBuffer(sizes ['2_MiB'], mr)).fill(1);
+    } finally { setPerDeviceResource(device.id, currentMr); }
   });
 });

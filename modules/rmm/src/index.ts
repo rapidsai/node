@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ export * from './device_buffer';
 export * from './memory_resource';
 
 import RMM from './addon';
-import {Device} from '@nvidia/cuda';
+import {Device, devices} from '@nvidia/cuda';
 import {MemoryResource} from './memory_resource';
 
 const rmmSetPerDeviceResource: typeof setPerDeviceResource = RMM.setPerDeviceResource;
@@ -25,17 +25,20 @@ const perDeviceMemoryResources                             = new Map<number, Mem
 RMM.setPerDeviceResource = setPerDeviceResource;
 
 export function getPerDeviceResource(deviceId: number) {
-  if (!perDeviceMemoryResources.has(deviceId)) {
-    setPerDeviceResource(deviceId, new RMM.CudaMemoryResource(deviceId));
+  if (!perDeviceMemoryResources.get(deviceId)) {
+    devices [deviceId].callInContext(() =>
+                                       setPerDeviceResource(deviceId, new RMM.MemoryResource(0)));
   }
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return perDeviceMemoryResources.get(deviceId)!;
 }
 
 export function setPerDeviceResource(
-  deviceId: number, memoryResource: MemoryResource = new RMM.CudaMemoryResource()) {
-  perDeviceMemoryResources.set(deviceId, memoryResource);
-  rmmSetPerDeviceResource(deviceId, memoryResource);
+  deviceId: number, memoryResource: MemoryResource = getPerDeviceResource(deviceId)) {
+  if (memoryResource && memoryResource !== perDeviceMemoryResources.get(deviceId)) {
+    perDeviceMemoryResources.set(deviceId, memoryResource);
+    rmmSetPerDeviceResource(deviceId, memoryResource);
+  }
 }
 
 export function getPerDeviceResourceType(deviceId: number) {
@@ -45,6 +48,6 @@ export function getPerDeviceResourceType(deviceId: number) {
 export function getCurrentDeviceResource() { return getPerDeviceResource(Device.activeDeviceId); }
 
 export function setCurrentDeviceResource(memoryResource: MemoryResource =
-                                           new RMM.CudaMemoryResource()) {
+                                           getCurrentDeviceResource()) {
   return setPerDeviceResource(Device.activeDeviceId, memoryResource);
 }

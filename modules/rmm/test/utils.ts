@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,11 +43,11 @@ beforeEach(flushStdout);
 afterEach(flushStdout);
 
 function flushStdout() {
-  return new Promise((done) => {
+  return new Promise<void>((done) => {
     if (process.stdout.write('')) {
-      done(undefined);
+      done();
     } else {
-      process.stdout.once('drain', () => { done(undefined); });
+      process.stdout.once('drain', () => { done(); });
     }
   });
 }

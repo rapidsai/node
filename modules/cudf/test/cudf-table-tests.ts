@@ -18,7 +18,7 @@ import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 
 const mr = new CudaMemoryResource();
 
-setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, 0, mr));
+setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
 
 test('Table initialization', () => {
   const length = 100;

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,61 +12,54 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_rmm/device_buffer.hpp>
-#include <node_rmm/memory_resource.hpp>
-#include <node_rmm/utilities/cpp_to_napi.hpp>
-#include <node_rmm/utilities/napi_to_cpp.hpp>
+#include "node_rmm/device_buffer.hpp"
+#include "node_rmm/memory_resource.hpp"
+#include "node_rmm/utilities/cpp_to_napi.hpp"
+#include "node_rmm/utilities/napi_to_cpp.hpp"
 
-#include <node_cuda/device.hpp>
 #include <node_cuda/utilities/error.hpp>
-#include <node_cuda/utilities/napi_to_cpp.hpp>
-
-#include <nv_node/macros.hpp>
-#include <nv_node/utilities/args.hpp>
-#include <nv_node/utilities/cpp_to_napi.hpp>
 
 namespace nv {
 
-Napi::FunctionReference DeviceBuffer::constructor;
+ConstructorReference DeviceBuffer::constructor;
 
 Napi::Object DeviceBuffer::Init(Napi::Env env, Napi::Object exports) {
   exports.Set("DeviceBuffer", [&]() {
-    DeviceBuffer::constructor = Napi::Persistent(DefineClass(
-      env,
-      "DeviceBuffer",
-      {
-        InstanceAccessor("capacity", &DeviceBuffer::capacity, nullptr, napi_enumerable),
-        InstanceAccessor("byteLength", &DeviceBuffer::byte_length, nullptr, napi_enumerable),
-        InstanceAccessor("isEmpty", &DeviceBuffer::is_empty, nullptr, napi_enumerable),
-        InstanceAccessor("ptr", &DeviceBuffer::ptr, nullptr, napi_enumerable),
-        InstanceAccessor("device", &DeviceBuffer::device, nullptr, napi_enumerable),
-        InstanceAccessor("stream", &DeviceBuffer::stream, nullptr, napi_enumerable),
-        InstanceAccessor("memoryResource", &DeviceBuffer::get_mr, nullptr, napi_enumerable),
-        InstanceMethod("resize", &DeviceBuffer::resize),
-        InstanceMethod("setStream", &DeviceBuffer::set_stream),
-        InstanceMethod("shrinkToFit", &DeviceBuffer::shrink_to_fit),
-        InstanceMethod("slice", &DeviceBuffer::slice),
-      }));
-    DeviceBuffer::constructor.SuppressDestruct();
+    (DeviceBuffer::constructor =
+       Napi::Persistent(DefineClass(env,
+                                    "DeviceBuffer",
+                                    {
+                                      InstanceAccessor<&DeviceBuffer::capacity>("capacity"),
+                                      InstanceAccessor<&DeviceBuffer::byte_length>("byteLength"),
+                                      InstanceAccessor<&DeviceBuffer::is_empty>("isEmpty"),
+                                      InstanceAccessor<&DeviceBuffer::ptr>("ptr"),
+                                      InstanceAccessor<&DeviceBuffer::device>("device"),
+                                      InstanceAccessor<&DeviceBuffer::stream>("stream"),
+                                      InstanceAccessor<&DeviceBuffer::get_mr>("memoryResource"),
+                                      InstanceMethod<&DeviceBuffer::resize>("resize"),
+                                      InstanceMethod<&DeviceBuffer::set_stream>("setStream"),
+                                      InstanceMethod<&DeviceBuffer::shrink_to_fit>("shrinkToFit"),
+                                      InstanceMethod<&DeviceBuffer::slice>("slice"),
+                                    })))
+      .SuppressDestruct();
     return DeviceBuffer::constructor.Value();
   }());
   return exports;
 }
 
 ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(std::unique_ptr<rmm::device_buffer> buffer) {
-  auto buf     = New(buffer->stream());
+  auto buf     = New(MemoryResource::Cuda(), buffer->stream());
   buf->buffer_ = std::move(buffer);
   return buf;
 }
 
 ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(void* data,
                                              size_t size,
-                                             rmm::cuda_stream_view stream,
-                                             Napi::Object const& mr) {
-  NODE_CUDA_EXPECT(MemoryResource::is_instance(mr),
+                                             ObjectUnwrap<MemoryResource> const& mr,
+                                             rmm::cuda_stream_view stream) {
+  NODE_CUDA_EXPECT(MemoryResource::is_instance(mr.object()),
                    "DeviceBuffer constructor requires a valid MemoryResource");
-  CPPToNapiValues const args{DeviceBuffer::constructor.Env()};
-  return constructor.New(args(Span<char>(data, size), stream, mr));
+  return constructor.New(Span<char>(data, size), mr.object(), stream);
 }
 
 DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBuffer>(args) {
@@ -77,8 +70,13 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBu
                : arg0.IsNumber() ? Span<char>(arg0.operator size_t())
                                  : Span<char>(0);
 
-  rmm::cuda_stream_view stream = arg1.IsNumber() ? arg1 : rmm::cuda_stream_default;
-  mr_.Reset(MemoryResource::is_instance(arg2) ? arg2.ToObject() : CudaMemoryResource::New(), 1);
+  if (MemoryResource::is_instance(arg1.val)) {
+    mr_ = Napi::Persistent(arg1.ToObject());
+  } else {
+    mr_ = MemoryResource::Cuda().reference();
+  }
+
+  rmm::cuda_stream_view stream = arg2.IsNumber() ? arg2 : rmm::cuda_stream_default;
 
   switch (args.Length()) {
     case 0:
@@ -89,7 +87,9 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBu
         buffer_.reset(new rmm::device_buffer(input.size(), stream, NapiToCPP(mr_.Value())));
       } else {
         buffer_.reset(new rmm::device_buffer(input, input.size(), stream, NapiToCPP(mr_.Value())));
-        if (stream.value() == NULL) { NODE_CUDA_TRY(cudaStreamSynchronize(stream.value()), Env()); }
+        if (stream == rmm::cuda_stream_default) {
+          NODE_CUDA_TRY(cudaStreamSynchronize(stream.value()), Env());
+        }
       }
       Napi::MemoryManagement::AdjustExternalMemory(Env(), input.size());
       break;
@@ -104,6 +104,10 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBu
 
 void DeviceBuffer::Finalize(Napi::Env env) {
   if (size() > 0) { Napi::MemoryManagement::AdjustExternalMemory(env, -size()); }
+}
+
+ValueWrap<int32_t> DeviceBuffer::device() const {
+  return MemoryResource::Unwrap(mr_.Value())->device();
 }
 
 Napi::Value DeviceBuffer::byte_length(Napi::CallbackInfo const& info) {
@@ -158,15 +162,11 @@ Napi::Value DeviceBuffer::slice(Napi::CallbackInfo const& info) {
     length = args[1];
     length -= offset;
   }
-  return DeviceBuffer::New(static_cast<char*>(data()) + offset, length, stream(), mr_.Value());
+  return DeviceBuffer::New(static_cast<char*>(data()) + offset, length, mr_.Value(), stream());
 }
 
-Napi::Value DeviceBuffer::device(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(device());
-}
+Napi::Value DeviceBuffer::device(Napi::CallbackInfo const& info) { return device(); }
 
-Napi::Value DeviceBuffer::stream(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(stream());
-}
+Napi::Value DeviceBuffer::stream(Napi::CallbackInfo const& info) { return stream(); }
 
 }  // namespace nv

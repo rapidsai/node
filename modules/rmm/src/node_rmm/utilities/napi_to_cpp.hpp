@@ -18,55 +18,28 @@
 
 #include <node_cuda/utilities/napi_to_cpp.hpp>
 
-#include <nv_node/utilities/napi_to_cpp.hpp>
-
 #include <rmm/cuda_stream_view.hpp>
+#include <rmm/mr/device/device_memory_resource.hpp>
+#include <rmm/mr/device/per_device_resource.hpp>
 
 namespace nv {
 
 template <>
+inline NapiToCPP::operator mr_type() const {
+  return static_cast<mr_type>(this->operator uint8_t());
+}
+
+template <>
 inline NapiToCPP::operator rmm::mr::device_memory_resource*() const {
-  if (CudaMemoryResource::is_instance(val)) {
-    return CudaMemoryResource::Unwrap(val.ToObject())->get_mr().get();
-  }
-  if (ManagedMemoryResource::is_instance(val)) {
-    return ManagedMemoryResource::Unwrap(val.ToObject())->get_mr().get();
-  }
-  if (PoolMemoryResource::is_instance(val)) {
-    return PoolMemoryResource::Unwrap(val.ToObject())->get_mr().get();
-  }
-  if (FixedSizeMemoryResource::is_instance(val)) {
-    return FixedSizeMemoryResource::Unwrap(val.ToObject())->get_mr().get();
-  }
-  if (BinningMemoryResource::is_instance(val)) {
-    return BinningMemoryResource::Unwrap(val.ToObject())->get_mr().get();
-  }
-  if (LoggingResourceAdapter::is_instance(val)) {
-    return LoggingResourceAdapter::Unwrap(val.ToObject())->get_mr().get();
-  }
+  if (MemoryResource::is_instance(val)) { return *MemoryResource::Unwrap(val.ToObject()); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a MemoryResource instance");
 }
 
 template <>
 inline NapiToCPP::operator rmm::cuda_device_id() const {
   if (this->IsNumber()) { return rmm::cuda_device_id{this->operator int32_t()}; }
-  if (CudaMemoryResource::is_instance(val)) {
-    return rmm::cuda_device_id{CudaMemoryResource::Unwrap(val.ToObject())->device()};
-  }
-  if (ManagedMemoryResource::is_instance(val)) {
-    return rmm::cuda_device_id{ManagedMemoryResource::Unwrap(val.ToObject())->device()};
-  }
-  if (PoolMemoryResource::is_instance(val)) {
-    return rmm::cuda_device_id{PoolMemoryResource::Unwrap(val.ToObject())->device()};
-  }
-  if (FixedSizeMemoryResource::is_instance(val)) {
-    return rmm::cuda_device_id{FixedSizeMemoryResource::Unwrap(val.ToObject())->device()};
-  }
-  if (BinningMemoryResource::is_instance(val)) {
-    return rmm::cuda_device_id{BinningMemoryResource::Unwrap(val.ToObject())->device()};
-  }
-  if (LoggingResourceAdapter::is_instance(val)) {
-    return rmm::cuda_device_id{LoggingResourceAdapter::Unwrap(val.ToObject())->device()};
+  if (MemoryResource::is_instance(val)) {
+    return rmm::cuda_device_id{MemoryResource::Unwrap(val.ToObject())->device()};
   }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a numeric device ordinal");
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <node_rmm/memory_resource.hpp>
 #include <node_rmm/utilities/napi_to_cpp.hpp>
 
 #include <nv_node/utilities/span.hpp>
@@ -27,8 +28,7 @@
 
 namespace nv {
 
-class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
- public:
+struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
 
   /**
@@ -41,15 +41,14 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   /**
    * @brief Construct a new uninitialized DeviceBuffer instance from C++.
    *
-   * @param data Pointer to the host or device memory to copy from.
+   * @param mr Memory resource to use for the device memory allocation.
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
-   * @param mr Memory resource to use for the device memory allocation.
    */
   inline static ObjectUnwrap<DeviceBuffer> New(
-    rmm::cuda_stream_view stream = rmm::cuda_stream_default,
-    Napi::Object const& mr       = CudaMemoryResource::New()) {
-    return DeviceBuffer::New(Span<char>(0), stream, mr);
+    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
+    rmm::cuda_stream_view stream           = rmm::cuda_stream_default) {
+    return DeviceBuffer::New(nullptr, 0, mr, stream);
   }
 
   /**
@@ -58,13 +57,12 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * @param data Pointer to the host or device memory to copy from.
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
-   * @param mr Memory resource to use for the device memory allocation.
    */
   inline static ObjectUnwrap<DeviceBuffer> New(
-    Span<char> span,
-    rmm::cuda_stream_view stream = rmm::cuda_stream_default,
-    Napi::Object const& mr       = CudaMemoryResource::New()) {
-    return DeviceBuffer::New(span.data(), span.size(), stream, mr);
+    Span<char> data,
+    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
+    rmm::cuda_stream_view stream           = rmm::cuda_stream_default) {
+    return DeviceBuffer::New(data.data(), data.size(), mr, stream);
   }
 
   /**
@@ -78,9 +76,19 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    */
   static ObjectUnwrap<DeviceBuffer> New(void* data,
                                         size_t size,
-                                        rmm::cuda_stream_view stream = rmm::cuda_stream_default,
-                                        Napi::Object const& mr       = CudaMemoryResource::New());
+                                        ObjectUnwrap<MemoryResource> const& mr,
+                                        rmm::cuda_stream_view stream);
 
+  /**
+   * @brief Check whether an Napi object is an instance of `DeviceBuffer`.
+   *
+   * @param val The Napi::Object to test
+   * @return true if the object is a `DeviceBuffer`
+   * @return false if the object is not a `DeviceBuffer`
+   */
+  inline static bool is_instance(Napi::Object const& val) {
+    return val.InstanceOf(constructor.Value());
+  }
   /**
    * @brief Check whether an Napi value is an instance of `DeviceBuffer`.
    *
@@ -89,7 +97,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * @return false if the value is not a `DeviceBuffer`
    */
   inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+    return val.IsObject() and is_instance(val.As<Napi::Object>());
   }
 
   /**
@@ -112,9 +120,9 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
 
   inline bool is_empty() const { return buffer_->is_empty(); }
 
-  inline rmm::cuda_stream_view stream() { return buffer_->stream(); }
+  inline ValueWrap<rmm::cuda_stream_view> stream() { return {Env(), buffer_->stream()}; }
 
-  inline int32_t device() const { return (this->operator rmm::cuda_device_id()).value(); }
+  ValueWrap<int32_t> device() const;
 
   inline explicit operator rmm::cuda_device_id() const { return NapiToCPP(mr_.Value()); }
 
@@ -123,7 +131,7 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   inline operator Napi::Value() const { return Value(); }
 
  private:
-  static Napi::FunctionReference constructor;
+  static ConstructorReference constructor;
 
   rmm::device_buffer& buffer() const { return *buffer_; }
 
@@ -139,8 +147,8 @@ class DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   Napi::Value shrink_to_fit(Napi::CallbackInfo const& info);
   Napi::Value slice(Napi::CallbackInfo const& info);
 
-  Napi::ObjectReference mr_;  ///< Reference to the JS MemoryResource used by this device_buffer
   std::unique_ptr<rmm::device_buffer> buffer_;  ///< Pointer to the underlying rmm::device_buffer
+  Napi::ObjectReference mr_;  ///< Reference to the JS MemoryResource used by this device_buffer
 };
 
 }  // namespace nv

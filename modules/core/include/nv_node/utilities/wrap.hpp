@@ -53,9 +53,17 @@ struct ObjectUnwrap {
 
   inline ObjectUnwrap(Napi::Object const& object) : obj_(object) {}
 
-  inline ObjectUnwrap(Napi::Value const& object) : obj_(object.As<Napi::Object>()) {}
+  inline ObjectUnwrap(Napi::ObjectReference const& ref) : ObjectUnwrap(ref.Value()) {}
+
+  inline ObjectUnwrap(Napi::Value const& object) : ObjectUnwrap(object.As<Napi::Object>()) {}
 
   inline Napi::Object object() const noexcept { return obj_; }
+
+  inline Napi::ObjectReference reference() const noexcept { return Napi::Persistent(obj_); }
+
+  inline operator Napi::Object() const noexcept { return object(); }
+
+  inline operator Napi::ObjectReference() const noexcept { return reference(); }
 
   inline operator object_type*() const noexcept { return object_type::Unwrap(object()); }
 

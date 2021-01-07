@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@ type DeviceBufferInput = BigIntArray|TypedArray|ArrayBufferLike;
 
 export interface DeviceBufferConstructor {
   readonly prototype: DeviceBuffer;
-  new(byteLength?: number, stream?: number, mr?: MemoryResource): DeviceBuffer;
-  new(source?: DeviceBufferInput, stream?: number, mr?: MemoryResource): DeviceBuffer;
-  new(sourceOrByteLength?: DeviceBufferInput|number, stream?: number, mr?: MemoryResource):
+  new(byteLength?: number, mr?: MemoryResource, stream?: number): DeviceBuffer;
+  new(source?: DeviceBufferInput, mr?: MemoryResource, stream?: number): DeviceBuffer;
+  new(sourceOrByteLength?: DeviceBufferInput|number, mr?: MemoryResource, stream?: number):
     DeviceBuffer;
 }
 
