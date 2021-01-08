@@ -39,7 +39,7 @@ export class Series<T extends DataType = any> {
   type: T;
   [key: number]: T ['valueType'];
 
-  private _data: Column;
+  /*private*/ _data: Column;
 
   constructor(value: SeriesProps|Column) {
     if (value instanceof Column) {
