@@ -24,7 +24,7 @@ test('Series initialization with properties', () => {
   const length = 100;
   const s      = new Series({type: new Int32(), data: new Int32Buffer(length)});
 
-  expect(s.type).toBe(TypeId.INT32);
+  expect(s.type.id).toBe(TypeId.INT32);
   expect(s.length).toBe(length);
   expect(s.nullCount).toBe(0);
   expect(s.hasNulls).toBe(false);
@@ -36,17 +36,9 @@ test('Series initialization with Column', () => {
   const col    = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
   const s      = new Series(col)
 
-  expect(s.type).toBe(TypeId.INT32);
+  expect(s.type.id).toBe(TypeId.INT32);
   expect(s.length).toBe(length);
   expect(s.nullCount).toBe(0);
   expect(s.hasNulls).toBe(false);
   expect(s.nullable).toBe(false);
-});
-
-const arange = (length: number) => Array.from({length}, (_, i) => i);
-
-test('Series subscript access', () => {
-  const s = new Series({type: new Int32(), data: new Int32Buffer(arange(10))});
-
-  for (const i of arange(10)) { expect(s [i]).toBe(i); }
 });

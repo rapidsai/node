@@ -20,6 +20,15 @@ export class DataType<T extends TypeId = any> {
   constructor(public readonly id: T) {}
 }
 
+export type TypeMap = {
+  [key: string]: DataType
+}
+
+/* eslint-disable @typescript-eslint/ban-types */
+export type ColumnNames<T extends {[key: string]: DataType}> =
+  Extract<Exclude<keyof T, keyof{}>, string>;
+/* eslint-enable no-alert */
+
 export enum TypeId
 {
   EMPTY,

@@ -19,7 +19,7 @@ import CUDF from './addon';
 import {DataType, TypeId} from './types';
 
 export type ColumnProps = {
-  type: DataType|TypeId,
+  type: TypeId,
   data?: DeviceBuffer|MemoryData|null,
   offset?: number,
   length?: number,
@@ -30,13 +30,13 @@ export type ColumnProps = {
 
 interface ColumnConstructor {
   readonly prototype: Column;
-  new(props: ColumnProps): Column;
+  new<T extends DataType = any>(props: ColumnProps): Column<T>;
 }
 
-export interface Column {
+export interface Column<T extends DataType = any> {
   [index: number]: any;
 
-  readonly type: DataType;
+  readonly type: T;
   readonly data: DeviceBuffer;
   readonly mask: DeviceBuffer;
 
@@ -48,8 +48,8 @@ export interface Column {
 
   getChild(index: number): Column;
 
-  getValue(index: number): this[0];
-  // setValue(index: number, value?: this[0] | null): void;
+  getValue(index: number): T['valueType']|null;
+  // setValue(index: number, value?: T['valueType'] | null): void;
 
   setNullCount(nullCount: number): void;
   setNullMask(mask: DeviceBuffer, nullCount?: number): void;

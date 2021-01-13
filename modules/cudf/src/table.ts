@@ -24,7 +24,6 @@ export interface Table {
   readonly numColumns: number;
   readonly numRows: number;
   getColumnByIndex(index: number): Column;
-  updateColumns(props: {columns?: ReadonlyArray<Column>|null}): void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

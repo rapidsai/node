@@ -13,95 +13,76 @@
 // limitations under the License.
 
 import {Series, Table} from '@nvidia/cudf';
+
 import {ColumnAccessor} from './column_accessor'
+import {ColumnNames, TypeMap} from './types'
 
-export interface DataFrame {
-  [index: number]: any;
+type SeriesMap<T extends TypeMap> = {
+  [P in ColumnNames<T>]: Series<T[P]>
+};
 
-  getColumnByIndex(index: number): Series;
-  select(columns: ReadonlyArray<number>|ReadonlyArray<string>|null): DataFrame;
-  slice(start: number|string, end: number|string): DataFrame;
-  updateColumns(props: {columns?: ReadonlyArray<Series>|null}): void;
+export interface DataFrame<T extends TypeMap = any> {
+  select<R extends ColumnNames<T>>(columns: R[]): DataFrame<{[P in R]: T[P]}>;
+  assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<T|R>;
+  drop<R extends ColumnNames<T>>(names: R[]): DataFrame<Exclude<T, R>>;
+  get<P extends ColumnNames<T>>(name: P): Series<T[P]>;
 }
 
-export class DataFrame {
-  private _table: Table;
-  private _accessor: ColumnAccessor;
+function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
+  const columns = {} as any;
+  for (const entry of Object.entries(data)) { columns[entry[0]] = entry[1]._data; }
+  return columns;
+}
 
-  constructor(props: {data: ColumnAccessor|{ [key: string]: Series }}) {
-    if (props.data instanceof ColumnAccessor) {
-      this._table    = new Table({columns: props.data.columns});
-      this._accessor = props.data;
+export class DataFrame<T extends TypeMap = any> {
+  private _table: Table;
+  private _accessor: ColumnAccessor<T>;
+
+  constructor(data: ColumnAccessor<T>|SeriesMap<T>) {
+    if (data instanceof ColumnAccessor) {
+      this._table    = new Table({columns: data.columns});
+      this._accessor = data;
     } else {
-      const columns = new Map();
-      for (const entry of Object.entries(props.data)) { columns.set(entry [0], entry [1]._data) }
+      const columns  = _seriesToColumns(data);
       const accessor = new ColumnAccessor(columns);
       this._table    = new Table({columns: accessor.columns});
       this._accessor = accessor;
     }
   }
 
-  get numRows(): number { return this._table.numRows; }
-  get numColumns(): number { return this._table.numColumns; }
-  get columns(): ReadonlyArray<string> { return this._accessor.names; }
+  get numRows() { return this._table.numRows; }
 
-  select(columns: Array<number>|Array<string>): DataFrame {
-    const column_indices: Array<number|undefined> =
-      (columns as any []).map((value) => { return this.transformInputLabel(value); });
+  get numColumns() { return this._table.numColumns; }
 
-    const column_accessor = this._accessor.selectByColumnIndices(column_indices);
-    return new DataFrame({data: column_accessor});
+  get columns(): ReadonlyArray<ColumnNames<T>> { return this._accessor.names; }
+
+  select<R extends ColumnNames<T>>(columns: R[]): DataFrame<{[P in R]: T[P]}> {
+    const column_accessor = this._accessor.selectByColumnNames(columns);
+    return new DataFrame(column_accessor);
   }
 
-  slice(start: number|string, end: number|string): DataFrame {
-    return new DataFrame({
-      data: this._accessor.sliceByColumnIndices(this.transformInputLabel(start),
-                                                this.transformInputLabel(end))
-    });
+  assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<T|R> {
+    const columns  = _seriesToColumns(data);
+    const accessor = this._accessor.addColumns(columns);
+    return new DataFrame(accessor) as DataFrame<T|R>;
   }
 
-  updateColumns(props: {columns?: ReadonlyArray<Series>|null}): void {
-    if (props.columns == null) { return this._table.updateColumns({}); }
-    return this._table.updateColumns({columns: props.columns.map((item: Series) => item._data)});
+  drop<R extends ColumnNames<T>>(names: R[]): DataFrame<Exclude<T, R>> {
+    const accessor = this._accessor.dropColumns(names);
+    return new DataFrame(accessor);
   }
 
-  addColumn(name: string, column: Series) {
-    this._accessor.insertByColumnName(name, column._data);
-    this._table.updateColumns({columns: this._accessor.columns});
-  }
-
-  getColumnByIndex(index: number): Series {
-    if (typeof this.transformInputLabel(index) !== "undefined" && typeof index === "number") {
-      return new Series(this._table.getColumnByIndex(index));
-    }
-    throw new Error(`Column does not exist in the DataFrame: ${index}`);
-  }
-
-  getColumnByName(label: string): Series {
-    const index = typeof label === "string" ? this.transformInputLabel(label) : undefined;
-    if (typeof index !== "undefined") { return this.getColumnByIndex(index); }
-    throw new Error(`Column does not exist in the table: ${label}`);
-  }
-
-  drop(props: {columns: Array<string>}) {
-    props.columns.forEach((value) => { this._accessor.removeByColumnName(value); });
-    this._table.updateColumns({columns: this._accessor.columns});
-  }
-
-  private transformInputLabel(label: number|string): number|undefined {
-    if (typeof label === "string" && this.columns?.includes(label)) {
-      return this._accessor.columnNameToColumnIndex(label)
-    } else if (typeof label === "number" && label < this.columns?.length) {
-      return label;
-    }
-    return undefined;
+  get<P extends ColumnNames<T>>(name: P): Series<T[P]> {
+    const index = this._accessor.columnNameToColumnIndex(name)
+    if (typeof index !== "undefined") { return new Series(this._table.getColumnByIndex(index)); }
+    throw new Error(`Series does not exist in the DataFrame: ${name}`);
   }
 }
 
 const proxy = new Proxy({}, {
   get(target: any, p: any, df: DataFrame) {
     if (typeof p == 'string') {
-      if (df.columns.includes(p)) { return df.getColumnByName(p); }
+      if (df.columns.includes(p)) { return df.get(p); }
     }
     return Reflect.get(target, p, df);
   }

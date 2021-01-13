@@ -25,8 +25,8 @@ export interface Series {
   setNullMask(mask: DeviceBuffer, nullCount?: number): void;
 }
 
-export type SeriesProps = {
-  type: DataType,
+export type SeriesProps<T extends DataType = any> = {
+  type: T,
   data?: DeviceBuffer|MemoryData|null,
   offset?: number,
   length?: number,
@@ -36,19 +36,16 @@ export type SeriesProps = {
 };
 
 export class Series<T extends DataType = any> {
-  type: T;
-  [key: number]: T ['valueType'];
+  [key: number]: T['valueType'];
 
-  /*private*/ _data: Column;
+  /*private*/ _data: Column<T>;
 
-  constructor(value: SeriesProps|Column) {
+  constructor(value: SeriesProps<T>|Column<T>) {
     if (value instanceof Column) {
-      this.type  = value.type.id;
       this._data = value;
     } else {
-      this.type                = value.type.id;
       const props: ColumnProps = {
-        type: this.type,
+        type: value.type.id,
         data: value.data,
         offset: value.offset,
         length: value.length,
@@ -58,43 +55,24 @@ export class Series<T extends DataType = any> {
       if (value.children != null) {
         props.children = value.children.map((item: Series) => item._data);
       }
-      this._data = new Column(props);
+      this._data = new Column<T>(props);
     }
   }
 
-  get mask(): DeviceBuffer { return this._data.mask; }
-  get length(): number { return this._data.length; }
-  get nullable(): boolean { return this._data.nullable; }
-  get hasNulls(): boolean { return this._data.hasNulls; }
-  get nullCount(): number { return this._data.nullCount; }
-  get numChildren(): number { return this._data.numChildren; }
+  get type() { return this._data.type; }
+  get mask() { return this._data.mask; }
+  get length() { return this._data.length; }
+  get nullable() { return this._data.nullable; }
+  get hasNulls() { return this._data.hasNulls; }
+  get nullCount() { return this._data.nullCount; }
+  get numChildren() { return this._data.numChildren; }
 
-  getChild(index: number): Series { return new Series(this._data.getChild(index)); }
+  getChild(index: number) { return new Series(this._data.getChild(index)); }
 
-  getValue(index: number): this [0] { return this._data.getValue(index); }
-  // setValue(index: number, value?: this[0] | null): void;
+  getValue(index: number) { return this._data.getValue(index); }
+  // setValue(index: number, value?: this[0] | null);
 
-  setNullCount(nullCount: number): void { this._data.setNullCount(nullCount); }
+  setNullCount(nullCount: number) { this._data.setNullCount(nullCount); }
 
-  setNullMask(mask: DeviceBuffer, nullCount?: number): void {
-    this._data.setNullMask(mask, nullCount);
-  }
+  setNullMask(mask: DeviceBuffer, nullCount?: number) { this._data.setNullMask(mask, nullCount); }
 }
-
-const proxy = new Proxy({}, {
-  get(target: any, p: any, series: any) {
-    let i: number = p;
-    switch (typeof p) {
-      // @ts-ignore
-      case 'string':
-        if (isNaN(i = +p)) { break; }
-      // eslint-disable-next-line no-fallthrough
-      case 'number':
-        if (i > -1 && i < series.length) { return series.getValue(i); }
-        return undefined;
-    }
-    return Reflect.get(target, p, series);
-  }
-});
-
-Object.setPrototypeOf(Series.prototype, proxy);
