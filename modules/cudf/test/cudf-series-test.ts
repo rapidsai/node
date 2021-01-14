@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Int32Buffer, setDefaultAllocator} from '@nvidia/cuda';
-import {Column, Int32, Series, TypeId} from '@nvidia/cudf';
+import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
+import {Column, Int32, Series, String, TypeId, Uint8} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 
 const mr = new CudaMemoryResource();
 
-setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, 0, mr));
+setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
 
 test('Series initialization with properties', () => {
   const length = 100;
@@ -41,4 +41,23 @@ test('Series initialization with Column', () => {
   expect(s.nullCount).toBe(0);
   expect(s.hasNulls).toBe(false);
   expect(s.nullable).toBe(false);
+});
+
+test('test child(child_index), num_children', () => {
+  const utf8Col    = new Series({type: new Uint8(), data: new Uint8Buffer(Buffer.from("hello"))});
+  const offsetsCol = new Series({type: new Int32(), data: new Int32Buffer([0, utf8Col.length])});
+  const stringsCol = new Series({
+    type: new String(),
+    length: 1,
+    nullMask: new Uint8Buffer([255]),
+    children: [offsetsCol, utf8Col],
+  });
+
+  expect(stringsCol.type.id).toBe(TypeId.STRING);
+  expect(stringsCol.numChildren).toBe(2);
+  expect(stringsCol.getValue(0)).toBe("hello");
+  expect(stringsCol.getChild(0).length).toBe(offsetsCol.length);
+  expect(stringsCol.getChild(0).type.id).toBe(offsetsCol.type.id);
+  expect(stringsCol.getChild(1).length).toBe(utf8Col.length);
+  expect(stringsCol.getChild(1).type.id).toBe(utf8Col.type.id);
 });

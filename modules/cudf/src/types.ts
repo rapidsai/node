@@ -136,3 +136,10 @@ export interface Bool8 extends DataType<TypeId.BOOL8> {
 export class Bool8 extends DataType<TypeId.BOOL8> {
   constructor() { super(TypeId.BOOL8); }
 }
+
+export interface String extends DataType<TypeId.STRING> {
+  valueType: string;
+}
+export class String extends DataType<TypeId.STRING> {
+  constructor() { super(TypeId.STRING); }
+}

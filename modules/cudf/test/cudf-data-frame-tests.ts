@@ -18,7 +18,7 @@ import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 
 const mr = new CudaMemoryResource();
 
-setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, 0, mr));
+setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
 
 test('DataFrame initialization', () => {
   const length = 100;
@@ -37,7 +37,7 @@ test('DataFrame initialization', () => {
   expect(table_0.get("col_1").type.id).toBe(col_1.type.id);
 });
 
-test('DataFrame get', () => {
+test('DataFrame.get', () => {
   const length = 100;
   const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
 
@@ -76,7 +76,7 @@ test('DataFrame.select', () => {
     .toStrictEqual(new DataFrame({"col_0": col_0, "col_3": col_3}));
 });
 
-test('DataFrame assign', () => {
+test('DataFrame.assign', () => {
   const length = 100;
   const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
 
@@ -97,7 +97,7 @@ test('DataFrame assign', () => {
   expect(table_1.columns).toStrictEqual(["col_0", "col_1", "col_2", "col_3"]);
 });
 
-test('DataFrame drop', () => {
+test('DataFrame.drop', () => {
   const length = 100;
   const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
 
