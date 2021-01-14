@@ -52,6 +52,21 @@ test('DataFrame get', () => {
   expect(() => { table_0.get("junk"); }).toThrow();
 });
 
+test('DataFrame by by index', () => {
+  const length = 100;
+  const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
+
+  const col_1   = new Series({
+    type: new Bool8(),
+    data: new Uint8Buffer(length),
+    nullMask: new Uint8Buffer(64),
+  });
+  const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1});
+  expect(table_0["col_0"].type.id).toBe(col_0.type.id);
+  // expect(() => { table_0["junk"]; }).toThrow();
+  // expect(() => { table_0[2]; }).toThrow();
+});
+
 test('DataFrame.select', () => {
   const length = 100;
   const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
@@ -76,28 +91,43 @@ test('DataFrame.select', () => {
     .toStrictEqual(new DataFrame({"col_0": col_0, "col_3": col_3}));
 });
 
-// test('DataFrame addColumn and drop', () => {
-//   const length = 100;
-//   const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
+test('DataFrame assign', () => {
+  const length = 100;
+  const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
 
-//   const col_1 = new Series({
-//     type: new Bool8(),
-//     data: new Uint8Buffer(length),
-//     nullMask: new Uint8Buffer(64),
-//   });
+  const col_1 = new Series({
+    type: new Bool8(),
+    data: new Uint8Buffer(length),
+    nullMask: new Uint8Buffer(64),
+  });
 
-//   const col_2 = new Series({type: new Int32(), data: new Int32Buffer(length)});
-//   const col_3 = new Series({type: new Int32(), data: new Int32Buffer(length)});
+  const col_2 = new Series({type: new Int32(), data: new Int32Buffer(length)});
+  const col_3 = new Series({type: new Int32(), data: new Int32Buffer(length)});
 
-//   const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1, "col_2": col_2});
+  const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1, "col_2": col_2});
 
-//   table_0.addColumn("col_3", col_3);
-//   expect(table_0.numColumns).toBe(4);
-//   expect(table_0.numRows).toBe(length);
-//   expect(table_0.columns).toStrictEqual(["col_0", "col_1", "col_2", "col_3"]);
+  const table_1 = table_0.assign({"col_3": col_3});
+  expect(table_1.numColumns).toBe(4);
+  expect(table_1.numRows).toBe(length);
+  expect(table_1.columns).toStrictEqual(["col_0", "col_1", "col_2", "col_3"]);
+});
 
-//   table_0.drop({columns: ["col_1"]});
-//   expect(table_0.numColumns).toBe(3);
-//   expect(table_0.numRows).toBe(length);
-//   expect(table_0.columns).toStrictEqual(["col_0", "col_2", "col_3"]);
-// });
+test('DataFrame drop', () => {
+  const length = 100;
+  const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
+
+  const col_1 = new Series({
+    type: new Bool8(),
+    data: new Uint8Buffer(length),
+    nullMask: new Uint8Buffer(64),
+  });
+
+  const col_2 = new Series({type: new Int32(), data: new Int32Buffer(length)});
+
+  const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1, "col_2": col_2});
+
+  const table_1 = table_0.drop(["col_1"]);
+  expect(table_1.numColumns).toBe(2);
+  expect(table_1.numRows).toBe(length);
+  expect(table_1.columns).toStrictEqual(["col_0", col_2"]);
+});
