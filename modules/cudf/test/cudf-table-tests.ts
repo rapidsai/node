@@ -29,15 +29,11 @@ test('Table initialization', () => {
     data: new Uint8Buffer(length),
     nullMask: new Uint8Buffer(64),
   });
-  const table_0 = new Table({data: {"col_0": col_0, "col_1": col_1}});
-  expect(table_0.numColumns).toBe(2);
-  expect(table_0.numRows).toBe(length);
-  expect(table_0.columns).toStrictEqual(['col_0', 'col_1']);
-  expect(table_0["col_0"].type.id).toBe(col_0.type.id);
-  expect(table_0["col_1"].type.id).toBe(col_1.type.id);
+  const table_0 = new Table({columns: [col_0, col_1]});
+  expect(table_0.numColumns).toBe(2)
 });
 
-test('Table getColumn', () => {
+test('Table getColumnByIndex', () => {
   const length = 100;
   const col_0  = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
 
@@ -46,89 +42,8 @@ test('Table getColumn', () => {
     data: new Uint8Buffer(length),
     nullMask: new Uint8Buffer(64),
   });
-  const table_0 = new Table({data: {"col_0": col_0, "col_1": col_1}});
-  expect(table_0.getColumnByName("col_0").type.id).toBe(col_0.type.id);
-  expect(table_0.getColumnByIndex(1).type.id).toBe(col_1.type.id);
-  expect(() => { table_0.getColumnByIndex(2); }).toThrow();
-  expect(() => { table_0.getColumnByName(2); }).toThrow();
+  const table_0 = new Table({columns: [col_0, col_1]})
 
-  expect(() => { table_0.getColumnByName("junk"); }).toThrow();
-});
-
-test('Table.select', () => {
-  const length = 100;
-  const col_0  = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
-
-  const col_1 = new Column({
-    type: TypeId.BOOL8,
-    data: new Uint8Buffer(length),
-    nullMask: new Uint8Buffer(64),
-  });
-
-  const col_2 = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
-  const col_3 = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
-
-  const table_0 =
-    new Table({data: {"col_0": col_0, "col_1": col_1, "col_2": col_2, "col_3": col_3}});
-
-  expect(table_0.numColumns).toBe(4);
-  expect(table_0.numRows).toBe(length);
-  expect(table_0.columns).toStrictEqual(["col_0", "col_1", "col_2", "col_3"]);
-
-  expect(table_0.select(["col_0"])).toStrictEqual(new Table({data: {"col_0": col_0}}));
-  expect(table_0.select(["col_0", "col_3"])).toStrictEqual(new Table({
-    data: {"col_0": col_0, "col_3": col_3}
-  }));
-});
-
-test('Table.slice', () => {
-  const length = 100;
-  const col_0  = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
-
-  const col_1 = new Column({
-    type: TypeId.BOOL8,
-    data: new Uint8Buffer(length),
-    nullMask: new Uint8Buffer(64),
-  });
-
-  const col_2 = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
-  const col_3 = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
-
-  const table_0 =
-    new Table({data: {"col_0": col_0, "col_1": col_1, "col_2": col_2, "col_3": col_3}});
-
-  expect(table_0.numColumns).toBe(4);
-  expect(table_0.numRows).toBe(length);
-  expect(table_0.columns).toStrictEqual(["col_0", "col_1", "col_2", "col_3"]);
-
-  expect(table_0.slice(2, 3)).toStrictEqual(new Table({data: {"col_2": col_0, "col_3": col_3}}));
-  expect(table_0.slice("col_1", "col_3")).toStrictEqual(new Table({
-    data: {"col_1": col_1, "col_2": col_2, "col_3": col_3}
-  }));
-});
-
-test('Table addColumn and drop', () => {
-  const length = 100;
-  const col_0  = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
-
-  const col_1 = new Column({
-    type: TypeId.BOOL8,
-    data: new Uint8Buffer(length),
-    nullMask: new Uint8Buffer(64),
-  });
-
-  const col_2 = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
-  const col_3 = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
-
-  const table_0 = new Table({data: {"col_0": col_0, "col_1": col_1, "col_2": col_2}});
-
-  table_0.addColumn("col_3", col_3);
-  expect(table_0.numColumns).toBe(4);
-  expect(table_0.numRows).toBe(length);
-  expect(table_0.columns).toStrictEqual(["col_0", "col_1", "col_2", "col_3"]);
-
-  table_0.drop({columns: ["col_1"]});
-  expect(table_0.numColumns).toBe(3);
-  expect(table_0.numRows).toBe(length);
-  expect(table_0.columns).toStrictEqual(["col_0", "col_2", "col_3"]);
+  expect(table_0.getColumnByIndex(0).type.id).toBe(TypeId.INT32);
+  expect(() => { table_0.getColumnByIndex(4); }).toThrow();
 });

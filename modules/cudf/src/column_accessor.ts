@@ -13,116 +13,53 @@
 // limitations under the License.
 
 import {Column} from "./column";
+import {ColumnsMap, TypeMap} from './types';
 
-interface ColumnAccessorInterface {
-  insertByColumnName(name: string, value: Column): void;
-  removeByColumnName(name: string): void;
+export class ColumnAccessor<T extends TypeMap = any> {
+  private _data: ColumnsMap<T>;
+  private _labels_to_indices: Map<keyof T, number> = new Map();
 
-  selectByColumnName(key: string|undefined): ColumnAccessor|undefined;
-  sliceByColumnLabels(start: string, end: string): ColumnAccessor|undefined;
-  selectByColumnNames(key: Array<string>): ColumnAccessor|undefined;
-
-  selectByColumnIndex(index: number): ColumnAccessor|undefined;
-  sliceByColumnIndices(start: number, end: number): ColumnAccessor|undefined;
-  selectByColumnIndices(index: Array<number>): ColumnAccessor|undefined;
-
-  columnNameToColumnIndex(label: string): number|undefined;
-  columnIndexToColumnName(index: number): string|undefined;
-  columnNamesToColumnIndices(label: Array<string>): Array<number>;
-}
-
-export class ColumnAccessor implements ColumnAccessorInterface {
-  private _data                                   = new Map<string, Column>();
-  private _labels_array: string[]                 = [];
-  private _labels_to_indices: Map<string, number> = new Map();
-
-  set data(value: Map<string, Column>) {
-    this._data         = value;
-    this._labels_array = Array.from(this._data.keys());
-    this._labels_array.forEach((val, index) => this._labels_to_indices.set(val, index));
+  constructor(data: ColumnsMap<T>) {
+    this._data = data;
+    this.names.forEach((val, index) => this._labels_to_indices.set(val, index));
   }
 
-  private addData(name: string, value: Column) {
-    this._data.set(name, value);
-    this._labels_array.push(name);
-    this._labels_to_indices.set(name, this._labels_array.indexOf(name));
+  get names() { return Object.keys(this._data) as ReadonlyArray<keyof T>; }
+
+  get columns(): ReadonlyArray<Column> { return Object.values(this._data); }
+
+  get length() { return this._labels_to_indices.size; }
+
+  get<R extends keyof T>(name: R) {
+    if (!(name in this._data)) { throw new Error(`Unknown column name: ${name.toString()}`); }
+    return this._data[name];
   }
 
-  private removeData(name: string) {
-    if (this._data.has(name)) {
-      this._data.delete(name);
-      this._labels_to_indices.delete(name);
-      this._labels_array = this._labels_array.filter(x => x !== name);
+  addColumns<R extends TypeMap>(data: ColumnsMap<R>) {
+    return new ColumnAccessor({...this._data, ...data} as
+                              ColumnsMap<{[P in keyof T | keyof R]: (T & R)[P]}>);
+  }
+
+  dropColumns<R extends keyof T>(names: R[]) {
+    const data     = {} as any;
+    const namesMap = names.reduce((xs, x) => ({...xs, [x]: true}), {});
+    for (const name of this.names) {
+      if (!(name in namesMap)) { data[name] = this._data[name]; }
     }
+    return new ColumnAccessor<Omit<T, R>>(data);
   }
 
-  constructor(data: Map<string, Column>) { this.data = data; }
+  selectByColumnName<R extends keyof T>(name: R) { return this.selectByColumnNames([name]); }
 
-  get names(): ReadonlyArray<string> { return this._labels_array; }
-
-  get columns(): ReadonlyArray<Column> { return Array.from(this._data.values()); }
-
-  get length() { return this._data.size; }
-
-  insertByColumnName(name: string, value: Column) { this.addData(name, value); }
-
-  removeByColumnName(name: string) { this.removeData(name); }
-
-  selectByColumnName(key: string|undefined) {
-    if (key != undefined && this._data.has(key)) {
-      const temp_val = this._data.get(key);
-      if (temp_val != undefined) { return new ColumnAccessor(new Map([[key, temp_val]])); }
+  selectByColumnNames<R extends keyof T>(names: R[]) {
+    const data: ColumnsMap<{[P in R]: T[P]}> = {} as any;
+    for (const name of names) {
+      if (this._data[name]) { data[name] = this._data[name]; }
     }
-    return new ColumnAccessor(new Map());
+    return new ColumnAccessor(data);
   }
 
-  sliceByColumnLabels(start: string, end: string) {
-    return this.sliceByColumnIndices(this.columnNameToColumnIndex(start),
-                                     this.columnNameToColumnIndex(end));
-  }
-
-  selectByColumnNames(key: Array<string>) {
-    const return_map = new Map(Array.from(this._data).filter((x) => { return key.includes(x[0]); }))
-    return new ColumnAccessor(return_map);
-  }
-
-  selectByColumnIndex(index: number) {
-    const label = this.columnIndexToColumnName(index);
-    return this.selectByColumnName(label);
-  }
-
-  sliceByColumnIndices(start: number|undefined, end: number|undefined) {
-    const _start: number = (typeof start === "undefined") ? 0 : start;
-    const _end           = (typeof end === "undefined") ? this._labels_array.length : end;
-
-    if (_start >= 0) {
-      return new ColumnAccessor(new Map(Array.from(this._data).slice(_start, _end + 1)))
-    }
-    return new ColumnAccessor(new Map());
-  }
-
-  selectByColumnIndices(index: Array<number|undefined>) {
-    const return_map = new Map(Array.from(this._data).filter((x) => {
-      const temp_val = this.columnNameToColumnIndex(x[0]);
-      if (temp_val != undefined) { return index.includes(temp_val); }
-      return false;
-    }))
-    return new ColumnAccessor(return_map);
-  }
-
-  columnNameToColumnIndex(label: string): number|undefined {
-    return this._labels_to_indices.get(label);
-  }
-
-  columnIndexToColumnName(index: number): string|undefined { return this._labels_array[index]; }
-
-  columnNamesToColumnIndices(label: Array<string>): Array<number> {
-    const return_array: Array<number> = [];
-    for (const _label of label) {
-      const temp_index = this.columnNameToColumnIndex(_label);
-      if (this._data.has(_label) && temp_index != undefined) { return_array.push(temp_index); }
-    }
-
-    return return_array;
+  columnNameToColumnIndex(name: keyof T): number|undefined {
+    return this._labels_to_indices.get(name);
   }
 }

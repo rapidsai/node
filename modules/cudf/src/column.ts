@@ -18,23 +18,25 @@ import {DeviceBuffer} from '@nvidia/rmm';
 import CUDF from './addon';
 import {DataType, TypeId} from './types';
 
+export type ColumnProps = {
+  // todo -- need to pass full DataType instance when we implement fixed_point
+  type: TypeId,
+  data?: DeviceBuffer|MemoryData|null,
+  offset?: number,
+  length?: number,
+  nullCount?: number,
+  nullMask?: DeviceBuffer|MemoryData|null,
+  children?: ReadonlyArray<Column>|null
+};
+
 interface ColumnConstructor {
   readonly prototype: Column;
-  new(props: {
-    type: DataType|TypeId,
-    data?: DeviceBuffer|MemoryData|null,
-    offset?: number,
-    length?: number,
-    nullCount?: number,
-    nullMask?: DeviceBuffer|MemoryData|null,
-    children?: ReadonlyArray<Column>|null
-  }): Column;
+  new<T extends DataType = any>(props: ColumnProps): Column<T>;
 }
 
-export interface Column {
-  [index: number]: any;
+export interface Column<T extends DataType = any> {
 
-  readonly type: DataType;
+  readonly type: T;
   readonly data: DeviceBuffer;
   readonly mask: DeviceBuffer;
 
@@ -46,8 +48,8 @@ export interface Column {
 
   getChild(index: number): Column;
 
-  getValue(index: number): this[0];
-  // setValue(index: number, value?: this[0] | null): void;
+  getValue(index: number): T['valueType']|null;
+  // setValue(index: number, value?: T['valueType'] | null): void;
 
   setNullCount(nullCount: number): void;
   setNullMask(mask: DeviceBuffer, nullCount?: number): void;
@@ -55,19 +57,3 @@ export interface Column {
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Column: ColumnConstructor = CUDF.Column;
-
-Object.setPrototypeOf(CUDF.Column.prototype, new Proxy({}, {
-                        get(target: any, p: any, column: any) {
-                          let i: number = p;
-                          switch (typeof p) {
-                            // @ts-ignore
-                            case 'string':
-                              if (isNaN(i = +p)) { break; }
-                            // eslint-disable-next-line no-fallthrough
-                            case 'number':
-                              if (i > -1 && i < column.length) { return column.getValue(i); }
-                              return undefined;
-                          }
-                          return Reflect.get(target, p, column);
-                        }
-                      }));

@@ -13,5 +13,7 @@
 // limitations under the License.
 
 export * from './column';
+export * from './data_frame';
+export * from './series';
 export * from './table';
 export * from './types';

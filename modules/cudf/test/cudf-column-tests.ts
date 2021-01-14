@@ -73,24 +73,9 @@ test('test child(child_index), num_children', () => {
 
   expect(stringsCol.type.id).toBe(TypeId.STRING);
   expect(stringsCol.numChildren).toBe(2);
-  expect(stringsCol[0]).toBe("hello");
+  expect(stringsCol.getValue(0)).toBe("hello");
   expect(stringsCol.getChild(0).length).toBe(offsetsCol.length);
   expect(stringsCol.getChild(0).type.id).toBe(offsetsCol.type.id);
   expect(stringsCol.getChild(1).length).toBe(utf8Col.length);
   expect(stringsCol.getChild(1).type.id).toBe(utf8Col.type.id);
 });
-
-// test('test Column(column) constructor', () => {
-//     const buffer_size = 100;
-//     const db = new DeviceBuffer(buffer_size);
-
-//     const null_mask = new DeviceBuffer(buffer_size);
-//     const col = new Column(types.FLOAT32, 10, db, null_mask, 1);
-//     const col1 = new Column(col);
-
-//     expect(col1.type.id).toBe(TypeId.FLOAT32);
-//     expect(col1.length).toBe(buffer_size);
-//     expect(col1.nullCount).toBe(1);
-//     expect(col1.hasNulls).toBe(true);
-//     expect(col1.nullable).toBe(true);
-// });

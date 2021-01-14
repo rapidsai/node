@@ -37,7 +37,6 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
                   InstanceAccessor("numColumns", &Table::num_columns, nullptr, napi_enumerable),
                   InstanceAccessor("numRows", &Table::num_rows, nullptr, napi_enumerable),
                   InstanceMethod("getColumnByIndex", &Table::get_column),
-                  InstanceMethod("updateColumns", &Table::update_columns),
                 });
 
   Table::constructor = Napi::Persistent(ctor);
@@ -120,18 +119,9 @@ Napi::Value Table::num_columns(Napi::CallbackInfo const& info) {
 Napi::Value Table::num_rows(Napi::CallbackInfo const& info) { return CPPToNapi(info)(num_rows()); }
 
 Napi::Value Table::get_column(Napi::CallbackInfo const& info) {
-  return columns_.Value().Get(CallbackArgs{info}[0].operator cudf::size_type());
-}
-
-Napi::Value Table::update_columns(Napi::CallbackInfo const& info) {
-  Napi::Object props = CallbackArgs{info}[0];
-
-  Napi::Array columns = props.Has("columns")  //
-                          ? props.Get("columns").As<Napi::Array>()
-                          : Napi::Array::New(Env(), 0);
-
-  Initialize(columns);
-  return info.Env().Undefined();
+  size_t i = CallbackArgs{info}[0];
+  if (i >= num_columns_) { throw Napi::Error::New(info.Env(), "Column index out of bounds"); }
+  return columns_.Value().Get(i);
 }
 
 }  // namespace nv
