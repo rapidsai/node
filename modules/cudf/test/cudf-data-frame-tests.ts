@@ -32,7 +32,7 @@ test('DataFrame initialization', () => {
   const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1});
   expect(table_0.numColumns).toBe(2);
   expect(table_0.numRows).toBe(length);
-  expect(table_0.columns).toStrictEqual(['col_0', 'col_1']);
+  expect(table_0.names).toStrictEqual(['col_0', 'col_1']);
   expect(table_0.get("col_0").type.id).toBe(col_0.type.id);
   expect(table_0.get("col_1").type.id).toBe(col_1.type.id);
 });
@@ -69,7 +69,7 @@ test('DataFrame.select', () => {
 
   expect(table_0.numColumns).toBe(4);
   expect(table_0.numRows).toBe(length);
-  expect(table_0.columns).toStrictEqual(["col_0", "col_1", "col_2", "col_3"]);
+  expect(table_0.names).toStrictEqual(["col_0", "col_1", "col_2", "col_3"]);
 
   expect(table_0.select(["col_0"])).toStrictEqual(new DataFrame({"col_0": col_0}));
   expect(table_0.select(["col_0", "col_3"]))
@@ -94,7 +94,7 @@ test('DataFrame.assign', () => {
   const table_1 = table_0.assign({"col_3": col_3});
   expect(table_1.numColumns).toBe(4);
   expect(table_1.numRows).toBe(length);
-  expect(table_1.columns).toStrictEqual(["col_0", "col_1", "col_2", "col_3"]);
+  expect(table_1.names).toStrictEqual(["col_0", "col_1", "col_2", "col_3"]);
 });
 
 test('DataFrame.drop', () => {
@@ -114,5 +114,5 @@ test('DataFrame.drop', () => {
   const table_1 = table_0.drop(["col_1"]);
   expect(table_1.numColumns).toBe(2);
   expect(table_1.numRows).toBe(length);
-  expect(table_1.columns).toStrictEqual(["col_0", "col_2"]);
+  expect(table_1.names).toStrictEqual(["col_0", "col_2"]);
 });

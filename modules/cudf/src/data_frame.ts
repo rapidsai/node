@@ -54,7 +54,7 @@ export class DataFrame<T extends TypeMap = any> {
 
   get numColumns() { return this._table.numColumns; }
 
-  get columns(): ReadonlyArray<ColumnNames<T>> { return this._accessor.names; }
+  get names(): ReadonlyArray<ColumnNames<T>> { return this._accessor.names; }
 
   select<R extends ColumnNames<T>>(columns: R[]): DataFrame<{[P in R]: T[P]}> {
     const column_accessor = this._accessor.selectByColumnNames(columns);
