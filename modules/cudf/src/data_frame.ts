@@ -15,23 +15,16 @@
 import {Series, Table} from '@nvidia/cudf';
 
 import {ColumnAccessor} from './column_accessor'
-import {ColumnNames, TypeMap} from './types'
+import {ColumnsMap, TypeMap} from './types'
 
 type SeriesMap<T extends TypeMap> = {
-  [P in ColumnNames<T>]: Series<T[P]>
+  [P in keyof T]: Series<T[P]>
 };
-
-export interface DataFrame<T extends TypeMap = any> {
-  select<R extends ColumnNames<T>>(columns: R[]): DataFrame<{[P in R]: T[P]}>;
-  assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<T|R>;
-  drop<R extends ColumnNames<T>>(names: R[]): DataFrame<Exclude<T, R>>;
-  get<P extends ColumnNames<T>>(name: P): Series<T[P]>;
-}
 
 function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   const columns = {} as any;
-  for (const entry of Object.entries(data)) { columns[entry[0]] = entry[1]._data; }
-  return columns;
+  for (const [name, series] of Object.entries(data)) { columns[name] = series._data; }
+  return <ColumnsMap<T>>columns;
 }
 
 export class DataFrame<T extends TypeMap = any> {
@@ -54,25 +47,17 @@ export class DataFrame<T extends TypeMap = any> {
 
   get numColumns() { return this._table.numColumns; }
 
-  get names(): ReadonlyArray<ColumnNames<T>> { return this._accessor.names; }
+  get names() { return this._accessor.names; }
 
-  select<R extends ColumnNames<T>>(columns: R[]): DataFrame<{[P in R]: T[P]}> {
-    const column_accessor = this._accessor.selectByColumnNames(columns);
-    return new DataFrame(column_accessor);
+  select<R extends keyof T>(columns: R[]) {
+    return new DataFrame(this._accessor.selectByColumnNames(columns));
   }
 
-  assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<T|R> {
-    const columns  = _seriesToColumns(data);
-    const accessor = this._accessor.addColumns(columns);
-    return new DataFrame(accessor) as DataFrame<T|R>;
+  assign<R extends TypeMap>(data: SeriesMap<R>) {
+    return new DataFrame(this._accessor.addColumns(_seriesToColumns(data)));
   }
 
-  drop<R extends ColumnNames<T>>(names: R[]): DataFrame<Exclude<T, R>> {
-    const accessor = this._accessor.dropColumns(names);
-    return new DataFrame(accessor);
-  }
+  drop<R extends keyof T>(names: R[]) { return new DataFrame(this._accessor.dropColumns(names)); }
 
-  get<P extends ColumnNames<T>>(name: P): Series<T[P]> {
-    return new Series(this._accessor.get(name));
-  }
+  get<P extends keyof T>(name: P) { return new Series(this._accessor.get(name)); }
 }

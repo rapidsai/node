@@ -48,8 +48,8 @@ test('DataFrame.get', () => {
   });
   const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1});
   expect(table_0.get("col_0").type.id).toBe(col_0.type.id);
-  expect(() => { table_0.get(2); }).toThrow();
-  expect(() => { table_0.get("junk"); }).toThrow();
+  expect(() => { (<any>table_0).get(2); }).toThrow();
+  expect(() => { (<any>table_0).get("junk"); }).toThrow();
 });
 
 test('DataFrame.select', () => {

@@ -13,55 +13,53 @@
 // limitations under the License.
 
 import {Column} from "./column";
-import {ColumnNames, TypeMap} from './types';
-
-type ColumnsMap<T extends TypeMap> = {
-  [P in keyof T]: Column<T[P]>
-};
+import {ColumnsMap, TypeMap} from './types';
 
 export class ColumnAccessor<T extends TypeMap = any> {
   private _data: ColumnsMap<T>;
-  private _labels_to_indices: Map<ColumnNames<T>, number> = new Map();
+  private _labels_to_indices: Map<keyof T, number> = new Map();
 
   constructor(data: ColumnsMap<T>) {
     this._data = data;
     this.names.forEach((val, index) => this._labels_to_indices.set(val, index));
   }
 
-  get names(): ReadonlyArray<ColumnNames<T>> { return Object.keys(this._data) as ColumnNames<T>[]; }
+  get names() { return Object.keys(this._data) as ReadonlyArray<keyof T>; }
 
   get columns(): ReadonlyArray<Column> { return Object.values(this._data); }
 
   get length() { return this._labels_to_indices.size; }
 
-  get<R extends ColumnNames<T>>(name: R) {
-    if (!(name in this._data)) { throw new Error(`Unknown column name: ${name}`); }
+  get<R extends keyof T>(name: R) {
+    if (!(name in this._data)) { throw new Error(`Unknown column name: ${name.toString()}`); }
     return this._data[name];
   }
 
-  addColumns<R extends TypeMap>(data: ColumnsMap<R>): ColumnAccessor<T|R> {
-    return new ColumnAccessor({...this._data, ...data} as ColumnsMap<T&R>);
+  addColumns<R extends TypeMap>(data: ColumnsMap<R>) {
+    return new ColumnAccessor({...this._data, ...data} as
+                              ColumnsMap<{[P in keyof T | keyof R]: (T & R)[P]}>);
   }
 
-  dropColumns<R extends ColumnNames<T>>(names: R[]): ColumnAccessor<Exclude<T, R>> {
+  dropColumns<R extends keyof T>(names: R[]) {
     const data     = {} as any;
-    const filtered = Object.keys(this._data).filter((x) => { return !names.includes(x as R); });
-    for (const name of filtered) { data[name] = this._data[name]; }
+    const namesMap = names.reduce((xs, x) => ({...xs, [x]: true}), {});
+    for (const name of this.names) {
+      if (!(name in namesMap)) { data[name] = this._data[name]; }
+    }
+    return new ColumnAccessor<Omit<T, R>>(data);
+  }
+
+  selectByColumnName<R extends keyof T>(name: R) { return this.selectByColumnNames([name]); }
+
+  selectByColumnNames<R extends keyof T>(names: R[]) {
+    const data: ColumnsMap<{[P in R]: T[P]}> = {} as any;
+    for (const name of names) {
+      if (this._data[name]) { data[name] = this._data[name]; }
+    }
     return new ColumnAccessor(data);
   }
 
-  selectByColumnName<R extends ColumnNames<T>>(name: R): ColumnAccessor {
-    return this.selectByColumnNames([name]);
-  }
-
-  selectByColumnNames<R extends ColumnNames<T>>(names: R[]) {
-    const data     = {} as any;
-    const filtered = Object.keys(this._data).filter((x) => { return names.includes(x as R); });
-    for (const name of filtered) { data[name] = this._data[name]; }
-    return new ColumnAccessor(data);
-  }
-
-  columnNameToColumnIndex(name: ColumnNames<T>): number|undefined {
+  columnNameToColumnIndex(name: keyof T): number|undefined {
     return this._labels_to_indices.get(name);
   }
 }

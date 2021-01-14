@@ -14,6 +14,7 @@
 
 import CUDF from './addon';
 import {Column} from './column';
+import {DataType} from './types';
 
 interface TableConstructor {
   readonly prototype: Table;
@@ -23,7 +24,7 @@ interface TableConstructor {
 export interface Table {
   readonly numColumns: number;
   readonly numRows: number;
-  getColumnByIndex(index: number): Column;
+  getColumnByIndex<T extends DataType = any>(index: number): Column<T>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

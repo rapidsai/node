@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Column} from './column';
+
 export interface DataType<T extends TypeId = any> {
   readonly id: T;
   readonly valueType: any;
@@ -24,10 +26,9 @@ export type TypeMap = {
   [key: string]: DataType
 }
 
-/* eslint-disable @typescript-eslint/ban-types */
-export type ColumnNames<T extends {[key: string]: DataType}> =
-  Extract<Exclude<keyof T, keyof{}>, string>;
-/* eslint-enable no-alert */
+export type ColumnsMap<T extends TypeMap> = {
+  [P in keyof T]: Column<T[P]>
+};
 
 export enum TypeId
 {
