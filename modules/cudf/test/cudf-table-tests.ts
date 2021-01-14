@@ -45,5 +45,5 @@ test('Table getColumnByIndex', () => {
   const table_0 = new Table({columns: [col_0, col_1]})
 
   expect(table_0.getColumnByIndex(0).type.id).toBe(TypeId.INT32);
-  // expect(() => { table_0.getColumnByIndex(4); }).toThrow();
+  expect(() => { table_0.getColumnByIndex(4); }).toThrow();
 });

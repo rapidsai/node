@@ -78,14 +78,3 @@ export class DataFrame<T extends TypeMap = any> {
     throw new Error(`Series does not exist in the DataFrame: ${name}`);
   }
 }
-
-const proxy = new Proxy({}, {
-  get(target: any, p: any, df: DataFrame) {
-    if (typeof p == 'string') {
-      if (df.columns.includes(p)) { return df.get(p); }
-    }
-    return Reflect.get(target, p, df);
-  }
-})
-
-Object.setPrototypeOf(DataFrame.prototype, proxy);

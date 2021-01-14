@@ -73,7 +73,7 @@ test('test child(child_index), num_children', () => {
 
   expect(stringsCol.type.id).toBe(TypeId.STRING);
   expect(stringsCol.numChildren).toBe(2);
-  expect(stringsCol[0]).toBe("hello");
+  expect(stringsCol.getValue(0)).toBe("hello");
   expect(stringsCol.getChild(0).length).toBe(offsetsCol.length);
   expect(stringsCol.getChild(0).type.id).toBe(offsetsCol.type.id);
   expect(stringsCol.getChild(1).length).toBe(utf8Col.length);

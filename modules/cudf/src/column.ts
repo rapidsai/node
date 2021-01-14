@@ -57,21 +57,3 @@ export interface Column<T extends DataType = any> {
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Column: ColumnConstructor = CUDF.Column;
-
-const proxy = new Proxy({}, {
-  get(target: any, p: any, column: any) {
-    let i: number = p;
-    switch (typeof p) {
-      // @ts-ignore
-      case 'string':
-        if (isNaN(i = +p)) { break; }
-      // eslint-disable-next-line no-fallthrough
-      case 'number':
-        if (i > -2 && i < column.length) { return column.getValue(i); }
-        return undefined;
-    }
-    return Reflect.get(target, p, column);
-  }
-});
-
-Object.setPrototypeOf(CUDF.Column.prototype, proxy);
