@@ -19,6 +19,7 @@ import CUDF from './addon';
 import {DataType, TypeId} from './types';
 
 export type ColumnProps = {
+  // todo -- need to pass full DataType instance when we implement fixed_point
   type: TypeId,
   data?: DeviceBuffer|MemoryData|null,
   offset?: number,
