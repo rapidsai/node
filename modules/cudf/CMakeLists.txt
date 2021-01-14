@@ -78,6 +78,6 @@ target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       ${Boost_LIBRARIES}
                       rmm::rmm
-                      ${CUDF_LIBRARY}
+                      cudf::cudf
                       "${NVIDIA_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NVIDIA_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
