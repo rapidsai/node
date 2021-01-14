@@ -35,7 +35,6 @@ interface ColumnConstructor {
 }
 
 export interface Column<T extends DataType = any> {
-  [index: number]: any;
 
   readonly type: T;
   readonly data: DeviceBuffer;

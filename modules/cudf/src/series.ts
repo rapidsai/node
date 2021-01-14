@@ -36,7 +36,6 @@ export type SeriesProps<T extends DataType = any> = {
 };
 
 export class Series<T extends DataType = any> {
-  [key: number]: T['valueType'];
 
   /*private*/ _data: Column<T>;
 
