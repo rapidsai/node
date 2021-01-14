@@ -73,8 +73,6 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   get<P extends ColumnNames<T>>(name: P): Series<T[P]> {
-    const index = this._accessor.columnNameToColumnIndex(name)
-    if (typeof index !== "undefined") { return new Series(this._table.getColumnByIndex(index)); }
-    throw new Error(`Series does not exist in the DataFrame: ${name}`);
+    return new Series(this._accessor.get(name));
   }
 }

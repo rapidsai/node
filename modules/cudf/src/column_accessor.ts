@@ -34,7 +34,10 @@ export class ColumnAccessor<T extends TypeMap = any> {
 
   get length() { return this._labels_to_indices.size; }
 
-  get<R extends ColumnNames<T>>(key: R) { return this._data[key]; }
+  get<R extends ColumnNames<T>>(name: R) {
+    if (!(name in this._data)) { throw new Error(`Unknown column name: ${name}`); }
+    return this._data[name];
+  }
 
   addColumns<R extends TypeMap>(data: ColumnsMap<R>): ColumnAccessor<T|R> {
     return new ColumnAccessor({...this._data, ...data} as ColumnsMap<T&R>);
