@@ -25,7 +25,6 @@ fi
 
 if [[ "$DEMO" == "" ]]; then
     DEMOS="
-    modules/demo/fa2/package.json
     modules/demo/luma/package.json
     modules/demo/umap/package.json
     modules/demo/graph/package.json
@@ -52,11 +51,8 @@ fi
 ARGS="${@:-}";
 
 if [[ "$DEMO" =~ "modules/demo/luma" ]]; then ARGS="${@:-01}";
-elif [[ "$DEMO" =~ "modules/demo/fa2" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
 elif [[ "$DEMO" =~ "modules/demo/umap" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
 elif [[ "$DEMO" =~ "modules/demo/graph" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
-# e.g. npm --loglevel=silent run demo modules/demo/deck/nvencoder | vlc -
-elif [[ "$DEMO" =~ "modules/demo/deck/nvencoder" ]]; then ARGS="${@:-luma}";
 fi
 
 NODE_ENV=production exec node -r esm --trace-uncaught "$DEMO" $ARGS

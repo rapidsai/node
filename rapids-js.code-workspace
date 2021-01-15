@@ -37,10 +37,6 @@
             "path": "modules/glfw"
         },
         {
-            "name": "nvencoder",
-            "path": "modules/nvencoder"
-        },
-        {
             "name": "webgl",
             "path": "modules/webgl"
         }
@@ -91,7 +87,6 @@
             "./rapids-js/modules/deck.gl",
             "./rapids-js/modules/demo",
             "./rapids-js/modules/glfw",
-            "./rapids-js/modules/nvencoder",
             "./rapids-js/modules/webgl",
         ],
         "eslint.options": {

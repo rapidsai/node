@@ -28,6 +28,7 @@
     "@nvidia/webgl": "0.0.1",
     "@types/jsdom": "^12.2.4",
     "@types/react": "^16.0.0",
+    "builtins": "^3.0.1",
     "canvas": "^2.6.1",
     "cross-fetch": "^3.0.4",
     "fetch-readablestream": "^0.2.0",
