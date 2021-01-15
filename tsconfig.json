@@ -21,8 +21,6 @@
             "@nvidia/deck.gl/*":      ["modules/deck.gl/src/*"],
             "@nvidia/glfw":           ["modules/glfw/src/index"],
             "@nvidia/glfw/*":         ["modules/glfw/src/*"],
-            "@nvidia/nvencoder":      ["modules/nvencoder/src/index"],
-            "@nvidia/nvencoder/*":    ["modules/nvencoder/src/*"],
             "@nvidia/webgl":          ["modules/webgl/src/index"],
             "@nvidia/webgl/*":        ["modules/webgl/src/*"],
         },

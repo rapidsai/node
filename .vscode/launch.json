@@ -7,16 +7,6 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug nvencoder-server demo",
-            "program": "${workspaceFolder}/modules/demo/deck/nvencoder-server/index.js",
-            "stopOnEntry": false,
-            "runtimeArgs": ["-r", "esm"],
-            "cwd": "${workspaceFolder}/modules/demo/deck/nvencoder-server",
-            "env": { "NODE_ENV": "production" }
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "Debug graph demo",
             "program": "${workspaceFolder}/modules/demo/graph/index.js",
             "stopOnEntry": false,

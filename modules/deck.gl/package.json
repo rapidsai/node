@@ -21,7 +21,6 @@
     "@luma.gl/engine": "8.2.0",
     "@luma.gl/webgl": "8.2.0",
     "@nvidia/cuda": "0.0.1",
-    "@nvidia/nvencoder": "0.0.1",
     "@nvidia/rapids-core": "0.0.1"
   },
   "files": [
