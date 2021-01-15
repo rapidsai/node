@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Series, Table} from '@nvidia/cudf';
+import {Series} from '@nvidia/cudf';
 
 import {ColumnAccessor} from './column_accessor'
 import {ColumnsMap, TypeMap} from './types'
@@ -40,15 +40,9 @@ export class DataFrame<T extends TypeMap = any> {
     }
   }
 
-  get numRows() {
-    const table = new Table({columns: this._accessor.columns});
-    return table.numRows;
-  }
+  get numRows() { return this._accessor.columns[0].length; }
 
-  get numColumns() {
-    const table = new Table({columns: this._accessor.columns});
-    return table.numColumns;
-  }
+  get numColumns() { return this._accessor.length; }
 
   get names() { return this._accessor.names; }
 
