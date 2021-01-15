@@ -28,24 +28,27 @@ function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
 }
 
 export class DataFrame<T extends TypeMap = any> {
-  private _table: Table;
   private _accessor: ColumnAccessor<T>;
 
   constructor(data: ColumnAccessor<T>|SeriesMap<T>) {
     if (data instanceof ColumnAccessor) {
-      this._table    = new Table({columns: data.columns});
       this._accessor = data;
     } else {
       const columns  = _seriesToColumns(data);
       const accessor = new ColumnAccessor(columns);
-      this._table    = new Table({columns: accessor.columns});
       this._accessor = accessor;
     }
   }
 
-  get numRows() { return this._table.numRows; }
+  get numRows() {
+    const table = new Table({columns: this._accessor.columns});
+    return table.numRows;
+  }
 
-  get numColumns() { return this._table.numColumns; }
+  get numColumns() {
+    const table = new Table({columns: this._accessor.columns});
+    return table.numColumns;
+  }
 
   get names() { return this._accessor.names; }
 
