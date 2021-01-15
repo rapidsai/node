@@ -12,13 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Series} from '@nvidia/cudf';
+import {Column, Series, Table} from '@nvidia/cudf';
 
 import {ColumnAccessor} from './column_accessor'
-import {ColumnsMap, TypeMap} from './types'
+import {ColumnsMap, NullOrder, TypeMap} from './types'
 
 type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: Series<T[P]>
+};
+
+type OrderSpec = {
+  ascending: boolean,
+  null_order: NullOrder
 };
 
 function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
@@ -57,4 +62,22 @@ export class DataFrame<T extends TypeMap = any> {
   drop<R extends keyof T>(names: R[]) { return new DataFrame(this._accessor.dropColumns(names)); }
 
   get<P extends keyof T>(name: P) { return new Series(this._accessor.get(name)); }
+
+  orderBy<R extends keyof T>(options: {[P in R]: OrderSpec}) {
+    const column_orders = new Array<boolean>();
+    const null_orders   = new Array<NullOrder>();
+    const columns       = new Array<Column<T[keyof T]>>();
+    const entries       = Object.entries(options) as [R, OrderSpec][];
+    entries.forEach(([name, {ascending, null_order}]) => {
+      const col = this.get(name);
+      if (col) {
+        columns.push(col._data);
+        column_orders.push(ascending);
+        null_orders.push(null_order);
+      }
+    });
+    // Compute the sorted sorted_indices
+    const sorted_indices = new Table({columns}).orderBy(column_orders, null_orders);
+    return new Series(sorted_indices);
+  }
 }

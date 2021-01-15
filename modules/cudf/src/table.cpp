@@ -18,6 +18,8 @@
 #include "node_cudf/utilities/napi_to_cpp.hpp"
 
 #include <cudf/column/column.hpp>
+#include <cudf/sorting.hpp>
+#include <cudf/types.hpp>
 
 #include <napi.h>
 
@@ -38,6 +40,7 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
                   InstanceAccessor("numRows", &Table::num_rows, nullptr, napi_enumerable),
                   InstanceMethod("getColumnByIndex", &Table::get_column),
                   InstanceMethod("toArrow", &Table::to_arrow),
+                  InstanceMethod("orderBy", &Table::order_by),
                 });
 
   Table::constructor = Napi::Persistent(ctor);
@@ -123,6 +126,46 @@ Napi::Value Table::get_column(Napi::CallbackInfo const& info) {
   cudf::size_type i = CallbackArgs{info}[0];
   if (i >= num_columns_) { throw Napi::Error::New(info.Env(), "Column index out of bounds"); }
   return columns_.Value().Get(i);
+}
+
+Napi::Value Table::order_by(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+
+  NODE_CUDF_EXPECT(args[0].IsArray(), "order_by ascending argument expects an array");
+  NODE_CUDF_EXPECT(args[1].IsArray(), "order_by null_order argument expects an array");
+
+  std::vector<bool> ascending  = args[0];
+  std::vector<bool> null_order = args[1];
+
+  NODE_CUDF_EXPECT(ascending.size() == null_order.size(),
+                   "ascending and null_order must be the same size");
+
+  auto table_view = view();
+
+  std::vector<cudf::order> column_order;
+  column_order.reserve(ascending.size());
+  for (auto i : ascending) {
+    if (i) {
+      column_order.push_back(cudf::order::ASCENDING);
+    } else {
+      column_order.push_back(cudf::order::DESCENDING);
+    }
+  }
+
+  std::vector<cudf::null_order> null_precedece;
+  null_precedece.reserve(null_order.size());
+  for (auto i : null_order) {
+    if (i) {
+      null_precedece.push_back(cudf::null_order::BEFORE);
+    } else {
+      null_precedece.push_back(cudf::null_order::AFTER);
+    }
+  }
+
+  std::unique_ptr<cudf::column> result =
+    cudf::sorted_order(table_view, column_order, null_precedece);
+
+  return Column::New(std::move(result))->Value();
 }
 
 }  // namespace nv

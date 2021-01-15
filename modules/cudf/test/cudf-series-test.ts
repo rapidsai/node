@@ -84,3 +84,18 @@ describe('toArrow()', () => {
     expect([...utf8Vec]).toEqual(['hello']);
   });
 });
+
+// test('Column argsort', () => {
+//   const arr    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+//   const result = arr.argsort();
+
+//   expect(result.type.id).toBe(TypeId.INT32);
+//   expect(result.length).toBe(arr.length);
+//   expect(result.nullCount).toBe(0);
+//   expect(result.hasNulls).toBe(false);
+//   expect(result.nullable).toBe(false);
+
+//   // TODO -- implement .to_array
+//   const expected = [5, 0, 4, 1, 3, 2];
+//   for (const ind of expected) { expect(result[ind]).toBe(expected[ind]); }
+// });

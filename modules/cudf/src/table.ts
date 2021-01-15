@@ -14,7 +14,7 @@
 
 import CUDF from './addon';
 import {Column} from './column';
-import {DataType} from './types';
+import {DataType, NullOrder} from './types';
 
 type ToArrowMetadata = [string | number, ToArrowMetadata?];
 
@@ -27,7 +27,11 @@ export interface Table {
   readonly numColumns: number;
   readonly numRows: number;
   getColumnByIndex<T extends DataType = any>(index: number): Column<T>;
+<<<<<<< HEAD
   toArrow(names: ToArrowMetadata[]): Uint8Array;
+=======
+  orderBy(column_orders: boolean[], null_orders: NullOrder[]): Column;
+>>>>>>> 8d7457d (checkpoint)
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

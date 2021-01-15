@@ -146,9 +146,8 @@ class Table : public Napi::ObjectWrap<Table> {
   Napi::Value num_rows(Napi::CallbackInfo const& info);
   Napi::Value select(Napi::CallbackInfo const& info);
   Napi::Value get_column(Napi::CallbackInfo const& info);
-  Napi::Value update_columns(Napi::CallbackInfo const& info);
-
   Napi::Value to_arrow(Napi::CallbackInfo const& info);
+  Napi::Value order_by(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

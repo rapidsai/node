@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Bool8, DataFrame, Int32, Series} from '@nvidia/cudf';
+import {Bool8, DataFrame, Int32, NullOrder, Series} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 
 const mr = new CudaMemoryResource();
@@ -115,4 +115,19 @@ test('DataFrame.drop', () => {
   expect(table_1.numColumns).toBe(2);
   expect(table_1.numRows).toBe(length);
   expect(table_1.names).toStrictEqual(["col_0", "col_2"]);
+});
+
+test('DataFrame.orderBy', () => {
+  const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const df     = new DataFrame({"a": col});
+  const result = df.orderBy({"a": {ascending: true, null_order: NullOrder.BEFORE}});
+
+  // TODO -- implement .to_array
+  const expected = [5, 0, 4, 1, 3, 2];
+  expect(result.getValue(0)).toBe(expected[0]);
+  expect(result.getValue(1)).toBe(expected[1]);
+  expect(result.getValue(2)).toBe(expected[2]);
+  expect(result.getValue(3)).toBe(expected[3]);
+  expect(result.getValue(4)).toBe(expected[4]);
+  expect(result.getValue(5)).toBe(expected[5]);
 });

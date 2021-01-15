@@ -16,6 +16,12 @@ import * as ArrowDataType from 'apache-arrow/type';
 
 import {Column} from './column';
 
+export enum NullOrder
+{
+  AFTER,
+  BEFORE
+}
+
 export interface DataType<T extends TypeId = any> {
   readonly id: T;
   readonly valueType: any;
