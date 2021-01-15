@@ -25,7 +25,6 @@ fi
 
 if [[ "$DEMO" == "" ]]; then
     DEMOS="
-    modules/demo/fa2/package.json
     modules/demo/luma/package.json
     modules/demo/umap/package.json
     modules/demo/graph/package.json
@@ -52,7 +51,6 @@ fi
 ARGS="${@:-}";
 
 if [[ "$DEMO" =~ "modules/demo/luma" ]]; then ARGS="${@:-01}";
-elif [[ "$DEMO" =~ "modules/demo/fa2" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
 elif [[ "$DEMO" =~ "modules/demo/umap" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
 elif [[ "$DEMO" =~ "modules/demo/graph" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
 fi

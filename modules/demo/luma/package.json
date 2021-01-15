@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name":  "@nvidia/luma.gl-demos",
+  "name": "luma.gl-lessons",
   "main": "index.js",
   "version": "0.0.0",
   "license": "Apache-2.0",

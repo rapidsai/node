@@ -62,8 +62,8 @@
             "name": "Debug xterm demo",
             "stopOnEntry": false,
             "runtimeArgs": ["-r", "esm"],
-            "cwd": "${workspaceFolder}/modules/demo",
-            "program": "${workspaceFolder}/modules/demo/xterm.js",
+            "cwd": "${workspaceFolder}/modules/demo/xterm",
+            "program": "${workspaceFolder}/modules/demo/xterm/index.js",
             "env": { "NODE_ENV": "production" }
         },
         {
