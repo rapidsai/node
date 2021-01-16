@@ -9,6 +9,7 @@
 
 .env
 .cmake-js
+modules/**/*/doc
 modules/**/*/lib
 modules/**/*/build
 modules/*/include/rmm
