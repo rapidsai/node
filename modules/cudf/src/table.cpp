@@ -68,9 +68,9 @@ Table::Table(CallbackArgs const& args) : Napi::ObjectWrap<Table>(args) {
 
 void Table::Initialize(Napi::Array const& columns) {
   num_columns_ = columns.Length();
-  if (num_columns_ > 0u) {
+  if (num_columns_ > 0) {
     num_rows_ = nv::Column::Unwrap(columns.Get(0u).As<Napi::Object>())->size();
-    for (auto i = 1; i < columns.Length(); ++i) {
+    for (auto i = 1u; i < columns.Length(); ++i) {
       NODE_CUDF_EXPECT((nv::Column::Unwrap(columns.Get(i).As<Napi::Object>())->size() == num_rows_),
                        "All Columns must be of same length");
     }
@@ -87,7 +87,7 @@ cudf::table_view Table::view() const {
   // Create views of children
   std::vector<cudf::column_view> child_views;
   child_views.reserve(columns.Length());
-  for (auto i = 0; i < columns.Length(); ++i) {
+  for (auto i = 0u; i < columns.Length(); ++i) {
     auto child = columns.Get(i).As<Napi::Object>();
     child_views.emplace_back(*Column::Unwrap(child));
   }
@@ -101,7 +101,7 @@ cudf::mutable_table_view Table::mutable_view() {
   // Create views of children
   std::vector<cudf::mutable_column_view> child_views;
   child_views.reserve(columns.Length());
-  for (auto i = 0; i < columns.Length(); ++i) {
+  for (auto i = 0u; i < columns.Length(); ++i) {
     auto child = columns.Get(i).As<Napi::Object>();
     child_views.emplace_back(*Column::Unwrap(child));
   }
@@ -119,7 +119,7 @@ Napi::Value Table::num_columns(Napi::CallbackInfo const& info) {
 Napi::Value Table::num_rows(Napi::CallbackInfo const& info) { return CPPToNapi(info)(num_rows()); }
 
 Napi::Value Table::get_column(Napi::CallbackInfo const& info) {
-  size_t i = CallbackArgs{info}[0];
+  cudf::size_type i = CallbackArgs{info}[0];
   if (i >= num_columns_) { throw Napi::Error::New(info.Env(), "Column index out of bounds"); }
   return columns_.Value().Get(i);
 }

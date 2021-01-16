@@ -25,7 +25,6 @@ namespace nv {
 
 // GLFWAPI GLFWmonitor** glfwGetMonitors(int* count);
 Napi::Value glfwGetMonitors(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
   int32_t count{};
   GLFWAPI::GLFWmonitor** mons = GLFWAPI::glfwGetMonitors(&count);
   return CPPToNapi(info)(std::vector<GLFWAPI::GLFWmonitor*>{mons, mons + count});
@@ -85,10 +84,9 @@ Napi::Value glfwGetMonitorContentScale(Napi::CallbackInfo const& info) {
 
 // GLFWAPI const char* glfwGetMonitorName(GLFWmonitor* monitor);
 Napi::Value glfwGetMonitorName(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
   CallbackArgs args{info};
   auto name = GLFWAPI::glfwGetMonitorName(args[0]);
-  return CPPToNapi(info)(std::string{name || ""});
+  return CPPToNapi(info)(std::string{name == nullptr ? name : ""});
 }
 
 // GLFWAPI void glfwSetMonitorUserPointer(GLFWmonitor* monitor, void* pointer);
@@ -99,7 +97,6 @@ Napi::Value glfwGetMonitorName(Napi::CallbackInfo const& info) {
 
 // GLFWAPI const GLFWvidmode* glfwGetVideoModes(GLFWmonitor* monitor, int* count);
 Napi::Value glfwGetVideoModes(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
   CallbackArgs args{info};
   int32_t count{};
   auto modes = GLFWAPI::glfwGetVideoModes(args[0], &count);

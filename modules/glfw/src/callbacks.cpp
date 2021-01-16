@@ -68,7 +68,7 @@ auto GLFWcursorenter_cb_js        = js_callback<GLFWcursorenterfun>{};
 auto GLFWscroll_cb_js             = js_callback<GLFWscrollfun>{};
 
 void GLFWerror_cb(int32_t error_code, const char* description) {
-  GLFWerror_cb_js(error_code, std::string{description || ""});
+  GLFWerror_cb_js(error_code, std::string{description == nullptr ? description : ""});
 }
 void GLFWmonitor_cb(GLFWmonitor* monitor, int32_t event) { GLFWmonitor_cb_js(monitor, event); }
 void GLFWjoystick_cb(int32_t joystick, int32_t event) { GLFWjoystick_cb_js(joystick, event); }

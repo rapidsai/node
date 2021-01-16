@@ -48,7 +48,7 @@ struct CallbackArgs {
 
   // Construct a CallbackArgs by proxying to an Napi::CallbackInfo instance
   CallbackArgs(Napi::CallbackInfo const* info, bool owns_info = false)
-    : info_(info), owns_info_(owns_info){};
+    : owns_info_(owns_info), info_(info){};
 
   // Construct a CallbackArgs by proxying to an Napi::CallbackInfo instance
   CallbackArgs(Napi::CallbackInfo const& info) : info_(&info){};

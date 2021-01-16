@@ -83,8 +83,8 @@ MemoryResource::MemoryResource(CallbackArgs const& args) : Napi::ObjectWrap<Memo
       upstream_mr_                        = Napi::Persistent(arg1.ToObject());
       mr_.reset(new rmm::mr::pool_memory_resource<rmm::mr::device_memory_resource>(
         mr,
-        initial_pool_size == -1 ? thrust::nullopt : thrust::make_optional(initial_pool_size),
-        maximum_pool_size == -1 ? thrust::nullopt : thrust::make_optional(maximum_pool_size)));
+        initial_pool_size == -1uL ? thrust::nullopt : thrust::make_optional(initial_pool_size),
+        maximum_pool_size == -1uL ? thrust::nullopt : thrust::make_optional(maximum_pool_size)));
       break;
     }
 

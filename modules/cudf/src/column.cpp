@@ -84,7 +84,7 @@ ObjectUnwrap<Column> Column::New(std::unique_ptr<cudf::column> column) {
   props.Set("type", column->type().id());
   props.Set("nullCount", column->null_count());
 
-  auto contents = std::move(column->release());
+  auto contents = column->release();
   auto data     = std::move(contents.data);
   auto mask     = std::move(contents.null_mask);
   auto children = std::move(contents.children);
@@ -201,7 +201,7 @@ cudf::column_view Column::view() const {
   // Create views of children
   std::vector<cudf::column_view> child_views;
   child_views.reserve(children.Length());
-  for (auto i = 0; i < children.Length(); ++i) {
+  for (auto i = 0u; i < children.Length(); ++i) {
     auto child = children.Get(i).As<Napi::Object>();
     child_views.emplace_back(*Column::Unwrap(child));
   }
@@ -224,7 +224,7 @@ cudf::mutable_column_view Column::mutable_view() {
   // Create views of children
   std::vector<cudf::mutable_column_view> child_views;
   child_views.reserve(children.Length());
-  for (auto i = 0; i < children.Length(); ++i) {
+  for (auto i = 0u; i < children.Length(); ++i) {
     auto child = children.Get(i).As<Napi::Object>();
     child_views.emplace_back(*Column::Unwrap(child));
   }

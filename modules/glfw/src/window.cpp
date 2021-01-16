@@ -431,7 +431,7 @@ Napi::Value glfwSetClipboardString(Napi::CallbackInfo const& info) {
 Napi::Value glfwGetClipboardString(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   auto str = GLFWAPI::glfwGetClipboardString(args[0]);
-  return CPPToNapi(info)(std::string{str || ""});
+  return CPPToNapi(info)(std::string{str == nullptr ? str : ""});
 }
 
 // GLFWAPI void glfwMakeContextCurrent(GLFWwindow* window);
