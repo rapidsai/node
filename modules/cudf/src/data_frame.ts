@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Series, Table} from '@nvidia/cudf';
+import {Series} from '@nvidia/cudf';
 
 import {ColumnAccessor} from './column_accessor'
 import {ColumnsMap, TypeMap} from './types'
@@ -28,24 +28,21 @@ function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
 }
 
 export class DataFrame<T extends TypeMap = any> {
-  private _table: Table;
   private _accessor: ColumnAccessor<T>;
 
   constructor(data: ColumnAccessor<T>|SeriesMap<T>) {
     if (data instanceof ColumnAccessor) {
-      this._table    = new Table({columns: data.columns});
       this._accessor = data;
     } else {
       const columns  = _seriesToColumns(data);
       const accessor = new ColumnAccessor(columns);
-      this._table    = new Table({columns: accessor.columns});
       this._accessor = accessor;
     }
   }
 
-  get numRows() { return this._table.numRows; }
+  get numRows() { return this._accessor.columns[0].length; }
 
-  get numColumns() { return this._table.numColumns; }
+  get numColumns() { return this._accessor.length; }
 
   get names() { return this._accessor.names; }
 

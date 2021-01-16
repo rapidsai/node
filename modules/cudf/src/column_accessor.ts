@@ -20,6 +20,13 @@ export class ColumnAccessor<T extends TypeMap = any> {
   private _labels_to_indices: Map<keyof T, number> = new Map();
 
   constructor(data: ColumnsMap<T>) {
+    const columns = Object.values(data);
+    if (columns.length > 0) {
+      const N = columns[0].length;
+      if (!columns.every((col) => col.length == N)) {
+        throw new Error("Column lengths must all be the same")
+      }
+    }
     this._data = data;
     this.names.forEach((val, index) => this._labels_to_indices.set(val, index));
   }
