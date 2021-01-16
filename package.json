@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "clean": "scripts/exec.js clean",
+    "doc": "scripts/exec.js run doc",
     "demo": "scripts/exec.js demo",
     "test": "scripts/exec.js test",
     "lint": "scripts/exec.js lint",
