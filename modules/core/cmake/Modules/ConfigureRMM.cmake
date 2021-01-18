@@ -20,10 +20,8 @@ function(find_and_configure_rmm VERSION)
 
     CPMAddPackage(NAME rmm
         VERSION        ${RMM_VERSION}
-        # GIT_REPOSITORY https://github.com/rapidsai/rmm.git
-        # GIT_TAG        branch-${RMM_VERSION}
-        GIT_REPOSITORY https://github.com/trxcllnt/rmm.git
-        GIT_TAG        fix/-Wall
+        GIT_REPOSITORY https://github.com/rapidsai/rmm.git
+        GIT_TAG        branch-${RMM_VERSION}
         GIT_SHALLOW    TRUE
         OPTIONS        "BUILD_TESTS OFF"
                        "BUILD_BENCHMARKS OFF"
