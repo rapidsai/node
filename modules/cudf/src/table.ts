@@ -16,6 +16,8 @@ import CUDF from './addon';
 import {Column} from './column';
 import {DataType} from './types';
 
+type ToArrowMetadata = [string | number, ToArrowMetadata?];
+
 interface TableConstructor {
   readonly prototype: Table;
   new(props: {columns?: ReadonlyArray<Column>|null}): Table;
@@ -25,6 +27,7 @@ export interface Table {
   readonly numColumns: number;
   readonly numRows: number;
   getColumnByIndex<T extends DataType = any>(index: number): Column<T>;
+  toArrow(names: ToArrowMetadata[]): Uint8Array;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

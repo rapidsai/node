@@ -61,15 +61,13 @@ ObjectUnwrap<Column> Column::operator>=(Scalar const& other) const {
 ObjectUnwrap<Column> Column::binary_operation(Column const& rhs,
                                               cudf::binary_operator op,
                                               cudf::type_id output_type) const {
-  return Column::New(
-    std::move(cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type})));
+  return Column::New(cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type}));
 }
 
 ObjectUnwrap<Column> Column::binary_operation(Scalar const& rhs,
                                               cudf::binary_operator op,
                                               cudf::type_id output_type) const {
-  return Column::New(
-    std::move(cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type})));
+  return Column::New(cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type}));
 }
 
 }  // namespace nv

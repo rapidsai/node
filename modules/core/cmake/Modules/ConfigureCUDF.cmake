@@ -41,6 +41,7 @@ function(find_and_configure_cudf VERSION)
                         "ARROW_STATIC_LIB ON"
                         "JITIFY_USE_CACHE ON"
                         "CUDA_STATIC_RUNTIME ON"
+                        "PER_THREAD_DEFAULT_STREAM ON"
                         "AUTO_DETECT_CUDA_ARCHITECTURES ON"
                         "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
 endfunction()

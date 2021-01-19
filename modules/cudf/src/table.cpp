@@ -37,6 +37,7 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
                   InstanceAccessor("numColumns", &Table::num_columns, nullptr, napi_enumerable),
                   InstanceAccessor("numRows", &Table::num_rows, nullptr, napi_enumerable),
                   InstanceMethod("getColumnByIndex", &Table::get_column),
+                  InstanceMethod("toArrow", &Table::to_arrow),
                 });
 
   Table::constructor = Napi::Persistent(ctor);

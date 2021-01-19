@@ -3980,6 +3980,22 @@ apache-arrow@0.17.0:
     text-encoding-utf-8 "^1.0.2"
     tslib "^1.9.3"
 
+apache-arrow@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/apache-arrow/-/apache-arrow-2.0.0.tgz#f0c7b717a8ea8fdd07ec39715ab3cdd14285976c"
+  integrity sha512-VSGJZepkdlT9yTTACmIAFBCXClw53F6jFa/7iRCoK84ia3TD6oQ8vDqeIUKajp8TfCV2i3NQI7uTmbtJKA4C9w==
+  dependencies:
+    "@types/flatbuffers" "^1.9.1"
+    "@types/node" "^12.0.4"
+    "@types/text-encoding-utf-8" "^1.0.1"
+    command-line-args "5.0.2"
+    command-line-usage "5.0.5"
+    flatbuffers "1.11.0"
+    json-bignum "^0.0.3"
+    pad-left "^2.1.0"
+    text-encoding-utf-8 "^1.0.2"
+    tslib "^1.12.0"
+
 aproba@^1.0.3, aproba@^1.1.1:
   version "1.2.0"
   resolved "https://registry.npmjs.org/aproba/-/aproba-1.2.0.tgz#6802e6264efd18c790a1b0d517f0f2627bf2c94a"

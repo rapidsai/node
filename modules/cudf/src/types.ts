@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as ArrowDataType from 'apache-arrow/type';
+
 import {Column} from './column';
 
 export interface DataType<T extends TypeId = any> {
@@ -144,3 +146,18 @@ export interface String extends DataType<TypeId.STRING> {
 export class String extends DataType<TypeId.STRING> {
   constructor() { super(TypeId.STRING); }
 }
+
+export type CUDFToArrowType<T extends DataType> = {
+  [TypeId.INT8]: ArrowDataType.Int8;          //
+    [TypeId.INT16]: ArrowDataType.Int16;      //
+    [TypeId.INT32]: ArrowDataType.Int32;      //
+    [TypeId.INT64]: ArrowDataType.Int64;      //
+    [TypeId.UINT8]: ArrowDataType.Uint8;      //
+    [TypeId.UINT16]: ArrowDataType.Uint16;    //
+    [TypeId.UINT32]: ArrowDataType.Uint32;    //
+    [TypeId.UINT64]: ArrowDataType.Uint64;    //
+    [TypeId.FLOAT32]: ArrowDataType.Float32;  //
+    [TypeId.FLOAT64]: ArrowDataType.Float64;  //
+    [TypeId.BOOL8]: ArrowDataType.Bool;       //
+    [TypeId.STRING]: ArrowDataType.Utf8;      //
+}[T['id']];

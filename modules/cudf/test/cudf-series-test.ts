@@ -15,6 +15,7 @@
 import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
 import {Column, Int32, Series, String, TypeId, Uint8} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
+import {Uint8Vector, Utf8Vector} from 'apache-arrow';
 
 const mr = new CudaMemoryResource();
 
@@ -60,4 +61,26 @@ test('test child(child_index), num_children', () => {
   expect(stringsCol.getChild(0).type.id).toBe(offsetsCol.type.id);
   expect(stringsCol.getChild(1).length).toBe(utf8Col.length);
   expect(stringsCol.getChild(1).type.id).toBe(utf8Col.type.id);
+});
+
+describe('toArrow()', () => {
+  test('converts Uint8 Series to Uint8Vector', () => {
+    const uint8Col = new Series({type: new Uint8(), data: new Uint8Buffer(Buffer.from("hello"))});
+    const uint8Vec = uint8Col.toArrow();
+    expect(uint8Vec).toBeInstanceOf(Uint8Vector);
+    expect([...uint8Vec]).toEqual([...Buffer.from('hello')]);
+  });
+  test('converts String Series to Utf8Vector', () => {
+    const utf8Col    = new Series({type: new Uint8(), data: new Uint8Buffer(Buffer.from("hello"))});
+    const offsetsCol = new Series({type: new Int32(), data: new Int32Buffer([0, utf8Col.length])});
+    const stringsCol = new Series({
+      type: new String(),
+      length: 1,
+      nullMask: new Uint8Buffer([255]),
+      children: [offsetsCol, utf8Col],
+    });
+    const utf8Vec    = stringsCol.toArrow();
+    expect(utf8Vec).toBeInstanceOf(Utf8Vector);
+    expect([...utf8Vec]).toEqual(['hello']);
+  });
 });

@@ -23,8 +23,8 @@ namespace nv {
 
 ObjectUnwrap<Column> Column::apply_boolean_mask(Column const& boolean_mask,
                                                 rmm::mr::device_memory_resource* mr) const {
-  auto result = std::move(cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr));
-  std::vector<std::unique_ptr<cudf::column>> contents = std::move(result->release());
+  auto result = cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr);
+  std::vector<std::unique_ptr<cudf::column>> contents = result->release();
   return Column::New(std::move(contents[0]));
 }
 

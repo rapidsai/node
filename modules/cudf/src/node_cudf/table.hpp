@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <node_cudf/column.hpp>
+
 #include <nv_node/utilities/args.hpp>
 
 #include <cudf/table/table.hpp>
@@ -112,13 +114,26 @@ class Table : public Napi::ObjectWrap<Table> {
   operator cudf::table_view() const { return this->view(); };
 
   /**
-   * @brief Implicit conversion operator to a `mutable_table_view `.
+   * @brief Implicit conversion operator to a `mutable_table_view`.
    *
    * This allows pasing a `table` object into a function that accepts a
    *`mutable_table_view `. The conversion is automatic.
-   * @return cudf::mutable_table_view  Mutable, non-owning `mutable_table_view `
+   * @return cudf::mutable_table_view  Mutable, non-owning `mutable_table_view`
    */
   operator cudf::mutable_table_view() { return this->mutable_view(); };
+
+  /**
+   * @brief Returns a const reference to the specified column
+   *
+   * @throws std::out_of_range
+   * If i is out of the range [0, num_columns)
+   *
+   * @param i Index of the desired column
+   * @return A const reference to the desired column
+   */
+  Column const& get_column(cudf::size_type i) const {
+    return *Column::Unwrap(columns_.Value().Get(i).ToObject());
+  }
 
  private:
   static Napi::FunctionReference constructor;
@@ -132,6 +147,8 @@ class Table : public Napi::ObjectWrap<Table> {
   Napi::Value select(Napi::CallbackInfo const& info);
   Napi::Value get_column(Napi::CallbackInfo const& info);
   Napi::Value update_columns(Napi::CallbackInfo const& info);
+
+  Napi::Value to_arrow(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

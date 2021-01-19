@@ -26,7 +26,8 @@
     },
     "dependencies": {
       "@nvidia/cuda": "0.0.1",
-      "@nvidia/rmm": "0.0.1"
+      "@nvidia/rmm": "0.0.1",
+      "apache-arrow": "^2.0.0"
     },
     "files": [
       "LICENSE",
