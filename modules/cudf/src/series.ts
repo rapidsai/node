@@ -15,9 +15,13 @@
 import {MemoryData} from '@nvidia/cuda';
 import {Column} from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
+import {Table as ArrowTable} from 'apache-arrow';
+import {RecordBatchReader} from 'apache-arrow';
+import {VectorType} from 'apache-arrow/interfaces';
 
 import {ColumnProps} from './column'
-import {DataType} from './types';
+import {Table} from './table'
+import {CUDFToArrowType, DataType} from './types';
 
 export interface Series {
   getChild(index: number): Series;
@@ -36,7 +40,6 @@ export type SeriesProps<T extends DataType = any> = {
 };
 
 export class Series<T extends DataType = any> {
-
   /*private*/ _data: Column<T>;
 
   constructor(value: SeriesProps<T>|Column<T>) {
@@ -74,4 +77,11 @@ export class Series<T extends DataType = any> {
   setNullCount(nullCount: number) { this._data.setNullCount(nullCount); }
 
   setNullMask(mask: DeviceBuffer, nullCount?: number) { this._data.setNullMask(mask, nullCount); }
+
+  toArrow(): VectorType<CUDFToArrowType<T>> {
+    const reader = RecordBatchReader.from(new Table({columns: [this._data]}).toArrow([[0]]));
+    const column = new ArrowTable(reader.schema, [...reader]).getColumnAt<CUDFToArrowType<T>>(0);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return column!.chunks[0] as VectorType<CUDFToArrowType<T>>;
+  }
 }

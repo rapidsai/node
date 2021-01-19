@@ -160,7 +160,7 @@ class Column : public Napi::ObjectWrap<Column> {
    * @return true The column can hold null values
    * @return false The column cannot hold null values
    */
-  inline bool nullable() const noexcept { return null_mask().size() > 0; }
+  inline bool nullable() const { return null_mask().size() > 0; }
 
   /**
    * @brief Returns the count of null elements.
@@ -179,6 +179,21 @@ class Column : public Napi::ObjectWrap<Column> {
    * @return cudf::column_view The immutable, non-owning view
    */
   cudf::column_view view() const;
+
+  /**
+   * @brief Returns the number of child columns
+   */
+  cudf::size_type num_children() const { return children_.Value().Length(); }
+
+  /**
+   * @brief Returns a const reference to the specified child
+   *
+   * @param child_index Index of the desired child
+   * @return column const& Const reference to the desired child
+   */
+  Column const& child(cudf::size_type child_index) const noexcept {
+    return *Column::Unwrap(children_.Value().Get(child_index).ToObject());
+  };
 
   /**
    * @brief Creates a mutable, non-owning view of the column's data and

@@ -275,7 +275,7 @@ Napi::Value Column::is_nullable(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value Column::num_children(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(children_.Value().Length());
+  return CPPToNapi(info)(num_children());
 }
 
 Napi::Value Column::null_mask(Napi::CallbackInfo const& info) { return null_mask_.Value(); }

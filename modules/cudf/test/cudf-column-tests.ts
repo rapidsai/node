@@ -36,7 +36,7 @@ test('Column initialization with null_mask', () => {
   const col    = new Column({
     type: TypeId.BOOL8,
     data: new Uint8Buffer(length),
-    nullMask: new Uint8Buffer(64),
+    nullMask: new Uint8Buffer(64).fill(0),
   });
 
   expect(col.type.id).toBe(TypeId.BOOL8);
