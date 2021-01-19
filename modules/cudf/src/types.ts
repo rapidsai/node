@@ -16,6 +16,9 @@ import * as ArrowDataType from 'apache-arrow/type';
 
 import {Column} from './column';
 
+/**
+ * 		The desired order of null compared to other elements for a column.
+ */
 export enum NullOrder
 {
   AFTER,

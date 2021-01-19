@@ -21,7 +21,7 @@ type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: Series<T[P]>
 };
 
-type OrderSpec = {
+export type OrderSpec = {
   ascending: boolean,
   null_order: NullOrder
 };
@@ -32,6 +32,9 @@ function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   return <ColumnsMap<T>>columns;
 }
 
+/**
+ * A GPU Dataframe object.
+ */
 export class DataFrame<T extends TypeMap = any> {
   private _accessor: ColumnAccessor<T>;
 
@@ -45,24 +48,60 @@ export class DataFrame<T extends TypeMap = any> {
     }
   }
 
+  /**
+   * The number of rows in each column of this DataFrame
+   */
   get numRows() { return this._accessor.columns[0].length; }
 
+  /**
+   * The number of columns in this DataFrame
+   */
   get numColumns() { return this._accessor.length; }
 
+  /**
+   * The names of columns in this DataFrame
+   */
   get names() { return this._accessor.names; }
 
-  select<R extends keyof T>(columns: R[]) {
-    return new DataFrame(this._accessor.selectByColumnNames(columns));
+  /**
+   * Return a new DataFrame containing only specified columns.
+   *
+   * @param columns Names of columns keep.
+   */
+  select<R extends keyof T>(names: R[]) {
+    return new DataFrame(this._accessor.selectByColumnNames(names));
   }
 
+  /**
+   * Return a new DataFrame with new columns added.
+   *
+   * @param data mapping of names to new columns to add.
+   */
   assign<R extends TypeMap>(data: SeriesMap<R>) {
     return new DataFrame(this._accessor.addColumns(_seriesToColumns(data)));
   }
 
+  /**
+   * Return a new DataFrame with specified columns removed.
+   *
+   * @param names Names of the columns to drop.
+   */
   drop<R extends keyof T>(names: R[]) { return new DataFrame(this._accessor.dropColumns(names)); }
 
+  /**
+   * Return a series by name.
+   *
+   * @param name Name of the Series to return.
+   */
   get<P extends keyof T>(name: P) { return new Series(this._accessor.get(name)); }
 
+  /**
+   * Generate an ordering that sorts DataFrame columns in a specified way
+   *
+   * @param options mapping of column names to sort order specifications
+   *
+   * @returns Series containting the permutation indices for the desired sort order
+   */
   orderBy<R extends keyof T>(options: {[P in R]: OrderSpec}) {
     const column_orders = new Array<boolean>();
     const null_orders   = new Array<NullOrder>();

@@ -34,8 +34,10 @@ interface ColumnConstructor {
   new<T extends DataType = any>(props: ColumnProps): Column<T>;
 }
 
+/**
+ * A low-level wrapper for libcudf Column Objects
+ */
 export interface Column<T extends DataType = any> {
-
   readonly type: T;
   readonly data: DeviceBuffer;
   readonly mask: DeviceBuffer;
@@ -46,12 +48,39 @@ export interface Column<T extends DataType = any> {
   readonly nullCount: number;
   readonly numChildren: number;
 
+  /**
+   * Return a child at the specified index to host memory
+   *
+   * @param index
+   */
   getChild(index: number): Column;
 
+  /**
+   * Return a value at the specified index to host memory
+   *
+   * @param index
+   */
   getValue(index: number): T['valueType']|null;
+
   // setValue(index: number, value?: T['valueType'] | null): void;
 
+  /**
+   * Set the null count for the null mask
+   *
+   * @param nullCount
+   */
   setNullCount(nullCount: number): void;
+
+  /**
+   *
+   * @param mask The null-mask. Valid values are marked as 1; otherwise 0. The
+   * mask bit given the data index idx is computed as:
+   * ```
+   * (mask[idx // 8] >> (idx % 8)) & 1
+   * ```
+   * @param nullCount The number of null values. If None, it is calculated
+   * automatically.
+   */
   setNullMask(mask: DeviceBuffer, nullCount?: number): void;
 }
 
