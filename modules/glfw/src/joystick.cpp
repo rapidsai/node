@@ -103,12 +103,11 @@ Napi::Value glfwGetGamepadState(Napi::CallbackInfo const& info) {
   GLFW_TRY(env, GLFWAPI::glfwGetGamepadState(args[0], &state));
 
   std::vector<float> axes;
-  std::vector<unsigned char> buttons;
-
   axes.reserve(sizeof(state.axes));
+  axes.insert(axes.begin(), state.axes, state.axes + sizeof(state.axes));   
+    
+  std::vector<unsigned char> buttons;
   buttons.reserve(sizeof(state.buttons));
-
-  axes.insert(axes.begin(), state.axes, state.axes + sizeof(state.axes));
   buttons.insert(buttons.begin(), state.buttons, state.buttons + sizeof(state.buttons));
 
   auto js_state = Napi::Object::New(env);
