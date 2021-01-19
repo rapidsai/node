@@ -73,6 +73,7 @@ file(GLOB_RECURSE NODE_CUDF_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 add_library(${PROJECT_NAME} SHARED ${NODE_CUDF_SRC_FILES} ${CMAKE_JS_SRC})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+target_compile_definitions(${PROJECT_NAME} PUBLIC CUDA_API_PER_THREAD_DEFAULT_STREAM)
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
