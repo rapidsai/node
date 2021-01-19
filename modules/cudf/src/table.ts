@@ -14,7 +14,7 @@
 
 import CUDF from './addon';
 import {Column} from './column';
-import {DataType, NullOrder} from './types';
+import {DataType, Int32, NullOrder} from './types';
 
 type ToArrowMetadata = [string | number, ToArrowMetadata?];
 
