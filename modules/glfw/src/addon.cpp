@@ -60,7 +60,6 @@ Napi::Value glfwGetVersion(Napi::CallbackInfo const& info) {
 
 // GLFWAPI const char* glfwGetVersionString(void);
 Napi::Value glfwGetVersionString(Napi::CallbackInfo const& info) {
-  auto env     = info.Env();
   auto version = GLFWAPI::glfwGetVersionString();
   return CPPToNapi(info)(std::string{version == nullptr ? "" : version});
 }
@@ -120,7 +119,6 @@ Napi::Value glfwSwapInterval(Napi::CallbackInfo const& info) {
 
 // GLFWAPI int glfwExtensionSupported(const char* extension);
 Napi::Value glfwExtensionSupported(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
   CallbackArgs args{info};
   std::string extension       = args[0];
   auto is_extension_supported = GLFWAPI::glfwExtensionSupported(extension.data());
@@ -129,7 +127,6 @@ Napi::Value glfwExtensionSupported(Napi::CallbackInfo const& info) {
 
 // GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname);
 Napi::Value glfwGetProcAddress(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
   CallbackArgs args{info};
   std::string name = args[0];
   auto addr        = GLFWAPI::glfwGetProcAddress(name.data());
@@ -138,7 +135,6 @@ Napi::Value glfwGetProcAddress(Napi::CallbackInfo const& info) {
 
 // GLFWAPI const char** glfwGetRequiredInstanceExtensions(uint32_t* count);
 Napi::Value glfwGetRequiredInstanceExtensions(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
   uint32_t count{};
   const char** exts = GLFWAPI::glfwGetRequiredInstanceExtensions(&count);
   return CPPToNapi(info)(std::vector<std::string>{exts, exts + count});

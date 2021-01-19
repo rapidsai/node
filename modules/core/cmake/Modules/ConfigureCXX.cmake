@@ -85,7 +85,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     option(CMAKE_CXX11_ABI "Enable the GLIBCXX11 ABI" ON)
-    string(APPEND CMAKE_CXX_FLAGS " -Werror -Wno-error=deprecated-declarations")
+    string(APPEND CMAKE_CXX_FLAGS " -Wall -Werror -Wno-unknown-pragmas -Wno-error=deprecated-declarations")
     if(CMAKE_CXX11_ABI)
         message(STATUS "Enabling the GLIBCXX11 ABI")
     else()

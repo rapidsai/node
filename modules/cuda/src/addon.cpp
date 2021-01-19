@@ -48,7 +48,6 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   auto mem     = Napi::Object::New(env);
   auto program = Napi::Object::New(env);
   auto stream  = Napi::Object::New(env);
-  auto texture = Napi::Object::New(env);
 
   EXPORT_PROP(exports, "gl", gl);
   EXPORT_PROP(exports, "kernel", kernel);

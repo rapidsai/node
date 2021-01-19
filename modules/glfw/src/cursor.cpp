@@ -27,7 +27,6 @@ Napi::Value glfwRawMouseMotionSupported(Napi::CallbackInfo const& info) {
 
 // GLFWAPI GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot);
 Napi::Value glfwCreateCursor(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
   CallbackArgs args{info};
   auto obj = info[0].As<Napi::Object>();
   GLFWimage image{//

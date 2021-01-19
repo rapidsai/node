@@ -112,7 +112,6 @@ Napi::Value cudaGraphicsSubResourceGetMappedArray(CallbackArgs const& info) {
   uint32_t arrayIndex             = info[1];
   uint32_t mipLevel               = info[2];
   cudaArray_t array;
-  size_t size{};
   NODE_CUDA_TRY(
     CUDARTAPI::cudaGraphicsSubResourceGetMappedArray(&array, resource, arrayIndex, mipLevel), env);
   uint32_t flags{};
