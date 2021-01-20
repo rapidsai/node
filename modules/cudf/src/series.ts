@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {MemoryData} from '@nvidia/cuda';
-import {Column} from '@nvidia/cudf';
+import {Column, DataFrame} from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
 import {Table as ArrowTable} from 'apache-arrow';
 import {RecordBatchReader} from 'apache-arrow';
@@ -21,7 +21,7 @@ import {VectorType} from 'apache-arrow/interfaces';
 
 import {ColumnProps} from './column'
 import {Table} from './table'
-import {CUDFToArrowType, DataType} from './types';
+import {CUDFToArrowType, DataType, NullOrder} from './types';
 
 export interface Series {
   getChild(index: number): Series;
@@ -135,5 +135,17 @@ export class Series<T extends DataType = any> {
     const column = new ArrowTable(reader.schema, [...reader]).getColumnAt<CUDFToArrowType<T>>(0);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return column!.chunks[0] as VectorType<CUDFToArrowType<T>>;
+  }
+
+  /**
+   * Generate an ordering that sorts the Series in a specified way
+   *
+   * @param ascending whether to sort ascending (true) or descending (false)
+   * @param null_order whether nulls should sort before or after other values
+   *
+   * @returns Series containting the permutation indices for the desired sort order
+   */
+  argsort(ascending: boolean, null_order: NullOrder) {
+    return new DataFrame({"col": this}).orderBy({"col": {ascending, null_order}})
   }
 }

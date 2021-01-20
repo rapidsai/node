@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Column, Int32, Series, String, TypeId, Uint8} from '@nvidia/cudf';
+import {Column, Int32, NullOrder, Series, String, TypeId, Uint8} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 import {Uint8Vector, Utf8Vector} from 'apache-arrow';
+import {BoolVector} from 'apache-arrow'
 
 const mr = new CudaMemoryResource();
 
@@ -101,17 +102,59 @@ describe('toArrow()', () => {
   });
 });
 
-// test('Column argsort', () => {
-//   const arr    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
-//   const result = arr.argsort();
+test('Series.argsort (ascending, non-null)', () => {
+  const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const result = col.argsort(true, NullOrder.BEFORE);
 
-//   expect(result.type.id).toBe(TypeId.INT32);
-//   expect(result.length).toBe(arr.length);
-//   expect(result.nullCount).toBe(0);
-//   expect(result.hasNulls).toBe(false);
-//   expect(result.nullable).toBe(false);
+  const expected = [5, 0, 4, 1, 3, 2];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
 
-//   // TODO -- implement .to_array
-//   const expected = [5, 0, 4, 1, 3, 2];
-//   for (const ind of expected) { expect(result[ind]).toBe(expected[ind]); }
-// });
+test('Series.argsort (descending, non-null)', () => {
+  const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const result = col.argsort(false, NullOrder.BEFORE);
+
+  const expected = [2, 3, 1, 4, 0, 5];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
+
+test('Series.argsort (ascending, null before)', () => {
+  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+  const result = col.argsort(true, NullOrder.BEFORE);
+
+  const expected = [1, 5, 0, 4, 3, 2];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
+
+test('Series.argsort (ascending, null after)', () => {
+  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+  const result = col.argsort(true, NullOrder.AFTER);
+
+  const expected = [5, 0, 4, 3, 2, 1];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
+
+test('Series.argsort (descendng, null before)', () => {
+  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+  const result = col.argsort(false, NullOrder.BEFORE);
+
+  const expected = [2, 3, 4, 0, 5, 1];
+
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
+
+test('Series.argsort (descending, null after)', () => {
+  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+  const result = col.argsort(false, NullOrder.AFTER);
+
+  const expected = [1, 2, 3, 4, 0, 5];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
