@@ -102,58 +102,58 @@ describe('toArrow()', () => {
   });
 });
 
-test('Series.argsort (ascending, non-null)', () => {
+test('Series.orderBy (ascending, non-null)', () => {
   const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
-  const result = col.argsort(true, NullOrder.BEFORE);
+  const result = col.orderBy(true, NullOrder.BEFORE);
 
   const expected = [5, 0, 4, 1, 3, 2];
   expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
 });
 
-test('Series.argsort (descending, non-null)', () => {
+test('Series.orderBy (descending, non-null)', () => {
   const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
-  const result = col.argsort(false, NullOrder.BEFORE);
+  const result = col.orderBy(false, NullOrder.BEFORE);
 
   const expected = [2, 3, 1, 4, 0, 5];
   expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
 });
 
-test('Series.argsort (ascending, null before)', () => {
+test('Series.orderBy (ascending, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.argsort(true, NullOrder.BEFORE);
+  const result = col.orderBy(true, NullOrder.BEFORE);
 
   const expected = [1, 5, 0, 4, 3, 2];
   expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
 });
 
-test('Series.argsort (ascending, null after)', () => {
+test('Series.orderBy (ascending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.argsort(true, NullOrder.AFTER);
+  const result = col.orderBy(true, NullOrder.AFTER);
 
   const expected = [5, 0, 4, 3, 2, 1];
   expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
 });
 
-test('Series.argsort (descendng, null before)', () => {
+test('Series.orderBy (descendng, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.argsort(false, NullOrder.BEFORE);
+  const result = col.orderBy(false, NullOrder.BEFORE);
 
   const expected = [2, 3, 4, 0, 5, 1];
 
   expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
 });
 
-test('Series.argsort (descending, null after)', () => {
+test('Series.orderBy (descending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.argsort(false, NullOrder.AFTER);
+  const result = col.orderBy(false, NullOrder.AFTER);
 
   const expected = [1, 2, 3, 4, 0, 5];
   expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])

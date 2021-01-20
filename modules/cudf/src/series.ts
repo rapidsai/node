@@ -145,7 +145,7 @@ export class Series<T extends DataType = any> {
    *
    * @returns Series containting the permutation indices for the desired sort order
    */
-  argsort(ascending: boolean, null_order: NullOrder) {
+  orderBy(ascending: boolean, null_order: NullOrder) {
     return new DataFrame({"col": this}).orderBy({"col": {ascending, null_order}})
   }
 }
