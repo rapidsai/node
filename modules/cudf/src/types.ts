@@ -16,6 +16,15 @@ import * as ArrowDataType from 'apache-arrow/type';
 
 import {Column} from './column';
 
+/**
+ * 		The desired order of null compared to other elements for a column.
+ */
+export enum NullOrder
+{
+  AFTER,
+  BEFORE
+}
+
 export interface DataType<T extends TypeId = any> {
   readonly id: T;
   readonly valueType: any;

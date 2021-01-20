@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Bool8, DataFrame, Int32, Series} from '@nvidia/cudf';
+import {Bool8, DataFrame, Int32, NullOrder, Series} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
+import {BoolVector} from 'apache-arrow'
 
 const mr = new CudaMemoryResource();
 
@@ -115,4 +116,67 @@ test('DataFrame.drop', () => {
   expect(table_1.numColumns).toBe(2);
   expect(table_1.numRows).toBe(length);
   expect(table_1.names).toStrictEqual(["col_0", "col_2"]);
+});
+
+test('DataFrame.orderBy (ascending, non-null)', () => {
+  const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const df     = new DataFrame({"a": col});
+  const result = df.orderBy({"a": {ascending: true, null_order: NullOrder.BEFORE}});
+
+  const expected = [5, 0, 4, 1, 3, 2];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
+
+test('DataFrame.orderBy (descending, non-null)', () => {
+  const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const df     = new DataFrame({"a": col});
+  const result = df.orderBy({"a": {ascending: false, null_order: NullOrder.BEFORE}});
+
+  const expected = [2, 3, 1, 4, 0, 5];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
+
+test('DataFrame.orderBy (ascending, null before)', () => {
+  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+  const df     = new DataFrame({"a": col});
+  const result = df.orderBy({"a": {ascending: true, null_order: NullOrder.BEFORE}});
+
+  const expected = [1, 5, 0, 4, 3, 2];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
+
+test('DataFrame.orderBy (ascending, null after)', () => {
+  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+  const df     = new DataFrame({"a": col});
+  const result = df.orderBy({"a": {ascending: true, null_order: NullOrder.AFTER}});
+
+  const expected = [5, 0, 4, 3, 2, 1];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
+
+test('DataFrame.orderBy (descendng, null before)', () => {
+  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+  const df     = new DataFrame({"a": col});
+  const result = df.orderBy({"a": {ascending: false, null_order: NullOrder.BEFORE}});
+
+  const expected = [2, 3, 4, 0, 5, 1];
+
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
+
+test('DataFrame.orderBy (descending, null after)', () => {
+  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+  const df     = new DataFrame({"a": col});
+  const result = df.orderBy({"a": {ascending: false, null_order: NullOrder.AFTER}});
+
+  const expected = [1, 2, 3, 4, 0, 5];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
 });
