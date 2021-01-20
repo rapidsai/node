@@ -170,3 +170,62 @@ export type CUDFToArrowType<T extends DataType> = {
     [TypeId.BOOL8]: ArrowDataType.Bool;       //
     [TypeId.STRING]: ArrowDataType.Utf8;      //
 }[T['id']];
+
+export type ReadCSVOptions<T extends TypeMap = any> = {
+  type: "files"|"buffers",
+  sources: (string|Uint8Array|Buffer)[],
+  /** The compression format of the source, or infer from file extension */
+  compression?: "infer"|"snappy"|"gzip"|"bz2"|"brotli"|"zip"|"xz",
+  /** Whether to rename duplicate column names */
+  renameDuplicateColumns?: boolean,
+  /** Rows to read; -1 is all */
+  numRows?: number,
+  /** Rows to skip from the start */
+  skipHead?: number,
+  /** Rows to skip from the end */
+  skipTail?: number,
+  /** Treatment of quoting behavior */
+  quoteStyle?: "all"|"none"|"nonnumeric"|"minimal",
+  /** Line terminator */
+  lineTerminator?: string,
+  /** Quoting character (if `allowDoubleQuoting` is true) */
+  quoteCharacter?: string,
+  /** Decimal point character; cannot match delimiter */
+  decimalCharacter?: string,
+  /** Treat whitespace as field delimiter; overrides character delimiter */
+  whitespaceAsDelimiter?: boolean,
+  /** Whether to skip whitespace after the delimiter */
+  skipInitialSpaces?: boolean,
+  /** Ignore empty lines or parse line values as invalid */
+  skipBlankLines?: boolean,
+  /** Whether a quote inside a value is double-quoted */
+  allowDoubleQuoting?: boolean,
+  /** Whether to keep the built-in default NA values */
+  keepDefaultNA?: boolean,
+  /** Whether to disable null filter; disabling can improve performance */
+  autoDetectNullValues?: boolean,
+  /** Whether to parse dates as DD/MM versus MM/DD */
+  inferDatesWithDayFirst?: boolean,
+  /** Field delimiter */
+  delimiter?: string,
+  /** Numeric data thousands separator; cannot match delimiter */
+  thousands?: string,
+  /** Comment line start character */
+  comment?: string,
+  /** Names of all the columns; if empty then names are inferred/auto-generated */
+  names?: (keyof T)[],
+  /** Header row index */
+  header?: "infer"|null|number,
+  /** String used as prefix for each column name if no header or names are provided. */
+  prefix?: string,
+  /** Additional values to recognize as boolean true values */
+  nullValues?: string[],
+  /** Additional values to recognize as boolean false values */
+  trueValues?: string[],
+  /** Additional values to recognize as null values */
+  falseValues?: string[],
+  /** Names or indices of columns to read as datetime */
+  datetimeColumns?: string[],
+  /** Names of columns to read; empty/null is all columns */
+  columnsToReturn?: string[],
+};

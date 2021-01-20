@@ -15,7 +15,7 @@
 import {Column, Series, Table} from '@nvidia/cudf';
 
 import {ColumnAccessor} from './column_accessor'
-import {ColumnsMap, NullOrder, TypeMap} from './types'
+import {ColumnsMap, NullOrder, ReadCSVOptions, TypeMap} from './types'
 
 type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: Series<T[P]>
@@ -36,6 +36,12 @@ function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
  * A GPU Dataframe object.
  */
 export class DataFrame<T extends TypeMap = any> {
+  public static readCSV<T extends TypeMap = any>(options: ReadCSVOptions<T>) {
+    const {names, table} = Table.readCSV(options);
+    return new DataFrame(new ColumnAccessor<T>(names.reduce(
+      (map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {} as ColumnsMap<T>)));
+  }
+
   private _accessor: ColumnAccessor<T>;
 
   constructor(data: ColumnAccessor<T>|SeriesMap<T>) {

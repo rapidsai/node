@@ -14,13 +14,21 @@
 
 import CUDF from './addon';
 import {Column} from './column';
-import {DataType, Int32, NullOrder} from './types';
+import {DataType, Int32, NullOrder, ReadCSVOptions, TypeMap} from './types';
 
 type ToArrowMetadata = [string | number, ToArrowMetadata?];
 
 interface TableConstructor {
   readonly prototype: Table;
   new(props: {columns?: ReadonlyArray<Column>|null}): Table;
+
+  /**
+   * Reads a CSV dataset into a set of columns.
+   *
+   * @param options Settings for controlling reading behavior.
+   * @return The CSV data as a Table and a list of column names.
+   */
+  readCSV<T extends TypeMap = any>(options: ReadCSVOptions<T>): {names: (keyof T)[], table: Table};
 }
 
 /**

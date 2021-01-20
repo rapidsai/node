@@ -41,6 +41,8 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
                   InstanceMethod("getColumnByIndex", &Table::get_column),
                   InstanceMethod("toArrow", &Table::to_arrow),
                   InstanceMethod("orderBy", &Table::order_by),
+                  StaticMethod<&Table::read_csv>("readCSV"),
+                  InstanceMethod("writeCSV", &Table::write_csv),
                 });
 
   Table::constructor = Napi::Persistent(ctor);
