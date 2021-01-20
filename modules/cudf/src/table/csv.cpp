@@ -28,16 +28,16 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
                                                  cudf::io::source_info const& source) {
   auto env     = options.Env();
   auto is_null = [](Napi::Value const& val) {
-    return !(val.IsNull() || val.IsEmpty() || val.IsUndefined());
+    return val.IsNull() || val.IsEmpty() || val.IsUndefined();
   };
   auto has_opt  = [&](std::string const& key) { return options.Has(key); };
-  auto napi_opt = [&](std::string const& key) {
-    return has_opt(key) ? options.Get(key) : env.Null();
+  auto napi_opt = [&](std::string const& key) -> Napi::Value {
+    return has_opt(key) ? options.Get(key) : env.Undefined();
   };
   auto char_opt = [&](std::string const& key, std::string const& default_val) {
     return (has_opt(key) ? options.Get(key).ToString().Utf8Value() : default_val)[0];
   };
-  auto long_opt = [&](auto const& key) {
+  auto long_opt = [&](std::string const& key) {
     return has_opt(key) ? options.Get(key).ToNumber().Int32Value() : -1;
   };
   auto bool_opt = [&](std::string const& key, bool default_val) {
@@ -46,10 +46,10 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
   auto to_upper = [](std::string const& str) {
     std::string out = str;
     std::transform(
-      str.begin(), str.end(), out.begin(), [](auto const& c) { return std::toupper(c); });
+      str.begin(), str.end(), out.begin(), [](char const& c) { return std::toupper(c); });
     return out;
   };
-  auto compression_type = [&](auto const& key) {
+  auto compression_type = [&](std::string const& key) {
     if (has_opt(key)) {
       auto type = to_upper(options.Get(key).ToString());
       if (type == "INFER") { return cudf::io::compression_type::AUTO; }
@@ -62,7 +62,7 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
     }
     return cudf::io::compression_type::NONE;
   };
-  auto quote_style = [&](auto const& key) {
+  auto quote_style = [&](std::string const& key) {
     if (has_opt(key)) {
       auto style = to_upper(options.Get(key).ToString());
       if (style == "ALL") { return cudf::io::quote_style::ALL; }
@@ -71,6 +71,33 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
     }
     return cudf::io::quote_style::MINIMAL;
   };
+  auto names_and_types = [&](std::string const& key) {
+    std::vector<std::string> names;
+    std::vector<std::string> types;
+    auto dtypes = napi_opt(key);
+    if (is_null(dtypes) || !dtypes.IsObject()) {
+      names.resize(0);
+      types.resize(0);
+    } else {
+      auto data_types = dtypes.ToObject();
+      auto type_names = data_types.GetPropertyNames();
+      names.reserve(type_names.Length());
+      types.reserve(type_names.Length());
+      for (uint32_t i = 0; i < type_names.Length(); ++i) {
+        auto name = type_names.Get(i).ToString().Utf8Value();
+        auto type = data_types.Get(name).ToString().Utf8Value();
+        names.push_back(name);
+        types.push_back(name + ":" + type);
+      }
+    }
+    names.shrink_to_fit();
+    types.shrink_to_fit();
+    return std::make_pair(std::move(names), std::move(types));
+  };
+
+  std::vector<std::string> names;
+  std::vector<std::string> types;
+  std::tie(names, types) = names_and_types("dataTypes");
 
   auto opts = std::move(cudf::io::csv_reader_options::builder(source)
                           .byte_range_offset(0)
@@ -96,7 +123,6 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
                           .comment(char_opt("comment", "\0"))
                           .build());
 
-  auto names          = napi_opt("names");
   auto header         = napi_opt("header");
   auto prefix         = napi_opt("prefix");
   auto null_values    = napi_opt("nullValues");
@@ -105,19 +131,24 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
   auto dt_columns     = napi_opt("datetimeColumns");
   auto cols_to_return = napi_opt("columnsToReturn");
 
-  // set the column names to use or header inference flags
-  if (!is_null(names) && names.IsArray()) {
-    opts.set_names(NapiToCPP{names});
-    opts.set_header(is_null(header) or
-                        (header.IsString() && header.ToString().Utf8Value() == "infer")
-                      ? -1
-                      : header.ToNumber().Int32Value());
-  } else {
-    opts.set_header(is_null(header) ? -1
-                    : (header.IsString() && header.ToString().Utf8Value() == "infer")
-                      ? 0
-                      : header.ToNumber().Int32Value());
+  // Set the column names/dtypes and header inference flag
+  if (names.size() > 0 && types.size() > 0) {
+    opts.set_names(names);
+    opts.set_dtypes(types);
   }
+
+  if (header.IsNumber()) {
+    // Pass header row index down if provided
+    opts.set_header(std::max(-1, header.ToNumber().Int32Value()));
+  } else if (names.size() > 0 || header.IsNull()) {
+    // * If header is `null` or names were explicitly provided, treat row 0 as data
+    opts.set_header(-1);
+  } else if (header.IsUndefined() ||
+             (header.IsString() && header.ToString().Utf8Value() == "infer")) {
+    // If header is `undefined` or "infer", try to parse row 0 as the header row
+    opts.set_header(0);
+  }
+
   // set the prefix
   if (!is_null(prefix) && prefix.IsString()) { opts.set_prefix(prefix.ToString().Utf8Value()); }
   // set the column names to return
@@ -159,7 +190,6 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
   if (!is_null(false_values) && false_values.IsArray()) {
     opts.set_false_values(NapiToCPP{false_values});
   }
-  // TODO: Support the `dataTypes` option and construct the `opts.dtypes` Array
 
   return opts;
 }
@@ -216,7 +246,7 @@ Napi::Value Table::read_csv(Napi::CallbackInfo const& info) {
 
   NODE_CUDF_EXPECT(sources.IsArray(), "readCSV expects an Array of Paths or Strings", info.Env());
 
-  return (options.Get("type").ToString().Utf8Value() == "files")
+  return (options.Get("sourceType").ToString().Utf8Value() == "files")
            ? read_csv_files(options, NapiToCPP{sources})
            : read_csv_strings(options, NapiToCPP{sources});
 }

@@ -94,7 +94,7 @@ export class Int32 extends DataType<TypeId.INT32> {
 }
 
 export interface Int64 extends DataType<TypeId.INT64> {
-  valueType: number;
+  valueType: bigint;
 }
 export class Int64 extends DataType<TypeId.INT64> {
   constructor() { super(TypeId.INT64); }
@@ -122,7 +122,7 @@ export class Uint32 extends DataType<TypeId.UINT32> {
 }
 
 export interface Uint64 extends DataType<TypeId.UINT64> {
-  valueType: number;
+  valueType: bigint;
 }
 export class Uint64 extends DataType<TypeId.UINT64> {
   constructor() { super(TypeId.UINT64); }
@@ -149,83 +149,130 @@ export class Bool8 extends DataType<TypeId.BOOL8> {
   constructor() { super(TypeId.BOOL8); }
 }
 
-export interface String extends DataType<TypeId.STRING> {
+export interface Utf8String extends DataType<TypeId.STRING> {
   valueType: string;
 }
-export class String extends DataType<TypeId.STRING> {
+export class Utf8String extends DataType<TypeId.STRING> {
   constructor() { super(TypeId.STRING); }
 }
 
 export type CUDFToArrowType<T extends DataType> = {
-  [TypeId.INT8]: ArrowDataType.Int8;          //
-    [TypeId.INT16]: ArrowDataType.Int16;      //
-    [TypeId.INT32]: ArrowDataType.Int32;      //
-    [TypeId.INT64]: ArrowDataType.Int64;      //
-    [TypeId.UINT8]: ArrowDataType.Uint8;      //
-    [TypeId.UINT16]: ArrowDataType.Uint16;    //
-    [TypeId.UINT32]: ArrowDataType.Uint32;    //
-    [TypeId.UINT64]: ArrowDataType.Uint64;    //
-    [TypeId.FLOAT32]: ArrowDataType.Float32;  //
-    [TypeId.FLOAT64]: ArrowDataType.Float64;  //
-    [TypeId.BOOL8]: ArrowDataType.Bool;       //
-    [TypeId.STRING]: ArrowDataType.Utf8;      //
+  [TypeId.INT8]: ArrowDataType.Int8,
+  [TypeId.INT16]: ArrowDataType.Int16,
+  [TypeId.INT32]: ArrowDataType.Int32,
+  [TypeId.INT64]: ArrowDataType.Int64,
+  [TypeId.UINT8]: ArrowDataType.Uint8,
+  [TypeId.UINT16]: ArrowDataType.Uint16,
+  [TypeId.UINT32]: ArrowDataType.Uint32,
+  [TypeId.UINT64]: ArrowDataType.Uint64,
+  [TypeId.FLOAT32]: ArrowDataType.Float32,
+  [TypeId.FLOAT64]: ArrowDataType.Float64,
+  [TypeId.BOOL8]: ArrowDataType.Bool,
+  [TypeId.STRING]: ArrowDataType.Utf8,
 }[T['id']];
 
-export type ReadCSVOptions<T extends TypeMap = any> = {
-  type: "files"|"buffers",
-  sources: (string|Uint8Array|Buffer)[],
-  /** The compression format of the source, or infer from file extension */
-  compression?: "infer"|"snappy"|"gzip"|"bz2"|"brotli"|"zip"|"xz",
-  /** Whether to rename duplicate column names */
-  renameDuplicateColumns?: boolean,
-  /** Rows to read; -1 is all */
-  numRows?: number,
-  /** Rows to skip from the start */
-  skipHead?: number,
-  /** Rows to skip from the end */
-  skipTail?: number,
-  /** Treatment of quoting behavior */
-  quoteStyle?: "all"|"none"|"nonnumeric"|"minimal",
-  /** Line terminator */
-  lineTerminator?: string,
-  /** Quoting character (if `allowDoubleQuoting` is true) */
-  quoteCharacter?: string,
-  /** Decimal point character; cannot match delimiter */
-  decimalCharacter?: string,
-  /** Treat whitespace as field delimiter; overrides character delimiter */
-  whitespaceAsDelimiter?: boolean,
-  /** Whether to skip whitespace after the delimiter */
-  skipInitialSpaces?: boolean,
-  /** Ignore empty lines or parse line values as invalid */
-  skipBlankLines?: boolean,
-  /** Whether a quote inside a value is double-quoted */
-  allowDoubleQuoting?: boolean,
-  /** Whether to keep the built-in default NA values */
-  keepDefaultNA?: boolean,
-  /** Whether to disable null filter; disabling can improve performance */
-  autoDetectNullValues?: boolean,
-  /** Whether to parse dates as DD/MM versus MM/DD */
-  inferDatesWithDayFirst?: boolean,
-  /** Field delimiter */
-  delimiter?: string,
-  /** Numeric data thousands separator; cannot match delimiter */
-  thousands?: string,
-  /** Comment line start character */
-  comment?: string,
-  /** Names of all the columns; if empty then names are inferred/auto-generated */
-  names?: (keyof T)[],
-  /** Header row index */
-  header?: "infer"|null|number,
-  /** String used as prefix for each column name if no header or names are provided. */
-  prefix?: string,
-  /** Additional values to recognize as boolean true values */
-  nullValues?: string[],
-  /** Additional values to recognize as boolean false values */
-  trueValues?: string[],
-  /** Additional values to recognize as null values */
-  falseValues?: string[],
-  /** Names or indices of columns to read as datetime */
-  datetimeColumns?: string[],
-  /** Names of columns to read; empty/null is all columns */
-  columnsToReturn?: string[],
+export type CSVType = "int8"|"int16"|"int32"|"int64"|"uint8"|"uint16"|"uint32"|"uint64"|"float32"|
+  "float64"|"datetime64[s]"|"datetime64[ms]"|"datetime64[us]"|"datetime64[ns]"|"timedelta64[s]"|
+  "timedelta64[ms]"|"timedelta64[us]"|"timedelta64[ns]"|"bool"|"category"|"str"|"hex"|"hex32"|
+  "hex64"|"date"|"date32"|"date64"|"timestamp"|"timestamp[us]"|"timestamp[s]"|"timestamp[ms]"|
+  "timestamp[ns]";
+
+export type CSVTypeMap = {
+  [key: string]: CSVType;
 };
+
+export type CSVToCUDFType<T extends CSVType> = {
+  "int8": Int8,
+  "int16": Int16,
+  "int32": Int32,
+  "int64": Int64,
+  "uint8": Uint8,
+  "uint16": Uint16,
+  "uint32": Uint32,
+  "uint64": Uint64,
+  "float32": Float32,
+  "float64": Float64,
+  "datetime64[s]": never,
+  "datetime64[ms]": never,
+  "datetime64[us]": never,
+  "datetime64[ns]": never,
+  "timedelta64[s]": never,
+  "timedelta64[ms]": never,
+  "timedelta64[us]": never,
+  "timedelta64[ns]": never,
+  "bool": Bool8,
+  "category": never,
+  "str": Utf8String,
+  "hex": never,
+  "hex32": never,
+  "hex64": never,
+  "date": never,
+  "date32": never,
+  "date64": never,
+  "timestamp": never,
+  "timestamp[us]": never,
+  "timestamp[s]": never,
+  "timestamp[ms]": never,
+  "timestamp[ns]": never,
+}[T];
+
+export interface ReadCSVOptions<T extends CSVTypeMap = any> {
+  sourceType: "files"|"buffers";
+  sources: (string|Uint8Array|Buffer)[];
+  /**
+     Names and types of all the columns; if empty then names and types are inferred/auto-generated
+   */
+  dataTypes?: T;
+  /** The compression format of the source, or infer from file extension */
+  compression?: "infer"|"snappy"|"gzip"|"bz2"|"brotli"|"zip"|"xz";
+  /** Whether to rename duplicate column names */
+  renameDuplicateColumns?: boolean;
+  /** Rows to read; -1 is all */
+  numRows?: number;
+  /** Rows to skip from the start */
+  skipHead?: number;
+  /** Rows to skip from the end */
+  skipTail?: number;
+  /** Treatment of quoting behavior */
+  quoteStyle?: "all"|"none"|"nonnumeric"|"minimal";
+  /** Line terminator */
+  lineTerminator?: string;
+  /** Quoting character (if `allowDoubleQuoting` is true) */
+  quoteCharacter?: string;
+  /** Decimal point character; cannot match delimiter */
+  decimalCharacter?: string;
+  /** Treat whitespace as field delimiter; overrides character delimiter */
+  whitespaceAsDelimiter?: boolean;
+  /** Whether to skip whitespace after the delimiter */
+  skipInitialSpaces?: boolean;
+  /** Ignore empty lines or parse line values as invalid */
+  skipBlankLines?: boolean;
+  /** Whether a quote inside a value is double-quoted */
+  allowDoubleQuoting?: boolean;
+  /** Whether to keep the built-in default NA values */
+  keepDefaultNA?: boolean;
+  /** Whether to disable null filter; disabling can improve performance */
+  autoDetectNullValues?: boolean;
+  /** Whether to parse dates as DD/MM versus MM/DD */
+  inferDatesWithDayFirst?: boolean;
+  /** Field delimiter */
+  delimiter?: string;
+  /** Numeric data thousands separator; cannot match delimiter */
+  thousands?: string;
+  /** Comment line start character */
+  comment?: string;
+  /** Header row index */
+  header?: "infer"|null|number;
+  /** String used as prefix for each column name if no header or names are provided. */
+  prefix?: string;
+  /** Additional values to recognize as null values */
+  nullValues?: string[];
+  /** Additional values to recognize as boolean true values */
+  trueValues?: string[];
+  /** Additional values to recognize as boolean false values */
+  falseValues?: string[];
+  /** Names or indices of columns to read as datetime */
+  datetimeColumns?: string[];
+  /** Names of columns to read; empty/null is all columns */
+  columnsToReturn?: string[];
+}

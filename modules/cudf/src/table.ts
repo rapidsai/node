@@ -14,7 +14,7 @@
 
 import CUDF from './addon';
 import {Column} from './column';
-import {DataType, Int32, NullOrder, ReadCSVOptions, TypeMap} from './types';
+import {CSVTypeMap, DataType, Int32, NullOrder, ReadCSVOptions} from './types';
 
 type ToArrowMetadata = [string | number, ToArrowMetadata?];
 
@@ -28,7 +28,8 @@ interface TableConstructor {
    * @param options Settings for controlling reading behavior.
    * @return The CSV data as a Table and a list of column names.
    */
-  readCSV<T extends TypeMap = any>(options: ReadCSVOptions<T>): {names: (keyof T)[], table: Table};
+  readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>):
+    {names: (keyof T)[], table: Table};
 }
 
 /**

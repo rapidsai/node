@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Column, Series, Table} from '@nvidia/cudf';
-
+import {Column} from './column';
 import {ColumnAccessor} from './column_accessor'
-import {ColumnsMap, NullOrder, ReadCSVOptions, TypeMap} from './types'
+import {Series} from './series';
+import {Table} from './table';
+import {ColumnsMap, CSVToCUDFType, CSVTypeMap, NullOrder, ReadCSVOptions, TypeMap} from './types'
 
 type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: Series<T[P]>
@@ -36,10 +37,11 @@ function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
  * A GPU Dataframe object.
  */
 export class DataFrame<T extends TypeMap = any> {
-  public static readCSV<T extends TypeMap = any>(options: ReadCSVOptions<T>) {
+  public static readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>) {
     const {names, table} = Table.readCSV(options);
-    return new DataFrame(new ColumnAccessor<T>(names.reduce(
-      (map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {} as ColumnsMap<T>)));
+    return new DataFrame(new ColumnAccessor(
+      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}),
+                   {} as ColumnsMap<{[P in keyof T]: CSVToCUDFType<T[P]>}>)));
   }
 
   private _accessor: ColumnAccessor<T>;

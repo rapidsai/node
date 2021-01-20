@@ -13,27 +13,76 @@
 // limitations under the License.
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {DataFrame, Float64, Int64, String} from '@nvidia/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
+import {DataFrame} from '@nvidia/cudf';
+import {DeviceBuffer} from '@nvidia/rmm';
 
-const mr = new CudaMemoryResource();
+import {mkdtempSync, promises} from 'fs';
+import * as Path from 'path';
 
-setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
+setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
+
+function makeCSV(
+  opts: {rows?: any[], delimitor?: string, lineTerminator?: string, header?: boolean} = {}) {
+  const {rows = [], delimitor = ',', lineTerminator = '\n', header = true} = opts;
+  const names = Object.keys(rows.reduce(
+    (keys, row) => Object.keys(row).reduce((keys, key) => ({...keys, [key]: true}), keys), {}));
+  return [
+    ...(function*() {
+      if (header) yield names.join(delimitor);
+      for (const row of rows) {
+        yield names.map((name) => row[name] === undefined ? '' : row[name]).join(delimitor);
+      }
+    })()
+  ].join(lineTerminator);
+}
 
 describe('DataFrame.readCSV', () => {
-  test('can read CSV strings', () => {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    const df = DataFrame.readCSV<{a: Int64, b: Float64, c: String}>({
-      type: 'buffers',
-      sources: [`\
-a,b,c
-0,1.0,"2"
-1,2.0,"3"
-2,3.0,"4"\
-`].map((v) => Buffer.from(v))
+  test('can read a CSV string', () => {
+    const rows = [
+      {a: 0, b: 1.0, c: "2"},
+      {a: 1, b: 2.0, c: "3"},
+      {a: 2, b: 3.0, c: "4"},
+    ];
+    const df = DataFrame.readCSV({
+      header: 0,
+      sourceType: 'buffers',
+      sources: [Buffer.from(makeCSV({rows}))],
+      dataTypes: {a: "int32", b: "float64", c: "str"},
     });
-    expect(df.get('a').toArrow().values64).toEqual(new BigInt64Array([0n, 1n, 2n]));
+    expect(df.get('a').toArrow().values).toEqual(new Int32Array([0, 1, 2]));
     expect(df.get('b').toArrow().toArray()).toEqual(new Float64Array([1.0, 2.0, 3.0]));
     expect([...df.get('c').toArrow()]).toEqual(["2", "3", "4"]);
+  });
+
+  test('can read a CSV file', async () => {
+    const rows = [
+      {a: 0, b: 1.0, c: "2"},
+      {a: 1, b: 2.0, c: "3"},
+      {a: 2, b: 3.0, c: "4"},
+    ];
+    const path = Path.join(csvTmpDir, 'simple.csv');
+    await promises.writeFile(path, makeCSV({rows}));
+    const df = DataFrame.readCSV({
+      header: 0,
+      sourceType: 'files',
+      sources: [path],
+      dataTypes: {a: "int32", b: "float64", c: "str"},
+    });
+    expect(df.get('a').toArrow().values).toEqual(new Int32Array([0, 1, 2]));
+    expect(df.get('b').toArrow().toArray()).toEqual(new Float64Array([1.0, 2.0, 3.0]));
+    expect([...df.get('c').toArrow()]).toEqual(["2", "3", "4"]);
+    await new Promise<void>((r) => rimraf(path, () => r()));
+  });
+});
+
+let csvTmpDir = '';
+
+const rimraf = require('rimraf');
+
+beforeAll(() => { csvTmpDir = mkdtempSync(Path.join('/tmp', 'node_cudf')); });
+
+afterAll(() => {
+  return new Promise<void>((resolve, reject) => {  //
+    rimraf(csvTmpDir, (err?: Error|null) => err ? reject(err) : resolve());
   });
 });
