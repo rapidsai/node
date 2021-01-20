@@ -89,9 +89,18 @@ struct get_scalar_value {
   template <typename T>
   inline std::enable_if_t<cudf::is_numeric<T>(), Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
-    return scalar->is_valid(stream)
-             ? CPPToNapi(env)(static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
-             : env.Null();
+    if (!scalar->is_valid(stream)) { return env.Null(); }
+    switch (scalar->type().id()) {
+      case cudf::type_id::INT64:
+        return Napi::BigInt::New(
+          env, static_cast<cudf::numeric_scalar<int64_t>*>(scalar.get())->value(stream));
+      case cudf::type_id::UINT64:
+        return Napi::BigInt::New(
+          env, static_cast<cudf::numeric_scalar<uint64_t>*>(scalar.get())->value(stream));
+      default:
+        return Napi::Number::New(
+          env, static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream));
+    }
   }
   template <typename T>
   inline std::enable_if_t<std::is_same<T, cudf::string_view>::value, Napi::Value> operator()(
