@@ -138,8 +138,8 @@ test('DataFrame.orderBy (descending, non-null)', () => {
 
 test('DataFrame.orderBy (ascending, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
-  const col  = new Series(
-    {type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask, nullCount: 1});
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({"a": col});
   const result = df.orderBy({"a": {ascending: true, null_order: NullOrder.BEFORE}});
 
@@ -149,8 +149,8 @@ test('DataFrame.orderBy (ascending, null before)', () => {
 
 test('DataFrame.orderBy (ascending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
-  const col  = new Series(
-    {type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask, nullCount: 1});
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({"a": col});
   const result = df.orderBy({"a": {ascending: true, null_order: NullOrder.AFTER}});
 
@@ -160,20 +160,20 @@ test('DataFrame.orderBy (ascending, null after)', () => {
 
 test('DataFrame.orderBy (descendng, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
-  const col  = new Series(
-    {type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask, nullCount: 1});
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({"a": col});
   const result = df.orderBy({"a": {ascending: false, null_order: NullOrder.BEFORE}});
 
   const expected = [2, 3, 4, 0, 5, 1];
-  
+
   expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
 });
 
 test('DataFrame.orderBy (descending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
-  const col  = new Series(
-    {type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask, nullCount: 1});
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({"a": col});
   const result = df.orderBy({"a": {ascending: false, null_order: NullOrder.AFTER}});
 

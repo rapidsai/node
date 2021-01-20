@@ -21,7 +21,7 @@ const mr = new CudaMemoryResource();
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
 
-test('Series initialization with properties', () => {
+test('Series initialization with properties (non-null)', () => {
   const length = 100;
   const s      = new Series({type: new Int32(), data: new Int32Buffer(length)});
 
@@ -30,6 +30,21 @@ test('Series initialization with properties', () => {
   expect(s.nullCount).toBe(0);
   expect(s.hasNulls).toBe(false);
   expect(s.nullable).toBe(false);
+});
+
+test('Series initialization with properties (null)', () => {
+  const length = 10;
+  const s      = new Series({
+    type: new Int32(),
+    data: new Int32Buffer(length),
+    nullMask: new Uint8Buffer([250, 255]),
+  });
+
+  expect(s.type.id).toBe(TypeId.INT32);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(2);
+  expect(s.hasNulls).toBe(true);
+  expect(s.nullable).toBe(true);
 });
 
 test('Series initialization with Column', () => {
@@ -56,6 +71,7 @@ test('test child(child_index), num_children', () => {
 
   expect(stringsCol.type.id).toBe(TypeId.STRING);
   expect(stringsCol.numChildren).toBe(2);
+  expect(stringsCol.nullCount).toBe(0);
   expect(stringsCol.getValue(0)).toBe("hello");
   expect(stringsCol.getChild(0).length).toBe(offsetsCol.length);
   expect(stringsCol.getChild(0).type.id).toBe(offsetsCol.type.id);

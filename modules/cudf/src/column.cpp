@@ -111,8 +111,10 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
 
   cudf::size_type length{props.Has("length") ? NapiToCPP(props.Get("length")) : 0};
   cudf::size_type offset{props.Has("offset") ? NapiToCPP(props.Get("offset")) : 0};
-  cudf::size_type null_count{props.Has("nullCount") ? NapiToCPP(props.Get("nullCount"))
-                                                    : cudf::UNKNOWN_NULL_COUNT};
+  cudf::size_type null_count{props.Has("nullCount") && props.Get("nullCount").IsNumber() &&
+                                 props.Get("nullCount").ToNumber().operator int32_t() > -1
+                               ? NapiToCPP(props.Get("nullCount"))
+                               : cudf::UNKNOWN_NULL_COUNT};
 
   auto type =
     DataType::New(props.Has("type") ? NapiToCPP(props.Get("type")) : cudf::type_id::EMPTY);
