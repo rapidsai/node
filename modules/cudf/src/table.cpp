@@ -37,6 +37,7 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
                                     {
                                       InstanceAccessor<&Table::num_columns>("numColumns"),
                                       InstanceAccessor<&Table::num_rows>("numRows"),
+                                      InstanceMethod<&Table::gather>("gather"),
                                       InstanceMethod<&Table::get_column>("getColumnByIndex"),
                                       InstanceMethod<&Table::to_arrow>("toArrow"),
                                       InstanceMethod<&Table::order_by>("orderBy"),
@@ -53,6 +54,17 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
 
 Napi::Object Table::New(Napi::Array const& columns) {
   auto inst = Table::constructor.New({});
+  Table::Unwrap(inst)->Initialize(columns);
+  return inst;
+}
+
+Napi::Object Table::New(std::unique_ptr<cudf::table> table) {
+  auto inst           = Table::constructor.New({});
+  auto contents       = table->release();
+  Napi::Array columns = Napi::Array::New(Table::constructor.Env(), contents.size());
+  for (auto i = 0u; i < columns.Length(); ++i) {
+    columns.Set(i, Column::New(std::move(contents[i]))->Value());
+  }
   Table::Unwrap(inst)->Initialize(columns);
   return inst;
 }
@@ -122,6 +134,16 @@ Napi::Value Table::num_columns(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value Table::num_rows(Napi::CallbackInfo const& info) { return CPPToNapi(info)(num_rows()); }
+
+Napi::Value Table::gather(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  auto& selection = *Column::Unwrap(args[0]);
+
+  if (selection.type().id() == cudf::type_id::BOOL8) {
+    return this->apply_boolean_mask(selection)->Value();
+  }
+  return this->gather(selection)->Value();
+}
 
 Napi::Value Table::get_column(Napi::CallbackInfo const& info) {
   cudf::size_type i = CallbackArgs{info}[0];
