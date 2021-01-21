@@ -1,22 +1,23 @@
-ARG CUDA_VERSION=11.0
+ARG CUDA_BASE_IMAGE
 ARG NODE_VERSION=14.10.1
-ARG LINUX_VERSION=ubuntu18.04
-ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 
 FROM node:$NODE_VERSION-stretch-slim as node
 
-FROM nvidia/cudagl:${CUDA_VERSION}-runtime-${LINUX_VERSION}
+FROM ${CUDA_BASE_IMAGE}
 
 # Install dependencies
 RUN apt update -y \
  && apt install -y \
     # cuDF dependencies
-    libboost-filesystem1.71.0 \
+    libboost-filesystem-dev \
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+ARG NODE_VERSION
 ENV NODE_VERSION=$NODE_VERSION
-ENV YARN_VERSION=1.22.5
+
+ARG YARN_VERSION=1.22.5
+ENV YARN_VERSION=$YARN_VERSION
 
 # Install node
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
@@ -43,6 +44,9 @@ RUN groupadd --gid $GID node \
  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
  # smoke tests
  && node --version && npm --version && yarn --version
+
+# avoid "OSError: library nvvm not found" error
+ENV CUDA_HOME="/usr/local/cuda"
 
 SHELL ["/bin/bash", "-l"]
 
