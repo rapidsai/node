@@ -49,6 +49,13 @@ export interface Column<T extends DataType = any> {
   readonly numChildren: number;
 
   /**
+   * Return sub-selection from a Column
+   *
+   * @param selection
+   */
+  gather(selection: Column): Column
+
+  /**
    * Return a child at the specified index to host memory
    *
    * @param index

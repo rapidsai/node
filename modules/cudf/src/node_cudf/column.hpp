@@ -295,6 +295,8 @@ class Column : public Napi::ObjectWrap<Column> {
   Napi::Value is_nullable(Napi::CallbackInfo const& info);
   Napi::Value num_children(Napi::CallbackInfo const& info);
 
+  Napi::Value gather(Napi::CallbackInfo const& info);
+
   Napi::Value get_child(Napi::CallbackInfo const& info);
   // Napi::Value set_child(Napi::CallbackInfo const& info);
 

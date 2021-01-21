@@ -60,6 +60,7 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   InstanceAccessor("nullCount", &Column::null_count, nullptr, napi_enumerable),
                   InstanceAccessor("nullable", &Column::is_nullable, nullptr, napi_enumerable),
                   InstanceAccessor("numChildren", &Column::num_children, nullptr, napi_enumerable),
+                  InstanceMethod("gather", &Column::gather),
                   InstanceMethod("getChild", &Column::get_child),
                   InstanceMethod("getValue", &Column::get_value),
                   InstanceMethod("setNullMask", &Column::set_null_mask),
@@ -312,6 +313,13 @@ Napi::Value Column::null_count(Napi::CallbackInfo const& info) {
 Napi::Value Column::set_null_count(Napi::CallbackInfo const& info) {
   this->set_null_count(CallbackArgs{info}[0].operator cudf::size_type());
   return info.Env().Undefined();
+}
+
+Napi::Value Column::gather(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  auto& selection = *Column::Unwrap(args[0]);
+  auto result     = (*this)[selection];
+  return result->Value();
 }
 
 Napi::Value Column::get_child(Napi::CallbackInfo const& info) {
