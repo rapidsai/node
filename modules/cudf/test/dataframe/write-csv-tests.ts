@@ -39,6 +39,6 @@ describe('DataFrame.writeCSV', () => {
         ]
       }),
     });
-    expect(makeCSVString({rows})).toEqual(await streamToString(df.toCSV()));
+    expect(await streamToString(df.toCSV())).toEqual(makeCSVString({rows}));
   });
 });
