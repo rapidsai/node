@@ -100,6 +100,13 @@ export class Series<T extends DataType = any> {
   get numChildren() { return this._data.numChildren; }
 
   /**
+   * Return a seb-selection of the Series from the specified indices
+   *
+   * @param index
+   */
+  gather(selection: Series) { return new Series(this._data.gather(selection._data)); }
+
+  /**
    * Return a child at the specified index to host memory
    *
    * @param index

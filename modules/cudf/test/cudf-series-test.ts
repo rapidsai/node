@@ -80,6 +80,17 @@ test('test child(child_index), num_children', () => {
   expect(stringsCol.getChild(1).type.id).toBe(utf8Col.type.id);
 });
 
+test('Series.gather', () => {
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+
+  const selection = new Series({type: new Int32(), data: new Int32Buffer([2, 4, 5, 8])});
+
+  const result = col.gather(selection);
+
+  expect([...result.toArrow()]).toEqual([...selection.toArrow()])
+});
+
 describe('toArrow()', () => {
   test('converts Uint8 Series to Uint8Vector', () => {
     const uint8Col = new Series({type: new Uint8(), data: new Uint8Buffer(Buffer.from("hello"))});
