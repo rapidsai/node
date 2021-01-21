@@ -175,7 +175,7 @@ test('Series.sortValues (ascending)', () => {
   const result = col.sortValues();
 
   const expected = [0, 1, 2, 3, 4, 5];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual(expected);
 });
 
 test('Series.sortValues (descending)', () => {
@@ -183,5 +183,5 @@ test('Series.sortValues (descending)', () => {
   const result = col.sortValues(false);
 
   const expected = [5, 4, 3, 2, 1, 0];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual(expected);
 });
