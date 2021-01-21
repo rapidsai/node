@@ -304,3 +304,5 @@ export interface WriteCSVOptions {
   /** Maximum number of rows to write in each chunk (limits memory use). */
   rowsPerChunk?: number;
 }
+
+export type Integral = Int8|Int16|Int32|Uint8|Uint16|Uint32;
