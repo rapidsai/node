@@ -48,25 +48,32 @@ namespace nv {
 Napi::FunctionReference Column::constructor;
 
 Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "Column",
-                {
-                  InstanceAccessor("type", &Column::type, nullptr, napi_enumerable),
-                  InstanceAccessor("data", &Column::data, nullptr, napi_enumerable),
-                  InstanceAccessor("mask", &Column::null_mask, nullptr, napi_enumerable),
-                  InstanceAccessor("length", &Column::size, nullptr, napi_enumerable),
-                  InstanceAccessor("hasNulls", &Column::has_nulls, nullptr, napi_enumerable),
-                  InstanceAccessor("nullCount", &Column::null_count, nullptr, napi_enumerable),
-                  InstanceAccessor("nullable", &Column::is_nullable, nullptr, napi_enumerable),
-                  InstanceAccessor("numChildren", &Column::num_children, nullptr, napi_enumerable),
-                  InstanceMethod("getChild", &Column::get_child),
-                  InstanceMethod("getValue", &Column::get_value),
-                  InstanceMethod("setNullMask", &Column::set_null_mask),
-                  InstanceMethod("setNullCount", &Column::set_null_count),
-                  InstanceMethod("min", &Column::min),
-                  InstanceMethod("max", &Column::max),
-                });
+  Napi::Function ctor = DefineClass(env,
+                                    "Column",
+                                    {
+                                      InstanceAccessor<&Column::type>("type"),
+                                      InstanceAccessor<&Column::data>("data"),
+                                      InstanceAccessor<&Column::null_mask>("mask"),
+                                      InstanceAccessor<&Column::size>("length"),
+                                      InstanceAccessor<&Column::has_nulls>("hasNulls"),
+                                      InstanceAccessor<&Column::null_count>("nullCount"),
+                                      InstanceAccessor<&Column::is_nullable>("nullable"),
+                                      InstanceAccessor<&Column::num_children>("numChildren"),
+
+                                      InstanceMethod<&Column::get_child>("getChild"),
+                                      InstanceMethod<&Column::get_value>("getValue"),
+                                      InstanceMethod<&Column::set_null_mask>("setNullMask"),
+                                      InstanceMethod<&Column::set_null_count>("setNullCount"),
+                                      // column/binaryop.cpp
+                                      InstanceMethod<&Column::eq>("eq"),
+                                      InstanceMethod<&Column::lt>("lt"),
+                                      InstanceMethod<&Column::le>("le"),
+                                      InstanceMethod<&Column::gt>("gt"),
+                                      InstanceMethod<&Column::ge>("ge"),
+                                      // column/reduction.cpp
+                                      InstanceMethod<&Column::min>("min"),
+                                      InstanceMethod<&Column::max>("max"),
+                                    });
 
   Column::constructor = Napi::Persistent(ctor);
   Column::constructor.SuppressDestruct();
@@ -250,6 +257,8 @@ cudf::mutable_column_view Column::mutable_view() {
                                    0,
                                    child_views};
 }
+
+Column::operator Napi::Value() const { return Value(); }
 
 ObjectUnwrap<Column> Column::operator[](Column const& selection) const {
   if (selection.type().id() == cudf::type_id::BOOL8) {  //

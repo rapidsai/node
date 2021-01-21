@@ -148,4 +148,54 @@ export class Series<T extends DataType = any> {
   orderBy(ascending: boolean, null_order: NullOrder) {
     return new DataFrame({"col": this}).orderBy({"col": {ascending, null_order}})
   }
+
+  /**
+   * Perform the binary '==' operation between this Series and another Series or scalar value.
+   *
+   * @rhs The other Series or scalar to compare with this column.
+   * @returns A Series of booleans with the comparison result.
+   */
+  eq(rhs: Series<T>|T['valueType']) {
+    return new Series(this._data.eq(rhs instanceof Series ? rhs._data : rhs));
+  }
+
+  /**
+   * Perform the binary '<' operation between this Series and another Series or scalar value.
+   *
+   * @rhs The other Series or scalar to compare with this column.
+   * @returns A Series of booleans with the comparison result.
+   */
+  lt(rhs: Series<T>|T['valueType']) {
+    return new Series(this._data.lt(rhs instanceof Series ? rhs._data : rhs));
+  }
+
+  /**
+   * Perform the binary '<=' operation between this Series and another Series or scalar value.
+   *
+   * @rhs The other Series or scalar to compare with this column.
+   * @returns A Series of booleans with the comparison result.
+   */
+  le(rhs: Series<T>|T['valueType']) {
+    return new Series(this._data.le(rhs instanceof Series ? rhs._data : rhs));
+  }
+
+  /**
+   * Perform the binary '>' operation between this Series and another Series or scalar value.
+   *
+   * @rhs The other Series or scalar to compare with this column.
+   * @returns A Series of booleans with the comparison result.
+   */
+  gt(rhs: Series<T>|T['valueType']) {
+    return new Series(this._data.gt(rhs instanceof Series ? rhs._data : rhs));
+  }
+
+  /**
+   * Perform the binary '>=' operation between this Series and another Series or scalar value.
+   *
+   * @rhs The other Series or scalar to compare with this column.
+   * @returns A Series of booleans with the comparison result.
+   */
+  ge(rhs: Series<T>|T['valueType']) {
+    return new Series(this._data.ge(rhs instanceof Series ? rhs._data : rhs));
+  }
 }

@@ -16,7 +16,7 @@ import {MemoryData} from '@nvidia/cuda';
 import {DeviceBuffer} from '@nvidia/rmm';
 
 import CUDF from './addon';
-import {DataType, TypeId} from './types';
+import {Bool8, DataType, TypeId} from './types';
 
 export type ColumnProps = {
   // todo -- need to pass full DataType instance when we implement fixed_point
@@ -82,6 +82,46 @@ export interface Column<T extends DataType = any> {
    * automatically.
    */
   setNullMask(mask: DeviceBuffer, nullCount?: number): void;
+
+  /**
+   * Perform the binary '==' operation between this column and another column or scalar value.
+   *
+   * @rhs The other Column or scalar to compare with this column.
+   * @returns A Column of booleans with the comparison result.
+   */
+  eq(rhs: Column<T>|T['valueType']): Column<Bool8>;
+
+  /**
+   * Perform the binary '<' operation between this column and another column or scalar value.
+   *
+   * @rhs The other Column or scalar to compare with this column.
+   * @returns A Column of booleans with the comparison result.
+   */
+  lt(rhs: Column<T>|T['valueType']): Column<Bool8>;
+
+  /**
+   * Perform the binary '<=' operation between this column and another column or scalar value.
+   *
+   * @rhs The other Column or scalar to compare with this column.
+   * @returns A Column of booleans with the comparison result.
+   */
+  le(rhs: Column<T>|T['valueType']): Column<Bool8>;
+
+  /**
+   * Perform the binary '>' operation between this column and another column or scalar value.
+   *
+   * @rhs The other Column or scalar to compare with this column.
+   * @returns A Column of booleans with the comparison result.
+   */
+  gt(rhs: Column<T>|T['valueType']): Column<Bool8>;
+
+  /**
+   * Perform the binary '>=' operation between this column and another column or scalar value.
+   *
+   * @rhs The other Column or scalar to compare with this column.
+   * @returns A Column of booleans with the comparison result.
+   */
+  ge(rhs: Column<T>|T['valueType']): Column<Bool8>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

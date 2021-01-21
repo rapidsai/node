@@ -15,6 +15,7 @@
 #include <node_cudf/column.hpp>
 
 #include <cudf/binaryop.hpp>
+#include <cudf/scalar/scalar_factories.hpp>
 
 namespace nv {
 
@@ -68,6 +69,63 @@ ObjectUnwrap<Column> Column::binary_operation(Scalar const& rhs,
                                               cudf::binary_operator op,
                                               cudf::type_id output_type) const {
   return Column::New(cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type}));
+}
+
+// Private (JS-facing) impls
+
+Napi::Value Column::eq(Napi::CallbackInfo const& info) {
+  auto rhs = info[0];
+  if (Column::is_instance(rhs)) { return *this == *Column::Unwrap(rhs.ToObject()); }
+  if (!rhs.IsEmpty()) {
+    auto scalar = Scalar::New(cudf::make_default_constructed_scalar(this->type()));
+    scalar->set_value(info, rhs);
+    return (*this) == *scalar;
+  }
+  NAPI_THROW(Napi::Error::New(info.Env(), "Column.eq expects a Column or scalar value"));
+}
+
+Napi::Value Column::lt(Napi::CallbackInfo const& info) {
+  auto rhs = info[0];
+  if (Column::is_instance(rhs)) { return *this < *Column::Unwrap(rhs.ToObject()); }
+  if (!rhs.IsEmpty()) {
+    auto scalar = Scalar::New(cudf::make_default_constructed_scalar(this->type()));
+    scalar->set_value(info, rhs);
+    return (*this) < *scalar;
+  }
+  NAPI_THROW(Napi::Error::New(info.Env(), "Column.lt expects a Column or scalar value"));
+}
+
+Napi::Value Column::le(Napi::CallbackInfo const& info) {
+  auto rhs = info[0];
+  if (Column::is_instance(rhs)) { return *this <= *Column::Unwrap(rhs.ToObject()); }
+  if (!rhs.IsEmpty()) {
+    auto scalar = Scalar::New(cudf::make_default_constructed_scalar(this->type()));
+    scalar->set_value(info, rhs);
+    return (*this) <= *scalar;
+  }
+  NAPI_THROW(Napi::Error::New(info.Env(), "Column.le expects a Column or scalar value"));
+}
+
+Napi::Value Column::gt(Napi::CallbackInfo const& info) {
+  auto rhs = info[0];
+  if (Column::is_instance(rhs)) { return *this > *Column::Unwrap(rhs.ToObject()); }
+  if (!rhs.IsEmpty()) {
+    auto scalar = Scalar::New(cudf::make_default_constructed_scalar(this->type()));
+    scalar->set_value(info, rhs);
+    return (*this) > *scalar;
+  }
+  NAPI_THROW(Napi::Error::New(info.Env(), "Column.gt expects a Column or scalar value"));
+}
+
+Napi::Value Column::ge(Napi::CallbackInfo const& info) {
+  auto rhs = info[0];
+  if (Column::is_instance(rhs)) { return *this >= *Column::Unwrap(rhs.ToObject()); }
+  if (!rhs.IsEmpty()) {
+    auto scalar = Scalar::New(cudf::make_default_constructed_scalar(this->type()));
+    scalar->set_value(info, rhs);
+    return (*this) >= *scalar;
+  }
+  NAPI_THROW(Napi::Error::New(info.Env(), "Column.ge expects a Column or scalar value"));
 }
 
 }  // namespace nv

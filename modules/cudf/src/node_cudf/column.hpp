@@ -235,6 +235,8 @@ class Column : public Napi::ObjectWrap<Column> {
    */
   operator cudf::mutable_column_view() { return this->mutable_view(); };
 
+  operator Napi::Value() const;
+
   /**
    * @copydoc cudf::minmax(cudf::column_view const& col, rmm::mr::device_memory_resource* mr)
    *
@@ -309,6 +311,12 @@ class Column : public Napi::ObjectWrap<Column> {
   // Napi::Value nullCount(Napi::CallbackInfo const& info);
   // Napi::Value child(Napi::CallbackInfo const& info);
   // Napi::Value numChildren(Napi::CallbackInfo const& info);
+
+  Napi::Value eq(Napi::CallbackInfo const& info);
+  Napi::Value lt(Napi::CallbackInfo const& info);
+  Napi::Value le(Napi::CallbackInfo const& info);
+  Napi::Value gt(Napi::CallbackInfo const& info);
+  Napi::Value ge(Napi::CallbackInfo const& info);
 
   Napi::Value min(Napi::CallbackInfo const& info);
   Napi::Value max(Napi::CallbackInfo const& info);
