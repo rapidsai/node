@@ -278,8 +278,10 @@ export interface ReadCSVOptions<T extends CSVTypeMap = any> {
 }
 
 export interface WriteCSVOptions {
-  /** Callback function for each CSV chunk */
+  /** Callback invoked for each CSV chunk. */
   next: (chunk: Buffer) => void;
+  /** Callback invoked when writing is finished. */
+  complete: () => void;
   /** The field delimiter to write. */
   delimiter?: string;  // = ",";
   /** String to use for null values. */

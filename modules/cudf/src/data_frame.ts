@@ -146,16 +146,16 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns A node ReadableStream of the CSV data.
    */
   toCSV(options: {
-    [P in keyof Omit<WriteCSVOptions, 'next'|'columnNames'>]:
-      Omit<WriteCSVOptions, 'next'|'columnNames'>[P]
+    [P in keyof Omit<WriteCSVOptions, 'next'|'complete'|'columnNames'>]:
+      Omit<WriteCSVOptions, 'next'|'complete'|'columnNames'>[P]
   } = {}) {
     const readable = new Readable({encoding: 'utf8'});
     new Table({columns: this._accessor.columns}).writeCSV({
       ...options,
       next(buf) { readable.push(buf); },
+      complete() { readable.push(null); },
       columnNames: this.names as string[],
     });
-    readable.push(null);
     return readable as NodeJS.ReadableStream;
   }
 }

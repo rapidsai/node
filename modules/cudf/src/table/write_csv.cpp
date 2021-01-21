@@ -109,14 +109,21 @@ Napi::Value Table::write_csv(Napi::CallbackInfo const& info) {
 
   auto options = info[0].As<Napi::Object>();
   NODE_CUDF_EXPECT(options.Has("next"), "writeCSV expects a 'next' callback", env);
+  NODE_CUDF_EXPECT(options.Has("complete"), "writeCSV expects a 'complete' callback", env);
 
-  auto emit = options.Get("next");
-  NODE_CUDF_EXPECT(emit.IsFunction(), "writeCSV expects 'next' to be a function", env);
+  auto next = options.Get("next");
+  NODE_CUDF_EXPECT(next.IsFunction(), "writeCSV expects 'next' to be a function", env);
+
+  auto complete = options.Get("complete");
+  NODE_CUDF_EXPECT(complete.IsFunction(), "writeCSV expects 'complete' to be a function", env);
 
   cudf::table_view table = *this;
-  callback_sink sink{emit.As<Napi::Function>()};
+  callback_sink sink{next.As<Napi::Function>()};
   auto metadata = make_writer_metadata(options, table);
   cudf::io::write_csv(make_writer_options(options, cudf::io::sink_info{&sink}, table, &metadata));
+
+  complete.As<Napi::Function>()({});
+
   return info.Env().Undefined();
 }
 
