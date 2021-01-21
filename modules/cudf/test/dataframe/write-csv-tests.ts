@@ -16,7 +16,7 @@ import {Float64Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvi
 import {DataFrame, Float64, Int32, Series, Uint8, Utf8String} from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
 
-import {makeCSVString, streamToString} from './utils';
+import {makeCSVString, toStringAsync} from './utils';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
@@ -39,6 +39,6 @@ describe('DataFrame.writeCSV', () => {
         ]
       }),
     });
-    expect(await streamToString(df.toCSV())).toEqual(makeCSVString({rows}));
+    expect((await toStringAsync(df.toCSV()))).toEqual(makeCSVString({rows}));
   });
 });

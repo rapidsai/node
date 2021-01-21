@@ -18,6 +18,15 @@ import {CSVTypeMap, DataType, Int32, NullOrder, ReadCSVOptions, WriteCSVOptions}
 
 type ToArrowMetadata = [string | number, ToArrowMetadata?];
 
+interface TableWriteCSVOptions extends WriteCSVOptions {
+  /** Callback invoked for each CSV chunk. */
+  next: (chunk: Buffer) => void;
+  /** Callback invoked when writing is finished. */
+  complete: () => void;
+  /** Column names to write in the header. */
+  columnNames?: string[];
+}
+
 interface TableConstructor {
   readonly prototype: Table;
   new(props: {columns?: ReadonlyArray<Column>|null}): Table;
@@ -72,7 +81,7 @@ export interface Table {
    * Write this Table to CSV file format.
    * @param options Settings for controlling writing behavior.
    */
-  writeCSV(options: WriteCSVOptions): void;
+  writeCSV(options: TableWriteCSVOptions): void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

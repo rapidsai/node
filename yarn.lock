@@ -10000,6 +10000,14 @@ ix@3.0.2:
     "@types/node" "^13.7.4"
     tslib "^1.9.3"
 
+ix@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.npmjs.org/ix/-/ix-4.1.0.tgz#86561c5df4f6f3fd139f01e3401f01c7adbd6e62"
+  integrity sha512-rMRfCQ0bH2+C/D9PTB3zSrORtOuT2lQ2WMK/DXW4TEZmiMkLAt4EL6WEludLQ87KQWijCaZGVqFSOwo0K8R5MA==
+  dependencies:
+    "@types/node" "^13.7.4"
+    tslib "2.0.0"
+
 jest-changed-files@^24.9.0:
   version "24.9.0"
   resolved "https://registry.npmjs.org/jest-changed-files/-/jest-changed-files-24.9.0.tgz#08d8c15eb79a7fa3fc98269bc14b451ee82f8039"
@@ -16941,6 +16949,11 @@ ts-pnp@^1.1.6:
   version "1.2.0"
   resolved "https://registry.npmjs.org/ts-pnp/-/ts-pnp-1.2.0.tgz#a500ad084b0798f1c3071af391e65912c86bca92"
   integrity sha512-csd+vJOb/gkzvcCHgTGSChYpy5f1/XKNsmvBGO4JXS+z1v2HobugDz4s1IeFXM3wZB44uczs+eazB5Q/ccdhQw==
+
+tslib@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/tslib/-/tslib-2.0.0.tgz#18d13fc2dce04051e20f074cc8387fd8089ce4f3"
+  integrity sha512-lTqkx847PI7xEDYJntxZH89L2/aXInsyF2luSafe/+0fHOMjlBNXdH6th7f70qxLDhul7KZK0zC8V5ZIyHl0/g==
 
 tslib@^1.12.0, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
   version "1.14.1"

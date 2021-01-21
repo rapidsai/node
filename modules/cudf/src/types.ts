@@ -216,9 +216,7 @@ export type CSVToCUDFType<T extends CSVType> = {
   "timestamp[ns]": never,
 }[T];
 
-export interface ReadCSVOptions<T extends CSVTypeMap = any> {
-  sourceType: "files"|"buffers";
-  sources: (string|Uint8Array|Buffer)[];
+interface ReadCSVOptionsBase<T extends CSVTypeMap = any> {
   /**
      Names and types of all the columns; if empty then names and types are inferred/auto-generated
    */
@@ -271,17 +269,26 @@ export interface ReadCSVOptions<T extends CSVTypeMap = any> {
   trueValues?: string[];
   /** Additional values to recognize as boolean false values */
   falseValues?: string[];
-  /** Names or indices of columns to read as datetime */
+  /** Names of columns to read as datetime */
   datetimeColumns?: string[];
   /** Names of columns to read; empty/null is all columns */
   columnsToReturn?: string[];
 }
 
+interface ReadCSVFileOptions<T extends CSVTypeMap = any> extends ReadCSVOptionsBase<T> {
+  sourceType: "files";
+  sources: string[];
+}
+
+interface ReadCSVBufferOptions<T extends CSVTypeMap = any> extends ReadCSVOptionsBase<T> {
+  sourceType: "buffers";
+  sources: (Uint8Array|Buffer)[];
+}
+
+export type ReadCSVOptions<T extends CSVTypeMap = any> =
+  ReadCSVFileOptions<T>|ReadCSVBufferOptions<T>;
+
 export interface WriteCSVOptions {
-  /** Callback invoked for each CSV chunk. */
-  next: (chunk: Buffer) => void;
-  /** Callback invoked when writing is finished. */
-  complete: () => void;
   /** The field delimiter to write. */
   delimiter?: string;  // = ",";
   /** String to use for null values. */
@@ -296,6 +303,4 @@ export interface WriteCSVOptions {
   lineTerminator?: string;
   /** Maximum number of rows to write in each chunk (limits memory use). */
   rowsPerChunk?: number;
-  /** Column names to write in the header. */
-  columnNames?: string[];
 }

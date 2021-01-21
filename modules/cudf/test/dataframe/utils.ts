@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {toArray} from 'ix/asynciterable';
+
 export function makeCSVString(
   opts: {rows?: any[], delimiter?: string, lineTerminator?: string, header?: boolean} = {}) {
   const {rows = [], delimiter = ',', lineTerminator = '\n', header = true} = opts;
@@ -25,10 +27,6 @@ export function makeCSVString(
          lineTerminator;
 }
 
-export async function streamToString(stream: NodeJS.ReadableStream) {
-  let str = '';
-  for await (const chunk of stream[Symbol.asyncIterator]()) {  //
-    str += chunk.toString();
-  }
-  return str;
+export async function toStringAsync(source: AsyncIterable<string>) {
+  return (await toArray(source)).join('');
 }
