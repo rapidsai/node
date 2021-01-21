@@ -276,3 +276,24 @@ export interface ReadCSVOptions<T extends CSVTypeMap = any> {
   /** Names of columns to read; empty/null is all columns */
   columnsToReturn?: string[];
 }
+
+export interface WriteCSVOptions {
+  /** Callback function for each CSV chunk */
+  next: (chunk: Buffer) => void;
+  /** The field delimiter to write. */
+  delimiter?: string;  // = ",";
+  /** String to use for null values. */
+  nullValue?: string;
+  /** String to use for boolean true values (default 'true'). */
+  trueValue?: string;
+  /** String to use for boolean false values (default 'false'). */
+  falseValue?: string;
+  /** Indicates whether to write headers to csv. */
+  includeHeader?: boolean;
+  /** Character to use for separating lines, */
+  lineTerminator?: string;
+  /** Maximum number of rows to write in each chunk (limits memory use). */
+  rowsPerChunk?: number;
+  /** Column names to write in the header. */
+  columnNames?: string[];
+}

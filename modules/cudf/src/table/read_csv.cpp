@@ -16,7 +16,6 @@
 #include <node_cudf/table.hpp>
 
 #include <cudf/io/csv.hpp>
-#include <cudf/io/data_sink.hpp>
 #include <cudf/io/datasource.hpp>
 #include <cudf/io/types.hpp>
 
@@ -244,15 +243,11 @@ Napi::Value Table::read_csv(Napi::CallbackInfo const& info) {
   auto options = info[0].As<Napi::Object>();
   auto sources = options.Get("sources");
 
-  NODE_CUDF_EXPECT(sources.IsArray(), "readCSV expects an Array of Paths or Strings", info.Env());
+  NODE_CUDF_EXPECT(sources.IsArray(), "readCSV expects an Array of paths or buffers", info.Env());
 
   return (options.Get("sourceType").ToString().Utf8Value() == "files")
            ? read_csv_files(options, NapiToCPP{sources})
            : read_csv_strings(options, NapiToCPP{sources});
-}
-
-Napi::Value Table::write_csv(Napi::CallbackInfo const& info) {
-  return Napi::Number::New(info.Env(), 0);
 }
 
 }  // namespace nv

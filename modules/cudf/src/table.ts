@@ -14,7 +14,7 @@
 
 import CUDF from './addon';
 import {Column} from './column';
-import {CSVTypeMap, DataType, Int32, NullOrder, ReadCSVOptions} from './types';
+import {CSVTypeMap, DataType, Int32, NullOrder, ReadCSVOptions, WriteCSVOptions} from './types';
 
 type ToArrowMetadata = [string | number, ToArrowMetadata?];
 
@@ -67,6 +67,12 @@ export interface Table {
    */
   orderBy(column_orders: boolean[], null_orders: NullOrder[]): Column<Int32>;
   toArrow(names: ToArrowMetadata[]): Uint8Array;
+
+  /**
+   * Write this Table to CSV file format.
+   * @param options Settings for controlling writing behavior.
+   */
+  writeCSV(options: WriteCSVOptions): void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

@@ -12,11 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Readable} from 'stream';
+
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor'
 import {Series} from './series';
 import {Table} from './table';
-import {ColumnsMap, CSVToCUDFType, CSVTypeMap, NullOrder, ReadCSVOptions, TypeMap} from './types'
+import {
+  ColumnsMap,
+  CSVToCUDFType,
+  CSVTypeMap,
+  NullOrder,
+  ReadCSVOptions,
+  TypeMap,
+  WriteCSVOptions
+} from './types'
 
 type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: Series<T[P]>
@@ -126,5 +136,26 @@ export class DataFrame<T extends TypeMap = any> {
     // Compute the sorted sorted_indices
     const sorted_indices = new Table({columns}).orderBy(column_orders, null_orders);
     return new Series(sorted_indices);
+  }
+
+  /**
+   * Serialize this DataFrame to CSV format.
+   *
+   * @param options Options controlling CSV writing behavior.
+   *
+   * @returns A node ReadableStream of the CSV data.
+   */
+  toCSV(options: {
+    [P in keyof Omit<WriteCSVOptions, 'next'|'columnNames'>]:
+      Omit<WriteCSVOptions, 'next'|'columnNames'>[P]
+  } = {}) {
+    const readable = new Readable({encoding: 'utf8'});
+    new Table({columns: this._accessor.columns}).writeCSV({
+      ...options,
+      next(buf) { readable.push(buf); },
+      columnNames: this.names as string[],
+    });
+    readable.push(null);
+    return readable as NodeJS.ReadableStream;
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,22 +19,9 @@ import {DeviceBuffer} from '@nvidia/rmm';
 import {mkdtempSync, promises} from 'fs';
 import * as Path from 'path';
 
-setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
+import {makeCSVString} from './utils';
 
-function makeCSV(
-  opts: {rows?: any[], delimitor?: string, lineTerminator?: string, header?: boolean} = {}) {
-  const {rows = [], delimitor = ',', lineTerminator = '\n', header = true} = opts;
-  const names = Object.keys(rows.reduce(
-    (keys, row) => Object.keys(row).reduce((keys, key) => ({...keys, [key]: true}), keys), {}));
-  return [
-    ...(function*() {
-      if (header) yield names.join(delimitor);
-      for (const row of rows) {
-        yield names.map((name) => row[name] === undefined ? '' : row[name]).join(delimitor);
-      }
-    })()
-  ].join(lineTerminator);
-}
+setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
 describe('DataFrame.readCSV', () => {
   test('can read a CSV string', () => {
@@ -46,7 +33,7 @@ describe('DataFrame.readCSV', () => {
     const df = DataFrame.readCSV({
       header: 0,
       sourceType: 'buffers',
-      sources: [Buffer.from(makeCSV({rows}))],
+      sources: [Buffer.from(makeCSVString({rows}))],
       dataTypes: {a: "int32", b: "float64", c: "str"},
     });
     expect(df.get('a').toArrow().values).toEqual(new Int32Array([0, 1, 2]));
@@ -61,7 +48,7 @@ describe('DataFrame.readCSV', () => {
       {a: 2, b: 3.0, c: "4"},
     ];
     const path = Path.join(csvTmpDir, 'simple.csv');
-    await promises.writeFile(path, makeCSV({rows}));
+    await promises.writeFile(path, makeCSVString({rows}));
     const df = DataFrame.readCSV({
       header: 0,
       sourceType: 'files',
