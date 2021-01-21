@@ -13,17 +13,14 @@
 // limitations under the License.
 
 export function makeCSVString(
-  opts: {rows?: any[], delimitor?: string, lineTerminator?: string, header?: boolean} = {}) {
-  const {rows = [], delimitor = ',', lineTerminator = '\n', header = true} = opts;
+  opts: {rows?: any[], delimiter?: string, lineTerminator?: string, header?: boolean} = {}) {
+  const {rows = [], delimiter = ',', lineTerminator = '\n', header = true} = opts;
   const names = Object.keys(rows.reduce(
     (keys, row) => Object.keys(row).reduce((keys, key) => ({...keys, [key]: true}), keys), {}));
   return [
-    ...(function*() {
-      if (header) yield names.join(delimitor);
-      for (const row of rows) {
-        yield names.map((name) => row[name] === undefined ? '' : row[name]).join(delimitor);
-      }
-    })()
+    ...[header ? names.join(delimiter) : []],
+    ...rows.map((row) =>
+                  names.map((name) => row[name] === undefined ? '' : row[name]).join(delimiter))
   ].join(lineTerminator) +
          lineTerminator;
 }
