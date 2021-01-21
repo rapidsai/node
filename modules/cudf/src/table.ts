@@ -14,13 +14,31 @@
 
 import CUDF from './addon';
 import {Column} from './column';
-import {DataType, Int32, NullOrder} from './types';
+import {CSVTypeMap, DataType, Int32, NullOrder, ReadCSVOptions, WriteCSVOptions} from './types';
 
 type ToArrowMetadata = [string | number, ToArrowMetadata?];
+
+interface TableWriteCSVOptions extends WriteCSVOptions {
+  /** Callback invoked for each CSV chunk. */
+  next: (chunk: Buffer) => void;
+  /** Callback invoked when writing is finished. */
+  complete: () => void;
+  /** Column names to write in the header. */
+  columnNames?: string[];
+}
 
 interface TableConstructor {
   readonly prototype: Table;
   new(props: {columns?: ReadonlyArray<Column>|null}): Table;
+
+  /**
+   * Reads a CSV dataset into a set of columns.
+   *
+   * @param options Settings for controlling reading behavior.
+   * @return The CSV data as a Table and a list of column names.
+   */
+  readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>):
+    {names: (keyof T)[], table: Table};
 }
 
 /**
@@ -58,6 +76,12 @@ export interface Table {
    */
   orderBy(column_orders: boolean[], null_orders: NullOrder[]): Column<Int32>;
   toArrow(names: ToArrowMetadata[]): Uint8Array;
+
+  /**
+   * Write this Table to CSV file format.
+   * @param options Settings for controlling writing behavior.
+   */
+  writeCSV(options: TableWriteCSVOptions): void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

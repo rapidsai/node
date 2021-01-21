@@ -13,14 +13,14 @@
 // limitations under the License.
 
 import {MemoryData} from '@nvidia/cuda';
-import {Column, DataFrame} from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
 import {Table as ArrowTable} from 'apache-arrow';
 import {RecordBatchReader} from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';
 
-import {ColumnProps} from './column'
-import {Table} from './table'
+import {Column, ColumnProps} from './column';
+import {DataFrame} from './data_frame';
+import {Table} from './table';
 import {CUDFToArrowType, DataType, NullOrder} from './types';
 
 export interface Series {

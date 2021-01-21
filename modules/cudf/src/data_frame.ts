@@ -12,10 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Column, Series, Table} from '@nvidia/cudf';
+import {Readable} from 'stream';
 
+import {Column} from './column';
 import {ColumnAccessor} from './column_accessor'
-import {ColumnsMap, NullOrder, TypeMap} from './types'
+import {Series} from './series';
+import {Table} from './table';
+import {
+  ColumnsMap,
+  CSVToCUDFType,
+  CSVTypeMap,
+  NullOrder,
+  ReadCSVOptions,
+  TypeMap,
+  WriteCSVOptions
+} from './types'
 
 type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: Series<T[P]>
@@ -36,6 +47,13 @@ function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
  * A GPU Dataframe object.
  */
 export class DataFrame<T extends TypeMap = any> {
+  public static readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>) {
+    const {names, table} = Table.readCSV(options);
+    return new DataFrame(new ColumnAccessor(
+      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}),
+                   {} as ColumnsMap<{[P in keyof T]: CSVToCUDFType<T[P]>}>)));
+  }
+
   private _accessor: ColumnAccessor<T>;
 
   constructor(data: ColumnAccessor<T>|SeriesMap<T>) {
@@ -118,5 +136,23 @@ export class DataFrame<T extends TypeMap = any> {
     // Compute the sorted sorted_indices
     const sorted_indices = new Table({columns}).orderBy(column_orders, null_orders);
     return new Series(sorted_indices);
+  }
+
+  /**
+   * Serialize this DataFrame to CSV format.
+   *
+   * @param options Options controlling CSV writing behavior.
+   *
+   * @returns A node ReadableStream of the CSV data.
+   */
+  toCSV(options: WriteCSVOptions = {}) {
+    const readable = new Readable({encoding: 'utf8'});
+    new Table({columns: this._accessor.columns}).writeCSV({
+      ...options,
+      next(buf) { readable.push(buf); },
+      complete() { readable.push(null); },
+      columnNames: this.names as string[],
+    });
+    return readable as AsyncIterable<string>;
   }
 }

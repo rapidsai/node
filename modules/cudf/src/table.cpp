@@ -32,16 +32,17 @@ namespace nv {
 Napi::FunctionReference Table::constructor;
 
 Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "Table",
-                {
-                  InstanceAccessor("numColumns", &Table::num_columns, nullptr, napi_enumerable),
-                  InstanceAccessor("numRows", &Table::num_rows, nullptr, napi_enumerable),
-                  InstanceMethod("getColumnByIndex", &Table::get_column),
-                  InstanceMethod("toArrow", &Table::to_arrow),
-                  InstanceMethod("orderBy", &Table::order_by),
-                });
+  Napi::Function ctor = DefineClass(env,
+                                    "Table",
+                                    {
+                                      InstanceAccessor<&Table::num_columns>("numColumns"),
+                                      InstanceAccessor<&Table::num_rows>("numRows"),
+                                      InstanceMethod<&Table::get_column>("getColumnByIndex"),
+                                      InstanceMethod<&Table::to_arrow>("toArrow"),
+                                      InstanceMethod<&Table::order_by>("orderBy"),
+                                      StaticMethod<&Table::read_csv>("readCSV"),
+                                      InstanceMethod<&Table::write_csv>("writeCSV"),
+                                    });
 
   Table::constructor = Napi::Persistent(ctor);
   Table::constructor.SuppressDestruct();

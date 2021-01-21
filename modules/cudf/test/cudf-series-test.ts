@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Column, Int32, NullOrder, Series, String, TypeId, Uint8} from '@nvidia/cudf';
+import {Column, Int32, NullOrder, Series, TypeId, Uint8, Utf8String} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 import {Uint8Vector, Utf8Vector} from 'apache-arrow';
 import {BoolVector} from 'apache-arrow'
@@ -64,7 +64,7 @@ test('test child(child_index), num_children', () => {
   const utf8Col    = new Series({type: new Uint8(), data: new Uint8Buffer(Buffer.from("hello"))});
   const offsetsCol = new Series({type: new Int32(), data: new Int32Buffer([0, utf8Col.length])});
   const stringsCol = new Series({
-    type: new String(),
+    type: new Utf8String(),
     length: 1,
     nullMask: new Uint8Buffer([255]),
     children: [offsetsCol, utf8Col],
@@ -91,7 +91,7 @@ describe('toArrow()', () => {
     const utf8Col    = new Series({type: new Uint8(), data: new Uint8Buffer(Buffer.from("hello"))});
     const offsetsCol = new Series({type: new Int32(), data: new Int32Buffer([0, utf8Col.length])});
     const stringsCol = new Series({
-      type: new String(),
+      type: new Utf8String(),
       length: 1,
       nullMask: new Uint8Buffer([255]),
       children: [offsetsCol, utf8Col],

@@ -24,8 +24,8 @@ namespace nv {
 ObjectUnwrap<Column> Column::gather(Column const& gather_map,
                                     cudf::out_of_bounds_policy bounds_policy,
                                     rmm::mr::device_memory_resource* mr) const {
-  auto result = std::move(cudf::gather(cudf::table_view{{*this}}, gather_map, bounds_policy, mr));
-  std::vector<std::unique_ptr<cudf::column>> contents = std::move(result->release());
+  auto result = cudf::gather(cudf::table_view{{*this}}, gather_map, bounds_policy, mr);
+  std::vector<std::unique_ptr<cudf::column>> contents = result->release();
   return Column::New(std::move(contents[0]));
 }
 
