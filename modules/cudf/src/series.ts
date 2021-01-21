@@ -153,6 +153,21 @@ export class Series<T extends DataType = any> {
    * @returns Series containting the permutation indices for the desired sort order
    */
   orderBy(ascending: boolean, null_order: NullOrder) {
-    return new DataFrame({"col": this}).orderBy({"col": {ascending, null_order}})
+    return new DataFrame({"col": this}).orderBy({"col": {ascending, null_order}});
+  }
+
+  /**
+   * Generate a new Series that is sorted in a specified way
+   *
+   * @param ascending whether to sort ascending (true) or descending (false)
+   *   Default: true
+   * @param null_order whether nulls should sort before or after other values
+   *   Default: BEFORE
+   *
+   * @returns Sorted values
+   */
+  sortValues(ascending = true, null_order: NullOrder = NullOrder.BEFORE) {
+    const sorter = new DataFrame({"col": this}).orderBy({"col": {ascending, null_order}});
+    return this.gather(sorter);
   }
 }

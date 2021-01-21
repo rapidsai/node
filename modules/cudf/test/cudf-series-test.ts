@@ -169,3 +169,19 @@ test('Series.orderBy (descending, null after)', () => {
   const expected = [1, 2, 3, 4, 0, 5];
   expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
 });
+
+test('Series.sortValues (ascending)', () => {
+  const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const result = col.sortValues();
+
+  const expected = [0, 1, 2, 3, 4, 5];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
+
+test('Series.sortValues (descending)', () => {
+  const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const result = col.sortValues(false);
+
+  const expected = [5, 4, 3, 2, 1, 0];
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
