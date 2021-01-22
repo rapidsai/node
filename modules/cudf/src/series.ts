@@ -21,7 +21,7 @@ import {VectorType} from 'apache-arrow/interfaces';
 import {Column, ColumnProps} from './column';
 import {DataFrame} from './data_frame';
 import {Table} from './table';
-import {CUDFToArrowType, DataType, NullOrder} from './types';
+import {Bool8, CUDFToArrowType, DataType, Integral, NullOrder} from './types';
 
 export interface Series {
   getChild(index: number): Series;
@@ -100,6 +100,22 @@ export class Series<T extends DataType = any> {
   get numChildren() { return this._data.numChildren; }
 
   /**
+   * Return a seb-selection of the Series from the specified indices
+   *
+   * @param selection
+   */
+  gather<R extends Integral>(selection: Series<R>) {
+    return new Series<T>(this._data.gather(selection._data));
+  }
+
+  /**
+   * Return a seb-selection of the Series from the specified boolean mask
+   *
+   * @param mask
+   */
+  filter(mask: Series<Bool8>) { return new Series<T>(this._data.gather(mask._data)); }
+
+  /**
    * Return a child at the specified index to host memory
    *
    * @param index
@@ -145,7 +161,21 @@ export class Series<T extends DataType = any> {
    *
    * @returns Series containting the permutation indices for the desired sort order
    */
-  orderBy(ascending: boolean, null_order: NullOrder) {
-    return new DataFrame({"col": this}).orderBy({"col": {ascending, null_order}})
+  orderBy(ascending = true, null_order: NullOrder = NullOrder.BEFORE) {
+    return new DataFrame({"col": this}).orderBy({"col": {ascending, null_order}});
+  }
+
+  /**
+   * Generate a new Series that is sorted in a specified way
+   *
+   * @param ascending whether to sort ascending (true) or descending (false)
+   *   Default: true
+   * @param null_order whether nulls should sort before or after other values
+   *   Default: BEFORE
+   *
+   * @returns Sorted values
+   */
+  sortValues(ascending = true, null_order: NullOrder = NullOrder.BEFORE) {
+    return this.gather(this.orderBy(ascending, null_order));
   }
 }

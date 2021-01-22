@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
+import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
 import {Column, Table, TypeId} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 
@@ -33,7 +33,7 @@ test('Table initialization', () => {
   expect(table_0.numColumns).toBe(2)
 });
 
-test('Table getColumnByIndex', () => {
+test('Table.getColumnByIndex', () => {
   const length = 100;
   const col_0  = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
 
@@ -46,4 +46,67 @@ test('Table getColumnByIndex', () => {
 
   expect(table_0.getColumnByIndex(0).type.id).toBe(TypeId.INT32);
   expect(() => { table_0.getColumnByIndex(4); }).toThrow();
+});
+
+test('Table.gather (bad argument)', () => {
+  const col_0   = new Column({type: TypeId.INT32, data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
+  const table_0 = new Table({columns: [col_0]});
+
+  const selection = [2, 4, 5];
+
+  expect(() => table_0.gather(<any>selection)).toThrow();
+})
+
+test('Table.gather (indices)', () => {
+  const col_0 = new Column({type: TypeId.INT32, data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
+  const col_1 =
+    new Column({type: TypeId.FLOAT32, data: new Float32Buffer([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])});
+  const table_0 = new Table({columns: [col_0, col_1]})
+
+  const selection = new Column({type: TypeId.INT32, data: new Int32Buffer([2, 4, 5])});
+
+  const result = table_0.gather(selection);
+  expect(result.numRows).toBe(3);
+
+  const r0 = result.getColumnByIndex(0);
+  const r1 = result.getColumnByIndex(1);
+
+  expect(r0.type.id).toBe(TypeId.INT32);
+  expect(r0.getValue(0)).toBe(2);
+  expect(r0.getValue(1)).toBe(4);
+  expect(r0.getValue(2)).toBe(5);
+
+  expect(r1.type.id).toBe(TypeId.FLOAT32);
+  expect(r1.getValue(0)).toBe(2.0);
+  expect(r1.getValue(1)).toBe(4.0);
+  expect(r1.getValue(2)).toBe(5.0);
+});
+
+test('Table.gather (bitmask)', () => {
+  const col_0 = new Column({type: TypeId.INT32, data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
+  const col_1 =
+    new Column({type: TypeId.FLOAT32, data: new Float32Buffer([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])});
+  const table_0 = new Table({columns: [col_0, col_1]})
+
+  const selection = new Column({
+    length: 6,
+    type: TypeId.BOOL8,
+    data: new Uint8Buffer([0, 0, 1, 0, 1, 1]),
+  });
+
+  const result = table_0.gather(selection);
+  expect(result.numRows).toBe(3);
+
+  const r0 = result.getColumnByIndex(0);
+  const r1 = result.getColumnByIndex(1);
+
+  expect(r0.type.id).toBe(TypeId.INT32);
+  expect(r0.getValue(0)).toBe(2);
+  expect(r0.getValue(1)).toBe(4);
+  expect(r0.getValue(2)).toBe(5);
+
+  expect(r1.type.id).toBe(TypeId.FLOAT32);
+  expect(r1.getValue(0)).toBe(2.0);
+  expect(r1.getValue(1)).toBe(4.0);
+  expect(r1.getValue(2)).toBe(5.0);
 });

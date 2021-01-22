@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Column, Int32, NullOrder, Series, TypeId, Uint8, Utf8String} from '@nvidia/cudf';
+import {Bool8, Column, Int32, NullOrder, Series, TypeId, Uint8, Utf8String} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 import {Uint8Vector, Utf8Vector} from 'apache-arrow';
 import {BoolVector} from 'apache-arrow'
@@ -78,6 +78,30 @@ test('test child(child_index), num_children', () => {
   expect(stringsCol.getChild(0).type.id).toBe(offsetsCol.type.id);
   expect(stringsCol.getChild(1).length).toBe(utf8Col.length);
   expect(stringsCol.getChild(1).type.id).toBe(utf8Col.type.id);
+});
+
+test('Series.gather', () => {
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+
+  const selection = new Series({type: new Int32(), data: new Int32Buffer([2, 4, 5, 8])});
+
+  const result = col.gather(selection);
+
+  expect([...result.toArrow()]).toEqual([...selection.toArrow()])
+});
+
+test('Series.filter', () => {
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+
+  const mask = new Series(
+    {length: 10, type: new Bool8(), data: new Uint8Buffer([0, 0, 1, 0, 1, 1, 0, 0, 1, 0])});
+
+  const result = col.filter(mask);
+
+  const expected = new Series({type: new Int32(), data: new Int32Buffer([2, 4, 5, 8])});
+  expect([...result.toArrow()]).toEqual([...expected.toArrow()])
 });
 
 describe('toArrow()', () => {
@@ -157,4 +181,20 @@ test('Series.orderBy (descending, null after)', () => {
 
   const expected = [1, 2, 3, 4, 0, 5];
   expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+});
+
+test('Series.sortValues (ascending)', () => {
+  const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const result = col.sortValues();
+
+  const expected = [0, 1, 2, 3, 4, 5];
+  expect([...result.toArrow()]).toEqual(expected);
+});
+
+test('Series.sortValues (descending)', () => {
+  const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const result = col.sortValues(false);
+
+  const expected = [5, 4, 3, 2, 1, 0];
+  expect([...result.toArrow()]).toEqual(expected);
 });
