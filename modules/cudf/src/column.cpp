@@ -317,6 +317,9 @@ Napi::Value Column::set_null_count(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::gather(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
+  if (!Column::is_instance(args[0])) {
+    throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
+  }
   auto& selection = *Column::Unwrap(args[0]);
   auto result     = (*this)[selection];
   return result->Value();

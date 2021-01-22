@@ -60,6 +60,15 @@ test('Column.gather', () => {
   expect(result.getValue(3)).toBe(8);
 });
 
+test('Column.gather (bad argument)', () => {
+  const col =
+    new Column({type: TypeId.INT32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+
+  const selection = [2, 4, 5];
+
+  expect(() => col.gather(<any>selection)).toThrow();
+})
+
 test('Column null_mask, null_count', () => {
   const length = 32;
   const col    = new Column({

@@ -59,9 +59,9 @@ Napi::Object Table::New(Napi::Array const& columns) {
 }
 
 Napi::Object Table::New(std::unique_ptr<cudf::table> table) {
-  auto inst           = Table::constructor.New({});
-  auto contents       = table->release();
-  auto columns = Napi::Array::New(Table::constructor.Env(), contents.size());
+  auto inst     = Table::constructor.New({});
+  auto contents = table->release();
+  auto columns  = Napi::Array::New(Table::constructor.Env(), contents.size());
   for (auto i = 0u; i < columns.Length(); ++i) {
     columns.Set(i, Column::New(std::move(contents[i]))->Value());
   }
@@ -137,8 +137,10 @@ Napi::Value Table::num_rows(Napi::CallbackInfo const& info) { return CPPToNapi(i
 
 Napi::Value Table::gather(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
+  if (!Column::is_instance(args[0])) {
+    throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
+  }
   auto& selection = *Column::Unwrap(args[0]);
-
   if (selection.type().id() == cudf::type_id::BOOL8) {
     return this->apply_boolean_mask(selection)->Value();
   }

@@ -48,6 +48,15 @@ test('Table.getColumnByIndex', () => {
   expect(() => { table_0.getColumnByIndex(4); }).toThrow();
 });
 
+test('Table.gather (bad argument)', () => {
+  const col_0   = new Column({type: TypeId.INT32, data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
+  const table_0 = new Table({columns: [col_0]});
+
+  const selection = [2, 4, 5];
+
+  expect(() => table_0.gather(<any>selection)).toThrow();
+})
+
 test('Table.gather (indices)', () => {
   const col_0 = new Column({type: TypeId.INT32, data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
   const col_1 =
