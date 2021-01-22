@@ -23,6 +23,7 @@ import {
   ColumnsMap,
   CSVToCUDFType,
   CSVTypeMap,
+  Integral,
   NullOrder,
   ReadCSVOptions,
   TypeMap,
@@ -144,7 +145,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @param selection
    */
-  gather(selection: Series) {
+  gather<R extends Integral>(selection: Series<R>) {
     const temp       = new Table({columns: this._accessor.columns});
     const columns    = temp.gather(selection._data);
     const series_map = {} as SeriesMap<T>;

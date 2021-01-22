@@ -21,7 +21,7 @@ import {VectorType} from 'apache-arrow/interfaces';
 import {Column, ColumnProps} from './column';
 import {DataFrame} from './data_frame';
 import {Table} from './table';
-import {Bool8, CUDFToArrowType, DataType, NullOrder} from './types';
+import {Bool8, CUDFToArrowType, DataType, Integral, NullOrder} from './types';
 
 export interface Series {
   getChild(index: number): Series;
@@ -104,7 +104,9 @@ export class Series<T extends DataType = any> {
    *
    * @param selection
    */
-  gather(selection: Series) { return new Series<T>(this._data.gather(selection._data)); }
+  gather<R extends Integral>(selection: Series<R>) {
+    return new Series<T>(this._data.gather(selection._data));
+  }
 
   /**
    * Return a seb-selection of the Series from the specified boolean mask
