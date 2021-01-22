@@ -199,7 +199,7 @@ test('DataFrame.gather (indices)', () => {
   expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
 
   const expected_b = new Series({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
-  expect([...ra.toArrow()]).toEqual([...expected_b.toArrow()]);
+  expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
 });
 
 test('Series.filter', () => {
@@ -221,5 +221,5 @@ test('Series.filter', () => {
   expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
 
   const expected_b = new Series({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
-  expect([...ra.toArrow()]).toEqual([...expected_b.toArrow()]);
+  expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
 });
