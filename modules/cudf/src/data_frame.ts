@@ -139,6 +139,20 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Return sub-selection from a DataFrame
+   *
+   * @param selection
+   */
+  gather(selection: Series) {
+    const temp       = new Table({columns: this._accessor.columns});
+    const columns    = temp.gather(selection._data);
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach(
+      (name, index) => { series_map[name] = new Series(columns.getColumnByIndex(index)); });
+    return new DataFrame(series_map);
+  }
+
+  /**
    * Serialize this DataFrame to CSV format.
    *
    * @param options Options controlling CSV writing behavior.

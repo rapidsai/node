@@ -64,7 +64,7 @@ export interface Table {
   readonly numRows: number;
 
   /**
-   * Return sub-selection from a Column
+   * Return sub-selection from a Table
    *
    * @param selection
    */
