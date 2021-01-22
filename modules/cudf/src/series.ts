@@ -152,7 +152,7 @@ export class Series<T extends DataType = any> {
    *
    * @returns Series containting the permutation indices for the desired sort order
    */
-  orderBy(ascending: boolean, null_order: NullOrder) {
+  orderBy(ascending = true, null_order: NullOrder = NullOrder.BEFORE) {
     return new DataFrame({"col": this}).orderBy({"col": {ascending, null_order}});
   }
 
@@ -167,7 +167,6 @@ export class Series<T extends DataType = any> {
    * @returns Sorted values
    */
   sortValues(ascending = true, null_order: NullOrder = NullOrder.BEFORE) {
-    const sorter = new DataFrame({"col": this}).orderBy({"col": {ascending, null_order}});
-    return this.gather(sorter);
+    return this.gather(this.orderBy(ascending, null_order));
   }
 }

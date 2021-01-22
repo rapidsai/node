@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,8 +25,7 @@ namespace nv {
 ObjectUnwrap<Table> Table::gather(Column const& gather_map,
                                   cudf::out_of_bounds_policy bounds_policy,
                                   rmm::mr::device_memory_resource* mr) const {
-  auto result = cudf::gather(cudf::table_view{{*this}}, gather_map, bounds_policy, mr);
-  return Table::New(std::move(result));
+  return Table::New(cudf::gather(cudf::table_view{{*this}}, gather_map, bounds_policy, mr));
 }
 
 }  // namespace nv

@@ -61,7 +61,7 @@ Napi::Object Table::New(Napi::Array const& columns) {
 Napi::Object Table::New(std::unique_ptr<cudf::table> table) {
   auto inst           = Table::constructor.New({});
   auto contents       = table->release();
-  Napi::Array columns = Napi::Array::New(Table::constructor.Env(), contents.size());
+  auto columns = Napi::Array::New(Table::constructor.Env(), contents.size());
   for (auto i = 0u; i < columns.Length(); ++i) {
     columns.Set(i, Column::New(std::move(contents[i]))->Value());
   }
