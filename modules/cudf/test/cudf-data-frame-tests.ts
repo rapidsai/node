@@ -195,11 +195,31 @@ test('DataFrame.gather (indices)', () => {
   const ra = result.get("a");
   const rb = result.get("b");
 
-  expect(ra.getValue(0)).toBe(2);
-  expect(ra.getValue(1)).toBe(4);
-  expect(ra.getValue(2)).toBe(5);
+  const expected_a = new Series({type: new Int32(), data: new Int32Buffer([2, 4, 5])});
+  expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
 
-  expect(rb.getValue(0)).toBe(2.0);
-  expect(rb.getValue(1)).toBe(4.0);
-  expect(rb.getValue(2)).toBe(5.0);
+  const expected_b = new Series({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
+  expect([...ra.toArrow()]).toEqual([...expected_b.toArrow()]);
+});
+
+test('Series.filter', () => {
+  const a = new Series({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
+  const b =
+    new Series({type: new Float32(), data: new Float32Buffer([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])});
+  const df = new DataFrame({"a": a, "b": b});
+
+  const mask =
+    new Series({length: 6, type: new Bool8(), data: new Uint8Buffer([0, 0, 1, 0, 1, 1])});
+
+  const result = df.filter(mask);
+  expect(result.numRows).toBe(3);
+
+  const ra = result.get("a");
+  const rb = result.get("b");
+
+  const expected_a = new Series({type: new Int32(), data: new Int32Buffer([2, 4, 5])});
+  expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
+
+  const expected_b = new Series({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
+  expect([...ra.toArrow()]).toEqual([...expected_b.toArrow()]);
 });

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Column, Int32, NullOrder, Series, TypeId, Uint8, Utf8String} from '@nvidia/cudf';
+import {Bool8, Column, Int32, NullOrder, Series, TypeId, Uint8, Utf8String} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 import {Uint8Vector, Utf8Vector} from 'apache-arrow';
 import {BoolVector} from 'apache-arrow'
@@ -89,6 +89,19 @@ test('Series.gather', () => {
   const result = col.gather(selection);
 
   expect([...result.toArrow()]).toEqual([...selection.toArrow()])
+});
+
+test('Series.filter', () => {
+  const col =
+    new Series({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+
+  const mask = new Series(
+    {length: 10, type: new Bool8(), data: new Uint8Buffer([0, 0, 1, 0, 1, 1, 0, 0, 1, 0])});
+
+  const result = col.filter(mask);
+
+  const expected = new Series({type: new Int32(), data: new Int32Buffer([2, 4, 5, 8])});
+  expect([...result.toArrow()]).toEqual([...expected.toArrow()])
 });
 
 describe('toArrow()', () => {

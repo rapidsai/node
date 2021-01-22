@@ -15,6 +15,7 @@
 import CUDF from './addon';
 import {Column} from './column';
 import {
+  Bool8,
   CSVTypeMap,
   DataType,
   Int32,
@@ -68,7 +69,7 @@ export interface Table {
    *
    * @param selection
    */
-  gather(selection: Column<Integral>): Table;
+  gather(selection: Column<Integral|Bool8>): Table;
 
   /**
    * Get the Column at a specified index
