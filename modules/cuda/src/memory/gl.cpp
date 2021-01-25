@@ -45,7 +45,7 @@ MappedGLMemory::MappedGLMemory(CallbackArgs const& args)
   NODE_CUDA_EXPECT(args.IsConstructCall(), "MappedGLMemory constructor requires 'new'");
   NODE_CUDA_EXPECT(args.Length() == 0 || (args.Length() == 1 && args[0].IsNumber()),
                    "MappedGLMemory constructor requires a numeric byteLength argument");
-  Initialize(args[0]);
+  if (args.Length() == 1) { Initialize(args[0]); }
 }
 
 Napi::Object MappedGLMemory::New(cudaGraphicsResource_t resource) {

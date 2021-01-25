@@ -38,10 +38,11 @@ void cudaMemcpyNapi(CallbackArgs const& args) {
   Span<char> source = args[1];
   size_t count      = args[2];
   if (args.Length() == 3) {
-    NODE_CUDA_TRY(cudaMemcpy(target.data(), source.data(), count, cudaMemcpyDefault));
+    NODE_CUDA_TRY(cudaMemcpy(target.data(), source.data(), count, cudaMemcpyDefault), args.Env());
   } else {
     cudaStream_t stream = args[3];
-    NODE_CUDA_TRY(cudaMemcpyAsync(target.data(), source.data(), count, cudaMemcpyDefault, stream));
+    NODE_CUDA_TRY(cudaMemcpyAsync(target.data(), source.data(), count, cudaMemcpyDefault, stream),
+                  args.Env());
   }
 }
 
