@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -244,16 +244,90 @@ class Column : public Napi::ObjectWrap<Column> {
    */
   std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> minmax() const;
 
+  // cudf::binary_operator::ADD
+  ObjectUnwrap<Column> operator+(Column const& other) const;
+  ObjectUnwrap<Column> operator+(Scalar const& other) const;
+  // cudf::binary_operator::SUB
+  ObjectUnwrap<Column> operator-(Column const& other) const;
+  ObjectUnwrap<Column> operator-(Scalar const& other) const;
+  // cudf::binary_operator::MUL
+  ObjectUnwrap<Column> operator*(Column const& other) const;
+  ObjectUnwrap<Column> operator*(Scalar const& other) const;
+  // cudf::binary_operator::DIV
+  ObjectUnwrap<Column> operator/(Column const& other) const;
+  ObjectUnwrap<Column> operator/(Scalar const& other) const;
+  // cudf::binary_operator::TRUE_DIV
+  ObjectUnwrap<Column> true_div(Column const& other) const;
+  ObjectUnwrap<Column> true_div(Scalar const& other) const;
+  // cudf::binary_operator::FLOOR_DIV
+  ObjectUnwrap<Column> floor_div(Column const& other) const;
+  ObjectUnwrap<Column> floor_div(Scalar const& other) const;
+  // cudf::binary_operator::MOD
+  ObjectUnwrap<Column> operator%(Column const& other) const;
+  ObjectUnwrap<Column> operator%(Scalar const& other) const;
+  // cudf::binary_operator::POW
+  ObjectUnwrap<Column> pow(Column const& other) const;
+  ObjectUnwrap<Column> pow(Scalar const& other) const;
+  // cudf::binary_operator::EQUAL
   ObjectUnwrap<Column> operator==(Column const& other) const;
   ObjectUnwrap<Column> operator==(Scalar const& other) const;
+  // cudf::binary_operator::NOT_EQUAL
+  ObjectUnwrap<Column> operator!=(Column const& other) const;
+  ObjectUnwrap<Column> operator!=(Scalar const& other) const;
+  // cudf::binary_operator::LESS
   ObjectUnwrap<Column> operator<(Column const& other) const;
   ObjectUnwrap<Column> operator<(Scalar const& other) const;
-  ObjectUnwrap<Column> operator<=(Column const& other) const;
-  ObjectUnwrap<Column> operator<=(Scalar const& other) const;
+  // cudf::binary_operator::GREATER
   ObjectUnwrap<Column> operator>(Column const& other) const;
   ObjectUnwrap<Column> operator>(Scalar const& other) const;
+  // cudf::binary_operator::LESS_EQUAL
+  ObjectUnwrap<Column> operator<=(Column const& other) const;
+  ObjectUnwrap<Column> operator<=(Scalar const& other) const;
+  // cudf::binary_operator::GREATER_EQUAL
   ObjectUnwrap<Column> operator>=(Column const& other) const;
   ObjectUnwrap<Column> operator>=(Scalar const& other) const;
+  // cudf::binary_operator::BITWISE_AND
+  ObjectUnwrap<Column> operator&(Column const& other) const;
+  ObjectUnwrap<Column> operator&(Scalar const& other) const;
+  // cudf::binary_operator::BITWISE_OR
+  ObjectUnwrap<Column> operator|(Column const& other) const;
+  ObjectUnwrap<Column> operator|(Scalar const& other) const;
+  // cudf::binary_operator::BITWISE_XOR
+  ObjectUnwrap<Column> operator^(Column const& other) const;
+  ObjectUnwrap<Column> operator^(Scalar const& other) const;
+  // cudf::binary_operator::LOGICAL_AND
+  ObjectUnwrap<Column> operator&&(Column const& other) const;
+  ObjectUnwrap<Column> operator&&(Scalar const& other) const;
+  // cudf::binary_operator::LOGICAL_OR
+  ObjectUnwrap<Column> operator||(Column const& other) const;
+  ObjectUnwrap<Column> operator||(Scalar const& other) const;
+  // cudf::binary_operator::COALESCE
+  ObjectUnwrap<Column> coalesce(Column const& other) const;
+  ObjectUnwrap<Column> coalesce(Scalar const& other) const;
+  // cudf::binary_operator::SHIFT_LEFT
+  ObjectUnwrap<Column> operator<<(Column const& other) const;
+  ObjectUnwrap<Column> operator<<(Scalar const& other) const;
+  // cudf::binary_operator::SHIFT_RIGHT
+  ObjectUnwrap<Column> operator>>(Column const& other) const;
+  ObjectUnwrap<Column> operator>>(Scalar const& other) const;
+  // cudf::binary_operator::SHIFT_RIGHT_UNSIGNED
+  ObjectUnwrap<Column> shift_right_unsigned(Column const& other) const;
+  ObjectUnwrap<Column> shift_right_unsigned(Scalar const& other) const;
+  // cudf::binary_operator::LOG_BASE
+  ObjectUnwrap<Column> log_base(Column const& other) const;
+  ObjectUnwrap<Column> log_base(Scalar const& other) const;
+  // cudf::binary_operator::ATAN2
+  ObjectUnwrap<Column> atan2(Column const& other) const;
+  ObjectUnwrap<Column> atan2(Scalar const& other) const;
+  // cudf::binary_operator::NULL_EQUALS
+  ObjectUnwrap<Column> null_equals(Column const& other) const;
+  ObjectUnwrap<Column> null_equals(Scalar const& other) const;
+  // cudf::binary_operator::NULL_MAX
+  ObjectUnwrap<Column> null_max(Column const& other) const;
+  ObjectUnwrap<Column> null_max(Scalar const& other) const;
+  // cudf::binary_operator::NULL_MIN
+  ObjectUnwrap<Column> null_min(Column const& other) const;
+  ObjectUnwrap<Column> null_min(Scalar const& other) const;
 
   ObjectUnwrap<Column> operator[](Column const& gather_map) const;
 
@@ -306,18 +380,37 @@ class Column : public Napi::ObjectWrap<Column> {
   Napi::Value set_null_mask(Napi::CallbackInfo const& info);
   Napi::Value set_null_count(Napi::CallbackInfo const& info);
 
-  // Napi::Value hasNulls(Napi::CallbackInfo const& info);
-  // Napi::Value setNullCount(Napi::CallbackInfo const& info);
-  // Napi::Value nullCount(Napi::CallbackInfo const& info);
-  // Napi::Value child(Napi::CallbackInfo const& info);
-  // Napi::Value numChildren(Napi::CallbackInfo const& info);
-
+  // column/binaryop.cpp
+  Napi::Value add(Napi::CallbackInfo const& info);
+  Napi::Value sub(Napi::CallbackInfo const& info);
+  Napi::Value mul(Napi::CallbackInfo const& info);
+  Napi::Value div(Napi::CallbackInfo const& info);
+  Napi::Value true_div(Napi::CallbackInfo const& info);
+  Napi::Value floor_div(Napi::CallbackInfo const& info);
+  Napi::Value mod(Napi::CallbackInfo const& info);
+  Napi::Value pow(Napi::CallbackInfo const& info);
   Napi::Value eq(Napi::CallbackInfo const& info);
+  Napi::Value ne(Napi::CallbackInfo const& info);
   Napi::Value lt(Napi::CallbackInfo const& info);
-  Napi::Value le(Napi::CallbackInfo const& info);
   Napi::Value gt(Napi::CallbackInfo const& info);
+  Napi::Value le(Napi::CallbackInfo const& info);
   Napi::Value ge(Napi::CallbackInfo const& info);
+  Napi::Value bitwise_and(Napi::CallbackInfo const& info);
+  Napi::Value bitwise_or(Napi::CallbackInfo const& info);
+  Napi::Value bitwise_xor(Napi::CallbackInfo const& info);
+  Napi::Value logical_and(Napi::CallbackInfo const& info);
+  Napi::Value logical_or(Napi::CallbackInfo const& info);
+  Napi::Value coalesce(Napi::CallbackInfo const& info);
+  Napi::Value shift_left(Napi::CallbackInfo const& info);
+  Napi::Value shift_right(Napi::CallbackInfo const& info);
+  Napi::Value shift_right_unsigned(Napi::CallbackInfo const& info);
+  Napi::Value log_base(Napi::CallbackInfo const& info);
+  Napi::Value atan2(Napi::CallbackInfo const& info);
+  Napi::Value null_equals(Napi::CallbackInfo const& info);
+  Napi::Value null_max(Napi::CallbackInfo const& info);
+  Napi::Value null_min(Napi::CallbackInfo const& info);
 
+  // column/reductions.cpp
   Napi::Value min(Napi::CallbackInfo const& info);
   Napi::Value max(Napi::CallbackInfo const& info);
 };

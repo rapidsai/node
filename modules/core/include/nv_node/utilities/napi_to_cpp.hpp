@@ -254,8 +254,9 @@ struct NapiToCPP {
     if (val.IsNull() || val.IsEmpty()) { return 0; }
     if (val.IsNumber() || val.IsString()) { return val.ToNumber(); }
     if (val.IsBigInt()) {
-      return std::is_signed<T>() ? val.As<Napi::BigInt>().Int64Value(NULL)
-                                 : val.As<Napi::BigInt>().Uint64Value(NULL);
+      bool lossless = true;
+      return std::is_signed<T>() ? static_cast<T>(val.As<Napi::BigInt>().Int64Value(&lossless))
+                                 : static_cast<T>(val.As<Napi::BigInt>().Uint64Value(&lossless));
     }
     if (val.IsBoolean()) { return val.ToBoolean().operator bool(); }
 

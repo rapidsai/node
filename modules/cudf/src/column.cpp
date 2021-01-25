@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,32 +48,56 @@ namespace nv {
 Napi::FunctionReference Column::constructor;
 
 Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(env,
-                                    "Column",
-                                    {
-                                      InstanceAccessor<&Column::type>("type"),
-                                      InstanceAccessor<&Column::data>("data"),
-                                      InstanceAccessor<&Column::null_mask>("mask"),
-                                      InstanceAccessor<&Column::size>("length"),
-                                      InstanceAccessor<&Column::has_nulls>("hasNulls"),
-                                      InstanceAccessor<&Column::null_count>("nullCount"),
-                                      InstanceAccessor<&Column::is_nullable>("nullable"),
-                                      InstanceAccessor<&Column::num_children>("numChildren"),
+  Napi::Function ctor =
+    DefineClass(env,
+                "Column",
+                {
+                  InstanceAccessor<&Column::type>("type"),
+                  InstanceAccessor<&Column::data>("data"),
+                  InstanceAccessor<&Column::null_mask>("mask"),
+                  InstanceAccessor<&Column::size>("length"),
+                  InstanceAccessor<&Column::has_nulls>("hasNulls"),
+                  InstanceAccessor<&Column::null_count>("nullCount"),
+                  InstanceAccessor<&Column::is_nullable>("nullable"),
+                  InstanceAccessor<&Column::num_children>("numChildren"),
 
-                                      InstanceMethod<&Column::get_child>("getChild"),
-                                      InstanceMethod<&Column::get_value>("getValue"),
-                                      InstanceMethod<&Column::set_null_mask>("setNullMask"),
-                                      InstanceMethod<&Column::set_null_count>("setNullCount"),
-                                      // column/binaryop.cpp
-                                      InstanceMethod<&Column::eq>("eq"),
-                                      InstanceMethod<&Column::lt>("lt"),
-                                      InstanceMethod<&Column::le>("le"),
-                                      InstanceMethod<&Column::gt>("gt"),
-                                      InstanceMethod<&Column::ge>("ge"),
-                                      // column/reduction.cpp
-                                      InstanceMethod<&Column::min>("min"),
-                                      InstanceMethod<&Column::max>("max"),
-                                    });
+                  InstanceMethod<&Column::get_child>("getChild"),
+                  InstanceMethod<&Column::get_value>("getValue"),
+                  InstanceMethod<&Column::set_null_mask>("setNullMask"),
+                  InstanceMethod<&Column::set_null_count>("setNullCount"),
+                  // column/binaryop.cpp
+                  InstanceMethod<&Column::add>("add"),
+                  InstanceMethod<&Column::sub>("sub"),
+                  InstanceMethod<&Column::mul>("mul"),
+                  InstanceMethod<&Column::div>("div"),
+                  InstanceMethod<&Column::true_div>("true_div"),
+                  InstanceMethod<&Column::floor_div>("floor_div"),
+                  InstanceMethod<&Column::mod>("mod"),
+                  InstanceMethod<&Column::pow>("pow"),
+                  InstanceMethod<&Column::eq>("eq"),
+                  InstanceMethod<&Column::ne>("ne"),
+                  InstanceMethod<&Column::lt>("lt"),
+                  InstanceMethod<&Column::gt>("gt"),
+                  InstanceMethod<&Column::le>("le"),
+                  InstanceMethod<&Column::ge>("ge"),
+                  InstanceMethod<&Column::bitwise_and>("bitwise_and"),
+                  InstanceMethod<&Column::bitwise_or>("bitwise_or"),
+                  InstanceMethod<&Column::bitwise_xor>("bitwise_xor"),
+                  InstanceMethod<&Column::logical_and>("logical_and"),
+                  InstanceMethod<&Column::logical_or>("logical_or"),
+                  InstanceMethod<&Column::coalesce>("coalesce"),
+                  InstanceMethod<&Column::shift_left>("shift_left"),
+                  InstanceMethod<&Column::shift_right>("shift_right"),
+                  InstanceMethod<&Column::shift_right_unsigned>("shift_right_unsigned"),
+                  InstanceMethod<&Column::log_base>("log_base"),
+                  InstanceMethod<&Column::atan2>("atan2"),
+                  InstanceMethod<&Column::null_equals>("null_equals"),
+                  InstanceMethod<&Column::null_max>("null_max"),
+                  InstanceMethod<&Column::null_min>("null_min"),
+                  // column/reduction.cpp
+                  InstanceMethod<&Column::min>("min"),
+                  InstanceMethod<&Column::max>("max"),
+                });
 
   Column::constructor = Napi::Persistent(ctor);
   Column::constructor.SuppressDestruct();
@@ -131,15 +155,12 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
 
   auto get_or_create_device_buffer_arg = [&](std::string const& key) -> ObjectUnwrap<DeviceBuffer> {
     if (cudf::is_fixed_width(type) && props.Has(key)) {
-      auto data = NapiToCPP(props.Get(key));
+      auto prop = props.Get(key);
+      auto data = NapiToCPP(prop);
       if (data.IsMemoryLike()) {
-        if (data.IsMemoryViewLike()) {  //
-          data = NapiToCPP(data.ToObject().Get("buffer"));
-        }
-        if (DeviceBuffer::is_instance(data.val)) {  //
-          return data.ToObject();
-        }
-        return DeviceBuffer::New(data.operator Span<char>());
+        if (data.IsMemoryViewLike()) { data = NapiToCPP(prop.ToObject().Get("buffer")); }
+        if (DeviceBuffer::is_instance(data.val)) { return data.ToObject(); }
+        return DeviceBuffer::New(data.operator Napi::ArrayBuffer());
       }
     }
     return DeviceBuffer::New();

@@ -53,8 +53,16 @@ ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(std::unique_ptr<rmm::device_buffer>
   return buf;
 }
 
-ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(void* data,
-                                             size_t size,
+ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(Napi::ArrayBuffer const& data,
+                                             ObjectUnwrap<MemoryResource> const& mr,
+                                             rmm::cuda_stream_view stream) {
+  NODE_CUDA_EXPECT(MemoryResource::is_instance(mr.object()),
+                   "DeviceBuffer constructor requires a valid MemoryResource");
+  return constructor.New(data, mr.object(), stream);
+}
+
+ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(void* const data,
+                                             size_t const size,
                                              ObjectUnwrap<MemoryResource> const& mr,
                                              rmm::cuda_stream_view stream) {
   NODE_CUDA_EXPECT(MemoryResource::is_instance(mr.object()),

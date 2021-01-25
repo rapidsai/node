@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as ArrowDataType from 'apache-arrow/type';
+import * as arrowEnums from 'apache-arrow/enum';
+import * as arrowTypes from 'apache-arrow/type';
 
 import {Column} from './column';
 
@@ -156,19 +157,66 @@ export class Utf8String extends DataType<TypeId.STRING> {
   constructor() { super(TypeId.STRING); }
 }
 
+export type ArrowToCUDFType<T extends arrowTypes.DataType> = {
+  [arrowEnums.Type.NONE]: never,
+  [arrowEnums.Type.Null]: never,
+  [arrowEnums.Type.Int]: never,
+  [arrowEnums.Type.Float]: never,
+  [arrowEnums.Type.Binary]: never,
+  [arrowEnums.Type.Bool]: Bool8,
+  [arrowEnums.Type.Utf8]: Utf8String,
+  [arrowEnums.Type.Decimal]: never,
+  [arrowEnums.Type.Date]: never,
+  [arrowEnums.Type.Time]: never,
+  [arrowEnums.Type.Timestamp]: never,
+  [arrowEnums.Type.Interval]: never,
+  [arrowEnums.Type.List]: never,
+  [arrowEnums.Type.Struct]: never,
+  [arrowEnums.Type.Union]: never,
+  [arrowEnums.Type.FixedSizeBinary]: never,
+  [arrowEnums.Type.FixedSizeList]: never,
+  [arrowEnums.Type.Map]: never,
+  [arrowEnums.Type.Dictionary]: never,
+  [arrowEnums.Type.Int8]: Int8,
+  [arrowEnums.Type.Int16]: Int16,
+  [arrowEnums.Type.Int32]: Int32,
+  [arrowEnums.Type.Int64]: Int64,
+  [arrowEnums.Type.Uint8]: Uint8,
+  [arrowEnums.Type.Uint16]: Uint16,
+  [arrowEnums.Type.Uint32]: Uint32,
+  [arrowEnums.Type.Uint64]: Uint64,
+  [arrowEnums.Type.Float16]: never,
+  [arrowEnums.Type.Float32]: Float32,
+  [arrowEnums.Type.Float64]: Float64,
+  [arrowEnums.Type.DateDay]: never,
+  [arrowEnums.Type.DateMillisecond]: never,
+  [arrowEnums.Type.TimestampSecond]: never,
+  [arrowEnums.Type.TimestampMillisecond]: never,
+  [arrowEnums.Type.TimestampMicrosecond]: never,
+  [arrowEnums.Type.TimestampNanosecond]: never,
+  [arrowEnums.Type.TimeSecond]: never,
+  [arrowEnums.Type.TimeMillisecond]: never,
+  [arrowEnums.Type.TimeMicrosecond]: never,
+  [arrowEnums.Type.TimeNanosecond]: never,
+  [arrowEnums.Type.DenseUnion]: never,
+  [arrowEnums.Type.SparseUnion]: never,
+  [arrowEnums.Type.IntervalDayTime]: never,
+  [arrowEnums.Type.IntervalYearMonth]: never,
+}[T['typeId']];
+
 export type CUDFToArrowType<T extends DataType> = {
-  [TypeId.INT8]: ArrowDataType.Int8,
-  [TypeId.INT16]: ArrowDataType.Int16,
-  [TypeId.INT32]: ArrowDataType.Int32,
-  [TypeId.INT64]: ArrowDataType.Int64,
-  [TypeId.UINT8]: ArrowDataType.Uint8,
-  [TypeId.UINT16]: ArrowDataType.Uint16,
-  [TypeId.UINT32]: ArrowDataType.Uint32,
-  [TypeId.UINT64]: ArrowDataType.Uint64,
-  [TypeId.FLOAT32]: ArrowDataType.Float32,
-  [TypeId.FLOAT64]: ArrowDataType.Float64,
-  [TypeId.BOOL8]: ArrowDataType.Bool,
-  [TypeId.STRING]: ArrowDataType.Utf8,
+  [TypeId.INT8]: arrowTypes.Int8,
+  [TypeId.INT16]: arrowTypes.Int16,
+  [TypeId.INT32]: arrowTypes.Int32,
+  [TypeId.INT64]: arrowTypes.Int64,
+  [TypeId.UINT8]: arrowTypes.Uint8,
+  [TypeId.UINT16]: arrowTypes.Uint16,
+  [TypeId.UINT32]: arrowTypes.Uint32,
+  [TypeId.UINT64]: arrowTypes.Uint64,
+  [TypeId.FLOAT32]: arrowTypes.Float32,
+  [TypeId.FLOAT64]: arrowTypes.Float64,
+  [TypeId.BOOL8]: arrowTypes.Bool,
+  [TypeId.STRING]: arrowTypes.Utf8,
 }[T['id']];
 
 export type CSVType = "int8"|"int16"|"int32"|"int64"|"uint8"|"uint16"|"uint32"|"uint64"|"float32"|
@@ -304,3 +352,75 @@ export interface WriteCSVOptions {
   /** Maximum number of rows to write in each chunk (limits memory use). */
   rowsPerChunk?: number;
 }
+
+export type Numeric = Int8|Int16|Int32|Int64|Uint8|Uint16|Uint32|Uint64|Float32|Float64;
+
+// Int8;
+// Int16;
+// Int32;
+// Int64;
+// Uint8;
+// Uint16;
+// Uint32;
+// Uint64;
+// Float32;
+// Float64;
+
+export type TypeIdToType<T extends TypeId> = {
+  [TypeId.EMPTY]: never,
+  [TypeId.INT8]: Int8,
+  [TypeId.INT16]: Int16,
+  [TypeId.INT32]: Int32,
+  [TypeId.INT64]: Int64,
+  [TypeId.UINT8]: Uint8,
+  [TypeId.UINT16]: Uint16,
+  [TypeId.UINT32]: Uint32,
+  [TypeId.UINT64]: Uint64,
+  [TypeId.FLOAT32]: Float32,
+  [TypeId.FLOAT64]: Float64,
+  [TypeId.BOOL8]: Bool8,
+  [TypeId.TIMESTAMP_DAYS]: never,
+  [TypeId.TIMESTAMP_SECONDS]: never,
+  [TypeId.TIMESTAMP_MILLISECONDS]: never,
+  [TypeId.TIMESTAMP_MICROSECONDS]: never,
+  [TypeId.TIMESTAMP_NANOSECONDS]: never,
+  [TypeId.DURATION_DAYS]: never,
+  [TypeId.DURATION_SECONDS]: never,
+  [TypeId.DURATION_MILLISECONDS]: never,
+  [TypeId.DURATION_MICROSECONDS]: never,
+  [TypeId.DURATION_NANOSECONDS]: never,
+  [TypeId.DICTIONARY32]: never,
+  [TypeId.STRING]: Utf8String,
+  [TypeId.LIST]: never,
+  [TypeId.DECIMAL32]: never,
+  [TypeId.DECIMAL64]: never,
+}[T];
+
+type CommonType_Int8<T extends Numeric>  = T;
+type CommonType_Int16<T extends Numeric> = T extends Int8|Uint8 ? Int16 : T;
+type CommonType_Int32<T extends Numeric> = T extends Int8|Uint8|Int16|Uint16 ? Int32 : T;
+type CommonType_Int64<T extends Numeric> =
+  T extends Int8|Uint8|Int16|Uint16|Int32|Uint32 ? Int64 : T;
+type CommonType_Uint8<T extends Numeric>  = T extends Int8 ? Uint16 : T;
+type CommonType_Uint16<T extends Numeric> = T extends Int8|Uint8 ? Uint16 : T;
+type CommonType_Uint32<T extends Numeric> = T extends Int8|Uint8|Int16|Uint16 ? Uint32 : T;
+type CommonType_Uint64<T extends Numeric> =
+  T extends Int8|Uint8|Int16|Uint16|Int32|Uint32|Int64 ? Uint64 : T;
+type CommonType_Float32<T extends Numeric> = T extends Int8|Uint8|Int16|Uint16 ? Float32 : Float64;
+type CommonType_Float64<T extends Numeric> =
+  T extends Int8|Uint8|Int16|Uint16|Int32|Uint32|Float32 ? Float64 : T;
+
+// clang-format off
+export type CommonType<T extends Numeric, R extends Numeric> =
+    T extends Int8    ? CommonType_Int8<R>
+  : T extends Int16   ? CommonType_Int16<R>
+  : T extends Int32   ? CommonType_Int32<R>
+  : T extends Int64   ? CommonType_Int64<R>
+  : T extends Uint8   ? CommonType_Uint8<R>
+  : T extends Uint16  ? CommonType_Uint16<R>
+  : T extends Uint32  ? CommonType_Uint32<R>
+  : T extends Uint64  ? CommonType_Uint64<R>
+  : T extends Float32 ? CommonType_Float32<R>
+  : T extends Float64 ? CommonType_Float64<R>
+  : never;
+// clang-format on
