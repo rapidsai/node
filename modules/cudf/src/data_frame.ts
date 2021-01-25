@@ -19,9 +19,11 @@ import {ColumnAccessor} from './column_accessor'
 import {Series} from './series';
 import {Table} from './table';
 import {
+  Bool8,
   ColumnsMap,
   CSVToCUDFType,
   CSVTypeMap,
+  Integral,
   NullOrder,
   ReadCSVOptions,
   TypeMap,
@@ -136,6 +138,34 @@ export class DataFrame<T extends TypeMap = any> {
     // Compute the sorted sorted_indices
     const sorted_indices = new Table({columns}).orderBy(column_orders, null_orders);
     return new Series(sorted_indices);
+  }
+
+  /**
+   * Return sub-selection from a DataFrame from the specified indices
+   *
+   * @param selection
+   */
+  gather<R extends Integral>(selection: Series<R>) {
+    const temp       = new Table({columns: this._accessor.columns});
+    const columns    = temp.gather(selection._data);
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach(
+      (name, index) => { series_map[name] = new Series(columns.getColumnByIndex(index)); });
+    return new DataFrame(series_map);
+  }
+
+  /**
+   * Return sub-selection from a DataFrame from the specified boolean mask
+   *
+   * @param mask
+   */
+  filter(mask: Series<Bool8>) {
+    const temp       = new Table({columns: this._accessor.columns});
+    const columns    = temp.gather(mask._data);
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach(
+      (name, index) => { series_map[name] = new Series(columns.getColumnByIndex(index)); });
+    return new DataFrame(series_map);
   }
 
   /**

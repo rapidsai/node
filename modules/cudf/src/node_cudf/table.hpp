@@ -16,8 +16,11 @@
 
 #include <node_cudf/column.hpp>
 
+#include <node_rmm/device_buffer.hpp>
+
 #include <nv_node/utilities/args.hpp>
 
+#include <cudf/copying.hpp>
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
 
@@ -46,6 +49,14 @@ class Table : public Napi::ObjectWrap<Table> {
    * @param children Array of child columns
    */
   static Napi::Object New(Napi::Array const& columns = {});
+
+  /**
+   * @brief Construct a new Table instance from an existing libcudf Table
+   *
+   * @param table The libcudf Table to adapt
+   * @return Napi::Object The new Table instance
+   */
+  static Napi::Object New(std::unique_ptr<cudf::table> table);
 
   /**
    * @brief Construct a new Column instance from JavaScript.
@@ -135,6 +146,15 @@ class Table : public Napi::ObjectWrap<Table> {
     return *Column::Unwrap(columns_.Value().Get(i).ToObject());
   }
 
+  ObjectUnwrap<Table> apply_boolean_mask(
+    Column const& boolean_mask,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  ObjectUnwrap<Table> gather(
+    Column const& gather_map,
+    cudf::out_of_bounds_policy bounds_policy = cudf::out_of_bounds_policy::DONT_CHECK,
+    rmm::mr::device_memory_resource* mr      = rmm::mr::get_current_device_resource()) const;
+
  private:
   static Napi::FunctionReference constructor;
 
@@ -145,6 +165,7 @@ class Table : public Napi::ObjectWrap<Table> {
   Napi::Value num_columns(Napi::CallbackInfo const& info);
   Napi::Value num_rows(Napi::CallbackInfo const& info);
   Napi::Value select(Napi::CallbackInfo const& info);
+  Napi::Value gather(Napi::CallbackInfo const& info);
   Napi::Value get_column(Napi::CallbackInfo const& info);
 
   static Napi::Value read_csv(Napi::CallbackInfo const& info);

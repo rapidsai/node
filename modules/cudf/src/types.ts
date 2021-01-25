@@ -353,7 +353,8 @@ export interface WriteCSVOptions {
   rowsPerChunk?: number;
 }
 
-export type Numeric = Int8|Int16|Int32|Int64|Uint8|Uint16|Uint32|Uint64|Float32|Float64;
+export type Integral = Int8|Int16|Int32|Uint8|Uint16|Uint32;
+export type Numeric  = Integral|Int64|Uint64|Float32|Float64;
 
 // Int8;
 // Int16;

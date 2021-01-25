@@ -65,6 +65,8 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   InstanceMethod<&Column::get_value>("getValue"),
                   InstanceMethod<&Column::set_null_mask>("setNullMask"),
                   InstanceMethod<&Column::set_null_count>("setNullCount"),
+                  // column/copying.cpp
+                  InstanceMethod<&Column::gather>("gather"),
                   // column/binaryop.cpp
                   InstanceMethod<&Column::add>("add"),
                   InstanceMethod<&Column::sub>("sub"),
@@ -342,6 +344,16 @@ Napi::Value Column::null_count(Napi::CallbackInfo const& info) {
 Napi::Value Column::set_null_count(Napi::CallbackInfo const& info) {
   this->set_null_count(CallbackArgs{info}[0].operator cudf::size_type());
   return info.Env().Undefined();
+}
+
+Napi::Value Column::gather(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  if (!Column::is_instance(args[0])) {
+    throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
+  }
+  auto& selection = *Column::Unwrap(args[0]);
+  auto result     = (*this)[selection];
+  return result->Value();
 }
 
 Napi::Value Column::get_child(Napi::CallbackInfo const& info) {

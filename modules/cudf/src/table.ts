@@ -14,7 +14,16 @@
 
 import CUDF from './addon';
 import {Column} from './column';
-import {CSVTypeMap, DataType, Int32, NullOrder, ReadCSVOptions, WriteCSVOptions} from './types';
+import {
+  Bool8,
+  CSVTypeMap,
+  DataType,
+  Int32,
+  Integral,
+  NullOrder,
+  ReadCSVOptions,
+  WriteCSVOptions
+} from './types';
 
 type ToArrowMetadata = [string | number, ToArrowMetadata?];
 
@@ -54,6 +63,13 @@ export interface Table {
    * Number of rows in each column of the table.
    */
   readonly numRows: number;
+
+  /**
+   * Return sub-selection from a Table
+   *
+   * @param selection
+   */
+  gather(selection: Column<Integral|Bool8>): Table;
 
   /**
    * Get the Column at a specified index

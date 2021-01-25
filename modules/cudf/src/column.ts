@@ -17,7 +17,7 @@ import {DeviceBuffer} from '@nvidia/rmm';
 
 import CUDF from './addon';
 import {Scalar} from './scalar';
-import {Bool8, CommonType, DataType, Float64, Int64, Numeric} from './types';
+import {Bool8, CommonType, DataType, Float64, Int64, Integral, Numeric} from './types';
 
 export type ColumnProps<T extends DataType = any> = {
   // todo -- need to pass full DataType instance when we implement fixed_point
@@ -48,6 +48,13 @@ export interface Column<T extends DataType = any> {
   readonly hasNulls: boolean;
   readonly nullCount: number;
   readonly numChildren: number;
+
+  /**
+   * Return sub-selection from a Column
+   *
+   * @param selection
+   */
+  gather(selection: Column<Integral|Bool8>): Column<T>;
 
   /**
    * Return a child at the specified index to host memory
