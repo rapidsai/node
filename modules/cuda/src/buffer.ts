@@ -354,6 +354,7 @@ function asMemory<T extends TypedArray|BigIntArray>(
     buffer     = source['buffer'];
     byteLength = source['byteLength'];
     byteOffset = source['byteOffset'];
+    while ('buffer' in buffer && buffer['buffer'] !== buffer) { buffer = buffer['buffer']; }
   } else {
     byteOffset = 0;
     byteLength = 0;

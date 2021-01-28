@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import ctypes
 
 import rmm
 import zmq
@@ -21,6 +22,8 @@ import asyncio
 import cugraph
 import traceback
 import numpy as np
+from numba import cuda
+from numba.cuda import HostOnlyCUDAMemoryManager, IpcHandle, MemoryPointer
 
 from cugraph.internals import GraphBasedDimRedCallback
 
@@ -134,7 +137,7 @@ class GraphZmqCallback(GraphBasedDimRedCallback):
 
     def _sr_data_to_device_ary(self, sr):
         size = sr.data.size // sr.dtype.itemsize
-        return rmm.device_array_from_ptr(sr.data.ptr, size, dtype=sr.dtype)
+        return device_array_from_ptr(sr.data.ptr, size, dtype=sr.dtype)
 
     def _sr_data_to_ipc_handle(self, sr):
         return self._sr_data_to_device_ary(sr).get_ipc_handle()
@@ -191,3 +194,26 @@ class GraphZmqCallback(GraphBasedDimRedCallback):
             loop = asyncio.get_event_loop()
             loop.run_until_complete(tasks)
             loop.close()
+
+def device_array_from_ptr(ptr, nelem, dtype=np.float, finalizer=None):
+    """
+    device_array_from_ptr(ptr, size, dtype=np.float, stream=0)
+    Create a Numba device array from a ptr, size, and dtype.
+    """
+    # Handle Datetime Column
+    if dtype == np.datetime64:
+        dtype = np.dtype("datetime64[ms]")
+    else:
+        dtype = np.dtype(dtype)
+
+    elemsize = dtype.itemsize
+    datasize = elemsize * nelem
+    shape = (nelem,)
+    strides = (elemsize,)
+    # note no finalizer -- freed externally!
+    ctx = cuda.current_context()
+    ptr = ctypes.c_uint64(int(ptr))
+    mem = MemoryPointer(ctx, ptr, datasize, finalizer=finalizer)
+    return cuda.cudadrv.devicearray.DeviceNDArray(
+        shape, strides, dtype, gpu_data=mem
+    )

@@ -43,7 +43,7 @@ print('num_edges:', graph.number_of_edges())
 async def main(zmq_ctx):
 
     def map_positions(pos):
-        return cudf.DataFrame.from_gpu_matrix(pos, columns=['x', 'y']).astype('float32')
+        return cudf.DataFrame(pos, columns=['x', 'y']).astype('float32')
 
     callback = GraphZmqCallback(
         zmq_ctx=zmq_ctx,

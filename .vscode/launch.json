@@ -11,6 +11,7 @@
             "program": "${workspaceFolder}/modules/demo/graph/index.js",
             "stopOnEntry": false,
             "runtimeArgs": ["-r", "esm"],
+            "args": ["tcp://localhost:6000"],
             "cwd": "${workspaceFolder}/modules/demo/graph",
             "env": { "NODE_ENV": "production" }
         },
