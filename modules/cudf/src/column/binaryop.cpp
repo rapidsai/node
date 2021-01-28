@@ -530,8 +530,8 @@ Napi::Value Column::shift_left(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
   if (Column::is_instance(rhs)) { return *this << *Column::Unwrap(rhs.ToObject()); }
   if (Scalar::is_instance(rhs)) { return *this << *Scalar::Unwrap(rhs.ToObject()); }
-  if (rhs.IsBigInt()) { return *this << *Scalar::New(rhs.As<Napi::BigInt>()); }
-  if (rhs.IsNumber()) { return *this << *Scalar::New(rhs.As<Napi::Number>()); }
+  if (rhs.IsBigInt()) { return *this << *Scalar::New(rhs, type()); }
+  if (rhs.IsNumber()) { return *this << *Scalar::New(rhs, type()); }
   NAPI_THROW(
     Napi::Error::New(info.Env(), "Column.shift_left expects a Column, Scalar, bigint, or number."));
 }
@@ -540,8 +540,8 @@ Napi::Value Column::shift_right(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
   if (Column::is_instance(rhs)) { return *this >> *Column::Unwrap(rhs.ToObject()); }
   if (Scalar::is_instance(rhs)) { return *this >> *Scalar::Unwrap(rhs.ToObject()); }
-  if (rhs.IsBigInt()) { return *this >> *Scalar::New(rhs.As<Napi::BigInt>()); }
-  if (rhs.IsNumber()) { return *this >> *Scalar::New(rhs.As<Napi::Number>()); }
+  if (rhs.IsBigInt()) { return *this >> *Scalar::New(rhs, type()); }
+  if (rhs.IsNumber()) { return *this >> *Scalar::New(rhs, type()); }
   NAPI_THROW(Napi::Error::New(info.Env(),
                               "Column.shift_right expects a Column, Scalar, bigint, or number."));
 }
@@ -550,8 +550,8 @@ Napi::Value Column::shift_right_unsigned(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
   if (Column::is_instance(rhs)) { return shift_right_unsigned(*Column::Unwrap(rhs.ToObject())); }
   if (Scalar::is_instance(rhs)) { return shift_right_unsigned(*Scalar::Unwrap(rhs.ToObject())); }
-  if (rhs.IsBigInt()) { return shift_right_unsigned(*Scalar::New(rhs.As<Napi::BigInt>())); }
-  if (rhs.IsNumber()) { return shift_right_unsigned(*Scalar::New(rhs.As<Napi::Number>())); }
+  if (rhs.IsBigInt()) { return shift_right_unsigned(*Scalar::New(rhs, type())); }
+  if (rhs.IsNumber()) { return shift_right_unsigned(*Scalar::New(rhs, type())); }
   NAPI_THROW(Napi::Error::New(
     info.Env(), "Column.shift_right_unsigned expects a Column, Scalar, bigint, or number."));
 }

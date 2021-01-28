@@ -108,7 +108,7 @@ ObjectUnwrap<Scalar> Scalar::New(Napi::Number const& value) {
 }
 
 ObjectUnwrap<Scalar> Scalar::New(Napi::BigInt const& value) {
-  return New(value, cudf::data_type{cudf::type_id::UINT64});
+  return New(value, cudf::data_type{cudf::type_id::INT64});
 }
 
 ObjectUnwrap<Scalar> Scalar::New(Napi::String const& value) {
