@@ -173,11 +173,11 @@ ObjectUnwrap<Column> Column::operator==(Scalar const& other) const {
 }
 
 ObjectUnwrap<Column> Column::operator!=(Column const& other) const {
-  return this->binary_operation(other, cudf::binary_operator::EQUAL, cudf::type_id::BOOL8);
+  return this->binary_operation(other, cudf::binary_operator::NOT_EQUAL, cudf::type_id::BOOL8);
 }
 
 ObjectUnwrap<Column> Column::operator!=(Scalar const& other) const {
-  return this->binary_operation(other, cudf::binary_operator::EQUAL, cudf::type_id::BOOL8);
+  return this->binary_operation(other, cudf::binary_operator::NOT_EQUAL, cudf::type_id::BOOL8);
 }
 
 ObjectUnwrap<Column> Column::operator<(Column const& other) const {

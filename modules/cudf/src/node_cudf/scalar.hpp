@@ -71,7 +71,7 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
   /**
    * @brief Construct a new Scalar instance from a Value and data type.
    *
-   * @param value The String to use.
+   * @param value The Value to use.
    * @param type The cudf::data_type for the scalar.
    */
   static ObjectUnwrap<Scalar> New(Napi::Value const& value, cudf::data_type type);

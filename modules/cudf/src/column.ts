@@ -92,9 +92,9 @@ export interface Column<T extends DataType = any> {
   setNullMask(mask: DeviceBuffer, nullCount?: number): void;
 
   /**
-   * Perform a 'add' binary operation between this Column and another Column or scalar value.
+   * Add this Column and another Column or scalar value.
    *
-   * @param rhs The other Column or Scalar to compare with this Column
+   * @param rhs The other Column or scalar to add to this Column.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
   add(rhs: bigint): Column<Int64>;
@@ -103,9 +103,9 @@ export interface Column<T extends DataType = any> {
   add<R extends Numeric>(rhs: Column<R>): Column<CommonType<T, R>>;
 
   /**
-   * Perform a 'sub' binary operation between this Column and another Column or scalar value.
+   * Subtract this Column and another Column or scalar value.
    *
-   * @param rhs The other Column or Scalar to compare with this Column
+   * @param rhs The other Column or scalar to subtract from this Column.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
   sub(rhs: bigint): Column<Int64>;
@@ -116,7 +116,7 @@ export interface Column<T extends DataType = any> {
   /**
    * Multiply this Column and another Column or scalar value.
    *
-   * @param rhs The other Column or Scalar to compare with this Column
+   * @param rhs The other Column or scalar to multiply this column by.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
   mul(rhs: bigint): Column<Int64>;
@@ -127,7 +127,7 @@ export interface Column<T extends DataType = any> {
   /**
    * Divide this Column and another Column or scalar value.
    *
-   * @param rhs The other Column or Scalar to compare with this Column
+   * @param rhs The other Column or scalar to divide this Column by.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
   div(rhs: bigint): Column<Int64>;
@@ -138,7 +138,7 @@ export interface Column<T extends DataType = any> {
   /**
    * True-divide this Column and another Column or scalar value.
    *
-   * @param rhs The other Column or Scalar to compare with this Column
+   * @param rhs The other Column or scalar to true-divide this Column by.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
   true_div(rhs: bigint): Column<Int64>;
@@ -149,7 +149,7 @@ export interface Column<T extends DataType = any> {
   /**
    * Floor-divide this Column and another Column or scalar value.
    *
-   * @param rhs The other Column or Scalar to compare with this Column
+   * @param rhs The other Column or scalar to floor-divide this Column by.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
   floor_div(rhs: bigint): Column<Int64>;
@@ -160,7 +160,7 @@ export interface Column<T extends DataType = any> {
   /**
    * Modulo this Column and another Column or scalar value.
    *
-   * @param rhs The other Column or Scalar to compare with this Column
+   * @param rhs The other Column or scalar to mod with this Column.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
   mod(rhs: bigint): Column<Int64>;
@@ -171,7 +171,7 @@ export interface Column<T extends DataType = any> {
   /**
    * Power this Column and another Column or scalar value.
    *
-   * @param rhs The other Column or Scalar to compare with this Column
+   * @param rhs The other Column or scalar to use as the exponent for the power operation.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
   pow(rhs: bigint): Column<Int64>;
@@ -247,6 +247,7 @@ export interface Column<T extends DataType = any> {
 
   /**
    * Perform a binary `&` operation between this Column and another Column or scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -257,6 +258,7 @@ export interface Column<T extends DataType = any> {
 
   /**
    * Perform a binary `|` operation between this Column and another Column or scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -267,6 +269,7 @@ export interface Column<T extends DataType = any> {
 
   /**
    * Perform a binary `^` operation between this Column and another Column or scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -277,6 +280,7 @@ export interface Column<T extends DataType = any> {
 
   /**
    * Perform a binary `&&` operation between this Column and another Column or scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -286,7 +290,8 @@ export interface Column<T extends DataType = any> {
   logical_and<R extends Numeric>(rhs: Column<R>): Column<CommonType<T, R>>;
 
   /**
-   * Perform a binary `&&` operation between this Column and another Column or scalar value.
+   * Perform a binary `||` operation between this Column and another Column or scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -297,6 +302,7 @@ export interface Column<T extends DataType = any> {
 
   /**
    * Perform a binary `coalesce` operation between this Column and another Column or scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -307,6 +313,7 @@ export interface Column<T extends DataType = any> {
 
   /**
    * Perform a binary `<<` operation between this Column and another Column or scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -318,6 +325,7 @@ export interface Column<T extends DataType = any> {
   /**
    * Perform a binary `>>` operation between this Column and another Column or scalar
    * value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -329,6 +337,7 @@ export interface Column<T extends DataType = any> {
   /**
    * Perform a binary `shift_right_unsigned` operation between this Column and another Column or
    * scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -339,6 +348,7 @@ export interface Column<T extends DataType = any> {
 
   /**
    * Perform a binary `log_base` operation between this Column and another Column or scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -349,6 +359,7 @@ export interface Column<T extends DataType = any> {
 
   /**
    * Perform a binary `atan2` operation between this Column and another Column or scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -360,6 +371,7 @@ export interface Column<T extends DataType = any> {
   /**
    * Perform a binary `null_equals` operation between this Column and another Column or scalar
    * value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -370,6 +382,7 @@ export interface Column<T extends DataType = any> {
 
   /**
    * Perform a binary `null_max` operation between this Column and another Column or scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
@@ -380,6 +393,7 @@ export interface Column<T extends DataType = any> {
 
   /**
    * Perform a binary `null_min` operation between this Column and another Column or scalar value.
+   *
    * @param rhs The other Column or scalar to use.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */

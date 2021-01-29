@@ -145,7 +145,7 @@ export class Series<T extends DataType = any> {
   // setValue(index: number, value?: this[0] | null);
 
   /**
-   * Copy the underlygin device memory to host, and return an Iterator of the values.
+   * Copy the underlying device memory to host, and return an Iterator of the values.
    */
   [Symbol.iterator]() { return this.toArrow()[Symbol.iterator](); }
 
@@ -162,7 +162,7 @@ export class Series<T extends DataType = any> {
   setNullMask(mask: DeviceBuffer, nullCount?: number) { this._data.setNullMask(mask, nullCount); }
 
   /**
-   * Convert a column to an Arrow vector in host memory
+   * Copy a column to an Arrow vector in host memory
    */
   toArrow(): VectorType<CUDFToArrowType<T>> {
     const reader = RecordBatchReader.from(new Table({columns: [this._data]}).toArrow([[0]]));
@@ -198,9 +198,9 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Perform a 'add' binary operation between this Series and another Series or scalar value.
+   * Add this Series and another Series or scalar value.
    *
-   * @param rhs The other Series or Scalar to compare with this Column
+   * @param rhs The other Series or scalar to add to this Series.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
   add(rhs: bigint): Series<Int64>;
@@ -218,9 +218,9 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Perform a 'sub' binary operation between this Series and another Series or scalar value.
+   * Subtract this Series and another Series or scalar value.
    *
-   * @param rhs The other Series or Scalar to compare with this Column
+   * @param rhs The other Series or scalar to subtract from this Series.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
   sub(rhs: bigint): Series<Int64>;
@@ -238,9 +238,9 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Multiply this Column and another Series or scalar value.
+   * Multiply this Series and another Series or scalar value.
    *
-   * @param rhs The other Series or Scalar to compare with this Column
+   * @param rhs The other Series or scalar to multiply this column by.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
   mul(rhs: bigint): Series<Int64>;
@@ -258,9 +258,9 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Divide this Column and another Series or scalar value.
+   * Divide this Series and another Series or scalar value.
    *
-   * @param rhs The other Series or Scalar to compare with this Column
+   * @param rhs The other Series or scalar to divide this Series by.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
   div(rhs: bigint): Series<Int64>;
@@ -278,9 +278,9 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * True-divide this Column and another Series or scalar value.
+   * True-divide this Series and another Series or scalar value.
    *
-   * @param rhs The other Series or Scalar to compare with this Column
+   * @param rhs The other Series or scalar to true-divide this Series by.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
   true_div(rhs: bigint): Series<Int64>;
@@ -298,9 +298,9 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Floor-divide this Column and another Series or scalar value.
+   * Floor-divide this Series and another Series or scalar value.
    *
-   * @param rhs The other Series or Scalar to compare with this Column
+   * @param rhs The other Series or scalar to floor-divide this Series by.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
   floor_div(rhs: bigint): Series<Int64>;
@@ -318,9 +318,9 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Modulo this Column and another Series or scalar value.
+   * Modulo this Series and another Series or scalar value.
    *
-   * @param rhs The other Series or Scalar to compare with this Column
+   * @param rhs The other Series or scalar to mod with this Series.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
   mod(rhs: bigint): Series<Int64>;
@@ -338,9 +338,9 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Power this Column and another Series or scalar value.
+   * Power this Series and another Series or scalar value.
    *
-   * @param rhs The other Series or Scalar to compare with this Column
+   * @param rhs The other Series or scalar to use as the exponent for the power operation.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
   pow(rhs: bigint): Series<Int64>;
@@ -358,7 +358,7 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Perform the binary `==` operation between this Series and another Series or scalar value.
+   * Perform the binary '==' operation between this column and another Series or scalar value.
    *
    * @rhs The other Series or scalar to compare with this column.
    * @returns A Series of booleans with the comparison result.
@@ -378,7 +378,7 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Perform the binary `!=` operation between this Series and another Series or scalar value.
+   * Perform the binary '!=' operation between this column and another Series or scalar value.
    *
    * @rhs The other Series or scalar to compare with this column.
    * @returns A Series of booleans with the comparison result.
@@ -398,7 +398,7 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Perform the binary `<` operation between this Series and another Series or scalar value.
+   * Perform the binary '<' operation between this column and another Series or scalar value.
    *
    * @rhs The other Series or scalar to compare with this column.
    * @returns A Series of booleans with the comparison result.
@@ -418,7 +418,7 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Perform the binary `<=` operation between this Series and another Series or scalar value.
+   * Perform the binary '<=' operation between this column and another Series or scalar value.
    *
    * @rhs The other Series or scalar to compare with this column.
    * @returns A Series of booleans with the comparison result.
@@ -438,7 +438,7 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Perform the binary `>` operation between this Series and another Series or scalar value.
+   * Perform the binary '>' operation between this column and another Series or scalar value.
    *
    * @rhs The other Series or scalar to compare with this column.
    * @returns A Series of booleans with the comparison result.
@@ -458,7 +458,7 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Perform the binary `>=` operation between this Series and another Series or scalar value.
+   * Perform the binary '>=' operation between this column and another Series or scalar value.
    *
    * @rhs The other Series or scalar to compare with this column.
    * @returns A Series of booleans with the comparison result.
@@ -479,6 +479,7 @@ export class Series<T extends DataType = any> {
 
   /**
    * Perform a binary `&` operation between this Series and another Series or scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -498,6 +499,7 @@ export class Series<T extends DataType = any> {
 
   /**
    * Perform a binary `|` operation between this Series and another Series or scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -517,6 +519,7 @@ export class Series<T extends DataType = any> {
 
   /**
    * Perform a binary `^` operation between this Series and another Series or scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -536,6 +539,7 @@ export class Series<T extends DataType = any> {
 
   /**
    * Perform a binary `&&` operation between this Series and another Series or scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -554,7 +558,8 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Perform a binary `&&` operation between this Series and another Series or scalar value.
+   * Perform a binary `||` operation between this Series and another Series or scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -574,6 +579,7 @@ export class Series<T extends DataType = any> {
 
   /**
    * Perform a binary `coalesce` operation between this Series and another Series or scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -593,6 +599,7 @@ export class Series<T extends DataType = any> {
 
   /**
    * Perform a binary `<<` operation between this Series and another Series or scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -613,6 +620,7 @@ export class Series<T extends DataType = any> {
   /**
    * Perform a binary `>>` operation between this Series and another Series or scalar
    * value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -633,6 +641,7 @@ export class Series<T extends DataType = any> {
   /**
    * Perform a binary `shift_right_unsigned` operation between this Series and another Series or
    * scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -652,6 +661,7 @@ export class Series<T extends DataType = any> {
 
   /**
    * Perform a binary `log_base` operation between this Series and another Series or scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -671,6 +681,7 @@ export class Series<T extends DataType = any> {
 
   /**
    * Perform a binary `atan2` operation between this Series and another Series or scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -691,6 +702,7 @@ export class Series<T extends DataType = any> {
   /**
    * Perform a binary `null_equals` operation between this Series and another Series or scalar
    * value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -710,6 +722,7 @@ export class Series<T extends DataType = any> {
 
   /**
    * Perform a binary `null_max` operation between this Series and another Series or scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
@@ -729,6 +742,7 @@ export class Series<T extends DataType = any> {
 
   /**
    * Perform a binary `null_min` operation between this Series and another Series or scalar value.
+   *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
