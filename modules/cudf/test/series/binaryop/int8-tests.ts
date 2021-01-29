@@ -188,10 +188,10 @@ describe('Series binaryops (Int8)', () => {
     });
     test('modulo by a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.mod(-1)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.mod(0)].map(Number)).toEqual([NaN, NaN, NaN]);
-      expect([...lhs.mod(1)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.mod(2)].map(Number)).toEqual([0, 1, 0]);
+      expect([...lhs.mod(-1n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.mod(0n)].map(Number)).toEqual([4294967295, 4294967295, 4294967295]);
+      expect([...lhs.mod(1n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.mod(2n)].map(Number)).toEqual([0, 1, 0]);
     });
   });
 
@@ -212,10 +212,10 @@ describe('Series binaryops (Int8)', () => {
     });
     test('computes to the power of a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.pow(-1)].map(Number)).toEqual([Infinity, 1, 0.5]);
-      expect([...lhs.pow(0)].map(Number)).toEqual([1, 1, 1]);
-      expect([...lhs.pow(1)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.pow(2)].map(Number)).toEqual([0, 1, 4]);
+      expect([...lhs.pow(-1n)].map(Number)).toEqual([9223372036854776000, 1, 0]);
+      expect([...lhs.pow(0n)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.pow(1n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.pow(2n)].map(Number)).toEqual([0, 1, 4]);
     });
   });
 
@@ -245,21 +245,21 @@ describe('Series binaryops (Int8)', () => {
     test('compares against Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs != rhs == true
-      expect([...lhs.ne(rhs)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.ne(rhs)].map(Number)).toEqual([1, 1, 1]);
       // lhs != lhs == false
-      expect([...lhs.ne(lhs)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.ne(lhs)].map(Number)).toEqual([0, 0, 0]);
     });
     test('compares against numbers', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.ne(0)].map(Number)).toEqual([1, 0, 0]);
-      expect([...lhs.ne(1)].map(Number)).toEqual([0, 1, 0]);
-      expect([...lhs.ne(2)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.ne(0)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.ne(1)].map(Number)).toEqual([1, 0, 1]);
+      expect([...lhs.ne(2)].map(Number)).toEqual([1, 1, 0]);
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.ne(0n)].map(BigInt)).toEqual([1n, 0n, 0n]);
-      expect([...lhs.ne(1n)].map(BigInt)).toEqual([0n, 1n, 0n]);
-      expect([...lhs.ne(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.ne(0n)].map(BigInt)).toEqual([0n, 1n, 1n]);
+      expect([...lhs.ne(1n)].map(BigInt)).toEqual([1n, 0n, 1n]);
+      expect([...lhs.ne(2n)].map(BigInt)).toEqual([1n, 1n, 0n]);
     });
   });
 
@@ -378,6 +378,13 @@ describe('Series binaryops (Int8)', () => {
       expect([...lhs.bitwise_and(1)].map(Number)).toEqual([0, 1, 0]);
       expect([...lhs.bitwise_and(2)].map(Number)).toEqual([0, 0, 2]);
     });
+    test('bitwise_and with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.bitwise_and(-1n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.bitwise_and(0n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.bitwise_and(1n)].map(Number)).toEqual([0, 1, 0]);
+      expect([...lhs.bitwise_and(2n)].map(Number)).toEqual([0, 0, 2]);
+    });
   });
 
   describe('Series.bitwise_or', () => {
@@ -395,6 +402,13 @@ describe('Series binaryops (Int8)', () => {
       expect([...lhs.bitwise_or(1)].map(Number)).toEqual([1, 1, 3]);
       expect([...lhs.bitwise_or(2)].map(Number)).toEqual([2, 3, 2]);
     });
+    test('bitwise_or with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.bitwise_or(-1n)].map(Number)).toEqual([-1, -1, -1]);
+      expect([...lhs.bitwise_or(0n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.bitwise_or(1n)].map(Number)).toEqual([1, 1, 3]);
+      expect([...lhs.bitwise_or(2n)].map(Number)).toEqual([2, 3, 2]);
+    });
   });
 
   describe('Series.bitwise_xor', () => {
@@ -405,12 +419,19 @@ describe('Series binaryops (Int8)', () => {
       // lhs ^ rhs == [0 ^ 1, 1 ^ 2, 2 ^ 3])
       expect([...lhs.bitwise_xor(rhs)].map(Number)).toEqual([1, 3, 1]);
     });
-    test('bitwise_or with a scalar', () => {
+    test('bitwise_xor with a scalar', () => {
       const {lhs} = makeTestData();
       expect([...lhs.bitwise_xor(-1)].map(Number)).toEqual([-1, -2, -3]);
       expect([...lhs.bitwise_xor(0)].map(Number)).toEqual([0, 1, 2]);
       expect([...lhs.bitwise_xor(1)].map(Number)).toEqual([1, 0, 3]);
       expect([...lhs.bitwise_xor(2)].map(Number)).toEqual([2, 3, 0]);
+    });
+    test('bitwise_xor with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.bitwise_xor(-1n)].map(Number)).toEqual([-1, -2, -3]);
+      expect([...lhs.bitwise_xor(0n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.bitwise_xor(1n)].map(Number)).toEqual([1, 0, 3]);
+      expect([...lhs.bitwise_xor(2n)].map(Number)).toEqual([2, 3, 0]);
     });
   });
 
@@ -429,6 +450,13 @@ describe('Series binaryops (Int8)', () => {
       expect([...lhs.logical_and(1)].map(Number)).toEqual([0, 1, 1]);
       expect([...lhs.logical_and(2)].map(Number)).toEqual([0, 1, 1]);
     });
+    test('logical_and with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.logical_and(-1n)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logical_and(0n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.logical_and(1n)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logical_and(2n)].map(Number)).toEqual([0, 1, 1]);
+    });
   });
 
   describe('Series.logical_or', () => {
@@ -446,6 +474,13 @@ describe('Series binaryops (Int8)', () => {
       expect([...lhs.logical_or(1)].map(Number)).toEqual([1, 1, 1]);
       expect([...lhs.logical_or(2)].map(Number)).toEqual([1, 1, 1]);
     });
+    test('logical_or with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.logical_or(-1n)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.logical_or(0n)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logical_or(1n)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.logical_or(2n)].map(Number)).toEqual([1, 1, 1]);
+    });
   });
 
   describe('Series.shift_left', () => {
@@ -462,6 +497,13 @@ describe('Series binaryops (Int8)', () => {
       expect([...lhs.shift_left(0)].map(Number)).toEqual([0, 1, 2]);
       expect([...lhs.shift_left(1)].map(Number)).toEqual([0, 2, 4]);
       expect([...lhs.shift_left(2)].map(Number)).toEqual([0, 4, 8]);
+    });
+    test('shift_left with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.shift_left(-1n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shift_left(0n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.shift_left(1n)].map(Number)).toEqual([0, 2, 4]);
+      expect([...lhs.shift_left(2n)].map(Number)).toEqual([0, 4, 8]);
     });
   });
 
@@ -497,6 +539,13 @@ describe('Series binaryops (Int8)', () => {
       expect([...lhs.shift_right_unsigned(1)].map(Number)).toEqual([0, 0, 1]);
       expect([...lhs.shift_right_unsigned(2)].map(Number)).toEqual([0, 0, 0]);
     });
+    test('shift_right_unsigned with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.shift_right_unsigned(-1n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shift_right_unsigned(0n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.shift_right_unsigned(1n)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.shift_right_unsigned(2n)].map(Number)).toEqual([0, 0, 0]);
+    });
   });
 
   describe('Series.log_base', () => {
@@ -513,6 +562,15 @@ describe('Series binaryops (Int8)', () => {
       expect([...lhs.log_base(0)].map(Number)).toEqual([NaN, -0, -0]);
       expect([...lhs.log_base(1)].map(Number)).toEqual([-Infinity, NaN, Infinity]);
       expect([...lhs.log_base(2)].map(Number)).toEqual([-Infinity, 0, 1]);
+    });
+    test('log_base with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.log_base(-1n)].map(Number))
+        .toEqual([-9223372036854776000, -9223372036854776000, -9223372036854776000]);
+      expect([...lhs.log_base(0n)].map(Number)).toEqual([-9223372036854776000, 0, 0]);
+      expect([...lhs.log_base(1n)].map(Number))
+        .toEqual([-9223372036854776000, -9223372036854776000, 9223372036854776000]);
+      expect([...lhs.log_base(2n)].map(Number)).toEqual([-9223372036854776000, 0, 1]);
     });
   });
 
@@ -532,6 +590,13 @@ describe('Series binaryops (Int8)', () => {
       expect([...lhs.atan2(1)].map(Number)).toEqual([0, 0.7853981633974483, 1.1071487177940904]);
       expect([...lhs.atan2(2)].map(Number)).toEqual([0, 0.46364760900080615, 0.7853981633974483]);
     });
+    test('atan2 with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.atan2(-1n)].map(Number)).toEqual([3, 2, 2]);
+      expect([...lhs.atan2(0n)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.atan2(1n)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.atan2(2n)].map(Number)).toEqual([0, 0, 0]);
+    });
   });
 
   describe('Series.null_equals', () => {
@@ -548,6 +613,13 @@ describe('Series binaryops (Int8)', () => {
       expect([...lhs.null_equals(0)].map(Number)).toEqual([1, 0, 0]);
       expect([...lhs.null_equals(1)].map(Number)).toEqual([0, 1, 0]);
       expect([...lhs.null_equals(2)].map(Number)).toEqual([0, 0, 1]);
+    });
+    test('null_equals with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.null_equals(-1n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.null_equals(0n)].map(Number)).toEqual([1, 0, 0]);
+      expect([...lhs.null_equals(1n)].map(Number)).toEqual([0, 1, 0]);
+      expect([...lhs.null_equals(2n)].map(Number)).toEqual([0, 0, 1]);
     });
   });
 
@@ -566,6 +638,13 @@ describe('Series binaryops (Int8)', () => {
       expect([...lhs.null_max(1)].map(Number)).toEqual([1, 1, 2]);
       expect([...lhs.null_max(2)].map(Number)).toEqual([2, 2, 2]);
     });
+    test('null_max with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.null_max(-1n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.null_max(0n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.null_max(1n)].map(Number)).toEqual([1, 1, 2]);
+      expect([...lhs.null_max(2n)].map(Number)).toEqual([2, 2, 2]);
+    });
   });
 
   describe('Series.null_min', () => {
@@ -582,6 +661,13 @@ describe('Series binaryops (Int8)', () => {
       expect([...lhs.null_min(0)].map(Number)).toEqual([0, 0, 0]);
       expect([...lhs.null_min(1)].map(Number)).toEqual([0, 1, 1]);
       expect([...lhs.null_min(2)].map(Number)).toEqual([0, 1, 2]);
+    });
+    test('null_min with a bigint', () => {
+      const {lhs} = makeTestData();
+      expect([...lhs.null_min(-1n)].map(Number)).toEqual([-1, -1, -1]);
+      expect([...lhs.null_min(0n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.null_min(1n)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.null_min(2n)].map(Number)).toEqual([0, 1, 2]);
     });
   });
 });

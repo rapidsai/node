@@ -187,10 +187,10 @@ describe('Series binaryops (Float32)', () => {
     });
     test('modulo by a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.mod(-1)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.mod(0)].map(Number)).toEqual([NaN, NaN, NaN]);
-      expect([...lhs.mod(1)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.mod(2)].map(Number)).toEqual([0, 1, 0]);
+      expect([...lhs.mod(-1n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.mod(0n)].map(Number)).toEqual([NaN, NaN, NaN]);
+      expect([...lhs.mod(1n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.mod(2n)].map(Number)).toEqual([0, 1, 0]);
     });
   });
 
@@ -211,10 +211,10 @@ describe('Series binaryops (Float32)', () => {
     });
     test('computes to the power of a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.pow(-1)].map(Number)).toEqual([Infinity, 1, 0.5]);
-      expect([...lhs.pow(0)].map(Number)).toEqual([1, 1, 1]);
-      expect([...lhs.pow(1)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.pow(2)].map(Number)).toEqual([0, 1, 4]);
+      expect([...lhs.pow(-1n)].map(Number)).toEqual([Infinity, 1, 0.5]);
+      expect([...lhs.pow(0n)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.pow(1n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.pow(2n)].map(Number)).toEqual([0, 1, 4]);
     });
   });
 
@@ -244,21 +244,21 @@ describe('Series binaryops (Float32)', () => {
     test('compares against Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs != rhs == true
-      expect([...lhs.ne(rhs)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.ne(rhs)].map(Number)).toEqual([1, 1, 1]);
       // lhs != lhs == false
-      expect([...lhs.ne(lhs)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.ne(lhs)].map(Number)).toEqual([0, 0, 0]);
     });
     test('compares against numbers', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.ne(0)].map(Number)).toEqual([1, 0, 0]);
-      expect([...lhs.ne(1)].map(Number)).toEqual([0, 1, 0]);
-      expect([...lhs.ne(2)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.ne(0)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.ne(1)].map(Number)).toEqual([1, 0, 1]);
+      expect([...lhs.ne(2)].map(Number)).toEqual([1, 1, 0]);
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.ne(0n)].map(Number)).toEqual([1, 0, 0]);
-      expect([...lhs.ne(1n)].map(Number)).toEqual([0, 1, 0]);
-      expect([...lhs.ne(2n)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.ne(0n)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.ne(1n)].map(Number)).toEqual([1, 0, 1]);
+      expect([...lhs.ne(2n)].map(Number)).toEqual([1, 1, 0]);
     });
   });
 
