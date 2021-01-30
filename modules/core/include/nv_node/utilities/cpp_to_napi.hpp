@@ -198,14 +198,13 @@ struct CPPToNapi {
 
   template <typename T>
   inline Napi::Value operator()(Span<T> const& span) const {
-    auto buf = Napi::ArrayBuffer::New(env, span.data(), span.size());
-    return buffer_to_typed_array<T>(buf);
+    return buffer_to_typed_array<T>(Napi::ArrayBuffer::New(env, span.data(), span.size()));
   }
 
   template <typename T, typename Finalizer>
   inline Napi::Value operator()(Span<T> const& span, Finalizer finalizer) const {
-    auto buf = Napi::ArrayBuffer::New(env, span.data(), span.size(), finalizer);
-    return buffer_to_typed_array<T>(buf);
+    return buffer_to_typed_array<T>(
+      Napi::ArrayBuffer::New(env, span.data(), span.size(), finalizer));
   }
 
   //
@@ -277,23 +276,32 @@ struct CPPToNapi {
 
  protected:
   template <typename T>
-  Napi::Value buffer_to_typed_array(Napi::ArrayBuffer& buf) const {
-    if (std::is_same<T, int8_t>() || std::is_same<T, char>())
-      return Napi::Int8Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
-    if (std::is_same<T, uint8_t>() || std::is_same<T, unsigned char>())
-      return Napi::Uint8Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
-    if (std::is_same<T, int16_t>() || std::is_same<T, short>())
-      return Napi::Int16Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
-    if (std::is_same<T, uint16_t>() || std::is_same<T, unsigned short>())
-      return Napi::Uint16Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
-    if (std::is_same<T, int32_t>())
-      return Napi::Int32Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
-    if (std::is_same<T, uint32_t>())
-      return Napi::Uint32Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
-    if (std::is_same<T, float>())
-      return Napi::Float32Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
-    if (std::is_same<T, double>())
-      return Napi::Float64Array::New(env, buf.ByteLength() / sizeof(T), buf, 0);
+  Napi::Value buffer_to_typed_array(Napi::ArrayBuffer const& buf) const {
+    auto len = const_cast<Napi::ArrayBuffer&>(buf).ByteLength() / sizeof(T);
+    if (std::is_same<T, int8_t>() || std::is_same<T, char>()) {
+      return Napi::Int8Array::New(env, len, buf, 0);
+    }
+    if (std::is_same<T, uint8_t>() || std::is_same<T, unsigned char>()) {
+      return Napi::Uint8Array::New(env, len, buf, 0);
+    }
+    if (std::is_same<T, int16_t>() || std::is_same<T, short>()) {
+      return Napi::Int16Array::New(env, len, buf, 0);
+    }
+    if (std::is_same<T, uint16_t>() || std::is_same<T, unsigned short>()) {
+      return Napi::Uint16Array::New(env, len, buf, 0);
+    }
+    if (std::is_same<T, int32_t>()) {  //
+      return Napi::Int32Array::New(env, len, buf, 0);
+    }
+    if (std::is_same<T, uint32_t>()) {  //
+      return Napi::Uint32Array::New(env, len, buf, 0);
+    }
+    if (std::is_same<T, float>()) {  //
+      return Napi::Float32Array::New(env, len, buf, 0);
+    }
+    if (std::is_same<T, double>()) {  //
+      return Napi::Float64Array::New(env, len, buf, 0);
+    }
     NAPI_THROW(std::runtime_error{"Unknown TypedArray type"}, env.Undefined());
   }
 };

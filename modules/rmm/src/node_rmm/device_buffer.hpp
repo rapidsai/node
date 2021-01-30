@@ -59,11 +59,23 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * resource supports streams.
    */
   inline static ObjectUnwrap<DeviceBuffer> New(
-    Span<char> data,
+    Span<char> const& data,
     ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
     rmm::cuda_stream_view stream           = rmm::cuda_stream_default) {
     return DeviceBuffer::New(data.data(), data.size(), mr, stream);
   }
+
+  /**
+   * @brief Construct a new DeviceBuffer instance from an ArrayBuffer.
+   *
+   * @param data ArrayBuffer to host memory to copy from.
+   * @param stream CUDA stream on which memory may be allocated if the memory
+   * resource supports streams.
+   */
+  static ObjectUnwrap<DeviceBuffer> New(
+    Napi::ArrayBuffer const& data,
+    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
+    rmm::cuda_stream_view stream           = rmm::cuda_stream_default);
 
   /**
    * @brief Construct a new DeviceBuffer instance from C++.
@@ -74,10 +86,11 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
-  static ObjectUnwrap<DeviceBuffer> New(void* data,
-                                        size_t size,
-                                        ObjectUnwrap<MemoryResource> const& mr,
-                                        rmm::cuda_stream_view stream);
+  static ObjectUnwrap<DeviceBuffer> New(
+    void* const data,
+    size_t const size,
+    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
+    rmm::cuda_stream_view stream           = rmm::cuda_stream_default);
 
   /**
    * @brief Check whether an Napi object is an instance of `DeviceBuffer`.

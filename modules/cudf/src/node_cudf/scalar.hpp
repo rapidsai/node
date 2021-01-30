@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <node_cudf/types.hpp>
 #include <node_cudf/utilities/error.hpp>
 
 #include <nv_node/utilities/args.hpp>
@@ -45,6 +46,35 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
    * @param scalar The scalar in device memory.
    */
   static ObjectUnwrap<Scalar> New(std::unique_ptr<cudf::scalar> scalar);
+
+  /**
+   * @brief Construct a new Scalar instance from a Number.
+   *
+   * @param value The Number to use.
+   */
+  static ObjectUnwrap<Scalar> New(Napi::Number const& value);
+
+  /**
+   * @brief Construct a new Scalar instance from a BigInt.
+   *
+   * @param value The BigInt to use.
+   */
+  static ObjectUnwrap<Scalar> New(Napi::BigInt const& value);
+
+  /**
+   * @brief Construct a new Scalar instance from a String.
+   *
+   * @param value The String to use.
+   */
+  static ObjectUnwrap<Scalar> New(Napi::String const& value);
+
+  /**
+   * @brief Construct a new Scalar instance from a Value and data type.
+   *
+   * @param value The Value to use.
+   * @param type The cudf::data_type for the scalar.
+   */
+  static ObjectUnwrap<Scalar> New(Napi::Value const& value, cudf::data_type type);
 
   /**
    * @brief Check whether an Napi value is an instance of `Scalar`.
@@ -83,7 +113,7 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
   /**
    * @brief Returns the scalar's logical value type
    */
-  cudf::data_type type() const noexcept { return scalar_->type(); }
+  cudf::data_type type() const noexcept { return *DataType::Unwrap(type_.Value()); }
 
   /**
    * @brief Updates the validity of the value
@@ -123,6 +153,7 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
  private:
   static Napi::FunctionReference constructor;
 
+  Napi::Reference<Napi::Object> type_{};  ///< Logical type of elements in the column
   std::unique_ptr<cudf::scalar> scalar_;
 
   Napi::Value type(Napi::CallbackInfo const& info);

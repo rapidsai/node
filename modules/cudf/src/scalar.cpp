@@ -24,6 +24,7 @@
 
 #include <nv_node/utilities/cpp_to_napi.hpp>
 
+#include <cudf/scalar/scalar_factories.hpp>
 #include <cudf/utilities/traits.hpp>
 #include <cudf/utilities/type_dispatcher.hpp>
 
@@ -95,18 +96,49 @@ Napi::Object Scalar::Init(Napi::Env env, Napi::Object exports) {
 }
 
 ObjectUnwrap<Scalar> Scalar::New(std::unique_ptr<cudf::scalar> scalar) {
-  ObjectUnwrap<Scalar> inst{Scalar::constructor.New({})};
+  auto opts = Napi::Object::New(constructor.Env());
+  opts.Set("type", DataType::New(scalar->type().id())->Value());
+  ObjectUnwrap<Scalar> inst{constructor.New({opts})};
   inst->scalar_ = std::move(scalar);
   return inst;
 }
 
+ObjectUnwrap<Scalar> Scalar::New(Napi::Number const& value) {
+  return New(value, cudf::data_type{cudf::type_id::FLOAT64});
+}
+
+ObjectUnwrap<Scalar> Scalar::New(Napi::BigInt const& value) {
+  return New(value, cudf::data_type{cudf::type_id::INT64});
+}
+
+ObjectUnwrap<Scalar> Scalar::New(Napi::String const& value) {
+  return New(value, cudf::data_type{cudf::type_id::STRING});
+}
+
+ObjectUnwrap<Scalar> Scalar::New(Napi::Value const& value, cudf::data_type type) {
+  auto opts = Napi::Object::New(constructor.Env());
+  opts.Set("value", value);
+  opts.Set("type", DataType::New(type.id())->Value());
+  return constructor.New({opts});
+}
+
 Scalar::Scalar(CallbackArgs const& args) : Napi::ObjectWrap<Scalar>(args) {
-  NODE_CUDA_EXPECT(args.IsConstructCall(), "Scalar constructor requires 'new'");
+  NODE_CUDA_EXPECT(args[0].IsObject(), "Scalar constructor expects an Object options argument");
+  Napi::Object props = args[0];
+
+  NODE_CUDA_EXPECT(props.Has("type"), "Scalar constructor expects options to have a 'type' field");
+  auto type = props.Get("type");
+
+  NODE_CUDA_EXPECT(DataType::is_instance(type),
+                   "Scalar constructor expects 'type' option to be a DataType");
+  type_   = Napi::Persistent(type.ToObject());
+  scalar_ = cudf::make_default_constructed_scalar(this->type());
+  if (props.Has("value")) { set_value(args, props.Get("value")); }
 }
 
 void Scalar::Finalize(Napi::Env env) { this->scalar_.reset(nullptr); }
 
-Napi::Value Scalar::type(Napi::CallbackInfo const& info) { return DataType::New(this->type()); }
+Napi::Value Scalar::type(Napi::CallbackInfo const& info) { return type_.Value(); }
 
 Napi::Value Scalar::get_value() const { return CPPToNapi(Env())(scalar_); }
 

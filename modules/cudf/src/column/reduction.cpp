@@ -22,7 +22,7 @@
 namespace nv {
 
 std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> Column::minmax() const {
-  auto result = std::move(cudf::minmax(*this));
+  auto result = cudf::minmax(*this);
   return {Scalar::New(std::move(result.first)),  //
           Scalar::New(std::move(result.second))};
 }
