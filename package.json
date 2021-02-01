@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "clean": "scripts/exec.js clean",
-    "doc": "scripts/exec.js run doc",
+    "doc": "rimraf doc && typedoc --options typedoc.js && npm run doc:packages",
+    "doc:packages": "scripts/exec.js run doc",
     "demo": "scripts/exec.js demo",
     "test": "scripts/exec.js test",
     "lint": "scripts/exec.js lint",

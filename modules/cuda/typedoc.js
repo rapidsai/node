@@ -1,5 +1,5 @@
 module.exports = {
-    entryPoints: ['src'],
+    entryPoints: ['src/index.ts'],
     out: 'doc',
     name: '@nvidia/cuda',
     tsconfig: 'tsconfig.json',

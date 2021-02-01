@@ -1,5 +1,8 @@
 **/z-*
 **/*.log
+**/doc
+**/lib
+**/build
 **/.cache
 **/.clangd
 **/.ccache
@@ -9,9 +12,6 @@
 
 .env
 .cmake-js
-modules/**/*/doc
-modules/**/*/lib
-modules/**/*/build
 modules/*/include/rmm
 modules/*/include/cudf
 modules/*/include/cuml
