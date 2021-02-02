@@ -201,17 +201,17 @@ export class Int32Series extends IntSeries<Int32> {}
 export class Int64Series extends IntSeries<Int64> {}
 
 /**
- * A Series of 8-bit insigned integer values in GPU memory.
+ * A Series of 8-bit unsigned integer values in GPU memory.
  */
 export class Uint8Series extends IntSeries<Uint8> {}
 
 /**
- * A Series of 16-bit insigned integer values in GPU memory.
+ * A Series of 16-bit unsigned integer values in GPU memory.
  */
 export class Uint16Series extends IntSeries<Uint16> {}
 
 /**
- * A Series of 32-bit insigned integer values in GPU memory.
+ * A Series of 32-bit unsigned integer values in GPU memory.
  */
 export class Uint32Series extends IntSeries<Uint32> {}
 
