@@ -13,25 +13,28 @@
 // limitations under the License.
 
 import {MemoryData} from '@nvidia/cuda';
-import {DeviceBuffer} from '@nvidia/rmm';
-import {RecordBatchReader, Table as ArrowTable, Vector} from 'apache-arrow';
+import {DeviceBuffer, MemoryResource} from '@nvidia/rmm';
+import {
+  DataType as ArrowDataType,
+  RecordBatchReader,
+  Table as ArrowTable,
+  Vector
+} from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';
 
 import {Column, ColumnProps} from './column';
 import {fromArrow} from './column/from_arrow';
 import {DataFrame} from './data_frame';
-import {Scalar} from './scalar';
 import {Table} from './table';
 import {
+  ArrowToCUDFType,
   Bool8,
-  CommonType,
   CUDFToArrowType,
   DataType,
-  Float64,
-  Int64,
   Integral,
   NullOrder,
-  Numeric
+  SeriesType,
+  TypeId,
 } from './types';
 
 export interface Series {
@@ -54,93 +57,107 @@ export type SeriesProps<T extends DataType = any> = {
  * One-dimensional GPU array
  */
 export class Series<T extends DataType = any> {
-  /*private*/ _data: Column<T>;
-
-  constructor(value: SeriesProps<T>|Column<T>|Vector<CUDFToArrowType<T>>) {
-    if (value instanceof Column) {
-      this._data = value;
-    } else if (value instanceof Vector) {
-      this._data = fromArrow(value);
-    } else {
-      const props: ColumnProps = {
-        type: value.type.id,
-        data: value.data,
-        offset: value.offset,
-        length: value.length,
-        nullCount: value.nullCount,
-        nullMask: value.nullMask,
-      };
-      if (value.children != null) {
-        props.children = value.children.map((item: Series) => item._data);
-      }
-      this._data = new Column<T>(props);
+  static new<T extends DataType>(input: Column<T>): SeriesType<T>;
+  static new<T extends DataType>(input: SeriesProps<T>): SeriesType<T>;
+  static new<T extends ArrowDataType>(input: Vector<T>): SeriesType<ArrowToCUDFType<T>>;
+  static new<T extends DataType>(input: SeriesProps<T>|Column<T>|Vector<CUDFToArrowType<T>>) {
+    /* eslint-disable @typescript-eslint/no-use-before-define */
+    const column = asColumn(input);
+    switch (column.type.id) {
+      case TypeId.INT8: return new Int8Series(column);
+      case TypeId.INT16: return new Int16Series(column);
+      case TypeId.INT32: return new Int32Series(column);
+      case TypeId.INT64: return new Int64Series(column);
+      case TypeId.UINT8: return new Uint8Series(column);
+      case TypeId.UINT16: return new Uint16Series(column);
+      case TypeId.UINT32: return new Uint32Series(column);
+      case TypeId.UINT64: return new Uint64Series(column);
+      case TypeId.FLOAT32: return new Float32Series(column);
+      case TypeId.FLOAT64: return new Float64Series(column);
+      case TypeId.BOOL8: return new Bool8Series(column);
+      case TypeId.STRING: return new StringSeries(column);
+      default: throw new Error('Unknown DataType');
     }
+    /* eslint-enable @typescript-eslint/no-use-before-define */
+  }
+
+  /** @ignore */
+  public readonly _col: Column<T>;
+
+  protected constructor(input: SeriesProps<T>|Column<T>|Vector<CUDFToArrowType<T>>) {
+    this._col = asColumn(input);
   }
 
   /**
    * The data type of elements in the underlying data.
    */
-  get type() { return this._data.type; }
+  get type() { return this._col.type; }
 
   /**
-   * The GPU buffer for the null-mask
+   * The DeviceBuffer for the data in GPU memory.
    */
-  get mask() { return this._data.mask; }
+  get data() { return this._col.data; }
 
   /**
-   * The number of elements in the underlying data.
+   * The DeviceBuffer for for the validity bitmask in GPU memory.
    */
-  get length() { return this._data.length; }
+  get mask() { return this._col.mask; }
 
   /**
-   * Whether a null-mask is needed
+   * The number of elements in this Series.
    */
-  get nullable() { return this._data.nullable; }
+  get length() { return this._col.length; }
 
   /**
-   * Whether the Series contains null values.
+   * A boolean indicating whether a validity bitmask exists.
    */
-  get hasNulls() { return this._data.hasNulls; }
+  get nullable() { return this._col.nullable; }
 
   /**
-   * Number of null values
+   * Whether the Series contains null elements.
    */
-  get nullCount() { return this._data.nullCount; }
+  get hasNulls() { return this._col.hasNulls; }
 
   /**
-   * The number of child columns
+   * The number of null elements in this Series.
    */
-  get numChildren() { return this._data.numChildren; }
+  get nullCount() { return this._col.nullCount; }
 
   /**
-   * Return a seb-selection of the Series from the specified indices
+   * The number of child columns in this Series.
+   */
+  get numChildren() { return this._col.numChildren; }
+
+  /**
+   * Return a sub-selection of this Series using the specified integral indices.
    *
-   * @param selection
+   * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
    */
-  gather<R extends Integral>(selection: Series<R>) {
-    return new Series<T>(this._data.gather(selection._data));
+  gather<R extends Integral>(selection: Series<R>): SeriesType<T> {
+    return Series.new(this._col.gather(selection._col));
   }
 
   /**
-   * Return a seb-selection of the Series from the specified boolean mask
+   * Return a sub-selection of this Series using the specified boolean mask.
    *
-   * @param mask
+   * @param mask A Series of boolean values for whose corresponding element in this Series will be
+   *   selected or ignored.
    */
-  filter(mask: Series<Bool8>) { return new Series<T>(this._data.gather(mask._data)); }
+  filter(mask: Series<Bool8>): SeriesType<T> { return Series.new(this._col.gather(mask._col)); }
 
   /**
    * Return a child at the specified index to host memory
    *
    * @param index
    */
-  getChild(index: number) { return new Series(this._data.getChild(index)); }
+  getChild(index: number) { return Series.new(this._col.getChild(index)); }
 
   /**
    * Return a value at the specified index to host memory
    *
    * @param index
    */
-  getValue(index: number) { return this._data.getValue(index); }
+  getValue(index: number) { return this._col.getValue(index); }
 
   // setValue(index: number, value?: this[0] | null);
 
@@ -159,20 +176,20 @@ export class Series<T extends DataType = any> {
    * @param nullCount The number of null values. If None, it is calculated
    * automatically.
    */
-  setNullMask(mask: DeviceBuffer, nullCount?: number) { this._data.setNullMask(mask, nullCount); }
+  setNullMask(mask: DeviceBuffer, nullCount?: number) { this._col.setNullMask(mask, nullCount); }
 
   /**
-   * Copy a column to an Arrow vector in host memory
+   * Copy a Series to an Arrow vector in host memory
    */
   toArrow(): VectorType<CUDFToArrowType<T>> {
-    const reader = RecordBatchReader.from(new Table({columns: [this._data]}).toArrow([[0]]));
+    const reader = RecordBatchReader.from(new Table({columns: [this._col]}).toArrow([[0]]));
     const column = new ArrowTable(reader.schema, [...reader]).getColumnAt<CUDFToArrowType<T>>(0);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return column!.chunks[0] as VectorType<CUDFToArrowType<T>>;
   }
 
   /**
-   * Generate an ordering that sorts the Series in a specified way
+   * Generate an ordering that sorts the Series in a specified way.
    *
    * @param ascending whether to sort ascending (true) or descending (false)
    * @param null_order whether nulls should sort before or after other values
@@ -184,7 +201,7 @@ export class Series<T extends DataType = any> {
   }
 
   /**
-   * Generate a new Series that is sorted in a specified way
+   * Generate a new Series that is sorted in a specified way.
    *
    * @param ascending whether to sort ascending (true) or descending (false)
    *   Default: true
@@ -193,570 +210,62 @@ export class Series<T extends DataType = any> {
    *
    * @returns Sorted values
    */
-  sortValues(ascending = true, null_order: NullOrder = NullOrder.BEFORE) {
+  sortValues(ascending = true, null_order: NullOrder = NullOrder.BEFORE): SeriesType<T> {
     return this.gather(this.orderBy(ascending, null_order));
   }
 
   /**
-   * Add this Series and another Series or scalar value.
+   * Creates a Series of `BOOL8` elements where `true` indicates the value is null and `false`
+   * indicates the value is valid.
    *
-   * @param rhs The other Series or scalar to add to this Series.
-   * @returns A Series of a common numeric type with the results of the binary operation.
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   * @returns A non-nullable Series of `BOOL8` elements with `true` representing `null`
+   *   values.
    */
-  add(rhs: bigint): Series<Int64>;
-  add(rhs: number): Series<Float64>;
-  add<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  add<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  add<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.add(rhs));
-      case 'number': return new Series(this._data.add(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.add(rhs))
-                                 : new Series(this._data.add(rhs._data));
-  }
+  isNull(memoryResource?: MemoryResource) { return Series.new(this._col.isNull(memoryResource)); }
 
   /**
-   * Subtract this Series and another Series or scalar value.
+   * Creates a Series of `BOOL8` elements where `true` indicates the value is valid and `false`
+   * indicates the value is null.
    *
-   * @param rhs The other Series or scalar to subtract from this Series.
-   * @returns A Series of a common numeric type with the results of the binary operation.
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   * @returns A non-nullable Series of `BOOL8` elements with `false` representing `null`
+   *   values.
    */
-  sub(rhs: bigint): Series<Int64>;
-  sub(rhs: number): Series<Float64>;
-  sub<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  sub<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  sub<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.sub(rhs));
-      case 'number': return new Series(this._data.sub(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.sub(rhs))
-                                 : new Series(this._data.sub(rhs._data));
-  }
+  isValid(memoryResource?: MemoryResource) { return Series.new(this._col.isValid(memoryResource)); }
+}
 
-  /**
-   * Multiply this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to multiply this column by.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  mul(rhs: bigint): Series<Int64>;
-  mul(rhs: number): Series<Float64>;
-  mul<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  mul<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  mul<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.mul(rhs));
-      case 'number': return new Series(this._data.mul(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.mul(rhs))
-                                 : new Series(this._data.mul(rhs._data));
-  }
+import {Bool8Series} from './series/bool';
+import {Float32Series, Float64Series} from './series/float';
+import {
+  Int8Series,
+  Int16Series,
+  Int32Series,
+  Uint8Series,
+  Uint16Series,
+  Uint32Series,
+  Int64Series,
+  Uint64Series
+} from './series/integral';
+import {StringSeries} from './series/string';
 
-  /**
-   * Divide this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to divide this Series by.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  div(rhs: bigint): Series<Int64>;
-  div(rhs: number): Series<Float64>;
-  div<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  div<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  div<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.div(rhs));
-      case 'number': return new Series(this._data.div(rhs));
-      default: break;
+function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|Vector<CUDFToArrowType<T>>) {
+  if (value instanceof Column) {
+    return value;
+  } else if (value instanceof Vector) {
+    return fromArrow(value);
+  } else {
+    const props: ColumnProps<T> = {
+      type: value.type.id,
+      data: value.data,
+      offset: value.offset,
+      length: value.length,
+      nullCount: value.nullCount,
+      nullMask: value.nullMask,
+    };
+    if (value.children != null) {
+      props.children = value.children.map((item: Series) => item._col);
     }
-    return rhs instanceof Scalar ? new Series(this._data.div(rhs))
-                                 : new Series(this._data.div(rhs._data));
-  }
-
-  /**
-   * True-divide this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to true-divide this Series by.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  true_div(rhs: bigint): Series<Int64>;
-  true_div(rhs: number): Series<Float64>;
-  true_div<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  true_div<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  true_div<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.true_div(rhs));
-      case 'number': return new Series(this._data.true_div(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.true_div(rhs))
-                                 : new Series(this._data.true_div(rhs._data));
-  }
-
-  /**
-   * Floor-divide this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to floor-divide this Series by.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  floor_div(rhs: bigint): Series<Int64>;
-  floor_div(rhs: number): Series<Float64>;
-  floor_div<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  floor_div<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  floor_div<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.floor_div(rhs));
-      case 'number': return new Series(this._data.floor_div(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.floor_div(rhs))
-                                 : new Series(this._data.floor_div(rhs._data));
-  }
-
-  /**
-   * Modulo this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to mod with this Series.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  mod(rhs: bigint): Series<Int64>;
-  mod(rhs: number): Series<Float64>;
-  mod<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  mod<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  mod<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.mod(rhs));
-      case 'number': return new Series(this._data.mod(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.mod(rhs))
-                                 : new Series(this._data.mod(rhs._data));
-  }
-
-  /**
-   * Power this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use as the exponent for the power operation.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  pow(rhs: bigint): Series<Int64>;
-  pow(rhs: number): Series<Float64>;
-  pow<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  pow<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  pow<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.pow(rhs));
-      case 'number': return new Series(this._data.pow(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.pow(rhs))
-                                 : new Series(this._data.pow(rhs._data));
-  }
-
-  /**
-   * Perform the binary '==' operation between this column and another Series or scalar value.
-   *
-   * @rhs The other Series or scalar to compare with this column.
-   * @returns A Series of booleans with the comparison result.
-   */
-  eq(rhs: bigint): Series<Bool8>;
-  eq(rhs: number): Series<Bool8>;
-  eq<R extends Numeric>(rhs: Scalar<R>): Series<Bool8>;
-  eq<R extends Numeric>(rhs: Series<R>): Series<Bool8>;
-  eq<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.eq(rhs));
-      case 'number': return new Series(this._data.eq(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.eq(rhs))
-                                 : new Series(this._data.eq(rhs._data));
-  }
-
-  /**
-   * Perform the binary '!=' operation between this column and another Series or scalar value.
-   *
-   * @rhs The other Series or scalar to compare with this column.
-   * @returns A Series of booleans with the comparison result.
-   */
-  ne(rhs: bigint): Series<Bool8>;
-  ne(rhs: number): Series<Bool8>;
-  ne<R extends Numeric>(rhs: Scalar<R>): Series<Bool8>;
-  ne<R extends Numeric>(rhs: Series<R>): Series<Bool8>;
-  ne<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.ne(rhs));
-      case 'number': return new Series(this._data.ne(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.ne(rhs))
-                                 : new Series(this._data.ne(rhs._data));
-  }
-
-  /**
-   * Perform the binary '<' operation between this column and another Series or scalar value.
-   *
-   * @rhs The other Series or scalar to compare with this column.
-   * @returns A Series of booleans with the comparison result.
-   */
-  lt(rhs: bigint): Series<Bool8>;
-  lt(rhs: number): Series<Bool8>;
-  lt<R extends Numeric>(rhs: Scalar<R>): Series<Bool8>;
-  lt<R extends Numeric>(rhs: Series<R>): Series<Bool8>;
-  lt<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.lt(rhs));
-      case 'number': return new Series(this._data.lt(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.lt(rhs))
-                                 : new Series(this._data.lt(rhs._data));
-  }
-
-  /**
-   * Perform the binary '<=' operation between this column and another Series or scalar value.
-   *
-   * @rhs The other Series or scalar to compare with this column.
-   * @returns A Series of booleans with the comparison result.
-   */
-  le(rhs: bigint): Series<Bool8>;
-  le(rhs: number): Series<Bool8>;
-  le<R extends Numeric>(rhs: Scalar<R>): Series<Bool8>;
-  le<R extends Numeric>(rhs: Series<R>): Series<Bool8>;
-  le<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.le(rhs));
-      case 'number': return new Series(this._data.le(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.le(rhs))
-                                 : new Series(this._data.le(rhs._data));
-  }
-
-  /**
-   * Perform the binary '>' operation between this column and another Series or scalar value.
-   *
-   * @rhs The other Series or scalar to compare with this column.
-   * @returns A Series of booleans with the comparison result.
-   */
-  gt(rhs: bigint): Series<Bool8>;
-  gt(rhs: number): Series<Bool8>;
-  gt<R extends Numeric>(rhs: Scalar<R>): Series<Bool8>;
-  gt<R extends Numeric>(rhs: Series<R>): Series<Bool8>;
-  gt<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.gt(rhs));
-      case 'number': return new Series(this._data.gt(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.gt(rhs))
-                                 : new Series(this._data.gt(rhs._data));
-  }
-
-  /**
-   * Perform the binary '>=' operation between this column and another Series or scalar value.
-   *
-   * @rhs The other Series or scalar to compare with this column.
-   * @returns A Series of booleans with the comparison result.
-   */
-  ge(rhs: bigint): Series<Bool8>;
-  ge(rhs: number): Series<Bool8>;
-  ge<R extends Numeric>(rhs: Scalar<R>): Series<Bool8>;
-  ge<R extends Numeric>(rhs: Series<R>): Series<Bool8>;
-  ge<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.ge(rhs));
-      case 'number': return new Series(this._data.ge(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.ge(rhs))
-                                 : new Series(this._data.ge(rhs._data));
-  }
-
-  /**
-   * Perform a binary `&` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  bitwise_and(rhs: bigint): Series<Int64>;
-  bitwise_and(rhs: number): Series<Float64>;
-  bitwise_and<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  bitwise_and<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  bitwise_and<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.bitwise_and(rhs));
-      case 'number': return new Series(this._data.bitwise_and(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.bitwise_and(rhs))
-                                 : new Series(this._data.bitwise_and(rhs._data));
-  }
-
-  /**
-   * Perform a binary `|` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  bitwise_or(rhs: bigint): Series<Int64>;
-  bitwise_or(rhs: number): Series<Float64>;
-  bitwise_or<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  bitwise_or<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  bitwise_or<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.bitwise_or(rhs));
-      case 'number': return new Series(this._data.bitwise_or(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.bitwise_or(rhs))
-                                 : new Series(this._data.bitwise_or(rhs._data));
-  }
-
-  /**
-   * Perform a binary `^` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  bitwise_xor(rhs: bigint): Series<Int64>;
-  bitwise_xor(rhs: number): Series<Float64>;
-  bitwise_xor<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  bitwise_xor<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  bitwise_xor<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.bitwise_xor(rhs));
-      case 'number': return new Series(this._data.bitwise_xor(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.bitwise_xor(rhs))
-                                 : new Series(this._data.bitwise_xor(rhs._data));
-  }
-
-  /**
-   * Perform a binary `&&` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  logical_and(rhs: bigint): Series<Int64>;
-  logical_and(rhs: number): Series<Float64>;
-  logical_and<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  logical_and<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  logical_and<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.logical_and(rhs));
-      case 'number': return new Series(this._data.logical_and(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.logical_and(rhs))
-                                 : new Series(this._data.logical_and(rhs._data));
-  }
-
-  /**
-   * Perform a binary `||` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  logical_or(rhs: bigint): Series<Int64>;
-  logical_or(rhs: number): Series<Float64>;
-  logical_or<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  logical_or<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  logical_or<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.logical_or(rhs));
-      case 'number': return new Series(this._data.logical_or(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.logical_or(rhs))
-                                 : new Series(this._data.logical_or(rhs._data));
-  }
-
-  /**
-   * Perform a binary `coalesce` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  coalesce(rhs: bigint): Series<Int64>;
-  coalesce(rhs: number): Series<Float64>;
-  coalesce<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  coalesce<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  coalesce<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.coalesce(rhs));
-      case 'number': return new Series(this._data.coalesce(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.coalesce(rhs))
-                                 : new Series(this._data.coalesce(rhs._data));
-  }
-
-  /**
-   * Perform a binary `<<` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  shift_left(rhs: bigint): Series<Int64>;
-  shift_left(rhs: number): Series<Float64>;
-  shift_left<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  shift_left<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  shift_left<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.shift_left(rhs));
-      case 'number': return new Series(this._data.shift_left(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.shift_left(rhs))
-                                 : new Series(this._data.shift_left(rhs._data));
-  }
-
-  /**
-   * Perform a binary `>>` operation between this Series and another Series or scalar
-   * value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  shift_right(rhs: bigint): Series<Int64>;
-  shift_right(rhs: number): Series<Float64>;
-  shift_right<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  shift_right<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  shift_right<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.shift_right(rhs));
-      case 'number': return new Series(this._data.shift_right(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.shift_right(rhs))
-                                 : new Series(this._data.shift_right(rhs._data));
-  }
-
-  /**
-   * Perform a binary `shift_right_unsigned` operation between this Series and another Series or
-   * scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  shift_right_unsigned(rhs: bigint): Series<Int64>;
-  shift_right_unsigned(rhs: number): Series<Float64>;
-  shift_right_unsigned<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  shift_right_unsigned<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  shift_right_unsigned<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.shift_right_unsigned(rhs));
-      case 'number': return new Series(this._data.shift_right_unsigned(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.shift_right_unsigned(rhs))
-                                 : new Series(this._data.shift_right_unsigned(rhs._data));
-  }
-
-  /**
-   * Perform a binary `log_base` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  log_base(rhs: bigint): Series<Int64>;
-  log_base(rhs: number): Series<Float64>;
-  log_base<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  log_base<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  log_base<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.log_base(rhs));
-      case 'number': return new Series(this._data.log_base(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.log_base(rhs))
-                                 : new Series(this._data.log_base(rhs._data));
-  }
-
-  /**
-   * Perform a binary `atan2` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  atan2(rhs: bigint): Series<Int64>;
-  atan2(rhs: number): Series<Float64>;
-  atan2<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  atan2<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  atan2<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.atan2(rhs));
-      case 'number': return new Series(this._data.atan2(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.atan2(rhs))
-                                 : new Series(this._data.atan2(rhs._data));
-  }
-
-  /**
-   * Perform a binary `null_equals` operation between this Series and another Series or scalar
-   * value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  null_equals(rhs: bigint): Series<Bool8>;
-  null_equals(rhs: number): Series<Bool8>;
-  null_equals<R extends Numeric>(rhs: Scalar<R>): Series<Bool8>;
-  null_equals<R extends Numeric>(rhs: Series<R>): Series<Bool8>;
-  null_equals<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.null_equals(rhs));
-      case 'number': return new Series(this._data.null_equals(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.null_equals(rhs))
-                                 : new Series(this._data.null_equals(rhs._data));
-  }
-
-  /**
-   * Perform a binary `null_max` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  null_max(rhs: bigint): Series<Int64>;
-  null_max(rhs: number): Series<Float64>;
-  null_max<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  null_max<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  null_max<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.null_max(rhs));
-      case 'number': return new Series(this._data.null_max(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.null_max(rhs))
-                                 : new Series(this._data.null_max(rhs._data));
-  }
-
-  /**
-   * Perform a binary `null_min` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  null_min(rhs: bigint): Series<Int64>;
-  null_min(rhs: number): Series<Float64>;
-  null_min<R extends Numeric>(rhs: Scalar<R>): Series<CommonType<T, R>>;
-  null_min<R extends Numeric>(rhs: Series<R>): Series<CommonType<T, R>>;
-  null_min<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>) {
-    switch (typeof rhs) {
-      case 'bigint': return new Series(this._data.null_min(rhs));
-      case 'number': return new Series(this._data.null_min(rhs));
-      default: break;
-    }
-    return rhs instanceof Scalar ? new Series(this._data.null_min(rhs))
-                                 : new Series(this._data.null_min(rhs._data));
+    return new Column(props);
   }
 }

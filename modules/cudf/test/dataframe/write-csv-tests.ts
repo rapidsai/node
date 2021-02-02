@@ -28,14 +28,14 @@ describe('DataFrame.writeCSV', () => {
       {a: 2, b: '3.0', c: "4"},
     ];
     const df = new DataFrame({
-      a: new Series({length: 3, type: new Int32, data: new Int32Buffer([0, 1, 2])}),
-      b: new Series({length: 3, type: new Float64, data: new Float64Buffer([1.0, 2.0, 3.0])}),
-      c: new Series({
+      a: Series.new({length: 3, type: new Int32, data: new Int32Buffer([0, 1, 2])}),
+      b: Series.new({length: 3, type: new Float64, data: new Float64Buffer([1.0, 2.0, 3.0])}),
+      c: Series.new({
         type: new Utf8String(),
         length: 3,
         children: [
-          new Series({type: new Int32, data: new Int32Buffer([0, 1, 2, 3])}),
-          new Series({type: new Uint8, data: new Uint8Buffer(Buffer.from("234"))})
+          Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3])}),
+          Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from("234"))})
         ]
       }),
     });

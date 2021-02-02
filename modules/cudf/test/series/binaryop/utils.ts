@@ -32,7 +32,7 @@ export function makeTestBigInts(values = [0, 1, 2]) {
 export function makeTestSeries<T extends arrow.DataType>(
   type: T, [lhs, rhs]: [(number | bigint)[], (number | bigint)[]]) {
   return {
-    lhs: new Series(arrow.Vector.from({type, values: lhs})),
-    rhs: new Series(arrow.Vector.from({type, values: rhs})),
+    lhs: Series.new(arrow.Vector.from({type, values: lhs})),
+    rhs: Series.new(arrow.Vector.from({type, values: rhs})),
   };
 }
