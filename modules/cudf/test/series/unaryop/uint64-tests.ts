@@ -89,7 +89,7 @@ describe('Series unaryops (Uint64)', () => {
           default: return x | 0;
         }
       }));
-      expect(actual.subarray(0, expected.length)).toEqualTypedArray(expected);
+      expect(actual).toEqualTypedArray(expected);
     });
   testForEachNumericType(
     'Series.view %p',
@@ -98,6 +98,6 @@ describe('Series unaryops (Uint64)', () => {
       const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5) | 0);
       const actual   = makeTestData(input).view(type).data.toArray();
       const expected = new TypedArrayCtor(new BigUint64Array(input.map(BigInt)).buffer);
-      expect(actual.subarray(0, expected.length)).toEqualTypedArray(expected);
+      expect(actual).toEqualTypedArray(expected);
     });
 });

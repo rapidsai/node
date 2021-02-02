@@ -18,7 +18,6 @@ import {BigIntArray, setDefaultAllocator, TypedArray, TypedArrayConstructor} fro
 import {Numeric} from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
 import * as arrow from 'apache-arrow';
-import {zip} from 'ix/iterable';
 
 import {
   clampFloatValuesLikeUnaryCast,
@@ -38,11 +37,9 @@ describe('Series unaryops (Float32)', () => {
   const testMathematicalOp = <P extends MathematicalUnaryOp>(unaryMathOp: P) => {
     test(`Series.${unaryMathOp}`, () => {
       const values   = [-2.5, 0, 2.5];
-      const actual   = [...makeTestData(values)[unaryMathOp]()];
+      const actual   = makeTestData(values)[unaryMathOp]().data.toArray();
       const expected = new Float32Array(values).map(x => Math[unaryMathOp](x));
-      for (const [x, y] of zip(actual, expected)) {
-        (isNaN(x) && isNaN(y)) ? expect(x).toBeNaN() : expect(x).toBeCloseTo(y);
-      }
+      expect(actual).toEqualTypedArray(expected);
     });
   };
   for (const op of mathematicalUnaryOps) { testMathematicalOp(op); }
@@ -77,7 +74,7 @@ describe('Series unaryops (Float32)', () => {
       const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5));
       const actual   = makeTestData(input).cast(type).data.toArray();
       const expected = new TypedArrayCtor(clampFloatValuesLikeUnaryCast(type, input));
-      expect(actual.subarray(0, expected.length)).toEqualTypedArray(expected);
+      expect(actual).toEqualTypedArray(expected);
     });
   testForEachNumericType(
     'Series.view %p',
@@ -86,6 +83,6 @@ describe('Series unaryops (Float32)', () => {
       const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5));
       const actual   = makeTestData(input).view(type).data.toArray();
       const expected = new TypedArrayCtor(new Float32Array(input).buffer);
-      expect(actual.subarray(0, expected.length)).toEqualTypedArray(expected);
+      expect(actual).toEqualTypedArray(expected);
     });
 });

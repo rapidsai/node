@@ -81,7 +81,7 @@ describe('Series unaryops (Int32)', () => {
       const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5) | 0);
       const actual   = makeTestData(input).cast(type).data.toArray();
       const expected = new TypedArrayCtor(clampValuesLikeUnaryCast(type, input));
-      expect(actual.subarray(0, expected.length)).toEqualTypedArray(expected);
+      expect(actual).toEqualTypedArray(expected);
     });
   testForEachNumericType(
     'Series.view %p',
@@ -90,6 +90,6 @@ describe('Series unaryops (Int32)', () => {
       const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5) | 0);
       const actual   = makeTestData(input).view(type).data.toArray();
       const expected = new TypedArrayCtor(new Int32Array(input).buffer);
-      expect(actual.subarray(0, expected.length)).toEqualTypedArray(expected);
+      expect(actual).toEqualTypedArray(expected);
     });
 });
