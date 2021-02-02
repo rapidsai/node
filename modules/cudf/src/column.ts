@@ -540,7 +540,7 @@ export interface Column<T extends DataType = any> {
    *
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
-   * @returns A non-nullable column of `BOOL8` elements with `true` representing `NAN`
+   * @returns A non-nullable column of `BOOL8` elements with `true` representing non-`NAN`
    *   values
    */
   isNotNaN(memoryResource?: MemoryResource): Column<Bool8>;

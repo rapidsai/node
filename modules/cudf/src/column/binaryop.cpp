@@ -215,8 +215,8 @@ ObjectUnwrap<Column> Column::lt(Scalar const& other, rmm::mr::device_memory_reso
   return this->binary_operation(other, cudf::binary_operator::LESS, cudf::type_id::BOOL8, mr);
 }
 
-ObjectUnwrap<Column> Column::operator<=(Column const& other) const { return gt(other); }
-ObjectUnwrap<Column> Column::operator<=(Scalar const& other) const { return gt(other); }
+ObjectUnwrap<Column> Column::operator<=(Column const& other) const { return le(other); }
+ObjectUnwrap<Column> Column::operator<=(Scalar const& other) const { return le(other); }
 
 ObjectUnwrap<Column> Column::le(Column const& other, rmm::mr::device_memory_resource* mr) const {
   return this->binary_operation(other, cudf::binary_operator::LESS_EQUAL, cudf::type_id::BOOL8, mr);
@@ -226,8 +226,8 @@ ObjectUnwrap<Column> Column::le(Scalar const& other, rmm::mr::device_memory_reso
   return this->binary_operation(other, cudf::binary_operator::LESS_EQUAL, cudf::type_id::BOOL8, mr);
 }
 
-ObjectUnwrap<Column> Column::operator>(Column const& other) const { return le(other); }
-ObjectUnwrap<Column> Column::operator>(Scalar const& other) const { return le(other); }
+ObjectUnwrap<Column> Column::operator>(Column const& other) const { return gt(other); }
+ObjectUnwrap<Column> Column::operator>(Scalar const& other) const { return gt(other); }
 
 ObjectUnwrap<Column> Column::gt(Column const& other, rmm::mr::device_memory_resource* mr) const {
   return this->binary_operation(other, cudf::binary_operator::GREATER, cudf::type_id::BOOL8, mr);
