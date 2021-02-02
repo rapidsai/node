@@ -632,8 +632,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
    */
-  arcsin(memoryResource?: MemoryResource): SeriesType<T> {
-    return Series.new(this._col.arcsin(memoryResource));
+  asin(memoryResource?: MemoryResource): SeriesType<T> {
+    return Series.new(this._col.asin(memoryResource));
   }
 
   /**
@@ -643,8 +643,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
    */
-  arccos(memoryResource?: MemoryResource): SeriesType<T> {
-    return Series.new(this._col.arccos(memoryResource));
+  acos(memoryResource?: MemoryResource): SeriesType<T> {
+    return Series.new(this._col.acos(memoryResource));
   }
 
   /**
@@ -654,8 +654,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
    */
-  arctan(memoryResource?: MemoryResource): SeriesType<T> {
-    return Series.new(this._col.arctan(memoryResource));
+  atan(memoryResource?: MemoryResource): SeriesType<T> {
+    return Series.new(this._col.atan(memoryResource));
   }
 
   /**
@@ -698,8 +698,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
    */
-  arcsinh(memoryResource?: MemoryResource): SeriesType<T> {
-    return Series.new(this._col.arcsinh(memoryResource));
+  asinh(memoryResource?: MemoryResource): SeriesType<T> {
+    return Series.new(this._col.asinh(memoryResource));
   }
 
   /**
@@ -709,8 +709,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
    */
-  arccosh(memoryResource?: MemoryResource): SeriesType<T> {
-    return Series.new(this._col.arccosh(memoryResource));
+  acosh(memoryResource?: MemoryResource): SeriesType<T> {
+    return Series.new(this._col.acosh(memoryResource));
   }
 
   /**
@@ -720,8 +720,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
    */
-  arctanh(memoryResource?: MemoryResource): SeriesType<T> {
-    return Series.new(this._col.arctanh(memoryResource));
+  atanh(memoryResource?: MemoryResource): SeriesType<T> {
+    return Series.new(this._col.atanh(memoryResource));
   }
 
   /**

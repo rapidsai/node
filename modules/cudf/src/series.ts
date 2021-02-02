@@ -269,3 +269,18 @@ function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|Vector<CUD
     return new Column(props);
   }
 }
+
+export {
+  Bool8Series,
+  Float32Series,
+  Float64Series,
+  Int8Series,
+  Int16Series,
+  Int32Series,
+  Uint8Series,
+  Uint16Series,
+  Uint32Series,
+  Int64Series,
+  Uint64Series,
+  StringSeries
+};

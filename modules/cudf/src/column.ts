@@ -579,7 +579,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of the same number of elements containing the result of the operation.
    */
-  arcsin(memoryResource?: MemoryResource): Column<T>;
+  asin(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Compute the trigonometric cosine inverse for each value in this Column.
@@ -588,7 +588,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of the same number of elements containing the result of the operation.
    */
-  arccos(memoryResource?: MemoryResource): Column<T>;
+  acos(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Compute the trigonometric tangent inverse for each value in this Column.
@@ -597,7 +597,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of the same number of elements containing the result of the operation.
    */
-  arctan(memoryResource?: MemoryResource): Column<T>;
+  atan(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Compute the hyperbolic sine for each value in this Column.
@@ -633,7 +633,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of the same number of elements containing the result of the operation.
    */
-  arcsinh(memoryResource?: MemoryResource): Column<T>;
+  asinh(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Compute the hyperbolic cosine inverse for each value in this Column.
@@ -642,7 +642,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of the same number of elements containing the result of the operation.
    */
-  arccosh(memoryResource?: MemoryResource): Column<T>;
+  acosh(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Compute the hyperbolic tangent inverse for each value in this Column.
@@ -651,7 +651,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of the same number of elements containing the result of the operation.
    */
-  arctanh(memoryResource?: MemoryResource): Column<T>;
+  atanh(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Compute the exponential (base e, euler number) for each value in this Column.
