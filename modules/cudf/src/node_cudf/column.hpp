@@ -237,12 +237,16 @@ class Column : public Napi::ObjectWrap<Column> {
 
   operator Napi::Value() const;
 
+  // column/reductions.cpp
+
   /**
    * @copydoc cudf::minmax(cudf::column_view const& col, rmm::mr::device_memory_resource* mr)
    *
    * @return std::pair<Scalar, Scalar>
    */
   std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> minmax() const;
+
+  // column/binaryop.cpp
 
   // cudf::binary_operator::ADD
   ObjectUnwrap<Column> operator+(Column const& other) const;
@@ -335,6 +339,7 @@ class Column : public Napi::ObjectWrap<Column> {
     Column const& boolean_mask,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // column/copying.cpp
   ObjectUnwrap<Column> gather(
     Column const& gather_map,
     cudf::out_of_bounds_policy bounds_policy = cudf::out_of_bounds_policy::DONT_CHECK,
@@ -343,10 +348,29 @@ class Column : public Napi::ObjectWrap<Column> {
   ObjectUnwrap<Column> binary_operation(Column const& rhs,
                                         cudf::binary_operator op,
                                         cudf::type_id output_type) const;
+  // column/unaryop.cpp
+  ObjectUnwrap<Column> cast(
+    cudf::data_type out_type,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  ObjectUnwrap<Column> is_null(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   ObjectUnwrap<Column> binary_operation(Scalar const& rhs,
                                         cudf::binary_operator op,
                                         cudf::type_id output_type) const;
+  ObjectUnwrap<Column> is_valid(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  ObjectUnwrap<Column> is_nan(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  ObjectUnwrap<Column> is_not_nan(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  ObjectUnwrap<Column> unary_operation(
+    cudf::unary_operator op,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
  private:
   static Napi::FunctionReference constructor;
@@ -415,6 +439,35 @@ class Column : public Napi::ObjectWrap<Column> {
   // column/reductions.cpp
   Napi::Value min(Napi::CallbackInfo const& info);
   Napi::Value max(Napi::CallbackInfo const& info);
+
+  // column/unaryop.cpp
+  Napi::Value cast(Napi::CallbackInfo const& info);
+  Napi::Value is_null(Napi::CallbackInfo const& info);
+  Napi::Value is_valid(Napi::CallbackInfo const& info);
+  Napi::Value is_nan(Napi::CallbackInfo const& info);
+  Napi::Value is_not_nan(Napi::CallbackInfo const& info);
+  Napi::Value sin(Napi::CallbackInfo const& info);
+  Napi::Value cos(Napi::CallbackInfo const& info);
+  Napi::Value tan(Napi::CallbackInfo const& info);
+  Napi::Value arcsin(Napi::CallbackInfo const& info);
+  Napi::Value arccos(Napi::CallbackInfo const& info);
+  Napi::Value arctan(Napi::CallbackInfo const& info);
+  Napi::Value sinh(Napi::CallbackInfo const& info);
+  Napi::Value cosh(Napi::CallbackInfo const& info);
+  Napi::Value tanh(Napi::CallbackInfo const& info);
+  Napi::Value arcsinh(Napi::CallbackInfo const& info);
+  Napi::Value arccosh(Napi::CallbackInfo const& info);
+  Napi::Value arctanh(Napi::CallbackInfo const& info);
+  Napi::Value exp(Napi::CallbackInfo const& info);
+  Napi::Value log(Napi::CallbackInfo const& info);
+  Napi::Value sqrt(Napi::CallbackInfo const& info);
+  Napi::Value cbrt(Napi::CallbackInfo const& info);
+  Napi::Value ceil(Napi::CallbackInfo const& info);
+  Napi::Value floor(Napi::CallbackInfo const& info);
+  Napi::Value abs(Napi::CallbackInfo const& info);
+  Napi::Value rint(Napi::CallbackInfo const& info);
+  Napi::Value bit_invert(Napi::CallbackInfo const& info);
+  Napi::Value unary_not(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

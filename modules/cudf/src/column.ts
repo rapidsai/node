@@ -401,6 +401,261 @@ export interface Column<T extends DataType = any> {
   null_min(rhs: number): Column<Float64>;
   null_min<R extends Numeric>(rhs: Scalar<R>): Column<CommonType<T, R>>;
   null_min<R extends Numeric>(rhs: Column<R>): Column<CommonType<T, R>>;
+  /**
+   * Casts data from dtype specified in input to dtype specified in output.
+   *
+   * @note Supports only fixed-width types.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns Column of same size as `input` containing result of the cast operation.
+   */
+  cast<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
+
+  /**
+   * Creates a column of `BOOL8` elements where `true` indicates the value is null and `false`
+   * indicates the value is valid.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `BOOL8` elements with `true` representing `null`
+   *   values.
+   */
+  isNull(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Creates a column of `BOOL8` elements where `true` indicates the value is valid and `false`
+   * indicates the value is null.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `BOOL8` elements with `false` representing `null`
+   *   values.
+   */
+  isValid(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Creates a column of `BOOL8` elements indicating the presence of `NaN` values in a
+   * column of floating point values. The output element at row `i` is `true` if the element in
+   * `input` at row i is `NAN`, else `false`
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `BOOL8` elements with `true` representing `NAN`
+   *   values
+   */
+  isNaN(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Creates a column of `BOOL8` elements indicating the absence of `NaN` values in a
+   * column of floating point values. The output element at row `i` is `false` if the element in
+   * `input` at row i is `NAN`, else `true`
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `BOOL8` elements with `true` representing `NAN`
+   *   values
+   */
+  isNotNaN(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Compute the trigonometric sine for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  sin(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the trigonometric cosine for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  cos(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the trigonometric tangent for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  tan(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the trigonometric sine inverse for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  arcsin(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the trigonometric cosine inverse for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  arccos(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the trigonometric tangent inverse for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  arctan(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the hyperbolic sine for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  sinh(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the hyperbolic cosine for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  cosh(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the hyperbolic tangent for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  tanh(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the hyperbolic sine inverse for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  arcsinh(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the hyperbolic cosine inverse for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  arccosh(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the hyperbolic tangent inverse for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  arctanh(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the exponential (base e, euler number) for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  exp(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the natural logarithm (base e) for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  log(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the square-root (x^0.5) for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  sqrt(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the cube-root (x^(1.0/3)) for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  cbrt(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the smallest integer value not less than arg for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  ceil(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the largest integer value not greater than arg for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  floor(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the absolute value for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  abs(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Round floating-point to integer for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @throws cudf::logic_error if the Column's DataType isn't Float32 or Float64.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  rint(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the bitwise not (~) for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  bit_invert(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the logical not (!) for each value in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A Column of the same number of elements containing the result of the operation.
+   */
+  not(memoryResource?: MemoryResource): Column<Bool8>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

@@ -35,6 +35,13 @@ inline NapiToCPP::operator cudf::type_id() const {
 }
 
 template <>
+inline NapiToCPP::operator cudf::data_type() const {
+  if (IsNumber()) { return cudf::data_type{operator cudf::type_id()}; }
+  if (DataType::is_instance(val)) { return *DataType::Unwrap(ToObject()); }
+  NAPI_THROW(Napi::Error::New(Env()), "Expected value to be a DataType or typeId");
+}
+
+template <>
 inline NapiToCPP::operator cudf::duration_D() const {
   return cudf::duration_D{operator cudf::duration_D::rep()};
 }
