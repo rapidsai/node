@@ -34,37 +34,47 @@ inline rmm::mr::device_memory_resource* get_mr(Napi::Value const& arg) {
 
 ObjectUnwrap<Column> Column::cast(cudf::data_type out_type,
                                   rmm::mr::device_memory_resource* mr) const {
-  return Column::New(cudf::cast(*this, out_type, mr));
+  try {
+    return Column::New(cudf::cast(*this, out_type, mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
 ObjectUnwrap<Column> Column::is_null(rmm::mr::device_memory_resource* mr) const {
-  return Column::New(cudf::is_null(*this, mr));
+  try {
+    return Column::New(cudf::is_null(*this, mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
 ObjectUnwrap<Column> Column::is_valid(rmm::mr::device_memory_resource* mr) const {
-  return Column::New(cudf::is_valid(*this, mr));
+  try {
+    return Column::New(cudf::is_valid(*this, mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
 ObjectUnwrap<Column> Column::is_nan(rmm::mr::device_memory_resource* mr) const {
-  return Column::New(cudf::is_nan(*this, mr));
+  try {
+    return Column::New(cudf::is_nan(*this, mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
 ObjectUnwrap<Column> Column::is_not_nan(rmm::mr::device_memory_resource* mr) const {
-  return Column::New(cudf::is_not_nan(*this, mr));
+  try {
+    return Column::New(cudf::is_not_nan(*this, mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
 ObjectUnwrap<Column> Column::unary_operation(cudf::unary_operator op,
                                              rmm::mr::device_memory_resource* mr) const {
-  return Column::New(cudf::unary_operation(*this, op, mr));
+  try {
+    return Column::New(cudf::unary_operation(*this, op, mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
 Napi::Value Column::cast(Napi::CallbackInfo const& info) {
-  switch (info.Length()) {
-    case 1:
-    case 2: return cast(NapiToCPP{info[0]}, get_mr(info[1]));
-    default:
-      NODE_CUDF_THROW("Column cast expects a DataType and optional MemoryResource", info.Env());
+  if (info.Length() < 1) {
+    NODE_CUDF_THROW("Column cast expects a DataType and optional MemoryResource", info.Env());
   }
+  return cast(NapiToCPP{info[0]}, get_mr(info[1]));
 }
 
 Napi::Value Column::is_null(Napi::CallbackInfo const& info) { return is_null(get_mr(info[0])); }
