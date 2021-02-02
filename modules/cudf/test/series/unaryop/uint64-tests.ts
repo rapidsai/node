@@ -14,13 +14,7 @@
 
 import '../../jest-extensions';
 
-import {
-  BigIntArray,
-  MemoryViewConstructor,
-  setDefaultAllocator,
-  TypedArray,
-  TypedArrayConstructor
-} from '@nvidia/cuda';
+import {BigIntArray, setDefaultAllocator, TypedArray, TypedArrayConstructor} from '@nvidia/cuda';
 import {Numeric, TypeId} from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
 import * as arrow from 'apache-arrow';
@@ -81,10 +75,10 @@ describe('Series unaryops (Uint64)', () => {
   });
   testForEachNumericType(
     'Series.cast %p',
-    function<T extends TypedArray|BigIntArray, R extends Numeric>(
-      TypedArrayCtor: TypedArrayConstructor<T>, MemoryViewCtor: MemoryViewConstructor<T>, type: R) {
+    function testSeriesCast<T extends TypedArray|BigIntArray, R extends Numeric>(
+      TypedArrayCtor: TypedArrayConstructor<T>, type: R) {
       const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5) | 0);
-      const actual   = new MemoryViewCtor(makeTestData(input).cast(type).data).toArray();
+      const actual   = makeTestData(input).cast(type).data.toArray();
       const expected = new TypedArrayCtor(input.map((x) => {
         switch (type.id) {
           case TypeId.BOOL8: return x | 0 ? 1 : 0;
@@ -99,10 +93,10 @@ describe('Series unaryops (Uint64)', () => {
     });
   testForEachNumericType(
     'Series.view %p',
-    function<T extends TypedArray|BigIntArray, R extends Numeric>(
-      TypedArrayCtor: TypedArrayConstructor<T>, MemoryViewCtor: MemoryViewConstructor<T>, type: R) {
+    function testSeriesView<T extends TypedArray|BigIntArray, R extends Numeric>(
+      TypedArrayCtor: TypedArrayConstructor<T>, type: R) {
       const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5) | 0);
-      const actual   = new MemoryViewCtor(makeTestData(input).view(type).data).toArray();
+      const actual   = makeTestData(input).view(type).data.toArray();
       const expected = new TypedArrayCtor(new BigUint64Array(input.map(BigInt)).buffer);
       expect(actual.subarray(0, expected.length)).toEqualTypedArray(expected);
     });

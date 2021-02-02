@@ -48,7 +48,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     if (this.type.BYTES_PER_ELEMENT === dataType.BYTES_PER_ELEMENT) {
       return Series.new({
         type: dataType,
-        data: this.data,
+        data: this._col.data,
         length: this.length,
         nullMask: this.mask,
         nullCount: this.nullCount,
@@ -64,7 +64,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
           TypeId[dataType.id]} with element width ${dataType.BYTES_PER_ELEMENT}`);
     }
     const newLength = byteLength / dataType.BYTES_PER_ELEMENT;
-    return Series.new({type: dataType, data: this.data, length: newLength});
+    return Series.new({type: dataType, data: this._col.data, length: newLength});
   }
 
   /**

@@ -12,6 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  Int16Buffer,
+  Int32Buffer,
+  Int64Buffer,
+  Int8Buffer,
+  Uint16Buffer,
+  Uint32Buffer,
+  Uint64Buffer,
+  Uint8Buffer,
+} from '@nvidia/cuda';
 import {MemoryResource} from '@nvidia/rmm';
 
 import {Scalar} from '../scalar';
@@ -183,39 +193,79 @@ abstract class IntSeries<T extends Integral|Int64|Uint64> extends NumericSeries<
 /**
  * A Series of 8-bit signed integer values in GPU memory.
  */
-export class Int8Series extends IntSeries<Int8> {}
+export class Int8Series extends IntSeries<Int8> {
+  /**
+   * A Int8 view of the values in GPU memory.
+   */
+  get data() { return new Int8Buffer(this._col.data).subarray(0, this.length); }
+}
 
 /**
  * A Series of 16-bit signed integer values in GPU memory.
  */
-export class Int16Series extends IntSeries<Int16> {}
+export class Int16Series extends IntSeries<Int16> {
+  /**
+   * A Int16 view of the values in GPU memory.
+   */
+  get data() { return new Int16Buffer(this._col.data).subarray(0, this.length); }
+}
 
 /**
  * A Series of 32-bit signed integer values in GPU memory.
  */
-export class Int32Series extends IntSeries<Int32> {}
+export class Int32Series extends IntSeries<Int32> {
+  /**
+   * A Int32 view of the values in GPU memory.
+   */
+  get data() { return new Int32Buffer(this._col.data).subarray(0, this.length); }
+}
 
 /**
  * A Series of 64-bit signed integer values in GPU memory.
  */
-export class Int64Series extends IntSeries<Int64> {}
+export class Int64Series extends IntSeries<Int64> {
+  /**
+   * A Int64 view of the values in GPU memory.
+   */
+  get data() { return new Int64Buffer(this._col.data).subarray(0, this.length); }
+}
 
 /**
  * A Series of 8-bit unsigned integer values in GPU memory.
  */
-export class Uint8Series extends IntSeries<Uint8> {}
+export class Uint8Series extends IntSeries<Uint8> {
+  /**
+   * A Uint8 view of the values in GPU memory.
+   */
+  get data() { return new Uint8Buffer(this._col.data).subarray(0, this.length); }
+}
 
 /**
  * A Series of 16-bit unsigned integer values in GPU memory.
  */
-export class Uint16Series extends IntSeries<Uint16> {}
+export class Uint16Series extends IntSeries<Uint16> {
+  /**
+   * A Uint16 view of the values in GPU memory.
+   */
+  get data() { return new Uint16Buffer(this._col.data).subarray(0, this.length); }
+}
 
 /**
  * A Series of 32-bit unsigned integer values in GPU memory.
  */
-export class Uint32Series extends IntSeries<Uint32> {}
+export class Uint32Series extends IntSeries<Uint32> {
+  /**
+   * A Uint32 view of the values in GPU memory.
+   */
+  get data() { return new Uint32Buffer(this._col.data).subarray(0, this.length); }
+}
 
 /**
  * A Series of 64-bit unsigned integer values in GPU memory.
  */
-export class Uint64Series extends IntSeries<Uint64> {}
+export class Uint64Series extends IntSeries<Uint64> {
+  /**
+   * A Uint64 view of the values in GPU memory.
+   */
+  get data() { return new Uint64Buffer(this._col.data).subarray(0, this.length); }
+}

@@ -14,20 +14,8 @@
 
 import {
   BigIntArray,
-  Float32Buffer,
-  Float64Buffer,
-  Int16Buffer,
-  Int32Buffer,
-  Int64Buffer,
-  Int8Buffer,
-  MemoryViewConstructor,
   TypedArray,
   TypedArrayConstructor,
-  Uint16Buffer,
-  Uint32Buffer,
-  Uint64Buffer,
-  Uint8Buffer,
-  Uint8ClampedBuffer
 } from '@nvidia/cuda';
 import {
   Bool8,
@@ -128,22 +116,18 @@ export function clampFloatValuesLikeUnaryCast<T extends DataType>(type: T, input
 
 export const testForEachNumericType =
   (name: string,
-   fn: (() => void)|
-   (<T extends TypedArray|BigIntArray, R extends Numeric>(TypedArrayCtor: TypedArrayConstructor<T>,
-                                                          MemoryViewCtor: MemoryViewConstructor<T>,
-                                                          type: R) => void)) =>
+   fn: (() => void)|(<T extends TypedArray|BigIntArray, R extends Numeric>(
+                       TypedArrayCtor: TypedArrayConstructor<T>, type: R) => void)) =>
     test.each([
-      [Int8Array, Int8Buffer, new Int8],
-      [Int16Array, Int16Buffer, new Int16],
-      [Int32Array, Int32Buffer, new Int32],
-      [BigInt64Array, Int64Buffer, new Int64],
-      [Uint8Array, Uint8Buffer, new Uint8],
-      [Uint16Array, Uint16Buffer, new Uint16],
-      [Uint32Array, Uint32Buffer, new Uint32],
-      [BigUint64Array, Uint64Buffer, new Uint64],
-      [Float32Array, Float32Buffer, new Float32],
-      [Float64Array, Float64Buffer, new Float64],
-      [Uint8ClampedArray, Uint8ClampedBuffer, new Bool8],
-    ])(name,
-       (TypedArrayCtor: any, MemoryViewCtor: any, type: any) =>
-         fn(TypedArrayCtor, MemoryViewCtor, type));
+      [Int8Array, new Int8],
+      [Int16Array, new Int16],
+      [Int32Array, new Int32],
+      [BigInt64Array, new Int64],
+      [Uint8Array, new Uint8],
+      [Uint16Array, new Uint16],
+      [Uint32Array, new Uint32],
+      [BigUint64Array, new Uint64],
+      [Float32Array, new Float32],
+      [Float64Array, new Float64],
+      [Uint8ClampedArray, new Bool8],
+    ])(name, (TypedArrayCtor: any, type: any) => fn(TypedArrayCtor, type));

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Uint8ClampedBuffer} from '@nvidia/cuda';
+
 import {Bool8} from '../types';
 
 import {NumericSeries} from './numeric';
@@ -19,4 +21,9 @@ import {NumericSeries} from './numeric';
 /**
  * A Series of 1-byte boolean values in GPU memory.
  */
-export class Bool8Series extends NumericSeries<Bool8> {}
+export class Bool8Series extends NumericSeries<Bool8> {
+  /**
+   * A Uint8 view of the values in GPU memory.
+   */
+  get data() { return new Uint8ClampedBuffer(this._col.data).subarray(0, this.length); }
+}

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Float32Buffer, Float64Buffer} from '@nvidia/cuda';
 import {MemoryResource} from '@nvidia/rmm';
 
 import {Series} from '../series';
@@ -61,9 +62,19 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
 /**
  * A Series of 32-bit floating-point values in GPU memory.
  */
-export class Float32Series extends FloatSeries<Float32> {}
+export class Float32Series extends FloatSeries<Float32> {
+  /**
+   * A Float32 view of the values in GPU memory.
+   */
+  get data() { return new Float32Buffer(this._col.data).subarray(0, this.length); }
+}
 
 /**
  * A Series of 64-bit floating-point values in GPU memory.
  */
-export class Float64Series extends FloatSeries<Float64> {}
+export class Float64Series extends FloatSeries<Float64> {
+  /**
+   * A Float64 view of the values in GPU memory.
+   */
+  get data() { return new Float64Buffer(this._col.data).subarray(0, this.length); }
+}

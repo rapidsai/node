@@ -110,11 +110,6 @@ export class Series<T extends DataType = any> {
   get type() { return this._type; }
 
   /**
-   * The DeviceBuffer for the data in GPU memory.
-   */
-  get data() { return this._col.data; }
-
-  /**
    * The DeviceBuffer for for the validity bitmask in GPU memory.
    */
   get mask() { return this._col.mask; }
