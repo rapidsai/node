@@ -28,7 +28,7 @@ import {
 const {runtime: {cudaMemcpy}} = CUDA;
 
 /** @ignore */
-type MemoryViewConstructor<T extends TypedArray|BigIntArray> = {
+export type MemoryViewConstructor<T extends TypedArray|BigIntArray> = {
   readonly BYTES_PER_ELEMENT: number; new (length?: number): MemoryView<T>;
   new (values: Iterable<T[0]>): MemoryView<T>;
   new (buffer: ArrayLike<T[0]>|MemoryData, byteOffset?: number, length?: number): MemoryView<T>;

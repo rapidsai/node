@@ -12,19 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {setDefaultAllocator} from '@nvidia/cuda';
+import '../../jest-extensions';
+
+import {
+  BigIntArray,
+  MemoryViewConstructor,
+  setDefaultAllocator,
+  TypedArray,
+  TypedArrayConstructor
+} from '@nvidia/cuda';
+import {Numeric} from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
 import * as arrow from 'apache-arrow';
 
-import {makeTestNumbers, makeTestSeries, MathematicalUnaryOp} from '../utils';
+import {
+  clampIntValuesLikeUnaryCast,
+  makeTestNumbers,
+  makeTestSeries,
+  MathematicalUnaryOp,
+  testForEachNumericType
+} from '../utils';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
 const makeTestData = (values?: (number|null)[]) =>
-  makeTestSeries(new arrow.Uint32, makeTestNumbers(values));
+  makeTestSeries(new arrow.Uint32, makeTestNumbers(values)).lhs;
 
 describe('Series unaryops (Uint32)', () => {
-  const runMathOp = (op: MathematicalUnaryOp) => [...makeTestData([-3, 0, 3]).lhs[op]()];
+  const runMathOp = (op: MathematicalUnaryOp) => [...makeTestData([-3, 0, 3])[op]()];
   test('Series.sin', () => { expect(runMathOp('sin')).toEqual([0, 0, 0]); });
   test('Series.cos', () => { expect(runMathOp('cos')).toEqual([0, 1, 0]); });
   test('Series.tan', () => { expect(runMathOp('tan')).toEqual([0, 0, 0]); });
@@ -45,19 +60,38 @@ describe('Series unaryops (Uint32)', () => {
   test('Series.floor', () => { expect(runMathOp('floor')).toEqual([4294967293, 0, 3]); });
   test('Series.abs', () => { expect(runMathOp('abs')).toEqual([4294967293, 0, 3]); });
   test('Series.not', () => {
-    const {lhs} = makeTestData([-3, 0, 3]);
-    expect([...lhs.not()]).toEqual([-3, 0, 3].map((x) => !x));
+    const actual = makeTestData([-3, 0, 3]).not();
+    expect([...actual]).toEqual([-3, 0, 3].map((x) => !x));
   });
   test('Series.isNull', () => {
-    const {lhs} = makeTestData([null, 3, 6]);
-    expect([...lhs.isNull()]).toEqual([true, false, false]);
+    const actual = makeTestData([null, 3, 6]).isNull();
+    expect([...actual]).toEqual([true, false, false]);
   });
   test('Series.isValid', () => {
-    const {lhs} = makeTestData([null, 3, 6]);
-    expect([...lhs.isValid()]).toEqual([false, true, true]);
+    const actual = makeTestData([null, 3, 6]).isValid();
+    expect([...actual]).toEqual([false, true, true]);
   });
   test('Series.bit_invert', () => {
-    const {lhs} = makeTestData([null, 0, 3, 6]);
-    expect([...lhs.bit_invert()]).toEqual([null, 4294967295, 4294967292, 4294967289]);
+    const actual = makeTestData([null, 0, 3, 6]).bit_invert();
+    expect([...actual]).toEqual([null, 4294967295, 4294967292, 4294967289]);
   });
+  const clampValuesLikeUnaryCast = clampIntValuesLikeUnaryCast(new Uint32Array([0]));
+  testForEachNumericType(
+    'Series.cast %p',
+    function<T extends TypedArray|BigIntArray, R extends Numeric>(
+      TypedArrayCtor: TypedArrayConstructor<T>, MemoryViewCtor: MemoryViewConstructor<T>, type: R) {
+      const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5) | 0);
+      const actual   = new MemoryViewCtor(makeTestData(input).cast(type).data).toArray();
+      const expected = new TypedArrayCtor(clampValuesLikeUnaryCast(type, input));
+      expect(actual.subarray(0, expected.length)).toEqualTypedArray(expected);
+    });
+  testForEachNumericType(
+    'Series.view %p',
+    function<T extends TypedArray|BigIntArray, R extends Numeric>(
+      TypedArrayCtor: TypedArrayConstructor<T>, MemoryViewCtor: MemoryViewConstructor<T>, type: R) {
+      const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5) | 0);
+      const actual   = new MemoryViewCtor(makeTestData(input).view(type).data).toArray();
+      const expected = new TypedArrayCtor(new Uint32Array(input).buffer);
+      expect(actual.subarray(0, expected.length)).toEqualTypedArray(expected);
+    });
 });

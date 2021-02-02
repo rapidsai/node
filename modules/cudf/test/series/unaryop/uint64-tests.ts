@@ -12,16 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {setDefaultAllocator} from '@nvidia/cuda';
+import '../../jest-extensions';
+
+import {
+  BigIntArray,
+  MemoryViewConstructor,
+  setDefaultAllocator,
+  TypedArray,
+  TypedArrayConstructor
+} from '@nvidia/cuda';
+import {Numeric, TypeId} from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
 import * as arrow from 'apache-arrow';
 
-import {makeTestBigInts, makeTestSeries, MathematicalUnaryOp} from '../utils';
+import {
+  makeTestBigInts,
+  makeTestSeries,
+  MathematicalUnaryOp,
+  testForEachNumericType
+} from '../utils';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
 const makeTestData = (values?: (number|bigint|null)[]) =>
-  makeTestSeries(new arrow.Uint64, makeTestBigInts(values));
+  makeTestSeries(new arrow.Uint64, makeTestBigInts(values)).lhs;
 
 const toBigInt = (x: bigint|null) => x == null ? null : BigInt.asUintN(64, 0n + x);
 
@@ -29,7 +43,7 @@ describe('Series unaryops (Uint64)', () => {
   const BIG_INT53 = 9223372036854775808n;
   const BIG_INT64 = 18446744073709551615n;
   const runMathOp =
-    (op: MathematicalUnaryOp) => [...makeTestData([-3n, 0n, 3n]).lhs[op]()].map(toBigInt);
+    (op: MathematicalUnaryOp) => [...makeTestData([-3n, 0n, 3n])[op]()].map(toBigInt);
   test('Series.sin', () => { expect(runMathOp('sin')).toEqual([0n, 0n, 0n]); });
   test('Series.cos', () => { expect(runMathOp('cos')).toEqual([0n, 1n, 0n]); });
   test('Series.tan', () => { expect(runMathOp('tan')).toEqual([0n, 0n, 0n]); });
@@ -50,19 +64,46 @@ describe('Series unaryops (Uint64)', () => {
   test('Series.floor', () => { expect(runMathOp('floor')).toEqual([BIG_INT64, 0n, 3n]); });
   test('Series.abs', () => { expect(runMathOp('abs')).toEqual([18446744073709551613n, 0n, 3n]); });
   test('Series.not', () => {
-    const {lhs} = makeTestData([-3n, 0n, 3n]);
-    expect([...lhs.not()]).toEqual([-3n, 0n, 3n].map((x) => !x));
+    const actual = makeTestData([-3n, 0n, 3n]).not();
+    expect([...actual]).toEqual([-3n, 0n, 3n].map((x) => !x));
   });
   test('Series.isNull', () => {
-    const {lhs} = makeTestData([null, 3n, 6n]);
-    expect([...lhs.isNull()]).toEqual([true, false, false]);
+    const actual = makeTestData([null, 3n, 6n]).isNull();
+    expect([...actual]).toEqual([true, false, false]);
   });
   test('Series.isValid', () => {
-    const {lhs} = makeTestData([null, 3n, 6n]);
-    expect([...lhs.isValid()]).toEqual([false, true, true]);
+    const actual = makeTestData([null, 3n, 6n]).isValid();
+    expect([...actual]).toEqual([false, true, true]);
   });
   test('Series.bit_invert', () => {
-    const {lhs} = makeTestData([null, 0n, 3n, 6n]);
-    expect([...lhs.bit_invert()].map(toBigInt)).toEqual([null, ~0n, ~3n, ~6n].map(toBigInt));
+    const actual = makeTestData([null, 0n, 3n, 6n]).bit_invert();
+    expect([...actual].map(toBigInt)).toEqual([null, ~0n, ~3n, ~6n].map(toBigInt));
   });
+  testForEachNumericType(
+    'Series.cast %p',
+    function<T extends TypedArray|BigIntArray, R extends Numeric>(
+      TypedArrayCtor: TypedArrayConstructor<T>, MemoryViewCtor: MemoryViewConstructor<T>, type: R) {
+      const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5) | 0);
+      const actual   = new MemoryViewCtor(makeTestData(input).cast(type).data).toArray();
+      const expected = new TypedArrayCtor(input.map((x) => {
+        switch (type.id) {
+          case TypeId.BOOL8: return x | 0 ? 1 : 0;
+          case TypeId.INT64: return BigInt.asIntN(64, BigInt(x | 0));
+          case TypeId.UINT64: return BigInt.asUintN(64, BigInt(x | 0));
+          case TypeId.FLOAT32: return Number(BigInt.asUintN(64, BigInt(x | 0)));
+          case TypeId.FLOAT64: return Number(BigInt.asUintN(64, BigInt(x | 0)));
+          default: return x | 0;
+        }
+      }));
+      expect(actual.subarray(0, expected.length)).toEqualTypedArray(expected);
+    });
+  testForEachNumericType(
+    'Series.view %p',
+    function<T extends TypedArray|BigIntArray, R extends Numeric>(
+      TypedArrayCtor: TypedArrayConstructor<T>, MemoryViewCtor: MemoryViewConstructor<T>, type: R) {
+      const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5) | 0);
+      const actual   = new MemoryViewCtor(makeTestData(input).view(type).data).toArray();
+      const expected = new TypedArrayCtor(new BigUint64Array(input.map(BigInt)).buffer);
+      expect(actual.subarray(0, expected.length)).toEqualTypedArray(expected);
+    });
 });
