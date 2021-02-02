@@ -57,12 +57,14 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     if (this.nullCount > 0) {
       throw new Error('Cannot view a Series with nulls as a dtype of a different element width');
     }
-    if (0 !== ((this.length * this.type.BYTES_PER_ELEMENT) % dataType.BYTES_PER_ELEMENT)) {
+    const byteLength = this.length * this.type.BYTES_PER_ELEMENT;
+    if (0 !== (byteLength % dataType.BYTES_PER_ELEMENT)) {
       throw new Error(
         `Can not divide ${this.length * this.type.BYTES_PER_ELEMENT} total bytes into ${
           TypeId[dataType.id]} with element width ${dataType.BYTES_PER_ELEMENT}`);
     }
-    return Series.new({type: dataType, data: this.data, length: this.length});
+    const newLength = byteLength / dataType.BYTES_PER_ELEMENT;
+    return Series.new({type: dataType, data: this.data, length: newLength});
   }
 
   /**

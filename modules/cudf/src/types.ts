@@ -15,6 +15,7 @@
 import * as arrowEnums from 'apache-arrow/enum';
 import * as arrowTypes from 'apache-arrow/type';
 
+import CUDF from './addon';
 import {Column} from './column';
 import {Bool8Series} from './series/bool';
 import {Float32Series, Float64Series} from './series/float';
@@ -39,14 +40,21 @@ export enum NullOrder
   BEFORE
 }
 
+interface DataTypeConstructor {
+  readonly prototype: DataType;
+  new<T extends TypeId = any>(id: T): DataType<T>;
+}
+
 export interface DataType<T extends TypeId = any> {
   readonly id: T;
   readonly valueType: any;
+  readonly BYTES_PER_ELEMENT: number;
 }
-export class DataType<T extends TypeId = any> {
-  constructor(public readonly id: T) {}
-  readonly BYTES_PER_ELEMENT: number = 0;
-}
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const DataType: DataTypeConstructor = CUDF.DataType;
+
+(DataType.prototype as any).BYTES_PER_ELEMENT = 0;
 
 export type TypeMap = {
   [key: string]: DataType

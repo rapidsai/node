@@ -31,10 +31,21 @@ import {
   Bool8,
   CUDFToArrowType,
   DataType,
+  Float32,
+  Float64,
+  Int16,
+  Int32,
+  Int64,
+  Int8,
   Integral,
   NullOrder,
   SeriesType,
   TypeId,
+  Uint16,
+  Uint32,
+  Uint64,
+  Uint8,
+  Utf8String,
 } from './types';
 
 export interface Series {
@@ -86,12 +97,17 @@ export class Series<T extends DataType = any> {
 
   protected constructor(input: SeriesProps<T>|Column<T>|Vector<CUDFToArrowType<T>>) {
     this._col = asColumn(input);
+    // TODO: implement the DataType subclasses in C++
+    this._type = asSubType(this._col.type);
   }
+
+  /** @ignore */
+  private readonly _type: T;
 
   /**
    * The data type of elements in the underlying data.
    */
-  get type() { return this._col.type; }
+  get type() { return this._type; }
 
   /**
    * The DeviceBuffer for the data in GPU memory.
@@ -267,6 +283,24 @@ function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|Vector<CUD
       props.children = value.children.map((item: Series) => item._col);
     }
     return new Column(props);
+  }
+}
+
+function asSubType<T extends DataType>(type: T): T {
+  switch (type.id) {
+    case TypeId.INT8: return (type instanceof Int8 ? type : new Int8) as T;
+    case TypeId.INT16: return (type instanceof Int16 ? type : new Int16) as T;
+    case TypeId.INT32: return (type instanceof Int32 ? type : new Int32) as T;
+    case TypeId.INT64: return (type instanceof Int64 ? type : new Int64) as T;
+    case TypeId.UINT8: return (type instanceof Uint8 ? type : new Uint8) as T;
+    case TypeId.UINT16: return (type instanceof Uint16 ? type : new Uint16) as T;
+    case TypeId.UINT32: return (type instanceof Uint32 ? type : new Uint32) as T;
+    case TypeId.UINT64: return (type instanceof Uint64 ? type : new Uint64) as T;
+    case TypeId.FLOAT32: return (type instanceof Float32 ? type : new Float32) as T;
+    case TypeId.FLOAT64: return (type instanceof Float64 ? type : new Float64) as T;
+    case TypeId.BOOL8: return (type instanceof Bool8 ? type : new Bool8) as T;
+    case TypeId.STRING: return (type instanceof Utf8String ? type : new Utf8String) as T;
+    default: throw new Error(`Unknown TypeId "${TypeId[type.id]}"`);
   }
 }
 
