@@ -23,7 +23,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
-set(RMM_VERSION "0.18")
+set(RMM_VERSION "0.19")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------

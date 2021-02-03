@@ -17,6 +17,8 @@
             "@nvidia/cudf/*":         ["modules/cudf/src/*"],
             "@nvidia/cugraph":        ["modules/cugraph/src/index"],
             "@nvidia/cugraph/*":      ["modules/cugraph/src/*"],
+            "@nvidia/cuspatial":      ["modules/cuspatial/src/index"],
+            "@nvidia/cuspatial/*":    ["modules/cuspatial/src/*"],
             "@nvidia/deck.gl":        ["modules/deck.gl/src/index"],
             "@nvidia/deck.gl/*":      ["modules/deck.gl/src/*"],
             "@nvidia/glfw":           ["modules/glfw/src/index"],

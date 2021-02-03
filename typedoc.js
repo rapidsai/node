@@ -14,6 +14,7 @@ module.exports = mergeOptions(
     loadOptions('modules/rmm'),
     loadOptions('modules/cudf'),
     loadOptions('modules/cugraph'),
+    loadOptions('modules/cuspatial'),
     loadOptions('modules/deck.gl'),
     loadOptions('modules/glfw'),
     loadOptions('modules/webgl'),
