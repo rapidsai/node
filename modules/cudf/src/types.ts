@@ -15,7 +15,21 @@
 import * as arrowEnums from 'apache-arrow/enum';
 import * as arrowTypes from 'apache-arrow/type';
 
+import CUDF from './addon';
 import {Column} from './column';
+import {Bool8Series} from './series/bool';
+import {Float32Series, Float64Series} from './series/float';
+import {
+  Int16Series,
+  Int32Series,
+  Int64Series,
+  Int8Series,
+  Uint16Series,
+  Uint32Series,
+  Uint64Series,
+  Uint8Series
+} from './series/integral';
+import {StringSeries} from './series/string';
 
 /**
  * 		The desired order of null compared to other elements for a column.
@@ -26,13 +40,21 @@ export enum NullOrder
   BEFORE
 }
 
+interface DataTypeConstructor {
+  readonly prototype: DataType;
+  new<T extends TypeId = any>(id: T): DataType<T>;
+}
+
 export interface DataType<T extends TypeId = any> {
   readonly id: T;
   readonly valueType: any;
+  readonly BYTES_PER_ELEMENT: number;
 }
-export class DataType<T extends TypeId = any> {
-  constructor(public readonly id: T) {}
-}
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const DataType: DataTypeConstructor = CUDF.DataType;
+
+(DataType.prototype as any).BYTES_PER_ELEMENT = 0;
 
 export type TypeMap = {
   [key: string]: DataType
@@ -78,6 +100,7 @@ export interface Int8 extends DataType<TypeId.INT8> {
 }
 export class Int8 extends DataType<TypeId.INT8> {
   constructor() { super(TypeId.INT8); }
+  readonly BYTES_PER_ELEMENT: number = 1;
 }
 
 export interface Int16 extends DataType<TypeId.INT16> {
@@ -85,6 +108,7 @@ export interface Int16 extends DataType<TypeId.INT16> {
 }
 export class Int16 extends DataType<TypeId.INT16> {
   constructor() { super(TypeId.INT16); }
+  readonly BYTES_PER_ELEMENT: number = 2;
 }
 
 export interface Int32 extends DataType<TypeId.INT32> {
@@ -92,6 +116,7 @@ export interface Int32 extends DataType<TypeId.INT32> {
 }
 export class Int32 extends DataType<TypeId.INT32> {
   constructor() { super(TypeId.INT32); }
+  readonly BYTES_PER_ELEMENT: number = 4;
 }
 
 export interface Int64 extends DataType<TypeId.INT64> {
@@ -99,6 +124,7 @@ export interface Int64 extends DataType<TypeId.INT64> {
 }
 export class Int64 extends DataType<TypeId.INT64> {
   constructor() { super(TypeId.INT64); }
+  readonly BYTES_PER_ELEMENT: number = 8;
 }
 
 export interface Uint8 extends DataType<TypeId.UINT8> {
@@ -106,6 +132,7 @@ export interface Uint8 extends DataType<TypeId.UINT8> {
 }
 export class Uint8 extends DataType<TypeId.UINT8> {
   constructor() { super(TypeId.UINT8); }
+  readonly BYTES_PER_ELEMENT: number = 1;
 }
 
 export interface Uint16 extends DataType<TypeId.UINT16> {
@@ -113,6 +140,7 @@ export interface Uint16 extends DataType<TypeId.UINT16> {
 }
 export class Uint16 extends DataType<TypeId.UINT16> {
   constructor() { super(TypeId.UINT16); }
+  readonly BYTES_PER_ELEMENT: number = 2;
 }
 
 export interface Uint32 extends DataType<TypeId.UINT32> {
@@ -120,6 +148,7 @@ export interface Uint32 extends DataType<TypeId.UINT32> {
 }
 export class Uint32 extends DataType<TypeId.UINT32> {
   constructor() { super(TypeId.UINT32); }
+  readonly BYTES_PER_ELEMENT: number = 4;
 }
 
 export interface Uint64 extends DataType<TypeId.UINT64> {
@@ -127,6 +156,7 @@ export interface Uint64 extends DataType<TypeId.UINT64> {
 }
 export class Uint64 extends DataType<TypeId.UINT64> {
   constructor() { super(TypeId.UINT64); }
+  readonly BYTES_PER_ELEMENT: number = 8;
 }
 
 export interface Float32 extends DataType<TypeId.FLOAT32> {
@@ -134,6 +164,7 @@ export interface Float32 extends DataType<TypeId.FLOAT32> {
 }
 export class Float32 extends DataType<TypeId.FLOAT32> {
   constructor() { super(TypeId.FLOAT32); }
+  readonly BYTES_PER_ELEMENT: number = 4;
 }
 
 export interface Float64 extends DataType<TypeId.FLOAT64> {
@@ -141,6 +172,7 @@ export interface Float64 extends DataType<TypeId.FLOAT64> {
 }
 export class Float64 extends DataType<TypeId.FLOAT64> {
   constructor() { super(TypeId.FLOAT64); }
+  readonly BYTES_PER_ELEMENT: number = 8;
 }
 
 export interface Bool8 extends DataType<TypeId.BOOL8> {
@@ -148,6 +180,7 @@ export interface Bool8 extends DataType<TypeId.BOOL8> {
 }
 export class Bool8 extends DataType<TypeId.BOOL8> {
   constructor() { super(TypeId.BOOL8); }
+  readonly BYTES_PER_ELEMENT: number = 1;
 }
 
 export interface Utf8String extends DataType<TypeId.STRING> {
@@ -353,19 +386,9 @@ export interface WriteCSVOptions {
   rowsPerChunk?: number;
 }
 
-export type Integral = Int8|Int16|Int32|Uint8|Uint16|Uint32;
-export type Numeric  = Integral|Int64|Uint64|Float32|Float64;
-
-// Int8;
-// Int16;
-// Int32;
-// Int64;
-// Uint8;
-// Uint16;
-// Uint32;
-// Uint64;
-// Float32;
-// Float64;
+export type FloatingPoint = Float32|Float64;
+export type Integral      = Int8|Int16|Int32|Uint8|Uint16|Uint32;
+export type Numeric       = Integral|FloatingPoint|Int64|Uint64|Bool8;
 
 export type TypeIdToType<T extends TypeId> = {
   [TypeId.EMPTY]: never,
@@ -397,23 +420,26 @@ export type TypeIdToType<T extends TypeId> = {
   [TypeId.DECIMAL64]: never,
 }[T];
 
-type CommonType_Int8<T extends Numeric>  = T;
-type CommonType_Int16<T extends Numeric> = T extends Int8|Uint8 ? Int16 : T;
-type CommonType_Int32<T extends Numeric> = T extends Int8|Uint8|Int16|Uint16 ? Int32 : T;
+type CommonType_Bool8<T extends Numeric> = T;
+type CommonType_Int8<T extends Numeric>  = T extends Bool8 ? Int8 : T;
+type CommonType_Int16<T extends Numeric> = T extends Bool8|Int8|Uint8 ? Int16 : T;
+type CommonType_Int32<T extends Numeric> = T extends Bool8|Int8|Uint8|Int16|Uint16 ? Int32 : T;
 type CommonType_Int64<T extends Numeric> =
-  T extends Int8|Uint8|Int16|Uint16|Int32|Uint32 ? Int64 : T;
-type CommonType_Uint8<T extends Numeric>  = T extends Int8 ? Uint16 : T;
-type CommonType_Uint16<T extends Numeric> = T extends Int8|Uint8 ? Uint16 : T;
-type CommonType_Uint32<T extends Numeric> = T extends Int8|Uint8|Int16|Uint16 ? Uint32 : T;
+  T extends Bool8|Int8|Uint8|Int16|Uint16|Int32|Uint32 ? Int64 : T;
+type CommonType_Uint8<T extends Numeric>  = T extends Bool8|Int8 ? Uint16 : T;
+type CommonType_Uint16<T extends Numeric> = T extends Bool8|Int8|Uint8 ? Uint16 : T;
+type CommonType_Uint32<T extends Numeric> = T extends Bool8|Int8|Uint8|Int16|Uint16 ? Uint32 : T;
 type CommonType_Uint64<T extends Numeric> =
-  T extends Int8|Uint8|Int16|Uint16|Int32|Uint32|Int64 ? Uint64 : T;
-type CommonType_Float32<T extends Numeric> = T extends Int8|Uint8|Int16|Uint16 ? Float32 : Float64;
+  T extends Bool8|Int8|Uint8|Int16|Uint16|Int32|Uint32|Int64 ? Uint64 : T;
+type CommonType_Float32<T extends Numeric> =
+  T extends Bool8|Int8|Uint8|Int16|Uint16 ? Float32 : Float64;
 type CommonType_Float64<T extends Numeric> =
-  T extends Int8|Uint8|Int16|Uint16|Int32|Uint32|Float32 ? Float64 : T;
+  T extends Bool8|Int8|Uint8|Int16|Uint16|Int32|Uint32|Float32 ? Float64 : T;
 
 // clang-format off
 export type CommonType<T extends Numeric, R extends Numeric> =
-    T extends Int8    ? CommonType_Int8<R>
+    T extends Bool8   ? CommonType_Bool8<R>
+  : T extends Int8    ? CommonType_Int8<R>
   : T extends Int16   ? CommonType_Int16<R>
   : T extends Int32   ? CommonType_Int32<R>
   : T extends Int64   ? CommonType_Int64<R>
@@ -425,3 +451,33 @@ export type CommonType<T extends Numeric, R extends Numeric> =
   : T extends Float64 ? CommonType_Float64<R>
   : never;
 // clang-format on
+
+export type SeriesType<T extends DataType> = {
+  [TypeId.EMPTY]: never,  // TODO
+  [TypeId.INT8]: Int8Series,
+  [TypeId.INT16]: Int16Series,
+  [TypeId.INT32]: Int32Series,
+  [TypeId.INT64]: Int64Series,
+  [TypeId.UINT8]: Uint8Series,
+  [TypeId.UINT16]: Uint16Series,
+  [TypeId.UINT32]: Uint32Series,
+  [TypeId.UINT64]: Uint64Series,
+  [TypeId.FLOAT32]: Float32Series,
+  [TypeId.FLOAT64]: Float64Series,
+  [TypeId.BOOL8]: Bool8Series,
+  [TypeId.TIMESTAMP_DAYS]: never,          // TODO
+  [TypeId.TIMESTAMP_SECONDS]: never,       // TODO
+  [TypeId.TIMESTAMP_MILLISECONDS]: never,  // TODO
+  [TypeId.TIMESTAMP_MICROSECONDS]: never,  // TODO
+  [TypeId.TIMESTAMP_NANOSECONDS]: never,   // TODO
+  [TypeId.DURATION_DAYS]: never,           // TODO
+  [TypeId.DURATION_SECONDS]: never,        // TODO
+  [TypeId.DURATION_MILLISECONDS]: never,   // TODO
+  [TypeId.DURATION_MICROSECONDS]: never,   // TODO
+  [TypeId.DURATION_NANOSECONDS]: never,    // TODO
+  [TypeId.DICTIONARY32]: never,            // TODO
+  [TypeId.STRING]: StringSeries,
+  [TypeId.LIST]: never,       // TODO
+  [TypeId.DECIMAL32]: never,  // TODO
+  [TypeId.DECIMAL64]: never,  // TODO
+}[T['id']];

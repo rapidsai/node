@@ -111,6 +111,29 @@
                 // "test/*",
                 "test/memory_resource/current-device-resource-tests.ts"
             ]
+        },
+        {
+            "type": "node",
+            "name": "Debug cudf tests",
+            "cwd": "${workspaceFolder}/modules/cudf",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/node_modules/**"
+            ],
+            "env": {
+                "NODE_NO_WARNINGS": "1",
+                "READABLE_STREAM": "disable",
+            },
+            "args": [
+                "--verbose",
+                "--no-cache",
+                "--runInBand",
+                "-c", "jest.config.js",
+                // "test/*",
+                "test/series/unaryop/float32-tests.ts"
+            ]
         }
     ]
 }

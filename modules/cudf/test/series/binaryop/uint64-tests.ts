@@ -16,11 +16,11 @@ import {setDefaultAllocator} from '@nvidia/cuda';
 import {DeviceBuffer} from '@nvidia/rmm';
 import * as arrow from 'apache-arrow';
 
-import {makeTestBigInts, makeTestSeries} from './utils';
+import {makeTestBigInts, makeTestSeries} from '../utils';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
-const makeTestData = (values?: number[]) =>
+const makeTestData = (values?: (number|null)[]) =>
   makeTestSeries(new arrow.Uint64, makeTestBigInts(values));
 
 describe('Series binaryops (Uint64)', () => {

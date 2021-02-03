@@ -26,6 +26,7 @@ import {
   Integral,
   NullOrder,
   ReadCSVOptions,
+  SeriesType,
   TypeMap,
   WriteCSVOptions
 } from './types'
@@ -41,7 +42,7 @@ export type OrderSpec = {
 
 function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   const columns = {} as any;
-  for (const [name, series] of Object.entries(data)) { columns[name] = series._data; }
+  for (const [name, series] of Object.entries(data)) { columns[name] = series._col; }
   return <ColumnsMap<T>>columns;
 }
 
@@ -59,13 +60,8 @@ export class DataFrame<T extends TypeMap = any> {
   private _accessor: ColumnAccessor<T>;
 
   constructor(data: ColumnAccessor<T>|SeriesMap<T>) {
-    if (data instanceof ColumnAccessor) {
-      this._accessor = data;
-    } else {
-      const columns  = _seriesToColumns(data);
-      const accessor = new ColumnAccessor(columns);
-      this._accessor = accessor;
-    }
+    this._accessor =
+      (data instanceof ColumnAccessor) ? data : new ColumnAccessor(_seriesToColumns(data));
   }
 
   /**
@@ -113,7 +109,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @param name Name of the Series to return.
    */
-  get<P extends keyof T>(name: P) { return new Series(this._accessor.get(name)); }
+  get<P extends keyof T>(name: P): SeriesType<T[P]> { return Series.new(this._accessor.get(name)); }
 
   /**
    * Generate an ordering that sorts DataFrame columns in a specified way
@@ -128,16 +124,16 @@ export class DataFrame<T extends TypeMap = any> {
     const columns       = new Array<Column<T[keyof T]>>();
     const entries       = Object.entries(options) as [R, OrderSpec][];
     entries.forEach(([name, {ascending, null_order}]) => {
-      const col = this.get(name);
-      if (col) {
-        columns.push(col._data);
+      const child = this.get(name);
+      if (child) {
+        columns.push(child._col);
         column_orders.push(ascending);
         null_orders.push(null_order);
       }
     });
     // Compute the sorted sorted_indices
     const sorted_indices = new Table({columns}).orderBy(column_orders, null_orders);
-    return new Series(sorted_indices);
+    return Series.new(sorted_indices);
   }
 
   /**
@@ -147,10 +143,10 @@ export class DataFrame<T extends TypeMap = any> {
    */
   gather<R extends Integral>(selection: Series<R>) {
     const temp       = new Table({columns: this._accessor.columns});
-    const columns    = temp.gather(selection._data);
+    const columns    = temp.gather(selection._col);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
-      (name, index) => { series_map[name] = new Series(columns.getColumnByIndex(index)); });
+      (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
     return new DataFrame(series_map);
   }
 
@@ -161,10 +157,10 @@ export class DataFrame<T extends TypeMap = any> {
    */
   filter(mask: Series<Bool8>) {
     const temp       = new Table({columns: this._accessor.columns});
-    const columns    = temp.gather(mask._data);
+    const columns    = temp.gather(mask._col);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
-      (name, index) => { series_map[name] = new Series(columns.getColumnByIndex(index)); });
+      (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
     return new DataFrame(series_map);
   }
 

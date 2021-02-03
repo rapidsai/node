@@ -23,9 +23,9 @@ setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
 
 test('DataFrame initialization', () => {
   const length = 100;
-  const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
+  const col_0  = Series.new({type: new Int32(), data: new Int32Buffer(length)});
 
-  const col_1   = new Series({
+  const col_1   = Series.new({
     type: new Bool8(),
     data: new Uint8Buffer(length),
     nullMask: new Uint8Buffer(64),
@@ -40,9 +40,9 @@ test('DataFrame initialization', () => {
 
 test('DataFrame.get', () => {
   const length = 100;
-  const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
+  const col_0  = Series.new({type: new Int32(), data: new Int32Buffer(length)});
 
-  const col_1   = new Series({
+  const col_1   = Series.new({
     type: new Bool8(),
     data: new Uint8Buffer(length),
     nullMask: new Uint8Buffer(64),
@@ -55,16 +55,16 @@ test('DataFrame.get', () => {
 
 test('DataFrame.select', () => {
   const length = 100;
-  const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
+  const col_0  = Series.new({type: new Int32(), data: new Int32Buffer(length)});
 
-  const col_1 = new Series({
+  const col_1 = Series.new({
     type: new Bool8(),
     data: new Uint8Buffer(length),
     nullMask: new Uint8Buffer(64),
   });
 
-  const col_2 = new Series({type: new Int32(), data: new Int32Buffer(length)});
-  const col_3 = new Series({type: new Int32(), data: new Int32Buffer(length)});
+  const col_2 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
+  const col_3 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
 
   const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1, "col_2": col_2, "col_3": col_3});
 
@@ -79,16 +79,16 @@ test('DataFrame.select', () => {
 
 test('DataFrame.assign', () => {
   const length = 100;
-  const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
+  const col_0  = Series.new({type: new Int32(), data: new Int32Buffer(length)});
 
-  const col_1 = new Series({
+  const col_1 = Series.new({
     type: new Bool8(),
     data: new Uint8Buffer(length),
     nullMask: new Uint8Buffer(64),
   });
 
-  const col_2 = new Series({type: new Int32(), data: new Int32Buffer(length)});
-  const col_3 = new Series({type: new Int32(), data: new Int32Buffer(length)});
+  const col_2 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
+  const col_3 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
 
   const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1, "col_2": col_2});
 
@@ -100,15 +100,15 @@ test('DataFrame.assign', () => {
 
 test('DataFrame.drop', () => {
   const length = 100;
-  const col_0  = new Series({type: new Int32(), data: new Int32Buffer(length)});
+  const col_0  = Series.new({type: new Int32(), data: new Int32Buffer(length)});
 
-  const col_1 = new Series({
+  const col_1 = Series.new({
     type: new Bool8(),
     data: new Uint8Buffer(length),
     nullMask: new Uint8Buffer(64),
   });
 
-  const col_2 = new Series({type: new Int32(), data: new Int32Buffer(length)});
+  const col_2 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
 
   const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1, "col_2": col_2});
 
@@ -119,7 +119,7 @@ test('DataFrame.drop', () => {
 });
 
 test('DataFrame.orderBy (ascending, non-null)', () => {
-  const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const col    = Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
   const df     = new DataFrame({"a": col});
   const result = df.orderBy({"a": {ascending: true, null_order: NullOrder.BEFORE}});
 
@@ -128,7 +128,7 @@ test('DataFrame.orderBy (ascending, non-null)', () => {
 });
 
 test('DataFrame.orderBy (descending, non-null)', () => {
-  const col    = new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const col    = Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
   const df     = new DataFrame({"a": col});
   const result = df.orderBy({"a": {ascending: false, null_order: NullOrder.BEFORE}});
 
@@ -139,7 +139,7 @@ test('DataFrame.orderBy (descending, non-null)', () => {
 test('DataFrame.orderBy (ascending, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
-    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+    Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({"a": col});
   const result = df.orderBy({"a": {ascending: true, null_order: NullOrder.BEFORE}});
 
@@ -150,7 +150,7 @@ test('DataFrame.orderBy (ascending, null before)', () => {
 test('DataFrame.orderBy (ascending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
-    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+    Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({"a": col});
   const result = df.orderBy({"a": {ascending: true, null_order: NullOrder.AFTER}});
 
@@ -161,7 +161,7 @@ test('DataFrame.orderBy (ascending, null after)', () => {
 test('DataFrame.orderBy (descendng, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
-    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+    Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({"a": col});
   const result = df.orderBy({"a": {ascending: false, null_order: NullOrder.BEFORE}});
 
@@ -173,7 +173,7 @@ test('DataFrame.orderBy (descendng, null before)', () => {
 test('DataFrame.orderBy (descending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
-    new Series({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+    Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({"a": col});
   const result = df.orderBy({"a": {ascending: false, null_order: NullOrder.AFTER}});
 
@@ -182,12 +182,12 @@ test('DataFrame.orderBy (descending, null after)', () => {
 });
 
 test('DataFrame.gather (indices)', () => {
-  const a = new Series({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
+  const a = Series.new({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
   const b =
-    new Series({type: new Float32(), data: new Float32Buffer([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])});
+    Series.new({type: new Float32(), data: new Float32Buffer([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])});
   const df = new DataFrame({"a": a, "b": b});
 
-  const selection = new Series({type: new Int32(), data: new Int32Buffer([2, 4, 5])});
+  const selection = Series.new({type: new Int32(), data: new Int32Buffer([2, 4, 5])});
 
   const result = df.gather(selection);
   expect(result.numRows).toBe(3);
@@ -195,21 +195,21 @@ test('DataFrame.gather (indices)', () => {
   const ra = result.get("a");
   const rb = result.get("b");
 
-  const expected_a = new Series({type: new Int32(), data: new Int32Buffer([2, 4, 5])});
+  const expected_a = Series.new({type: new Int32(), data: new Int32Buffer([2, 4, 5])});
   expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
 
-  const expected_b = new Series({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
+  const expected_b = Series.new({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
   expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
 });
 
 test('Series.filter', () => {
-  const a = new Series({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
+  const a = Series.new({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
   const b =
-    new Series({type: new Float32(), data: new Float32Buffer([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])});
+    Series.new({type: new Float32(), data: new Float32Buffer([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])});
   const df = new DataFrame({"a": a, "b": b});
 
   const mask =
-    new Series({length: 6, type: new Bool8(), data: new Uint8Buffer([0, 0, 1, 0, 1, 1])});
+    Series.new({length: 6, type: new Bool8(), data: new Uint8Buffer([0, 0, 1, 0, 1, 1])});
 
   const result = df.filter(mask);
   expect(result.numRows).toBe(3);
@@ -217,9 +217,9 @@ test('Series.filter', () => {
   const ra = result.get("a");
   const rb = result.get("b");
 
-  const expected_a = new Series({type: new Int32(), data: new Int32Buffer([2, 4, 5])});
+  const expected_a = Series.new({type: new Int32(), data: new Int32Buffer([2, 4, 5])});
   expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
 
-  const expected_b = new Series({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
+  const expected_b = Series.new({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
   expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
 });

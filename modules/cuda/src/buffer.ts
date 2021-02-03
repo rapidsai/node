@@ -28,10 +28,28 @@ import {
 const {runtime: {cudaMemcpy}} = CUDA;
 
 /** @ignore */
+// clang-format off
+type MemoryViewOf<T extends TypedArray|BigIntArray> =
+    T extends Int8Array         ? Int8Buffer
+  : T extends Int16Array        ? Int16Buffer
+  : T extends Int32Array        ? Int32Buffer
+  : T extends BigInt64Array     ? Int64Buffer
+  : T extends Uint8Array        ? Uint8Buffer
+  : T extends Uint8ClampedArray ? Uint8ClampedBuffer
+  : T extends Uint16Array       ? Uint16Buffer
+  : T extends Uint32Array       ? Uint32Buffer
+  : T extends BigUint64Array    ? Uint64Buffer
+  : T extends Float32Array      ? Float32Buffer
+  : T extends Float64Array      ? Float64Buffer
+  : never;
+// clang-format on
+
+/** @ignore */
 type MemoryViewConstructor<T extends TypedArray|BigIntArray> = {
-  readonly BYTES_PER_ELEMENT: number; new (length?: number): MemoryView<T>;
-  new (values: Iterable<T[0]>): MemoryView<T>;
-  new (buffer: ArrayLike<T[0]>|MemoryData, byteOffset?: number, length?: number): MemoryView<T>;
+  readonly BYTES_PER_ELEMENT: number,
+  new (length?: number): MemoryViewOf<T>,
+  new (values: Iterable<T[0]>): MemoryViewOf<T>,
+  new (buffer: ArrayLike<T[0]>|MemoryData, byteOffset?: number, length?: number): MemoryViewOf<T>,
 };
 
 let allocateMemory = (byteLength: number): Memory => new DeviceMemory(byteLength);
@@ -47,39 +65,39 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
   public static readonly BYTES_PER_ELEMENT: number;
 
   /**
-   * @summary The size in bytes of each element in the array.
+   * @summary The size in bytes of each element in the MemoryView.
    */
   public readonly BYTES_PER_ELEMENT!: number;
 
   /**
-   * @summary The {@link Memory `Memory`} instance referenced by the view.
+   * @summary The {@link Memory `Memory`} instance referenced by the MemoryView.
    */
   public readonly buffer!: Memory;
 
   /**
-   * @summary The offset in bytes of the array.
+   * @summary The offset in bytes of the MemoryView.
    */
   public readonly byteOffset!: number;
 
   /**
-   * @summary The length in bytes of the array.
+   * @summary The length in bytes of the MemoryView.
    */
   public readonly byteLength!: number;
 
   /**
-   * @summary The length of the array.
+   * @summary The length of the MemoryView.
    */
   public readonly length!: number;
 
   [index: number]: T[0];
 
   /**
-   * @summary The constructor of this array's corresponding JS TypedArray.
+   * @summary The constructor of the MemoryView's corresponding JS TypedArray.
    */
   public readonly TypedArray!: TypedArrayConstructor<T>;
 
   /**
-   * @summary The length of the array.
+   * @summary The constructor function for the MemoryView type.
    */
   public readonly[Symbol.species]!: MemoryViewConstructor<T>;
 
