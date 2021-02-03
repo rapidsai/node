@@ -46,9 +46,10 @@ type MemoryViewOf<T extends TypedArray|BigIntArray> =
 
 /** @ignore */
 type MemoryViewConstructor<T extends TypedArray|BigIntArray> = {
-  readonly BYTES_PER_ELEMENT: number; new (length?: number): MemoryViewOf<T>;
-  new (values: Iterable<T[0]>): MemoryViewOf<T>;
-  new (buffer: ArrayLike<T[0]>|MemoryData, byteOffset?: number, length?: number): MemoryViewOf<T>;
+  readonly BYTES_PER_ELEMENT: number,
+  new (length?: number): MemoryViewOf<T>,
+  new (values: Iterable<T[0]>): MemoryViewOf<T>,
+  new (buffer: ArrayLike<T[0]>|MemoryData, byteOffset?: number, length?: number): MemoryViewOf<T>,
 };
 
 let allocateMemory = (byteLength: number): Memory => new DeviceMemory(byteLength);
