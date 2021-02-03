@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ function(find_and_configure_cudf VERSION)
         GIT_REPOSITORY  https://github.com/trxcllnt/cudf.git
         # Can also use a local path to your repo clone for testing
         # GIT_REPOSITORY  /home/ptaylor/dev/rapids/cudf
-        GIT_TAG         combined-fixes
+        GIT_TAG         fix/cmake-exports
         GIT_SHALLOW     TRUE
         SOURCE_SUBDIR   cpp
         OPTIONS         "BUILD_TESTS OFF"

@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
 # Example
-set(RMM_VERSION "0.18")
-set(CUDF_VERSION "0.18")
-set(CUGRAPH_VERSION "0.18")
-set(RAFT_VERSION "0.18")
+set(RMM_VERSION "0.19")
+set(CUDF_VERSION "0.19")
+set(CUGRAPH_VERSION "0.19")
+set(RAFT_VERSION "0.19")
 set(RAFT_BRANCH "f75d7b437bf1da3df749108161b8a0505fb6b7b3")
 
 ###################################################################################################
