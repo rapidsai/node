@@ -36,6 +36,8 @@ fi') \
     build-essential libxmu-dev libxi-dev libgl-dev libgl1-mesa-dev libglu1-mesa-dev \
     # cuDF dependencies
     libboost-filesystem-dev \
+    # cuSpatial dependencies
+    libgdal-dev \
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
  # Remove any existing gcc and g++ alternatives

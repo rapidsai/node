@@ -74,21 +74,17 @@ install_vscode_extensions() {
 [ -z "$(which code)" ]  && ask_before_install "Missing vscode. Install vscode (y/n)?" "install_vscode"
 [ -z "$(which clangd)" ] && ask_before_install "Missing clangd. Install clangd (y/n)?" "install_clangd"
 
-install_apt_deps jq \
-    libjasper1 libjasper-dev \
-    software-properties-common \
-    build-essential libxmu-dev libxi-dev libgl-dev \
-    libraw-dev libwebp-dev libwebpmux3 libopenjp2-7-dev \
+install_apt_deps jq software-properties-common \
+    # cuSpatial dependencies
+    libgdal-dev \
+    # cuDF dependencies
+    libboost-filesystem-dev \
+    # X11 dependencies
     libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev \
+    # node-canvas dependencies
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
-    libboost-filesystem-dev
-
-# libjasper is only available in xenial-security. If we need libjasper,
-# first check whether we already have it as an apt source. If not, add it.
-[ -n "$IS_UBUNTU" ] && \
-[ -n "$(echo $APT_DEPS | grep libjasper)" ] && \
-[ -z "$(grep 'xenial-security main' /etc/apt/sources.list)" ] && \
-    sudo add-apt-repository -y "deb http://security.ubuntu.com/ubuntu xenial-security main";
+    # GLEW dependencies
+    build-essential libxmu-dev libxi-dev libgl-dev libgl1-mesa-dev libglu1-mesa-dev
 
 if [ -n "$INSTALL_CMAKE" ]; then
     # Ensure Qt-5 is installed for CMake GUI, otherwise no cmake GUI

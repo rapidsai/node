@@ -10,6 +10,8 @@ RUN apt update -y \
  && apt install -y \
     # cuDF dependencies
     libboost-filesystem-dev \
+    # cuSpatial dependencies
+    libgdal-dev \
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

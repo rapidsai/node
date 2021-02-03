@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2021, NVIDIA CORPORATION.
+# Copyright (c) 2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,25 +14,17 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_cudf VERSION)
+function(find_and_configure_cuspatial VERSION)
 
     include(get_cpm)
 
-    execute_process(COMMAND node -p
-                    "require('@nvidia/rapids-core').cpm_source_cache_path"
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    OUTPUT_VARIABLE NVIDIA_CPM_SOURCE_CACHE
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-    set(CUDF_GENERATED_INCLUDE_DIR ${NVIDIA_CPM_SOURCE_CACHE}/cudf-build)
-
-    CPMAddPackage(NAME  cudf
+    CPMAddPackage(NAME  cuspatial
         VERSION         ${VERSION}
-        # GIT_REPOSITORY https://github.com/rapidsai/cudf.git
+        # GIT_REPOSITORY https://github.com/rapidsai/cuspatial.git
         # GIT_TAG        branch-${VERSION}
-        GIT_REPOSITORY  https://github.com/trxcllnt/cudf.git
+        GIT_REPOSITORY  https://github.com/trxcllnt/cuspatial.git
         # Can also use a local path to your repo clone for testing
-        # GIT_REPOSITORY  /home/ptaylor/dev/rapids/cudf
+        # GIT_REPOSITORY  /home/ptaylor/dev/rapids/cuspatial
         GIT_TAG         fix/cmake-exports
         GIT_SHALLOW     TRUE
         SOURCE_SUBDIR   cpp
@@ -46,4 +38,4 @@ function(find_and_configure_cudf VERSION)
                         "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
 endfunction()
 
-find_and_configure_cudf(${CUDF_VERSION})
+find_and_configure_cuspatial(${CUSPATIAL_VERSION})
