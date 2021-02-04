@@ -61,7 +61,7 @@ export interface Column<T extends DataType = any> {
    *
    * @param index
    */
-  getChild(index: number): Column;
+  getChild<R extends DataType>(index: number): Column<R>;
 
   /**
    * Return a value at the specified index to host memory

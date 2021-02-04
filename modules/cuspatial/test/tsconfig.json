@@ -19,7 +19,8 @@
         "baseUrl": "../",
         "paths": {
             "@nvidia/cuspatial": ["src/index"],
-            "@nvidia/cuspatial/*": ["src/*"]
+            "@nvidia/cuspatial/*": ["src/*"],
+            "@nvidia/cudf/test/*": ["../../cudf/test/*"]
         }
     }
 }

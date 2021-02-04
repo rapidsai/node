@@ -13,8 +13,21 @@
 // limitations under the License.
 
 import '@nvidia/rmm';
-import '@nvidia/cudf';
+
+import {Column, FloatingPoint, Table, Uint32} from '@nvidia/cudf';
 import {loadNativeModule} from '@nvidia/rapids-core';
 
 export const CUSPATIAL = loadNativeModule<any>(module, 'node_cuspatial');
 export default CUSPATIAL;
+
+export const createQuadtree: <T extends FloatingPoint>(xs: Column<T>,
+                                                       ys: Column<T>,
+                                                       xMin: number,
+                                                       xMax: number,
+                                                       yMin: number,
+                                                       yMax: number,
+                                                       scale: number,
+                                                       maxDepth: number,
+                                                       minSize: number) => {
+  keyMap: Column<Uint32>, table: Table, names: ['key', 'level', 'isQuad', 'length', 'offset']
+} = CUSPATIAL.createQuadtree;

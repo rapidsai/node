@@ -28,6 +28,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   /**
    * Casts the values to a new dtype (similar to `static_cast` in C++).
    *
+   * @param dataType The new dtype.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns Series of same size as the current Series containing result of the `cast` operation.

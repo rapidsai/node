@@ -12,24 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cuspatial/addon.hpp>
-#include <node_cuspatial/quadtree.hpp>
+#pragma once
 
-#include <nv_node/macros.hpp>
+#include <nv_node/utilities/args.hpp>
 
 #include <napi.h>
 
 namespace nv {
-Napi::Value cuspatialInit(Napi::CallbackInfo const& info) {
-  // todo
-  return info.This();
-}
+
+/**
+ * @brief Construct a quadtree from a set of points for a given area-of-interest bounding box.
+ *
+ * @param info The Napi::CallbackInfo JS arguments list.
+ */
+Napi::Value create_quadtree(CallbackArgs const& args);
+
 }  // namespace nv
-
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", nv::cuspatialInit);
-  EXPORT_FUNC(env, exports, "createQuadtree", nv::create_quadtree);
-  return exports;
-}
-
-NODE_API_MODULE(node_cuspatial, initModule);
