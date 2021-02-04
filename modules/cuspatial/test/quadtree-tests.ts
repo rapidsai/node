@@ -30,8 +30,9 @@ describe('Quadtree', () => {
   test.each(floatingPointTypes)(
     'Quadtree.new constructs a quadtree from points and a bounding box (%s)', (_, type) => {
       const p = getTestPoints();
-      const q = Quadtree.new({
-        points: p.castAll(type),
+      const q = Quadtree.new<FloatingPoint>({
+        x: p.get('x').cast(type),
+        y: p.get('y').cast(type),
         xMin: 0,
         xMax: 8,
         yMin: 0,

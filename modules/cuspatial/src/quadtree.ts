@@ -69,7 +69,8 @@ export class Quadtree<T extends FloatingPoint> {
    * @returns Quadtree
    */
   static new<T extends FloatingPoint>(options: {
-    points: DataFrame<{x: T, y: T}>,
+    x: Series<T>,
+    y: Series<T>,
     xMin: number,
     xMax: number,
     yMin: number,
@@ -78,9 +79,8 @@ export class Quadtree<T extends FloatingPoint> {
     maxDepth: number,
     minSize: number,
   }) {
-    const {points}                 = options;
-    const x                        = points.get('x')._col as Column<T>;
-    const y                        = points.get('y')._col as Column<T>;
+    const xs                       = options.x._col;
+    const ys                       = options.y._col;
     const maxDepth                 = Math.max(0, Math.min(15, options.maxDepth | 0));
     const [xMin, xMax, yMin, yMax] = [
       Math.min(options.xMin, options.xMax),
@@ -92,8 +92,8 @@ export class Quadtree<T extends FloatingPoint> {
                            // minimum valid value for the scale based on bbox and max tree depth
                            Math.max(xMax - xMin, yMax - yMin) / ((1 << maxDepth) + 2));
     const {keyMap, names, table} =
-      createQuadtree(x, y, xMin, xMax, yMin, yMax, scale, maxDepth, options.minSize);
-    return new Quadtree(x, y, keyMap, new DataFrame({
+      createQuadtree(xs, ys, xMin, xMax, yMin, yMax, scale, maxDepth, options.minSize);
+    return new Quadtree(xs, ys, keyMap, new DataFrame({
                           [names[0]]: Series.new(table.getColumnByIndex<Uint32>(0)),
                           [names[1]]: Series.new(table.getColumnByIndex<Uint8>(1)),
                           [names[2]]: Series.new(table.getColumnByIndex<Bool8>(2)),
