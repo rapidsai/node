@@ -48,12 +48,6 @@ import {
   Utf8String,
 } from './types';
 
-export interface Series {
-  getChild(index: number): Series;
-  setNullCount(nullCount: number): void;
-  setNullMask(mask: DeviceBuffer, nullCount?: number): void;
-}
-
 export type SeriesProps<T extends DataType = any> = {
   type: T,
   data?: DeviceBuffer|MemoryData|null,
@@ -161,7 +155,9 @@ export class Series<T extends DataType = any> {
    *
    * @param index
    */
-  getChild(index: number) { return Series.new(this._col.getChild(index)); }
+  getChild<R extends DataType = any>(index: number): SeriesType<T> {
+    return Series.new(this._col.getChild<R>(index));
+  }
 
   /**
    * Return a value at the specified index to host memory

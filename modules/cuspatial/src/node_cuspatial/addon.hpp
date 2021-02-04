@@ -12,24 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cuspatial/addon.hpp>
-#include <node_cuspatial/quadtree.hpp>
-
-#include <nv_node/macros.hpp>
+#pragma once
 
 #include <napi.h>
 
 namespace nv {
-Napi::Value cuspatialInit(Napi::CallbackInfo const& info) {
-  // todo
-  return info.This();
-}
+
+Napi::Value cuspatialInit(Napi::CallbackInfo const& info);
+
 }  // namespace nv
-
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", nv::cuspatialInit);
-  EXPORT_FUNC(env, exports, "createQuadtree", nv::create_quadtree);
-  return exports;
-}
-
-NODE_API_MODULE(node_cuspatial, initModule);

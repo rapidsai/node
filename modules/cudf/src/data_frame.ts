@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {MemoryResource} from '@nvidia/rmm';
 import {Readable} from 'stream';
 
 import {Column} from './column';
@@ -23,6 +24,7 @@ import {
   ColumnsMap,
   CSVToCUDFType,
   CSVTypeMap,
+  DataType,
   Integral,
   NullOrder,
   ReadCSVOptions,
@@ -110,6 +112,41 @@ export class DataFrame<T extends TypeMap = any> {
    * @param name Name of the Series to return.
    */
   get<P extends keyof T>(name: P): SeriesType<T[P]> { return Series.new(this._accessor.get(name)); }
+
+  /**
+   * Casts each Series in this DataFrame to a new dtype (similar to `static_cast` in C++).
+   *
+   * @param dataTypes The map from column names to new dtypes.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns DataFrame of Series cast to the new dtype
+   */
+  cast<R extends {[P in keyof T]?: DataType}>(dataTypes: R, memoryResource?: MemoryResource) {
+    const names = this._accessor.names;
+    const types = !(dataTypes instanceof DataType)
+                    ? dataTypes
+                    : names.reduce((types, name) => ({...types, [name]: dataTypes}), {} as R);
+    return new DataFrame(names.reduce(
+      (columns, name) => ({
+        ...columns,
+        [name]: name in types ? this.get(name).cast(types[name], memoryResource) : this.get(name)
+      }),
+      {} as SeriesMap<{[P in keyof Omit<T, keyof R>| keyof R]: (Omit<T, keyof R>& R)[P]}>));
+  }
+
+  /**
+   * Casts all the Series in this DataFrame to a new dtype (similar to `static_cast` in C++).
+   *
+   * @param dataType The new dtype.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns DataFrame of Series cast to the new dtype
+   */
+  castAll<R extends DataType>(dataType: R, memoryResource?: MemoryResource) {
+    return new DataFrame(this._accessor.names.reduce(
+      (columns, name) => ({...columns, [name]: this.get(name).cast(dataType, memoryResource)}),
+      {} as SeriesMap<{[P in keyof T]: R}>));
+  }
 
   /**
    * Generate an ordering that sorts DataFrame columns in a specified way

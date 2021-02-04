@@ -1,2 +1,2 @@
 ### cuspatial (`npm install @nvidia/cuspatial`)
-    RAPIDS cuGraph bindings for JavaScript.
+    RAPIDS cuSpatial bindings for JavaScript.
