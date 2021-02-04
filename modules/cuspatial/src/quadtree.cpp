@@ -17,6 +17,7 @@
 #include <node_cudf/column.hpp>
 #include <node_cudf/table.hpp>
 
+#include <cuspatial/error.hpp>
 #include <cuspatial/point_quadtree.hpp>
 
 #include <nv_node/utilities/args.hpp>
@@ -33,8 +34,12 @@ Napi::Value create_quadtree(CallbackArgs const& args) {
   double scale{args[6]};
   int8_t max_depth{args[7]};
   cudf::size_type min_size{args[8]};
-  auto result =
-    cuspatial::quadtree_on_points(*xs, *ys, x_min, x_max, y_min, y_max, scale, max_depth, min_size);
+  auto result = [&]() {
+    try {
+      return cuspatial::quadtree_on_points(
+        *xs, *ys, x_min, x_max, y_min, y_max, scale, max_depth, min_size);
+    } catch (cuspatial::logic_error const& err) { throw Napi::Error::New(args.Env(), err.what()); }
+  }();
   auto output = Napi::Object::New(args.Env());
   auto names  = Napi::Array::New(args.Env(), 5);
   names.Set(0u, "key");
