@@ -32,7 +32,7 @@ import {
 import {StringSeries} from './series/string';
 
 /**
- * 		The desired order of null compared to other elements for a column.
+ * The desired order of null compared to other elements for a column.
  */
 export enum NullOrder
 {
