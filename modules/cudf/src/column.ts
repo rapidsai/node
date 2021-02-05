@@ -751,7 +751,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The sum of all the values in this Column.
    */
-  sum(memoryResource?: MemoryResource): T["valueType"];
+  sum(memoryResource?: MemoryResource): T extends (Int64|Uint64) ? bigint : number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
