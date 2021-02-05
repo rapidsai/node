@@ -14,6 +14,7 @@
 
 #include <node_cudf/addon.hpp>
 #include <node_cudf/column.hpp>
+#include <node_cudf/groupby.hpp>
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/table.hpp>
 #include <node_cudf/types.hpp>
@@ -40,6 +41,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   nv::Table::Init(env, exports);
   nv::Scalar::Init(env, exports);
   nv::DataType::Init(env, exports);
+  nv::GroupBy::Init(env, exports);
 
   return exports;
 }
