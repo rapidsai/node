@@ -814,4 +814,13 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   not(memoryResource?: MemoryResource): SeriesType<Bool8> {
     return Series.new(this._col.not(memoryResource));
   }
+
+  /**
+   * Compute the sum of all values in this Series.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The sum of all the values in this Series.
+   */
+  sum(memoryResource?: MemoryResource) { return this._col.sum(memoryResource); }
 }

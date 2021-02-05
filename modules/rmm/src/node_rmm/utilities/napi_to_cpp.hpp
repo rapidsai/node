@@ -32,6 +32,7 @@ inline NapiToCPP::operator mr_type() const {
 template <>
 inline NapiToCPP::operator rmm::mr::device_memory_resource*() const {
   if (MemoryResource::is_instance(val)) { return *MemoryResource::Unwrap(val.ToObject()); }
+  if (val.IsNull() or val.IsUndefined()) { return rmm::mr::get_current_device_resource(); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a MemoryResource instance");
 }
 

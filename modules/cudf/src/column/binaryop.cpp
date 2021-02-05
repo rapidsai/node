@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <node_cudf/column.hpp>
+#include <node_cudf/utilities/dtypes.hpp>
 
 #include <node_rmm/memory_resource.hpp>
 
@@ -24,44 +25,6 @@
 namespace nv {
 
 namespace {
-
-template <typename _RHS>
-struct get_output_type {
-  template <
-    typename LHS,
-    typename RHS                                          = _RHS,
-    typename std::enable_if_t<(std::is_convertible<LHS, RHS>::value && cudf::is_numeric<LHS>() &&
-                               cudf::is_numeric<RHS>())>* = nullptr>
-  cudf::type_id operator()(cudf::data_type const& lhs, cudf::data_type const& rhs) {
-    return cudf::type_to_id<std::common_type_t<LHS, RHS>>();
-  }
-  template <
-    typename LHS,
-    typename RHS                                           = _RHS,
-    typename std::enable_if_t<!(std::is_convertible<LHS, RHS>::value && cudf::is_numeric<LHS>() &&
-                                cudf::is_numeric<RHS>())>* = nullptr>
-  cudf::type_id operator()(cudf::data_type const& lhs, cudf::data_type const& rhs) {
-    auto lhs_name = cudf::type_dispatcher(lhs, cudf::type_to_name{});
-    auto rhs_name = cudf::type_dispatcher(rhs, cudf::type_to_name{});
-    CUDF_FAIL("Cannot determine a logical common type between " + lhs_name + " and " + rhs_name);
-  }
-};
-
-struct dispatch_get_output_type {
-  template <typename RHS>
-  cudf::type_id operator()(cudf::data_type const& lhs, cudf::data_type const& rhs) {
-    return cudf::type_dispatcher(lhs, get_output_type<RHS>{}, lhs, rhs);
-  }
-};
-
-cudf::type_id get_common_type(cudf::data_type const& lhs, cudf::data_type const& rhs) {
-  return cudf::type_dispatcher(rhs, dispatch_get_output_type{}, lhs, rhs);
-}
-
-inline rmm::mr::device_memory_resource* get_mr(Napi::Value const& arg) {
-  return MemoryResource::is_instance(arg) ? *MemoryResource::Unwrap(arg.ToObject())
-                                          : rmm::mr::get_current_device_resource();
-}
 
 ObjectUnwrap<Column> auto_binary_operation(
   Column const& lhs,
@@ -415,7 +378,7 @@ ObjectUnwrap<Column> Column::null_min(Scalar const& other,
 
 Napi::Value Column::add(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return add(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return add(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return add(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -426,7 +389,7 @@ Napi::Value Column::add(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::sub(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return sub(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return sub(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return sub(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -437,7 +400,7 @@ Napi::Value Column::sub(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::mul(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return mul(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return mul(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return mul(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -448,7 +411,7 @@ Napi::Value Column::mul(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::div(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return div(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return div(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return div(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -459,7 +422,7 @@ Napi::Value Column::div(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::true_div(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return true_div(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return true_div(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return true_div(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -470,7 +433,7 @@ Napi::Value Column::true_div(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::floor_div(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return floor_div(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return floor_div(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return floor_div(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -481,7 +444,7 @@ Napi::Value Column::floor_div(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::mod(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return mod(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return mod(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return mod(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -492,7 +455,7 @@ Napi::Value Column::mod(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::pow(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return pow(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return pow(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return pow(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -503,7 +466,7 @@ Napi::Value Column::pow(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::eq(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return eq(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return eq(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return eq(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -514,7 +477,7 @@ Napi::Value Column::eq(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::ne(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return ne(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return ne(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return ne(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -525,7 +488,7 @@ Napi::Value Column::ne(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::lt(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return lt(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return lt(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return lt(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -536,7 +499,7 @@ Napi::Value Column::lt(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::le(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return le(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return le(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return le(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -547,7 +510,7 @@ Napi::Value Column::le(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::gt(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return gt(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return gt(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return gt(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -558,7 +521,7 @@ Napi::Value Column::gt(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::ge(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return ge(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return ge(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return ge(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -569,7 +532,7 @@ Napi::Value Column::ge(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::bitwise_and(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return bitwise_and(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return bitwise_and(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return bitwise_and(*Scalar::New(rhs, type()), mr); }
@@ -580,7 +543,7 @@ Napi::Value Column::bitwise_and(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::bitwise_or(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return bitwise_or(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return bitwise_or(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return bitwise_or(*Scalar::New(rhs, type()), mr); }
@@ -591,7 +554,7 @@ Napi::Value Column::bitwise_or(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::bitwise_xor(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return bitwise_xor(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return bitwise_xor(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return bitwise_xor(*Scalar::New(rhs, type()), mr); }
@@ -602,7 +565,7 @@ Napi::Value Column::bitwise_xor(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::logical_and(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return logical_and(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return logical_and(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return logical_and(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -613,7 +576,7 @@ Napi::Value Column::logical_and(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::logical_or(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return logical_or(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return logical_or(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return logical_or(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -624,7 +587,7 @@ Napi::Value Column::logical_or(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::coalesce(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return coalesce(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return coalesce(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return coalesce(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -635,7 +598,7 @@ Napi::Value Column::coalesce(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::shift_left(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return shift_left(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return shift_left(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return shift_left(*Scalar::New(rhs, type()), mr); }
@@ -646,7 +609,7 @@ Napi::Value Column::shift_left(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::shift_right(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return shift_right(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return shift_right(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return shift_right(*Scalar::New(rhs, type()), mr); }
@@ -657,7 +620,7 @@ Napi::Value Column::shift_right(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::shift_right_unsigned(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) {
     return shift_right_unsigned(*Column::Unwrap(rhs.ToObject()), mr);
   }
@@ -672,7 +635,7 @@ Napi::Value Column::shift_right_unsigned(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::log_base(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return log_base(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return log_base(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return log_base(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -683,7 +646,7 @@ Napi::Value Column::log_base(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::atan2(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return atan2(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return atan2(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return atan2(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -694,7 +657,7 @@ Napi::Value Column::atan2(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::null_equals(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return null_equals(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return null_equals(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return null_equals(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -705,7 +668,7 @@ Napi::Value Column::null_equals(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::null_max(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return null_max(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return null_max(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return null_max(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }
@@ -716,7 +679,7 @@ Napi::Value Column::null_max(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::null_min(Napi::CallbackInfo const& info) {
   auto rhs = info[0];
-  auto mr  = get_mr(info[1]);
+  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
   if (Column::is_instance(rhs)) { return null_min(*Column::Unwrap(rhs.ToObject()), mr); }
   if (Scalar::is_instance(rhs)) { return null_min(*Scalar::Unwrap(rhs.ToObject()), mr); }
   if (rhs.IsBigInt()) { return null_min(*Scalar::New(rhs.As<Napi::BigInt>()), mr); }

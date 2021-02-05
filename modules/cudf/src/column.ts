@@ -17,7 +17,7 @@ import {DeviceBuffer, MemoryResource} from '@nvidia/rmm';
 
 import CUDF from './addon';
 import {Scalar} from './scalar';
-import {Bool8, CommonType, DataType, Float64, Int64, Integral, Numeric} from './types';
+import {Bool8, CommonType, DataType, Float64, Int64, Integral, Numeric, Uint64} from './types';
 
 export type ColumnProps<T extends DataType = any> = {
   // todo -- need to pass full DataType instance when we implement fixed_point
@@ -743,6 +743,15 @@ export interface Column<T extends DataType = any> {
    * @returns A Column of the same number of elements containing the result of the operation.
    */
   not(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Compute the sum of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The sum of all the values in this Column.
+   */
+  sum(memoryResource?: MemoryResource): T extends(Int64|Uint64)? bigint: number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

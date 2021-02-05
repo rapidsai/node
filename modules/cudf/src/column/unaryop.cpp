@@ -23,15 +23,6 @@
 
 namespace nv {
 
-namespace {
-
-inline rmm::mr::device_memory_resource* get_mr(Napi::Value const& arg) {
-  return MemoryResource::is_instance(arg) ? *MemoryResource::Unwrap(arg.ToObject())
-                                          : rmm::mr::get_current_device_resource();
-}
-
-}  // namespace
-
 ObjectUnwrap<Column> Column::cast(cudf::data_type out_type,
                                   rmm::mr::device_memory_resource* mr) const {
   try {
@@ -74,105 +65,111 @@ Napi::Value Column::cast(Napi::CallbackInfo const& info) {
   if (info.Length() < 1) {
     NODE_CUDF_THROW("Column cast expects a DataType and optional MemoryResource", info.Env());
   }
-  return cast(NapiToCPP{info[0]}, get_mr(info[1]));
+  return cast(NapiToCPP{info[0]}, NapiToCPP(info[1]));
 }
 
-Napi::Value Column::is_null(Napi::CallbackInfo const& info) { return is_null(get_mr(info[0])); }
+Napi::Value Column::is_null(Napi::CallbackInfo const& info) {
+  return is_null(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+}
 
-Napi::Value Column::is_valid(Napi::CallbackInfo const& info) { return is_valid(get_mr(info[0])); }
+Napi::Value Column::is_valid(Napi::CallbackInfo const& info) {
+  return is_valid(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+}
 
-Napi::Value Column::is_nan(Napi::CallbackInfo const& info) { return is_nan(get_mr(info[0])); }
+Napi::Value Column::is_nan(Napi::CallbackInfo const& info) {
+  return is_nan(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+}
 
 Napi::Value Column::is_not_nan(Napi::CallbackInfo const& info) {
-  return is_not_nan(get_mr(info[0]));
+  return is_not_nan(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
 }
 
 Napi::Value Column::sin(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::SIN, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::SIN, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::cos(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::COS, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::COS, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::tan(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::TAN, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::TAN, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::arcsin(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::ARCSIN, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::ARCSIN, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::arccos(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::ARCCOS, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::ARCCOS, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::arctan(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::ARCTAN, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::ARCTAN, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::sinh(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::SINH, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::SINH, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::cosh(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::COSH, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::COSH, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::tanh(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::TANH, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::TANH, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::arcsinh(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::ARCSINH, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::ARCSINH, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::arccosh(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::ARCCOSH, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::ARCCOSH, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::arctanh(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::ARCTANH, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::ARCTANH, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::exp(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::EXP, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::EXP, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::log(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::LOG, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::LOG, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::sqrt(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::SQRT, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::SQRT, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::cbrt(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::CBRT, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::CBRT, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::ceil(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::CEIL, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::CEIL, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::floor(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::FLOOR, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::FLOOR, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::abs(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::ABS, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::ABS, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::rint(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::RINT, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::RINT, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::bit_invert(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::BIT_INVERT, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::BIT_INVERT, NapiToCPP(info[0]));
 }
 
 Napi::Value Column::unary_not(Napi::CallbackInfo const& info) {
-  return unary_operation(cudf::unary_operator::NOT, get_mr(info[0]));
+  return unary_operation(cudf::unary_operator::NOT, NapiToCPP(info[0]));
 }
 
 }  // namespace nv
