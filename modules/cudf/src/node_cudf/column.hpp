@@ -16,7 +16,8 @@
 
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/types.hpp>
-#include "cudf/aggregation.hpp"
+
+#include <cudf/aggregation.hpp>
 
 #include <node_rmm/device_buffer.hpp>
 
