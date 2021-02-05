@@ -143,12 +143,12 @@ Napi::Value glfwGetGammaRamp(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   auto ramp    = GLFWAPI::glfwGetGammaRamp(args[0]);
-  auto size    = ramp->size;
+  size_t size  = ramp->size;
   auto js_ramp = Napi::Object::New(env);
   js_ramp.Set("size", CPPToNapi(info)(ramp->size));
-  js_ramp.Set("red", CPPToNapi(info)(ramp->red, size));
-  js_ramp.Set("green", CPPToNapi(info)(ramp->green, size));
-  js_ramp.Set("blue", CPPToNapi(info)(ramp->blue, size));
+  js_ramp.Set("red", CPPToNapi(info)(std::make_tuple(ramp->red, size)));
+  js_ramp.Set("green", CPPToNapi(info)(std::make_tuple(ramp->green, size)));
+  js_ramp.Set("blue", CPPToNapi(info)(std::make_tuple(ramp->blue, size)));
   return js_ramp;
 }
 
