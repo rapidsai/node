@@ -42,6 +42,30 @@ inline NapiToCPP::operator cudf::data_type() const {
 }
 
 template <>
+inline NapiToCPP::operator cudf::sorted() const {
+  if (IsBoolean()) { return ToBoolean() ? cudf::sorted::YES : cudf::sorted::NO; }
+  NAPI_THROW(Napi::Error::New(Env()), "Expected value to be a boolean");
+}
+
+template <>
+inline NapiToCPP::operator cudf::null_policy() const {
+  if (IsBoolean()) { return ToBoolean() ? cudf::null_policy::INCLUDE : cudf::null_policy::EXCLUDE; }
+  NAPI_THROW(Napi::Error::New(Env()), "Expected value to be a boolean");
+}
+
+template <>
+inline NapiToCPP::operator cudf::null_order() const {
+  if (IsNumber()) { return ToBoolean() ? cudf::null_order::BEFORE : cudf::null_order::AFTER; }
+  NAPI_THROW(Napi::Error::New(Env()), "Expected value to be a NullOrder");
+}
+
+template <>
+inline NapiToCPP::operator cudf::order() const {
+  if (IsBoolean()) { return ToBoolean() ? cudf::order::ASCENDING : cudf::order::DESCENDING; }
+  NAPI_THROW(Napi::Error::New(Env()), "Expected value to be a boolean");
+}
+
+template <>
 inline NapiToCPP::operator cudf::duration_D() const {
   return cudf::duration_D{operator cudf::duration_D::rep()};
 }
