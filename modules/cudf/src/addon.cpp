@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "node_cudf/addon.hpp"
-#include "node_cudf/column.hpp"
-#include "node_cudf/scalar.hpp"
-#include "node_cudf/table.hpp"
-#include "node_cudf/types.hpp"
+#include <node_cudf/addon.hpp>
+#include <node_cudf/column.hpp>
+#include <node_cudf/scalar.hpp>
+#include <node_cudf/table.hpp>
+#include <node_cudf/types.hpp>
+#include <node_cudf/utilities/dtypes.hpp>
 
 #include <nv_node/macros.hpp>
 
@@ -33,6 +34,7 @@ Napi::Value cudfInit(Napi::CallbackInfo const& info) {
 
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "init", nv::cudfInit);
+  EXPORT_FUNC(env, exports, "findCommonType", nv::find_common_type);
 
   nv::Column::Init(env, exports);
   nv::Table::Init(env, exports);
