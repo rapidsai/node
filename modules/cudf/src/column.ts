@@ -743,6 +743,15 @@ export interface Column<T extends DataType = any> {
    * @returns A Column of the same number of elements containing the result of the operation.
    */
   not(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Compute the sum of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The sum of all the values in this Column.
+   */
+  sum(memoryResource?: MemoryResource): T["valueType"];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

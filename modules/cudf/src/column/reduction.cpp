@@ -31,4 +31,16 @@ Napi::Value Column::min(Napi::CallbackInfo const& info) { return minmax().first;
 
 Napi::Value Column::max(Napi::CallbackInfo const& info) { return minmax().second; }
 
+ObjectUnwrap<Scalar> Column::reduce(std::unique_ptr<cudf::aggregation> const& agg,
+                                    cudf::data_type const& output_dtype,
+                                    rmm::mr::device_memory_resource* mr) const {
+  return Scalar::New(cudf::reduce(*this, agg, output_dtype, mr));
+}
+
+ObjectUnwrap<Scalar> Column::sum(rmm::mr::device_memory_resource* mr) const {
+  return reduce(cudf::make_sum_aggregation(), this->type());
+}
+
+Napi::Value Column::sum(Napi::CallbackInfo const& info) { return sum(); }
+
 }  // namespace nv

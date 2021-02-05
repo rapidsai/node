@@ -99,6 +99,7 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   // column/reduction.cpp
                   InstanceMethod<&Column::min>("min"),
                   InstanceMethod<&Column::max>("max"),
+                  InstanceMethod<&Column::sum>("sum"),
                   // column/unaryop.cpp
                   InstanceMethod<&Column::cast>("cast"),
                   InstanceMethod<&Column::is_null>("isNull"),

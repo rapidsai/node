@@ -16,6 +16,7 @@
 
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/types.hpp>
+#include "cudf/aggregation.hpp"
 
 #include <node_rmm/device_buffer.hpp>
 
@@ -246,6 +247,25 @@ class Column : public Napi::ObjectWrap<Column> {
    * @return std::pair<Scalar, Scalar>
    */
   std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> minmax() const;
+
+  /**
+   * @copydoc cudf::reduce(cudf::column_view const &col, std::unique_ptr<aggregation> const &agg,
+   * data_type output_dtype, rmm::mr::device_memory_resource* mr)
+   *
+   * @return Scalar
+   */
+  ObjectUnwrap<Scalar> reduce(
+    std::unique_ptr<cudf::aggregation> const& agg,
+    cudf::data_type const& output_dtype,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @copydoc cudf::sum(rmm::mr::device_memory_resource* mr)
+   *
+   * @return Scalar
+   */
+  ObjectUnwrap<Scalar> sum(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/binaryop.cpp
 
@@ -595,6 +615,7 @@ class Column : public Napi::ObjectWrap<Column> {
   // column/reductions.cpp
   Napi::Value min(Napi::CallbackInfo const& info);
   Napi::Value max(Napi::CallbackInfo const& info);
+  Napi::Value sum(Napi::CallbackInfo const& info);
 
   // column/unaryop.cpp
   Napi::Value cast(Napi::CallbackInfo const& info);
