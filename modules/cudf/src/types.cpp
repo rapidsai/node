@@ -30,12 +30,12 @@ namespace nv {
 Napi::FunctionReference DataType::constructor;
 
 Napi::Object DataType::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "DataType",
-                {
-                  InstanceAccessor("id", &DataType::id, nullptr, napi_enumerable),
-                });
+  Napi::Function ctor = DefineClass(env,
+                                    "DataType",
+                                    {
+                                      InstanceAccessor<&DataType::id>("id"),
+                                      InstanceAccessor<&DataType::children>("children"),
+                                    });
 
   DataType::constructor = Napi::Persistent(ctor);
   DataType::constructor.SuppressDestruct();
@@ -81,7 +81,9 @@ ObjectUnwrap<DataType> DataType::New(cudf::type_id id) {
 
 DataType::DataType(CallbackArgs const& args) : Napi::ObjectWrap<DataType>(args) {
   NODE_CUDA_EXPECT(args[0].IsNumber(), "DataType constructor requires a numeric TypeId");
-  id_ = args[0];
+  id_       = args[0];
+  children_ = Napi::Persistent(args[1].IsArray() ? args[1].As<Napi::Array>()
+                                                 : Napi::Array::New(args.Env(), 0));
 }
 
 DataType::operator Napi::Value() const noexcept { return Value(); }
@@ -91,5 +93,7 @@ DataType::operator cudf::data_type() const noexcept { return cudf::data_type{id(
 ValueWrap<cudf::type_id> DataType::id() const noexcept { return {Env(), id_}; }
 
 Napi::Value DataType::id(Napi::CallbackInfo const& info) { return id(); }
+
+Napi::Value DataType::children(Napi::CallbackInfo const& info) { return children_.Value(); }
 
 }  // namespace nv

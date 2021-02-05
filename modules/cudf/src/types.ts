@@ -29,6 +29,7 @@ import {
   Uint64Series,
   Uint8Series
 } from './series/integral';
+import {ListSeries} from './series/list';
 import {StringSeries} from './series/string';
 
 /**
@@ -42,13 +43,14 @@ export enum NullOrder
 
 interface DataTypeConstructor {
   readonly prototype: DataType;
-  new<T extends TypeId = any>(id: T): DataType<T>;
+  new<T extends TypeId = any>(id: T, children?: DataType<any>[]): DataType<T>;
 }
 
 export interface DataType<T extends TypeId = any> {
   readonly id: T;
   readonly valueType: any;
   readonly BYTES_PER_ELEMENT: number;
+  readonly children: DataType<any>[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
@@ -190,7 +192,14 @@ export class Utf8String extends DataType<TypeId.STRING> {
   constructor() { super(TypeId.STRING); }
 }
 
-export type ArrowToCUDFType<T extends arrowTypes.DataType> = {
+export interface List<T extends DataType = any> extends DataType<TypeId.LIST> {
+  valueType: T['valueType'][];
+}
+export class List<T extends DataType = any> extends DataType<TypeId.LIST> {
+  constructor(public childType: T) { super(TypeId.LIST, [childType]); }
+}
+
+export type ArrowToCUDFType<T extends arrowTypes.DataType, Children extends TypeMap = any> = {
   [arrowEnums.Type.NONE]: never,
   [arrowEnums.Type.Null]: never,
   [arrowEnums.Type.Int]: never,
@@ -203,7 +212,7 @@ export type ArrowToCUDFType<T extends arrowTypes.DataType> = {
   [arrowEnums.Type.Time]: never,
   [arrowEnums.Type.Timestamp]: never,
   [arrowEnums.Type.Interval]: never,
-  [arrowEnums.Type.List]: never,
+  [arrowEnums.Type.List]: List<Children['0']>,
   [arrowEnums.Type.Struct]: never,
   [arrowEnums.Type.Union]: never,
   [arrowEnums.Type.FixedSizeBinary]: never,
@@ -390,8 +399,8 @@ export type FloatingPoint = Float32|Float64;
 export type Integral      = Int8|Int16|Int32|Uint8|Uint16|Uint32;
 export type Numeric       = Integral|FloatingPoint|Int64|Uint64|Bool8;
 
-export type TypeIdToType<T extends TypeId> = {
-  [TypeId.EMPTY]: never,
+export type TypeIdToType<T extends TypeId, Children extends TypeMap = any> = {
+  [TypeId.EMPTY]: never,  // TODO
   [TypeId.INT8]: Int8,
   [TypeId.INT16]: Int16,
   [TypeId.INT32]: Int32,
@@ -403,21 +412,21 @@ export type TypeIdToType<T extends TypeId> = {
   [TypeId.FLOAT32]: Float32,
   [TypeId.FLOAT64]: Float64,
   [TypeId.BOOL8]: Bool8,
-  [TypeId.TIMESTAMP_DAYS]: never,
-  [TypeId.TIMESTAMP_SECONDS]: never,
-  [TypeId.TIMESTAMP_MILLISECONDS]: never,
-  [TypeId.TIMESTAMP_MICROSECONDS]: never,
-  [TypeId.TIMESTAMP_NANOSECONDS]: never,
-  [TypeId.DURATION_DAYS]: never,
-  [TypeId.DURATION_SECONDS]: never,
-  [TypeId.DURATION_MILLISECONDS]: never,
-  [TypeId.DURATION_MICROSECONDS]: never,
-  [TypeId.DURATION_NANOSECONDS]: never,
-  [TypeId.DICTIONARY32]: never,
+  [TypeId.TIMESTAMP_DAYS]: never,          // TODO
+  [TypeId.TIMESTAMP_SECONDS]: never,       // TODO
+  [TypeId.TIMESTAMP_MILLISECONDS]: never,  // TODO
+  [TypeId.TIMESTAMP_MICROSECONDS]: never,  // TODO
+  [TypeId.TIMESTAMP_NANOSECONDS]: never,   // TODO
+  [TypeId.DURATION_DAYS]: never,           // TODO
+  [TypeId.DURATION_SECONDS]: never,        // TODO
+  [TypeId.DURATION_MILLISECONDS]: never,   // TODO
+  [TypeId.DURATION_MICROSECONDS]: never,   // TODO
+  [TypeId.DURATION_NANOSECONDS]: never,    // TODO
+  [TypeId.DICTIONARY32]: never,            // TODO
   [TypeId.STRING]: Utf8String,
-  [TypeId.LIST]: never,
-  [TypeId.DECIMAL32]: never,
-  [TypeId.DECIMAL64]: never,
+  [TypeId.LIST]: List<Children[0]>,
+  [TypeId.DECIMAL32]: never,  // TODO
+  [TypeId.DECIMAL64]: never,  // TODO
 }[T];
 
 type CommonType_Bool8<T extends Numeric> = T;
@@ -452,7 +461,7 @@ export type CommonType<T extends Numeric, R extends Numeric> =
   : never;
 // clang-format on
 
-export type SeriesType<T extends DataType> = {
+export type SeriesType<T extends DataType, Children extends TypeMap = any> = {
   [TypeId.EMPTY]: never,  // TODO
   [TypeId.INT8]: Int8Series,
   [TypeId.INT16]: Int16Series,
@@ -477,7 +486,7 @@ export type SeriesType<T extends DataType> = {
   [TypeId.DURATION_NANOSECONDS]: never,    // TODO
   [TypeId.DICTIONARY32]: never,            // TODO
   [TypeId.STRING]: StringSeries,
-  [TypeId.LIST]: never,       // TODO
+  [TypeId.LIST]: ListSeries<Children[0]>,
   [TypeId.DECIMAL32]: never,  // TODO
   [TypeId.DECIMAL64]: never,  // TODO
 }[T['id']];

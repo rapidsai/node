@@ -75,8 +75,10 @@ class DataType : public Napi::ObjectWrap<DataType> {
   static Napi::FunctionReference constructor;
 
   Napi::Value id(Napi::CallbackInfo const& info);
+  Napi::Value children(Napi::CallbackInfo const& info);
 
   cudf::type_id id_{cudf::type_id::EMPTY};
+  Napi::Reference<Napi::Array> children_;
 };
 
 }  // namespace nv

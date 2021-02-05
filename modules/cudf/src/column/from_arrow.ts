@@ -33,7 +33,7 @@ import {
   Int8,
   // IntervalDayTime,
   // IntervalYearMonth,
-  // List,
+  List,
   // Map_,
   // Null,
   // SparseUnion,
@@ -109,9 +109,15 @@ class VectorToColumnVisitor extends Visitor {
       type: TypeId.STRING,
       nullMask: nullBitmap,
       children: [
-        // offsets, data
-        new Column({type: TypeId.INT32, data: valueOffsets}),
-        new Column({type: TypeId.UINT8, data: values}),
+        // offsets
+        new Column(
+          {type: TypeId.INT32, length: length + 1, data: valueOffsets.subarray(0, length + 1)}),
+        // data
+        new Column({
+          type: TypeId.UINT8,
+          length: valueOffsets[length],
+          data: values.subarray(0, valueOffsets[length])
+        }),
       ]
     });
   }
@@ -129,7 +135,21 @@ class VectorToColumnVisitor extends Visitor {
   // visitTimeMicrosecond<T extends TimeMicrosecond>(vector: Vector<T>) {}
   // visitTimeNanosecond<T extends TimeNanosecond>(vector: Vector<T>) {}
   // visitDecimal<T extends Decimal>(vector: Vector<T>) {}
-  // visitList<T extends List>(vector: Vector<T>) {}
+  visitList<T extends List>(vector: Vector<T>) {
+    const {length, data: {valueOffsets, nullBitmap}} = vector;
+    return new Column<ArrowToCUDFType<T, {0: ArrowToCUDFType<T['valueType']>}>>({
+      length,
+      type: TypeId.LIST,
+      nullMask: nullBitmap,
+      children: [
+        // offsets
+        new Column(
+          {type: TypeId.INT32, length: length + 1, data: valueOffsets.subarray(0, length + 1)}),
+        // elements
+        this.visit(vector.getChildAt(0) as Vector<T['valueType']>),
+      ]
+    });
+  }
   // visitStruct<T extends Struct>(vector: Vector<T>) {}
   // visitDenseUnion<T extends DenseUnion>(vector: Vector<T>) {}
   // visitSparseUnion<T extends SparseUnion>(vector: Vector<T>) {}
