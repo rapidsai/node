@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Bool8, DataFrame, Float32, Int32, NullOrder, Series} from '@nvidia/cudf';
+import {Bool8, DataFrame, Float32, Int32, NullOrder, Series, Table} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 import {BoolVector} from 'apache-arrow'
 
@@ -36,6 +36,19 @@ test('DataFrame initialization', () => {
   expect(table_0.names).toStrictEqual(['col_0', 'col_1']);
   expect(table_0.get("col_0").type.id).toBe(col_0.type.id);
   expect(table_0.get("col_1").type.id).toBe(col_1.type.id);
+});
+
+test('DataFrame asTable', () => {
+  const length = 100;
+  const col_0  = Series.new({type: new Int32(), data: new Int32Buffer(length)});
+
+  const col_1   = Series.new({
+    type: new Bool8(),
+    data: new Uint8Buffer(length),
+    nullMask: new Uint8Buffer(64),
+  });
+  const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1});
+  expect(table_0.asTable()).toBeInstanceOf(Table);
 });
 
 test('DataFrame.get', () => {

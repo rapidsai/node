@@ -218,4 +218,11 @@ export class DataFrame<T extends TypeMap = any> {
     });
     return readable as AsyncIterable<string>;
   }
+
+  /**
+   * Return a low-level Table object for this DataFrame
+   *
+   * @returns Table
+   */
+  asTable(): Table { return new Table({columns: this._accessor.columns}); }
 }
