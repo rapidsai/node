@@ -31,6 +31,13 @@ Napi::Value Column::min(Napi::CallbackInfo const& info) { return minmax().first;
 
 Napi::Value Column::max(Napi::CallbackInfo const& info) { return minmax().second; }
 
+namespace {
+inline rmm::mr::device_memory_resource* get_mr(Napi::Value const& arg) {
+  return MemoryResource::is_instance(arg) ? *MemoryResource::Unwrap(arg.ToObject())
+                                          : rmm::mr::get_current_device_resource();
+}
+}  // namespace
+
 ObjectUnwrap<Scalar> Column::reduce(std::unique_ptr<cudf::aggregation> const& agg,
                                     cudf::data_type const& output_dtype,
                                     rmm::mr::device_memory_resource* mr) const {
@@ -38,9 +45,9 @@ ObjectUnwrap<Scalar> Column::reduce(std::unique_ptr<cudf::aggregation> const& ag
 }
 
 ObjectUnwrap<Scalar> Column::sum(rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_sum_aggregation(), this->type());
+  return reduce(cudf::make_sum_aggregation(), this->type(), mr);
 }
 
-Napi::Value Column::sum(Napi::CallbackInfo const& info) { return sum(); }
+Napi::Value Column::sum(Napi::CallbackInfo const& info) { return sum(get_mr(info[0])); }
 
 }  // namespace nv
