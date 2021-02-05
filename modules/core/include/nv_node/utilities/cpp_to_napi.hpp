@@ -23,6 +23,7 @@
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <typeinfo>
 #include <vector>
 
 namespace nv {
@@ -49,8 +50,8 @@ struct CPPToNapi {
   inline CPPToNapi(Napi::Env const& env) : env(env) {}
   inline CPPToNapi(Napi::CallbackInfo const& info) : CPPToNapi(info.Env()) {}
 
-  template <typename... Args>
-  Napi::Value operator()(Args const&...) const;
+  template <typename Arg>
+  Napi::Value operator()(Arg const&) const;
 
   //
   // Napi identities
@@ -190,9 +191,9 @@ struct CPPToNapi {
   }
 
   template <typename T>
-  inline Napi::Value operator()(T const* data, size_t size) const {
-    auto buf = Napi::ArrayBuffer::New(env, size);
-    std::memcpy(buf.Data(), data, size);
+  inline Napi::Value operator()(std::tuple<T const*, size_t> pair) const {
+    auto buf = Napi::ArrayBuffer::New(env, std::get<1>(pair));
+    std::memcpy(buf.Data(), std::get<0>(pair), std::get<1>(pair));
     return buffer_to_typed_array<T>(buf);
   }
 
@@ -206,52 +207,6 @@ struct CPPToNapi {
     return buffer_to_typed_array<T>(
       Napi::ArrayBuffer::New(env, span.data(), span.size(), finalizer));
   }
-
-  //
-  // CUDA Driver type conversions
-  //
-  // inline Napi::ArrayBuffer operator()(CUipcMemHandle const& data) const {
-  //   return (*this)(data.reserved, sizeof(CUipcMemHandle));
-  // }
-
-  //
-  // CUDA Runtime type conversions
-  //
-  // inline Napi::Value operator()(cudaUUID_t const& data) const {
-  //   return this->operator()(data.bytes, sizeof(cudaUUID_t));
-  // }
-
-  // inline Napi::Number operator()(cudaError_t const& error) const {
-  //   return Napi::Number::New(env, error);
-  // }
-
-  // inline Napi::Number operator()(cudaStream_t const& stream) const {
-  //   return Napi::Number::New(env, reinterpret_cast<size_t>(stream));
-  // }
-
-  // inline Napi::External<void> operator()(cudaEvent_t const& event) const {
-  //   return Napi::External<void>::New(env, event);
-  // }
-
-  // inline Napi::External<void> operator()(cudaGraph_t const& graph) const {
-  //   return Napi::External<void>::New(env, graph);
-  // }
-
-  // inline Napi::External<void> operator()(cudaGraphNode_t const& graphNode) const {
-  //   return Napi::External<void>::New(env, graphNode);
-  // }
-
-  // inline Napi::External<void> operator()(cudaGraphExec_t const& graphExec) const {
-  //   return Napi::External<void>::New(env, graphExec);
-  // }
-
-  // inline Napi::External<void> operator()(cudaGraphicsResource_t const& resource) const {
-  //   return Napi::External<void>::New(env, resource);
-  // }
-
-  // inline Napi::Value operator()(cudaIpcMemHandle_t const& data) const {
-  //   return this->operator()(data.reserved, sizeof(cudaIpcMemHandle_t));
-  // }
 
 #ifdef GLEW_VERSION
   inline Napi::External<void> operator()(GLsync const& sync) const {

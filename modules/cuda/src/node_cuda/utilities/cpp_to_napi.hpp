@@ -32,7 +32,7 @@ namespace nv {
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaUUID_t const& data) const {
-  return this->operator()(data.bytes, sizeof(cudaUUID_t));
+  return this->operator()({data.bytes, sizeof(cudaUUID_t)});
 }
 
 template <>
@@ -89,7 +89,7 @@ inline Napi::Value CPPToNapi::operator()(cudaDeviceProp const& props) const {
       if (std::is_same<P, char const>()) {
         obj.Set(name, cast_t(std::string{reinterpret_cast<char const*>(&val)}));
       } else {
-        obj.Set(name, cast_t(reinterpret_cast<P*>(val), sizeof(val)));
+        obj.Set(name, cast_t(std::make_tuple(reinterpret_cast<P const*>(val), sizeof(val))));
       }
     } else {
       obj.Set(name, cast_t(val));

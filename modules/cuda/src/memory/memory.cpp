@@ -98,7 +98,7 @@ Napi::Value cuPointerGetAttributeNapi(CallbackArgs const& args) {
       char* data{nullptr};
       NODE_CU_TRY(cuPointerGetAttribute(&data, attribute, dptr), env);
       NODE_CU_TRY(cuMemGetAddressRange(&base, &size, dptr), env);
-      return CPPToNapi(args)(data, size - (dptr - base));
+      return CPPToNapi(args)({data, size - (dptr - base)});
     }
     // todo?
     case CU_POINTER_ATTRIBUTE_P2P_TOKENS: break;
