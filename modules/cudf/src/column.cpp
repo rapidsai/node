@@ -96,10 +96,22 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   InstanceMethod<&Column::null_equals>("null_equals"),
                   InstanceMethod<&Column::null_max>("null_max"),
                   InstanceMethod<&Column::null_min>("null_min"),
+                  // column/stream_compaction.cpp
+                  InstanceMethod<&Column::drop_nulls>("drop_nulls"),
+                  InstanceMethod<&Column::drop_nans>("drop_nans"),
+                  // column/transform.cpp
+                  InstanceMethod<&Column::nans_to_nulls>("nans_to_nulls"),
                   // column/reduction.cpp
                   InstanceMethod<&Column::min>("min"),
                   InstanceMethod<&Column::max>("max"),
                   InstanceMethod<&Column::sum>("sum"),
+                  InstanceMethod<&Column::product>("product"),
+                  InstanceMethod<&Column::any>("any"),
+                  InstanceMethod<&Column::all>("all"),
+                  InstanceMethod<&Column::sum_of_squares>("sum_of_squares"),
+                  InstanceMethod<&Column::mean>("mean"),
+                  InstanceMethod<&Column::median>("median"),
+                  InstanceMethod<&Column::nunique>("nunique"),
                   // column/unaryop.cpp
                   InstanceMethod<&Column::cast>("cast"),
                   InstanceMethod<&Column::is_null>("isNull"),

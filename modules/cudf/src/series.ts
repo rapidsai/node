@@ -240,6 +240,88 @@ export class Series<T extends DataType = any> {
    *   values.
    */
   isValid(memoryResource?: MemoryResource) { return Series.new(this._col.isValid(memoryResource)); }
+
+  /**
+   * drop Null values from the series
+   *
+   * @returns series without NaN and Null values
+   */
+  dropNA() { return this._col.drop_nulls(); }
+
+  /**
+   * drop NA values from the series if series is of floating-type
+   * values and contains NA values
+   *
+   * @returns series without NaN and Null values
+   */
+  dropNaN() {
+    if (this.type == new Float32() || this.type == new Float64()) { return this._col.drop_nans(); }
+    return this._col;
+  }
+
+  /**
+   * convert NaN values in the series with Null values,
+   * while also updating the nullMask and nullCount values
+   *
+   * @param inpalce if true, update the series inplace, else return updated Series
+   * @returns undefined if inplace=True, else updated Series with Null values
+   */
+  nansToNulls(inplace?: boolean): Series<T>|undefined {
+    inplace = (inplace == undefined) ? true : inplace;
+    if ([TypeId.FLOAT32, TypeId.FLOAT64].includes(this.type.id)) {
+      if (inplace == true) {
+        this._col.nans_to_nulls();  // inplace = true, return undefined
+        return undefined;
+      }
+      const col_result = this._col.nans_to_nulls(false);  // inplace = false
+      return (col_result !== undefined) ? Series.new(col_result) : undefined;
+    }
+    return (inplace == true) ? undefined : this;  // return original series if not of floating type
+  }
+
+  /**
+   * Return whether all elements are true in Series.
+   *
+   * @param skipna bool, default true
+   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
+   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
+   * these are not equal to zero.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns true if all elements are true in Series, else false.
+   */
+  all(skipna?: boolean, memoryResource?: MemoryResource): boolean {
+    skipna = (skipna == undefined) ? true : skipna;
+
+    if (skipna) {
+      const ser_result = this.nansToNulls(false);  // inplace=false
+      if (ser_result?.length == ser_result?.nullCount) { return true; }
+    }
+    return Boolean(this._col.all(memoryResource));
+  }
+
+  /**
+   * Return whether any elements are true in Series.
+   *
+   * @param skipna bool, default true
+   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
+   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
+   * these are not equal to zero.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns true if any elements are true in Series, else false.
+   */
+  any(skipna?: boolean, memoryResource?: MemoryResource): boolean {
+    skipna = (skipna == undefined) ? true : skipna;
+    if (this.length == 0) { return false; }
+    if (skipna) {
+      const ser_result = this.nansToNulls(false);  // inplace=false
+      if (ser_result?.length == ser_result?.nullCount) { return false; }
+    }
+    return Boolean(this._col.any(memoryResource));
+  }
 }
 
 import {Bool8Series} from './series/bool';

@@ -14,9 +14,10 @@
 
 import {MemoryResource} from '@nvidia/rmm';
 
+import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
-import {Bool8, CommonType, Numeric, SeriesType, TypeId} from '../types';
+import {Bool8, CommonType, DataType, Numeric, SeriesType, TypeId} from '../types';
 
 import {Float64Series} from './float';
 import {Int64Series} from './integral';
@@ -815,12 +816,104 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     return Series.new(this._col.not(memoryResource));
   }
 
+  private _process_reduction(skipna?: boolean): Column|undefined {
+    skipna = (skipna == undefined) ? true : skipna;
+    if (skipna == true) {
+      // returning nans_to_nulls as c++ reduce always ignore nulls,
+      // so dropNA and dropNulls is not required.
+      return this.nansToNulls(false)?.dropNA();  // inplace = false
+    }
+    return this._col;
+  }
+
   /**
    * Compute the sum of all values in this Series.
-   *
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly. Default is true.
+   * @param dataType The dataType of the return result expected
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The sum of all the values in this Series.
    */
-  sum(memoryResource?: MemoryResource) { return this._col.sum(memoryResource); }
+  sum(skipna?: boolean, dataType?: DataType, memoryResource?: MemoryResource) {
+    dataType       = (dataType == undefined) ? new DataType(TypeId.EMPTY) : dataType;
+    const result_col = this._process_reduction(skipna);
+    return (result_col == undefined) ? undefined : result_col.sum(dataType, memoryResource);
+  }
+
+  /**
+   * Compute the product of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly. Default is true.
+   * @param dataType The dataType of the return result expected
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The product of all the values in this Series.
+   */
+  product(skipna?: boolean, dataType?: DataType, memoryResource?: MemoryResource) {
+    dataType       = (dataType == undefined) ? new DataType(TypeId.EMPTY) : dataType;
+    const result_col = this._process_reduction(skipna);
+    return (result_col == undefined) ? undefined : result_col.product(dataType, memoryResource);
+  }
+
+  /**
+   * Compute the sumOfSquares of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly. Default is true.
+   * @param dataType The dataType of the return result expected
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The sumOfSquares of all the values in this Series.
+   */
+  sumOfSquares(skipna?: boolean, dataType?: DataType, memoryResource?: MemoryResource) {
+    dataType       = (dataType == undefined) ? new DataType(TypeId.EMPTY) : dataType;
+    const result_col = this._process_reduction(skipna);
+    return (result_col == undefined) ? undefined
+                                     : result_col.sum_of_squares(dataType, memoryResource);
+  }
+
+  /**
+   * Compute the mean of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly. Default is true.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The mean of all the values in this Series.
+   */
+  mean(skipna?: boolean, memoryResource?: MemoryResource) {
+    const result_col = this._process_reduction(skipna);
+    return (result_col == undefined) ? undefined : result_col.mean(memoryResource);
+  }
+
+  /**
+   * Compute the median of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly. Default is true.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The median of all the values in this Series.
+   */
+  median(skipna?: boolean, memoryResource?: MemoryResource) {
+    const result_col = this._process_reduction(skipna);
+    return (result_col == undefined) ? undefined : result_col.mean(memoryResource);
+  }
+
+  /**
+   * Compute the nunique of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly. Default is true.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The median of all the values in this Series.
+   */
+  nunique(skipna?: boolean, memoryResource?: MemoryResource): Scalar|undefined {
+    skipna = (skipna == undefined) ? true : skipna;
+    if (skipna) { return this.nansToNulls(false)?._col.nunique(skipna, memoryResource); }
+    return this._col.nunique(skipna, memoryResource);
+  }
 }

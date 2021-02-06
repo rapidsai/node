@@ -36,16 +36,23 @@ inline rmm::mr::device_memory_resource* get_mr(Napi::Value const& arg) {
 
 }  // namespace
 
-ObjectUnwrap<Column> Column::nans_to_nulls(rmm::mr::device_memory_resource* mr) const {
-  auto result                                         = cudf::nans_to_nulls(this->view(), mr);
-  auto got                                            = cudf::table(cudf::table_view{{*this}});
-  std::vector<std::unique_ptr<cudf::column>> contents = got.release();
-  contents[0]->set_null_mask(std::move(*(result.first)));
-  return Column::New(std::move(contents[0]));
+std::pair<rmm::device_buffer, cudf::size_type> Column::nans_to_nulls(
+  rmm::mr::device_memory_resource* mr) const {
+  auto result = cudf::nans_to_nulls(this->view(), mr);
+  return {std::move(*(result.first)), std::move(result.second)};
 }
 
 Napi::Value Column::nans_to_nulls(Napi::CallbackInfo const& info) {
-  return nans_to_nulls(get_mr(info[0]));
+  bool inplace = NapiToCPP{info[0]}.ToBoolean();
+  auto result  = nans_to_nulls(get_mr(info[1]));
+  if (inplace == true) {
+    this->set_null_mask(DeviceBuffer::New(result.first.data(), result.first.size()), result.second);
+    return info.Env().Undefined();
+  }
+  std::vector<std::unique_ptr<cudf::column>> contents =
+    cudf::table(cudf::table_view{{*this}}).release();
+  contents[0]->set_null_mask(result.first);
+  return Column::New(std::move(contents[0]));
 }
 
 }  // namespace nv

@@ -747,11 +747,105 @@ export interface Column<T extends DataType = any> {
   /**
    * Compute the sum of all values in this Column.
    *
+   * @param dataType The dataType of the return result expected
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns The sum of all the values in this Column.
    */
-  sum(memoryResource?: MemoryResource): T extends(Int64|Uint64)? bigint: number;
+  sum(dataType?: DataType, memoryResource?: MemoryResource): T extends(Int64|Uint64)
+    ? bigint: number;
+
+  /**
+   * Compute the product of all values in this Column.
+   *
+   * @param dataType The dataType of the return result expected
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The product of all the values in this Column.
+   */
+  product(dataType?: DataType, memoryResource?: MemoryResource): Scalar;
+
+  /**
+   * Compute the sum_of_squares of all values in this Column.
+   *
+   * @param dataType The dataType of the return result expected
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The sum_of_squares of all the values in this Column.
+   */
+  sum_of_squares(dataType?: DataType, memoryResource?: MemoryResource): Scalar;
+
+  /**
+   * Compute the mean of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The mean of all the values in this Column.
+   */
+  mean(memoryResource?: MemoryResource): Scalar;
+
+  /**
+   * Compute the median of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The median of all the values in this Column.
+   */
+  median(memoryResource?: MemoryResource): Scalar;
+
+  /**
+   * Compute the nunique of all values in this Column.
+   *
+   * @param skipna The skipna parameter if true, includes nulls while computing nunique,
+   * if false, excludes the nulls while computing nunique, default is true
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The median of all the values in this Column.
+   */
+  nunique(skipna?: boolean, memoryResource?: MemoryResource): Scalar;
+
+  /**
+   * Return whether all elements are true in Series.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns true if all elements are true in Series, else false.
+   */
+  all(memoryResource?: MemoryResource): boolean;
+
+  /**
+   * Return whether any elements are true in Series.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns true if any elements are true in Series, else false.
+   */
+  any(memoryResource?: MemoryResource): boolean;
+
+  /**
+   * drop NA values from the series if series is of floating-type
+   * values and contains NA values
+   *
+   * @returns series without NaN and Null values
+   */
+
+  drop_nulls(): Column<T>;
+  /**
+   * drop NA values from the series if series is of floating-type
+   * values and contains NA values
+   *
+   * @returns series without NaN and Null values
+   */
+  drop_nans(): Column<T>;
+
+  /**
+   * convert NaN values in the series with Null values,
+   * while also updating the nullMask and nullCount values
+   *
+   * @param inpalce if true, update the series inplace, else return updated Series
+   * @returns undefined if inplace=True, else updated Series with Null values
+   */
+  nans_to_nulls(inplace?: boolean): Column<T>|undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
