@@ -43,85 +43,85 @@ const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 
 
 const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN]);
 
-function js_nunique(values: any) {
+function jsNunique(values: any) {
   return values.filter((x, i, self) => self.indexOf(x) == i).length;
 }
 
-function testNumbernunique<T extends Numeric, R extends TypedArray>(type: T, data: R) {
-  expect(Series.new({type, data}).nunique()).toEqual(js_nunique(data));
+function testNumberNunique<T extends Numeric, R extends TypedArray>(type: T, data: R) {
+  expect(Series.new({type, data}).nunique()).toEqual(jsNunique(data));
 }
 
-function testNumbernuniqueSkipNA<T extends Numeric, R extends TypedArray>(
+function testNumberNuniqueSkipNA<T extends Numeric, R extends TypedArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).nunique(false))
-    .toEqual(js_nunique(data.filter((_, i) => mask_array[i] == 1 || data[i] !== null)));
+    .toEqual(jsNunique(data.filter((_, i) => mask_array[i] == 1 || data[i] !== null)));
 }
 
-function testBigIntnunique<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
-  expect(Series.new({type, data}).nunique()).toEqual(js_nunique(data));
+function testBigIntNunique<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
+  expect(Series.new({type, data}).nunique()).toEqual(jsNunique(data));
 }
 
-function testBigIntnuniqueSkipNA<T extends Numeric, R extends BigIntArray>(
+function testBigIntNuniqueSkipNA<T extends Numeric, R extends BigIntArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).nunique(false))
-    .toEqual(js_nunique(data.filter((_, i) => mask_array[i] == 1 || data[i] !== null)));
+    .toEqual(jsNunique(data.filter((_, i) => mask_array[i] == 1 || data[i] !== null)));
 }
 
 describe('Series.nunique(skipna=true)', () => {
-  test('Int8', () => { testNumbernunique(new Int8, new Int8Array(numbers)); });
-  test('Int16', () => { testNumbernunique(new Int16, new Int16Array(numbers)); });
-  test('Int32', () => { testNumbernunique(new Int32, new Int32Array(numbers)); });
-  test('Int64', () => { testBigIntnunique(new Int64, new BigInt64Array(makeBigInts())); });
-  test('Uint8', () => { testNumbernunique(new Uint8, new Uint8Array(numbers)); });
-  test('Uint16', () => { testNumbernunique(new Uint16, new Uint16Array(numbers)); });
-  test('Uint32', () => { testNumbernunique(new Uint32, new Uint32Array(numbers)); });
-  test('Uint64', () => { testBigIntnunique(new Uint64, new BigUint64Array(makeBigInts())); });
-  test('Float32', () => { testNumbernunique(new Float32, new Float32Array(numbers)); });
-  test('Float64', () => { testNumbernunique(new Float64, new Float64Array(numbers)); });
-  test('Bool8', () => { testNumbernunique(new Bool8, new Uint8ClampedArray(makeBooleans())); });
+  test('Int8', () => { testNumberNunique(new Int8, new Int8Array(numbers)); });
+  test('Int16', () => { testNumberNunique(new Int16, new Int16Array(numbers)); });
+  test('Int32', () => { testNumberNunique(new Int32, new Int32Array(numbers)); });
+  test('Int64', () => { testBigIntNunique(new Int64, new BigInt64Array(makeBigInts())); });
+  test('Uint8', () => { testNumberNunique(new Uint8, new Uint8Array(numbers)); });
+  test('Uint16', () => { testNumberNunique(new Uint16, new Uint16Array(numbers)); });
+  test('Uint32', () => { testNumberNunique(new Uint32, new Uint32Array(numbers)); });
+  test('Uint64', () => { testBigIntNunique(new Uint64, new BigUint64Array(makeBigInts())); });
+  test('Float32', () => { testNumberNunique(new Float32, new Float32Array(numbers)); });
+  test('Float64', () => { testNumberNunique(new Float64, new Float64Array(numbers)); });
+  test('Bool8', () => { testNumberNunique(new Bool8, new Uint8ClampedArray(makeBooleans())); });
 });
 
 describe("Series.nunique(skipna=false)", () => {
-  test('Int8', () => {testNumbernuniqueSkipNA(new Int8, new Int8Array(numbers), makeBooleans())});
+  test('Int8', () => {testNumberNuniqueSkipNA(new Int8, new Int8Array(numbers), makeBooleans())});
   test('Int16',
-       () => { testNumbernuniqueSkipNA(new Int16, new Int16Array(numbers), makeBooleans()); });
+       () => { testNumberNuniqueSkipNA(new Int16, new Int16Array(numbers), makeBooleans()); });
   test('Int32',
-       () => { testNumbernuniqueSkipNA(new Int32, new Int32Array(numbers), makeBooleans()); });
+       () => { testNumberNuniqueSkipNA(new Int32, new Int32Array(numbers), makeBooleans()); });
   test('Int64', () => {
-    testBigIntnuniqueSkipNA(new Int64, new BigInt64Array(makeBigInts()), makeBooleans());
+    testBigIntNuniqueSkipNA(new Int64, new BigInt64Array(makeBigInts()), makeBooleans());
   });
   test('Uint8',
-       () => { testNumbernuniqueSkipNA(new Uint8, new Uint8Array(numbers), makeBooleans()); });
+       () => { testNumberNuniqueSkipNA(new Uint8, new Uint8Array(numbers), makeBooleans()); });
   test('Uint16',
-       () => { testNumbernuniqueSkipNA(new Uint16, new Uint16Array(numbers), makeBooleans()); });
+       () => { testNumberNuniqueSkipNA(new Uint16, new Uint16Array(numbers), makeBooleans()); });
   test('Uint32',
-       () => { testNumbernuniqueSkipNA(new Uint32, new Uint32Array(numbers), makeBooleans()); });
+       () => { testNumberNuniqueSkipNA(new Uint32, new Uint32Array(numbers), makeBooleans()); });
   test('Uint64', () => {
-    testBigIntnuniqueSkipNA(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans());
+    testBigIntNuniqueSkipNA(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans());
   });
   test('Float32',
-       () => { testNumbernuniqueSkipNA(new Float32, new Float32Array(numbers), makeBooleans()); });
+       () => { testNumberNuniqueSkipNA(new Float32, new Float32Array(numbers), makeBooleans()); });
   test('Float64',
-       () => { testNumbernuniqueSkipNA(new Float64, new Float64Array(numbers), makeBooleans()); });
+       () => { testNumberNuniqueSkipNA(new Float64, new Float64Array(numbers), makeBooleans()); });
   test('Bool8', () => {
-    testNumbernuniqueSkipNA(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
+    testNumberNuniqueSkipNA(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
   });
 });
 
 describe("Float type Series with NaN => Series.nunique(skipna=true)", () => {
-  test('Float32', () => { testNumbernunique(new Float32, new Float32Array(float_with_NaN)); });
-  test('Float64', () => { testNumbernunique(new Float64, new Float64Array(float_with_NaN)); });
+  test('Float32', () => { testNumberNunique(new Float32, new Float32Array(float_with_NaN)); });
+  test('Float64', () => { testNumberNunique(new Float64, new Float64Array(float_with_NaN)); });
 });
 
 describe("Float type Series with NaN => Series.nunique(skipna=false)", () => {
   test('Float32', () => {
-    testNumbernuniqueSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans());
+    testNumberNuniqueSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans());
   });
   test('Float64', () => {
-    testNumbernuniqueSkipNA(new Float64, new Float64Array(float_with_NaN), makeBooleans());
+    testNumberNuniqueSkipNA(new Float64, new Float64Array(float_with_NaN), makeBooleans());
   });
 });

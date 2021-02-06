@@ -43,79 +43,79 @@ const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 
 
 const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN]);
 
-function js_all(values: any) { return values.every(x => x != false); }
+function jsAll(values: any) { return values.every(x => x != false); }
 
-function testNumberall<T extends Numeric, R extends TypedArray>(type: T, data: R) {
-  expect(Series.new({type, data}).all()).toEqual(js_all(data));
+function testNumberAll<T extends Numeric, R extends TypedArray>(type: T, data: R) {
+  expect(Series.new({type, data}).all()).toEqual(jsAll(data));
 }
 
-function testNumberallSkipNA<T extends Numeric, R extends TypedArray>(
+function testNumberAllSkipNA<T extends Numeric, R extends TypedArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).all(false))
-    .toEqual(js_all(data.filter((_, i) => mask_array[i] == 1)));
+    .toEqual(jsAll(data.filter((_, i) => mask_array[i] == 1)));
 }
 
-function testBigIntall<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
-  expect(Series.new({type, data}).all()).toEqual(js_all(data));
+function testBigIntAll<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
+  expect(Series.new({type, data}).all()).toEqual(jsAll(data));
 }
 
-function testBigIntallSkipNA<T extends Numeric, R extends BigIntArray>(
+function testBigIntAllSkipNA<T extends Numeric, R extends BigIntArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).all(false))
-    .toEqual(js_all(data.filter((_, i) => mask_array[i] == 1)));
+    .toEqual(jsAll(data.filter((_, i) => mask_array[i] == 1)));
 }
 
 describe('Series.all(skipna=true)', () => {
-  test('Int8', () => { testNumberall(new Int8, new Int8Array(numbers)); });
-  test('Int16', () => { testNumberall(new Int16, new Int16Array(numbers)); });
-  test('Int32', () => { testNumberall(new Int32, new Int32Array(numbers)); });
-  test('Int64', () => { testBigIntall(new Int64, new BigInt64Array(makeBigInts())); });
-  test('Uint8', () => { testNumberall(new Uint8, new Uint8Array(numbers)); });
-  test('Uint16', () => { testNumberall(new Uint16, new Uint16Array(numbers)); });
-  test('Uint32', () => { testNumberall(new Uint32, new Uint32Array(numbers)); });
-  test('Uint64', () => { testBigIntall(new Uint64, new BigUint64Array(makeBigInts())); });
-  test('Float32', () => { testNumberall(new Float32, new Float32Array(numbers)); });
-  test('Float64', () => { testNumberall(new Float64, new Float64Array(numbers)); });
-  test('Bool8', () => { testNumberall(new Bool8, new Uint8ClampedArray(makeBooleans())); });
+  test('Int8', () => { testNumberAll(new Int8, new Int8Array(numbers)); });
+  test('Int16', () => { testNumberAll(new Int16, new Int16Array(numbers)); });
+  test('Int32', () => { testNumberAll(new Int32, new Int32Array(numbers)); });
+  test('Int64', () => { testBigIntAll(new Int64, new BigInt64Array(makeBigInts())); });
+  test('Uint8', () => { testNumberAll(new Uint8, new Uint8Array(numbers)); });
+  test('Uint16', () => { testNumberAll(new Uint16, new Uint16Array(numbers)); });
+  test('Uint32', () => { testNumberAll(new Uint32, new Uint32Array(numbers)); });
+  test('Uint64', () => { testBigIntAll(new Uint64, new BigUint64Array(makeBigInts())); });
+  test('Float32', () => { testNumberAll(new Float32, new Float32Array(numbers)); });
+  test('Float64', () => { testNumberAll(new Float64, new Float64Array(numbers)); });
+  test('Bool8', () => { testNumberAll(new Bool8, new Uint8ClampedArray(makeBooleans())); });
 });
 
 describe("Series.all(skipna=false)", () => {
-  test('Int8', () => {testNumberallSkipNA(new Int8, new Int8Array(numbers), makeBooleans())});
-  test('Int16', () => { testNumberallSkipNA(new Int16, new Int16Array(numbers), makeBooleans()); });
-  test('Int32', () => { testNumberallSkipNA(new Int32, new Int32Array(numbers), makeBooleans()); });
+  test('Int8', () => {testNumberAllSkipNA(new Int8, new Int8Array(numbers), makeBooleans())});
+  test('Int16', () => { testNumberAllSkipNA(new Int16, new Int16Array(numbers), makeBooleans()); });
+  test('Int32', () => { testNumberAllSkipNA(new Int32, new Int32Array(numbers), makeBooleans()); });
   test('Int64',
-       () => { testBigIntallSkipNA(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
-  test('Uint8', () => { testNumberallSkipNA(new Uint8, new Uint8Array(numbers), makeBooleans()); });
+       () => { testBigIntAllSkipNA(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
+  test('Uint8', () => { testNumberAllSkipNA(new Uint8, new Uint8Array(numbers), makeBooleans()); });
   test('Uint16',
-       () => { testNumberallSkipNA(new Uint16, new Uint16Array(numbers), makeBooleans()); });
+       () => { testNumberAllSkipNA(new Uint16, new Uint16Array(numbers), makeBooleans()); });
   test('Uint32',
-       () => { testNumberallSkipNA(new Uint32, new Uint32Array(numbers), makeBooleans()); });
+       () => { testNumberAllSkipNA(new Uint32, new Uint32Array(numbers), makeBooleans()); });
   test(
     'Uint64',
-    () => { testBigIntallSkipNA(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans()); });
+    () => { testBigIntAllSkipNA(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans()); });
   test('Float32',
-       () => { testNumberallSkipNA(new Float32, new Float32Array(numbers), makeBooleans()); });
+       () => { testNumberAllSkipNA(new Float32, new Float32Array(numbers), makeBooleans()); });
   test('Float64',
-       () => { testNumberallSkipNA(new Float64, new Float64Array(numbers), makeBooleans()); });
+       () => { testNumberAllSkipNA(new Float64, new Float64Array(numbers), makeBooleans()); });
   test('Bool8', () => {
-    testNumberallSkipNA(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
+    testNumberAllSkipNA(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
   });
 });
 
 describe("Float type Series with NaN => Series.all(skipna=true)", () => {
-  test('Float32', () => { testNumberall(new Float32, new Float32Array(float_with_NaN)); });
-  test('Float64', () => { testNumberall(new Float64, new Float64Array(float_with_NaN)); });
+  test('Float32', () => { testNumberAll(new Float32, new Float32Array(float_with_NaN)); });
+  test('Float64', () => { testNumberAll(new Float64, new Float64Array(float_with_NaN)); });
 });
 
 describe("Float type Series with NaN => Series.all(skipna=false)", () => {
   test(
     'Float32',
-    () => { testNumberallSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans()); });
+    () => { testNumberAllSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans()); });
   test(
     'Float64',
-    () => { testNumberallSkipNA(new Float64, new Float64Array(float_with_NaN), makeBooleans()); });
+    () => { testNumberAllSkipNA(new Float64, new Float64Array(float_with_NaN), makeBooleans()); });
 });

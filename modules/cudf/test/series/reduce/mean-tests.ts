@@ -43,7 +43,7 @@ const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 
 
 const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 5, 6, 7, 8, NaN]);
 
-function testNumbermean<T extends Numeric, R extends TypedArray>(type: T, data: R) {
+function testNumberMean<T extends Numeric, R extends TypedArray>(type: T, data: R) {
   expect(Series.new({type, data}).mean()).toEqual([...data].reduce((x, y) => {
     if (isNaN(y)) { y = 0; }
     if (isNaN(x)) { x = 0; }
@@ -51,7 +51,7 @@ function testNumbermean<T extends Numeric, R extends TypedArray>(type: T, data: 
   }) / data.filter(x => !isNaN(x)).length);
 }
 
-function testNumbermeanSkipNA<T extends Numeric, R extends TypedArray>(
+function testNumberMeanSkipNA<T extends Numeric, R extends TypedArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   let result = NaN;
@@ -59,17 +59,19 @@ function testNumbermeanSkipNA<T extends Numeric, R extends TypedArray>(
     result = [...data].reduce((x, y, i) => {
       if (mask_array[i] == 1) { return x + y; }
       return x;
-    }) / 5;
+    }) / data.filter((_, i) => mask_array[i] == 1).length;
   }
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).mean(false)).toEqual(result);
 }
 
-function testBigIntmean<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
-  expect(Series.new({type, data}).mean()).toEqual(Number([...data].reduce((x, y) => x + y)) / 10);
+function testBigIntMean<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
+  expect(Series.new({type, data}).mean())
+    .toEqual(Number([...data].reduce((x, y) => x + y)) /
+             data.filter(x => !isNaN(Number(x))).length);
 }
 
-function testBigIntmeanSkipNA<T extends Numeric, R extends BigIntArray>(
+function testBigIntMeanSkipNA<T extends Numeric, R extends BigIntArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
@@ -78,63 +80,63 @@ function testBigIntmeanSkipNA<T extends Numeric, R extends BigIntArray>(
                if (mask_array[i] == 1) { return x + y; }
                return x;
              })) /
-             5);
+             data.filter((_, i) => mask_array[i] == 1).length);
 }
 
 describe('Series.mean(skipna=true)', () => {
-  test('Int8', () => { testNumbermean(new Int8, new Int8Array(makeNumbers())); });
-  test('Int16', () => { testNumbermean(new Int16, new Int16Array(makeNumbers())); });
-  test('Int32', () => { testNumbermean(new Int32, new Int32Array(makeNumbers())); });
-  test('Int64', () => { testBigIntmean(new Int64, new BigInt64Array(makeBigInts())); });
-  test('Uint8', () => { testNumbermean(new Uint8, new Uint8Array(makeNumbers())); });
-  test('Uint16', () => { testNumbermean(new Uint16, new Uint16Array(makeNumbers())); });
-  test('Uint32', () => { testNumbermean(new Uint32, new Uint32Array(makeNumbers())); });
-  test('Uint64', () => { testBigIntmean(new Uint64, new BigUint64Array(makeBigInts())); });
-  test('Float32', () => { testNumbermean(new Float32, new Float32Array(makeNumbers())); });
-  test('Float64', () => { testNumbermean(new Float64, new Float64Array(makeNumbers())); });
-  test('Bool8', () => { testNumbermean(new Bool8, new Uint8ClampedArray(makeBooleans())); });
+  test('Int8', () => { testNumberMean(new Int8, new Int8Array(makeNumbers())); });
+  test('Int16', () => { testNumberMean(new Int16, new Int16Array(makeNumbers())); });
+  test('Int32', () => { testNumberMean(new Int32, new Int32Array(makeNumbers())); });
+  test('Int64', () => { testBigIntMean(new Int64, new BigInt64Array(makeBigInts())); });
+  test('Uint8', () => { testNumberMean(new Uint8, new Uint8Array(makeNumbers())); });
+  test('Uint16', () => { testNumberMean(new Uint16, new Uint16Array(makeNumbers())); });
+  test('Uint32', () => { testNumberMean(new Uint32, new Uint32Array(makeNumbers())); });
+  test('Uint64', () => { testBigIntMean(new Uint64, new BigUint64Array(makeBigInts())); });
+  test('Float32', () => { testNumberMean(new Float32, new Float32Array(makeNumbers())); });
+  test('Float64', () => { testNumberMean(new Float64, new Float64Array(makeNumbers())); });
+  test('Bool8', () => { testNumberMean(new Bool8, new Uint8ClampedArray(makeBooleans())); });
 });
 
 describe("Series.mean(skipna=false)", () => {
   test('Int8',
-       () => {testNumbermeanSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans())});
+       () => {testNumberMeanSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans())});
   test('Int16',
-       () => { testNumbermeanSkipNA(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberMeanSkipNA(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });
   test('Int32',
-       () => { testNumbermeanSkipNA(new Int32, new Int32Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberMeanSkipNA(new Int32, new Int32Array(makeNumbers()), makeBooleans()); });
   test(
     'Int64',
-    () => { testBigIntmeanSkipNA(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
+    () => { testBigIntMeanSkipNA(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
   test('Uint8',
-       () => { testNumbermeanSkipNA(new Uint8, new Uint8Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberMeanSkipNA(new Uint8, new Uint8Array(makeNumbers()), makeBooleans()); });
   test('Uint16',
-       () => { testNumbermeanSkipNA(new Uint16, new Uint16Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberMeanSkipNA(new Uint16, new Uint16Array(makeNumbers()), makeBooleans()); });
   test('Uint32',
-       () => { testNumbermeanSkipNA(new Uint32, new Uint32Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberMeanSkipNA(new Uint32, new Uint32Array(makeNumbers()), makeBooleans()); });
   test(
     'Uint64',
-    () => { testBigIntmeanSkipNA(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans()); });
+    () => { testBigIntMeanSkipNA(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans()); });
   test(
     'Float32',
-    () => { testNumbermeanSkipNA(new Float32, new Float32Array(makeNumbers()), makeBooleans()); });
+    () => { testNumberMeanSkipNA(new Float32, new Float32Array(makeNumbers()), makeBooleans()); });
   test(
     'Float64',
-    () => { testNumbermeanSkipNA(new Float64, new Float64Array(makeNumbers()), makeBooleans()); });
+    () => { testNumberMeanSkipNA(new Float64, new Float64Array(makeNumbers()), makeBooleans()); });
   test('Bool8', () => {
-    testNumbermeanSkipNA(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
+    testNumberMeanSkipNA(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
   });
 });
 
 describe("Float type Series with NaN => Series.mean(skipna=true)", () => {
-  test('Float32', () => { testNumbermean(new Float32, new Float32Array(float_with_NaN)); });
-  test('Float64', () => { testNumbermean(new Float64, new Float64Array(float_with_NaN)); });
+  test('Float32', () => { testNumberMean(new Float32, new Float32Array(float_with_NaN)); });
+  test('Float64', () => { testNumberMean(new Float64, new Float64Array(float_with_NaN)); });
 });
 
 describe("Float type Series with NaN => Series.mean(skipna=false)", () => {
   test(
     'Float32',
-    () => { testNumbermeanSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans()); });
+    () => { testNumberMeanSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans()); });
   test(
     'Float64',
-    () => { testNumbermeanSkipNA(new Float64, new Float64Array(float_with_NaN), makeBooleans()); });
+    () => { testNumberMeanSkipNA(new Float64, new Float64Array(float_with_NaN), makeBooleans()); });
 });

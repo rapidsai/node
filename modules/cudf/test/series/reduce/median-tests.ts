@@ -43,7 +43,7 @@ const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 
 
 const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 5, 6, 7, 8, NaN]);
 
-function median(values: any) {
+function jsMedian(values: any) {
   if (values.length === 0) return 0;
 
   values.sort(function(a, b) { return Number(a) - Number(b); });
@@ -55,87 +55,87 @@ function median(values: any) {
   return (Number(values[half - 1]) + Number(values[half])) / 2.0;
 }
 
-function testNumbermedian<T extends Numeric, R extends TypedArray>(type: T, data: R) {
-  expect(Series.new({type, data}).median()).toEqual(median(data));
+function testNumberMedian<T extends Numeric, R extends TypedArray>(type: T, data: R) {
+  expect(Series.new({type, data}).median()).toEqual(jsMedian(data));
 }
 
-function testNumbermedianSkipNA<T extends Numeric, R extends TypedArray>(
+function testNumberMedianSkipNA<T extends Numeric, R extends TypedArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   let result = NaN;
-  if (!data.includes(NaN)) { result = median(data.filter((_, i) => mask_array[i] == 1)) }
+  if (!data.includes(NaN)) { result = jsMedian(data.filter((_, i) => mask_array[i] == 1)) }
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).median(false)).toEqual(result);
 }
 
-function testBigIntmedian<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
-  expect(Series.new({type, data}).median()).toEqual(median(data));
+function testBigIntMedian<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
+  expect(Series.new({type, data}).median()).toEqual(jsMedian(data));
 }
 
-function testBigIntmedianSkipNA<T extends Numeric, R extends BigIntArray>(
+function testBigIntMedianSkipNA<T extends Numeric, R extends BigIntArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).median(false))
-    .toEqual(median(data.filter((_, i) => mask_array[i] == 1)));
+    .toEqual(jsMedian(data.filter((_, i) => mask_array[i] == 1)));
 }
 
 describe('Series.median(skipna=true)', () => {
-  test('Int8', () => { testNumbermedian(new Int8, new Int8Array(makeNumbers())); });
-  test('Int16', () => { testNumbermedian(new Int16, new Int16Array(makeNumbers())); });
-  test('Int32', () => { testNumbermedian(new Int32, new Int32Array(makeNumbers())); });
-  test('Int64', () => { testBigIntmedian(new Int64, new BigInt64Array(makeBigInts())); });
-  test('Uint8', () => { testNumbermedian(new Uint8, new Uint8Array(makeNumbers())); });
-  test('Uint16', () => { testNumbermedian(new Uint16, new Uint16Array(makeNumbers())); });
-  test('Uint32', () => { testNumbermedian(new Uint32, new Uint32Array(makeNumbers())); });
-  test('Uint64', () => { testBigIntmedian(new Uint64, new BigUint64Array(makeBigInts())); });
-  test('Float32', () => { testNumbermedian(new Float32, new Float32Array(makeNumbers())); });
-  test('Float64', () => { testNumbermedian(new Float64, new Float64Array(makeNumbers())); });
-  test('Bool8', () => { testNumbermedian(new Bool8, new Uint8ClampedArray(makeBooleans())); });
+  test('Int8', () => { testNumberMedian(new Int8, new Int8Array(makeNumbers())); });
+  test('Int16', () => { testNumberMedian(new Int16, new Int16Array(makeNumbers())); });
+  test('Int32', () => { testNumberMedian(new Int32, new Int32Array(makeNumbers())); });
+  test('Int64', () => { testBigIntMedian(new Int64, new BigInt64Array(makeBigInts())); });
+  test('Uint8', () => { testNumberMedian(new Uint8, new Uint8Array(makeNumbers())); });
+  test('Uint16', () => { testNumberMedian(new Uint16, new Uint16Array(makeNumbers())); });
+  test('Uint32', () => { testNumberMedian(new Uint32, new Uint32Array(makeNumbers())); });
+  test('Uint64', () => { testBigIntMedian(new Uint64, new BigUint64Array(makeBigInts())); });
+  test('Float32', () => { testNumberMedian(new Float32, new Float32Array(makeNumbers())); });
+  test('Float64', () => { testNumberMedian(new Float64, new Float64Array(makeNumbers())); });
+  test('Bool8', () => { testNumberMedian(new Bool8, new Uint8ClampedArray(makeBooleans())); });
 });
 
 describe("Series.median(skipna=false)", () => {
   test('Int8',
-       () => {testNumbermedianSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans())});
+       () => {testNumberMedianSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans())});
   test('Int16',
-       () => { testNumbermedianSkipNA(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberMedianSkipNA(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });
   test('Int32',
-       () => { testNumbermedianSkipNA(new Int32, new Int32Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberMedianSkipNA(new Int32, new Int32Array(makeNumbers()), makeBooleans()); });
   test(
     'Int64',
-    () => { testBigIntmedianSkipNA(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
+    () => { testBigIntMedianSkipNA(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
   test('Uint8',
-       () => { testNumbermedianSkipNA(new Uint8, new Uint8Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberMedianSkipNA(new Uint8, new Uint8Array(makeNumbers()), makeBooleans()); });
   test(
     'Uint16',
-    () => { testNumbermedianSkipNA(new Uint16, new Uint16Array(makeNumbers()), makeBooleans()); });
+    () => { testNumberMedianSkipNA(new Uint16, new Uint16Array(makeNumbers()), makeBooleans()); });
   test(
     'Uint32',
-    () => { testNumbermedianSkipNA(new Uint32, new Uint32Array(makeNumbers()), makeBooleans()); });
+    () => { testNumberMedianSkipNA(new Uint32, new Uint32Array(makeNumbers()), makeBooleans()); });
   test('Uint64', () => {
-    testBigIntmedianSkipNA(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans());
+    testBigIntMedianSkipNA(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans());
   });
   test('Float32', () => {
-    testNumbermedianSkipNA(new Float32, new Float32Array(makeNumbers()), makeBooleans());
+    testNumberMedianSkipNA(new Float32, new Float32Array(makeNumbers()), makeBooleans());
   });
   test('Float64', () => {
-    testNumbermedianSkipNA(new Float64, new Float64Array(makeNumbers()), makeBooleans());
+    testNumberMedianSkipNA(new Float64, new Float64Array(makeNumbers()), makeBooleans());
   });
   test('Bool8', () => {
-    testNumbermedianSkipNA(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
+    testNumberMedianSkipNA(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
   });
 });
 
 describe("Float type Series with NaN => Series.median(skipna=true)", () => {
-  test('Float32', () => { testNumbermedian(new Float32, new Float32Array(float_with_NaN)); });
-  test('Float64', () => { testNumbermedian(new Float64, new Float64Array(float_with_NaN)); });
+  test('Float32', () => { testNumberMedian(new Float32, new Float32Array(float_with_NaN)); });
+  test('Float64', () => { testNumberMedian(new Float64, new Float64Array(float_with_NaN)); });
 });
 
 describe("Float type Series with NaN => Series.median(skipna=false)", () => {
   test('Float32', () => {
-    testNumbermedianSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans());
+    testNumberMedianSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans());
   });
   test('Float64', () => {
-    testNumbermedianSkipNA(new Float64, new Float64Array(float_with_NaN), makeBooleans());
+    testNumberMedianSkipNA(new Float64, new Float64Array(float_with_NaN), makeBooleans());
   });
 });
