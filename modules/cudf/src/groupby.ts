@@ -16,8 +16,9 @@ import {MemoryResource} from '@nvidia/rmm';
 
 import CUDF from './addon';
 import {DataFrame} from './data_frame';
+import {Series} from './series';
 import {Table} from './table';
-import {NullOrder} from './types'
+import {NullOrder, TypeMap} from './types'
 
 /*
  * @param keys DataFrame whose rows act as the groupby keys
@@ -31,8 +32,10 @@ import {NullOrder} from './types'
  * of null values in each column. Else, ignored. If empty, assumes all columns
  * use `null_order::BEFORE`. Ignored if `keys_are_sorted == false`.
  */
-export type GroupByProps = {
-  keys: DataFrame,
+
+export type GroupByProps<T extends TypeMap> = {
+  obj: DataFrame<T>,
+  by: (keyof T)[],
   include_nulls?: boolean,
   keys_are_sorted?: boolean,
   column_order?: boolean[],
@@ -53,12 +56,14 @@ interface GroupbyConstructor {
 }
 
 interface CudfGroupBy {
+  _by: string[];
+  _values: DataFrame;
   _getGroups(values?: Table, memoryResource?: MemoryResource): any;
 }
 
-export class GroupBy extends(<GroupbyConstructor>CUDF.GroupBy) {
-  constructor(props: GroupByProps) {
-    const table = props.keys.asTable();
+export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy) {
+  constructor(props: GroupByProps<T>) {
+    const table = props.obj.select(props.by).asTable();
     const {
       include_nulls   = false,
       keys_are_sorted = false,
@@ -74,10 +79,26 @@ export class GroupBy extends(<GroupbyConstructor>CUDF.GroupBy) {
       null_precedence: null_precedence,
     };
     super(cudf_props);
+    this._by     = props.by as string[];
+    this._values = props.obj.drop(props.by);
   }
 
-  getGroups(values?: DataFrame, memoryResource?: MemoryResource): any {
-    const table = (values == undefined) ? undefined : values.asTable();
-    return this._getGroups(table, memoryResource);
+  getGroups(memoryResource?: MemoryResource): any {
+    const table      = this._values.asTable();
+    const results    = this._getGroups(table, memoryResource);
+    const series_map = {} as any;
+
+    this._by.forEach(
+      (name, index) => { series_map[name] = Series.new(results.keys.getColumnByIndex(index)); });
+    results.keys = new DataFrame(series_map);
+
+    if (results.values !== undefined) {
+      this._values.names.forEach(
+        (name,
+         index) => { series_map[name] = Series.new(results.values.getColumnByIndex(index)); });
+      results.values = new DataFrame(series_map);
+    }
+
+    return results;
   }
 }

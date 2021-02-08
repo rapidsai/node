@@ -25,11 +25,11 @@ test('Groupby basic', () => {
   const a  = Series.new({type: new Int32(), data: new Int32Array([1, 1, 2, 1, 2, 3])});
   const df = new DataFrame({"a": a});
 
-  const grp = new GroupBy({keys: df});
+  const grp = new GroupBy({obj: df, by: ["a"]});
 
   const groups = grp.getGroups();
 
-  const keys_result = Series.new(groups["keys"].getColumnByIndex(0));
+  const keys_result = Series.new(groups["keys"].get("a"));
   expect([...keys_result.toArrow()]).toEqual([1, 1, 1, 2, 2, 3]);
 
   expect(groups["values"]).toBeUndefined();
@@ -41,11 +41,11 @@ test('Groupby empty', () => {
   const a  = Series.new({type: new Int32(), data: new Int32Array([])});
   const df = new DataFrame({"a": a});
 
-  const grp = new GroupBy({keys: df});
+  const grp = new GroupBy({obj: df, by: ["a"]});
 
   const groups = grp.getGroups();
 
-  const keys_result = Series.new(groups["keys"].getColumnByIndex(0));
+  const keys_result = Series.new(groups["keys"].get("a"));
   expect(keys_result.length).toBe(0);
 
   expect(groups["values"]).toBeUndefined();
@@ -55,19 +55,17 @@ test('Groupby empty', () => {
 
 test('Groupby basic with values', () => {
   const a  = Series.new({type: new Int32(), data: new Int32Array([5, 4, 3, 2, 1, 0])});
-  const df = new DataFrame({"a": a});
+  const b  = Series.new({type: new Int32(), data: new Int32Array([0, 0, 1, 1, 2, 2])});
+  const df = new DataFrame({"a": a, "b": b});
 
-  const b   = Series.new({type: new Int32(), data: new Int32Array([0, 0, 1, 1, 2, 2])});
-  const df2 = new DataFrame({"b": b});
+  const grp = new GroupBy({obj: df, by: ["a"]});
 
-  const grp = new GroupBy({keys: df});
+  const groups = grp.getGroups();
 
-  const groups = grp.getGroups(df2);
-
-  const keys_result = Series.new(groups["keys"].getColumnByIndex(0));
+  const keys_result = Series.new(groups["keys"].get("a"));
   expect([...keys_result.toArrow()]).toEqual([0, 1, 2, 3, 4, 5]);
 
-  const values_result = Series.new(groups["values"].getColumnByIndex(0));
+  const values_result = Series.new(groups["values"].get("b"));
   expect([...values_result.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
 
   expect([...groups["offsets"]]).toEqual([0, 1, 2, 3, 4, 5, 6]);
@@ -81,11 +79,11 @@ test('Groupby all nulls', () => {
   });
   const df = new DataFrame({"a": a});
 
-  const grp = new GroupBy({keys: df});
+  const grp = new GroupBy({obj: df, by: ["a"]});
 
   const groups = grp.getGroups();
 
-  const keys_result = Series.new(groups["keys"].getColumnByIndex(0));
+  const keys_result = Series.new(groups["keys"].get("a"));
   expect(keys_result.length).toBe(0);
 
   expect(groups["values"]).toBeUndefined();
@@ -99,20 +97,18 @@ test('Groupby some nulls', () => {
     data: new Int32Array([1, 1, 3, 2, 1, 2]),
     nullMask: new Uint8Buffer(BoolVector.from([1, 0, 1, 0, 0, 1]).values),
   });
-  const df = new DataFrame({"a": a});
+  const b  = Series.new({type: new Int32(), data: new Int32Array([1, 2, 3, 4, 5, 6])});
+  const df = new DataFrame({"a": a, "b": b});
 
-  const b   = Series.new({type: new Int32(), data: new Int32Array([1, 2, 3, 4, 5, 6])});
-  const df2 = new DataFrame({"b": b});
+  const grp = new GroupBy({obj: df, by: ["a"]});
 
-  const grp = new GroupBy({keys: df});
+  const groups = grp.getGroups();
 
-  const groups = grp.getGroups(df2);
-
-  const keys_result = Series.new(groups["keys"].getColumnByIndex(0));
+  const keys_result = Series.new(groups["keys"].get("a"));
   expect([...keys_result.toArrow()]).toEqual([1, 2, 3]);
   expect(keys_result.nullCount).toBe(0)
 
-  const values_result = Series.new(groups["values"].getColumnByIndex(0));
+  const values_result = Series.new(groups["values"].get("b"));
   expect([...values_result.toArrow()]).toEqual([1, 6, 3]);
 
   expect([...groups["offsets"]]).toEqual([0, 1, 2, 3]);
