@@ -16,6 +16,7 @@ import {MemoryData} from '@nvidia/cuda';
 import {DeviceBuffer, MemoryResource} from '@nvidia/rmm';
 import {
   DataType as ArrowDataType,
+  List as ArrowList,
   RecordBatchReader,
   Table as ArrowTable,
   Vector
@@ -38,6 +39,7 @@ import {
   Int64,
   Int8,
   Integral,
+  List,
   NullOrder,
   SeriesType,
   TypeId,
@@ -64,6 +66,8 @@ export type SeriesProps<T extends DataType = any> = {
 export class Series<T extends DataType = any> {
   static new<T extends DataType>(input: Column<T>): SeriesType<T>;
   static new<T extends DataType>(input: SeriesProps<T>): SeriesType<T>;
+  static new<T extends ArrowList>(input: Vector<T>):
+    SeriesType<List, {0: ArrowToCUDFType<T['valueType']>}>;
   static new<T extends ArrowDataType>(input: Vector<T>): SeriesType<ArrowToCUDFType<T>>;
   static new<T extends DataType>(input: SeriesProps<T>|Column<T>|Vector<CUDFToArrowType<T>>) {
     /* eslint-disable @typescript-eslint/no-use-before-define */
@@ -81,6 +85,7 @@ export class Series<T extends DataType = any> {
       case TypeId.FLOAT64: return new Float64Series(column);
       case TypeId.BOOL8: return new Bool8Series(column);
       case TypeId.STRING: return new StringSeries(column);
+      case TypeId.LIST: return new ListSeries(column);
       default: throw new Error('Unknown DataType');
     }
     /* eslint-enable @typescript-eslint/no-use-before-define */
@@ -255,6 +260,7 @@ import {
   Uint64Series
 } from './series/integral';
 import {StringSeries} from './series/string';
+import {ListSeries} from './series/list';
 
 function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|Vector<CUDFToArrowType<T>>) {
   if (value instanceof Column) {
@@ -291,6 +297,7 @@ function asSubType<T extends DataType>(type: T): T {
     case TypeId.FLOAT64: return (type instanceof Float64 ? type : new Float64) as T;
     case TypeId.BOOL8: return (type instanceof Bool8 ? type : new Bool8) as T;
     case TypeId.STRING: return (type instanceof Utf8String ? type : new Utf8String) as T;
+    case TypeId.LIST: return (type instanceof List ? type : new List(type.children[0])) as T;
     default: throw new Error(`Unknown TypeId "${TypeId[type.id]}"`);
   }
 }
