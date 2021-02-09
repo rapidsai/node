@@ -54,7 +54,7 @@ export type SeriesProps<T extends DataType = any> = {
 };
 
 export type Series<T extends DataType = any> = {
-  [key: number]: SeriesBase,
+  // [key: number]: AbstractSeries<any>,
   [arrow.Type.NONE]: never,  // TODO
   [arrow.Type.Null]: never,  // TODO
   [arrow.Type.Int8]: Int8Series,
@@ -91,7 +91,7 @@ export type Series<T extends DataType = any> = {
 /**
  * One-dimensional GPU array
  */
-class SeriesBase<T extends DataType = any> {
+export class AbstractSeries<T extends DataType = any> {
   static new<T extends arrow.Vector>(input: T): Series<T['type']>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>): Series<T>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>) {
@@ -243,7 +243,7 @@ class SeriesBase<T extends DataType = any> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const Series = SeriesBase;
+export const Series = AbstractSeries;
 
 import {Bool8Series} from './series/bool';
 import {Float32Series, Float64Series} from './series/float';

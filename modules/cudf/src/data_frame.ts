@@ -18,7 +18,7 @@ import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor'
-import {Series} from './series';
+import {AbstractSeries, Series} from './series';
 import {Table} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {
@@ -35,7 +35,7 @@ import {
 } from './types/mappings';
 
 type SeriesMap<T extends TypeMap> = {
-  [P in keyof T]: Series<T[P]>
+  [P in keyof T]: AbstractSeries<T[P]>
 };
 
 export type OrderSpec = {
@@ -185,7 +185,7 @@ export class DataFrame<T extends TypeMap = any> {
     const columns    = temp.gather(selection._col);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
-      (name, index) => { series_map[name] = <any>Series.new(columns.getColumnByIndex(index)); });
+      (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
     return new DataFrame(series_map);
   }
 
@@ -199,7 +199,7 @@ export class DataFrame<T extends TypeMap = any> {
     const columns    = temp.gather(mask._col);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
-      (name, index) => { series_map[name] = <any>Series.new(columns.getColumnByIndex(index)); });
+      (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
     return new DataFrame(series_map);
   }
 

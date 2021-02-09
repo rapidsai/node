@@ -34,8 +34,8 @@ test('DataFrame initialization', () => {
   expect(table_0.numColumns).toBe(2);
   expect(table_0.numRows).toBe(length);
   expect(table_0.names).toStrictEqual(['col_0', 'col_1']);
-  expect(table_0.get("col_0").type.id).toBe(col_0.type.id);
-  expect(table_0.get("col_1").type.id).toBe(col_1.type.id);
+  expect(table_0.get("col_0").type.typeId).toBe(col_0.type.typeId);
+  expect(table_0.get("col_1").type.typeId).toBe(col_1.type.typeId);
 });
 
 test('DataFrame.get', () => {
@@ -48,7 +48,7 @@ test('DataFrame.get', () => {
     nullMask: new Uint8Buffer(64),
   });
   const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1});
-  expect(table_0.get("col_0").type.id).toBe(col_0.type.id);
+  expect(table_0.get("col_0").type.typeId).toBe(col_0.type.typeId);
   expect(() => { (<any>table_0).get(2); }).toThrow();
   expect(() => { (<any>table_0).get("junk"); }).toThrow();
 });
