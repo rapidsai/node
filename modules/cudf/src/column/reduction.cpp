@@ -125,14 +125,39 @@ Napi::Value Column::nunique(Napi::CallbackInfo const& info) {
                  NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
 }
 
-// Napi::Value Column::variance(Napi::CallbackInfo const& info) {
-//   auto data_type = (info.Length() < 1) ? this->type() : NapiToCPP{info[0]};
-//   return reduce(cudf::make_variance_aggregation(), data_type);
-// }
+ObjectUnwrap<Scalar> Column::variance(cudf::size_type ddof,
+                                      rmm::mr::device_memory_resource* mr) const {
+  cudf::data_type dtype = cudf::data_type(cudf::type_id::FLOAT64);
 
-// Napi::Value Column::std(Napi::CallbackInfo const& info) {
-//   auto data_type = (info.Length() < 1) ? this->type() : NapiToCPP{info[0]};
-//   return reduce(cudf::make_std_aggregation(), data_type);
-// }
+  return reduce(cudf::make_variance_aggregation(ddof), dtype, mr);
+}
+
+Napi::Value Column::variance(Napi::CallbackInfo const& info) {
+  return variance(NapiToCPP{info[0]},
+                  NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
+}
+
+ObjectUnwrap<Scalar> Column::std(cudf::size_type ddof, rmm::mr::device_memory_resource* mr) const {
+  cudf::data_type dtype = cudf::data_type(cudf::type_id::FLOAT64);
+
+  return reduce(cudf::make_std_aggregation(ddof), dtype, mr);
+}
+
+Napi::Value Column::std(Napi::CallbackInfo const& info) {
+  return std(NapiToCPP{info[0]}, NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
+}
+
+ObjectUnwrap<Scalar> Column::quantile(double q,
+                                      cudf::interpolation i,
+                                      rmm::mr::device_memory_resource* mr) const {
+  cudf::data_type dtype = cudf::data_type(cudf::type_id::FLOAT64);
+  return reduce(cudf::make_quantile_aggregation({q}, i), dtype, mr);
+}
+
+Napi::Value Column::quantile(Napi::CallbackInfo const& info) {
+  return quantile(NapiToCPP{info[0]},
+                  NapiToCPP{info[1]},
+                  NapiToCPP(info[2]).operator rmm::mr::device_memory_resource*());
+}
 
 }  // namespace nv

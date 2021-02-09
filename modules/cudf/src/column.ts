@@ -17,7 +17,17 @@ import {DeviceBuffer, MemoryResource} from '@nvidia/rmm';
 
 import CUDF from './addon';
 import {Scalar} from './scalar';
-import {Bool8, CommonType, DataType, Float64, Int64, Integral, Numeric, Uint64} from './types';
+import {
+  Bool8,
+  CommonType,
+  DataType,
+  Float64,
+  Int64,
+  Integral,
+  Interpolation,
+  Numeric,
+  Uint64
+} from './types';
 
 export type ColumnProps<T extends DataType = any> = {
   // todo -- need to pass full DataType instance when we implement fixed_point
@@ -763,7 +773,8 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The product of all the values in this Column.
    */
-  product(dataType?: DataType, memoryResource?: MemoryResource): Scalar;
+  product(dataType?: DataType, memoryResource?: MemoryResource): T extends(Int64|Uint64)
+    ? bigint: number;
 
   /**
    * Compute the sum_of_squares of all values in this Column.
@@ -773,7 +784,8 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The sum_of_squares of all the values in this Column.
    */
-  sum_of_squares(dataType?: DataType, memoryResource?: MemoryResource): Scalar;
+  sum_of_squares(dataType?: DataType, memoryResource?: MemoryResource): T extends(Int64|Uint64)
+    ? bigint: number;
 
   /**
    * Compute the mean of all values in this Column.
@@ -782,7 +794,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The mean of all the values in this Column.
    */
-  mean(memoryResource?: MemoryResource): Scalar;
+  mean(memoryResource?: MemoryResource): number;
 
   /**
    * Compute the median of all values in this Column.
@@ -791,59 +803,95 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The median of all the values in this Column.
    */
-  median(memoryResource?: MemoryResource): Scalar;
+  median(memoryResource?: MemoryResource): number;
 
   /**
    * Compute the nunique of all values in this Column.
    *
    * @param skipna The skipna parameter if true, includes nulls while computing nunique,
-   * if false, excludes the nulls while computing nunique, default is true
+   * if false, excludes the nulls while computing nunique.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns The median of all the values in this Column.
    */
-  nunique(skipna?: boolean, memoryResource?: MemoryResource): Scalar;
+  nunique(skipna?: boolean, memoryResource?: MemoryResource): number;
 
   /**
-   * Return whether all elements are true in Series.
+   * Return whether all elements are true in column.
    *
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
-   * @returns true if all elements are true in Series, else false.
+   * @returns true if all elements are true in column, else false.
    */
   all(memoryResource?: MemoryResource): boolean;
 
   /**
-   * Return whether any elements are true in Series.
+   * Return whether any elements are true in column.
    *
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
-   * @returns true if any elements are true in Series, else false.
+   * @returns true if any elements are true in column, else false.
    */
   any(memoryResource?: MemoryResource): boolean;
 
   /**
-   * drop NA values from the series if series is of floating-type
-   * values and contains NA values
+   * Return unbiased variance of the column.
+   * Normalized by N-1 by default. This can be changed using the `ddof` argument
    *
-   * @returns series without NaN and Null values
+   * @param ddof Delta Degrees of Freedom. The divisor used in calculations is N - ddof,
+   *  where N represents the number of elements.
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
+   * @returns The median of all the values in this column.
    */
+  var(ddof?: number, memoryResource?: MemoryResource): number;
 
-  drop_nulls(): Column<T>;
   /**
-   * drop NA values from the series if series is of floating-type
+   * Return sample standard deviation of the column.
+   * Normalized by N-1 by default. This can be changed using the `ddof` argument
+   *
+   * @param ddof Delta Degrees of Freedom. The divisor used in calculations is N - ddof,
+   *  where N represents the number of elements.
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
+   * @returns The median of all the values in this column.
+   */
+  std(ddof?: number, memoryResource?: MemoryResource): number;
+
+  /**
+   * Return values at the given quantile.
+   *
+   * @param q the quantile(s) to compute, 0 <= q <= 1
+   * @param interpolation This optional parameter specifies the interpolation method to use,
+   *  when the desired quantile lies between two data points i and j.
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
+   * @returns values at the given quantile.
+   */
+  quantile(q?: number, interpolation?: Interpolation, memoryResource?: MemoryResource): number;
+
+  /**
+   * drop NA values from the column if column is of floating-type
    * values and contains NA values
    *
-   * @returns series without NaN and Null values
+   * @returns column without NaN and Null values
+   */
+  drop_nulls(): Column<T>;
+
+  /**
+   * drop NA values from the column if column is of floating-type
+   * values and contains NA values
+   *
+   * @returns column without NaN and Null values
    */
   drop_nans(): Column<T>;
 
   /**
-   * convert NaN values in the series with Null values,
+   * convert NaN values in the column with Null values,
    * while also updating the nullMask and nullCount values
    *
-   * @param inpalce if true, update the series inplace, else return updated Series
-   * @returns undefined if inplace=True, else updated Series with Null values
+   * @param inpalce if true, update the column inplace, else return updated column
+   * @returns undefined if inplace=True, else updated column with Null values
    */
   nans_to_nulls(inplace?: boolean): Column<T>|undefined;
 }

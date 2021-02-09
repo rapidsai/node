@@ -95,6 +95,15 @@ export enum TypeId
   DECIMAL64,
 }
 
+export enum Interpolation
+{
+  linear,    ///< Linear interpolation between i and j
+  lower,     ///< Lower data point (i)
+  higher,    ///< Higher data point (j)
+  midpoint,  ///< (i + j)/2
+  nearest    ///< i or j, whichever is nearest
+}
+
 export interface Int8 extends DataType<TypeId.INT8> {
   valueType: number;
 }

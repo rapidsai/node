@@ -112,6 +112,9 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   InstanceMethod<&Column::mean>("mean"),
                   InstanceMethod<&Column::median>("median"),
                   InstanceMethod<&Column::nunique>("nunique"),
+                  InstanceMethod<&Column::variance>("var"),
+                  InstanceMethod<&Column::std>("std"),
+                  InstanceMethod<&Column::quantile>("quantile"),
                   // column/unaryop.cpp
                   InstanceMethod<&Column::cast>("cast"),
                   InstanceMethod<&Column::is_null>("isNull"),
