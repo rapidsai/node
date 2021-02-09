@@ -17,11 +17,14 @@ import {DeviceBuffer, MemoryResource} from '@nvidia/rmm';
 
 import CUDF from './addon';
 import {Scalar} from './scalar';
-import {Bool8, CommonType, DataType, Float64, Int64, Integral, Numeric, Uint64} from './types';
+import {Bool8, DataType, Float64, Int64, Integral, Numeric, Uint64} from './types/dtypes';
+import {
+  CommonType,
+} from './types/mappings';
 
 export type ColumnProps<T extends DataType = any> = {
   // todo -- need to pass full DataType instance when we implement fixed_point
-  type: T['id'],
+  type: T,
   data?: DeviceBuffer|MemoryData|null,
   offset?: number,
   length?: number,
@@ -68,9 +71,9 @@ export interface Column<T extends DataType = any> {
    *
    * @param index
    */
-  getValue(index: number): T['valueType']|null;
+  getValue(index: number): T['scalarType']|null;
 
-  // setValue(index: number, value?: T['valueType'] | null): void;
+  // setValue(index: number, value?: T['scalarType'] | null): void;
 
   /**
    * Set the null count for the null mask

@@ -12,10 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {MemoryResource} from '@nvidia/rmm';
+import * as arrow from 'apache-arrow';
+
 import {Series} from '../series';
-import {Utf8String} from '../types';
+import {DataType, Int32, Uint8, Utf8String} from '../types/dtypes'
 
 /**
  * A Series of utf8-string values in GPU memory.
  */
-export class StringSeries extends Series<Utf8String> {}
+export class StringSeries extends Series<Utf8String> {
+  /**
+   * Casts the values to a new dtype (similar to `static_cast` in C++).
+   *
+   * @param dataType The new dtype.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns Series of same size as the current Series containing result of the `cast` operation.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cast<R extends DataType>(dataType: R, _memoryResource?: MemoryResource): Series<R> {
+    throw new Error(`Cast from ${arrow.Type[this.type.typeId]} to ${
+      arrow.Type[dataType.typeId]} not implemented`);
+  }
+  /**
+   * Series of integer offsets for each string
+   */
+  get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
+  /**
+   * Series containing the utf8 characters of each string
+   */
+  get data() { return Series.new(this._col.getChild<Uint8>(1)); }
+}

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "node_cudf/scalar.hpp"
-#include "node_cudf/types.hpp"
-#include "node_cudf/utilities/cpp_to_napi.hpp"
-#include "node_cudf/utilities/napi_to_cpp.hpp"
+#include <node_cudf/scalar.hpp>
+#include <node_cudf/utilities/cpp_to_napi.hpp>
+#include <node_cudf/utilities/dtypes.hpp>
+#include <node_cudf/utilities/napi_to_cpp.hpp>
 
 #include <node_cuda/utilities/error.hpp>
 #include <node_cuda/utilities/napi_to_cpp.hpp>
@@ -24,6 +24,7 @@
 
 #include <nv_node/utilities/cpp_to_napi.hpp>
 
+#include <cudf/column/column_view.hpp>
 #include <cudf/scalar/scalar_factories.hpp>
 #include <cudf/utilities/traits.hpp>
 #include <cudf/utilities/type_dispatcher.hpp>
@@ -97,7 +98,7 @@ Napi::Object Scalar::Init(Napi::Env env, Napi::Object exports) {
 
 ObjectUnwrap<Scalar> Scalar::New(std::unique_ptr<cudf::scalar> scalar) {
   auto opts = Napi::Object::New(constructor.Env());
-  opts.Set("type", DataType::New(scalar->type().id())->Value());
+  opts.Set("type", cudf_to_arrow_type(opts.Env(), scalar->type()));
   ObjectUnwrap<Scalar> inst{constructor.New({opts})};
   inst->scalar_ = std::move(scalar);
   return inst;
@@ -118,20 +119,22 @@ ObjectUnwrap<Scalar> Scalar::New(Napi::String const& value) {
 ObjectUnwrap<Scalar> Scalar::New(Napi::Value const& value, cudf::data_type type) {
   auto opts = Napi::Object::New(constructor.Env());
   opts.Set("value", value);
-  opts.Set("type", DataType::New(type.id())->Value());
+  opts.Set("type", cudf_to_arrow_type(opts.Env(), type));
   return constructor.New({opts});
 }
 
 Scalar::Scalar(CallbackArgs const& args) : Napi::ObjectWrap<Scalar>(args) {
-  NODE_CUDA_EXPECT(args[0].IsObject(), "Scalar constructor expects an Object options argument");
+  NODE_CUDF_EXPECT(
+    args[0].IsObject(), "Scalar constructor expects an Object options argument", args.Env());
   Napi::Object props = args[0];
 
-  NODE_CUDA_EXPECT(props.Has("type"), "Scalar constructor expects options to have a 'type' field");
-  auto type = props.Get("type");
+  NODE_CUDF_EXPECT(
+    props.Has("type"), "Scalar constructor expects options to have a 'type' field", args.Env());
+  NODE_CUDF_EXPECT(props.Get("type").IsObject(),
+                   "Scalar constructor expects 'type' option to be a DataType",
+                   args.Env());
 
-  NODE_CUDA_EXPECT(DataType::is_instance(type),
-                   "Scalar constructor expects 'type' option to be a DataType");
-  type_   = Napi::Persistent(type.ToObject());
+  type_   = Napi::Persistent(props.Get("type").As<Napi::Object>());
   scalar_ = cudf::make_default_constructed_scalar(this->type());
   if (props.Has("value")) { set_value(args, props.Get("value")); }
 }

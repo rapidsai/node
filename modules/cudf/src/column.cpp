@@ -15,6 +15,7 @@
 #include <node_cudf/column.hpp>
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/utilities/cpp_to_napi.hpp>
+#include <node_cudf/utilities/dtypes.hpp>
 #include <node_cudf/utilities/error.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
 
@@ -52,7 +53,7 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
     DefineClass(env,
                 "Column",
                 {
-                  InstanceAccessor<&Column::type>("type"),
+                  InstanceAccessor<&Column::type, &Column::type>("type"),
                   InstanceAccessor<&Column::data>("data"),
                   InstanceAccessor<&Column::null_mask>("mask"),
                   InstanceAccessor<&Column::size>("length"),
@@ -143,8 +144,8 @@ ObjectUnwrap<Column> Column::New(std::unique_ptr<cudf::column> column) {
 
   props.Set("offset", 0);
   props.Set("length", column->size());
-  props.Set("type", column->type().id());
   props.Set("nullCount", column->null_count());
+  props.Set("type", column_to_arrow_type(env, column->view()));
 
   auto contents = column->release();
   auto data     = std::move(contents.data);
@@ -171,21 +172,30 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
 
   Napi::Object props = args[0];
 
+  NODE_CUDF_EXPECT(props.Has("type") && props.Get("type").IsObject(),
+                   "Column constructor properties requires a type Object");
+
+  type_ = Napi::Persistent(props.Get("type").As<Napi::Object>());
+
   cudf::size_type length{props.Has("length") ? NapiToCPP(props.Get("length")) : 0};
   cudf::size_type offset{props.Has("offset") ? NapiToCPP(props.Get("offset")) : 0};
+
+  offset_ = offset;
+
   cudf::size_type null_count{props.Has("nullCount") && props.Get("nullCount").IsNumber() &&
                                  props.Get("nullCount").ToNumber().operator int32_t() > -1
                                ? NapiToCPP(props.Get("nullCount"))
                                : cudf::UNKNOWN_NULL_COUNT};
 
-  auto type =
-    DataType::New(props.Has("type") ? NapiToCPP(props.Get("type")) : cudf::type_id::EMPTY);
+  null_count_ = null_count;
 
   auto children =
     props.Has("children") ? props.Get("children").As<Napi::Array>() : Napi::Array::New(Env(), 0);
 
+  children_ = Napi::Persistent(children);
+
   auto get_or_create_device_buffer_arg = [&](std::string const& key) -> ObjectUnwrap<DeviceBuffer> {
-    if (cudf::is_fixed_width(type) && props.Has(key)) {
+    if (cudf::is_fixed_width(type()) && props.Has(key)) {
       auto prop = props.Get(key);
       auto data = NapiToCPP(prop);
       if (data.IsMemoryLike()) {
@@ -200,17 +210,17 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
   auto const data = get_or_create_device_buffer_arg("data");
   auto const mask = get_or_create_device_buffer_arg("nullMask");
 
-  if (length == 0 && data->size() > 0 && cudf::is_fixed_width(type)) {
-    length = data->size() / cudf::size_of(type);
+  if (length <= 0) {
+    if (cudf::is_fixed_width(type())) {
+      length = data->size() / cudf::size_of(type());
+    } else if (cudf::is_compound(type()) && children.Length() > 0) {
+      length = Column::Unwrap(children.Get(0u).As<Napi::Object>())->size() - 1;
+    }
   }
 
-  size_       = length;
-  offset_     = offset;
-  null_count_ = null_count;
-  type_       = type.reference();
-  data_       = data.reference();
-  null_mask_  = mask.reference();
-  children_   = Napi::Persistent(children);
+  size_      = length;
+  data_      = data.reference();
+  null_mask_ = mask.reference();
 
   if (!nullable()) { null_count_ = 0; }
 }
@@ -324,6 +334,9 @@ ObjectUnwrap<Column> Column::operator[](Column const& selection) const {
 //
 
 Napi::Value Column::type(Napi::CallbackInfo const& info) { return type_.Value(); }
+void Column::type(Napi::CallbackInfo const& info, Napi::Value const& value) {
+  type_ = Napi::Persistent(value.As<Napi::Object>());
+}
 
 Napi::Value Column::size(Napi::CallbackInfo const& info) { return CPPToNapi(info)(size()); }
 

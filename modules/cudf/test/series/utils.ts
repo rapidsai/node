@@ -28,7 +28,6 @@ import {
   Int8,
   Numeric,
   Series,
-  TypeId,
   Uint16,
   Uint32,
   Uint64,
@@ -88,29 +87,25 @@ export const clampIntValuesLikeUnaryCast =
     <T extends DataType>(type: T, input: number[]) => {
       return input.map((x) => {
         a[0] = x;
-        switch (type.id) {
-          case TypeId.BOOL8: return a[0] ? 1 : 0;
-          case TypeId.INT64: return BigInt.asIntN(64, BigInt(a[0]));
-          case TypeId.UINT64: return BigInt.asUintN(64, BigInt(a[0]));
-          default: return a[0];
-        }
+        if (type instanceof Bool8) { return a[0] ? 1 : 0; }
+        if (type instanceof Int64) { return BigInt.asIntN(64, BigInt(a[0])); }
+        if (type instanceof Uint64) { return BigInt.asUintN(64, BigInt(a[0])); }
+        return a[0];
       });
     };
 
 export function clampFloatValuesLikeUnaryCast<T extends DataType>(type: T, input: number[]) {
   return input.map((x) => {
-    switch (type.id) {
-      case TypeId.BOOL8: return x ? 1 : 0;
-      case TypeId.INT8:
-      case TypeId.INT16:
-      case TypeId.INT32: return x | 0;
-      case TypeId.INT64: return BigInt.asIntN(64, BigInt(x | 0));
-      case TypeId.UINT8:
-      case TypeId.UINT16:
-      case TypeId.UINT32: return x < 0 ? 0 : x | 0;
-      case TypeId.UINT64: return BigInt.asUintN(64, BigInt(x < 0 ? 0 : x | 0));
-      default: return x;
+    if (type instanceof Bool8) { return x ? 1 : 0; }
+    if ((type instanceof Int8) || (type instanceof Int16) || (type instanceof Int32)) {
+      return x | 0;
     }
+    if (type instanceof Int64) { return BigInt.asIntN(64, BigInt(x | 0)); }
+    if ((type instanceof Uint8) || (type instanceof Uint16) || (type instanceof Uint32)) {
+      return x < 0 ? 0 : x | 0;
+    }
+    if (type instanceof Uint64) { return BigInt.asUintN(64, BigInt(x < 0 ? 0 : x | 0)); }
+    return x;
   });
 }
 

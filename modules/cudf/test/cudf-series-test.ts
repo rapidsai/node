@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Bool8, Column, Int32, NullOrder, Series, TypeId, Uint8, Utf8String} from '@nvidia/cudf';
+import {Bool8, Column, Int32, NullOrder, Series, Uint8, Utf8String} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 import {Uint8Vector, Utf8Vector} from 'apache-arrow';
 import {BoolVector} from 'apache-arrow'
@@ -26,7 +26,7 @@ test('Series initialization with properties (non-null)', () => {
   const length = 100;
   const s      = Series.new({type: new Int32(), data: new Int32Buffer(length)});
 
-  expect(s.type.id).toBe(TypeId.INT32);
+  expect(s.type).toBeInstanceOf(Int32);
   expect(s.length).toBe(length);
   expect(s.nullCount).toBe(0);
   expect(s.hasNulls).toBe(false);
@@ -41,7 +41,7 @@ test('Series initialization with properties (null)', () => {
     nullMask: new Uint8Buffer([250, 255]),
   });
 
-  expect(s.type.id).toBe(TypeId.INT32);
+  expect(s.type).toBeInstanceOf(Int32);
   expect(s.length).toBe(length);
   expect(s.nullCount).toBe(2);
   expect(s.hasNulls).toBe(true);
@@ -50,10 +50,10 @@ test('Series initialization with properties (null)', () => {
 
 test('Series initialization with Column', () => {
   const length = 100;
-  const col    = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
+  const col    = new Column({type: new Int32, data: new Int32Buffer(length)});
   const s      = Series.new(col)
 
-  expect(s.type.id).toBe(TypeId.INT32);
+  expect(s.type).toBeInstanceOf(Int32);
   expect(s.length).toBe(length);
   expect(s.nullCount).toBe(0);
   expect(s.hasNulls).toBe(false);
@@ -70,14 +70,14 @@ test('test child(child_index), num_children', () => {
     children: [offsetsCol, utf8Col],
   });
 
-  expect(stringsCol.type.id).toBe(TypeId.STRING);
+  expect(stringsCol.type).toBeInstanceOf(Utf8String);
   expect(stringsCol.numChildren).toBe(2);
   expect(stringsCol.nullCount).toBe(0);
   expect(stringsCol.getValue(0)).toBe("hello");
-  expect(stringsCol.getChild(0).length).toBe(offsetsCol.length);
-  expect(stringsCol.getChild(0).type.id).toBe(offsetsCol.type.id);
-  expect(stringsCol.getChild(1).length).toBe(utf8Col.length);
-  expect(stringsCol.getChild(1).type.id).toBe(utf8Col.type.id);
+  expect(stringsCol.offsets.length).toBe(offsetsCol.length);
+  expect(stringsCol.offsets.type).toBeInstanceOf(Int32);
+  expect(stringsCol.data.length).toBe(utf8Col.length);
+  expect(stringsCol.data.type).toBeInstanceOf(Uint8);
 });
 
 test('Series.gather', () => {

@@ -17,7 +17,7 @@
 import '../jest-extensions';
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {Int32, List, Series, SeriesType} from '@nvidia/cudf';
+import {Int32, List, Series} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 import * as arrow from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';
@@ -27,13 +27,13 @@ const mr = new CudaMemoryResource();
 setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
 
 describe('ListSeries', () => {
-  const validateOffsets = (vec: VectorType<arrow.List>, col: SeriesType<List>) => {
+  const validateOffsets = (vec: VectorType<arrow.List>, col: Series<List>) => {
     const expectedOffsets = vec.valueOffsets.subarray(0, vec.length + 1);
     const actualOffsets   = col.offsets.data.toArray();
     expect(expectedOffsets).toEqualTypedArray(actualOffsets);
   };
 
-  const validateElements = (vec: VectorType<arrow.Int32>, col: SeriesType<Int32>) => {
+  const validateElements = (vec: VectorType<arrow.Int32>, col: Series<Int32>) => {
     const expectedElements = vec.values.subarray(0, vec.length);
     const actualElements   = col.data.toArray();
     expect(expectedElements).toEqualTypedArray(actualElements);

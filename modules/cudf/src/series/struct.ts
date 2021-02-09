@@ -17,12 +17,13 @@ import {MemoryResource} from '@nvidia/rmm';
 import * as arrow from 'apache-arrow';
 
 import {Series} from '../series';
-import {DataType, Int32, List} from '../types/dtypes'
+import {DataType, Struct} from '../types/dtypes';
+import {TypeMap} from '../types/mappings';
 
 /**
- * A Series of lists of values.
+ * A Series of structs.
  */
-export class ListSeries<T extends DataType> extends Series<List<T>> {
+export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
   /**
    * Casts the values to a new dtype (similar to `static_cast` in C++).
    *
@@ -37,12 +38,15 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
       arrow.Type[dataType.typeId]} not implemented`);
   }
   /**
-   * Series of integer offsets for each list
+   * Return a child series by name.
+   *
+   * @param name Name of the Series to return.
    */
-  get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
+  getChild<P extends keyof T>(name: P): Series<T[P]> {
+    return Series.new(this._col.getChild<T[P]>(getChildIndex(this.type, name)));
+  }
+}
 
-  /**
-   * Series containing the elements of each list
-   */
-  get elements(): Series<T> { return Series.new(this._col.getChild<T>(1)); }
+function getChildIndex<T extends Struct>(type: T, name: keyof T['childTypes']) {
+  return type.children.findIndex((f) => f.name === name);
 }

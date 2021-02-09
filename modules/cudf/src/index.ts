@@ -16,4 +16,7 @@ export * from './column';
 export * from './data_frame';
 export * from './series';
 export * from './table';
-export * from './types';
+export * from './types/csv';
+export * from './types/enums';
+export * from './types/dtypes';
+export * from './types/mappings';

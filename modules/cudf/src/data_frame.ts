@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,25 +13,26 @@
 // limitations under the License.
 
 import {MemoryResource} from '@nvidia/rmm';
+import * as arrow from 'apache-arrow';
 import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor'
 import {Series} from './series';
 import {Table} from './table';
+import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {
   Bool8,
-  ColumnsMap,
-  CSVToCUDFType,
-  CSVTypeMap,
   DataType,
   Integral,
+} from './types/dtypes'
+import {
   NullOrder,
-  ReadCSVOptions,
-  SeriesType,
+} from './types/enums';
+import {
+  ColumnsMap,
   TypeMap,
-  WriteCSVOptions
-} from './types'
+} from './types/mappings';
 
 type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: Series<T[P]>
@@ -111,7 +112,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @param name Name of the Series to return.
    */
-  get<P extends keyof T>(name: P): SeriesType<T[P]> { return Series.new(this._accessor.get(name)); }
+  get<P extends keyof T>(name: P): Series<T[P]> { return Series.new(this._accessor.get(name)); }
 
   /**
    * Casts each Series in this DataFrame to a new dtype (similar to `static_cast` in C++).
@@ -123,15 +124,16 @@ export class DataFrame<T extends TypeMap = any> {
    */
   cast<R extends {[P in keyof T]?: DataType}>(dataTypes: R, memoryResource?: MemoryResource) {
     const names = this._accessor.names;
-    const types = !(dataTypes instanceof DataType)
+    const types = !(dataTypes instanceof arrow.DataType)
                     ? dataTypes
                     : names.reduce((types, name) => ({...types, [name]: dataTypes}), {} as R);
     return new DataFrame(names.reduce(
       (columns, name) => ({
         ...columns,
-        [name]: name in types ? this.get(name).cast(types[name], memoryResource) : this.get(name)
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        [name]: name in types ? this.get(name).cast(types[name]!, memoryResource) : this.get(name)
       }),
-      {} as SeriesMap<{[P in keyof Omit<T, keyof R>| keyof R]: (Omit<T, keyof R>& R)[P]}>));
+      {} as SeriesMap<Omit<T, keyof R>&R>));
   }
 
   /**
@@ -163,7 +165,7 @@ export class DataFrame<T extends TypeMap = any> {
     entries.forEach(([name, {ascending, null_order}]) => {
       const child = this.get(name);
       if (child) {
-        columns.push(child._col);
+        columns.push(child._col as Column<T[keyof T]>);
         column_orders.push(ascending);
         null_orders.push(null_order);
       }
@@ -183,7 +185,7 @@ export class DataFrame<T extends TypeMap = any> {
     const columns    = temp.gather(selection._col);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
-      (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
+      (name, index) => { series_map[name] = <any>Series.new(columns.getColumnByIndex(index)); });
     return new DataFrame(series_map);
   }
 
@@ -197,7 +199,7 @@ export class DataFrame<T extends TypeMap = any> {
     const columns    = temp.gather(mask._col);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
-      (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
+      (name, index) => { series_map[name] = <any>Series.new(columns.getColumnByIndex(index)); });
     return new DataFrame(series_map);
   }
 
