@@ -27,15 +27,6 @@
 
 namespace nv {
 
-namespace {
-
-inline rmm::mr::device_memory_resource* get_mr(Napi::Value const& arg) {
-  return MemoryResource::is_instance(arg) ? *MemoryResource::Unwrap(arg.ToObject())
-                                          : rmm::mr::get_current_device_resource();
-}
-
-}  // namespace
-
 std::pair<rmm::device_buffer, cudf::size_type> Column::nans_to_nulls(
   rmm::mr::device_memory_resource* mr) const {
   auto result = cudf::nans_to_nulls(this->view(), mr);
@@ -44,7 +35,7 @@ std::pair<rmm::device_buffer, cudf::size_type> Column::nans_to_nulls(
 
 Napi::Value Column::nans_to_nulls(Napi::CallbackInfo const& info) {
   bool inplace = NapiToCPP{info[0]}.ToBoolean();
-  auto result  = nans_to_nulls(get_mr(info[1]));
+  auto result  = nans_to_nulls(NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
   if (inplace == true) {
     this->set_null_mask(DeviceBuffer::New(result.first.data(), result.first.size()), result.second);
     return info.Env().Undefined();

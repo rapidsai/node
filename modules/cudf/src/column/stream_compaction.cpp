@@ -30,15 +30,6 @@
 
 namespace nv {
 
-namespace {
-
-inline rmm::mr::device_memory_resource* get_mr(Napi::Value const& arg) {
-  return MemoryResource::is_instance(arg) ? *MemoryResource::Unwrap(arg.ToObject())
-                                          : rmm::mr::get_current_device_resource();
-}
-
-}  // namespace
-
 ObjectUnwrap<Column> Column::apply_boolean_mask(Column const& boolean_mask,
                                                 rmm::mr::device_memory_resource* mr) const {
   auto result = cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr);
@@ -54,7 +45,7 @@ ObjectUnwrap<Column> Column::drop_nulls(rmm::mr::device_memory_resource* mr) con
 }
 
 Napi::Value Column::drop_nulls(Napi::CallbackInfo const& info) {
-  return drop_nulls(get_mr(info[0]));
+  return drop_nulls(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
 }
 
 ObjectUnwrap<Column> Column::drop_nans(rmm::mr::device_memory_resource* mr) const {
@@ -64,6 +55,8 @@ ObjectUnwrap<Column> Column::drop_nans(rmm::mr::device_memory_resource* mr) cons
   return Column::New(std::move(contents[0]));
 }
 
-Napi::Value Column::drop_nans(Napi::CallbackInfo const& info) { return drop_nans(get_mr(info[0])); }
+Napi::Value Column::drop_nans(Napi::CallbackInfo const& info) {
+  return drop_nans(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+}
 
 }  // namespace nv
