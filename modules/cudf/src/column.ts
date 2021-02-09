@@ -890,7 +890,7 @@ export interface Column<T extends DataType = any> {
    * convert NaN values in the column with Null values,
    * while also updating the nullMask and nullCount values
    *
-   * @param inpalce if true, update the column inplace, else return updated column
+   * @param inplace if true, update the column inplace, else return updated column
    * @returns undefined if inplace=True, else updated column with Null values
    */
   nans_to_nulls(inplace?: boolean): Column<T>|undefined;
