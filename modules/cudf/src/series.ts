@@ -244,19 +244,21 @@ export class Series<T extends DataType = any> {
   /**
    * drop Null values from the series
    *
-   * @returns series without NaN and Null values
+   * @returns series without Null values
    */
-  dropNA() { return this._col.drop_nulls(); }
+  dropNA(): Series<T> { return Series.new(this._col.drop_nulls()); }
 
   /**
    * drop NA values from the series if series is of floating-type
    * values and contains NA values
    *
-   * @returns series without NaN and Null values
+   * @returns series without NaN values
    */
-  dropNaN() {
-    if (this.type == new Float32() || this.type == new Float64()) { return this._col.drop_nans(); }
-    return this._col;
+  dropNaN(): Series<T> {
+    if (this.type == new Float32() || this.type == new Float64()) {
+      return Series.new(this._col.drop_nans());
+    }
+    return Series.new(this._col);
   }
 
   /**
@@ -282,7 +284,7 @@ export class Series<T extends DataType = any> {
   /**
    * Return whether all elements are true in Series.
    *
-   * @param skipna bool, default true
+   * @param skipna bool
    * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
    * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
    * these are not equal to zero.
@@ -291,9 +293,7 @@ export class Series<T extends DataType = any> {
    *
    * @returns true if all elements are true in Series, else false.
    */
-  all(skipna?: boolean, memoryResource?: MemoryResource): boolean {
-    skipna = (skipna == undefined) ? true : skipna;
-
+  all(skipna = true, memoryResource?: MemoryResource): boolean {
     if (skipna) {
       const ser_result = this.nansToNulls(false);  // inplace=false
       if (ser_result?.length == ser_result?.nullCount) { return true; }
@@ -304,7 +304,7 @@ export class Series<T extends DataType = any> {
   /**
    * Return whether any elements are true in Series.
    *
-   * @param skipna bool, default true
+   * @param skipna bool
    * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
    * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
    * these are not equal to zero.
@@ -313,8 +313,7 @@ export class Series<T extends DataType = any> {
    *
    * @returns true if any elements are true in Series, else false.
    */
-  any(skipna?: boolean, memoryResource?: MemoryResource): boolean {
-    skipna = (skipna == undefined) ? true : skipna;
+  any(skipna = true, memoryResource?: MemoryResource): boolean {
     if (this.length == 0) { return false; }
     if (skipna) {
       const ser_result = this.nansToNulls(false);  // inplace=false
