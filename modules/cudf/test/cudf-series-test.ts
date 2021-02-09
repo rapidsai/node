@@ -218,3 +218,17 @@ test('Series.dropNA', () => {
   const expected = [3, 4, 2];
   expect([...result.toArrow()]).toEqual(expected);
 });
+
+test('Series.nansToNulls', () => {
+  const col = Series.new({type: new Float32(), data: new Float32Buffer([1, 3, NaN, 4, 2, 0])});
+
+  const inplace = false;
+  const result  = col.nansToNulls(false);
+
+  const expected = [1, 3, null, 4, 2, 0];
+  if (result !== undefined) {
+    expect([...result.toArrow()]).toEqual(expected);
+  } else {
+    expect(inplace).toEqual(true);
+  }
+});

@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Column, TypeId} from '@nvidia/cudf';
+import {Column, Float32, Series, TypeId} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
+import {BoolVector} from 'apache-arrow';
 
 const mr = new CudaMemoryResource();
 
@@ -101,4 +102,37 @@ test('test child(child_index), num_children', () => {
   expect(stringsCol.getChild(0).type.id).toBe(offsetsCol.type.id);
   expect(stringsCol.getChild(1).length).toBe(utf8Col.length);
   expect(stringsCol.getChild(1).type.id).toBe(utf8Col.type.id);
+});
+
+test('Column.drop_nans', () => {
+  const col    = new Column({type: new Float32(), data: new Float32Buffer([1, 3, NaN, 4, 2, 0])});
+  const result = col.drop_nans();
+
+  const expected = [1, 3, 4, 2, 0];
+  expect([...Series.new(result).toArrow()]).toEqual(expected);
+});
+
+test('Column.drop_nulls', () => {
+  const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
+
+  const col = new Column(
+    {type: new Float32(), data: new Float32Buffer([1, 3, NaN, 4, 2, 0]), nullMask: mask});
+  const result = col.drop_nulls();
+
+  const expected = [3, NaN, 4, 2];
+  expect([...Series.new(result).toArrow()]).toEqual(expected);
+});
+
+test('Column.nans_to_nulls', () => {
+  const col = new Column({type: new Float32(), data: new Float32Buffer([1, 3, NaN, 4, 2, 0])});
+
+  const inplace = false;
+  const result  = col.nans_to_nulls(false);
+
+  const expected = [1, 3, null, 4, 2, 0];
+  if (result !== undefined) {
+    expect([...Series.new(result).toArrow()]).toEqual(expected);
+  } else {
+    expect(inplace).toEqual(true);
+  }
 });
