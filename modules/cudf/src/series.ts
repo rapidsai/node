@@ -242,24 +242,11 @@ export class Series<T extends DataType = any> {
   isValid(memoryResource?: MemoryResource) { return Series.new(this._col.isValid(memoryResource)); }
 
   /**
-   * drop Null values from the series
+   * drop Null & NA values from the series
    *
    * @returns series without Null values
    */
-  dropNA(): Series<T> { return Series.new(this._col.drop_nulls()); }
-
-  /**
-   * drop NA values from the series if series is of floating-type
-   * values and contains NA values
-   *
-   * @returns series without NaN values
-   */
-  dropNaN(): Series<T> {
-    if (this.type == new Float32() || this.type == new Float64()) {
-      return Series.new(this._col.drop_nans());
-    }
-    return Series.new(this._col);
-  }
+  dropNA(): Series<T>{return Series.new(this._col.drop_nans().drop_nulls())}
 
   /**
    * convert NaN values in the series with Null values,

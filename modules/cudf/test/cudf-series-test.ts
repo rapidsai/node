@@ -12,8 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Bool8, Column, Int32, NullOrder, Series, TypeId, Uint8, Utf8String} from '@nvidia/cudf';
+import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
+import {
+  Bool8,
+  Column,
+  Float32,
+  Int32,
+  NullOrder,
+  Series,
+  TypeId,
+  Uint8,
+  Utf8String
+} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 import {Uint8Vector, Utf8Vector} from 'apache-arrow';
 import {BoolVector} from 'apache-arrow'
@@ -196,5 +206,15 @@ test('Series.sortValues (descending)', () => {
   const result = col.sortValues(false);
 
   const expected = [5, 4, 3, 2, 1, 0];
+  expect([...result.toArrow()]).toEqual(expected);
+});
+
+test('Series.dropNA', () => {
+  const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
+  const col  = Series.new(
+    {type: new Float32(), data: new Float32Buffer([1, 3, NaN, 4, 2, 0]), nullMask: mask});
+  const result = col.dropNA();
+
+  const expected = [3, 4, 2];
   expect([...result.toArrow()]).toEqual(expected);
 });
