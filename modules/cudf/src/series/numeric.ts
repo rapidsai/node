@@ -17,8 +17,8 @@ import {MemoryResource} from '@nvidia/rmm';
 import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
-import {Bool8, DataType, Numeric} from '../types/dtypes'
-import {CommonType} from '../types/mappings';
+import {Bool8, DataType, Float64, Numeric} from '../types/dtypes'
+import {CommonType, Interpolation} from '../types/mappings';
 
 import {Float64Series} from './float';
 import {Int64Series} from './integral';
@@ -825,6 +825,17 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     return this;
   }
 
+  _compute_dtype(dtype: DataType|undefined): DataType {
+    if (dtype == undefined) {
+      if (["Int64", "Uint64"].includes(this.type.toString())) {
+        return this.type;
+      } else {
+        return new Float64;
+      }
+    }
+    return dtype;
+  }
+
   /**
    * Compute the sum of all values in this Series.
    * @param skipna The optional skipna if true drops NA and null values before computing reduction,
@@ -834,12 +845,11 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns The sum of all the values in this Series.
    */
-  sum(skipna             = true,
-      dataType: DataType = new DataType(TypeId.EMPTY),
-      memoryResource?: MemoryResource) {
+  sum(skipna = true, dataType?: DataType, memoryResource?: MemoryResource) {
     const result_series = this._process_reduction(skipna);
-    return (result_series == undefined) ? undefined
-                                        : result_series._col.sum(dataType, memoryResource);
+    return (result_series == undefined)
+             ? undefined
+             : result_series._col.sum(this._compute_dtype(dataType), memoryResource);
   }
 
   /**
@@ -852,12 +862,11 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns The product of all the values in this Series.
    */
-  product(skipna             = true,
-          dataType: DataType = new DataType(TypeId.EMPTY),
-          memoryResource?: MemoryResource) {
+  product(skipna = true, dataType?: DataType, memoryResource?: MemoryResource) {
     const result_series = this._process_reduction(skipna);
-    return (result_series == undefined) ? undefined
-                                        : result_series._col.product(dataType, memoryResource);
+    return (result_series == undefined)
+             ? undefined
+             : result_series._col.product(this._compute_dtype(dataType), memoryResource);
   }
 
   /**
@@ -870,13 +879,11 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns The sumOfSquares of all the values in this Series.
    */
-  sumOfSquares(skipna             = true,
-               dataType: DataType = new DataType(TypeId.EMPTY),
-               memoryResource?: MemoryResource) {
+  sumOfSquares(skipna = true, dataType?: DataType, memoryResource?: MemoryResource) {
     const result_series = this._process_reduction(skipna);
     return (result_series == undefined)
              ? undefined
-             : result_series._col.sum_of_squares(dataType, memoryResource);
+             : result_series._col.sum_of_squares(this._compute_dtype(dataType), memoryResource);
   }
 
   /**

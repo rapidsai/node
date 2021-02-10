@@ -18,9 +18,7 @@ import {DeviceBuffer, MemoryResource} from '@nvidia/rmm';
 import CUDF from './addon';
 import {Scalar} from './scalar';
 import {Bool8, DataType, Float64, Int64, Integral, Numeric, Uint64} from './types/dtypes';
-import {
-  CommonType,
-} from './types/mappings';
+import {CommonType, Interpolation} from './types/mappings';
 
 export type ColumnProps<T extends DataType = any> = {
   // todo -- need to pass full DataType instance when we implement fixed_point

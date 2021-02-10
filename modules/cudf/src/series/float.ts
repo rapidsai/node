@@ -58,7 +58,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
     return Series.new(this._col.rint(memoryResource));
   }
 
-  _process_reduction(skipna = true): SeriesType<T>|undefined {
+  _process_reduction(skipna = true): Series<T> {
     if (skipna == true) {
       // returning nans_to_nulls as c++ reduce always ignore nulls,
       // so dropNA and dropNulls is not required.
@@ -73,7 +73,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * @param inpalce if true, update the series inplace, else return updated Series
    * @returns undefined if inplace=True, else updated Series with Null values
    */
-  nansToNulls(inplace?: boolean): SeriesType<T>|undefined {
+  nansToNulls(inplace?: boolean): Series<T>|undefined {
     inplace = (inplace == undefined) ? true : inplace;
     if (inplace == true) {
       this._col.nans_to_nulls(true);  // inplace = true, return undefined
@@ -89,7 +89,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    *
    * @returns column without NaN values
    */
-  dropNaNs(): SeriesType<T> { return Series.new(this._col.drop_nans()); }
+  dropNaNs(): Series<T> { return Series.new(this._col.drop_nans()); }
 
   /**
    * Return whether all elements are true in Series.
@@ -141,7 +141,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    *   memory.
    * @returns The number of unqiue values in this Series.
    */
-  nunique(skipna = true, memoryResource?: MemoryResource) {
+  nunique(skipna = true, memoryResource?: MemoryResource): number|undefined {
     return (skipna) ? this.nansToNulls(false)?._col.nunique(skipna, memoryResource)
                     : this._col.nunique(skipna, memoryResource);
   }

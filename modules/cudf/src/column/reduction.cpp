@@ -14,7 +14,6 @@
 
 #include <node_cudf/column.hpp>
 #include <node_cudf/scalar.hpp>
-#include <node_cudf/types.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
@@ -28,15 +27,6 @@
 #include <string>
 
 namespace nv {
-
-cudf::data_type _compute_dtype(cudf::data_type dtype, cudf::data_type current_type) {
-  return (dtype == cudf::data_type(cudf::type_id::EMPTY)) ? cudf::data_type{[](cudf::type_id id) {
-    if (id == cudf::type_id::INT64) return id;
-    if (id == cudf::type_id::UINT64) return id;
-    return cudf::type_id::FLOAT64;
-  }(current_type.id())}
-                                                          : dtype;
-}
 
 std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> Column::minmax() const {
   auto result = cudf::minmax(*this);
@@ -55,7 +45,7 @@ ObjectUnwrap<Scalar> Column::reduce(std::unique_ptr<cudf::aggregation> const& ag
 }
 
 ObjectUnwrap<Scalar> Column::sum(cudf::data_type dtype, rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_sum_aggregation(), _compute_dtype(dtype, this->type()), mr);
+  return reduce(cudf::make_sum_aggregation(), dtype, mr);
 }
 
 Napi::Value Column::sum(Napi::CallbackInfo const& info) {
@@ -64,7 +54,7 @@ Napi::Value Column::sum(Napi::CallbackInfo const& info) {
 
 ObjectUnwrap<Scalar> Column::product(cudf::data_type dtype,
                                      rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_product_aggregation(), _compute_dtype(dtype, this->type()), mr);
+  return reduce(cudf::make_product_aggregation(), dtype, mr);
 }
 
 Napi::Value Column::product(Napi::CallbackInfo const& info) {
@@ -74,7 +64,7 @@ Napi::Value Column::product(Napi::CallbackInfo const& info) {
 
 ObjectUnwrap<Scalar> Column::sum_of_squares(cudf::data_type dtype,
                                             rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_sum_of_squares_aggregation(), _compute_dtype(dtype, this->type()), mr);
+  return reduce(cudf::make_sum_of_squares_aggregation(), dtype, mr);
 }
 
 Napi::Value Column::sum_of_squares(Napi::CallbackInfo const& info) {
