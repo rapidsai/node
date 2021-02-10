@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import CUDF from './addon';
-import {DataType} from './types';
+import {DataType} from './types/dtypes';
 
 type ScalarProps<T extends DataType> = {
   type: T,
-  value?: T['valueType']|null
+  value?: T['scalarType']|null
 };
 
 interface ScalarConstructor {
@@ -30,7 +30,7 @@ interface ScalarConstructor {
  */
 export interface Scalar<T extends DataType = any> {
   type: T;
-  value: T['valueType']|null;
+  value: T['scalarType']|null;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

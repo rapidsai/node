@@ -13,15 +13,17 @@
 // limitations under the License.
 
 import {MemoryResource} from '@nvidia/rmm';
+
 import * as arrow from 'apache-arrow';
 
 import {Series} from '../series';
-import {DataType, Int32, Uint8, Utf8String} from '../types/dtypes'
+import {DataType, Struct} from '../types/dtypes';
+import {TypeMap} from '../types/mappings';
 
 /**
- * A Series of utf8-string values in GPU memory.
+ * A Series of structs.
  */
-export class StringSeries extends Series<Utf8String> {
+export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
   /**
    * Casts the values to a new dtype (similar to `static_cast` in C++).
    *
@@ -36,11 +38,15 @@ export class StringSeries extends Series<Utf8String> {
       arrow.Type[dataType.typeId]} not implemented`);
   }
   /**
-   * Series of integer offsets for each string
+   * Return a child series by name.
+   *
+   * @param name Name of the Series to return.
    */
-  get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
-  /**
-   * Series containing the utf8 characters of each string
-   */
-  get data() { return Series.new(this._col.getChild<Uint8>(1)); }
+  getChild<P extends keyof T>(name: P): Series<T[P]> {
+    return Series.new(this._col.getChild<T[P]>(getChildIndex(this.type, name)));
+  }
+}
+
+function getChildIndex<T extends Struct>(type: T, name: keyof T['childTypes']) {
+  return type.children.findIndex((f) => f.name === name);
 }

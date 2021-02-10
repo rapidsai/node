@@ -14,7 +14,7 @@
 
 import {Uint8ClampedBuffer} from '@nvidia/cuda';
 
-import {Bool8} from '../types';
+import {Bool8} from '../types/dtypes'
 
 import {NumericSeries} from './numeric';
 

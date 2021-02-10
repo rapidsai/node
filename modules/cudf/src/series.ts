@@ -14,22 +14,14 @@
 
 import {MemoryData} from '@nvidia/cuda';
 import {DeviceBuffer, MemoryResource} from '@nvidia/rmm';
-import {
-  DataType as ArrowDataType,
-  RecordBatchReader,
-  Table as ArrowTable,
-  Vector
-} from 'apache-arrow';
+import * as arrow from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';
 
 import {Column, ColumnProps} from './column';
 import {fromArrow} from './column/from_arrow';
-import {DataFrame} from './data_frame';
 import {Table} from './table';
 import {
-  ArrowToCUDFType,
   Bool8,
-  CUDFToArrowType,
   DataType,
   Float32,
   Float64,
@@ -38,15 +30,18 @@ import {
   Int64,
   Int8,
   Integral,
-  NullOrder,
-  SeriesType,
-  TypeId,
+  List,
+  Struct,
   Uint16,
   Uint32,
   Uint64,
   Uint8,
   Utf8String,
-} from './types';
+} from './types/dtypes';
+import {
+  NullOrder,
+} from './types/enums';
+import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
 export type SeriesProps<T extends DataType = any> = {
   type: T,
@@ -58,50 +53,62 @@ export type SeriesProps<T extends DataType = any> = {
   children?: ReadonlyArray<Series>|null
 };
 
+export type Series<T extends DataType = any> = {
+  // [key: number]: AbstractSeries<any>,
+  [arrow.Type.NONE]: never,  // TODO
+  [arrow.Type.Null]: never,  // TODO
+  [arrow.Type.Int8]: Int8Series,
+  [arrow.Type.Int16]: Int16Series,
+  [arrow.Type.Int32]: Int32Series,
+  [arrow.Type.Int64]: Int64Series,
+  [arrow.Type.Uint8]: Uint8Series,
+  [arrow.Type.Uint16]: Uint16Series,
+  [arrow.Type.Uint32]: Uint32Series,
+  [arrow.Type.Uint64]: Uint64Series,
+  [arrow.Type.Float32]: Float32Series,
+  [arrow.Type.Float64]: Float64Series,
+  [arrow.Type.Bool]: Bool8Series,
+  [arrow.Type.DateDay]: never,               // TODO
+  [arrow.Type.DateMillisecond]: never,       // TODO
+  [arrow.Type.TimestampSecond]: never,       // TODO
+  [arrow.Type.TimestampMillisecond]: never,  // TODO
+  [arrow.Type.TimestampMicrosecond]: never,  // TODO
+  [arrow.Type.TimestampNanosecond]: never,   // TODO
+  // [arrow.Type.DURATION_DAYS]: never,           // TODO
+  // [arrow.Type.DURATION_SECONDS]: never,        // TODO
+  // [arrow.Type.DURATION_MILLISECONDS]: never,   // TODO
+  // [arrow.Type.DURATION_MICROSECONDS]: never,   // TODO
+  // [arrow.Type.DURATION_NANOSECONDS]: never,    // TODO
+  [arrow.Type.Dictionary]: never,  // TODO
+  [arrow.Type.Utf8]: StringSeries,
+  [arrow.Type.List]: ListSeries<ArrowToCUDFType<T extends arrow.List ? T : any>['childType']>,
+  // [arrow.Type.DECIMAL32]: never,  // TODO
+  // [arrow.Type.DECIMAL64]: never,  // TODO
+  [arrow.Type.Struct]:
+    StructSeries<ArrowToCUDFType<T extends arrow.Struct ? T : any>['childTypes']>,
+}[T['typeId']];
+
 /**
  * One-dimensional GPU array
  */
-export class Series<T extends DataType = any> {
-  static new<T extends DataType>(input: Column<T>): SeriesType<T>;
-  static new<T extends DataType>(input: SeriesProps<T>): SeriesType<T>;
-  static new<T extends ArrowDataType>(input: Vector<T>): SeriesType<ArrowToCUDFType<T>>;
-  static new<T extends DataType>(input: SeriesProps<T>|Column<T>|Vector<CUDFToArrowType<T>>) {
-    /* eslint-disable @typescript-eslint/no-use-before-define */
-    const column = asColumn(input);
-    switch (column.type.id) {
-      case TypeId.INT8: return new Int8Series(column);
-      case TypeId.INT16: return new Int16Series(column);
-      case TypeId.INT32: return new Int32Series(column);
-      case TypeId.INT64: return new Int64Series(column);
-      case TypeId.UINT8: return new Uint8Series(column);
-      case TypeId.UINT16: return new Uint16Series(column);
-      case TypeId.UINT32: return new Uint32Series(column);
-      case TypeId.UINT64: return new Uint64Series(column);
-      case TypeId.FLOAT32: return new Float32Series(column);
-      case TypeId.FLOAT64: return new Float64Series(column);
-      case TypeId.BOOL8: return new Bool8Series(column);
-      case TypeId.STRING: return new StringSeries(column);
-      default: throw new Error('Unknown DataType');
-    }
-    /* eslint-enable @typescript-eslint/no-use-before-define */
+export class AbstractSeries<T extends DataType = any> {
+  static new<T extends arrow.Vector>(input: T): Series<T['type']>;
+  static new<T extends DataType>(input: Column<T>|SeriesProps<T>): Series<T>;
+  static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>) {
+    return columnToSeries(asColumn<T>(input)) as any as Series<T>;
   }
 
   /** @ignore */
   public readonly _col: Column<T>;
 
-  protected constructor(input: SeriesProps<T>|Column<T>|Vector<CUDFToArrowType<T>>) {
-    this._col = asColumn(input);
-    // TODO: implement the DataType subclasses in C++
-    this._type = asSubType(this._col.type);
+  protected constructor(input: SeriesProps<T>|Column<T>|arrow.Vector<T>) {
+    this._col = asColumn<T>(input);
   }
-
-  /** @ignore */
-  private readonly _type: T;
 
   /**
    * The data type of elements in the underlying data.
    */
-  get type() { return this._type; }
+  get type() { return this._col.type; }
 
   /**
    * The DeviceBuffer for for the validity bitmask in GPU memory.
@@ -138,7 +145,7 @@ export class Series<T extends DataType = any> {
    *
    * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
    */
-  gather<R extends Integral>(selection: Series<R>): SeriesType<T> {
+  gather<R extends Integral>(selection: Series<R>): Series<T> {
     return Series.new(this._col.gather(selection._col));
   }
 
@@ -148,16 +155,7 @@ export class Series<T extends DataType = any> {
    * @param mask A Series of boolean values for whose corresponding element in this Series will be
    *   selected or ignored.
    */
-  filter(mask: Series<Bool8>): SeriesType<T> { return Series.new(this._col.gather(mask._col)); }
-
-  /**
-   * Return a child at the specified index to host memory
-   *
-   * @param index
-   */
-  getChild<R extends DataType = any>(index: number): SeriesType<T> {
-    return Series.new(this._col.getChild<R>(index));
-  }
+  filter(mask: Series<Bool8>): Series<T> { return Series.new(this._col.gather(mask._col)); }
 
   /**
    * Return a value at the specified index to host memory
@@ -171,7 +169,9 @@ export class Series<T extends DataType = any> {
   /**
    * Copy the underlying device memory to host, and return an Iterator of the values.
    */
-  [Symbol.iterator]() { return this.toArrow()[Symbol.iterator](); }
+  [Symbol.iterator](): IterableIterator<T['scalarType']|null> {
+    return this.toArrow()[Symbol.iterator]();
+  }
 
   /**
    *
@@ -188,11 +188,11 @@ export class Series<T extends DataType = any> {
   /**
    * Copy a Series to an Arrow vector in host memory
    */
-  toArrow(): VectorType<CUDFToArrowType<T>> {
-    const reader = RecordBatchReader.from(new Table({columns: [this._col]}).toArrow([[0]]));
-    const column = new ArrowTable(reader.schema, [...reader]).getColumnAt<CUDFToArrowType<T>>(0);
+  toArrow(): VectorType<T> {
+    const reader = arrow.RecordBatchReader.from(new Table({columns: [this._col]}).toArrow([[0]]));
+    const column = new arrow.Table(reader.schema, [...reader]).getColumnAt<T>(0);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return column!.chunks[0] as VectorType<CUDFToArrowType<T>>;
+    return column!.chunks[0] as VectorType<T>;
   }
 
   /**
@@ -204,7 +204,7 @@ export class Series<T extends DataType = any> {
    * @returns Series containting the permutation indices for the desired sort order
    */
   orderBy(ascending = true, null_order: NullOrder = NullOrder.BEFORE) {
-    return new DataFrame({"col": this}).orderBy({"col": {ascending, null_order}});
+    return Series.new(new Table({columns: [this._col]}).orderBy([ascending], [null_order]));
   }
 
   /**
@@ -217,7 +217,7 @@ export class Series<T extends DataType = any> {
    *
    * @returns Sorted values
    */
-  sortValues(ascending = true, null_order: NullOrder = NullOrder.BEFORE): SeriesType<T> {
+  sortValues(ascending = true, null_order: NullOrder = NullOrder.BEFORE): Series<T> {
     return this.gather(this.orderBy(ascending, null_order));
   }
 
@@ -288,6 +288,9 @@ export class Series<T extends DataType = any> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const Series = AbstractSeries;
+
 import {Bool8Series} from './series/bool';
 import {Float32Series, Float64Series} from './series/float';
 import {
@@ -301,45 +304,8 @@ import {
   Uint64Series
 } from './series/integral';
 import {StringSeries} from './series/string';
-
-function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|Vector<CUDFToArrowType<T>>) {
-  if (value instanceof Column) {
-    return value;
-  } else if (value instanceof Vector) {
-    return fromArrow(value);
-  } else {
-    const props: ColumnProps<T> = {
-      type: value.type.id,
-      data: value.data,
-      offset: value.offset,
-      length: value.length,
-      nullCount: value.nullCount,
-      nullMask: value.nullMask,
-    };
-    if (value.children != null) {
-      props.children = value.children.map((item: Series) => item._col);
-    }
-    return new Column(props);
-  }
-}
-
-function asSubType<T extends DataType>(type: T): T {
-  switch (type.id) {
-    case TypeId.INT8: return (type instanceof Int8 ? type : new Int8) as T;
-    case TypeId.INT16: return (type instanceof Int16 ? type : new Int16) as T;
-    case TypeId.INT32: return (type instanceof Int32 ? type : new Int32) as T;
-    case TypeId.INT64: return (type instanceof Int64 ? type : new Int64) as T;
-    case TypeId.UINT8: return (type instanceof Uint8 ? type : new Uint8) as T;
-    case TypeId.UINT16: return (type instanceof Uint16 ? type : new Uint16) as T;
-    case TypeId.UINT32: return (type instanceof Uint32 ? type : new Uint32) as T;
-    case TypeId.UINT64: return (type instanceof Uint64 ? type : new Uint64) as T;
-    case TypeId.FLOAT32: return (type instanceof Float32 ? type : new Float32) as T;
-    case TypeId.FLOAT64: return (type instanceof Float64 ? type : new Float64) as T;
-    case TypeId.BOOL8: return (type instanceof Bool8 ? type : new Bool8) as T;
-    case TypeId.STRING: return (type instanceof Utf8String ? type : new Utf8String) as T;
-    default: throw new Error(`Unknown TypeId "${TypeId[type.id]}"`);
-  }
-}
+import {ListSeries} from './series/list';
+import {StructSeries} from './series/struct';
 
 export {
   Bool8Series,
@@ -353,5 +319,93 @@ export {
   Uint32Series,
   Int64Series,
   Uint64Series,
-  StringSeries
+  StringSeries,
+  ListSeries,
+  StructSeries,
 };
+
+function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|arrow.Vector<T>): Column<T> {
+  if (value instanceof arrow.Vector) { return fromArrow(value) as any; }
+  if (!(value.type instanceof arrow.DataType)) {
+    (value as any).type = arrowToCUDFType<T>(value.type);
+  }
+  if (value instanceof Column) {
+    return value;
+  } else {
+    const props: ColumnProps<T> = {
+      type: value.type,
+      data: value.data,
+      offset: value.offset,
+      length: value.length,
+      nullCount: value.nullCount,
+      nullMask: value.nullMask,
+    };
+    if (value.children != null) {
+      props.children = value.children.map((item: Series) => item._col);
+    }
+    return new Column(props);
+  }
+}
+
+const columnToSeries = (() => {
+  interface ColumnToSeriesVisitor extends arrow.Visitor {
+    visit<T extends DataType>(column: Column<T>): Series<T>;
+    visitMany<T extends DataType>(columns: Column<T>[]): Series<T>[];
+    getVisitFn<T extends DataType>(column: Column<T>): (column: Column<T>) => Series<T>;
+  }
+  // clang-format off
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  class ColumnToSeriesVisitor extends arrow.Visitor {
+    getVisitFn<T extends DataType>(column: Column<T>): (column: Column<T>) => Series<T> {
+      if (!(column.type instanceof arrow.DataType)) {
+        return super.getVisitFn({
+          ...(column.type as any),
+          __proto__: arrow.DataType.prototype
+        });
+      }
+      return super.getVisitFn(column.type);
+    }
+    // public visitNull                 <T extends Null>(_: Column<T>) { return new (NullSeries as any)(_); }
+    public visitBool                 <T extends Bool8>(_: Column<T>) { return new (Bool8Series as any)(_); }
+    public visitInt8                 <T extends Int8>(_: Column<T>) { return new (Int8Series as any)(_); }
+    public visitInt16                <T extends Int16>(_: Column<T>) { return new (Int16Series as any)(_); }
+    public visitInt32                <T extends Int32>(_: Column<T>) { return new (Int32Series as any)(_); }
+    public visitInt64                <T extends Int64>(_: Column<T>) { return new (Int64Series as any)(_); }
+    public visitUint8                <T extends Uint8>(_: Column<T>) { return new (Uint8Series as any)(_); }
+    public visitUint16               <T extends Uint16>(_: Column<T>) { return new (Uint16Series as any)(_); }
+    public visitUint32               <T extends Uint32>(_: Column<T>) { return new (Uint32Series as any)(_); }
+    public visitUint64               <T extends Uint64>(_: Column<T>) { return new (Uint64Series as any)(_); }
+    // public visitFloat16              <T extends Float16>(_: T) { return new (Float16Series as any)(_); }
+    public visitFloat32              <T extends Float32>(_: Column<T>) { return new (Float32Series as any)(_); }
+    public visitFloat64              <T extends Float64>(_: Column<T>) { return new (Float64Series as any)(_); }
+    public visitUtf8                 <T extends Utf8String>(_: Column<T>) { return new (StringSeries as any)(_); }
+    // public visitBinary               <T extends Binary>(_: Column<T>) { return new (BinarySeries as any)(_); }
+    // public visitFixedSizeBinary      <T extends FixedSizeBinary>(_: Column<T>) { return new (FixedSizeBinarySeries as any)(_); }
+    // public visitDateDay              <T extends DateDay>(_: Column<T>) { return new (DateDaySeries as any)(_); }
+    // public visitDateMillisecond      <T extends DateMillisecond>(_: Column<T>) { return new (DateMillisecondSeries as any)(_); }
+    // public visitTimestampSecond      <T extends TimestampSecond>(_: Column<T>) { return new (TimestampSecondSeries as any)(_); }
+    // public visitTimestampMillisecond <T extends TimestampMillisecond>(_: Column<T>) { return new (TimestampMillisecondSeries as any)(_); }
+    // public visitTimestampMicrosecond <T extends TimestampMicrosecond>(_: Column<T>) { return new (TimestampMicrosecondSeries as any)(_); }
+    // public visitTimestampNanosecond  <T extends TimestampNanosecond>(_: Column<T>) { return new (TimestampNanosecondSeries as any)(_); }
+    // public visitTimeSecond           <T extends TimeSecond>(_: Column<T>) { return new (TimeSecondSeries as any)(_); }
+    // public visitTimeMillisecond      <T extends TimeMillisecond>(_: Column<T>) { return new (TimeMillisecondSeries as any)(_); }
+    // public visitTimeMicrosecond      <T extends TimeMicrosecond>(_: Column<T>) { return new (TimeMicrosecondSeries as any)(_); }
+    // public visitTimeNanosecond       <T extends TimeNanosecond>(_: Column<T>) { return new (TimeNanosecondSeries as any)(_); }
+    // public visitDecimal              <T extends Decimal>(_: Column<T>) { return new (DecimalSeries as any)(_); }
+    public visitList                 <T extends List>(_: Column<T>) { return new (ListSeries as any)(_); }
+    public visitStruct               <T extends Struct>(_: Column<T>) { return new (StructSeries as any)(_); }
+    // public visitDenseUnion           <T extends DenseUnion>(_: Column<T>) { return new (DenseUnionSeries as any)(_); }
+    // public visitSparseUnion          <T extends SparseUnion>(_: Column<T>) { return new (SparseUnionSeries as any)(_); }
+    // public visitDictionary           <T extends Dictionary>(_: Column<T>) { return new (DictionarySeries as any)(_); }
+    // public visitIntervalDayTime      <T extends IntervalDayTime>(_: Column<T>) { return new (IntervalDayTimeSeries as any)(_); }
+    // public visitIntervalYearMonth    <T extends IntervalYearMonth>(_: Column<T>) { return new (IntervalYearMonthSeries as any)(_); }
+    // public visitFixedSizeList        <T extends FixedSizeList>(_: Column<T>) { return new (FixedSizeListSeries as any)(_); }
+    // public visitMap                  <T extends Map>(_: Column<T>) { return new (MapSeries as any)(_); }
+  }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+  // clang-format on
+  const visitor = new ColumnToSeriesVisitor();
+  return function columnToSeries<T extends DataType>(column: Column<T>) {
+    return visitor.visit(column);
+  };
+})();

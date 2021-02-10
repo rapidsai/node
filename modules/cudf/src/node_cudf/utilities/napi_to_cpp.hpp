@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "node_cudf/scalar.hpp"
-#include "node_cudf/types.hpp"
+#include <node_cudf/scalar.hpp>
+#include <node_cudf/utilities/dtypes.hpp>
 
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
@@ -28,17 +28,14 @@
 namespace nv {
 
 template <>
-inline NapiToCPP::operator cudf::type_id() const {
-  if (IsNumber()) { return static_cast<cudf::type_id>(operator int32_t()); }
-  if (DataType::is_instance(val)) { return DataType::Unwrap(ToObject())->id(); }
-  NAPI_THROW(Napi::Error::New(Env()), "Expected value to be a DataType or typeId");
-}
-
-template <>
 inline NapiToCPP::operator cudf::data_type() const {
-  if (IsNumber()) { return cudf::data_type{operator cudf::type_id()}; }
-  if (DataType::is_instance(val)) { return *DataType::Unwrap(ToObject()); }
-  NAPI_THROW(Napi::Error::New(Env()), "Expected value to be a DataType or typeId");
+  if (IsObject()) {
+    auto obj = ToObject();
+    if (obj.Has("typeId") && obj.Get("typeId").IsNumber()) {  //
+      return arrow_to_cudf_type(obj);
+    }
+  }
+  NAPI_THROW(Napi::Error::New(Env()), "Expected value to be a DataType");
 }
 
 template <>

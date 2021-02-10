@@ -13,15 +13,16 @@
 // limitations under the License.
 
 import {MemoryResource} from '@nvidia/rmm';
+
 import * as arrow from 'apache-arrow';
 
 import {Series} from '../series';
-import {DataType, Int32, Uint8, Utf8String} from '../types/dtypes'
+import {DataType, Int32, List} from '../types/dtypes'
 
 /**
- * A Series of utf8-string values in GPU memory.
+ * A Series of lists of values.
  */
-export class StringSeries extends Series<Utf8String> {
+export class ListSeries<T extends DataType> extends Series<List<T>> {
   /**
    * Casts the values to a new dtype (similar to `static_cast` in C++).
    *
@@ -36,11 +37,12 @@ export class StringSeries extends Series<Utf8String> {
       arrow.Type[dataType.typeId]} not implemented`);
   }
   /**
-   * Series of integer offsets for each string
+   * Series of integer offsets for each list
    */
   get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
+
   /**
-   * Series containing the utf8 characters of each string
+   * Series containing the elements of each list
    */
-  get data() { return Series.new(this._col.getChild<Uint8>(1)); }
+  get elements(): Series<T> { return Series.new(this._col.getChild<T>(1)); }
 }

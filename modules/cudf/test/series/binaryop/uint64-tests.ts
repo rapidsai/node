@@ -41,10 +41,10 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('adds a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.add(-1n)].map(BigInt)).toEqual([18446744073709551616n, 0n, 1n]);
-      expect([...lhs.add(0n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.add(1n)].map(BigInt)).toEqual([1n, 2n, 3n]);
-      expect([...lhs.add(2n)].map(BigInt)).toEqual([2n, 3n, 4n]);
+      expect([...lhs.add(-1n)]).toEqual([18446744073709551615n, 0n, 1n]);
+      expect([...lhs.add(0n)]).toEqual([0n, 1n, 2n]);
+      expect([...lhs.add(1n)]).toEqual([1n, 2n, 3n]);
+      expect([...lhs.add(2n)]).toEqual([2n, 3n, 4n]);
     });
   });
 
@@ -68,11 +68,10 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('subtracts a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.sub(-1n)].map(BigInt)).toEqual([1n, 2n, 3n]);
-      expect([...lhs.sub(0n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.sub(1n)].map(BigInt)).toEqual([18446744073709551616n, 0n, 1n]);
-      expect([...lhs.sub(2n)].map(BigInt))
-        .toEqual([18446744073709551616n, 18446744073709551616n, 0n]);
+      expect([...lhs.sub(-1n)]).toEqual([1n, 2n, 3n]);
+      expect([...lhs.sub(0n)]).toEqual([0n, 1n, 2n]);
+      expect([...lhs.sub(1n)]).toEqual([18446744073709551615n, 0n, 1n]);
+      expect([...lhs.sub(2n)]).toEqual([18446744073709551614n, 18446744073709551615n, 0n]);
     });
   });
 
@@ -93,11 +92,10 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('multiplies against a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.mul(-1n)].map(BigInt))
-        .toEqual([0n, 18446744073709551616n, 18446744073709551616n]);
-      expect([...lhs.mul(0n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.mul(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.mul(2n)].map(BigInt)).toEqual([0n, 2n, 4n]);
+      expect([...lhs.mul(-1n)]).toEqual([0n, 18446744073709551615n, 18446744073709551614n]);
+      expect([...lhs.mul(0n)]).toEqual([0n, 0n, 0n]);
+      expect([...lhs.mul(1n)]).toEqual([0n, 1n, 2n]);
+      expect([...lhs.mul(2n)]).toEqual([0n, 2n, 4n]);
     });
   });
 
@@ -118,10 +116,10 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('divides by a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.div(-1n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.div(0n)].map(BigInt)).toEqual([4294967295n, 4294967295n, 4294967295n]);
-      expect([...lhs.div(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.div(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.div(-1n)]).toEqual([0n, 0n, 0n]);
+      expect([...lhs.div(0n)]).toEqual([4294967295n, 4294967295n, 4294967295n]);
+      expect([...lhs.div(1n)]).toEqual([0n, 1n, 2n]);
+      expect([...lhs.div(2n)]).toEqual([0n, 0n, 1n]);
     });
   });
 
@@ -142,11 +140,12 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('true_divides by a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.true_div(-1n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.true_div(0n)].map(BigInt))
-        .toEqual([9223372036854775808n, 18446744073709551616n, 18446744073709551616n]);
-      expect([...lhs.true_div(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.true_div(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.true_div(-1n)]).toEqual([0n, 0n, 0n]);
+      expect([
+        ...lhs.true_div(0n)
+      ]).toEqual([9223372036854775808n, 18446744073709551615n, 18446744073709551615n]);
+      expect([...lhs.true_div(1n)]).toEqual([0n, 1n, 2n]);
+      expect([...lhs.true_div(2n)]).toEqual([0n, 0n, 1n]);
     });
   });
 
@@ -167,11 +166,12 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('floor_divides by a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.floor_div(-1n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.floor_div(0n)].map(BigInt))
-        .toEqual([9223372036854775808n, 18446744073709551616n, 18446744073709551616n]);
-      expect([...lhs.floor_div(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.floor_div(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.floor_div(-1n)]).toEqual([0n, 0n, 0n]);
+      expect([
+        ...lhs.floor_div(0n)
+      ]).toEqual([9223372036854775808n, 18446744073709551615n, 18446744073709551615n]);
+      expect([...lhs.floor_div(1n)]).toEqual([0n, 1n, 2n]);
+      expect([...lhs.floor_div(2n)]).toEqual([0n, 0n, 1n]);
     });
   });
 
