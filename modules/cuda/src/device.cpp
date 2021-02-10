@@ -69,25 +69,27 @@ Napi::Object Device::Init(Napi::Env env, Napi::Object exports) {
 }
 
 Device::Device(CallbackArgs const& args) : Napi::ObjectWrap<Device>(args) {
-  NODE_CUDA_EXPECT(args.IsConstructCall(), "Device constructor requires 'new'");
+  NODE_CUDA_EXPECT(args.IsConstructCall(), "Device constructor requires 'new'", args.Env());
   switch (args.Length()) {
     case 0: Initialize(); break;
     case 1:
-      NODE_CUDA_EXPECT(args[0].IsNumber(),
-                       "Device constructor requires a numeric deviceId argument");
+      NODE_CUDA_EXPECT(
+        args[0].IsNumber(), "Device constructor requires a numeric deviceId argument", args.Env());
       Initialize(args[0]);
       break;
     case 2:
-      NODE_CUDA_EXPECT(args[0].IsNumber(),
-                       "Device constructor requires a numeric deviceId argument");
+      NODE_CUDA_EXPECT(
+        args[0].IsNumber(), "Device constructor requires a numeric deviceId argument", args.Env());
       NODE_CUDA_EXPECT(args[1].IsNumber(),
-                       "Device constructor requires a numeric CUDADeviceFlags argument");
+                       "Device constructor requires a numeric CUDADeviceFlags argument",
+                       args.Env());
       Initialize(args[0], args[1]);
       break;
     default:
       NODE_CUDA_EXPECT(false,
                        "Device constructor requires a numeric deviceId argument, and an optional "
-                       "numeric CUDADeviceFlags argument");
+                       "numeric CUDADeviceFlags argument",
+                       args.Env());
       break;
   }
 }
