@@ -25,11 +25,11 @@ import {
 export type ColumnProps<T extends DataType = any> = {
   // todo -- need to pass full DataType instance when we implement fixed_point
   type: T,
-  data?: DeviceBuffer|MemoryData|null,
+  data?: DeviceBuffer|MemoryData|number[]|null,
   offset?: number,
   length?: number,
   nullCount?: number,
-  nullMask?: DeviceBuffer|MemoryData|null,
+  nullMask?: DeviceBuffer|MemoryData|number[]|boolean|null,
   children?: ReadonlyArray<Column>|null
 };
 
