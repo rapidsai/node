@@ -53,10 +53,11 @@ export type SeriesProps<T extends DataType = any> = {
   children?: ReadonlyArray<Series>|null
 };
 
-export type Series<T extends DataType = any> = {
+export type Series<T extends arrow.DataType = any> = {
   // [key: number]: AbstractSeries<any>,
   [arrow.Type.NONE]: never,  // TODO
   [arrow.Type.Null]: never,  // TODO
+  [arrow.Type.Int]: never,
   [arrow.Type.Int8]: Int8Series,
   [arrow.Type.Int16]: Int16Series,
   [arrow.Type.Int32]: Int32Series,
@@ -65,28 +66,43 @@ export type Series<T extends DataType = any> = {
   [arrow.Type.Uint16]: Uint16Series,
   [arrow.Type.Uint32]: Uint32Series,
   [arrow.Type.Uint64]: Uint64Series,
+  [arrow.Type.Float]: never,
+  [arrow.Type.Float16]: never,
   [arrow.Type.Float32]: Float32Series,
   [arrow.Type.Float64]: Float64Series,
+  [arrow.Type.Binary]: never,
+  [arrow.Type.Utf8]: StringSeries,
   [arrow.Type.Bool]: Bool8Series,
+  [arrow.Type.Decimal]: never,               // TODO
+  [arrow.Type.Date]: never,                  // TODO
   [arrow.Type.DateDay]: never,               // TODO
   [arrow.Type.DateMillisecond]: never,       // TODO
+  [arrow.Type.Time]: never,                  // TODO
+  [arrow.Type.TimeSecond]: never,            // TODO
+  [arrow.Type.TimeMillisecond]: never,       // TODO
+  [arrow.Type.TimeMicrosecond]: never,       // TODO
+  [arrow.Type.TimeNanosecond]: never,        // TODO
+  [arrow.Type.Timestamp]: never,             // TODO
   [arrow.Type.TimestampSecond]: never,       // TODO
   [arrow.Type.TimestampMillisecond]: never,  // TODO
   [arrow.Type.TimestampMicrosecond]: never,  // TODO
   [arrow.Type.TimestampNanosecond]: never,   // TODO
-  // [arrow.Type.DURATION_DAYS]: never,           // TODO
-  // [arrow.Type.DURATION_SECONDS]: never,        // TODO
-  // [arrow.Type.DURATION_MILLISECONDS]: never,   // TODO
-  // [arrow.Type.DURATION_MICROSECONDS]: never,   // TODO
-  // [arrow.Type.DURATION_NANOSECONDS]: never,    // TODO
-  [arrow.Type.Dictionary]: never,  // TODO
-  [arrow.Type.Utf8]: StringSeries,
-  [arrow.Type.List]: ListSeries<ArrowToCUDFType<T extends arrow.List ? T : any>['childType']>,
-  // [arrow.Type.DECIMAL32]: never,  // TODO
-  // [arrow.Type.DECIMAL64]: never,  // TODO
-  [arrow.Type.Struct]:
-    StructSeries<ArrowToCUDFType<T extends arrow.Struct ? T : any>['childTypes']>,
-}[T['typeId']];
+  [arrow.Type.Interval]: never,              // TODO
+  [arrow.Type.IntervalDayTime]: never,       // TODO
+  [arrow.Type.IntervalYearMonth]: never,     // TODO
+  [arrow.Type.List]:
+    ListSeries<(T extends List ? T['childType']
+                               : T extends arrow.List ? ArrowToCUDFType<T>['childType'] : any)>,
+  [arrow.Type.Struct]: StructSeries<(T extends Struct ? T['childTypes'] : T extends
+                                       arrow.Struct ? ArrowToCUDFType<T>['childTypes'] : any)>,
+  [arrow.Type.Union]: never,            // TODO
+  [arrow.Type.DenseUnion]: never,       // TODO
+  [arrow.Type.SparseUnion]: never,      // TODO
+  [arrow.Type.FixedSizeBinary]: never,  // TODO
+  [arrow.Type.FixedSizeList]: never,    // TODO
+  [arrow.Type.Map]: never,              // TODO
+  [arrow.Type.Dictionary]: never,       // TODO
+}[T['TType']];
 
 /**
  * One-dimensional GPU array

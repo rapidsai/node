@@ -76,28 +76,10 @@ export type CommonType<T extends DataType, R extends Numeric> =
 
 /** @ignore */
 export type ArrowToCUDFType<T extends arrow.DataType> = {
-  [arrow.Type.NONE]: never,
-  [arrow.Type.Null]: never,
+  // [key: number]: DataType,   // TODO
+  [arrow.Type.NONE]: never,  // TODO
+  [arrow.Type.Null]: never,  // TODO
   [arrow.Type.Int]: never,
-  [arrow.Type.Float]: never,
-  [arrow.Type.Binary]: never,
-  [arrow.Type.Bool]: Bool8,
-  [arrow.Type.Utf8]: Utf8String,
-  [arrow.Type.Decimal]: never,
-  [arrow.Type.Date]: never,
-  [arrow.Type.Time]: never,
-  [arrow.Type.Timestamp]: never,
-  [arrow.Type.Interval]: never,
-  [arrow.Type.List]: List<T extends arrow.List ? ArrowToCUDFType<T['valueType']>: any>,
-  [arrow.Type.Struct]:
-    Struct<T extends arrow.Struct
-                       ? {[P in keyof T['dataTypes']]: ArrowToCUDFType<T['dataTypes'][P]>}
-                       : any>,
-  [arrow.Type.Union]: never,
-  [arrow.Type.FixedSizeBinary]: never,
-  [arrow.Type.FixedSizeList]: never,
-  [arrow.Type.Map]: never,
-  [arrow.Type.Dictionary]: never,
   [arrow.Type.Int8]: Int8,
   [arrow.Type.Int16]: Int16,
   [arrow.Type.Int32]: Int32,
@@ -106,24 +88,45 @@ export type ArrowToCUDFType<T extends arrow.DataType> = {
   [arrow.Type.Uint16]: Uint16,
   [arrow.Type.Uint32]: Uint32,
   [arrow.Type.Uint64]: Uint64,
+  [arrow.Type.Float]: never,
   [arrow.Type.Float16]: never,
   [arrow.Type.Float32]: Float32,
   [arrow.Type.Float64]: Float64,
-  [arrow.Type.DateDay]: never,
-  [arrow.Type.DateMillisecond]: never,
-  [arrow.Type.TimestampSecond]: never,
-  [arrow.Type.TimestampMillisecond]: never,
-  [arrow.Type.TimestampMicrosecond]: never,
-  [arrow.Type.TimestampNanosecond]: never,
-  [arrow.Type.TimeSecond]: never,
-  [arrow.Type.TimeMillisecond]: never,
-  [arrow.Type.TimeMicrosecond]: never,
-  [arrow.Type.TimeNanosecond]: never,
-  [arrow.Type.DenseUnion]: never,
-  [arrow.Type.SparseUnion]: never,
-  [arrow.Type.IntervalDayTime]: never,
-  [arrow.Type.IntervalYearMonth]: never,
-}[T['typeId']];
+  [arrow.Type.Binary]: never,
+  [arrow.Type.Utf8]: Utf8String,
+  [arrow.Type.Bool]: Bool8,
+  [arrow.Type.Decimal]: never,               // TODO
+  [arrow.Type.Date]: never,                  // TODO
+  [arrow.Type.DateDay]: never,               // TODO
+  [arrow.Type.DateMillisecond]: never,       // TODO
+  [arrow.Type.Time]: never,                  // TODO
+  [arrow.Type.TimeSecond]: never,            // TODO
+  [arrow.Type.TimeMillisecond]: never,       // TODO
+  [arrow.Type.TimeMicrosecond]: never,       // TODO
+  [arrow.Type.TimeNanosecond]: never,        // TODO
+  [arrow.Type.Timestamp]: never,             // TODO
+  [arrow.Type.TimestampSecond]: never,       // TODO
+  [arrow.Type.TimestampMillisecond]: never,  // TODO
+  [arrow.Type.TimestampMicrosecond]: never,  // TODO
+  [arrow.Type.TimestampNanosecond]: never,   // TODO
+  [arrow.Type.Interval]: never,              // TODO
+  [arrow.Type.IntervalDayTime]: never,       // TODO
+  [arrow.Type.IntervalYearMonth]: never,     // TODO
+  [arrow.Type.List]:
+    (T extends List ? T : T extends arrow.List ? List<ArrowToCUDFType<T['valueType']>>: List<any>),
+  [arrow.Type.Struct]:
+    (T extends Struct ? T : T extends
+       arrow.Struct ? Struct<{[P in keyof T['dataTypes']]: ArrowToCUDFType<T['dataTypes'][P]>}>
+                    : Struct<any>),
+  [arrow.Type.Union]: never,            // TODO
+  [arrow.Type.DenseUnion]: never,       // TODO
+  [arrow.Type.SparseUnion]: never,      // TODO
+  [arrow.Type.FixedSizeBinary]: never,  // TODO
+  [arrow.Type.FixedSizeList]: never,    // TODO
+  [arrow.Type.Map]: never,              // TODO
+  [arrow.Type.Dictionary]: never,       // TODO
+
+}[T['TType']];
 
 export const arrowToCUDFType = (() => {
   interface ArrowToCUDFTypeVisitor extends arrow.Visitor {

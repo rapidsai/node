@@ -43,10 +43,7 @@ export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
    * @param name Name of the Series to return.
    */
   getChild<P extends keyof T>(name: P): Series<T[P]> {
-    return Series.new(this._col.getChild<T[P]>(getChildIndex(this.type, name)));
+    return Series.new(
+      this._col.getChild<T[P]>(this.type.children.findIndex((f) => f.name === name)));
   }
-}
-
-function getChildIndex<T extends Struct>(type: T, name: keyof T['childTypes']) {
-  return type.children.findIndex((f) => f.name === name);
 }
