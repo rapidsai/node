@@ -226,8 +226,7 @@ export class DataFrame<T extends TypeMap = any> {
     const column_indices: number[] = [];
     const subset_                  = (subset == undefined) ? this.names as string[] : subset;
     subset_.forEach((col, idx) => {
-      if (this.names.includes(col) &&
-          (this.get(col) instanceof Float32Series || this.get(col) instanceof Float64Series)) {
+      if (this.names.includes(col)) {
         column_names.push(col);
         column_indices.push(idx);
       }
@@ -355,13 +354,13 @@ export class DataFrame<T extends TypeMap = any> {
     if (axis == 0) {
       if (subset instanceof Series) {
         throw new Error(
-          "ValueError: subset => for axis=0, expected a list of column_names as subset or undefined for all columns");
+          "ValueError(subset): for axis=0, expected one of {list of column_names, undefined(all columns)}");
       }
       result = this._dropNaNsRows(how, subset, thresh);
     } else if (axis == 1) {
       if (subset instanceof Array) {
         throw new Error(
-          "ValueError: subset => for axis=1, expected a Series<Integer> with indices to select rows or undefined for all rows");
+          "ValueError(subset): for axis=1, expected one of {Series<Integer> with indices to select rows, undefined(all rows)}");
       }
       result = this._dropNaNsColumns(how, subset, thresh);
     }

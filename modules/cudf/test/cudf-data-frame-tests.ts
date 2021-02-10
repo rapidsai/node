@@ -223,3 +223,42 @@ test('Series.filter', () => {
   const expected_b = Series.new({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
   expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
 });
+
+test('dataframe.dropNulls(axis=0)',
+     () => {
+       const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+       const a =
+         Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 4]), nullMask: mask});
+       const b = Series.new({type: new Float32, data: new Float32Buffer([0, 2, 3, 5, 5, 6])});
+
+       const df = new DataFrame({"a": a, "b": b});
+
+       const expected_a = Series.new({type: new Int32, data: new Int32Buffer([0, 2, 3, 4, 4])});
+       const expected_b = Series.new({type: new Float32, data: new Float32Buffer([0, 3, 5, 5, 6])});
+
+       const result = df.dropNulls() as DataFrame;  // axis=0, inplace=false
+       const ra     = result.get("a");
+       const rb     = result.get("b");
+
+       expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
+       expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
+     })
+
+  // test('dataframe.dropNulls(axis=1)', () => {
+  //   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  //   const a = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 4]),
+  //   nullMask:mask}); const b = Series.new({type: new Float32, data: new Float32Buffer([0, 2, 3,
+  //   5, 5, 6])});
+
+  //   const df = new DataFrame({"col_0":a, "col_1": b});
+
+  //   const expected_a = Series.new({type: new Int32(), data: new Int32Buffer([0, 2, 3, 4, 4])});
+  //   const expected_b = Series.new({type: new Float32, data: new Float32Buffer([0, 3, 5, 5, 6])});
+
+  //   const result = df.dropNulls(0) as DataFrame; //axis=0, inplace=false
+  //   const ra = result.get("a");
+  //   const rb = result.get("b");
+
+  //   expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
+  //   expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
+  // })
