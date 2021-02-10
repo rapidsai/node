@@ -50,8 +50,10 @@ GraphCOO::GraphCOO(CallbackArgs const& args) : Napi::ObjectWrap<GraphCOO>(args) 
   Napi::Object const& src = args[0];
   Napi::Object const& dst = args[1];
 
-  NODE_CUDA_EXPECT(Column::is_instance(src), "GraphCOO requires src argument to a Column");
-  NODE_CUDA_EXPECT(Column::is_instance(dst), "GraphCOO requires dst argument to a Column");
+  NODE_CUDA_EXPECT(
+    Column::is_instance(src), "GraphCOO requires src argument to a Column", args.Env());
+  NODE_CUDA_EXPECT(
+    Column::is_instance(dst), "GraphCOO requires dst argument to a Column", args.Env());
 
   src_.Reset(src, 1);
   dst_.Reset(dst, 1);

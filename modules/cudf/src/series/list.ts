@@ -12,13 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {MemoryResource} from '@nvidia/rmm';
+import * as arrow from 'apache-arrow';
+
+import {Column} from '../column';
 import {Series} from '../series';
-import {DataType, Int32, List, SeriesType} from '../types';
+import {DataType, Int32, List} from '../types/dtypes'
 
 /**
  * A Series of lists of values.
  */
 export class ListSeries<T extends DataType> extends Series<List<T>> {
+  /**
+   * Casts the values to a new dtype (similar to `static_cast` in C++).
+   *
+   * @param dataType The new dtype.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns Series of same size as the current Series containing result of the `cast` operation.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cast<R extends DataType>(dataType: R, _memoryResource?: MemoryResource): Series<R> {
+    throw new Error(`Cast from ${arrow.Type[this.type.typeId]} to ${
+      arrow.Type[dataType.typeId]} not implemented`);
+  }
   /**
    * Series of integer offsets for each list
    */
@@ -27,5 +44,26 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
   /**
    * Series containing the elements of each list
    */
-  get elements(): SeriesType<T> { return Series.new(this._col.getChild<T>(1)); }
+  get elements(): Series<T> { return Series.new(this._col.getChild<T>(1)); }
+
+  /** @ignore */
+  protected __construct(col: Column<List<T>>) {
+    return new ListSeries(Object.assign(col, {type: fixNames(this.type, col.type)}));
+  }
+}
+
+Object.defineProperty(ListSeries.prototype, '__construct', {
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: (ListSeries.prototype as any).__construct,
+});
+
+function fixNames<T extends DataType>(lhs: T, rhs: T) {
+  if (lhs.children && rhs.children && lhs.children.length && rhs.children.length) {
+    lhs.children.forEach(({name, type}, idx) => {
+      rhs.children[idx] = arrow.Field.new({name, type: fixNames(type, rhs.children[idx].type)});
+    });
+  }
+  return rhs;
 }

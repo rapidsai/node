@@ -15,13 +15,15 @@
 import {MemoryResource} from '@nvidia/rmm';
 import * as arrow from 'apache-arrow';
 
+import {Column} from '../column';
 import {Series} from '../series';
-import {DataType, Int32, Uint8, Utf8String} from '../types/dtypes'
+import {DataType, Struct} from '../types/dtypes';
+import {TypeMap} from '../types/mappings';
 
 /**
- * A Series of utf8-string values in GPU memory.
+ * A Series of structs.
  */
-export class StringSeries extends Series<Utf8String> {
+export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
   /**
    * Casts the values to a new dtype (similar to `static_cast` in C++).
    *
@@ -36,11 +38,33 @@ export class StringSeries extends Series<Utf8String> {
       arrow.Type[dataType.typeId]} not implemented`);
   }
   /**
-   * Series of integer offsets for each string
+   * Return a child series by name.
+   *
+   * @param name Name of the Series to return.
    */
-  get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
-  /**
-   * Series containing the utf8 characters of each string
-   */
-  get data() { return Series.new(this._col.getChild<Uint8>(1)); }
+  getChild<P extends keyof T>(name: P): Series<T[P]> {
+    return Series.new(
+      this._col.getChild<T[P]>(this.type.children.findIndex((f) => f.name === name)));
+  }
+
+  /** @ignore */
+  protected __construct(col: Column<Struct<T>>) {
+    return new StructSeries(Object.assign(col, {type: fixNames(this.type, col.type)}));
+  }
+}
+
+Object.defineProperty(StructSeries.prototype, '__construct', {
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: (StructSeries.prototype as any).__construct,
+});
+
+function fixNames<T extends DataType>(lhs: T, rhs: T) {
+  if (lhs.children && rhs.children && lhs.children.length && rhs.children.length) {
+    lhs.children.forEach(({name, type}, idx) => {
+      rhs.children[idx] = arrow.Field.new({name, type: fixNames(type, rhs.children[idx].type)});
+    });
+  }
+  return rhs;
 }

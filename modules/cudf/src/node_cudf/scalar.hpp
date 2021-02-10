@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include <node_cudf/types.hpp>
+#include <node_cudf/utilities/dtypes.hpp>
 #include <node_cudf/utilities/error.hpp>
 
 #include <nv_node/utilities/args.hpp>
@@ -113,7 +113,7 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
   /**
    * @brief Returns the scalar's logical value type
    */
-  cudf::data_type type() const noexcept { return *DataType::Unwrap(type_.Value()); }
+  cudf::data_type type() const noexcept { return arrow_to_cudf_type(type_.Value()); }
 
   /**
    * @brief Updates the validity of the value

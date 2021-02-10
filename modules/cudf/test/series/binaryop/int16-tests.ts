@@ -141,7 +141,7 @@ describe('Series binaryops (Int16)', () => {
       const {lhs} = makeTestData();
       expect([...lhs.true_div(-1n)].map(BigInt)).toEqual([0n, -1n, -2n]);
       expect([...lhs.true_div(0n)].map(BigInt))
-        .toEqual([-9223372036854775808n, 9223372036854775808n, 9223372036854775808n]);
+        .toEqual([-9223372036854775808n, 9223372036854775807n, 9223372036854775807n]);
       expect([...lhs.true_div(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
       expect([...lhs.true_div(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
     });
@@ -166,7 +166,7 @@ describe('Series binaryops (Int16)', () => {
       const {lhs} = makeTestData();
       expect([...lhs.floor_div(-1n)].map(BigInt)).toEqual([0n, -1n, -2n]);
       expect([...lhs.floor_div(0n)].map(BigInt))
-        .toEqual([-9223372036854775808n, 9223372036854775808n, 9223372036854775808n]);
+        .toEqual([-9223372036854775808n, 9223372036854775807n, 9223372036854775807n]);
       expect([...lhs.floor_div(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
       expect([...lhs.floor_div(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
     });

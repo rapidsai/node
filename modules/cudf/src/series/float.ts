@@ -16,7 +16,7 @@ import {Float32Buffer, Float64Buffer} from '@nvidia/cuda';
 import {MemoryResource} from '@nvidia/rmm';
 
 import {Series} from '../series';
-import {Float32, Float64, FloatingPoint, SeriesType} from '../types';
+import {Float32, Float64, FloatingPoint} from '../types/dtypes'
 
 import {NumericSeries} from './numeric';
 
@@ -54,7 +54,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * @param memoryResource Memory resource used to allocate the result Series's device memory.
    * @returns A Series of the same number of elements containing the result of the operation.
    */
-  rint(memoryResource?: MemoryResource): SeriesType<T> {
+  rint(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.rint(memoryResource));
   }
 }
