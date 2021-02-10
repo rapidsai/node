@@ -32,7 +32,7 @@ describe('Quadtree', () => {
   test.each(floatingPointTypes)(
     '`new` constructs a quadtree from points and a bounding box (%s)', (_, type) => {
       const points   = testPoints().castAll(type);
-      const quadtree = Quadtree.new<FloatingPoint>({
+      const quadtree = Quadtree.new({
         x: points.get('x'),
         y: points.get('y'),
         xMin: 0,
@@ -100,7 +100,7 @@ describe('Quadtree', () => {
       minSize: 12,
     });
 
-    const polylinePointPairsAndDistances = quadtree.pointToNearestPolyline(testPolylines());
+    const polylinePointPairsAndDistances = quadtree.pointToNearestPolyline(testPolylines(), 2);
 
     expect(polylinePointPairsAndDistances.get('point_index').data.toArray())
       .toEqualTypedArray(new Uint32Array([

@@ -12,7 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Bool8, Column, DataFrame, FloatingPoint, Series, Table, Uint32, Uint8} from '@nvidia/cudf';
+import {
+  Bool8,
+  Column,
+  DataFrame,
+  FloatingPoint,
+  Int32,
+  Series,
+  Table,
+  Uint32,
+  Uint8
+} from '@nvidia/cudf';
 import {MemoryResource} from '@nvidia/rmm';
 
 import {
@@ -23,10 +33,11 @@ import {
 } from './addon';
 import {
   BoundingBoxes,
-  Polygon,
+  Coords,
   polygonBoundingBoxes,
-  Polyline,
-  polylineBoundingBoxes
+  Polygons,
+  polylineBoundingBoxes,
+  Polylines
 } from './geometry';
 
 type QuadtreeSchema = {
@@ -72,9 +83,9 @@ export class Quadtree<T extends FloatingPoint> {
    * @param options.memoryResource Optional resource to use for output device memory allocations.
    * @returns Quadtree
    */
-  static new<T extends FloatingPoint>(options: {
-    x: Series<T>,
-    y: Series<T>,
+  static new<T extends Coords>(options: {
+    x: T,
+    y: T,
     xMin: number,
     xMax: number,
     yMin: number,
@@ -84,15 +95,15 @@ export class Quadtree<T extends FloatingPoint> {
     minSize: number,
     memoryResource?: MemoryResource
   }) {
-    const xs                                        = options.x._col as Column<T>;
-    const ys                                        = options.y._col as Column<T>;
-    const minSize                                   = Math.max(0, options.minSize);
+    const x                                         = options.x._col;
+    const y                                         = options.y._col;
+    const minSize                                   = Math.max(1, options.minSize || 0);
     const {xMin, xMax, yMin, yMax, scale, maxDepth} = normalizeQuadtreeOptions(options);
-    const {keyMap, names, table}                    = createQuadtree(
-      xs, ys, xMin, xMax, yMin, yMax, scale, maxDepth, minSize, options.memoryResource);
-    return new Quadtree({
-      x: xs,
-      y: ys,
+    const {keyMap, names, table}                    = createQuadtree<T['type']>(
+      x, y, xMin, xMax, yMin, yMax, scale, maxDepth, minSize, options.memoryResource);
+    return new Quadtree<T['type']>({
+      x,
+      y,
       keyMap,
       xMin,
       xMax,
@@ -247,7 +258,7 @@ export class Quadtree<T extends FloatingPoint> {
    * @param memoryResource Optional resource used to allocate the output device memory.
    * @returns Series of each polygon that contains any points
    */
-  public polygonsWithPoints(polygons: Series<Polygon<T>>, memoryResource?: MemoryResource) {
+  public polygonsWithPoints<R extends Polygons<T>>(polygons: R, memoryResource?: MemoryResource) {
     return polygons.gather(this.pointInPolygon(polygons, memoryResource).get('polygon_index'));
   }
 
@@ -257,21 +268,21 @@ export class Quadtree<T extends FloatingPoint> {
    * @param memoryResource Optional resource used to allocate the output device memory.
    * @returns DataFrame x and y-coordinates of each found point
    */
-  public pointsInPolygons(polygons: Series<Polygon<T>>, memoryResource?: MemoryResource) {
+  public pointsInPolygons<R extends Polygons<T>>(polygons: R, memoryResource?: MemoryResource) {
     return new DataFrame({x: this.x, y: this.y})
       .gather(this.pointInPolygon(polygons, memoryResource).get('point_index'));
   }
 
   /**
    * @summary Find the subset of points in the Quadtree contained by the given polygons.
-   * @param polys Series of Polygons to test.
+   * @param polygons Series of Polygons to test.
    * @param memoryResource Optional resource used to allocate the output device memory.
    * @returns DataFrame Indices for each intersecting point and polygon pair.
    */
-  public pointInPolygon(polys: Series<Polygon<T>>, memoryResource?: MemoryResource) {
+  public pointInPolygon<R extends Polygons<T>>(polygons: R, memoryResource?: MemoryResource) {
     const intersections =
-      this.spatialJoin(polygonBoundingBoxes(polys, memoryResource), memoryResource);
-    const rings          = polys.elements;
+      this.spatialJoin(polygonBoundingBoxes(polygons, memoryResource), memoryResource);
+    const rings          = polygons.elements;
     const polygonPointX  = rings.elements.getChild('x');
     const polygonPointY  = rings.elements.getChild('y');
     const {names, table} = findPointsInPolygons(intersections.asTable(),
@@ -279,8 +290,8 @@ export class Quadtree<T extends FloatingPoint> {
                                                 this._keyMap,
                                                 this._x,
                                                 this._y,
-                                                polys.offsets._col,
-                                                rings.offsets._col,
+                                                offsetsMinus1(polygons.offsets),
+                                                offsetsMinus1(rings.offsets),
                                                 polygonPointX._col as Column<T>,
                                                 polygonPointY._col as Column<T>,
                                                 memoryResource);
@@ -296,9 +307,9 @@ export class Quadtree<T extends FloatingPoint> {
    * @param expansionRadius Radius of each polyline point.
    * @param memoryResource Optional resource used to allocate the output device memory.
    */
-  public pointsNearestPolylines(lines: Series<Polyline<T>>,
-                                expansionRadius = 1,
-                                memoryResource?: MemoryResource) {
+  public pointsNearestPolylines<R extends Polylines<T>>(lines: R,
+                                                        expansionRadius = 1,
+                                                        memoryResource?: MemoryResource) {
     const result = this.pointToNearestPolyline(lines, expansionRadius, memoryResource);
     return new DataFrame({x: this.x, y: this.y}).gather(result.get('point_index'));
   }
@@ -306,24 +317,24 @@ export class Quadtree<T extends FloatingPoint> {
   /**
    * @summary Finds the nearest polyline to each point, and computes the distances between each
    * point/polyline pair.
-   * @param lines Series of Polylines to test.
+   * @param polylines Series of Polylines to test.
    * @param expansionRadius Radius of each polyline point.
    * @param memoryResource Optional resource used to allocate the output device memory.
    * @returns DataFrame Indices for each point/nearest polyline pair, and distance between them.
    */
-  public pointToNearestPolyline(lines: Series<Polyline<T>>,
-                                expansionRadius = 1,
-                                memoryResource?: MemoryResource) {
+  public pointToNearestPolyline<R extends Polylines<T>>(polylines: R,
+                                                        expansionRadius = 1,
+                                                        memoryResource?: MemoryResource) {
     const intersections = this.spatialJoin(
-      polylineBoundingBoxes(lines, expansionRadius, memoryResource), memoryResource);
-    const polylinePointX = lines.elements.getChild('x');
-    const polylinePointY = lines.elements.getChild('y');
+      polylineBoundingBoxes(polylines, expansionRadius, memoryResource), memoryResource);
+    const polylinePointX = polylines.elements.getChild('x');
+    const polylinePointY = polylines.elements.getChild('y');
     const {names, table} = findPolylineNearestToEachPoint(intersections.asTable(),
                                                           this._quadtree.asTable(),
                                                           this._keyMap,
                                                           this._x,
                                                           this._y,
-                                                          lines.offsets._col,
+                                                          offsetsMinus1(polylines.offsets),
                                                           polylinePointX._col as Column<T>,
                                                           polylinePointY._col as Column<T>,
                                                           memoryResource);
@@ -376,4 +387,10 @@ function normalizeQuadtreeOptions(options: {
                          // minimum valid value for the scale based on bbox and max tree depth
                          Math.max(xMax - xMin, yMax - yMin) / ((1 << maxDepth) + 2));
   return {xMin, xMax, yMin, yMax, scale, maxDepth};
+}
+
+function offsetsMinus1(offsets: Series<Int32>) {
+  // return offsets._col;
+  // return new Column({type: new Int32, data: offsets.data.toArray().subarray(0, -1)});
+  return new Column({type: new Int32, data: offsets.data, length: offsets.length - 1});
 }

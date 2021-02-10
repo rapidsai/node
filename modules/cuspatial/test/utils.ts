@@ -15,19 +15,17 @@
 import {DataFrame, Float64, Int32, Series} from '@nvidia/cudf';
 
 import {
-  points,
-  polygons,
-  polylines,
+  makePoints,
+  makePolygons,
+  makePolylines,
 } from '@nvidia/cuspatial';
 
 export function testPolygons() {
-  return polygons(Series.new({type: new Int32, data: new Int32Array([0, 1, 2, 3])}),
-                  testPolylines());
+  return makePolygons(testPolylines(), Series.new({type: new Int32, data: [0, 1, 2, 3, 4]}));
 }
 
 export function testPolylines() {
-  return polylines(Series.new({type: new Int32, data: new Int32Array([0, 3, 8, 12])}),
-                   testPolyPoints());
+  return makePolylines(testPolyPoints(), Series.new({type: new Int32, data: [0, 4, 10, 14, 19]}));
 }
 
 export function testPolyPoints() {
@@ -87,7 +85,7 @@ export function testPolyPoints() {
       4.541529
     ]),
   });
-  return points(
+  return makePoints(
     xs,
     ys,
   );
