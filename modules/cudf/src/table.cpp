@@ -43,6 +43,8 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
                                       InstanceMethod<&Table::order_by>("orderBy"),
                                       StaticMethod<&Table::read_csv>("readCSV"),
                                       InstanceMethod<&Table::write_csv>("writeCSV"),
+                                      InstanceMethod<&Table::drop_nans>("drop_nans"),
+                                      InstanceMethod<&Table::drop_nulls>("drop_nulls"),
                                     });
 
   Table::constructor = Napi::Persistent(ctor);
