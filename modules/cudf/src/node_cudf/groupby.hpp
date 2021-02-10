@@ -62,6 +62,7 @@ class GroupBy : public Napi::ObjectWrap<GroupBy> {
 
   std::unique_ptr<cudf::groupby::groupby> groupby_;
 
+  Napi::Value agg(Napi::CallbackInfo const& info);
   Napi::Value get_groups(Napi::CallbackInfo const& info);
 };
 

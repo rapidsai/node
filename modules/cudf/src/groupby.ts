@@ -20,6 +20,9 @@ import {Series} from './series';
 import {Table} from './table';
 import {NullOrder, TypeMap} from './types'
 
+export type AggFunc =
+  "sum"|"min"|"max"|"argmin"|"argmax"|"mean"|"count"|"nunique"|"nth"|"var"|"std"|"median"
+
 /*
  * @param keys DataFrame whose rows act as the groupby keys
  * @param include__nulls Indicates whether rows in `keys` that contain
@@ -59,6 +62,7 @@ interface CudfGroupBy {
   _by: string[];
   _values: DataFrame;
   _getGroups(values?: Table, memoryResource?: MemoryResource): any;
+  _agg(func: AggFunc): any;
 }
 
 export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy) {
@@ -83,6 +87,9 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
     this._values = props.obj.drop(props.by);
   }
 
+  /*
+   *
+   */
   getGroups(memoryResource?: MemoryResource): any {
     const table      = this._values.asTable();
     const results    = this._getGroups(table, memoryResource);
@@ -101,4 +108,9 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
 
     return results;
   }
+
+  /*
+   *
+   */
+  agg(func: AggFunc): any { return func; }
 }

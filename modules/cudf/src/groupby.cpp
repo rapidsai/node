@@ -23,6 +23,36 @@
 
 #include <napi.h>
 
+std::unique_ptr<cudf::aggregation> _get_aggregation(const std::string& func) {
+  if (func == "sum") {
+    return cudf::make_sum_aggregation();
+  } else if (func == "min") {
+    return cudf::make_min_aggregation();
+  } else if (func == "max") {
+    return cudf::make_max_aggregation();
+  } else if (func == "argmin") {
+    return cudf::make_argmin_aggregation();
+  } else if (func == "argmax") {
+    return cudf::make_argmax_aggregation();
+  } else if (func == "mean") {
+    return cudf::make_mean_aggregation();
+  } else if (func == "count") {
+    return cudf::make_count_aggregation();
+  } else if (func == "nunique") {
+    return cudf::make_nunique_aggregation();
+    // } else if (func == "nth") {
+    //   return cudf::make_nth_element_aggregation();
+  } else if (func == "var") {
+    return cudf::make_variance_aggregation();
+  } else if (func == "std") {
+    return cudf::make_std_aggregation();
+  } else if (func == "median") {
+    return cudf::make_median_aggregation();
+  } else {
+    return nullptr;
+  }
+}
+
 namespace nv {
 
 //
@@ -32,8 +62,12 @@ namespace nv {
 Napi::FunctionReference GroupBy::constructor;
 
 Napi::Object GroupBy::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env, "GroupBy", {InstanceMethod<&GroupBy::get_groups>("_getGroups")});
+  Napi::Function ctor = DefineClass(env,
+                                    "GroupBy",
+                                    {
+                                      InstanceMethod<&GroupBy::get_groups>("_getGroups"),
+                                      InstanceMethod<&GroupBy::agg>("_agg"),
+                                    });
 
   GroupBy::constructor = Napi::Persistent(ctor);
   GroupBy::constructor.SuppressDestruct();
@@ -80,6 +114,18 @@ void GroupBy::Finalize(Napi::Env env) { this->groupby_.reset(nullptr); }
 //
 // Private API
 //
+
+Napi::Value GroupBy::agg(Napi::CallbackInfo const& info) {
+  std::string func;  // = info[0];
+
+  std::vector<cudf::groupby::aggregation_request> requests;
+  requests.emplace_back(cudf::groupby::aggregation_request());
+
+  auto agg = _get_aggregation(func);
+  if (agg == nullptr) { NAPI_THROW(Napi::Error::New(info.Env(), "Unknown aggregation: " + func)); }
+
+  return Napi::Value();
+}
 
 Napi::Value GroupBy::get_groups(Napi::CallbackInfo const& info) {
   auto values = info[0];
