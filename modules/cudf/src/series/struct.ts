@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {MemoryResource} from '@nvidia/rmm';
-
 import * as arrow from 'apache-arrow';
 
+import {Column} from '../column';
 import {Series} from '../series';
 import {DataType, Struct} from '../types/dtypes';
 import {TypeMap} from '../types/mappings';
@@ -46,4 +46,25 @@ export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
     return Series.new(
       this._col.getChild<T[P]>(this.type.children.findIndex((f) => f.name === name)));
   }
+
+  /** @ignore */
+  protected __construct(col: Column<Struct<T>>) {
+    return new StructSeries(Object.assign(col, {type: fixNames(this.type, col.type)}));
+  }
+}
+
+Object.defineProperty(StructSeries.prototype, '__construct', {
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: (StructSeries.prototype as any).__construct,
+});
+
+function fixNames<T extends DataType>(lhs: T, rhs: T) {
+  if (lhs.children && rhs.children && lhs.children.length && rhs.children.length) {
+    lhs.children.forEach(({name, type}, idx) => {
+      rhs.children[idx] = arrow.Field.new({name, type: fixNames(type, rhs.children[idx].type)});
+    });
+  }
+  return rhs;
 }

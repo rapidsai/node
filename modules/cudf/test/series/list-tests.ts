@@ -58,6 +58,21 @@ describe('ListSeries', () => {
     validateOffsets(list, col.elements);
     validateElements(ints, col.elements.elements);
   });
+
+  test('Can gather a List of Lists', () => {
+    const vec  = listsOfListsOfInt32s([[[0, 1, 2]], [[3, 4, 5], [7, 8, 9]]]);
+    const list = vec.getChildAt<ListOfInt32>(0)! as VectorType<ListOfInt32>;
+    const ints = list.getChildAt<arrow.Int32>(0)! as VectorType<arrow.Int32>;
+    const col  = Series.new(vec);
+    const out  = col.gather(Series.new({type: new Int32, data: new Int32Array([0, 1, 2])}));
+
+    expect(out.type.children[0].name).toEqual('lists');
+    expect(out.type.children[0].type.children[0].name).toEqual('ints');
+
+    validateOffsets(vec, col);
+    validateOffsets(list, col.elements);
+    validateElements(ints, col.elements.elements);
+  });
 });
 
 type ListOfInt32 = arrow.List<arrow.Int32>;

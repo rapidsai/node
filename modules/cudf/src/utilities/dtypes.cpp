@@ -201,7 +201,9 @@ Napi::Object column_to_arrow_type(Napi::Env const& env, cudf::column_view const&
     case cudf::type_id::LIST: {
       auto children = Napi::Array::New(env, 1);
       if (column.num_children() > 1) {
-        children.Set(0u, column_to_arrow_type(env, column.child(1)));
+        auto field = Napi::Object::New(env);
+        field.Set("type", column_to_arrow_type(env, column.child(1)));
+        children.Set(0u, field);
       }
       arrow_type.Set("typeId", 12);
       arrow_type.Set("children", children);
@@ -212,9 +214,13 @@ Napi::Object column_to_arrow_type(Napi::Env const& env, cudf::column_view const&
     case cudf::type_id::STRUCT: {
       auto children = Napi::Array::New(env, column.num_children());
       for (cudf::size_type i = 0; i < column.num_children(); ++i) {
-        children.Set(i, column_to_arrow_type(env, column.child(i)));
+        Napi::HandleScope scope{env};
+        auto field = Napi::Object::New(env);
+        field.Set("type", column_to_arrow_type(env, column.child(i)));
+        children.Set(i, field);
       }
       arrow_type.Set("typeId", 13);
+      arrow_type.Set("children", children);
       break;
     }
     default:

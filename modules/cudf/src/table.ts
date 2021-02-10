@@ -25,7 +25,7 @@ import {
   NullOrder,
 } from './types/enums';
 
-type ToArrowMetadata = [string | number, ToArrowMetadata?];
+export type ToArrowMetadata = [string | number, ToArrowMetadata[]?];
 
 interface TableWriteCSVOptions extends WriteCSVOptions {
   /** Callback invoked for each CSV chunk. */
