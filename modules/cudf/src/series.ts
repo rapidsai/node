@@ -45,11 +45,11 @@ import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
 export type SeriesProps<T extends DataType = any> = {
   type: T,
-  data?: DeviceBuffer|MemoryData|null,
+  data?: DeviceBuffer|MemoryData|number[]|null,
   offset?: number,
   length?: number,
   nullCount?: number,
-  nullMask?: DeviceBuffer|MemoryData|null,
+  nullMask?: DeviceBuffer|MemoryData|number[]|boolean|null,
   children?: ReadonlyArray<Series>|null
 };
 
