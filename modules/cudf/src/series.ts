@@ -54,7 +54,6 @@ export type SeriesProps<T extends DataType = any> = {
 };
 
 export type Series<T extends arrow.DataType = any> = {
-  // [key: number]: AbstractSeries<any>,
   [arrow.Type.NONE]: never,  // TODO
   [arrow.Type.Null]: never,  // TODO
   [arrow.Type.Int]: never,
@@ -90,11 +89,8 @@ export type Series<T extends arrow.DataType = any> = {
   [arrow.Type.Interval]: never,              // TODO
   [arrow.Type.IntervalDayTime]: never,       // TODO
   [arrow.Type.IntervalYearMonth]: never,     // TODO
-  [arrow.Type.List]:
-    ListSeries<(T extends List ? T['childType']
-                               : T extends arrow.List ? ArrowToCUDFType<T>['childType'] : any)>,
-  [arrow.Type.Struct]: StructSeries<(T extends Struct ? T['childTypes'] : T extends
-                                       arrow.Struct ? ArrowToCUDFType<T>['childTypes'] : any)>,
+  [arrow.Type.List]: ListSeries<(T extends List ? T['childType'] : any)>,
+  [arrow.Type.Struct]: StructSeries<(T extends Struct ? T['childTypes'] : any)>,
   [arrow.Type.Union]: never,            // TODO
   [arrow.Type.DenseUnion]: never,       // TODO
   [arrow.Type.SparseUnion]: never,      // TODO
@@ -108,7 +104,7 @@ export type Series<T extends arrow.DataType = any> = {
  * One-dimensional GPU array
  */
 export class AbstractSeries<T extends DataType = any> {
-  static new<T extends arrow.Vector>(input: T): Series<T['type']>;
+  static new<T extends arrow.Vector>(input: T): Series<ArrowToCUDFType<T['type']>>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>): Series<T>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;

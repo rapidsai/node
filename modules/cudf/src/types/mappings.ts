@@ -75,58 +75,107 @@ export type CommonType<T extends DataType, R extends Numeric> =
 // clang-format on
 
 /** @ignore */
-export type ArrowToCUDFType<T extends arrow.DataType> = {
-  // [key: number]: DataType,   // TODO
-  [arrow.Type.NONE]: never,  // TODO
-  [arrow.Type.Null]: never,  // TODO
-  [arrow.Type.Int]: never,
-  [arrow.Type.Int8]: Int8,
-  [arrow.Type.Int16]: Int16,
-  [arrow.Type.Int32]: Int32,
-  [arrow.Type.Int64]: Int64,
-  [arrow.Type.Uint8]: Uint8,
-  [arrow.Type.Uint16]: Uint16,
-  [arrow.Type.Uint32]: Uint32,
-  [arrow.Type.Uint64]: Uint64,
-  [arrow.Type.Float]: never,
-  [arrow.Type.Float16]: never,
-  [arrow.Type.Float32]: Float32,
-  [arrow.Type.Float64]: Float64,
-  [arrow.Type.Binary]: never,
-  [arrow.Type.Utf8]: Utf8String,
-  [arrow.Type.Bool]: Bool8,
-  [arrow.Type.Decimal]: never,               // TODO
-  [arrow.Type.Date]: never,                  // TODO
-  [arrow.Type.DateDay]: never,               // TODO
-  [arrow.Type.DateMillisecond]: never,       // TODO
-  [arrow.Type.Time]: never,                  // TODO
-  [arrow.Type.TimeSecond]: never,            // TODO
-  [arrow.Type.TimeMillisecond]: never,       // TODO
-  [arrow.Type.TimeMicrosecond]: never,       // TODO
-  [arrow.Type.TimeNanosecond]: never,        // TODO
-  [arrow.Type.Timestamp]: never,             // TODO
-  [arrow.Type.TimestampSecond]: never,       // TODO
-  [arrow.Type.TimestampMillisecond]: never,  // TODO
-  [arrow.Type.TimestampMicrosecond]: never,  // TODO
-  [arrow.Type.TimestampNanosecond]: never,   // TODO
-  [arrow.Type.Interval]: never,              // TODO
-  [arrow.Type.IntervalDayTime]: never,       // TODO
-  [arrow.Type.IntervalYearMonth]: never,     // TODO
-  [arrow.Type.List]:
-    (T extends List ? T : T extends arrow.List ? List<ArrowToCUDFType<T['valueType']>>: List<any>),
-  [arrow.Type.Struct]:
-    (T extends Struct ? T : T extends
-       arrow.Struct ? Struct<{[P in keyof T['dataTypes']]: ArrowToCUDFType<T['dataTypes'][P]>}>
-                    : Struct<any>),
-  [arrow.Type.Union]: never,            // TODO
-  [arrow.Type.DenseUnion]: never,       // TODO
-  [arrow.Type.SparseUnion]: never,      // TODO
-  [arrow.Type.FixedSizeBinary]: never,  // TODO
-  [arrow.Type.FixedSizeList]: never,    // TODO
-  [arrow.Type.Map]: never,              // TODO
-  [arrow.Type.Dictionary]: never,       // TODO
+// export type ArrowToCUDFType<T extends arrow.DataType> = {
+//   // [key: number]: DataType,   // TODO
+//   [arrow.Type.NONE]: never,  // TODO
+//   [arrow.Type.Null]: never,  // TODO
+//   [arrow.Type.Int]: never,
+//   [arrow.Type.Int8]: Int8,
+//   [arrow.Type.Int16]: Int16,
+//   [arrow.Type.Int32]: Int32,
+//   [arrow.Type.Int64]: Int64,
+//   [arrow.Type.Uint8]: Uint8,
+//   [arrow.Type.Uint16]: Uint16,
+//   [arrow.Type.Uint32]: Uint32,
+//   [arrow.Type.Uint64]: Uint64,
+//   [arrow.Type.Float]: never,
+//   [arrow.Type.Float16]: never,
+//   [arrow.Type.Float32]: Float32,
+//   [arrow.Type.Float64]: Float64,
+//   [arrow.Type.Binary]: never,
+//   [arrow.Type.Utf8]: Utf8String,
+//   [arrow.Type.Bool]: Bool8,
+//   [arrow.Type.Decimal]: never,               // TODO
+//   [arrow.Type.Date]: never,                  // TODO
+//   [arrow.Type.DateDay]: never,               // TODO
+//   [arrow.Type.DateMillisecond]: never,       // TODO
+//   [arrow.Type.Time]: never,                  // TODO
+//   [arrow.Type.TimeSecond]: never,            // TODO
+//   [arrow.Type.TimeMillisecond]: never,       // TODO
+//   [arrow.Type.TimeMicrosecond]: never,       // TODO
+//   [arrow.Type.TimeNanosecond]: never,        // TODO
+//   [arrow.Type.Timestamp]: never,             // TODO
+//   [arrow.Type.TimestampSecond]: never,       // TODO
+//   [arrow.Type.TimestampMillisecond]: never,  // TODO
+//   [arrow.Type.TimestampMicrosecond]: never,  // TODO
+//   [arrow.Type.TimestampNanosecond]: never,   // TODO
+//   [arrow.Type.Interval]: never,              // TODO
+//   [arrow.Type.IntervalDayTime]: never,       // TODO
+//   [arrow.Type.IntervalYearMonth]: never,     // TODO
+//   [arrow.Type.List]:
+//     (T extends List ? T : T extends arrow.List ? List<ArrowToCUDFType<T['valueType']>>:
+//     List<any>),
+//   [arrow.Type.Struct]:
+//     (T extends Struct ? T : T extends
+//        arrow.Struct ? Struct<{[P in keyof T['dataTypes']]: ArrowToCUDFType<T['dataTypes'][P]>}>
+//                     : Struct<any>),
+//   [arrow.Type.Union]: never,            // TODO
+//   [arrow.Type.DenseUnion]: never,       // TODO
+//   [arrow.Type.SparseUnion]: never,      // TODO
+//   [arrow.Type.FixedSizeBinary]: never,  // TODO
+//   [arrow.Type.FixedSizeList]: never,    // TODO
+//   [arrow.Type.Map]: never,              // TODO
+//   [arrow.Type.Dictionary]: never,       // TODO
+// }[T['TType']];
 
-}[T['TType']];
+// clang-format off
+/** @ignore */
+export type ArrowToCUDFType<T extends arrow.DataType> =
+//  T extends arrow.Null ? never :   // TODO
+ T extends arrow.Int8 ? Int8 : 
+ T extends arrow.Int16 ? Int16 : 
+ T extends arrow.Int32 ? Int32 : 
+ T extends arrow.Int64 ? Int64 : 
+ T extends arrow.Uint8 ? Uint8 : 
+ T extends arrow.Uint16 ? Uint16 : 
+ T extends arrow.Uint32 ? Uint32 : 
+ T extends arrow.Uint64 ? Uint64 : 
+//  T extends arrow.Int ? never : 
+//  T extends arrow.Float16 ? never : 
+ T extends arrow.Float32 ? Float32 : 
+ T extends arrow.Float64 ? Float64 : 
+//  T extends arrow.Float ? never : 
+//  T extends arrow.Binary ? never : 
+ T extends arrow.Utf8 ? Utf8String : 
+ T extends arrow.Bool ? Bool8 : 
+//  T extends arrow.Decimal ? never :                // TODO
+//  T extends arrow.DateDay ? never :                // TODO
+//  T extends arrow.DateMillisecond ? never :        // TODO
+//  T extends arrow.Date_ ? never :                  // TODO
+//  T extends arrow.TimeSecond ? never :             // TODO
+//  T extends arrow.TimeMillisecond ? never :        // TODO
+//  T extends arrow.TimeMicrosecond ? never :        // TODO
+//  T extends arrow.TimeNanosecond ? never :         // TODO
+//  T extends arrow.Time ? never :                   // TODO
+//  T extends arrow.TimestampSecond ? never :        // TODO
+//  T extends arrow.TimestampMillisecond ? never :   // TODO
+//  T extends arrow.TimestampMicrosecond ? never :   // TODO
+//  T extends arrow.TimestampNanosecond ? never :    // TODO
+//  T extends arrow.Timestamp ? never :              // TODO
+//  T extends arrow.IntervalDayTime ? never :        // TODO
+//  T extends arrow.IntervalYearMonth ? never :      // TODO
+//  T extends arrow.Interval ? never :               // TODO
+ T extends arrow.List ? T extends List ? T : List<ArrowToCUDFType<T['valueType']>> :
+ T extends arrow.Struct ? T extends Struct ? T : Struct<{[P in keyof T['dataTypes']]: ArrowToCUDFType<T['dataTypes'][P]>}> :
+//  T extends arrow.Union ? never :
+//  T extends arrow.DenseUnion ? never :
+//  T extends arrow.SparseUnion ? never :
+//  T extends arrow.FixedSizeBinary ? never :
+//  T extends arrow.FixedSizeList ? never :
+//  T extends arrow.Map_ ? never :
+//  T extends arrow.Dictionary ? never :
+ never;
+// clang-format on
 
 export const arrowToCUDFType = (() => {
   interface ArrowToCUDFTypeVisitor extends arrow.Visitor {
