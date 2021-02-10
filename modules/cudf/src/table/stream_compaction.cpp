@@ -24,11 +24,6 @@
 
 namespace nv {
 
-std::vector<cudf::size_type> get_keys_vector(cudf::size_type numColumns) {
-  std::vector<cudf::size_type> keys{0, numColumns - 1};
-  return keys;
-}
-
 ObjectUnwrap<Table> Table::apply_boolean_mask(Column const& boolean_mask,
                                               rmm::mr::device_memory_resource* mr) const {
   return Table::New(cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr));
@@ -46,12 +41,6 @@ Napi::Value Table::drop_nulls(Napi::CallbackInfo const& info) {
                     NapiToCPP(info[2]).operator rmm::mr::device_memory_resource*())
     ->Value();
 }
-
-// ObjectUnwrap<Table> Table::drop_nans(cudf::size_type threshold, rmm::mr::device_memory_resource*
-// mr) const {
-//   return Table::New(cudf::drop_nans(cudf::table_view{{*this}},
-//   get_keys_vector(this->num_columns()), threshold, mr));
-// }
 
 ObjectUnwrap<Table> Table::drop_nans(std::vector<cudf::size_type> keys,
                                      cudf::size_type threshold,
