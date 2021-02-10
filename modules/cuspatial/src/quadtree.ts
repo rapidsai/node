@@ -390,7 +390,5 @@ function normalizeQuadtreeOptions(options: {
 }
 
 function offsetsMinus1(offsets: Series<Int32>) {
-  // return offsets._col;
-  // return new Column({type: new Int32, data: offsets.data.toArray().subarray(0, -1)});
   return new Column({type: new Int32, data: offsets.data, length: offsets.length - 1});
 }
