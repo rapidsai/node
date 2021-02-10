@@ -18,7 +18,8 @@ import CUDF from './addon';
 import {DataFrame} from './data_frame';
 import {Series} from './series';
 import {Table} from './table';
-import {NullOrder, TypeMap} from './types'
+import {NullOrder} from './types/enums'
+import {TypeMap} from './types/mappings'
 
 export type AggFunc =
   "sum"|"min"|"max"|"argmin"|"argmax"|"mean"|"count"|"nunique"|"nth"|"var"|"std"|"median"
