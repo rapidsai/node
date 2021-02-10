@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Column, TypeId} from '@nvidia/cudf';
+import {Bool8, Column, Float32, Int32, Uint8, Utf8String} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 
 const mr = new CudaMemoryResource();
@@ -22,9 +22,9 @@ setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
 
 test('Column initialization', () => {
   const length = 100;
-  const col    = new Column({type: TypeId.INT32, data: new Int32Buffer(length)});
+  const col    = new Column({type: new Int32, data: new Int32Buffer(length)});
 
-  expect(col.type.id).toBe(TypeId.INT32);
+  expect(col.type).toBeInstanceOf(Int32);
   expect(col.length).toBe(length);
   expect(col.nullCount).toBe(0);
   expect(col.hasNulls).toBe(false);
@@ -34,12 +34,12 @@ test('Column initialization', () => {
 test('Column initialization with null_mask', () => {
   const length = 100;
   const col    = new Column({
-    type: TypeId.BOOL8,
+    type: new Bool8,
     data: new Uint8Buffer(length),
     nullMask: new Uint8Buffer(64).fill(0),
   });
 
-  expect(col.type.id).toBe(TypeId.BOOL8);
+  expect(col.type).toBeInstanceOf(Bool8);
   expect(col.length).toBe(length);
   expect(col.nullCount).toBe(100);
   expect(col.hasNulls).toBe(true);
@@ -47,10 +47,9 @@ test('Column initialization with null_mask', () => {
 });
 
 test('Column.gather', () => {
-  const col =
-    new Column({type: TypeId.INT32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+  const col = new Column({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
 
-  const selection = new Column({type: TypeId.INT32, data: new Int32Buffer([2, 4, 5, 8])});
+  const selection = new Column({type: new Int32, data: new Int32Buffer([2, 4, 5, 8])});
 
   const result = col.gather(selection);
 
@@ -61,8 +60,7 @@ test('Column.gather', () => {
 });
 
 test('Column.gather (bad argument)', () => {
-  const col =
-    new Column({type: TypeId.INT32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+  const col = new Column({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
 
   const selection = [2, 4, 5];
 
@@ -72,12 +70,12 @@ test('Column.gather (bad argument)', () => {
 test('Column null_mask, null_count', () => {
   const length = 32;
   const col    = new Column({
-    type: TypeId.FLOAT32,
+    type: new Float32,
     data: new Float32Buffer(length),
     nullMask: new Uint8Buffer([254, 255, 255, 255])
   });
 
-  expect(col.type.id).toBe(TypeId.FLOAT32);
+  expect(col.type).toBeInstanceOf(Float32);
   expect(col.length).toBe(length);
   expect(col.nullCount).toBe(1);
   expect(col.hasNulls).toBe(true);
@@ -85,20 +83,20 @@ test('Column null_mask, null_count', () => {
 });
 
 test('test child(child_index), num_children', () => {
-  const utf8Col    = new Column({type: TypeId.UINT8, data: new Uint8Buffer(Buffer.from("hello"))});
-  const offsetsCol = new Column({type: TypeId.INT32, data: new Int32Buffer([0, utf8Col.length])});
+  const utf8Col    = new Column({type: new Uint8, data: new Uint8Buffer(Buffer.from("hello"))});
+  const offsetsCol = new Column({type: new Int32, data: new Int32Buffer([0, utf8Col.length])});
   const stringsCol = new Column({
-    type: TypeId.STRING,
+    type: new Utf8String,
     length: 1,
     nullMask: new Uint8Buffer([255]),
     children: [offsetsCol, utf8Col],
   });
 
-  expect(stringsCol.type.id).toBe(TypeId.STRING);
+  expect(stringsCol.type).toBeInstanceOf(Utf8String);
   expect(stringsCol.numChildren).toBe(2);
   expect(stringsCol.getValue(0)).toBe("hello");
   expect(stringsCol.getChild(0).length).toBe(offsetsCol.length);
-  expect(stringsCol.getChild(0).type.id).toBe(offsetsCol.type.id);
+  expect(stringsCol.getChild(0).type).toBeInstanceOf(Int32);
   expect(stringsCol.getChild(1).length).toBe(utf8Col.length);
-  expect(stringsCol.getChild(1).type.id).toBe(utf8Col.type.id);
+  expect(stringsCol.getChild(1).type).toBeInstanceOf(Uint8);
 });

@@ -15,7 +15,7 @@
 import '../../jest-extensions';
 
 import {BigIntArray, setDefaultAllocator, TypedArray, TypedArrayConstructor} from '@nvidia/cuda';
-import {Numeric, TypeId} from '@nvidia/cudf';
+import {Bool8, Float32, Float64, Int64, Numeric, Uint64} from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
 import * as arrow from 'apache-arrow';
 
@@ -80,14 +80,12 @@ describe('Series unaryops (Uint64)', () => {
       const input    = Array.from({length: 16}, () => 16 * (Math.random() - 0.5) | 0);
       const actual   = makeTestData(input).cast(type).data.toArray();
       const expected = new TypedArrayCtor(input.map((x) => {
-        switch (type.id) {
-          case TypeId.BOOL8: return x | 0 ? 1 : 0;
-          case TypeId.INT64: return BigInt.asIntN(64, BigInt(x | 0));
-          case TypeId.UINT64: return BigInt.asUintN(64, BigInt(x | 0));
-          case TypeId.FLOAT32: return Number(BigInt.asUintN(64, BigInt(x | 0)));
-          case TypeId.FLOAT64: return Number(BigInt.asUintN(64, BigInt(x | 0)));
-          default: return x | 0;
-        }
+        if (type instanceof Bool8) { return x | 0 ? 1 : 0; }
+        if (type instanceof Int64) { return BigInt.asIntN(64, BigInt(x | 0)); }
+        if (type instanceof Uint64) { return BigInt.asUintN(64, BigInt(x | 0)); }
+        if (type instanceof Float32) { return Number(BigInt.asUintN(64, BigInt(x | 0))); }
+        if (type instanceof Float64) { return Number(BigInt.asUintN(64, BigInt(x | 0))); }
+        return x | 0;
       }));
       expect(actual).toEqualTypedArray(expected);
     });

@@ -66,6 +66,22 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   }
 
   /**
+   * @brief Construct a new DeviceBuffer instance from an Array.
+   *
+   * @param data Array to copy from.
+   * @param stream CUDA stream on which memory may be allocated if the memory
+   * resource supports streams.
+   */
+  template <typename T = double>
+  inline static ObjectUnwrap<DeviceBuffer> New(
+    Napi::Array const& data,
+    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
+    rmm::cuda_stream_view stream           = rmm::cuda_stream_default) {
+    std::vector<T> hvec = NapiToCPP{data};
+    return New(hvec.data(), hvec.size() * sizeof(T), mr.object(), stream);
+  }
+
+  /**
    * @brief Construct a new DeviceBuffer instance from an ArrayBuffer.
    *
    * @param data ArrayBuffer to host memory to copy from.

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Column} from "./column";
-import {ColumnsMap, TypeMap} from './types';
+import {ColumnsMap, TypeMap} from './types/mappings';
 
 export class ColumnAccessor<T extends TypeMap = any> {
   private _data: ColumnsMap<T>;
@@ -43,8 +43,7 @@ export class ColumnAccessor<T extends TypeMap = any> {
   }
 
   addColumns<R extends TypeMap>(data: ColumnsMap<R>) {
-    return new ColumnAccessor({...this._data, ...data} as
-                              ColumnsMap<{[P in keyof T | keyof R]: (T & R)[P]}>);
+    return new ColumnAccessor({...this._data, ...data} as ColumnsMap<T&R>);
   }
 
   dropColumns<R extends keyof T>(names: R[]) {

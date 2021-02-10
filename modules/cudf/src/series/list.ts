@@ -15,13 +15,14 @@
 import {MemoryResource} from '@nvidia/rmm';
 import * as arrow from 'apache-arrow';
 
+import {Column} from '../column';
 import {Series} from '../series';
-import {DataType, Int32, Uint8, Utf8String} from '../types/dtypes'
+import {DataType, Int32, List} from '../types/dtypes'
 
 /**
- * A Series of utf8-string values in GPU memory.
+ * A Series of lists of values.
  */
-export class StringSeries extends Series<Utf8String> {
+export class ListSeries<T extends DataType> extends Series<List<T>> {
   /**
    * Casts the values to a new dtype (similar to `static_cast` in C++).
    *
@@ -36,11 +37,33 @@ export class StringSeries extends Series<Utf8String> {
       arrow.Type[dataType.typeId]} not implemented`);
   }
   /**
-   * Series of integer offsets for each string
+   * Series of integer offsets for each list
    */
   get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
+
   /**
-   * Series containing the utf8 characters of each string
+   * Series containing the elements of each list
    */
-  get data() { return Series.new(this._col.getChild<Uint8>(1)); }
+  get elements(): Series<T> { return Series.new(this._col.getChild<T>(1)); }
+
+  /** @ignore */
+  protected __construct(col: Column<List<T>>) {
+    return new ListSeries(Object.assign(col, {type: fixNames(this.type, col.type)}));
+  }
+}
+
+Object.defineProperty(ListSeries.prototype, '__construct', {
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: (ListSeries.prototype as any).__construct,
+});
+
+function fixNames<T extends DataType>(lhs: T, rhs: T) {
+  if (lhs.children && rhs.children && lhs.children.length && rhs.children.length) {
+    lhs.children.forEach(({name, type}, idx) => {
+      rhs.children[idx] = arrow.Field.new({name, type: fixNames(type, rhs.children[idx].type)});
+    });
+  }
+  return rhs;
 }

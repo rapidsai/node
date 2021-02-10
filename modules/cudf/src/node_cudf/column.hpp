@@ -15,7 +15,7 @@
 #pragma once
 
 #include <node_cudf/scalar.hpp>
-#include <node_cudf/types.hpp>
+#include <node_cudf/utilities/dtypes.hpp>
 
 #include <cudf/aggregation.hpp>
 
@@ -73,28 +73,6 @@ class Column : public Napi::ObjectWrap<Column> {
   Column(CallbackArgs const& args);
 
   /**
-   * @brief Initialize the Column instance created by either C++ or JavaScript.
-   *
-   * @param data The column's data.
-   * @param size The number of elements in the column.
-   * @param type The element data type.
-   * @param null_mask Optional, column's null value indicator bitmask.
-   * May be empty if null_count is 0 or UNKNOWN_NULL_COUNT.
-   * @param offset The element offset from the start of the underlying data.
-   * @param null_count Optional, the count of null elements. If unknown, specify
-   * UNKNOWN_NULL_COUNT to indicate that the null count should be computed on the first invocation
-   * of `null_count()`.
-   * @param children Optional Array of child columns
-   */
-  void Initialize(DeviceBuffer const& data,
-                  cudf::size_type size,
-                  DataType const& type,
-                  DeviceBuffer const& null_mask,
-                  cudf::size_type offset,
-                  cudf::size_type null_count  = cudf::UNKNOWN_NULL_COUNT,
-                  Napi::Array const& children = {});
-
-  /**
    * @brief Destructor called when the JavaScript VM garbage collects this Column
    * instance.
    *
@@ -105,7 +83,7 @@ class Column : public Napi::ObjectWrap<Column> {
   /**
    * @brief Returns the column's logical element type
    */
-  inline cudf::data_type type() const noexcept { return *DataType::Unwrap(type_.Value()); }
+  inline cudf::data_type type() const noexcept { return arrow_to_cudf_type(type_.Value()); }
 
   /**
    * @brief Returns the number of elements
@@ -564,6 +542,8 @@ class Column : public Napi::ObjectWrap<Column> {
                                              ///< columns may contain additional data
 
   Napi::Value type(Napi::CallbackInfo const& info);
+  void type(Napi::CallbackInfo const& info, Napi::Value const& value);
+
   Napi::Value size(Napi::CallbackInfo const& info);
   Napi::Value data(Napi::CallbackInfo const& info);
   Napi::Value null_mask(Napi::CallbackInfo const& info);

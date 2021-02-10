@@ -45,6 +45,13 @@ inline std::runtime_error nvrtcError(nvrtcResult code, std::string const& file, 
   return std::runtime_error(msg);
 }
 
+inline std::runtime_error node_cuda_error(std::string const& message,
+                                          std::string const& file,
+                                          uint32_t line) {
+  return std::runtime_error("node_cuda failure:" + message + "\n    at " + file + ":" +
+                            std::to_string(line));
+}
+
 inline Napi::Error cuError(CUresult code,
                            std::string const& file,
                            uint32_t line,
@@ -66,12 +73,19 @@ inline Napi::Error nvrtcError(nvrtcResult code,
   return Napi::Error::New(env, nvrtcError(code, file, line).what());
 }
 
+inline Napi::Error node_cuda_error(std::string const& message,
+                                   std::string const& file,
+                                   uint32_t line,
+                                   Napi::Env const& env) {
+  return Napi::Error::New(env, node_cuda_error(message, file, line).what());
+}
+
 }  // namespace nv
 
 #ifndef NODE_CUDA_EXPECT
-#define NODE_CUDA_EXPECT(expr, message)                   \
-  do {                                                    \
-    if (!(expr)) NAPI_THROW(std::runtime_error(message)); \
+#define NODE_CUDA_EXPECT(expr, message, ...)                                              \
+  do {                                                                                    \
+    if (!(expr)) NAPI_THROW(node_cuda_error(message, __FILE__, __LINE__, ##__VA_ARGS__)); \
   } while (0)
 #endif
 

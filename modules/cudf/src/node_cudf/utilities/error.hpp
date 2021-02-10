@@ -29,7 +29,8 @@ namespace nv {
 inline cudf::logic_error cudfError(std::string const& message,
                                    std::string const& file,
                                    uint32_t line) {
-  return cudf::logic_error("cuDF failure:\n    at " + file + ":" + std::to_string(line));
+  return cudf::logic_error("cuDF failure:\n" + message + "\n    at " + file + ":" +
+                           std::to_string(line));
 }
 
 inline Napi::Error cudfError(std::string const& message,

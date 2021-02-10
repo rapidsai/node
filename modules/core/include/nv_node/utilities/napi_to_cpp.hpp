@@ -31,6 +31,30 @@ struct NapiToCPP {
   Napi::Value val;
   inline NapiToCPP(const Napi::Value& val) : val(val) {}
 
+  struct Object {
+    Napi::Object val;
+    inline Object(Napi::Object const& o) : val(o) {}
+    inline Object(Napi::Value const& o) : val(o.As<Napi::Object>()) {}
+    inline operator Napi::Object() const { return val; }
+    inline Napi::Env Env() const { return val.Env(); }
+    inline bool Has(napi_value key) const { return val.Has(key); }
+    inline bool Has(Napi::Value key) const { return val.Has(key); }
+    inline bool Has(const char* key) const { return val.Has(key); }
+    inline bool Has(const std::string& key) const { return val.Has(key); }
+    inline NapiToCPP Get(napi_value key) const {
+      return Has(key) ? val.Get(key) : Env().Undefined();
+    }
+    inline NapiToCPP Get(Napi::Value key) const {
+      return Has(key) ? val.Get(key) : Env().Undefined();
+    }
+    inline NapiToCPP Get(const char* key) const {
+      return Has(key) ? val.Get(key) : Env().Undefined();
+    }
+    inline NapiToCPP Get(std::string const& key) const {
+      return Has(key) ? val.Get(key) : Env().Undefined();
+    }
+  };
+
   inline std::ostream& operator<<(std::ostream& os) const {
     return os << val.ToString().operator std::string();
   }
@@ -112,6 +136,7 @@ struct NapiToCPP {
   inline operator Napi::Buffer<T>() const {
     return val.As<Napi::Buffer<T>>();
   }
+  inline operator Object() const { return Object(val); }
 
   //
   // Primitives
@@ -137,10 +162,15 @@ struct NapiToCPP {
   template <typename T>
   inline operator std::vector<T>() const {
     if (val.IsArray()) {
-      std::vector<T> vec{};
+      auto env = Env();
+      NapiToCPP v{env.Null()};
       auto arr = val.As<Napi::Array>();
+      std::vector<T> vec;
+      vec.reserve(arr.Length());
       for (uint32_t i = 0; i < arr.Length(); ++i) {
-        vec.push_back(NapiToCPP(arr.Get(i)).operator T());
+        Napi::HandleScope scope{env};
+        v.val = arr.Get(i);
+        vec.push_back(v);
       }
       return vec;
     }
@@ -156,12 +186,16 @@ struct NapiToCPP {
   template <typename Key, typename Val>
   inline operator std::map<Key, Val>() const {
     if (val.IsObject()) {
+      auto env = Env();
+      NapiToCPP k{env.Null()};
+      NapiToCPP v{env.Null()};
       std::map<Key, Val> map{};
       auto obj  = val.As<Napi::Object>();
       auto keys = obj.GetPropertyNames();
       for (uint32_t i = 0; i < keys.Length(); ++i) {
-        Key k  = NapiToCPP(keys.Get(i));
-        Val v  = NapiToCPP(obj.Get(keys.Get(i)));
+        Napi::HandleScope scope{env};
+        k.val  = keys.Get(i);
+        v.val  = obj.Get(k.val);
         map[k] = v;
       }
       return map;

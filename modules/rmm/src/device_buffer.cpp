@@ -57,7 +57,8 @@ ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(Napi::ArrayBuffer const& data,
                                              ObjectUnwrap<MemoryResource> const& mr,
                                              rmm::cuda_stream_view stream) {
   NODE_CUDA_EXPECT(MemoryResource::is_instance(mr.object()),
-                   "DeviceBuffer constructor requires a valid MemoryResource");
+                   "DeviceBuffer constructor requires a valid MemoryResource",
+                   data.Env());
   return constructor.New(data, mr.object(), stream);
 }
 
@@ -66,7 +67,8 @@ ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(void* const data,
                                              ObjectUnwrap<MemoryResource> const& mr,
                                              rmm::cuda_stream_view stream) {
   NODE_CUDA_EXPECT(MemoryResource::is_instance(mr.object()),
-                   "DeviceBuffer constructor requires a valid MemoryResource");
+                   "DeviceBuffer constructor requires a valid MemoryResource",
+                   constructor.Env());
   return constructor.New(Span<char>(data, size), mr.object(), stream);
 }
 
@@ -105,7 +107,8 @@ DeviceBuffer::DeviceBuffer(CallbackArgs const& args) : Napi::ObjectWrap<DeviceBu
     default:
       NODE_CUDA_EXPECT(false,
                        "DeviceBuffer constructor requires a numeric size, and optional "
-                       "stream and memory_resource arguments");
+                       "stream and memory_resource arguments",
+                       args.Env());
       break;
   }
 }

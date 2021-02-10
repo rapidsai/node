@@ -12,22 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
-
-#include <nv_node/utilities/args.hpp>
-
-#include <cudf/types.hpp>
-
-namespace nv {
-
-cudf::type_id get_common_type(cudf::data_type const& lhs, cudf::data_type const& rhs);
-
-cudf::data_type arrow_to_cudf_type(Napi::Object const& arrow_type);
-
-Napi::Object cudf_to_arrow_type(Napi::Env const& env, cudf::data_type const& cudf_type);
-
-Napi::Object column_to_arrow_type(Napi::Env const& env, cudf::column_view const& column);
-
-Napi::Value find_common_type(CallbackArgs const& args);
-
-}  // namespace nv
+/**
+ * 		The desired order of null compared to other elements for a column.
+ */
+export enum NullOrder
+{
+  AFTER,
+  BEFORE
+}
