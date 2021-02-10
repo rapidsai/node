@@ -42,9 +42,10 @@ Napi::Object DeviceMemory::Init(Napi::Env env, Napi::Object exports) {
 
 DeviceMemory::DeviceMemory(CallbackArgs const& args)
   : Napi::ObjectWrap<DeviceMemory>(args), Memory(args) {
-  NODE_CUDA_EXPECT(args.IsConstructCall(), "DeviceMemory constructor requires 'new'");
+  NODE_CUDA_EXPECT(args.IsConstructCall(), "DeviceMemory constructor requires 'new'", args.Env());
   NODE_CUDA_EXPECT(args.Length() == 0 || (args.Length() == 1 && args[0].IsNumber()),
-                   "DeviceMemory constructor requires a numeric byteLength argument");
+                   "DeviceMemory constructor requires a numeric byteLength argument",
+                   args.Env());
   Initialize(args[0]);
 }
 

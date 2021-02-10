@@ -31,8 +31,11 @@
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
 #include <cudf/column/column.hpp>
+#include <cudf/column/column_view.hpp>
 #include <cudf/detail/nvtx/ranges.hpp>
 #include <cudf/types.hpp>
+#include <cudf/unary.hpp>
+#include <cudf/utilities/bit.hpp>
 #include <cudf/utilities/traits.hpp>
 
 #include <napi.h>
@@ -41,6 +44,55 @@
 #include <utility>
 
 namespace nv {
+
+namespace {
+
+ObjectUnwrap<DeviceBuffer> get_or_create_data(NapiToCPP const& value, cudf::data_type type) {
+  if (value.IsMemoryLike()) {
+    auto data = value;
+    if (value.IsMemoryViewLike()) { data = value.ToObject().Get("buffer"); }
+    if (DeviceBuffer::is_instance(data.val)) { return data.ToObject(); }
+    return DeviceBuffer::New(data.operator Napi::ArrayBuffer());
+  }
+  if (value.IsArray()) {
+    auto buf = DeviceBuffer::New<double>(value.As<Napi::Array>());
+    return (type.id() == cudf::type_id::FLOAT64) ? buf : [&]() {
+      cudf::size_type size = buf->size() / sizeof(double);
+      cudf::column_view view{cudf::data_type{cudf::type_id::FLOAT64}, size, buf->data()};
+      return DeviceBuffer::New(std::move(cudf::cast(view, type)->release().data));
+    }();
+  }
+  return DeviceBuffer::New();
+}
+
+ObjectUnwrap<DeviceBuffer> get_or_create_null_mask(NapiToCPP const& value, cudf::size_type size) {
+  if (value.IsMemoryLike()) {
+    auto data = value;
+    if (value.IsMemoryViewLike()) { data = value.ToObject().Get("buffer"); }
+    if (DeviceBuffer::is_instance(data.val)) { return data.ToObject(); }
+    return DeviceBuffer::New(data.operator Napi::ArrayBuffer());
+  }
+  if (value.IsBoolean()) {
+    bool const valid = value;
+    auto state       = valid ? cudf::mask_state::ALL_VALID : cudf::mask_state::ALL_NULL;
+    return DeviceBuffer::New(
+      std::make_unique<rmm::device_buffer>(cudf::create_null_mask(size, state)));
+  }
+  if (value.IsArray()) {
+    auto const env  = value.Env();
+    auto const data = value.As<Napi::Array>();
+    auto const blen = cudf::bitmask_allocation_size_bytes(size);
+    std::vector<cudf::bitmask_type> mask(blen / sizeof(cudf::bitmask_type), 0);
+    for (auto i = 0; i < size; ++i) {
+      Napi::HandleScope scope{env};
+      if (data.Get(i).ToBoolean().Value()) { cudf::set_bit_unsafe(mask.data(), i); }
+    }
+    return DeviceBuffer::New(mask.data(), blen);
+  }
+  return DeviceBuffer::New();
+}
+
+}  // namespace
 
 //
 // Public API
@@ -145,7 +197,7 @@ ObjectUnwrap<Column> Column::New(std::unique_ptr<cudf::column> column) {
   props.Set("offset", 0);
   props.Set("length", column->size());
   props.Set("nullCount", column->null_count());
-  props.Set("type", column_to_arrow_type(env, column->view()));
+  props.Set("type", column_to_arrow_type(env, *column));
 
   auto contents = column->release();
   auto data     = std::move(contents.data);
@@ -167,62 +219,57 @@ ObjectUnwrap<Column> Column::New(std::unique_ptr<cudf::column> column) {
 }
 
 Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
-  NODE_CUDA_EXPECT(args.IsConstructCall(), "Column constructor requires 'new'");
-  NODE_CUDF_EXPECT(args[0].IsObject(), "Column constructor requires a properties Object");
+  auto env = args.Env();
 
-  Napi::Object props = args[0];
+  NODE_CUDF_EXPECT(args.IsConstructCall(), "Column constructor requires 'new'", env);
+  NODE_CUDF_EXPECT(args[0].IsObject(), "Column constructor requires a properties Object", env);
+
+  NapiToCPP::Object props = args[0];
 
   NODE_CUDF_EXPECT(props.Has("type") && props.Get("type").IsObject(),
-                   "Column constructor properties requires a type Object");
+                   "Column constructor properties expects type to be an Object",
+                   env);
 
-  type_ = Napi::Persistent(props.Get("type").As<Napi::Object>());
+  this->type_   = Napi::Persistent(props.Get("type").As<Napi::Object>());
+  this->offset_ = props.Get("offset");
 
-  cudf::size_type length{props.Has("length") ? NapiToCPP(props.Get("length")) : 0};
-  cudf::size_type offset{props.Has("offset") ? NapiToCPP(props.Get("offset")) : 0};
+  this->children_ = Napi::Persistent(props.Has("children") ? props.Get("children").As<Napi::Array>()
+                                                           : Napi::Array::New(Env(), 0));
 
-  offset_ = offset;
+  auto const data = get_or_create_data(props.Get("data"), type());
+  this->data_     = data.reference();
 
-  cudf::size_type null_count{props.Has("nullCount") && props.Get("nullCount").IsNumber() &&
-                                 props.Get("nullCount").ToNumber().operator int32_t() > -1
-                               ? NapiToCPP(props.Get("nullCount"))
-                               : cudf::UNKNOWN_NULL_COUNT};
+  this->size_ = props.Get("length");
 
-  null_count_ = null_count;
-
-  auto children =
-    props.Has("children") ? props.Get("children").As<Napi::Array>() : Napi::Array::New(Env(), 0);
-
-  children_ = Napi::Persistent(children);
-
-  auto get_or_create_device_buffer_arg = [&](std::string const& key) -> ObjectUnwrap<DeviceBuffer> {
-    if (cudf::is_fixed_width(type()) && props.Has(key)) {
-      auto prop = props.Get(key);
-      auto data = NapiToCPP(prop);
-      if (data.IsMemoryLike()) {
-        if (data.IsMemoryViewLike()) { data = NapiToCPP(prop.ToObject().Get("buffer")); }
-        if (DeviceBuffer::is_instance(data.val)) { return data.ToObject(); }
-        return DeviceBuffer::New(data.operator Napi::ArrayBuffer());
+  if (this->size_ <= 0) {
+    auto type = this->type();
+    if (cudf::is_fixed_width(type)) {
+      this->size_ = data->size() / cudf::size_of(type);
+    } else if (type.id() == cudf::type_id::LIST) {
+      if (num_children() > 0) { this->size_ = child(0).size() - 1; }
+    } else if (type.id() == cudf::type_id::STRING) {
+      if (num_children() > 0) { this->size_ = child(0).size() - 1; }
+    } else if (type.id() == cudf::type_id::STRUCT) {
+      if (num_children() > 0) {
+        this->size_ = child(0).size();
+        for (cudf::size_type i = 0; ++i < num_children();) {
+          NODE_CUDF_EXPECT(
+            child(i).size() == this->size_, "Struct column children must be the same size", env);
+        }
       }
-    }
-    return DeviceBuffer::New();
-  };
-
-  auto const data = get_or_create_device_buffer_arg("data");
-  auto const mask = get_or_create_device_buffer_arg("nullMask");
-
-  if (length <= 0) {
-    if (cudf::is_fixed_width(type())) {
-      length = data->size() / cudf::size_of(type());
-    } else if (cudf::is_compound(type()) && children.Length() > 0) {
-      length = Column::Unwrap(children.Get(0u).As<Napi::Object>())->size() - 1;
     }
   }
 
-  size_      = length;
-  data_      = data.reference();
-  null_mask_ = mask.reference();
-
-  if (!nullable()) { null_count_ = 0; }
+  auto const mask  = get_or_create_null_mask(props.Get("nullMask"), this->size_);
+  this->null_mask_ = mask.reference();
+  if (!nullable()) {
+    this->null_count_ = 0;
+  } else if (!(props.Has("nullCount") && props.Get("nullCount").IsNumber())) {
+    this->null_count_ = cudf::UNKNOWN_NULL_COUNT;
+  } else {
+    this->null_count_ =
+      std::max(cudf::UNKNOWN_NULL_COUNT, static_cast<cudf::size_type>(props.Get("nullCount")));
+  }
 }
 
 void Column::Finalize(Napi::Env env) {
