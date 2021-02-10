@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Bool8, Column, Float32, Int32, Uint8, Utf8String} from '@nvidia/cudf';
+import {Bool8, Column, Float32, Int32, Series, Uint8, Utf8String} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 import {BoolVector} from 'apache-arrow';
 
