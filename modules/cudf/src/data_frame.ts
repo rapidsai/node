@@ -268,8 +268,7 @@ export class DataFrame<T extends TypeMap = any> {
       (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}), {}));
   }
 
-  _dropNullsColumns<R extends Integral>(how = "any", subset?: Series<R>, thresh?: number):
-    DataFrame {
+  _dropNullsColumns(how = "any", subset?: Series, thresh?: number): DataFrame {
     const column_names: string[] = [];
     const df                     = (subset !== undefined) ? this.gather(subset) : this;
 
@@ -293,8 +292,7 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this._accessor.selectByColumnNames(column_names));
   }
 
-  _dropNaNsColumns<R extends Integral>(how = "any", subset?: Series<R>, thresh?: number):
-    DataFrame {
+  _dropNaNsColumns(how = "any", subset?: Series, thresh?: number): DataFrame {
     const column_names: string[] = [];
     const df                     = (subset !== undefined) ? this.gather(subset) : this;
 
@@ -322,11 +320,8 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this._accessor.selectByColumnNames(column_names));
   }
 
-  dropNulls<R extends Integral>(axis    = 0,
-                                how     = "any",
-                                inplace = false,
-                                subset?: string[]|Series<R>,
-                                thresh?: number): DataFrame|undefined {
+  dropNulls(axis = 0, how = "any", inplace = false, subset?: string[]|Series, thresh?: number):
+    DataFrame|undefined {
     let result = undefined;
     if (axis == 0) {
       if (subset instanceof Series) {
