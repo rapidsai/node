@@ -220,4 +220,89 @@ export class DataFrame<T extends TypeMap = any> {
     });
     return readable as AsyncIterable<string>;
   }
+
+  _dropNARows(how = "any", subset?: string[], thresh?: number): DataFrame {
+    const column_names: string[]   = [];
+    const column_indices: number[] = [];
+    if (subset == undefined) {
+      this.names.forEach((col, idx) => {
+        column_names.push(col as string);
+        column_indices.push(idx);
+      });
+    } else {
+      subset.forEach((col, idx) => {
+        if (this.names.includes(col)) {
+          column_names.push(col);
+          column_indices.push(idx);
+        }
+      });
+    }
+    const table_result =
+      new Table({columns: this._accessor.selectByColumnNames(column_names).columns});
+    let keep_threshold = column_names.length;
+    if (thresh !== undefined) {
+      keep_threshold = thresh;
+    } else if (how == "all") {
+      keep_threshold = 1
+    }
+
+    const result = table_result.drop_nulls(column_indices, keep_threshold);
+    return new DataFrame(column_names.reduce(
+      (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}), {}));
+  }
+
+  _dropNAColumns<R extends Integral>(how = "any", subset?: Series<R>, thresh?: number):
+    DataFrame {
+    const column_names: string[] = [];
+    const df                     = (subset !== undefined) ? this.gather(subset) : this;
+
+    let thresh_value = thresh;
+
+    if (thresh_value == undefined) {
+      if (how == "all") {
+        thresh_value = 1;
+      } else {
+        thresh_value = df.numRows
+      }
+    }
+    this.names.forEach(col => {
+      if (thresh_value !== undefined) {
+        const no_threshold_valid_count = (df.get(col).length - df.get(col).nullCount) < thresh_value;
+        if (!no_threshold_valid_count) { column_names.push(col as string); }
+      }
+    });
+
+    return new DataFrame(this._accessor.selectByColumnNames(column_names));
+  }
+
+  _mimicInplace(result: DataFrame, inplace: boolean) {
+    if (inplace) {
+      this._accessor = result._accessor;
+      return undefined;
+    }
+    return result;
+  }
+
+  dropNA<R extends Integral>(axis     = 0,
+                             how      = "any",
+                             inplace = false,
+                             subset?: string[]|Series<R>,
+                             thresh?: number): DataFrame|undefined {
+    let result = undefined;
+    if (axis == 0) {
+      if (subset instanceof Series) {
+        throw new Error(
+          "ValueError: subset => for axis=0, expected a list of column_names as subset or undefined for all columns");
+      }
+      result = this._dropNARows(how, subset, thresh);
+    } else if (axis == 1) {
+      if (subset instanceof Array) {
+        throw new Error(
+          "ValueError: subset => for axis=1, expected a Series<Integer> with indices to select rows or undefined for all rows");
+      }
+      result = this._dropNAColumns(how, subset, thresh);
+    }
+
+    return (result !== undefined) ? this._mimicInplace(result, inplace) : undefined;
+  }
 }

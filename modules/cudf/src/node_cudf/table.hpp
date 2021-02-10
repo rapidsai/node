@@ -15,6 +15,7 @@
 #pragma once
 
 #include <node_cudf/column.hpp>
+#include "cudf/types.hpp"
 
 #include <node_rmm/device_buffer.hpp>
 
@@ -150,16 +151,14 @@ class Table : public Napi::ObjectWrap<Table> {
     Column const& boolean_mask,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  // ObjectUnwrap<Table> drop_nulls(cudf::size_type threshold, rmm::mr::device_memory_resource* mr =
-  // rmm::mr::get_current_device_resource()) const;
-
   ObjectUnwrap<Table> drop_nulls(
+    std::vector<cudf::size_type> keys,
+    cudf::size_type threshold,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  // ObjectUnwrap<Table> drop_nans(cudf::size_type threshold, rmm::mr::device_memory_resource* mr =
-  // rmm::mr::get_current_device_resource()) const;
-
   ObjectUnwrap<Table> drop_nans(
+    std::vector<cudf::size_type> keys,
+    cudf::size_type threshold,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   ObjectUnwrap<Table> gather(

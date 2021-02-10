@@ -100,7 +100,7 @@ export interface Table {
   writeCSV(options: TableWriteCSVOptions): void;
 
   drop_nans(threshold?: number): Table;
-  drop_nulls(threshold?: number): Table;
+  drop_nulls(keys: number[], threshold: number): Table;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
