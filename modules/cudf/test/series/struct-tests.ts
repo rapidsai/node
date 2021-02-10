@@ -62,6 +62,26 @@ describe('StructSeries', () => {
     validateElements(xs, col.getChild('point').getChild('x'));
     validateElements(ys, col.getChild('point').getChild('y'));
   });
+
+  test('Can gather a Struct of Structs', () => {
+    const vec = structsOfStructsOfInt32s([
+      {point: {x: 0, y: 3}},
+      {point: {x: 1, y: 4}},
+      {point: {x: 2, y: 5}},
+    ]);
+    const col = Series.new(vec);
+    const out = col.gather(Series.new({type: new Int32, data: new Int32Array([0, 1, 2])}));
+    expect(out.type.children[0].name).toEqual('point');
+    expect(out.type.children[0].type.children[0].name).toEqual('x');
+    expect(out.type.children[0].type.children[1].name).toEqual('y');
+
+    const points = vec.getChildAt<StructOfInt32>(0)! as VectorType<StructOfInt32>;
+    const xs     = points.getChildAt<arrow.Int32>(0)! as VectorType<arrow.Int32>;
+    const ys     = points.getChildAt<arrow.Int32>(1)! as VectorType<arrow.Int32>;
+
+    validateElements(xs, col.getChild('point').getChild('x'));
+    validateElements(ys, col.getChild('point').getChild('y'));
+  });
 });
 
 type StructOfInt32   = arrow.Struct<{x: arrow.Int32, y: arrow.Int32}>;

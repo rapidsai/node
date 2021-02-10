@@ -51,7 +51,8 @@ MemoryResource::MemoryResource(CallbackArgs const& args) : Napi::ObjectWrap<Memo
   auto& arg3 = args[3];
 
   NODE_CUDA_EXPECT(arg0.IsNumber(),
-                   "MemoryResource constructor expects a numeric MemoryResourceType argument.");
+                   "MemoryResource constructor expects a numeric MemoryResourceType argument.",
+                   args.Env());
   type_ = arg0;
   switch (type_) {
     case mr_type::cuda: {
@@ -76,7 +77,8 @@ MemoryResource::MemoryResource(CallbackArgs const& args) : Napi::ObjectWrap<Memo
     case mr_type::pool: {
       NODE_CUDA_EXPECT(MemoryResource::is_instance(arg1.val),
                        "PoolMemoryResource constructor expects an upstream MemoryResource from "
-                       "which to allocate blocks for the pool.");
+                       "which to allocate blocks for the pool.",
+                       args.Env());
       rmm::mr::device_memory_resource* mr = arg1;
       size_t const initial_pool_size      = arg2.IsNumber() ? arg2 : -1;
       size_t const maximum_pool_size      = arg3.IsNumber() ? arg3 : -1;
@@ -91,7 +93,8 @@ MemoryResource::MemoryResource(CallbackArgs const& args) : Napi::ObjectWrap<Memo
     case mr_type::fixedsize: {
       NODE_CUDA_EXPECT(MemoryResource::is_instance(arg1.val),
                        "FixedSizeMemoryResource constructor expects an upstream MemoryResource "
-                       "from which to allocate blocks for the pool.");
+                       "from which to allocate blocks for the pool.",
+                       args.Env());
       rmm::mr::device_memory_resource* mr = arg1;
       size_t const block_size             = arg2.IsNumber() ? arg2 : 1 << 20;
       size_t const blocks_to_preallocate  = arg3.IsNumber() ? arg3 : 128;
@@ -104,7 +107,8 @@ MemoryResource::MemoryResource(CallbackArgs const& args) : Napi::ObjectWrap<Memo
     case mr_type::binning: {
       NODE_CUDA_EXPECT(MemoryResource::is_instance(arg1.val),
                        "BinningMemoryResource constructor expects an upstream MemoryResource to "
-                       "use for allocations larger than any of the bins.");
+                       "use for allocations larger than any of the bins.",
+                       args.Env());
       rmm::mr::device_memory_resource* mr = arg1;
       int8_t const min_size_exponent      = arg2.IsNumber() ? arg2 : -1;
       int8_t const max_size_exponent      = arg3.IsNumber() ? arg3 : -1;
@@ -118,7 +122,8 @@ MemoryResource::MemoryResource(CallbackArgs const& args) : Napi::ObjectWrap<Memo
 
     case mr_type::logging: {
       NODE_CUDA_EXPECT(MemoryResource::is_instance(arg1.val),
-                       "LoggingResourceAdapter constructor expects an upstream MemoryResource.");
+                       "LoggingResourceAdapter constructor expects an upstream MemoryResource.",
+                       args.Env());
 
       rmm::mr::device_memory_resource* mr = arg1;
       auto log_file_path                  = arg2.IsString() ? arg2.operator std::string() : "";
@@ -137,7 +142,8 @@ MemoryResource::MemoryResource(CallbackArgs const& args) : Napi::ObjectWrap<Memo
 
       NODE_CUDA_EXPECT(log_file_path != "",
                        "LoggingResourceAdapter constructor expects an RMM log file name string "
-                       "argument or RMM_LOG_FILE environment variable");
+                       "argument or RMM_LOG_FILE environment variable",
+                       args.Env());
 
       upstream_mr_ = Napi::Persistent(arg1.ToObject());
       mr_.reset(new rmm::mr::logging_resource_adaptor<rmm::mr::device_memory_resource>(

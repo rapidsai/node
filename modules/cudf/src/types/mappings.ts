@@ -47,6 +47,7 @@ export enum Interpolation
 export type TypeMap = {
   [key: string]: DataType
 };
+
 export type ColumnsMap<T extends TypeMap> = {
   [P in keyof T]: Column<T[P]>
 };
@@ -83,56 +84,54 @@ export type CommonType<T extends DataType, R extends Numeric> =
   : never;
 // clang-format on
 
+// clang-format off
 /** @ignore */
-export type ArrowToCUDFType<T extends arrow.DataType> = {
-  [arrow.Type.NONE]: never,
-  [arrow.Type.Null]: never,
-  [arrow.Type.Int]: never,
-  [arrow.Type.Float]: never,
-  [arrow.Type.Binary]: never,
-  [arrow.Type.Bool]: Bool8,
-  [arrow.Type.Utf8]: Utf8String,
-  [arrow.Type.Decimal]: never,
-  [arrow.Type.Date]: never,
-  [arrow.Type.Time]: never,
-  [arrow.Type.Timestamp]: never,
-  [arrow.Type.Interval]: never,
-  [arrow.Type.List]: List<T extends arrow.List ? ArrowToCUDFType<T['valueType']>: any>,
-  [arrow.Type.Struct]:
-    Struct<T extends arrow.Struct
-                       ? {[P in keyof T['dataTypes']]: ArrowToCUDFType<T['dataTypes'][P]>}
-                       : any>,
-  [arrow.Type.Union]: never,
-  [arrow.Type.FixedSizeBinary]: never,
-  [arrow.Type.FixedSizeList]: never,
-  [arrow.Type.Map]: never,
-  [arrow.Type.Dictionary]: never,
-  [arrow.Type.Int8]: Int8,
-  [arrow.Type.Int16]: Int16,
-  [arrow.Type.Int32]: Int32,
-  [arrow.Type.Int64]: Int64,
-  [arrow.Type.Uint8]: Uint8,
-  [arrow.Type.Uint16]: Uint16,
-  [arrow.Type.Uint32]: Uint32,
-  [arrow.Type.Uint64]: Uint64,
-  [arrow.Type.Float16]: never,
-  [arrow.Type.Float32]: Float32,
-  [arrow.Type.Float64]: Float64,
-  [arrow.Type.DateDay]: never,
-  [arrow.Type.DateMillisecond]: never,
-  [arrow.Type.TimestampSecond]: never,
-  [arrow.Type.TimestampMillisecond]: never,
-  [arrow.Type.TimestampMicrosecond]: never,
-  [arrow.Type.TimestampNanosecond]: never,
-  [arrow.Type.TimeSecond]: never,
-  [arrow.Type.TimeMillisecond]: never,
-  [arrow.Type.TimeMicrosecond]: never,
-  [arrow.Type.TimeNanosecond]: never,
-  [arrow.Type.DenseUnion]: never,
-  [arrow.Type.SparseUnion]: never,
-  [arrow.Type.IntervalDayTime]: never,
-  [arrow.Type.IntervalYearMonth]: never,
-}[T['typeId']];
+export type ArrowToCUDFType<T extends arrow.DataType> =
+//  T extends arrow.Null ? never :   // TODO
+ T extends arrow.Int8 ? Int8 : 
+ T extends arrow.Int16 ? Int16 : 
+ T extends arrow.Int32 ? Int32 : 
+ T extends arrow.Int64 ? Int64 : 
+ T extends arrow.Uint8 ? Uint8 : 
+ T extends arrow.Uint16 ? Uint16 : 
+ T extends arrow.Uint32 ? Uint32 : 
+ T extends arrow.Uint64 ? Uint64 : 
+//  T extends arrow.Int ? never : 
+//  T extends arrow.Float16 ? never : 
+ T extends arrow.Float32 ? Float32 : 
+ T extends arrow.Float64 ? Float64 : 
+//  T extends arrow.Float ? never : 
+//  T extends arrow.Binary ? never : 
+ T extends arrow.Utf8 ? Utf8String : 
+ T extends arrow.Bool ? Bool8 : 
+//  T extends arrow.Decimal ? never :                // TODO
+//  T extends arrow.DateDay ? never :                // TODO
+//  T extends arrow.DateMillisecond ? never :        // TODO
+//  T extends arrow.Date_ ? never :                  // TODO
+//  T extends arrow.TimeSecond ? never :             // TODO
+//  T extends arrow.TimeMillisecond ? never :        // TODO
+//  T extends arrow.TimeMicrosecond ? never :        // TODO
+//  T extends arrow.TimeNanosecond ? never :         // TODO
+//  T extends arrow.Time ? never :                   // TODO
+//  T extends arrow.TimestampSecond ? never :        // TODO
+//  T extends arrow.TimestampMillisecond ? never :   // TODO
+//  T extends arrow.TimestampMicrosecond ? never :   // TODO
+//  T extends arrow.TimestampNanosecond ? never :    // TODO
+//  T extends arrow.Timestamp ? never :              // TODO
+//  T extends arrow.IntervalDayTime ? never :        // TODO
+//  T extends arrow.IntervalYearMonth ? never :      // TODO
+//  T extends arrow.Interval ? never :               // TODO
+ T extends arrow.List ? T extends List ? T : List<ArrowToCUDFType<T['valueType']>> :
+ T extends arrow.Struct ? T extends Struct ? T : Struct<{[P in keyof T['dataTypes']]: ArrowToCUDFType<T['dataTypes'][P]>}> :
+//  T extends arrow.Union ? never :
+//  T extends arrow.DenseUnion ? never :
+//  T extends arrow.SparseUnion ? never :
+//  T extends arrow.FixedSizeBinary ? never :
+//  T extends arrow.FixedSizeList ? never :
+//  T extends arrow.Map_ ? never :
+//  T extends arrow.Dictionary ? never :
+ never;
+// clang-format on
 
 export const arrowToCUDFType = (() => {
   interface ArrowToCUDFTypeVisitor extends arrow.Visitor {
@@ -152,42 +151,49 @@ export const arrowToCUDFType = (() => {
       }
       return super.getVisitFn(type);
     }
-    // public visitNull                 <T extends arrow.Null>(_: T) { return new Null; }
-    public visitBool                 <T extends arrow.Bool>(_: T) { return new Bool8; }
-    public visitInt8                 <T extends arrow.Int8>(_: T) { return new Int8; }
-    public visitInt16                <T extends arrow.Int16>(_: T) { return new Int16; }
-    public visitInt32                <T extends arrow.Int32>(_: T) { return new Int32; }
-    public visitInt64                <T extends arrow.Int64>(_: T) { return new Int64; }
-    public visitUint8                <T extends arrow.Uint8>(_: T) { return new Uint8; }
-    public visitUint16               <T extends arrow.Uint16>(_: T) { return new Uint16; }
-    public visitUint32               <T extends arrow.Uint32>(_: T) { return new Uint32; }
-    public visitUint64               <T extends arrow.Uint64>(_: T) { return new Uint64; }
-    // public visitFloat16              <T extends arrow.Float16>(_: T) { return new Float16; }
-    public visitFloat32              <T extends arrow.Float32>(_: T) { return new Float32; }
-    public visitFloat64              <T extends arrow.Float64>(_: T) { return new Float64; }
-    public visitUtf8                 <T extends arrow.Utf8>(_: T) { return new Utf8String; }
-    // public visitBinary               <T extends arrow.Binary>(_: T) { return new Binary; }
-    // public visitFixedSizeBinary      <T extends arrow.FixedSizeBinary>(_: T) { return new FixedSizeBinary(_); }
-    // public visitDateDay              <T extends arrow.DateDay>(_: T) { return new DateDay; }
-    // public visitDateMillisecond      <T extends arrow.DateMillisecond>(_: T) { return new DateMillisecond; }
-    // public visitTimestampSecond      <T extends arrow.TimestampSecond>(_: T) { return new TimestampSecond; }
-    // public visitTimestampMillisecond <T extends arrow.TimestampMillisecond>(_: T) { return new TimestampMillisecond; }
-    // public visitTimestampMicrosecond <T extends arrow.TimestampMicrosecond>(_: T) { return new TimestampMicrosecond; }
-    // public visitTimestampNanosecond  <T extends arrow.TimestampNanosecond>(_: T) { return new TimestampNanosecond; }
-    // public visitTimeSecond           <T extends arrow.TimeSecond>(_: T) { return new TimeSecond; }
-    // public visitTimeMillisecond      <T extends arrow.TimeMillisecond>(_: T) { return new TimeMillisecond; }
-    // public visitTimeMicrosecond      <T extends arrow.TimeMicrosecond>(_: T) { return new TimeMicrosecond; }
-    // public visitTimeNanosecond       <T extends arrow.TimeNanosecond>(_: T) { return new TimeNanosecond; }
-    // public visitDecimal              <T extends arrow.Decimal>(_: T) { return new Decimal(_); }
-    public visitList                 <T extends arrow.List>(_: T) { return new List(_.children[0]); }
-    public visitStruct               <T extends arrow.Struct>(_: T) { return new Struct(_.children); }
-    // public visitDenseUnion           <T extends arrow.DenseUnion>(_: T) { return new DenseUnion(_); }
-    // public visitSparseUnion          <T extends arrow.SparseUnion>(_: T) { return new SparseUnion(_); }
-    // public visitDictionary           <T extends arrow.Dictionary>(_: T) { return new Dictionary(_); }
-    // public visitIntervalDayTime      <T extends arrow.IntervalDayTime>(_: T) { return new IntervalDayTime(_); }
-    // public visitIntervalYearMonth    <T extends arrow.IntervalYearMonth>(_: T) { return new IntervalYearMonth(_); }
-    // public visitFixedSizeList        <T extends arrow.FixedSizeList>(_: T) { return new FixedSizeList(_); }
-    // public visitMap                  <T extends arrow.Map>(_: T) { return new Map(_); }
+    // public visitNull                 <T extends arrow.Null>(type: T) { return new Null; }
+    public visitBool                 <T extends arrow.Bool>(_type: T) { return new Bool8; }
+    public visitInt8                 <T extends arrow.Int8>(_type: T) { return new Int8; }
+    public visitInt16                <T extends arrow.Int16>(_type: T) { return new Int16; }
+    public visitInt32                <T extends arrow.Int32>(_type: T) { return new Int32; }
+    public visitInt64                <T extends arrow.Int64>(_type: T) { return new Int64; }
+    public visitUint8                <T extends arrow.Uint8>(_type: T) { return new Uint8; }
+    public visitUint16               <T extends arrow.Uint16>(_type: T) { return new Uint16; }
+    public visitUint32               <T extends arrow.Uint32>(_type: T) { return new Uint32; }
+    public visitUint64               <T extends arrow.Uint64>(_type: T) { return new Uint64; }
+    // public visitFloat16              <T extends arrow.Float16>(_type: T) { return new Float16; }
+    public visitFloat32              <T extends arrow.Float32>(_type: T) { return new Float32; }
+    public visitFloat64              <T extends arrow.Float64>(_type: T) { return new Float64; }
+    public visitUtf8                 <T extends arrow.Utf8>(_type: T) { return new Utf8String; }
+    // public visitBinary               <T extends arrow.Binary>(_type: T) { return new Binary; }
+    // public visitFixedSizeBinary      <T extends arrow.FixedSizeBinary>(type: T) { return new FixedSizeBinary(type); }
+    // public visitDateDay              <T extends arrow.DateDay>(_type: T) { return new DateDay; }
+    // public visitDateMillisecond      <T extends arrow.DateMillisecond>(_type: T) { return new DateMillisecond; }
+    // public visitTimestampSecond      <T extends arrow.TimestampSecond>(_type: T) { return new TimestampSecond; }
+    // public visitTimestampMillisecond <T extends arrow.TimestampMillisecond>(_type: T) { return new TimestampMillisecond; }
+    // public visitTimestampMicrosecond <T extends arrow.TimestampMicrosecond>(_type: T) { return new TimestampMicrosecond; }
+    // public visitTimestampNanosecond  <T extends arrow.TimestampNanosecond>(_type: T) { return new TimestampNanosecond; }
+    // public visitTimeSecond           <T extends arrow.TimeSecond>(_type: T) { return new TimeSecond; }
+    // public visitTimeMillisecond      <T extends arrow.TimeMillisecond>(_type: T) { return new TimeMillisecond; }
+    // public visitTimeMicrosecond      <T extends arrow.TimeMicrosecond>(_type: T) { return new TimeMicrosecond; }
+    // public visitTimeNanosecond       <T extends arrow.TimeNanosecond>(_type: T) { return new TimeNanosecond; }
+    // public visitDecimal              <T extends arrow.Decimal>(_type: T) { return new Decimal(type); }
+    public visitList                 <T extends arrow.List>(type: T) {
+      const { name, type: childType } = type.children[0];
+      return new List(arrow.Field.new({ name, type: this.visit(childType) }));
+    }
+    public visitStruct               <T extends arrow.Struct>(type: T) {
+      return new Struct(type.children.map(({ name, type: childType }) => {
+        return arrow.Field.new({ name, type: this.visit(childType) });
+      }));
+    }
+    // public visitDenseUnion           <T extends arrow.DenseUnion>(type: T) { return new DenseUnion(type); }
+    // public visitSparseUnion          <T extends arrow.SparseUnion>(type: T) { return new SparseUnion(type); }
+    // public visitDictionary           <T extends arrow.Dictionary>(type: T) { return new Dictionary(type); }
+    // public visitIntervalDayTime      <T extends arrow.IntervalDayTime>(type: T) { return new IntervalDayTime; }
+    // public visitIntervalYearMonth    <T extends arrow.IntervalYearMonth>(type: T) { return new IntervalYearMonth; }
+    // public visitFixedSizeList        <T extends arrow.FixedSizeList>(type: T) { return new FixedSizeList(type); }
+    // public visitMap                  <T extends arrow.Map>(type: T) { return new Map(type); }
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
   // clang-format on

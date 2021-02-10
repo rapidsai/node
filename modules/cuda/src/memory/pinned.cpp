@@ -42,9 +42,10 @@ Napi::Object PinnedMemory::Init(Napi::Env env, Napi::Object exports) {
 
 PinnedMemory::PinnedMemory(CallbackArgs const& args)
   : Napi::ObjectWrap<PinnedMemory>(args), Memory(args) {
-  NODE_CUDA_EXPECT(args.IsConstructCall(), "PinnedMemory constructor requires 'new'");
+  NODE_CUDA_EXPECT(args.IsConstructCall(), "PinnedMemory constructor requires 'new'", args.Env());
   NODE_CUDA_EXPECT(args.Length() == 0 || (args.Length() == 1 && args[0].IsNumber()),
-                   "PinnedMemory constructor requires a numeric byteLength argument");
+                   "PinnedMemory constructor requires a numeric byteLength argument",
+                   args.Env());
   Initialize(args[0]);
 }
 

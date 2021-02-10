@@ -19,7 +19,7 @@ import {VectorType} from 'apache-arrow/interfaces';
 
 import {Column, ColumnProps} from './column';
 import {fromArrow} from './column/from_arrow';
-import {Table} from './table';
+import {Table, ToArrowMetadata} from './table';
 import {
   Bool8,
   DataType,
@@ -45,18 +45,18 @@ import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
 export type SeriesProps<T extends DataType = any> = {
   type: T,
-  data?: DeviceBuffer|MemoryData|null,
+  data?: DeviceBuffer|MemoryData|number[]|null,
   offset?: number,
   length?: number,
   nullCount?: number,
-  nullMask?: DeviceBuffer|MemoryData|null,
+  nullMask?: DeviceBuffer|MemoryData|number[]|boolean|null,
   children?: ReadonlyArray<Series>|null
 };
 
-export type Series<T extends DataType = any> = {
-  // [key: number]: AbstractSeries<any>,
+export type Series<T extends arrow.DataType = any> = {
   [arrow.Type.NONE]: never,  // TODO
   [arrow.Type.Null]: never,  // TODO
+  [arrow.Type.Int]: never,
   [arrow.Type.Int8]: Int8Series,
   [arrow.Type.Int16]: Int16Series,
   [arrow.Type.Int32]: Int32Series,
@@ -65,34 +65,46 @@ export type Series<T extends DataType = any> = {
   [arrow.Type.Uint16]: Uint16Series,
   [arrow.Type.Uint32]: Uint32Series,
   [arrow.Type.Uint64]: Uint64Series,
+  [arrow.Type.Float]: never,
+  [arrow.Type.Float16]: never,
   [arrow.Type.Float32]: Float32Series,
   [arrow.Type.Float64]: Float64Series,
+  [arrow.Type.Binary]: never,
+  [arrow.Type.Utf8]: StringSeries,
   [arrow.Type.Bool]: Bool8Series,
+  [arrow.Type.Decimal]: never,               // TODO
+  [arrow.Type.Date]: never,                  // TODO
   [arrow.Type.DateDay]: never,               // TODO
   [arrow.Type.DateMillisecond]: never,       // TODO
+  [arrow.Type.Time]: never,                  // TODO
+  [arrow.Type.TimeSecond]: never,            // TODO
+  [arrow.Type.TimeMillisecond]: never,       // TODO
+  [arrow.Type.TimeMicrosecond]: never,       // TODO
+  [arrow.Type.TimeNanosecond]: never,        // TODO
+  [arrow.Type.Timestamp]: never,             // TODO
   [arrow.Type.TimestampSecond]: never,       // TODO
   [arrow.Type.TimestampMillisecond]: never,  // TODO
   [arrow.Type.TimestampMicrosecond]: never,  // TODO
   [arrow.Type.TimestampNanosecond]: never,   // TODO
-  // [arrow.Type.DURATION_DAYS]: never,           // TODO
-  // [arrow.Type.DURATION_SECONDS]: never,        // TODO
-  // [arrow.Type.DURATION_MILLISECONDS]: never,   // TODO
-  // [arrow.Type.DURATION_MICROSECONDS]: never,   // TODO
-  // [arrow.Type.DURATION_NANOSECONDS]: never,    // TODO
-  [arrow.Type.Dictionary]: never,  // TODO
-  [arrow.Type.Utf8]: StringSeries,
-  [arrow.Type.List]: ListSeries<ArrowToCUDFType<T extends arrow.List ? T : any>['childType']>,
-  // [arrow.Type.DECIMAL32]: never,  // TODO
-  // [arrow.Type.DECIMAL64]: never,  // TODO
-  [arrow.Type.Struct]:
-    StructSeries<ArrowToCUDFType<T extends arrow.Struct ? T : any>['childTypes']>,
-}[T['typeId']];
+  [arrow.Type.Interval]: never,              // TODO
+  [arrow.Type.IntervalDayTime]: never,       // TODO
+  [arrow.Type.IntervalYearMonth]: never,     // TODO
+  [arrow.Type.List]: ListSeries<(T extends List ? T['childType'] : any)>,
+  [arrow.Type.Struct]: StructSeries<(T extends Struct ? T['childTypes'] : any)>,
+  [arrow.Type.Union]: never,            // TODO
+  [arrow.Type.DenseUnion]: never,       // TODO
+  [arrow.Type.SparseUnion]: never,      // TODO
+  [arrow.Type.FixedSizeBinary]: never,  // TODO
+  [arrow.Type.FixedSizeList]: never,    // TODO
+  [arrow.Type.Map]: never,              // TODO
+  [arrow.Type.Dictionary]: never,       // TODO
+}[T['TType']];
 
 /**
  * One-dimensional GPU array
  */
 export class AbstractSeries<T extends DataType = any> {
-  static new<T extends arrow.Vector>(input: T): Series<T['type']>;
+  static new<T extends arrow.Vector>(input: T): Series<ArrowToCUDFType<T['type']>>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>): Series<T>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
@@ -146,7 +158,7 @@ export class AbstractSeries<T extends DataType = any> {
    * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
    */
   gather<R extends Integral>(selection: Series<R>): Series<T> {
-    return Series.new(this._col.gather(selection._col));
+    return this.__construct(this._col.gather(selection._col));
   }
 
   /**
@@ -155,7 +167,7 @@ export class AbstractSeries<T extends DataType = any> {
    * @param mask A Series of boolean values for whose corresponding element in this Series will be
    *   selected or ignored.
    */
-  filter(mask: Series<Bool8>): Series<T> { return Series.new(this._col.gather(mask._col)); }
+  filter(mask: Series<Bool8>): Series<T> { return this.__construct(this._col.gather(mask._col)); }
 
   /**
    * Return a value at the specified index to host memory
@@ -189,7 +201,16 @@ export class AbstractSeries<T extends DataType = any> {
    * Copy a Series to an Arrow vector in host memory
    */
   toArrow(): VectorType<T> {
-    const reader = arrow.RecordBatchReader.from(new Table({columns: [this._col]}).toArrow([[0]]));
+    const names = (name: string|number, type?: DataType): ToArrowMetadata => {
+      if (!type || !type.children || !type.children.length) { return [name]; }
+      if (type instanceof arrow.List) {
+        if (!type.children[0]) { return [name, [[0], [1]]]; }
+        return [name, [[0], names(type.children[0].name, type.children[0].type)]];
+      }
+      return [name, type.children.map((f) => names(f.name, f.type))];
+    };
+    const reader = arrow.RecordBatchReader.from(
+      new Table({columns: [this._col]}).toArrow([names(0, this.type)]));
     const column = new arrow.Table(reader.schema, [...reader]).getColumnAt<T>(0);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return column!.chunks[0] as VectorType<T>;
@@ -286,10 +307,21 @@ export class AbstractSeries<T extends DataType = any> {
     }
     return Boolean(this._col.any(memoryResource));
   }
+  /**
+   * @summary Hook for specialized Series to override when constructing from a C++ Column.
+   */
+  protected __construct(inp: Column<T>): Series<T> { return Series.new(inp); }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Series = AbstractSeries;
+
+Object.defineProperty(Series.prototype, '__construct', {
+  writable: false,
+  enumerable: false,
+  configurable: true,
+  value: (Series.prototype as any).__construct,
+});
 
 import {Bool8Series} from './series/bool';
 import {Float32Series, Float64Series} from './series/float';
@@ -365,42 +397,42 @@ const columnToSeries = (() => {
       }
       return super.getVisitFn(column.type);
     }
-    // public visitNull                 <T extends Null>(_: Column<T>) { return new (NullSeries as any)(_); }
-    public visitBool                 <T extends Bool8>(_: Column<T>) { return new (Bool8Series as any)(_); }
-    public visitInt8                 <T extends Int8>(_: Column<T>) { return new (Int8Series as any)(_); }
-    public visitInt16                <T extends Int16>(_: Column<T>) { return new (Int16Series as any)(_); }
-    public visitInt32                <T extends Int32>(_: Column<T>) { return new (Int32Series as any)(_); }
-    public visitInt64                <T extends Int64>(_: Column<T>) { return new (Int64Series as any)(_); }
-    public visitUint8                <T extends Uint8>(_: Column<T>) { return new (Uint8Series as any)(_); }
-    public visitUint16               <T extends Uint16>(_: Column<T>) { return new (Uint16Series as any)(_); }
-    public visitUint32               <T extends Uint32>(_: Column<T>) { return new (Uint32Series as any)(_); }
-    public visitUint64               <T extends Uint64>(_: Column<T>) { return new (Uint64Series as any)(_); }
+    // public visitNull                 <T extends Null>(col: Column<T>) { return new (NullSeries as any)(col); }
+    public visitBool                 <T extends Bool8>(col: Column<T>) { return new (Bool8Series as any)(col); }
+    public visitInt8                 <T extends Int8>(col: Column<T>) { return new (Int8Series as any)(col); }
+    public visitInt16                <T extends Int16>(col: Column<T>) { return new (Int16Series as any)(col); }
+    public visitInt32                <T extends Int32>(col: Column<T>) { return new (Int32Series as any)(col); }
+    public visitInt64                <T extends Int64>(col: Column<T>) { return new (Int64Series as any)(col); }
+    public visitUint8                <T extends Uint8>(col: Column<T>) { return new (Uint8Series as any)(col); }
+    public visitUint16               <T extends Uint16>(col: Column<T>) { return new (Uint16Series as any)(col); }
+    public visitUint32               <T extends Uint32>(col: Column<T>) { return new (Uint32Series as any)(col); }
+    public visitUint64               <T extends Uint64>(col: Column<T>) { return new (Uint64Series as any)(col); }
     // public visitFloat16              <T extends Float16>(_: T) { return new (Float16Series as any)(_); }
-    public visitFloat32              <T extends Float32>(_: Column<T>) { return new (Float32Series as any)(_); }
-    public visitFloat64              <T extends Float64>(_: Column<T>) { return new (Float64Series as any)(_); }
-    public visitUtf8                 <T extends Utf8String>(_: Column<T>) { return new (StringSeries as any)(_); }
-    // public visitBinary               <T extends Binary>(_: Column<T>) { return new (BinarySeries as any)(_); }
-    // public visitFixedSizeBinary      <T extends FixedSizeBinary>(_: Column<T>) { return new (FixedSizeBinarySeries as any)(_); }
-    // public visitDateDay              <T extends DateDay>(_: Column<T>) { return new (DateDaySeries as any)(_); }
-    // public visitDateMillisecond      <T extends DateMillisecond>(_: Column<T>) { return new (DateMillisecondSeries as any)(_); }
-    // public visitTimestampSecond      <T extends TimestampSecond>(_: Column<T>) { return new (TimestampSecondSeries as any)(_); }
-    // public visitTimestampMillisecond <T extends TimestampMillisecond>(_: Column<T>) { return new (TimestampMillisecondSeries as any)(_); }
-    // public visitTimestampMicrosecond <T extends TimestampMicrosecond>(_: Column<T>) { return new (TimestampMicrosecondSeries as any)(_); }
-    // public visitTimestampNanosecond  <T extends TimestampNanosecond>(_: Column<T>) { return new (TimestampNanosecondSeries as any)(_); }
-    // public visitTimeSecond           <T extends TimeSecond>(_: Column<T>) { return new (TimeSecondSeries as any)(_); }
-    // public visitTimeMillisecond      <T extends TimeMillisecond>(_: Column<T>) { return new (TimeMillisecondSeries as any)(_); }
-    // public visitTimeMicrosecond      <T extends TimeMicrosecond>(_: Column<T>) { return new (TimeMicrosecondSeries as any)(_); }
-    // public visitTimeNanosecond       <T extends TimeNanosecond>(_: Column<T>) { return new (TimeNanosecondSeries as any)(_); }
-    // public visitDecimal              <T extends Decimal>(_: Column<T>) { return new (DecimalSeries as any)(_); }
-    public visitList                 <T extends List>(_: Column<T>) { return new (ListSeries as any)(_); }
-    public visitStruct               <T extends Struct>(_: Column<T>) { return new (StructSeries as any)(_); }
-    // public visitDenseUnion           <T extends DenseUnion>(_: Column<T>) { return new (DenseUnionSeries as any)(_); }
-    // public visitSparseUnion          <T extends SparseUnion>(_: Column<T>) { return new (SparseUnionSeries as any)(_); }
-    // public visitDictionary           <T extends Dictionary>(_: Column<T>) { return new (DictionarySeries as any)(_); }
-    // public visitIntervalDayTime      <T extends IntervalDayTime>(_: Column<T>) { return new (IntervalDayTimeSeries as any)(_); }
-    // public visitIntervalYearMonth    <T extends IntervalYearMonth>(_: Column<T>) { return new (IntervalYearMonthSeries as any)(_); }
-    // public visitFixedSizeList        <T extends FixedSizeList>(_: Column<T>) { return new (FixedSizeListSeries as any)(_); }
-    // public visitMap                  <T extends Map>(_: Column<T>) { return new (MapSeries as any)(_); }
+    public visitFloat32              <T extends Float32>(col: Column<T>) { return new (Float32Series as any)(col); }
+    public visitFloat64              <T extends Float64>(col: Column<T>) { return new (Float64Series as any)(col); }
+    public visitUtf8                 <T extends Utf8String>(col: Column<T>) { return new (StringSeries as any)(col); }
+    // public visitBinary               <T extends Binary>(col: Column<T>) { return new (BinarySeries as any)(col); }
+    // public visitFixedSizeBinary      <T extends FixedSizeBinary>(col: Column<T>) { return new (FixedSizeBinarySeries as any)(col); }
+    // public visitDateDay              <T extends DateDay>(col: Column<T>) { return new (DateDaySeries as any)(col); }
+    // public visitDateMillisecond      <T extends DateMillisecond>(col: Column<T>) { return new (DateMillisecondSeries as any)(col); }
+    // public visitTimestampSecond      <T extends TimestampSecond>(col: Column<T>) { return new (TimestampSecondSeries as any)(col); }
+    // public visitTimestampMillisecond <T extends TimestampMillisecond>(col: Column<T>) { return new (TimestampMillisecondSeries as any)(col); }
+    // public visitTimestampMicrosecond <T extends TimestampMicrosecond>(col: Column<T>) { return new (TimestampMicrosecondSeries as any)(col); }
+    // public visitTimestampNanosecond  <T extends TimestampNanosecond>(col: Column<T>) { return new (TimestampNanosecondSeries as any)(col); }
+    // public visitTimeSecond           <T extends TimeSecond>(col: Column<T>) { return new (TimeSecondSeries as any)(col); }
+    // public visitTimeMillisecond      <T extends TimeMillisecond>(col: Column<T>) { return new (TimeMillisecondSeries as any)(col); }
+    // public visitTimeMicrosecond      <T extends TimeMicrosecond>(col: Column<T>) { return new (TimeMicrosecondSeries as any)(col); }
+    // public visitTimeNanosecond       <T extends TimeNanosecond>(col: Column<T>) { return new (TimeNanosecondSeries as any)(col); }
+    // public visitDecimal              <T extends Decimal>(col: Column<T>) { return new (DecimalSeries as any)(col); }
+    public visitList                 <T extends List>(col: Column<T>) { return new (ListSeries as any)(col); }
+    public visitStruct               <T extends Struct>(col: Column<T>) { return new (StructSeries as any)(col); }
+    // public visitDenseUnion           <T extends DenseUnion>(col: Column<T>) { return new (DenseUnionSeries as any)(col); }
+    // public visitSparseUnion          <T extends SparseUnion>(col: Column<T>) { return new (SparseUnionSeries as any)(col); }
+    // public visitDictionary           <T extends Dictionary>(col: Column<T>) { return new (DictionarySeries as any)(col); }
+    // public visitIntervalDayTime      <T extends IntervalDayTime>(col: Column<T>) { return new (IntervalDayTimeSeries as any)(col); }
+    // public visitIntervalYearMonth    <T extends IntervalYearMonth>(col: Column<T>) { return new (IntervalYearMonthSeries as any)(col); }
+    // public visitFixedSizeList        <T extends FixedSizeList>(col: Column<T>) { return new (FixedSizeListSeries as any)(col); }
+    // public visitMap                  <T extends Map>(col: Column<T>) { return new (MapSeries as any)(col); }
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
   // clang-format on

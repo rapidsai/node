@@ -42,9 +42,10 @@ Napi::Object MappedGLMemory::Init(Napi::Env env, Napi::Object exports) {
 
 MappedGLMemory::MappedGLMemory(CallbackArgs const& args)
   : Napi::ObjectWrap<MappedGLMemory>(args), Memory(args) {
-  NODE_CUDA_EXPECT(args.IsConstructCall(), "MappedGLMemory constructor requires 'new'");
+  NODE_CUDA_EXPECT(args.IsConstructCall(), "MappedGLMemory constructor requires 'new'", args.Env());
   NODE_CUDA_EXPECT(args.Length() == 0 || (args.Length() == 1 && args[0].IsNumber()),
-                   "MappedGLMemory constructor requires a numeric byteLength argument");
+                   "MappedGLMemory constructor requires a numeric byteLength argument",
+                   args.Env());
   if (args.Length() == 1) { Initialize(args[0]); }
 }
 
