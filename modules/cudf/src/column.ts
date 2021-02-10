@@ -814,7 +814,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The median of all the values in this Column.
    */
-  nunique(skipna?: boolean, memoryResource?: MemoryResource): number;
+  nunique(skipna?: boolean, memoryResource?: MemoryResource): number|undefined;
 
   /**
    * Return whether all elements are true in column.

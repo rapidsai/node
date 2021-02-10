@@ -815,12 +815,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     return Series.new(this._col.not(memoryResource));
   }
 
-  private _process_reduction(skipna = true): Series|undefined {
-    if (skipna == true) {
-      // returning nans_to_nulls as c++ reduce always ignore nulls,
-      // so dropNA and dropNulls is not required.
-      return this.nansToNulls(false)?.dropNA();  // inplace = false
-    }
+  _process_reduction(skipna = true): Series|undefined {
+    if (skipna == true) { return this.dropNA(); }
     return this;
   }
 
@@ -833,7 +829,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns The sum of all the values in this Series.
    */
-  sum(skipna    = true,
+  sum(skipna             = true,
       dataType: DataType = new DataType(TypeId.EMPTY),
       memoryResource?: MemoryResource) {
     const result_series = this._process_reduction(skipna);
@@ -851,7 +847,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns The product of all the values in this Series.
    */
-  product(skipna    = true,
+  product(skipna             = true,
           dataType: DataType = new DataType(TypeId.EMPTY),
           memoryResource?: MemoryResource) {
     const result_series = this._process_reduction(skipna);
@@ -869,7 +865,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *   memory.
    * @returns The sumOfSquares of all the values in this Series.
    */
-  sumOfSquares(skipna    = true,
+  sumOfSquares(skipna             = true,
                dataType: DataType = new DataType(TypeId.EMPTY),
                memoryResource?: MemoryResource) {
     const result_series = this._process_reduction(skipna);
@@ -916,7 +912,6 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The number of unqiue values in this Series.
    */
   nunique(skipna = true, memoryResource?: MemoryResource) {
-    if (skipna) { return this.nansToNulls(false)?._col.nunique(skipna, memoryResource); }
     return this._col.nunique(skipna, memoryResource);
   }
 
@@ -932,8 +927,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The unbiased variance of all the values in this Series.
    */
   var(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
-    if (skipna) { return this.nansToNulls(false)?._col.var(ddof, memoryResource); }
-    return this._col.var(ddof, memoryResource);
+    return this._process_reduction(skipna)?._col.var(ddof, memoryResource);
   }
 
   /**
@@ -948,8 +942,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The standard deviation of all the values in this Series.
    */
   std(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
-    if (skipna) { return this.nansToNulls(false)?._col.std(ddof, memoryResource); }
-    return this._col.std(ddof, memoryResource);
+    return this._process_reduction(skipna)?._col.std(ddof, memoryResource);
   }
 
   /**
@@ -964,7 +957,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns values at the given quantile.
    */
   quantile(q = 0.5, interpolation = "linear", memoryResource?: MemoryResource) {
-    return this.nansToNulls(false)?._col.quantile(
+    return this._process_reduction(true)?._col.quantile(
       q, Interpolation[interpolation as keyof typeof Interpolation], memoryResource);
   }
 }

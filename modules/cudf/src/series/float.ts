@@ -57,6 +57,94 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   rint(memoryResource?: MemoryResource): SeriesType<T> {
     return Series.new(this._col.rint(memoryResource));
   }
+
+  _process_reduction(skipna = true): SeriesType<T>|undefined {
+    if (skipna == true) {
+      // returning nans_to_nulls as c++ reduce always ignore nulls,
+      // so dropNA and dropNulls is not required.
+      return Series.new(this._col.drop_nans().drop_nulls());  // inplace = false
+    }
+    return Series.new(this._col);
+  }
+  /**
+   * convert NaN values in the series with Null values,
+   * while also updating the nullMask and nullCount values
+   *
+   * @param inpalce if true, update the series inplace, else return updated Series
+   * @returns undefined if inplace=True, else updated Series with Null values
+   */
+  nansToNulls(inplace?: boolean): SeriesType<T>|undefined {
+    inplace = (inplace == undefined) ? true : inplace;
+    if (inplace == true) {
+      this._col.nans_to_nulls(true);  // inplace = true, return undefined
+      return undefined;
+    }
+    const col_result = this._col.nans_to_nulls(false);  // inplace = false
+    return (col_result !== undefined) ? Series.new(col_result) : undefined;
+  }
+
+  /**
+   * drop NaN values from the column if column is of floating-type
+   * values and contains NA values
+   *
+   * @returns column without NaN values
+   */
+  dropNaNs(): SeriesType<T> { return Series.new(this._col.drop_nans()); }
+
+  /**
+   * Return whether all elements are true in Series.
+   *
+   * @param skipna bool
+   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
+   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
+   * these are not equal to zero.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns true if all elements are true in Series, else false.
+   */
+  all(skipna = true, memoryResource?: MemoryResource): boolean {
+    if (skipna) {
+      const ser_result = this.nansToNulls(false);  // inplace=false
+      if (ser_result?.length == ser_result?.nullCount) { return true; }
+    }
+    return Boolean(this._col.all(memoryResource));
+  }
+
+  /**
+   * Return whether any elements are true in Series.
+   *
+   * @param skipna bool
+   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
+   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
+   * these are not equal to zero.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns true if any elements are true in Series, else false.
+   */
+  any(skipna = true, memoryResource?: MemoryResource): boolean {
+    if (this.length == 0) { return false; }
+    if (skipna) {
+      const ser_result = this.nansToNulls(false);  // inplace=false
+      if (ser_result?.length == ser_result?.nullCount) { return false; }
+    }
+    return Boolean(this._col.any(memoryResource));
+  }
+
+  /**
+   * Compute the nunique of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The number of unqiue values in this Series.
+   */
+  nunique(skipna = true, memoryResource?: MemoryResource) {
+    return (skipna) ? this.nansToNulls(false)?._col.nunique(skipna, memoryResource)
+                    : this._col.nunique(skipna, memoryResource);
+  }
 }
 
 /**
