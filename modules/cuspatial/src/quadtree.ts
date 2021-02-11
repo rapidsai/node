@@ -303,14 +303,15 @@ export class Quadtree<T extends FloatingPoint> {
 
   /**
    * @summary Find a subset of points nearest to each given polyline.
-   * @param lines Series of Polylines to test.
+   * @param polylines Series of Polylines to test.
    * @param expansionRadius Radius of each polyline point.
    * @param memoryResource Optional resource used to allocate the output device memory.
+   * @returns DataFrame containing the closest point to each polyline.
    */
-  public pointsNearestPolylines<R extends Polylines<T>>(lines: R,
+  public pointsNearestPolylines<R extends Polylines<T>>(polylines: R,
                                                         expansionRadius = 1,
                                                         memoryResource?: MemoryResource) {
-    const result = this.pointToNearestPolyline(lines, expansionRadius, memoryResource);
+    const result = this.pointToNearestPolyline(polylines, expansionRadius, memoryResource);
     return new DataFrame({x: this.x, y: this.y}).gather(result.get('point_index'));
   }
 
