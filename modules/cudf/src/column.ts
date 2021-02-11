@@ -803,9 +803,9 @@ export interface Column<T extends DataType = any> {
    * if false, excludes the nulls while computing nunique.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
-   * @returns The median of all the values in this Column.
+   * @returns The number of unique values in this Column.
    */
-  nunique(skipna?: boolean, memoryResource?: MemoryResource): number|undefined;
+  nunique(skipna?: boolean, memoryResource?: MemoryResource): number;
 
   /**
    * Return whether all elements are true in column.

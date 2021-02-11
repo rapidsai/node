@@ -267,8 +267,9 @@ export class AbstractSeries<T extends DataType = any> {
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns series without Null values
    */
-  dropNulls(memoryResource?: MemoryResource):
-    Series<T>{return Series.new(this._col.drop_nulls(memoryResource))}
+  dropNulls(memoryResource?: MemoryResource): Series<T> {
+    return this.__construct(this._col.drop_nulls(memoryResource));
+  }
 
   /**
    * Return whether all elements are true in Series.
@@ -282,11 +283,11 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @returns true if all elements are true in Series, else false.
    */
-  all(skipna = true, memoryResource?: MemoryResource): boolean {
+  all(skipna = true, memoryResource?: MemoryResource) {
     if (skipna) {
-      if (this?.length == this?.nullCount) { return true; }
+      if (this.length == this.nullCount) { return true; }
     }
-    return Boolean(this._col.all(memoryResource));
+    return this._col.all(memoryResource);
   }
 
   /**
@@ -301,12 +302,12 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @returns true if any elements are true in Series, else false.
    */
-  any(skipna = true, memoryResource?: MemoryResource): boolean {
+  any(skipna = true, memoryResource?: MemoryResource) {
     if (this.length == 0) { return false; }
     if (skipna) {
-      if (this?.length == this?.nullCount) { return false; }
+      if (this.length == this.nullCount) { return false; }
     }
-    return Boolean(this._col.any(memoryResource));
+    return this._col.any(memoryResource);
   }
   /**
    * @summary Hook for specialized Series to override when constructing from a C++ Column.

@@ -23,6 +23,7 @@
 #include <cudf/reduction.hpp>
 #include <cudf/table/table_view.hpp>
 #include <cudf/types.hpp>
+#include <cudf/utilities/type_dispatcher.hpp>
 
 #include <memory>
 #include <string>
@@ -103,9 +104,9 @@ Napi::Value Column::median(Napi::CallbackInfo const& info) {
 ObjectUnwrap<Scalar> Column::nunique(bool skipna, rmm::mr::device_memory_resource* mr) const {
   cudf::null_policy null_policy =
     (skipna == true) ? cudf::null_policy::EXCLUDE : cudf::null_policy::INCLUDE;
-  cudf::data_type dtype = cudf::data_type(cudf::type_id::UINT64);
-
-  return reduce(cudf::make_nunique_aggregation(null_policy), dtype, mr);
+  return reduce(cudf::make_nunique_aggregation(null_policy),
+                cudf::data_type{cudf::type_to_id<cudf::size_type>()},
+                mr);
 }
 
 Napi::Value Column::nunique(Napi::CallbackInfo const& info) {

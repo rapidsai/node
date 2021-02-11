@@ -820,9 +820,9 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     return Series.new(this._col.not(memoryResource));
   }
 
-  _process_reduction(skipna = true, memoryResource?: MemoryResource): Series {
+  _process_reduction(skipna = true, memoryResource?: MemoryResource): Series<T> {
     if (skipna == true) { return this.dropNulls(memoryResource); }
-    return this;
+    return this.__construct(this._col);
   }
 
   _compute_dtype(dtype: DataType|undefined): DataType {

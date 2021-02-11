@@ -46,26 +46,26 @@ const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN]);
 function jsAll(values: any) { return values.every(x => x != false); }
 
 function testNumberAll<T extends Numeric, R extends TypedArray>(type: T, data: R) {
-  expect(Series.new({type, data}).all()).toEqual(jsAll(data));
+  expect(Boolean(Series.new({type, data}).all())).toEqual(jsAll(data));
 }
 
 function testNumberAllSkipNA<T extends Numeric, R extends TypedArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
-  expect(Series.new({type, data, nullMask: mask}).all(false))
+  expect(Boolean(Series.new({type, data, nullMask: mask}).all(false)))
     .toEqual(jsAll(data.filter((_, i) => mask_array[i] == 1)));
 }
 
 function testBigIntAll<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
-  expect(Series.new({type, data}).all()).toEqual(jsAll(data));
+  expect(Boolean(Series.new({type, data}).all())).toEqual(jsAll(data));
 }
 
 function testBigIntAllSkipNA<T extends Numeric, R extends BigIntArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
-  expect(Series.new({type, data, nullMask: mask}).all(false))
+  expect(Boolean(Series.new({type, data, nullMask: mask}).all(false)))
     .toEqual(jsAll(data.filter((_, i) => mask_array[i] == 1)));
 }
 
