@@ -137,7 +137,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * @returns The number of unqiue values in this Series.
    */
   nunique(skipna = true, memoryResource?: MemoryResource) {
-    return (skipna) ? this.nansToNulls(memoryResource)._col.nunique(skipna, memoryResource)
+    return (skipna) ? this._col.nans_to_nulls(memoryResource).nunique(skipna, memoryResource)
                     : this._col.nunique(skipna, memoryResource);
   }
 }
