@@ -253,8 +253,8 @@ test('dataframe.dropNulls(axis=0)', () => {
 
   // column a is dropped as it contains null value
   expect(result.numColumns).toEqual(1);
-  expect(df.names).toEqual(["b"]);
-  expect(df.numRows).toEqual(b.length);
+  expect(result.names).toEqual(["b"]);
+  expect(result.numRows).toEqual(b.length);
 });
 
 test('dataframe.dropNaNs(axis=0)', () => {
@@ -284,8 +284,8 @@ test('dataframe.dropNaNs(axis=1)', () => {
 
   // column b is dropped as it contains NaN value
   expect(result.numColumns).toEqual(1);
-  expect(df.names).toEqual(["a"]);
-  expect(df.numRows).toEqual(a.length);
+  expect(result.names).toEqual(["a"]);
+  expect(result.numRows).toEqual(a.length);
 });
 
 test('dataframe.nansToNulls', () => {

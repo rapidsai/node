@@ -245,7 +245,8 @@ export class DataFrame<T extends TypeMap = any> {
     }
     const result = table_result.drop_nulls(column_indices, keep_threshold);
     return new DataFrame(this.names.reduce(
-      (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}), {}));
+      (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
+      {} as SeriesMap<T>));
   }
   /**
    * drop rows with NaN values (float type only)
@@ -272,7 +273,8 @@ export class DataFrame<T extends TypeMap = any> {
     }
     const result = table_result.drop_nans(column_indices, keep_threshold);
     return new DataFrame(this.names.reduce(
-      (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}), {}));
+      (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
+      {} as SeriesMap<T>));
   }
   /**
    * drop columns with nulls
@@ -300,7 +302,8 @@ export class DataFrame<T extends TypeMap = any> {
     });
 
     return new DataFrame(column_names.reduce(
-      (map, name, _) => ({...map, [name]: Series.new(this._accessor.get(name))}), {}));
+      (map, name, _) => ({...map, [name]: Series.new(this._accessor.get(name))}),
+      {} as SeriesMap<T>));
   }
   /**
    * drop columns with NaN values(float type only)
@@ -333,7 +336,8 @@ export class DataFrame<T extends TypeMap = any> {
     });
 
     return new DataFrame(column_names.reduce(
-      (map, name, _) => ({...map, [name]: Series.new(this._accessor.get(name))}), {}));
+      (map, name, _) => ({...map, [name]: Series.new(this._accessor.get(name))}),
+      {} as SeriesMap<T>));
   }
 
   /**
@@ -451,17 +455,16 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   nansToNulls(subset?: string[]): DataFrame<T> {
-    let _accessor = new ColumnAccessor({});
-    const subset_ = (subset == undefined) ? this.names as string[] : subset;
-    subset_.forEach((col) => {
-      if (this.names.includes(col)) {
-        if (this.get(col) instanceof Float32Series || this.get(col) instanceof Float64Series) {
-          _accessor = _accessor.addColumns({[col]: this.get(col)._col.nans_to_nulls()});
-        } else {
-          _accessor = _accessor.addColumns({[col]: this.get(col)._col});
-        }
+    subset           = (subset == undefined) ? this.names as string[] : subset;
+    const temp       = new Table({columns: this.select(subset)._accessor.columns});
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name, index) => {
+      if (this.get(name) instanceof Float32Series || this.get(name) instanceof Float64Series) {
+        series_map[name] = Series.new(temp.getColumnByIndex(index).nans_to_nulls());
+      } else {
+        series_map[name] = Series.new(temp.getColumnByIndex(index));
       }
     });
-    return new DataFrame(_accessor);
+    return new DataFrame(series_map);
   }
 }
