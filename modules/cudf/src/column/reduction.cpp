@@ -16,6 +16,7 @@
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
+#include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
 #include <cudf/aggregation.hpp>
@@ -49,7 +50,8 @@ ObjectUnwrap<Scalar> Column::sum(cudf::data_type dtype, rmm::mr::device_memory_r
 }
 
 Napi::Value Column::sum(Napi::CallbackInfo const& info) {
-  return sum(NapiToCPP{info[0]}, NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs args{info};
+  return sum(args[0], args[1]);
 }
 
 ObjectUnwrap<Scalar> Column::product(cudf::data_type dtype,
@@ -58,8 +60,8 @@ ObjectUnwrap<Scalar> Column::product(cudf::data_type dtype,
 }
 
 Napi::Value Column::product(Napi::CallbackInfo const& info) {
-  return product(NapiToCPP{info[0]},
-                 NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs args{info};
+  return product(args[0], args[1]);
 }
 
 ObjectUnwrap<Scalar> Column::sum_of_squares(cudf::data_type dtype,
@@ -68,22 +70,18 @@ ObjectUnwrap<Scalar> Column::sum_of_squares(cudf::data_type dtype,
 }
 
 Napi::Value Column::sum_of_squares(Napi::CallbackInfo const& info) {
-  return sum_of_squares(NapiToCPP{info[0]},
-                        NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs args{info};
+  return sum_of_squares(args[0], args[1]);
 }
 
 Napi::Value Column::any(Napi::CallbackInfo const& info) {
-  cudf::data_type data_type = cudf::data_type(cudf::type_id::BOOL8);
-  return reduce(cudf::make_any_aggregation(),
-                data_type,
-                NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs args{info};
+  return reduce(cudf::make_any_aggregation(), cudf::data_type(cudf::type_id::BOOL8), args[0]);
 }
 
 Napi::Value Column::all(Napi::CallbackInfo const& info) {
-  cudf::data_type data_type = cudf::data_type(cudf::type_id::BOOL8);
-  return reduce(cudf::make_all_aggregation(),
-                data_type,
-                NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs args{info};
+  return reduce(cudf::make_all_aggregation(), cudf::data_type(cudf::type_id::BOOL8), args[0]);
 }
 
 ObjectUnwrap<Scalar> Column::mean(rmm::mr::device_memory_resource* mr) const {
@@ -111,43 +109,39 @@ ObjectUnwrap<Scalar> Column::nunique(bool skipna, rmm::mr::device_memory_resourc
 }
 
 Napi::Value Column::nunique(Napi::CallbackInfo const& info) {
-  return nunique(NapiToCPP{info[0]}.ToBoolean(),
-                 NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs args{info};
+  return nunique(args[0], args[1]);
 }
 
 ObjectUnwrap<Scalar> Column::variance(cudf::size_type ddof,
                                       rmm::mr::device_memory_resource* mr) const {
-  cudf::data_type dtype = cudf::data_type(cudf::type_id::FLOAT64);
-
-  return reduce(cudf::make_variance_aggregation(ddof), dtype, mr);
+  return reduce(cudf::make_variance_aggregation(ddof), cudf::data_type(cudf::type_id::FLOAT64), mr);
 }
 
 Napi::Value Column::variance(Napi::CallbackInfo const& info) {
-  return variance(NapiToCPP{info[0]},
-                  NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs args{info};
+  return variance(args[0], args[1]);
 }
 
 ObjectUnwrap<Scalar> Column::std(cudf::size_type ddof, rmm::mr::device_memory_resource* mr) const {
-  cudf::data_type dtype = cudf::data_type(cudf::type_id::FLOAT64);
-
-  return reduce(cudf::make_std_aggregation(ddof), dtype, mr);
+  return reduce(cudf::make_std_aggregation(ddof), cudf::data_type(cudf::type_id::FLOAT64), mr);
 }
 
 Napi::Value Column::std(Napi::CallbackInfo const& info) {
-  return std(NapiToCPP{info[0]}, NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs args{info};
+  return std(args[0], args[1]);
 }
 
 ObjectUnwrap<Scalar> Column::quantile(double q,
                                       cudf::interpolation i,
                                       rmm::mr::device_memory_resource* mr) const {
-  cudf::data_type dtype = cudf::data_type(cudf::type_id::FLOAT64);
-  return reduce(cudf::make_quantile_aggregation({q}, i), dtype, mr);
+  return reduce(
+    cudf::make_quantile_aggregation({q}, i), cudf::data_type(cudf::type_id::FLOAT64), mr);
 }
 
 Napi::Value Column::quantile(Napi::CallbackInfo const& info) {
-  return quantile(NapiToCPP{info[0]},
-                  NapiToCPP{info[1]},
-                  NapiToCPP(info[2]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs args{info};
+  return quantile(args[0], args[1], args[2]);
 }
 
 }  // namespace nv
