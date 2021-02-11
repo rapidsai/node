@@ -15,7 +15,6 @@
 #pragma once
 
 #include <node_cudf/column.hpp>
-#include "cudf/types.hpp"
 
 #include <node_rmm/device_buffer.hpp>
 
@@ -24,6 +23,7 @@
 #include <cudf/copying.hpp>
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
+#include <cudf/types.hpp>
 
 #include <napi.h>
 

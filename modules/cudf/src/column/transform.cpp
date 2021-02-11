@@ -29,8 +29,8 @@ namespace nv {
 
 std::pair<rmm::device_buffer, cudf::size_type> Column::nans_to_nulls(
   rmm::mr::device_memory_resource* mr) const {
-  auto result = cudf::nans_to_nulls(this->view(), mr);
-  return {std::move(*(result.first)), std::move(result.second)};
+  auto result = cudf::nans_to_nulls(*this, mr);
+  return {std::move(*result.first), result.second};
 }
 
 Napi::Value Column::nans_to_nulls(Napi::CallbackInfo const& info) {
