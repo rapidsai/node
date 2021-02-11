@@ -236,7 +236,7 @@ test('dataframe.dropNulls(axis=0)',
        const expected_a = Series.new({type: new Int32, data: new Int32Buffer([0, 2, 3, 4, 4])});
        const expected_b = Series.new({type: new Float32, data: new Float32Buffer([0, 3, 5, 5, 6])});
 
-       const result = df.dropNulls() as DataFrame;  // axis=0, inplace=false
+       const result = df.dropNulls() ;  // axis=0
        const ra     = result.get("a");
        const rb     = result.get("b");
 

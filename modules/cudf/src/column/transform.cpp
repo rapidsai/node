@@ -34,12 +34,7 @@ std::pair<rmm::device_buffer, cudf::size_type> Column::nans_to_nulls(
 }
 
 Napi::Value Column::nans_to_nulls(Napi::CallbackInfo const& info) {
-  bool inplace = NapiToCPP{info[0]}.ToBoolean();
-  auto result  = nans_to_nulls(NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
-  if (inplace == true) {
-    this->set_null_mask(DeviceBuffer::New(result.first.data(), result.first.size()), result.second);
-    return info.Env().Undefined();
-  }
+  auto result = nans_to_nulls(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
   std::vector<std::unique_ptr<cudf::column>> contents =
     cudf::table(cudf::table_view{{*this}}).release();
   contents[0]->set_null_mask(result.first);

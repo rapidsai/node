@@ -124,13 +124,8 @@ test('Column.drop_nulls', () => {
 test('Column.nans_to_nulls', () => {
   const col = new Column({type: new Float32(), data: new Float32Buffer([1, 3, NaN, 4, 2, 0])});
 
-  const inplace = false;
-  const result  = col.nans_to_nulls(false);
+  const result = col.nans_to_nulls();
 
   const expected = [1, 3, null, 4, 2, 0];
-  if (result !== undefined) {
-    expect([...Series.new(result).toArrow()]).toEqual(expected);
-  } else {
-    expect(inplace).toEqual(true);
-  }
+  expect([...Series.new(result).toArrow()]).toEqual(expected);
 });

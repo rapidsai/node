@@ -884,7 +884,7 @@ export interface Column<T extends DataType = any> {
    * @param inplace if true, update the column inplace, else return updated column
    * @returns undefined if inplace=True, else updated column with Null values
    */
-  nans_to_nulls(inplace?: boolean): Column<T>|undefined;
+  nans_to_nulls(): Column<T>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

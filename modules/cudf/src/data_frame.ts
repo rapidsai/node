@@ -308,9 +308,8 @@ export class DataFrame<T extends TypeMap = any> {
     this.names.forEach(col => {
       if (thresh_value !== undefined) {
         if (df.get(col) instanceof Float32Series || df.get(col) instanceof Float64Series) {
-          const col_with_nulls = (df.get(col) as Series).nansToNulls();
           const nanCount =
-            (col_with_nulls !== undefined) ? col_with_nulls.nullCount - this.get(col).nullCount : 0;
+            (df.get(col) as Series).nansToNulls().nullCount - this.get(col).nullCount;
           const threshold_valid_count = (df.get(col).length - nanCount) >= thresh_value;
           if (threshold_valid_count) { column_names.push(col as string); }
         }
@@ -320,54 +319,40 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this._accessor.selectByColumnNames(column_names));
   }
 
-  dropNulls(axis = 0, how = "any", inplace = false, subset?: string[]|Series, thresh?: number):
-    DataFrame|undefined {
-    let result = undefined;
+  dropNulls(axis = 0, how = "any", subset?: string[]|Series, thresh?: number): DataFrame {
     if (axis == 0) {
       if (subset instanceof Series) {
         throw new Error(
           "ValueError: subset => for axis=0, expected a list of column_names as subset or undefined for all columns");
       }
-      result = this._dropNullsRows(how, subset, thresh);
+      return this._dropNullsRows(how, subset, thresh);
     } else if (axis == 1) {
       if (subset instanceof Array) {
         throw new Error(
           "ValueError: subset => for axis=1, expected a Series<Integer> with indices to select rows or undefined for all rows");
       }
-      result = this._dropNullsColumns(how, subset, thresh);
+      return this._dropNullsColumns(how, subset, thresh);
+    } else {
+      throw new Error("ValueError: axis => invalid axis value");
     }
-
-    return (result !== undefined) ? this._mimicInplace(result, inplace) : undefined;
   }
 
-  dropNaNs<R extends Integral>(axis    = 0,
-                               how     = "any",
-                               inplace = false,
-                               subset?: string[]|Series<R>,
-                               thresh?: number): DataFrame|undefined {
-    let result = undefined;
+  dropNaNs<R extends Integral>(axis = 0, how = "any", subset?: string[]|Series<R>, thresh?: number):
+    DataFrame {
     if (axis == 0) {
       if (subset instanceof Series) {
         throw new Error(
           "ValueError(subset): for axis=0, expected one of {list of column_names, undefined(all columns)}");
       }
-      result = this._dropNaNsRows(how, subset, thresh);
+      return this._dropNaNsRows(how, subset, thresh);
     } else if (axis == 1) {
       if (subset instanceof Array) {
         throw new Error(
           "ValueError(subset): for axis=1, expected one of {Series<Integer> with indices to select rows, undefined(all rows)}");
       }
-      result = this._dropNaNsColumns(how, subset, thresh);
+      return this._dropNaNsColumns(how, subset, thresh);
+    } else {
+      throw new Error("ValueError: axis => invalid axis value");
     }
-
-    return (result !== undefined) ? this._mimicInplace(result, inplace) : undefined;
-  }
-
-  _mimicInplace(result: DataFrame, inplace: boolean) {
-    if (inplace) {
-      this._accessor = result._accessor;
-      return undefined;
-    }
-    return result;
   }
 }

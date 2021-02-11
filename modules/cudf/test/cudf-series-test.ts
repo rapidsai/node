@@ -222,18 +222,10 @@ test('FloatSeries.dropNaNs (drop NaN values only)', () => {
 test('FloatSeries.nansToNulls', () => {
   const col = Series.new({type: new Float32, data: new Float32Buffer([1, 3, NaN, 4, 2, 0])});
 
-  [true, false].forEach(inplace => {
-    const result = col.nansToNulls(false);
+  const result = col.nansToNulls();
 
-    const expected = [1, 3, null, 4, 2, 0];
-    if (result !== undefined) {
-      expect([...result.toArrow()]).toEqual(expected);
-      expect(result.nullCount).toEqual(1);
-      expect(col.nullCount).toEqual(0);
-    } else {
-      expect(inplace).toEqual(true);
-      expect(col.nullCount).toEqual(0);
-      expect(result).toEqual(undefined);
-    }
-  });
+  const expected = [1, 3, null, 4, 2, 0];
+  expect([...result.toArrow()]).toEqual(expected);
+  expect(result.nullCount).toEqual(1);
+  expect(col.nullCount).toEqual(0);
 });
