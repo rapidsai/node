@@ -82,6 +82,9 @@ export class DataFrame<T extends TypeMap = any> {
    */
   get names() { return this._accessor.names; }
 
+  /** @ignore */
+  asTable() { return new Table({columns: this._accessor.columns}); }
+
   /**
    * Return a new DataFrame containing only specified columns.
    *

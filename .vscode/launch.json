@@ -134,6 +134,29 @@
                 // "test/*",
                 "test/series/unaryop/float32-tests.ts"
             ]
+        },
+        {
+            "type": "node",
+            "name": "Debug cuspatial tests",
+            "cwd": "${workspaceFolder}/modules/cuspatial",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/node_modules/**"
+            ],
+            "env": {
+                "NODE_NO_WARNINGS": "1",
+                "READABLE_STREAM": "disable",
+            },
+            "args": [
+                "--verbose",
+                "--no-cache",
+                "--runInBand",
+                "-c", "jest.config.js",
+                // "test/*",
+                "test/quadtree-tests.ts"
+            ]
         }
     ]
 }
