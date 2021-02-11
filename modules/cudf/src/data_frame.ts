@@ -221,7 +221,11 @@ export class DataFrame<T extends TypeMap = any> {
     return readable as AsyncIterable<string>;
   }
 
-  _dropNullsRows(how = "any", subset?: string[], thresh?: number): DataFrame {
+  /**
+   * drop null rows
+   * @ignore
+   */
+  _dropNullsRows(how = "any", subset?: string[], thresh?: number) {
     const column_names: string[]   = [];
     const column_indices: number[] = [];
     const subset_                  = (subset == undefined) ? this.names as string[] : subset;
@@ -243,8 +247,11 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this.names.reduce(
       (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}), {}));
   }
-
-  _dropNaNsRows(how = "any", subset?: string[], thresh?: number): DataFrame {
+  /**
+   * drop rows with NaN values (float type only)
+   * @ignore
+   */
+  _dropNaNsRows(how = "any", subset?: string[], thresh?: number) {
     const column_names: string[]   = [];
     const column_indices: number[] = [];
     const subset_                  = (subset == undefined) ? this.names as string[] : subset;
@@ -267,8 +274,11 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this.names.reduce(
       (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}), {}));
   }
-
-  _dropNullsColumns(how = "any", subset?: Series, thresh?: number): DataFrame {
+  /**
+   * drop columns with nulls
+   * @ignore
+   */
+  _dropNullsColumns(how = "any", subset?: Series, thresh?: number) {
     const column_names: string[] = [];
     const df                     = (subset !== undefined) ? this.gather(subset) : this;
 
@@ -289,11 +299,14 @@ export class DataFrame<T extends TypeMap = any> {
       }
     });
 
-    return new DataFrame(this._accessor.selectByColumnNames(column_names));
+    return new DataFrame(column_names.reduce(
+      (map, name, _) => ({...map, [name]: Series.new(this._accessor.get(name))}), {}));
   }
-
-  _dropNaNsColumns(how = "any", subset?: Series, thresh?: number, memoryResource?: MemoryResource):
-    DataFrame {
+  /**
+   * drop columns with NaN values(float type only)
+   * @ignore
+   */
+  _dropNaNsColumns(how = "any", subset?: Series, thresh?: number, memoryResource?: MemoryResource) {
     const column_names: string[] = [];
     const df                     = (subset !== undefined) ? this.gather(subset) : this;
 
@@ -310,17 +323,49 @@ export class DataFrame<T extends TypeMap = any> {
       if (thresh_value !== undefined) {
         if (df.get(col) instanceof Float32Series || df.get(col) instanceof Float64Series) {
           const nanCount =
-            (df.get(col) as Series).nansToNulls(memoryResource).nullCount - this.get(col).nullCount;
-          const threshold_valid_count = (df.get(col).length - nanCount) >= thresh_value;
-          if (threshold_valid_count) { column_names.push(col as string); }
+            df.get(col)._col.nans_to_nulls(memoryResource).nullCount - this.get(col).nullCount;
+          const no_threshold_valid_count = (df.get(col).length - nanCount) < thresh_value;
+          if (!no_threshold_valid_count) { column_names.push(col as string); }
+        } else {
+          column_names.push(col as string);
         }
       }
     });
 
-    return new DataFrame(this._accessor.selectByColumnNames(column_names));
+    return new DataFrame(column_names.reduce(
+      (map, name, _) => ({...map, [name]: Series.new(this._accessor.get(name))}), {}));
   }
 
-  dropNulls(axis = 0, how = "any", subset?: string[]|Series, thresh?: number): DataFrame {
+  /**
+   * Drops rows (or columns) containing nulls (*Note: only null values are dropped and not NaNs)
+   *
+   * @param axis Whether to drop rows (axis=0, default) or columns (axis=1) containing nulls
+   * @param how Specifies how to decide whether to drop a row (or column).
+   * "any" (default) drops rows (or columns) containing at least one null value.
+   * "all" drops only rows (or columns) containing all null values
+   * @param subset List of columns to consider when dropping rows (all columns are considered by
+   *   default).
+   * Alternatively, when dropping columns, subset is a Series<Integer> with indices to select rows
+   * (all rows are considered by default).
+   * @param thresh If specified, then drops every row (or column) containing less than thresh
+   *   non-null values
+   *
+   * @returns DataFrame<T> with dropped rows (or columns) containing nulls
+   *
+   * @example
+   * ```typescript
+   * const cudf  = require('@nvidia/cudf');
+   * const df = new cudf.DataFrame({
+   *  "ser_0": cudf.Series.new({type: new cudf.Int32, data: [0, 1, 2, 3, 4, 4], nullMask: [true,
+   * false, true, true, true, true]}), "ser_1": cudf.Series.new({type: new cudf.Float32, data: [0,
+   * NaN, 2, 3, 4, 4]})
+   * });
+   * df.dropNulls(0); // returns df {ser_0: [0,2,3,4,4], ser_1: [0,2,3,4,4]}
+   * df.dropNulls(1); // returns df {ser_1: [0,NaN,2,3,4,4]}
+   *
+   * ```
+   */
+  dropNulls(axis = 0, how = "any", subset?: string[]|Series, thresh?: number): DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {
         throw new Error(
@@ -338,8 +383,36 @@ export class DataFrame<T extends TypeMap = any> {
     }
   }
 
+  /**
+   * Drops rows (or columns) containing NaN, provided the columns are of type float
+   *
+   * @param axis Whether to drop rows (axis=0, default) or columns (axis=1) containing NaN
+   * @param how Specifies how to decide whether to drop a row (or column).
+   * "any" (default) drops rows (or columns) containing at least one NaN value.
+   * "all" drops only rows (or columns) containing all NaN values
+   * @param subset List of float columns to consider when dropping rows (all float columns are
+   *   considered by default).
+   * Alternatively, when dropping columns, subset is a Series<Integer> with indices to select rows
+   * (all rows are considered by default).
+   * @param thresh If specified, then drops every row (or column) containing less than thresh
+   *   non-NaN values
+   *
+   * @returns DataFrame<T> with dropped rows (or columns) containing NaN
+   *
+   * @example
+   * ```typescript
+   * const cudf  = require('@nvidia/cudf');
+   * const df = new cudf.DataFrame({
+   *  "ser_0": cudf.Series.new({type: new cudf.Int32, data: [0, 1, 2, 3, 4, 4]}),
+   *  "ser_1": cudf.Series.new({type: new cudf.Float32, data: [0, NaN, 2, 3, 4, 4]})
+   * });
+   * df.dropNaNs(0); // returns df {ser_0: [0,2,3,4,4], ser_1: [0,2,3,4,4]}
+   * df.dropNaNs(1); // returns df {ser_0: [0, 1, 2, 3, 4, 4]}
+   *
+   * ```
+   */
   dropNaNs<R extends Integral>(axis = 0, how = "any", subset?: string[]|Series<R>, thresh?: number):
-    DataFrame {
+    DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {
         throw new Error(
@@ -355,5 +428,40 @@ export class DataFrame<T extends TypeMap = any> {
     } else {
       throw new Error("ValueError: axis => invalid axis value");
     }
+  }
+
+  /**
+   * Convert NaNs (if any) to nulls.
+   *
+   * @param subset List of float columns to consider to replace NaNs with nulls.
+   *
+   * @returns DataFrame<T> with NaNs(if any) converted to nulls
+   *
+   * @example
+   * ```typescript
+   * const cudf  = require('@nvidia/cudf');
+   * const df = new cudf.DataFrame({
+   *  "ser_0": cudf.Series.new({type: new cudf.Int32, data: [0, 1, 2, 3, 4, 4]}),
+   *  "ser_1": cudf.Series.new({type: new cudf.Float32, data: [0, NaN, 2, 3, 4, 4]})
+   * });
+   * df.get("ser_1").nullCount; // 0
+   * const df1 = df.nansToNulls();
+   * df1.get("ser_1").nullCount; // 1
+   *
+   * ```
+   */
+  nansToNulls(subset?: string[]): DataFrame<T> {
+    let _accessor = new ColumnAccessor({});
+    const subset_ = (subset == undefined) ? this.names as string[] : subset;
+    subset_.forEach((col) => {
+      if (this.names.includes(col)) {
+        if (this.get(col) instanceof Float32Series || this.get(col) instanceof Float64Series) {
+          _accessor = _accessor.addColumns({[col]: this.get(col)._col.nans_to_nulls()});
+        } else {
+          _accessor = _accessor.addColumns({[col]: this.get(col)._col});
+        }
+      }
+    });
+    return new DataFrame(_accessor);
   }
 }
