@@ -199,11 +199,11 @@ test('Series.sortValues (descending)', () => {
   expect([...result.toArrow()]).toEqual(expected);
 });
 
-test('Series.dropNA (drop nulls only)', () => {
+test('Series.dropNulls (drop nulls only)', () => {
   const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
   const col =
     Series.new({type: new Float32, data: new Float32Buffer([1, 3, NaN, 4, 2, 0]), nullMask: mask});
-  const result = col.dropNA();
+  const result = col.dropNulls();
 
   const expected = [3, NaN, 4, 2];
   expect([...result.toArrow()]).toEqual(expected);

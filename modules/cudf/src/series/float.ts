@@ -58,29 +58,31 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
     return Series.new(this._col.rint(memoryResource));
   }
 
-  _process_reduction(skipna = true): Series<T> {
-    if (skipna == true) {
-      // returning nans_to_nulls as c++ reduce always ignore nulls,
-      // so dropNA and dropNulls is not required.
-      return Series.new(this._col.drop_nans().drop_nulls());
-    }
+  _process_reduction(skipna = true, memoryResource?: MemoryResource): Series<T> {
+    if (skipna == true) { return Series.new(this._col.nans_to_nulls(memoryResource).drop_nulls()); }
     return Series.new(this._col);
   }
   /**
    * convert NaN values in the series with Null values,
    * while also updating the nullMask and nullCount values
-   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
    * @returns updated Series with Null values
    */
-  nansToNulls(): Series<T> { return Series.new(this._col.nans_to_nulls()); }
+  nansToNulls(memoryResource?: MemoryResource): Series<T> {
+    return Series.new(this._col.nans_to_nulls(memoryResource));
+  }
 
   /**
    * drop NaN values from the column if column is of floating-type
    * values and contains NA values
-   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
    * @returns column without NaN values
    */
-  dropNaNs(): Series<T> { return Series.new(this._col.drop_nans()); }
+  dropNaNs(memoryResource?: MemoryResource): Series<T> {
+    return Series.new(this._col.drop_nans(memoryResource));
+  }
 
   /**
    * Return whether all elements are true in Series.
@@ -96,7 +98,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    */
   all(skipna = true, memoryResource?: MemoryResource): boolean {
     if (skipna) {
-      const ser_result = this.nansToNulls();
+      const ser_result = this.nansToNulls(memoryResource);
       if (ser_result.length == ser_result.nullCount) { return true; }
     }
     return Boolean(this._col.all(memoryResource));
@@ -117,7 +119,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   any(skipna = true, memoryResource?: MemoryResource): boolean {
     if (this.length == 0) { return false; }
     if (skipna) {
-      const ser_result = this.nansToNulls();
+      const ser_result = this.nansToNulls(memoryResource);
       if (ser_result.length == ser_result.nullCount) { return false; }
     }
     return Boolean(this._col.any(memoryResource));
@@ -133,7 +135,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * @returns The number of unqiue values in this Series.
    */
   nunique(skipna = true, memoryResource?: MemoryResource): number|undefined {
-    return (skipna) ? this.nansToNulls()._col.nunique(skipna, memoryResource)
+    return (skipna) ? this.nansToNulls(memoryResource)._col.nunique(skipna, memoryResource)
                     : this._col.nunique(skipna, memoryResource);
   }
 }

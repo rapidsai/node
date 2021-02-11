@@ -864,27 +864,30 @@ export interface Column<T extends DataType = any> {
   /**
    * drop NA values from the column if column is of floating-type
    * values and contains NA values
-   *
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
    * @returns column without NaN and Null values
    */
-  drop_nulls(): Column<T>;
+  drop_nulls(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * drop NA values from the column if column is of floating-type
    * values and contains NA values
-   *
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
    * @returns column without NaN and Null values
    */
-  drop_nans(): Column<T>;
+  drop_nans(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * convert NaN values in the column with Null values,
    * while also updating the nullMask and nullCount values
    *
-   * @param inplace if true, update the column inplace, else return updated column
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
    * @returns undefined if inplace=True, else updated column with Null values
    */
-  nans_to_nulls(): Column<T>;
+  nans_to_nulls(memoryResource?: MemoryResource): Column<T>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

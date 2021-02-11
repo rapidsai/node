@@ -292,7 +292,8 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this._accessor.selectByColumnNames(column_names));
   }
 
-  _dropNaNsColumns(how = "any", subset?: Series, thresh?: number): DataFrame {
+  _dropNaNsColumns(how = "any", subset?: Series, thresh?: number, memoryResource?: MemoryResource):
+    DataFrame {
     const column_names: string[] = [];
     const df                     = (subset !== undefined) ? this.gather(subset) : this;
 
@@ -309,7 +310,7 @@ export class DataFrame<T extends TypeMap = any> {
       if (thresh_value !== undefined) {
         if (df.get(col) instanceof Float32Series || df.get(col) instanceof Float64Series) {
           const nanCount =
-            (df.get(col) as Series).nansToNulls().nullCount - this.get(col).nullCount;
+            (df.get(col) as Series).nansToNulls(memoryResource).nullCount - this.get(col).nullCount;
           const threshold_valid_count = (df.get(col).length - nanCount) >= thresh_value;
           if (threshold_valid_count) { column_names.push(col as string); }
         }

@@ -820,8 +820,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     return Series.new(this._col.not(memoryResource));
   }
 
-  _process_reduction(skipna = true): Series|undefined {
-    if (skipna == true) { return this.dropNA(); }
+  _process_reduction(skipna = true, memoryResource?: MemoryResource): Series {
+    if (skipna == true) { return this.dropNulls(memoryResource); }
     return this;
   }
 
@@ -846,7 +846,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The sum of all the values in this Series.
    */
   sum(skipna = true, dataType?: DataType, memoryResource?: MemoryResource) {
-    const result_series = this._process_reduction(skipna);
+    const result_series = this._process_reduction(skipna, memoryResource);
     return (result_series == undefined)
              ? undefined
              : result_series._col.sum(this._compute_dtype(dataType), memoryResource);
@@ -863,7 +863,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The product of all the values in this Series.
    */
   product(skipna = true, dataType?: DataType, memoryResource?: MemoryResource) {
-    const result_series = this._process_reduction(skipna);
+    const result_series = this._process_reduction(skipna, memoryResource);
     return (result_series == undefined)
              ? undefined
              : result_series._col.product(this._compute_dtype(dataType), memoryResource);
@@ -880,7 +880,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The sumOfSquares of all the values in this Series.
    */
   sumOfSquares(skipna = true, dataType?: DataType, memoryResource?: MemoryResource) {
-    const result_series = this._process_reduction(skipna);
+    const result_series = this._process_reduction(skipna, memoryResource);
     return (result_series == undefined)
              ? undefined
              : result_series._col.sum_of_squares(this._compute_dtype(dataType), memoryResource);
@@ -896,7 +896,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The mean of all the values in this Series.
    */
   mean(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._process_reduction(skipna);
+    const result_series = this._process_reduction(skipna, memoryResource);
     return (result_series == undefined) ? undefined : result_series._col.mean(memoryResource);
   }
 
@@ -910,7 +910,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The median of all the values in this Series.
    */
   median(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._process_reduction(skipna);
+    const result_series = this._process_reduction(skipna, memoryResource);
     return (result_series == undefined) ? undefined : result_series._col.mean(memoryResource);
   }
 
@@ -939,7 +939,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The unbiased variance of all the values in this Series.
    */
   var(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna)?._col.var(ddof, memoryResource);
+    return this._process_reduction(skipna, memoryResource)?._col.var(ddof, memoryResource);
   }
 
   /**
@@ -954,7 +954,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The standard deviation of all the values in this Series.
    */
   std(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna)?._col.std(ddof, memoryResource);
+    return this._process_reduction(skipna, memoryResource)?._col.std(ddof, memoryResource);
   }
 
   /**

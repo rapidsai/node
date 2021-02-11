@@ -264,10 +264,11 @@ export class AbstractSeries<T extends DataType = any> {
 
   /**
    * drop Null values from the series
-   *
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns series without Null values
    */
-  dropNA(): Series<T>{return Series.new(this._col.drop_nulls())}
+  dropNulls(memoryResource?: MemoryResource):
+    Series<T>{return Series.new(this._col.drop_nulls(memoryResource))}
 
   /**
    * Return whether all elements are true in Series.
