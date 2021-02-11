@@ -224,41 +224,78 @@ test('Series.filter', () => {
   expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
 });
 
-test('dataframe.dropNulls(axis=0)',
-     () => {
-       const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
-       const a =
-         Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 4]), nullMask: mask});
-       const b = Series.new({type: new Float32, data: new Float32Buffer([0, 2, 3, 5, 5, 6])});
+test('dataframe.dropNulls(axis=0)', () => {
+  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const a =
+    Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 4]), nullMask: mask});
+  const b = Series.new({type: new Float32, data: new Float32Buffer([0, 2, 3, 5, 5, 6])});
 
-       const df = new DataFrame({"a": a, "b": b});
+  const df = new DataFrame({"a": a, "b": b});
 
-       const expected_a = Series.new({type: new Int32, data: new Int32Buffer([0, 2, 3, 4, 4])});
-       const expected_b = Series.new({type: new Float32, data: new Float32Buffer([0, 3, 5, 5, 6])});
+  const expected_a = Series.new({type: new Int32, data: new Int32Buffer([0, 2, 3, 4, 4])});
+  const expected_b = Series.new({type: new Float32, data: new Float32Buffer([0, 3, 5, 5, 6])});
 
-       const result = df.dropNulls() ;  // axis=0
-       const ra     = result.get("a");
-       const rb     = result.get("b");
+  const result = df.dropNulls(0);  // axis=0
+  const ra     = result.get("a");
+  const rb     = result.get("b");
 
-       expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
-       expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
-     })
+  expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
+  expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
+  expect(result.numRows).toEqual(5);
+});
 
-  // test('dataframe.dropNulls(axis=1)', () => {
-  //   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
-  //   const a = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 4]),
-  //   nullMask:mask}); const b = Series.new({type: new Float32, data: new Float32Buffer([0, 2, 3,
-  //   5, 5, 6])});
+test('dataframe.dropNulls(axis=0)', () => {
+  const a = Series.new(
+    {type: new Int32, data: [0, 1, 2, 3, 4, 4], nullMask: [true, false, true, true, true, true]});
+  const b      = Series.new({type: new Float32, data: new Float32Buffer([0, 2, 3, 5, 5, 6])});
+  const df     = new DataFrame({"a": a, "b": b});
+  const result = df.dropNulls(1);  // axis=1
 
-  //   const df = new DataFrame({"col_0":a, "col_1": b});
+  // column a is dropped as it contains null value
+  expect(result.numColumns).toEqual(1);
+  expect(df.names).toEqual(["b"]);
+  expect(df.numRows).toEqual(b.length);
+});
 
-  //   const expected_a = Series.new({type: new Int32(), data: new Int32Buffer([0, 2, 3, 4, 4])});
-  //   const expected_b = Series.new({type: new Float32, data: new Float32Buffer([0, 3, 5, 5, 6])});
+test('dataframe.dropNaNs(axis=0)', () => {
+  const a  = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]});
+  const b  = Series.new({type: new Float32, data: new Float32Buffer([0, NaN, 3, 5, 5, 6])});
+  const df = new DataFrame({"a": a, "b": b});
 
-  //   const result = df.dropNulls(0) as DataFrame; //axis=0, inplace=false
-  //   const ra = result.get("a");
-  //   const rb = result.get("b");
+  const expected_a = Series.new({type: new Int32, data: new Int32Buffer([0, 2, 3, 4, 4])});
+  const expected_b = Series.new({type: new Float32, data: new Float32Buffer([0, 3, 5, 5, 6])});
 
-  //   expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
-  //   expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
-  // })
+  const result = df.dropNaNs(0);  // axis=0
+
+  const ra = result.get("a");
+  const rb = result.get("b");
+
+  expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
+  expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
+  expect(result.numRows).toEqual(5);
+});
+
+test('dataframe.dropNaNs(axis=1)', () => {
+  const a  = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]});
+  const b  = Series.new({type: new Float32, data: new Float32Buffer([0, NaN, 3, 5, 5, 6])});
+  const df = new DataFrame({"a": a, "b": b});
+
+  const result = df.dropNaNs(1);  // axis=1
+
+  // column b is dropped as it contains NaN value
+  expect(result.numColumns).toEqual(1);
+  expect(df.names).toEqual(["a"]);
+  expect(df.numRows).toEqual(a.length);
+});
+
+test('dataframe.nansToNulls', () => {
+  const a  = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]});
+  const b  = Series.new({type: new Float32, data: new Float32Buffer([0, NaN, 3, 5, 5, 6])});
+  const df = new DataFrame({"a": a, "b": b});
+
+  expect(df.get("b").nullCount).toEqual(0);
+
+  const result = df.nansToNulls();
+
+  expect(result.get("b").nullCount).toEqual(1);
+});
