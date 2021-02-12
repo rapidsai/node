@@ -239,30 +239,27 @@ class Column : public Napi::ObjectWrap<Column> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
-   * @copydoc cudf::sum(cudf::data_type dtype, rmm::mr::device_memory_resource* mr)
+   * @copydoc cudf::sum(rmm::mr::device_memory_resource* mr)
    *
    * @return Scalar
    */
   ObjectUnwrap<Scalar> sum(
-    cudf::data_type dtype               = cudf::data_type(cudf::type_id::EMPTY),
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
-   * @copydoc cudf::product(cudf::data_type dtype, rmm::mr::device_memory_resource* mr)
+   * @copydoc cudf::product(rmm::mr::device_memory_resource* mr)
    *
    * @return Scalar
    */
   ObjectUnwrap<Scalar> product(
-    cudf::data_type dtype               = cudf::data_type(cudf::type_id::EMPTY),
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
-   * @copydoc cudf::sum_of_squares(cudf::data_type dtype, rmm::mr::device_memory_resource* mr)
+   * @copydoc cudf::sum_of_squares(rmm::mr::device_memory_resource* mr)
    *
    * @return Scalar
    */
   ObjectUnwrap<Scalar> sum_of_squares(
-    cudf::data_type dtype               = cudf::data_type(cudf::type_id::EMPTY),
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
@@ -594,7 +591,7 @@ class Column : public Napi::ObjectWrap<Column> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/transform.cpp
-  std::pair<rmm::device_buffer, cudf::size_type> nans_to_nulls(
+  std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> nans_to_nulls(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/copying.cpp

@@ -27,17 +27,17 @@
 
 namespace nv {
 
-std::pair<rmm::device_buffer, cudf::size_type> Column::nans_to_nulls(
+std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> Column::nans_to_nulls(
   rmm::mr::device_memory_resource* mr) const {
   auto result = cudf::nans_to_nulls(*this, mr);
-  return {std::move(*result.first), result.second};
+  return {std::move(result.first), result.second};
 }
 
 Napi::Value Column::nans_to_nulls(Napi::CallbackInfo const& info) {
   auto result = nans_to_nulls(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
   std::vector<std::unique_ptr<cudf::column>> contents =
     cudf::table(cudf::table_view{{*this}}).release();
-  contents[0]->set_null_mask(result.first);
+  contents[0]->set_null_mask(*result.first);
   return Column::New(std::move(contents[0]));
 }
 
