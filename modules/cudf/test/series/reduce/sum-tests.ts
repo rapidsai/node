@@ -43,26 +43,37 @@ const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 
 
 const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 5, 6, 7, 8, NaN]);
 
+function test_values<T extends Numeric>(lhs: number|bigint|undefined, rhs: number, type: T) {
+  if (["Float32", "Float64", "Bool"].includes(type.toString())) {
+    expect(lhs).toEqual(rhs);
+  } else {
+    expect(lhs).toEqual(BigInt(rhs));
+  }
+}
+
 function testNumberSum<T extends Numeric, R extends TypedArray>(type: T, data: R) {
-  expect(Series.new({type, data}).sum()).toEqual([...data].reduce((x, y) => {
+  const result = [...data].reduce((x, y) => {
     if (isNaN(y)) { y = 0; }
     if (isNaN(x)) { x = 0; }
     return x + y;
-  }));
+  });
+  test_values(Series.new({type, data}).sum(), result, type);
 }
 
 function testNumberSumSkipNA<T extends Numeric, R extends TypedArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
-  let result = NaN;
   if (!data.includes(NaN)) {
-    result = [...data].reduce((x, y, i) => {
+    const result = [...data].reduce((x, y, i) => {
       if (mask_array[i] == 1) { return x + y; }
       return x;
     });
+    // skipna=false
+    test_values(Series.new({type, data, nullMask: mask}).sum(false), result, type);
+  } else {
+    // skipna=false
+    expect(Series.new({type, data, nullMask: mask}).sum(false)).toEqual(NaN);
   }
-  // skipna=false
-  expect(Series.new({type, data, nullMask: mask}).sum(false)).toEqual(result);
 }
 
 function testBigIntSum<T extends Numeric, R extends BigIntArray>(type: T, data: R) {

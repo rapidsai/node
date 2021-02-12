@@ -32,8 +32,12 @@ namespace nv {
 
 cudf::data_type _compute_dtype(cudf::type_id id) {
   return cudf::data_type{[](cudf::type_id id) {
-    if (id == cudf::type_id::INT64) return id;
-    if (id == cudf::type_id::UINT64) return id;
+    if (id == cudf::type_id::INT8 || id == cudf::type_id::INT16 || id == cudf::type_id::INT32 ||
+        id == cudf::type_id::INT64)
+      return cudf::type_id::INT64;
+    if (id == cudf::type_id::UINT8 || id == cudf::type_id::UINT16 || id == cudf::type_id::UINT32 ||
+        id == cudf::type_id::UINT64)
+      return cudf::type_id::UINT64;
     return cudf::type_id::FLOAT64;
   }(id)};
 }
