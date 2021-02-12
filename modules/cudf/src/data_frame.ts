@@ -358,10 +358,10 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * const cudf  = require('@nvidia/cudf');
-   * const df = new cudf.DataFrame({
-   *  "ser_0": cudf.Series.new({type: new cudf.Int32, data: [0, 1, 2, 3, 4, 4], nullMask: [true,
-   * false, true, true, true, true]}), "ser_1": cudf.Series.new({type: new cudf.Float32, data: [0,
+   * import {DataFrame, Series, Int32, Float32}  from '@nvidia/cudf';
+   * const df = new DataFrame({
+   *  "ser_0": Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4], nullMask: [true,
+   * false, true, true, true, true]}), "ser_1": Series.new({type: new Float32, data: [0,
    * NaN, 2, 3, 4, 4]})
    * });
    * df.dropNulls(0); // returns df {ser_0: [0,2,3,4,4], ser_1: [0,2,3,4,4]}
@@ -405,10 +405,10 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * const cudf  = require('@nvidia/cudf');
-   * const df = new cudf.DataFrame({
-   *  "ser_0": cudf.Series.new({type: new cudf.Int32, data: [0, 1, 2, 3, 4, 4]}),
-   *  "ser_1": cudf.Series.new({type: new cudf.Float32, data: [0, NaN, 2, 3, 4, 4]})
+   * import {DataFrame, Series, Int32, Float32}  from '@nvidia/cudf';
+   * const df = new DataFrame({
+   *  "ser_0": Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]}),
+   *  "ser_1": Series.new({type: new Float32, data: [0, NaN, 2, 3, 4, 4]})
    * });
    * df.dropNaNs(0); // returns df {ser_0: [0,2,3,4,4], ser_1: [0,2,3,4,4]}
    * df.dropNaNs(1); // returns df {ser_0: [0, 1, 2, 3, 4, 4]}
@@ -445,10 +445,10 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * const cudf  = require('@nvidia/cudf');
-   * const df = new cudf.DataFrame({
-   *  "ser_0": cudf.Series.new({type: new cudf.Int32, data: [0, 1, 2, 3, 4, 4]}),
-   *  "ser_1": cudf.Series.new({type: new cudf.Float32, data: [0, NaN, 2, 3, 4, 4]})
+   * import {DataFrame, Series, Int32, Float32}  from '@nvidia/cudf';
+   * const df = new DataFrame({
+   *  "ser_0": Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]}),
+   *  "ser_1": Series.new({type: new Float32, data: [0, NaN, 2, 3, 4, 4]})
    * });
    * df.get("ser_1").nullCount; // 0
    * const df1 = df.nansToNulls();
