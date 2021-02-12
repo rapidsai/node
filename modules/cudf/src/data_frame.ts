@@ -225,7 +225,7 @@ export class DataFrame<T extends TypeMap = any> {
    * drop null rows
    * @ignore
    */
-  _dropNullsRows(how = "any", subset?: (keyof T)[], thresh?: number) {
+  _dropNullsRows(thresh = 1, subset?: (keyof T)[]) {
     const column_names: (keyof T)[] = [];
     const column_indices: number[]  = [];
     subset                          = (subset == undefined) ? this.names as (keyof T)[] : subset;
@@ -233,17 +233,13 @@ export class DataFrame<T extends TypeMap = any> {
       if (this.names.includes(col)) {
         column_names.push(col);
         column_indices.push(idx);
+      } else {
+        throw new Error(`Unknown column name: ${col.toString()}`);
       }
     });
 
     const table_result = new Table({columns: this._accessor.columns});
-    let keep_threshold = column_names.length;
-    if (thresh !== undefined) {
-      keep_threshold = thresh;
-    } else if (how == "all") {
-      keep_threshold = 1
-    }
-    const result = table_result.drop_nulls(column_indices, keep_threshold);
+    const result       = table_result.drop_nulls(column_indices, thresh);
     return new DataFrame(this.names.reduce(
       (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
       {} as SeriesMap<T>));
@@ -252,7 +248,7 @@ export class DataFrame<T extends TypeMap = any> {
    * drop rows with NaN values (float type only)
    * @ignore
    */
-  _dropNaNsRows(how = "any", subset?: (keyof T)[], thresh?: number) {
+  _dropNaNsRows(thresh = 1, subset?: (keyof T)[]) {
     const column_names: (keyof T)[] = [];
     const column_indices: number[]  = [];
     subset                          = (subset == undefined) ? this.names as (keyof T)[] : subset;
@@ -261,17 +257,15 @@ export class DataFrame<T extends TypeMap = any> {
           (this.get(col) instanceof Float32Series || this.get(col) instanceof Float64Series)) {
         column_names.push(col);
         column_indices.push(idx);
+      } else if (!this.names.includes(col)) {
+        throw new Error(`Unknown column name: ${col.toString()}`);
+      } else {
+        // col exists but not of floating type
+        thresh -= 1;
       }
     });
-
     const table_result = new Table({columns: this._accessor.columns});
-    let keep_threshold = column_names.length;
-    if (thresh !== undefined) {
-      keep_threshold = thresh;
-    } else if (how == "all") {
-      keep_threshold = 1
-    }
-    const result = table_result.drop_nans(column_indices, keep_threshold);
+    const result       = table_result.drop_nans(column_indices, thresh);
     return new DataFrame(this.names.reduce(
       (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
       {} as SeriesMap<T>));
@@ -280,25 +274,13 @@ export class DataFrame<T extends TypeMap = any> {
    * drop columns with nulls
    * @ignore
    */
-  _dropNullsColumns(how = "any", subset?: Series, thresh?: number) {
+  _dropNullsColumns(thresh = 1, subset?: Series) {
     const column_names: (keyof T)[] = [];
     const df                        = (subset !== undefined) ? this.gather(subset) : this;
 
-    let thresh_value = thresh;
-
-    if (thresh_value == undefined) {
-      if (how == "all") {
-        thresh_value = 1;
-      } else {
-        thresh_value = df.numRows
-      }
-    }
     this.names.forEach(col => {
-      if (thresh_value !== undefined) {
-        const no_threshold_valid_count =
-          (df.get(col).length - df.get(col).nullCount) < thresh_value;
-        if (!no_threshold_valid_count) { column_names.push(col as string); }
-      }
+      const no_threshold_valid_count = (df.get(col).length - df.get(col).nullCount) < thresh;
+      if (!no_threshold_valid_count) { column_names.push(col as string); }
     });
 
     return new DataFrame(column_names.reduce(
@@ -309,29 +291,19 @@ export class DataFrame<T extends TypeMap = any> {
    * drop columns with NaN values(float type only)
    * @ignore
    */
-  _dropNaNsColumns(how = "any", subset?: Series, thresh?: number, memoryResource?: MemoryResource) {
+  _dropNaNsColumns(thresh = 1, subset?: Series, memoryResource?: MemoryResource) {
     const column_names: (keyof T)[] = [];
     const df                        = (subset !== undefined) ? this.gather(subset) : this;
 
-    let thresh_value = thresh;
-
-    if (thresh_value == undefined) {
-      if (how == "all") {
-        thresh_value = 1;
-      } else {
-        thresh_value = df.numRows
-      }
-    }
     this.names.forEach(col => {
-      if (thresh_value !== undefined) {
-        if (df.get(col) instanceof Float32Series || df.get(col) instanceof Float64Series) {
-          const nanCount =
-            df.get(col)._col.nans_to_nulls(memoryResource).nullCount - this.get(col).nullCount;
-          const no_threshold_valid_count = (df.get(col).length - nanCount) < thresh_value;
-          if (!no_threshold_valid_count) { column_names.push(col); }
-        } else {
-          column_names.push(col);
-        }
+      if (df.get(col) instanceof Float32Series || df.get(col) instanceof Float64Series) {
+        const nanCount =
+          df.get(col)._col.nans_to_nulls(memoryResource).nullCount - this.get(col).nullCount;
+
+        const no_threshold_valid_count = (df.get(col).length - nanCount) < thresh;
+        if (!no_threshold_valid_count) { column_names.push(col); }
+      } else {
+        column_names.push(col);
       }
     });
 
@@ -344,16 +316,20 @@ export class DataFrame<T extends TypeMap = any> {
    * Drops rows (or columns) containing nulls (*Note: only null values are dropped and not NaNs)
    *
    * @param axis Whether to drop rows (axis=0, default) or columns (axis=1) containing nulls
-   * @param how Specifies how to decide whether to drop a row (or column).
-   * "any" (default) drops rows (or columns) containing at least one null value.
-   * "all" drops only rows (or columns) containing all null values
+   * @param thresh drops every row (or column) containing less than thresh non-null values.
+   *
+   * thresh=1 (default) drops rows (or columns) containing all null values (non-null < thresh(1)).
+   *
+   * if axis = 0, thresh=df.numColumns: drops only rows containing at-least one null value (non-null
+   * values in a row < thresh(df.numColumns)).
+   *
+   * if axis = 1, thresh=df.numRows: drops only columns containing at-least one null values
+   * (non-null values in a column < thresh(df.numRows)).
+   *
    * @param subset List of columns to consider when dropping rows (all columns are considered by
    *   default).
    * Alternatively, when dropping columns, subset is a Series<Integer> with indices to select rows
    * (all rows are considered by default).
-   * @param thresh If specified, then drops every row (or column) containing less than thresh
-   *   non-null values
-   *
    * @returns DataFrame<T> with dropped rows (or columns) containing nulls
    *
    * @example
@@ -369,21 +345,22 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  dropNulls(axis = 0, how = "any", subset?: (keyof T)[]|Series, thresh?: number): DataFrame<T> {
+  dropNulls<R extends Integral>(axis = 0, thresh = 1, subset?: (keyof T)[]|Series<R>):
+    DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {
         throw new Error(
-          "ValueError: subset => for axis=0, expected a list of column_names as subset or undefined for all columns");
+          "for axis=0, expected 'subset' to be one of {list of column_names, undefined(all columns)}");
       }
-      return this._dropNullsRows(how, subset, thresh);
+      return this._dropNullsRows(thresh, subset);
     } else if (axis == 1) {
       if (subset instanceof Array) {
         throw new Error(
-          "ValueError: subset => for axis=1, expected a Series<Integer> with indices to select rows or undefined for all rows");
+          "for axis=1, expected 'subset' to be one of {Series<Integer> with indices to select rows, undefined(all rows)}");
       }
-      return this._dropNullsColumns(how, subset, thresh);
+      return this._dropNullsColumns(thresh, subset);
     } else {
-      throw new Error("ValueError: axis => invalid axis value");
+      throw new Error("invalid axis value, expected {0, 1} ");
     }
   }
 
@@ -391,15 +368,19 @@ export class DataFrame<T extends TypeMap = any> {
    * Drops rows (or columns) containing NaN, provided the columns are of type float
    *
    * @param axis Whether to drop rows (axis=0, default) or columns (axis=1) containing NaN
-   * @param how Specifies how to decide whether to drop a row (or column).
-   * "any" (default) drops rows (or columns) containing at least one NaN value.
-   * "all" drops only rows (or columns) containing all NaN values
-   * @param subset List of float columns to consider when dropping rows (all float columns are
+   * @param thresh drops every row (or column) containing less than thresh non-NaN values.
+   *
+   * thresh=1 (default) drops rows (or columns) containing all NaN values (non-NaN < thresh(1)).
+   *
+   * if axis = 0, thresh=df.numColumns: drops only rows containing at-least one NaN value (non-NaN
+   * values in a row < thresh(df.numColumns)).
+   *
+   * if axis = 1, thresh=df.numRows: drops only columns containing at-least one NaN values (non-NaN
+   * values in a column < thresh(df.numRows)).
+   *  @param subset List of float columns to consider when dropping rows (all float columns are
    *   considered by default).
    * Alternatively, when dropping columns, subset is a Series<Integer> with indices to select rows
    * (all rows are considered by default).
-   * @param thresh If specified, then drops every row (or column) containing less than thresh
-   *   non-NaN values
    *
    * @returns DataFrame<T> with dropped rows (or columns) containing NaN
    *
@@ -415,24 +396,22 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  dropNaNs<R extends Integral>(axis             = 0,
-                               how: "any"|"all" = "any",
-                               subset?: (keyof T)[]|Series<R>,
-                               thresh?: number): DataFrame<T> {
+  dropNaNs<R extends Integral>(axis = 0, thresh = 1, subset?: (keyof T)[]|Series<R>):
+    DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {
         throw new Error(
-          "ValueError(subset): for axis=0, expected one of {list of column_names, undefined(all columns)}");
+          "for axis=0, expected 'subset' to be one of {list of column_names, undefined(all columns)}");
       }
-      return this._dropNaNsRows(how, subset, thresh);
+      return this._dropNaNsRows(thresh, subset);
     } else if (axis == 1) {
       if (subset instanceof Array) {
         throw new Error(
-          "ValueError(subset): for axis=1, expected one of {Series<Integer> with indices to select rows, undefined(all rows)}");
+          "for axis=1, expected 'subset' to be one of {Series<Integer> with indices to select rows, undefined(all rows)}");
       }
-      return this._dropNaNsColumns(how, subset, thresh);
+      return this._dropNaNsColumns(thresh, subset);
     } else {
-      throw new Error("ValueError: axis => invalid axis value");
+      throw new Error("invalid axis value, expected {0, 1} ");
     }
   }
 
