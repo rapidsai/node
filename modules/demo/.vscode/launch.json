@@ -1,0 +1,40 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Demo",
+            "program": "${workspaceFolder}/${input:DEMO_NAME}/index.js",
+            "stopOnEntry": false,
+            "runtimeArgs": ["-r", "esm"],
+            "args": ["${input:DEMO_ARGS}"],
+            "cwd": "${workspaceFolder}/${input:DEMO_NAME}",
+            "env": {
+                "NODE_NO_WARNINGS": "1",
+                "NODE_ENV": "production",
+                "READABLE_STREAM": "disable",
+            }
+        },
+    ],
+    "inputs": [
+        {
+            "id": "DEMO_ARGS",
+            "type": "promptString",
+            "description": "Supply additional arguments to the demo (optional)",
+            "default": "",
+        },
+        {
+            "type": "command",
+            "id": "DEMO_NAME",
+            "command": "shellCommand.execute",
+            "args": {
+                "description": "Select a demo to debug",
+                "command": "echo luma umap graph xterm $(find modules/demo/deck -maxdepth 2 -type f -name 'package.json' -print0 | grep -z -v node_modules | tr -d '\\0' | sed -r 's@modules/demo/@@g' | sed -r 's@/package.json@ @g') | sort -Vr | sed -r 's@\\s@\\n@g'",
+            }
+        },
+    ]
+}
