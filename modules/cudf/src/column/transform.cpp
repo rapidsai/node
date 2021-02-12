@@ -34,11 +34,15 @@ std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> Column::nans_to_
 }
 
 Napi::Value Column::nans_to_nulls(Napi::CallbackInfo const& info) {
-  auto result = nans_to_nulls(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
-  std::vector<std::unique_ptr<cudf::column>> contents =
-    cudf::table(cudf::table_view{{*this}}).release();
-  contents[0]->set_null_mask(*result.first);
-  return Column::New(std::move(contents[0]));
-}
+  rmm::mr::device_memory_resource* mr = NapiToCPP(info[0]);
+  auto result                         = nans_to_nulls(mr);
 
+  std::unique_ptr<cudf::column> new_col =
+    cudf::allocate_like(*this, cudf::mask_allocation_policy::NEVER, mr);
+  auto new_col_view = new_col->mutable_view();
+  cudf::copy_range_in_place(*this, new_col_view, 0, size(), 0);
+  new_col->set_null_mask(std::move(*result.first));
+  return Column::New(std::move(new_col));
+
+}  // namespace nv
 }  // namespace nv
