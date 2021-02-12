@@ -33,7 +33,7 @@ function(find_and_configure_cudf VERSION)
         GIT_REPOSITORY  https://github.com/trxcllnt/cudf.git
         # Can also use a local path to your repo clone for testing
         # GIT_REPOSITORY  /home/ptaylor/dev/rapids/cudf
-        GIT_TAG         fix/cmake-exports
+        GIT_TAG         combined-fixes
         GIT_SHALLOW     TRUE
         SOURCE_SUBDIR   cpp
         OPTIONS         "BUILD_TESTS OFF"
