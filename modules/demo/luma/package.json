@@ -8,9 +8,6 @@
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
-  "devDependencies": {
-    "esm": "3.2.25"
-  },
   "dependencies": {
     "@nvidia/glfw": "0.0.1"
   },

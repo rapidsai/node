@@ -23,7 +23,7 @@ import cugraph
 import traceback
 import numpy as np
 from numba import cuda
-from numba.cuda import HostOnlyCUDAMemoryManager, IpcHandle, MemoryPointer
+from numba.cuda import MemoryPointer
 
 from cugraph.internals import GraphBasedDimRedCallback
 
