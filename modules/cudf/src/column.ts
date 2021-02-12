@@ -748,35 +748,29 @@ export interface Column<T extends DataType = any> {
   /**
    * Compute the sum of all values in this Column.
    *
-   * @param dataType The dataType of the return result expected
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns The sum of all the values in this Column.
    */
-  sum(dataType?: DataType, memoryResource?: MemoryResource): T extends(Int64|Uint64)
-    ? bigint: number;
+  sum(memoryResource?: MemoryResource): T extends(Int64|Uint64)? bigint: number;
 
   /**
    * Compute the product of all values in this Column.
    *
-   * @param dataType The dataType of the return result expected
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns The product of all the values in this Column.
    */
-  product(dataType?: DataType, memoryResource?: MemoryResource): T extends(Int64|Uint64)
-    ? bigint: number;
+  product(memoryResource?: MemoryResource): T extends(Int64|Uint64)? bigint: number;
 
   /**
    * Compute the sum_of_squares of all values in this Column.
    *
-   * @param dataType The dataType of the return result expected
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns The sum_of_squares of all the values in this Column.
    */
-  sum_of_squares(dataType?: DataType, memoryResource?: MemoryResource): T extends(Int64|Uint64)
-    ? bigint: number;
+  sum_of_squares(memoryResource?: MemoryResource): T extends(Int64|Uint64)? bigint: number;
 
   /**
    * Compute the mean of all values in this Column.

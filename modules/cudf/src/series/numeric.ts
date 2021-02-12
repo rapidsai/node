@@ -17,7 +17,7 @@ import {MemoryResource} from '@nvidia/rmm';
 import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
-import {Bool8, DataType, Float64, Numeric} from '../types/dtypes'
+import {Bool8, DataType, Numeric} from '../types/dtypes'
 import {CommonType, Interpolation} from '../types/mappings';
 
 import {Float64Series} from './float';
@@ -825,31 +825,17 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     return this.__construct(this._col);
   }
 
-  _compute_dtype(dtype: DataType|undefined): DataType {
-    if (dtype == undefined) {
-      if (["Int64", "Uint64"].includes(this.type.toString())) {
-        return this.type;
-      } else {
-        return new Float64;
-      }
-    }
-    return dtype;
-  }
-
   /**
    * Compute the sum of all values in this Series.
    * @param skipna The optional skipna if true drops NA and null values before computing reduction,
    * else if skipna is false, reduction is computed directly.
-   * @param dataType The dataType of the return result expected
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The sum of all the values in this Series.
    */
-  sum(skipna = true, dataType?: DataType, memoryResource?: MemoryResource) {
+  sum(skipna = true, memoryResource?: MemoryResource) {
     const result_series = this._process_reduction(skipna, memoryResource);
-    return (result_series == undefined)
-             ? undefined
-             : result_series._col.sum(this._compute_dtype(dataType), memoryResource);
+    return (result_series == undefined) ? undefined : result_series._col.sum(memoryResource);
   }
 
   /**
@@ -857,16 +843,13 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *
    * @param skipna The optional skipna if true drops NA and null values before computing reduction,
    * else if skipna is false, reduction is computed directly.
-   * @param dataType The dataType of the return result expected.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The product of all the values in this Series.
    */
-  product(skipna = true, dataType?: DataType, memoryResource?: MemoryResource) {
+  product(skipna = true, memoryResource?: MemoryResource) {
     const result_series = this._process_reduction(skipna, memoryResource);
-    return (result_series == undefined)
-             ? undefined
-             : result_series._col.product(this._compute_dtype(dataType), memoryResource);
+    return (result_series == undefined) ? undefined : result_series._col.product(memoryResource);
   }
 
   /**
@@ -874,16 +857,14 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *
    * @param skipna The optional skipna if true drops NA and null values before computing reduction,
    * else if skipna is false, reduction is computed directly.
-   * @param dataType The dataType of the return result expected
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The sumOfSquares of all the values in this Series.
    */
-  sumOfSquares(skipna = true, dataType?: DataType, memoryResource?: MemoryResource) {
+  sumOfSquares(skipna = true, memoryResource?: MemoryResource) {
     const result_series = this._process_reduction(skipna, memoryResource);
-    return (result_series == undefined)
-             ? undefined
-             : result_series._col.sum_of_squares(this._compute_dtype(dataType), memoryResource);
+    return (result_series == undefined) ? undefined
+                                        : result_series._col.sum_of_squares(memoryResource);
   }
 
   /**

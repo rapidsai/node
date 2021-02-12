@@ -30,6 +30,14 @@
 
 namespace nv {
 
+cudf::data_type _compute_dtype(cudf::type_id id) {
+  return cudf::data_type{[](cudf::type_id id) {
+    if (id == cudf::type_id::INT64) return id;
+    if (id == cudf::type_id::UINT64) return id;
+    return cudf::type_id::FLOAT64;
+  }(id)};
+}
+
 std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> Column::minmax() const {
   auto result = cudf::minmax(*this);
   return {Scalar::New(std::move(result.first)),  //
@@ -46,33 +54,28 @@ ObjectUnwrap<Scalar> Column::reduce(std::unique_ptr<cudf::aggregation> const& ag
   return Scalar::New(cudf::reduce(*this, agg, output_dtype, mr));
 }
 
-ObjectUnwrap<Scalar> Column::sum(cudf::data_type dtype, rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_sum_aggregation(), dtype, mr);
+ObjectUnwrap<Scalar> Column::sum(rmm::mr::device_memory_resource* mr) const {
+  return reduce(cudf::make_sum_aggregation(), _compute_dtype(this->type().id()), mr);
 }
 
 Napi::Value Column::sum(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  return sum(args[0], args[1]);
+  return sum(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
 }
 
-ObjectUnwrap<Scalar> Column::product(cudf::data_type dtype,
-                                     rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_product_aggregation(), dtype, mr);
+ObjectUnwrap<Scalar> Column::product(rmm::mr::device_memory_resource* mr) const {
+  return reduce(cudf::make_product_aggregation(), _compute_dtype(this->type().id()), mr);
 }
 
 Napi::Value Column::product(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  return product(args[0], args[1]);
+  return product(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
 }
 
-ObjectUnwrap<Scalar> Column::sum_of_squares(cudf::data_type dtype,
-                                            rmm::mr::device_memory_resource* mr) const {
-  return reduce(cudf::make_sum_of_squares_aggregation(), dtype, mr);
+ObjectUnwrap<Scalar> Column::sum_of_squares(rmm::mr::device_memory_resource* mr) const {
+  return reduce(cudf::make_sum_of_squares_aggregation(), _compute_dtype(this->type().id()), mr);
 }
 
 Napi::Value Column::sum_of_squares(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  return sum_of_squares(args[0], args[1]);
+  return sum_of_squares(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
 }
 
 Napi::Value Column::any(Napi::CallbackInfo const& info) {
