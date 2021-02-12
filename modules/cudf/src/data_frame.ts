@@ -225,11 +225,11 @@ export class DataFrame<T extends TypeMap = any> {
    * drop null rows
    * @ignore
    */
-  _dropNullsRows(how = "any", subset?: string[], thresh?: number) {
-    const column_names: string[]   = [];
-    const column_indices: number[] = [];
-    const subset_                  = (subset == undefined) ? this.names as string[] : subset;
-    subset_.forEach((col, idx) => {
+  _dropNullsRows(how = "any", subset?: (keyof T)[], thresh?: number) {
+    const column_names: (keyof T)[] = [];
+    const column_indices: number[]  = [];
+    subset                          = (subset == undefined) ? this.names as (keyof T)[] : subset;
+    subset.forEach((col, idx) => {
       if (this.names.includes(col)) {
         column_names.push(col);
         column_indices.push(idx);
@@ -252,11 +252,11 @@ export class DataFrame<T extends TypeMap = any> {
    * drop rows with NaN values (float type only)
    * @ignore
    */
-  _dropNaNsRows(how = "any", subset?: string[], thresh?: number) {
-    const column_names: string[]   = [];
-    const column_indices: number[] = [];
-    const subset_                  = (subset == undefined) ? this.names as string[] : subset;
-    subset_.forEach((col, idx) => {
+  _dropNaNsRows(how = "any", subset?: (keyof T)[], thresh?: number) {
+    const column_names: (keyof T)[] = [];
+    const column_indices: number[]  = [];
+    subset                          = (subset == undefined) ? this.names as (keyof T)[] : subset;
+    subset.forEach((col, idx) => {
       if (this.names.includes(col) &&
           (this.get(col) instanceof Float32Series || this.get(col) instanceof Float64Series)) {
         column_names.push(col);
@@ -281,8 +281,8 @@ export class DataFrame<T extends TypeMap = any> {
    * @ignore
    */
   _dropNullsColumns(how = "any", subset?: Series, thresh?: number) {
-    const column_names: string[] = [];
-    const df                     = (subset !== undefined) ? this.gather(subset) : this;
+    const column_names: (keyof T)[] = [];
+    const df                        = (subset !== undefined) ? this.gather(subset) : this;
 
     let thresh_value = thresh;
 
@@ -310,8 +310,8 @@ export class DataFrame<T extends TypeMap = any> {
    * @ignore
    */
   _dropNaNsColumns(how = "any", subset?: Series, thresh?: number, memoryResource?: MemoryResource) {
-    const column_names: string[] = [];
-    const df                     = (subset !== undefined) ? this.gather(subset) : this;
+    const column_names: (keyof T)[] = [];
+    const df                        = (subset !== undefined) ? this.gather(subset) : this;
 
     let thresh_value = thresh;
 
@@ -328,9 +328,9 @@ export class DataFrame<T extends TypeMap = any> {
           const nanCount =
             df.get(col)._col.nans_to_nulls(memoryResource).nullCount - this.get(col).nullCount;
           const no_threshold_valid_count = (df.get(col).length - nanCount) < thresh_value;
-          if (!no_threshold_valid_count) { column_names.push(col as string); }
+          if (!no_threshold_valid_count) { column_names.push(col); }
         } else {
-          column_names.push(col as string);
+          column_names.push(col);
         }
       }
     });
@@ -369,7 +369,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  dropNulls(axis = 0, how = "any", subset?: string[]|Series, thresh?: number): DataFrame<T> {
+  dropNulls(axis = 0, how = "any", subset?: (keyof T)[]|Series, thresh?: number): DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {
         throw new Error(
@@ -415,8 +415,10 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  dropNaNs<R extends Integral>(axis = 0, how = "any", subset?: string[]|Series<R>, thresh?: number):
-    DataFrame<T> {
+  dropNaNs<R extends Integral>(axis             = 0,
+                               how: "any"|"all" = "any",
+                               subset?: (keyof T)[]|Series<R>,
+                               thresh?: number): DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {
         throw new Error(
@@ -454,8 +456,8 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  nansToNulls(subset?: string[]): DataFrame<T> {
-    subset           = (subset == undefined) ? this.names as string[] : subset;
+  nansToNulls(subset?: (keyof T)[]): DataFrame<T> {
+    subset           = (subset == undefined) ? this.names as (keyof T)[] : subset;
     const temp       = new Table({columns: this.select(subset)._accessor.columns});
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach((name, index) => {
