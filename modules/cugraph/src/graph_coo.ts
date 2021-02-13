@@ -12,18 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Column} from '@nvidia/cudf';
+import {Column, Int32} from '@nvidia/cudf';
+import {DeviceBuffer, MemoryResource} from '@nvidia/rmm';
 
-import CuGraph from './addon'
-
-export interface CuGraphGraphCOOConstructor {
-  readonly prototype: CuGraphGraphCOO;
-  new(src: Column, dst: Column): CuGraphGraphCOO;
+export interface GraphCOOConstructor {
+  readonly prototype: GraphCOO;
+  new(src: Column<Int32>, dst: Column<Int32>, options?: {directedEdges?: boolean}): GraphCOO;
 }
 
-interface CuGraphGraphCOO {
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+interface GraphCOO {
   readonly numberOfEdges: number;
   readonly numberOfNodes: number;
+
+  forceAtlas2(options: {
+    memoryResource?: MemoryResource,
+    positions?: DeviceBuffer,
+    numIterations?: number,
+    outboundAttraction?: boolean,
+    linLogMode?: boolean,
+    // preventOverlap?: boolean, ///< not implemented in cuGraph yet
+    edgeWeightInfluence?: number,
+    jitterTolerance?: number,
+    barnesHutTheta?: number,
+    scalingRatio?: number,
+    strongGravityMode?: boolean,
+    gravity?: number,
+    verbose?: boolean,
+  }): DeviceBuffer;
 }
 
-export const GraphCOO: CuGraphGraphCOOConstructor = CuGraph.GraphCOO;
+export {GraphCOO} from './addon';

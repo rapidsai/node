@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '@nvidia/cudf';
+#pragma once
 
-import {loadNativeModule} from '@nvidia/rapids-core';
-import {GraphCOOConstructor} from './graph_coo';
-
-export const {GraphCOO} = loadNativeModule<{
-  GraphCOO: GraphCOOConstructor,  //
-}>(module, 'node_cugraph');
+#ifdef CUDA_TRY
+#undef CUDA_TRY
+#endif
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif
+#include <cugraph/algorithms.hpp>
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif
+#ifdef CUDA_TRY
+#undef CUDA_TRY
+#endif

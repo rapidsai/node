@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <node_cugraph/cugraph/graph.hpp>
+
 #include <node_cudf/column.hpp>
 
 #include <node_rmm/device_buffer.hpp>
@@ -21,20 +23,6 @@
 
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/wrap.hpp>
-
-#ifdef CUDA_TRY
-#undef CUDA_TRY
-#endif
-#ifdef CHECK_CUDA
-#undef CHECK_CUDA
-#endif
-#include <cugraph/graph.hpp>
-#ifdef CHECK_CUDA
-#undef CHECK_CUDA
-#endif
-#ifdef CUDA_TRY
-#undef CUDA_TRY
-#endif
 
 #include <napi.h>
 
@@ -96,19 +84,25 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
   ValueWrap<size_t> num_nodes();
 
   /**
+   * @brief Conversion operator to get a non-owning view of the GraphCOO
+   *
+   */
+  inline operator cugraph::GraphCOOView<int32_t, int32_t, float>() { return view(); }
+
+  /**
    * @brief Get a non-owning view of the Graph
    *
    */
-  cugraph::GraphCOOView<int32_t, int32_t, float> View();
-
-  ObjectUnwrap<Column> src_column() const { return src_.Value(); }
-  ObjectUnwrap<Column> dst_column() const { return dst_.Value(); }
+  cugraph::GraphCOOView<int32_t, int32_t, float> view();
 
  private:
   static Napi::FunctionReference constructor;
 
   Napi::Value num_edges(Napi::CallbackInfo const& info);
   Napi::Value num_nodes(Napi::CallbackInfo const& info);
+  Napi::Value force_atlas2(Napi::CallbackInfo const& info);
+
+  bool directed_edges_{false};
 
   size_t edge_count_{};
   bool edge_count_computed_{false};

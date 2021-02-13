@@ -20,6 +20,4 @@ namespace nv {
 
 Napi::Value cugraphInit(Napi::CallbackInfo const& info);
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports);
-
 }  // namespace nv
