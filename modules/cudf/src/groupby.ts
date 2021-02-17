@@ -15,6 +15,7 @@
 import {MemoryResource} from '@nvidia/rmm';
 
 import CUDF from './addon';
+import {Column} from './column';
 import {DataFrame} from './data_frame';
 import {Series} from './series';
 import {Table} from './table';
@@ -22,7 +23,7 @@ import {NullOrder} from './types/enums'
 import {TypeMap} from './types/mappings'
 
 export type AggFunc =
-  "sum"|"min"|"max"|"argmin"|"argmax"|"mean"|"count"|"nunique"|"nth"|"var"|"std"|"median"
+  "sum"|"min"|"max"|"argmin"|"argmax"|"mean"|"count"|"nunique"|"var"|"std"|"median"
 
 /*
  * @param keys DataFrame whose rows act as the groupby keys
@@ -54,6 +55,12 @@ type CudfGroupByProps = {
   null_precedence?: NullOrder[],
 };
 
+export type Groups = {
+  keys: DataFrame,
+  offsets: number[],
+  values?: DataFrame,
+}
+
 interface GroupbyConstructor {
   readonly prototype: CudfGroupBy;
   new(props: CudfGroupByProps): CudfGroupBy;
@@ -63,7 +70,7 @@ interface CudfGroupBy {
   _by: string[];
   _values: DataFrame;
   _getGroups(values?: Table, memoryResource?: MemoryResource): any;
-  _agg(func: AggFunc): any;
+  _agg(func: AggFunc, values: Table): {keys: Table, cols: [Column]};
 }
 
 export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy) {
@@ -88,10 +95,11 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
     this._values = props.obj.drop(props.by);
   }
 
-  /*
+  /* Return the Groups for this GroupBy
+   *
    *
    */
-  getGroups(memoryResource?: MemoryResource): any {
+  getGroups(memoryResource?: MemoryResource): Groups {
     const table      = this._values.asTable();
     const results    = this._getGroups(table, memoryResource);
     const series_map = {} as any;
@@ -110,8 +118,76 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
     return results;
   }
 
-  /*
+  /* Apply an aggregation to the group
    *
    */
-  agg(func: AggFunc): any { return func; }
+  agg(func: AggFunc): DataFrame {
+    const {keys, cols} = this._agg(func, this._values.asTable());
+
+    const series_map = {} as any;
+    this._by.forEach(
+      (name, index) => { series_map[name] = Series.new(keys.getColumnByIndex(index)); });
+    this._values.names.forEach((name, index) => { series_map[name] = Series.new(cols[index]); });
+    return new DataFrame(series_map);
+  }
+
+  /* Compute the sum of values in each group
+   *
+   */
+  sum(): DataFrame { return this.agg("sum"); }
+
+  /* Compute the minimum value in each group
+   *
+   */
+  min(): DataFrame { return this.agg("min"); }
+
+  /* Compute the maximum value in each group
+   *
+   */
+  max(): DataFrame { return this.agg("max"); }
+
+  /* Compute the index of the minimum value in each group
+   *
+   */
+  argmin(): DataFrame { return this.agg("argmin"); }
+
+  /* Compute the index of the maximum value in each group
+   *
+   */
+  argmax(): DataFrame { return this.agg("argmax"); }
+
+  /* Compute the average value each group
+   *
+   */
+  mean(): DataFrame { return this.agg("mean"); }
+
+  /* Compute the size of each group
+   *
+   */
+  count(): DataFrame { return this.agg("count"); }
+
+  /* Compute the number of unique values in each group
+   *
+   */
+  nunique(): DataFrame { return this.agg("nunique"); }
+
+  /* Return the nth value from each group
+   *
+   */
+  // nth(index: number): DataFrame { return this.agg("nth", index); }
+
+  /* Compute the variance for each group
+   *
+   */
+  var(): DataFrame { return this.agg("var"); }
+
+  /* Compute the standard deviation for each group
+   *
+   */
+  std(): DataFrame { return this.agg("std"); }
+
+  /* Compute the median value in each group
+   *
+   */
+  median(): DataFrame { return this.agg("median"); }
 }

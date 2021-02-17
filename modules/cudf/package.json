@@ -30,6 +30,7 @@
       "apache-arrow": "^2.0.0"
     },
     "devDependencies": {
+      "jest-matcher-deep-close-to": "^2.0.1",
       "ix": "^4.1.0"
     },
     "files": [

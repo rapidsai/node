@@ -24,33 +24,23 @@
 #include <napi.h>
 
 std::unique_ptr<cudf::aggregation> _get_aggregation(const std::string& func) {
-  if (func == "sum") {
-    return cudf::make_sum_aggregation();
-  } else if (func == "min") {
-    return cudf::make_min_aggregation();
-  } else if (func == "max") {
-    return cudf::make_max_aggregation();
-  } else if (func == "argmin") {
-    return cudf::make_argmin_aggregation();
-  } else if (func == "argmax") {
-    return cudf::make_argmax_aggregation();
-  } else if (func == "mean") {
-    return cudf::make_mean_aggregation();
-  } else if (func == "count") {
-    return cudf::make_count_aggregation();
-  } else if (func == "nunique") {
-    return cudf::make_nunique_aggregation();
-    // } else if (func == "nth") {
-    //   return cudf::make_nth_element_aggregation();
-  } else if (func == "var") {
-    return cudf::make_variance_aggregation();
-  } else if (func == "std") {
-    return cudf::make_std_aggregation();
-  } else if (func == "median") {
-    return cudf::make_median_aggregation();
-  } else {
-    return nullptr;
-  }
+  // clang-format off
+  if      (func == "argmin")  { return cudf::make_argmin_aggregation();   } 
+  else if (func == "argmax")  { return cudf::make_argmax_aggregation();   }
+  // collect
+  else if (func == "count")   { return cudf::make_count_aggregation();    } 
+  else if (func == "max")     { return cudf::make_max_aggregation();      } 
+  else if (func == "mean")    { return cudf::make_mean_aggregation();     }
+  else if (func == "median")  { return cudf::make_median_aggregation();   }
+  else if (func == "min")     { return cudf::make_min_aggregation();      } 
+  // nth
+  else if (func == "nunique") { return cudf::make_nunique_aggregation();  }
+  // quantile
+  else if (func == "std")     { return cudf::make_std_aggregation();      }
+  else if (func == "sum")     { return cudf::make_sum_aggregation();      } 
+  else if (func == "var")     { return cudf::make_variance_aggregation(); }
+  else return nullptr;
+  // clang-format on
 }
 
 namespace nv {
@@ -116,15 +106,41 @@ void GroupBy::Finalize(Napi::Env env) { this->groupby_.reset(nullptr); }
 //
 
 Napi::Value GroupBy::agg(Napi::CallbackInfo const& info) {
-  std::string func;  // = info[0];
+  CallbackArgs args{info};
 
-  std::vector<cudf::groupby::aggregation_request> requests;
-  requests.emplace_back(cudf::groupby::aggregation_request());
+  std::string func = args[0];
+
+  auto values = args[1];
+  NODE_CUDA_EXPECT(Table::is_instance(values),
+                   "GroupBy constructor expects options to have a 'values' table");
+  nv::Table* values_table = Table::Unwrap(values.ToObject());
 
   auto agg = _get_aggregation(func);
   if (agg == nullptr) { NAPI_THROW(Napi::Error::New(info.Env(), "Unknown aggregation: " + func)); }
 
-  return Napi::Value();
+  std::vector<cudf::groupby::aggregation_request> requests;
+
+  for (cudf::size_type i = 0; i < values_table->num_columns(); ++i) {
+    auto request   = cudf::groupby::aggregation_request();
+    request.values = values_table->get_column(i).view();
+    request.aggregations.push_back(std::move(agg));
+    requests.emplace_back(std::move(request));
+  }
+
+  auto result = groupby_->aggregate(requests);
+
+  auto result_keys = Table::New(std::move(result.first));
+
+  auto result_cols = Napi::Array::New(info.Env(), result.second.size());
+  for (size_t i = 0; i < result.second.size(); ++i) {
+    result_cols.Set(i, Column::New(std::move(result.second[i].results[0]))->Value());
+  }
+
+  auto obj = Napi::Object::New(info.Env());
+  obj.Set("keys", result_keys);
+  obj.Set("cols", result_cols);
+
+  return obj;
 }
 
 Napi::Value GroupBy::get_groups(Napi::CallbackInfo const& info) {
