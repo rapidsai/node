@@ -1,0 +1,928 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>StringSeries | RAPIDS</title>
+	<meta name="description" content="Documentation for RAPIDS">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">RAPIDS</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">RAPIDS</a>
+				</li>
+				<li>
+					<a href="../modules/cudf_src.html">cudf/src</a>
+				</li>
+				<li>
+					<a href="cudf_src.stringseries.html">StringSeries</a>
+				</li>
+			</ul>
+			<h1>Class StringSeries</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A Series of utf8-string values in GPU memory.</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<a href="../modules/cudf_src.html#series-1" class="tsd-signature-type" data-tsd-kind="Variable">Series</a><span class="tsd-signature-symbol">&lt;</span><a href="cudf_src.utf8string.html" class="tsd-signature-type" data-tsd-kind="Class">Utf8String</a><span class="tsd-signature-symbol">&gt;</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">StringSeries</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="cudf_src.stringseries.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Accessors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="cudf_src.stringseries.html#data" class="tsd-kind-icon">data</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="cudf_src.stringseries.html#hasnulls" class="tsd-kind-icon">has<wbr>Nulls</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="cudf_src.stringseries.html#length" class="tsd-kind-icon">length</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="cudf_src.stringseries.html#mask" class="tsd-kind-icon">mask</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="cudf_src.stringseries.html#nullcount" class="tsd-kind-icon">null<wbr>Count</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="cudf_src.stringseries.html#nullable" class="tsd-kind-icon">nullable</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="cudf_src.stringseries.html#numchildren" class="tsd-kind-icon">num<wbr>Children</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="cudf_src.stringseries.html#offsets" class="tsd-kind-icon">offsets</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class"><a href="cudf_src.stringseries.html#type" class="tsd-kind-icon">type</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.stringseries.html#_symbol_iterator_" class="tsd-kind-icon">[<wbr>Symbol.iterator]</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.stringseries.html#cast" class="tsd-kind-icon">cast</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.stringseries.html#filter" class="tsd-kind-icon">filter</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.stringseries.html#gather" class="tsd-kind-icon">gather</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.stringseries.html#getvalue" class="tsd-kind-icon">get<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.stringseries.html#isnull" class="tsd-kind-icon">is<wbr>Null</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.stringseries.html#isvalid" class="tsd-kind-icon">is<wbr>Valid</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.stringseries.html#orderby" class="tsd-kind-icon">order<wbr>By</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.stringseries.html#setnullmask" class="tsd-kind-icon">set<wbr>Null<wbr>Mask</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.stringseries.html#sortvalues" class="tsd-kind-icon">sort<wbr>Values</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.stringseries.html#toarrow" class="tsd-kind-icon">to<wbr>Arrow</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-static"><a href="cudf_src.stringseries.html#new" class="tsd-kind-icon">new</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>String<wbr>Series<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="cudf_src.utf8string.html" class="tsd-signature-type" data-tsd-kind="Class">Utf8String</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#seriesprops" class="tsd-signature-type" data-tsd-kind="Type alias">SeriesProps</a><span class="tsd-signature-symbol">&lt;</span><a href="cudf_src.utf8string.html" class="tsd-signature-type" data-tsd-kind="Class">Utf8String</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">AbstractVector</span><span class="tsd-signature-symbol">&lt;</span><a href="cudf_src.utf8string.html" class="tsd-signature-type" data-tsd-kind="Class">Utf8String</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L114">cudf/src/series.ts:114</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>input: <a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="cudf_src.utf8string.html" class="tsd-signature-type" data-tsd-kind="Class">Utf8String</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#seriesprops" class="tsd-signature-type" data-tsd-kind="Type alias">SeriesProps</a><span class="tsd-signature-symbol">&lt;</span><a href="cudf_src.utf8string.html" class="tsd-signature-type" data-tsd-kind="Class">Utf8String</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">AbstractVector</span><span class="tsd-signature-symbol">&lt;</span><a href="cudf_src.utf8string.html" class="tsd-signature-type" data-tsd-kind="Class">Utf8String</a><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Accessors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="data" class="tsd-anchor"></a>
+					<h3>data</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> data<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.uint8series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Series</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/string.ts#L45">cudf/src/series/string.ts:45</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Series containing the utf8 characters of each string</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.uint8series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Series</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="hasnulls" class="tsd-anchor"></a>
+					<h3>has<wbr>Nulls</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> hasNulls<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L143">cudf/src/series.ts:143</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Whether the Series contains null elements.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="length" class="tsd-anchor"></a>
+					<h3>length</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> length<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L133">cudf/src/series.ts:133</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>The number of elements in this Series.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="mask" class="tsd-anchor"></a>
+					<h3>mask</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> mask<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/rmm_src.html#devicebuffer-1" class="tsd-signature-type" data-tsd-kind="Variable">DeviceBuffer</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L128">cudf/src/series.ts:128</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>The DeviceBuffer for for the validity bitmask in GPU memory.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/rmm_src.html#devicebuffer-1" class="tsd-signature-type" data-tsd-kind="Variable">DeviceBuffer</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="nullcount" class="tsd-anchor"></a>
+					<h3>null<wbr>Count</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> nullCount<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L148">cudf/src/series.ts:148</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>The number of null elements in this Series.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="nullable" class="tsd-anchor"></a>
+					<h3>nullable</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> nullable<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L138">cudf/src/series.ts:138</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>A boolean indicating whether a validity bitmask exists.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="numchildren" class="tsd-anchor"></a>
+					<h3>num<wbr>Children</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> numChildren<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L153">cudf/src/series.ts:153</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>The number of child columns in this Series.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="offsets" class="tsd-anchor"></a>
+					<h3>offsets</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> offsets<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/string.ts#L41">cudf/src/series/string.ts:41</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Series of integer offsets for each string</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-get-signature tsd-parent-kind-class">
+					<a name="type" class="tsd-anchor"></a>
+					<h3>type</h3>
+					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> type<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L123">cudf/src/series.ts:123</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>The data type of elements in the underlying data.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="_symbol_iterator_" class="tsd-anchor"></a>
+					<h3>[<wbr>Symbol.iterator]</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">[<wbr>Symbol.iterator]<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IterableIterator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L184">cudf/src/series.ts:184</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Copy the underlying device memory to host, and return an Iterator of the values.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">IterableIterator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="cast" class="tsd-anchor"></a>
+					<h3>cast</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">cast&lt;R&gt;<span class="tsd-signature-symbol">(</span>dataType<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">R</span>, _memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>-1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-11<span class="tsd-signature-symbol">: </span><a href="cudf_src.float32series.html" class="tsd-signature-type" data-tsd-kind="Class">Float32Series</a><span class="tsd-signature-symbol">; </span>-12<span class="tsd-signature-symbol">: </span><a href="cudf_src.float64series.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Series</a><span class="tsd-signature-symbol">; </span>-13<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-18<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-19<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-2<span class="tsd-signature-symbol">: </span><a href="cudf_src.int8series.html" class="tsd-signature-type" data-tsd-kind="Class">Int8Series</a><span class="tsd-signature-symbol">; </span>-20<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-21<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-22<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-23<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-24<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-25<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-26<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-3<span class="tsd-signature-symbol">: </span><a href="cudf_src.int16series.html" class="tsd-signature-type" data-tsd-kind="Class">Int16Series</a><span class="tsd-signature-symbol">; </span>-4<span class="tsd-signature-symbol">: </span><a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a><span class="tsd-signature-symbol">; </span>-5<span class="tsd-signature-symbol">: </span><a href="cudf_src.int64series.html" class="tsd-signature-type" data-tsd-kind="Class">Int64Series</a><span class="tsd-signature-symbol">; </span>-6<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint8series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Series</a><span class="tsd-signature-symbol">; </span>-7<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint16series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint16Series</a><span class="tsd-signature-symbol">; </span>-8<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint32series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint32Series</a><span class="tsd-signature-symbol">; </span>-9<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint64series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint64Series</a><span class="tsd-signature-symbol">; </span>0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>11<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>12<span class="tsd-signature-symbol">: </span><a href="cudf_src.listseries.html" class="tsd-signature-type" data-tsd-kind="Class">ListSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>13<span class="tsd-signature-symbol">: </span><a href="cudf_src.structseries.html" class="tsd-signature-type" data-tsd-kind="Class">StructSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childTypes&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>4<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>5<span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a><span class="tsd-signature-symbol">; </span>6<span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a><span class="tsd-signature-symbol">; </span>7<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>8<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>9<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;TType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/string.ts#L34">cudf/src/series/string.ts:34</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Casts the values to a new dtype (similar to <code>static_cast</code> in C++).</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>R<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#datatype" class="tsd-signature-type" data-tsd-kind="Type alias">DataType</a></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>dataType: <span class="tsd-signature-type">R</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The new dtype.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> _memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>-1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-11<span class="tsd-signature-symbol">: </span><a href="cudf_src.float32series.html" class="tsd-signature-type" data-tsd-kind="Class">Float32Series</a><span class="tsd-signature-symbol">; </span>-12<span class="tsd-signature-symbol">: </span><a href="cudf_src.float64series.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Series</a><span class="tsd-signature-symbol">; </span>-13<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-18<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-19<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-2<span class="tsd-signature-symbol">: </span><a href="cudf_src.int8series.html" class="tsd-signature-type" data-tsd-kind="Class">Int8Series</a><span class="tsd-signature-symbol">; </span>-20<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-21<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-22<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-23<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-24<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-25<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-26<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-3<span class="tsd-signature-symbol">: </span><a href="cudf_src.int16series.html" class="tsd-signature-type" data-tsd-kind="Class">Int16Series</a><span class="tsd-signature-symbol">; </span>-4<span class="tsd-signature-symbol">: </span><a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a><span class="tsd-signature-symbol">; </span>-5<span class="tsd-signature-symbol">: </span><a href="cudf_src.int64series.html" class="tsd-signature-type" data-tsd-kind="Class">Int64Series</a><span class="tsd-signature-symbol">; </span>-6<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint8series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Series</a><span class="tsd-signature-symbol">; </span>-7<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint16series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint16Series</a><span class="tsd-signature-symbol">; </span>-8<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint32series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint32Series</a><span class="tsd-signature-symbol">; </span>-9<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint64series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint64Series</a><span class="tsd-signature-symbol">; </span>0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>11<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>12<span class="tsd-signature-symbol">: </span><a href="cudf_src.listseries.html" class="tsd-signature-type" data-tsd-kind="Class">ListSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>13<span class="tsd-signature-symbol">: </span><a href="cudf_src.structseries.html" class="tsd-signature-type" data-tsd-kind="Class">StructSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childTypes&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>4<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>5<span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a><span class="tsd-signature-symbol">; </span>6<span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a><span class="tsd-signature-symbol">; </span>7<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>8<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>9<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;TType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">]</span></h4>
+							<p>Series of same size as the current Series containing result of the <code>cast</code> operation.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="filter" class="tsd-anchor"></a>
+					<h3>filter</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">filter<span class="tsd-signature-symbol">(</span>mask<span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L170">cudf/src/series.ts:170</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return a sub-selection of this Series using the specified boolean mask.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>mask: <a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A Series of boolean values for whose corresponding element in this Series will be
+										selected or ignored.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="gather" class="tsd-anchor"></a>
+					<h3>gather</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">gather&lt;R&gt;<span class="tsd-signature-symbol">(</span>selection<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>-1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-11<span class="tsd-signature-symbol">: </span><a href="cudf_src.float32series.html" class="tsd-signature-type" data-tsd-kind="Class">Float32Series</a><span class="tsd-signature-symbol">; </span>-12<span class="tsd-signature-symbol">: </span><a href="cudf_src.float64series.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Series</a><span class="tsd-signature-symbol">; </span>-13<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-18<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-19<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-2<span class="tsd-signature-symbol">: </span><a href="cudf_src.int8series.html" class="tsd-signature-type" data-tsd-kind="Class">Int8Series</a><span class="tsd-signature-symbol">; </span>-20<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-21<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-22<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-23<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-24<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-25<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-26<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-3<span class="tsd-signature-symbol">: </span><a href="cudf_src.int16series.html" class="tsd-signature-type" data-tsd-kind="Class">Int16Series</a><span class="tsd-signature-symbol">; </span>-4<span class="tsd-signature-symbol">: </span><a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a><span class="tsd-signature-symbol">; </span>-5<span class="tsd-signature-symbol">: </span><a href="cudf_src.int64series.html" class="tsd-signature-type" data-tsd-kind="Class">Int64Series</a><span class="tsd-signature-symbol">; </span>-6<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint8series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Series</a><span class="tsd-signature-symbol">; </span>-7<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint16series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint16Series</a><span class="tsd-signature-symbol">; </span>-8<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint32series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint32Series</a><span class="tsd-signature-symbol">; </span>-9<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint64series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint64Series</a><span class="tsd-signature-symbol">; </span>0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>11<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>12<span class="tsd-signature-symbol">: </span><a href="cudf_src.listseries.html" class="tsd-signature-type" data-tsd-kind="Class">ListSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>13<span class="tsd-signature-symbol">: </span><a href="cudf_src.structseries.html" class="tsd-signature-type" data-tsd-kind="Class">StructSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childTypes&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>4<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>5<span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a><span class="tsd-signature-symbol">; </span>6<span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a><span class="tsd-signature-symbol">; </span>7<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>8<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>9<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;TType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L160">cudf/src/series.ts:160</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return a sub-selection of this Series using the specified integral indices.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>R<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#integral" class="tsd-signature-type" data-tsd-kind="Type alias">Integral</a></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>selection: <span class="tsd-signature-symbol">{ </span>-1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-11<span class="tsd-signature-symbol">: </span><a href="cudf_src.float32series.html" class="tsd-signature-type" data-tsd-kind="Class">Float32Series</a><span class="tsd-signature-symbol">; </span>-12<span class="tsd-signature-symbol">: </span><a href="cudf_src.float64series.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Series</a><span class="tsd-signature-symbol">; </span>-13<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-18<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-19<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-2<span class="tsd-signature-symbol">: </span><a href="cudf_src.int8series.html" class="tsd-signature-type" data-tsd-kind="Class">Int8Series</a><span class="tsd-signature-symbol">; </span>-20<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-21<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-22<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-23<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-24<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-25<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-26<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-3<span class="tsd-signature-symbol">: </span><a href="cudf_src.int16series.html" class="tsd-signature-type" data-tsd-kind="Class">Int16Series</a><span class="tsd-signature-symbol">; </span>-4<span class="tsd-signature-symbol">: </span><a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a><span class="tsd-signature-symbol">; </span>-5<span class="tsd-signature-symbol">: </span><a href="cudf_src.int64series.html" class="tsd-signature-type" data-tsd-kind="Class">Int64Series</a><span class="tsd-signature-symbol">; </span>-6<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint8series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Series</a><span class="tsd-signature-symbol">; </span>-7<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint16series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint16Series</a><span class="tsd-signature-symbol">; </span>-8<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint32series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint32Series</a><span class="tsd-signature-symbol">; </span>-9<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint64series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint64Series</a><span class="tsd-signature-symbol">; </span>0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>11<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>12<span class="tsd-signature-symbol">: </span><a href="cudf_src.listseries.html" class="tsd-signature-type" data-tsd-kind="Class">ListSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>13<span class="tsd-signature-symbol">: </span><a href="cudf_src.structseries.html" class="tsd-signature-type" data-tsd-kind="Class">StructSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childTypes&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>4<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>5<span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a><span class="tsd-signature-symbol">; </span>6<span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a><span class="tsd-signature-symbol">; </span>7<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>8<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>9<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;TType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A Series of 8/16/32-bit signed or unsigned integer indices.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getvalue" class="tsd-anchor"></a>
+					<h3>get<wbr>Value</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Value<span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L177">cudf/src/series.ts:177</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return a value at the specified index to host memory</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>index: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="isnull" class="tsd-anchor"></a>
+					<h3>is<wbr>Null</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Null<span class="tsd-signature-symbol">(</span>memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L253">cudf/src/series.ts:253</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a Series of <code>BOOL8</code> elements where <code>true</code> indicates the value is null and <code>false</code>
+									indicates the value is valid.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Memory resource used to allocate the result Column&#39;s device memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a></h4>
+							<p>A non-nullable Series of <code>BOOL8</code> elements with <code>true</code> representing <code>null</code>
+							values.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="isvalid" class="tsd-anchor"></a>
+					<h3>is<wbr>Valid</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Valid<span class="tsd-signature-symbol">(</span>memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L263">cudf/src/series.ts:263</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a Series of <code>BOOL8</code> elements where <code>true</code> indicates the value is valid and <code>false</code>
+									indicates the value is null.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Memory resource used to allocate the result Column&#39;s device memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a></h4>
+							<p>A non-nullable Series of <code>BOOL8</code> elements with <code>false</code> representing <code>null</code>
+							values.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="orderby" class="tsd-anchor"></a>
+					<h3>order<wbr>By</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">order<wbr>By<span class="tsd-signature-symbol">(</span>ascending<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, null_order<span class="tsd-signature-symbol">?: </span><a href="../enums/cudf_src.nullorder.html" class="tsd-signature-type" data-tsd-kind="Enumeration">NullOrder</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L227">cudf/src/series.ts:227</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Generate an ordering that sorts the Series in a specified way.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ascending: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>whether to sort ascending (true) or descending (false)</p>
+									</div>
+								</li>
+								<li>
+									<h5>null_order: <a href="../enums/cudf_src.nullorder.html" class="tsd-signature-type" data-tsd-kind="Enumeration">NullOrder</a><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>whether nulls should sort before or after other values</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a></h4>
+							<p>Series containting the permutation indices for the desired sort order</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setnullmask" class="tsd-anchor"></a>
+					<h3>set<wbr>Null<wbr>Mask</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Null<wbr>Mask<span class="tsd-signature-symbol">(</span>mask<span class="tsd-signature-symbol">: </span><a href="../modules/rmm_src.html#devicebuffer-1" class="tsd-signature-type" data-tsd-kind="Variable">DeviceBuffer</a>, nullCount<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L198">cudf/src/series.ts:198</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>mask: <a href="../modules/rmm_src.html#devicebuffer-1" class="tsd-signature-type" data-tsd-kind="Variable">DeviceBuffer</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The null-mask. Valid values are marked as 1; otherwise 0. The
+										mask bit given the data index idx is computed as:</p>
+										<pre><code><span style="color: #000000">(</span><span style="color: #001080">mask</span><span style="color: #000000">[</span><span style="color: #001080">idx</span><span style="color: #000000"> </span><span style="color: #008000">// 8] &gt;&gt; (idx % 8)) &amp; 1</span>
+</code></pre>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> nullCount: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The number of null values. If None, it is calculated
+										automatically.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="sortvalues" class="tsd-anchor"></a>
+					<h3>sort<wbr>Values</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">sort<wbr>Values<span class="tsd-signature-symbol">(</span>ascending<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, null_order<span class="tsd-signature-symbol">?: </span><a href="../enums/cudf_src.nullorder.html" class="tsd-signature-type" data-tsd-kind="Enumeration">NullOrder</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L241">cudf/src/series.ts:241</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Generate a new Series that is sorted in a specified way.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>ascending: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>whether to sort ascending (true) or descending (false)
+										Default: true</p>
+									</div>
+								</li>
+								<li>
+									<h5>null_order: <a href="../enums/cudf_src.nullorder.html" class="tsd-signature-type" data-tsd-kind="Enumeration">NullOrder</a><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>whether nulls should sort before or after other values
+										Default: BEFORE</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></h4>
+							<p>Sorted values</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="toarrow" class="tsd-anchor"></a>
+					<h3>to<wbr>Arrow</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">to<wbr>Arrow<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Utf8Vector</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L203">cudf/src/series.ts:203</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Copy a Series to an Arrow vector in host memory</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Utf8Vector</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-static">
+					<a name="new" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> new</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">new&lt;T&gt;<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>-1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-11<span class="tsd-signature-symbol">: </span><a href="cudf_src.float32series.html" class="tsd-signature-type" data-tsd-kind="Class">Float32Series</a><span class="tsd-signature-symbol">; </span>-12<span class="tsd-signature-symbol">: </span><a href="cudf_src.float64series.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Series</a><span class="tsd-signature-symbol">; </span>-13<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-18<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-19<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-2<span class="tsd-signature-symbol">: </span><a href="cudf_src.int8series.html" class="tsd-signature-type" data-tsd-kind="Class">Int8Series</a><span class="tsd-signature-symbol">; </span>-20<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-21<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-22<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-23<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-24<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-25<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-26<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-3<span class="tsd-signature-symbol">: </span><a href="cudf_src.int16series.html" class="tsd-signature-type" data-tsd-kind="Class">Int16Series</a><span class="tsd-signature-symbol">; </span>-4<span class="tsd-signature-symbol">: </span><a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a><span class="tsd-signature-symbol">; </span>-5<span class="tsd-signature-symbol">: </span><a href="cudf_src.int64series.html" class="tsd-signature-type" data-tsd-kind="Class">Int64Series</a><span class="tsd-signature-symbol">; </span>-6<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint8series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Series</a><span class="tsd-signature-symbol">; </span>-7<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint16series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint16Series</a><span class="tsd-signature-symbol">; </span>-8<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint32series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint32Series</a><span class="tsd-signature-symbol">; </span>-9<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint64series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint64Series</a><span class="tsd-signature-symbol">; </span>0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>11<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>12<span class="tsd-signature-symbol">: </span><a href="cudf_src.listseries.html" class="tsd-signature-type" data-tsd-kind="Class">ListSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ArrowToCUDFType</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;type&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">ArrowToCUDFType</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;type&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>13<span class="tsd-signature-symbol">: </span><a href="cudf_src.structseries.html" class="tsd-signature-type" data-tsd-kind="Class">StructSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ArrowToCUDFType</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;type&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">ArrowToCUDFType</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;type&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childTypes&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>4<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>5<span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a><span class="tsd-signature-symbol">; </span>6<span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a><span class="tsd-signature-symbol">; </span>7<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>8<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>9<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">ArrowToCUDFType</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;type&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;TType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">]</span></li>
+						<li class="tsd-signature tsd-kind-icon">new&lt;T&gt;<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#seriesprops" class="tsd-signature-type" data-tsd-kind="Type alias">SeriesProps</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>-1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-11<span class="tsd-signature-symbol">: </span><a href="cudf_src.float32series.html" class="tsd-signature-type" data-tsd-kind="Class">Float32Series</a><span class="tsd-signature-symbol">; </span>-12<span class="tsd-signature-symbol">: </span><a href="cudf_src.float64series.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Series</a><span class="tsd-signature-symbol">; </span>-13<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-18<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-19<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-2<span class="tsd-signature-symbol">: </span><a href="cudf_src.int8series.html" class="tsd-signature-type" data-tsd-kind="Class">Int8Series</a><span class="tsd-signature-symbol">; </span>-20<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-21<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-22<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-23<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-24<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-25<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-26<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-3<span class="tsd-signature-symbol">: </span><a href="cudf_src.int16series.html" class="tsd-signature-type" data-tsd-kind="Class">Int16Series</a><span class="tsd-signature-symbol">; </span>-4<span class="tsd-signature-symbol">: </span><a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a><span class="tsd-signature-symbol">; </span>-5<span class="tsd-signature-symbol">: </span><a href="cudf_src.int64series.html" class="tsd-signature-type" data-tsd-kind="Class">Int64Series</a><span class="tsd-signature-symbol">; </span>-6<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint8series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Series</a><span class="tsd-signature-symbol">; </span>-7<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint16series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint16Series</a><span class="tsd-signature-symbol">; </span>-8<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint32series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint32Series</a><span class="tsd-signature-symbol">; </span>-9<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint64series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint64Series</a><span class="tsd-signature-symbol">; </span>0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>11<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>12<span class="tsd-signature-symbol">: </span><a href="cudf_src.listseries.html" class="tsd-signature-type" data-tsd-kind="Class">ListSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>13<span class="tsd-signature-symbol">: </span><a href="cudf_src.structseries.html" class="tsd-signature-type" data-tsd-kind="Class">StructSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childTypes&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>4<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>5<span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a><span class="tsd-signature-symbol">; </span>6<span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a><span class="tsd-signature-symbol">; </span>7<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>8<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>9<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;TType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L107">cudf/src/series.ts:107</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AbstractVector</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>input: <span class="tsd-signature-type">T</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>-1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-11<span class="tsd-signature-symbol">: </span><a href="cudf_src.float32series.html" class="tsd-signature-type" data-tsd-kind="Class">Float32Series</a><span class="tsd-signature-symbol">; </span>-12<span class="tsd-signature-symbol">: </span><a href="cudf_src.float64series.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Series</a><span class="tsd-signature-symbol">; </span>-13<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-18<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-19<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-2<span class="tsd-signature-symbol">: </span><a href="cudf_src.int8series.html" class="tsd-signature-type" data-tsd-kind="Class">Int8Series</a><span class="tsd-signature-symbol">; </span>-20<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-21<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-22<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-23<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-24<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-25<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-26<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-3<span class="tsd-signature-symbol">: </span><a href="cudf_src.int16series.html" class="tsd-signature-type" data-tsd-kind="Class">Int16Series</a><span class="tsd-signature-symbol">; </span>-4<span class="tsd-signature-symbol">: </span><a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a><span class="tsd-signature-symbol">; </span>-5<span class="tsd-signature-symbol">: </span><a href="cudf_src.int64series.html" class="tsd-signature-type" data-tsd-kind="Class">Int64Series</a><span class="tsd-signature-symbol">; </span>-6<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint8series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Series</a><span class="tsd-signature-symbol">; </span>-7<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint16series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint16Series</a><span class="tsd-signature-symbol">; </span>-8<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint32series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint32Series</a><span class="tsd-signature-symbol">; </span>-9<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint64series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint64Series</a><span class="tsd-signature-symbol">; </span>0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>11<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>12<span class="tsd-signature-symbol">: </span><a href="cudf_src.listseries.html" class="tsd-signature-type" data-tsd-kind="Class">ListSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ArrowToCUDFType</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;type&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">ArrowToCUDFType</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;type&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>13<span class="tsd-signature-symbol">: </span><a href="cudf_src.structseries.html" class="tsd-signature-type" data-tsd-kind="Class">StructSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ArrowToCUDFType</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;type&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">ArrowToCUDFType</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;type&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childTypes&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>4<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>5<span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a><span class="tsd-signature-symbol">; </span>6<span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a><span class="tsd-signature-symbol">; </span>7<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>8<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>9<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">ArrowToCUDFType</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;type&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;TType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">]</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L108">cudf/src/series.ts:108</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#datatype" class="tsd-signature-type" data-tsd-kind="Type alias">DataType</a></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>input: <a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#seriesprops" class="tsd-signature-type" data-tsd-kind="Type alias">SeriesProps</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>-1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-11<span class="tsd-signature-symbol">: </span><a href="cudf_src.float32series.html" class="tsd-signature-type" data-tsd-kind="Class">Float32Series</a><span class="tsd-signature-symbol">; </span>-12<span class="tsd-signature-symbol">: </span><a href="cudf_src.float64series.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Series</a><span class="tsd-signature-symbol">; </span>-13<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-18<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-19<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-2<span class="tsd-signature-symbol">: </span><a href="cudf_src.int8series.html" class="tsd-signature-type" data-tsd-kind="Class">Int8Series</a><span class="tsd-signature-symbol">; </span>-20<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-21<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-22<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-23<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-24<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-25<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-26<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>-3<span class="tsd-signature-symbol">: </span><a href="cudf_src.int16series.html" class="tsd-signature-type" data-tsd-kind="Class">Int16Series</a><span class="tsd-signature-symbol">; </span>-4<span class="tsd-signature-symbol">: </span><a href="cudf_src.int32series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a><span class="tsd-signature-symbol">; </span>-5<span class="tsd-signature-symbol">: </span><a href="cudf_src.int64series.html" class="tsd-signature-type" data-tsd-kind="Class">Int64Series</a><span class="tsd-signature-symbol">; </span>-6<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint8series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Series</a><span class="tsd-signature-symbol">; </span>-7<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint16series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint16Series</a><span class="tsd-signature-symbol">; </span>-8<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint32series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint32Series</a><span class="tsd-signature-symbol">; </span>-9<span class="tsd-signature-symbol">: </span><a href="cudf_src.uint64series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint64Series</a><span class="tsd-signature-symbol">; </span>0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>10<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>11<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>12<span class="tsd-signature-symbol">: </span><a href="cudf_src.listseries.html" class="tsd-signature-type" data-tsd-kind="Class">ListSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>13<span class="tsd-signature-symbol">: </span><a href="cudf_src.structseries.html" class="tsd-signature-type" data-tsd-kind="Class">StructSeries</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;childTypes&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>14<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>15<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>16<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>17<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>2<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>3<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>4<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>5<span class="tsd-signature-symbol">: </span><a href="cudf_src.stringseries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a><span class="tsd-signature-symbol">; </span>6<span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a><span class="tsd-signature-symbol">; </span>7<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>8<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">; </span>9<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;TType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">]</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/cuda_src.html">cuda/src</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/cudf_src.html">cudf/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/cugraph_src.html">cugraph/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/cuspatial_src.html">cuspatial/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/deck_gl_src.html">deck.gl/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/glfw_src.html">glfw/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/rmm_src.html">rmm/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/webgl_src.html">webgl/src</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-module">
+						<a href="cudf_src.stringseries.html" class="tsd-kind-icon">String<wbr>Series</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#data" class="tsd-kind-icon">data</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#hasnulls" class="tsd-kind-icon">has<wbr>Nulls</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#length" class="tsd-kind-icon">length</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#mask" class="tsd-kind-icon">mask</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#nullcount" class="tsd-kind-icon">null<wbr>Count</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#nullable" class="tsd-kind-icon">nullable</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#numchildren" class="tsd-kind-icon">num<wbr>Children</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#offsets" class="tsd-kind-icon">offsets</a>
+							</li>
+							<li class=" tsd-kind-get-signature tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#type" class="tsd-kind-icon">type</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#_symbol_iterator_" class="tsd-kind-icon">[<wbr>Symbol.iterator]</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="cudf_src.stringseries.html#cast" class="tsd-kind-icon">cast</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#filter" class="tsd-kind-icon">filter</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="cudf_src.stringseries.html#gather" class="tsd-kind-icon">gather</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#getvalue" class="tsd-kind-icon">get<wbr>Value</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#isnull" class="tsd-kind-icon">is<wbr>Null</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#isvalid" class="tsd-kind-icon">is<wbr>Valid</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#orderby" class="tsd-kind-icon">order<wbr>By</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#setnullmask" class="tsd-kind-icon">set<wbr>Null<wbr>Mask</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#sortvalues" class="tsd-kind-icon">sort<wbr>Values</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.stringseries.html#toarrow" class="tsd-kind-icon">to<wbr>Arrow</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-static">
+								<a href="cudf_src.stringseries.html#new" class="tsd-kind-icon">new</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
