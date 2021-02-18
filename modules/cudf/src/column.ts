@@ -21,15 +21,10 @@ import {
   Bool8,
   DataType,
   Float64,
-  Int16,
   Int64,
-  Int8,
   Integral,
   Numeric,
-  Uint16,
-  Uint32,
   Uint64,
-  Uint8
 } from './types/dtypes';
 import {CommonType, Interpolation} from './types/mappings';
 
@@ -765,8 +760,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The sum of all the values in this Column.
    */
-  sum(memoryResource?: MemoryResource): T extends(Int8|Uint8|Int16|Int64|Uint8|Uint16|Uint32|Uint64)
-    ? bigint: number;
+  sum(memoryResource?: MemoryResource): T extends(Integral|Int64|Uint64)? bigint: number;
 
   /**
    * Compute the product of all values in this Column.
@@ -775,8 +769,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The product of all the values in this Column.
    */
-  product(memoryResource?: MemoryResource): T extends(Int8|Uint8|Int16|Int64|Uint8|Uint16|Uint32|
-                                                      Uint64)? bigint: number;
+  product(memoryResource?: MemoryResource): T extends(Integral|Int64|Uint64)? bigint: number;
 
   /**
    * Compute the sum_of_squares of all values in this Column.
@@ -785,8 +778,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The sum_of_squares of all the values in this Column.
    */
-  sum_of_squares(memoryResource?: MemoryResource): T extends(Int8|Uint8|Int16|Int64|Uint8|Uint16|
-                                                             Uint32|Uint64)? bigint: number;
+  sum_of_squares(memoryResource?: MemoryResource): T extends(Integral|Int64|Uint64)? bigint: number;
 
   /**
    * Compute the mean of all values in this Column.
