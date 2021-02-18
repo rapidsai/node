@@ -115,6 +115,9 @@ Napi::Value GroupBy::agg(Napi::CallbackInfo const& info) {
                    "GroupBy constructor expects options to have a 'values' table");
   nv::Table* values_table = Table::Unwrap(values.ToObject());
 
+  auto mr = MemoryResource::is_instance(info[2]) ? *MemoryResource::Unwrap(info[2].ToObject())
+                                                 : rmm::mr::get_current_device_resource();
+
   auto agg = _get_aggregation(func);
   if (agg == nullptr) { NAPI_THROW(Napi::Error::New(info.Env(), "Unknown aggregation: " + func)); }
 
@@ -127,7 +130,7 @@ Napi::Value GroupBy::agg(Napi::CallbackInfo const& info) {
     requests.emplace_back(std::move(request));
   }
 
-  auto result = groupby_->aggregate(requests);
+  auto result = groupby_->aggregate(requests, mr);
 
   auto result_keys = Table::New(std::move(result.first));
 
