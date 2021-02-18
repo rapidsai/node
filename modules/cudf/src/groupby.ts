@@ -70,7 +70,7 @@ interface CudfGroupBy {
   _by: string[];
   _values: DataFrame;
   _getGroups(values?: Table, memoryResource?: MemoryResource): any;
-  _agg(func: AggFunc, values: Table, memoryResource?: MemoryResource):
+  _basic_agg(func: AggFunc, values: Table, memoryResource?: MemoryResource):
     {keys: Table, cols: [Column]};
 }
 
@@ -121,14 +121,8 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
     return results;
   }
 
-  /**
-   * Apply an aggregation to the group
-   *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
-   */
-  agg(func: AggFunc, memoryResource?: MemoryResource): DataFrame {
-    const {keys, cols} = this._agg(func, this._values.asTable(), memoryResource);
+  protected basic_agg(func: AggFunc, memoryResource?: MemoryResource): DataFrame {
+    const {keys, cols} = this._basic_agg(func, this._values.asTable(), memoryResource);
 
     const series_map = {} as any;
     this._by.forEach(
@@ -143,7 +137,9 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  argmax(memoryResource?: MemoryResource): DataFrame { return this.agg("argmax", memoryResource); }
+  argmax(memoryResource?: MemoryResource): DataFrame {
+    return this.basic_agg("argmax", memoryResource);
+  }
 
   /**
    * Compute the index of the minimum value in each group
@@ -151,7 +147,9 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  argmin(memoryResource?: MemoryResource): DataFrame { return this.agg("argmin", memoryResource); }
+  argmin(memoryResource?: MemoryResource): DataFrame {
+    return this.basic_agg("argmin", memoryResource);
+  }
 
   /**
    * Compute the size of each group
@@ -159,7 +157,9 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  count(memoryResource?: MemoryResource): DataFrame { return this.agg("count", memoryResource); }
+  count(memoryResource?: MemoryResource): DataFrame {
+    return this.basic_agg("count", memoryResource);
+  }
 
   /**
    * Compute the maximum value in each group
@@ -167,7 +167,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  max(memoryResource?: MemoryResource): DataFrame { return this.agg("max", memoryResource); }
+  max(memoryResource?: MemoryResource): DataFrame { return this.basic_agg("max", memoryResource); }
 
   /**
    * Compute the average value each group
@@ -175,7 +175,9 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  mean(memoryResource?: MemoryResource): DataFrame { return this.agg("mean", memoryResource); }
+  mean(memoryResource?: MemoryResource): DataFrame {
+    return this.basic_agg("mean", memoryResource);
+  }
 
   /**
    * Compute the median value in each group
@@ -183,7 +185,9 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  median(memoryResource?: MemoryResource): DataFrame { return this.agg("median", memoryResource); }
+  median(memoryResource?: MemoryResource): DataFrame {
+    return this.basic_agg("median", memoryResource);
+  }
 
   /**
    * Compute the minimum value in each group
@@ -191,7 +195,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  min(memoryResource?: MemoryResource): DataFrame { return this.agg("min", memoryResource); }
+  min(memoryResource?: MemoryResource): DataFrame { return this.basic_agg("min", memoryResource); }
 
   /**
    * Compute the number of unique values in each group
@@ -200,7 +204,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    *   device memory.
    */
   nunique(memoryResource?: MemoryResource): DataFrame {
-    return this.agg("nunique", memoryResource);
+    return this.basic_agg("nunique", memoryResource);
   }
 
   /**
@@ -209,7 +213,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  std(memoryResource?: MemoryResource): DataFrame { return this.agg("std", memoryResource); }
+  std(memoryResource?: MemoryResource): DataFrame { return this.basic_agg("std", memoryResource); }
 
   /**
    * Compute the sum of values in each group
@@ -217,7 +221,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  sum(memoryResource?: MemoryResource): DataFrame { return this.agg("sum", memoryResource); }
+  sum(memoryResource?: MemoryResource): DataFrame { return this.basic_agg("sum", memoryResource); }
 
   /**
    * Compute the variance for each group
@@ -225,5 +229,5 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  var(memoryResource?: MemoryResource): DataFrame { return this.agg("var", memoryResource); }
+  var(memoryResource?: MemoryResource): DataFrame { return this.basic_agg("var", memoryResource); }
 }

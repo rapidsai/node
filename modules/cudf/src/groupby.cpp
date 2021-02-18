@@ -56,7 +56,7 @@ Napi::Object GroupBy::Init(Napi::Env env, Napi::Object exports) {
                                     "GroupBy",
                                     {
                                       InstanceMethod<&GroupBy::get_groups>("_getGroups"),
-                                      InstanceMethod<&GroupBy::agg>("_agg"),
+                                      InstanceMethod<&GroupBy::basic_agg>("_basic_agg"),
                                     });
 
   GroupBy::constructor = Napi::Persistent(ctor);
@@ -105,7 +105,7 @@ void GroupBy::Finalize(Napi::Env env) { this->groupby_.reset(nullptr); }
 // Private API
 //
 
-Napi::Value GroupBy::agg(Napi::CallbackInfo const& info) {
+Napi::Value GroupBy::basic_agg(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
 
   std::string func = args[0];
