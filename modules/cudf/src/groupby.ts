@@ -23,7 +23,7 @@ import {NullOrder} from './types/enums'
 import {TypeMap} from './types/mappings'
 
 export type AggFunc =
-  "sum"|"min"|"max"|"argmin"|"argmax"|"mean"|"count"|"nunique"|"var"|"std"|"median"
+  "argmax"|"argmin"|"count"|"max"|"mean"|"median"|"min"|"nunique"|"std"|"sum"|"var"
 
 /*
  * @param keys DataFrame whose rows act as the groupby keys
@@ -96,9 +96,11 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
     this._values = props.obj.drop(props.by);
   }
 
-  /* Return the Groups for this GroupBy
+  /**
+   * Return the Groups for this GroupBy
    *
-   *
+   * @param memoryResource The optional MemoryResource used to allocate the result's
+   *   device memory.
    */
   getGroups(memoryResource?: MemoryResource): Groups {
     const table      = this._values.asTable();
@@ -119,9 +121,10 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
     return results;
   }
 
-  /* Apply an aggregation to the group
+  /**
+   * Apply an aggregation to the group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
+   * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
   agg(func: AggFunc, memoryResource?: MemoryResource): DataFrame {
@@ -134,82 +137,93 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
     return new DataFrame(series_map);
   }
 
-  /* Compute the sum of values in each group
+  /**
+   * Compute the index of the maximum value in each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
-   *   device memory.
-   */
-  sum(memoryResource?: MemoryResource): DataFrame { return this.agg("sum", memoryResource); }
-
-  /* Compute the minimum value in each group
-   *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
-   *   device memory.
-   */
-  min(memoryResource?: MemoryResource): DataFrame { return this.agg("min", memoryResource); }
-
-  /* Compute the maximum value in each group
-   *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
-   *   device memory.
-   */
-  max(memoryResource?: MemoryResource): DataFrame { return this.agg("max", memoryResource); }
-
-  /* Compute the index of the minimum value in each group
-   *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
-   *   device memory.
-   */
-  argmin(memoryResource?: MemoryResource): DataFrame { return this.agg("argmin", memoryResource); }
-
-  /* Compute the index of the maximum value in each group
-   *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
+   * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
   argmax(memoryResource?: MemoryResource): DataFrame { return this.agg("argmax", memoryResource); }
 
-  /* Compute the average value each group
+  /**
+   * Compute the index of the minimum value in each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
+   * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  mean(memoryResource?: MemoryResource): DataFrame { return this.agg("mean", memoryResource); }
+  argmin(memoryResource?: MemoryResource): DataFrame { return this.agg("argmin", memoryResource); }
 
-  /* Compute the size of each group
+  /**
+   * Compute the size of each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
+   * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
   count(memoryResource?: MemoryResource): DataFrame { return this.agg("count", memoryResource); }
 
-  /* Compute the number of unique values in each group
+  /**
+   * Compute the maximum value in each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
+   * @param memoryResource The optional MemoryResource used to allocate the result's
+   *   device memory.
+   */
+  max(memoryResource?: MemoryResource): DataFrame { return this.agg("max", memoryResource); }
+
+  /**
+   * Compute the average value each group
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result's
+   *   device memory.
+   */
+  mean(memoryResource?: MemoryResource): DataFrame { return this.agg("mean", memoryResource); }
+
+  /**
+   * Compute the median value in each group
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result's
+   *   device memory.
+   */
+  median(memoryResource?: MemoryResource): DataFrame { return this.agg("median", memoryResource); }
+
+  /**
+   * Compute the minimum value in each group
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result's
+   *   device memory.
+   */
+  min(memoryResource?: MemoryResource): DataFrame { return this.agg("min", memoryResource); }
+
+  /**
+   * Compute the number of unique values in each group
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
   nunique(memoryResource?: MemoryResource): DataFrame {
     return this.agg("nunique", memoryResource);
   }
 
-  /* Compute the variance for each group
+  /**
+   * Compute the standard deviation for each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
-   *   device memory.
-   */
-  var(memoryResource?: MemoryResource): DataFrame { return this.agg("var", memoryResource); }
-
-  /* Compute the standard deviation for each group
-   *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
+   * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
   std(memoryResource?: MemoryResource): DataFrame { return this.agg("std", memoryResource); }
 
-  /* Compute the median value in each group
+  /**
+   * Compute the sum of values in each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result'sd
+   * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  median(memoryResource?: MemoryResource): DataFrame { return this.agg("median", memoryResource); }
+  sum(memoryResource?: MemoryResource): DataFrame { return this.agg("sum", memoryResource); }
+
+  /**
+   * Compute the variance for each group
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result's
+   *   device memory.
+   */
+  var(memoryResource?: MemoryResource): DataFrame { return this.agg("var", memoryResource); }
 }
