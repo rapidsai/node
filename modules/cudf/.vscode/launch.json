@@ -35,7 +35,7 @@
             "command": "shellCommand.execute",
             "args": {
                 "description": "Select a file to debug",
-                "cwd": "${workspaceFolder}/modules/cuda",
+                "cwd": "${workspaceFolder}/modules/cudf",
                 "command": "./node_modules/.bin/jest --listTests | sed -r \"s@$PWD/test/@@g\"",
             }
         },

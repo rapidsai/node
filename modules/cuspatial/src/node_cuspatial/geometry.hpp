@@ -12,5 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './geometry';
-export * from './quadtree';
+#pragma once
+
+#include <nv_node/utilities/args.hpp>
+
+#include <napi.h>
+
+namespace nv {
+
+/**
+ * @brief Compute the minimum bounding-boxes for a set of polygons.
+ *
+ * @param args CallbackArgs JavaScript arguments list.
+ */
+Napi::Value compute_polygon_bounding_boxes(CallbackArgs const& args);
+
+/**
+ * @brief Compute the minimum bounding-boxes for a set of polylines.
+ *
+ * @param args CallbackArgs JavaScript arguments list.
+ */
+Napi::Value compute_polyline_bounding_boxes(CallbackArgs const& args);
+
+}  // namespace nv

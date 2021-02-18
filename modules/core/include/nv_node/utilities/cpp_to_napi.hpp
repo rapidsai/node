@@ -192,8 +192,9 @@ struct CPPToNapi {
 
   template <typename T>
   inline Napi::Value operator()(std::tuple<T const*, size_t> pair) const {
-    auto buf = Napi::ArrayBuffer::New(env, std::get<1>(pair));
-    std::memcpy(buf.Data(), std::get<0>(pair), std::get<1>(pair));
+    auto size = sizeof(T) * std::get<1>(pair);
+    auto buf  = Napi::ArrayBuffer::New(env, size);
+    std::memcpy(buf.Data(), std::get<0>(pair), size);
     return buffer_to_typed_array<T>(buf);
   }
 

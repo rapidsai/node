@@ -13,6 +13,11 @@ mkdir -p "$RAPIDS_MODULES_PATH/.cache/cpm" \
          "$RAPIDS_MODULES_PATH/.cache/ccache" \
          "$RAPIDS_MODULES_PATH/.cache/clangd" ;
 
+# remove the top-level .cache symlink
+rm -rf "$DIR/.cache"
+# symlink to the shared modules/.cache dir
+ln -sf "$RAPIDS_MODULES_PATH/.cache" "$DIR/.cache"
+
 for DIR in $DIRS; do
     # symlink node_modules/.bin dirs to the root node_modules/.bin
     mkdir -p "$DIR/node_modules"
@@ -21,9 +26,9 @@ for DIR in $DIRS; do
         ln -sf "$BIN" "$DIR/node_modules/.bin"
         # copy the ESLint settings file (for the VSCode ESLint plugin)
         cp ".eslintrc.js" "$DIR/.eslintrc.js"
-        # # remove and recreate the local .cache dir
+        # remove the local .cache symlink
         rm -rf "$DIR/.cache"
-        # symlink to the shared .cache dir under modules
+        # symlink to the shared modules/.cache dir
         ln -sf "$RAPIDS_MODULES_PATH/.cache" "$DIR/.cache"
     fi;
 done

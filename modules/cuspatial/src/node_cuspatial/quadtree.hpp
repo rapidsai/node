@@ -23,8 +23,26 @@ namespace nv {
 /**
  * @brief Construct a quadtree from a set of points for a given area-of-interest bounding box.
  *
- * @param info The Napi::CallbackInfo JS arguments list.
+ * @param args CallbackArgs JavaScript arguments list.
  */
 Napi::Value create_quadtree(CallbackArgs const& args);
+
+/**
+ * @brief Search a quadtree for polygon or polyline bounding box intersections.
+ *
+ * @param args CallbackArgs JavaScript arguments list.
+ */
+Napi::Value quadtree_bounding_box_intersections(CallbackArgs const& args);
+
+/**
+ * @brief Test whether the specified points are inside any of the specified polygons.
+ */
+Napi::Value find_points_in_polygons(CallbackArgs const& args);
+
+/**
+ * @brief Finds the nearest polyline to each point in a quadrant, and computes the distances between
+ * each point and polyline.
+ */
+Napi::Value find_polyline_nearest_to_each_point(CallbackArgs const& args);
 
 }  // namespace nv
