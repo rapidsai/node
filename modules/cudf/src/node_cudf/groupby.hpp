@@ -63,9 +63,6 @@ class GroupBy : public Napi::ObjectWrap<GroupBy> {
 
   std::unique_ptr<cudf::groupby::groupby> groupby_;
 
-  std::pair<nv::Table*, rmm::mr::device_memory_resource*> getBasicArgs(
-    Napi::CallbackInfo const& info);
-
   Napi::Value get_groups(Napi::CallbackInfo const& info);
 
   Napi::Value argmax(Napi::CallbackInfo const& info);
@@ -81,6 +78,9 @@ class GroupBy : public Napi::ObjectWrap<GroupBy> {
   Napi::Value sum(Napi::CallbackInfo const& info);
   Napi::Value var(Napi::CallbackInfo const& info);
   Napi::Value quantile(Napi::CallbackInfo const& info);
+
+  std::pair<nv::Table*, rmm::mr::device_memory_resource*> _get_basic_args(
+    Napi::CallbackInfo const& info);
 
   Napi::Value _single_aggregation(std::unique_ptr<cudf::aggregation> agg,
                                   const Table* const values_table,

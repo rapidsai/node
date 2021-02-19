@@ -98,19 +98,6 @@ void GroupBy::Finalize(Napi::Env env) { this->groupby_.reset(nullptr); }
 // Private API
 //
 
-std::pair<nv::Table*, rmm::mr::device_memory_resource*> GroupBy::getBasicArgs(
-  Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-
-  auto values = args[0];
-  NODE_CUDA_EXPECT(Table::is_instance(values), "aggregation expects to have a 'values' table");
-
-  auto mr = MemoryResource::is_instance(info[1]) ? *MemoryResource::Unwrap(info[1].ToObject())
-                                                 : rmm::mr::get_current_device_resource();
-
-  return std::pair<Table*, rmm::mr::device_memory_resource*>(Table::Unwrap(values.ToObject()), mr);
-}
-
 Napi::Value GroupBy::get_groups(Napi::CallbackInfo const& info) {
   auto values = info[0];
   auto mr     = MemoryResource::is_instance(info[1]) ? *MemoryResource::Unwrap(info[1].ToObject())
@@ -131,7 +118,7 @@ Napi::Value GroupBy::get_groups(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::argmax(Napi::CallbackInfo const& info) {
-  auto args   = getBasicArgs(info);
+  auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
   auto agg    = cudf::make_argmax_aggregation();
@@ -139,7 +126,7 @@ Napi::Value GroupBy::argmax(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::argmin(Napi::CallbackInfo const& info) {
-  auto args   = getBasicArgs(info);
+  auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
   auto agg    = cudf::make_argmin_aggregation();
@@ -147,7 +134,7 @@ Napi::Value GroupBy::argmin(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::count(Napi::CallbackInfo const& info) {
-  auto args   = getBasicArgs(info);
+  auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
   auto agg    = cudf::make_count_aggregation();
@@ -155,7 +142,7 @@ Napi::Value GroupBy::count(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::max(Napi::CallbackInfo const& info) {
-  auto args   = getBasicArgs(info);
+  auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
   auto agg    = cudf::make_max_aggregation();
@@ -163,7 +150,7 @@ Napi::Value GroupBy::max(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::mean(Napi::CallbackInfo const& info) {
-  auto args   = getBasicArgs(info);
+  auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
   auto agg    = cudf::make_mean_aggregation();
@@ -171,7 +158,7 @@ Napi::Value GroupBy::mean(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::median(Napi::CallbackInfo const& info) {
-  auto args   = getBasicArgs(info);
+  auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
   auto agg    = cudf::make_median_aggregation();
@@ -179,7 +166,7 @@ Napi::Value GroupBy::median(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::min(Napi::CallbackInfo const& info) {
-  auto args   = getBasicArgs(info);
+  auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
   auto agg    = cudf::make_min_aggregation();
@@ -205,7 +192,7 @@ Napi::Value GroupBy::nth(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::nunique(Napi::CallbackInfo const& info) {
-  auto args   = getBasicArgs(info);
+  auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
   auto agg    = cudf::make_nunique_aggregation();
@@ -213,7 +200,7 @@ Napi::Value GroupBy::nunique(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::std(Napi::CallbackInfo const& info) {
-  auto args   = getBasicArgs(info);
+  auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
   auto agg    = cudf::make_std_aggregation();
@@ -221,7 +208,7 @@ Napi::Value GroupBy::std(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::sum(Napi::CallbackInfo const& info) {
-  auto args   = getBasicArgs(info);
+  auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
   auto agg    = cudf::make_sum_aggregation();
@@ -229,7 +216,7 @@ Napi::Value GroupBy::sum(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::var(Napi::CallbackInfo const& info) {
-  auto args   = getBasicArgs(info);
+  auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
   auto agg    = cudf::make_variance_aggregation();
@@ -256,6 +243,19 @@ Napi::Value GroupBy::quantile(Napi::CallbackInfo const& info) {
   auto agg = cudf::make_quantile_aggregation(qs, interpolation);
 
   return _single_aggregation(std::move(agg), values_table, mr, info);
+}
+
+std::pair<nv::Table*, rmm::mr::device_memory_resource*> GroupBy::_get_basic_args(
+  Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+
+  auto values = args[0];
+  NODE_CUDA_EXPECT(Table::is_instance(values), "aggregation expects to have a 'values' table");
+
+  auto mr = MemoryResource::is_instance(info[1]) ? *MemoryResource::Unwrap(info[1].ToObject())
+                                                 : rmm::mr::get_current_device_resource();
+
+  return std::pair<Table*, rmm::mr::device_memory_resource*>(Table::Unwrap(values.ToObject()), mr);
 }
 
 Napi::Value GroupBy::_single_aggregation(std::unique_ptr<cudf::aggregation> agg,
