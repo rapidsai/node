@@ -1,9 +1,9 @@
 import os
 import cupy
+import ctypes
 import numba
 import numpy as np
 
-import rmm
 import zmq
 import traceback
 from cudf.core.index import RangeIndex
@@ -18,7 +18,7 @@ import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-if not os.path.exists('cuml/data/fashion'):
+if not os.path.exists('data/fashion'):
     print("error, data is missing!")
 
 # https://github.com/zalandoresearch/fashion-mnist/blob/master/utils/mnist_reader.py
@@ -45,8 +45,8 @@ def load_mnist(path, kind='train'):
 
     return images, labels
 
-train, train_labels = load_mnist('cuml/data/fashion', kind='train')
-test, test_labels = load_mnist('cuml/data/fashion', kind='t10k')
+train, train_labels = load_mnist('data/fashion', kind='train')
+test, test_labels = load_mnist('data/fashion', kind='t10k')
 data = np.array(np.vstack([train, test]), dtype=np.float64) / 255.0
 target = np.array(np.hstack([train_labels, test_labels]))
 
@@ -74,13 +74,9 @@ def filled_series(size, dtype, fill_value=0):
     return sr.astype(dtype)
 
 def to_series_view(mem, dtype):
-    dtype = np.dtype(dtype)
-    mem = rmm.device_array_from_ptr(
-        numba.cuda.cudadrv.driver.device_pointer(mem),
-        mem.gpu_data.size // dtype.itemsize,
-        dtype=dtype
-    )
-    return cudf.Series(cudf.core.Buffer(mem), dtype=dtype)
+    ptr = numba.cuda.cudadrv.driver.device_pointer(mem)
+    buf = cudf.core.Buffer(ptr, mem.gpu_data.size)
+    return cudf.Series(buf, dtype=dtype)
 
 def create_initial_nodes_df(labels):
     color_indices = cudf.Series(labels.astype(np.int8))
@@ -122,7 +118,7 @@ def ipch_to_msg(tok):
 
 def sr_data_to_device_ary(sr):
     size = sr.data.size // sr.dtype.itemsize
-    return rmm.device_array_from_ptr(sr.data.ptr, size, dtype=sr.dtype)
+    return device_array_from_ptr(sr.data.ptr, size, dtype=sr.dtype)
 
 def sr_data_to_ipc_handle(sr):
     return sr_data_to_device_ary(sr).get_ipc_handle()
@@ -142,6 +138,29 @@ def store_ipchs(dst, src):
         if col not in dst:
             dst[col] = make_ipch(src, col)
     return dst
+
+def device_array_from_ptr(ptr, nelem, dtype=np.float, finalizer=None):
+    """
+    device_array_from_ptr(ptr, size, dtype=np.float, stream=0)
+    Create a Numba device array from a ptr, size, and dtype.
+    """
+    # Handle Datetime Column
+    if dtype == np.datetime64:
+        dtype = np.dtype("datetime64[ms]")
+    else:
+        dtype = np.dtype(dtype)
+
+    elemsize = dtype.itemsize
+    datasize = elemsize * nelem
+    shape = (nelem,)
+    strides = (elemsize,)
+    # note no finalizer -- freed externally!
+    ctx = numba.cuda.current_context()
+    ptr = ctypes.c_uint64(int(ptr))
+    mem = numba.cuda.MemoryPointer(ctx, ptr, datasize, finalizer=finalizer)
+    return numba.cuda.cudadrv.devicearray.DeviceNDArray(
+        shape, strides, dtype, gpu_data=mem
+    )
 
 class UmapZmqCallback(GraphBasedDimRedCallback):
 
@@ -213,20 +232,6 @@ class UmapZmqCallback(GraphBasedDimRedCallback):
         self._pub.close()
         self._cmd.close()
         self._ctx.term()
-
-    def _make_ipch(self, df):
-        def _make_ipch(name):
-            if name in df and len(df[name]) > 0:
-                hnd = sr_data_to_ipc_handle(df[name])
-                ary = np.array(hnd._ipc_handle.handle)
-                return {'name': name, 'handle': hnd, 'ary': ary.tolist()}
-            return None
-        return _make_ipch
-
-    def _ipch_to_msg(self):
-        def tok_to_msg(tok):
-            return {'name': tok['name'], 'data': tok['ary']}
-        return tok_to_msg
 
 
 def do_umap():

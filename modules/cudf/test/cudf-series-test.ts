@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Bool8, Column, Int32, NullOrder, Series, Uint8, Utf8String} from '@nvidia/cudf';
+import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
+import {Bool8, Column, Float32, Int32, NullOrder, Series, Uint8, Utf8String} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 import {Uint8Vector, Utf8Vector} from 'apache-arrow';
 import {BoolVector} from 'apache-arrow'
@@ -61,7 +61,7 @@ test('Series initialization with Column', () => {
 });
 
 test('test child(child_index), num_children', () => {
-  const utf8Col    = Series.new({type: new Uint8(), data: new Uint8Buffer(Buffer.from("hello"))});
+  const utf8Col    = Series.new({type: new Uint8(), data: new Uint8Buffer(Buffer.from('hello'))});
   const offsetsCol = Series.new({type: new Int32(), data: new Int32Buffer([0, utf8Col.length])});
   const stringsCol = Series.new({
     type: new Utf8String(),
@@ -73,7 +73,7 @@ test('test child(child_index), num_children', () => {
   expect(stringsCol.type).toBeInstanceOf(Utf8String);
   expect(stringsCol.numChildren).toBe(2);
   expect(stringsCol.nullCount).toBe(0);
-  expect(stringsCol.getValue(0)).toBe("hello");
+  expect(stringsCol.getValue(0)).toBe('hello');
   expect(stringsCol.offsets.length).toBe(offsetsCol.length);
   expect(stringsCol.offsets.type).toBeInstanceOf(Int32);
   expect(stringsCol.data.length).toBe(utf8Col.length);
@@ -106,13 +106,13 @@ test('Series.filter', () => {
 
 describe('toArrow()', () => {
   test('converts Uint8 Series to Uint8Vector', () => {
-    const uint8Col = Series.new({type: new Uint8(), data: new Uint8Buffer(Buffer.from("hello"))});
+    const uint8Col = Series.new({type: new Uint8(), data: new Uint8Buffer(Buffer.from('hello'))});
     const uint8Vec = uint8Col.toArrow();
     expect(uint8Vec).toBeInstanceOf(Uint8Vector);
     expect([...uint8Vec]).toEqual([...Buffer.from('hello')]);
   });
   test('converts String Series to Utf8Vector', () => {
-    const utf8Col    = Series.new({type: new Uint8(), data: new Uint8Buffer(Buffer.from("hello"))});
+    const utf8Col    = Series.new({type: new Uint8(), data: new Uint8Buffer(Buffer.from('hello'))});
     const offsetsCol = Series.new({type: new Int32(), data: new Int32Buffer([0, utf8Col.length])});
     const stringsCol = Series.new({
       type: new Utf8String(),
@@ -197,4 +197,35 @@ test('Series.sortValues (descending)', () => {
 
   const expected = [5, 4, 3, 2, 1, 0];
   expect([...result.toArrow()]).toEqual(expected);
+});
+
+test('Series.dropNulls (drop nulls only)', () => {
+  const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
+  const col =
+    Series.new({type: new Float32, data: new Float32Buffer([1, 3, NaN, 4, 2, 0]), nullMask: mask});
+  const result = col.dropNulls();
+
+  const expected = [3, NaN, 4, 2];
+  expect([...result.toArrow()]).toEqual(expected);
+});
+
+test('FloatSeries.dropNaNs (drop NaN values only)', () => {
+  const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
+  const col =
+    Series.new({type: new Float32, data: new Float32Buffer([1, 3, NaN, 4, 2, 0]), nullMask: mask});
+  const result = col.dropNaNs();
+
+  const expected = [null, 3, 4, 2, null];
+  expect([...result.toArrow()]).toEqual(expected);
+});
+
+test('FloatSeries.nansToNulls', () => {
+  const col = Series.new({type: new Float32, data: new Float32Buffer([1, 3, NaN, 4, 2, 0])});
+
+  const result = col.nansToNulls();
+
+  const expected = [1, 3, null, 4, 2, 0];
+  expect([...result.toArrow()]).toEqual(expected);
+  expect(result.nullCount).toEqual(1);
+  expect(col.nullCount).toEqual(0);
 });

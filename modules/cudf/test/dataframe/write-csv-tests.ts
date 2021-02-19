@@ -23,9 +23,9 @@ setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 describe('DataFrame.writeCSV', () => {
   test('writes a CSV', async () => {
     const rows = [
-      {a: 0, b: '1.0', c: "2"},
-      {a: 1, b: '2.0', c: "3"},
-      {a: 2, b: '3.0', c: "4"},
+      {a: 0, b: '1.0', c: '2'},
+      {a: 1, b: '2.0', c: '3'},
+      {a: 2, b: '3.0', c: '4'},
     ];
     const df = new DataFrame({
       a: Series.new({length: 3, type: new Int32, data: new Int32Buffer([0, 1, 2])}),
@@ -35,7 +35,7 @@ describe('DataFrame.writeCSV', () => {
         length: 3,
         children: [
           Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3])}),
-          Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from("234"))})
+          Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from('234'))})
         ]
       }),
     });

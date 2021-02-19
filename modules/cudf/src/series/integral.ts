@@ -41,12 +41,10 @@ import {
 
 import {NumericSeries} from './numeric';
 
-type Integer = Integral|Int64|Uint64;
-
 /**
  * A base class for Series of 8, 16, 32, or 64-bit integral values in GPU memory.
  */
-abstract class IntSeries<T extends Integer> extends NumericSeries<T> {
+abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
   /**
    * Perform a binary `&` operation between this Series and another Series or scalar value.
    *
@@ -55,10 +53,10 @@ abstract class IntSeries<T extends Integer> extends NumericSeries<T> {
    */
   bitwise_and(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
   bitwise_and(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwise_and<R extends Integer>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_and<R extends Integer>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_and<R extends Integer>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                 memoryResource?: MemoryResource) {
+  bitwise_and<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwise_and<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwise_and<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                  memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.bitwise_and(rhs, memoryResource));
       case 'number': return Series.new(this._col.bitwise_and(rhs, memoryResource));
@@ -77,10 +75,10 @@ abstract class IntSeries<T extends Integer> extends NumericSeries<T> {
    */
   bitwise_or(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
   bitwise_or(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwise_or<R extends Integer>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_or<R extends Integer>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_or<R extends Integer>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                memoryResource?: MemoryResource) {
+  bitwise_or<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwise_or<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwise_or<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                 memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.bitwise_or(rhs, memoryResource));
       case 'number': return Series.new(this._col.bitwise_or(rhs, memoryResource));
@@ -99,10 +97,10 @@ abstract class IntSeries<T extends Integer> extends NumericSeries<T> {
    */
   bitwise_xor(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
   bitwise_xor(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwise_xor<R extends Integer>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_xor<R extends Integer>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_xor<R extends Integer>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                 memoryResource?: MemoryResource) {
+  bitwise_xor<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwise_xor<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwise_xor<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                  memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.bitwise_xor(rhs, memoryResource));
       case 'number': return Series.new(this._col.bitwise_xor(rhs, memoryResource));
@@ -121,10 +119,10 @@ abstract class IntSeries<T extends Integer> extends NumericSeries<T> {
    */
   shift_left(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
   shift_left(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shift_left<R extends Integer>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  shift_left<R extends Integer>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
-  shift_left<R extends Integer>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                memoryResource?: MemoryResource) {
+  shift_left<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
+  shift_left<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  shift_left<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                 memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.shift_left(rhs, memoryResource));
       case 'number': return Series.new(this._col.shift_left(rhs, memoryResource));
@@ -144,10 +142,10 @@ abstract class IntSeries<T extends Integer> extends NumericSeries<T> {
    */
   shift_right(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
   shift_right(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shift_right<R extends Integer>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  shift_right<R extends Integer>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
-  shift_right<R extends Integer>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                 memoryResource?: MemoryResource) {
+  shift_right<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
+  shift_right<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  shift_right<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                  memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.shift_right(rhs, memoryResource));
       case 'number': return Series.new(this._col.shift_right(rhs, memoryResource));
@@ -167,12 +165,12 @@ abstract class IntSeries<T extends Integer> extends NumericSeries<T> {
    */
   shift_right_unsigned(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
   shift_right_unsigned(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shift_right_unsigned<R extends Integer>(rhs: Scalar<R>,
-                                          memoryResource?: MemoryResource): Series<T>;
-  shift_right_unsigned<R extends Integer>(rhs: IntSeries<R>,
-                                          memoryResource?: MemoryResource): Series<T>;
-  shift_right_unsigned<R extends Integer>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                          memoryResource?: MemoryResource) {
+  shift_right_unsigned<R extends Integral>(rhs: Scalar<R>,
+                                           memoryResource?: MemoryResource): Series<T>;
+  shift_right_unsigned<R extends Integral>(rhs: IntSeries<R>,
+                                           memoryResource?: MemoryResource): Series<T>;
+  shift_right_unsigned<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                           memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.shift_right_unsigned(rhs, memoryResource));
       case 'number': return Series.new(this._col.shift_right_unsigned(rhs, memoryResource));

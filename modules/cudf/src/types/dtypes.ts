@@ -16,8 +16,9 @@ import * as arrow from 'apache-arrow';
 import {TypeMap} from './mappings';
 
 export type FloatingPoint = Float32|Float64;
-export type Integral      = Int8|Int16|Int32|Uint8|Uint16|Uint32;
-export type Numeric       = Integral|FloatingPoint|Int64|Uint64|Bool8;
+export type IndexType     = Int8|Int16|Int32|Uint8|Uint16|Uint32;
+export type Integral      = IndexType|Int64|Uint64;
+export type Numeric       = Integral|FloatingPoint|Bool8;
 export type DataType      = Numeric|Utf8String|List|Struct;
 
 export interface Int8 extends arrow.Int8 {

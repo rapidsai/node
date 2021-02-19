@@ -2,7 +2,6 @@
 # Refer to the following link for the explanation of each params:
 #   http://releases.llvm.org/8.0.0/tools/clang/docs/ClangFormatStyleOptions.html
 Language: Cpp
-# BasedOnStyle: Google
 AccessModifierOffset: -1
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
@@ -80,7 +79,6 @@ IndentCaseLabels: true
 IndentPPDirectives: None
 IndentWidth:     2
 IndentWrappedFunctionNames: false
-JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 MacroBlockBegin: ''
@@ -189,8 +187,6 @@ SpacesInContainerLiterals: false
 # Begin previous C++ settings
 # 
 #########################################################
-# BasedOnStyle: Google
-# AccessModifierOffset: -1
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: false
@@ -235,7 +231,6 @@ BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
 BreakConstructorInitializers: BeforeColon
 BreakAfterJavaFieldAnnotations: false
-# BreakStringLiterals: true
 ColumnLimit: 100
 CommentPragmas: '^ IWYU pragma:'
 CompactNamespaces: false
@@ -267,7 +262,6 @@ IndentCaseLabels: true
 IndentPPDirectives: None
 IndentWidth:     2
 IndentWrappedFunctionNames: false
-JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 MacroBlockBegin: ''
@@ -286,7 +280,6 @@ PenaltyBreakString: 1000
 PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 200
-# PointerAlignment: Left
 RawStringFormats:
   - Language: JavaScript
     Delimiters:
@@ -323,18 +316,12 @@ RawStringFormats:
 ReflowComments: true
 SortIncludes: true
 SortUsingDeclarations: true
-# SpaceAfterCStyleCast: false
 SpaceAfterTemplateKeyword: true
 SpaceBeforeAssignmentOperators: true
-# SpaceBeforeCpp11BracedList: false
-# SpaceBeforeCtorInitializerColon: true
-# SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
-# SpaceBeforeRangeBasedForLoopColon: true
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 2
 SpacesInAngles: false
-# SpacesInContainerLiterals: true
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false

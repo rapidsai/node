@@ -94,3 +94,6 @@ services:
       - *x11_socket
       - *usr_share_fonts
       - *usr_share_icons
+    environment:
+      <<: *common_environment_variables
+      CUDA_ARCHITECTURES: 72

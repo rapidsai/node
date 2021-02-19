@@ -85,13 +85,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
-file(GLOB_RECURSE NODE_CUGRAPH_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE NODE_CUGRAPH_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE NODE_CUGRAPH_CUDA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu")
 
-if(cugraph_ADDED)
+list(APPEND NODE_CUGRAPH_SRC_FILES ${NODE_CUGRAPH_CPP_FILES})
+list(APPEND NODE_CUGRAPH_SRC_FILES ${NODE_CUGRAPH_CUDA_FILES})
+
+if(cugraph_SOURCE_DIR)
     list(
         APPEND NODE_CUGRAPH_SRC_FILES
-        "${cugraph_SOURCE_DIR}/cpp/src/experimental/graph.cu"
-        "${cugraph_SOURCE_DIR}/cpp/src/experimental/graph_view.cu"
+        "${cugraph_SOURCE_DIR}/cpp/src/structure/graph.cu"
+        "${cugraph_SOURCE_DIR}/cpp/src/layout/force_atlas2.cu"
     )
 endif()
 

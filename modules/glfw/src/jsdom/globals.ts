@@ -36,13 +36,13 @@ const JSDOM_getContext = window.HTMLCanvasElement.prototype.getContext;
 type RenderingContextSettings =
   CanvasRenderingContext2DSettings|ImageBitmapRenderingContextSettings|WebGLContextAttributes;
 
-function getContext(contextId: "2d",
+function getContext(contextId: '2d',
                     options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D|null;
-function getContext(contextId: "bitmaprenderer", options?: ImageBitmapRenderingContextSettings):
+function getContext(contextId: 'bitmaprenderer', options?: ImageBitmapRenderingContextSettings):
   ImageBitmapRenderingContext|null;
-function getContext(contextId: "webgl", options?: WebGLContextAttributes): WebGLRenderingContext|
+function getContext(contextId: 'webgl', options?: WebGLContextAttributes): WebGLRenderingContext|
   null;
-function getContext(contextId: "webgl2", options?: WebGLContextAttributes): WebGL2RenderingContext|
+function getContext(contextId: 'webgl2', options?: WebGLContextAttributes): WebGL2RenderingContext|
   null;
 function getContext(this: HTMLCanvasElement, ...args: [OffscreenRenderingContextId, RenderingContextSettings?]): RenderingContext | null {
   if ((this as any)['_webgl2_ctx']) { return (this as any)['_webgl2_ctx']; }
