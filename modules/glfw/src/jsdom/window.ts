@@ -592,7 +592,7 @@ function onGLFWKeyboardEvent(this: GLFWDOMWindow, event: GLFWKeyboardEvent) {
 }
 
 const {implSymbol} =
-  ((global as any).idlUtils || require("jsdom/lib/jsdom/living/generated/utils"));
+  ((global as any).idlUtils || require('jsdom/lib/jsdom/living/generated/utils'));
 
 function dispatchGLFWEvent(window: GLFWDOMWindow, glfwEvent: any, EventCtor: any) {
   const target = window._inputEventTarget || window.document;

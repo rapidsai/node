@@ -14,7 +14,7 @@
 
 import '../../jest-extensions';
 
-import {BigIntArray, setDefaultAllocator, TypedArray, Uint8Buffer} from '@nvidia/cuda';
+import {BigIntArray, setDefaultAllocator, TypedArray} from '@nvidia/cuda';
 import {
   Bool8,
   Float32,
@@ -23,6 +23,7 @@ import {
   Int32,
   Int64,
   Int8,
+  Interpolation,
   Numeric,
   Series,
   Uint16,
@@ -38,21 +39,24 @@ const makeNumbers = (length = 10) => Array.from({length}, (_, i) => Number(i));
 const makeBigInts = (length = 10) => Array.from({length}, (_, i) => BigInt(i));
 const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 2 == 0));
 
-const param_q             = [0.3, 0.7];
-const param_interpolation = ["linear", "lower", "higher", "midpoint", "nearest"];
+const param_q = [0.3, 0.7];
+const param_interpolation =
+  ['linear', 'lower', 'higher', 'midpoint', 'nearest'] as (keyof typeof Interpolation)[];
 const quantile_number_results =
   new Map([[0.3, [2.6999999999999997, 2, 3, 2.5, 3]], [0.7, [6.3, 6, 7, 6.5, 6]]]);
 
 const quantile_bool_results = new Map([[0.3, [0, 0, 0, 0, 0]], [0.7, [1, 1, 1, 1, 1]]]);
 
-function testNumberQuantile<T extends Numeric, R extends TypedArray>(q: number, type: T, data: R) {
+function testNumberQuantile<T extends Numeric, R extends TypedArray|BigIntArray>(
+  q: number, type: T, data: R) {
   param_interpolation.forEach((interop, idx) => {
     expect(Series.new({type, data}).quantile(q, interop))
       .toEqual(quantile_number_results.get(q)?.[idx]);
   });
 }
 
-function testBooleanQuantile<T extends Numeric, R extends TypedArray>(q: number, type: T, data: R) {
+function testBooleanQuantile<T extends Numeric, R extends TypedArray|BigIntArray>(
+  q: number, type: T, data: R) {
   param_interpolation.forEach((interop, idx) => {
     expect(Series.new({type, data}).quantile(q, interop))
       .toEqual(quantile_bool_results.get(q)?.[idx]);
@@ -75,7 +79,7 @@ param_q.forEach(q => {
          () => { testBooleanQuantile(q, new Bool8, new Uint8ClampedArray(makeBooleans())); });
   });
 
-  describe("Float type Series with NaN => Series.quantile", () => {
+  describe('Float type Series with NaN => Series.quantile', () => {
     test('Float32', () => {
       testNumberQuantile(
         q, new Float32, new Float32Array([NaN].concat(makeNumbers().concat([NaN]))));

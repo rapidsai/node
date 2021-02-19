@@ -287,8 +287,7 @@ export class DataFrame<T extends TypeMap = any> {
     });
 
     return new DataFrame(column_names.reduce(
-      (map, name, _) => ({...map, [name]: Series.new(this._accessor.get(name))}),
-      {} as SeriesMap<T>));
+      (map, name) => ({...map, [name]: Series.new(this._accessor.get(name))}), {} as SeriesMap<T>));
   }
   /**
    * drop columns with NaN values(float type only)
@@ -311,8 +310,7 @@ export class DataFrame<T extends TypeMap = any> {
     });
 
     return new DataFrame(column_names.reduce(
-      (map, name, _) => ({...map, [name]: Series.new(this._accessor.get(name))}),
-      {} as SeriesMap<T>));
+      (map, name) => ({...map, [name]: Series.new(this._accessor.get(name))}), {} as SeriesMap<T>));
   }
 
   /**
@@ -353,17 +351,17 @@ export class DataFrame<T extends TypeMap = any> {
     if (axis == 0) {
       if (subset instanceof Series) {
         throw new Error(
-          "for axis=0, expected 'subset' to be one of {list of column_names, undefined(all columns)}");
+          'for axis=0, expected \'subset\' to be one of {list of column_names, undefined(all columns)}');
       }
       return this._dropNullsRows(thresh, subset);
     } else if (axis == 1) {
       if (subset instanceof Array) {
         throw new Error(
-          "for axis=1, expected 'subset' to be one of {Series<Integer> with indices to select rows, undefined(all rows)}");
+          'for axis=1, expected \'subset\' to be one of {Series<Integer> with indices to select rows, undefined(all rows)}');
       }
       return this._dropNullsColumns(thresh, subset);
     } else {
-      throw new Error("invalid axis value, expected {0, 1} ");
+      throw new Error('invalid axis value, expected {0, 1} ');
     }
   }
 
@@ -404,17 +402,17 @@ export class DataFrame<T extends TypeMap = any> {
     if (axis == 0) {
       if (subset instanceof Series) {
         throw new Error(
-          "for axis=0, expected 'subset' to be one of {list of column_names, undefined(all columns)}");
+          'for axis=0, expected \'subset\' to be one of {list of column_names, undefined(all columns)}');
       }
       return this._dropNaNsRows(thresh, subset);
     } else if (axis == 1) {
       if (subset instanceof Array) {
         throw new Error(
-          "for axis=1, expected 'subset' to be one of {Series<Integer> with indices to select rows, undefined(all rows)}");
+          'for axis=1, expected \'subset\' to be one of {Series<Integer> with indices to select rows, undefined(all rows)}');
       }
       return this._dropNaNsColumns(thresh, subset);
     } else {
-      throw new Error("invalid axis value, expected {0, 1} ");
+      throw new Error('invalid axis value, expected {0, 1} ');
     }
   }
 

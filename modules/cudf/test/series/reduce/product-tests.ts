@@ -31,7 +31,7 @@ import {
   Uint8
 } from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
-import {BoolVector} from "apache-arrow";
+import {BoolVector} from 'apache-arrow';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
@@ -44,7 +44,7 @@ const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 
 const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 5, 6, 7, 8, NaN]);
 
 function test_values<T extends Numeric>(lhs: number|bigint|undefined, rhs: number, type: T) {
-  if (["Float32", "Float64", "Bool"].includes(type.toString())) {
+  if (['Float32', 'Float64', 'Bool'].includes(type.toString())) {
     expect(lhs).toEqual(rhs);
   } else {
     expect(lhs).toEqual(BigInt(rhs));
@@ -106,7 +106,7 @@ describe('Series.product(skipna=true)', () => {
   test('Bool8', () => { testNumberProduct(new Bool8, new Uint8ClampedArray(makeBooleans())); });
 });
 
-describe("Series.product(skipna=false)", () => {
+describe('Series.product(skipna=false)', () => {
   test('Int8',
        () => {testNumberProductSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans())});
   test(
@@ -141,12 +141,12 @@ describe("Series.product(skipna=false)", () => {
   });
 });
 
-describe("Float type Series with NaN => Series.product(skipna=true)", () => {
+describe('Float type Series with NaN => Series.product(skipna=true)', () => {
   test('Float32', () => { testNumberProduct(new Float32, new Float32Array(float_with_NaN)); });
   test('Float64', () => { testNumberProduct(new Float64, new Float64Array(float_with_NaN)); });
 });
 
-describe("Float type Series with NaN => Series.product(skipna=false)", () => {
+describe('Float type Series with NaN => Series.product(skipna=false)', () => {
   test('Float32', () => {
     testNumberProductSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans());
   });

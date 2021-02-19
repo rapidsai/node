@@ -950,7 +950,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns values at the given quantile.
    */
   quantile(q                                         = 0.5,
-           interpolation: keyof typeof Interpolation = "linear",
+           interpolation: keyof typeof Interpolation = 'linear',
            memoryResource?: MemoryResource) {
     return this._process_reduction(true)?._col.quantile(
       q, Interpolation[interpolation], memoryResource);

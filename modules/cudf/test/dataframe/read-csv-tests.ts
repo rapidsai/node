@@ -26,26 +26,26 @@ setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 describe('DataFrame.readCSV', () => {
   test('can read a CSV string', () => {
     const rows = [
-      {a: 0, b: 1.0, c: "2"},
-      {a: 1, b: 2.0, c: "3"},
-      {a: 2, b: 3.0, c: "4"},
+      {a: 0, b: 1.0, c: '2'},
+      {a: 1, b: 2.0, c: '3'},
+      {a: 2, b: 3.0, c: '4'},
     ];
     const df = DataFrame.readCSV({
       header: 0,
       sourceType: 'buffers',
       sources: [Buffer.from(makeCSVString({rows}))],
-      dataTypes: {a: "int32", b: "float64", c: "str"},
+      dataTypes: {a: 'int32', b: 'float64', c: 'str'},
     });
     expect(df.get('a').toArrow().values).toEqual(new Int32Array([0, 1, 2]));
     expect(df.get('b').toArrow().toArray()).toEqual(new Float64Array([1.0, 2.0, 3.0]));
-    expect([...df.get('c').toArrow()]).toEqual(["2", "3", "4"]);
+    expect([...df.get('c').toArrow()]).toEqual(['2', '3', '4']);
   });
 
   test('can read a CSV file', async () => {
     const rows = [
-      {a: 0, b: 1.0, c: "2"},
-      {a: 1, b: 2.0, c: "3"},
-      {a: 2, b: 3.0, c: "4"},
+      {a: 0, b: 1.0, c: '2'},
+      {a: 1, b: 2.0, c: '3'},
+      {a: 2, b: 3.0, c: '4'},
     ];
     const path = Path.join(csvTmpDir, 'simple.csv');
     await promises.writeFile(path, makeCSVString({rows}));
@@ -53,11 +53,11 @@ describe('DataFrame.readCSV', () => {
       header: 0,
       sourceType: 'files',
       sources: [path],
-      dataTypes: {a: "int32", b: "float64", c: "str"},
+      dataTypes: {a: 'int32', b: 'float64', c: 'str'},
     });
     expect(df.get('a').toArrow().values).toEqual(new Int32Array([0, 1, 2]));
     expect(df.get('b').toArrow().toArray()).toEqual(new Float64Array([1.0, 2.0, 3.0]));
-    expect([...df.get('c').toArrow()]).toEqual(["2", "3", "4"]);
+    expect([...df.get('c').toArrow()]).toEqual(['2', '3', '4']);
     await new Promise<void>((r) => rimraf(path, () => r()));
   });
 });

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Column} from "./column";
+import {Column} from './column';
 import {ColumnsMap, TypeMap} from './types/mappings';
 
 export class ColumnAccessor<T extends TypeMap = any> {
@@ -24,7 +24,7 @@ export class ColumnAccessor<T extends TypeMap = any> {
     if (columns.length > 0) {
       const N = columns[0].length;
       if (!columns.every((col) => col.length == N)) {
-        throw new Error("Column lengths must all be the same")
+        throw new Error('Column lengths must all be the same')
       }
     }
     this._data = data;

@@ -84,7 +84,7 @@ test('Column null_mask, null_count', () => {
 });
 
 test('test child(child_index), num_children', () => {
-  const utf8Col    = new Column({type: new Uint8, data: new Uint8Buffer(Buffer.from("hello"))});
+  const utf8Col    = new Column({type: new Uint8, data: new Uint8Buffer(Buffer.from('hello'))});
   const offsetsCol = new Column({type: new Int32, data: new Int32Buffer([0, utf8Col.length])});
   const stringsCol = new Column({
     type: new Utf8String,
@@ -95,7 +95,7 @@ test('test child(child_index), num_children', () => {
 
   expect(stringsCol.type).toBeInstanceOf(Utf8String);
   expect(stringsCol.numChildren).toBe(2);
-  expect(stringsCol.getValue(0)).toBe("hello");
+  expect(stringsCol.getValue(0)).toBe('hello');
   expect(stringsCol.getChild(0).length).toBe(offsetsCol.length);
   expect(stringsCol.getChild(0).type).toBeInstanceOf(Int32);
   expect(stringsCol.getChild(1).length).toBe(utf8Col.length);
