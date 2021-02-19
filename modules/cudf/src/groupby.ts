@@ -150,7 +150,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  argmax(memoryResource?: MemoryResource): DataFrame {
+  argmax(memoryResource?: MemoryResource) {
     return this.prepare_results(this._argmax(this._values.asTable(), memoryResource));
   }
 
@@ -160,7 +160,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  argmin(memoryResource?: MemoryResource): DataFrame {
+  argmin(memoryResource?: MemoryResource) {
     return this.prepare_results(this._argmin(this._values.asTable(), memoryResource));
   }
 
@@ -170,7 +170,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  count(memoryResource?: MemoryResource): DataFrame {
+  count(memoryResource?: MemoryResource) {
     return this.prepare_results(this._count(this._values.asTable(), memoryResource));
   }
 
@@ -180,7 +180,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  max(memoryResource?: MemoryResource): DataFrame {
+  max(memoryResource?: MemoryResource) {
     return this.prepare_results(this._max(this._values.asTable(), memoryResource));
   }
 
@@ -190,7 +190,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  mean(memoryResource?: MemoryResource): DataFrame {
+  mean(memoryResource?: MemoryResource) {
     return this.prepare_results(this._mean(this._values.asTable(), memoryResource));
   }
 
@@ -200,7 +200,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  median(memoryResource?: MemoryResource): DataFrame {
+  median(memoryResource?: MemoryResource) {
     return this.prepare_results(this._median(this._values.asTable(), memoryResource));
   }
 
@@ -210,7 +210,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  min(memoryResource?: MemoryResource): DataFrame {
+  min(memoryResource?: MemoryResource) {
     return this.prepare_results(this._min(this._values.asTable(), memoryResource));
   }
 
@@ -221,7 +221,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  nth(n: number, memoryResource?: MemoryResource): DataFrame {
+  nth(n: number, memoryResource?: MemoryResource) {
     return this.prepare_results(this._nth(n, this._values.asTable(), memoryResource));
   }
 
@@ -231,7 +231,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  nunique(memoryResource?: MemoryResource): DataFrame {
+  nunique(memoryResource?: MemoryResource) {
     return this.prepare_results(this._nunique(this._values.asTable(), memoryResource));
   }
 
@@ -241,7 +241,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  std(memoryResource?: MemoryResource): DataFrame {
+  std(memoryResource?: MemoryResource) {
     return this.prepare_results(this._std(this._values.asTable(), memoryResource));
   }
 
@@ -251,7 +251,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  sum(memoryResource?: MemoryResource): DataFrame {
+  sum(memoryResource?: MemoryResource) {
     return this.prepare_results(this._sum(this._values.asTable(), memoryResource));
   }
 
@@ -261,7 +261,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  var(memoryResource?: MemoryResource): DataFrame {
+  var(memoryResource?: MemoryResource) {
     return this.prepare_results(this._var(this._values.asTable(), memoryResource));
   }
 
@@ -274,7 +274,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  quantile(q: number, interpolation?: number, memoryResource?: MemoryResource): DataFrame {
+  quantile(q: number, interpolation?: number, memoryResource?: MemoryResource) {
     return this.prepare_results(
       this._quantile(q, this._values.asTable(), interpolation, memoryResource));
   }

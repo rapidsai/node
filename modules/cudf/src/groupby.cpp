@@ -100,8 +100,8 @@ void GroupBy::Finalize(Napi::Env env) { this->groupby_.reset(nullptr); }
 
 Napi::Value GroupBy::get_groups(Napi::CallbackInfo const& info) {
   auto values = info[0];
-  auto mr     = MemoryResource::is_instance(info[1]) ? *MemoryResource::Unwrap(info[1].ToObject())
-                                                     : rmm::mr::get_current_device_resource();
+  CallbackArgs args{info};
+  rmm::mr::device_memory_resource* mr = args[1];
 
   cudf::table_view table{cudf::table{}};
   if (Table::is_instance(values)) { table = *Table::Unwrap(values.ToObject()); }
@@ -252,8 +252,7 @@ std::pair<nv::Table*, rmm::mr::device_memory_resource*> GroupBy::_get_basic_args
   auto values = args[0];
   NODE_CUDA_EXPECT(Table::is_instance(values), "aggregation expects to have a 'values' table");
 
-  auto mr = MemoryResource::is_instance(info[1]) ? *MemoryResource::Unwrap(info[1].ToObject())
-                                                 : rmm::mr::get_current_device_resource();
+  rmm::mr::device_memory_resource* mr = args[1];
 
   return std::pair<Table*, rmm::mr::device_memory_resource*>(Table::Unwrap(values.ToObject()), mr);
 }
