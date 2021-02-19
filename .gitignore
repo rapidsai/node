@@ -22,6 +22,8 @@ modules/*/include/napi.h
 modules/*/include/napi-inl.h
 modules/*/include/napi-inl.deprecated.h
 modules/*/include/node_api.h
+
+modules/demo/umap/data
 modules/demo/graph/data
 
 modules/**/.eslintrc.js

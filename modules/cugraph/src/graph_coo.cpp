@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,22 +21,19 @@
 
 #include <napi.h>
 
-#include <algorithm>
-#include <cstddef>
-
 namespace nv {
 
 Napi::FunctionReference GraphCOO::constructor;
 
 Napi::Object GraphCOO::Init(Napi::Env env, Napi::Object exports) {
-  const Napi::Function ctor =
-    DefineClass(env,
-                "GraphCOO",
-                {
-                  InstanceAccessor("numEdges", &GraphCOO::num_edges, nullptr, napi_enumerable),
-                  InstanceAccessor("numNodes", &GraphCOO::num_nodes, nullptr, napi_enumerable),
-                });
-  GraphCOO::constructor = Napi::Persistent(ctor);
+  const Napi::Function ctor = DefineClass(env,
+                                          "GraphCOO",
+                                          {
+                                            InstanceAccessor<&GraphCOO::num_edges>("numEdges"),
+                                            InstanceAccessor<&GraphCOO::num_nodes>("numNodes"),
+                                            InstanceMethod<&GraphCOO::force_atlas2>("forceAtlas2"),
+                                          });
+  GraphCOO::constructor     = Napi::Persistent(ctor);
   GraphCOO::constructor.SuppressDestruct();
   exports.Set("GraphCOO", ctor);
   return exports;
@@ -47,29 +44,29 @@ ObjectUnwrap<GraphCOO> GraphCOO::New(nv::Column const& src, nv::Column const& ds
 }
 
 GraphCOO::GraphCOO(CallbackArgs const& args) : Napi::ObjectWrap<GraphCOO>(args) {
-  Napi::Object const& src = args[0];
-  Napi::Object const& dst = args[1];
+  Napi::Object const src          = args[0];
+  Napi::Object const dst          = args[1];
+  NapiToCPP::Object const options = args[2];
 
   NODE_CUDA_EXPECT(
     Column::is_instance(src), "GraphCOO requires src argument to a Column", args.Env());
   NODE_CUDA_EXPECT(
     Column::is_instance(dst), "GraphCOO requires dst argument to a Column", args.Env());
 
-  src_.Reset(src, 1);
-  dst_.Reset(dst, 1);
+  src_            = Napi::Persistent(src);
+  dst_            = Napi::Persistent(dst);
+  directed_edges_ = options.Get("directedEdges");
 }
 
 void GraphCOO::Finalize(Napi::Env env) {}
 
 ValueWrap<size_t> GraphCOO::num_nodes() {
   if (!node_count_computed_) {
-    using ScalarType = cudf::scalar_type_t<int32_t>;
-
-    auto src_max = src_column()->minmax().second;
-    auto dst_max = dst_column()->minmax().second;
-
-    node_count_          = 1 + std::max(static_cast<ScalarType*>(src_max)->value(),
-                               static_cast<ScalarType*>(dst_max)->value());
+    auto const& src      = *Column::Unwrap(src_.Value());
+    auto const& dst      = *Column::Unwrap(dst_.Value());
+    auto src_max         = src.minmax().second->get_value().ToNumber();
+    auto dst_max         = dst.minmax().second->get_value().ToNumber();
+    node_count_          = 1 + std::max<int32_t>(src_max, dst_max);
     node_count_computed_ = true;
   }
   return {Env(), node_count_};
@@ -77,24 +74,22 @@ ValueWrap<size_t> GraphCOO::num_nodes() {
 
 ValueWrap<size_t> GraphCOO::num_edges() {
   if (!edge_count_computed_) {
-    auto src_            = src_column();
-    auto dst_            = dst_column();
-    Column const& src    = src_;
-    Column const& dst    = dst_;
-    edge_count_          = src[src >= dst]->size();
+    auto const& dst      = *Column::Unwrap(src_.Value());
+    auto const& src      = *Column::Unwrap(dst_.Value());
+    edge_count_          = directed_edges_ ? src.size() : src[src >= dst]->size();
     edge_count_computed_ = true;
   }
   return {Env(), edge_count_};
 }
 
-cugraph::GraphCOOView<int32_t, int32_t, float> GraphCOO::View() {
-  // TODO: assumes does not need re-numbering
-  return cugraph::GraphCOOView<int32_t, int32_t, float>(
-    reinterpret_cast<int32_t*>(src_column()->data().data()),
-    reinterpret_cast<int32_t*>(dst_column()->data().data()),
-    nullptr,  // edge_weights
-    num_nodes(),
-    num_edges());
+cugraph::GraphCOOView<int32_t, int32_t, float> GraphCOO::view() {
+  auto src = Column::Unwrap(src_.Value())->mutable_view();
+  auto dst = Column::Unwrap(dst_.Value())->mutable_view();
+  return cugraph::GraphCOOView<int32_t, int32_t, float>(src.begin<int32_t>(),
+                                                        dst.begin<int32_t>(),
+                                                        nullptr,  // edge_weights
+                                                        num_nodes(),
+                                                        num_edges());
 }
 
 Napi::Value GraphCOO::num_nodes(Napi::CallbackInfo const& info) { return num_nodes(); }
