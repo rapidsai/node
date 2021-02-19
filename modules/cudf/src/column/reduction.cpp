@@ -30,17 +30,21 @@
 
 namespace nv {
 
+namespace {
 cudf::data_type _compute_dtype(cudf::type_id id) {
-  return cudf::data_type{[](cudf::type_id id) {
-    if (id == cudf::type_id::INT8 || id == cudf::type_id::INT16 || id == cudf::type_id::INT32 ||
-        id == cudf::type_id::INT64)
-      return cudf::type_id::INT64;
-    if (id == cudf::type_id::UINT8 || id == cudf::type_id::UINT16 || id == cudf::type_id::UINT32 ||
-        id == cudf::type_id::UINT64)
-      return cudf::type_id::UINT64;
-    return cudf::type_id::FLOAT64;
-  }(id)};
+  switch (id) {
+    case cudf::type_id::INT8:
+    case cudf::type_id::INT16:
+    case cudf::type_id::INT32:
+    case cudf::type_id::INT64: return cudf::data_type{cudf::type_id::INT64};
+    case cudf::type_id::UINT8:
+    case cudf::type_id::UINT16:
+    case cudf::type_id::UINT32:
+    case cudf::type_id::UINT64: return cudf::data_type{cudf::type_id::UINT64};
+    default: return cudf::data_type{cudf::type_id::FLOAT64};
+  }
 }
+}  // namespace
 
 std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> Column::minmax() const {
   auto result = cudf::minmax(*this);
