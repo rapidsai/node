@@ -18,8 +18,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",
-    "@babel/preset-react": "^7.0.0",
-    "babel-loader": "^8.0.5"
+    "@babel/preset-env": "^7.4.0",
+    "@babel/preset-react": "^7.4.0",
+    "@babel/register": "^7.4.0"
   },
   "esm": {
     "cjs": true,
