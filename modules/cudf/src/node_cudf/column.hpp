@@ -17,19 +17,19 @@
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 
-#include <cudf/aggregation.hpp>
-
 #include <node_rmm/device_buffer.hpp>
 
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/wrap.hpp>
 
+#include <napi.h>
+#include <cudf/aggregation.hpp>
 #include <cudf/binaryop.hpp>
 #include <cudf/column/column_view.hpp>
 #include <cudf/copying.hpp>
+#include <cudf/types.hpp>
 #include <cudf/unary.hpp>
-
-#include <napi.h>
+#include <rmm/device_buffer.hpp>
 
 namespace nv {
 
@@ -244,6 +244,90 @@ class Column : public Napi::ObjectWrap<Column> {
    * @return Scalar
    */
   ObjectUnwrap<Scalar> sum(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @copydoc cudf::product(rmm::mr::device_memory_resource* mr)
+   *
+   * @return Scalar
+   */
+  ObjectUnwrap<Scalar> product(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @copydoc cudf::sum_of_squares(rmm::mr::device_memory_resource* mr)
+   *
+   * @return Scalar
+   */
+  ObjectUnwrap<Scalar> sum_of_squares(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Returns a reduce computation based on cudf::make_mean_aggregation()
+   *
+   * @param rmm::mr::device_memory_resource* mr
+   *
+   * @return Scalar
+   */
+  ObjectUnwrap<Scalar> mean(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Returns a reduce computation based on cudf::make_median_aggregation()
+   *
+   * @param rmm::mr::device_memory_resource* mr
+   *
+   * @return Scalar
+   */
+  ObjectUnwrap<Scalar> median(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Returns a reduce computation based on cudf::make_nunique_aggregation()
+   *
+   * @param bool skipna if true, compute using cudf::null_policy::EXCLUDE, else use
+   * cudf::null_policy::INCLUDE
+   * @param rmm::mr::device_memory_resource* mr
+   * @return Scalar
+   */
+  ObjectUnwrap<Scalar> nunique(
+    bool skipna                         = true,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Returns a reduce computation based on cudf::make_variance_aggregation(ddof)
+   *
+   * @param cudf::size_type ddof Delta Degrees of Freedom. The divisor used in calculations is
+   * N - ddof, where N represents the number of elements. default is 1
+   * @param rmm::mr::device_memory_resource* mr
+   * @return Scalar
+   */
+  ObjectUnwrap<Scalar> variance(
+    cudf::size_type ddof                = 1,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Returns a reduce computation based on cudf::make_std_aggregation(ddof)
+   *
+   * @param cudf::size_type ddof Delta Degrees of Freedom. The divisor used in calculations is
+   * N - ddof, where N represents the number of elements. default is 1
+   * @param rmm::mr::device_memory_resource* mr
+   * @return Scalar
+   */
+  ObjectUnwrap<Scalar> std(
+    cudf::size_type ddof                = 1,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Returns a reduce computation based on cudf::make_quantile_aggregation(q, i)
+   *
+   * @param double q  the quantile(s) to compute, 0<=q<=1, default 0.5
+   * @param rmm::mr::device_memory_resource* mr
+   * @return Scalar
+   */
+  ObjectUnwrap<Scalar> quantile(
+    double q                            = 0.5,
+    cudf::interpolation i               = cudf::interpolation::LINEAR,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/binaryop.cpp
@@ -500,6 +584,16 @@ class Column : public Napi::ObjectWrap<Column> {
     Column const& boolean_mask,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  ObjectUnwrap<Column> drop_nulls(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  ObjectUnwrap<Column> drop_nans(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  // column/transform.cpp
+  std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> nans_to_nulls(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
   // column/copying.cpp
   ObjectUnwrap<Column> gather(
     Column const& gather_map,
@@ -593,10 +687,27 @@ class Column : public Napi::ObjectWrap<Column> {
   Napi::Value null_max(Napi::CallbackInfo const& info);
   Napi::Value null_min(Napi::CallbackInfo const& info);
 
+  // column/stream_compaction.cpp
+  Napi::Value drop_nulls(Napi::CallbackInfo const& info);
+  Napi::Value drop_nans(Napi::CallbackInfo const& info);
+
+  // column/transform.cpp
+  Napi::Value nans_to_nulls(Napi::CallbackInfo const& info);
+
   // column/reductions.cpp
   Napi::Value min(Napi::CallbackInfo const& info);
   Napi::Value max(Napi::CallbackInfo const& info);
   Napi::Value sum(Napi::CallbackInfo const& info);
+  Napi::Value product(Napi::CallbackInfo const& info);
+  Napi::Value any(Napi::CallbackInfo const& info);
+  Napi::Value all(Napi::CallbackInfo const& info);
+  Napi::Value sum_of_squares(Napi::CallbackInfo const& info);
+  Napi::Value mean(Napi::CallbackInfo const& info);
+  Napi::Value median(Napi::CallbackInfo const& info);
+  Napi::Value nunique(Napi::CallbackInfo const& info);
+  Napi::Value variance(Napi::CallbackInfo const& info);
+  Napi::Value std(Napi::CallbackInfo const& info);
+  Napi::Value quantile(Napi::CallbackInfo const& info);
 
   // column/unaryop.cpp
   Napi::Value cast(Napi::CallbackInfo const& info);

@@ -25,11 +25,11 @@ import {
   DataType,
   Float32,
   Float64,
+  IndexType,
   Int16,
   Int32,
   Int64,
   Int8,
-  Integral,
   List,
   Struct,
   Uint16,
@@ -157,7 +157,7 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
    */
-  gather<R extends Integral>(selection: Series<R>): Series<T> {
+  gather<R extends IndexType>(selection: Series<R>): Series<T> {
     return this.__construct(this._col.gather(selection._col));
   }
 
@@ -262,6 +262,53 @@ export class AbstractSeries<T extends DataType = any> {
    */
   isValid(memoryResource?: MemoryResource) { return Series.new(this._col.isValid(memoryResource)); }
 
+  /**
+   * drop Null values from the series
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   * @returns series without Null values
+   */
+  dropNulls(memoryResource?: MemoryResource): Series<T> {
+    return this.__construct(this._col.drop_nulls(memoryResource));
+  }
+
+  /**
+   * Return whether all elements are true in Series.
+   *
+   * @param skipna bool
+   * Exclude null values. If the entire row/column is NA and skipna is true, then the result will
+   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
+   * these are not equal to zero.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns true if all elements are true in Series, else false.
+   */
+  all(skipna = true, memoryResource?: MemoryResource) {
+    if (skipna) {
+      if (this.length == this.nullCount) { return true; }
+    }
+    return this._col.all(memoryResource);
+  }
+
+  /**
+   * Return whether any elements are true in Series.
+   *
+   * @param skipna bool
+   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
+   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
+   * these are not equal to zero.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns true if any elements are true in Series, else false.
+   */
+  any(skipna = true, memoryResource?: MemoryResource) {
+    if (this.length == 0) { return false; }
+    if (skipna) {
+      if (this.length == this.nullCount) { return false; }
+    }
+    return this._col.any(memoryResource);
+  }
   /**
    * @summary Hook for specialized Series to override when constructing from a C++ Column.
    */

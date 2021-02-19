@@ -88,4 +88,9 @@ inline NapiToCPP::operator cudf::timestamp_ns() const {
   return cudf::timestamp_ns{operator cudf::duration_ns()};
 }
 
+template <>
+inline NapiToCPP::operator cudf::interpolation() const {
+  return static_cast<cudf::interpolation>(operator int32_t());
+}
+
 }  // namespace nv

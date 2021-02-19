@@ -17,10 +17,16 @@ import {DeviceBuffer, MemoryResource} from '@nvidia/rmm';
 
 import CUDF from './addon';
 import {Scalar} from './scalar';
-import {Bool8, DataType, Float64, Int64, Integral, Numeric, Uint64} from './types/dtypes';
 import {
-  CommonType,
-} from './types/mappings';
+  Bool8,
+  DataType,
+  Float64,
+  IndexType,
+  Int64,
+  Integral,
+  Numeric,
+} from './types/dtypes';
+import {CommonType, Interpolation} from './types/mappings';
 
 export type ColumnProps<T extends DataType = any> = {
   // todo -- need to pass full DataType instance when we implement fixed_point
@@ -57,7 +63,7 @@ export interface Column<T extends DataType = any> {
    *
    * @param selection
    */
-  gather(selection: Column<Integral|Bool8>): Column<T>;
+  gather(selection: Column<IndexType|Bool8>): Column<T>;
 
   /**
    * Return a child at the specified index to host memory
@@ -754,7 +760,136 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The sum of all the values in this Column.
    */
-  sum(memoryResource?: MemoryResource): T extends(Int64|Uint64)? bigint: number;
+  sum(memoryResource?: MemoryResource): T extends(Integral)? bigint: number;
+
+  /**
+   * Compute the product of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The product of all the values in this Column.
+   */
+  product(memoryResource?: MemoryResource): T extends(Integral)? bigint: number;
+
+  /**
+   * Compute the sum_of_squares of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The sum_of_squares of all the values in this Column.
+   */
+  sum_of_squares(memoryResource?: MemoryResource): T extends(Integral)? bigint: number;
+
+  /**
+   * Compute the mean of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The mean of all the values in this Column.
+   */
+  mean(memoryResource?: MemoryResource): number;
+
+  /**
+   * Compute the median of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The median of all the values in this Column.
+   */
+  median(memoryResource?: MemoryResource): number;
+
+  /**
+   * Compute the nunique of all values in this Column.
+   *
+   * @param skipna The skipna parameter if true, includes nulls while computing nunique,
+   * if false, excludes the nulls while computing nunique.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The number of unique values in this Column.
+   */
+  nunique(skipna?: boolean, memoryResource?: MemoryResource): number;
+
+  /**
+   * Return whether all elements are true in column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns true if all elements are true in column, else false.
+   */
+  all(memoryResource?: MemoryResource): boolean;
+
+  /**
+   * Return whether any elements are true in column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns true if any elements are true in column, else false.
+   */
+  any(memoryResource?: MemoryResource): boolean;
+
+  /**
+   * Return unbiased variance of the column.
+   * Normalized by N-1 by default. This can be changed using the `ddof` argument
+   *
+   * @param ddof Delta Degrees of Freedom. The divisor used in calculations is N - ddof,
+   *  where N represents the number of elements.
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
+   * @returns The median of all the values in this column.
+   */
+  var(ddof?: number, memoryResource?: MemoryResource): number;
+
+  /**
+   * Return sample standard deviation of the column.
+   * Normalized by N-1 by default. This can be changed using the `ddof` argument
+   *
+   * @param ddof Delta Degrees of Freedom. The divisor used in calculations is N - ddof,
+   *  where N represents the number of elements.
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
+   * @returns The median of all the values in this column.
+   */
+  std(ddof?: number, memoryResource?: MemoryResource): number;
+
+  /**
+   * Return values at the given quantile.
+   *
+   * @param q the quantile(s) to compute, 0 <= q <= 1
+   * @param interpolation This optional parameter specifies the interpolation method to use,
+   *  when the desired quantile lies between two data points i and j.
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
+   * @returns values at the given quantile.
+   */
+  quantile(q?: number, interpolation?: Interpolation, memoryResource?: MemoryResource): number;
+
+  /**
+   * drop NA values from the column if column is of floating-type
+   * values and contains NA values
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
+   * @returns column without NaN and Null values
+   */
+  drop_nulls(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * drop NA values from the column if column is of floating-type
+   * values and contains NA values
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
+   * @returns column without NaN and Null values
+   */
+  drop_nans(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * convert NaN values in the column with Null values,
+   * while also updating the nullMask and nullCount values
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
+   * @returns undefined if inplace=True, else updated column with Null values
+   */
+  nans_to_nulls(memoryResource?: MemoryResource): Column<T>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

@@ -23,6 +23,7 @@
 #include <cudf/copying.hpp>
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
+#include <cudf/types.hpp>
 
 #include <napi.h>
 
@@ -150,6 +151,16 @@ class Table : public Napi::ObjectWrap<Table> {
     Column const& boolean_mask,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  ObjectUnwrap<Table> drop_nulls(
+    std::vector<cudf::size_type> keys,
+    cudf::size_type threshold,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  ObjectUnwrap<Table> drop_nans(
+    std::vector<cudf::size_type> keys,
+    cudf::size_type threshold,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
   ObjectUnwrap<Table> gather(
     Column const& gather_map,
     cudf::out_of_bounds_policy bounds_policy = cudf::out_of_bounds_policy::DONT_CHECK,
@@ -167,6 +178,8 @@ class Table : public Napi::ObjectWrap<Table> {
   Napi::Value select(Napi::CallbackInfo const& info);
   Napi::Value gather(Napi::CallbackInfo const& info);
   Napi::Value get_column(Napi::CallbackInfo const& info);
+  Napi::Value drop_nulls(Napi::CallbackInfo const& info);
+  Napi::Value drop_nans(Napi::CallbackInfo const& info);
 
   static Napi::Value read_csv(Napi::CallbackInfo const& info);
   Napi::Value write_csv(Napi::CallbackInfo const& info);
