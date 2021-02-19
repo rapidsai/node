@@ -50,16 +50,17 @@ function characterUpdates(window: GLFWDOMWindow, charKeys: Observable<GLFWKeyboa
                       .pipe(map(([, charCode]) => charCode), publish(), refCount());
   return charCodes
     .pipe(withLatestFrom(charKeys,
-                         (charCode, keyEvt) => {
-                           if (keyEvt.type === 'keydown') {
-                             return [
-                               Object.assign(keyEvt.asCharacter(0, keyEvt.target.modifiers),
-                                             {type: 'keydown'}),
-                               Object.assign(keyEvt.asCharacter(charCode, keyEvt.target.modifiers),
-                                             {type: 'keypress'}),
-                             ]
+                         function*(charCode, keyEvt) {
+                           if (keyEvt.type === 'keyup') {
+                             yield keyEvt.asCharacter(charCode, keyEvt.target.modifiers);
+                           } else {
+                             yield keyEvt.asCharacter(0, keyEvt.target.modifiers);
+                             if (keyEvt._rawName !== '' || keyEvt.code === 'Space') {
+                               yield Object.assign(
+                                 keyEvt.asCharacter(charCode, keyEvt.target.modifiers),
+                                 {type: 'keypress'});
+                             }
                            }
-                           return [keyEvt.asCharacter(charCode, keyEvt.target.modifiers)];
                          }))
     .pipe(mergeAll());
 }
@@ -92,19 +93,16 @@ function isSpecialKey(evt: GLFWKeyboardEvent) {
 export class GLFWKeyboardEvent extends GLFWEvent {
   public static fromKeyEvent(
     window: GLFWDOMWindow, key: number, scancode: number, action: number, modifiers: number) {
-    const evt = new GLFWKeyboardEvent(action === glfw.PRESS     ? 'keydown'
-                                      : action === glfw.RELEASE ? 'keyup'
-                                                                : 'keypress');
-
-    evt._rawKey      = key;
-    evt._rawScanCode = scancode;
-
-    evt.target      = window;
-    evt._repeat     = action === glfw.REPEAT;
-    evt.isComposing = evt.type === 'keypress';
-
     const down = action !== glfw.RELEASE;
     const name = glfw.getKeyName(key, scancode);
+    const evt  = new GLFWKeyboardEvent(action === glfw.RELEASE ? 'keyup' : 'keydown');
+
+    evt._rawKey      = key;
+    evt._rawName     = name;
+    evt._rawScanCode = scancode;
+
+    evt.target  = window;
+    evt._repeat = action === glfw.REPEAT;
 
     evt._key   = name || 'Unidentified';
     evt._which = evt._charCode = glfwToDOMKey[key] || key;
@@ -140,15 +138,15 @@ export class GLFWKeyboardEvent extends GLFWEvent {
 
   public asCharacter(charCode: number, modifiers: number) {
     const evt        = new GLFWKeyboardEvent(this.type);
-    evt.isComposing  = true;
     evt.target       = this.target;
     evt._charCode    = charCode;
     evt._which       = this._which;
     evt._rawKey      = this._rawKey;
+    evt._rawName     = this._rawName;
     evt._rawScanCode = this._rawScanCode;
-    evt._key         = String.fromCharCode(charCode);
+    evt._key         = charCode ? String.fromCharCode(charCode) : '';
     evt._repeat      = this._repeat || this.type === 'keypress';
-    evt._code        = keyToCode[this._which] || `Key${evt._key.toUpperCase()}`;
+    evt._code        = keyToCode[this._which] || `Key${this._rawName.toUpperCase()}`;
     evt._altKey      = isAltKey(modifiers) || this._altKey;
     evt._ctrlKey     = isCtrlKey(modifiers) || this._ctrlKey;
     evt._metaKey     = isMetaKey(modifiers) || this._metaKey;
@@ -171,6 +169,7 @@ export class GLFWKeyboardEvent extends GLFWEvent {
   private _charCode: number|null = null;
 
   public _rawKey      = 0;
+  public _rawName     = '';
   public _rawScanCode = 0;
   public get key() { return this._key; }
   public get code() { return this._code; }
