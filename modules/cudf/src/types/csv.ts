@@ -27,49 +27,49 @@ import {
   Utf8String
 } from './dtypes';
 
-export type CSVType = "int8"|"int16"|"int32"|"int64"|"uint8"|"uint16"|"uint32"|"uint64"|"float32"|
-  "float64"|"datetime64[s]"|"datetime64[ms]"|"datetime64[us]"|"datetime64[ns]"|"timedelta64[s]"|
-  "timedelta64[ms]"|"timedelta64[us]"|"timedelta64[ns]"|"bool"|"category"|"str"|"hex"|"hex32"|
-  "hex64"|"date"|"date32"|"date64"|"timestamp"|"timestamp[us]"|"timestamp[s]"|"timestamp[ms]"|
-  "timestamp[ns]";
+export type CSVType = 'int8'|'int16'|'int32'|'int64'|'uint8'|'uint16'|'uint32'|'uint64'|'float32'|
+  'float64'|'datetime64[s]'|'datetime64[ms]'|'datetime64[us]'|'datetime64[ns]'|'timedelta64[s]'|
+  'timedelta64[ms]'|'timedelta64[us]'|'timedelta64[ns]'|'bool'|'category'|'str'|'hex'|'hex32'|
+  'hex64'|'date'|'date32'|'date64'|'timestamp'|'timestamp[us]'|'timestamp[s]'|'timestamp[ms]'|
+  'timestamp[ns]';
 
 export type CSVTypeMap = {
   [key: string]: CSVType;
 };
 
 export type CSVToCUDFType<T extends CSVType> = {
-  "int8": Int8,
-  "int16": Int16,
-  "int32": Int32,
-  "int64": Int64,
-  "uint8": Uint8,
-  "uint16": Uint16,
-  "uint32": Uint32,
-  "uint64": Uint64,
-  "float32": Float32,
-  "float64": Float64,
-  "datetime64[s]": never,
-  "datetime64[ms]": never,
-  "datetime64[us]": never,
-  "datetime64[ns]": never,
-  "timedelta64[s]": never,
-  "timedelta64[ms]": never,
-  "timedelta64[us]": never,
-  "timedelta64[ns]": never,
-  "bool": Bool8,
-  "category": never,
-  "str": Utf8String,
-  "hex": never,
-  "hex32": never,
-  "hex64": never,
-  "date": never,
-  "date32": never,
-  "date64": never,
-  "timestamp": never,
-  "timestamp[us]": never,
-  "timestamp[s]": never,
-  "timestamp[ms]": never,
-  "timestamp[ns]": never,
+  'int8': Int8,
+  'int16': Int16,
+  'int32': Int32,
+  'int64': Int64,
+  'uint8': Uint8,
+  'uint16': Uint16,
+  'uint32': Uint32,
+  'uint64': Uint64,
+  'float32': Float32,
+  'float64': Float64,
+  'datetime64[s]': never,
+  'datetime64[ms]': never,
+  'datetime64[us]': never,
+  'datetime64[ns]': never,
+  'timedelta64[s]': never,
+  'timedelta64[ms]': never,
+  'timedelta64[us]': never,
+  'timedelta64[ns]': never,
+  'bool': Bool8,
+  'category': never,
+  'str': Utf8String,
+  'hex': never,
+  'hex32': never,
+  'hex64': never,
+  'date': never,
+  'date32': never,
+  'date64': never,
+  'timestamp': never,
+  'timestamp[us]': never,
+  'timestamp[s]': never,
+  'timestamp[ms]': never,
+  'timestamp[ns]': never,
 }[T];
 
 export interface ReadCSVOptionsCommon<T extends CSVTypeMap = any> {
@@ -78,7 +78,7 @@ export interface ReadCSVOptionsCommon<T extends CSVTypeMap = any> {
    */
   dataTypes?: T;
   /** The compression format of the source, or infer from file extension */
-  compression?: "infer"|"snappy"|"gzip"|"bz2"|"brotli"|"zip"|"xz";
+  compression?: 'infer'|'snappy'|'gzip'|'bz2'|'brotli'|'zip'|'xz';
   /** Whether to rename duplicate column names */
   renameDuplicateColumns?: boolean;
   /** Rows to read; -1 is all */
@@ -88,7 +88,7 @@ export interface ReadCSVOptionsCommon<T extends CSVTypeMap = any> {
   /** Rows to skip from the end */
   skipTail?: number;
   /** Treatment of quoting behavior */
-  quoteStyle?: "all"|"none"|"nonnumeric"|"minimal";
+  quoteStyle?: 'all'|'none'|'nonnumeric'|'minimal';
   /** Line terminator */
   lineTerminator?: string;
   /** Quoting character (if `allowDoubleQuoting` is true) */
@@ -116,7 +116,7 @@ export interface ReadCSVOptionsCommon<T extends CSVTypeMap = any> {
   /** Comment line start character */
   comment?: string;
   /** Header row index */
-  header?: "infer"|null|number;
+  header?: 'infer'|null|number;
   /** String used as prefix for each column name if no header or names are provided. */
   prefix?: string;
   /** Additional values to recognize as null values */
@@ -132,12 +132,12 @@ export interface ReadCSVOptionsCommon<T extends CSVTypeMap = any> {
 }
 
 export interface ReadCSVFileOptions<T extends CSVTypeMap = any> extends ReadCSVOptionsCommon<T> {
-  sourceType: "files";
+  sourceType: 'files';
   sources: string[];
 }
 
 export interface ReadCSVBufferOptions<T extends CSVTypeMap = any> extends ReadCSVOptionsCommon<T> {
-  sourceType: "buffers";
+  sourceType: 'buffers';
   sources: (Uint8Array|Buffer)[];
 }
 

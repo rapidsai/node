@@ -1,8 +1,8 @@
 /* eslint-disable */
-import Module = require("module");
-import * as vm from "vm";
-import * as path from "path";
-const builtinModules = require("builtins");
+import Module = require('module');
+import * as vm from 'vm';
+import * as path from 'path';
+const builtinModules = require('builtins');
 
 const BUILTIN: string[] = builtinModules();
 let moduleId            = 0;
@@ -67,7 +67,7 @@ export class ContextModule extends Module {
     this._hooks   = extensions;
     this._cache   = {};
 
-    if (!vm.isContext(context) && typeof context.runVMScript !== "function") {
+    if (!vm.isContext(context) && typeof context.runVMScript !== 'function') {
       vm.createContext(context);
     }
   }
@@ -117,7 +117,7 @@ function resolveFileHook(request: string, parentModule: Module|ContextModule): s
       if (path.isAbsolute(request)) {
         request = path.relative(dir, request);
 
-        if (request[0] !== ".") { request = "./" + request; }
+        if (request[0] !== '.') { request = './' + request; }
       }
 
       return resolver(dir, request);

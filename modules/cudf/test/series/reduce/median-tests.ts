@@ -31,7 +31,7 @@ import {
   Uint8
 } from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
-import {BoolVector} from "apache-arrow";
+import {BoolVector} from 'apache-arrow';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
@@ -94,7 +94,7 @@ describe('Series.median(skipna=true)', () => {
   test('Bool8', () => { testNumberMedian(new Bool8, new Uint8ClampedArray(makeBooleans())); });
 });
 
-describe("Series.median(skipna=false)", () => {
+describe('Series.median(skipna=false)', () => {
   test('Int8',
        () => {testNumberMedianSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans())});
   test('Int16',
@@ -126,12 +126,12 @@ describe("Series.median(skipna=false)", () => {
   });
 });
 
-describe("Float type Series with NaN => Series.median(skipna=true)", () => {
+describe('Float type Series with NaN => Series.median(skipna=true)', () => {
   test('Float32', () => { testNumberMedian(new Float32, new Float32Array(float_with_NaN)); });
   test('Float64', () => { testNumberMedian(new Float64, new Float64Array(float_with_NaN)); });
 });
 
-describe("Float type Series with NaN => Series.median(skipna=false)", () => {
+describe('Float type Series with NaN => Series.median(skipna=false)', () => {
   test('Float32', () => {
     testNumberMedianSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans());
   });

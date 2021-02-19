@@ -14,7 +14,7 @@
 
 import '../../jest-extensions';
 
-import {BigIntArray, setDefaultAllocator, TypedArray, Uint8Buffer} from '@nvidia/cuda';
+import {BigIntArray, setDefaultAllocator, TypedArray} from '@nvidia/cuda';
 import {
   Bool8,
   Float32,
@@ -45,16 +45,16 @@ const std_number_results =
 const std_bool_results =
   new Map([[1, 0.5270462766947299], [3, 0.5976143046671968], [5, 0.7071067811865476]]);
 
-function testNumberStd<T extends Numeric, R extends TypedArray>(
+function testNumberStd<T extends Numeric, R extends TypedArray|BigIntArray>(
   skipna: boolean, ddof: number, type: T, data: R) {
   expect(Series.new({type, data}).std(skipna, ddof))
-    .toEqual((data.includes(NaN) && skipna == false) ? NaN : std_number_results.get(ddof));
+    .toEqual((data.includes(<never>NaN) && skipna == false) ? NaN : std_number_results.get(ddof));
 }
 
-function testBooleanStd<T extends Numeric, R extends TypedArray>(
+function testBooleanStd<T extends Numeric, R extends TypedArray|BigIntArray>(
   skipna: boolean, ddof: number, type: T, data: R) {
   expect(Series.new({type, data}).std(skipna, ddof))
-    .toEqual((data.includes(NaN) && skipna == false) ? NaN : std_bool_results.get(ddof));
+    .toEqual((data.includes(<never>NaN) && skipna == false) ? NaN : std_bool_results.get(ddof));
 }
 
 param_ddof.forEach(ddof => {
@@ -80,7 +80,7 @@ param_ddof.forEach(ddof => {
          () => { testBooleanStd(skipna, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
   });
 
-  describe("Float type Series with NaN => Series.std (skipna=True)", () => {
+  describe('Float type Series with NaN => Series.std (skipna=True)', () => {
     const skipna = true;
     test('Float32', () => {
       testNumberStd(
@@ -114,7 +114,7 @@ param_ddof.forEach(ddof => {
          () => { testBooleanStd(skipna, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
   });
 
-  describe("Float type Series with NaN => Series.std (skipna=false)", () => {
+  describe('Float type Series with NaN => Series.std (skipna=false)', () => {
     const skipna = false;
     test('Float32', () => {
       testNumberStd(
