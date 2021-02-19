@@ -37,7 +37,8 @@
     "modules/demo/luma",
     "modules/demo/umap",
     "modules/demo/xterm",
-    "modules/demo/deck/*"
+    "modules/demo/deck/*",
+    "modules/demo/tfjs/*"
   ],
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "4.10.0",

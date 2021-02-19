@@ -161,7 +161,6 @@
             "**/.DS_Store": true,
             "**/.cache": true,
             "**/.cmake-js": true,
-            "**/node_modules": true,
         },
         "files.watcherExclude": {
             "**/.git/objects/**": true,
