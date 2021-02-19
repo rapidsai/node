@@ -14,7 +14,7 @@
 
 import '../../jest-extensions';
 
-import {BigIntArray, setDefaultAllocator, TypedArray, Uint8Buffer} from '@nvidia/cuda';
+import {BigIntArray, setDefaultAllocator, TypedArray} from '@nvidia/cuda';
 import {
   Bool8,
   Float32,
@@ -43,16 +43,16 @@ const var_number_results = new Map([[1, 9.166666666666668], [3, 11.7857142857142
 
 const var_bool_results = new Map([[1, 0.2777777777777778], [3, 0.35714285714285715], [5, 0.5]]);
 
-function testNumberVar<T extends Numeric, R extends TypedArray>(
+function testNumberVar<T extends Numeric, R extends TypedArray|BigIntArray>(
   skipna: boolean, ddof: number, type: T, data: R) {
   expect(Series.new({type, data}).var(skipna, ddof))
-    .toEqual((data.includes(NaN) && skipna == false) ? NaN : var_number_results.get(ddof));
+    .toEqual((data.includes(<never>NaN) && skipna == false) ? NaN : var_number_results.get(ddof));
 }
 
-function testBooleanVar<T extends Numeric, R extends TypedArray>(
+function testBooleanVar<T extends Numeric, R extends TypedArray|BigIntArray>(
   skipna: boolean, ddof: number, type: T, data: R) {
   expect(Series.new({type, data}).var(skipna, ddof))
-    .toEqual((data.includes(NaN) && skipna == false) ? NaN : var_bool_results.get(ddof));
+    .toEqual((data.includes(<never>NaN) && skipna == false) ? NaN : var_bool_results.get(ddof));
 }
 
 param_ddof.forEach(ddof => {
@@ -78,7 +78,7 @@ param_ddof.forEach(ddof => {
          () => { testBooleanVar(skipna, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
   });
 
-  describe("Float type Series with NaN => Series.var (skipna=True)", () => {
+  describe('Float type Series with NaN => Series.var (skipna=True)', () => {
     const skipna = true;
     test('Float32', () => {
       testNumberVar(
@@ -112,7 +112,7 @@ param_ddof.forEach(ddof => {
          () => { testBooleanVar(skipna, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
   });
 
-  describe("Float type Series with NaN => Series.var (skipna=false)", () => {
+  describe('Float type Series with NaN => Series.var (skipna=false)', () => {
     const skipna = false;
     test('Float32', () => {
       testNumberVar(

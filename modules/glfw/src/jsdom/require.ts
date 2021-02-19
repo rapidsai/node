@@ -1,9 +1,9 @@
 /* eslint-disable */
-import * as fs from "fs";
+import * as fs from 'fs';
 import * as jsdom from 'jsdom';
-import * as path from "path";
+import * as path from 'path';
 
-import createContextRequire, {Types as TContextRequire} from "./context-require";
+import createContextRequire, {Types as TContextRequire} from './context-require';
 
 const browserResolve = require('lasso-resolve-from');
 
@@ -36,7 +36,7 @@ export default createJSDOMContextRequire;
 function createJSDOMContextRequire(options: Types.Options): Types.JSDOMModule {
   const {html, dir, extensions, beforeParse, ...jsdomOptions} = options;
   const context =
-    new jsdom.JSDOM("", {runScripts: "dangerously", ...jsdomOptions}) as Types.JSDOMModule;
+    new jsdom.JSDOM('', {runScripts: 'dangerously', ...jsdomOptions}) as Types.JSDOMModule;
   const {window}      = context;
   const resolveConfig = {
     remaps: loadRemaps,
@@ -54,7 +54,7 @@ function createJSDOMContextRequire(options: Types.Options): Types.JSDOMModule {
   if (beforeParse) { beforeParse(window, context); }
 
   window.document.open();
-  window.document.write(html || "<!DOCTYPE html><html><head></head><body></body></html>");
+  window.document.write(html || '<!DOCTYPE html><html><head></head><body></body></html>');
 
   return context;
 
@@ -86,7 +86,7 @@ const remapCache = Object.create(null);
  * @param dir The directory to load remaps from.
  */
 function loadRemaps(dir: string) {
-  const file = path.join(dir, "browser.json");
+  const file = path.join(dir, 'browser.json');
 
   if (file in remapCache) { return remapCache[file]; }
 

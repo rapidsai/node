@@ -31,7 +31,7 @@ import {
   Uint8
 } from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
-import {BoolVector} from "apache-arrow";
+import {BoolVector} from 'apache-arrow';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
@@ -83,7 +83,7 @@ describe('Series.all(skipna=true)', () => {
   test('Bool8', () => { testNumberAll(new Bool8, new Uint8ClampedArray(makeBooleans())); });
 });
 
-describe("Series.all(skipna=false)", () => {
+describe('Series.all(skipna=false)', () => {
   test('Int8', () => {testNumberAllSkipNA(new Int8, new Int8Array(numbers), makeBooleans())});
   test('Int16', () => { testNumberAllSkipNA(new Int16, new Int16Array(numbers), makeBooleans()); });
   test('Int32', () => { testNumberAllSkipNA(new Int32, new Int32Array(numbers), makeBooleans()); });
@@ -106,12 +106,12 @@ describe("Series.all(skipna=false)", () => {
   });
 });
 
-describe("Float type Series with NaN => Series.all(skipna=true)", () => {
+describe('Float type Series with NaN => Series.all(skipna=true)', () => {
   test('Float32', () => { testNumberAll(new Float32, new Float32Array(float_with_NaN)); });
   test('Float64', () => { testNumberAll(new Float64, new Float64Array(float_with_NaN)); });
 });
 
-describe("Float type Series with NaN => Series.all(skipna=false)", () => {
+describe('Float type Series with NaN => Series.all(skipna=false)', () => {
   test(
     'Float32',
     () => { testNumberAllSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans()); });
