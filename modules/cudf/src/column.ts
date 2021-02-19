@@ -21,14 +21,12 @@ import {
   Bool8,
   DataType,
   Float64,
+  IndexType,
   Int64,
   Integral,
   Numeric,
-  Uint64,
 } from './types/dtypes';
 import {CommonType, Interpolation} from './types/mappings';
-
-type Integer = Integral|Int64|Uint64;
 
 export type ColumnProps<T extends DataType = any> = {
   // todo -- need to pass full DataType instance when we implement fixed_point
@@ -65,7 +63,7 @@ export interface Column<T extends DataType = any> {
    *
    * @param selection
    */
-  gather(selection: Column<Integral|Bool8>): Column<T>;
+  gather(selection: Column<IndexType|Bool8>): Column<T>;
 
   /**
    * Return a child at the specified index to host memory
@@ -762,7 +760,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The sum of all the values in this Column.
    */
-  sum(memoryResource?: MemoryResource): T extends(Integer)? bigint: number;
+  sum(memoryResource?: MemoryResource): T extends(Integral)? bigint: number;
 
   /**
    * Compute the product of all values in this Column.
@@ -771,7 +769,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The product of all the values in this Column.
    */
-  product(memoryResource?: MemoryResource): T extends(Integer)? bigint: number;
+  product(memoryResource?: MemoryResource): T extends(Integral)? bigint: number;
 
   /**
    * Compute the sum_of_squares of all values in this Column.
@@ -780,7 +778,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The sum_of_squares of all the values in this Column.
    */
-  sum_of_squares(memoryResource?: MemoryResource): T extends(Integer)? bigint: number;
+  sum_of_squares(memoryResource?: MemoryResource): T extends(Integral)? bigint: number;
 
   /**
    * Compute the mean of all values in this Column.

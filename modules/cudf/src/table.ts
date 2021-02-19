@@ -18,8 +18,8 @@ import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {
   Bool8,
   DataType,
+  IndexType,
   Int32,
-  Integral,
 } from './types/dtypes';
 import {
   NullOrder,
@@ -69,7 +69,7 @@ export interface Table {
    *
    * @param selection
    */
-  gather(selection: Column<Integral|Bool8>): Table;
+  gather(selection: Column<IndexType|Bool8>): Table;
 
   /**
    * Get the Column at a specified index

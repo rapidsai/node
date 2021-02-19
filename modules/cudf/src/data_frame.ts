@@ -24,7 +24,7 @@ import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './type
 import {
   Bool8,
   DataType,
-  Integral,
+  IndexType,
 } from './types/dtypes'
 import {
   NullOrder,
@@ -183,7 +183,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @param selection
    */
-  gather<R extends Integral>(selection: Series<R>) {
+  gather<R extends IndexType>(selection: Series<R>) {
     const temp       = new Table({columns: this._accessor.columns});
     const columns    = temp.gather(selection._col);
     const series_map = {} as SeriesMap<T>;
@@ -348,7 +348,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  dropNulls<R extends Integral>(axis = 0, thresh = 1, subset?: (keyof T)[]|Series<R>):
+  dropNulls<R extends IndexType>(axis = 0, thresh = 1, subset?: (keyof T)[]|Series<R>):
     DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {
@@ -399,7 +399,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  dropNaNs<R extends Integral>(axis = 0, thresh = 1, subset?: (keyof T)[]|Series<R>):
+  dropNaNs<R extends IndexType>(axis = 0, thresh = 1, subset?: (keyof T)[]|Series<R>):
     DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {

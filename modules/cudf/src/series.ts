@@ -25,11 +25,11 @@ import {
   DataType,
   Float32,
   Float64,
+  IndexType,
   Int16,
   Int32,
   Int64,
   Int8,
-  Integral,
   List,
   Struct,
   Uint16,
@@ -157,7 +157,7 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
    */
-  gather<R extends Integral>(selection: Series<R>): Series<T> {
+  gather<R extends IndexType>(selection: Series<R>): Series<T> {
     return this.__construct(this._col.gather(selection._col));
   }
 
