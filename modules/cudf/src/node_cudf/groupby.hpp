@@ -17,6 +17,7 @@
 #include <nv_node/utilities/args.hpp>
 
 #include <cudf/groupby.hpp>
+#include <node_cudf/table.hpp>
 
 #include <napi.h>
 
@@ -62,8 +63,29 @@ class GroupBy : public Napi::ObjectWrap<GroupBy> {
 
   std::unique_ptr<cudf::groupby::groupby> groupby_;
 
-  Napi::Value basic_agg(Napi::CallbackInfo const& info);
+  std::pair<nv::Table*, rmm::mr::device_memory_resource*> getBasicArgs(
+    Napi::CallbackInfo const& info);
+
   Napi::Value get_groups(Napi::CallbackInfo const& info);
+
+  Napi::Value argmax(Napi::CallbackInfo const& info);
+  Napi::Value argmin(Napi::CallbackInfo const& info);
+  Napi::Value count(Napi::CallbackInfo const& info);
+  Napi::Value max(Napi::CallbackInfo const& info);
+  Napi::Value mean(Napi::CallbackInfo const& info);
+  Napi::Value median(Napi::CallbackInfo const& info);
+  Napi::Value min(Napi::CallbackInfo const& info);
+  Napi::Value nth(Napi::CallbackInfo const& info);
+  Napi::Value nunique(Napi::CallbackInfo const& info);
+  Napi::Value std(Napi::CallbackInfo const& info);
+  Napi::Value sum(Napi::CallbackInfo const& info);
+  Napi::Value var(Napi::CallbackInfo const& info);
+  Napi::Value quantile(Napi::CallbackInfo const& info);
+
+  Napi::Value _single_aggregation(std::unique_ptr<cudf::aggregation> agg,
+                                  const Table* const values_table,
+                                  rmm::mr::device_memory_resource* const mr,
+                                  Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

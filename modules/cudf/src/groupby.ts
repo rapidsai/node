@@ -70,7 +70,20 @@ interface CudfGroupBy {
   _by: string[];
   _values: DataFrame;
   _getGroups(values?: Table, memoryResource?: MemoryResource): any;
-  _basic_agg(func: AggFunc, values: Table, memoryResource?: MemoryResource):
+
+  _argmax(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _argmin(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _count(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _max(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _mean(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _median(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _min(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _nth(n: number, values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _nunique(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _std(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _sum(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _var(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _quantile(q: number, values: Table, interpolation?: number, memoryResource?: MemoryResource):
     {keys: Table, cols: [Column]};
 }
 
@@ -121,8 +134,8 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
     return results;
   }
 
-  protected basic_agg(func: AggFunc, memoryResource?: MemoryResource): DataFrame {
-    const {keys, cols} = this._basic_agg(func, this._values.asTable(), memoryResource);
+  protected prepare_results(results: {keys: Table, cols: [Column]}) {
+    const {keys, cols} = results;
 
     const series_map = {} as any;
     this._by.forEach(
@@ -138,7 +151,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    *   device memory.
    */
   argmax(memoryResource?: MemoryResource): DataFrame {
-    return this.basic_agg("argmax", memoryResource);
+    return this.prepare_results(this._argmax(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -148,7 +161,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    *   device memory.
    */
   argmin(memoryResource?: MemoryResource): DataFrame {
-    return this.basic_agg("argmin", memoryResource);
+    return this.prepare_results(this._argmin(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -158,7 +171,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    *   device memory.
    */
   count(memoryResource?: MemoryResource): DataFrame {
-    return this.basic_agg("count", memoryResource);
+    return this.prepare_results(this._count(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -167,7 +180,9 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  max(memoryResource?: MemoryResource): DataFrame { return this.basic_agg("max", memoryResource); }
+  max(memoryResource?: MemoryResource): DataFrame {
+    return this.prepare_results(this._max(this._values.asTable(), memoryResource));
+  }
 
   /**
    * Compute the average value each group
@@ -176,7 +191,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    *   device memory.
    */
   mean(memoryResource?: MemoryResource): DataFrame {
-    return this.basic_agg("mean", memoryResource);
+    return this.prepare_results(this._mean(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -186,7 +201,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    *   device memory.
    */
   median(memoryResource?: MemoryResource): DataFrame {
-    return this.basic_agg("median", memoryResource);
+    return this.prepare_results(this._median(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -195,7 +210,20 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  min(memoryResource?: MemoryResource): DataFrame { return this.basic_agg("min", memoryResource); }
+  min(memoryResource?: MemoryResource): DataFrame {
+    return this.prepare_results(this._min(this._values.asTable(), memoryResource));
+  }
+
+  /**
+   * Return the nth value from each group
+   *
+   * @param n the index of the element to return
+   * @param memoryResource The optional MemoryResource used to allocate the result's
+   *   device memory.
+   */
+  nth(n: number, memoryResource?: MemoryResource): DataFrame {
+    return this.prepare_results(this._nth(n, this._values.asTable(), memoryResource));
+  }
 
   /**
    * Compute the number of unique values in each group
@@ -204,7 +232,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    *   device memory.
    */
   nunique(memoryResource?: MemoryResource): DataFrame {
-    return this.basic_agg("nunique", memoryResource);
+    return this.prepare_results(this._nunique(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -213,7 +241,9 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  std(memoryResource?: MemoryResource): DataFrame { return this.basic_agg("std", memoryResource); }
+  std(memoryResource?: MemoryResource): DataFrame {
+    return this.prepare_results(this._std(this._values.asTable(), memoryResource));
+  }
 
   /**
    * Compute the sum of values in each group
@@ -221,7 +251,9 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  sum(memoryResource?: MemoryResource): DataFrame { return this.basic_agg("sum", memoryResource); }
+  sum(memoryResource?: MemoryResource): DataFrame {
+    return this.prepare_results(this._sum(this._values.asTable(), memoryResource));
+  }
 
   /**
    * Compute the variance for each group
@@ -229,5 +261,21 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  var(memoryResource?: MemoryResource): DataFrame { return this.basic_agg("var", memoryResource); }
+  var(memoryResource?: MemoryResource): DataFrame {
+    return this.prepare_results(this._var(this._values.asTable(), memoryResource));
+  }
+
+  /**
+   * Return values at the given quantile.
+   *
+   * @param q the quantile to compute, 0 <= q <= 1
+   * @param interpolation This optional parameter specifies the interpolation method to use,
+   *  when the desired quantile lies between two data points i and j.
+   * @param memoryResource The optional MemoryResource used to allocate the result's
+   *   device memory.
+   */
+  quantile(q: number, interpolation?: number, memoryResource?: MemoryResource): DataFrame {
+    return this.prepare_results(
+      this._quantile(q, this._values.asTable(), interpolation, memoryResource));
+  }
 }

@@ -56,7 +56,20 @@ Napi::Object GroupBy::Init(Napi::Env env, Napi::Object exports) {
                                     "GroupBy",
                                     {
                                       InstanceMethod<&GroupBy::get_groups>("_getGroups"),
-                                      InstanceMethod<&GroupBy::basic_agg>("_basic_agg"),
+                                      // aggregations
+                                      InstanceMethod<&GroupBy::argmax>("_argmax"),
+                                      InstanceMethod<&GroupBy::argmin>("_argmin"),
+                                      InstanceMethod<&GroupBy::count>("_count"),
+                                      InstanceMethod<&GroupBy::max>("_max"),
+                                      InstanceMethod<&GroupBy::mean>("_mean"),
+                                      InstanceMethod<&GroupBy::median>("_median"),
+                                      InstanceMethod<&GroupBy::min>("_min"),
+                                      InstanceMethod<&GroupBy::nth>("_nth"),
+                                      InstanceMethod<&GroupBy::nunique>("_nunique"),
+                                      InstanceMethod<&GroupBy::std>("_std"),
+                                      InstanceMethod<&GroupBy::sum>("_sum"),
+                                      InstanceMethod<&GroupBy::var>("_var"),
+                                      InstanceMethod<&GroupBy::quantile>("_quantile"),
                                     });
 
   GroupBy::constructor = Napi::Persistent(ctor);
@@ -105,22 +118,170 @@ void GroupBy::Finalize(Napi::Env env) { this->groupby_.reset(nullptr); }
 // Private API
 //
 
-Napi::Value GroupBy::basic_agg(Napi::CallbackInfo const& info) {
+std::pair<nv::Table*, rmm::mr::device_memory_resource*> GroupBy::getBasicArgs(
+  Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
 
-  std::string func = args[0];
+  auto values = args[0];
+  NODE_CUDA_EXPECT(Table::is_instance(values), "aggregation expects to have a 'values' table");
+
+  auto mr = MemoryResource::is_instance(info[1]) ? *MemoryResource::Unwrap(info[1].ToObject())
+                                                 : rmm::mr::get_current_device_resource();
+
+  return std::pair<Table*, rmm::mr::device_memory_resource*>(Table::Unwrap(values.ToObject()), mr);
+}
+
+Napi::Value GroupBy::get_groups(Napi::CallbackInfo const& info) {
+  auto values = info[0];
+  auto mr     = MemoryResource::is_instance(info[1]) ? *MemoryResource::Unwrap(info[1].ToObject())
+                                                     : rmm::mr::get_current_device_resource();
+
+  cudf::table_view table{cudf::table{}};
+  if (Table::is_instance(values)) { table = *Table::Unwrap(values.ToObject()); }
+  auto groups = groupby_->get_groups(table, mr);
+
+  auto result = Napi::Object::New(info.Env());
+  result.Set("keys", Table::New(std::move(groups.keys)));
+
+  auto const& offsets = groups.offsets;
+  result.Set("offsets", CPPToNapi(info)(std::make_tuple(offsets.data(), offsets.size())));
+
+  if (groups.values != nullptr) { result.Set("values", Table::New(std::move(groups.values))); }
+  return result;
+}
+
+Napi::Value GroupBy::argmax(Napi::CallbackInfo const& info) {
+  auto args   = getBasicArgs(info);
+  auto values = args.first;
+  auto mr     = args.second;
+  auto agg    = cudf::make_argmax_aggregation();
+  return _single_aggregation(std::move(agg), values, mr, info);
+}
+
+Napi::Value GroupBy::argmin(Napi::CallbackInfo const& info) {
+  auto args   = getBasicArgs(info);
+  auto values = args.first;
+  auto mr     = args.second;
+  auto agg    = cudf::make_argmin_aggregation();
+  return _single_aggregation(std::move(agg), values, mr, info);
+}
+
+Napi::Value GroupBy::count(Napi::CallbackInfo const& info) {
+  auto args   = getBasicArgs(info);
+  auto values = args.first;
+  auto mr     = args.second;
+  auto agg    = cudf::make_count_aggregation();
+  return _single_aggregation(std::move(agg), values, mr, info);
+}
+
+Napi::Value GroupBy::max(Napi::CallbackInfo const& info) {
+  auto args   = getBasicArgs(info);
+  auto values = args.first;
+  auto mr     = args.second;
+  auto agg    = cudf::make_max_aggregation();
+  return _single_aggregation(std::move(agg), values, mr, info);
+}
+
+Napi::Value GroupBy::mean(Napi::CallbackInfo const& info) {
+  auto args   = getBasicArgs(info);
+  auto values = args.first;
+  auto mr     = args.second;
+  auto agg    = cudf::make_mean_aggregation();
+  return _single_aggregation(std::move(agg), values, mr, info);
+}
+
+Napi::Value GroupBy::median(Napi::CallbackInfo const& info) {
+  auto args   = getBasicArgs(info);
+  auto values = args.first;
+  auto mr     = args.second;
+  auto agg    = cudf::make_median_aggregation();
+  return _single_aggregation(std::move(agg), values, mr, info);
+}
+
+Napi::Value GroupBy::min(Napi::CallbackInfo const& info) {
+  auto args   = getBasicArgs(info);
+  auto values = args.first;
+  auto mr     = args.second;
+  auto agg    = cudf::make_min_aggregation();
+  return _single_aggregation(std::move(agg), values, mr, info);
+}
+
+Napi::Value GroupBy::nth(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+
+  cudf::size_type n = args[0];
 
   auto values = args[1];
   NODE_CUDA_EXPECT(Table::is_instance(values),
-                   "GroupBy constructor expects options to have a 'values' table");
+                   "aggregation expects options to have a 'values' table");
   nv::Table* values_table = Table::Unwrap(values.ToObject());
 
   auto mr = MemoryResource::is_instance(info[2]) ? *MemoryResource::Unwrap(info[2].ToObject())
                                                  : rmm::mr::get_current_device_resource();
 
-  auto agg = _get_aggregation(func);
-  if (agg == nullptr) { NAPI_THROW(Napi::Error::New(info.Env(), "Unknown aggregation: " + func)); }
+  auto agg = cudf::make_nth_element_aggregation(n);
 
+  return _single_aggregation(std::move(agg), values_table, mr, info);
+}
+
+Napi::Value GroupBy::nunique(Napi::CallbackInfo const& info) {
+  auto args   = getBasicArgs(info);
+  auto values = args.first;
+  auto mr     = args.second;
+  auto agg    = cudf::make_nunique_aggregation();
+  return _single_aggregation(std::move(agg), values, mr, info);
+}
+
+Napi::Value GroupBy::std(Napi::CallbackInfo const& info) {
+  auto args   = getBasicArgs(info);
+  auto values = args.first;
+  auto mr     = args.second;
+  auto agg    = cudf::make_std_aggregation();
+  return _single_aggregation(std::move(agg), values, mr, info);
+}
+
+Napi::Value GroupBy::sum(Napi::CallbackInfo const& info) {
+  auto args   = getBasicArgs(info);
+  auto values = args.first;
+  auto mr     = args.second;
+  auto agg    = cudf::make_sum_aggregation();
+  return _single_aggregation(std::move(agg), values, mr, info);
+}
+
+Napi::Value GroupBy::var(Napi::CallbackInfo const& info) {
+  auto args   = getBasicArgs(info);
+  auto values = args.first;
+  auto mr     = args.second;
+  auto agg    = cudf::make_variance_aggregation();
+  return _single_aggregation(std::move(agg), values, mr, info);
+}
+
+Napi::Value GroupBy::quantile(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+
+  double q = args[0];
+  std::vector<double> qs{q};
+
+  auto values = args[1];
+  NODE_CUDA_EXPECT(Table::is_instance(values),
+                   "GroupBy quantile_agg expects options to have a 'values' table");
+  nv::Table* values_table = Table::Unwrap(values.ToObject());
+
+  // TODO handle both optional
+  cudf::interpolation interpolation = args[2];
+
+  auto mr = MemoryResource::is_instance(info[3]) ? *MemoryResource::Unwrap(info[3].ToObject())
+                                                 : rmm::mr::get_current_device_resource();
+
+  auto agg = cudf::make_quantile_aggregation(qs, interpolation);
+
+  return _single_aggregation(std::move(agg), values_table, mr, info);
+}
+
+Napi::Value GroupBy::_single_aggregation(std::unique_ptr<cudf::aggregation> agg,
+                                         const nv::Table* const values_table,
+                                         rmm::mr::device_memory_resource* const mr,
+                                         Napi::CallbackInfo const& info) {
   std::vector<cudf::groupby::aggregation_request> requests;
 
   for (cudf::size_type i = 0; i < values_table->num_columns(); ++i) {
@@ -144,25 +305,6 @@ Napi::Value GroupBy::basic_agg(Napi::CallbackInfo const& info) {
   obj.Set("cols", result_cols);
 
   return obj;
-}
-
-Napi::Value GroupBy::get_groups(Napi::CallbackInfo const& info) {
-  auto values = info[0];
-  auto mr     = MemoryResource::is_instance(info[1]) ? *MemoryResource::Unwrap(info[1].ToObject())
-                                                     : rmm::mr::get_current_device_resource();
-
-  cudf::table_view table{cudf::table{}};
-  if (Table::is_instance(values)) { table = *Table::Unwrap(values.ToObject()); }
-  auto groups = groupby_->get_groups(table, mr);
-
-  auto result = Napi::Object::New(info.Env());
-  result.Set("keys", Table::New(std::move(groups.keys)));
-
-  auto const& offsets = groups.offsets;
-  result.Set("offsets", CPPToNapi(info)(std::make_tuple(offsets.data(), offsets.size())));
-
-  if (groups.values != nullptr) { result.Set("values", Table::New(std::move(groups.values))); }
-  return result;
 }
 
 }  // namespace nv
