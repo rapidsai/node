@@ -23,26 +23,6 @@
 
 #include <napi.h>
 
-std::unique_ptr<cudf::aggregation> _get_aggregation(const std::string& func) {
-  // clang-format off
-  if      (func == "argmin")  { return cudf::make_argmin_aggregation();   } 
-  else if (func == "argmax")  { return cudf::make_argmax_aggregation();   }
-  // collect
-  else if (func == "count")   { return cudf::make_count_aggregation();    } 
-  else if (func == "max")     { return cudf::make_max_aggregation();      } 
-  else if (func == "mean")    { return cudf::make_mean_aggregation();     }
-  else if (func == "median")  { return cudf::make_median_aggregation();   }
-  else if (func == "min")     { return cudf::make_min_aggregation();      } 
-  // nth
-  else if (func == "nunique") { return cudf::make_nunique_aggregation();  }
-  // quantile
-  else if (func == "std")     { return cudf::make_std_aggregation();      }
-  else if (func == "sum")     { return cudf::make_sum_aggregation();      } 
-  else if (func == "var")     { return cudf::make_variance_aggregation(); }
-  else return nullptr;
-  // clang-format on
-}
-
 namespace nv {
 
 //
