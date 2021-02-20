@@ -113,10 +113,13 @@
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#_symbol_iterator_" class="tsd-kind-icon">[<wbr>Symbol.iterator]</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#_process_reduction" class="tsd-kind-icon">_process_<wbr>reduction</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#abs" class="tsd-kind-icon">abs</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#acos" class="tsd-kind-icon">acos</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#acosh" class="tsd-kind-icon">acosh</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#add" class="tsd-kind-icon">add</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#all" class="tsd-kind-icon">all</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#any" class="tsd-kind-icon">any</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#asin" class="tsd-kind-icon">asin</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#asinh" class="tsd-kind-icon">asinh</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#atan" class="tsd-kind-icon">atan</a></li>
@@ -129,6 +132,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#cos" class="tsd-kind-icon">cos</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#cosh" class="tsd-kind-icon">cosh</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#div" class="tsd-kind-icon">div</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#dropnulls" class="tsd-kind-icon">drop<wbr>Nulls</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#eq" class="tsd-kind-icon">eq</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#exp" class="tsd-kind-icon">exp</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#filter" class="tsd-kind-icon">filter</a></li>
@@ -146,6 +150,8 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#logical_and" class="tsd-kind-icon">logical_<wbr>and</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#logical_or" class="tsd-kind-icon">logical_<wbr>or</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#lt" class="tsd-kind-icon">lt</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#mean" class="tsd-kind-icon">mean</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#median" class="tsd-kind-icon">median</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#mod" class="tsd-kind-icon">mod</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#mul" class="tsd-kind-icon">mul</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#ne" class="tsd-kind-icon">ne</a></li>
@@ -153,19 +159,25 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#null_equals" class="tsd-kind-icon">null_<wbr>equals</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#null_max" class="tsd-kind-icon">null_<wbr>max</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#null_min" class="tsd-kind-icon">null_<wbr>min</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#nunique" class="tsd-kind-icon">nunique</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#orderby" class="tsd-kind-icon">order<wbr>By</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#pow" class="tsd-kind-icon">pow</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#product" class="tsd-kind-icon">product</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#quantile" class="tsd-kind-icon">quantile</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#setnullmask" class="tsd-kind-icon">set<wbr>Null<wbr>Mask</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#sin" class="tsd-kind-icon">sin</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#sinh" class="tsd-kind-icon">sinh</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#sortvalues" class="tsd-kind-icon">sort<wbr>Values</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#sqrt" class="tsd-kind-icon">sqrt</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#std" class="tsd-kind-icon">std</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#sub" class="tsd-kind-icon">sub</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#sum" class="tsd-kind-icon">sum</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#sumofsquares" class="tsd-kind-icon">sum<wbr>OfSquares</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#tan" class="tsd-kind-icon">tan</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#tanh" class="tsd-kind-icon">tanh</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#toarrow" class="tsd-kind-icon">to<wbr>Arrow</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#true_div" class="tsd-kind-icon">true_<wbr>div</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.bool8series.html#var" class="tsd-kind-icon">var</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.bool8series.html#view" class="tsd-kind-icon">view</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-static"><a href="cudf_src.bool8series.html#new" class="tsd-kind-icon">new</a></li>
 							</ul>
@@ -185,7 +197,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L114">cudf/src/series.ts:114</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L114">cudf/src/series.ts:114</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -211,7 +223,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/bool.ts#L28">cudf/src/series/bool.ts:28</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/bool.ts#L28">cudf/src/series/bool.ts:28</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -233,7 +245,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L143">cudf/src/series.ts:143</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L143">cudf/src/series.ts:143</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -255,7 +267,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L133">cudf/src/series.ts:133</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L133">cudf/src/series.ts:133</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -277,7 +289,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L128">cudf/src/series.ts:128</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L128">cudf/src/series.ts:128</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -299,7 +311,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L148">cudf/src/series.ts:148</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L148">cudf/src/series.ts:148</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -321,7 +333,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L138">cudf/src/series.ts:138</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L138">cudf/src/series.ts:138</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -343,7 +355,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L153">cudf/src/series.ts:153</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L153">cudf/src/series.ts:153</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -365,7 +377,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L123">cudf/src/series.ts:123</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L123">cudf/src/series.ts:123</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -390,7 +402,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L184">cudf/src/series.ts:184</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L184">cudf/src/series.ts:184</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -399,6 +411,32 @@
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">IterableIterator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="_process_reduction" class="tsd-anchor"></a>
+					<h3>_process_<wbr>reduction</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">_process_<wbr>reduction<span class="tsd-signature-symbol">(</span>skipna<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L823">cudf/src/series/numeric.ts:823</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>skipna: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -412,7 +450,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L808">cudf/src/series/numeric.ts:808</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L808">cudf/src/series/numeric.ts:808</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -445,7 +483,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L654">cudf/src/series/numeric.ts:654</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L654">cudf/src/series/numeric.ts:654</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -478,7 +516,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L720">cudf/src/series/numeric.ts:720</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L720">cudf/src/series/numeric.ts:720</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -514,7 +552,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L81">cudf/src/series/numeric.ts:81</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L81">cudf/src/series/numeric.ts:81</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -544,7 +582,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L82">cudf/src/series/numeric.ts:82</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L82">cudf/src/series/numeric.ts:82</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -561,7 +599,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L83">cudf/src/series/numeric.ts:83</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L83">cudf/src/series/numeric.ts:83</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -584,7 +622,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L84">cudf/src/series/numeric.ts:84</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L84">cudf/src/series/numeric.ts:84</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -607,6 +645,90 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="all" class="tsd-anchor"></a>
+					<h3>all</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">all<span class="tsd-signature-symbol">(</span>skipna<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L286">cudf/src/series.ts:286</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return whether all elements are true in Series.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>skipna: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>bool
+											Exclude null values. If the entire row/column is NA and skipna is true, then the result will
+											be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
+										these are not equal to zero.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Column&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>true if all elements are true in Series, else false.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="any" class="tsd-anchor"></a>
+					<h3>any</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">any<span class="tsd-signature-symbol">(</span>skipna<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L305">cudf/src/series.ts:305</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return whether any elements are true in Series.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>skipna: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>bool
+											Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
+											be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
+										these are not equal to zero.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Column&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>true if any elements are true in Series, else false.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="asin" class="tsd-anchor"></a>
 					<h3>asin</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -616,7 +738,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L643">cudf/src/series/numeric.ts:643</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L643">cudf/src/series/numeric.ts:643</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -649,7 +771,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L709">cudf/src/series/numeric.ts:709</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L709">cudf/src/series/numeric.ts:709</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -682,7 +804,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L665">cudf/src/series/numeric.ts:665</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L665">cudf/src/series/numeric.ts:665</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -718,7 +840,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L507">cudf/src/series/numeric.ts:507</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L507">cudf/src/series/numeric.ts:507</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -748,7 +870,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L508">cudf/src/series/numeric.ts:508</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L508">cudf/src/series/numeric.ts:508</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -765,7 +887,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L509">cudf/src/series/numeric.ts:509</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L509">cudf/src/series/numeric.ts:509</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -788,7 +910,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L511">cudf/src/series/numeric.ts:511</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L511">cudf/src/series/numeric.ts:511</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -820,7 +942,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L731">cudf/src/series/numeric.ts:731</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L731">cudf/src/series/numeric.ts:731</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -853,7 +975,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L38">cudf/src/series/numeric.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L38">cudf/src/series/numeric.ts:38</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -898,7 +1020,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L775">cudf/src/series/numeric.ts:775</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L775">cudf/src/series/numeric.ts:775</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -931,7 +1053,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L786">cudf/src/series/numeric.ts:786</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L786">cudf/src/series/numeric.ts:786</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -967,7 +1089,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L455">cudf/src/series/numeric.ts:455</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L455">cudf/src/series/numeric.ts:455</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -997,7 +1119,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L456">cudf/src/series/numeric.ts:456</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L456">cudf/src/series/numeric.ts:456</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1014,7 +1136,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L457">cudf/src/series/numeric.ts:457</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L457">cudf/src/series/numeric.ts:457</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1037,7 +1159,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L459">cudf/src/series/numeric.ts:459</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L459">cudf/src/series/numeric.ts:459</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1069,7 +1191,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L621">cudf/src/series/numeric.ts:621</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L621">cudf/src/series/numeric.ts:621</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1102,7 +1224,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L687">cudf/src/series/numeric.ts:687</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L687">cudf/src/series/numeric.ts:687</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1138,7 +1260,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L150">cudf/src/series/numeric.ts:150</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L150">cudf/src/series/numeric.ts:150</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1168,7 +1290,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L151">cudf/src/series/numeric.ts:151</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L151">cudf/src/series/numeric.ts:151</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1185,7 +1307,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L152">cudf/src/series/numeric.ts:152</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L152">cudf/src/series/numeric.ts:152</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1208,7 +1330,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L153">cudf/src/series/numeric.ts:153</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L153">cudf/src/series/numeric.ts:153</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1230,6 +1352,38 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="dropnulls" class="tsd-anchor"></a>
+					<h3>drop<wbr>Nulls</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">drop<wbr>Nulls<span class="tsd-signature-symbol">(</span>memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L270">cudf/src/series.ts:270</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>drop Null values from the series</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Memory resource used to allocate the result Column&#39;s device memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.bool8series.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8Series</a></h4>
+							<p>series without Null values</p>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 					<a name="eq" class="tsd-anchor"></a>
 					<h3>eq</h3>
@@ -1243,7 +1397,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L271">cudf/src/series/numeric.ts:271</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L271">cudf/src/series/numeric.ts:271</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1275,7 +1429,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L272">cudf/src/series/numeric.ts:272</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L272">cudf/src/series/numeric.ts:272</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1292,7 +1446,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L273">cudf/src/series/numeric.ts:273</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L273">cudf/src/series/numeric.ts:273</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1315,7 +1469,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L274">cudf/src/series/numeric.ts:274</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L274">cudf/src/series/numeric.ts:274</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1347,7 +1501,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L742">cudf/src/series/numeric.ts:742</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L742">cudf/src/series/numeric.ts:742</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1380,7 +1534,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L170">cudf/src/series.ts:170</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L170">cudf/src/series.ts:170</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1412,7 +1566,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L797">cudf/src/series/numeric.ts:797</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L797">cudf/src/series/numeric.ts:797</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1448,7 +1602,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L199">cudf/src/series/numeric.ts:199</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L199">cudf/src/series/numeric.ts:199</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1478,7 +1632,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L200">cudf/src/series/numeric.ts:200</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L200">cudf/src/series/numeric.ts:200</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1495,7 +1649,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L201">cudf/src/series/numeric.ts:201</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L201">cudf/src/series/numeric.ts:201</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1518,7 +1672,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L203">cudf/src/series/numeric.ts:203</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L203">cudf/src/series/numeric.ts:203</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1550,7 +1704,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L160">cudf/src/series.ts:160</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L160">cudf/src/series.ts:160</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1561,7 +1715,7 @@
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
-									<h4>R<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#integral" class="tsd-signature-type" data-tsd-kind="Type alias">Integral</a></h4>
+									<h4>R<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#indextype" class="tsd-signature-type" data-tsd-kind="Type alias">IndexType</a></h4>
 								</li>
 							</ul>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1590,7 +1744,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L381">cudf/src/series/numeric.ts:381</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L381">cudf/src/series/numeric.ts:381</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1622,7 +1776,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L382">cudf/src/series/numeric.ts:382</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L382">cudf/src/series/numeric.ts:382</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1639,7 +1793,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L383">cudf/src/series/numeric.ts:383</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L383">cudf/src/series/numeric.ts:383</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1662,7 +1816,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L384">cudf/src/series/numeric.ts:384</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L384">cudf/src/series/numeric.ts:384</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1694,7 +1848,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L177">cudf/src/series.ts:177</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L177">cudf/src/series.ts:177</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1727,7 +1881,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L359">cudf/src/series/numeric.ts:359</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L359">cudf/src/series/numeric.ts:359</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1759,7 +1913,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L360">cudf/src/series/numeric.ts:360</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L360">cudf/src/series/numeric.ts:360</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1776,7 +1930,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L361">cudf/src/series/numeric.ts:361</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L361">cudf/src/series/numeric.ts:361</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1799,7 +1953,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L362">cudf/src/series/numeric.ts:362</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L362">cudf/src/series/numeric.ts:362</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1831,7 +1985,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L253">cudf/src/series.ts:253</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L253">cudf/src/series.ts:253</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1865,7 +2019,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L263">cudf/src/series.ts:263</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L263">cudf/src/series.ts:263</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1902,7 +2056,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L337">cudf/src/series/numeric.ts:337</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L337">cudf/src/series/numeric.ts:337</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1934,7 +2088,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L338">cudf/src/series/numeric.ts:338</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L338">cudf/src/series/numeric.ts:338</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1951,7 +2105,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L339">cudf/src/series/numeric.ts:339</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L339">cudf/src/series/numeric.ts:339</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1974,7 +2128,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L340">cudf/src/series/numeric.ts:340</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L340">cudf/src/series/numeric.ts:340</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2006,7 +2160,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L753">cudf/src/series/numeric.ts:753</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L753">cudf/src/series/numeric.ts:753</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2042,7 +2196,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L481">cudf/src/series/numeric.ts:481</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L481">cudf/src/series/numeric.ts:481</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2072,7 +2226,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L482">cudf/src/series/numeric.ts:482</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L482">cudf/src/series/numeric.ts:482</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2089,7 +2243,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L483">cudf/src/series/numeric.ts:483</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L483">cudf/src/series/numeric.ts:483</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2112,7 +2266,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L485">cudf/src/series/numeric.ts:485</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L485">cudf/src/series/numeric.ts:485</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2147,7 +2301,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L403">cudf/src/series/numeric.ts:403</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L403">cudf/src/series/numeric.ts:403</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2177,7 +2331,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L404">cudf/src/series/numeric.ts:404</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L404">cudf/src/series/numeric.ts:404</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2194,7 +2348,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L405">cudf/src/series/numeric.ts:405</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L405">cudf/src/series/numeric.ts:405</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2217,7 +2371,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L407">cudf/src/series/numeric.ts:407</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L407">cudf/src/series/numeric.ts:407</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2252,7 +2406,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L429">cudf/src/series/numeric.ts:429</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L429">cudf/src/series/numeric.ts:429</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2282,7 +2436,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L430">cudf/src/series/numeric.ts:430</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L430">cudf/src/series/numeric.ts:430</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2299,7 +2453,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L431">cudf/src/series/numeric.ts:431</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L431">cudf/src/series/numeric.ts:431</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2322,7 +2476,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L433">cudf/src/series/numeric.ts:433</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L433">cudf/src/series/numeric.ts:433</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2357,7 +2511,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L315">cudf/src/series/numeric.ts:315</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L315">cudf/src/series/numeric.ts:315</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2389,7 +2543,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L316">cudf/src/series/numeric.ts:316</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L316">cudf/src/series/numeric.ts:316</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2406,7 +2560,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L317">cudf/src/series/numeric.ts:317</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L317">cudf/src/series/numeric.ts:317</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2429,7 +2583,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L318">cudf/src/series/numeric.ts:318</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L318">cudf/src/series/numeric.ts:318</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2451,6 +2605,86 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="mean" class="tsd-anchor"></a>
+					<h3>mean</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">mean<span class="tsd-signature-symbol">(</span>skipna<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L879">cudf/src/series/numeric.ts:879</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compute the mean of all values in this Series.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>skipna: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional skipna if true drops NA and null values before computing reduction,
+										else if skipna is false, reduction is computed directly.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Series&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h4>
+							<p>The mean of all the values in this Series.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="median" class="tsd-anchor"></a>
+					<h3>median</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">median<span class="tsd-signature-symbol">(</span>skipna<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L893">cudf/src/series/numeric.ts:893</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compute the median of all values in this Series.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>skipna: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional skipna if true drops NA and null values before computing reduction,
+										else if skipna is false, reduction is computed directly.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Series&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h4>
+							<p>The median of all the values in this Series.</p>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 					<a name="mod" class="tsd-anchor"></a>
 					<h3>mod</h3>
@@ -2464,7 +2698,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L225">cudf/src/series/numeric.ts:225</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L225">cudf/src/series/numeric.ts:225</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2494,7 +2728,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L226">cudf/src/series/numeric.ts:226</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L226">cudf/src/series/numeric.ts:226</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2511,7 +2745,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L227">cudf/src/series/numeric.ts:227</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L227">cudf/src/series/numeric.ts:227</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2534,7 +2768,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L228">cudf/src/series/numeric.ts:228</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L228">cudf/src/series/numeric.ts:228</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2569,7 +2803,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L127">cudf/src/series/numeric.ts:127</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L127">cudf/src/series/numeric.ts:127</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2599,7 +2833,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L128">cudf/src/series/numeric.ts:128</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L128">cudf/src/series/numeric.ts:128</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2616,7 +2850,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L129">cudf/src/series/numeric.ts:129</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L129">cudf/src/series/numeric.ts:129</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2639,7 +2873,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L130">cudf/src/series/numeric.ts:130</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L130">cudf/src/series/numeric.ts:130</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2674,7 +2908,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L293">cudf/src/series/numeric.ts:293</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L293">cudf/src/series/numeric.ts:293</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2706,7 +2940,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L294">cudf/src/series/numeric.ts:294</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L294">cudf/src/series/numeric.ts:294</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2723,7 +2957,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L295">cudf/src/series/numeric.ts:295</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L295">cudf/src/series/numeric.ts:295</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2746,7 +2980,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L296">cudf/src/series/numeric.ts:296</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L296">cudf/src/series/numeric.ts:296</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2778,7 +3012,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L819">cudf/src/series/numeric.ts:819</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L819">cudf/src/series/numeric.ts:819</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2814,7 +3048,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L534">cudf/src/series/numeric.ts:534</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L534">cudf/src/series/numeric.ts:534</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2845,7 +3079,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L535">cudf/src/series/numeric.ts:535</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L535">cudf/src/series/numeric.ts:535</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2862,7 +3096,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L536">cudf/src/series/numeric.ts:536</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L536">cudf/src/series/numeric.ts:536</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2885,7 +3119,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L537">cudf/src/series/numeric.ts:537</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L537">cudf/src/series/numeric.ts:537</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2920,7 +3154,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L559">cudf/src/series/numeric.ts:559</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L559">cudf/src/series/numeric.ts:559</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2950,7 +3184,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L560">cudf/src/series/numeric.ts:560</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L560">cudf/src/series/numeric.ts:560</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2967,7 +3201,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L561">cudf/src/series/numeric.ts:561</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L561">cudf/src/series/numeric.ts:561</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -2990,7 +3224,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L563">cudf/src/series/numeric.ts:563</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L563">cudf/src/series/numeric.ts:563</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3025,7 +3259,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L585">cudf/src/series/numeric.ts:585</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L585">cudf/src/series/numeric.ts:585</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3055,7 +3289,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L586">cudf/src/series/numeric.ts:586</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L586">cudf/src/series/numeric.ts:586</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -3072,7 +3306,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L587">cudf/src/series/numeric.ts:587</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L587">cudf/src/series/numeric.ts:587</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3095,7 +3329,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L589">cudf/src/series/numeric.ts:589</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L589">cudf/src/series/numeric.ts:589</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3118,6 +3352,46 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="nunique" class="tsd-anchor"></a>
+					<h3>nunique</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">nunique<span class="tsd-signature-symbol">(</span>skipna<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L907">cudf/src/series/numeric.ts:907</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compute the nunique of all values in this Series.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>skipna: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional skipna if true drops NA and null values before computing reduction,
+										else if skipna is false, reduction is computed directly.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Series&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<p>The number of unqiue values in this Series.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="orderby" class="tsd-anchor"></a>
 					<h3>order<wbr>By</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -3127,7 +3401,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L227">cudf/src/series.ts:227</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L227">cudf/src/series.ts:227</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3168,7 +3442,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L248">cudf/src/series/numeric.ts:248</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L248">cudf/src/series/numeric.ts:248</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3198,7 +3472,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L249">cudf/src/series/numeric.ts:249</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L249">cudf/src/series/numeric.ts:249</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -3215,7 +3489,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L250">cudf/src/series/numeric.ts:250</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L250">cudf/src/series/numeric.ts:250</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3238,7 +3512,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L251">cudf/src/series/numeric.ts:251</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L251">cudf/src/series/numeric.ts:251</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3261,6 +3535,93 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="product" class="tsd-anchor"></a>
+					<h3>product</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">product<span class="tsd-signature-symbol">(</span>skipna<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L850">cudf/src/series/numeric.ts:850</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compute the product of all values in this Series.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>skipna: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional skipna if true drops NA and null values before computing reduction,
+										else if skipna is false, reduction is computed directly.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Series&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span></h4>
+							<p>The product of all the values in this Series.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="quantile" class="tsd-anchor"></a>
+					<h3>quantile</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">quantile<span class="tsd-signature-symbol">(</span>q<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, interpolation<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;linear&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;lower&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;higher&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;midpoint&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;nearest&quot;</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L952">cudf/src/series/numeric.ts:952</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return values at the given quantile.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>q: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0.5</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the quantile(s) to compute, 0 &lt;= q &lt;= 1</p>
+									</div>
+								</li>
+								<li>
+									<h5>interpolation: <span class="tsd-signature-type">&quot;linear&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;lower&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;higher&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;midpoint&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;nearest&quot;</span><span class="tsd-signature-symbol"> = &#x27;linear&#x27;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>This optional parameter specifies the interpolation method to use,
+											when the desired quantile lies between two data points i and j.
+										Valid values: ’linear’, ‘lower’, ‘higher’, ‘midpoint’, ‘nearest’.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Series&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h4>
+							<p>values at the given quantile.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="setnullmask" class="tsd-anchor"></a>
 					<h3>set<wbr>Null<wbr>Mask</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -3270,7 +3631,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L198">cudf/src/series.ts:198</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L198">cudf/src/series.ts:198</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -3306,7 +3667,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L610">cudf/src/series/numeric.ts:610</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L610">cudf/src/series/numeric.ts:610</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3339,7 +3700,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L676">cudf/src/series/numeric.ts:676</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L676">cudf/src/series/numeric.ts:676</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3372,7 +3733,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L241">cudf/src/series.ts:241</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L241">cudf/src/series.ts:241</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3412,7 +3773,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L764">cudf/src/series/numeric.ts:764</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L764">cudf/src/series/numeric.ts:764</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3435,6 +3796,53 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="std" class="tsd-anchor"></a>
+					<h3>std</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">std<span class="tsd-signature-symbol">(</span>skipna<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, ddof<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L937">cudf/src/series/numeric.ts:937</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return sample standard deviation of the Series.
+									Normalized by N-1 by default. This can be changed using the <code>ddof</code> argument</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>skipna: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Exclude NA/null values. If an entire row/column is NA, the result will be NA.</p>
+									</div>
+								</li>
+								<li>
+									<h5>ddof: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Delta Degrees of Freedom. The divisor used in calculations is N - ddof,
+										where N represents the number of elements.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Series&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h4>
+							<p>The standard deviation of all the values in this Series.</p>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 					<a name="sub" class="tsd-anchor"></a>
 					<h3>sub</h3>
@@ -3448,7 +3856,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L104">cudf/src/series/numeric.ts:104</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L104">cudf/src/series/numeric.ts:104</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3478,7 +3886,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L105">cudf/src/series/numeric.ts:105</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L105">cudf/src/series/numeric.ts:105</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -3495,7 +3903,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L106">cudf/src/series/numeric.ts:106</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L106">cudf/src/series/numeric.ts:106</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3518,7 +3926,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L107">cudf/src/series/numeric.ts:107</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L107">cudf/src/series/numeric.ts:107</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3544,13 +3952,13 @@
 					<a name="sum" class="tsd-anchor"></a>
 					<h3>sum</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">sum<span class="tsd-signature-symbol">(</span>memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon">sum<span class="tsd-signature-symbol">(</span>skipna<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L830">cudf/src/series/numeric.ts:830</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L836">cudf/src/series/numeric.ts:836</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3561,6 +3969,13 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
+									<h5>skipna: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional skipna if true drops NA and null values before computing reduction,
+										else if skipna is false, reduction is computed directly.</p>
+									</div>
+								</li>
+								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The optional MemoryResource used to allocate the result Series&#39;s device
@@ -3568,8 +3983,48 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span></h4>
 							<p>The sum of all the values in this Series.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="sumofsquares" class="tsd-anchor"></a>
+					<h3>sum<wbr>OfSquares</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">sum<wbr>OfSquares<span class="tsd-signature-symbol">(</span>skipna<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L864">cudf/src/series/numeric.ts:864</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compute the sumOfSquares of all values in this Series.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>skipna: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional skipna if true drops NA and null values before computing reduction,
+										else if skipna is false, reduction is computed directly.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Series&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span></h4>
+							<p>The sumOfSquares of all the values in this Series.</p>
 						</li>
 					</ul>
 				</section>
@@ -3583,7 +4038,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L632">cudf/src/series/numeric.ts:632</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L632">cudf/src/series/numeric.ts:632</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3616,7 +4071,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L698">cudf/src/series/numeric.ts:698</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L698">cudf/src/series/numeric.ts:698</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3649,7 +4104,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L203">cudf/src/series.ts:203</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L203">cudf/src/series.ts:203</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3674,7 +4129,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L173">cudf/src/series/numeric.ts:173</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L173">cudf/src/series/numeric.ts:173</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3704,7 +4159,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L174">cudf/src/series/numeric.ts:174</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L174">cudf/src/series/numeric.ts:174</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -3721,7 +4176,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L175">cudf/src/series/numeric.ts:175</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L175">cudf/src/series/numeric.ts:175</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3744,7 +4199,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L177">cudf/src/series/numeric.ts:177</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L177">cudf/src/series/numeric.ts:177</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3766,6 +4221,53 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="var" class="tsd-anchor"></a>
+					<h3>var</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">var<span class="tsd-signature-symbol">(</span>skipna<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, ddof<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L922">cudf/src/series/numeric.ts:922</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return unbiased variance of the Series.
+									Normalized by N-1 by default. This can be changed using the <code>ddof</code> argument</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>skipna: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Exclude NA/null values. If an entire row/column is NA, the result will be NA.</p>
+									</div>
+								</li>
+								<li>
+									<h5>ddof: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Delta Degrees of Freedom. The divisor used in calculations is N - ddof,
+										where N represents the number of elements.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Series&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h4>
+							<p>The unbiased variance of all the values in this Series.</p>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 					<a name="view" class="tsd-anchor"></a>
 					<h3>view</h3>
@@ -3776,7 +4278,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series/numeric.ts#L50">cudf/src/series/numeric.ts:50</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series/numeric.ts#L50">cudf/src/series/numeric.ts:50</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3820,7 +4322,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L107">cudf/src/series.ts:107</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L107">cudf/src/series.ts:107</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3840,7 +4342,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/9e2fbbd/modules/cudf/src/series.ts#L108">cudf/src/series.ts:108</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/series.ts#L108">cudf/src/series.ts:108</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3931,6 +4433,9 @@
 								<a href="cudf_src.bool8series.html#_symbol_iterator_" class="tsd-kind-icon">[<wbr>Symbol.iterator]</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#_process_reduction" class="tsd-kind-icon">_process_<wbr>reduction</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="cudf_src.bool8series.html#abs" class="tsd-kind-icon">abs</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -3941,6 +4446,12 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="cudf_src.bool8series.html#add" class="tsd-kind-icon">add</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#all" class="tsd-kind-icon">all</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#any" class="tsd-kind-icon">any</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="cudf_src.bool8series.html#asin" class="tsd-kind-icon">asin</a>
@@ -3977,6 +4488,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="cudf_src.bool8series.html#div" class="tsd-kind-icon">div</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#dropnulls" class="tsd-kind-icon">drop<wbr>Nulls</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="cudf_src.bool8series.html#eq" class="tsd-kind-icon">eq</a>
@@ -4029,6 +4543,12 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="cudf_src.bool8series.html#lt" class="tsd-kind-icon">lt</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#mean" class="tsd-kind-icon">mean</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#median" class="tsd-kind-icon">median</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="cudf_src.bool8series.html#mod" class="tsd-kind-icon">mod</a>
 							</li>
@@ -4051,10 +4571,19 @@
 								<a href="cudf_src.bool8series.html#null_min" class="tsd-kind-icon">null_<wbr>min</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#nunique" class="tsd-kind-icon">nunique</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="cudf_src.bool8series.html#orderby" class="tsd-kind-icon">order<wbr>By</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="cudf_src.bool8series.html#pow" class="tsd-kind-icon">pow</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#product" class="tsd-kind-icon">product</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#quantile" class="tsd-kind-icon">quantile</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="cudf_src.bool8series.html#setnullmask" class="tsd-kind-icon">set<wbr>Null<wbr>Mask</a>
@@ -4071,11 +4600,17 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="cudf_src.bool8series.html#sqrt" class="tsd-kind-icon">sqrt</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#std" class="tsd-kind-icon">std</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="cudf_src.bool8series.html#sub" class="tsd-kind-icon">sub</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="cudf_src.bool8series.html#sum" class="tsd-kind-icon">sum</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#sumofsquares" class="tsd-kind-icon">sum<wbr>OfSquares</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="cudf_src.bool8series.html#tan" class="tsd-kind-icon">tan</a>
@@ -4088,6 +4623,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="cudf_src.bool8series.html#true_div" class="tsd-kind-icon">true_<wbr>div</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.bool8series.html#var" class="tsd-kind-icon">var</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
 								<a href="cudf_src.bool8series.html#view" class="tsd-kind-icon">view</a>
@@ -4104,7 +4642,7 @@
 		</div>
 	</div>
 </div>
-<footer class="with-border-bottom">
+<footer>
 	<div class="container">
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
@@ -4132,9 +4670,6 @@
 		</div>
 	</div>
 </footer>
-<div class="container tsd-generator">
-	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
-</div>
 <div class="overlay"></div>
 <script src="../assets/js/main.js"></script>
 </body>

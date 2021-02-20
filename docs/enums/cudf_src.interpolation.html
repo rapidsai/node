@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>CUDAGraphicsRegisterFlag | RAPIDS</title>
+	<title>Interpolation | RAPIDS</title>
 	<meta name="description" content="Documentation for RAPIDS">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -53,13 +53,13 @@
 					<a href="../modules.html">RAPIDS</a>
 				</li>
 				<li>
-					<a href="../modules/cuda_src.html">cuda/src</a>
+					<a href="../modules/cudf_src.html">cudf/src</a>
 				</li>
 				<li>
-					<a href="cuda_src.cudagraphicsregisterflag.html">CUDAGraphicsRegisterFlag</a>
+					<a href="cudf_src.interpolation.html">Interpolation</a>
 				</li>
 			</ul>
-			<h1>Enumeration CUDAGraphicsRegisterFlag</h1>
+			<h1>Enumeration Interpolation</h1>
 		</div>
 	</div>
 </header>
@@ -73,9 +73,11 @@
 						<section class="tsd-index-section ">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="cuda_src.cudagraphicsregisterflag.html#none" class="tsd-kind-icon">NONE</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="cuda_src.cudagraphicsregisterflag.html#read_only" class="tsd-kind-icon">READ_<wbr>ONLY</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="cuda_src.cudagraphicsregisterflag.html#write_discard" class="tsd-kind-icon">WRITE_<wbr>DISCARD</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="cudf_src.interpolation.html#higher" class="tsd-kind-icon">higher</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="cudf_src.interpolation.html#linear" class="tsd-kind-icon">linear</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="cudf_src.interpolation.html#lower" class="tsd-kind-icon">lower</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="cudf_src.interpolation.html#midpoint" class="tsd-kind-icon">midpoint</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="cudf_src.interpolation.html#nearest" class="tsd-kind-icon">nearest</a></li>
 							</ul>
 						</section>
 					</div>
@@ -84,32 +86,52 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Enumeration members</h2>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="none" class="tsd-anchor"></a>
-					<h3>NONE</h3>
-					<div class="tsd-signature tsd-kind-icon">NONE<span class="tsd-signature-symbol">:</span></div>
+					<a name="higher" class="tsd-anchor"></a>
+					<h3>higher</h3>
+					<div class="tsd-signature tsd-kind-icon">higher<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 2</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cuda/src/addon.ts#L116">cuda/src/addon.ts:116</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/types/mappings.ts#L42">cudf/src/types/mappings.ts:42</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="read_only" class="tsd-anchor"></a>
-					<h3>READ_<wbr>ONLY</h3>
-					<div class="tsd-signature tsd-kind-icon">READ_<wbr>ONLY<span class="tsd-signature-symbol">:</span></div>
+					<a name="linear" class="tsd-anchor"></a>
+					<h3>linear</h3>
+					<div class="tsd-signature tsd-kind-icon">linear<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 0</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cuda/src/addon.ts#L117">cuda/src/addon.ts:117</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/types/mappings.ts#L40">cudf/src/types/mappings.ts:40</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
-					<a name="write_discard" class="tsd-anchor"></a>
-					<h3>WRITE_<wbr>DISCARD</h3>
-					<div class="tsd-signature tsd-kind-icon">WRITE_<wbr>DISCARD<span class="tsd-signature-symbol">:</span></div>
+					<a name="lower" class="tsd-anchor"></a>
+					<h3>lower</h3>
+					<div class="tsd-signature tsd-kind-icon">lower<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 1</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cuda/src/addon.ts#L118">cuda/src/addon.ts:118</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/types/mappings.ts#L41">cudf/src/types/mappings.ts:41</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="midpoint" class="tsd-anchor"></a>
+					<h3>midpoint</h3>
+					<div class="tsd-signature tsd-kind-icon">midpoint<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 3</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/types/mappings.ts#L43">cudf/src/types/mappings.ts:43</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="nearest" class="tsd-anchor"></a>
+					<h3>nearest</h3>
+					<div class="tsd-signature tsd-kind-icon">nearest<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 4</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/types/mappings.ts#L44">cudf/src/types/mappings.ts:44</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -121,10 +143,10 @@
 					<li class=" ">
 						<a href="../modules.html">Modules</a>
 					</li>
-					<li class="current tsd-kind-module">
+					<li class=" tsd-kind-module">
 						<a href="../modules/cuda_src.html">cuda/src</a>
 					</li>
-					<li class=" tsd-kind-module">
+					<li class="current tsd-kind-module">
 						<a href="../modules/cudf_src.html">cudf/src</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -152,16 +174,22 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-enum tsd-parent-kind-module">
-						<a href="cuda_src.cudagraphicsregisterflag.html" class="tsd-kind-icon">CUDAGraphics<wbr>Register<wbr>Flag</a>
+						<a href="cudf_src.interpolation.html" class="tsd-kind-icon">Interpolation</a>
 						<ul>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="cuda_src.cudagraphicsregisterflag.html#none" class="tsd-kind-icon">NONE</a>
+								<a href="cudf_src.interpolation.html#higher" class="tsd-kind-icon">higher</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="cuda_src.cudagraphicsregisterflag.html#read_only" class="tsd-kind-icon">READ_<wbr>ONLY</a>
+								<a href="cudf_src.interpolation.html#linear" class="tsd-kind-icon">linear</a>
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
-								<a href="cuda_src.cudagraphicsregisterflag.html#write_discard" class="tsd-kind-icon">WRITE_<wbr>DISCARD</a>
+								<a href="cudf_src.interpolation.html#lower" class="tsd-kind-icon">lower</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="cudf_src.interpolation.html#midpoint" class="tsd-kind-icon">midpoint</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="cudf_src.interpolation.html#nearest" class="tsd-kind-icon">nearest</a>
 							</li>
 						</ul>
 					</li>

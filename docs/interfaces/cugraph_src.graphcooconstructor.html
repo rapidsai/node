@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>List | RAPIDS</title>
+	<title>GraphCOOConstructor | RAPIDS</title>
 	<meta name="description" content="Documentation for RAPIDS">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -53,37 +53,24 @@
 					<a href="../modules.html">RAPIDS</a>
 				</li>
 				<li>
-					<a href="../modules/cudf_src.html">cudf/src</a>
+					<a href="../modules/cugraph_src.html">cugraph/src</a>
 				</li>
 				<li>
-					<a href="cudf_src.list.html">List</a>
+					<a href="cugraph_src.graphcooconstructor.html">GraphCOOConstructor</a>
 				</li>
 			</ul>
-			<h1>Class List&lt;T&gt;</h1>
+			<h1>Interface GraphCOOConstructor</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-type-parameters">
-				<h3>Type parameters</h3>
-				<ul class="tsd-type-parameters">
-					<li>
-						<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#datatype" class="tsd-signature-type" data-tsd-kind="Type alias">DataType</a> = <span class="tsd-signature-type">any</span></h4>
-					</li>
-				</ul>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">List</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span>
-						<ul class="tsd-hierarchy">
-							<li>
-								<span class="target">List</span>
-							</li>
-						</ul>
+						<span class="target">GraphCOOConstructor</span>
 					</li>
 				</ul>
 			</section>
@@ -94,14 +81,13 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.list.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-interface"><a href="cugraph_src.graphcooconstructor.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="cudf_src.list.html#childtype" class="tsd-kind-icon">child<wbr>Type</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="cudf_src.list.html#scalartype" class="tsd-kind-icon">scalar<wbr>Type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cugraph_src.graphcooconstructor.html#prototype" class="tsd-kind-icon">prototype</a></li>
 							</ul>
 						</section>
 					</div>
@@ -109,55 +95,50 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Constructors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter">
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-interface">
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
-					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>List&lt;T&gt;<span class="tsd-signature-symbol">(</span>child<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Field</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>GraphCOOConstructor<span class="tsd-signature-symbol">(</span>src<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span>, dst<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span>directedEdges<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">GraphCOO</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in cudf/node_modules/apache-arrow/type.d.ts:442</li>
+									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cugraph/src/graph_coo.ts#L19">cugraph/src/graph_coo.ts:19</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-type-parameters-title">Type parameters</h4>
-							<ul class="tsd-type-parameters">
-								<li>
-									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#datatype" class="tsd-signature-type" data-tsd-kind="Type alias">DataType</a> = <span class="tsd-signature-type">any</span></h4>
-								</li>
-							</ul>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>child: <span class="tsd-signature-type">Field</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>src: <a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+								<li>
+									<h5>dst: <a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-symbol">{ </span>directedEdges<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> directed<wbr>Edges<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+									</ul>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">GraphCOO</span></h4>
 						</li>
 					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="childtype" class="tsd-anchor"></a>
-					<h3>child<wbr>Type</h3>
-					<div class="tsd-signature tsd-kind-icon">child<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="prototype" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> prototype</h3>
+					<div class="tsd-signature tsd-kind-icon">prototype<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">GraphCOO</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/types/dtypes.ts#L107">cudf/src/types/dtypes.ts:107</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="scalartype" class="tsd-anchor"></a>
-					<h3>scalar<wbr>Type</h3>
-					<div class="tsd-signature tsd-kind-icon">scalar<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;scalarType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cudf/src/types/dtypes.ts#L108">cudf/src/types/dtypes.ts:108</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/58ebe16/modules/cugraph/src/graph_coo.ts#L19">cugraph/src/graph_coo.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -172,10 +153,10 @@
 					<li class=" tsd-kind-module">
 						<a href="../modules/cuda_src.html">cuda/src</a>
 					</li>
-					<li class="current tsd-kind-module">
+					<li class=" tsd-kind-module">
 						<a href="../modules/cudf_src.html">cudf/src</a>
 					</li>
-					<li class=" tsd-kind-module">
+					<li class="current tsd-kind-module">
 						<a href="../modules/cugraph_src.html">cugraph/src</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -199,22 +180,22 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-class tsd-parent-kind-module tsd-has-type-parameter">
-						<a href="cudf_src.list.html" class="tsd-kind-icon">List</a>
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="cugraph_src.graphcooconstructor.html" class="tsd-kind-icon">GraphCOOConstructor</a>
 						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter">
-								<a href="cudf_src.list.html#constructor" class="tsd-kind-icon">constructor</a>
+							<li class=" tsd-kind-constructor tsd-parent-kind-interface">
+								<a href="cugraph_src.graphcooconstructor.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="cudf_src.list.html#childtype" class="tsd-kind-icon">child<wbr>Type</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="cudf_src.list.html#scalartype" class="tsd-kind-icon">scalar<wbr>Type</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="cugraph_src.graphcooconstructor.html#prototype" class="tsd-kind-icon">prototype</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/cugraph_src.html#graphcoo" class="tsd-kind-icon">GraphCOO</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -233,13 +214,14 @@
 				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-			</ul>
-			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
