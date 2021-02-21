@@ -9,7 +9,6 @@ x-common-service-settings: &common_service_settings
     context: .
     args: &common_build_args
       UID: ${UID:-1000}
-      GID: ${GID:-1000}
       ADDITIONAL_GROUPS: ""
       NODE_VERSION: "${NODE_VERSION:-14.10.1}"
       YARN_VERSION: "${YARN_VERSION:-1.22.5}"
