@@ -38,9 +38,10 @@ COPY --from=node /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entry
 
 ARG UID=1000
 ARG GID=1000
+ARG ADDITIONAL_GROUPS=
 
 RUN groupadd --gid $GID node \
- && useradd --uid $UID --gid node --shell /bin/bash --create-home node \
+ && useradd --uid $UID --gid node ${ADDITIONAL_GROUPS} --shell /bin/bash --create-home node \
  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
  && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
@@ -53,5 +54,7 @@ ENV CUDA_HOME="/usr/local/cuda"
 SHELL ["/bin/bash", "-l"]
 
 ENTRYPOINT ["docker-entrypoint.sh"]
+
+USER node
 
 CMD ["node"]
