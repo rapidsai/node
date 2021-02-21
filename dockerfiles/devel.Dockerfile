@@ -33,7 +33,7 @@ fi') \
     # node-canvas dependencies
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
     # GLEW dependencies
-    build-essential libxmu-dev libxi-dev libgl-dev libgl1-mesa-dev libglu1-mesa-dev \
+    build-essential libxmu-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # cuDF dependencies
     libboost-filesystem-dev \
     # cuSpatial dependencies
@@ -111,7 +111,6 @@ ARG ADDITIONAL_GROUPS=
 
 RUN groupadd --gid $GID node \
  && useradd --uid $UID --gid node ${ADDITIONAL_GROUPS} --shell /bin/bash --create-home node \
- && echo root:root | chpasswd \
  && echo node:node | chpasswd \
  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
  && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
@@ -121,7 +120,12 @@ RUN groupadd --gid $GID node \
  && sed -ri "s/32m/33m/g" /home/node/.bashrc \
  && sed -ri "s/34m/36m/g" /home/node/.bashrc \
  && mkdir -p /etc/bash_completion.d \
- && npm completion > /etc/bash_completion.d/npm
+ # add npm completions
+ && npm completion > /etc/bash_completion.d/npm \
+ # add yarn completions
+ && curl -fsSL --compressed \
+    https://raw.githubusercontent.com/dsifford/yarn-completion/5bf2968493a7a76649606595cfca880a77e6ac0e/yarn-completion.bash \
+  | tee /etc/bash_completion.d/yarn >/dev/null
 
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda"

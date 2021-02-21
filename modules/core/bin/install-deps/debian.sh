@@ -50,11 +50,11 @@ install_vscode() {
 
 install_clangd() {
     INSTALLED_CLANGD=1
-    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-12"
-    if [ ! -d "/etc/apt/sources.list.d/llvm-10.list" ]; then
+    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-12 clang-format-12"
+    if [ ! -d "/etc/apt/sources.list.d/llvm.list" ]; then
         curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        echo "deb http://apt.llvm.org/$OS_RELEASE/ llvm-toolchain-$OS_RELEASE main
-deb-src http://apt.llvm.org/$OS_RELEASE/ llvm-toolchain-$OS_RELEASE main
+        echo "deb http://apt.llvm.org/$OS_RELEASE/ llvm-toolchain-$OS_RELEASE-12 main
+deb-src http://apt.llvm.org/$OS_RELEASE/ llvm-toolchain-$OS_RELEASE-12 main
 " | sudo tee /etc/apt/sources.list.d/llvm.list
     fi
 }
@@ -84,7 +84,7 @@ install_apt_deps jq software-properties-common \
     # node-canvas dependencies
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
     # GLEW dependencies
-    build-essential libxmu-dev libxi-dev libgl-dev libgl1-mesa-dev libglu1-mesa-dev
+    build-essential libxmu-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev
 
 if [ -n "$INSTALL_CMAKE" ]; then
     # Ensure Qt-5 is installed for CMake GUI, otherwise no cmake GUI
