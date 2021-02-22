@@ -2,17 +2,14 @@ version: "3.8"
 
 x-common-service-settings: &common_service_settings
   env_file: .env
-  cap_add:
-    - SYS_PTRACE
   tty: true
   network_mode: "host"
   working_dir: "${PWD}"
-  user: "${UID:-1000}:${GID:-1000}"
   build: &common_build_settings
     context: .
     args: &common_build_args
       UID: ${UID:-1000}
-      GID: ${GID:-1000}
+      ADDITIONAL_GROUPS: ""
       NODE_VERSION: "${NODE_VERSION:-14.10.1}"
       YARN_VERSION: "${YARN_VERSION:-1.22.5}"
       PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
@@ -53,6 +50,7 @@ services:
       dockerfile: dockerfiles/devel.Dockerfile
       args:
         <<: *common_build_args
+        ADDITIONAL_GROUPS: "--groups sudo"
         CUDA_BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.0}-devel-${LINUX_VERSION:-ubuntu18.04}
     volumes:
       - *workdir
@@ -60,6 +58,9 @@ services:
       - *x11_socket
       - *usr_share_fonts
       - *usr_share_icons
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
 
   # Services for Jetson Xavier AGX
 
@@ -71,6 +72,7 @@ services:
       dockerfile: dockerfiles/runtime.Dockerfile
       args:
         <<: *common_build_args
+        ADDITIONAL_GROUPS: "--groups video"
         CUDA_BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.4
     volumes:
       - *workdir
@@ -87,6 +89,7 @@ services:
       dockerfile: dockerfiles/devel.Dockerfile
       args:
         <<: *common_build_args
+        ADDITIONAL_GROUPS: "--groups sudo,video"
         CUDA_BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.4
     volumes:
       - *workdir
@@ -97,3 +100,6 @@ services:
     environment:
       <<: *common_environment_variables
       CUDA_ARCHITECTURES: 72
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
