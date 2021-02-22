@@ -16,14 +16,11 @@ import {MemoryResource} from '@nvidia/rmm';
 
 import CUDF from './addon';
 import {Column} from './column';
-import {DataFrame} from './data_frame';
+import {DataFrame, SeriesMap} from './data_frame';
 import {Series} from './series';
 import {Table} from './table';
 import {NullOrder} from './types/enums'
 import {TypeMap} from './types/mappings'
-
-export type AggFunc =
-  "argmax"|"argmin"|"count"|"max"|"mean"|"median"|"min"|"nunique"|"std"|"sum"|"var"
 
 /*
  * @param keys DataFrame whose rows act as the groupby keys
@@ -38,9 +35,9 @@ export type AggFunc =
  * use `null_order::BEFORE`. Ignored if `keys_are_sorted == false`.
  */
 
-export type GroupByProps<T extends TypeMap> = {
+export type GroupByProps<T extends TypeMap, R extends keyof T> = {
   obj: DataFrame<T>,
-  by: (keyof T)[],
+  by: R[],
   include_nulls?: boolean,
   keys_are_sorted?: boolean,
   column_order?: boolean[],
@@ -55,10 +52,10 @@ type CudfGroupByProps = {
   null_precedence?: NullOrder[],
 };
 
-export type Groups = {
-  keys: DataFrame,
+export type Groups<KeysMap extends TypeMap, ValuesMap extends TypeMap> = {
+  keys: DataFrame<KeysMap>,
   offsets: number[],
-  values?: DataFrame,
+  values?: DataFrame<ValuesMap>,
 }
 
 interface GroupbyConstructor {
@@ -67,28 +64,30 @@ interface GroupbyConstructor {
 }
 
 interface CudfGroupBy {
-  _by: string[];
-  _values: DataFrame;
   _getGroups(values?: Table, memoryResource?: MemoryResource): any;
 
-  _argmax(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
-  _argmin(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
-  _count(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
-  _max(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
-  _mean(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
-  _median(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
-  _min(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
-  _nth(n: number, values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
-  _nunique(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
-  _std(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
-  _sum(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
-  _var(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: [Column]};
+  _argmax(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
+  _argmin(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
+  _count(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
+  _max(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
+  _mean(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
+  _median(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
+  _min(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
+  _nth(n: number, values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
+  _nunique(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
+  _std(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
+  _sum(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
+  _var(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
   _quantile(q: number, values: Table, interpolation?: number, memoryResource?: MemoryResource):
     {keys: Table, cols: [Column]};
 }
 
-export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy) {
-  constructor(props: GroupByProps<T>) {
+export class GroupBy<T extends TypeMap, R extends keyof T> extends(
+  <GroupbyConstructor>CUDF.GroupBy) {
+  private _by: R[];
+  private _values: DataFrame<Omit<T, R>>;
+
+  constructor(props: GroupByProps<T, R>) {
     const table = props.obj.select(props.by).asTable();
     const {
       include_nulls   = false,
@@ -105,7 +104,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
       null_precedence: null_precedence,
     };
     super(cudf_props);
-    this._by     = props.by as string[];
+    this._by     = props.by;
     this._values = props.obj.drop(props.by);
   }
 
@@ -115,7 +114,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  getGroups(memoryResource?: MemoryResource): Groups {
+  getGroups(memoryResource?: MemoryResource): Groups<Pick<T, R>, Omit<T, R>> {
     const table      = this._values.asTable();
     const results    = this._getGroups(table, memoryResource);
     const series_map = {} as any;
@@ -134,10 +133,10 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
     return results;
   }
 
-  protected prepare_results(results: {keys: Table, cols: [Column]}) {
+  protected prepare_results(results: {keys: Table, cols: Column[]}) {
     const {keys, cols} = results;
 
-    const series_map = {} as any;
+    const series_map = {} as SeriesMap<T>;
     this._by.forEach(
       (name, index) => { series_map[name] = Series.new(keys.getColumnByIndex(index)); });
     this._values.names.forEach((name, index) => { series_map[name] = Series.new(cols[index]); });
@@ -274,7 +273,7 @@ export class GroupBy<T extends TypeMap> extends(<GroupbyConstructor>CUDF.GroupBy
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  quantile(q: number, interpolation?: number, memoryResource?: MemoryResource) {
+  quantile(q = 0.5, interpolation = 'linear', memoryResource?: MemoryResource) {
     return this.prepare_results(
       this._quantile(q, this._values.asTable(), interpolation, memoryResource));
   }
