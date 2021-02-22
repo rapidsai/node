@@ -100,6 +100,7 @@ services:
     environment:
       <<: *common_environment_variables
       CUDA_ARCHITECTURES: 72
+      JOBS: 2
     cap_add:
       - SYS_ADMIN
       - SYS_PTRACE
