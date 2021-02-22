@@ -377,7 +377,7 @@ Napi::FunctionReference WebGLSync::constructor;
 
 WebGLSync::WebGLSync(Napi::CallbackInfo const& info) : Napi::ObjectWrap<WebGLSync>(info){};
 
-Napi::Object WebGLSync::New(GLuint value) {
+Napi::Object WebGLSync::New(GLsync value) {
   auto obj                       = WebGLSync::constructor.New({});
   WebGLSync::Unwrap(obj)->value_ = value;
   return obj;
@@ -398,11 +398,12 @@ Napi::Object WebGLSync::Init(Napi::Env env, Napi::Object exports) {
 };
 
 Napi::Value WebGLSync::ToString(Napi::CallbackInfo const& info) {
-  return Napi::String::New(this->Env(), "[ WebGLSync " + std::to_string(this->value_) + " ]");
+  return Napi::String::New(
+    this->Env(), "[ WebGLSync " + std::to_string(reinterpret_cast<uintptr_t>(this->value_)) + " ]");
 }
 
 Napi::Value WebGLSync::GetValue(Napi::CallbackInfo const& info) {
-  return Napi::Number::New(this->Env(), this->value_);
+  return Napi::Number::New(this->Env(), reinterpret_cast<uintptr_t>(this->value_));
 }
 
 Napi::FunctionReference WebGLTexture::constructor;
@@ -476,7 +477,7 @@ Napi::FunctionReference WebGLUniformLocation::constructor;
 WebGLUniformLocation::WebGLUniformLocation(Napi::CallbackInfo const& info)
   : Napi::ObjectWrap<WebGLUniformLocation>(info){};
 
-Napi::Object WebGLUniformLocation::New(GLuint value) {
+Napi::Object WebGLUniformLocation::New(GLint value) {
   auto obj                                  = WebGLUniformLocation::constructor.New({});
   WebGLUniformLocation::Unwrap(obj)->value_ = value;
   return obj;

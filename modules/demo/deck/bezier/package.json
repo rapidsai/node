@@ -13,10 +13,6 @@
     "start": "webpack-dev-server --progress --hot --open"
   },
   "dependencies": {
-    "@babel/core": "^7.4.0",
-    "@babel/preset-env": "^7.4.0",
-    "@babel/preset-react": "^7.4.0",
-    "@babel/register": "^7.4.0",
     "@deck.gl/react": "8.2.3",
     "@deck.gl/core": "8.2.3",
     "@deck.gl/layers": "8.2.3",
@@ -26,8 +22,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.0",
     "@babel/preset-react": "^7.4.0",
-    "babel-loader": "^8.0.5"
+    "@babel/register": "^7.4.0"
   },
   "esm": {
     "cjs": true,

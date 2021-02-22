@@ -1,22 +1,18 @@
 {
   "private": true,
-  "name":  "3d-heatmap",
+  "name":  "tfjs-addition-rnn-demo",
+  "main": "index.js",
   "version": "0.0.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
-  "scripts": {
-    "start-local": "webpack-dev-server --env.local --progress --hot --open",
-    "start": "webpack-dev-server --progress --hot --open"
-  },
   "dependencies": {
-    "d3-request": "^1.0.5",
-    "deck.gl": "^8.1.0",
-    "react": "^16.3.0",
-    "react-dom": "^16.3.0",
-    "react-map-gl": "^5.0.0"
+    "@nvidia/glfw": "0.0.1",
+    "@tensorflow/tfjs": "2.4.0",
+    "@tensorflow/tfjs-vis": "1.4.3",
+    "chalk": "4.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",

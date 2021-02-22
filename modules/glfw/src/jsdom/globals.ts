@@ -14,6 +14,7 @@
 
 import * as gl from '@nvidia/webgl';
 
+import {performance} from 'perf_hooks';
 import {installObjectURL} from './object-url';
 import {installAnimationFrame} from './raf';
 import {GLFWDOMWindow, GLFWDOMWindowOptions} from './window';
@@ -54,7 +55,7 @@ function getContext(this: HTMLCanvasElement, ...args: [OffscreenRenderingContext
       return ((this as any)['_webgl2_ctx'] =
                 new GLFWRenderingContext(this, <any>window, args[1] || {}));
   }
-  return JSDOM_getContext.apply(this, args);
+  return JSDOM_getContext.apply(this, <any>args);
 }
 window.WebGLActiveInfo                        = gl.WebGLActiveInfo;
 window.WebGLShaderPrecisionFormat             = gl.WebGLShaderPrecisionFormat;
@@ -80,6 +81,8 @@ Object.defineProperties(installAnimationFrame(installObjectURL(global, window)),
 
 const global_ = <any>global;
 
+global_.performance                = performance;
+global_.MutationObserver           = window.MutationObserver;
 global_.WebGLActiveInfo            = window.WebGLActiveInfo;
 global_.WebGLShaderPrecisionFormat = window.WebGLShaderPrecisionFormat;
 global_.WebGLBuffer                = window.WebGLBuffer;

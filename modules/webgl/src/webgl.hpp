@@ -217,16 +217,16 @@ class WebGLShader : public Napi::ObjectWrap<WebGLShader> {
 class WebGLSync : public Napi::ObjectWrap<WebGLSync> {
  public:
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
-  static Napi::Object New(GLuint value);
+  static Napi::Object New(GLsync value);
 
   WebGLSync(Napi::CallbackInfo const& info);
-  operator GLuint() { return this->value_; }
+  operator GLsync() { return this->value_; }
 
  private:
   static Napi::FunctionReference constructor;
   Napi::Value ToString(Napi::CallbackInfo const& info);
   Napi::Value GetValue(Napi::CallbackInfo const& info);
-  GLuint value_{0};
+  GLsync value_{0};
 };
 
 class WebGLTexture : public Napi::ObjectWrap<WebGLTexture> {
@@ -262,16 +262,16 @@ class WebGLTransformFeedback : public Napi::ObjectWrap<WebGLTransformFeedback> {
 class WebGLUniformLocation : public Napi::ObjectWrap<WebGLUniformLocation> {
  public:
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
-  static Napi::Object New(GLuint value);
+  static Napi::Object New(GLint value);
 
   WebGLUniformLocation(Napi::CallbackInfo const& info);
-  operator GLuint() { return this->value_; }
+  operator GLint() { return this->value_; }
 
  private:
   static Napi::FunctionReference constructor;
   Napi::Value ToString(Napi::CallbackInfo const& info);
   Napi::Value GetValue(Napi::CallbackInfo const& info);
-  GLuint value_{0};
+  GLint value_{0};
 };
 
 class WebGLVertexArrayObject : public Napi::ObjectWrap<WebGLVertexArrayObject> {
