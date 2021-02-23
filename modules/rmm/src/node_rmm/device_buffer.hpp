@@ -52,20 +52,6 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   }
 
   /**
-   * @brief Construct a new DeviceBuffer instance from C++.
-   *
-   * @param data Pointer to the host or device memory to copy from.
-   * @param stream CUDA stream on which memory may be allocated if the memory
-   * resource supports streams.
-   */
-  inline static ObjectUnwrap<DeviceBuffer> New(
-    Span<char> const& data,
-    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
-    rmm::cuda_stream_view stream           = rmm::cuda_stream_default) {
-    return DeviceBuffer::New(data.data(), data.size(), mr, stream);
-  }
-
-  /**
    * @brief Construct a new DeviceBuffer instance from an Array.
    *
    * @param data Array to copy from.
@@ -90,6 +76,18 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    */
   static ObjectUnwrap<DeviceBuffer> New(
     Napi::ArrayBuffer const& data,
+    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
+    rmm::cuda_stream_view stream           = rmm::cuda_stream_default);
+
+  /**
+   * @brief Construct a new DeviceBuffer instance from C++.
+   *
+   * @param data Pointer to the host or device memory to copy from.
+   * @param stream CUDA stream on which memory may be allocated if the memory
+   * resource supports streams.
+   */
+  static ObjectUnwrap<DeviceBuffer> New(
+    Span<char> const& data,
     ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
     rmm::cuda_stream_view stream           = rmm::cuda_stream_default);
 
