@@ -273,8 +273,8 @@ export class GroupBy<T extends TypeMap, R extends keyof T> extends(
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  quantile(q = 0.5, interpolation = 'linear', memoryResource?: MemoryResource) {
-    return this.prepare_results(
-      this._quantile(q, this._values.asTable(), interpolation, memoryResource));
-  }
+  // quantile(q = 0.5, interpolation = 'linear', memoryResource?: MemoryResource) {
+  //   return this.prepare_results(
+  //     this._quantile(q, this._values.asTable(), interpolation, memoryResource));
+  // }
 }

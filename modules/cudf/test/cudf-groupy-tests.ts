@@ -50,12 +50,32 @@ test('Groupby basic', () => {
 
   const groups = grp.getGroups();
 
-  const keys_result = Series.new(groups['keys'].get('a'));
+  const keys_result = groups['keys'].get('a');
   expect([...keys_result.toArrow()]).toEqual([1, 1, 1, 2, 2, 3]);
 
   expect(groups.values).toBeUndefined();
 
   expect([...groups['offsets']]).toEqual([0, 3, 5, 6]);
+});
+
+test('Groupby basic two columns', () => {
+  const a  = Series.new({type: new Int32(), data: new Int32Array([1, 1, 2, 1, 2, 3])});
+  const aa = Series.new({type: new Int32(), data: new Int32Array([4, 5, 4, 4, 4, 3])});
+  const df = new DataFrame({'a': a, 'aa': aa});
+
+  const grp = new GroupBy({obj: df, by: ['a', 'aa']});
+
+  const groups = grp.getGroups();
+
+  const keys_result_a = groups['keys'].get('a');
+  expect([...keys_result_a.toArrow()]).toEqual([1, 1, 1, 2, 2, 3]);
+
+  const keys_result_aa = groups['keys'].get('aa');
+  expect([...keys_result_aa.toArrow()]).toEqual([4, 4, 5, 4, 4, 3]);
+
+  expect(groups.values).toBeUndefined();
+
+  expect([...groups['offsets']]).toEqual([0, 2, 3, 5, 6]);
 });
 
 test('Groupby empty', () => {
@@ -66,7 +86,7 @@ test('Groupby empty', () => {
 
   const groups = grp.getGroups();
 
-  const keys_result = Series.new(groups['keys'].get('a'));
+  const keys_result = groups['keys'].get('a');
   expect(keys_result.length).toBe(0);
 
   expect(groups.values).toBeUndefined();
@@ -83,8 +103,32 @@ test('Groupby basic with values', () => {
 
   const groups = grp.getGroups();
 
-  const keys_result = Series.new(groups['keys'].get('a'));
+  const keys_result = groups['keys'].get('a');
   expect([...keys_result.toArrow()]).toEqual([0, 1, 2, 3, 4, 5]);
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+  const values_result = groups.values?.get('b')!;
+  expect(values_result).toBeDefined()
+  expect([...values_result.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
+
+  expect([...groups['offsets']]).toEqual([0, 1, 2, 3, 4, 5, 6]);
+});
+
+test('Groupby basic two columns with values', () => {
+  const a  = Series.new({type: new Int32(), data: new Int32Array([5, 4, 3, 2, 1, 0])});
+  const aa = Series.new({type: new Int32(), data: new Int32Array([4, 5, 4, 4, 4, 3])});
+  const b  = Series.new({type: new Int32(), data: new Int32Array([0, 0, 1, 1, 2, 2])});
+  const df = new DataFrame({'a': a, 'aa': aa, 'b': b});
+
+  const grp = new GroupBy({obj: df, by: ['a', 'aa']});
+
+  const groups = grp.getGroups();
+
+  const keys_result_a = groups['keys'].get('a');
+  expect([...keys_result_a.toArrow()]).toEqual([0, 1, 2, 3, 4, 5]);
+
+  const keys_result_aa = groups['keys'].get('aa');
+  expect([...keys_result_aa.toArrow()]).toEqual([3, 4, 4, 4, 5, 4]);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const values_result = groups.values?.get('b')!;
@@ -106,7 +150,7 @@ test('Groupby all nulls', () => {
 
   const groups = grp.getGroups();
 
-  const keys_result = Series.new(groups['keys'].get('a'));
+  const keys_result = groups['keys'].get('a');
   expect(keys_result.length).toBe(0);
 
   expect(groups.values).toBeUndefined();
@@ -127,7 +171,7 @@ test('Groupby some nulls', () => {
 
   const groups = grp.getGroups();
 
-  const keys_result = Series.new(groups['keys'].get('a'));
+  const keys_result = groups['keys'].get('a');
   expect([...keys_result.toArrow()]).toEqual([1, 2, 3]);
   expect(keys_result.nullCount).toBe(0)
 
