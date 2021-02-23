@@ -25,11 +25,8 @@ fi
 
 if [[ "$DEMO" == "" ]]; then
     DEMOS="
-    modules/demo/luma/package.json
-    modules/demo/umap/package.json
-    modules/demo/graph/package.json
-    modules/demo/xterm/package.json
-    $(find modules/demo/deck -maxdepth 2 -type f -name 'package.json')
+    modules/demo/{luma,umap,graph,xterm}/package.json
+    $(find modules/demo/{deck,tfjs} -maxdepth 2 -type f -name 'package.json')
     ";
     DEMOS="$(echo -e "$DEMOS" | grep -v node_modules | sort -Vr)";
     DEMOS=(${DEMOS});

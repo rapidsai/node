@@ -25,7 +25,9 @@ RAPIDS_CORE_PATH=$(dirname $(realpath "$0"))
 RAPIDS_CORE_PATH=$(realpath "$RAPIDS_CORE_PATH/../../")
 RAPIDS_MODULES_PATH=$(realpath "$RAPIDS_CORE_PATH/../")
 
-JOBS=$(node -e "console.log(require('os').cpus().length)")
+if [ -z ${JOBS:+x} ]; then
+  JOBS=$(node -e "console.log(require('os').cpus().length-2)");
+fi
 
 PARALLEL_LEVEL=$JOBS CMAKE_BUILD_PARALLEL_LEVEL=$JOBS  \
 CCACHE_CONFIGPATH="$RAPIDS_MODULES_PATH/.cache/ccache" \

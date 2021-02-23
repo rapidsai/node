@@ -23,14 +23,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
-# Example
-set(RMM_VERSION "0.19")
-set(CUDF_VERSION "0.19")
-set(CUGRAPH_VERSION "0.19")
-set(RAFT_VERSION "0.19")
-set(RAFT_BRANCH "f75d7b437bf1da3df749108161b8a0505fb6b7b3")
-set(CUSPATIAL_VERSION "0.19")
-
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
 
@@ -45,17 +37,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NVIDIA_CMAKE_MODULES_PATH}")
 include(ConfigureCXX)
 include(ConfigureCUDA)
 include(ConfigureNapi)
-include(ConfigureRMM)
-include(ConfigureCUDF)
-include(ConfigureCuGraph)
-include(ConfigureCUSPATIAL)
-
-###################################################################################################
-# - include paths ---------------------------------------------------------------------------------
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
-                    ${CUGRAPH_INCLUDE_DIRS}
-                    ${NAPI_INCLUDE_DIRS})
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
@@ -66,7 +47,8 @@ add_library(${PROJECT_NAME} SHARED ${NODE_RAPIDS_CORE_SRC_FILES} ${CMAKE_JS_SRC}
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 
-target_link_libraries(${PROJECT_NAME}
-                      ${CMAKE_JS_LIB}
-                      rmm::rmm
-                      cudf::cudf)
+target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
+
+target_include_directories(${PROJECT_NAME}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+           ${NAPI_INCLUDE_DIRS})

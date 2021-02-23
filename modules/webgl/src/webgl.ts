@@ -40,10 +40,11 @@ interface OpenGLESRenderingContext extends WebGL2RenderingContext {
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 const OpenGLESRenderingContext: OpenGLESRenderingContext = gl.WebGL2RenderingContext;
 
-OpenGLESRenderingContext.prototype.webgl1   = false;
-OpenGLESRenderingContext.prototype.webgl2   = true;
-OpenGLESRenderingContext.prototype.opengl   = true;
-OpenGLESRenderingContext.prototype._version = 2;
+OpenGLESRenderingContext.prototype.webgl1        = false;
+OpenGLESRenderingContext.prototype.webgl2        = true;
+OpenGLESRenderingContext.prototype.opengl        = true;
+OpenGLESRenderingContext.prototype._version      = 2;
+OpenGLESRenderingContext.prototype.isContextLost = () => false;
 
 export const WebGLActiveInfo            = gl.WebGLActiveInfo;
 export const WebGLShaderPrecisionFormat = gl.WebGLShaderPrecisionFormat;
@@ -384,6 +385,78 @@ function readPixels(this: WebGL2RenderingContext, ...args: [GLint, GLint, GLsize
   return gl_readPixels.call(this, x, y, width, height, format, type, dst);
 }
 
+const gl_uniform1fv                           = OpenGLESRenderingContext.prototype.uniform1fv;
+OpenGLESRenderingContext.prototype.uniform1fv = uniform1fv;
+function uniform1fv(
+  this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Float32Array|number[]) {
+  return location ? gl_uniform1fv.call(
+                      this, location, Array.isArray(value) ? new Float32Array(value) : value)
+                  : undefined;
+}
+
+const gl_uniform2fv                           = OpenGLESRenderingContext.prototype.uniform2fv;
+OpenGLESRenderingContext.prototype.uniform2fv = uniform2fv;
+function uniform2fv(
+  this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Float32Array|number[]) {
+  return location ? gl_uniform2fv.call(
+                      this, location, Array.isArray(value) ? new Float32Array(value) : value)
+                  : undefined;
+}
+
+const gl_uniform3fv                           = OpenGLESRenderingContext.prototype.uniform3fv;
+OpenGLESRenderingContext.prototype.uniform3fv = uniform3fv;
+function uniform3fv(
+  this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Float32Array|number[]) {
+  return location ? gl_uniform3fv.call(
+                      this, location, Array.isArray(value) ? new Float32Array(value) : value)
+                  : undefined;
+}
+
+const gl_uniform4fv                           = OpenGLESRenderingContext.prototype.uniform4fv;
+OpenGLESRenderingContext.prototype.uniform4fv = uniform4fv;
+function uniform4fv(
+  this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Float32Array|number[]) {
+  return location ? gl_uniform4fv.call(
+                      this, location, Array.isArray(value) ? new Float32Array(value) : value)
+                  : undefined;
+}
+
+const gl_uniform1iv                           = OpenGLESRenderingContext.prototype.uniform1iv;
+OpenGLESRenderingContext.prototype.uniform1iv = uniform1iv;
+function uniform1iv(
+  this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Int32Array|number[]) {
+  return location ? gl_uniform1iv.call(
+                      this, location, Array.isArray(value) ? new Int32Array(value) : value)
+                  : undefined;
+}
+
+const gl_uniform2iv                           = OpenGLESRenderingContext.prototype.uniform2iv;
+OpenGLESRenderingContext.prototype.uniform2iv = uniform2iv;
+function uniform2iv(
+  this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Int32Array|number[]) {
+  return location ? gl_uniform2iv.call(
+                      this, location, Array.isArray(value) ? new Int32Array(value) : value)
+                  : undefined;
+}
+
+const gl_uniform3iv                           = OpenGLESRenderingContext.prototype.uniform3iv;
+OpenGLESRenderingContext.prototype.uniform3iv = uniform3iv;
+function uniform3iv(
+  this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Int32Array|number[]) {
+  return location ? gl_uniform3iv.call(
+                      this, location, Array.isArray(value) ? new Int32Array(value) : value)
+                  : undefined;
+}
+
+const gl_uniform4iv                           = OpenGLESRenderingContext.prototype.uniform4iv;
+OpenGLESRenderingContext.prototype.uniform4iv = uniform4iv;
+function uniform4iv(
+  this: WebGL2RenderingContext, location: WebGLUniformLocation, value: Int32Array|number[]) {
+  return location ? gl_uniform4iv.call(
+                      this, location, Array.isArray(value) ? new Int32Array(value) : value)
+                  : undefined;
+}
+
 const gl_uniformMatrix2fv = OpenGLESRenderingContext.prototype.uniformMatrix2fv;
 OpenGLESRenderingContext.prototype.uniformMatrix2fv = uniformMatrix2fv;
 function uniformMatrix2fv(this: WebGL2RenderingContext,
@@ -521,15 +594,28 @@ function wrapAndLogGLMethods(proto: any) {
         return `${x}`;
     }
   };
+  const glEnumNames = Object.keys(proto)
+                        .filter((key) => typeof proto[key] === 'number')
+                        .reduce((glEnumNames: any, key) => {
+                          glEnumNames[proto[key]] = key;
+                          return glEnumNames;
+                        }, {});
+  const enumToString = (x: number) => `gl.${glEnumNames[x]}`;
   const logArguments = (name: string, fn: any) => function(this: any, ...args: any[]) {
-    const str = `gl.${name}(${args.map(toString).join(', ')})`;
+    const str = (() => {
+      switch (name) {
+        case 'enable':
+        case 'disable': return `gl.${name}(${args.map(enumToString).join(', ')})`;
+        default: return `gl.${name}(${args.map(toString).join(', ')})`;
+      }
+    })();
     process.stderr.write(str);
     try {
       const ret = fn.apply(this, args);
-      process.stderr.write((ret ? `: ${toString(ret)}` : '') + '\n');
+      process.stderr.write((ret !== undefined ? `: ${toString(ret)}` : '') + '\n');
       return ret;
     } catch (err) {
-      process.stderr.write((err ? `: ${toString(err)}` : '') + '\n');
+      process.stderr.write((err !== undefined ? `: ${toString(err)}` : '') + '\n');
       throw err;
     }
   };

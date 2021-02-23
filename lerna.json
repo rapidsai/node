@@ -10,6 +10,7 @@
     "modules/demo/umap",
     "modules/demo/xterm",
     "modules/demo/cugraph",
-    "modules/demo/deck/*"
+    "modules/demo/deck/*",
+    "modules/demo/tfjs/*"
   ]
 }

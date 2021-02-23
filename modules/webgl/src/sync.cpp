@@ -23,8 +23,8 @@ namespace nv {
 // GL_EXPORT GLenum glClientWaitSync (GLsync GLsync, GLbitfield flags,GLuint64 timeout);
 Napi::Value WebGL2RenderingContext::ClientWaitSync(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
-  GL_EXPORT::glClientWaitSync(args[0], args[1], args[2]);
-  return info.Env().Undefined();
+  return CPPToNapi(info)(
+    GL_EXPORT::glClientWaitSync(*WebGLSync::Unwrap(args[0].ToObject()), args[1], args[2]));
 }
 
 // GL_EXPORT void glDeleteSync (GLsync GLsync);
@@ -37,8 +37,7 @@ Napi::Value WebGL2RenderingContext::DeleteSync(Napi::CallbackInfo const& info) {
 // GL_EXPORT GLsync glFenceSync (GLenum condition, GLbitfield flags);
 Napi::Value WebGL2RenderingContext::FenceSync(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
-  auto sync         = GL_EXPORT::glFenceSync(args[0], args[1]);
-  return CPPToNapi(info)(sync);
+  return WebGLSync::New(GL_EXPORT::glFenceSync(args[0], args[1]));
 }
 
 // GL_EXPORT void glGetSynciv (GLsync GLsync, GLenum pname, GLsizei bufSize, GLsizei* length, GLint
@@ -53,8 +52,7 @@ Napi::Value WebGL2RenderingContext::GetSyncParameter(Napi::CallbackInfo const& i
 // GL_EXPORT GLboolean glIsSync (GLsync GLsync);
 Napi::Value WebGL2RenderingContext::IsSync(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
-  GL_EXPORT::glIsSync(args[0]);
-  return info.Env().Undefined();
+  return CPPToNapi(info)(GL_EXPORT::glIsSync(args[0]));
 }
 
 // GL_EXPORT void glWaitSync (GLsync GLsync, GLbitfield flags, GLuint64 timeout);

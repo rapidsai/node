@@ -47,47 +47,60 @@ namespace nv {
 
 namespace {
 
-ObjectUnwrap<DeviceBuffer> get_or_create_data(NapiToCPP const& value, cudf::data_type type) {
-  if (value.IsMemoryLike()) {
-    auto data = value;
-    if (value.IsMemoryViewLike()) { data = value.ToObject().Get("buffer"); }
-    if (DeviceBuffer::is_instance(data.val)) { return data.ToObject(); }
-    return DeviceBuffer::New(data.operator Napi::ArrayBuffer());
+ObjectUnwrap<DeviceBuffer> device_buffer_from_memorylike(NapiToCPP const& value) {
+  auto data = value;
+  if (value.IsMemoryViewLike()) { data = value.ToObject().Get("buffer"); }
+  if (DeviceBuffer::is_instance(data.val)) { return data.ToObject(); }
+  return DeviceBuffer::New(data.operator Napi::ArrayBuffer());
+}
+
+ObjectUnwrap<DeviceBuffer> device_buffer_from_bool(NapiToCPP const& value, cudf::size_type size) {
+  bool const valid = value;
+  auto state       = valid ? cudf::mask_state::ALL_VALID : cudf::mask_state::ALL_NULL;
+  return DeviceBuffer::New(
+    std::make_unique<rmm::device_buffer>(cudf::create_null_mask(size, state)));
+}
+
+ObjectUnwrap<DeviceBuffer> null_mask_from_data_array(NapiToCPP const& value, cudf::size_type size) {
+  auto const env       = value.Env();
+  auto const vals      = value.As<Napi::Array>();
+  auto const mask_size = cudf::bitmask_allocation_size_bytes(size);
+  std::vector<cudf::bitmask_type> mask(mask_size / sizeof(cudf::bitmask_type), 0);
+  auto const mask_data = mask.data();
+  for (auto i = 0u, n = vals.Length(); i < n; ++i) {
+    Napi::HandleScope scope{env};
+    auto const elt = vals.Get(i);
+    // Set the valid bit if the value isn't `null` or `undefined`
+    if (!(elt.IsNull() or elt.IsUndefined())) { cudf::set_bit_unsafe(mask_data, i); }
   }
+  return DeviceBuffer::New(mask_data, mask_size);
+}
+
+ObjectUnwrap<DeviceBuffer> null_mask_from_valid_array(NapiToCPP const& value,
+                                                      cudf::size_type size) {
+  auto const env       = value.Env();
+  auto const vals      = value.As<Napi::Array>();
+  auto const mask_size = cudf::bitmask_allocation_size_bytes(size);
+  std::vector<cudf::bitmask_type> mask(mask_size / sizeof(cudf::bitmask_type), 0);
+  auto const mask_data = mask.data();
+  for (auto i = 0u, n = vals.Length(); i < n; ++i) {
+    Napi::HandleScope scope{env};
+    auto const elt = vals.Get(i);
+    // Set the valid bit if the value is "truthy" by JS standards
+    if (elt.ToBoolean().Value()) { cudf::set_bit_unsafe(mask_data, i); }
+  }
+  return DeviceBuffer::New(mask_data, mask_size);
+}
+
+ObjectUnwrap<DeviceBuffer> get_or_create_data(NapiToCPP const& value, cudf::data_type type) {
+  if (value.IsMemoryLike()) { return device_buffer_from_memorylike(value); }
   if (value.IsArray()) {
-    auto buf = DeviceBuffer::New<double>(value.As<Napi::Array>());
+    auto const buf = DeviceBuffer::New<double>(value.As<Napi::Array>());
     return (type.id() == cudf::type_id::FLOAT64) ? buf : [&]() {
       cudf::size_type size = buf->size() / sizeof(double);
       cudf::column_view view{cudf::data_type{cudf::type_id::FLOAT64}, size, buf->data()};
       return DeviceBuffer::New(std::move(cudf::cast(view, type)->release().data));
     }();
-  }
-  return DeviceBuffer::New();
-}
-
-ObjectUnwrap<DeviceBuffer> get_or_create_null_mask(NapiToCPP const& value, cudf::size_type size) {
-  if (value.IsMemoryLike()) {
-    auto data = value;
-    if (value.IsMemoryViewLike()) { data = value.ToObject().Get("buffer"); }
-    if (DeviceBuffer::is_instance(data.val)) { return data.ToObject(); }
-    return DeviceBuffer::New(data.operator Napi::ArrayBuffer());
-  }
-  if (value.IsBoolean()) {
-    bool const valid = value;
-    auto state       = valid ? cudf::mask_state::ALL_VALID : cudf::mask_state::ALL_NULL;
-    return DeviceBuffer::New(
-      std::make_unique<rmm::device_buffer>(cudf::create_null_mask(size, state)));
-  }
-  if (value.IsArray()) {
-    auto const env  = value.Env();
-    auto const data = value.As<Napi::Array>();
-    auto const blen = cudf::bitmask_allocation_size_bytes(size);
-    std::vector<cudf::bitmask_type> mask(blen / sizeof(cudf::bitmask_type), 0);
-    for (auto i = 0; i < size; ++i) {
-      Napi::HandleScope scope{env};
-      if (data.Get(i).ToBoolean().Value()) { cudf::set_bit_unsafe(mask.data(), i); }
-    }
-    return DeviceBuffer::New(mask.data(), blen);
   }
   return DeviceBuffer::New();
 }
@@ -275,7 +288,22 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
     }
   }
 
-  auto const mask  = get_or_create_null_mask(props.Get("nullMask"), this->size_);
+  auto const mask = [&]() {
+    // If "nullMask" was provided, use it to construct the validity bitmask
+    if (props.Has("nullMask")) {
+      auto const valid = props.Get("nullMask");
+      if (valid.IsMemoryLike()) { return device_buffer_from_memorylike(valid); }
+      if (valid.IsBoolean()) { return device_buffer_from_bool(valid, this->size_); }
+      if (valid.IsArray()) { return null_mask_from_valid_array(valid, this->size_); }
+    }
+    // If "data" was provided as a JS Array, construct the valid bitmask from its non-null elements
+    else if (props.Get("data").IsArray()) {
+      return null_mask_from_data_array(props.Get("data"), this->size_);
+    }
+    // Otherwise return an empty bitmask indicating all-valid/non-nullable
+    return DeviceBuffer::New();
+  }();
+
   this->null_mask_ = mask.reference();
   if (!nullable()) {
     this->null_count_ = 0;
