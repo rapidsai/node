@@ -60,6 +60,17 @@ test('Series initialization with Column', () => {
   expect(s.nullable).toBe(false);
 });
 
+test('Series initialization with Array of mixed values', () => {
+  const s = Series.new({type: new Int32, data: [0, 1, null, 2]})
+
+  expect(s.type).toBeInstanceOf(Int32);
+  expect(s.length).toBe(4);
+  expect(s.nullCount).toBe(1);
+  expect(s.hasNulls).toBe(true);
+  expect(s.nullable).toBe(true);
+  expect([...s]).toEqual([0, 1, null, 2]);
+});
+
 test('test child(child_index), num_children', () => {
   const utf8Col    = Series.new({type: new Uint8(), data: new Uint8Buffer(Buffer.from('hello'))});
   const offsetsCol = Series.new({type: new Int32(), data: new Int32Buffer([0, utf8Col.length])});
