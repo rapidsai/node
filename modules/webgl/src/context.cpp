@@ -177,6 +177,7 @@ Napi::Object WebGL2RenderingContext::Init(Napi::Env env, Napi::Object exports) {
       INST_METHOD("getQuery", &WebGL2RenderingContext::GetQuery),
       INST_METHOD("getQueryParameter", &WebGL2RenderingContext::GetQueryParameter),
       INST_METHOD("isQuery", &WebGL2RenderingContext::IsQuery),
+      INST_METHOD("queryCounter", &WebGL2RenderingContext::QueryCounter),
       INST_METHOD("bindSampler", &WebGL2RenderingContext::BindSampler),
       INST_METHOD("createSampler", &WebGL2RenderingContext::CreateSampler),
       INST_METHOD("createSamplers", &WebGL2RenderingContext::CreateSamplers),
@@ -348,7 +349,11 @@ Napi::Object WebGL2RenderingContext::Init(Napi::Env env, Napi::Object exports) {
       INST_ENUM("TEXTURE_COMPARE_FUNC", GL_TEXTURE_COMPARE_FUNC),
       INST_ENUM("CURRENT_QUERY", GL_CURRENT_QUERY),
       INST_ENUM("QUERY_RESULT", GL_QUERY_RESULT),
+      INST_ENUM("QUERY_COUNTER_BITS", GL_QUERY_COUNTER_BITS),
       INST_ENUM("QUERY_RESULT_AVAILABLE", GL_QUERY_RESULT_AVAILABLE),
+      INST_ENUM("TIMESTAMP", GL_TIMESTAMP),
+      INST_ENUM("TIME_ELAPSED", GL_TIME_ELAPSED),
+      INST_ENUM("GPU_DISJOINT", GL_GPU_DISJOINT),
       INST_ENUM("STREAM_READ", GL_STREAM_READ),
       INST_ENUM("STREAM_COPY", GL_STREAM_COPY),
       INST_ENUM("STATIC_READ", GL_STATIC_READ),
@@ -1219,8 +1224,7 @@ Napi::Value WebGL2RenderingContext::SampleCoverage(Napi::CallbackInfo const& inf
 Napi::Value WebGL2RenderingContext::GetFragDataLocation(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   std::string name  = args[1];
-  GL_EXPORT::glGetFragDataLocation(args[0], name.data());
-  return info.Env().Undefined();
+  return CPPToNapi(info)(GL_EXPORT::glGetFragDataLocation(args[0], name.data()));
 }
 
 Napi::Value WebGL2RenderingContext::GetContextAttributes(Napi::CallbackInfo const& info) {

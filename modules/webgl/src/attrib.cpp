@@ -169,8 +169,15 @@ Napi::Value WebGL2RenderingContext::VertexAttrib4fv(Napi::CallbackInfo const& in
 // GLEWAPI void glVertexAttribPointer (GLuint index, GLint size, GLenum type, GLboolean normalized,
 // GLsizei stride, const void* pointer);
 Napi::Value WebGL2RenderingContext::VertexAttribPointer(Napi::CallbackInfo const& info) {
-  CallbackArgs args = info;
-  GL_EXPORT::glVertexAttribPointer(args[0], args[1], args[2], args[3], args[4], args[5]);
+  CallbackArgs args    = info;
+  GLuint index         = args[0];
+  GLint size           = args[1];
+  GLenum type          = args[2];
+  GLboolean normalized = args[3];
+  GLsizei stride       = args[4];
+  GLintptr ptr         = args[5];
+  GL_EXPORT::glVertexAttribPointer(
+    index, size, type, normalized, stride, reinterpret_cast<void*>(ptr));
   return info.Env().Undefined();
 }
 

@@ -13,6 +13,7 @@
             "runtimeArgs": ["-r", "esm"],
             "args": ["${input:DEMO_ARGS}"],
             "cwd": "${workspaceFolder}/${input:DEMO_NAME}",
+            "console": "integratedTerminal",
             "env": {
                 "NODE_NO_WARNINGS": "1",
                 "NODE_ENV": "production",

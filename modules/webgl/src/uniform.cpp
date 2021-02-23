@@ -254,10 +254,11 @@ Napi::Value WebGL2RenderingContext::GetUniform(Napi::CallbackInfo const& info) {
 
 // GL_EXPORT GLint glGetUniformLocation (GLuint program, const GLchar* name);
 Napi::Value WebGL2RenderingContext::GetUniformLocation(Napi::CallbackInfo const& info) {
-  CallbackArgs args = info;
-  GLuint program    = args[0];
-  std::string name  = args[1];
-  return WebGLUniformLocation::New(GL_EXPORT::glGetUniformLocation(program, name.c_str()));
+  CallbackArgs args   = info;
+  GLuint program      = args[0];
+  std::string name    = args[1];
+  auto const location = GL_EXPORT::glGetUniformLocation(program, name.c_str());
+  return location > -1 ? WebGLUniformLocation::New(location) : info.Env().Null();
 }
 
 // GL_EXPORT void glUniform1f (GLint location, GLfloat v0);
