@@ -29,14 +29,40 @@ import {
 import {CommonType, Interpolation} from './types/mappings';
 
 export type ColumnProps<T extends DataType = any> = {
-  // todo -- need to pass full DataType instance when we implement fixed_point
-  type: T,
-  data?: DeviceBuffer|MemoryData|number[]|null,
-  offset?: number,
-  length?: number,
-  nullCount?: number,
-  nullMask?: DeviceBuffer|MemoryData|number[]|boolean|null,
-  children?: ReadonlyArray<Column>|null
+  /*
+   * ColumnProps *with* a `nullMask` shouldn't allow `data` to be an Array with elements and nulls:
+   * ```javascript
+   * new Column({
+   *   type: new Int32,
+   *   data: [1, 0, 2, 3, 0], ///< must not include nulls
+   *   nullMask: [true, false, true, true, false]
+   * })
+   *  ```
+   */
+  type: T;
+  data?: DeviceBuffer | MemoryData | T['scalarType'][] | null;
+  offset?: number;
+  length?: number;
+  nullCount?: number;
+  nullMask?: DeviceBuffer | MemoryData | boolean[] | boolean | null;
+  children?: ReadonlyArray<Column>| null;
+}|{
+  /*
+   * ColumnProps *without* a `nullMask` should allow `data` to be an Array with elements and nulls:
+   * ```javascript
+   * new Column({
+   *   type: new Int32,
+   *   data: [1, null, 2, 3, null] ///< can include nulls
+   * })
+   *  ```
+   */
+  type: T;
+  data?: DeviceBuffer|MemoryData|(T['scalarType'] | null | undefined)[]|null;
+  offset?: number;
+  length?: number;
+  nullCount?: number;
+  nullMask?: never;
+  children?: ReadonlyArray<Column>|null;
 };
 
 interface ColumnConstructor {

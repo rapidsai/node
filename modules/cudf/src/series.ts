@@ -44,13 +44,40 @@ import {
 import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
 export type SeriesProps<T extends DataType = any> = {
-  type: T,
-  data?: DeviceBuffer|MemoryData|number[]|null,
-  offset?: number,
-  length?: number,
-  nullCount?: number,
-  nullMask?: DeviceBuffer|MemoryData|number[]|boolean|null,
-  children?: ReadonlyArray<Series>|null
+  /*
+   * SeriesProps *with* a `nullMask` shouldn't allow `data` to be an Array with elements and nulls:
+   * ```javascript
+   * Series.new({
+   *   type: new Int32,
+   *   data: [1, 0, 2, 3, 0], ///< must not include nulls
+   *   nullMask: [true, false, true, true, false]
+   * })
+   *  ```
+   */
+  type: T;
+  data?: DeviceBuffer | MemoryData | T['scalarType'][] | null;
+  offset?: number;
+  length?: number;
+  nullCount?: number;
+  nullMask?: DeviceBuffer | MemoryData | boolean[] | boolean | null;
+  children?: ReadonlyArray<Series>| null;
+}|{
+  /*
+   * SeriesProps *without* a `nullMask` should allow `data` to be an Array with elements and nulls:
+   * ```javascript
+   * Series.new({
+   *   type: new Int32,
+   *   data: [1, null, 2, 3, null] ///< can include nulls
+   * })
+   *  ```
+   */
+  type: T;
+  data?: DeviceBuffer|MemoryData|(T['scalarType'] | null | undefined)[]|null;
+  offset?: number;
+  length?: number;
+  nullCount?: number;
+  nullMask?: never;
+  children?: ReadonlyArray<Series>|null;
 };
 
 export type Series<T extends arrow.DataType = any> = {
@@ -366,14 +393,7 @@ function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|arrow.Vect
   if (value instanceof Column) {
     return value;
   } else {
-    const props: ColumnProps<T> = {
-      type: value.type,
-      data: value.data,
-      offset: value.offset,
-      length: value.length,
-      nullCount: value.nullCount,
-      nullMask: value.nullMask,
-    };
+    const props: ColumnProps<T> = {...value};
     if (value.children != null) {
       props.children = value.children.map((item: Series) => item._col);
     }
