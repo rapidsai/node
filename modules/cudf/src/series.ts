@@ -59,7 +59,7 @@ export type SeriesProps<T extends DataType = any> = {
   offset?: number;
   length?: number;
   nullCount?: number;
-  nullMask?: DeviceBuffer | MemoryData | boolean[] | boolean | null;
+  nullMask?: DeviceBuffer | MemoryData | any[] | boolean | null;
   children?: ReadonlyArray<Series>| null;
 }|{
   /*
