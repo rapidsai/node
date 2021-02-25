@@ -250,6 +250,16 @@ test('Groupby nunique basic', () => {
   basicAggCompare(grp.nunique(), [3, 4, 3]);
 });
 
+test('Groupby quantile uneven', () => {
+  const a      = Series.new({type: new Int32, data: [1, 2, 3, 1, 2, 2, 1, 3, 3, 2]});
+  const b      = Series.new({type: new Float64, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const df     = new DataFrame({'a': a, 'b': b});
+  const grp    = new GroupBy({obj: df, by: ['a']});
+  const result = grp.quantile(0.5)
+  basicAggCompare(result, [3., 4.5, 7.]);
+  expect(result.get('b').nullCount).toBe(0)
+});
+
 test('Groupby std basic', () => {
   const df  = makeBasicData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const grp = new GroupBy({obj: df, by: ['a']});
@@ -296,6 +306,16 @@ test(`Groupby nth empty`, () => {
   expect(result.get('b').length).toBe(0);
 });
 
+test(`Groupby quantile empty`, () => {
+  const a      = Series.new({type: new Int32, data: []});
+  const b      = Series.new({type: new Float64, data: []});
+  const df     = new DataFrame({'a': a, 'b': b});
+  const grp    = new GroupBy({obj: df, by: ['a']});
+  const result = grp.quantile(0.5);
+  expect(result.get('a').length).toBe(0);
+  expect(result.get('b').length).toBe(0);
+});
+
 for (const agg of BASIC_AGGS) {
   test(`Groupby ${agg} null keys`, () => {
     const a      = Series.new({type: new Int32, data: [1, 2, 3], nullMask: [false, false, false]});
@@ -314,6 +334,16 @@ test(`Groupby nth null keys`, () => {
   const df     = new DataFrame({'a': a, 'b': b});
   const grp    = new GroupBy({obj: df, by: ['a']});
   const result = grp.nth(0);
+  expect(result.get('a').length).toBe(0);
+  expect(result.get('b').length).toBe(0);
+});
+
+test(`Groupby quantile null keys`, () => {
+  const a      = Series.new({type: new Int32, data: [1, 2, 3], nullMask: [false, false, false]});
+  const b      = Series.new({type: new Float64, data: [3, 4, 5]});
+  const df     = new DataFrame({'a': a, 'b': b});
+  const grp    = new GroupBy({obj: df, by: ['a']});
+  const result = grp.quantile(0.5);
   expect(result.get('a').length).toBe(0);
   expect(result.get('b').length).toBe(0);
 });
@@ -342,6 +372,18 @@ test(`Groupby nth null values`, () => {
   const df     = new DataFrame({'a': a, 'b': b});
   const grp    = new GroupBy({obj: df, by: ['a']});
   const result = grp.nth(0);
+  expect([...result.get('a').toArrow()]).toEqual([1]);
+  expect(result.get('a').nullCount).toBe(0);
+  expect(result.get('b').length).toBe(1);
+  expect(result.get('b').nullCount).toBe(1);
+});
+
+test(`Groupby quantile null values`, () => {
+  const a      = Series.new({type: new Int32, data: [1, 1, 1]});
+  const b      = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
+  const df     = new DataFrame({'a': a, 'b': b});
+  const grp    = new GroupBy({obj: df, by: ['a']});
+  const result = grp.quantile(0.5);
   expect([...result.get('a').toArrow()]).toEqual([1]);
   expect(result.get('a').nullCount).toBe(0);
   expect(result.get('b').length).toBe(1);

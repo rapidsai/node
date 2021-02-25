@@ -234,7 +234,6 @@ Napi::Value GroupBy::quantile(Napi::CallbackInfo const& info) {
                    "GroupBy quantile_agg expects options to have a 'values' table");
   nv::Table* values_table = Table::Unwrap(values.ToObject());
 
-  // TODO handle both optional
   cudf::interpolation interpolation = args[2];
 
   auto mr = MemoryResource::is_instance(info[3]) ? *MemoryResource::Unwrap(info[3].ToObject())
