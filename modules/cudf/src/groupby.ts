@@ -140,7 +140,7 @@ export class GroupBy<T extends TypeMap, R extends keyof T> extends(
     this._by.forEach(
       (name, index) => { series_map[name] = Series.new(keys.getColumnByIndex(index)); });
     this._values.names.forEach((name, index) => { series_map[name] = Series.new(cols[index]); });
-    return new DataFrame(series_map);
+    return new DataFrame<T>(series_map);
   }
 
   /**
