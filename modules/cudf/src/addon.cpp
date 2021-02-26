@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 #include <node_cudf/addon.hpp>
 #include <node_cudf/column.hpp>
+#include <node_cudf/groupby.hpp>
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/table.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
@@ -38,6 +39,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   nv::Column::Init(env, exports);
   nv::Table::Init(env, exports);
   nv::Scalar::Init(env, exports);
+  nv::GroupBy::Init(env, exports);
 
   return exports;
 }
