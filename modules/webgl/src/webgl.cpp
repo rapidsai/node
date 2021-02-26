@@ -73,9 +73,12 @@ Napi::Object WebGLShaderPrecisionFormat::Init(Napi::Env env, Napi::Object export
     env,
     "WebGLShaderPrecisionFormat",
     {
-      InstanceAccessor("size", &WebGLShaderPrecisionFormat::GetRangeMax, nullptr, napi_enumerable),
-      InstanceAccessor("type", &WebGLShaderPrecisionFormat::GetRangeMin, nullptr, napi_enumerable),
-      InstanceAccessor("name", &WebGLShaderPrecisionFormat::GetPrecision, nullptr, napi_enumerable),
+      InstanceAccessor(
+        "rangeMin", &WebGLShaderPrecisionFormat::GetRangeMax, nullptr, napi_enumerable),
+      InstanceAccessor(
+        "rangeMax", &WebGLShaderPrecisionFormat::GetRangeMin, nullptr, napi_enumerable),
+      InstanceAccessor(
+        "precision", &WebGLShaderPrecisionFormat::GetPrecision, nullptr, napi_enumerable),
       InstanceMethod("toString", &WebGLShaderPrecisionFormat::ToString),
     });
   WebGLShaderPrecisionFormat::constructor = Napi::Persistent(ctor);
