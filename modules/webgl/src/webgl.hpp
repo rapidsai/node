@@ -568,6 +568,8 @@ class WebGL2RenderingContext : public Napi::ObjectWrap<WebGL2RenderingContext> {
   Napi::Value GetQueryParameter(Napi::CallbackInfo const& info);
   // GL_EXPORT GLboolean glIsQuery (GLuint id);
   Napi::Value IsQuery(Napi::CallbackInfo const& info);
+  // GL_EXPORT void glQueryCounter (GLuint id, GLenum target);
+  Napi::Value QueryCounter(Napi::CallbackInfo const& info);
 
   ///
   // renderbuffer

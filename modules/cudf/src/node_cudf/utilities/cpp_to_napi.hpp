@@ -87,7 +87,7 @@ namespace detail {
 struct get_scalar_value {
   Napi::Env env;
   template <typename T>
-  inline std::enable_if_t<cudf::is_numeric<T>(), Napi::Value> operator()(
+  inline std::enable_if_t<cudf::is_index_type<T>(), Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     if (!scalar->is_valid(stream)) { return env.Null(); }
     switch (scalar->type().id()) {
@@ -101,6 +101,22 @@ struct get_scalar_value {
         return Napi::Number::New(
           env, static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream));
     }
+  }
+  template <typename T>
+  inline std::enable_if_t<cudf::is_floating_point<T>(), Napi::Value> operator()(
+    std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
+    return scalar->is_valid(stream)
+             ? Napi::Number::New(env,
+                                 static_cast<cudf::numeric_scalar<T>*>(scalar.get())->value(stream))
+             : env.Null();
+  }
+  template <typename T>
+  inline std::enable_if_t<std::is_same<T, bool>::value, Napi::Value> operator()(
+    std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
+    return scalar->is_valid(stream)
+             ? Napi::Boolean::New(
+                 env, static_cast<cudf::numeric_scalar<bool>*>(scalar.get())->value(stream))
+             : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<std::is_same<T, cudf::string_view>::value, Napi::Value> operator()(
@@ -132,7 +148,9 @@ struct get_scalar_value {
              : env.Null();
   }
   template <typename T>
-  inline std::enable_if_t<!(cudf::is_numeric<T>() ||                      //
+  inline std::enable_if_t<!(cudf::is_index_type<T>() ||                   //
+                            cudf::is_floating_point<T>() ||               //
+                            std::is_same<T, bool>::value ||               //
                             std::is_same<T, cudf::string_view>::value ||  //
                             cudf::is_duration<T>() ||                     //
                             cudf::is_timestamp<T>() ||                    //

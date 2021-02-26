@@ -99,7 +99,8 @@ services:
       - *usr_share_icons
     environment:
       <<: *common_environment_variables
-      CUDA_ARCHITECTURES: 72
+      # Build for CUDA architecture sm_72
+      CUDAARCHS: "72-real"
       JOBS: 2
     cap_add:
       - SYS_ADMIN

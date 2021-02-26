@@ -1,0 +1,35 @@
+{
+  "private": true,
+  "name":  "tfjs-webgl-tests",
+  "main": "index.js",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "dependencies": {
+    "@nvidia/glfw": "0.0.1",
+    "@tensorflow/tfjs": "2.8.6",
+    "jasmine": "~3.1.0",
+    "jasmine-core": "~3.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.0",
+    "@babel/preset-react": "^7.4.0",
+    "@babel/register": "^7.4.0"
+  },
+  "esm": {
+    "cjs": true,
+    "force": true,
+    "mode": "auto",
+    "cache": false,
+    "sourceMap": true,
+    "mainFields": [
+      "esnext",
+      "module",
+      "main"
+    ]
+  }
+}

@@ -41,7 +41,7 @@ if [[ "$debug" == "false" ]]; then
         if [[ "$(which jq)" != "" ]]; then
             jq -s '.|flatten' \
                 $(find .. -type f -path "*$compile_commands_json") \
-            > "../../compile_commands.json"
+            > "../../compile_commands.json" || true
         fi
     fi
 fi

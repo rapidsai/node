@@ -14,43 +14,87 @@
 # limitations under the License.
 #=============================================================================
 
-# Very important the first step is to enable the CUDA language.
+# If `CMAKE_CUDA_ARCHITECTURES` is not defined, build for all supported architectures. If
+# `CMAKE_CUDA_ARCHITECTURES` is set to an empty string (""), build for only the current
+# architecture. If `CMAKE_CUDA_ARCHITECTURES` is specified by the user, use user setting.
+
+# This needs to be run before enabling the CUDA language due to the default initialization behavior
+# of `CMAKE_CUDA_ARCHITECTURES`, https://gitlab.kitware.com/cmake/cmake/-/issues/21302
+
+set(NVIDIA_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS FALSE)
+set(NVIDIA_CMAKE_BUILD_FOR_DETECTED_ARCHS FALSE)
+
+if(NOT "$ENV{CUDAARCHS}" STREQUAL "")
+    set(CMAKE_CUDA_ARCHITECTURES "$ENV{CUDAARCHS}")
+elseif(CMAKE_CUDA_ARCHITECTURES STREQUAL "")
+    unset(CMAKE_CUDA_ARCHITECTURES CACHE)
+    set(NVIDIA_CMAKE_BUILD_FOR_DETECTED_ARCHS TRUE)
+elseif(NOT DEFINED ENV{CUDAARCHS})
+    set(NVIDIA_CMAKE_BUILD_FOR_DETECTED_ARCHS TRUE)
+elseif(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    set(NVIDIA_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS TRUE)
+endif()
+
+# Enable the CUDA language
 enable_language(CUDA)
 
 find_package(CUDAToolkit REQUIRED)
+
+if(CMAKE_CUDA_COMPILER_VERSION)
+    # Compute the version. from  CMAKE_CUDA_COMPILER_VERSION
+    string(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\1" CUDA_VERSION_MAJOR ${CMAKE_CUDA_COMPILER_VERSION})
+    string(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\2" CUDA_VERSION_MINOR ${CMAKE_CUDA_COMPILER_VERSION})
+    set(CUDA_VERSION "${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR}")
+endif()
 
 string(APPEND CMAKE_CUDA_FLAGS " -Werror=cross-execution-space-call")
 string(APPEND CMAKE_CUDA_FLAGS " --expt-extended-lambda --expt-relaxed-constexpr")
 string(APPEND CMAKE_CUDA_FLAGS " -Xcompiler=-Wall,-Werror,-Wno-error=deprecated-declarations")
 
-# Auto-detect available GPU compute architectures
-set(CUDA_ARCHITECTURES "$ENV{CUDA_ARCHITECTURES}" CACHE STRING
-    "List of GPU architectures (semicolon-separated) to be compiled for. Pass 'ALL' if you want to compile for all supported GPU architectures. Empty string means to auto-detect the GPUs on the current system")
+# Build the list of supported architectures
 
-if("${CUDA_ARCHITECTURES}" STREQUAL "")
-  execute_process(COMMAND node -p
-                  "require('@nvidia/rapids-core').cmake_modules_path"
-                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                  OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
-                  OUTPUT_STRIP_TRAILING_WHITESPACE)
-  include(${NVIDIA_CMAKE_MODULES_PATH}/EvalGpuArchs.cmake)
-  evaluate_gpu_archs(CUDA_ARCHITECTURES)
-endif()
+set(SUPPORTED_CUDA_ARCHITECTURES "60" "62" "70" "72" "75" "80")
 
-if("${CUDA_ARCHITECTURES}" STREQUAL "ALL")
+# Check for embedded vs workstation architectures
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
+    # This is being built for Linux4Tegra or SBSA ARM64
+    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "60" "70")
+else()
     # This is being built for an x86 or x86_64 architecture
-    set(CUDA_ARCHITECTURES "60")
-    if((CUDAToolkit_VERSION_MAJOR EQUAL 9) OR (CUDAToolkit_VERSION_MAJOR GREATER 9))
-        list(APPEND CUDA_ARCHITECTURES "70")
-    endif()
-    if((CUDAToolkit_VERSION_MAJOR EQUAL 10) OR (CUDAToolkit_VERSION_MAJOR GREATER 10))
-        list(APPEND CUDA_ARCHITECTURES "75")
-    endif()
-    if((CUDAToolkit_VERSION_MAJOR EQUAL 11) OR (CUDAToolkit_VERSION_MAJOR GREATER 11))
-        list(APPEND CUDA_ARCHITECTURES "80")
-    endif()
+    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "62" "72")
 endif()
 
-message(STATUS "CUDA_ARCHITECTURES: ${CUDA_ARCHITECTURES}")
+if(CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 11)
+    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "80")
+endif()
+if(CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 10)
+    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "75")
+endif()
+if(CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 9)
+    list(REMOVE_ITEM SUPPORTED_CUDA_ARCHITECTURES "70")
+endif()
 
-set(CMAKE_CUDA_ARCHITECTURES ${CUDA_ARCHITECTURES})
+if(NVIDIA_CMAKE_BUILD_FOR_DETECTED_ARCHS)
+    # Auto-detect available GPU compute architectures
+    execute_process(COMMAND node -p
+                    "require('@nvidia/rapids-core').cmake_modules_path"
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    include(${NVIDIA_CMAKE_MODULES_PATH}/EvalGpuArchs.cmake)
+    evaluate_gpu_archs(CMAKE_CUDA_ARCHITECTURES)
+    list(TRANSFORM CMAKE_CUDA_ARCHITECTURES APPEND "-real")
+elseif(NVIDIA_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS)
+    set(CMAKE_CUDA_ARCHITECTURES ${SUPPORTED_CUDA_ARCHITECTURES})
+    # CMake architecture list entry of "80" means to build compute and sm.
+    # What we want is for the newest arch only to build that way
+    # while the rest built only for sm.
+    list(SORT CMAKE_CUDA_ARCHITECTURES ORDER ASCENDING)
+    list(POP_BACK CMAKE_CUDA_ARCHITECTURES latest_arch)
+    list(TRANSFORM CMAKE_CUDA_ARCHITECTURES APPEND "-real")
+    list(APPEND CMAKE_CUDA_ARCHITECTURES ${latest_arch})
+endif()
+
+message(STATUS "BUILD_FOR_DETECTED_ARCHS: ${NVIDIA_CMAKE_BUILD_FOR_DETECTED_ARCHS}")
+message(STATUS "BUILD_FOR_ALL_CUDA_ARCHS: ${NVIDIA_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS}")
+message(STATUS "CMAKE_CUDA_ARCHITECTURES: ${CMAKE_CUDA_ARCHITECTURES}")

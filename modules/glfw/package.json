@@ -39,6 +39,9 @@
     "rxjs": "^6.5.4",
     "web-streams-polyfill": "^2.0.3"
   },
+  "devDependencies": {
+    "@tensorflow/tfjs": "2.8.6"
+  },
   "peerDependencies": {
     "hammerjs": "^2.0.8",
     "mjolnir.js": "^2.1.2",

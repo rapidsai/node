@@ -10,8 +10,8 @@
   ],
   "dependencies": {
     "@nvidia/glfw": "0.0.1",
-    "@tensorflow/tfjs": "2.4.0",
-    "@tensorflow/tfjs-vis": "1.4.3",
+    "@tensorflow/tfjs": "2.8.6",
+    "@tensorflow/tfjs-vis": "1.5.0",
     "chalk": "4.1.0"
   },
   "devDependencies": {

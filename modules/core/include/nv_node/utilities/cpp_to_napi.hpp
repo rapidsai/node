@@ -172,13 +172,6 @@ struct CPPToNapi {
   //
   // Pointers
   //
-  // inline Napi::External<void> operator()(void* data) const {
-  //   return Napi::External<void>::New(env, static_cast<char*>(data));
-  // }
-
-  // Napi::String inline operator()(const char* val) const {
-  //   return Napi::String::New(env, (val == NULL) ? "" : val);
-  // }
 
   template <typename T>
   inline Napi::Value operator()(T* data) const {
@@ -200,13 +193,10 @@ struct CPPToNapi {
 
   template <typename T>
   inline Napi::Value operator()(Span<T> const& span) const {
-    return buffer_to_typed_array<T>(Napi::ArrayBuffer::New(env, span.data(), span.size()));
-  }
-
-  template <typename T, typename Finalizer>
-  inline Napi::Value operator()(Span<T> const& span, Finalizer finalizer) const {
-    return buffer_to_typed_array<T>(
-      Napi::ArrayBuffer::New(env, span.data(), span.size(), finalizer));
+    auto obj          = Napi::Object::New(env);
+    obj["ptr"]        = span.addr();
+    obj["byteLength"] = span.size();
+    return obj;
   }
 
 #ifdef GLEW_VERSION

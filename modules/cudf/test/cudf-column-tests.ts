@@ -47,6 +47,20 @@ test('Column initialization with null_mask', () => {
   expect(col.nullable).toBe(true);
 });
 
+test('Column initialization with Array of mixed values', () => {
+  const col = new Column({type: new Bool8, data: [true, null, false, null]});
+
+  expect(col.type).toBeInstanceOf(Bool8);
+  expect(col.length).toBe(4);
+  expect(col.nullCount).toBe(2);
+  expect(col.hasNulls).toBe(true);
+  expect(col.nullable).toBe(true);
+  expect(col.getValue(0)).toEqual(true);
+  expect(col.getValue(1)).toEqual(null);
+  expect(col.getValue(2)).toEqual(false);
+  expect(col.getValue(3)).toEqual(null);
+});
+
 test('Column.gather', () => {
   const col = new Column({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
 
