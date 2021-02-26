@@ -101,4 +101,11 @@ Napi::Value WebGL2RenderingContext::IsQuery(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(is_query);
 }
 
+// GL_EXPORT void glQueryCounter (GLuint id, GLenum target);
+Napi::Value WebGL2RenderingContext::QueryCounter(Napi::CallbackInfo const& info) {
+  CallbackArgs args = info;
+  GL_EXPORT::glQueryCounter(args[0], args[1]);
+  return info.Env().Undefined();
+}
+
 }  // namespace nv

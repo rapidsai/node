@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name":  "tfjs-addition-rnn-demo",
+  "name":  "tfjs-webgl-tests",
   "main": "index.js",
   "version": "0.0.0",
   "license": "Apache-2.0",
@@ -11,8 +11,8 @@
   "dependencies": {
     "@nvidia/glfw": "0.0.1",
     "@tensorflow/tfjs": "2.8.6",
-    "@tensorflow/tfjs-vis": "1.5.0",
-    "chalk": "4.1.0"
+    "jasmine": "~3.1.0",
+    "jasmine-core": "~3.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",

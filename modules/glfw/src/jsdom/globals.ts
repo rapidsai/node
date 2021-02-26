@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import * as gl from '@nvidia/webgl';
-
+import * as jsdom from 'jsdom';
 import {performance} from 'perf_hooks';
+import {parse as parseURL} from 'url';
+
 import {installObjectURL} from './object-url';
 import {installAnimationFrame} from './raf';
 import {GLFWDOMWindow, GLFWDOMWindowOptions} from './window';
@@ -108,9 +110,19 @@ const origin = global_.idlUtils.implForWrapper(window.document)._origin;
 if (origin === 'null') { global_.idlUtils.implForWrapper(window.document)._origin = ''; }
 
 if (typeof global_['fetch'] === 'undefined') {
-  const xfetch     = require('cross-fetch');
+  const xfetch    = require('cross-fetch');
+  const fileFetch = (url: string, options: jsdom.FetchOptions) => {
+    const isDataURI  = url && url.startsWith('data:');
+    const isFilePath = !isDataURI && !parseURL(url).protocol;
+    return !isFilePath ? xfetch.fetch(url, options)
+                       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                       : new jsdom
+                           .ResourceLoader()                  //
+                           .fetch(`file://${url}`, options)!  //
+                           .then((x) => new Response(x, {status: 200}));
+  };
   const xfetchDefs = {
-    'fetch': {get() { return xfetch.fetch; }},
+    'fetch': {get() { return fileFetch; }},
     'Response': {get() { return xfetch.Response; }},
     'Headers': {get() { return xfetch.Headers; }},
     'Request': {get() { return xfetch.Request; }},
