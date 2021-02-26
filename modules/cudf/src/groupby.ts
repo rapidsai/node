@@ -64,7 +64,7 @@ interface GroupbyConstructor {
 }
 
 interface CudfGroupBy {
-  _getGroups(values?: Table, memoryResource?: MemoryResource): any;
+  _getGroups(values?: Table, memoryResource?: MemoryResource): { keys: Table, offsets: Int32Array, values?: Table };
 
   _argmax(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
   _argmin(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
@@ -114,20 +114,20 @@ export class GroupBy<T extends TypeMap, R extends keyof T> extends(
    * @param memoryResource The optional MemoryResource used to allocate the result's
    *   device memory.
    */
-  getGroups(memoryResource?: MemoryResource): Groups<Pick<T, R>, Omit<T, R>> {
-    const table      = this._values.asTable();
-    const results    = this._getGroups(table, memoryResource);
-    const series_map = {} as any;
+  getGroups(memoryResource?: MemoryResource) {
+    const { keys, offsets, values } = this._getGroups(this._values.asTable(), memoryResource);
+    
+    const results = {
+      offsets,
+      keys: new DataFrame(this._by.reduce((keys_map, name, index) => ({
+        ...keys_map, [name]: Series.new(keys.getColumnByIndex(index))
+      }), {} as Pick<T, R>))
+    } as Groups<Pick<T, R>, Omit<T, R>>;
 
-    this._by.forEach(
-      (name, index) => { series_map[name] = Series.new(results.keys.getColumnByIndex(index)); });
-    results.keys = new DataFrame(series_map);
-
-    if (results.values !== undefined) {
-      this._values.names.forEach(
-        (name,
-         index) => { series_map[name] = Series.new(results.values.getColumnByIndex(index)); });
-      results.values = new DataFrame(series_map);
+    if (values !== undefined) {
+      results.values = new DataFrame(this._values.names.reduce((values_map, name, index) => ({
+        ...values_map, [name]: Series.new(values.getColumnByIndex(index))
+      }), {} as Omit<T, R>));
     }
 
     return results;
@@ -140,7 +140,7 @@ export class GroupBy<T extends TypeMap, R extends keyof T> extends(
     this._by.forEach(
       (name, index) => { series_map[name] = Series.new(keys.getColumnByIndex(index)); });
     this._values.names.forEach((name, index) => { series_map[name] = Series.new(cols[index]); });
-    return new DataFrame<T>(series_map);
+    return new DataFrame(series_map);
   }
 
   /**
@@ -274,9 +274,9 @@ export class GroupBy<T extends TypeMap, R extends keyof T> extends(
    *   device memory.
    */
   quantile(q                            = 0.5,
-           interpolation: Interpolation = Interpolation.linear,
+           interpolation: keyof typeof Interpolation = 'linear',
            memoryResource?: MemoryResource) {
     return this.prepare_results(
-      this._quantile(q, this._values.asTable(), interpolation, memoryResource));
+      this._quantile(q, this._values.asTable(), Interpolation[interpolation], memoryResource));
   }
 }
