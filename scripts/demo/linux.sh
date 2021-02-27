@@ -49,7 +49,6 @@ ARGS="${@:-}";
 
 if [[ "$DEMO" =~ "modules/demo/luma" ]]; then ARGS="${@:-01}";
 elif [[ "$DEMO" =~ "modules/demo/umap" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
-elif [[ "$DEMO" =~ "modules/demo/graph" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
 fi
 
 NODE_ENV=production exec node -r esm --trace-uncaught "$DEMO" $ARGS

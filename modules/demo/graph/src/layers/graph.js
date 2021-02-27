@@ -218,7 +218,9 @@ const resizeBuffer = (length, buffer) => buffer.reallocate(length * buffer.acces
 const resizeBuffers = (length, buffers) => buffers.forEach((buffer) => resizeBuffer(length, buffer));
 
 const copyIntoBuffer = (target, source, offset) => target.subData({
-    data: source, offset: offset * target.accessor.BYTES_PER_VERTEX
+    data: source,
+    srcOffset: source.byteOffset,
+    offset: offset * target.accessor.BYTES_PER_VERTEX
 });
 
 const copyUpdatesIntoBuffers = ({

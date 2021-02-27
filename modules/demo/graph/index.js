@@ -23,8 +23,13 @@ require('@babel/register')({
     ]
 });
 
+// Change cwd to the example dir so relative file paths are resolved
+process.chdir(__dirname);
+
 const url = process.argv.slice(2).find((arg) => arg.includes('tcp://'));
 const serve = process.argv.slice(2).some((arg) => arg.includes('--serve'));
+const nodes = process.argv.slice(2).find((arg) => arg.includes('--nodes='));
+const edges = process.argv.slice(2).find((arg) => arg.includes('--edges='));
 
 if (!serve) {
     module.exports = require('@nvidia/glfw').createReactWindow(`${__dirname}/src/index.js`, true);
@@ -32,16 +37,19 @@ if (!serve) {
 
 if (require.main === module) {
     if (serve) {
-        require(`./server.js`)({ url: require('url').parse(url) });
-        // require('@nvidia/glfw')
-        //     .createModuleWindow(`${__dirname}/src/server.js`, true)
-        //     .open({ ...opts, _title: 'graph server' });
+        require(`./server.js`)({
+            url: url ? require('url').parse(url) : undefined,
+            nodes: nodes ? nodes.slice('--nodes='.length) : undefined,
+            edges: edges ? edges.slice('--edges='.length) : undefined,
+        });
     } else {
         module.exports.open({
             visible: true,
             transparent: false,
             _title: 'graph client',
-            url: require('url').parse(url),
+            url: url ? require('url').parse(url) : undefined,
+            nodes: nodes ? nodes.slice('--nodes='.length) : undefined,
+            edges: edges ? edges.slice('--edges='.length) : undefined,
         });
     }
 }
