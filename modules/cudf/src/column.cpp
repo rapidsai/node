@@ -121,6 +121,7 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   InstanceAccessor<&Column::type, &Column::type>("type"),
                   InstanceAccessor<&Column::data>("data"),
                   InstanceAccessor<&Column::null_mask>("mask"),
+                  InstanceAccessor<&Column::offset>("offset"),
                   InstanceAccessor<&Column::size>("length"),
                   InstanceAccessor<&Column::has_nulls>("hasNulls"),
                   InstanceAccessor<&Column::null_count>("nullCount"),
@@ -286,6 +287,7 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
         }
       }
     }
+    this->size_ -= this->offset_;
   }
 
   auto const mask = [&]() {
@@ -372,7 +374,7 @@ cudf::column_view Column::view() const {
                            data.data(),
                            static_cast<cudf::bitmask_type const*>(mask.data()),
                            null_count(),
-                           0,
+                           offset(),
                            child_views};
 }
 
@@ -406,7 +408,7 @@ cudf::mutable_column_view Column::mutable_view() {
                                    data.data(),
                                    static_cast<cudf::bitmask_type*>(mask.data()),
                                    current_null_count,
-                                   0,
+                                   offset(),
                                    child_views};
 }
 
@@ -429,6 +431,8 @@ void Column::type(Napi::CallbackInfo const& info, Napi::Value const& value) {
 }
 
 Napi::Value Column::size(Napi::CallbackInfo const& info) { return CPPToNapi(info)(size()); }
+
+Napi::Value Column::offset(Napi::CallbackInfo const& info) { return CPPToNapi(info)(offset()); }
 
 Napi::Value Column::data(Napi::CallbackInfo const& info) { return data_.Value(); }
 

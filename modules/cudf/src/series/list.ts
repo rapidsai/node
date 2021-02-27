@@ -39,11 +39,13 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
   /**
    * Series of integer offsets for each list
    */
+  // TODO: account for this.offset
   get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
 
   /**
    * Series containing the elements of each list
    */
+  // TODO: account for this.offset
   get elements(): Series<T> { return Series.new(this._col.getChild<T>(1)); }
 
   /** @ignore */

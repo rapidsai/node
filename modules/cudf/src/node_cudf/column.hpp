@@ -91,6 +91,11 @@ class Column : public Napi::ObjectWrap<Column> {
   inline cudf::size_type size() const noexcept { return size_; }
 
   /**
+   * @brief Returns the data element offset
+   */
+  inline cudf::size_type offset() const noexcept { return offset_; }
+
+  /**
    * @brief Return a const reference to the data buffer
    */
   inline DeviceBuffer const& data() const { return *DeviceBuffer::Unwrap(data_.Value()); }
@@ -625,7 +630,7 @@ class Column : public Napi::ObjectWrap<Column> {
   static Napi::FunctionReference constructor;
 
   cudf::size_type size_{};                     ///< The number of elements in the column
-  cudf::size_type offset_{};                   ///< The number of elements in the column
+  cudf::size_type offset_{};                   ///< The offset of elements in the data
   Napi::Reference<Napi::Object> type_{};       ///< Logical type of elements in the column
   Napi::Reference<Napi::Object> data_{};       ///< Dense, contiguous, type erased device memory
                                                ///< buffer containing the column elements
@@ -638,6 +643,7 @@ class Column : public Napi::ObjectWrap<Column> {
   Napi::Value type(Napi::CallbackInfo const& info);
   void type(Napi::CallbackInfo const& info, Napi::Value const& value);
 
+  Napi::Value offset(Napi::CallbackInfo const& info);
   Napi::Value size(Napi::CallbackInfo const& info);
   Napi::Value data(Napi::CallbackInfo const& info);
   Napi::Value null_mask(Napi::CallbackInfo const& info);
