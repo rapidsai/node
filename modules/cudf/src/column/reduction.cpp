@@ -46,15 +46,28 @@ cudf::data_type _compute_dtype(cudf::type_id id) {
 }
 }  // namespace
 
-std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> Column::minmax() const {
-  auto result = cudf::minmax(*this);
+std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> Column::minmax(
+  rmm::mr::device_memory_resource* mr) const {
+  auto result = cudf::minmax(*this, mr);
   return {Scalar::New(std::move(result.first)),  //
           Scalar::New(std::move(result.second))};
 }
 
-Napi::Value Column::min(Napi::CallbackInfo const& info) { return minmax().first; }
+Napi::Value Column::min(Napi::CallbackInfo const& info) {
+  return minmax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()).first;
+}
 
-Napi::Value Column::max(Napi::CallbackInfo const& info) { return minmax().second; }
+Napi::Value Column::max(Napi::CallbackInfo const& info) {
+  return minmax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()).second;
+}
+
+Napi::Value Column::minmax(Napi::CallbackInfo const& info) {
+  auto m_m = minmax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+  auto ary = Napi::Array::New(info.Env(), 2);
+  ary.Set(0u, m_m.first->get_value());
+  ary.Set(1u, m_m.second->get_value());
+  return ary;
+}
 
 ObjectUnwrap<Scalar> Column::reduce(std::unique_ptr<cudf::aggregation> const& agg,
                                     cudf::data_type const& output_dtype,

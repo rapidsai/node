@@ -230,7 +230,8 @@ class Column : public Napi::ObjectWrap<Column> {
    *
    * @return std::pair<Scalar, Scalar>
    */
-  std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> minmax() const;
+  std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> minmax(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
    * @copydoc cudf::reduce(cudf::column_view const &col, std::unique_ptr<aggregation> const &agg,
@@ -703,6 +704,7 @@ class Column : public Napi::ObjectWrap<Column> {
   // column/reductions.cpp
   Napi::Value min(Napi::CallbackInfo const& info);
   Napi::Value max(Napi::CallbackInfo const& info);
+  Napi::Value minmax(Napi::CallbackInfo const& info);
   Napi::Value sum(Napi::CallbackInfo const& info);
   Napi::Value product(Napi::CallbackInfo const& info);
   Napi::Value any(Napi::CallbackInfo const& info);

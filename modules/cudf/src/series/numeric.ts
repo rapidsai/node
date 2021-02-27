@@ -821,8 +821,43 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   }
 
   _process_reduction(skipna = true, memoryResource?: MemoryResource): Series<T> {
-    if (skipna == true) { return this.dropNulls(memoryResource); }
-    return this.__construct(this._col);
+    return skipna ? this.dropNulls(memoryResource) : this.__construct(this._col);
+  }
+
+  /**
+   * Compute the min of all values in this Column.
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The min of all the values in this Column.
+   */
+  min(skipna = true, memoryResource?: MemoryResource) {
+    return this._process_reduction(skipna, memoryResource)._col.min(memoryResource);
+  }
+
+  /**
+   * Compute the max of all values in this Column.
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The max of all the values in this Column.
+   */
+  max(skipna = true, memoryResource?: MemoryResource) {
+    return this._process_reduction(skipna, memoryResource)._col.max(memoryResource);
+  }
+
+  /**
+   * Compute a pair of [min,max] of all values in this Column.
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The pair of [min,max] of all the values in this Column.
+   */
+  minmax(skipna = true, memoryResource?: MemoryResource) {
+    return this._process_reduction(skipna, memoryResource)._col.minmax(memoryResource);
   }
 
   /**
@@ -834,8 +869,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The sum of all the values in this Series.
    */
   sum(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._process_reduction(skipna, memoryResource);
-    return (result_series == undefined) ? undefined : result_series._col.sum(memoryResource);
+    return this._process_reduction(skipna, memoryResource)._col.sum(memoryResource);
   }
 
   /**
@@ -848,8 +882,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The product of all the values in this Series.
    */
   product(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._process_reduction(skipna, memoryResource);
-    return (result_series == undefined) ? undefined : result_series._col.product(memoryResource);
+    return this._process_reduction(skipna, memoryResource)._col.product(memoryResource);
   }
 
   /**
@@ -862,9 +895,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The sumOfSquares of all the values in this Series.
    */
   sumOfSquares(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._process_reduction(skipna, memoryResource);
-    return (result_series == undefined) ? undefined
-                                        : result_series._col.sum_of_squares(memoryResource);
+    return this._process_reduction(skipna, memoryResource)._col.sum_of_squares(memoryResource);
   }
 
   /**
@@ -877,8 +908,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The mean of all the values in this Series.
    */
   mean(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._process_reduction(skipna, memoryResource);
-    return (result_series == undefined) ? undefined : result_series._col.mean(memoryResource);
+    return this._process_reduction(skipna, memoryResource)._col.mean(memoryResource);
   }
 
   /**
@@ -891,8 +921,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The median of all the values in this Series.
    */
   median(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._process_reduction(skipna, memoryResource);
-    return (result_series == undefined) ? undefined : result_series._col.mean(memoryResource);
+    return this._process_reduction(skipna, memoryResource)._col.mean(memoryResource);
   }
 
   /**
@@ -905,7 +934,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The number of unqiue values in this Series.
    */
   nunique(skipna = true, memoryResource?: MemoryResource) {
-    return this._col.nunique(skipna, memoryResource);
+    return this.nullCount === this.length ? skipna ? 0 : 1
+                                          : this._col.nunique(skipna, memoryResource);
   }
 
   /**
@@ -920,7 +950,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The unbiased variance of all the values in this Series.
    */
   var(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna, memoryResource)?._col.var(ddof, memoryResource);
+    return this._process_reduction(skipna, memoryResource)._col.var(ddof, memoryResource);
   }
 
   /**
@@ -935,7 +965,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @returns The standard deviation of all the values in this Series.
    */
   std(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna, memoryResource)?._col.std(ddof, memoryResource);
+    return this._process_reduction(skipna, memoryResource)._col.std(ddof, memoryResource);
   }
 
   /**
@@ -952,7 +982,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   quantile(q                                         = 0.5,
            interpolation: keyof typeof Interpolation = 'linear',
            memoryResource?: MemoryResource) {
-    return this._process_reduction(true)?._col.quantile(
+    return this._process_reduction(true)._col.quantile(
       q, Interpolation[interpolation], memoryResource);
   }
 }

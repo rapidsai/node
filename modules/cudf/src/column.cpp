@@ -171,6 +171,7 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   // column/reduction.cpp
                   InstanceMethod<&Column::min>("min"),
                   InstanceMethod<&Column::max>("max"),
+                  InstanceMethod<&Column::minmax>("minmax"),
                   InstanceMethod<&Column::sum>("sum"),
                   InstanceMethod<&Column::product>("product"),
                   InstanceMethod<&Column::any>("any"),
