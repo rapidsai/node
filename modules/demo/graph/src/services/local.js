@@ -45,7 +45,7 @@ export default async function* loadGraphData(props = {}) {
   let graph = new GraphCOO(edges.get('src')._col, edges.get('dst')._col, {directedEdges: true});
 
   for (let positions = null; true;) {
-    // Compute positions of the next time step from with the previous time step's positions
+    // Compute positions of the next time step from the previous time step's positions
     positions = graph.forceAtlas2({
       positions,
       scalingRatio: 1,
