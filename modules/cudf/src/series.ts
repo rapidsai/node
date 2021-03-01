@@ -155,6 +155,11 @@ export class AbstractSeries<T extends DataType = any> {
   get mask() { return this._col.mask; }
 
   /**
+   * The offset of elements in this Series underlying Column.
+   */
+  get offset() { return this._col.offset; }
+
+  /**
    * The number of elements in this Series.
    */
   get length() { return this._col.length; }

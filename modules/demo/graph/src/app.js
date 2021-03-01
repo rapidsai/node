@@ -18,12 +18,6 @@ import { GraphLayer } from './layers/graph';
 import { OrthographicView } from '@deck.gl/core';
 import { createDeckGLReactRef } from '@nvidia/deck.gl';
 
-const loadGraphData = require(
-    process.env.REACT_APP_ENVIRONMENT === 'browser'
-        ? './services/triangle'
-        : './services/remote'
-).default;
-
 import { as as asAsyncIterable } from 'ix/asynciterable/as';
 import { takeWhile } from 'ix/asynciterable/operators/takewhile';
 
@@ -45,6 +39,15 @@ export class App extends React.Component {
     }
     componentDidMount() {
         this._isMounted = true;
+
+        const loadGraphData = require(
+            process.env.REACT_APP_ENVIRONMENT !== 'browser'
+                ? this.props.url
+                    ? './services/remote'
+                    : './services/local'
+                : './services/triangle'
+        ).default;
+
         asAsyncIterable(loadGraphData(this.props))
             .pipe(takeWhile(() => this._isMounted))
             .forEach((state) => this.setState(state));
@@ -83,7 +86,7 @@ export default App;
 
 App.defaultProps = {
     controller: true,
-    // onWebGLInitialized,
+    onWebGLInitialized,
     onHover: onDragEnd,
     onDrag: onDragStart,
     onDragEnd: onDragEnd,
@@ -95,7 +98,6 @@ App.defaultProps = {
     views: [
         new OrthographicView({
             clear: {
-                // color: [...[0, 0, 0].map((x) => x / 255), 1]
                 color: [...[46, 46, 46].map((x) => x / 255), 1]
             }
         })

@@ -42,7 +42,7 @@ Napi::Value GraphCOO::force_atlas2(Napi::CallbackInfo const &info) {
   NapiToCPP::Object options           = args[0];
   rmm::mr::device_memory_resource *mr = options.Get("memoryResource");
 
-  auto max_iter              = get_int(options.Get("numIterations"), 500);
+  auto max_iter              = get_int(options.Get("numIterations"), 1);
   auto outbound_attraction   = get_bool(options.Get("outboundAttraction"), true);
   auto lin_log_mode          = get_bool(options.Get("linLogMode"), false);
   auto prevent_overlapping   = get_bool(options.Get("preventOverlap"), false);

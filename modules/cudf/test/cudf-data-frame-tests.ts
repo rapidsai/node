@@ -47,7 +47,7 @@ test('DataFrame asTable', () => {
     data: new Uint8Buffer(length),
     nullMask: new Uint8Buffer(64),
   });
-  const table_0 = new DataFrame({"col_0": col_0, "col_1": col_1});
+  const table_0 = new DataFrame({'col_0': col_0, 'col_1': col_1});
   expect(table_0.asTable()).toBeInstanceOf(Table);
 });
 
