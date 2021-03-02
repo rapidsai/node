@@ -22,17 +22,35 @@ require('@babel/register')({
 });
 
 // Open a GLFW window and run the `tfjsWebGLTests` function
-require('@nvidia/glfw').createWindow(tfjsWebGLTests, true).open({ __dirname });
+require('@nvidia/glfw').createWindow(tfjsWebGLTests, true).open({
+    __dirname,
+    // openGLProfile: require('@nvidia/glfw').GLFWOpenGLProfile.COMPAT,
+});
 
 function tfjsWebGLTests({ __dirname }) {
     const runner = new (require('jasmine'))();
     require('@tensorflow/tfjs-core/dist/index');
     require('@tensorflow/tfjs-backend-webgl/dist/index');
+
     // require('@tensorflow/tfjs-core/dist/public/chained_ops/register_all_chained_ops');
     // require('@tensorflow/tfjs-core/dist/register_all_gradients');
     // require('@tensorflow/tfjs-backend-webgl/dist/backend_webgl_test_registry');
-    const { setupTestFilters } = require('@tensorflow/tfjs-core/dist/jasmine_util');
-    setupTestFilters([], (testName) => {
+
+    // Force WebGL2 and DEBUG mode
+    // require('@tensorflow/tfjs-core/dist/jasmine_util').setTestEnvs([{
+    //     name: 'webgl2',
+    //     backendName: 'webgl',
+    //     flags: {
+    //         'DEBUG': true,
+    //         'WEBGL_VERSION': 2,
+    //         'WEBGL_CPU_FORWARD': false,
+    //         'WEBGL_SIZE_UPLOAD_UNIFORM': 0
+    //     },
+    //     isDataSync: true
+    // }]);
+
+
+    require('@tensorflow/tfjs-core/dist/jasmine_util').setupTestFilters([], (testName) => {
         const toExclude = ['isBrowser: false', 'tensor in worker', 'dilation gradient'];
         for (const subStr of toExclude) {
             if (testName.includes(subStr)) { return false; }
