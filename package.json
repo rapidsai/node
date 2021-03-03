@@ -70,6 +70,7 @@
   "resolutions": {
     "**/jsdom": "^16.2.2",
     "**/deck.gl": "8.2.3",
+    "**/@deck.gl/arcgis": "8.2.3",
     "**/@deck.gl/aggregation-layers": "8.2.3",
     "**/@deck.gl/core": "8.2.3",
     "**/@deck.gl/extensions": "8.2.3",

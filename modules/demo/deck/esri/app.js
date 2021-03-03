@@ -1,4 +1,3 @@
-debugger
 import {loadArcGISModules} from '@deck.gl/arcgis';
 import {GeoJsonLayer, ArcLayer} from '@deck.gl/layers';
 
@@ -6,21 +5,10 @@ import {GeoJsonLayer, ArcLayer} from '@deck.gl/layers';
 const AIR_PORTS =
   'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson';
 
-document.body.append(
-  createElement('div', 'viewDiv'),
-);
-
-function createElement(type, id, value) {
-  const elt = document.createElement(type);
-  if (arguments.length > 1 && id) elt.setAttribute('id', id);
-  if (arguments.length > 2) elt.setAttribute('value', value);
-  return elt;
-}
-
 loadArcGISModules(['esri/Map', 'esri/views/MapView']).then(({DeckLayer, modules}) => {
   const [ArcGISMap, MapView] = modules;
   const layer = new DeckLayer({
-    'deck.getTooltip': info => info.object && info.object.properties.name,
+    'deck.getTooltip': info => info.object && info.object.properties.name && console.log(info.object.properties.name),
     'deck.layers': [
       new GeoJsonLayer({
         id: 'airports',
@@ -37,7 +25,7 @@ loadArcGISModules(['esri/Map', 'esri/views/MapView']).then(({DeckLayer, modules}
         onClick: info =>
           info.object &&
           // eslint-disable-next-line
-          alert(`${info.object.properties.name} (${info.object.properties.abbrev})`)
+          console.log(`${info.object.properties.name} (${info.object.properties.abbrev})`)
       }),
       new ArcLayer({
         id: 'arcs',
@@ -56,8 +44,8 @@ loadArcGISModules(['esri/Map', 'esri/views/MapView']).then(({DeckLayer, modules}
   // In the ArcGIS API for JavaScript the MapView is responsible
   // for displaying a Map, which usually contains at least a basemap.
   // eslint-disable-next-line
-  const mapView = new MapView({
-    container: 'viewDiv',
+  new MapView({
+    container: document.body,
     map: new ArcGISMap({
       basemap: 'dark-gray-vector',
       layers: [layer]

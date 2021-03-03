@@ -189,6 +189,7 @@ export const OTHER_KEYS = [
   // 'window',
   'WebGLRenderingContext',
   'WebGL2RenderingContext',
+  'ImageData'
 ];
 
 export const JSDOM_KEYS = LIVING_KEYS.concat(OTHER_KEYS) as (keyof Window)[];
