@@ -78,6 +78,7 @@ export interface Column<T extends DataType = any> {
   readonly data: DeviceBuffer;
   readonly mask: DeviceBuffer;
 
+  readonly offset: number;
   readonly length: number;
   readonly nullable: boolean;
   readonly hasNulls: boolean;
@@ -780,13 +781,40 @@ export interface Column<T extends DataType = any> {
   not(memoryResource?: MemoryResource): Column<Bool8>;
 
   /**
+   * Compute the min of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The min of all the values in this Column.
+   */
+  min(memoryResource?: MemoryResource): T extends Integral? bigint: number;
+
+  /**
+   * Compute the max of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The max of all the values in this Column.
+   */
+  max(memoryResource?: MemoryResource): T extends Integral? bigint: number;
+
+  /**
+   * Compute a pair of [min,max] of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The pair of [min,max] of all the values in this Column.
+   */
+  minmax(memoryResource?: MemoryResource): (T extends Integral? bigint: number)[];
+
+  /**
    * Compute the sum of all values in this Column.
    *
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns The sum of all the values in this Column.
    */
-  sum(memoryResource?: MemoryResource): T extends(Integral)? bigint: number;
+  sum(memoryResource?: MemoryResource): T extends Integral? bigint: number;
 
   /**
    * Compute the product of all values in this Column.
@@ -795,7 +823,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The product of all the values in this Column.
    */
-  product(memoryResource?: MemoryResource): T extends(Integral)? bigint: number;
+  product(memoryResource?: MemoryResource): T extends Integral? bigint: number;
 
   /**
    * Compute the sum_of_squares of all values in this Column.
@@ -804,7 +832,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The sum_of_squares of all the values in this Column.
    */
-  sum_of_squares(memoryResource?: MemoryResource): T extends(Integral)? bigint: number;
+  sum_of_squares(memoryResource?: MemoryResource): T extends Integral? bigint: number;
 
   /**
    * Compute the mean of all values in this Column.

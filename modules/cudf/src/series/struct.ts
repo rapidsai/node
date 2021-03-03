@@ -42,6 +42,7 @@ export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
    *
    * @param name Name of the Series to return.
    */
+  // TODO: Account for this.offset
   getChild<P extends keyof T>(name: P): Series<T[P]> {
     return Series.new(
       this._col.getChild<T[P]>(this.type.children.findIndex((f) => f.name === name)));

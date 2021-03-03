@@ -22,8 +22,8 @@ export interface GraphCOOConstructor {
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 interface GraphCOO {
-  readonly numberOfEdges: number;
-  readonly numberOfNodes: number;
+  readonly numEdges: number;
+  readonly numNodes: number;
 
   forceAtlas2(options: {
     memoryResource?: MemoryResource,

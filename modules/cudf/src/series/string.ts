@@ -38,9 +38,11 @@ export class StringSeries extends Series<Utf8String> {
   /**
    * Series of integer offsets for each string
    */
+  // TODO: Account for this.offset
   get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
   /**
    * Series containing the utf8 characters of each string
    */
+  // TODO: Account for this.offset
   get data() { return Series.new(this._col.getChild<Uint8>(1)); }
 }

@@ -149,7 +149,9 @@ export class Float32Series extends FloatSeries<Float32> {
   /**
    * A Float32 view of the values in GPU memory.
    */
-  get data() { return new Float32Buffer(this._col.data).subarray(0, this.length); }
+  get data() {
+    return new Float32Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
 }
 
 /**
@@ -159,5 +161,7 @@ export class Float64Series extends FloatSeries<Float64> {
   /**
    * A Float64 view of the values in GPU memory.
    */
-  get data() { return new Float64Buffer(this._col.data).subarray(0, this.length); }
+  get data() {
+    return new Float64Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
 }

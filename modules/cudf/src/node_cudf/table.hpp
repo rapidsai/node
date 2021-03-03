@@ -60,6 +60,17 @@ class Table : public Napi::ObjectWrap<Table> {
   static Napi::Object New(std::unique_ptr<cudf::table> table);
 
   /**
+   * @brief Check whether an Napi value is an instance of `Table`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `Table`
+   * @return false if the value is not a `Table`
+   */
+  inline static bool is_instance(Napi::Value const& val) {
+    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
+  }
+
+  /**
    * @brief Construct a new Column instance from JavaScript.
    *
    */

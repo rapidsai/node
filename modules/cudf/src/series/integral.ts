@@ -199,7 +199,9 @@ export class Int8Series extends IntSeries<Int8> {
   /**
    * A Int8 view of the values in GPU memory.
    */
-  get data() { return new Int8Buffer(this._col.data).subarray(0, this.length); }
+  get data() {
+    return new Int8Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
 }
 
 /**
@@ -209,7 +211,9 @@ export class Int16Series extends IntSeries<Int16> {
   /**
    * A Int16 view of the values in GPU memory.
    */
-  get data() { return new Int16Buffer(this._col.data).subarray(0, this.length); }
+  get data() {
+    return new Int16Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
 }
 
 /**
@@ -219,7 +223,9 @@ export class Int32Series extends IntSeries<Int32> {
   /**
    * A Int32 view of the values in GPU memory.
    */
-  get data() { return new Int32Buffer(this._col.data).subarray(0, this.length); }
+  get data() {
+    return new Int32Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
 }
 
 /**
@@ -232,7 +238,9 @@ export class Int64Series extends IntSeries<Int64> {
   /**
    * A Int64 view of the values in GPU memory.
    */
-  get data() { return new Int64Buffer(this._col.data).subarray(0, this.length); }
+  get data() {
+    return new Int64Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
 }
 
 /**
@@ -242,7 +250,9 @@ export class Uint8Series extends IntSeries<Uint8> {
   /**
    * A Uint8 view of the values in GPU memory.
    */
-  get data() { return new Uint8Buffer(this._col.data).subarray(0, this.length); }
+  get data() {
+    return new Uint8Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
 }
 
 /**
@@ -252,7 +262,9 @@ export class Uint16Series extends IntSeries<Uint16> {
   /**
    * A Uint16 view of the values in GPU memory.
    */
-  get data() { return new Uint16Buffer(this._col.data).subarray(0, this.length); }
+  get data() {
+    return new Uint16Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
 }
 
 /**
@@ -262,7 +274,9 @@ export class Uint32Series extends IntSeries<Uint32> {
   /**
    * A Uint32 view of the values in GPU memory.
    */
-  get data() { return new Uint32Buffer(this._col.data).subarray(0, this.length); }
+  get data() {
+    return new Uint32Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
 }
 
 /**
@@ -275,5 +289,7 @@ export class Uint64Series extends IntSeries<Uint64> {
   /**
    * A Uint64 view of the values in GPU memory.
    */
-  get data() { return new Uint64Buffer(this._col.data).subarray(0, this.length); }
+  get data() {
+    return new Uint64Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
 }

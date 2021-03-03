@@ -25,5 +25,7 @@ export class Bool8Series extends NumericSeries<Bool8> {
   /**
    * A Uint8 view of the values in GPU memory.
    */
-  get data() { return new Uint8ClampedBuffer(this._col.data).subarray(0, this.length); }
+  get data() {
+    return new Uint8ClampedBuffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
 }

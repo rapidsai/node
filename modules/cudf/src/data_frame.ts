@@ -34,7 +34,7 @@ import {
   TypeMap,
 } from './types/mappings';
 
-type SeriesMap<T extends TypeMap> = {
+export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
 };
 

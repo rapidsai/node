@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import chalk from 'chalk';
+import * as tf from '@tensorflow/tfjs';
 
 // Populate DOM with expected demo elements
 document.body.append(
@@ -60,6 +61,9 @@ new MutationObserver((mutations, observer) => {
             .join('\n')
     ).join('\n'));
 }).observe(document.getElementById('testExamples'), {childList: true});
+
+tf.env().set('WEBGL_VERSION', 2);
+tf.enableProdMode();
 
 // Import and run the TFJS demo
 require('./demo');
