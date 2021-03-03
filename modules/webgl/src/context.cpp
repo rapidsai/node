@@ -1082,31 +1082,31 @@ Napi::Value WebGL2RenderingContext::GetParameter(Napi::CallbackInfo const& info)
     }
 
     case GL_MAX_VIEWPORT_DIMS: {
-      std::vector<GLint> params(2);
-      GL_EXPORT::glGetIntegerv(pname, params.data());
-      return CPPToNapi(info)(params);
+      auto buf = Napi::ArrayBuffer::New(info.Env(), 2 * sizeof(GLint));
+      GL_EXPORT::glGetIntegerv(pname, static_cast<GLint*>(buf.Data()));
+      return Napi::Int32Array::New(info.Env(), 2, buf, 0);
     }
 
     case GL_VIEWPORT:
     case GL_SCISSOR_BOX: {
-      std::vector<GLint> params(4);
-      GL_EXPORT::glGetIntegerv(pname, params.data());
-      return CPPToNapi(info)(params);
+      auto buf = Napi::ArrayBuffer::New(info.Env(), 4 * sizeof(GLint));
+      GL_EXPORT::glGetIntegerv(pname, static_cast<GLint*>(buf.Data()));
+      return Napi::Int32Array::New(info.Env(), 4, buf, 0);
     }
 
     case GL_DEPTH_RANGE:
     case GL_ALIASED_LINE_WIDTH_RANGE:
     case GL_ALIASED_POINT_SIZE_RANGE: {
-      std::vector<GLfloat> params(2);
-      GL_EXPORT::glGetFloatv(pname, params.data());
-      return CPPToNapi(info)(params);
+      auto buf = Napi::ArrayBuffer::New(info.Env(), 2 * sizeof(GLfloat));
+      GL_EXPORT::glGetFloatv(pname, static_cast<GLfloat*>(buf.Data()));
+      return Napi::Float32Array::New(info.Env(), 2, buf, 0);
     }
 
     case GL_BLEND_COLOR:
     case GL_COLOR_CLEAR_VALUE: {
-      std::vector<GLfloat> params(4);
-      GL_EXPORT::glGetFloatv(pname, params.data());
-      return CPPToNapi(info)(params);
+      auto buf = Napi::ArrayBuffer::New(info.Env(), 4 * sizeof(GLfloat));
+      GL_EXPORT::glGetFloatv(pname, static_cast<GLfloat*>(buf.Data()));
+      return Napi::Float32Array::New(info.Env(), 4, buf, 0);
     }
 
     default: {

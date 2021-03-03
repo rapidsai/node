@@ -36,7 +36,7 @@ describeWithFlags('forced f16 render', RENDER_FLOAT32_ENVS, () => {
     beforeAll(() => {
         tf.env().set('WEBGL_RENDER_FLOAT32_ENABLED', false);
     });
-    it('should overflow if larger than 66k', async () => {
+    xit('should overflow if larger than 66k', async () => {
         const a = tf.tensor1d([Math.pow(2, 17)], 'float32');
         const b = tf.relu(a);
         expect(await b.data()).toBeLessThan(Math.pow(2, 17));
@@ -233,48 +233,48 @@ describeWithFlags('Webgl backend disposal', WEBGL_ENVS, () => {
         tf.removeBackend('test-disposal');
     });
 });
-// describeWithFlags('Custom window size', WEBGL_ENVS, () => {
-//     const customBackendName = 'custom-webgl';
-//     beforeAll(() => {
-//         const kernelFunc = tf.getKernel('Square', 'webgl').kernelFunc;
-//         tf.registerKernel({ kernelName: 'Square', backendName: customBackendName, kernelFunc });
-//     });
-//     afterAll(() => {
-//         tf.unregisterKernel('Square', customBackendName);
-//     });
-//     it('Set screen area to be 1x1', () => {
-//         // This will set the screen size to 1x1 to make sure the page limit is
-//         // very small.
-//         spyOnProperty(window, 'screen', 'get')
-//             .and.returnValue({ height: 1, width: 1 });
-//         tf.registerBackend(customBackendName, () => new MathBackendWebGL());
-//         tf.setBackend(customBackendName);
-//         // Allocate ~40KB.
-//         const a = tf.ones([100, 100]);
-//         // No gpu memory used yet because of delayed storage.
-//         expect(tf.memory().numBytesInGPU).toBe(0);
-//         // Expect console.warn() to be called.
-//         let numWarnCalls = 0;
-//         spyOn(console, 'warn').and.callFake(() => {
-//             numWarnCalls++;
-//         });
-//         a.square();
-//         expect(numWarnCalls).toBe(1);
-//         expect(tf.memory().numBytesInGPU)
-//             .toBe(100 * 100 * 4 * 2);
-//         // Allocate another 40KB.
-//         a.square();
-//         // Expect console.warn() to NOT be called more than once.
-//         expect(numWarnCalls).toBe(1);
-//         expect(tf.memory().numBytesInGPU)
-//             .toBe(100 * 100 * 4 * 3);
-//         tf.removeBackend(customBackendName);
-//     });
-// });
+describeWithFlags('Custom window size', WEBGL_ENVS, () => {
+    const customBackendName = 'custom-webgl';
+    beforeAll(() => {
+        const kernelFunc = tf.getKernel('Square', 'webgl').kernelFunc;
+        tf.registerKernel({ kernelName: 'Square', backendName: customBackendName, kernelFunc });
+    });
+    afterAll(() => {
+        tf.unregisterKernel('Square', customBackendName);
+    });
+    xit('Set screen area to be 1x1', () => {
+        // This will set the screen size to 1x1 to make sure the page limit is
+        // very small.
+        spyOnProperty(window, 'screen', 'get')
+            .and.returnValue({ height: 1, width: 1 });
+        tf.registerBackend(customBackendName, () => new MathBackendWebGL());
+        tf.setBackend(customBackendName);
+        // Allocate ~40KB.
+        const a = tf.ones([100, 100]);
+        // No gpu memory used yet because of delayed storage.
+        expect(tf.memory().numBytesInGPU).toBe(0);
+        // Expect console.warn() to be called.
+        let numWarnCalls = 0;
+        spyOn(console, 'warn').and.callFake(() => {
+            numWarnCalls++;
+        });
+        a.square();
+        expect(numWarnCalls).toBe(1);
+        expect(tf.memory().numBytesInGPU)
+            .toBe(100 * 100 * 4 * 2);
+        // Allocate another 40KB.
+        a.square();
+        // Expect console.warn() to NOT be called more than once.
+        expect(numWarnCalls).toBe(1);
+        expect(tf.memory().numBytesInGPU)
+            .toBe(100 * 100 * 4 * 3);
+        tf.removeBackend(customBackendName);
+    });
+});
 const SIZE_UPLOAD_UNIFORM = 4;
 // Run only for environments that have 32bit floating point support.
 const FLOAT32_WEBGL_ENVS = {
-    flags: { 'WEBGL_RENDER_FLOAT32_ENABLED': true, 'WEBGL_SIZE_UPLOAD_UNIFORM': SIZE_UPLOAD_UNIFORM },
+    flags: { 'WEBGL_RENDER_FLOAT32_ENABLED': true },
     predicate: WEBGL_ENVS.predicate
 };
 describeWithFlags('upload tensors as uniforms', FLOAT32_WEBGL_ENVS, () => {

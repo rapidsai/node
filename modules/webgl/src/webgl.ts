@@ -651,13 +651,16 @@ function pixelsFromImage(source: TexImageSource, width: number, height: number) 
     const context = Object.assign(canvas, {width, height}).getContext('2d')!;
     context.drawImage(source, 0, 0);
     return context.getImageData(0, 0, width, height).data;
-  } else if ((typeof OffscreenCanvas !== 'undefined') && (source instanceof OffscreenCanvas) ||
-             (typeof HTMLCanvasElement !== 'undefined') && (source instanceof HTMLCanvasElement)) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return source.getContext('2d')!.getImageData(0, 0, width, height).data;
-  } else if ('data' in source) {
-    return source.data;
   }
+  if (source && typeof (<any>source).getContext === 'function') {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const context = (<any>source).getContext('2d');
+    if (context && typeof context.getImageData === 'function') {
+      const imageData = context.getImageData(0, 0, width, height);
+      if (imageData && ('data' in imageData)) { return imageData.data; }
+    }
+  }
+  if ('data' in source) { return source.data; }
   throw new TypeError('OpenGLESRenderingContext invalid pixel source');
 }
 
