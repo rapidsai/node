@@ -122,10 +122,10 @@ if (typeof global_['fetch'] === 'undefined') {
                            .then((x) => new Response(x, {status: 200}));
   };
   const xfetchDefs = {
-    'fetch': {get() { return fileFetch; }},
-    'Response': {get() { return xfetch.Response; }},
-    'Headers': {get() { return xfetch.Headers; }},
-    'Request': {get() { return xfetch.Request; }},
+    'fetch': {value: fileFetch, writable: true, configurable: true},
+    'Response': {value: xfetch.Response, writable: true, configurable: true},
+    'Headers': {value: xfetch.Headers, writable: true, configurable: true},
+    'Request': {value: xfetch.Request, writable: true, configurable: true},
   };
   Object.defineProperties(global, xfetchDefs);
   Object.defineProperties(window, xfetchDefs);

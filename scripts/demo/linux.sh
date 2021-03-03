@@ -3,6 +3,10 @@
 set -Eeo pipefail
 # set -x
 
+if [ -d node_modules/esm/node_modules/.cache ]; then
+    rm -rf node_modules/esm/node_modules/.cache;
+fi;
+
 fuzzy-find() {
     (
         for p in ${@}; do
