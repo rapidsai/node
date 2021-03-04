@@ -316,13 +316,14 @@ const sliceLayerAttrib = (multiplier, buffer, offset = 0) => ({
 
 const edgeLayerProps = (props, state, offset, length) => ({
     pickable: true,
-    autoHighlight: true,
+    autoHighlight: false,
     highlightColor: [225, 225, 225, 100],
     numInstances: length,
     opacity: props.edgeOpacity,
     visible: props.edgesVisible,
     width: props.edgeStrokeWidth,
     highlightedNode: state.highlightedNode,
+    highlightedEdge: state.highlightedEdge,
     data: {
         attributes: {
             instanceEdges: sliceLayerAttrib(offset, state.buffers.edgeList),
@@ -337,7 +338,7 @@ const edgeLayerProps = (props, state, offset, length) => ({
 
 const nodeLayerProps = (props, state, offset, length) => ({
     pickable: true,
-    autoHighlight: true,
+    autoHighlight: false,
     highlightColor: [225, 225, 225, 100],
     numInstances: length,
     filled: props.nodesFilled,
@@ -352,6 +353,7 @@ const nodeLayerProps = (props, state, offset, length) => ({
     lineWidthScale: props.nodeLineWidthScale,
     lineWidthMinPixels: props.nodeLineWidthMinPixels,
     lineWidthMaxPixels: props.nodeLineWidthMaxPixels,
+    highlightedNode: state.highlightedNode,
     highlightedSourceNode: state.highlightedSourceNode,
     highlightedTargetNode: state.highlightedTargetNode,
     data: {

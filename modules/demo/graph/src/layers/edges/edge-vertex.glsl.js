@@ -28,6 +28,7 @@ uniform float numSegments;
 uniform float strokeWidth;
 uniform float opacity;
 uniform uint highlightedNode;
+uniform uint highlightedEdge;
 
 in vec3 positions;
 in uvec2 instanceEdges;
@@ -111,9 +112,13 @@ void main(void) {
     // Set color to be rendered to picking fbo (also used to check for selection highlight).
     picking_setPickingColor(instancePickingColors);
 
-    picking_vRGBcolor_Avalid.a = float(
-        bool(picking_vRGBcolor_Avalid.a) ||
-        instanceEdges.x == highlightedNode ||
-        instanceEdges.y == highlightedNode );
+    picking_vRGBcolor_Avalid.a = float(bool(picking_vRGBcolor_Avalid.a)
+        // Highlight if this edge originates from the highlighted node
+        || instanceEdges.x == highlightedNode
+        // Highlight if this edge terminates at the highlighted node
+        // || instanceEdges.y == highlightedNode
+        // Highlight if this edge is the hovered/selected edge
+        || uint(gl_InstanceID) == highlightedEdge
+    );
 }
 `;

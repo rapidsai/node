@@ -35,6 +35,7 @@ uniform float radiusMaxPixels;
 uniform float lineWidthScale;
 uniform float lineWidthMinPixels;
 uniform float lineWidthMaxPixels;
+uniform uint highlightedNode;
 uniform uint highlightedSourceNode;
 uniform uint highlightedTargetNode;
 
@@ -95,6 +96,7 @@ void main(void) {
 
     picking_vRGBcolor_Avalid.a = float(
         bool(picking_vRGBcolor_Avalid.a) ||
+        instanceNodeIndices == highlightedNode ||
         instanceNodeIndices == highlightedSourceNode ||
         instanceNodeIndices == highlightedTargetNode );
 }

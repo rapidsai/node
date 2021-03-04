@@ -15,11 +15,13 @@
 import React from 'react';
 import DeckGL from '@deck.gl/react';
 import { GraphLayer } from './layers/graph';
-import { OrthographicView } from '@deck.gl/core';
+import { OrthographicView, log } from '@deck.gl/core';
 import { createDeckGLReactRef } from '@nvidia/deck.gl';
 
 import { as as asAsyncIterable } from 'ix/asynciterable/as';
 import { takeWhile } from 'ix/asynciterable/operators/takewhile';
+
+log.enable(false);
 
 const composeFns = (fns) => function(...args) {
     fns.forEach((fn) => fn && fn.apply(this, args));
@@ -64,15 +66,9 @@ export class App extends React.Component {
                 _framebuffer={props.getRenderTarget ? props.getRenderTarget() : null}
                 onAfterRender={composeFns([onAfterRender, this.state.onAfterRender])}>
                 <GraphLayer
-                    // edgeOpacity={.75}
-                    // nodesStroked={true}
                     edgeStrokeWidth={2.5}
-                    // nodeFillOpacity={.75}
-                    // nodeStrokeOpacity={1}
-
                     edgeOpacity={.25}
                     nodesStroked={true}
-                    // edgeStrokeWidth={1.5}
                     nodeFillOpacity={.25}
                     nodeStrokeOpacity={.9}
                     {...this.state.graph}
