@@ -35,15 +35,15 @@ import {BoolVector} from 'apache-arrow';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
-const numbers = Array.from([null, 0, 1, 1, null, 2, 3, 3, 4, 4]);
+const numbers = Array.from([null, 0, 1, 1, null, 2, 3, 3, 4, 4]) as number[];
 
-const makeBigInts = (length = 10) => Array.from({length}, (_, i) => BigInt(parseInt(i / 3)));
+const makeBigInts = (length = 10) => Array.from({length}, (_, i) => BigInt(Math.floor(i / 3)));
 
 const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 2 == 0));
 
 const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN]);
 
-function jsAll(values: any) { return values.every(x => x != false); }
+function jsAll(values: any) { return values.every((x: boolean) => x != false); }
 
 function testNumberAll<T extends Numeric, R extends TypedArray>(type: T, data: R) {
   expect(Boolean(Series.new({type, data}).all())).toEqual(jsAll(data));
@@ -54,7 +54,7 @@ function testNumberAllSkipNA<T extends Numeric, R extends TypedArray>(
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
   expect(Boolean(Series.new({type, data, nullMask: mask}).all(false)))
-    .toEqual(jsAll(data.filter((_, i) => mask_array[i] == 1)));
+    .toEqual(jsAll(data.filter((_: any, i: number) => mask_array[i] == 1)));
 }
 
 function testBigIntAll<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
@@ -66,7 +66,7 @@ function testBigIntAllSkipNA<T extends Numeric, R extends BigIntArray>(
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
   expect(Boolean(Series.new({type, data, nullMask: mask}).all(false)))
-    .toEqual(jsAll(data.filter((_, i) => mask_array[i] == 1)));
+    .toEqual(jsAll(data.filter((_: any, i: number) => mask_array[i] == 1)));
 }
 
 describe('Series.all(skipna=true)', () => {

@@ -48,7 +48,7 @@ function testNumberMean<T extends Numeric, R extends TypedArray>(type: T, data: 
     if (isNaN(y)) { y = 0; }
     if (isNaN(x)) { x = 0; }
     return x + y;
-  }) / data.filter(x => !isNaN(x)).length);
+  }) / data.filter((x: number) => !isNaN(x)).length);
 }
 
 function testNumberMeanSkipNA<T extends Numeric, R extends TypedArray>(
@@ -59,7 +59,7 @@ function testNumberMeanSkipNA<T extends Numeric, R extends TypedArray>(
     result = [...data].reduce((x, y, i) => {
       if (mask_array[i] == 1) { return x + y; }
       return x;
-    }) / data.filter((_, i) => mask_array[i] == 1).length;
+    }) / data.filter((_: any, i: number) => mask_array[i] == 1).length;
   }
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).mean(false)).toEqual(result);
@@ -68,7 +68,7 @@ function testNumberMeanSkipNA<T extends Numeric, R extends TypedArray>(
 function testBigIntMean<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
   expect(Series.new({type, data}).mean())
     .toEqual(Number([...data].reduce((x, y) => x + y)) /
-             data.filter(x => !isNaN(Number(x))).length);
+             data.filter((x: any) => !isNaN(Number(x))).length);
 }
 
 function testBigIntMeanSkipNA<T extends Numeric, R extends BigIntArray>(
@@ -80,7 +80,7 @@ function testBigIntMeanSkipNA<T extends Numeric, R extends BigIntArray>(
                if (mask_array[i] == 1) { return x + y; }
                return x;
              })) /
-             data.filter((_, i) => mask_array[i] == 1).length);
+             data.filter((_: any, i: number) => mask_array[i] == 1).length);
 }
 
 describe('Series.mean(skipna=true)', () => {

@@ -35,16 +35,16 @@ import {BoolVector} from 'apache-arrow';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
-const numbers = Array.from([null, 0, 1, 1, null, 2, 3, 3, 4, 4]);
+const numbers = Array.from([null, 0, 1, 1, null, 2, 3, 3, 4, 4]) as number[];
 
-const makeBigInts = (length = 10) => Array.from({length}, (_, i) => BigInt(parseInt(i / 3)));
+const makeBigInts = (length = 10) => Array.from({length}, (_, i) => BigInt(Math.floor(i / 3)));
 
 const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 2 == 0));
 
 const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN]);
 
 function jsNunique(values: any) {
-  return values.filter((x, i, self) => self.indexOf(x) == i).length;
+  return values.filter((x: any, i: any, self: string|any[]) => self.indexOf(x) == i).length;
 }
 
 function testNumberNunique<T extends Numeric, R extends TypedArray>(type: T, data: R) {
@@ -56,7 +56,7 @@ function testNumberNuniqueSkipNA<T extends Numeric, R extends TypedArray>(
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).nunique(false))
-    .toEqual(jsNunique(data.filter((_, i) => mask_array[i] == 1 || data[i] !== null)));
+    .toEqual(jsNunique(data.filter((_: any, i: number) => mask_array[i] == 1 || data[i] !== null)));
 }
 
 function testBigIntNunique<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
@@ -68,7 +68,7 @@ function testBigIntNuniqueSkipNA<T extends Numeric, R extends BigIntArray>(
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).nunique(false))
-    .toEqual(jsNunique(data.filter((_, i) => mask_array[i] == 1 || data[i] !== null)));
+    .toEqual(jsNunique(data.filter((_: any, i: number) => mask_array[i] == 1 || data[i] !== null)));
 }
 
 describe('Series.nunique(skipna=true)', () => {

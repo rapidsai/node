@@ -46,7 +46,7 @@ const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 5, 6, 7, 8, NaN]);
 function jsMedian(values: any) {
   if (values.length === 0) return 0;
 
-  values.sort(function(a, b) { return Number(a) - Number(b); });
+  values.sort(function(a: any, b: any) { return Number(a) - Number(b); });
 
   const half = Math.floor(values.length / 2);
 
@@ -63,7 +63,9 @@ function testNumberMedianSkipNA<T extends Numeric, R extends TypedArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   let result = NaN;
-  if (!data.includes(NaN)) { result = jsMedian(data.filter((_, i) => mask_array[i] == 1)) }
+  if (!data.includes(NaN)) {
+    result = jsMedian(data.filter((_: any, i: number) => mask_array[i] == 1))
+  }
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).median(false)).toEqual(result);
 }
@@ -77,7 +79,7 @@ function testBigIntMedianSkipNA<T extends Numeric, R extends BigIntArray>(
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   // skipna=false
   expect(Series.new({type, data, nullMask: mask}).median(false))
-    .toEqual(jsMedian(data.filter((_, i) => mask_array[i] == 1)));
+    .toEqual(jsMedian(data.filter((_: any, i: number) => mask_array[i] == 1)));
 }
 
 describe('Series.median(skipna=true)', () => {
