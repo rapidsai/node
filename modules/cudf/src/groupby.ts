@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Series, Struct} from '@nvidia/cudf';
 import {MemoryResource} from '@nvidia/rmm';
+import {Field} from 'apache-arrow';
 
 import CUDF from './addon';
 import {Column} from './column';
 import {DataFrame, SeriesMap} from './data_frame';
-import {Series} from './series';
+import {AbstractSeries} from './series';
 import {Table} from './table';
+import {DataType} from './types/dtypes';
 import {NullOrder} from './types/enums'
 import {Interpolation, TypeMap} from './types/mappings'
 
@@ -34,6 +37,17 @@ import {Interpolation, TypeMap} from './types/mappings'
  * of null values in each column. Else, ignored. If empty, assumes all columns
  * use `null_order::BEFORE`. Ignored if `keys_are_sorted == false`.
  */
+
+type SeriesMapOf<T extends string, R extends DataType> = {
+  [P in T]: AbstractSeries<R>
+};
+
+type Join<T extends unknown[], D extends string> =
+  T extends [] ? '' : T extends [string | number | boolean | bigint]
+                                  ? `${T[0]}`
+                                  : T extends [string | number | boolean | bigint, ...infer U]
+                                                ? `${T[0]}${D}${Join<U, D>}`
+                                                : string;
 
 export type GroupByProps<T extends TypeMap, R extends keyof T> = {
   obj: DataFrame<T>,
@@ -137,12 +151,49 @@ export class GroupBy<T extends TypeMap, R extends keyof T> extends(
   }
 
   protected prepare_results(results: {keys: Table, cols: Column[]}) {
+    if (this._by.length == 1) {
+      return this.prepare_results_single(results);
+    } else {
+      return this.prepare_results_multiple(results);
+    }
+  }
+
+  protected prepare_results_single(results: {keys: Table, cols: Column[]}) {
+    const {keys, cols} = results;
+    const series_map   = {} as SeriesMap<T>;
+
+    this._values.names.forEach((name, index) => { series_map[name] = Series.new(cols[index]); });
+    series_map[this._by[0]] = Series.new(keys.getColumnByIndex(0));
+
+    return new DataFrame(series_map);
+  }
+
+  protected prepare_results_multiple(results: {keys: Table, cols: Column[]}) {
     const {keys, cols} = results;
 
-    const series_map = {} as SeriesMap<T>;
-    this._by.forEach(
-      (name, index) => { series_map[name] = Series.new(keys.getColumnByIndex(index)); });
+    const series_map =
+      {} as SeriesMapOf<Join<Extract<Pick<T, R>, keyof Pick<T, R>>[], '_'>, Struct<Pick<T, R>>>&
+      SeriesMap<Omit<T, R>>;
     this._values.names.forEach((name, index) => { series_map[name] = Series.new(cols[index]); });
+
+    const byname = this._by.join('_');
+    if (byname in series_map) {
+      throw new Error(`Groupby column name ${byname} already
+      exists`);
+    }
+
+    const fields   = [];
+    const children = [];
+    for (const [index, name] of this._by.entries()) {
+      const child = keys.getColumnByIndex(index)
+      fields.push(Field.new({name: name as string, type: child.type}));
+      children.push(Series.new(child));
+    }
+
+    const index = Series.new({type: new Struct(fields), children: children});
+
+    series_map[byname] = index;
+
     return new DataFrame(series_map);
   }
 
