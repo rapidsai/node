@@ -16,7 +16,7 @@
 import './jest-extensions'
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {DataFrame, DataType, Float64, GroupBy, Int32, Series} from '@nvidia/cudf';
+import {DataFrame, DataType, Float64, GroupBy, Int32, Series, StructSeries} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 
 const mr = new CudaMemoryResource();
@@ -41,7 +41,7 @@ function basicAggCompare<T extends {a: DataType, b: DataType}>(result: DataFrame
   expect(rb.toArrow().toArray()).toEqualTypedArray(b_expected.toArrow().toArray() as any);
 }
 
-test('Groupby basic', () => {
+test('getGroups basic', () => {
   const a  = Series.new({type: new Int32, data: [1, 1, 2, 1, 2, 3]});
   const df = new DataFrame({'a': a});
 
@@ -57,7 +57,7 @@ test('Groupby basic', () => {
   expect([...groups['offsets']]).toEqual([0, 3, 5, 6]);
 });
 
-test('Groupby basic two columns', () => {
+test('getGroups basic two columns', () => {
   const a  = Series.new({type: new Int32, data: [1, 1, 2, 1, 2, 3]});
   const aa = Series.new({type: new Int32, data: [4, 5, 4, 4, 4, 3]});
   const df = new DataFrame({'a': a, 'aa': aa});
@@ -77,7 +77,7 @@ test('Groupby basic two columns', () => {
   expect([...groups['offsets']]).toEqual([0, 2, 3, 5, 6]);
 });
 
-test('Groupby empty', () => {
+test('getGroups empty', () => {
   const a  = Series.new({type: new Int32, data: []});
   const df = new DataFrame({'a': a});
 
@@ -93,7 +93,7 @@ test('Groupby empty', () => {
   expect([...groups['offsets']]).toEqual([0]);
 });
 
-test('Groupby basic with values', () => {
+test('getGroups basic with values', () => {
   const a  = Series.new({type: new Int32, data: [5, 4, 3, 2, 1, 0]});
   const b  = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
   const df = new DataFrame({'a': a, 'b': b});
@@ -113,7 +113,7 @@ test('Groupby basic with values', () => {
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3, 4, 5, 6]);
 });
 
-test('Groupby basic two columns with values', () => {
+test('getGroups basic two columns with values', () => {
   const a  = Series.new({type: new Int32, data: [5, 4, 3, 2, 1, 0]});
   const aa = Series.new({type: new Int32, data: [4, 5, 4, 4, 4, 3]});
   const b  = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
@@ -137,7 +137,7 @@ test('Groupby basic two columns with values', () => {
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3, 4, 5, 6]);
 });
 
-test('Groupby all nulls', () => {
+test('getGroups all nulls', () => {
   const a  = Series.new({
     type: new Int32,
     data: [1, 1, 2, 3, 1, 2],
@@ -157,7 +157,7 @@ test('Groupby all nulls', () => {
   expect([...groups['offsets']]).toEqual([0]);
 });
 
-test('Groupby some nulls', () => {
+test('getGroups some nulls', () => {
   const a  = Series.new({
     type: new Int32,
     data: [1, 1, 3, 2, 1, 2],
@@ -180,6 +180,45 @@ test('Groupby some nulls', () => {
   expect([...values_result.toArrow()]).toEqual([1, 6, 3]);
 
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3]);
+});
+
+test('aggregation column name with two columns', () => {
+  const a  = Series.new({type: new Int32, data: [5, 4, 3, 2, 1, 0]});
+  const aa = Series.new({type: new Int32, data: [4, 5, 4, 4, 4, 3]});
+  const b  = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
+  const df = new DataFrame({'a': a, 'aa': aa, 'b': b});
+
+  const grp = new GroupBy({obj: df, by: ['a', 'aa']});
+
+  const agg = grp.max();
+
+  const result_a_aa = agg.get('a_aa') ;
+
+  const keys_result_a  = result_a_aa.getChild('a');
+  const keys_result_aa = result_a_aa.getChild('aa');
+
+  const sorter = [0, 1, 2, 3, 4, 5];
+  const ka     = [...keys_result_a.toArrow()];
+  sorter.sort((i, j) => ka[i] - ka[j]);
+
+  const sorted_a =
+    keys_result_a.gather(Series.new({type: new Int32, data: new Int32Array(sorter)}));
+  expect([...sorted_a]).toEqual([0, 1, 2, 3, 4, 5])
+
+  const sorted_aa =
+    keys_result_aa.gather(Series.new({type: new Int32, data: new Int32Array(sorter)}));
+  expect([...sorted_aa]).toEqual([3, 4, 4, 4, 5, 4])
+});
+
+test('aggregation existing column name with two columns raises', () => {
+  const a    = Series.new({type: new Int32, data: [5, 4, 3, 2, 1, 0]});
+  const aa   = Series.new({type: new Int32, data: [4, 5, 4, 4, 4, 3]});
+  const a_aa = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
+  const df   = new DataFrame({'a': a, 'aa': aa, 'a_aa': a_aa});
+
+  const grp = new GroupBy({obj: df, by: ['a', 'aa']});
+
+  expect(() => grp.max()).toThrowError();
 });
 
 test('Groupby argmax basic', () => {
