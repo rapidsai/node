@@ -1078,7 +1078,7 @@ Napi::Value WebGL2RenderingContext::GetParameter(Napi::CallbackInfo const& info)
     case GL_EXTENSIONS: {
       auto str = GL_EXPORT::glGetString(pname);
       if (str == NULL) { return info.Env().Null(); }
-      return CPPToNapi(info)(std::string{reinterpret_cast<const GLchar*>(str)});
+      return CPPToNapi(info)("WebGL " + std::string{reinterpret_cast<const GLchar*>(str)});
     }
 
     case GL_MAX_VIEWPORT_DIMS: {

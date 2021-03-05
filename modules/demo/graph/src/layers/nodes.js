@@ -67,6 +67,7 @@ export class NodeLayer extends Layer {
                 radiusMaxPixels: this.props.radiusMaxPixels,
                 lineWidthMinPixels: this.props.lineWidthMinPixels,
                 lineWidthMaxPixels: this.props.lineWidthMaxPixels,
+                highlightedNode: this.props.highlightedNode,
                 highlightedSourceNode: this.props.highlightedSourceNode,
                 highlightedTargetNode: this.props.highlightedTargetNode,
                 ...uniforms,
@@ -134,6 +135,7 @@ NodeLayer.defaultProps = {
     radiusMaxPixels: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER }, // max point radius in pixels
     lineWidthMinPixels: { type: 'number', min: 0, value: 0 },
     lineWidthMaxPixels: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER },
+    highlightedNode: { type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1 },
     highlightedSourceNode: { type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1 },
     highlightedTargetNode: { type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1 },
 };

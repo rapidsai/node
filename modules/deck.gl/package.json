@@ -19,8 +19,8 @@
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@luma.gl/engine": "8.2.0",
-    "@luma.gl/webgl": "8.2.0",
+    "@luma.gl/engine": "8.4.4",
+    "@luma.gl/webgl": "8.4.4",
     "@nvidia/cuda": "0.0.1",
     "@nvidia/rapids-core": "0.0.1"
   },

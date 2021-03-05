@@ -63,6 +63,7 @@ export class EdgeLayer extends Layer {
             uniforms: {
                 ...uniforms,
                 highlightedNode: this.props.highlightedNode,
+                highlightedEdge: this.props.highlightedEdge,
                 strokeWidth: Math.max(1, this.props.width || 1),
                 opacity: Math.max(0, Math.min(this.props.opacity, 1)),
             }
@@ -130,4 +131,5 @@ EdgeLayer.defaultProps = {
     opacity: { type: 'number', min: 0, max: 1, value: 1 },
     width: { type: 'number', min: Number.MIN_VALUE, max: 100, value: 1 },
     highlightedNode: { type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1 },
+    highlightedEdge: { type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1 },
 };

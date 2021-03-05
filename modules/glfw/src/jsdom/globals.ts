@@ -14,12 +14,29 @@
 
 import * as gl from '@nvidia/webgl';
 import * as jsdom from 'jsdom';
-import {performance} from 'perf_hooks';
 import {parse as parseURL} from 'url';
 
 import {installObjectURL} from './object-url';
 import {installAnimationFrame} from './raf';
 import {GLFWDOMWindow, GLFWDOMWindowOptions} from './window';
+
+// Polyfill ImageData
+(<any>window).ImageData = global.ImageData = require('canvas').ImageData;
+
+// Polyfill MessagePort
+(<any>window).MessagePort = global.MessagePort =
+  require('message-port-polyfill').MessagePortPolyfill;
+
+// Polyfill MessageChannel
+(<any>window).MessageChannel = global.MessageChannel =
+  require('message-port-polyfill').MessageChannelPolyfill;
+
+// Use node's perf_hooks for native performance.now
+const {performance}       = require('perf_hooks');
+(<any>window).performance = Object.create(performance);
+// Polyfill the rest of the UserTiming API
+(<any>window).performance = require('usertiming');
+(<any>global).performance = (<any>window).performance;
 
 class GLFWRenderingContext extends gl.WebGL2RenderingContext {
   constructor(canvas: HTMLCanvasElement, window: GLFWDOMWindow, options?: WebGLContextAttributes) {
@@ -83,7 +100,7 @@ Object.defineProperties(installAnimationFrame(installObjectURL(global, window)),
 
 const global_ = <any>global;
 
-global_.performance                = performance;
+global_.performance                = window.performance;
 global_.MutationObserver           = window.MutationObserver;
 global_.WebGLActiveInfo            = window.WebGLActiveInfo;
 global_.WebGLShaderPrecisionFormat = window.WebGLShaderPrecisionFormat;
