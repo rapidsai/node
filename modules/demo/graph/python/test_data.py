@@ -23,7 +23,7 @@ import cugraph
 import numpy as np
 import pandas as pd
 import datetime as dt
-from .shaping import shape_graph
+from .shaping import shape_graph, _filter_by
 
 
 def make_small_dataset(**kwargs):
@@ -104,6 +104,32 @@ def make_cit_patents_dataset(**kwargs):
         "category": categories[:len(nodes)]
     }))
     return shape_graph(**kwargs, symmetrize=False)
+
+
+def make_capwin_dataset(**kwargs):
+    graph = cudf.read_csv("data/capWIN-friday-biflows.csv", parse_dates=[7])
+    # [print(str(x) + ': ' + str(y)) for x, y in zip(graph.columns, graph.dtypes)]
+    graph = cugraph.from_cudf_edgelist(
+        graph, source="Src IP", destination="Dst IP",
+        create_using=cugraph.structure.graph.DiGraph,
+        renumber=True
+    )
+    nodes = graph.nodes()
+    labels = cugraph.core_number(graph)
+    labels = _filter_by(labels, nodes, left_on="vertex")
+    labels = labels["core_number"]
+    kwargs.update(graph=graph)
+    kwargs.update(nodes=cudf.DataFrame({
+        "node_id": nodes, "category": labels,
+    }))
+    return shape_graph(**kwargs, symmetrize=False)
+    # kwargs.update(SKIP=["Timestamp", "Src Port", "Dst Port"])
+    # kwargs.update(drop_edge_attrs=True)
+    # kwargs.update(categories={
+    #     "Src Port": "Port",
+    #     "Dst Port": "Port",
+    # })
+    # return make_and_shape_hypergraph(df, **kwargs)
 
 
 def make_and_shape_hypergraph(df, **kwargs):

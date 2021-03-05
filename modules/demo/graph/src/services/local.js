@@ -12,10 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {clampSliceArgs as clamp} from '@nvidia/cuda';
 import {DataFrame, Float32, Series, Uint32, Uint64, Uint8} from '@nvidia/cudf';
 import {GraphCOO} from '@nvidia/cugraph';
 
 export default async function* loadGraphData(props = {}) {
+
+  const layoutParams = {
+    simulating:         { name: 'simulating',          val: true },
+    autoCenter:         { name: 'auto-center',         val: true },
+    outboundAttraction: { name: 'outbound attraction', val: true },
+    linLogMode:         { name: 'lin-log',             val: false },
+    strongGravityMode:  { name: 'strong gravity',      val: false },
+    jitterTolerance:    { name: 'layout speed', val: 0.5, min: 0.01, max: 1.0, step: 0.01 },
+    barnesHutTheta:     { name: 'theta',               val: 0.1, min: 0.0, max: 1.0, step: 0.001, },
+    scalingRatio:       { name: 'scale ratio',         val: 2.0, min: 0.0, max: 100.0, step: 0.1, },
+    gravity:            { name: 'gravity',             val: 1.0, min: 0.0, max: 100.0, step: 0.1, },
+  };
+  const layoutParamNames = Object.keys(layoutParams);
+  let selectedParameter = 0;
+
+  window.addEventListener('keydown', (e) => {
+    if ('1234567890'.includes(e.key)) {
+      selectedParameter = +e.key;
+    } else if (e.code === 'ArrowUp') {
+      selectedParameter = clamp(layoutParamNames.length, selectedParameter - 1)[0] % layoutParamNames.length;
+    } else if (e.code === 'ArrowDown') {
+      selectedParameter = clamp(layoutParamNames.length, selectedParameter + 1)[0] % layoutParamNames.length;
+    } else if (['PageUp', 'PageDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.code) !== -1) {
+        const key = layoutParamNames[selectedParameter];
+        const { val, min, max, step } = layoutParams[key];
+        if (typeof val === 'boolean') {
+          layoutParams[key].val = !val;
+        } else if (e.code === 'PageUp') {
+          layoutParams[key].val = Math.min(max, parseFloat(Number(val + step * 10).toPrecision(3)));
+        } else if (e.code === 'PageDown') {
+          layoutParams[key].val = Math.max(min, parseFloat(Number(val - step * 10).toPrecision(3)));
+        } else if (e.code === 'ArrowLeft') {
+          layoutParams[key].val = Math.max(min, parseFloat(Number(val - step).toPrecision(3)));
+        } else if (e.code === 'ArrowRight') {
+          layoutParams[key].val = Math.min(max, parseFloat(Number(val + step).toPrecision(3)));
+        }
+    }
+  });
+
   /** @type DataFrame<{id: Uint32, color: Uint32, size: Uint8, x: Float32, y: Float32}> */
   let nodes = !props.nodes ? getDefaultNodes() : DataFrame.readCSV({
     header: 0,
@@ -43,33 +83,43 @@ export default async function* loadGraphData(props = {}) {
   });
 
   let graph = new GraphCOO(edges.get('src')._col, edges.get('dst')._col, {directedEdges: true});
+  let graphDesc = {}, bbox = [0,0,0,0];
 
   for (let positions = null; true;) {
-    // Compute positions of the next time step from the previous time step's positions
-    positions = graph.forceAtlas2({
-      positions,
-      scalingRatio: 1,
-      barnesHutTheta: 0.25,
-      jitterTolerance: 0.5,
-    });
-
-    const n = graph.numNodes;
-    // Extract the x and y positions and assign them as columns in our nodes DF
-    nodes = nodes.assign({
-      x: Series.new({type: new Float32, length: n, offset: 0, data: positions}),
-      y: Series.new({type: new Float32, length: n, offset: n, data: positions}),
-    });
-
-    // Compute the positions minimum bounding box
-    const bbox = [
-      ...nodes.get('x').minmax(),
-      ...nodes.get('y').minmax(),
-    ];
-
-    // Yield the results to the caller for rendering
-    const graphDesc                         = createGraph(nodes, edges, graph);
+    if (layoutParams.simulating.val) {
+      // Compute positions of the next time step from the previous time step's positions
+      positions = graph.forceAtlas2({
+          positions,
+          ...layoutParamNames.reduce((params, name) => ({
+            ...params, [name]: layoutParams[name].val
+          }), {})
+      });
+  
+      const n = graph.numNodes;
+      // Extract the x and y positions and assign them as columns in our nodes DF
+      nodes = nodes.assign({
+        x: Series.new({type: new Float32, length: n, offset: 0, data: positions}),
+        y: Series.new({type: new Float32, length: n, offset: n, data: positions}),
+      });
+  
+      // Compute the positions minimum bounding box
+      bbox = [
+        ...nodes.get('x').minmax(),
+        ...nodes.get('y').minmax(),
+      ];
+  
+      graphDesc = createGraph(nodes, edges, graph);
+    }
     const {promise, resolve: onAfterRender} = promiseSubject();
-    yield {graph: graphDesc, bbox, onAfterRender};
+    // Yield the results to the caller for rendering
+    yield {
+      graph: graphDesc, 
+      params: layoutParams,
+      selectedParameter,
+      bbox,
+      autoCenter: layoutParams.autoCenter.val,
+      onAfterRender
+    };
     // Wait for the frame to finish rendering before advancing
     await promise.catch(() => {}).then(() => {});
   }

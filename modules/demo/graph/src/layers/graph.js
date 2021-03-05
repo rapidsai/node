@@ -141,7 +141,7 @@ export class GraphLayer extends CompositeLayer {
             labelColor: [255, 255, 255],
             labelText:
                 nodeId !== -1 ? `${nodeId}` :
-                edgeId !== -1 ? `${sourceNodeId}:${targetNodeId}` : ``,
+                edgeId !== -1 ? `${sourceNodeId} - ${targetNodeId}` : ``,
             labelPosition: coordinate || layer.context.viewport.unproject([x, y]),
         });
     }
@@ -374,7 +374,7 @@ const nodeLayerProps = (props, state, offset, length) => ({
 const textLayerProps = (props, state) => ({
     sizeScale: 1,
     opacity: 0.9,
-    maxWidth: 300,
+    maxWidth: 500,
     pickable: false,
     backgroundColor: [0, 0, 0],
     getTextAnchor: 'start',

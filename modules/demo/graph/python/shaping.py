@@ -15,7 +15,6 @@
 
 import cudf
 import numpy as np
-import pandas as pd
 from math import ceil
 from cugraph.structure import graph_primtypes_wrapper
 
@@ -44,8 +43,10 @@ def shape_graph(graph=None,
         "size": _degrees_to_size(graph).astype(np.uint8)
     }).sort_values(by="id", ignore_index=True)
     elist = cudf.DataFrame({
-        "src": edges[SOURCE],
-        "dst": edges[TARGET],
+        # "src": edges[SOURCE],
+        # "dst": edges[TARGET],
+        "src": src.astype(np.uint32),
+        "dst": dst.astype(np.uint32),
         "edge": edge.astype(np.uint64),
         "bundle": bundle.astype(np.uint64),
         "color": _stack_columns(cudf.DataFrame({

@@ -71,8 +71,8 @@ void main(void) {
 
         float stroke = strokeWidth;
         float maxBundleSize = length(targetPosition - sourcePosition) * 0.15;
-        float eindex = float(bundle.x) + mod(float(bundle.x), 2.);
-        float bcount = float(bundle.y);
+        float eindex = float(bundle.y) + mod(float(bundle.y), 2.);
+        float bcount = float(bundle.x);
         float direction = mix(1., -1., mod(bcount, 2.));
 
         // If all the edges in the bundle fit into maxBundleSize,
