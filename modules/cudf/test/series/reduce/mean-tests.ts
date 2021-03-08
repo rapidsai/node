@@ -43,6 +43,11 @@ function jsMean(values: any[]) {
   return values.reduce((x: number, y: number) => x + y) / values.length;
 }
 
+function jsMeanBigInt(values: any[]) {
+  if (values.length === 0) return NaN;
+  return Number(values.reduce((x: number, y: number) => x + y)) / values.length;
+}
+
 function testNumberMean<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32|Float32|Float64>(
   type: T, data: (T['scalarType']|null)[], skipna = true) {
   if (skipna) {
@@ -57,10 +62,10 @@ function testNumberMean<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32|Float32|F
 function testBigIntMean<T extends Int64|Uint64>(
   type: T, data: (T['scalarType']|null)[], skipna = true) {
   if (skipna) {
-    const expected = jsMean(data.filter((x) => x !== null));
+    const expected = jsMeanBigInt(data.filter((x) => x !== null));
     expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
   } else {
-    const expected = data.some((x) => x === null) ? NaN : jsMean(data);
+    const expected = data.some((x) => x === null) ? NaN : jsMeanBigInt(data);
     expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
   }
 }
