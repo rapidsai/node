@@ -14,7 +14,7 @@
 
 import '../../jest-extensions';
 
-import {BigIntArray, setDefaultAllocator, TypedArray, Uint8Buffer} from '@nvidia/cuda';
+import {setDefaultAllocator} from '@nvidia/cuda';
 import {
   Bool8,
   Float32,
@@ -23,7 +23,6 @@ import {
   Int32,
   Int64,
   Int8,
-  Numeric,
   Series,
   Uint16,
   Uint32,
@@ -31,112 +30,63 @@ import {
   Uint8
 } from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
-import {BoolVector} from 'apache-arrow';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
-const makeNumbers = (length = 10) => Array.from({length}, (_, i) => Number(i));
+const numbers        = [null, 0, 1, 1, null, 2, 3, 3, 4, 4];
+const bigints        = [null, 0n, 1n, 1n, null, 2n, 3n, 3n, 4n, 4n];
+const bools          = [null, false, true, true, null, true, false, true, false, true];
+const float_with_NaN = [NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN];
 
-const makeBigInts = (length = 10) => Array.from({length}, (_, i) => BigInt(i));
-
-const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 2 == 0));
-
-const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 5, 6, 7, 8, NaN]);
-
-function testNumberMean<T extends Numeric, R extends TypedArray>(type: T, data: R) {
-  expect(Series.new({type, data}).mean()).toEqual([...data].reduce((x, y) => {
-    if (isNaN(y)) { y = 0; }
-    if (isNaN(x)) { x = 0; }
-    return x + y;
-  }) / data.filter((x: number) => !isNaN(x)).length);
+function jsMean(values: any[]) {
+  if (values.length === 0) return NaN;
+  return values.reduce((x: number, y: number) => x + y) / values.length;
 }
 
-function testNumberMeanSkipNA<T extends Numeric, R extends TypedArray>(
-  type: T, data: R, mask_array: Array<number>) {
-  const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
-  let result = NaN;
-  if (!data.includes(NaN)) {
-    result = [...data].reduce((x, y, i) => {
-      if (mask_array[i] == 1) { return x + y; }
-      return x;
-    }) / data.filter((_: any, i: number) => mask_array[i] == 1).length;
+function testNumberMean<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32|Float32|Float64>(
+  type: T, data: (T['scalarType']|null)[], skipna = true) {
+  if (skipna) {
+    const expected = jsMean(data.filter((x) => x !== null && !isNaN(x)));
+    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
+  } else {
+    const expected = data.some((x) => x === null || isNaN(x)) ? NaN : jsMean(data);
+    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
   }
-  // skipna=false
-  expect(Series.new({type, data, nullMask: mask}).mean(false)).toEqual(result);
 }
 
-function testBigIntMean<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
-  expect(Series.new({type, data}).mean())
-    .toEqual(Number([...data].reduce((x, y) => x + y)) /
-             data.filter((x: any) => !isNaN(Number(x))).length);
+function testBigIntMean<T extends Int64|Uint64>(
+  type: T, data: (T['scalarType']|null)[], skipna = true) {
+  if (skipna) {
+    const expected = jsMean(data.filter((x) => x !== null));
+    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
+  } else {
+    const expected = data.some((x) => x === null) ? NaN : jsMean(data);
+    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
+  }
 }
 
-function testBigIntMeanSkipNA<T extends Numeric, R extends BigIntArray>(
-  type: T, data: R, mask_array: Array<number>) {
-  const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
-  // skipna=false
-  expect(Series.new({type, data, nullMask: mask}).mean(false))
-    .toEqual(Number([...data].reduce((x, y, i) => {
-               if (mask_array[i] == 1) { return x + y; }
-               return x;
-             })) /
-             data.filter((_: any, i: number) => mask_array[i] == 1).length);
+function testBooleanMean<T extends Bool8>(type: T, data: (T['scalarType']|null)[], skipna = true) {
+  if (skipna) {
+    const expected = jsMean(data.filter((x) => x !== null));
+    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
+  } else {
+    const expected = data.some((x) => x === null) ? NaN : jsMean(data);
+    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
+  }
 }
 
-describe('Series.mean(skipna=true)', () => {
-  test('Int8', () => { testNumberMean(new Int8, new Int8Array(makeNumbers())); });
-  test('Int16', () => { testNumberMean(new Int16, new Int16Array(makeNumbers())); });
-  test('Int32', () => { testNumberMean(new Int32, new Int32Array(makeNumbers())); });
-  test('Int64', () => { testBigIntMean(new Int64, new BigInt64Array(makeBigInts())); });
-  test('Uint8', () => { testNumberMean(new Uint8, new Uint8Array(makeNumbers())); });
-  test('Uint16', () => { testNumberMean(new Uint16, new Uint16Array(makeNumbers())); });
-  test('Uint32', () => { testNumberMean(new Uint32, new Uint32Array(makeNumbers())); });
-  test('Uint64', () => { testBigIntMean(new Uint64, new BigUint64Array(makeBigInts())); });
-  test('Float32', () => { testNumberMean(new Float32, new Float32Array(makeNumbers())); });
-  test('Float64', () => { testNumberMean(new Float64, new Float64Array(makeNumbers())); });
-  test('Bool8', () => { testNumberMean(new Bool8, new Uint8ClampedArray(makeBooleans())); });
-});
-
-describe('Series.mean(skipna=false)', () => {
-  test('Int8',
-       () => {testNumberMeanSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans())});
-  test('Int16',
-       () => { testNumberMeanSkipNA(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });
-  test('Int32',
-       () => { testNumberMeanSkipNA(new Int32, new Int32Array(makeNumbers()), makeBooleans()); });
-  test(
-    'Int64',
-    () => { testBigIntMeanSkipNA(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
-  test('Uint8',
-       () => { testNumberMeanSkipNA(new Uint8, new Uint8Array(makeNumbers()), makeBooleans()); });
-  test('Uint16',
-       () => { testNumberMeanSkipNA(new Uint16, new Uint16Array(makeNumbers()), makeBooleans()); });
-  test('Uint32',
-       () => { testNumberMeanSkipNA(new Uint32, new Uint32Array(makeNumbers()), makeBooleans()); });
-  test(
-    'Uint64',
-    () => { testBigIntMeanSkipNA(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans()); });
-  test(
-    'Float32',
-    () => { testNumberMeanSkipNA(new Float32, new Float32Array(makeNumbers()), makeBooleans()); });
-  test(
-    'Float64',
-    () => { testNumberMeanSkipNA(new Float64, new Float64Array(makeNumbers()), makeBooleans()); });
-  test('Bool8', () => {
-    testNumberMeanSkipNA(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
-  });
-});
-
-describe('Float type Series with NaN => Series.mean(skipna=true)', () => {
-  test('Float32', () => { testNumberMean(new Float32, new Float32Array(float_with_NaN)); });
-  test('Float64', () => { testNumberMean(new Float64, new Float64Array(float_with_NaN)); });
-});
-
-describe('Float type Series with NaN => Series.mean(skipna=false)', () => {
-  test(
-    'Float32',
-    () => { testNumberMeanSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans()); });
-  test(
-    'Float64',
-    () => { testNumberMeanSkipNA(new Float64, new Float64Array(float_with_NaN), makeBooleans()); });
+describe.each([[false]])('Series.mean(skipna=%p)', (skipna) => {
+  test('Int8', () => { testNumberMean(new Int8, numbers, skipna); });
+  test('Int16', () => { testNumberMean(new Int16, numbers, skipna); });
+  test('Int32', () => { testNumberMean(new Int32, numbers, skipna); });
+  test('Int64', () => { testBigIntMean(new Int64, bigints, skipna); });
+  test('Uint8', () => { testNumberMean(new Uint8, numbers, skipna); });
+  test('Uint16', () => { testNumberMean(new Uint16, numbers, skipna); });
+  test('Uint32', () => { testNumberMean(new Uint32, numbers, skipna); });
+  test('Uint64', () => { testBigIntMean(new Uint64, bigints, skipna); });
+  test('Float32', () => { testNumberMean(new Float32, numbers, skipna); });
+  test('Float64', () => { testNumberMean(new Float64, numbers, skipna); });
+  test('Bool8', () => { testBooleanMean(new Bool8, bools, skipna); });
+  test('Float32', () => { testNumberMean(new Float32, float_with_NaN, skipna); });
+  test('Float64', () => { testNumberMean(new Float64, float_with_NaN, skipna); });
 });

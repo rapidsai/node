@@ -125,9 +125,9 @@ Napi::Value Column::median(Napi::CallbackInfo const& info) {
   return median(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
 }
 
-ObjectUnwrap<Scalar> Column::nunique(bool skipna, rmm::mr::device_memory_resource* mr) const {
+ObjectUnwrap<Scalar> Column::nunique(bool dropna, rmm::mr::device_memory_resource* mr) const {
   cudf::null_policy null_policy =
-    (skipna == true) ? cudf::null_policy::EXCLUDE : cudf::null_policy::INCLUDE;
+    (dropna == true) ? cudf::null_policy::EXCLUDE : cudf::null_policy::INCLUDE;
   return reduce(cudf::make_nunique_aggregation(null_policy),
                 cudf::data_type{cudf::type_to_id<cudf::size_type>()},
                 mr);
