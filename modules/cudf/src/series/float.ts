@@ -158,8 +158,9 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   /**
    * Compute the nunique of all values in this Series.
    *
-   * @param dropna The optional dropna if true drops NA and null values before computing reduction,
-   * else if dropna is false, reduction is computed directly.
+   * @param dropna
+   * If true, NA/null values will not contribute to the count of unique values. If false, they will
+   * be included in the count.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The number of unqiue values in this Series.
