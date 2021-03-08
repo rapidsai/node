@@ -158,7 +158,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   /**
    * Compute the nunique of all values in this Series.
    *
-   * @param dropna The optional driona if true drops NA and null values before computing reduction,
+   * @param dropna The optional dropna if true drops NA and null values before computing reduction,
    * else if dropna is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.

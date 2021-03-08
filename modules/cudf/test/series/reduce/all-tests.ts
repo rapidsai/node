@@ -23,7 +23,6 @@ import {
   Int32,
   Int64,
   Int8,
-  Numeric,
   Series,
   Uint16,
   Uint32,
@@ -39,7 +38,8 @@ const bigints        = [null, 0n, 1n, 1n, null, 2n, 3n, 3n, 4n, 4n];
 const bools          = [null, false, true, true, null, true, false, true, false, true];
 const float_with_NaN = [NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN];
 
-function testNumberAll<T extends Numeric>(type: T, data: (T['scalarType']|null)[], skipna = true) {
+function testNumberAll<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32|Float32|Float64>(
+  type: T, data: (T['scalarType']|null)[], skipna = true) {
   const expected = skipna ? data.every((x) => x === null || x !== 0)  //
                           : data.every((x) => x !== null);
   expect(Series.new({type, data}).all(skipna)).toEqual(expected);

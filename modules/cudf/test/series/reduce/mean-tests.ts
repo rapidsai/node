@@ -75,7 +75,7 @@ function testBooleanMean<T extends Bool8>(type: T, data: (T['scalarType']|null)[
   }
 }
 
-describe.each([[false]])('Series.mean(skipna=%p)', (skipna) => {
+describe.each([[true], [false]])('Series.mean(skipna=%p)', (skipna) => {
   test('Int8', () => { testNumberMean(new Int8, numbers, skipna); });
   test('Int16', () => { testNumberMean(new Int16, numbers, skipna); });
   test('Int32', () => { testNumberMean(new Int32, numbers, skipna); });
