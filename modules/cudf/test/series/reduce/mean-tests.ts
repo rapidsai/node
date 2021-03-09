@@ -38,12 +38,12 @@ const bigints        = [null, 0n, 1n, 1n, null, 2n, 3n, 3n, 4n, 4n];
 const bools          = [null, false, true, true, null, true, false, true, false, true];
 const float_with_NaN = [NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN];
 
-function jsMean(values: any[]) {
+function jsMean(values: number[]) {
   if (values.length === 0) return NaN;
   return values.reduce((x: number, y: number) => x + y) / values.length;
 }
 
-function jsMeanBigInt(values: any[]) {
+function jsMeanBigInt(values: bigint[]) {
   if (values.length === 0) return NaN;
   return Number(values.reduce((x: number, y: number) => x + y)) / values.length;
 }
