@@ -5,6 +5,8 @@ FROM node:$NODE_VERSION-stretch-slim as node
 
 FROM ${CUDA_BASE_IMAGE}
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Install dependencies
 RUN apt update -y \
  && apt install -y \
