@@ -4,7 +4,7 @@ set -Eeo pipefail
 # set -x
 
 if [ -d node_modules/esm/node_modules/.cache ]; then
-    rm -rf node_modules/esm/node_modules/.cache;
+    find node_modules -name .cache -type d -exec rm -rf "{}" +
 fi;
 
 fuzzy-find() {

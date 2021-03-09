@@ -4325,22 +4325,6 @@ anymatch@^3.0.3, anymatch@~3.1.1:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apache-arrow@0.17.0:
-  version "0.17.0"
-  resolved "https://registry.npmjs.org/apache-arrow/-/apache-arrow-0.17.0.tgz#8f976fc6ffc18e34b15a0b327061534f6c2a2494"
-  integrity sha512-cbgSx/tzGgnC1qeUySXnAsSsoxhDykNINqr1D3U5pRwf0/Q0ztVccV3/VRW6gUR+lcOFawk6FtyYwmU+KjglbQ==
-  dependencies:
-    "@types/flatbuffers" "^1.9.1"
-    "@types/node" "^12.0.4"
-    "@types/text-encoding-utf-8" "^1.0.1"
-    command-line-args "5.0.2"
-    command-line-usage "5.0.5"
-    flatbuffers "1.11.0"
-    json-bignum "^0.0.3"
-    pad-left "^2.1.0"
-    text-encoding-utf-8 "^1.0.2"
-    tslib "^1.9.3"
-
 apache-arrow@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/apache-arrow/-/apache-arrow-2.0.0.tgz#f0c7b717a8ea8fdd07ec39715ab3cdd14285976c"

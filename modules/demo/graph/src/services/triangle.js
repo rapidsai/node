@@ -12,16 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export default async function loadGraphData(props = {}) {
+export default async function* loadGraphData(props = {}) {
     const { edges, nodes } = testData(props);
-    return {
-        graph: {
-            nodeRadiusScale: 1,
-            data: { edges, nodes },
-            numNodes: nodes.length,
-            numEdges: edges.length,
-        }
+    const bbox = [
+        Math.min(...nodes.attributes.nodeXPositions), // xmin
+        Math.max(...nodes.attributes.nodeXPositions), // xmax
+        Math.min(...nodes.attributes.nodeYPositions), // ymin
+        Math.max(...nodes.attributes.nodeYPositions), // ymax
+    ];
+    const graph = {
+        nodeRadiusScale: 1,
+        numNodes: nodes.length,
+        numEdges: edges.length,
+        data: { edges, nodes },
     };
+    yield { graph, bbox };
+    yield { graph, autoCenter: false };
 }
 
 function testData(props = {}) {
@@ -33,6 +39,7 @@ function testData(props = {}) {
 
     const edges = (() => {
         const edges = [
+            ...Array.from({ length: 100, }, () => [1, 0]),
             [0, 1], [0, 2], [0, 3],
             [1, 0], [1, 2], [1, 3], [1, 3],
             [2, 0], [2, 1], [2, 3],
@@ -40,7 +47,7 @@ function testData(props = {}) {
         ];
         const bundles = (() => {
             const { keys, offsets, lengths } = edges.reduce(({ keys, offsets, lengths }, e, i) => {
-                const k = `${e.sort((a, b) => a - b)}`;
+                const k = `${e.slice().sort((a, b) => a - b)}`;
                 lengths[k] = (lengths[k] || 0) + 1;
                 offsets[i] = (lengths[k] - 1);
                 keys[i] = k;
@@ -48,6 +55,12 @@ function testData(props = {}) {
             }, { keys: [], offsets: [], lengths: {} });
             return keys.map((k, i) => [offsets[i], lengths[k]]);
         })();
+        // console.clear();
+        // console.log({
+        //     edges,
+        //     bundles,
+        //     colors: edges.map(([x, y]) => [colors[x], colors[y]])
+        // });
         return {
             offset: 0,
             length: edges.length,

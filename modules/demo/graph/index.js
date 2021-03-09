@@ -46,7 +46,7 @@ if (require.main === module) {
         module.exports.open({
             visible: true,
             transparent: false,
-            _title: 'graph client',
+            _title: '',
             url: url ? require('url').parse(url) : undefined,
             nodes: nodes ? nodes.slice('--nodes='.length) : undefined,
             edges: edges ? edges.slice('--edges='.length) : undefined,

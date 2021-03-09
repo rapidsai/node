@@ -11,7 +11,6 @@
     "@nvidia/cugraph": "0.0.1",
     "@nvidia/deck.gl": "0.0.1",
     "@nvidia/glfw": "0.0.1",
-    "apache-arrow": "0.17.0",
     "fastify": "3.3.0",
     "fastify-static": "3.2.0",
     "fastify-socket.io": "0.0.1",

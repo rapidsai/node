@@ -66,14 +66,16 @@ export class App extends React.Component {
         return (
             <DeckGL {...props}
                 ref={this._deck}
-                onViewStateChange={() => this.setState({ autoCenter: params.autoCenter ? (params.autoCenter.val = false) : false })}
+                onViewStateChange={() => this.setState({
+                    autoCenter: params.autoCenter ? (params.autoCenter.val = false) : false
+                })}
                 _framebuffer={props.getRenderTarget ? props.getRenderTarget() : null}
                 onAfterRender={composeFns([onAfterRender, this.state.onAfterRender])}>
                 <GraphLayer
-                    edgeStrokeWidth={2.5}
-                    edgeOpacity={0.01}
+                    edgeStrokeWidth={2}
+                    edgeOpacity={.9}
                     nodesStroked={true}
-                    nodeFillOpacity={.25}
+                    nodeFillOpacity={.5}
                     nodeStrokeOpacity={.9}
                     {...this.state.graph}
                     />
@@ -107,13 +109,15 @@ export class App extends React.Component {
 export default App;
 
 App.defaultProps = {
-    controller: {keyboard:false},
+    controller: {keyboard: false},
     onWebGLInitialized,
     onHover: onDragEnd,
     onDrag: onDragStart,
     onDragEnd: onDragEnd,
     onDragStart: onDragStart,
     initialViewState: {
+        zoom: 1,
+        target: [0,0,0],
         minZoom: Number.NEGATIVE_INFINITY,
         maxZoom: Number.POSITIVE_INFINITY,
     },
