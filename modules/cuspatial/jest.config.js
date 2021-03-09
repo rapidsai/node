@@ -22,7 +22,7 @@ module.exports = {
     "globals": {
       "ts-jest": {
         "diagnostics": false,
-        "tsConfig": "test/tsconfig.json"
+        "tsconfig": "test/tsconfig.json"
       }
     },
     "rootDir": "./",

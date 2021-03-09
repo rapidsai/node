@@ -38,7 +38,7 @@ Napi::Value Column::nans_to_nulls(Napi::CallbackInfo const& info) {
   auto result                         = nans_to_nulls(mr);
 
   std::unique_ptr<cudf::column> new_col =
-    cudf::allocate_like(*this, cudf::mask_allocation_policy::NEVER, mr);
+    cudf::allocate_like(*this, cudf::mask_allocation_policy::RETAIN, mr);
   auto new_col_view = new_col->mutable_view();
   cudf::copy_range_in_place(*this, new_col_view, 0, size(), 0);
   new_col->set_null_mask(std::move(*result.first));

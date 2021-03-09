@@ -128,17 +128,46 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   }
 
   /**
-   * Compute the nunique of all values in this Series.
+   * Compute the mean of all values in this Series.
    *
    * @param skipna The optional skipna if true drops NA and null values before computing reduction,
    * else if skipna is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
+   * @returns The mean of all the values in this Series.
+   */
+  mean(skipna = true, memoryResource?: MemoryResource) {
+    if (!skipna && this.nansToNulls().nullCount > 0) { return NaN; }
+    return this._process_reduction(skipna, memoryResource)._col.mean(memoryResource);
+  }
+
+  /**
+   * Compute the median of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The median of all the values in this Series.
+   */
+  median(skipna = true, memoryResource?: MemoryResource) {
+    if (!skipna && this.nansToNulls().nullCount > 0) { return NaN; }
+    return this._process_reduction(skipna, memoryResource)._col.median(memoryResource);
+  }
+
+  /**
+   * Compute the nunique of all values in this Series.
+   *
+   * @param dropna
+   * If true, NA/null values will not contribute to the count of unique values. If false, they will
+   * be included in the count.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
    * @returns The number of unqiue values in this Series.
    */
-  nunique(skipna = true, memoryResource?: MemoryResource) {
-    return (skipna) ? this._col.nans_to_nulls(memoryResource).nunique(skipna, memoryResource)
-                    : this._col.nunique(skipna, memoryResource);
+  nunique(dropna = true, memoryResource?: MemoryResource) {
+    return (dropna) ? this._col.nans_to_nulls(memoryResource).nunique(dropna, memoryResource)
+                    : this._col.nunique(dropna, memoryResource);
   }
 }
 

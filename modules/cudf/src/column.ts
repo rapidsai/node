@@ -855,13 +855,13 @@ export interface Column<T extends DataType = any> {
   /**
    * Compute the nunique of all values in this Column.
    *
-   * @param skipna The skipna parameter if true, includes nulls while computing nunique,
-   * if false, excludes the nulls while computing nunique.
+   * @param dropna The dropna parameter if true, excludes nulls while computing nunique,
+   * if false, includes the nulls while computing nunique.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns The number of unique values in this Column.
    */
-  nunique(skipna?: boolean, memoryResource?: MemoryResource): number;
+  nunique(dropna?: boolean, memoryResource?: MemoryResource): number;
 
   /**
    * Return whether all elements are true in column.
