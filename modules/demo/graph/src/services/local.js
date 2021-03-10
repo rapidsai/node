@@ -24,10 +24,10 @@ export default async function* loadGraphData(props = {}) {
     autoCenter:         { name: 'auto-center',         val: false },
     outboundAttraction: { name: 'outbound attraction', val: false },
     linLogMode:         { name: 'lin-log',             val: false },
-    strongGravityMode:  { name: 'strong gravity',      val: true },
+    strongGravityMode:  { name: 'strong gravity',      val: false },
     jitterTolerance:    { name: 'layout speed',        val: 0.05, min: 0.001, max: 1.0, step: 0.001 },
     barnesHutTheta:     { name: 'theta',               val: 0.0, min: 0.0, max: 1.0, step: 0.001, },
-    scalingRatio:       { name: 'scale ratio',         val: 1.0, min: 0.0, max: 100.0, step: 0.1, },
+    scalingRatio:       { name: 'scale ratio',         val: 5.0, min: 0.0, max: 100.0, step: 0.1, },
     gravity:            { name: 'gravity',             val: 1.0, min: 0.0, max: 100.0, step: 0.1, },
   };
   const layoutParamNames = Object.keys(layoutParams);
