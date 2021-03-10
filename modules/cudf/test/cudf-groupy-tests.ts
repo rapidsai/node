@@ -206,18 +206,17 @@ test('aggregation column name with two columns', () => {
   const keys_result_a  = result_a_aa.getChild('a');
   const keys_result_aa = result_a_aa.getChild('aa');
 
-  expect(keys_result_a).toEqual(keys_result_aa);
-  // const sorter = [0, 1, 2, 3, 4, 5];
-  // const ka     = [...keys_result_a.toArrow()];
-  // sorter.sort((i, j) => ka[i]! - ka[j]!);
+  const sorter = [0, 1, 2, 3, 4, 5];
+  const ka     = [...keys_result_a.toArrow()];
+  sorter.sort((i, j) => ka[i]! - ka[j]!);
 
-  // const sorted_a =
-  //   keys_result_a.gather(Series.new({type: new Int32, data: new Int32Array(sorter)}));
-  // expect([...sorted_a]).toEqual([0, 1, 2, 3, 4, 5])
+  const sorted_a =
+    keys_result_a.gather(Series.new({type: new Int32, data: new Int32Array(sorter)}));
+  expect([...sorted_a]).toEqual([0, 1, 2, 3, 4, 5])
 
-  // const sorted_aa =
-  //   keys_result_aa.gather(Series.new({type: new Int32, data: new Int32Array(sorter)}));
-  // expect([...sorted_aa]).toEqual([3, 4, 4, 4, 5, 4])
+  const sorted_aa =
+    keys_result_aa.gather(Series.new({type: new Int32, data: new Int32Array(sorter)}));
+  expect([...sorted_aa]).toEqual([3, 4, 4, 4, 5, 4])
 });
 
 test('aggregation existing column name with two columns raises', () => {
