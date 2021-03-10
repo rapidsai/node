@@ -100,13 +100,13 @@ interface CudfGroupBy {
     {keys: Table, cols: [Column]};
 }
 
-export class GroupBySingle<T extends TypeMap, R extends keyof T> extends(
-  <GroupbyConstructor>CUDF.GroupBy) {
-  private _by: R[];
-  private _values: DataFrame<Omit<T, R>>;
+class GroupByBase<T extends TypeMap, R extends keyof T> extends(<GroupbyConstructor>CUDF.GroupBy) {
+  protected _by: R[];
+  protected _values: DataFrame<Omit<T, R>>;
 
-  constructor(props: GroupBySingleProps<T, R>) {
-    const table = props.obj.select([props.by]).asTable();
+  constructor(props: GroupByBaseProps, by: R[], obj: DataFrame<T>) {
+    const table = obj.select(by).asTable();
+
     const {
       include_nulls   = false,
       keys_are_sorted = false,
@@ -121,9 +121,11 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends(
       column_order: column_order,
       null_precedence: null_precedence,
     };
+
     super(cudf_props);
-    this._by     = [props.by];
-    this._values = props.obj.drop([props.by]);
+
+    this._by     = by;
+    this._values = obj.drop(by);
   }
 
   /**
@@ -152,6 +154,10 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends(
 
     return results;
   }
+}
+
+export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupByBase<T, R> {
+  constructor(props: GroupBySingleProps<T, R>) { super(props, [props.by], props.obj); }
 
   protected prepare_results(results: {keys: Table, cols: Column[]}) {
     const {keys, cols} = results;
@@ -301,58 +307,8 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends(
   }
 }
 
-export class GroupByMultiple<T extends TypeMap, R extends keyof T> extends(
-  <GroupbyConstructor>CUDF.GroupBy) {
-  private _by: R[];
-  private _values: DataFrame<Omit<T, R>>;
-
-  constructor(props: GroupByMultipleProps<T, R>) {
-    const table = props.obj.select(props.by).asTable();
-    const {
-      include_nulls   = false,
-      keys_are_sorted = false,
-      column_order    = [],
-      null_precedence = []
-    } = props;
-
-    const cudf_props: CudfGroupByProps = {
-      keys: table,
-      include_nulls: include_nulls,
-      keys_are_sorted: keys_are_sorted,
-      column_order: column_order,
-      null_precedence: null_precedence,
-    };
-    super(cudf_props);
-    this._by     = props.by;
-    this._values = props.obj.drop(props.by);
-  }
-
-  /**
-   * Return the Groups for this GroupBy
-   *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
-   */
-  getGroups(memoryResource?: MemoryResource) {
-    const {keys, offsets, values} = this._getGroups(this._values.asTable(), memoryResource);
-
-    const results = {
-      offsets,
-      keys: new DataFrame(
-        this._by.reduce((keys_map, name, index) =>
-                          ({...keys_map, [name]: Series.new(keys.getColumnByIndex(index))}),
-                        {} as SeriesMap<Pick<T, R>>))
-    } as Groups<Pick<T, R>, Omit<T, R>>;
-
-    if (values !== undefined) {
-      results.values = new DataFrame(this._values.names.reduce(
-        (values_map, name, index) =>
-          ({...values_map, [name]: Series.new(values.getColumnByIndex(index))}),
-        {} as SeriesMap<Omit<T, R>>));
-    }
-
-    return results;
-  }
+export class GroupByMultiple<T extends TypeMap, R extends keyof T> extends GroupByBase<T, R> {
+  constructor(props: GroupByMultipleProps<T, R>) { super(props, props.by, props.obj); }
 
   protected prepare_results(results: {keys: Table, cols: Column[]}) {
     const {keys, cols} = results;
@@ -382,7 +338,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T> extends(
 
     const index = Series.new<Index>({type: new Struct(fields), children: children});
 
-    return new DataFrame({byname: index, ...rest_map});
+    return new DataFrame({[byname]: index, ...rest_map});
   }
 
   /**
