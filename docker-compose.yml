@@ -12,9 +12,6 @@ x-common-service-settings: &common_service_settings
       ADDITIONAL_GROUPS: ""
       NODE_VERSION: "${NODE_VERSION:-14.10.1}"
       YARN_VERSION: "${YARN_VERSION:-1.22.5}"
-      PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
-      CMAKE_VERSION: "${CMAKE_VERSION:-3.18.5}"
-      CCACHE_VERSION: "${CCACHE_VERSION:-4.1}"
   environment: &common_environment_variables
     # Colorize the terminal in the container if possible
     TERM: "${TERM:-}"
@@ -34,7 +31,7 @@ services:
       dockerfile: dockerfiles/runtime.Dockerfile
       args:
         <<: *common_build_args
-        CUDA_BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.0}-runtime-${LINUX_VERSION:-ubuntu18.04}
+        BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.0}-runtime-${LINUX_VERSION:-ubuntu18.04}
     volumes:
       - &workdir "${PWD}:${PWD}:rw"
       - &etc_fonts "/etc/fonts:/etc/fonts:ro"
@@ -51,16 +48,53 @@ services:
       args:
         <<: *common_build_args
         ADDITIONAL_GROUPS: "--groups sudo"
-        CUDA_BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.0}-devel-${LINUX_VERSION:-ubuntu18.04}
+        PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
+        CMAKE_VERSION: "${CMAKE_VERSION:-3.18.5}"
+        CCACHE_VERSION: "${CCACHE_VERSION:-4.1}"
+        BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.0}-devel-${LINUX_VERSION:-ubuntu18.04}
     volumes:
       - *workdir
       - *etc_fonts
       - *x11_socket
       - *usr_share_fonts
       - *usr_share_icons
+      - &etc_timezone "/etc/timezone:/etc/timezone"
+      - &etc_localtime "/etc/localtime:/etc/localtime"
+      - &dbus_system_bus_socket "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
+      - &xdg_runtime_dir "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
     cap_add:
       - SYS_ADMIN
       - SYS_PTRACE
+
+  nteract:
+    <<: *common_service_settings
+    image: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-11.0}-nteract-${LINUX_VERSION:-ubuntu18.04}-amd64
+    build:
+      <<: *common_build_settings
+      dockerfile: dockerfiles/nteract.Dockerfile
+      args:
+        BASE_IMAGE: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-11.0}-devel-${LINUX_VERSION:-ubuntu18.04}-amd64
+    environment:
+      <<: *common_environment_variables
+      QT_AUTO_SCREEN_SCALE_FACTOR: 0
+      XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR:-/run/user/$UID}"
+      DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$UID/bus}"
+    volumes:
+      - *workdir
+      - *etc_fonts
+      - *x11_socket
+      - *usr_share_fonts
+      - *usr_share_icons
+      - *etc_timezone
+      - *etc_localtime
+      - *dbus_system_bus_socket
+      - *xdg_runtime_dir
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+    security_opt:
+      - apparmor=unconfined
+    command: nteract
 
   # Services for Jetson Xavier AGX
 
@@ -73,7 +107,7 @@ services:
       args:
         <<: *common_build_args
         ADDITIONAL_GROUPS: "--groups video"
-        CUDA_BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.4
+        BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.4
     volumes:
       - *workdir
       - *etc_fonts
@@ -89,8 +123,11 @@ services:
       dockerfile: dockerfiles/devel.Dockerfile
       args:
         <<: *common_build_args
+        PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
+        CMAKE_VERSION: "${CMAKE_VERSION:-3.18.5}"
+        CCACHE_VERSION: "${CCACHE_VERSION:-4.1}"
         ADDITIONAL_GROUPS: "--groups sudo,video"
-        CUDA_BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.4
+        BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.4
     volumes:
       - *workdir
       - *etc_fonts

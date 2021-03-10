@@ -1,13 +1,11 @@
-ARG CUDA_BASE_IMAGE
+ARG BASE_IMAGE
 ARG NODE_VERSION=14.10.1
 
 FROM node:$NODE_VERSION-stretch-slim as node
 
-FROM ${CUDA_BASE_IMAGE}
+FROM ${BASE_IMAGE}
 
 ENV DEBIAN_FRONTEND=noninteractive
-
-ARG NTERACT_VERSION=0.28.0
 
 # Install dev dependencies and tools
 RUN GCC_VERSION=$(bash -c '\
@@ -41,14 +39,7 @@ fi') \
     libboost-filesystem-dev \
     # cuSpatial dependencies
     libgdal-dev \
- # Install nteract/desktop
- && if [ "$(uname --m)" = "x86_64" ]; then \
-    curl \
-       -L https://github.com/nteract/nteract/releases/download/v${NTERACT_VERSION}/nteract_${NTERACT_VERSION}_amd64.deb \
-       -o /tmp/nteract_${NTERACT_VERSION}_amd64.deb; \
-    apt install -y --no-install-recommends libasound2 /tmp/nteract_${NTERACT_VERSION}_amd64.deb; \
- fi; \
-    apt autoremove -y \
+ && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
  # Remove any existing gcc and g++ alternatives
  && update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
@@ -133,16 +124,12 @@ RUN useradd --uid $UID --user-group ${ADDITIONAL_GROUPS} --shell /bin/bash --cre
  # add yarn completions
  && curl -fsSL --compressed \
     https://raw.githubusercontent.com/dsifford/yarn-completion/5bf2968493a7a76649606595cfca880a77e6ac0e/yarn-completion.bash \
-  | tee /etc/bash_completion.d/yarn >/dev/null \
- # Add nteract settings
- && mkdir -p /home/node/.jupyter \
- && echo '{"theme":"dark","editorType":"monaco"}' > /home/node/.jupyter/nteract.json \
- && chown -R node:node /home/node
+  | tee /etc/bash_completion.d/yarn >/dev/null
 
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda"
 
-SHELL ["/bin/bash", "-l"]
+SHELL ["/bin/bash", "-c"]
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
