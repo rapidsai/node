@@ -19,7 +19,6 @@ import {Field} from 'apache-arrow';
 import CUDF from './addon';
 import {Column} from './column';
 import {DataFrame, SeriesMap} from './data_frame';
-import {AbstractSeries} from './series';
 import {Table} from './table';
 import {DataType} from './types/dtypes';
 import {NullOrder} from './types/enums'
@@ -39,7 +38,7 @@ import {Interpolation, TypeMap} from './types/mappings'
  */
 
 type SeriesMapOf<T extends string, R extends DataType> = {
-  [P in T]: AbstractSeries<R>
+  [P in T]: Series<R>
 };
 
 type Join<T extends unknown[], D extends string> =
@@ -171,13 +170,19 @@ export class GroupBy<T extends TypeMap, R extends keyof T> extends(
   protected prepare_results_multiple(results: {keys: Table, cols: Column[]}) {
     const {keys, cols} = results;
 
-    const series_map =
-      {} as SeriesMapOf<Join<Extract<Pick<T, R>, keyof Pick<T, R>>[], '_'>, Struct<Pick<T, R>>>&
-      SeriesMap<Omit<T, R>>;
-    this._values.names.forEach((name, index) => { series_map[name] = Series.new(cols[index]); });
+    type Subset   = Pick<T, R>;
+    type Index    = Struct<Subset>;
+    type IndexKey = Join<(keyof Subset)[], '_'>;
+    type IndexMap = SeriesMapOf<IndexKey, Index>;
 
-    const byname = this._by.join('_');
-    if (byname in series_map) {
+    type RestMap = SeriesMap<Omit<T, R>>;
+
+    const rest_map = this._values.names.reduce(
+      (xs, key, index) => ({...xs, [key]: Series.new(cols[index])}), {} as RestMap);
+
+    const byname: keyof IndexMap = this._by.join('_');
+
+    if (byname in rest_map) {
       throw new Error(`Groupby column name ${byname} already
       exists`);
     }
@@ -190,11 +195,9 @@ export class GroupBy<T extends TypeMap, R extends keyof T> extends(
       children.push(Series.new(child));
     }
 
-    const index = Series.new({type: new Struct(fields), children: children});
+    const index = Series.new<Index>({type: new Struct(fields), children: children});
 
-    series_map[byname] = index;
-
-    return new DataFrame(series_map);
+    return new DataFrame({[byname]: index, ...rest_map});
   }
 
   /**
