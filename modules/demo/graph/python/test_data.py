@@ -1,4 +1,4 @@
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,43 +13,20 @@
 # limitations under the License.
 
 
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 import cudf
-import cupy
 import cugraph
 import numpy as np
-import pandas as pd
-import datetime as dt
-from .shaping import shape_graph
+from .convert_matrix import from_cudf_edgelist
+from .graph_components import (
+    annotate_nodes,
+    annotate_edges,
+    category_to_color
+)
 
 
-def make_small_dataset(**kwargs):
-    df = cudf.DataFrame({
-        "col_1": ["a", "a", "a"],
-        "col_2": ["a", "b", "b"],
-        "col_3": ["a", "b", "c"],
-    })
-    return make_and_shape_hypergraph(df, **kwargs)
-
-
-def make_large_dataset(**kwargs):
-    df = cudf.read_csv(
-        "data/Thursday-01-03-2018_TrafficForML_CICFlowMeter.csv",
-        parse_dates=[2],
-    ).dropna()
-    df.reset_index(drop=True, inplace=True)
-    df["Label"] = df["Label"].astype("category")
-    df = df[["Label", "Timestamp", "Dst Port", "Protocol"]]
-    kwargs.update(EVENTID="Dst Port")
-    kwargs.update(SKIP=["Timestamp"])
-    kwargs.update(drop_edge_attrs=True)
-    return make_and_shape_hypergraph(df, **kwargs)
-
-
-def make_complex_dataset(**kwargs):
+def make_synthetic_dataset(**kwargs):
+    import pandas as pd
+    import datetime as dt
     kwargs.update(direct=True)
     df = cudf.DataFrame.from_pandas(pd.DataFrame({
         "src": [0, 1, 2, 3],
@@ -84,33 +61,59 @@ def make_complex_dataset(**kwargs):
     return make_and_shape_hypergraph(df, **kwargs)
 
 
-def make_cit_patents_dataset(**kwargs):
-    graph = cugraph.from_cudf_edgelist(
-        cudf.read_csv(
-            "data/cit-Patents.csv",
-            delimiter=" ",
-            dtype=["int32", "int32", "float32"],
-            header=None
-        ),
-        source="0", destination="1",
-        create_using=cugraph.structure.graph.DiGraph,
-        renumber=True
-    )
-    nodes = graph.nodes()
-    categories = cupy.repeat(cupy.arange(12), 1 + (len(nodes) // 12))
-    kwargs.update(graph=graph)
-    kwargs.update(nodes=cudf.DataFrame({
-        "node_id": nodes,
-        "category": categories[:len(nodes)]
-    }))
-    return shape_graph(**kwargs, symmetrize=False)
-
-
 def make_and_shape_hypergraph(df, **kwargs):
-    xs = cugraph.hypergraph(df, **kwargs)
-    del xs["events"]
-    del xs["entities"]
+    hyper = cugraph.hypergraph(df, **kwargs)
+    del hyper["events"]
+    del hyper["entities"]
+    SOURCE = kwargs.get("SOURCE", "src")
+    TARGET = kwargs.get("TARGET", "dst")
     NODEID = kwargs.get("NODEID", "node_id")
+    EVENTID = kwargs.get("EVENTID", "event_id")
     CATEGORY = kwargs.get("CATEGORY", "category")
-    xs.update(nodes=xs["nodes"][[NODEID, CATEGORY]])
-    return shape_graph(symmetrize=False, **xs, **kwargs)
+    nodes = hyper["nodes"][[NODEID, CATEGORY]]
+    edges = hyper["edges"][[SOURCE, TARGET]]
+    # Create graph
+    graph, nodes, edges = from_cudf_edgelist(edges, SOURCE, TARGET)
+    nodes["name"] = nodes["node"]
+    # Add vis components 
+    nodes = annotate_nodes(graph, nodes, edges)
+    edges = annotate_edges(graph, nodes, edges)
+    return graph, nodes, edges
+
+
+def make_capwin_dataset(**kwargs):
+
+    def drop_index(df):
+        return df.reset_index(drop=True)
+
+    def smoosh(df):
+        size = sum([df[x].dtype.itemsize for x in df])
+        data = drop_index(drop_index(df).stack()).data
+        dtype = cudf.utils.dtypes.min_unsigned_type(0, size*8)
+        return cudf.core.column.NumericalColumn(data, dtype=dtype)
+
+    def add_edge_colors(edges, category):
+        colors = drop_index(category_to_color(edges[category], color_palette=[
+            #  ADDRESS   AUTH KEYS CREDENTIALS       EMAIL      FALSE
+            4294967091, 4294410687, 4293138972, 4281827000,  33554431
+        ]).astype(np.uint32))
+        return edges.assign(color=smoosh(cudf.DataFrame({
+            "src": drop_index(colors), "dst": drop_index(colors)
+        })).astype(np.uint64), src_color=colors)
+    
+    df = cudf.read_csv("data/pii_sample_for_viz.csv")
+    df = df[["src_ip", "dest_ip", "pii", "timestamp"]]
+    df["timestamp"] = cudf.to_datetime(df["timestamp"], format="%m/%d/%y %H:%M")
+    # Create graph
+    graph, nodes, edges = from_cudf_edgelist(df, "src_ip", "dest_ip")
+    # Add vis components 
+    nodes = nodes.rename({"node": "name"}, axis=1, copy=False)
+    nodes = annotate_nodes(graph, nodes, edges)
+    # add edge colors
+    edges = add_edge_colors(edges, "pii")
+    print(edges.query("src_color != 33554431")["src"].value_counts())
+    print(edges.query("src_color != 33554431")["dst"].value_counts())
+    # add edge names
+    edges["name"] = edges["src_ip"] + " -> " + edges["dest_ip"] + \
+        ("\nPII: " + edges["pii"]).replace("\nPII: FALSE", "")
+    return graph, nodes, edges

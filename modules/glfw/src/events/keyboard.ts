@@ -51,15 +51,12 @@ function characterUpdates(window: GLFWDOMWindow, charKeys: Observable<GLFWKeyboa
   return charCodes
     .pipe(withLatestFrom(charKeys,
                          function*(charCode, keyEvt) {
-                           if (keyEvt.type === 'keyup') {
-                             yield keyEvt.asCharacter(charCode, keyEvt.target.modifiers);
-                           } else {
-                             yield keyEvt.asCharacter(0, keyEvt.target.modifiers);
-                             if (keyEvt._rawName !== '' || keyEvt.code === 'Space') {
-                               yield Object.assign(
-                                 keyEvt.asCharacter(charCode, keyEvt.target.modifiers),
-                                 {type: 'keypress'});
-                             }
+                           yield keyEvt.asCharacter(charCode, keyEvt.target.modifiers);
+                           if (keyEvt.type === 'keydown' && keyEvt.code === 'Space') {
+                             // Also yield spacebar 'keydown' events as 'keypress' for xterm.js
+                             yield Object.assign(
+                               keyEvt.asCharacter(charCode, keyEvt.target.modifiers),
+                               {type: 'keypress'});
                            }
                          }))
     .pipe(mergeAll());

@@ -61,8 +61,10 @@ struct Span {
   inline size_t addr() const { return reinterpret_cast<size_t>(data_); }
 
   Span<T>& operator+=(size_t const& offset) {
-    this->data_ += offset;
-    this->size_ -= offset;
+    if (data_ != nullptr && size_ > 0) {
+      this->data_ += offset;
+      this->size_ -= offset;
+    }
     return *this;
   }
 

@@ -70,19 +70,23 @@ void main(void) {
         vec3 unit = vec3(-diff.y, diff.x, 1.);
 
         float stroke = strokeWidth;
-        float maxBundleSize = length(targetPosition - sourcePosition) * 0.15;
-        float eindex = float(bundle.x) + mod(float(bundle.x), 2.);
+        float maxBundleSize = length(targetPosition - sourcePosition) * 0.20;
+
+        float eindex = float(bundle.x);
         float bcount = float(bundle.y);
-        float direction = mix(1., -1., mod(bcount, 2.));
+
+        float direction = mix(1.0, -1.0, step(1.0, mod(round(eindex * stroke / maxBundleSize), 2.0)));
 
         // If all the edges in the bundle fit into maxBundleSize,
-        // separate the edges without overlap via 'stroke * eindex'.
+        // separate the edges without overlap via 'eindex * stroke'.
         // Otherwise allow edges to overlap.
-        float size = mix(
-            (strokeWidth * 2. * eindex),
-            (maxBundleSize / strokeWidth) * (eindex / bcount),
-            step(maxBundleSize, bcount * strokeWidth * 2.)
-        ) + maxBundleSize;
+        float size = maxBundleSize - mix(
+            // Not enough edges to require squeezing them into 'maxBundleSize'
+            (eindex * stroke),
+            // Squeeze the edge to fit into 'maxBundleSize' pixels
+            (eindex / bcount) * maxBundleSize,
+            step(maxBundleSize * 2.0, bcount * stroke)
+        );
 
         controlPoint = vec3((midp + (unit * size * direction)).xy, 0.);
     }

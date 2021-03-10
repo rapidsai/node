@@ -89,9 +89,9 @@ void main(void) {
     DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
 
     // Apply opacity to instance color, or return instance picking color
-    vFillColor = vec4(instanceFillColors.rgb, fillOpacity);
+    vFillColor = vec4(instanceFillColors.bgr, fillOpacity);
     DECKGL_FILTER_COLOR(vFillColor, geometry);
-    vLineColor = vec4(instanceLineColors.rgb, strokeOpacity);
+    vLineColor = vec4(instanceLineColors.bgr, strokeOpacity);
     DECKGL_FILTER_COLOR(vLineColor, geometry);
 
     picking_vRGBcolor_Avalid.a = float(

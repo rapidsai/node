@@ -1,3 +1,4 @@
+**/*.csv
 **/*.git
 **/*.zip
 **/*.arrow
@@ -6,19 +7,22 @@
 **/*.tar.gz
 
 **/z-*
-**/build
+**/.cache
 **/.ccache
 **/.clangd
+**/.cmake-js
 **/node_modules
-**/modules/*/lib
+**/modules/**/lib
+**/modules/**/data
+**/modules/**/build
 **/lerna-debug.log
 **/compile_commands.json
 
-modules/*/include/thrust
-modules/*/include/napi.h
-modules/*/include/napi-inl.h
-modules/*/include/napi-inl.deprecated.h
-modules/*/include/node_api.h
+**/modules/*/include/thrust
+**/modules/*/include/napi.h
+**/modules/*/include/napi-inl.h
+**/modules/*/include/napi-inl.deprecated.h
+**/modules/*/include/node_api.h
 
 setup
 thirdparty

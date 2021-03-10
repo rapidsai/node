@@ -279,6 +279,10 @@ struct NapiToCPP {
         }
         NAPI_THROW("Expected `ptr` to be numeric");
       }
+      auto span = NapiToCPP(obj).as_span<T>() + offset;
+      if (span.data() != nullptr) {  //
+        return Span<T>(span.data(), std::min(span.size(), length));
+      }
     }
     return Span<T>(static_cast<char*>(nullptr), 0);
   }

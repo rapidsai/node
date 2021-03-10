@@ -139,10 +139,14 @@ export class GraphLayer extends CompositeLayer {
             highlightedSourceNode: sourceNodeId,
             highlightedTargetNode: targetNodeId,
             labelColor: [255, 255, 255],
-            labelText:
-                nodeId !== -1 ? `${nodeId}` :
-                edgeId !== -1 ? `${sourceNodeId}:${targetNodeId}` : ``,
             labelPosition: coordinate || layer.context.viewport.unproject([x, y]),
+            labelText: ((names) => {
+                const get = (path) => path.split('.').reduce(((xs, x) => xs ? xs[x] : null), this.props);
+                return (nodeId !== -1) ?
+                       ((names = get('data.nodes.attributes.nodeName')) ? names.getValue(nodeId) : `${nodeId}`) :
+                       (edgeId !== -1) ?
+                       ((names = get('data.edges.attributes.edgeName')) ? names.getValue(edgeId) : `${sourceNodeId} - ${targetNodeId}`) : ``;
+            })()
         });
     }
     renderLayers() {
@@ -372,19 +376,20 @@ const nodeLayerProps = (props, state, offset, length) => ({
 });
 
 const textLayerProps = (props, state) => ({
-    sizeScale: 1,
-    opacity: 0.9,
-    maxWidth: 300,
+    sizeScale: 1.0,
+    opacity: 1.0,
+    maxWidth: -1,
     pickable: false,
-    backgroundColor: [0, 0, 0],
+    backgroundColor: [33, 33, 33],
     getTextAnchor: 'start',
     getAlignmentBaseline: 'top',
+    fontFamily: 'sans-serif, sans',
     getSize: d => d.size,
     getColor: d => d.color,
     getPosition: d => d.position,
     getPixelOffset: d => [d.size, 0],
     data: [{
-        size: 20,
+        size: 21,
         text: state.labelText,
         color: state.labelColor,
         position: state.labelPosition,

@@ -107,7 +107,7 @@ void main(void) {
 
     // Color
     vColor = mix(instanceSourceColors, instanceTargetColors, segmentRatio);
-    vColor = vec4(vColor.rgb, vColor.a * opacity) / 255.;
+    vColor = vec4(vColor.bgr, vColor.a * opacity) / 255.;
 
     // Set color to be rendered to picking fbo (also used to check for selection highlight).
     picking_setPickingColor(instancePickingColors);

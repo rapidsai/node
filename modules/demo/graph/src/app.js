@@ -14,6 +14,7 @@
 
 import React from 'react';
 import DeckGL from '@deck.gl/react';
+import { TextLayer } from '@deck.gl/layers';
 import { GraphLayer } from './layers/graph';
 import { OrthographicView, log } from '@deck.gl/core';
 import { createDeckGLReactRef } from '@nvidia/deck.gl';
@@ -34,6 +35,7 @@ export class App extends React.Component {
         }
         super(props, context);
         this._isMounted = false;
+        this._deck = React.createRef();
         this.state = { graph: {}, autoCenter: true };
     }
     componentWillUnmount() {
@@ -56,23 +58,49 @@ export class App extends React.Component {
     }
     render() {
         const { onAfterRender, ...props } = this.props;
+        const { params = {}, selectedParameter } = this.state;
         if (this.state.autoCenter && this.state.bbox) {
             const viewState = centerOnBbox(this.state.bbox);
             viewState && (props.initialViewState = viewState);
         }
         return (
             <DeckGL {...props}
-                onViewStateChange={() => this.setState({ autoCenter: false })}
+                ref={this._deck}
+                onViewStateChange={() => this.setState({
+                    autoCenter: params.autoCenter ? (params.autoCenter.val = false) : false
+                })}
                 _framebuffer={props.getRenderTarget ? props.getRenderTarget() : null}
                 onAfterRender={composeFns([onAfterRender, this.state.onAfterRender])}>
                 <GraphLayer
-                    edgeStrokeWidth={2.5}
-                    edgeOpacity={.25}
+                    edgeStrokeWidth={2}
+                    edgeOpacity={.9}
                     nodesStroked={true}
-                    nodeFillOpacity={.25}
+                    nodeFillOpacity={.5}
                     nodeStrokeOpacity={.9}
                     {...this.state.graph}
                     />
+                {selectedParameter !== undefined ?
+                <TextLayer
+                    sizeScale={1}
+                    opacity={0.9}
+                    maxWidth={2000}
+                    pickable={false}
+                    backgroundColor={[0, 0, 0]}
+                    getTextAnchor='start'
+                    getAlignmentBaseline='top'
+                    getSize={(d) => d.size}
+                    getColor={(d) => d.color}
+                    getPixelOffset={(d) => [0, 0]}
+                    getPosition={(d) => this._deck.current.viewports[0].unproject(d.position)}
+                    data={Object.keys(params).map((key, i) => ({
+                        size: 15,
+                        text: i === selectedParameter
+                            ? `(${i}) ${params[key].name}: ${params[key].val}`
+                            : ` ${i}  ${params[key].name}: ${params[key].val}`,
+                        color: [255, 255, 255],
+                        position: [0, i * 20],
+                    }))}
+                    /> : null}
             </DeckGL>
         );
     }
@@ -81,13 +109,15 @@ export class App extends React.Component {
 export default App;
 
 App.defaultProps = {
-    controller: true,
+    controller: {keyboard: false},
     onWebGLInitialized,
     onHover: onDragEnd,
     onDrag: onDragStart,
     onDragEnd: onDragEnd,
     onDragStart: onDragStart,
     initialViewState: {
+        zoom: 1,
+        target: [0,0,0],
         minZoom: Number.NEGATIVE_INFINITY,
         maxZoom: Number.POSITIVE_INFINITY,
     },
