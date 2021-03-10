@@ -291,13 +291,13 @@ class Column : public Napi::ObjectWrap<Column> {
   /**
    * @brief Returns a reduce computation based on cudf::make_nunique_aggregation()
    *
-   * @param bool skipna if true, compute using cudf::null_policy::EXCLUDE, else use
+   * @param bool dropna if true, compute using cudf::null_policy::EXCLUDE, else use
    * cudf::null_policy::INCLUDE
    * @param rmm::mr::device_memory_resource* mr
    * @return Scalar
    */
   ObjectUnwrap<Scalar> nunique(
-    bool skipna                         = true,
+    bool dropna                         = true,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**

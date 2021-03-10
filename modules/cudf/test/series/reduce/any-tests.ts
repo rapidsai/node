@@ -14,7 +14,7 @@
 
 import '../../jest-extensions';
 
-import {BigIntArray, setDefaultAllocator, TypedArray, Uint8Buffer} from '@nvidia/cuda';
+import {setDefaultAllocator} from '@nvidia/cuda';
 import {
   Bool8,
   Float32,
@@ -23,7 +23,6 @@ import {
   Int32,
   Int64,
   Int8,
-  Numeric,
   Series,
   Uint16,
   Uint32,
@@ -31,91 +30,46 @@ import {
   Uint8
 } from '@nvidia/cudf';
 import {DeviceBuffer} from '@nvidia/rmm';
-import {BoolVector} from 'apache-arrow';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
-const numbers = Array.from([null, 0, 1, 1, null, 2, 3, 3, 4, 4]);
+const numbers        = [null, 0, 1, 1, null, 2, 3, 3, 4, 4];
+const bigints        = [null, 0n, 1n, 1n, null, 2n, 3n, 3n, 4n, 4n];
+const bools          = [null, false, true, true, null, true, false, true, false, true];
+const float_with_NaN = [NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN];
 
-const makeBigInts = (length = 10) => Array.from({length}, (_, i) => BigInt(parseInt(i / 3)));
-
-const makeBooleans = (length = 10) => Array.from({length}, (_, i) => Number(i % 2 == 0));
-
-const float_with_NaN = Array.from([NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN]);
-
-function jsAny(values: any) { return values.some(x => x != false); }
-
-function testNumberAny<T extends Numeric, R extends TypedArray>(type: T, data: R) {
-  expect(Boolean(Series.new({type, data}).any())).toEqual(jsAny(data));
+function testNumberAny<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32|Float32|Float64>(
+  type: T, data: (T['scalarType']|null)[], skipna = true) {
+  const expected = skipna ? data.some((x) => x === null || x !== 0)  //
+                          : data.some((x) => x !== null);
+  expect(Series.new({type, data}).any(skipna)).toEqual(expected);
 }
 
-function testNumberAnySkipNA<T extends Numeric, R extends TypedArray>(
-  type: T, data: R, mask_array: Array<number>) {
-  const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
-  // skipna=false
-  expect(Boolean(Series.new({type, data, nullMask: mask}).any(false)))
-    .toEqual(jsAny(data.filter((_, i) => mask_array[i] == 1)));
+function testBigIntAny<T extends Int64|Uint64>(
+  type: T, data: (T['scalarType']|null)[], skipna = true) {
+  const expected = skipna ? data.some((x) => x === null || x !== 0n)  //
+                          : data.some((x) => x !== null);
+  expect(Boolean(Series.new({type, data}).any(skipna))).toEqual(expected);
 }
 
-function testBigIntAny<T extends Numeric, R extends BigIntArray>(type: T, data: R) {
-  expect(Boolean(Series.new({type, data}).any())).toEqual(jsAny(data));
+function testBooleanAny<T extends Bool8>(type: T, data: (T['scalarType']|null)[], skipna = true) {
+  const expected = skipna ? data.some((x) => x === null || x !== false)  //
+                          : data.some((x) => x !== null);
+  expect(Series.new({type, data}).any(skipna)).toEqual(expected);
 }
 
-function testBigIntAnySkipNA<T extends Numeric, R extends BigIntArray>(
-  type: T, data: R, mask_array: Array<number>) {
-  const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
-  // skipna=false
-  expect(Boolean(Series.new({type, data, nullMask: mask}).any(false)))
-    .toEqual(jsAny(data.filter((_, i) => mask_array[i] == 1)));
-}
-
-describe('Series.any(skipna=true)', () => {
-  test('Int8', () => { testNumberAny(new Int8, new Int8Array(numbers)); });
-  test('Int16', () => { testNumberAny(new Int16, new Int16Array(numbers)); });
-  test('Int32', () => { testNumberAny(new Int32, new Int32Array(numbers)); });
-  test('Int64', () => { testBigIntAny(new Int64, new BigInt64Array(makeBigInts())); });
-  test('Uint8', () => { testNumberAny(new Uint8, new Uint8Array(numbers)); });
-  test('Uint16', () => { testNumberAny(new Uint16, new Uint16Array(numbers)); });
-  test('Uint32', () => { testNumberAny(new Uint32, new Uint32Array(numbers)); });
-  test('Uint64', () => { testBigIntAny(new Uint64, new BigUint64Array(makeBigInts())); });
-  test('Float32', () => { testNumberAny(new Float32, new Float32Array(numbers)); });
-  test('Float64', () => { testNumberAny(new Float64, new Float64Array(numbers)); });
-  test('Bool8', () => { testNumberAny(new Bool8, new Uint8ClampedArray(makeBooleans())); });
-});
-
-describe('Series.any(skipna=false)', () => {
-  test('Int8', () => {testNumberAnySkipNA(new Int8, new Int8Array(numbers), makeBooleans())});
-  test('Int16', () => { testNumberAnySkipNA(new Int16, new Int16Array(numbers), makeBooleans()); });
-  test('Int32', () => { testNumberAnySkipNA(new Int32, new Int32Array(numbers), makeBooleans()); });
-  test('Int64',
-       () => { testBigIntAnySkipNA(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
-  test('Uint8', () => { testNumberAnySkipNA(new Uint8, new Uint8Array(numbers), makeBooleans()); });
-  test('Uint16',
-       () => { testNumberAnySkipNA(new Uint16, new Uint16Array(numbers), makeBooleans()); });
-  test('Uint32',
-       () => { testNumberAnySkipNA(new Uint32, new Uint32Array(numbers), makeBooleans()); });
-  test(
-    'Uint64',
-    () => { testBigIntAnySkipNA(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans()); });
-  test('Float32',
-       () => { testNumberAnySkipNA(new Float32, new Float32Array(numbers), makeBooleans()); });
-  test('Float64',
-       () => { testNumberAnySkipNA(new Float64, new Float64Array(numbers), makeBooleans()); });
-  test('Bool8', () => {
-    testNumberAnySkipNA(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
-  });
-});
-
-describe('Float type Series with NaN => Series.any(skipna=true)', () => {
-  test('Float32', () => { testNumberAny(new Float32, new Float32Array(float_with_NaN)); });
-  test('Float64', () => { testNumberAny(new Float64, new Float64Array(float_with_NaN)); });
-});
-
-describe('Float type Series with NaN => Series.any(skipna=false)', () => {
-  test(
-    'Float32',
-    () => { testNumberAnySkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans()); });
-  test(
-    'Float64',
-    () => { testNumberAnySkipNA(new Float64, new Float64Array(float_with_NaN), makeBooleans()); });
+describe.each([[true], [false]])('Series.any(skipna=%p)', (skipna) => {
+  test('Int8', () => { testNumberAny(new Int8, numbers, skipna); });
+  test('Int16', () => { testNumberAny(new Int16, numbers, skipna); });
+  test('Int32', () => { testNumberAny(new Int32, numbers, skipna); });
+  test('Int64', () => { testBigIntAny(new Int64, bigints, skipna); });
+  test('Uint8', () => { testNumberAny(new Uint8, numbers, skipna); });
+  test('Uint16', () => { testNumberAny(new Uint16, numbers, skipna); });
+  test('Uint32', () => { testNumberAny(new Uint32, numbers, skipna); });
+  test('Uint64', () => { testBigIntAny(new Uint64, bigints, skipna); });
+  test('Float32', () => { testNumberAny(new Float32, numbers, skipna); });
+  test('Float64', () => { testNumberAny(new Float64, numbers, skipna); });
+  test('Bool8', () => { testBooleanAny(new Bool8, bools, skipna); });
+  test('Float32', () => { testNumberAny(new Float32, float_with_NaN, skipna); });
+  test('Float64', () => { testNumberAny(new Float64, float_with_NaN, skipna); });
 });
