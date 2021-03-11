@@ -5,14 +5,16 @@ The rapids-js project comprises of collection of js bindings to the following Ra
 1. [cudf](https://github.com/rapidsai/cudf)
 2. [cugraph](https://github.com/rapidsai/cugraph)
 3. [cuspatial](https://github.com/rapidsai/cuspatial)
-4. [rmm](https://github.com/rapidsai/cudf)
+4. [rmm](https://github.com/rapidsai/rmm)
 
 Apart from the Rapids libraries, this project also includes js bindings to the following libraries:
 1. cuda
 2. [glfw](https://github.com/glfw/glfw)
 3. webgl
+4. [deckgl](https://github.com/visgl/deck.gl)
+5. nvencoder
 
-For detailed APIs, follow our [API Documentation](https://rapidsai.github.io/rapids-js/)
+For detailed APIs, follow our [API Documentation](https://rapidsai.github.io/rapids-js/).
 
 ## Setup & Installation
 
