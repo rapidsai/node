@@ -7,10 +7,7 @@ The rapids-js project comprises of collection of js bindings to the following Ra
 3. [cuspatial](https://github.com/rapidsai/cuspatial)
 4. [rmm](https://github.com/rapidsai/rmm)
 
-Apart from the Rapids libraries, this project also includes js bindings to the following libraries:
-1. cuda
-2. [glfw](https://github.com/glfw/glfw)
-3. webgl
+Additionally, `rapids-js` includes JavaScript bindings to [cuda](https://developer.nvidia.com/cuda-toolkit) and [glfw](https://github.com/glfw/glfw).
 
 For detailed APIs, follow our [API Documentation](https://rapidsai.github.io/rapids-js/).
 
