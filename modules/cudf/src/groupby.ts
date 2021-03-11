@@ -37,16 +37,9 @@ import {Interpolation, TypeMap} from './types/mappings'
  * use `null_order::BEFORE`. Ignored if `keys_are_sorted == false`.
  */
 
-type SeriesMapOf<T extends string, R extends DataType> = {
-  [P in T]: Series<R>
+type TypeMapOf<T extends string, R extends DataType> = {
+  [P in T]: R
 };
-
-type Join<T extends unknown[], D extends string> =
-  T extends [] ? '' : T extends [string | number | boolean | bigint]
-                                  ? `${T[0]}`
-                                  : T extends [string | number | boolean | bigint, ...infer U]
-                                                ? `${T[0]}${D}${Join<U, D>}`
-                                                : string;
 
 type GroupByBaseProps = {
   include_nulls?: boolean,
@@ -60,9 +53,10 @@ export type GroupBySingleProps<T extends TypeMap, R extends keyof T> = {
   by: R,
 }&GroupByBaseProps;
 
-export type GroupByMultipleProps<T extends TypeMap, R extends keyof T> = {
+export type GroupByMultipleProps<T extends TypeMap, R extends keyof T, IndexKey extends string> = {
   obj: DataFrame<T>,
   by: R[],
+  index_key: IndexKey,
 }&GroupByBaseProps;
 
 type CudfGroupByProps = {
@@ -307,25 +301,29 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
   }
 }
 
-export class GroupByMultiple<T extends TypeMap, R extends keyof T> extends GroupByBase<T, R> {
-  constructor(props: GroupByMultipleProps<T, R>) { super(props, props.by, props.obj); }
+export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey extends string> extends
+  GroupByBase<T, R> {
+  private index_key: IndexKey;
+  constructor(props: GroupByMultipleProps<T, R, IndexKey>) {
+    super(props, props.by, props.obj);
+    this.index_key = props.index_key;
+  }
 
   protected prepare_results(results: {keys: Table, cols: Column[]}) {
     const {keys, cols} = results;
 
-    type Subset   = Pick<T, R>;
-    type Index    = Struct<Subset>;
-    type IndexKey = Join<(keyof Subset)[], '_'>;
-    type IndexMap = SeriesMapOf<IndexKey, Index>;
-
-    type RestMap = SeriesMap<Omit<T, R>>;
+    type Subset        = Pick<T, R>;
+    type Index         = Struct<Subset>;
+    type IndexTypeMap  = TypeMapOf<IndexKey, Index>;
+    type RestTypeMap   = Omit<T, R>;
+    type RestSeriesMap = SeriesMap<RestTypeMap>;
 
     const rest_map = this._values.names.reduce(
-      (xs, key, index) => ({...xs, [key]: Series.new(cols[index])}), {} as RestMap);
+      (xs, key, index) => ({...xs, [key]: Series.new(cols[index])}), {} as RestSeriesMap);
 
-    const byname: keyof IndexMap = this._by.join('_');
-
-    if (byname in rest_map) { throw new Error(`Groupby column name ${byname} already exists`); }
+    if (this.index_key in rest_map) {
+      throw new Error(`Groupby column name ${this.index_key} already exists`);
+    }
 
     const fields   = [];
     const children = [];
@@ -338,7 +336,8 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T> extends Group
 
     const index = Series.new<Index>({type: new Struct(fields), children: children});
 
-    return new DataFrame({[byname]: index, ...rest_map});
+    return new DataFrame({[this.index_key]: index, ...rest_map} as
+                         SeriesMap<IndexTypeMap&RestTypeMap>);
   }
 
   /**

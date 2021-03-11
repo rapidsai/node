@@ -71,7 +71,7 @@ test('getGroups basic two columns', () => {
   const aa = Series.new({type: new Int32, data: [4, 5, 4, 4, 4, 3]});
   const df = new DataFrame({'a': a, 'aa': aa});
 
-  const grp = new GroupByMultiple({obj: df, by: ['a', 'aa']});
+  const grp = new GroupByMultiple({obj: df, by: ['a', 'aa'], index_key: 'out'});
 
   const groups = grp.getGroups();
 
@@ -128,7 +128,7 @@ test('getGroups basic two columns with values', () => {
   const b  = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
   const df = new DataFrame({'a': a, 'aa': aa, 'b': b});
 
-  const grp = new GroupByMultiple({obj: df, by: ['a', 'aa']});
+  const grp = new GroupByMultiple({obj: df, by: ['a', 'aa'], index_key: 'out'});
 
   const groups = grp.getGroups();
 
@@ -197,14 +197,14 @@ test('aggregation column name with two columns', () => {
   const b  = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
   const df = new DataFrame({'a': a, 'aa': aa, 'b': b});
 
-  const grp = new GroupByMultiple({obj: df, by: ['a', 'aa']});
+  const grp = new GroupByMultiple({obj: df, by: ['a', 'aa'], index_key: 'out'});
 
   const agg = grp.max();
 
-  const result_a_aa = agg.get('a_aa');
+  const result_out = agg.get('out');
 
-  const keys_result_a  = result_a_aa.getChild('a');
-  const keys_result_aa = result_a_aa.getChild('aa');
+  const keys_result_a  = result_out.getChild('a');
+  const keys_result_aa = result_out.getChild('aa');
 
   const sorter = [0, 1, 2, 3, 4, 5];
   const ka     = [...keys_result_a.toArrow()];
@@ -217,15 +217,18 @@ test('aggregation column name with two columns', () => {
   const sorted_aa =
     keys_result_aa.gather(Series.new({type: new Int32, data: new Int32Array(sorter)}));
   expect([...sorted_aa]).toEqual([3, 4, 4, 4, 5, 4])
+
+  const sorted_b = agg.get('b').gather(Series.new({type: new Int32, data: new Int32Array(sorter)}));
+  expect([...sorted_b]).toEqual([2, 2, 1, 1, 0, 0])
 });
 
 test('aggregation existing column name with two columns raises', () => {
-  const a    = Series.new({type: new Int32, data: [5, 4, 3, 2, 1, 0]});
-  const aa   = Series.new({type: new Int32, data: [4, 5, 4, 4, 4, 3]});
-  const a_aa = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
-  const df   = new DataFrame({'a': a, 'aa': aa, 'a_aa': a_aa});
+  const a  = Series.new({type: new Int32, data: [5, 4, 3, 2, 1, 0]});
+  const aa = Series.new({type: new Int32, data: [4, 5, 4, 4, 4, 3]});
+  const b  = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
+  const df = new DataFrame({'a': a, 'aa': aa, 'b': b});
 
-  const grp = new GroupByMultiple({obj: df, by: ['a', 'aa']});
+  const grp = new GroupByMultiple({obj: df, by: ['a', 'aa'], index_key: 'b'});
 
   expect(() => grp.max()).toThrowError();
 });
