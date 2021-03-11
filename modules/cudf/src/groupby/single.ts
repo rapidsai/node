@@ -23,12 +23,11 @@ import {Interpolation, TypeMap} from '../types/mappings';
 import {GroupByBase, GroupByBaseProps} from './base';
 
 export type GroupBySingleProps<T extends TypeMap, R extends keyof T> = {
-  obj: DataFrame<T>,
   by: R,
 }&GroupByBaseProps;
 
 export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupByBase<T, R> {
-  constructor(props: GroupBySingleProps<T, R>) { super(props, [props.by], props.obj); }
+  constructor(obj: DataFrame<T>, props: GroupBySingleProps<T, R>) { super(props, [props.by], obj); }
 
   protected prepare_results(results: {keys: Table, cols: Column[]}) {
     const {keys, cols} = results;

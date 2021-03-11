@@ -29,7 +29,6 @@ type TypeMapOf<T extends string, R extends DataType> = {
 };
 
 export type GroupByMultipleProps<T extends TypeMap, R extends keyof T, IndexKey extends string> = {
-  obj: DataFrame<T>,
   by: R[],
   index_key: IndexKey,
 }&GroupByBaseProps;
@@ -37,8 +36,8 @@ export type GroupByMultipleProps<T extends TypeMap, R extends keyof T, IndexKey 
 export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey extends string> extends
   GroupByBase<T, R> {
   private index_key: IndexKey;
-  constructor(props: GroupByMultipleProps<T, R, IndexKey>) {
-    super(props, props.by, props.obj);
+  constructor(obj: DataFrame<T>, props: GroupByMultipleProps<T, R, IndexKey>) {
+    super(props, props.by, obj);
     this.index_key = props.index_key;
   }
 

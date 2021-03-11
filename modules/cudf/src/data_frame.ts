@@ -18,7 +18,7 @@ import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor'
-import {GroupByBaseProps, GroupByMultiple, GroupBySingle} from './groupby'
+import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby'
 import {AbstractSeries, Float32Series, Float64Series, Series} from './series';
 import {Table} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
@@ -35,18 +35,8 @@ export type OrderSpec = {
   null_order: NullOrder
 };
 
-export type DfGroupBySingleProps<T extends TypeMap, R extends keyof T> = {
-  by: R,
-}&GroupByBaseProps;
-
-export type DfGroupByMultipleProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
-  {
-    by: R[],
-    index_key: IndexKey,
-  }&GroupByBaseProps;
-
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
-  DfGroupBySingleProps<T, R>|DfGroupByMultipleProps<T, R, IndexKey>;
+  GroupBySingleProps<T, R>|GroupByMultipleProps<T, R, IndexKey>;
 
 function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   const columns = {} as any;
@@ -202,21 +192,21 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @param props configuration for the groupby
    */
-  groupBy<R extends keyof T>(props: DfGroupBySingleProps<T, R>): GroupBySingle<T, R>;
+  groupBy<R extends keyof T>(props: GroupBySingleProps<T, R>): GroupBySingle<T, R>;
 
   /**
    * Return a group-by on a multiple columns.
    *
    * @param props configuration for the groupby
    */
-  groupBy<R extends keyof T, IndexKey extends string>(
-    props: DfGroupByMultipleProps<T, R, IndexKey>): GroupByMultiple<T, R, IndexKey>;
+  groupBy<R extends keyof T, IndexKey extends string>(props: GroupByMultipleProps<T, R, IndexKey>):
+    GroupByMultiple<T, R, IndexKey>;
 
   groupBy<R extends keyof T, IndexKey extends string>(props: CombinedGroupByProps<T, R, IndexKey>) {
     if ('index_key' in props) {
-      return new GroupByMultiple({obj: this, ...props})
+      return new GroupByMultiple(this, props)
     } else {
-      return new GroupBySingle({obj: this, ...props})
+      return new GroupBySingle(this, props)
     }
   }
 

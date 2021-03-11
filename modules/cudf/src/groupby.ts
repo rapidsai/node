@@ -12,6 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {GroupByBaseProps} from './groupby/base';
 export {GroupByMultiple, GroupByMultipleProps} from './groupby/multiple'
 export {GroupBySingle, GroupBySingleProps} from './groupby/single'
