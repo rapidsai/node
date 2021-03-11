@@ -19,7 +19,7 @@ For detailed APIs, follow our [API Documentation](https://rapidsai.github.io/rap
 - Pascal architecture or better (Compute Capability >=6.0)
 
 
-The above mentioned js-modules can be installed separately as per the use cases. To get started with `rapids-js`, follow the [Setup Instructions](docs/setup.md).
+To get started with `rapids-js`, follow the [Setup Instructions](docs/setup.md). Individual `rapids-js` modules can be installed separately as-needed. 
 
 ## Demos
 
