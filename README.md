@@ -30,12 +30,12 @@ The above mentioned js-modules can be installed separately as per the use cases.
 
 The demos module contains a bunch of examples which use a combination of rapids-js modules to re-implement some browser+webgl based examples. Some of them include:
 
-- [deck](modules/demos/deck/)
-- [graph](modules/demos/graph/)
-- [luma](modules/demos/luma/)
-- [tfjs](modules/demos/tfjs/)
-- [umap](modules/demos/umap/)
-- [xterm](modules/demos/xterm/)
+- [deck](modules/demo/deck/)
+- [graph](modules/demo/graph/)
+- [luma](modules/demo/luma/)
+- [tfjs](modules/demo/tfjs/)
+- [umap](modules/demo/umap/)
+- [xterm](modules/demo/xterm/)
 
 After you build the modules, just run `yarn demo` from the command line, and choose the demo you want to run.
 
