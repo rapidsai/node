@@ -19,13 +19,13 @@ var {DataFrame, DataType, Float64, GroupBy, Int32, Series} = require('@nvidia/cu
 var a  = Series.new({type: new Int32, data: [5, 4, 3, 2, 1, 0]});
 var b  = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
 var df = new DataFrame({'a': a, 'b': b});
-var grp = new GroupBy({obj: df, by:['a']]});
+var grp = new GroupBy({obj: df, by:['a']});
 
 var groups = grp.getGroups();
 
-console.log(groups['keys'].get('a')); // [0,1,2,3,4,5]
-console.log(groups.values?.get('b')); // [2,2,1,1,0,0]
-console.log(groups['offsets']); // [0,1,2,3,4,5,6]
+console.log(...groups['keys'].get('a')); // [0,1,2,3,4,5]
+console.log(...groups.values?.get('b')); // [2,2,1,1,0,0]
+console.log(...groups['offsets']); // [0,1,2,3,4,5,6]
 ```
 
 For detailed cudf-js API, follow our [API Documentation](https://rapidsai.github.io/rapids-js/modules/cudf_src.html).
