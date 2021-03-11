@@ -18,7 +18,7 @@ import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor'
-import {GroupByMultiple, GroupBySingle} from './groupby'
+import {GroupByBaseProps, GroupByMultiple, GroupBySingle} from './groupby'
 import {AbstractSeries, Float32Series, Float64Series, Series} from './series';
 import {Table} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
@@ -35,13 +35,6 @@ export type OrderSpec = {
   null_order: NullOrder
 };
 
-type GroupByBaseProps = {
-  include_nulls?: boolean,
-  keys_are_sorted?: boolean,
-  column_order?: boolean[],
-  null_precedence?: NullOrder[],
-}
-
 export type DfGroupBySingleProps<T extends TypeMap, R extends keyof T> = {
   by: R,
 }&GroupByBaseProps;
@@ -51,6 +44,9 @@ export type DfGroupByMultipleProps<T extends TypeMap, R extends keyof T, IndexKe
     by: R[],
     index_key: IndexKey,
   }&GroupByBaseProps;
+
+type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
+  DfGroupBySingleProps<T, R>|DfGroupByMultipleProps<T, R, IndexKey>;
 
 function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   const columns = {} as any;
@@ -216,8 +212,7 @@ export class DataFrame<T extends TypeMap = any> {
   groupBy<R extends keyof T, IndexKey extends string>(
     props: DfGroupByMultipleProps<T, R, IndexKey>): GroupByMultiple<T, R, IndexKey>;
 
-  groupBy<R extends keyof T, IndexKey extends string>(props: DfGroupBySingleProps<T, R>|
-                                                      DfGroupByMultipleProps<T, R, IndexKey>) {
+  groupBy<R extends keyof T, IndexKey extends string>(props: CombinedGroupByProps<T, R, IndexKey>) {
     if ('index_key' in props) {
       return new GroupByMultiple({obj: this, ...props})
     } else {
