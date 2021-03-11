@@ -1,7 +1,7 @@
 # <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; rapids-js
 
 
-The rapids-js project comprises of collection of js bindings to the following Rapids libraries:
+The `rapids-js` project comprises of collection of JavaScript bindings to the following Rapids libraries:
 1. [cudf](https://github.com/rapidsai/cudf)
 2. [cugraph](https://github.com/rapidsai/cugraph)
 3. [cuspatial](https://github.com/rapidsai/cuspatial)
