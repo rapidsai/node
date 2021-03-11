@@ -69,11 +69,6 @@ export type Groups<KeysMap extends TypeMap, ValuesMap extends TypeMap> = {
   values?: DataFrame<ValuesMap>,
 }
 
-interface GroupbyConstructor {
-  readonly prototype: CudfGroupBy;
-  new(props: CudfGroupByProps): CudfGroupBy;
-}
-
 interface CudfGroupBy {
   _getGroups(values?: Table,
              memoryResource?: MemoryResource): {keys: Table, offsets: Int32Array, values?: Table};
@@ -94,9 +89,10 @@ interface CudfGroupBy {
     {keys: Table, cols: [Column]};
 }
 
-class GroupByBase<T extends TypeMap, R extends keyof T> extends(<GroupbyConstructor>CUDF.GroupBy) {
+class GroupByBase<T extends TypeMap, R extends keyof T> {
   protected _by: R[];
   protected _values: DataFrame<Omit<T, R>>;
+  protected _cudf_groupby: CudfGroupBy;
 
   constructor(props: GroupByBaseProps, by: R[], obj: DataFrame<T>) {
     const table = obj.select(by).asTable();
@@ -116,7 +112,7 @@ class GroupByBase<T extends TypeMap, R extends keyof T> extends(<GroupbyConstruc
       null_precedence: null_precedence,
     };
 
-    super(cudf_props);
+    this._cudf_groupby = new CUDF.GroupBy(cudf_props);
 
     this._by     = by;
     this._values = obj.drop(by);
@@ -129,7 +125,8 @@ class GroupByBase<T extends TypeMap, R extends keyof T> extends(<GroupbyConstruc
    *   device memory.
    */
   getGroups(memoryResource?: MemoryResource) {
-    const {keys, offsets, values} = this._getGroups(this._values.asTable(), memoryResource);
+    const {keys, offsets, values} =
+      this._cudf_groupby._getGroups(this._values.asTable(), memoryResource);
 
     const results = {
       offsets,
@@ -170,7 +167,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   argmax(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._argmax(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._argmax(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -180,7 +177,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   argmin(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._argmin(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._argmin(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -190,7 +187,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   count(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._count(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._count(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -200,7 +197,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   max(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._max(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._max(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -210,7 +207,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   mean(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._mean(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._mean(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -220,7 +217,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   median(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._median(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._median(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -230,7 +227,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   min(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._min(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._min(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -241,7 +238,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   nth(n: number, memoryResource?: MemoryResource) {
-    return this.prepare_results(this._nth(n, this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._nth(n, this._values.asTable(), memoryResource));
   }
 
   /**
@@ -251,7 +248,8 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   nunique(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._nunique(this._values.asTable(), memoryResource));
+    return this.prepare_results(
+      this._cudf_groupby._nunique(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -261,7 +259,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   std(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._std(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._std(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -271,7 +269,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   sum(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._sum(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._sum(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -281,7 +279,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   var(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._var(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._var(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -296,8 +294,8 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
   quantile(q                                         = 0.5,
            interpolation: keyof typeof Interpolation = 'linear',
            memoryResource?: MemoryResource) {
-    return this.prepare_results(
-      this._quantile(q, this._values.asTable(), Interpolation[interpolation], memoryResource));
+    return this.prepare_results(this._cudf_groupby._quantile(
+      q, this._values.asTable(), Interpolation[interpolation], memoryResource));
   }
 }
 
@@ -347,7 +345,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   argmax(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._argmax(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._argmax(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -357,7 +355,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   argmin(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._argmin(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._argmin(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -367,7 +365,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   count(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._count(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._count(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -377,7 +375,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   max(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._max(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._max(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -387,7 +385,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   mean(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._mean(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._mean(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -397,7 +395,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   median(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._median(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._median(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -407,7 +405,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   min(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._min(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._min(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -418,7 +416,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   nth(n: number, memoryResource?: MemoryResource) {
-    return this.prepare_results(this._nth(n, this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._nth(n, this._values.asTable(), memoryResource));
   }
 
   /**
@@ -428,7 +426,8 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   nunique(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._nunique(this._values.asTable(), memoryResource));
+    return this.prepare_results(
+      this._cudf_groupby._nunique(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -438,7 +437,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   std(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._std(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._std(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -448,7 +447,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   sum(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._sum(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._sum(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -458,7 +457,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   var(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._var(this._values.asTable(), memoryResource));
+    return this.prepare_results(this._cudf_groupby._var(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -473,7 +472,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
   quantile(q                                         = 0.5,
            interpolation: keyof typeof Interpolation = 'linear',
            memoryResource?: MemoryResource) {
-    return this.prepare_results(
-      this._quantile(q, this._values.asTable(), Interpolation[interpolation], memoryResource));
+    return this.prepare_results(this._cudf_groupby._quantile(
+      q, this._values.asTable(), Interpolation[interpolation], memoryResource));
   }
 }
