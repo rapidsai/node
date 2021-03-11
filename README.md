@@ -11,8 +11,6 @@ Apart from the Rapids libraries, this project also includes js bindings to the f
 1. cuda
 2. [glfw](https://github.com/glfw/glfw)
 3. webgl
-4. [deckgl](https://github.com/visgl/deck.gl)
-5. nvencoder
 
 For detailed APIs, follow our [API Documentation](https://rapidsai.github.io/rapids-js/).
 
