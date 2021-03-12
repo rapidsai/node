@@ -13,7 +13,17 @@
 // limitations under the License.
 
 import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Bool8, DataFrame, Float32, Int32, NullOrder, Series, Table} from '@nvidia/cudf';
+import {
+  Bool8,
+  DataFrame,
+  Float32,
+  GroupByMultiple,
+  GroupBySingle,
+  Int32,
+  NullOrder,
+  Series,
+  Table
+} from '@nvidia/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
 import {BoolVector} from 'apache-arrow'
 
@@ -213,6 +223,23 @@ test('DataFrame.gather (indices)', () => {
 
   const expected_b = Series.new({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
   expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
+});
+
+test('DataFrame groupBy (single)', () => {
+  const a   = Series.new({type: new Int32, data: [1, 2, 3, 1, 2, 2, 1, 3, 3, 2]});
+  const b   = Series.new({type: new Float32, data: [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]});
+  const df  = new DataFrame({'a': a, 'b': b});
+  const out = df.groupBy({by: 'a'})
+  expect(out instanceof GroupBySingle).toBe(true);
+});
+
+test('DataFrame groupBy (single)', () => {
+  const a   = Series.new({type: new Int32, data: [1, 2, 3, 1, 2, 2, 1, 3, 3, 2]});
+  const aa  = Series.new({type: new Int32, data: [1, 2, 3, 1, 2, 2, 1, 3, 3, 2]});
+  const b   = Series.new({type: new Float32, data: [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]});
+  const df  = new DataFrame({'a': a, 'aa': aa, 'b': b});
+  const out = df.groupBy({by: ['a', 'aa'], index_key: 'ind'})
+  expect(out instanceof GroupByMultiple).toBe(true);
 });
 
 test('Series.filter', () => {
