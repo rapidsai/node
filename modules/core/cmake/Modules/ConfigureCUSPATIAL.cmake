@@ -18,6 +18,14 @@ function(find_and_configure_cuspatial VERSION)
 
     include(get_cpm)
 
+    execute_process(COMMAND node -p
+                    "require('@nvidia/rapids-core').cpm_source_cache_path"
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    set(CUDF_GENERATED_INCLUDE_DIR ${NODE_RAPIDS_CPM_SOURCE_CACHE}/cudf-build)
+
     CPMAddPackage(NAME  cuspatial
         VERSION         ${VERSION}
         # GIT_REPOSITORY https://github.com/rapidsai/cuspatial.git
@@ -25,16 +33,24 @@ function(find_and_configure_cuspatial VERSION)
         GIT_REPOSITORY  https://github.com/trxcllnt/cuspatial.git
         # Can also use a local path to your repo clone for testing
         # GIT_REPOSITORY  /home/ptaylor/dev/rapids/cuspatial
-        GIT_TAG         combined-fixes
+        GIT_TAG         fix/cmake-exports
         GIT_SHALLOW     TRUE
         SOURCE_SUBDIR   cpp
         OPTIONS         "BUILD_TESTS OFF"
                         "BUILD_BENCHMARKS OFF"
-                        "ARROW_STATIC_LIB ON"
                         "JITIFY_USE_CACHE ON"
                         "CUDA_STATIC_RUNTIME ON"
+                        "CUDF_USE_ARROW_STATIC ON"
                         "PER_THREAD_DEFAULT_STREAM ON"
                         "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
+
+    # Make sure consumers of our libs can also see cuspatial::cuspatial
+    if(TARGET cuspatial::cuspatial)
+        get_target_property(cuspatial_is_imported cuspatial::cuspatial IMPORTED)
+        if(cuspatial_is_imported)
+            set_target_properties(cuspatial::cuspatial PROPERTIES IMPORTED_GLOBAL TRUE)
+        endif()
+    endif()
 endfunction()
 
 find_and_configure_cuspatial(${CUSPATIAL_VERSION})

@@ -20,17 +20,22 @@ function(find_and_configure_rmm VERSION)
 
     CPMAddPackage(NAME rmm
         VERSION        ${RMM_VERSION}
-        # GIT_REPOSITORY https://github.com/rapidsai/rmm.git
-        # GIT_TAG        branch-${RMM_VERSION}
-        GIT_REPOSITORY https://github.com/trxcllnt/rmm.git
-        GIT_TAG        combined-fixes
+        GIT_REPOSITORY https://github.com/rapidsai/rmm.git
+        GIT_TAG        branch-${RMM_VERSION}
         GIT_SHALLOW    TRUE
         OPTIONS        "BUILD_TESTS OFF"
                        "BUILD_BENCHMARKS OFF"
                        "CUDA_STATIC_RUNTIME ON"
-                       "CMAKE_CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES}"
                        "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}"
     )
+
+    # Make sure consumers of our libs can also see rmm::rmm
+    if(TARGET rmm::rmm)
+        get_target_property(rmm_is_imported rmm::rmm IMPORTED)
+        if(rmm_is_imported)
+            set_target_properties(rmm::rmm PROPERTIES IMPORTED_GLOBAL TRUE)
+        endif()
+    endif()
 endfunction()
 
 find_and_configure_rmm(${RMM_VERSION})

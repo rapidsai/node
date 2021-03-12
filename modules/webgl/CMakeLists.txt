@@ -20,7 +20,7 @@ project(node_webgl VERSION 0.0.1 LANGUAGES C CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
+option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(NODE_WEBGL_STATIC_LINK "Statically link GLEW and GLFW libraries" OFF)
 
 # Set OpenGL_GL_PREFERENCE to "GLVND"
@@ -45,10 +45,10 @@ endif(NOT NODE_WEBGL_STATIC_LINK)
 execute_process(COMMAND node -p
                 "require('@nvidia/rapids-core').cmake_modules_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
+                OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NVIDIA_CMAKE_MODULES_PATH}")
+list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
 
 include(ConfigureCXX)
 include(ConfigureNapi)
@@ -58,24 +58,38 @@ include(ConfigureOpenGLEW)
 include(ConfigureOpenGLFW)
 
 ###################################################################################################
-# - include paths ---------------------------------------------------------------------------------
-
-include_directories(${RAPIDS_CORE_INCLUDE_DIR}
-                    ${GLEW_INCLUDE_DIR}
-                    ${GLFW_INCLUDE_DIR}
-                    ${OPENGL_INCLUDE_DIR}
-                    ${OPENGL_EGL_INCLUDE_DIRS}
-                    ${DISPLAY_SERVER_INCLUDE_DIRS}
-                    ${NAPI_INCLUDE_DIRS})
-
-###################################################################################################
-# - library paths ---------------------------------------------------------------------------------
+# - node_webgl target -----------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_WEBGL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_WEBGL_SRC_FILES} ${CMAKE_JS_SRC})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES PREFIX                              ""
+               SUFFIX                              ".node"
+               CXX_STANDARD                        14
+               CXX_STANDARD_REQUIRED               ON
+               CUDA_STANDARD                       14
+               CUDA_STANDARD_REQUIRED              ON
+               POSITION_INDEPENDENT_CODE           ON
+               INTERFACE_POSITION_INDEPENDENT_CODE ON
+)
+
+target_compile_options(${PROJECT_NAME}
+            PRIVATE "$<$<COMPILE_LANGUAGE:C>:${NODE_RAPIDS_CMAKE_C_FLAGS}>"
+                    "$<$<COMPILE_LANGUAGE:CXX>:${NODE_RAPIDS_CMAKE_CXX_FLAGS}>"
+)
+
+target_include_directories(${PROJECT_NAME}
+    PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src"
+           "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
+           "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
+           "$<BUILD_INTERFACE:${GLEW_INCLUDE_DIR}>"
+           "$<BUILD_INTERFACE:${GLFW_INCLUDE_DIR}>"
+           "$<BUILD_INTERFACE:${OPENGL_INCLUDE_DIR}>"
+           "$<BUILD_INTERFACE:${OPENGL_EGL_INCLUDE_DIRS}>"
+           "$<BUILD_INTERFACE:${DISPLAY_SERVER_INCLUDE_DIRS}>"
+)
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
