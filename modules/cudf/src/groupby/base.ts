@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Series} from '@nvidia/cudf';
+import {Series} from '../series';
 import {MemoryResource} from '@nvidia/rmm';
 
 import CUDF from '../addon';

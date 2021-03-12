@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Series, Struct} from '@nvidia/cudf';
+import {Series} from '../series';
 import {MemoryResource} from '@nvidia/rmm';
 import {Field} from 'apache-arrow';
 
 import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Table} from '../table';
-import {DataType} from '../types/dtypes';
+import {DataType, Struct} from '../types/dtypes';
 import {Interpolation, TypeMap} from '../types/mappings';
 
 import {GroupByBase, GroupByBaseProps} from './base';
