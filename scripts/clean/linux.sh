@@ -2,7 +2,7 @@
 
 set -Eeo pipefail
 
-echo "cleaning rapids-js"
+echo "cleaning node-rapids"
 
 if [[ ! -d node_modules || ! -d node_modules/lerna || ! -d node_modules/rimraf ]]; then
     yarn --silent --non-interactive --no-node-version-check --ignore-engines;

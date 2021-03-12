@@ -1,14 +1,15 @@
-# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; rapids-js cuSpatial - GPU-Accelerated Spatial and Trajectory Data Management and Analytics Library
+# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids cuSpatial - GPU-Accelerated Spatial and Trajectory Data Management and Analytics Library
 
 JS bindings for [cuSpatial](https://github.com/rapidsai/cuspatial).
 
-For detailed cuSpatial-js API, follow our [API Documentation](https://rapidsai.github.io/rapids-js/modules/cuspatial_src.html).
+For detailed node-cuSpatial API, follow our [API Documentation](https://rapidsai.github.io/node-rapids/modules/cuspatial_src.html).
 
 ### Installation
+
 `npm install @nvidia/cuspatial`
 
-
 Run this command to build the module from the mono-repo root
+
 ```bash
 # To build
 npx lerna run build --scope="@nvidia/cuspatial" --stream
