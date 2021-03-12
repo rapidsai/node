@@ -33,16 +33,24 @@ function(find_and_configure_cudf VERSION)
         GIT_REPOSITORY  https://github.com/trxcllnt/cudf.git
         # Can also use a local path to your repo clone for testing
         # GIT_REPOSITORY  /home/ptaylor/dev/rapids/cudf
-        GIT_TAG         combined-fixes
+        GIT_TAG         fix/cmake-always-export-cudftestutil
         GIT_SHALLOW     TRUE
         SOURCE_SUBDIR   cpp
         OPTIONS         "BUILD_TESTS OFF"
                         "BUILD_BENCHMARKS OFF"
-                        "ARROW_STATIC_LIB ON"
                         "JITIFY_USE_CACHE ON"
                         "CUDA_STATIC_RUNTIME ON"
+                        "CUDF_USE_ARROW_STATIC ON"
                         "PER_THREAD_DEFAULT_STREAM ON"
                         "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
+
+    # Make sure consumers of our libs can also see cudf::cudf
+    if(TARGET cudf::cudf)
+        get_target_property(cudf_is_imported cudf::cudf IMPORTED)
+        if(cudf_is_imported)
+            set_target_properties(cudf::cudf PROPERTIES IMPORTED_GLOBAL TRUE)
+        endif()
+    endif()
 endfunction()
 
 find_and_configure_cudf(${CUDF_VERSION})
