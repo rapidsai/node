@@ -21,10 +21,10 @@ function(find_and_configure_cudf VERSION)
     execute_process(COMMAND node -p
                     "require('@nvidia/rapids-core').cpm_source_cache_path"
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    OUTPUT_VARIABLE NVIDIA_CPM_SOURCE_CACHE
+                    OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-    set(CUDF_GENERATED_INCLUDE_DIR ${NVIDIA_CPM_SOURCE_CACHE}/cudf-build)
+    set(CUDF_GENERATED_INCLUDE_DIR ${NODE_RAPIDS_CPM_SOURCE_CACHE}/cudf-build)
 
     CPMAddPackage(NAME  cudf
         VERSION         ${VERSION}

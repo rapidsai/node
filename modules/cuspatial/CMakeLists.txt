@@ -20,7 +20,7 @@ project(node_cuspatial VERSION 0.0.1 LANGUAGES C CXX CUDA)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-option(NVIDIA_USE_CCACHE "Enable caching compilation results with ccache" ON)
+option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
 set(RMM_VERSION "0.19")
@@ -33,28 +33,28 @@ set(CUSPATIAL_VERSION "0.19")
 execute_process(COMMAND node -p
                 "require('@nvidia/rapids-core').cmake_modules_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                OUTPUT_VARIABLE NVIDIA_CMAKE_MODULES_PATH
+                OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@nvidia/cuda'))"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                OUTPUT_VARIABLE NVIDIA_CUDA_MODULE_PATH
+                OUTPUT_VARIABLE NODE_RAPIDS_CUDA_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@nvidia/rmm'))"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                OUTPUT_VARIABLE NVIDIA_RMM_MODULE_PATH
+                OUTPUT_VARIABLE NODE_RAPIDS_RMM_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@nvidia/cudf'))"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                OUTPUT_VARIABLE NVIDIA_CUDF_MODULE_PATH
+                OUTPUT_VARIABLE NODE_RAPIDS_CUDF_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NVIDIA_CMAKE_MODULES_PATH}")
+list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
 
 include(ConfigureCXX)
 include(ConfigureCUDA)
@@ -64,31 +64,43 @@ include(ConfigureCUDF)
 include(ConfigureCUSPATIAL)
 
 ###################################################################################################
-# - include paths ---------------------------------------------------------------------------------
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src
-                    ${NVIDIA_CUDF_MODULE_PATH}/src
-                    ${NVIDIA_RMM_MODULE_PATH}/src
-                    ${NVIDIA_CUDA_MODULE_PATH}/src
-                    ${RAPIDS_CORE_INCLUDE_DIR}
-                    ${NAPI_INCLUDE_DIRS})
-
-###################################################################################################
-# - library paths ---------------------------------------------------------------------------------
+# - node_cuspatial target -------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_CUSPATIAL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${NODE_CUSPATIAL_SRC_FILES} ${CMAKE_JS_SRC})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES PREFIX                              ""
+               SUFFIX                              ".node"
+               CXX_STANDARD                        14
+               CXX_STANDARD_REQUIRED               ON
+               CUDA_STANDARD                       14
+               CUDA_STANDARD_REQUIRED              ON
+               POSITION_INDEPENDENT_CODE           ON
+               INTERFACE_POSITION_INDEPENDENT_CODE ON
+)
+
+target_compile_options(${PROJECT_NAME}
+            PRIVATE "$<$<COMPILE_LANGUAGE:C>:${NODE_RAPIDS_CMAKE_C_FLAGS}>"
+                    "$<$<COMPILE_LANGUAGE:CXX>:${NODE_RAPIDS_CMAKE_CXX_FLAGS}>"
+                    "$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>"
+)
+
+target_include_directories(${PROJECT_NAME}
+    PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+           "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDF_MODULE_PATH}/src>"
+           "$<BUILD_INTERFACE:${NODE_RAPIDS_RMM_MODULE_PATH}/src>"
+           "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDA_MODULE_PATH}/src>"
+           "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
+           "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
+)
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       rmm::rmm
                       cudf::cudf
                       cuspatial::cuspatial
-                      CUDA::cuda_driver
-                      CUDA::cudart_static
-                      "${NVIDIA_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
-                      "${NVIDIA_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
-                      "${NVIDIA_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
+                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
+                      "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
+                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
