@@ -2,7 +2,7 @@
 
 JS bindings for [cuSpatial](https://github.com/rapidsai/cuspatial).
 
-For detailed cuSpatial-js API, follow our [API Documentation](https://rapidsai.github.io/node-rapids/modules/cuspatial_src.html).
+For detailed node-cuSpatial API, follow our [API Documentation](https://rapidsai.github.io/node-rapids/modules/cuspatial_src.html).
 
 ### Installation
 
