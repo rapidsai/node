@@ -36,7 +36,7 @@ console.log(...groups.values?.get("b")); // [2,2,1,1,0,0]
 console.log(...groups["offsets"]); // [0,1,2,3,4,5,6]
 ```
 
-For detailed cudf-js API, follow our [API Documentation](https://rapidsai.github.io/node-rapids/modules/cudf_src.html).
+For detailed node-cuDF API, follow our [API Documentation](https://rapidsai.github.io/node-rapids/modules/cudf_src.html).
 
 ### Installation
 
