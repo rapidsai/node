@@ -41,11 +41,13 @@ std::vector<cudf::column_metadata> gather_metadata(Napi::Array const& names) {
 
 Napi::Value Table::to_arrow(Napi::CallbackInfo const& info) {
   auto buffer = [&]() {
-    auto table  = cudf::to_arrow(*this, gather_metadata(info[0].As<Napi::Array>()));
-    auto sink   = arrow::io::BufferOutputStream::Create().ValueOrDie();
-    auto writer = arrow::ipc::NewStreamWriter(sink.get(), table->schema()).ValueOrDie();
-    auto status = writer->WriteTable(*table);
-    if (!status.ok()) { NAPI_THROW(Napi::Error::New(info.Env(), status.message())); }
+    auto table        = cudf::to_arrow(*this, gather_metadata(info[0].As<Napi::Array>()));
+    auto sink         = arrow::io::BufferOutputStream::Create().ValueOrDie();
+    auto writer       = arrow::ipc::NewStreamWriter(sink.get(), table->schema()).ValueOrDie();
+    auto write_status = writer->WriteTable(*table);
+    if (!write_status.ok()) { NAPI_THROW(Napi::Error::New(info.Env(), write_status.message())); }
+    auto close_status = writer->Close();
+    if (!close_status.ok()) { NAPI_THROW(Napi::Error::New(info.Env(), close_status.message())); }
     auto buffer = sink->Finish().ValueOrDie();
     auto arybuf = Napi::ArrayBuffer::New(info.Env(), buffer->size());
     memcpy(arybuf.Data(), buffer->data(), buffer->size());
