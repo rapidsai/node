@@ -18,21 +18,13 @@ import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor'
+import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby'
 import {AbstractSeries, Float32Series, Float64Series, Series} from './series';
 import {Table} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {
-  Bool8,
-  DataType,
-  IndexType,
-} from './types/dtypes'
-import {
-  NullOrder,
-} from './types/enums';
-import {
-  ColumnsMap,
-  TypeMap,
-} from './types/mappings';
+import {Bool8, DataType, IndexType} from './types/dtypes'
+import {NullOrder} from './types/enums';
+import {ColumnsMap, TypeMap} from './types/mappings';
 
 export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
@@ -42,6 +34,9 @@ export type OrderSpec = {
   ascending: boolean,
   null_order: NullOrder
 };
+
+type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
+  GroupBySingleProps<T, R>|GroupByMultipleProps<T, R, IndexKey>;
 
 function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   const columns = {} as any;
@@ -190,6 +185,29 @@ export class DataFrame<T extends TypeMap = any> {
     this._accessor.names.forEach(
       (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
     return new DataFrame(series_map);
+  }
+
+  /**
+   * Return a group-by on a single column.
+   *
+   * @param props configuration for the groupby
+   */
+  groupBy<R extends keyof T>(props: GroupBySingleProps<T, R>): GroupBySingle<T, R>;
+
+  /**
+   * Return a group-by on a multiple columns.
+   *
+   * @param props configuration for the groupby
+   */
+  groupBy<R extends keyof T, IndexKey extends string>(props: GroupByMultipleProps<T, R, IndexKey>):
+    GroupByMultiple<T, R, IndexKey>;
+
+  groupBy<R extends keyof T, IndexKey extends string>(props: CombinedGroupByProps<T, R, IndexKey>) {
+    if ('index_key' in props) {
+      return new GroupByMultiple(this, props)
+    } else {
+      return new GroupBySingle(this, props)
+    }
   }
 
   /**

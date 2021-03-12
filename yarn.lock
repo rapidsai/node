@@ -11584,9 +11584,9 @@ jsdom-global@^3.0.2:
   integrity sha1-a9KZwTsMRiay2iwDk81DhdYGrLk=
 
 jsdom@^11.5.1, jsdom@^14.1.0, jsdom@^16.2.2, jsdom@^16.4.0:
-  version "16.5.0"
-  resolved "https://registry.npmjs.org/jsdom/-/jsdom-16.5.0.tgz#9e453505600cc5a70b385750d35256f380730cc4"
-  integrity sha512-QxZH0nmDTnTTVI0YDm4RUlaUPl5dcyn62G5TMDNfMmTW+J1u1v9gCR8WR+WZ6UghAa7nKJjDOFaI00eMMWvJFQ==
+  version "16.4.0"
+  resolved "https://registry.npmjs.org/jsdom/-/jsdom-16.4.0.tgz#36005bde2d136f73eee1a830c6d45e55408edddb"
+  integrity sha512-lYMm3wYdgPhrl7pDcRmvzPhhrGVBeVhPIqeHjzeiHN3DFmD1RBpbExbi8vU7BJdH8VAZYovR8DMt0PNNDM7k8w==
   dependencies:
     abab "^2.0.5"
     acorn "^8.0.5"
