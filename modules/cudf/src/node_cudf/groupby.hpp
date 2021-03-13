@@ -83,7 +83,7 @@ class GroupBy : public Napi::ObjectWrap<GroupBy> {
     Napi::CallbackInfo const& info);
 
   template <typename MakeAggregation>
-  Napi::Value _single_aggregation(MakeAggregation make_aggregation,
+  Napi::Value _single_aggregation(MakeAggregation const& make_aggregation,
                                   const Table* const values_table,
                                   rmm::mr::device_memory_resource* const mr,
                                   Napi::CallbackInfo const& info);

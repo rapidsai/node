@@ -244,7 +244,7 @@ std::pair<nv::Table*, rmm::mr::device_memory_resource*> GroupBy::_get_basic_args
 }
 
 template <typename MakeAggregation>
-Napi::Value GroupBy::_single_aggregation(MakeAggregation make_aggregation,
+Napi::Value GroupBy::_single_aggregation(MakeAggregation const& make_aggregation,
                                          const nv::Table* const values_table,
                                          rmm::mr::device_memory_resource* const mr,
                                          Napi::CallbackInfo const& info) {
