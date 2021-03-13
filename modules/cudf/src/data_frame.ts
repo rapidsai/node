@@ -20,7 +20,7 @@ import {Column} from './column';
 import {ColumnAccessor} from './column_accessor';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {AbstractSeries, Float32Series, Float64Series, Series} from './series';
-import {Table} from './table';
+import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType} from './types/dtypes';
 import {NullOrder} from './types/enums';
@@ -174,6 +174,20 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Generate a new Series that is sorted in a specified way.
+   *
+   * @param ascending whether to sort ascending (true) or descending (false)
+   *   Default: true
+   * @param null_order whether nulls should sort before or after other values
+   *   Default: BEFORE
+   *
+   * @returns Sorted values
+   */
+  sortValues<R extends keyof T>(options: {[P in R]: OrderSpec}) {
+    return this.gather(this.orderBy(options));
+  }
+
+  /**
    * Return sub-selection from a DataFrame from the specified indices
    *
    * @param selection
@@ -240,6 +254,23 @@ export class DataFrame<T extends TypeMap = any> {
       columnNames: this.names as string[],
     });
     return readable as AsyncIterable<string>;
+  }
+
+  /**
+   * Copy a Series to an Arrow vector in host memory
+   */
+  toArrow() {
+    const toArrowMetadata = (name: string|number, type?: DataType): ToArrowMetadata => {
+      if (!type || !type.children || !type.children.length) { return [name]; }
+      if (type instanceof arrow.List) {
+        if (!type.children[0]) { return [name, [[0], [1]]]; }
+        return [name, [[0], toArrowMetadata(type.children[0].name, type.children[0].type)]];
+      }
+      return [name, type.children.map((f) => toArrowMetadata(f.name, f.type))];
+    };
+    const names = this.names.map(
+      (name, i) => toArrowMetadata(<string|number>name, this._accessor.columns[i].type));
+    return arrow.Table.from<T>(this.asTable().toArrow(names));
   }
 
   /**
