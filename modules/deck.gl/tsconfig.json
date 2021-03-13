@@ -4,8 +4,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@nvidia/deck.gl": ["src/index"],
-            "@nvidia/deck.gl/*": ["src/*"]
+            "@rapidsai/deck.gl": ["src/index"],
+            "@rapidsai/deck.gl/*": ["src/*"]
         },
         "target": "ESNEXT",
         "module": "commonjs",

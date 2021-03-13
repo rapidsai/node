@@ -32,17 +32,17 @@ if(NODE_RAPIDS_USE_CCACHE)
             set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM_PATH}")
         else()
             execute_process(COMMAND node -p
-                            "require('@nvidia/rapids-core').modules_path"
+                            "require('@rapidsai/core').modules_path"
                             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                             OUTPUT_VARIABLE NODE_RAPIDS_MODULES_BASE_DIR
                             OUTPUT_STRIP_TRAILING_WHITESPACE)
             execute_process(COMMAND node -p
-                            "require('@nvidia/rapids-core').cmake_modules_path"
+                            "require('@rapidsai/core').cmake_modules_path"
                             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                             OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                             OUTPUT_STRIP_TRAILING_WHITESPACE)
             execute_process(COMMAND node -p
-                            "require('@nvidia/rapids-core').ccache_path"
+                            "require('@rapidsai/core').ccache_path"
                             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                             OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_CCACHE_DIR
                             OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -59,7 +59,7 @@ if(NODE_RAPIDS_USE_CCACHE)
 endif(NODE_RAPIDS_USE_CCACHE)
 
 execute_process(COMMAND node -p
-                "require('@nvidia/rapids-core').cpm_source_cache_path"
+                "require('@rapidsai/core').cpm_source_cache_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -68,7 +68,7 @@ set(ENV{CPM_SOURCE_CACHE} ${NODE_RAPIDS_CPM_SOURCE_CACHE})
 message(STATUS "Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
 
 execute_process(COMMAND node -p
-                "require('@nvidia/rapids-core').cpp_include_path"
+                "require('@rapidsai/core').cpp_include_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE RAPIDS_CORE_INCLUDE_DIR
                 OUTPUT_STRIP_TRAILING_WHITESPACE)

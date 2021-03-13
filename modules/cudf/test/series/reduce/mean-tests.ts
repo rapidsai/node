@@ -28,8 +28,8 @@ import {
   Uint32,
   Uint64,
   Uint8
-} from '@nvidia/cudf';
-import {DeviceBuffer} from '@nvidia/rmm';
+} from '@rapidsai/cudf';
+import {DeviceBuffer} from '@rapidsai/rmm';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
@@ -51,7 +51,7 @@ function jsMeanBigInt(values: bigint[]) {
 function jsMeanBoolean(values: boolean[]) {
   if (values.length === 0) return NaN;
   let sum = 0;
-  values.forEach((x) => sum += (x ? 1 : 0))
+  values.forEach((x) => sum += (x ? 1 : 0));
   return sum / values.length;
 }
 

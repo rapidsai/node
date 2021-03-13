@@ -22,7 +22,7 @@ import {glfwCallbackAsObservable, GLFWEvent} from './event';
 export function monitorEvents() {
   return glfwCallbackAsObservable(glfw.setMonitorCallback)
     .pipe(map(([_, ...rest]) => GLFWMonitorEvent.create(_, ...rest)))
-    .pipe(publish(), refCount())
+    .pipe(publish(), refCount());
 }
 
 class GLFWMonitorEvent extends GLFWEvent {

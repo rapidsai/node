@@ -23,9 +23,9 @@ import {
   NullOrder,
   Series,
   Table
-} from '@nvidia/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
-import {BoolVector} from 'apache-arrow'
+} from '@rapidsai/cudf';
+import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
+import {BoolVector} from 'apache-arrow';
 
 const mr = new CudaMemoryResource();
 
@@ -147,7 +147,7 @@ test('DataFrame.orderBy (ascending, non-null)', () => {
   const result = df.orderBy({'a': {ascending: true, null_order: NullOrder.BEFORE}});
 
   const expected = [5, 0, 4, 1, 3, 2];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.orderBy (descending, non-null)', () => {
@@ -156,7 +156,7 @@ test('DataFrame.orderBy (descending, non-null)', () => {
   const result = df.orderBy({'a': {ascending: false, null_order: NullOrder.BEFORE}});
 
   const expected = [2, 3, 1, 4, 0, 5];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.orderBy (ascending, null before)', () => {
@@ -167,7 +167,7 @@ test('DataFrame.orderBy (ascending, null before)', () => {
   const result = df.orderBy({'a': {ascending: true, null_order: NullOrder.BEFORE}});
 
   const expected = [1, 5, 0, 4, 3, 2];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.orderBy (ascending, null after)', () => {
@@ -178,7 +178,7 @@ test('DataFrame.orderBy (ascending, null after)', () => {
   const result = df.orderBy({'a': {ascending: true, null_order: NullOrder.AFTER}});
 
   const expected = [5, 0, 4, 3, 2, 1];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.orderBy (descendng, null before)', () => {
@@ -190,7 +190,7 @@ test('DataFrame.orderBy (descendng, null before)', () => {
 
   const expected = [2, 3, 4, 0, 5, 1];
 
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.orderBy (descending, null after)', () => {
@@ -201,7 +201,7 @@ test('DataFrame.orderBy (descending, null after)', () => {
   const result = df.orderBy({'a': {ascending: false, null_order: NullOrder.AFTER}});
 
   const expected = [1, 2, 3, 4, 0, 5];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.gather (indices)', () => {
@@ -229,7 +229,7 @@ test('DataFrame groupBy (single)', () => {
   const a   = Series.new({type: new Int32, data: [1, 2, 3, 1, 2, 2, 1, 3, 3, 2]});
   const b   = Series.new({type: new Float32, data: [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]});
   const df  = new DataFrame({'a': a, 'b': b});
-  const out = df.groupBy({by: 'a'})
+  const out = df.groupBy({by: 'a'});
   expect(out instanceof GroupBySingle).toBe(true);
 });
 
@@ -238,7 +238,7 @@ test('DataFrame groupBy (single)', () => {
   const aa  = Series.new({type: new Int32, data: [1, 2, 3, 1, 2, 2, 1, 3, 3, 2]});
   const b   = Series.new({type: new Float32, data: [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]});
   const df  = new DataFrame({'a': a, 'aa': aa, 'b': b});
-  const out = df.groupBy({by: ['a', 'aa'], index_key: 'ind'})
+  const out = df.groupBy({by: ['a', 'aa'], index_key: 'ind'});
   expect(out instanceof GroupByMultiple).toBe(true);
 });
 

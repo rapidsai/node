@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import '@nvidia/cuda';
-import {loadNativeModule} from '@nvidia/rapids-core';
+import {loadNativeModule} from '@rapidsai/core';
 
 export const RMM = loadNativeModule<any>(module, 'node_rmm');
 export default RMM;

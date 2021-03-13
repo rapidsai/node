@@ -22,7 +22,7 @@ import {GLFWEvent, windowCallbackAsObservable} from './event';
 export function wheelEvents(window: GLFWDOMWindow) {
   return windowCallbackAsObservable(glfw.setScrollCallback, window)
     .pipe(map(([, ...rest]) => GLFWWheelEvent.create(window, ...rest)))
-    .pipe(publish(), refCount())
+    .pipe(publish(), refCount());
 }
 
 export class GLFWWheelEvent extends GLFWEvent {

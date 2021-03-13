@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryResource} from '@nvidia/rmm';
+import {MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
 import {Column} from '../column';
 import {Series} from '../series';
-import {DataType, Int32, List} from '../types/dtypes'
+import {DataType, Int32, List} from '../types/dtypes';
 
 /**
  * A Series of lists of values.

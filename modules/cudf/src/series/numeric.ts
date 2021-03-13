@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryResource} from '@nvidia/rmm';
+import {MemoryResource} from '@rapidsai/rmm';
 
 import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
-import {Bool8, DataType, Numeric} from '../types/dtypes'
+import {Bool8, DataType, Numeric} from '../types/dtypes';
 import {CommonType, Interpolation} from '../types/mappings';
 
 import {Float64Series} from './float';

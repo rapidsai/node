@@ -24,7 +24,7 @@ export class ColumnAccessor<T extends TypeMap = any> {
     if (columns.length > 0) {
       const N = columns[0].length;
       if (!columns.every((col) => col.length == N)) {
-        throw new Error('Column lengths must all be the same')
+        throw new Error('Column lengths must all be the same');
       }
     }
     this._data = data;

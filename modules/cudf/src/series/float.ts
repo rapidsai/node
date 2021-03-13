@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {Float32Buffer, Float64Buffer} from '@nvidia/cuda';
-import {MemoryResource} from '@nvidia/rmm';
+import {MemoryResource} from '@rapidsai/rmm';
 
 import {Series} from '../series';
-import {Float32, Float64, FloatingPoint} from '../types/dtypes'
+import {Float32, Float64, FloatingPoint} from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {loadNativeModule} from '@nvidia/rapids-core';
+import {loadNativeModule} from '@rapidsai/core';
 
 export const GLFW = loadNativeModule<any>(module, 'node_glfw');
 export default GLFW;
@@ -299,7 +299,7 @@ export const GLFWStandardCursor = {
   HAND: glfw.createStandardCursor(GLFW.HAND_CURSOR),
   HRESIZE: glfw.createStandardCursor(GLFW.HRESIZE_CURSOR),
   VRESIZE: glfw.createStandardCursor(GLFW.VRESIZE_CURSOR),
-}
+};
 
 export enum GLFWClientAPI
 {

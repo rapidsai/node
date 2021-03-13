@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Float64Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {DataFrame, Float64, Int32, Series, Uint8, Utf8String} from '@nvidia/cudf';
-import {DeviceBuffer} from '@nvidia/rmm';
+import {DataFrame, Float64, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
+import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {makeCSVString, toStringAsync} from './utils';
 

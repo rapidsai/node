@@ -25,7 +25,7 @@
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@nvidia/rapids-core": "0.0.1",
+    "@rapidsai/core": "0.0.1",
     "@nvidia/webgl": "0.0.1",
     "@types/jsdom": "^12.2.4",
     "@types/react": "^16.0.0",

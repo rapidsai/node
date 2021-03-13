@@ -22,8 +22,8 @@ import {
   Table,
   Uint32,
   Uint8
-} from '@nvidia/cudf';
-import {MemoryResource} from '@nvidia/rmm';
+} from '@rapidsai/cudf';
+import {MemoryResource} from '@rapidsai/rmm';
 
 import {
   createQuadtree,

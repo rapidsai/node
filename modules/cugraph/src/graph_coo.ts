@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Column, Int32} from '@nvidia/cudf';
-import {DeviceBuffer, MemoryResource} from '@nvidia/rmm';
+import {Column, Int32} from '@rapidsai/cudf';
+import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 
 export interface GraphCOOConstructor {
   readonly prototype: GraphCOO;

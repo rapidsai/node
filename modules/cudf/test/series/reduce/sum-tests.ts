@@ -29,8 +29,8 @@ import {
   Uint32,
   Uint64,
   Uint8
-} from '@nvidia/cudf';
-import {DeviceBuffer} from '@nvidia/rmm';
+} from '@rapidsai/cudf';
+import {DeviceBuffer} from '@rapidsai/rmm';
 import {BoolVector} from 'apache-arrow';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
@@ -107,7 +107,8 @@ describe('Series.sum(skipna=true)', () => {
 });
 
 describe('Series.sum(skipna=false)', () => {
-  test('Int8', () => {testNumberSumSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans())});
+  test('Int8',
+       () => { testNumberSumSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans()); });
   test('Int16',
        () => { testNumberSumSkipNA(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });
   test('Int32',

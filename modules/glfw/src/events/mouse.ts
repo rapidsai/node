@@ -33,25 +33,25 @@ export function mouseEvents(window: GLFWDOMWindow) {
     buttonUpdates(window),
     positionUpdates(window),
     boundaryUpdates(window),
-  )
+  );
 }
 
 function buttonUpdates(window: GLFWDOMWindow) {
   return windowCallbackAsObservable(glfw.setMouseButtonCallback, window)
     .pipe(map(([, ...rest]) => GLFWMouseEvent.fromMouseButton(window, ...rest)))
-    .pipe(publish(), refCount())
+    .pipe(publish(), refCount());
 }
 
 function positionUpdates(window: GLFWDOMWindow) {
   return windowCallbackAsObservable(glfw.setCursorPosCallback, window)
     .pipe(map(([, ...rest]) => GLFWMouseEvent.fromMouseMove(window, ...rest)))
-    .pipe(publish(), refCount())
+    .pipe(publish(), refCount());
 }
 
 function boundaryUpdates(window: GLFWDOMWindow) {
   return windowCallbackAsObservable(glfw.setCursorEnterCallback, window)
     .pipe(map(([, ...rest]) => GLFWMouseEvent.fromMouseEnter(window, ...rest)))
-    .pipe(publish(), refCount())
+    .pipe(publish(), refCount());
 }
 
 export class GLFWMouseEvent extends GLFWEvent {

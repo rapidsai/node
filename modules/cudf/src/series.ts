@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {MemoryData} from '@nvidia/cuda';
-import {DeviceBuffer, MemoryResource} from '@nvidia/rmm';
+import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';
 

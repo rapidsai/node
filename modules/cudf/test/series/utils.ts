@@ -32,7 +32,7 @@ import {
   Uint32,
   Uint64,
   Uint8
-} from '@nvidia/cudf';
+} from '@rapidsai/cudf';
 import * as arrow from 'apache-arrow';
 
 export function makeTestNumbers(values: (number|null)[] = [0, 1, 2]) {

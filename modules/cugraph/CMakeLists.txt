@@ -15,7 +15,7 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
-project(node_cugraph VERSION 0.0.1 LANGUAGES C CXX CUDA)
+project(node_cugraph VERSION 0.0.1 LANGUAGES C CXX)
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
     return()
@@ -37,7 +37,7 @@ set(RAFT_BRANCH "f75d7b437bf1da3df749108161b8a0505fb6b7b3")
 # - cmake modules ---------------------------------------------------------------------------------
 
 execute_process(COMMAND node -p
-                "require('@nvidia/rapids-core').cmake_modules_path"
+                "require('@rapidsai/core').cmake_modules_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -49,13 +49,13 @@ execute_process(COMMAND node -p
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
-                "require('path').dirname(require.resolve('@nvidia/rmm'))"
+                "require('path').dirname(require.resolve('@rapidsai/rmm'))"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NODE_RAPIDS_RMM_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
-                "require('path').dirname(require.resolve('@nvidia/cudf'))"
+                "require('path').dirname(require.resolve('@rapidsai/cudf'))"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NODE_RAPIDS_CUDF_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)

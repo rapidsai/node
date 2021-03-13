@@ -12,6 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Buffer as LumaBuffer, BufferProps} from '@luma.gl/webgl';
+
+declare module '@luma.gl/webgl' {
+  // Add protected props and methods missing on the luma.gl typings
+  interface Resource {
+    _deleteHandle(handle?: any): void;
+  }
+  interface Buffer extends Resource {
+    // _handle isn't mutable in practice, even though it is in the luma.gl typings
+    _handle: any;
+    _deleteHandle(): void;
+    _setData(data: any, offset?: number, byteLength?: number): void;
+    _setByteLength(byteLength: number, usage?: number): void;
+  }
+}
+
 export const Buffer = ((Buffer) => {
   if (process.env.REACT_APP_ENVIRONMENT === 'browser') {
     return class DeckBuffer extends Buffer {
@@ -37,8 +53,11 @@ export const Buffer = ((Buffer) => {
         CUDA.gl.unmapResources(buffers.map((buffer) => buffer.handle.cudaGraphicsResource));
         buffers.forEach((buffer) => buffer.handle.cudaGraphicsResourceMapped = false);
       }
-      constructor(...args: any[]) {
-        super(...args);
+      constructor(gl: WebGLRenderingContext, props?: BufferProps);
+      constructor(gl: WebGLRenderingContext, data: ArrayBufferView|number[]);
+      constructor(gl: WebGLRenderingContext, byteLength: number);
+      constructor(gl: WebGLRenderingContext, propsDataOrByteLength?: any) {
+        super(gl, propsDataOrByteLength);
         if (this.byteLength > 0) { this._registerResource(this.handle); }
       }
       subData(props: any = {}) {
@@ -67,9 +86,9 @@ export const Buffer = ((Buffer) => {
         throw new Error(
           'OpenGL Buffer must be mapped as a CUDAGraphicsResource to create a CUDA buffer');
       }
-      _deleteHandle(handle: any = this._handle) {
-        this._unregisterResource(handle);
-        return super._deleteHandle(handle);
+      _deleteHandle() {
+        this._unregisterResource(this._handle);
+        return super._deleteHandle();
       }
       // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
       _setData(data: any, offset = 0, byteLength = data.byteLength + offset) {
@@ -118,4 +137,4 @@ export const Buffer = ((Buffer) => {
       }
     };
   }
-})(require('@luma.gl/webgl').Buffer);
+})(LumaBuffer);

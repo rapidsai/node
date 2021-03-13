@@ -18,9 +18,9 @@
         "downlevelIteration": false,
         "baseUrl": "../",
         "paths": {
-            "@nvidia/cuspatial": ["src/index"],
-            "@nvidia/cuspatial/*": ["src/*"],
-            "@nvidia/cudf/test/*": ["../../cudf/test/*"]
+            "@rapidsai/cuspatial": ["src/index"],
+            "@rapidsai/cuspatial/*": ["src/*"],
+            "@rapidsai/cudf/test/*": ["../../cudf/test/*"]
         }
     }
 }

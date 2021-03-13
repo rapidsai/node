@@ -19,7 +19,7 @@ function(find_and_configure_cuspatial VERSION)
     include(get_cpm)
 
     execute_process(COMMAND node -p
-                    "require('@nvidia/rapids-core').cpm_source_cache_path"
+                    "require('@rapidsai/core').cpm_source_cache_path"
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                     OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
                     OUTPUT_STRIP_TRAILING_WHITESPACE)

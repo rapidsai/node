@@ -4,8 +4,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@nvidia/rapids-core": ["src/index"],
-            "@nvidia/rapids-core/*": ["src/*"]
+            "@rapidsai/core": ["src/index"],
+            "@rapidsai/core/*": ["src/*"]
         },
         "target": "ESNEXT",
         "module": "commonjs",

@@ -22,7 +22,7 @@ import {
   Uint64Buffer,
   Uint8Buffer,
 } from '@nvidia/cuda';
-import {MemoryResource} from '@nvidia/rmm';
+import {MemoryResource} from '@rapidsai/rmm';
 
 import {Column} from '../column';
 import {Scalar} from '../scalar';
@@ -37,7 +37,7 @@ import {
   Uint32,
   Uint64,
   Uint8,
-} from '../types/dtypes'
+} from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
 

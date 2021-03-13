@@ -21,6 +21,7 @@ module.exports = {
     "rules": {
         // "prefer-const": "off",
         // "prefer-rest-params": "off",
+        "semi": ["error", "always"],
         "@typescript-eslint/ban-ts-comment": "off",
         "@typescript-eslint/no-unsafe-call": "off",
         "@typescript-eslint/no-var-requires": "off",

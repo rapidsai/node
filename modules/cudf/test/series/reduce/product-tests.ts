@@ -29,8 +29,8 @@ import {
   Uint32,
   Uint64,
   Uint8
-} from '@nvidia/cudf';
-import {DeviceBuffer} from '@nvidia/rmm';
+} from '@rapidsai/cudf';
+import {DeviceBuffer} from '@rapidsai/rmm';
 import {BoolVector} from 'apache-arrow';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
@@ -108,7 +108,7 @@ describe('Series.product(skipna=true)', () => {
 
 describe('Series.product(skipna=false)', () => {
   test('Int8',
-       () => {testNumberProductSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans())});
+       () => { testNumberProductSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans()); });
   test(
     'Int16',
     () => { testNumberProductSkipNA(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });

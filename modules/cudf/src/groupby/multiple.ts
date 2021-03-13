@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Series} from '../series';
-import {MemoryResource} from '@nvidia/rmm';
+import {MemoryResource} from '@rapidsai/rmm';
 import {Field} from 'apache-arrow';
 
 import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
+import {Series} from '../series';
 import {Table} from '../table';
 import {DataType, Struct} from '../types/dtypes';
 import {Interpolation, TypeMap} from '../types/mappings';
@@ -60,7 +60,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
     const fields   = [];
     const children = [];
     for (const [index, name] of this._by.entries()) {
-      const child = keys.getColumnByIndex(index)
+      const child = keys.getColumnByIndex(index);
       fields.push(Field.new({name: name as string, type: child.type}));
       const series = Series.new(child);
       children.push(series);

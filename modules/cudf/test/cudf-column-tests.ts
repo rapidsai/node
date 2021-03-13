@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Bool8, Column, Float32, Int32, Series, Uint8, Utf8String} from '@nvidia/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
+import {Bool8, Column, Float32, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
+import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import {BoolVector} from 'apache-arrow';
 
 const mr = new CudaMemoryResource();
@@ -80,7 +80,7 @@ test('Column.gather (bad argument)', () => {
   const selection = [2, 4, 5];
 
   expect(() => col.gather(<any>selection)).toThrow();
-})
+});
 
 test('Column null_mask, null_count', () => {
   const length = 32;

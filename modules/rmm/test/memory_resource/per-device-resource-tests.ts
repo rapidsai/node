@@ -14,7 +14,7 @@
 
 import {expect} from '@jest/globals';
 import {Uint8Buffer} from '@nvidia/cuda';
-import {DeviceBuffer, getPerDeviceResource, setPerDeviceResource} from '@nvidia/rmm';
+import {DeviceBuffer, getPerDeviceResource, setPerDeviceResource} from '@rapidsai/rmm';
 
 import {sizes, testForEachDevice} from '../utils';
 

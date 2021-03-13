@@ -1,5 +1,5 @@
 {
-  "name": "@nvidia/rapids-core",
+  "name": "@rapidsai/core",
   "version": "0.0.1",
   "description": "Shared CMake modules, TypeScript configurations, and C++ headers for RAPIDS node native modules",
   "main": "index.js",

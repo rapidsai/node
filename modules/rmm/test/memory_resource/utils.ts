@@ -21,7 +21,7 @@ import {
   ManagedMemoryResource,
   MemoryResource,
   PoolMemoryResource,
-} from '@nvidia/rmm';
+} from '@rapidsai/rmm';
 import {mkdtempSync} from 'fs';
 import * as Path from 'path';
 

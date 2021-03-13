@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Column, DataFrame, FloatingPoint, Int32, List, Series, Struct} from '@nvidia/cudf';
-import {MemoryResource} from '@nvidia/rmm';
+import {Column, DataFrame, FloatingPoint, Int32, List, Series, Struct} from '@rapidsai/cudf';
+import {MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
 import {computePolygonBoundingBoxes, computePolylineBoundingBoxes} from './addon';

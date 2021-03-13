@@ -14,8 +14,8 @@
 
 import * as Arrow from 'apache-arrow';
 import {clampSliceArgs as clamp} from '@nvidia/cuda';
-import {DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String} from '@nvidia/cudf';
-import {GraphCOO} from '@nvidia/cugraph';
+import {DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
+import {GraphCOO} from '@rapidsai/cugraph';
 
 export default async function* loadGraphData(props = {}) {
 

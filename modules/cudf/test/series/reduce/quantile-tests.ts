@@ -30,8 +30,8 @@ import {
   Uint32,
   Uint64,
   Uint8
-} from '@nvidia/cudf';
-import {DeviceBuffer} from '@nvidia/rmm';
+} from '@rapidsai/cudf';
+import {DeviceBuffer} from '@rapidsai/rmm';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 

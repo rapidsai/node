@@ -1,5 +1,5 @@
 {
-  "name": "@nvidia/deck.gl",
+  "name": "@rapidsai/deck.gl",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
@@ -22,7 +22,7 @@
     "@luma.gl/engine": "8.4.4",
     "@luma.gl/webgl": "8.4.4",
     "@nvidia/cuda": "0.0.1",
-    "@nvidia/rapids-core": "0.0.1"
+    "@rapidsai/core": "0.0.1"
   },
   "files": [
     "build",

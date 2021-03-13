@@ -4,8 +4,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@nvidia/cugraph": ["src/index"],
-            "@nvidia/cugraph/*": ["src/*"]
+            "@rapidsai/cugraph": ["src/index"],
+            "@rapidsai/cugraph/*": ["src/*"]
         },
         "target": "ESNEXT",
         "module": "commonjs",
