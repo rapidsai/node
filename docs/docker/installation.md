@@ -42,21 +42,21 @@ sudo systemctl restart docker
 
 ## Installing docker-compose
 
-Follow the [official docker-compose installation instructions](https://docs.docker.com/compose/install/) to install docker-compose for your OS.
+Follow the [official docker-compose installation instructions](https://docs.docker.com/compose/install/) to install docker-compose v1.28.5+ for your OS.
 <details>
 <summary>Click here to see Ubuntu 16.04+ docker-compose installation commands:</summary>
 <pre>
-# Install docker-compose v1.26.2, or select any release in https://github.com/docker/compose/releases
-DOCKER_COMPOSE_VERSION=1.26.2<br/>
+# Install docker-compose v1.28.5, or select any newer release in https://github.com/docker/compose/releases
+DOCKER_COMPOSE_VERSION=1.28.5<br/>
 sudo curl \
     -L https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m` \
     -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
 </pre>
 </details>
 
-## Using the nvidia-container-runtime with docker-compose
+## Using the nvidia-container-runtime with docker-compose before v1.28.5
 
-At the time of writing, using the nvidia-container-runtime with docker-compose [requires](https://github.com/docker/compose/issues/6691) `nvidia-container-runtime` is set as the default docker runtime. To do this, you will need to create or edit the `/etc/docker/daemon.json` file and update the "default-runtime" and "runtimes" settings.
+Prior to docker-compose v1.28.5, using the nvidia-container-runtime with docker-compose [requires](https://github.com/docker/compose/issues/6691) `nvidia-container-runtime` is set as the default docker runtime. To do this, you will need to create or edit the `/etc/docker/daemon.json` file and update the "default-runtime" and "runtimes" settings.
 <details>
 <summary>Click here to see an example daemon.json:</summary>
 <pre>

@@ -46,7 +46,7 @@ if [[ "$DEMO" == "" ]]; then
         fi
     done;
     echo "Run this demo directly via:"
-    echo "\`npm run demo $DEMO${@:+ ${@:-}}\`"
+    echo "\`yarn demo $DEMO${@:+ ${@:-}}\`"
 fi
 
 ARGS="${@:-}";

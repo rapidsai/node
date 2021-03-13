@@ -26,10 +26,10 @@ To build and run the development container, issue the following commands:
 
 ```bash
 # Build the development container
-docker-compose build devel
+yarn docker:build:devel
 
 # Start the development container
-docker-compose run --rm devel
+yarn docker:run:devel
 ```
 
 Now execute the following commands inside this running container:
@@ -44,7 +44,7 @@ You can also build and run on a properly configured Linux installation without d
 
 ### Dependencies
 
-We assume you have [node, npm](https://github.com/nvm-sh/nvm#installing-and-updating), [yarn](https://yarnpkg.com/getting-started/install), and [CMake](https://cmake.org/) installed.
+We assume you have [node, npm](https://github.com/nvm-sh/nvm#installing-and-updating), [yarn](https://yarnpkg.com/getting-started/install), [CMake v3.18.5+](https://cmake.org/), and [CUDA Toolkit 11.0+](https://developer.nvidia.com/cuda-downloads) installed.
 
 <details>
 <summary>Click here to see Ubuntu 16.04+ CMake installation commands:</summary>
@@ -65,7 +65,7 @@ To install the rest of the dependencies necessary for building the native C++ an
 # Installs VSCode, C++ intellisense plugins, and system libraries.
 # Checks whether individual components are already installed,
 # and asks permission before installing new components.
-npm run dev:install-cpp-dependencies
+yarn dev:install-cpp-dependencies
 ```
 
 ## Setup yarn workspaces
@@ -83,11 +83,11 @@ To build the C++ and Typescript, issue any of the following commands:
 
 ```bash
 # Run CMake configure, find native dependencies, and compile C++/TypeScript
-npm run build
+yarn build
 # Perform a fast recompile (without the CMake configure step):
-npm run compile
+yarn compile
 # Perform a clean reconfigure/rebuild:
-npm run rebuild
+yarn rebuild
 ```
 
 ### C++-only builds
@@ -95,9 +95,9 @@ npm run rebuild
 Issue the above commands with the `cpp:` prefix to only build the C++ modules. The `:debug` suffix will run each command with `CMAKE_BUILD_TYPE=Debug`.
 
 ```bash
-npm run cpp:build # or cpp:build:debug
-npm run cpp:compile # or cpp:compile:debug
-npm run cpp:rebuild # or cpp:rebuild:debug
+yarn cpp:build # or cpp:build:debug
+yarn cpp:compile # or cpp:compile:debug
+yarn cpp:rebuild # or cpp:rebuild:debug
 ```
 
 These npm scripts are also available in each module. Running them from each module's directory will output GCC colors.
@@ -107,7 +107,7 @@ These npm scripts are also available in each module. Running them from each modu
 You can run a demo to test the build by issuing the command:
 
 ```bash
-npm run demo modules/demo/luma 01
+yarn demo modules/demo/luma 01
 ```
 
 ## Troubleshooting
@@ -132,7 +132,7 @@ Some rememedies for potential error messages you may encounter.
   
   source ~/.bashrc
   ```
-  
- * > ninja: error: loading 'build.ninja': No such file or directory
 
-   Need to execure `npm run build -- --clean` from the top, or `npm run rebuild` from inside the module 
+* > ninja: error: loading 'build.ninja': No such file or directory
+
+  Need to execure `yarn rebuild` from the top from inside the module
