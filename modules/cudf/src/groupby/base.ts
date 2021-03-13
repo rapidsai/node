@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Series} from '../series';
-import {MemoryResource} from '@nvidia/rmm';
+import {MemoryResource} from '@rapidsai/rmm';
 
 import CUDF from '../addon';
 import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
+import {Series} from '../series';
 import {Table} from '../table';
 import {NullOrder} from '../types/enums'
 import {TypeMap} from '../types/mappings'

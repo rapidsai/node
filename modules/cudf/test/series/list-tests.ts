@@ -17,8 +17,8 @@
 import '../jest-extensions';
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {Int32, List, Series} from '@nvidia/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
+import {Int32, List, Series} from '@rapidsai/cudf';
+import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';
 

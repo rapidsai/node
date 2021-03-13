@@ -19,8 +19,8 @@ import {
   Float32,
   Int32,
   Table,
-} from '@nvidia/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
+} from '@rapidsai/cudf';
+import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
 const mr = new CudaMemoryResource();

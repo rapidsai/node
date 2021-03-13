@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Series} from '../series';
-import {MemoryResource} from '@nvidia/rmm';
+import {MemoryResource} from '@rapidsai/rmm';
 import {Field} from 'apache-arrow';
 
 import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
+import {Series} from '../series';
 import {Table} from '../table';
 import {DataType, Struct} from '../types/dtypes';
 import {Interpolation, TypeMap} from '../types/mappings';

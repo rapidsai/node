@@ -25,8 +25,8 @@ import {
   Int32,
   Series,
   // StructSeries
-} from '@nvidia/cudf';
-import {CudaMemoryResource, DeviceBuffer} from '@nvidia/rmm';
+} from '@rapidsai/cudf';
+import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 
 const mr = new CudaMemoryResource();
 

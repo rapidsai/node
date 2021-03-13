@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {DataFrame} from '@nvidia/cudf';
-import {DeviceBuffer} from '@nvidia/rmm';
+import {DataFrame} from '@rapidsai/cudf';
+import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {mkdtempSync, promises} from 'fs';
 import * as Path from 'path';

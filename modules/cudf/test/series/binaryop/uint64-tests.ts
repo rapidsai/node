@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {DeviceBuffer} from '@nvidia/rmm';
+import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
 import {makeTestBigInts, makeTestSeries} from '../utils';

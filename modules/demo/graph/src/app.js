@@ -17,7 +17,7 @@ import DeckGL from '@deck.gl/react';
 import { TextLayer } from '@deck.gl/layers';
 import { GraphLayer } from './layers/graph';
 import { OrthographicView, log } from '@deck.gl/core';
-import { createDeckGLReactRef } from '@nvidia/deck.gl';
+import { createDeckGLReactRef } from '@rapidsai/deck.gl';
 
 import { as as asAsyncIterable } from 'ix/asynciterable/as';
 import { takeWhile } from 'ix/asynciterable/operators/takewhile';

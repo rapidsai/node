@@ -6,17 +6,17 @@ For detailed node-cuSpatial API, follow our [API Documentation](https://rapidsai
 
 ### Installation
 
-`npm install @nvidia/cuspatial`
+`npm install @rapidsai/cuspatial`
 
 Run this command to build the module from the mono-repo root
 
 ```bash
 # To build
-npx lerna run build --scope="@nvidia/cuspatial" --stream
+npx lerna run build --scope="@rapidsai/cuspatial" --stream
 
 # To rebuild
-npx lerna run rebuild --scope="@nvidia/cuspatial" --stream
+npx lerna run rebuild --scope="@rapidsai/cuspatial" --stream
 
 # To run unit tests
-npx lerna run test --scope="@nvidia/cuspatial"
+npx lerna run test --scope="@rapidsai/cuspatial"
 ```

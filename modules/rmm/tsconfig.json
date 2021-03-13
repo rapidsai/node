@@ -4,8 +4,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@nvidia/rmm": ["src/index"],
-            "@nvidia/rmm/*": ["src/*"]
+            "@rapidsai/rmm": ["src/index"],
+            "@rapidsai/rmm/*": ["src/*"]
         },
         "target": "ESNEXT",
         "module": "commonjs",

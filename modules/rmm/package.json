@@ -1,5 +1,5 @@
 {
-  "name": "@nvidia/rmm",
+  "name": "@rapidsai/rmm",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",

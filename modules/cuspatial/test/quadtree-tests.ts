@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '@nvidia/cudf/test/jest-extensions';
+import '@rapidsai/cudf/test/jest-extensions';
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {Float32, Float64, FloatingPoint} from '@nvidia/cudf';
-import {Quadtree} from '@nvidia/cuspatial';
-import {DeviceBuffer} from '@nvidia/rmm';
+import {Float32, Float64, FloatingPoint} from '@rapidsai/cudf';
+import {Quadtree} from '@rapidsai/cuspatial';
+import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {testPoints, testPolygons, testPolylines} from './utils';
 

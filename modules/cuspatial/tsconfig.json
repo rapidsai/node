@@ -4,8 +4,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@nvidia/cuspatial": ["src/index"],
-            "@nvidia/cuspatial/*": ["src/*"]
+            "@rapidsai/cuspatial": ["src/index"],
+            "@rapidsai/cuspatial/*": ["src/*"]
         },
         "target": "ESNEXT",
         "module": "commonjs",

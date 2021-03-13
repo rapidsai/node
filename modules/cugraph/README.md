@@ -6,17 +6,17 @@ For detailed node-cuGraph API, follow our [API Documentation](https://rapidsai.g
 
 ### Installation
 
-`npm install @nvidia/cugraph`
+`npm install @rapidsai/cugraph`
 
 Run this command to build the module from the mono-repo root
 
 ```bash
 # To build
-npx lerna run build --scope="@nvidia/cugraph" --stream
+npx lerna run build --scope="@rapidsai/cugraph" --stream
 
 # To rebuild
-npx lerna run rebuild --scope="@nvidia/cugraph" --stream
+npx lerna run rebuild --scope="@rapidsai/cugraph" --stream
 
 # To run unit tests
-npx lerna run test --scope="@nvidia/cugraph"
+npx lerna run test --scope="@rapidsai/cugraph"
 ```

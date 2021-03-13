@@ -1,5 +1,5 @@
 {
-  "name": "@nvidia/cugraph",
+  "name": "@rapidsai/cugraph",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
@@ -25,7 +25,7 @@
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@nvidia/cudf": "0.0.1"
+    "@rapidsai/cudf": "0.0.1"
   },
   "files": [
     "src",

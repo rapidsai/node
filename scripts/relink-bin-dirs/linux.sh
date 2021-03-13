@@ -4,8 +4,8 @@ set -Eeo pipefail
 
 DIR="$(pwd)"
 BIN="$(realpath node_modules/.bin)"
-DIRS=$(lerna exec --scope "@nvidia/*" "echo \$PWD")
-RAPIDS_CORE_PATH=$(lerna exec --scope "@nvidia/rapids-core" "echo \$PWD" | head -n1)
+DIRS=$(lerna exec --scope "@nvidia/*" --scope "@rapidsai/*" "echo \$PWD")
+RAPIDS_CORE_PATH=$(lerna exec --scope "@rapidsai/core" "echo \$PWD" | head -n1)
 RAPIDS_MODULES_PATH=$(realpath "$RAPIDS_CORE_PATH/../")
 
 # ensure the rapids-core cache dirs exist (clangd index, etc.)

@@ -18,8 +18,8 @@
         "downlevelIteration": false,
         "baseUrl": "../",
         "paths": {
-            "@nvidia/deck.gl": ["src/index"],
-            "@nvidia/deck.gl/*": ["src/*"]
+            "@rapidsai/deck.gl": ["src/index"],
+            "@rapidsai/deck.gl/*": ["src/*"]
         }
     }
 }

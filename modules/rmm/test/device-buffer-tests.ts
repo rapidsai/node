@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DeviceBuffer} from '@nvidia/rmm';
+import {DeviceBuffer} from '@rapidsai/rmm';
 
 test(`DeviceBuffer empty initialization`, () => {
   const db = new DeviceBuffer(0);

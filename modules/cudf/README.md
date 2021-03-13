@@ -5,7 +5,7 @@ The js bindings for [cuDF](https://github.com/rapidsai/cudf) provides an API tha
 For example, the following snippet creates a series, then uses the GPU to run some calculations:
 
 ```javascript
-var { Series, Int32 } = require("@nvidia/cudf");
+var { Series, Int32 } = require("@rapidsai/cudf");
 
 var series1 = Series.new({ type: new Int32(), data: [1, 2, 3] });
 console.log(series1.mean()); // 2
@@ -22,7 +22,7 @@ var {
   GroupBy,
   Int32,
   Series,
-} = require("@nvidia/cudf");
+} = require("@rapidsai/cudf");
 
 var a = Series.new({ type: new Int32(), data: [5, 4, 3, 2, 1, 0] });
 var b = Series.new({ type: new Int32(), data: [0, 0, 1, 1, 2, 2] });
@@ -40,17 +40,17 @@ For detailed node-cuDF API, follow our [API Documentation](https://rapidsai.gith
 
 ### Installation
 
-`npm install @nvidia/cudf`
+`npm install @rapidsai/cudf`
 
 Run this command to build the module from the mono-repo root
 
 ```bash
 # To build
-npx lerna run build --scope="@nvidia/cudf" --stream
+npx lerna run build --scope="@rapidsai/cudf" --stream
 
 # To rebuild
-npx lerna run rebuild --scope="@nvidia/cudf" --stream
+npx lerna run rebuild --scope="@rapidsai/cudf" --stream
 
 # To run unit tests
-npx lerna run test --scope="@nvidia/cudf"
+npx lerna run test --scope="@rapidsai/cudf"
 ```

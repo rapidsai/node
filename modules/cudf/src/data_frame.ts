@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryResource} from '@nvidia/rmm';
+import {MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {Readable} from 'stream';
 
@@ -353,7 +353,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int32, Float32}  from '@nvidia/cudf';
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
    * const df = new DataFrame({
    *  "ser_0": Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4], nullMask: [true,
    * false, true, true, true, true]}), "ser_1": Series.new({type: new Float32, data: [0,
@@ -405,7 +405,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int32, Float32}  from '@nvidia/cudf';
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
    * const df = new DataFrame({
    *  "ser_0": Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]}),
    *  "ser_1": Series.new({type: new Float32, data: [0, NaN, 2, 3, 4, 4]})
@@ -443,7 +443,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int32, Float32}  from '@nvidia/cudf';
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
    * const df = new DataFrame({
    *  "ser_0": Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]}),
    *  "ser_1": Series.new({type: new Float32, data: [0, NaN, 2, 3, 4, 4]})

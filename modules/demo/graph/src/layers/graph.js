@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Buffer } from '@nvidia/deck.gl';
+import { Buffer } from '@rapidsai/deck.gl';
 import { TextLayer } from '@deck.gl/layers';
 import { CompositeLayer } from '@deck.gl/core';
 

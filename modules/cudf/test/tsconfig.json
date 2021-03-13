@@ -18,8 +18,8 @@
         "downlevelIteration": false,
         "baseUrl": "../",
         "paths": {
-            "@nvidia/cudf": ["src/index"],
-            "@nvidia/cudf/*": ["src/*"]
+            "@rapidsai/cudf": ["src/index"],
+            "@rapidsai/cudf/*": ["src/*"]
         }
     }
 }

@@ -26,7 +26,7 @@ option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" O
 # - cmake modules ---------------------------------------------------------------------------------
 
 execute_process(COMMAND node -p
-                "require('@nvidia/rapids-core').cmake_modules_path"
+                "require('@rapidsai/core').cmake_modules_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)

@@ -130,7 +130,7 @@
     "clangd.path": "/usr/bin/clangd",
     "clangd.semanticHighlighting": false,
     "clangd.arguments": [
-      "-j=8",
+      "-j=4",
       "--log=info",
       "--pch-storage=disk",
       "--cross-file-rename",

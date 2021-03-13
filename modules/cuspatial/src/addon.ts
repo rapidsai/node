@@ -13,11 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '@nvidia/rmm';
+import '@rapidsai/rmm';
 
-import {Column, FloatingPoint, Int32, Table, Uint32} from '@nvidia/cudf';
-import {loadNativeModule} from '@nvidia/rapids-core';
-import {MemoryResource} from '@nvidia/rmm';
+import {loadNativeModule} from '@rapidsai/core';
+import {Column, FloatingPoint, Int32, Table, Uint32} from '@rapidsai/cudf';
+import {MemoryResource} from '@rapidsai/rmm';
 
 export const {
   createQuadtree,
