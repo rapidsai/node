@@ -174,14 +174,14 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
-   * Generate a new Series that is sorted in a specified way.
+   * Generate a new DataFrame sorted in the specified way.
    *
    * @param ascending whether to sort ascending (true) or descending (false)
    *   Default: true
    * @param null_order whether nulls should sort before or after other values
-   *   Default: BEFORE
+   *   Default: AFTER
    *
-   * @returns Sorted values
+   * @returns A new DataFrame of sorted values
    */
   sortValues<R extends keyof T>(options: {[P in R]: OrderSpec}) {
     return this.gather(this.orderBy(options));
