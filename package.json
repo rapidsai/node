@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "clean": "scripts/exec.js clean",
-    "doc": "rimraf doc && typedoc --options typedoc.js && npm run doc:packages",
+    "doc": "rimraf doc && typedoc --options typedoc.js && yarn doc:packages",
     "doc:packages": "scripts/exec.js run doc",
     "demo": "scripts/exec.js demo",
     "test": "scripts/exec.js test",
@@ -23,12 +23,17 @@
     "cpp:build:debug": "scripts/exec.js run cpp:build:debug",
     "cpp:compile:debug": "scripts/exec.js run cpp:compile:debug",
     "cpp:rebuild:debug": "scripts/exec.js run cpp:rebuild:debug",
+    "docker:build:devel": "touch .env && docker-compose build devel",
+    "docker:build:runtime": "touch .env && docker-compose build runtime",
+    "docker:build:nteract": "touch .env && docker-compose build nteract",
+    "docker:run:devel": "touch .env && docker-compose run --rm devel",
+    "docker:run:runtime": "touch .env && docker-compose run --rm runtime",
+    "docker:run:nteract": "touch .env && docker-compose run --rm nteract",
     "tsc:build": "scripts/exec.js run tsc:build",
     "tsc:watch": "scripts/exec.js run tsc:watch --parallel",
     "dev:relink-bin-dirs": "scripts/exec.js relink-bin-dirs",
     "dev:install-cpp-dependencies": "modules/core/bin/exec_install_deps.js",
     "nuke:from:orbit": "yarn cache clean && yarn clean && yarn --silent && yarn rebuild",
-    "preinstall": "touch .env",
     "postinstall": "yarn dev:relink-bin-dirs"
   },
   "workspaces": [
