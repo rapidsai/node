@@ -32,22 +32,25 @@ const mr = new CudaMemoryResource();
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
 
-function makeBasicData(values: number[]): DataFrame {
+function makeBasicData(values: number[]) {
   const a = Series.new({type: new Int32, data: [1, 2, 3, 1, 2, 2, 1, 3, 3, 2]});
   const b = Series.new({type: new Float64, data: values});
-  return new DataFrame({'a': a, 'b': b});
+  const c = Series.new({type: new Float64, data: values});
+  return new DataFrame({a, b, 'c': c});
 }
 
-function basicAggCompare<T extends {a: DataType, b: DataType}>(result: DataFrame<T>,
-                                                               expected: number[]): void {
+function basicAggCompare<T extends {a: DataType, b: DataType, c: DataType}>(
+  result: DataFrame<T>, expected: number[]): void {
   const ra = result.get('a');
   const rb = result.get('b');
+  const rc = result.get('c');
 
   const a_expected = Series.new({type: new Int32, data: [1, 2, 3]});
   expect([...ra.toArrow()]).toEqual([...a_expected.toArrow()]);
 
   const b_expected = Series.new({type: rb.type, data: expected});
   expect(rb.toArrow().toArray()).toEqualTypedArray(b_expected.toArrow().toArray() as any);
+  expect(rc.toArrow().toArray()).toEqualTypedArray(b_expected.toArrow().toArray() as any);
 }
 
 test('getGroups basic', () => {
@@ -105,7 +108,8 @@ test('getGroups empty', () => {
 test('getGroups basic with values', () => {
   const a  = Series.new({type: new Int32, data: [5, 4, 3, 2, 1, 0]});
   const b  = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
-  const df = new DataFrame({'a': a, 'b': b});
+  const c  = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
+  const df = new DataFrame({a, b, c});
 
   const grp = new GroupBySingle(df, {by: 'a'});
 
@@ -115,9 +119,14 @@ test('getGroups basic with values', () => {
   expect([...keys_result.toArrow()]).toEqual([0, 1, 2, 3, 4, 5]);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  const values_result = groups.values?.get('b')!;
-  expect(values_result).toBeDefined();
-  expect([...values_result.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
+  const values_result_b = groups.values?.get('b')!;
+  expect(values_result_b).toBeDefined();
+  expect([...values_result_b.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+  const values_result_c = groups.values?.get('c')!;
+  expect(values_result_c).toBeDefined();
+  expect([...values_result_c.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
 
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3, 4, 5, 6]);
 });
@@ -126,7 +135,8 @@ test('getGroups basic two columns with values', () => {
   const a  = Series.new({type: new Int32, data: [5, 4, 3, 2, 1, 0]});
   const aa = Series.new({type: new Int32, data: [4, 5, 4, 4, 4, 3]});
   const b  = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
-  const df = new DataFrame({'a': a, 'aa': aa, 'b': b});
+  const c  = Series.new({type: new Int32, data: [0, 0, 1, 1, 2, 2]});
+  const df = new DataFrame({a, aa, b, c});
 
   const grp = new GroupByMultiple(df, {by: ['a', 'aa'], index_key: 'out'});
 
@@ -139,9 +149,14 @@ test('getGroups basic two columns with values', () => {
   expect([...keys_result_aa.toArrow()]).toEqual([3, 4, 4, 4, 5, 4]);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  const values_result = groups.values?.get('b')!;
-  expect(values_result).toBeDefined();
-  expect([...values_result.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
+  const values_result_b = groups.values?.get('b')!;
+  expect(values_result_b).toBeDefined();
+  expect([...values_result_b.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+  const values_result_c = groups.values?.get('c')!;
+  expect(values_result_c).toBeDefined();
+  expect([...values_result_c.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
 
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3, 4, 5, 6]);
 });
@@ -173,7 +188,8 @@ test('getGroups some nulls', () => {
     nullMask: [true, false, true, false, false, true],
   });
   const b  = Series.new({type: new Int32, data: [1, 2, 3, 4, 5, 6]});
-  const df = new DataFrame({'a': a, 'b': b});
+  const c  = Series.new({type: new Int32, data: [1, 2, 3, 4, 5, 6]});
+  const df = new DataFrame({a, b, c});
 
   const grp = new GroupBySingle(df, {by: 'a'});
 
@@ -184,9 +200,14 @@ test('getGroups some nulls', () => {
   expect(keys_result.nullCount).toBe(0);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  const values_result = groups.values?.get('b')!;
-  expect(values_result).toBeDefined();
-  expect([...values_result.toArrow()]).toEqual([1, 6, 3]);
+  const values_result_b = groups.values?.get('b')!;
+  expect(values_result_b).toBeDefined();
+  expect([...values_result_b.toArrow()]).toEqual([1, 6, 3]);
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+  const values_result_c = groups.values?.get('c')!;
+  expect(values_result_c).toBeDefined();
+  expect([...values_result_c.toArrow()]).toEqual([1, 6, 3]);
 
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3]);
 });
@@ -278,7 +299,8 @@ test('Groupby min basic', () => {
 test('Groupby nth basic', () => {
   const a   = Series.new({type: new Int32, data: [1, 1, 1, 2, 2, 2, 3, 3, 3]});
   const b   = Series.new({type: new Float64, data: [1, 2, 3, 10, 20, 30, 100, 200, 300]});
-  const df  = new DataFrame({'a': a, 'b': b});
+  const c   = Series.new({type: new Float64, data: [1, 2, 3, 10, 20, 30, 100, 200, 300]});
+  const df  = new DataFrame({a, b, c});
   const grp = new GroupBySingle(df, {by: 'a'});
   basicAggCompare(grp.nth(0), [1, 10, 100]);
   basicAggCompare(grp.nth(1), [2, 20, 200]);
@@ -288,7 +310,8 @@ test('Groupby nth basic', () => {
 test('Groupby nth uneven', () => {
   const a      = Series.new({type: new Int32, data: [1, 1, 1, 2, 2, 2, 3, 3]});
   const b      = Series.new({type: new Float64, data: [1, 2, 3, 10, 20, 30, 100, 200]});
-  const df     = new DataFrame({'a': a, 'b': b});
+  const c      = Series.new({type: new Float64, data: [1, 2, 3, 10, 20, 30, 100, 200]});
+  const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.nth(2);
   basicAggCompare(result, [3, 30, 0]);
@@ -304,7 +327,8 @@ test('Groupby nunique basic', () => {
 test('Groupby quantile uneven', () => {
   const a      = Series.new({type: new Int32, data: [1, 2, 3, 1, 2, 2, 1, 3, 3, 2]});
   const b      = Series.new({type: new Float64, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
-  const df     = new DataFrame({'a': a, 'b': b});
+  const c      = Series.new({type: new Float64, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.quantile(0.5);
   basicAggCompare(result, [3., 4.5, 7.]);
@@ -339,80 +363,96 @@ for (const agg of BASIC_AGGS) {
   test(`Groupby ${agg} empty`, () => {
     const a      = Series.new({type: new Int32, data: []});
     const b      = Series.new({type: new Float64, data: []});
-    const df     = new DataFrame({'a': a, 'b': b});
+    const c      = Series.new({type: new Float64, data: []});
+    const df     = new DataFrame({a, b, c});
     const grp    = new GroupBySingle(df, {by: 'a'});
     const result = grp[agg]();
     expect(result.get('a').length).toBe(0);
     expect(result.get('b').length).toBe(0);
+    expect(result.get('c').length).toBe(0);
   });
 }
 
 test(`Groupby nth empty`, () => {
   const a      = Series.new({type: new Int32, data: []});
   const b      = Series.new({type: new Float64, data: []});
-  const df     = new DataFrame({'a': a, 'b': b});
+  const c      = Series.new({type: new Float64, data: []});
+  const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.nth(0);
   expect(result.get('a').length).toBe(0);
   expect(result.get('b').length).toBe(0);
+  expect(result.get('c').length).toBe(0);
 });
 
 test(`Groupby quantile empty`, () => {
   const a      = Series.new({type: new Int32, data: []});
   const b      = Series.new({type: new Float64, data: []});
-  const df     = new DataFrame({'a': a, 'b': b});
+  const c      = Series.new({type: new Float64, data: []});
+  const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.quantile(0.5);
   expect(result.get('a').length).toBe(0);
   expect(result.get('b').length).toBe(0);
+  expect(result.get('c').length).toBe(0);
 });
 
 for (const agg of BASIC_AGGS) {
   test(`Groupby ${agg} null keys`, () => {
     const a      = Series.new({type: new Int32, data: [1, 2, 3], nullMask: [false, false, false]});
     const b      = Series.new({type: new Float64, data: [3, 4, 5]});
-    const df     = new DataFrame({'a': a, 'b': b});
+    const c      = Series.new({type: new Float64, data: [3, 4, 5]});
+    const df     = new DataFrame({a, b, c});
     const grp    = new GroupBySingle(df, {by: 'a'});
     const result = grp[agg]();
     expect(result.get('a').length).toBe(0);
     expect(result.get('b').length).toBe(0);
+    expect(result.get('c').length).toBe(0);
   });
 }
 
 test(`Groupby nth null keys`, () => {
   const a      = Series.new({type: new Int32, data: [1, 2, 3], nullMask: [false, false, false]});
   const b      = Series.new({type: new Float64, data: [3, 4, 5]});
-  const df     = new DataFrame({'a': a, 'b': b});
+  const c      = Series.new({type: new Float64, data: [3, 4, 5]});
+  const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.nth(0);
   expect(result.get('a').length).toBe(0);
   expect(result.get('b').length).toBe(0);
+  expect(result.get('c').length).toBe(0);
 });
 
 test(`Groupby quantile null keys`, () => {
   const a      = Series.new({type: new Int32, data: [1, 2, 3], nullMask: [false, false, false]});
   const b      = Series.new({type: new Float64, data: [3, 4, 5]});
-  const df     = new DataFrame({'a': a, 'b': b});
+  const c      = Series.new({type: new Float64, data: [3, 4, 5]});
+  const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.quantile(0.5);
   expect(result.get('a').length).toBe(0);
   expect(result.get('b').length).toBe(0);
+  expect(result.get('c').length).toBe(0);
 });
 
 for (const agg of BASIC_AGGS) {
   test(`Groupby ${agg} null values`, () => {
     const a   = Series.new({type: new Int32, data: [1, 1, 1]});
     const b   = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
-    const df  = new DataFrame({'a': a, 'b': b});
+    const c   = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
+    const df  = new DataFrame({a, b, c});
     const grp = new GroupBySingle(df, {by: 'a'});
     const result = grp[agg]();
     expect([...result.get('a').toArrow()]).toEqual([1]);
     expect(result.get('a').nullCount).toBe(0);
     expect(result.get('b').length).toBe(1);
+    expect(result.get('c').length).toBe(1);
     if (agg == 'count' || agg == 'nunique') {
       expect(result.get('b').nullCount).toBe(0);
+      expect(result.get('c').nullCount).toBe(0);
     } else {
       expect(result.get('b').nullCount).toBe(1);
+      expect(result.get('c').nullCount).toBe(1);
     }
   });
 }
@@ -420,23 +460,29 @@ for (const agg of BASIC_AGGS) {
 test(`Groupby nth null values`, () => {
   const a      = Series.new({type: new Int32, data: [1, 1, 1]});
   const b      = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
-  const df     = new DataFrame({'a': a, 'b': b});
+  const c      = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
+  const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.nth(0);
   expect([...result.get('a').toArrow()]).toEqual([1]);
   expect(result.get('a').nullCount).toBe(0);
   expect(result.get('b').length).toBe(1);
   expect(result.get('b').nullCount).toBe(1);
+  expect(result.get('c').length).toBe(1);
+  expect(result.get('c').nullCount).toBe(1);
 });
 
 test(`Groupby quantile null values`, () => {
   const a      = Series.new({type: new Int32, data: [1, 1, 1]});
   const b      = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
-  const df     = new DataFrame({'a': a, 'b': b});
+  const c      = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
+  const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.quantile(0.5);
   expect([...result.get('a').toArrow()]).toEqual([1]);
   expect(result.get('a').nullCount).toBe(0);
   expect(result.get('b').length).toBe(1);
   expect(result.get('b').nullCount).toBe(1);
+  expect(result.get('c').length).toBe(1);
+  expect(result.get('c').nullCount).toBe(1);
 });
