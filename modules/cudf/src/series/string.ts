@@ -16,7 +16,7 @@ import {MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
 import {Series} from '../series';
-import {DataType, Int32, Uint8, Utf8String} from '../types/dtypes'
+import {DataType, Int32, Uint8, Utf8String} from '../types/dtypes';
 
 /**
  * A Series of utf8-string values in GPU memory.

@@ -37,7 +37,7 @@ describe('Series unaryops (Float64)', () => {
   const testMathematicalOp = <P extends MathematicalUnaryOp>(unaryMathOp: P) => {
     test(`Series.${unaryMathOp}`, () => {
       const values   = [-2.5, 0, 2.5];
-      const actual   = makeTestData(values)[unaryMathOp]().data.toArray()
+      const actual   = makeTestData(values)[unaryMathOp]().data.toArray();
       const expected = new Float64Array(values).map(x => Math[unaryMathOp](x));
       expect(actual).toEqualTypedArray(expected);
     });

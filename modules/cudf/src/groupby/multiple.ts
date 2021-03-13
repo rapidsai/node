@@ -60,7 +60,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
     const fields   = [];
     const children = [];
     for (const [index, name] of this._by.entries()) {
-      const child = keys.getColumnByIndex(index)
+      const child = keys.getColumnByIndex(index);
       fields.push(Field.new({name: name as string, type: child.type}));
       const series = Series.new(child);
       children.push(series);

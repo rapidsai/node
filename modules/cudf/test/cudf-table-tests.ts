@@ -37,7 +37,7 @@ test('Table initialization', () => {
     nullMask: new Uint8Buffer(64),
   });
   const table_0 = new Table({columns: [col_0, col_1]});
-  expect(table_0.numColumns).toBe(2)
+  expect(table_0.numColumns).toBe(2);
 });
 
 test('Table.getColumnByIndex', () => {
@@ -49,7 +49,7 @@ test('Table.getColumnByIndex', () => {
     data: new Uint8Buffer(length),
     nullMask: new Uint8Buffer(64),
   });
-  const table_0 = new Table({columns: [col_0, col_1]})
+  const table_0 = new Table({columns: [col_0, col_1]});
 
   expect(table_0.getColumnByIndex(0).type).toBeInstanceOf(Int32);
   expect(() => { table_0.getColumnByIndex(4); }).toThrow();
@@ -62,13 +62,13 @@ test('Table.gather (bad argument)', () => {
   const selection = [2, 4, 5];
 
   expect(() => table_0.gather(<any>selection)).toThrow();
-})
+});
 
 test('Table.gather (indices)', () => {
   const col_0 = new Column({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
   const col_1 =
     new Column({type: new Float32, data: new Float32Buffer([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])});
-  const table_0 = new Table({columns: [col_0, col_1]})
+  const table_0 = new Table({columns: [col_0, col_1]});
 
   const selection = new Column({type: new Int32, data: new Int32Buffer([2, 4, 5])});
 
@@ -95,7 +95,7 @@ test('Table.gather (bitmask)', () => {
   const col_0 = new Column({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
   const col_1 =
     new Column({type: new Float32, data: new Float32Buffer([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])});
-  const table_0 = new Table({columns: [col_0, col_1]})
+  const table_0 = new Table({columns: [col_0, col_1]});
 
   const selection = new Column({
     length: 6,

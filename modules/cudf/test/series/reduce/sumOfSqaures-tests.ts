@@ -108,9 +108,9 @@ describe('Series.sumOfSquares(skipna=true)', () => {
 });
 
 describe('Series.sumOfSquares(skipna=false)', () => {
-  test(
-    'Int8',
-    () => {testNumberSumOfSquaresSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans())});
+  test('Int8', () => {
+    testNumberSumOfSquaresSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans());
+  });
   test('Int16', () => {
     testNumberSumOfSquaresSkipNA(new Int16, new Int16Array(makeNumbers()), makeBooleans());
   });

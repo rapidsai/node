@@ -581,7 +581,7 @@ function wrapAndLogGLMethods(proto: any) {
   const listToString = (x: any) => {
     if (x.length < 10) { return `(length=${x.length}, values=[${x}])`; }
     return `(length=${x.length}, values=[${x.slice(0, 3)}, ... ${
-      x.slice((x.length >> 1) - 2, (x.length >> 1) + 1)}, ... ${x.slice(x.length - 3, x.length)}])`
+      x.slice((x.length >> 1) - 2, (x.length >> 1) + 1)}, ... ${x.slice(x.length - 3, x.length)}])`;
   };
   const toString = (x: any) => {
     switch (typeof x) {

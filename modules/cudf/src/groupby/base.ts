@@ -19,8 +19,8 @@ import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
-import {NullOrder} from '../types/enums'
-import {TypeMap} from '../types/mappings'
+import {NullOrder} from '../types/enums';
+import {TypeMap} from '../types/mappings';
 
 export type GroupByBaseProps = {
   include_nulls?: boolean,

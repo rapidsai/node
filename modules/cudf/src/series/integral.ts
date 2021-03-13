@@ -37,7 +37,7 @@ import {
   Uint32,
   Uint64,
   Uint8,
-} from '../types/dtypes'
+} from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
 

@@ -17,12 +17,12 @@ import * as arrow from 'apache-arrow';
 import {Readable} from 'stream';
 
 import {Column} from './column';
-import {ColumnAccessor} from './column_accessor'
-import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby'
+import {ColumnAccessor} from './column_accessor';
+import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {AbstractSeries, Float32Series, Float64Series, Series} from './series';
 import {Table} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {Bool8, DataType, IndexType} from './types/dtypes'
+import {Bool8, DataType, IndexType} from './types/dtypes';
 import {NullOrder} from './types/enums';
 import {ColumnsMap, TypeMap} from './types/mappings';
 
@@ -204,9 +204,9 @@ export class DataFrame<T extends TypeMap = any> {
 
   groupBy<R extends keyof T, IndexKey extends string>(props: CombinedGroupByProps<T, R, IndexKey>) {
     if ('index_key' in props) {
-      return new GroupByMultiple(this, props)
+      return new GroupByMultiple(this, props);
     } else {
-      return new GroupBySingle(this, props)
+      return new GroupBySingle(this, props);
     }
   }
 

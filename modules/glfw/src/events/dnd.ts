@@ -22,7 +22,7 @@ import {GLFWEvent, windowCallbackAsObservable} from './event';
 export function dndEvents(window: GLFWDOMWindow) {
   return windowCallbackAsObservable(glfw.setDropCallback, window)
     .pipe(map(([, ...rest]) => GLFWDndEvent.create(window, ...rest)))
-    .pipe(publish(), refCount())
+    .pipe(publish(), refCount());
 }
 
 export class GLFWDndEvent extends GLFWEvent {

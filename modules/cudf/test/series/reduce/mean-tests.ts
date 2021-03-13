@@ -51,7 +51,7 @@ function jsMeanBigInt(values: bigint[]) {
 function jsMeanBoolean(values: boolean[]) {
   if (values.length === 0) return NaN;
   let sum = 0;
-  values.forEach((x) => sum += (x ? 1 : 0))
+  values.forEach((x) => sum += (x ? 1 : 0));
   return sum / values.length;
 }
 

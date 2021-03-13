@@ -193,16 +193,8 @@ defineLayoutProps(window.Document.prototype);
 defineLayoutProps(window.HTMLElement.prototype);
 
 Object.defineProperties(window.SVGElement.prototype, {
-  width: {
-    get() {
-      return { baseVal: {value: window.innerWidth} }
-    }
-  },
-  height: {
-    get() {
-      return { baseVal: {value: window.innerHeight} }
-    }
-  },
+  width: {get() { return {baseVal: {value: window.innerWidth}}; }},
+  height: {get() { return {baseVal: {value: window.innerHeight}}; }},
 });
 
 try {

@@ -16,7 +16,7 @@ import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvi
 import {Bool8, Column, Float32, Int32, NullOrder, Series, Uint8, Utf8String} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import {Uint8Vector, Utf8Vector} from 'apache-arrow';
-import {BoolVector} from 'apache-arrow'
+import {BoolVector} from 'apache-arrow';
 
 const mr = new CudaMemoryResource();
 
@@ -51,7 +51,7 @@ test('Series initialization with properties (null)', () => {
 test('Series initialization with Column', () => {
   const length = 100;
   const col    = new Column({type: new Int32, data: new Int32Buffer(length)});
-  const s      = Series.new(col)
+  const s      = Series.new(col);
 
   expect(s.type).toBeInstanceOf(Int32);
   expect(s.length).toBe(length);
@@ -61,7 +61,7 @@ test('Series initialization with Column', () => {
 });
 
 test('Series initialization with Array of mixed values', () => {
-  const s = Series.new({type: new Int32, data: [0, 1, null, 2]})
+  const s = Series.new({type: new Int32, data: [0, 1, null, 2]});
 
   expect(s.type).toBeInstanceOf(Int32);
   expect(s.length).toBe(4);
@@ -99,7 +99,7 @@ test('Series.gather', () => {
 
   const result = col.gather(selection);
 
-  expect([...result.toArrow()]).toEqual([...selection.toArrow()])
+  expect([...result.toArrow()]).toEqual([...selection.toArrow()]);
 });
 
 test('Series.filter', () => {
@@ -112,7 +112,7 @@ test('Series.filter', () => {
   const result = col.filter(mask);
 
   const expected = Series.new({type: new Int32(), data: new Int32Buffer([2, 4, 5, 8])});
-  expect([...result.toArrow()]).toEqual([...expected.toArrow()])
+  expect([...result.toArrow()]).toEqual([...expected.toArrow()]);
 });
 
 describe('toArrow()', () => {
@@ -142,7 +142,7 @@ test('Series.orderBy (ascending, non-null)', () => {
   const result = col.orderBy(true, NullOrder.BEFORE);
 
   const expected = [5, 0, 4, 1, 3, 2];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('Series.orderBy (descending, non-null)', () => {
@@ -150,7 +150,7 @@ test('Series.orderBy (descending, non-null)', () => {
   const result = col.orderBy(false, NullOrder.BEFORE);
 
   const expected = [2, 3, 1, 4, 0, 5];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('Series.orderBy (ascending, null before)', () => {
@@ -160,7 +160,7 @@ test('Series.orderBy (ascending, null before)', () => {
   const result = col.orderBy(true, NullOrder.BEFORE);
 
   const expected = [1, 5, 0, 4, 3, 2];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('Series.orderBy (ascending, null after)', () => {
@@ -170,7 +170,7 @@ test('Series.orderBy (ascending, null after)', () => {
   const result = col.orderBy(true, NullOrder.AFTER);
 
   const expected = [5, 0, 4, 3, 2, 1];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('Series.orderBy (descendng, null before)', () => {
@@ -181,7 +181,7 @@ test('Series.orderBy (descendng, null before)', () => {
 
   const expected = [2, 3, 4, 0, 5, 1];
 
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('Series.orderBy (descending, null after)', () => {
@@ -191,7 +191,7 @@ test('Series.orderBy (descending, null after)', () => {
   const result = col.orderBy(false, NullOrder.AFTER);
 
   const expected = [1, 2, 3, 4, 0, 5];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)])
+  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
 });
 
 test('Series.sortValues (ascending)', () => {

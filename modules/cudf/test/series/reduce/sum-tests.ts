@@ -107,7 +107,8 @@ describe('Series.sum(skipna=true)', () => {
 });
 
 describe('Series.sum(skipna=false)', () => {
-  test('Int8', () => {testNumberSumSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans())});
+  test('Int8',
+       () => { testNumberSumSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans()); });
   test('Int16',
        () => { testNumberSumSkipNA(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });
   test('Int32',

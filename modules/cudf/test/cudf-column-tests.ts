@@ -80,7 +80,7 @@ test('Column.gather (bad argument)', () => {
   const selection = [2, 4, 5];
 
   expect(() => col.gather(<any>selection)).toThrow();
-})
+});
 
 test('Column null_mask, null_count', () => {
   const length = 32;

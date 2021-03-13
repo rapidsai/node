@@ -76,7 +76,7 @@ export class Monitor extends EventEmitter {
       yscale: this.yscale,
       widthMM: this.widthMM,
       heightMM: this.heightMM,
-    })}`
+    })}`;
   }
 }
 

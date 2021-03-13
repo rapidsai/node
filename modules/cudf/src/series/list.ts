@@ -17,7 +17,7 @@ import * as arrow from 'apache-arrow';
 
 import {Column} from '../column';
 import {Series} from '../series';
-import {DataType, Int32, List} from '../types/dtypes'
+import {DataType, Int32, List} from '../types/dtypes';
 
 /**
  * A Series of lists of values.

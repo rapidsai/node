@@ -299,7 +299,7 @@ export const GLFWStandardCursor = {
   HAND: glfw.createStandardCursor(GLFW.HAND_CURSOR),
   HRESIZE: glfw.createStandardCursor(GLFW.HRESIZE_CURSOR),
   VRESIZE: glfw.createStandardCursor(GLFW.VRESIZE_CURSOR),
-}
+};
 
 export enum GLFWClientAPI
 {

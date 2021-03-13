@@ -42,7 +42,7 @@ export function keyboardEvents(window: GLFWDOMWindow) {
 function keyUpdates(window: GLFWDOMWindow) {
   return windowCallbackAsObservable(glfw.setKeyCallback, window)
     .pipe(map(([, ...rest]) => GLFWKeyboardEvent.fromKeyEvent(window, ...rest)))
-    .pipe(publish(), refCount())
+    .pipe(publish(), refCount());
 }
 
 function characterUpdates(window: GLFWDOMWindow, charKeys: Observable<GLFWKeyboardEvent>) {

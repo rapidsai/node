@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import './jest-extensions'
+import './jest-extensions';
 
 import {setDefaultAllocator} from '@nvidia/cuda';
 import {
@@ -116,7 +116,7 @@ test('getGroups basic with values', () => {
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const values_result = groups.values?.get('b')!;
-  expect(values_result).toBeDefined()
+  expect(values_result).toBeDefined();
   expect([...values_result.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
 
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3, 4, 5, 6]);
@@ -140,7 +140,7 @@ test('getGroups basic two columns with values', () => {
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const values_result = groups.values?.get('b')!;
-  expect(values_result).toBeDefined()
+  expect(values_result).toBeDefined();
   expect([...values_result.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
 
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3, 4, 5, 6]);
@@ -181,11 +181,11 @@ test('getGroups some nulls', () => {
 
   const keys_result = groups['keys'].get('a');
   expect([...keys_result.toArrow()]).toEqual([1, 2, 3]);
-  expect(keys_result.nullCount).toBe(0)
+  expect(keys_result.nullCount).toBe(0);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const values_result = groups.values?.get('b')!;
-  expect(values_result).toBeDefined()
+  expect(values_result).toBeDefined();
   expect([...values_result.toArrow()]).toEqual([1, 6, 3]);
 
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3]);
@@ -212,14 +212,14 @@ test('aggregation column name with two columns', () => {
 
   const sorted_a =
     keys_result_a.gather(Series.new({type: new Int32, data: new Int32Array(sorter)}));
-  expect([...sorted_a]).toEqual([0, 1, 2, 3, 4, 5])
+  expect([...sorted_a]).toEqual([0, 1, 2, 3, 4, 5]);
 
   const sorted_aa =
     keys_result_aa.gather(Series.new({type: new Int32, data: new Int32Array(sorter)}));
-  expect([...sorted_aa]).toEqual([3, 4, 4, 4, 5, 4])
+  expect([...sorted_aa]).toEqual([3, 4, 4, 4, 5, 4]);
 
   const sorted_b = agg.get('b').gather(Series.new({type: new Int32, data: new Int32Array(sorter)}));
-  expect([...sorted_b]).toEqual([2, 2, 1, 1, 0, 0])
+  expect([...sorted_b]).toEqual([2, 2, 1, 1, 0, 0]);
 });
 
 test('aggregation existing column name with two columns raises', () => {
@@ -290,9 +290,9 @@ test('Groupby nth uneven', () => {
   const b      = Series.new({type: new Float64, data: [1, 2, 3, 10, 20, 30, 100, 200]});
   const df     = new DataFrame({'a': a, 'b': b});
   const grp    = new GroupBySingle(df, {by: 'a'});
-  const result = grp.nth(2)
+  const result = grp.nth(2);
   basicAggCompare(result, [3, 30, 0]);
-  expect(result.get('b').nullCount).toBe(1)
+  expect(result.get('b').nullCount).toBe(1);
 });
 
 test('Groupby nunique basic', () => {
@@ -306,9 +306,9 @@ test('Groupby quantile uneven', () => {
   const b      = Series.new({type: new Float64, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
   const df     = new DataFrame({'a': a, 'b': b});
   const grp    = new GroupBySingle(df, {by: 'a'});
-  const result = grp.quantile(0.5)
+  const result = grp.quantile(0.5);
   basicAggCompare(result, [3., 4.5, 7.]);
-  expect(result.get('b').nullCount).toBe(0)
+  expect(result.get('b').nullCount).toBe(0);
 });
 
 test('Groupby std basic', () => {

@@ -490,7 +490,7 @@ export abstract class GLFWDOMWindow {
             y: ${this.y},
             width: ${this.width},
             height: ${this.height}
-        }`
+        }`;
   }
 
   protected _gl: any = null;
