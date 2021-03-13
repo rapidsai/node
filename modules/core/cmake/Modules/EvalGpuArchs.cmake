@@ -14,6 +14,12 @@
 # limitations under the License.
 #=============================================================================
 
+# Unset this first in case it's set to <empty_string>
+unset(CMAKE_CUDA_ARCHITECTURES CACHE)
+
+# Enable CUDA so we can invoke nvcc
+enable_language(CUDA)
+
 function(evaluate_gpu_archs gpu_archs)
   set(eval_file ${PROJECT_BINARY_DIR}/eval_gpu_archs.cu)
   set(eval_exe ${PROJECT_BINARY_DIR}/eval_gpu_archs)
@@ -37,7 +43,7 @@ int main(int argc, char** argv) {
     }
   }
   if(archs.empty()) {
-    printf(\"ALL\");
+    printf(\"${SUPPORTED_CUDA_ARCHITECTURES}\");
   } else {
     bool first = true;
     for(const auto& arch : archs) {

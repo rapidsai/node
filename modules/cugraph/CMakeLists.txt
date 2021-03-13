@@ -15,7 +15,7 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
-project(node_cugraph VERSION 0.0.1 LANGUAGES C CXX CUDA)
+project(node_cugraph VERSION 0.0.1 LANGUAGES C CXX)
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
     return()
