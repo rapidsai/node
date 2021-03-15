@@ -380,7 +380,7 @@ const textLayerProps = (props, state) => ({
     opacity: 1.0,
     maxWidth: -1,
     pickable: false,
-    backgroundColor: [33, 33, 33],
+    backgroundColor: [46, 46, 46],
     getTextAnchor: 'start',
     getAlignmentBaseline: 'top',
     fontFamily: 'sans-serif, sans',
@@ -389,7 +389,7 @@ const textLayerProps = (props, state) => ({
     getPosition: d => d.position,
     getPixelOffset: d => [d.size, 0],
     data: [{
-        size: 21,
+        size: 12,
         text: state.labelText,
         color: state.labelColor,
         position: state.labelPosition,

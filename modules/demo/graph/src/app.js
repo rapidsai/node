@@ -152,9 +152,10 @@ function onWebGLInitialized(gl) {
 function centerOnBbox([minX, maxX, minY, maxY]) {
     const width = maxX - minX, height = maxY - minY;
     if ((width === width) && (height === height)) {
+        const { outerWidth, outerHeight } = window;
         const world = width > height ? width : height;
-        const screen = width > height ? window.outerWidth : window.outerHeight;
-        const zoom = world > screen ? -(world / screen * 1.5) : (screen / world * .5);
+        const screen = width > height ? outerWidth : outerHeight;
+        const zoom = world > screen ? -(world / screen) : (screen / world);
         return {
             minZoom: Number.NEGATIVE_INFINITY,
             maxZoom: Number.POSITIVE_INFINITY,
