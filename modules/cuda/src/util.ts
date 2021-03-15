@@ -77,14 +77,15 @@ export const isIteratorResult = <T = any>(x: any):
  * clampRange(5, -1, 0) // [4, 4]
  *
  * const ary = Array.from({length: 5}, (_, i) => i);
- * // [0, 1, 2, 3, 4]
+ *
  * assert(ary.slice() == ary.slice(...clampRange(ary.length)))
- * // [0, 1, 2, 3]
+ * // > [0, 1, 2, 3, 4]
  * assert(ary.slice(0, -1) == ary.slice(...clampRange(ary.length, 0, -1)))
- * // [4]
+ * // > [0, 1, 2, 3]
  * assert(ary.slice(-1) == ary.slice(...clampRange(ary.length, -1)))
- * // []
+ * // > [4]
  * assert(ary.slice(-1, 0) == ary.slice(...clampRange(ary.length, -1, 0)))
+ * // > []
  * ```
  *
  * @param len The total number of elements.
