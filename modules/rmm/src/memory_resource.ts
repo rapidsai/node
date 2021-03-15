@@ -80,9 +80,13 @@ export interface MemoryResource {
   isEqual(other: MemoryResource): boolean;
 }
 
+/** @ignore */
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 const MemoryResource: MemoryResourceConstructor = RMM.MemoryResource;
 
+/**
+ * @summary {@link MemoryResource} that uses cudaMalloc/Free for allocation/deallocation.
+ */
 export class CudaMemoryResource extends MemoryResource {
   /**
    * @summary Constructs a MemoryResource which allocates distinct chunks of CUDA GPU memory.
@@ -91,6 +95,9 @@ export class CudaMemoryResource extends MemoryResource {
   constructor(device?: number) { super(MemoryResourceType.CUDA, device); }
 }
 
+/**
+ * @summary {@link MemoryResource} that uses cudaMallocManaged/Free for allocation/deallocation.
+ */
 export class ManagedMemoryResource extends MemoryResource {
   /**
    * @summary Constructs a MemoryResource which allocates distinct chunks of CUDA Managed memory.
@@ -100,11 +107,15 @@ export class ManagedMemoryResource extends MemoryResource {
 
 export interface PoolMemoryResource extends MemoryResource {
   /**
-   * @summary The MemoryResource from which to allocate blocks for the pool.
+   * @summary The {@link MemoryResource} from which to allocate blocks for the pool.
    */
   readonly memoryResource: MemoryResource;
 }
 
+/**
+ * @summary A coalescing best-fit suballocator which uses a pool of memory allocated from an
+ * upstream {@link MemoryResource}.
+ */
 export class PoolMemoryResource extends MemoryResource {
   /**
    * @summary Constructs a coalescing best-fit suballocator which uses a pool of memory allocated
@@ -123,17 +134,23 @@ export class PoolMemoryResource extends MemoryResource {
 
 export interface FixedSizeMemoryResource extends MemoryResource {
   /**
-   * @summary The MemoryResource from which to allocate blocks for the pool.
+   * @summary The {@link MemoryResource} from which to allocate blocks for the pool.
    */
   readonly memoryResource: MemoryResource;
 }
 
+/**
+ * @summary A {@link MemoryResource} which allocates memory blocks of a single fixed size using an
+ * upstream {@link MemoryResource}.
+ *
+ * @note Supports only allocations of size smaller than the configured `blockSize`.
+ */
 export class FixedSizeMemoryResource extends MemoryResource {
   /**
-   * @summary Constructs a MemoryResource which allocates memory blocks of a single fixed size
-   from
-   * an upstream MemoryResource.
-   * @param upstreamMemoryResource The MemoryResource from which to allocate blocks for the pool.
+   * @summary Constructs a MemoryResource which allocates memory blocks of a single fixed size using
+   * an upstream {@link MemoryResource}.
+   * @param upstreamMemoryResource The {@link MemoryResource} from which to allocate blocks for the
+   *   pool.
    * @param blockSize The size of blocks to allocate (default is 1MiB).
    * @param blocksToPreallocate The number of blocks to allocate to initialize the pool.
    */
@@ -146,7 +163,7 @@ export class FixedSizeMemoryResource extends MemoryResource {
 
 export interface BinningMemoryResource extends MemoryResource {
   /**
-   * The MemoryResource to use for allocations larger than any of the bins.
+   * The {@link MemoryResource} to use for allocations larger than any of the bins.
    */
   readonly memoryResource: MemoryResource;
 
@@ -165,10 +182,14 @@ export interface BinningMemoryResource extends MemoryResource {
   addBin(byteLength: number, binResource?: MemoryResource): void;
 }
 
+/**
+ * @summary Allocates memory from upstream {@link MemoryResource resources} associated with bin
+ * sizes.
+ */
 export class BinningMemoryResource extends MemoryResource {
   /**
-   * @summary Constructs a MemoryResource which allocates memory from a set of specified "bin" sizes
-   * based on a specified allocation size from an upstream MemoryResource.
+   * @summary Constructs a {@link MemoryResource} which allocates memory from a set of specified
+   * "bin" sizes based on a specified allocation size from an upstream {@link MemoryResource}.
    *
    * @detail If minSizeExponent and maxSizeExponent are specified, initializes with one or more
    * FixedSizeMemoryResource bins in the range [2^minSizeExponent, 2^maxSizeExponent].
@@ -206,6 +227,13 @@ export interface LoggingResourceAdapter extends MemoryResource {
   flush(): void;
 }
 
+/**
+ * @brief Resource that uses an upstream {@link MemoryResource} to allocate memory and logs
+ * information about the requested allocation/deallocations.
+ * <br/><br/>
+ * An instance of this resource can be constructed with an existing, upstream resource in order to
+ * satisfy allocation requests and log allocation/deallocation activity.
+ */
 export class LoggingResourceAdapter extends MemoryResource {
   /**
    * @summary Constructs a MemoryResource that logs information about allocations/deallocations

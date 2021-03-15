@@ -64,6 +64,34 @@ export const isArrayBufferView = ArrayBuffer.isView;
 export const isIteratorResult = <T = any>(x: any):
   x is IteratorResult<T>      => { return isObject(x) && ('done' in x) && ('value' in x);};
 
+/**
+ * @summary Clamp begin and end ranges similar to `Array.prototype.slice`.
+ * @description Normalizes begin/end to between 0 and length, and wrap around on negative indices.
+ * @example
+ * ```typescript
+ * import {clampRange} from '@nvidia/cuda';
+ *
+ * clampRange(5)        // [0, 5]
+ * clampRange(5, 0, -1) // [0, 4]
+ * clampRange(5, -1)    // [4, 5]
+ * clampRange(5, -1, 0) // [4, 4]
+ *
+ * const ary = Array.from({length: 5}, (_, i) => i);
+ * // [0, 1, 2, 3, 4]
+ * assert(ary.slice() == ary.slice(...clampRange(ary.length)))
+ * // [0, 1, 2, 3]
+ * assert(ary.slice(0, -1) == ary.slice(...clampRange(ary.length, 0, -1)))
+ * // [4]
+ * assert(ary.slice(-1) == ary.slice(...clampRange(ary.length, -1)))
+ * // []
+ * assert(ary.slice(-1, 0) == ary.slice(...clampRange(ary.length, -1, 0)))
+ * ```
+ *
+ * @param len The total number of elements.
+ * @param lhs The beginning of the range to clamp.
+ * @param rhs The end of the range to clamp (<b>Default:</b> `len`).
+ * @returns An Array of the normalized begin and end positions.
+ */
 export function clampRange(len: number, lhs = 0, rhs = len): [begin: number, end: number] {
   // wrap around on negative begin and end positions
   if (lhs < 0) { lhs = ((lhs % len) + len) % len; }
