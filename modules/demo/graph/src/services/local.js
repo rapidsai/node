@@ -12,121 +12,231 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as Arrow from 'apache-arrow';
-import {clampSliceArgs as clamp} from '@nvidia/cuda';
+import {clampRange as clamp, Float32Buffer} from '@nvidia/cuda';
 import {DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
 import {GraphCOO} from '@rapidsai/cugraph';
+import {DeviceBuffer} from '@rapidsai/rmm';
+import * as Arrow from 'apache-arrow';
+import {concat as concatAsync, zip as zipAsync} from 'ix/asynciterable';
+import {flatMap as flatMapAsync} from 'ix/asynciterable/operators';
+
+const defaultLayoutParams = {
+  simulating: {name: 'simulating', val: true},
+  autoCenter: {name: 'auto-center', val: false},
+  outboundAttraction: {name: 'outbound attraction', val: false},
+  linLogMode: {name: 'lin-log', val: false},
+  strongGravityMode: {name: 'strong gravity', val: false},
+  jitterTolerance: {name: 'layout speed', val: 0.05, min: 0.0001, max: 1.0, step: 0.001},
+  barnesHutTheta: {
+    name: 'theta',
+    val: 0.0,
+    min: 0.0,
+    max: 1.0,
+    step: 0.001,
+  },
+  scalingRatio: {
+    name: 'scale ratio',
+    val: 5.0,
+    min: 0.0,
+    max: 100.0,
+    step: 0.1,
+  },
+  gravity: {
+    name: 'gravity',
+    val: 1.0,
+    min: 0.0,
+    max: 100.0,
+    step: 0.1,
+  },
+  controlsVisible: {name: 'controls visible', val: true},
+};
+
+const layoutParamNames = Object.keys(defaultLayoutParams);
 
 export default async function* loadGraphData(props = {}) {
 
-  const layoutParams = {
-    simulating:         { name: 'simulating',          val: true },
-    autoCenter:         { name: 'auto-center',         val: false },
-    outboundAttraction: { name: 'outbound attraction', val: false },
-    linLogMode:         { name: 'lin-log',             val: false },
-    strongGravityMode:  { name: 'strong gravity',      val: false },
-    jitterTolerance:    { name: 'layout speed',        val: 0.05, min: 0.001, max: 1.0, step: 0.001 },
-    barnesHutTheta:     { name: 'theta',               val: 0.0, min: 0.0, max: 1.0, step: 0.001, },
-    scalingRatio:       { name: 'scale ratio',         val: 5.0, min: 0.0, max: 100.0, step: 0.1, },
-    gravity:            { name: 'gravity',             val: 1.0, min: 0.0, max: 100.0, step: 0.1, },
-  };
-  const layoutParamNames = Object.keys(layoutParams);
+  const layoutParams = {...defaultLayoutParams};
+  if (props.layoutParams) {
+    layoutParamNames.forEach((name) => {
+      if (props.layoutParams.hasOwnProperty(name)) {
+        const {val, min, max} = layoutParams[name];
+        switch (typeof val) {
+          case 'boolean': layoutParams[name].val = !!props.layoutParams[name]; break;
+          case 'number':
+            layoutParams[name].val = Math.max(min, Math.min(max, props.layoutParams[name]));
+            break;
+        }
+      }
+    });
+  }
+
   let selectedParameter = 0;
 
   window.addEventListener('keydown', (e) => {
     if ('1234567890'.includes(e.key)) {
       selectedParameter = +e.key;
     } else if (e.code === 'ArrowUp') {
-      selectedParameter = clamp(layoutParamNames.length, selectedParameter - 1)[0] % layoutParamNames.length;
+      selectedParameter =
+        clamp(layoutParamNames.length, selectedParameter - 1)[0] % layoutParamNames.length;
     } else if (e.code === 'ArrowDown') {
-      selectedParameter = clamp(layoutParamNames.length, selectedParameter + 1)[0] % layoutParamNames.length;
+      selectedParameter =
+        clamp(layoutParamNames.length, selectedParameter + 1)[0] % layoutParamNames.length;
     } else if (['PageUp', 'PageDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.code) !== -1) {
-        const key = layoutParamNames[selectedParameter];
-        const { val, min, max, step } = layoutParams[key];
-        if (typeof val === 'boolean') {
-          layoutParams[key].val = !val;
-        } else if (e.code === 'PageUp') {
-          layoutParams[key].val = Math.min(max, parseFloat(Number(val + step * 10).toPrecision(3)));
-        } else if (e.code === 'PageDown') {
-          layoutParams[key].val = Math.max(min, parseFloat(Number(val - step * 10).toPrecision(3)));
-        } else if (e.code === 'ArrowLeft') {
-          layoutParams[key].val = Math.max(min, parseFloat(Number(val - step).toPrecision(3)));
-        } else if (e.code === 'ArrowRight') {
-          layoutParams[key].val = Math.min(max, parseFloat(Number(val + step).toPrecision(3)));
-        }
+      const key                   = layoutParamNames[selectedParameter];
+      const {val, min, max, step} = layoutParams[key];
+      if (typeof val === 'boolean') {
+        layoutParams[key].val = !val;
+      } else if (e.code === 'PageUp') {
+        layoutParams[key].val = Math.min(max, parseFloat(Number(val + step * 10).toPrecision(3)));
+      } else if (e.code === 'PageDown') {
+        layoutParams[key].val = Math.max(min, parseFloat(Number(val - step * 10).toPrecision(3)));
+      } else if (e.code === 'ArrowLeft') {
+        layoutParams[key].val = Math.max(min, parseFloat(Number(val - step).toPrecision(3)));
+      } else if (e.code === 'ArrowRight') {
+        layoutParams[key].val = Math.min(max, parseFloat(Number(val + step).toPrecision(3)));
+      }
     }
   });
 
-  /** @type DataFrame<{name: Utf8String, id: Uint32, color: Uint32, size: Uint8, x: Float32, y: Float32}> */
-  let nodes = !props.nodes ? getDefaultNodes() : DataFrame.readCSV({
-    header: 0,
-    sourceType: 'files',
-    sources: [props.nodes],
-    dataTypes: {
-      name: 'str',
-      id: 'uint32',
-      color: 'uint32',
-      size: 'uint8',
+  async function* getDataFrames(source, getDefault, dataTypes) {
+    if (!source) {
+      if (typeof getDefault === 'function') { yield getDefault(); }
+      return;
     }
+    if (source instanceof DataFrame) { return yield source; }
+    if (typeof source === 'string' && dataTypes) {
+      return yield DataFrame.readCSV(
+        {header: 0, sourceType: 'files', sources: [source], dataTypes});
+    }
+    if (typeof source[Symbol.iterator] === 'function' ||
+        typeof source[Symbol.asyncIterator] === 'function') {
+      let count = 0;
+      for await (const x of flatMapAsync((x) => getDataFrames(x, undefined, dataTypes))(source)) {
+        count++;
+        yield x;
+      }
+      if (count == 0) { yield* getDataFrames(null, getDefault, dataTypes); }
+    }
+  }
+
+  let nodeDFs = getDataFrames(props.nodes, getDefaultNodes, {
+    name: 'str',
+    id: 'uint32',
+    color: 'uint32',
+    size: 'uint8',
   });
 
-  /** @type DataFrame<{name: Utf8String, src: Uint32, dst: Uint32, edge: Uint64, color: Uint64, bundle: Uint64}> */
-  let edges = !props.edges ? getDefaultEdges() : DataFrame.readCSV({
-    header: 0,
-    sourceType: 'files',
-    sources: [props.edges],
-    dataTypes: {
-      name: 'str',
-      src: 'uint32',
-      dst: 'uint32',
-      edge: 'uint64',
-      color: 'uint64',
-      bundle: 'uint64',
-    }
+  let edgeDFs = getDataFrames(props.edges, getDefaultEdges, {
+    name: 'str',
+    src: 'uint32',
+    dst: 'uint32',
+    edge: 'uint64',
+    color: 'uint64',
+    bundle: 'uint64',
   });
 
-  let graph = new GraphCOO(edges.get('src')._col, edges.get('dst')._col, {directedEdges: true});
-  let graphDesc = {}, bbox = [0,0,0,0], promise, onAfterRender;
+  /**
+   * @type DataFrame<{name: Utf8String, id: Uint32, color: Uint32, size: Uint8, x: Float32, y:
+   *   Float32}>
+   */
+  let nodes = null;
+  /**
+   * @type DataFrame<{name: Utf8String, src: Uint32, dst: Uint32, edge: Uint64, color: Uint64,
+   *   bundle: Uint64}>
+   */
+  let edges = null;
+  /**
+   * @type GraphCOO
+   */
+  let graph = null;
+  /**
+   * @type Float32Buffer
+   */
+  let positions = null;
 
-  for (let positions = null, x = 0; true;) {
-    if (layoutParams.simulating.val) {
-      // Compute positions of the next time step from the previous time step's positions
-      positions = graph.forceAtlas2({
-          positions,
-          ...layoutParamNames.reduce((params, name) => ({
-            ...params, [name]: layoutParams[name].val
-          }), {})
-      });
-  
-      const n = graph.numNodes;
+  let graphDesc     = {};
+  let bbox          = [0, 0, 0, 0];
+  let onAfterRender = () => {};
+  let rendered           = new Promise(() => {});
+
+  // Never yields "done", i.e. concat(source, AsyncIterable.never())
+  let dataframes = concatAsync(zipAsync(nodeDFs, edgeDFs), (async function*() {
+                                 const sleep = (t) => new Promise((r) => setTimeout(r, t));
+                                 while (1) { await sleep(1000); }
+                               })())[Symbol.asyncIterator]();
+  let nextFrames = dataframes.next(), graphUpdated = false, updateCount = 0;
+
+  while (true) {
+    graphUpdated = false;
+    // Wait for a new set of source dataframes or for the
+    // most recent frame to finish rendering before advancing
+    const newDFs = await Promise.race([nextFrames, rendered]).then(({value} = {}) => value);
+
+    // If new nodes/edges, recreate the GraphCOO
+    if (newDFs) {
+      if (newDFs[0] !== nodes || newDFs[1] !== edges) {
+        graphUpdated = true;
+        console.log(`graph update ${++updateCount}`);
+        [nodes, edges] = newDFs;
+        nextFrames     = dataframes.next();
+        graph          = new GraphCOO(     //
+          edges.get('src')._col,  //
+          edges.get('dst')._col,
+          {directedEdges: true});
+      }
+    }
+
+    const n = graph.numNodes;
+
+    // If new nodes, update existing positions
+    if (positions && positions.length < (n * 2)) {
+      // const p = new Float32Buffer(n * 2 * 4);
+      const p = new Float32Buffer(new DeviceBuffer(n * 2 * 4));
+      if (positions.length > 0) {
+        // copy X positions
+        p.copyFrom(positions, 0, 0, n);
+        // copy Y positions
+        p.copyFrom(positions, positions.length / 2, n);
+      }
+      positions = p;
+    }
+
+    if (!layoutParams.simulating.val && !graphUpdated) {
+      // If user paused rendering, wait a bit and continue
+      rendered = new Promise((r) => (onAfterRender = () => setTimeout(r, 50)));
+    } else {
+      // Compute positions from the previous positions
+      positions = new Float32Buffer(graph.forceAtlas2({
+        positions: positions && positions.length === n * 2 ? positions.buffer : undefined,
+        ...layoutParamNames.reduce((params, name) => ({...params, [name]: layoutParams[name].val}),
+                                   {})
+      }));
+
       // Extract the x and y positions and assign them as columns in our nodes DF
       nodes = nodes.assign({
         x: Series.new({type: new Float32, length: n, offset: 0, data: positions}),
         y: Series.new({type: new Float32, length: n, offset: n, data: positions}),
       });
-  
-      // Compute the positions minimum bounding box
-      bbox = [
-        ...nodes.get('x').minmax(),
-        ...nodes.get('y').minmax(),
-      ];
-  
-      graphDesc = createGraph(nodes, edges, graph);
-      ({promise, resolve: onAfterRender} = promiseSubject());
-    } else {
-        promise = new Promise((resolve) => (onAfterRender = () => setTimeout(resolve, 50)));
+
+      // Compute the positions minimum bounding box [xMin, xMax, yMin, yMax]
+      bbox = [...nodes.get('x').minmax(), ...nodes.get('y').minmax()];
+
+      graphDesc = createGraphRenderProps(nodes, edges, graph);
+      ({promise: rendered, resolve: onAfterRender} = promiseSubject());
     }
+
     // Yield the results to the caller for rendering
     yield {
-      graph: graphDesc, 
+      graph: graphDesc,
       params: layoutParams,
-      selectedParameter,
+      selectedParameter: layoutParams.controlsVisible.val ? selectedParameter : undefined,
       bbox,
       autoCenter: layoutParams.autoCenter.val,
       onAfterRender
     };
+
     // Wait for the frame to finish rendering before advancing
-    await promise.catch(() => {}).then(() => {});
+    rendered = rendered.catch(() => {}).then(() => {});
   }
 }
 
@@ -149,7 +259,7 @@ function promiseSubject() {
  * }>} edges
  * @param {*} graph
  */
-function createGraph(nodes, edges, graph) {
+function createGraphRenderProps(nodes, edges, graph) {
   const numNodes = graph.numNodes;
   const numEdges = graph.numEdges;
   return {

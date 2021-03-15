@@ -24,7 +24,13 @@ export class Device extends(<CUDADeviceConstructor>CUDA.Device) {
    */
   static readonly activeDeviceId: number;
 
+  /**
+   * The human-readable name of this CUDA Device
+   */
   public get name(): string { return this.getProperties().name; }
+  /**
+   * The PCI Bus identifier of this CUDA Device
+   */
   public get pciBusId(): number { return this.getProperties().pciBusID; }
 
   // @ts-ignore
@@ -35,8 +41,11 @@ export class Device extends(<CUDADeviceConstructor>CUDA.Device) {
    */
   public getProperties() { return this._properties || (this._properties = super.getProperties()); }
 
+  /** @ignore */
   public get[Symbol.toStringTag]() { return 'CUDADevice'; }
+  /** @ignore */
   public[Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }
+  /** @ignore */
   public toString() {
     const {name, major, minor} = this.getProperties();
     return `${this[Symbol.toStringTag]} ${
@@ -44,12 +53,72 @@ export class Device extends(<CUDADeviceConstructor>CUDA.Device) {
   }
 }
 
+/**
+ * @summary A lazily-evaluated list of available CUDA devices.
+ * <br/><br/>
+ * This list has a `length` property, and each available active Device can be accessed by device
+ * ordinal (via Array-style subscript-accesses).
+ * <br/><br/>
+ * This list implements the Iterable<Device> protocol, meaning it can be enumerated in a `for..of`
+ * loop, or with the `[...]` iterable expansion syntax.
+ *
+ * @note While this list may seem like an Array, it is a JavaScript Proxy that only creates and
+ * returns a Device instance for a given device ordinal the first time it's accessed.
+ * @note Enumerating the `devices` list (i.e. `[...devices]`) will create and cache Device instances
+ * for all CUDA devices available to the current process.
+ *
+ * @example
+ * ```typescript
+ * import {Device, devices} from '@nvidia/cuda';
+ *
+ * console.log(`Number of devices: ${devices.length}`);
+ *
+ * // CUDA Device 0 is automatically activated by default
+ * console.log(`Active device id: ${Device.activeDeviceId}`); // 0
+ *
+ * // Access (and create) Devices 0,1
+ * const [device0, device1] = devices;
+ *
+ * console.log(device0);
+ * // > CUDADevice {"id":0,"name":"Quadro RTX 8000","compute_capability":[7,5]}
+ *
+ * console.log(device0.pciBusName);
+ * // > '0000:15:00.0'
+ *
+ * console.log(device0.canAccessPeerDevice(device1));
+ * // > true
+ *
+ * console.log(device0.getProperties());
+ * // > {
+ * // >   name: 'Quadro RTX 8000',
+ * // >   totalGlobalMem: 50944540672,
+ * // >   sharedMemPerBlock: 49152,
+ * // >   regsPerBlock: 65536,
+ * // >   warpSize: 32,
+ * // >   memPitch: 2147483647,
+ * // >   maxThreadsPerBlock: 1024,
+ * // >   ...
+ * // > }
+ *
+ * // Device 0 remains the active device until `device1` is made active
+ * console.log(`Active device id: ${Device.activeDeviceId}`);
+ * // > 0
+ *
+ * device1.activate();
+ * console.log(`Active device id: ${Device.activeDeviceId}`);
+ * // > 1
+ *
+ * // Set Device 0 to the active device again
+ * device0.activate();
+ * console.log(`Active device id: ${Device.activeDeviceId}`);
+ * // > 0
+ * ```
+ */
 export const devices = new Proxy<DeviceList>(
   {
     length: Device.numDevices,
     * [Symbol.iterator]() {
-        for (let i = -1, n = this.length; ++i < n; yield this[i])
-          ;
+        for (let i = -1, n = this.length; ++i < n;) { yield this[i]; }
       }
   },
   {
@@ -57,9 +126,10 @@ export const devices = new Proxy<DeviceList>(
     set() { throw new Error('Invalid operation');},
     defineProperty() { throw new Error('Invalid operation');},
     deleteProperty() { throw new Error('Invalid operation');},
-    has(
-      target,
-      key) { return typeof key !== 'number' ? key in target : key > -1 && key < Device.numDevices;},
+    has(target, key) {  //
+      const idx = typeof key !== 'symbol' ? +(key as any) : NaN;
+      return (idx !== idx) ? key in target : idx > -1 && idx < Device.numDevices;
+    },
     get(target, key) {
       const idx = typeof key !== 'symbol' ? +(key as any) : NaN;
       if (idx == idx && idx > -1 && idx < Device.numDevices) {
@@ -106,7 +176,7 @@ interface CUDADevice {
    * Explicitly destroys and cleans up all resources associated with the
    * current device in the current process. Any subsequent API call to
    * this device will reinitialize the device.
-   *
+   * <br/><br/>
    * Note that this function will reset the device immediately. It is the
    * caller's responsibility to ensure that the device is not being accessed
    * by any other host threads from the process when this function is called.
@@ -118,14 +188,14 @@ interface CUDADevice {
    *
    * @description
    * Sets this device as the current device for the calling host thread.
-   *
+   * <br/><br/>
    * Any device memory subsequently allocated from this host thread
    * will be physically resident on this device. Any host memory allocated
    * from this host thread will have its lifetime associated with this
    * device. Any streams or events created from this host thread will
    * be associated with this device. Any kernels launched from this host
    * thread will be executed on this device.
-   *
+   * <br/><br/>
    * This call may be made from any host thread, to any device, and at
    * any time. This function will do no synchronization with the previous
    * or new device, and should be considered a very low overhead call.
@@ -133,12 +203,12 @@ interface CUDADevice {
   activate(): this;
 
   /**
-   * @summary Get the {@link DeviceFlag} flags used to initialize this device.
+   * @summary Get the {@link DeviceFlags device flags} used to initialize this device.
    */
   getFlags(): DeviceFlags;
 
   /**
-   * @summary Set the {@link DeviceFlag} flags for the device's primary context.
+   * @summary Set the {@link DeviceFlags device flags} for the device's primary context.
    *
    * @param {DeviceFlag} newFlags The new flags for the device's primary context.
    */
@@ -163,21 +233,22 @@ interface CUDADevice {
   synchronize(): this;
 
   /**
-   * @summary Ensures this device is active, then executes the supplied @p `work` function. Restores
-   * the active device after executing the function (if the current device was not already the
-   * active device).
+   * @summary Ensures this device is active, then executes the supplied `work` function.
+   * <br/><br/>
+   * If the current device was not already the active device, restores the active device after the
+   * `work` function has completed.
    * @param work A function to execute
    */
   callInContext(work: () => any): this;
 
   /**
    * @summary Queries if a device may directly access a peer device's memory.
-   *
+   * <br/><br/>
    * If direct access of `peerDevice` from this device is possible, then
-   * access may be enabled on two specific contexts by calling
-   * {@link CUDAContext.prototype.enablePeerAccess}.
+   * access may be enabled on two specific devices by calling
+   * {@link enablePeerAccess}.
    *
-   * @returns `true` if this device's contexts are capable of directly
+   * @returns `true` if this Device's contexts are capable of directly
    * accessing memory from contexts on `peerDevice` , otherwise `false`.
    */
   canAccessPeerDevice(peerDevice: Device): boolean;

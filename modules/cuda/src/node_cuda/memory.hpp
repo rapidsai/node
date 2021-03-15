@@ -247,7 +247,7 @@ class ManagedMemory : public Napi::ObjectWrap<ManagedMemory>, public Memory {
 };
 
 /**
- * @brief An owning wrapper around a CUDA managed memory allocation.
+ * @brief An owning wrapper around a CUDA device memory allocation shared by another process.
  *
  */
 class IpcMemory : public Napi::ObjectWrap<IpcMemory>, public Memory {
@@ -264,7 +264,7 @@ class IpcMemory : public Napi::ObjectWrap<IpcMemory>, public Memory {
   /**
    * @brief Construct a new IPCMemory instance from C++.
    *
-   * @param size Size in bytes to allocate in CUDA managed memory.
+   * @param handle Handle to the device memory shared by another process.
    */
   static Napi::Object New(cudaIpcMemHandle_t const& handle);
 
@@ -289,7 +289,7 @@ class IpcMemory : public Napi::ObjectWrap<IpcMemory>, public Memory {
   /**
    * @brief Initialize the IPCMemory instance created by either C++ or JavaScript.
    *
-   * @param size Size in bytes to allocate in CUDA managed memory.
+   * @param handle Handle to the device memory shared by another process.
    */
   void Initialize(cudaIpcMemHandle_t const& handle);
 

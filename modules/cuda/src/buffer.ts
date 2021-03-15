@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,16 +16,18 @@ import CUDA from './addon';
 import {BigIntArray, MemoryData, TypedArray, TypedArrayConstructor} from './interfaces';
 import {DeviceMemory, IpcHandle, Memory} from './memory';
 import {
-  clampSliceArgs as clamp,
-  isArrayBuffer,
+  clampRange,
+  isArrayBufferLike,
   isArrayBufferView,
   isArrayLike,
   isIterable,
   isMemoryLike,
-  isNumber
+  isNumber,
+  isObject
 } from './util';
 
-const {runtime: {cudaMemcpy}} = CUDA;
+const {min, max}                          = Math;
+const {runtime: {cudaMemcpy, cudaMemset}} = CUDA;
 
 /** @ignore */
 // clang-format off
@@ -44,24 +46,78 @@ type MemoryViewOf<T extends TypedArray|BigIntArray> =
   : never;
 // clang-format on
 
+export type CUDAMemoryView = Int8Buffer|Int16Buffer|Int32Buffer|Int64Buffer|Uint8Buffer|
+  Uint8ClampedBuffer|Uint16Buffer|Uint32Buffer|Uint64Buffer|Float32Buffer|Float64Buffer;
+
 /** @ignore */
-type MemoryViewConstructor<T extends TypedArray|BigIntArray> = {
+export type MemoryViewConstructor<T extends TypedArray|BigIntArray> = {
   readonly BYTES_PER_ELEMENT: number,
+  readonly TypedArray: TypedArrayConstructor<T>,
   new (length?: number): MemoryViewOf<T>,
   new (values: Iterable<T[0]>): MemoryViewOf<T>,
   new (buffer: ArrayLike<T[0]>|MemoryData, byteOffset?: number, length?: number): MemoryViewOf<T>,
 };
 
-let allocateMemory = (byteLength: number): Memory => new DeviceMemory(byteLength);
+const allocateDeviceMemory = (byteLength: number): Memory => new DeviceMemory(byteLength);
 
-export function setDefaultAllocator(allocate: (byteLength: number) => Memory) {
-  allocateMemory = allocate;
+let allocateMemory = allocateDeviceMemory;
+
+/**
+ * @summary A function to override the default device memory allocation behavior.
+ * The supplied function will be called to create the underlying {@link Memory `Memory`} instances
+ * when constructing one of the {@link CUDAMemoryView `CUDAMemoryView`} in JavaScript.
+ *
+ * @example
+ * ```typescript
+ * import {
+ *   DeviceMemory,
+ *   ManagedMemory,
+ *   Float32Buffer,
+ *   setDefaultAllocator
+ * } from '@nvidia/cuda';
+ *
+ * // The default allocator creates `DeviceMemory` instances,
+ * // which can only be accessed directly from the GPU device.
+ * // An expensive copy from GPU to CPU memory must be performed
+ * // in order to read the data in JavaScript.
+ * const dbuf = new Float32Buffer([1.0, 2.0, 3.0]);
+ * assert(dbuf.buffer instanceof DeviceMemory);
+ *
+ * // Override allocate function to create `ManagedMemory` instances.
+ * setDefaultAllocator((byteLength) => new ManagedMemory(byteLength));
+ *
+ * // Now the allocator uses the supplied function to create
+ * // `ManagedMemory` instances. This kind of memory can be accessed
+ * // by both the CPU and GPU, because the CUDA driver automatically
+ * // migrates the data from the CPU <-> GPU as required.
+ * const mbuf = new Float32Buffer([1.0, 2.0, 3.0]);
+ * assert(mbuf.buffer instanceof ManagedMemory);
+ * ```
+ *
+ * @param allocate Function to use for device {@link Memory `Memory`} allocations.
+ */
+export function setDefaultAllocator(allocate?: null|((byteLength: number) => Memory)) {
+  if (allocate === undefined || allocate === null) {
+    // If allocate is null or undefined, reset to the default
+    allocateMemory = allocateDeviceMemory;
+  } else if (typeof allocate !== 'function') {
+    throw new TypeError('setDefaultAllocator requires an `allocate` function');
+  } else {
+    // Validate the user-provided function returns something we expect.
+    const mem = allocate(8);
+    if (!isMemoryLike(mem) || (mem.byteLength !== 8)) {
+      throw new TypeError(
+        'setDefaultAllocator requires the `allocate` function to return Memory instances');
+    }
+    allocateMemory = allocate;
+  }
 }
 
 /**
- * @summary A base class for typed arrays of values in CUDA device memory.
+ * @summary A base class for typed arrays of values in owned or managed by CUDA.
  */
-abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements ArrayBufferView {
+export abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements
+  ArrayBufferView {
   public static readonly BYTES_PER_ELEMENT: number;
 
   /**
@@ -97,6 +153,7 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
   public readonly TypedArray!: TypedArrayConstructor<T>;
 
   /**
+   * @ignore
    * @summary The constructor function for the MemoryView type.
    */
   public readonly[Symbol.species]!: MemoryViewConstructor<T>;
@@ -107,33 +164,71 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
   constructor() {
     // eslint-disable-next-line prefer-const, prefer-rest-params
     let [buffer, byteOffset, length] = arguments;
-    Object.assign(this, asMemory(buffer, this.TypedArray));
+    Object.assign(this, toMemory(buffer, this.TypedArray));
     switch (arguments.length) {
       // @ts-ignore
       case 3:
-        this.length = length = Math.max(+length, 0) || 0;
+        this.length = length = max(+length, 0) || 0;
         this.byteLength      = length * this.BYTES_PER_ELEMENT;
       // @ts-ignore
       // eslint-disable-next-line no-fallthrough
-      case 2: this.byteOffset = Math.max(+byteOffset, 0) || 0; break;
+      case 2: this.byteOffset = max(+byteOffset, 0) || 0; break;
     }
   }
 
-  public copyFrom(source: MemoryData, start?: number) {
-    this.set(source, start);
+  /**
+   * Copies data from a region of a source {@link MemoryView}, {@link TypedArray}, or Array to a
+   * region in this {@link MemoryView}, even if the source region overlaps with this {@link
+   * MemoryView}.
+   * @param source The {@link MemoryView}, {@link TypedArray}, or Array to copy
+   *   from.
+   * @param sourceStart The offset in `source` at which to begin copying. <b>Default:</b> `0`.
+   * @param targetStart The offset in `this` from which to begin writing. <b>Default:</b> `0`.
+   * @param targetEnd The offset in `this` at which to stop writing (not inclusive).
+   *   <b>Default:</b> `this.length - targetStart`.
+   * @returns `this`
+   */
+  public copyFrom(source: MemoryData|Iterable<number|bigint>|ArrayLike<number|bigint>,
+                  sourceStart = 0,
+                  targetStart = 0,
+                  targetEnd   = this.length) {
+    this.subarray(targetStart, targetEnd)
+      .set(toHDView(source, this.TypedArray).subarray(sourceStart));
     return this;
   }
 
-  public copyInto(target: MemoryData, start?: number) {
-    if (target instanceof MemoryView) {
-      target.set(this, start);
-    } else if (isArrayBuffer(target)) {
-      cudaMemcpy(target, this, Math.min(this.byteLength, target.byteLength));
-    } else if (isArrayBufferView(target)) {
-      // eslint-disable-next-line prefer-const
-      let [offset, size] = clamp(this.length, start);
-      size               = Math.min(size * this.BYTES_PER_ELEMENT, target.byteLength);
-      cudaMemcpy(target, this.subarray(offset), size);
+  /**
+   * Copies data from a region of this {@link MemoryView} to a region in a target {@link
+   * MemoryView}, {@link TypedArray}, or Array, even if the target region overlaps with this {@link
+   * MemoryView}.
+   * @param target The {@link MemoryView}, {@link TypedArray}, or Array to copy
+   *   into.
+   * @param targetStart The offset in `target` at which to begin writing. <b>Default:</b> `0`.
+   * @param sourceStart The offset in `this` from which to begin copying. <b>Default:</b> `0`.
+   * @param sourceEnd The offset in `this` at which to stop copying (not inclusive). <b>Default:</b>
+   *   <b>Default:</b> `this.length - sourceStart`.
+   * @returns `this`
+   */
+  public copyInto(target: MemoryData|Array<any>,
+                  targetStart = 0,
+                  sourceStart = 0,
+                  sourceEnd   = this.length) {
+    if (!target) {
+      throw new TypeError(
+        `${this[Symbol.toStringTag]}.copyInto argument "target" cannot be null or undefined`);
+    }
+    const source = this.subarray(...clampRange(this.length, sourceStart, sourceEnd));
+    if (target instanceof MemoryView || isMemoryLike(target)) {
+      toMemoryView(target, this.TypedArray).set(source, targetStart);
+    } else if (isArrayBufferLike(target) || isArrayBufferView(target)) {
+      // If target is a ArrayBuffer or ArrayBufferView, copy from device to host via cudaMemcpy
+      const destination = toHDView(target, this.TypedArray).subarray(targetStart);
+      cudaMemcpy(destination, source, min(destination.byteLength, source.byteLength));
+    } else if (Array.isArray(target)) {
+      // If target is an Array, copy the data from device to host and splice the values into place
+      target.splice(targetStart, 0, ...source.toArray());
+    } else {
+      throw new TypeError(`${this[Symbol.toStringTag]}.copyInto argument "target" invalid type`);
     }
     return this;
   }
@@ -153,12 +248,12 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
    * @param array A typed or untyped array of values to set.
    * @param start The index in the current array at which the values are to be written.
    */
-  public set(array: MemoryData|ArrayLike<T[0]>, start?: number) {
-    // eslint-disable-next-line prefer-const
-    let [offset, size] = clamp(this.length, start);
-    const source       = asMemoryView(array, this.TypedArray);
-    size               = Math.min(size * this.BYTES_PER_ELEMENT, source.byteLength);
-    cudaMemcpy(this.subarray(offset), source, size);
+  public set(array: MemoryData|ArrayLike<number>|ArrayLike<bigint>, start?: number) {
+    const [begin, end] = clampRange(this.length, start);
+    const source       = toHDView(array, this.TypedArray);
+    const length       = min((end - begin) * this.BYTES_PER_ELEMENT, source.byteLength);
+    // const length       = min(end * this.BYTES_PER_ELEMENT, source.byteLength);
+    cudaMemcpy(this.subarray(begin), source, length);
   }
 
   /**
@@ -170,7 +265,7 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
    * length+end.
    */
   public fill(value: T[0], start?: number, end?: number) {
-    [start, end] = clamp(this.length, start, end);
+    [start, end] = clampRange(this.length, start, end);
     this.set(new this.TypedArray(end - start).fill(<never>value), start);
     return this;
   }
@@ -182,7 +277,7 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
    *   the index 'end'.
    */
   public slice(start?: number, end?: number) {
-    [start, end] = clamp(this.length, start, end);
+    [start, end] = clampRange(this.length, start, end);
     return new this[Symbol.species](
       this.buffer.slice(this.byteOffset + (start * this.BYTES_PER_ELEMENT),
                         this.byteOffset + (end * this.BYTES_PER_ELEMENT)));
@@ -195,13 +290,18 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
    * @param end The index of the end of the array.
    */
   public subarray(begin?: number, end?: number) {
-    [begin, end] = clamp(this.length, begin, end);
+    [begin, end] = clampRange(this.length, begin, end);
     return new this[Symbol.species](
       this.buffer, this.byteOffset + (begin * this.BYTES_PER_ELEMENT), end - begin);
   }
 
+  /** @ignore */
   public get[Symbol.toStringTag]() { return this.constructor.name; }
+
+  /** @ignore */
   public[Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }
+
+  /** @ignore */
   public toString() {
     return `${this[Symbol.toStringTag]} ${JSON.stringify({
       'length': this.length,
@@ -213,7 +313,7 @@ abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements Arr
   }
 
   /**
-   * Gets an IpcHandle for the underlying CUDA device memory.
+   * @summary Create an IpcHandle for the underlying CUDA device memory.
    */
   public getIpcHandle() {
     if (!(this.buffer instanceof DeviceMemory)) {
@@ -266,6 +366,10 @@ Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
                         }
                       }));
 
+/** @ignore */ (<any>MemoryView.prototype).buffer            = new DeviceMemory(0);
+/** @ignore */ (<any>MemoryView.prototype).length            = 0;
+/** @ignore */ (<any>MemoryView.prototype).byteOffset        = 0;
+/** @ignore */ (<any>MemoryView.prototype).byteLength        = 0;
 /** @ignore */ (<any>MemoryView.prototype)[Symbol.species]   = MemoryView;
 /** @ignore */ (<any>MemoryView.prototype).TypedArray        = Uint8ClampedArray;
 /** @ignore */ (<any>MemoryView.prototype).E                 = new Uint8ClampedArray(8);
@@ -336,7 +440,7 @@ export class Uint64Buffer extends MemoryView<BigUint64Array> {
 });
 
 /** @internal */
-function asMemory<T extends TypedArray|BigIntArray>(
+function toMemory<T extends TypedArray|BigIntArray>(
   source: number|Iterable<T[0]>|ArrayLike<T[0]>|MemoryData, TypedArray: TypedArrayConstructor<T>) {
   let byteOffset = 0;
   let byteLength = 0;
@@ -344,35 +448,27 @@ function asMemory<T extends TypedArray|BigIntArray>(
   if (isNumber(source)) {
     byteLength = source * TypedArray.BYTES_PER_ELEMENT;
     buffer     = allocateMemory(source * TypedArray.BYTES_PER_ELEMENT);
-  } else if (source instanceof MemoryView) {
-    byteLength = source.byteLength;
-    buffer     = source.buffer.slice(source.byteOffset, byteLength);
+    // initialize with new allocated memory with zeroes
+    cudaMemset(buffer, 0, byteLength);
   } else if (isMemoryLike(source)) {
+    // If source is a device Memory instance, don't copy it
     buffer     = source;
     byteLength = source.byteLength;
-  } else if (isArrayBuffer(source)) {
+  } else if ((source instanceof MemoryView)  //
+             || isArrayBufferLike(source)    //
+             || isArrayBufferView(source)) {
+    // If source is a host ArrayBuffer[View] or MemoryView, make a device copy
     byteLength = source.byteLength;
     buffer     = allocateMemory(byteLength);
     cudaMemcpy(buffer, source, byteLength);
-  } else if (isArrayBufferView(source)) {
-    byteLength = source.byteLength;
-    buffer     = allocateMemory(byteLength);
-    cudaMemcpy(buffer, source, byteLength);
-  } else if (isIterable(source)) {
-    const b    = new TypedArray(source).buffer;
-    byteLength = b.byteLength;
-    buffer     = allocateMemory(byteLength);
-    cudaMemcpy(buffer, b, byteLength);
-  } else if (isArrayLike(source)) {
-    const b    = TypedArray.from(source).buffer;
-    byteLength = b.byteLength;
-    buffer     = allocateMemory(byteLength);
-    cudaMemcpy(buffer, b, byteLength);
-  } else if (('buffer' in source) && ('byteOffset' in source) && ('byteLength' in source)) {
-    buffer     = source['buffer'];
-    byteLength = source['byteLength'];
-    byteOffset = source['byteOffset'];
-    while ('buffer' in buffer && buffer['buffer'] !== buffer) { buffer = buffer['buffer']; }
+  } else if (isIterable(source) || isArrayLike(source)) {
+    // If source is an Iterable or JavaScript Array, construct a TypedArray from the values
+    const array = TypedArray.from(source, TypedArray.name.includes('Big') ? BigInt : Number);
+    byteLength  = array.byteLength;
+    buffer      = allocateMemory(byteLength);
+    cudaMemcpy(buffer, array.buffer, byteLength);
+  } else if (isObject(source) && ('buffer' in source)) {
+    ({buffer, byteOffset, byteLength} = toMemoryView(source, TypedArray));
   } else {
     byteOffset = 0;
     byteLength = 0;
@@ -381,22 +477,124 @@ function asMemory<T extends TypedArray|BigIntArray>(
   return {buffer, byteLength, byteOffset, length: byteLength / TypedArray.BYTES_PER_ELEMENT};
 }
 
-/** @internal */
-function asMemoryView<T extends TypedArray|BigIntArray>(
+/**
+ * @internal
+ *
+ * @summary Construct and return a MemoryView corresponding to the given TypedArray.
+ * If necessary, copy data from the source host CPU arrays or buffers to device Memory.
+ *
+ * @note If the source is already a Memory or MemoryView, this function will create a
+ * new MemoryView of the requested type without copying the underlying device Memory.
+ *
+ * @param source The source data from which to construct a GPU MemoryView.
+ * @param TypedArray The MemoryView corresponding to the requested TypedArray.
+ * @returns A MemoryView corresponding to the given TypedArray type.
+ */
+function toMemoryView<T extends TypedArray|BigIntArray>(
   source: Iterable<T[0]>|ArrayLike<T[0]>|MemoryData, TypedArray: TypedArrayConstructor<T>) {
-  if (source instanceof MemoryView) { return source; }
-  switch (TypedArray.name) {
-    case 'Int8Array': return new Int8Buffer(source as MemoryData);
-    case 'Int16Array': return new Int16Buffer(source as MemoryData);
-    case 'Int32Array': return new Int32Buffer(source as MemoryData);
-    case 'Uint8Array': return new Uint8Buffer(source as MemoryData);
-    case 'Uint8ClampedArray': return new Uint8ClampedBuffer(source as MemoryData);
-    case 'Uint16Array': return new Uint16Buffer(source as MemoryData);
-    case 'Uint32Array': return new Uint32Buffer(source as MemoryData);
-    case 'Float32Array': return new Float32Buffer(source as MemoryData);
-    case 'Float64Array': return new Float64Buffer(source as MemoryData);
-    case 'BigInt64Array': return new Int64Buffer(source as MemoryData);
-    case 'BigUint64Array': return new Uint64Buffer(source as MemoryData);
+  if (source instanceof MemoryView && source.TypedArray === TypedArray) {
+    // If source is already the requested type, return it
+    return source as MemoryViewOf<T>;
   }
-  throw new Error('Unknown dtype');
+
+  let buffer     = source as MemoryData;
+  let byteOffset = 0, byteLength: number|undefined;
+  if ('byteOffset' in source) { ({byteOffset} = source); }
+  if ('byteLength' in source) { ({byteLength} = source); }
+  while (('buffer' in buffer) && (buffer['buffer'] !== buffer)) {  //
+    buffer = buffer['buffer'];
+  }
+
+  buffer = ((source: MemoryData) => {
+    switch (TypedArray.name) {
+      case 'Int8Array': return new Int8Buffer(source);
+      case 'Int16Array': return new Int16Buffer(source);
+      case 'Int32Array': return new Int32Buffer(source);
+      case 'Uint8Array': return new Uint8Buffer(source);
+      case 'Uint8ClampedArray': return new Uint8ClampedBuffer(source);
+      case 'Uint16Array': return new Uint16Buffer(source);
+      case 'Uint32Array': return new Uint32Buffer(source);
+      case 'Float32Array': return new Float32Buffer(source);
+      case 'Float64Array': return new Float64Buffer(source);
+      case 'BigInt64Array': return new Int64Buffer(source);
+      case 'BigUint64Array': return new Uint64Buffer(source);
+    }
+    throw new Error('Unknown dtype');
+  })(source as MemoryData);
+
+  if (byteLength !== undefined) {
+    (<any>buffer).byteOffset = byteOffset;
+    (<any>buffer).byteLength = byteLength;
+    (<any>buffer).length     = byteLength / TypedArray.BYTES_PER_ELEMENT;
+  }
+
+  return buffer as MemoryViewOf<T>;
+}
+
+/**
+ * @internal
+ *
+ * @summary Construct a host TypedArray or device `MemoryView` based on the location of the input
+ * `source` data.
+ *
+ * * If the source data is already a `Memory` or `MemoryView`, construct and return a `MemoryView`
+ *   corresponding to the desired TypedArray.
+ * * If the source data is already an `ArrayBuffer` or `ArrayBufferView`, construct and return a
+ *   TypedArray of the desired type.
+ * * If the source data is a JavaScript Iterable or Array, construct and return a TypedArray of the
+ *   desired type by enumerating the source values.
+ * * If the source data is a JavaScript Object with a "buffer" member, construct either a host
+ *   TypedArray or device `MemoryView` depending on the location of the underling buffer.
+ *
+ * @param source The source data from which to construct a CPU TypedArray or GPU `MemoryView`.
+ * @param TypedArray The TypedArray to return (if source is on the host) or its corresponding
+ *   `MemoryView` (if source is on the device).
+ * @returns A TypedArray or `MemoryView` corresponding to the desired TypedArray type.
+ */
+function toHDView<T extends TypedArray|BigIntArray>(
+  source: Iterable<number|bigint>|ArrayLike<number|bigint>|MemoryData,
+  TypedArray: TypedArrayConstructor<T>): T|MemoryViewOf<T> {
+  if (source instanceof MemoryView) {
+    return (source.TypedArray === TypedArray)
+             // If source is already the desired type, return it
+             ? source as MemoryViewOf<T>
+             // If source is another type of MemoryView, wrap in the desired type
+             : toMemoryView(source, TypedArray);
+  } else if (isMemoryLike(source)) {
+    // If source is MemoryLike, wrap it in a MemoryView of the desired type
+    return toMemoryView(source, TypedArray);
+  } else if (isArrayBufferLike(source)) {
+    // If source is an ArrayBuffer or SharedArrayBuffer, wrap in a TypedArray of the desired type
+    return new TypedArray(source);
+  } else if (isArrayBufferView(source)) {
+    // If source is already an ArrayBufferView of the desired type, return it
+    if (source.constructor === TypedArray) { return source as T; }
+    // If source is an ArrayyBufferView of another kind, return a TypedArray of the desired type
+    return new TypedArray(source.buffer,
+                          source.byteOffset,  //
+                          source.byteLength / TypedArray.BYTES_PER_ELEMENT);
+  } else if (isIterable(source) || isArrayLike(source)) {
+    // If source is an Iterable or Array, construct a TypedArray of the desired type
+    return TypedArray.from(source, TypedArray.name.includes('Big') ? BigInt : Number);
+  }
+  if (isObject(source) && ('buffer' in source)) {
+    // If source is a JS object with a 'buffer' key, recurse down to wrap either as a
+    // MemoryView or TypedArray based on whether buffer is a Memory or ArrayBuffer instance.
+    let buffer     = source as MemoryData;
+    let byteOffset = 0, byteLength: number|undefined;
+    if ('byteOffset' in source) { ({byteOffset} = source); }
+    if ('byteLength' in source) { ({byteLength} = source); }
+    while (('buffer' in buffer) && (buffer['buffer'] !== buffer)) {  //
+      buffer = buffer['buffer'];
+    }
+    buffer = toHDView(buffer, TypedArray);
+    if (byteLength !== undefined) {
+      (<any>buffer).byteOffset = byteOffset;
+      (<any>buffer).byteLength = byteLength;
+      (<any>buffer).length     = byteLength / TypedArray.BYTES_PER_ELEMENT;
+    }
+    return buffer as MemoryViewOf<T>| T;
+  }
+  throw new TypeError(
+    'asMemoryData() received invalid "source". Expected a MemoryData, Iterable, Array, or Object with a {"buffer"} `source`.');
 }

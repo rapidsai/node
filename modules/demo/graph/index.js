@@ -26,30 +26,49 @@ require('@babel/register')({
 // Change cwd to the example dir so relative file paths are resolved
 process.chdir(__dirname);
 
-const url = process.argv.slice(2).find((arg) => arg.includes('tcp://'));
 const serve = process.argv.slice(2).some((arg) => arg.includes('--serve'));
-const nodes = process.argv.slice(2).find((arg) => arg.includes('--nodes='));
-const edges = process.argv.slice(2).find((arg) => arg.includes('--edges='));
 
 if (!serve) {
     module.exports = require('@nvidia/glfw').createReactWindow(`${__dirname}/src/index.js`, true);
 }
 
 if (require.main === module) {
+
+    const parseArg = (prefix, fallback = '') => (
+        process.argv.slice(2).find((arg) => arg.includes(prefix)) || `${prefix}${fallback}`
+    ).slice(prefix.length);
+
+    const delay = parseInt(parseArg('--delay=', 1000)) | 0;
+    const url = process.argv.slice(2).find((arg) => arg.includes('tcp://'));
+
     if (serve) {
         require(`./server.js`)({
-            url: url ? require('url').parse(url) : undefined,
-            nodes: nodes ? nodes.slice('--nodes='.length) : undefined,
-            edges: edges ? edges.slice('--edges='.length) : undefined,
+            url: url && require('url').parse(url),
+            nodes: inputs(delay, parseArg('--nodes=')),
+            edges: inputs(delay, parseArg('--edges=')),
+            width: parseInt(parseArg('--width=', 800)) | 0,
+            height: parseInt(parseArg('--height=', 600)) | 0,
+            layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
         });
     } else {
         module.exports.open({
             visible: true,
             transparent: false,
             _title: '',
-            url: url ? require('url').parse(url) : undefined,
-            nodes: nodes ? nodes.slice('--nodes='.length) : undefined,
-            edges: edges ? edges.slice('--edges='.length) : undefined,
+            url: url && require('url').parse(url),
+            nodes: inputs(delay, parseArg('--nodes=')),
+            edges: inputs(delay, parseArg('--edges=')),
+            width: parseInt(parseArg('--width=', 800)) | 0,
+            height: parseInt(parseArg('--height=', 600)) | 0,
+            layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
         });
+    }
+
+    async function* inputs(delay, paths) {
+        const sleep = (t) => new Promise((r) => setTimeout(r, t));
+        for (const path of paths.split(',')) {
+            yield path;
+            await sleep(delay);
+        }
     }
 }

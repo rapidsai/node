@@ -121,6 +121,18 @@
       "editor.formatOnSaveMode": "file",
       "editor.defaultFormatter": "xaver.clang-format"
     },
+    "[json]": {
+      "editor.tabSize": 2,
+      "editor.formatOnSave": true,
+      "editor.formatOnSaveMode": "file",
+      "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "[javascript]": {
+      "editor.tabSize": 2,
+      "editor.formatOnSave": true,
+      "editor.formatOnSaveMode": "file",
+      "editor.defaultFormatter": "xaver.clang-format"
+    },
     "[typescript]": {
       "editor.tabSize": 2,
       "editor.formatOnSave": true,

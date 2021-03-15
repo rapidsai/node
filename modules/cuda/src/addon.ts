@@ -17,24 +17,39 @@ import {loadNativeModule} from '@rapidsai/core';
 import {MemoryData} from './interfaces';
 import {MappedGLMemory} from './memory';
 
+/** @ignore */
 export const CUDA = loadNativeModule<any>(module, 'node_cuda');
+/** @ignore */
 export default CUDA;
 
-export type CUdevice           = number;
-export type CUresult           = number;
-export type CUstream           = number;
-export type CUcontext          = Record<string, unknown>;
-export type CUfunction         = Record<string, unknown>;
+/** @ignore */
+export type CUdevice = number;
+/** @ignore */
+export type CUresult = number;
+/** @ignore */
+export type CUstream = number;
+/** @ignore */
+export type CUcontext = Record<string, unknown>;
+/** @ignore */
+export type CUfunction = Record<string, unknown>;
+/** @ignore */
 export type CUgraphicsResource = number;
-export type CUDAhostptr        = ArrayBuffer|ArrayBufferView;
-export type CUdeviceptr        = ArrayBuffer|ArrayBufferView|MemoryData;
-export type CUarrayptr         = number;
-export type CUipcMemHandle     = Uint8Array;
-
-export type GLImage      = number;
-export type GLBuffer     = number;
+/** @ignore */
+export type CUDAhostptr = ArrayBuffer|ArrayBufferView;
+/** @ignore */
+export type CUdeviceptr = ArrayBuffer|ArrayBufferView|MemoryData;
+/** @ignore */
+export type CUarrayptr = number;
+/** @ignore */
+export type CUipcMemHandle = Uint8Array;
+/** @ignore */
+export type GLImage = number;
+/** @ignore */
+export type GLBuffer = number;
+/** @ignore */
 export type nvrtcProgram = Record<string, unknown>;
 
+/** @ignore */
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export interface CUDA {
   readonly VERSION: number;
@@ -89,11 +104,13 @@ export interface CUDA {
   }
 }
 
+/** @ignore */
 export interface CUDAArrayConstructor {
   readonly prototype: CUDAArray;
   new(): CUDAArray;
 }
 
+/** @ignore */
 export interface CUDAArray {
   readonly ary: number;
   readonly byteLength: number;
@@ -108,9 +125,11 @@ export interface CUDAArray {
   readonly channelFormatKind: number;
 }
 
+/** @ignore */
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export declare const CUDAArray: CUDAArrayConstructor;
 
+/** @ignore */
 export enum CUDAGraphicsRegisterFlag
 {
   NONE          = CUDA.gl.graphicsRegisterFlags.none,
@@ -118,6 +137,7 @@ export enum CUDAGraphicsRegisterFlag
   WRITE_DISCARD = CUDA.gl.graphicsRegisterFlags.write_discard,
 }
 
+// /** @ignore */
 // export enum CUDAMemHostAllocFlag {
 //     DEFAULT = CUDA.mem.hostAllocFlags.default,
 //     PORTABLE = CUDA.mem.hostAllocFlags.portable,
@@ -125,6 +145,7 @@ export enum CUDAGraphicsRegisterFlag
 //     WRITECOMBINED = CUDA.mem.hostAllocFlags.writeCombined,
 // }
 
+// /** @ignore */
 // export enum CUDAMemHostRegisterFlag {
 //     DEFAULT = CUDA.mem.hostRegisterFlags.default,
 //     PORTABLE = CUDA.mem.hostRegisterFlags.portable,
@@ -132,6 +153,7 @@ export enum CUDAGraphicsRegisterFlag
 //     IOMEMORY = CUDA.mem.hostRegisterFlags.ioMemory,
 // }
 
+// /** @ignore */
 // export enum CUDAMemoryType {
 //     UNREGISTERED = CUDA.mem.memoryTypes.unregistered,
 //     HOST = CUDA.mem.memoryTypes.host,
@@ -139,6 +161,7 @@ export enum CUDAGraphicsRegisterFlag
 //     MANAGED = CUDA.mem.memoryTypes.managed,
 // }
 
+/** @ignore */
 export enum CUDAPointerAttribute
 {
   CONTEXT        = CUDA.driver.PointerAttributes.context,
