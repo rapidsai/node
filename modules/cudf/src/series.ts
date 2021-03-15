@@ -19,7 +19,8 @@ import {VectorType} from 'apache-arrow/interfaces';
 
 import {Column, ColumnProps} from './column';
 import {fromArrow} from './column/from_arrow';
-import {Table, ToArrowMetadata} from './table';
+import {DataFrame} from './data_frame';
+import {Table} from './table';
 import {
   Bool8,
   DataType,
@@ -233,19 +234,8 @@ export class AbstractSeries<T extends DataType = any> {
    * Copy a Series to an Arrow vector in host memory
    */
   toArrow(): VectorType<T> {
-    const names = (name: string|number, type?: DataType): ToArrowMetadata => {
-      if (!type || !type.children || !type.children.length) { return [name]; }
-      if (type instanceof arrow.List) {
-        if (!type.children[0]) { return [name, [[0], [1]]]; }
-        return [name, [[0], names(type.children[0].name, type.children[0].type)]];
-      }
-      return [name, type.children.map((f) => names(f.name, f.type))];
-    };
-    const reader = arrow.RecordBatchReader.from(
-      new Table({columns: [this._col]}).toArrow([names(0, this.type)]));
-    const column = new arrow.Table(reader.schema, [...reader]).getColumnAt<T>(0);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return column!.chunks[0] as VectorType<T>;
+    return new DataFrame({0: this}).toArrow().getChildAt<T>(0)!.chunks[0] as VectorType<T>;
   }
 
   /**
