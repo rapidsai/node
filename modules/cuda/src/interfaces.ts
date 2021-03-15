@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,13 +31,16 @@ export type TypedArray = FloatArray|IntArray|UintArray;
 export type TypedArrayConstructor<T extends TypedArray|BigIntArray> = {
   readonly BYTES_PER_ELEMENT: number; new (length?: number): T; new (values: Iterable<T[0]>): T;
   new (buffer: ArrayBufferLike, byteOffset?: number, length?: number): T;
-  from(arrayLike: ArrayLike<T[0]>): T;
+  from(arrayLike: Iterable<T[0]>|ArrayLike<T[0]>): T;
+  from(
+    arrayLike: Iterable<T[0]>|ArrayLike<T[0]>, mapfn: (v: T[0], k: number) => T[0], thisArg?: any):
+    T;
 };
 
 /** @ignore */
-export type MemoryData = TypedArray|BigIntArray|ArrayBufferView|ArrayBufferLike|import('./memory')
-                           .DeviceMemory|import('./memory')
-                           .PinnedMemory|import('./memory')
-                           .ManagedMemory|import('./memory')
-                           .IpcMemory|import('./memory')
-                           .MappedGLMemory;
+export type MemoryData = TypedArray|BigIntArray|ArrayBufferView|ArrayBufferLike  //
+  |(import('./memory').DeviceMemory)                                             //
+  |(import('./memory').PinnedMemory)                                             //
+  |(import('./memory').ManagedMemory)                                            //
+  |(import('./memory').IpcMemory)                                                //
+  |(import('./memory').MappedGLMemory);

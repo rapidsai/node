@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,107 +13,184 @@
 // limitations under the License.
 
 import {
+  BigIntArray,
   Float32Buffer,
   Float64Buffer,
   Int16Buffer,
   Int32Buffer,
   Int64Buffer,
   Int8Buffer,
+  MemoryViewConstructor,
+  setDefaultAllocator,
+  TypedArray,
   Uint16Buffer,
   Uint32Buffer,
   Uint64Buffer,
   Uint8Buffer,
 } from '@nvidia/cuda';
 
-describe.each([
-  Int8Buffer,
-  Int16Buffer,
-  Int32Buffer,
-  Int64Buffer,
-  Uint8Buffer,
-  Uint16Buffer,
-  Uint32Buffer,
-  Uint64Buffer,
-  Float32Buffer,
-  Float64Buffer,
-])(`%s`, (Buffer) => {
-  const testNums        = Array.from({length: 1024}, (_, i) => i);
-  const testValues: any = (() => {
-    switch (Buffer) {
-      case Int64Buffer:
-      case Uint64Buffer: return testNums.map((i) => BigInt(i));
-      default: return testNums;
-    }
-  })();
+describe.each(<[MemoryViewConstructor<TypedArray|BigIntArray>, typeof Number | typeof BigInt][]>[
+  [Int8Buffer, Number],
+  [Int16Buffer, Number],
+  [Int32Buffer, Number],
+  [Int64Buffer, BigInt],
+  [Uint8Buffer, Number],
+  [Uint16Buffer, Number],
+  [Uint32Buffer, Number],
+  [Uint64Buffer, BigInt],
+  [Float32Buffer, Number],
+  [Float64Buffer, Number],
+])(`%s`,
+   <T extends TypedArray|BigIntArray, TValue extends typeof Number|typeof BigInt>(
+     BufferCtor: MemoryViewConstructor<T>, ValueCtor: TValue) => {
+     const values = Array.from({length: 1024}, (_, i) => ValueCtor(i));
+     const buffer = BufferCtor.TypedArray.from(values);
 
-  const testBuffer: any = Buffer.TypedArray.from(testValues);
+     beforeEach(() => setDefaultAllocator(null));
 
-  test(`constructs ${Buffer.name} from a JS Array`, () => {
-    const dbuf = new Buffer(testValues);
-    expect(dbuf.toArray()).toEqual(testBuffer);
-  });
+     test(`constructs ${BufferCtor.name} from a JavaScript Array via HtoD copy`, () => {
+       const dbuf = new BufferCtor(values);
+       expect(dbuf.toArray()).toEqual(buffer);
+     });
 
-  test(`constructs ${Buffer.name} from a Typed Array`, () => {
-    const dbuf = new Buffer(testBuffer);
-    expect(dbuf.toArray()).toEqual(testBuffer);
-  });
+     test(`constructs ${BufferCtor.name} from a JavaScript Iterable via HtoD copy`, () => {
+       const dbuf = new BufferCtor(function*() { yield* values; }());
+       expect(dbuf.toArray()).toEqual(buffer);
+     });
 
-  test(`reads ${Buffer.name} values via subscript accessor`, () => {
-    const dbuf = new Buffer(testBuffer);
-    for (let i = -1; ++i < dbuf.length;) { expect(dbuf[i]).toEqual(testBuffer[i]); }
-  });
+     test(`constructs ${BufferCtor.name} from an ArrayBuffer via HtoD copy`, () => {
+       const dbuf = new BufferCtor(buffer.buffer);
+       expect(dbuf.toArray()).toEqual(buffer);
+     });
 
-  test(`writes ${Buffer.name} values via subscript accessor`, () => {
-    const dbuf = new Buffer(testBuffer);
-    const mult = testBuffer[testBuffer.length * .25 | 0];
-    for (let i = -1; ++i < dbuf.length;) { dbuf[i] = testBuffer[i] * mult; }
-    expect(dbuf.toArray()).toEqual(testBuffer.map((i: any) => i * mult));
-  });
+     test(`constructs ${BufferCtor.name} from an ArrayBufferView via HtoD copy`, () => {
+       const dbuf = new BufferCtor(buffer);
+       expect(dbuf.toArray()).toEqual(buffer);
+     });
 
-  test(`slice copies the device memory`, () => {
-    const dbuf = new Buffer(testBuffer);
-    const copy = dbuf.slice();
-    expect(copy.toArray()).toEqual(testBuffer);
-    expect(dbuf.buffer.ptr).not.toEqual(copy.buffer.ptr);
-  });
+     test(`constructs ${BufferCtor.name} from a device Memory instance zero-copy`, () => {
+       const mem  = new BufferCtor(buffer).buffer;
+       const dbuf = new BufferCtor(mem);
+       expect(dbuf.toArray()).toEqual(buffer);
+       expect(dbuf.buffer === mem).toBe(true);
+       expect(dbuf.buffer.ptr).toEqual(mem.ptr);
+     });
 
-  test(`slice copies the device memory range`, () => {
-    const start = 300, end = 700;
-    const dbuf = new Buffer(testBuffer);
-    const copy = dbuf.slice(start, end);
-    expect(copy.toArray()).toEqual(testBuffer.slice(start, end));
-    expect(dbuf.buffer.ptr).not.toEqual(copy.buffer.ptr);
-    expect(copy.byteOffset).toEqual(testBuffer.slice(start, end).byteOffset);
-    expect(copy.byteLength).toEqual(testBuffer.slice(start, end).byteLength);
-  });
+     test(`constructs ${BufferCtor.name} from a device MemoryView via DtoD copy`, () => {
+       const dbuf = new BufferCtor(new BufferCtor(buffer));
+       expect(dbuf.toArray()).toEqual(buffer);
+     });
 
-  test(`subarray does not copy the device memory`, () => {
-    const dbuf = new Buffer(testBuffer);
-    const span = dbuf.subarray();
-    expect(span.toArray()).toEqual(testBuffer);
-    expect(dbuf.buffer.ptr).toEqual(span.buffer.ptr);
-  });
+     test(`reads ${BufferCtor.name} values via subscript accessor`, () => {
+       const dbuf = new BufferCtor(buffer);
+       for (let i = -1; ++i < dbuf.length;) { expect(dbuf[i]).toEqual(buffer[i]); }
+     });
 
-  test(`subarray does not copy the device memory range`, () => {
-    const start = 300, end = 700;
-    const dbuf = new Buffer(testBuffer);
-    const span = dbuf.subarray(start, end);
-    expect(span.toArray()).toEqual(testBuffer.subarray(start, end));
-    expect(dbuf.buffer.ptr).toEqual(span.buffer.ptr);
-    expect(span.byteOffset).toEqual(testBuffer.subarray(start, end).byteOffset);
-    expect(span.byteLength).toEqual(testBuffer.subarray(start, end).byteLength);
-  });
+     test(`writes ${BufferCtor.name} values via subscript accessor`, () => {
+       const dbuf = new BufferCtor(buffer);
+       const mult = <T[0]>buffer[buffer.length * .17 | 0];
+       (() => {
+         for (let i = -1, n = dbuf.length; ++i < n;) {  //
+           dbuf[i] = (<T[0]>buffer[i]) * mult;
+         }
+       })();
+       const results = [...buffer].map((i: T[0]) => i * mult);
+       expect(dbuf.toArray()).toEqual(BufferCtor.TypedArray.from(results));
+     });
 
-  test(`can copy from unregistered host memory`, () => {
-    const dbuf = new Buffer(testBuffer.length);
-    dbuf.copyFrom(testBuffer);
-    expect(dbuf.toArray()).toEqual(testBuffer);
-  });
+     test(`slice copies the device memory`, () => {
+       const dbuf = new BufferCtor(buffer);
+       const copy = dbuf.slice();
+       expect(copy.toArray()).toEqual(buffer);
+       expect(dbuf.buffer.ptr).not.toEqual(copy.buffer.ptr);
+     });
 
-  test(`can copy into unregistered host memory`, () => {
-    const dbuf = new Buffer(testBuffer);
-    const hbuf = new Buffer.TypedArray(dbuf.length);
-    dbuf.copyInto(hbuf);
-    expect(hbuf).toEqual(testBuffer);
-  });
-});
+     test(`slice copies the device memory range`, () => {
+       const start = 300, end = 700;
+       const dbuf = new BufferCtor(buffer);
+       const copy = dbuf.slice(start, end);
+       expect(copy.toArray()).toEqual(buffer.slice(start, end));
+       expect(dbuf.buffer.ptr).not.toEqual(copy.buffer.ptr);
+       expect(copy.byteOffset).toEqual(buffer.slice(start, end).byteOffset);
+       expect(copy.byteLength).toEqual(buffer.slice(start, end).byteLength);
+     });
+
+     test(`subarray does not copy the device memory`, () => {
+       const dbuf = new BufferCtor(buffer);
+       const span = dbuf.subarray();
+       expect(span.toArray()).toEqual(buffer);
+       expect(dbuf.buffer.ptr).toEqual(span.buffer.ptr);
+     });
+
+     test(`subarray does not copy the device memory range`, () => {
+       const start = 300, end = 700;
+       const dbuf = new BufferCtor(buffer);
+       const span = dbuf.subarray(start, end);
+       expect(span.toArray()).toEqual(buffer.subarray(start, end));
+       expect(dbuf.buffer.ptr).toEqual(span.buffer.ptr);
+       expect(span.byteOffset).toEqual(buffer.subarray(start, end).byteOffset);
+       expect(span.byteLength).toEqual(buffer.subarray(start, end).byteLength);
+     });
+
+     test(`can copy from unregistered host memory`, () => {
+       const source = buffer.slice();
+       const target = new BufferCtor(source.length);
+       target.copyFrom(source);
+       expect(target.toArray()).toEqual(source);
+     });
+
+     test(`can copy into unregistered host memory`, () => {
+       const source = new BufferCtor(buffer);
+       const target = new BufferCtor.TypedArray(source.length);
+       source.copyInto(target);
+       expect(target).toEqual(buffer);
+     });
+
+     test(`can copy from device memory with offsets and lengths`, () => {
+       const source = new BufferCtor(buffer);
+       const target = new BufferCtor(buffer.length);
+       // swap the halves
+       target.copyFrom(source, 0, target.length / 2, target.length);
+       target.copyFrom(source, source.length / 2, 0, target.length / 2);
+       expect(target.toArray()).toEqual(new BufferCtor.TypedArray([
+         ...buffer.subarray(buffer.length / 2),
+         ...buffer.subarray(0, buffer.length / 2)
+       ]));
+     });
+
+     test(`can copy into device memory with offsets and lengths`, () => {
+       const source = new BufferCtor(buffer);
+       const target = new BufferCtor(buffer.length);
+       // swap the halves
+       source.copyInto(target, 0, source.length / 2, source.length);
+       source.copyInto(target, target.length / 2, 0, source.length / 2);
+       expect(target.toArray()).toEqual(new BufferCtor.TypedArray([
+         ...buffer.subarray(buffer.length / 2),  //
+         ...buffer.subarray(0, buffer.length / 2)
+       ]));
+     });
+
+     test(`can copy from unregistered host memory with offsets and lengths`, () => {
+       const source = buffer.slice();
+       const target = new BufferCtor(buffer.length);
+       // swap the halves
+       target.copyFrom(source, 0, target.length / 2, target.length);
+       target.copyFrom(source, source.length / 2, 0, target.length / 2);
+       expect(target.toArray()).toEqual(new BufferCtor.TypedArray([
+         ...buffer.subarray(buffer.length / 2),
+         ...buffer.subarray(0, buffer.length / 2)
+       ]));
+     });
+
+     test(`can copy into unregistered host memory with offsets and lengths`, () => {
+       const source = new BufferCtor(buffer);
+       const target = new BufferCtor.TypedArray(source.length);
+       // swap the halves
+       source.copyInto(target, 0, source.length / 2, source.length);
+       source.copyInto(target, buffer.length / 2, 0, source.length / 2);
+       expect(target).toEqual(new BufferCtor.TypedArray([
+         ...buffer.subarray(buffer.length / 2),  //
+         ...buffer.subarray(0, buffer.length / 2)
+       ]));
+     });
+   });
