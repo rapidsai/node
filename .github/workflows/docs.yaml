@@ -6,11 +6,8 @@ on:
       - main
     paths:
       - '**/typedoc.js'
-      - '**/tsconfig.json'
-      - '**/package.json'
-      - 'modules/**'
+      - 'modules/**/src/**/*.ts'
       - '.github/workflows/**'
-      - '!**/tests/**'
 
 jobs:
   update:
