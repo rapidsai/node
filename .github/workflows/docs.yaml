@@ -1,0 +1,44 @@
+name: docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/typedoc.js'
+      - 'modules/**/src/**/*.ts'
+      - '.github/workflows/**'
+
+jobs:
+  update:
+    name: Update Docs
+    runs-on: ubuntu-20.04
+    container: node:14
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v2
+        with:
+          path: main
+      - name: Checkout gh-pages
+        uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - name: Build Docs
+        working-directory: main
+        run: yarn && yarn tsc:build && yarn doc
+      - name: Copy Docs to gh-pages
+        run: |
+          rm -rf gh-pages/docs
+          cp -r main/doc gh-pages/docs
+      - name: Commit new docs
+        working-directory: gh-pages
+        run: |
+          COMMIT_SHA=$(echo "${COMMIT_SHA}" | cut -c 1-7)
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add --all
+          git commit --allow-empty -m "update docs from ${COMMIT_SHA}"
+          git push gh-pages
+        env:
+          COMMIT_SHA: ${{ github.sha }}
