@@ -16,7 +16,7 @@ import {MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
 import {Series} from '../series';
-import {DataType, Int32, Uint8, Utf8String} from '../types/dtypes';
+import {Bool8, DataType, Int32, Uint8, Utf8String} from '../types/dtypes';
 
 /**
  * A Series of utf8-string values in GPU memory.
@@ -45,4 +45,39 @@ export class StringSeries extends Series<Utf8String> {
    */
   // TODO: Account for this.offset
   get data() { return Series.new(this._col.getChild<Uint8>(1)); }
+
+  /**
+   * Returns a boolean series identifying rows which match the given regex pattern.
+   *
+   * @param pattern Regex pattern to match to each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   */
+  containsRe(pattern: string, memoryResource?: MemoryResource): Series<Bool8> {
+    return Series.new(this._col.containsRe(pattern, memoryResource));
+  }
+
+  /**
+   * Returns an Int32 series the number of times the given regex pattern matches
+   * in each string.
+   *
+   * @param pattern Regex pattern to match to each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   */
+  countRe(pattern: string, memoryResource?: MemoryResource): Series<Int32> {
+    return Series.new(this._col.countRe(pattern, memoryResource));
+  }
+
+  /**
+   * Returns a boolean series identifying rows which match the given regex pattern
+   * only at the beginning of the string
+   *
+   * @param pattern Regex pattern to match to each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   */
+  matchesRe(pattern: string, memoryResource?: MemoryResource): Series<Bool8> {
+    return Series.new(this._col.matchesRe(pattern, memoryResource));
+  }
 }

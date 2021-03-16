@@ -22,6 +22,7 @@ import {
   DataType,
   Float64,
   IndexType,
+  Int32,
   Int64,
   Integral,
   Numeric,
@@ -30,7 +31,8 @@ import {CommonType, Interpolation} from './types/mappings';
 
 export type ColumnProps<T extends DataType = any> = {
   /*
-   * ColumnProps *with* a `nullMask` shouldn't allow `data` to be an Array with elements and nulls:
+   * ColumnProps *with* a `nullMask` shouldn't allow `data` to be an Array with elements and
+   * nulls:
    * ```javascript
    * new Column({
    *   type: new Int32,
@@ -48,7 +50,8 @@ export type ColumnProps<T extends DataType = any> = {
   children?: ReadonlyArray<Column>| null;
 }|{
   /*
-   * ColumnProps *without* a `nullMask` should allow `data` to be an Array with elements and nulls:
+   * ColumnProps *without* a `nullMask` should allow `data` to be an Array with elements and
+   * nulls:
    * ```javascript
    * new Column({
    *   type: new Int32,
@@ -534,6 +537,41 @@ export interface Column<T extends DataType = any> {
    * @returns Column of same size as `input` containing result of the cast operation.
    */
   cast<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
+
+  /**
+   * Creates a column of `BOOL8` elements where `true` indicates the value is null and `false`
+   * indicates the row matches the given pattern
+   *
+   * @param pattern Regex pattern to match to each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `BOOL8` elements with `true` representing `null`
+   *   values.
+   */
+  containsRe(pattern: string, memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Creates a column of `INT32` elements where `true` indicates the number of times the given
+   * regex pattern matches in each string.
+   *
+   * @param pattern Regex pattern to match to each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `INT32` counts
+   */
+  countRe(pattern: string, memoryResource?: MemoryResource): Column<Int32>;
+
+  /**
+   * Creates a column of `BOOL8` elements where `true` indicates the value is null and `false`
+   * indicates the row matches the given pattern only at the beginning of the string
+   *
+   * @param pattern Regex pattern to match to each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `BOOL8` elements with `true` representing `null`
+   *   values.
+   */
+  matchesRe(pattern: string, memoryResource?: MemoryResource): Column<Bool8>;
 
   /**
    * Creates a column of `BOOL8` elements where `true` indicates the value is null and `false`

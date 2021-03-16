@@ -216,6 +216,10 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   InstanceMethod<&Column::rint>("rint"),
                   InstanceMethod<&Column::bit_invert>("bit_invert"),
                   InstanceMethod<&Column::unary_not>("not"),
+                  // column/re.cpp
+                  InstanceMethod<&Column::contains_re>("containsRe"),
+                  InstanceMethod<&Column::count_re>("countRe"),
+                  InstanceMethod<&Column::matches_re>("matchesRe"),
                 });
 
   Column::constructor = Napi::Persistent(ctor);
