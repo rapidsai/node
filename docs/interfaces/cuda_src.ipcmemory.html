@@ -66,11 +66,20 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<dl class="tsd-comment-tags">
+						<dt>summary</dt>
+						<dd><p>An owning wrapper around a CUDA device memory allocation shared by another process.</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="cuda_src.memory.html" class="tsd-signature-type" data-tsd-kind="Interface">Memory</a>
+						<span class="tsd-signature-type">Memory</span>
 						<ul class="tsd-hierarchy">
 							<li>
 								<span class="target">IpcMemory</span>
@@ -83,74 +92,91 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cuda_src.ipcmemory.html#_symbol_tostringtag_" class="tsd-kind-icon">[<wbr>Symbol.to<wbr>String<wbr>Tag]</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="cuda_src.ipcmemory.html#device" class="tsd-kind-icon">device</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="cuda_src.ipcmemory.html#ptr" class="tsd-kind-icon">ptr</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cuda_src.ipcmemory.html#close" class="tsd-kind-icon">close</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite"><a href="cuda_src.ipcmemory.html#slice" class="tsd-kind-icon">slice</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="_symbol_tostringtag_" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> [<wbr>Symbol.to<wbr>String<wbr>Tag]</h3>
-					<div class="tsd-signature tsd-kind-icon">[<wbr>Symbol.to<wbr>String<wbr>Tag]<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;IpcMemory&quot;</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/cuda/src/memory.ts#L68">modules/cuda/src/memory.ts:68</a></li>
-						</ul>
-					</aside>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="device" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> device</h3>
 					<div class="tsd-signature tsd-kind-icon">device<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="cuda_src.memory.html">Memory</a>.<a href="cuda_src.memory.html#device">device</a></p>
+						<p>Inherited from Memory.device</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/cuda/src/memory.ts#L19">modules/cuda/src/memory.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/memory.ts#L24">modules/cuda/src/memory.ts:24</a></li>
 						</ul>
 					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-					<a name="ptr" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> ptr</h3>
-					<div class="tsd-signature tsd-kind-icon">ptr<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<p>Inherited from <a href="cuda_src.memory.html">Memory</a>.<a href="cuda_src.memory.html#ptr">ptr</a></p>
-						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/cuda/src/memory.ts#L18">modules/cuda/src/memory.ts:18</a></li>
-						</ul>
-					</aside>
+					<div class="tsd-comment tsd-typography">
+						<dl class="tsd-comment-tags">
+							<dt>summary</dt>
+							<dd><p>The <a href="../classes/cuda_src.device.html">device</a> this Memory instance is associated with.</p>
+							</dd>
+						</dl>
+					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
-					<a name="slice" class="tsd-anchor"></a>
-					<h3>slice</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">slice<span class="tsd-signature-symbol">(</span>start<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, end<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cuda_src.html#devicememory-1" class="tsd-signature-type" data-tsd-kind="Variable">DeviceMemory</a></li>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="close" class="tsd-anchor"></a>
+					<h3>close</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">close<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides <a href="cuda_src.memory.html">Memory</a>.<a href="cuda_src.memory.html#slice">slice</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/cuda/src/memory.ts#L69">modules/cuda/src/memory.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/memory.ts#L117">modules/cuda/src/memory.ts:117</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>summary</dt>
+									<dd><p>Close the underlying IPC memory handle, allowing the exporting process to free the
+										exported <a href="cuda_src.devicememory.html">DeviceMemory</a>.</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="slice" class="tsd-anchor"></a>
+					<h3>slice</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">slice<span class="tsd-signature-symbol">(</span>start<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, end<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DeviceMemory</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides Memory.slice</p>
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/memory.ts#L112">modules/cuda/src/memory.ts:112</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>summary</dt>
+									<dd><p>Copies a region of IpcMemory and returns as DeviceMemory.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -160,7 +186,7 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> end: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="../modules/cuda_src.html#devicememory-1" class="tsd-signature-type" data-tsd-kind="Variable">DeviceMemory</a></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">DeviceMemory</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -200,19 +226,67 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-enum tsd-parent-kind-module">
+						<a href="../enums/cuda_src.deviceflags.html" class="tsd-kind-icon">Device<wbr>Flags</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.device.html" class="tsd-kind-icon">Device</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.float32buffer.html" class="tsd-kind-icon">Float32<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.float64buffer.html" class="tsd-kind-icon">Float64<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.int16buffer.html" class="tsd-kind-icon">Int16<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.int32buffer.html" class="tsd-kind-icon">Int32<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.int64buffer.html" class="tsd-kind-icon">Int64<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.int8buffer.html" class="tsd-kind-icon">Int8<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.ipchandle.html" class="tsd-kind-icon">Ipc<wbr>Handle</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module tsd-has-type-parameter">
+						<a href="../classes/cuda_src.memoryview.html" class="tsd-kind-icon">Memory<wbr>View</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.uint16buffer.html" class="tsd-kind-icon">Uint16<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.uint32buffer.html" class="tsd-kind-icon">Uint32<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.uint64buffer.html" class="tsd-kind-icon">Uint64<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.uint8buffer.html" class="tsd-kind-icon">Uint8<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/cuda_src.uint8clampedbuffer.html" class="tsd-kind-icon">Uint8<wbr>Clamped<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="cuda_src.devicememory.html" class="tsd-kind-icon">Device<wbr>Memory</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="cuda_src.deviceproperties.html" class="tsd-kind-icon">Device<wbr>Properties</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-module">
 						<a href="cuda_src.ipcmemory.html" class="tsd-kind-icon">Ipc<wbr>Memory</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="cuda_src.ipcmemory.html#_symbol_tostringtag_" class="tsd-kind-icon">[<wbr>Symbol.to<wbr>String<wbr>Tag]</a>
-							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 								<a href="cuda_src.ipcmemory.html#device" class="tsd-kind-icon">device</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="cuda_src.ipcmemory.html#ptr" class="tsd-kind-icon">ptr</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cuda_src.ipcmemory.html#close" class="tsd-kind-icon">close</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
 								<a href="cuda_src.ipcmemory.html#slice" class="tsd-kind-icon">slice</a>
@@ -221,6 +295,27 @@
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="cuda_src.managedmemory.html" class="tsd-kind-icon">Managed<wbr>Memory</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="cuda_src.mappedglmemory.html" class="tsd-kind-icon">MappedGLMemory</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="cuda_src.pinnedmemory.html" class="tsd-kind-icon">Pinned<wbr>Memory</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#cudamemoryview" class="tsd-kind-icon">CUDAMemory<wbr>View</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#devices" class="tsd-kind-icon">devices</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#clamprange" class="tsd-kind-icon">clamp<wbr>Range</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#setdefaultallocator" class="tsd-kind-icon">set<wbr>Default<wbr>Allocator</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -241,7 +336,6 @@
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">

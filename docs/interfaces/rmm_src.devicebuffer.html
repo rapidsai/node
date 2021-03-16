@@ -66,6 +66,19 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<dl class="tsd-comment-tags">
+						<dt>summary</dt>
+						<dd><p>Allocates device memory via RMM (the RAPIDS Memory Manager).
+								<br/><br/>
+								This class allocates untyped and <em>uninitialized</em> device memory using a
+								<a href="rmm_src.memoryresource.html">MemoryResource</a>. If not explicitly specified, the memory resource
+							returned from <a href="../modules/rmm_src.html#getcurrentdeviceresource">getCurrentDeviceResource</a> is used.</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -86,12 +99,11 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rmm_src.devicebuffer.html#bytelength" class="tsd-kind-icon">byte<wbr>Length</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="rmm_src.devicebuffer.html#bytelength" class="tsd-kind-icon">byte<wbr>Length</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rmm_src.devicebuffer.html#capacity" class="tsd-kind-icon">capacity</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rmm_src.devicebuffer.html#device" class="tsd-kind-icon">device</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rmm_src.devicebuffer.html#isempty" class="tsd-kind-icon">is<wbr>Empty</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rmm_src.devicebuffer.html#memoryresource" class="tsd-kind-icon">memory<wbr>Resource</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rmm_src.devicebuffer.html#ptr" class="tsd-kind-icon">ptr</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rmm_src.devicebuffer.html#stream" class="tsd-kind-icon">stream</a></li>
 							</ul>
 						</section>
@@ -101,7 +113,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="rmm_src.devicebuffer.html#resize" class="tsd-kind-icon">resize</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="rmm_src.devicebuffer.html#setstream" class="tsd-kind-icon">set<wbr>Stream</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="rmm_src.devicebuffer.html#shrinktofit" class="tsd-kind-icon">shrink<wbr>ToFit</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="rmm_src.devicebuffer.html#slice" class="tsd-kind-icon">slice</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite"><a href="rmm_src.devicebuffer.html#slice" class="tsd-kind-icon">slice</a></li>
 							</ul>
 						</section>
 					</div>
@@ -109,15 +121,23 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
 					<a name="bytelength" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> byte<wbr>Length</h3>
 					<div class="tsd-signature tsd-kind-icon">byte<wbr>Length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
+						<p>Overrides ArrayBuffer.byteLength</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L40">modules/rmm/src/device_buffer.ts:40</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/device_buffer.ts#L51">modules/rmm/src/device_buffer.ts:51</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<dl class="tsd-comment-tags">
+							<dt>summary</dt>
+							<dd><p>The length in bytes of the <a href="rmm_src.devicebuffer.html">DeviceBuffer</a>.</p>
+							</dd>
+						</dl>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="capacity" class="tsd-anchor"></a>
@@ -125,9 +145,19 @@
 					<div class="tsd-signature tsd-kind-icon">capacity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L41">modules/rmm/src/device_buffer.ts:41</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/device_buffer.ts#L57">modules/rmm/src/device_buffer.ts:57</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<dl class="tsd-comment-tags">
+							<dt>summary</dt>
+							<dd><p>Returns actual size in bytes of the device memory allocation.</p>
+							</dd>
+							<dt>note</dt>
+							<dd><p>The invariant <a href="rmm_src.devicebuffer.html#bytelength">byteLength</a> &lt;= <code>capacity</code> holds.</p>
+							</dd>
+						</dl>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="device" class="tsd-anchor"></a>
@@ -135,9 +165,16 @@
 					<div class="tsd-signature tsd-kind-icon">device<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L44">modules/rmm/src/device_buffer.ts:44</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/device_buffer.ts#L67">modules/rmm/src/device_buffer.ts:67</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<dl class="tsd-comment-tags">
+							<dt>summary</dt>
+							<dd><p>The CUDA Device associated with this <a href="rmm_src.devicebuffer.html">DeviceBuffer</a>.</p>
+							</dd>
+						</dl>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="isempty" class="tsd-anchor"></a>
@@ -145,9 +182,16 @@
 					<div class="tsd-signature tsd-kind-icon">is<wbr>Empty<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L42">modules/rmm/src/device_buffer.ts:42</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/device_buffer.ts#L61">modules/rmm/src/device_buffer.ts:61</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<dl class="tsd-comment-tags">
+							<dt>summary</dt>
+							<dd><p>A boolean indicating whether the <a href="rmm_src.devicebuffer.html#bytelength">byteLength</a> is zero.</p>
+							</dd>
+						</dl>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="memoryresource" class="tsd-anchor"></a>
@@ -155,19 +199,16 @@
 					<div class="tsd-signature tsd-kind-icon">memory<wbr>Resource<span class="tsd-signature-symbol">:</span> <a href="rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L46">modules/rmm/src/device_buffer.ts:46</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/device_buffer.ts#L75">modules/rmm/src/device_buffer.ts:75</a></li>
 						</ul>
 					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="ptr" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> ptr</h3>
-					<div class="tsd-signature tsd-kind-icon">ptr<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L43">modules/rmm/src/device_buffer.ts:43</a></li>
-						</ul>
-					</aside>
+					<div class="tsd-comment tsd-typography">
+						<dl class="tsd-comment-tags">
+							<dt>summary</dt>
+							<dd><p>The <a href="rmm_src.memoryresource.html">MemoryResource</a> used to allocate and deallocate device memory.</p>
+							</dd>
+						</dl>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="stream" class="tsd-anchor"></a>
@@ -175,9 +216,16 @@
 					<div class="tsd-signature tsd-kind-icon">stream<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L45">modules/rmm/src/device_buffer.ts:45</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/device_buffer.ts#L71">modules/rmm/src/device_buffer.ts:71</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<dl class="tsd-comment-tags">
+							<dt>summary</dt>
+							<dd><p>The CUDA stream most recently specified for allocation/deallocation.</p>
+							</dd>
+						</dl>
+					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -192,26 +240,26 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L69">modules/rmm/src/device_buffer.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/device_buffer.ts#L98">modules/rmm/src/device_buffer.ts:98</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Resize the device memory allocation</p>
 								</div>
-								<p>If the requested <code>new_size</code> is less than or equal to <code>capacity()</code>, no
+								<p>If the requested <code>new_size</code> is less than or equal to <code>capacity</code>, no
 									action is taken other than updating the value that is returned from
-									<code>size()</code>. Specifically, no memory is allocated nor copied. The value
-								<code>capacity()</code> remains the actual size of the device memory allocation.</p>
+									<code>byteLength</code>. Specifically, no memory is allocated nor copied. The value
+								<code>capacity</code> remains the actual size of the device memory allocation.</p>
 								<dl class="tsd-comment-tags">
 									<dt>note</dt>
-									<dd><p><code>shrink_to_fit()</code> may be used to force the deallocation of unused
-										<code>capacity()</code>.</p>
-										<p>If <code>new_size</code> is larger than <code>capacity()</code>, a new allocation is made on
+									<dd><p><a href="rmm_src.devicebuffer.html#shrinktofit">shrinkToFit</a> may be used to force the deallocation of unused
+										<a href="rmm_src.devicebuffer.html#capacity">capacity</a>.</p>
+										<p>If <code>new_size</code> is larger than <code>capacity</code>, a new allocation is made on
 											<code>stream</code> to satisfy <code>new_size</code>, and the contents of the old allocation are
 											copied on <code>stream</code> to the new allocation. The old allocation is then freed.
 										The bytes from <code>[old_size, new_size)</code> are uninitialized.</p>
-										<p>The invariant <code>size() &lt;= capacity()</code> holds.</p>
+										<p>The invariant <code>byteLength &lt;= capacity</code> holds.</p>
 									</dd>
 								</dl>
 							</div>
@@ -244,17 +292,17 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L81">modules/rmm/src/device_buffer.ts:81</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/device_buffer.ts#L110">modules/rmm/src/device_buffer.ts:110</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Sets the stream to be used for deallocation</p>
 								</div>
-								<p>If no other rmm::device_buffer method that allocates or copies memory is
-									called after this call with a different stream argument, then @p stream
-									will be used for deallocation in the `rmm::device_buffer destructor.
-									Otherwise, if another rmm::device_buffer method with a stream parameter is
+								<p>If no other <a href="rmm_src.devicebuffer.html">DeviceBuffer</a> method that allocates or copies memory is
+									called after this call with a different stream argument, then <code>stream</code>
+									will be used for deallocation in the `<a href="rmm_src.devicebuffer.html">DeviceBuffer</a> destructor.
+									Otherwise, if another <a href="rmm_src.devicebuffer.html">DeviceBuffer</a> method with a stream parameter is
 									called after this, the later stream parameter will be stored and used in
 								the destructor.</p>
 							</div>
@@ -278,7 +326,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L93">modules/rmm/src/device_buffer.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/device_buffer.ts#L122">modules/rmm/src/device_buffer.ts:122</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -286,8 +334,8 @@
 									<p>Forces the deallocation of unused memory.</p>
 								</div>
 								<p>Reallocates and copies on stream <code>stream</code> the contents of the device memory
-								allocation to reduce <code>capacity()</code> to <code>size()</code>.</p>
-								<p>If <code>size() == capacity()</code>, no allocations nor copies occur.</p>
+								allocation to reduce <code>capacity</code> to <code>byteLength</code>.</p>
+								<p>If <code>byteLength == capacity</code>, no allocations nor copies occur.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -302,17 +350,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
 					<a name="slice" class="tsd-anchor"></a>
 					<h3>slice</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">slice<span class="tsd-signature-symbol">(</span>begin<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, end<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/rmm_src.html#devicebuffer-1" class="tsd-signature-type" data-tsd-kind="Variable">DeviceBuffer</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">slice<span class="tsd-signature-symbol">(</span>start<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, end<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DeviceBuffer</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Overrides ArrayBuffer.slice</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L102">modules/rmm/src/device_buffer.ts:102</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/device_buffer.ts#L131">modules/rmm/src/device_buffer.ts:131</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -323,20 +372,20 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>begin: <span class="tsd-signature-type">number</span></h5>
+									<h5>start: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>the offset (in bytes) to start copying from</p>
+										<p>the offset (in bytes) from which to start copying</p>
 									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> end: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>the offset (in bytes) to end copying, or the end of the
-										buffer, if unspecified</p>
+										<p>the offset (in bytes) to stop copying, or the end of the
+										buffer if unspecified</p>
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="../modules/rmm_src.html#devicebuffer-1" class="tsd-signature-type" data-tsd-kind="Variable">DeviceBuffer</a></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">DeviceBuffer</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -399,7 +448,7 @@
 					<li class="current tsd-kind-interface tsd-parent-kind-module">
 						<a href="rmm_src.devicebuffer.html" class="tsd-kind-icon">Device<wbr>Buffer</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
 								<a href="rmm_src.devicebuffer.html#bytelength" class="tsd-kind-icon">byte<wbr>Length</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
@@ -415,9 +464,6 @@
 								<a href="rmm_src.devicebuffer.html#memoryresource" class="tsd-kind-icon">memory<wbr>Resource</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="rmm_src.devicebuffer.html#ptr" class="tsd-kind-icon">ptr</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="rmm_src.devicebuffer.html#stream" class="tsd-kind-icon">stream</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
@@ -429,7 +475,7 @@
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="rmm_src.devicebuffer.html#shrinktofit" class="tsd-kind-icon">shrink<wbr>ToFit</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-interface">
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite">
 								<a href="rmm_src.devicebuffer.html#slice" class="tsd-kind-icon">slice</a>
 							</li>
 						</ul>
@@ -437,13 +483,7 @@
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="rmm_src.devicebufferconstructor.html" class="tsd-kind-icon">Device<wbr>Buffer<wbr>Constructor</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="rmm_src.memoryresource.html" class="tsd-kind-icon">Memory<wbr>Resource</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-module">
-						<a href="../modules/rmm_src.html#devicebuffer-1" class="tsd-kind-icon">Device<wbr>Buffer</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="../modules/rmm_src.html#getcurrentdeviceresource" class="tsd-kind-icon">get<wbr>Current<wbr>Device<wbr>Resource</a>

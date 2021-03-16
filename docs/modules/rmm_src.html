@@ -82,14 +82,7 @@
 							<h3>Interfaces</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/rmm_src.devicebuffer.html" class="tsd-kind-icon">Device<wbr>Buffer</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/rmm_src.devicebufferconstructor.html" class="tsd-kind-icon">Device<wbr>Buffer<wbr>Constructor</a></li>
 								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-kind-icon">Memory<wbr>Resource</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
-							<h3>Variables</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="rmm_src.html#devicebuffer-1" class="tsd-kind-icon">Device<wbr>Buffer</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -106,19 +99,6 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Variables</h2>
-				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
-					<a name="devicebuffer-1" class="tsd-anchor"></a>
-					<h3>Device<wbr>Buffer</h3>
-					<div class="tsd-signature tsd-kind-icon">Device<wbr>Buffer<span class="tsd-signature-symbol">:</span> <a href="../interfaces/rmm_src.devicebufferconstructor.html" class="tsd-signature-type" data-tsd-kind="Interface">DeviceBufferConstructor</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/device_buffer.ts#L106">modules/rmm/src/device_buffer.ts:106</a></li>
-						</ul>
-					</aside>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="getcurrentdeviceresource" class="tsd-anchor"></a>
@@ -130,10 +110,30 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/index.ts#L48">modules/rmm/src/index.ts:48</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/index.ts#L136">modules/rmm/src/index.ts:136</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>summary</dt>
+									<dd><p>Get the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> for the current device.</p>
+										<br/>
+										<p>Returns the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> set for the current device. The initial resource is a <a href="../classes/rmm_src.cudamemoryresource.html">CudaMemoryResource</a>.</p>
+										<br/>
+										<p>The &quot;current device&quot; is the device specified by <a href="../classes/cuda_src.device.html#activedeviceid">Device.activeDeviceId</a>.</p>
+										<br/>
+									</dd>
+									<dt>note</dt>
+									<dd><p>The returned <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> should only be used with the current CUDA device.
+											Changing the current device (e.g. calling <code>Device.activate()</code>) and then using the returned
+											resource can result in undefined behavior. The behavior of a <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> is undefined
+											if used while the active CUDA device is a different device from the one that was active when the
+										<a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> was created.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h4>
+							<p>Pointer to the resource for the current device</p>
 						</li>
 					</ul>
 				</section>
@@ -147,16 +147,38 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/index.ts#L27">modules/rmm/src/index.ts:27</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/index.ts#L48">modules/rmm/src/index.ts:48</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>summary</dt>
+									<dd><p>Get the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> for the specified device.</p>
+										<br/>
+										<p>Returns the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> set for the specified device. The initial resource is a <a href="../classes/rmm_src.cudamemoryresource.html">CudaMemoryResource</a>.</p>
+										<br/>
+										<p><code>deviceId</code> must be in the range <code>[0, Device.numDevices)</code>, otherwise behavior is
+										undefined.</p>
+									</dd>
+									<dt>note</dt>
+									<dd><p>The returned <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> should only be used when CUDA device <code>deviceId</code> is the
+											current device (e.g. set using <code>Device.activate()</code>). The behavior of a <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>
+											is undefined if used while the active CUDA device is a different device from the one that was
+										active when the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> was created.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>deviceId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The id of the target device</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h4>
+							<p>The current <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> for device <code>deviceId</code></p>
 						</li>
 					</ul>
 				</section>
@@ -170,9 +192,27 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/index.ts#L44">modules/rmm/src/index.ts:44</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/index.ts#L110">modules/rmm/src/index.ts:110</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>summary</dt>
+									<dd><p>Get the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> for the specified device.</p>
+										<br/>
+										<p>Returns the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> for the specified device. The initial resource is a <a href="../classes/rmm_src.cudamemoryresource.html">CudaMemoryResource</a>.</p>
+										<br/>
+										<p><code>deviceId</code> must be in the range <code>[0, Device.numDevices)</code>, otherwise behavior is
+										undefined.</p>
+									</dd>
+									<dt>note</dt>
+									<dd><p>The returned <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> should only be used when CUDA device <code>deviceId</code> is the
+											current device (e.g. set using <code>Device.activate()</code>). The behavior of a <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>
+											is undefined if used while the active CUDA device is a different device from the one that was
+										active when the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> was created.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -180,6 +220,7 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+							<p>The current <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> for device <code>deviceId</code></p>
 						</li>
 					</ul>
 				</section>
@@ -193,13 +234,37 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/index.ts#L50">modules/rmm/src/index.ts:50</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/index.ts#L165">modules/rmm/src/index.ts:165</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>summary</dt>
+									<dd><p>Set the memory resource for the current device.</p>
+										<br/>
+										<p>If <code>memoryResource</code> is not <code>null</code>, sets the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> for the current device to
+										<code>memoryResource</code>. If <code>memoryResource</code> is <code>null</code> or <code>undefined</code>, no action is taken.</p>
+										<br/>
+										<p>The &quot;current device&quot; is the device specified by <a href="../classes/cuda_src.device.html#activedeviceid">Device.activeDeviceId</a>.</p>
+										<br/>
+										<p>The <code>memoryResource</code> must outlive the last use of the resource, otherwise behavior
+										is undefined. It is the caller&#39;s responsibility to maintain the lifetime of the  <a href="../interfaces/rmm_src.memoryresource.html"><code>memoryResource</code></a> object.</p>
+										<br/>
+									</dd>
+									<dt>note</dt>
+									<dd><p>The supplied <code>memoryResource</code> must have been created for the current CUDA device. The
+											behavior of a <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> is undefined if used while the active CUDA device is a
+										different device from the one that was active when the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> was created.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>If not <code>null</code>, the new resource to use for the current device.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -216,16 +281,43 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/index.ts#L36">modules/rmm/src/index.ts:36</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/index.ts#L81">modules/rmm/src/index.ts:81</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>summary</dt>
+									<dd><p>Set the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> for the specified device.</p>
+										<p>If <code>memoryResource</code> is not <code>null</code>, sets the memory resource pointer for the device specified by
+										<code>deviceId</code> to <code>memoryResource</code>. If <code>memoryResource</code> is <code>null</code> or <code>undefined</code>, no action is taken.</p>
+										<br/>
+										<p><code>deviceId</code> must be in the range <code>[0, Device.numDevices)</code>, otherwise behavior is
+										undefined.</p>
+										<br/>
+										<p>The <code>memoryResource</code> must outlive the last use of the resource, otherwise behavior
+											is undefined. It is the caller&#39;s responsibility to maintain the lifetime of the
+										<code>memoryResource</code> object.</p>
+									</dd>
+									<dt>note</dt>
+									<dd><p>The supplied <code>memoryResource</code> must have been created for the current CUDA device. The
+											behavior of a <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> is undefined if used while the active CUDA device is a
+										different device from the one that was active when the <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> was created.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>deviceId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The id of the target device</p>
+									</div>
 								</li>
 								<li>
 									<h5>memoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>If not <code>null</code>, the new <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> to use for device <code>deviceId</code>.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -290,13 +382,7 @@
 						<a href="../interfaces/rmm_src.devicebuffer.html" class="tsd-kind-icon">Device<wbr>Buffer</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/rmm_src.devicebufferconstructor.html" class="tsd-kind-icon">Device<wbr>Buffer<wbr>Constructor</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="../interfaces/rmm_src.memoryresource.html" class="tsd-kind-icon">Memory<wbr>Resource</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-module">
-						<a href="rmm_src.html#devicebuffer-1" class="tsd-kind-icon">Device<wbr>Buffer</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="rmm_src.html#getcurrentdeviceresource" class="tsd-kind-icon">get<wbr>Current<wbr>Device<wbr>Resource</a>

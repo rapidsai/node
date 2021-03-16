@@ -66,6 +66,19 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<dl class="tsd-comment-tags">
+						<dt>brief</dt>
+						<dd><p>Resource that uses an upstream <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> to allocate memory and logs
+								information about the requested allocation/deallocations.
+								<br/><br/>
+								An instance of this resource can be constructed with an existing, upstream resource in order to
+							satisfy allocation requests and log allocation/deallocation activity.</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -86,10 +99,10 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="rmm_src.loggingresourceadapter.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><a href="rmm_src.loggingresourceadapter.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -112,19 +125,20 @@
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
 				<h2>Constructors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
-					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">new <wbr>Logging<wbr>Resource<wbr>Adapter<span class="tsd-signature-symbol">(</span>upstreamMemoryResource<span class="tsd-signature-symbol">: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a>, logFilePath<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, autoFlush<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="rmm_src.loggingresourceadapter.html" class="tsd-signature-type" data-tsd-kind="Class">LoggingResourceAdapter</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from MemoryResource.constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/memory_resource.ts#L209">modules/rmm/src/memory_resource.ts:209</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/memory_resource.ts#L237">modules/rmm/src/memory_resource.ts:237</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -171,7 +185,7 @@
 					<div class="tsd-signature tsd-kind-icon">log<wbr>File<wbr>Path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/memory_resource.ts#L196">modules/rmm/src/memory_resource.ts:196</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/memory_resource.ts#L217">modules/rmm/src/memory_resource.ts:217</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -186,7 +200,7 @@
 					<div class="tsd-signature tsd-kind-icon">memory<wbr>Resource<span class="tsd-signature-symbol">:</span> <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/memory_resource.ts#L201">modules/rmm/src/memory_resource.ts:201</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/memory_resource.ts#L222">modules/rmm/src/memory_resource.ts:222</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -202,7 +216,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>.<a href="../interfaces/rmm_src.memoryresource.html#supportsgetmeminfo">supportsGetMemInfo</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/memory_resource.ts#L59">modules/rmm/src/memory_resource.ts:59</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/memory_resource.ts#L59">modules/rmm/src/memory_resource.ts:59</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -220,7 +234,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>.<a href="../interfaces/rmm_src.memoryresource.html#supportsstreams">supportsStreams</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/memory_resource.ts#L54">modules/rmm/src/memory_resource.ts:54</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/memory_resource.ts#L54">modules/rmm/src/memory_resource.ts:54</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -245,7 +259,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/memory_resource.ts#L206">modules/rmm/src/memory_resource.ts:206</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/memory_resource.ts#L227">modules/rmm/src/memory_resource.ts:227</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -270,7 +284,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>.<a href="../interfaces/rmm_src.memoryresource.html#getmeminfo">getMemInfo</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/memory_resource.ts#L68">modules/rmm/src/memory_resource.ts:68</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/memory_resource.ts#L68">modules/rmm/src/memory_resource.ts:68</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -303,7 +317,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>.<a href="../interfaces/rmm_src.memoryresource.html#isequal">isEqual</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/rapids-js/blob/332432e/modules/rmm/src/memory_resource.ts#L80">modules/rmm/src/memory_resource.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/rmm/src/memory_resource.ts#L80">modules/rmm/src/memory_resource.ts:80</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -381,7 +395,7 @@
 					<li class="current tsd-kind-class tsd-parent-kind-module">
 						<a href="rmm_src.loggingresourceadapter.html" class="tsd-kind-icon">Logging<wbr>Resource<wbr>Adapter</a>
 						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
 								<a href="rmm_src.loggingresourceadapter.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
@@ -419,13 +433,7 @@
 						<a href="../interfaces/rmm_src.devicebuffer.html" class="tsd-kind-icon">Device<wbr>Buffer</a>
 					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/rmm_src.devicebufferconstructor.html" class="tsd-kind-icon">Device<wbr>Buffer<wbr>Constructor</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
 						<a href="../interfaces/rmm_src.memoryresource.html" class="tsd-kind-icon">Memory<wbr>Resource</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-module">
-						<a href="../modules/rmm_src.html#devicebuffer-1" class="tsd-kind-icon">Device<wbr>Buffer</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="../modules/rmm_src.html#getcurrentdeviceresource" class="tsd-kind-icon">get<wbr>Current<wbr>Device<wbr>Resource</a>
@@ -462,17 +470,17 @@
 			<ul class="tsd-legend">
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
 				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
-				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
-			</ul>
-			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>

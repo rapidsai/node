@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Float64Buffer | RAPIDS</title>
+	<title>MemoryView | RAPIDS</title>
 	<meta name="description" content="Documentation for RAPIDS">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="../modules/cuda_src.html">cuda/src</a>
 				</li>
 				<li>
-					<a href="cuda_src.float64buffer.html">Float64Buffer</a>
+					<a href="cuda_src.memoryview.html">MemoryView</a>
 				</li>
 			</ul>
-			<h1>Class Float64Buffer</h1>
+			<h1>Class MemoryView&lt;T&gt;</h1>
 		</div>
 	</div>
 </header>
@@ -70,115 +70,177 @@
 				<div class="tsd-comment tsd-typography">
 					<dl class="tsd-comment-tags">
 						<dt>summary</dt>
-						<dd><p>A typed array of 64-bit floating point numbers values in CUDA memory.</p>
+						<dd><p>A base class for typed arrays of values in owned or managed by CUDA.</p>
 						</dd>
 					</dl>
 				</div>
+			</section>
+			<section class="tsd-panel tsd-type-parameters">
+				<h3>Type parameters</h3>
+				<ul class="tsd-type-parameters">
+					<li>
+						<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">TypedArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span> = <span class="tsd-signature-type">any</span></h4>
+					</li>
+				</ul>
 			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Float64Array</span><span class="tsd-signature-symbol">&gt;</span>
+						<span class="target">MemoryView</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">Float64Buffer</span>
+								<a href="cuda_src.int8buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Int8Buffer</a>
+							</li>
+							<li>
+								<a href="cuda_src.int16buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Int16Buffer</a>
+							</li>
+							<li>
+								<a href="cuda_src.int32buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Buffer</a>
+							</li>
+							<li>
+								<a href="cuda_src.uint8buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Buffer</a>
+							</li>
+							<li>
+								<a href="cuda_src.uint8clampedbuffer.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8ClampedBuffer</a>
+							</li>
+							<li>
+								<a href="cuda_src.uint16buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Uint16Buffer</a>
+							</li>
+							<li>
+								<a href="cuda_src.uint32buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Uint32Buffer</a>
+							</li>
+							<li>
+								<a href="cuda_src.float32buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float32Buffer</a>
+							</li>
+							<li>
+								<a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a>
+							</li>
+							<li>
+								<a href="cuda_src.int64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Int64Buffer</a>
+							</li>
+							<li>
+								<a href="cuda_src.uint64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Uint64Buffer</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 			</section>
+			<section class="tsd-panel">
+				<h3>Implements</h3>
+				<ul class="tsd-hierarchy">
+					<li><span class="tsd-signature-type">ArrayBufferView</span></li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-kind-class tsd-parent-kind-module tsd-has-type-parameter">
+				<h3 class="tsd-before-signature">Indexable</h3>
+				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>index: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">0</span><span class="tsd-signature-symbol">]</span></div>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section tsd-is-inherited">
+						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter"><a href="cuda_src.memoryview.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#bytes_per_element" class="tsd-kind-icon">BYTES_<wbr>PER_<wbr>ELEMENT</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#typedarray" class="tsd-kind-icon">Typed<wbr>Array</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#buffer" class="tsd-kind-icon">buffer</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#bytelength" class="tsd-kind-icon">byte<wbr>Length</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#byteoffset" class="tsd-kind-icon">byte<wbr>Offset</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#length" class="tsd-kind-icon">length</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="cuda_src.float64buffer.html#bytes_per_element-1" class="tsd-kind-icon">BYTES_<wbr>PER_<wbr>ELEMENT</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="cuda_src.float64buffer.html#typedarray-1" class="tsd-kind-icon">Typed<wbr>Array</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="cuda_src.memoryview.html#bytes_per_element" class="tsd-kind-icon">BYTES_<wbr>PER_<wbr>ELEMENT</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="cuda_src.memoryview.html#typedarray" class="tsd-kind-icon">Typed<wbr>Array</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="cuda_src.memoryview.html#buffer" class="tsd-kind-icon">buffer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="cuda_src.memoryview.html#bytelength" class="tsd-kind-icon">byte<wbr>Length</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="cuda_src.memoryview.html#byteoffset" class="tsd-kind-icon">byte<wbr>Offset</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="cuda_src.memoryview.html#length" class="tsd-kind-icon">length</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="cuda_src.memoryview.html#bytes_per_element-1" class="tsd-kind-icon">BYTES_<wbr>PER_<wbr>ELEMENT</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-inherited">
+						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#copyfrom" class="tsd-kind-icon">copy<wbr>From</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#copyinto" class="tsd-kind-icon">copy<wbr>Into</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#fill" class="tsd-kind-icon">fill</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#getipchandle" class="tsd-kind-icon">get<wbr>Ipc<wbr>Handle</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#set" class="tsd-kind-icon">set</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#slice" class="tsd-kind-icon">slice</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#subarray" class="tsd-kind-icon">subarray</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cuda_src.float64buffer.html#toarray" class="tsd-kind-icon">to<wbr>Array</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cuda_src.memoryview.html#copyfrom" class="tsd-kind-icon">copy<wbr>From</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cuda_src.memoryview.html#copyinto" class="tsd-kind-icon">copy<wbr>Into</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cuda_src.memoryview.html#fill" class="tsd-kind-icon">fill</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cuda_src.memoryview.html#getipchandle" class="tsd-kind-icon">get<wbr>Ipc<wbr>Handle</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cuda_src.memoryview.html#set" class="tsd-kind-icon">set</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cuda_src.memoryview.html#slice" class="tsd-kind-icon">slice</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cuda_src.memoryview.html#subarray" class="tsd-kind-icon">subarray</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cuda_src.memoryview.html#toarray" class="tsd-kind-icon">to<wbr>Array</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Constructors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter">
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
-					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Float64<wbr>Buffer<span class="tsd-signature-symbol">(</span>length<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></li>
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Float64<wbr>Buffer<span class="tsd-signature-symbol">(</span>arrayOrArrayBuffer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></li>
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Float64<wbr>Buffer<span class="tsd-signature-symbol">(</span>buffer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span>, byteOffset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, length<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></li>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Memory<wbr>View&lt;T&gt;<span class="tsd-signature-symbol">(</span>length<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Memory<wbr>View&lt;T&gt;<span class="tsd-signature-symbol">(</span>arrayOrArrayBuffer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">0</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">0</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Memory<wbr>View&lt;T&gt;<span class="tsd-signature-symbol">(</span>buffer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">0</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span>, byteOffset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, length<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#constructor">constructor</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L159">modules/cuda/src/buffer.ts:159</a></li>
 								</ul>
 							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span> = <span class="tsd-signature-type">any</span></h4>
+								</li>
+							</ul>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> length: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#constructor">constructor</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L161">modules/cuda/src/buffer.ts:161</a></li>
 								</ul>
 							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span> = <span class="tsd-signature-type">any</span></h4>
+								</li>
+							</ul>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>arrayOrArrayBuffer: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>arrayOrArrayBuffer: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">0</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">0</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#constructor">constructor</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L162">modules/cuda/src/buffer.ts:162</a></li>
 								</ul>
 							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span> = <span class="tsd-signature-type">any</span></h4>
+								</li>
+							</ul>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>buffer: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>buffer: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">0</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 								<li>
 									<h5>byteOffset: <span class="tsd-signature-type">number</span></h5>
@@ -187,19 +249,18 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> length: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="bytes_per_element" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> BYTES_<wbr>PER_<wbr>ELEMENT</h3>
 					<div class="tsd-signature tsd-kind-icon">BYTES_<wbr>PER_<wbr>ELEMENT<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#bytes_per_element">BYTES_PER_ELEMENT</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L126">modules/cuda/src/buffer.ts:126</a></li>
 						</ul>
@@ -212,12 +273,11 @@
 						</dl>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="typedarray" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> Typed<wbr>Array</h3>
-					<div class="tsd-signature tsd-kind-icon">Typed<wbr>Array<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">TypedArrayConstructor</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Float64Array</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<div class="tsd-signature tsd-kind-icon">Typed<wbr>Array<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">TypedArrayConstructor</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#typedarray">TypedArray</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L153">modules/cuda/src/buffer.ts:153</a></li>
 						</ul>
@@ -230,12 +290,12 @@
 						</dl>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="buffer" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> buffer</h3>
 					<div class="tsd-signature tsd-kind-icon">buffer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Memory</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#buffer">buffer</a></p>
+						<p>Implementation of ArrayBufferView.buffer</p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L131">modules/cuda/src/buffer.ts:131</a></li>
 						</ul>
@@ -248,12 +308,12 @@
 						</dl>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="bytelength" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> byte<wbr>Length</h3>
 					<div class="tsd-signature tsd-kind-icon">byte<wbr>Length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#bytelength">byteLength</a></p>
+						<p>Implementation of ArrayBufferView.byteLength</p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L141">modules/cuda/src/buffer.ts:141</a></li>
 						</ul>
@@ -266,12 +326,12 @@
 						</dl>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="byteoffset" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> byte<wbr>Offset</h3>
 					<div class="tsd-signature tsd-kind-icon">byte<wbr>Offset<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#byteoffset">byteOffset</a></p>
+						<p>Implementation of ArrayBufferView.byteOffset</p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L136">modules/cuda/src/buffer.ts:136</a></li>
 						</ul>
@@ -284,12 +344,11 @@
 						</dl>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="length" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> length</h3>
 					<div class="tsd-signature tsd-kind-icon">length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#length">length</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L146">modules/cuda/src/buffer.ts:146</a></li>
 						</ul>
@@ -302,47 +361,35 @@
 						</dl>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
 					<a name="bytes_per_element-1" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> <span class="tsd-flag ts-flagStatic">Static</span> BYTES_<wbr>PER_<wbr>ELEMENT</h3>
 					<div class="tsd-signature tsd-kind-icon">BYTES_<wbr>PER_<wbr>ELEMENT<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#bytes_per_element-1">BYTES_PER_ELEMENT</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L121">modules/cuda/src/buffer.ts:121</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
-					<a name="typedarray-1" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> <span class="tsd-flag ts-flagStatic">Static</span> Typed<wbr>Array</h3>
-					<div class="tsd-signature tsd-kind-icon">Typed<wbr>Array<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">TypedArrayConstructor</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Float64Array</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L412">modules/cuda/src/buffer.ts:412</a></li>
-						</ul>
-					</aside>
-				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="copyfrom" class="tsd-anchor"></a>
 					<h3>copy<wbr>From</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">copy<wbr>From<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span><span class="tsd-signature-symbol">&gt;</span>, sourceStart<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, targetStart<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, targetEnd<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">copy<wbr>From<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span><span class="tsd-signature-symbol">&gt;</span>, sourceStart<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, targetStart<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, targetEnd<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#copyfrom">copyFrom</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L191">modules/cuda/src/buffer.ts:191</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Copies data from a region of a source <a href="cuda_src.memoryview.html">MemoryView</a>, <a href="cuda_src.float64buffer.html#typedarray">TypedArray</a>, or Array to a
+									<p>Copies data from a region of a source <a href="cuda_src.memoryview.html">MemoryView</a>, <a href="cuda_src.memoryview.html#typedarray">TypedArray</a>, or Array to a
 									region in this <a href="cuda_src.memoryview.html">MemoryView</a>, even if the source region overlaps with this <a href="cuda_src.memoryview.html">MemoryView</a>.</p>
 								</div>
 							</div>
@@ -351,7 +398,7 @@
 								<li>
 									<h5>source: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">bigint</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>The <a href="cuda_src.memoryview.html">MemoryView</a>, <a href="cuda_src.float64buffer.html#typedarray">TypedArray</a>, or Array to copy
+										<p>The <a href="cuda_src.memoryview.html">MemoryView</a>, <a href="cuda_src.memoryview.html#typedarray">TypedArray</a>, or Array to copy
 										from.</p>
 									</div>
 								</li>
@@ -375,28 +422,27 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<p><code>this</code></p>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="copyinto" class="tsd-anchor"></a>
 					<h3>copy<wbr>Into</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">copy<wbr>Into<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span>, targetStart<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, sourceStart<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, sourceEnd<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">copy<wbr>Into<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span>, targetStart<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, sourceStart<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, sourceEnd<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#copyinto">copyInto</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L212">modules/cuda/src/buffer.ts:212</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Copies data from a region of this <a href="cuda_src.memoryview.html">MemoryView</a> to a region in a target <a href="cuda_src.memoryview.html">MemoryView</a>, <a href="cuda_src.float64buffer.html#typedarray">TypedArray</a>, or Array, even if the target region overlaps with this <a href="cuda_src.memoryview.html">MemoryView</a>.</p>
+									<p>Copies data from a region of this <a href="cuda_src.memoryview.html">MemoryView</a> to a region in a target <a href="cuda_src.memoryview.html">MemoryView</a>, <a href="cuda_src.memoryview.html#typedarray">TypedArray</a>, or Array, even if the target region overlaps with this <a href="cuda_src.memoryview.html">MemoryView</a>.</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -404,7 +450,7 @@
 								<li>
 									<h5>target: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>The <a href="cuda_src.memoryview.html">MemoryView</a>, <a href="cuda_src.float64buffer.html#typedarray">TypedArray</a>, or Array to copy
+										<p>The <a href="cuda_src.memoryview.html">MemoryView</a>, <a href="cuda_src.memoryview.html#typedarray">TypedArray</a>, or Array to copy
 										into.</p>
 									</div>
 								</li>
@@ -428,21 +474,20 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
 							<p><code>this</code></p>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="fill" class="tsd-anchor"></a>
 					<h3>fill</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">fill<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, start<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, end<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">fill<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">0</span><span class="tsd-signature-symbol">]</span>, start<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, end<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#fill">fill</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L267">modules/cuda/src/buffer.ts:267</a></li>
 								</ul>
@@ -455,7 +500,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>value: <span class="tsd-signature-type">number</span></h5>
+									<h5>value: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">0</span><span class="tsd-signature-symbol">]</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>value to fill array section with.</p>
 									</div>
@@ -475,20 +520,19 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="cuda_src.memoryview.html" class="tsd-signature-type" data-tsd-kind="Class">MemoryView</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="getipchandle" class="tsd-anchor"></a>
 					<h3>get<wbr>Ipc<wbr>Handle</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Ipc<wbr>Handle<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.ipchandle.html" class="tsd-signature-type" data-tsd-kind="Class">IpcHandle</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#getipchandle">getIpcHandle</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L318">modules/cuda/src/buffer.ts:318</a></li>
 								</ul>
@@ -504,16 +548,15 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="set" class="tsd-anchor"></a>
 					<h3>set</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">set<span class="tsd-signature-symbol">(</span>array<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">ArrayBufferLike</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayBufferView</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MappedGLMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">FloatArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">UintArray</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">BigIntArray</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DeviceMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">PinnedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ManagedMemory</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IpcMemory</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ArrayLike</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">bigint</span><span class="tsd-signature-symbol">&gt;</span>, start<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#set">set</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L251">modules/cuda/src/buffer.ts:251</a></li>
 								</ul>
@@ -542,16 +585,15 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="slice" class="tsd-anchor"></a>
 					<h3>slice</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">slice<span class="tsd-signature-symbol">(</span>start<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, end<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">slice<span class="tsd-signature-symbol">(</span>start<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, end<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">MemoryViewOf</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#slice">slice</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L279">modules/cuda/src/buffer.ts:279</a></li>
 								</ul>
@@ -577,20 +619,19 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">MemoryViewOf</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="subarray" class="tsd-anchor"></a>
 					<h3>subarray</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">subarray<span class="tsd-signature-symbol">(</span>begin<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, end<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">subarray<span class="tsd-signature-symbol">(</span>begin<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, end<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">MemoryViewOf</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#subarray">subarray</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L292">modules/cuda/src/buffer.ts:292</a></li>
 								</ul>
@@ -616,20 +657,19 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cuda_src.float64buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">MemoryViewOf</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="toarray" class="tsd-anchor"></a>
 					<h3>to<wbr>Array</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">to<wbr>Array<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Float64Array</span></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">to<wbr>Array<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="cuda_src.memoryview.html">MemoryView</a>.<a href="cuda_src.memoryview.html#toarray">toArray</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/8623aa9/modules/cuda/src/buffer.ts#L240">modules/cuda/src/buffer.ts:240</a></li>
 								</ul>
@@ -639,7 +679,7 @@
 									<p>Copies the underlying CUDA memory into a JavaScript typed array.</p>
 								</div>
 							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Float64Array</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span></h4>
 							<p>A JavaScript typed array copy of the underlying CUDA memory.</p>
 						</li>
 					</ul>
@@ -689,66 +729,9 @@
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="cuda_src.float32buffer.html" class="tsd-kind-icon">Float32<wbr>Buffer</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-class tsd-parent-kind-module">
+					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="cuda_src.float64buffer.html" class="tsd-kind-icon">Float64<wbr>Buffer</a>
-						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#constructor" class="tsd-kind-icon">constructor</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#bytes_per_element" class="tsd-kind-icon">BYTES_<wbr>PER_<wbr>ELEMENT</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#typedarray" class="tsd-kind-icon">Typed<wbr>Array</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#buffer" class="tsd-kind-icon">buffer</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#bytelength" class="tsd-kind-icon">byte<wbr>Length</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#byteoffset" class="tsd-kind-icon">byte<wbr>Offset</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#length" class="tsd-kind-icon">length</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
-								<a href="cuda_src.float64buffer.html#bytes_per_element-1" class="tsd-kind-icon">BYTES_<wbr>PER_<wbr>ELEMENT</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
-								<a href="cuda_src.float64buffer.html#typedarray-1" class="tsd-kind-icon">Typed<wbr>Array</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#copyfrom" class="tsd-kind-icon">copy<wbr>From</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#copyinto" class="tsd-kind-icon">copy<wbr>Into</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#fill" class="tsd-kind-icon">fill</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#getipchandle" class="tsd-kind-icon">get<wbr>Ipc<wbr>Handle</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#set" class="tsd-kind-icon">set</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#slice" class="tsd-kind-icon">slice</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#subarray" class="tsd-kind-icon">subarray</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="cuda_src.float64buffer.html#toarray" class="tsd-kind-icon">to<wbr>Array</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="cuda_src.int16buffer.html" class="tsd-kind-icon">Int16<wbr>Buffer</a>
 					</li>
@@ -764,9 +747,63 @@
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="cuda_src.ipchandle.html" class="tsd-kind-icon">Ipc<wbr>Handle</a>
 					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-module tsd-has-type-parameter">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-module tsd-has-type-parameter">
 						<a href="cuda_src.memoryview.html" class="tsd-kind-icon">Memory<wbr>View</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="cuda_src.memoryview.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#bytes_per_element" class="tsd-kind-icon">BYTES_<wbr>PER_<wbr>ELEMENT</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#typedarray" class="tsd-kind-icon">Typed<wbr>Array</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#buffer" class="tsd-kind-icon">buffer</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#bytelength" class="tsd-kind-icon">byte<wbr>Length</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#byteoffset" class="tsd-kind-icon">byte<wbr>Offset</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#length" class="tsd-kind-icon">length</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="cuda_src.memoryview.html#bytes_per_element-1" class="tsd-kind-icon">BYTES_<wbr>PER_<wbr>ELEMENT</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#copyfrom" class="tsd-kind-icon">copy<wbr>From</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#copyinto" class="tsd-kind-icon">copy<wbr>Into</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#fill" class="tsd-kind-icon">fill</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#getipchandle" class="tsd-kind-icon">get<wbr>Ipc<wbr>Handle</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#set" class="tsd-kind-icon">set</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#slice" class="tsd-kind-icon">slice</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#subarray" class="tsd-kind-icon">subarray</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cuda_src.memoryview.html#toarray" class="tsd-kind-icon">to<wbr>Array</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="cuda_src.uint16buffer.html" class="tsd-kind-icon">Uint16<wbr>Buffer</a>
 					</li>
@@ -830,17 +867,14 @@
 				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
