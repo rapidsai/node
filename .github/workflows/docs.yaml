@@ -13,7 +13,7 @@ jobs:
   update:
     name: Update Docs
     runs-on: ubuntu-20.04
-    container: node:14
+    container: node:14-buster
     steps:
       - name: Checkout main
         uses: actions/checkout@v2
