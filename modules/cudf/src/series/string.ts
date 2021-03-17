@@ -16,7 +16,7 @@ import {MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
 import {Series} from '../series';
-import {DataType, Int32, Uint8, Utf8String} from '../types/dtypes';
+import {Bool8, DataType, Int32, Uint8, Utf8String} from '../types/dtypes';
 
 /**
  * A Series of utf8-string values in GPU memory.
@@ -45,4 +45,60 @@ export class StringSeries extends Series<Utf8String> {
    */
   // TODO: Account for this.offset
   get data() { return Series.new(this._col.getChild<Uint8>(1)); }
+
+  /**
+   * Returns a boolean series identifying rows which match the given regex pattern.
+   *
+   * @param pattern Regex pattern to match to each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   *
+   * The regex pattern strings accepted are described here:
+   *
+   * https://docs.rapids.ai/api/libcudf/stable/md_regex.html
+   *
+   * A RegExp may also be passed, however all flags are ignored (only `pattern.source` is used)
+   */
+  containsRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Bool8> {
+    const pat_string = pattern instanceof RegExp ? pattern.source : pattern;
+    return Series.new(this._col.containsRe(pat_string, memoryResource));
+  }
+
+  /**
+   * Returns an Int32 series the number of times the given regex pattern matches
+   * in each string.
+   *
+   * @param pattern Regex pattern to match to each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   *
+   * The regex pattern strings accepted are described here:
+   *
+   * https://docs.rapids.ai/api/libcudf/stable/md_regex.html
+   *
+   * A RegExp may also be passed, however all flags are ignored (only `pattern.source` is used)
+   */
+  countRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Int32> {
+    const pat_string = pattern instanceof RegExp ? pattern.source : pattern;
+    return Series.new(this._col.countRe(pat_string, memoryResource));
+  }
+
+  /**
+   * Returns a boolean series identifying rows which match the given regex pattern
+   * only at the beginning of the string
+   *
+   * @param pattern Regex pattern to match to each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   *
+   * The regex pattern strings accepted are described here:
+   *
+   * https://docs.rapids.ai/api/libcudf/stable/md_regex.html
+   *
+   * A RegExp may also be passed, however all flags are ignored (only `pattern.source` is used)
+   */
+  matchesRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Bool8> {
+    const pat_string = pattern instanceof RegExp ? pattern.source : pattern;
+    return Series.new(this._col.matchesRe(pat_string, memoryResource));
+  }
 }

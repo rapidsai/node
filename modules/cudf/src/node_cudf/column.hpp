@@ -627,6 +627,21 @@ class Column : public Napi::ObjectWrap<Column> {
     cudf::unary_operator op,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // column/re.cpp
+  ObjectUnwrap<Column> contains_re(
+    std::string const& pattern,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  ObjectUnwrap<Column> count_re(
+    std::string const& pattern,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  // TODO: findall_re
+
+  ObjectUnwrap<Column> matches_re(
+    std::string const& pattern,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
  private:
   static Napi::FunctionReference constructor;
 
@@ -745,6 +760,12 @@ class Column : public Napi::ObjectWrap<Column> {
   Napi::Value rint(Napi::CallbackInfo const& info);
   Napi::Value bit_invert(Napi::CallbackInfo const& info);
   Napi::Value unary_not(Napi::CallbackInfo const& info);
+
+  // column/re.cpp
+  Napi::Value contains_re(Napi::CallbackInfo const& info);
+  Napi::Value count_re(Napi::CallbackInfo const& info);
+  // Napi::Value findall_re(Napi::CallbackInfo const& info);
+  Napi::Value matches_re(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv
