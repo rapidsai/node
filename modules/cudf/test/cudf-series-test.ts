@@ -102,6 +102,25 @@ test('Series.gather', () => {
   expect([...result.toArrow()]).toEqual([...selection.toArrow()]);
 });
 
+test('Series.scatter (series)', () => {
+  const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const values  = Series.new({type: new Int32, data: [200, 400, 500, 800]});
+  const indices = Series.new({type: new Int32, data: [2, 4, 5, 8]});
+
+  col.scatter(values, indices);
+
+  expect([...col]).toEqual([0, 1, 200, 3, 400, 500, 6, 7, 800, 9]);
+});
+
+test('Series.scatter (scalar)', () => {
+  const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const indices = Series.new({type: new Int32, data: [2, 4, 5, 8]});
+
+  col.scatter(999, indices);
+
+  expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
+});
+
 test('Series.filter', () => {
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});

@@ -20,6 +20,7 @@ import {VectorType} from 'apache-arrow/interfaces';
 import {Column, ColumnProps} from './column';
 import {fromArrow} from './column/from_arrow';
 import {DataFrame} from './data_frame';
+import {Scalar} from './scalar';
 import {Table} from './table';
 import {
   Bool8,
@@ -139,7 +140,7 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /** @ignore */
-  public readonly _col: Column<T>;
+  public _col: Column<T>;
 
   protected constructor(input: SeriesProps<T>|Column<T>|arrow.Vector<T>) {
     this._col = asColumn<T>(input);
@@ -192,6 +193,51 @@ export class AbstractSeries<T extends DataType = any> {
    */
   gather<R extends IndexType>(selection: Series<R>): Series<T> {
     return this.__construct(this._col.gather(selection._col));
+  }
+
+  /**
+   * Scatters single value into this Series according to provided indices.
+   *
+   * @param value A column of values to be scattered in to this Series
+   * @param indices A column of integral indices that indicate the rows in the this Series to be
+   *   replaced by `value`.
+   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
+   *   of its values are out of bounds (default: false).
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  scatter(value: T['scalarType'],
+          indices: Series<Int32>,
+          check_bounds?: boolean,
+          memoryResource?: MemoryResource): void;
+  /**
+   * Scatters a column of values into this Series according to provided indices.
+   *
+   * @param value A value to be scattered in to this Series
+   * @param indices A column of integral indices that indicate the rows in the this Series to be
+   *   replaced by `value`.
+   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
+   *   of its values are out of bounds (default: false).
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  scatter(values: Series<T>,
+          indices: Series<Int32>,
+          check_bounds?: boolean,
+          memoryResource?: MemoryResource): void;
+
+  scatter(source: Series<T>|T['scalarType'],
+          indices: Series<Int32>,
+          check_bounds?: boolean,
+          memoryResource?: MemoryResource): void {
+    const dst = new Table({columns: [this._col]});
+    if (source instanceof Series) {
+      const src = new Table({columns: [source._col]});
+      const out = dst.scatterTable(src, indices._col, check_bounds, memoryResource);
+      this._col = out.getColumnByIndex(0);
+    } else {
+      const src = [new Scalar({type: this.type, value: source})];
+      const out = dst.scatterScalar(src, indices._col, check_bounds, memoryResource);
+      this._col = out.getColumnByIndex(0);
+    }
   }
 
   /**
