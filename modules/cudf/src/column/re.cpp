@@ -20,7 +20,7 @@
 #include <cudf/unary.hpp>
 
 #include <rmm/mr/device/per_device_resource.hpp>
-#include "cudf/strings/contains.hpp"
+#include <cudf/strings/contains.hpp>
 
 namespace nv {
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,18 +37,18 @@ describe.each([['foo'], [/foo/], [/foo/ig]])('Series regex search (pattern=%p)',
   test('containsRe', () => {
     const expected = [true, true, true, true, true, false, false, true, true];
     const s        = StringSeries.new(Utf8Vector.from(data));
-    expect([...s.containsRe(pattern).toArrow()]).toEqual(expected);
+    expect([...s.containsRe(pattern)]).toEqual(expected);
   });
 
   test('countRe', () => {
     const expected = [1, 1, 1, 2, 1, 0, 0, 1, 1];
     const s        = StringSeries.new(Utf8Vector.from(data));
-    expect([...s.countRe(pattern).toArrow()]).toEqual(expected);
+    expect([...s.countRe(pattern)]).toEqual(expected);
   });
 
   test('matchesRe', () => {
     const expected = [true, false, false, true, false, false, false, false, false];
     const s        = StringSeries.new(Utf8Vector.from(data));
-    expect([...s.matchesRe(pattern).toArrow()]).toEqual(expected);
+    expect([...s.matchesRe(pattern)]).toEqual(expected);
   });
 });
