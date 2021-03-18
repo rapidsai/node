@@ -40,8 +40,8 @@
     "modules/*",
     "modules/demo/graph",
     "modules/demo/luma",
-    "modules/demo/umap",
     "modules/demo/xterm",
+    "modules/demo/ipc/*",
     "modules/demo/deck/*",
     "modules/demo/tfjs/*"
   ],
@@ -76,6 +76,7 @@
   "resolutions": {
     "**/jsdom": "^16.2.2",
     "**/deck.gl": "8.4.9",
+    "**/react-map-gl": "6.1.10",
     "**/@deck.gl/arcgis": "8.4.9",
     "**/@deck.gl/aggregation-layers": "8.4.9",
     "**/@deck.gl/core": "8.4.9",

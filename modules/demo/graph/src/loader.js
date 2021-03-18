@@ -156,24 +156,27 @@ export default async function* loadGraphData(props = {}) {
   let onAfterRender = () => { };
   let rendered = new Promise(() => { });
 
-  // Never yields "done", i.e. concat(source, AsyncIterable.never())
   let dataframes = concatAsync(zipAsync(nodeDFs, edgeDFs), (async function* () {
-    const sleep = (t) => new Promise((r) => setTimeout(r, t));
-    while (1) { await sleep(1000); }
+    datasourceCompleted = true;
+    nextFrames = new Promise(() => { });
   })())[Symbol.asyncIterator]();
-  let nextFrames = dataframes.next(), graphUpdated = false, updateCount = 0;
+
+  let nextFrames = dataframes.next();
+  let datasourceCompleted = false;
+  let graphUpdated = false;
 
   while (true) {
     graphUpdated = false;
     // Wait for a new set of source dataframes or for the
     // most recent frame to finish rendering before advancing
-    const newDFs = await Promise.race([nextFrames, rendered]).then(({ value } = {}) => value);
+    const newDFs = await (datasourceCompleted
+      ? rendered
+      : Promise.race([rendered, nextFrames.then(({ value } = {}) => value)]));
 
     // If new nodes/edges, recreate the GraphCOO
     if (newDFs) {
       if (newDFs[0] !== nodes || newDFs[1] !== edges) {
         graphUpdated = true;
-        console.log(`graph update ${++updateCount}`);
         [nodes, edges] = newDFs;
         nextFrames = dataframes.next();
         graph = new GraphCOO(     //

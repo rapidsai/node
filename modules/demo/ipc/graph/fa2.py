@@ -26,18 +26,7 @@ import cugraph
 import asyncio
 import zmq.asyncio
 
-# graph, nodes, edges = make_complex_dataset(direct=False)
-# graph, nodes, edges = make_small_dataset(direct=True)
-# graph, nodes, edges = make_large_dataset(direct=True)
-# graph, nodes, edges = make_cit_patents_dataset()
-
 graph, nodes, edges = datasets.make_synthetic_dataset()
-# nodes[["name", "id", "color", "size"]].to_csv("data/nodes.csv", index=False)
-# edges[["name", "src", "dst", "edge", "color", "bundle"]].to_csv("data/edges.csv", index=False)
-
-# graph, nodes, edges = datasets.make_capwin_dataset()
-# nodes[["name", "id", "color", "size"]].to_csv("data/capwin-nodes.csv", index=False)
-# edges[["name", "src", "dst", "edge", "color", "bundle"]].to_csv("data/capwin-edges.csv", index=False)
 
 print("num_nodes:", graph.number_of_nodes())
 print("num_edges:", graph.number_of_edges())
@@ -63,4 +52,4 @@ async def main(zmq_ctx):
     callback.update(msg=b"close")
     callback.close()
 
-# asyncio.run(main(zmq.Context.instance()))
+asyncio.run(main(zmq.Context.instance()))
