@@ -15,60 +15,61 @@
 require('segfault-handler').registerHandler('./crash.log');
 
 require('@babel/register')({
-    cache: false,
-    babelrc: false,
-    presets: [
-        ["@babel/preset-env", { "targets": { "node": "current" }}],
-        ['@babel/preset-react', { "useBuiltIns": true }]
-    ]
+  cache: false,
+  babelrc: false,
+  presets: [
+    ['@babel/preset-env', { 'targets': { 'node': 'current' } }],
+    ['@babel/preset-react', { 'useBuiltIns': true }]
+  ]
 });
 
 // Change cwd to the example dir so relative file paths are resolved
 process.chdir(__dirname);
 
-const serve = process.argv.slice(2).some((arg) => arg.includes('--serve'));
+let args = process.argv.slice(2);
+if (args.length === 1 && args[0].includes(' ')) { args = args[0].split(' '); }
+
+const serve = args.some((arg) => arg.includes('--serve'));
 
 if (!serve) {
-    module.exports = require('@nvidia/glfw').createReactWindow(`${__dirname}/src/index.js`, true);
+  module.exports = require('@nvidia/glfw').createReactWindow(`${__dirname}/src/index.js`, true);
 }
 
 if (require.main === module) {
+  const parseArg = (prefix, fallback = '') =>
+    (args.find((arg) => arg.includes(prefix)) || `${prefix}${fallback}`).slice(prefix.length);
 
-    const parseArg = (prefix, fallback = '') => (
-        process.argv.slice(2).find((arg) => arg.includes(prefix)) || `${prefix}${fallback}`
-    ).slice(prefix.length);
+  const delay = parseInt(parseArg('--delay=', 1000)) | 0;
+  const url = args.find((arg) => arg.includes('tcp://'));
 
-    const delay = parseInt(parseArg('--delay=', 1000)) | 0;
-    const url = process.argv.slice(2).find((arg) => arg.includes('tcp://'));
+  if (serve) {
+    require(`./server.js`)({
+      url: url && require('url').parse(url),
+      nodes: inputs(delay, parseArg('--nodes=')),
+      edges: inputs(delay, parseArg('--edges=')),
+      width: parseInt(parseArg('--width=', 800)) | 0,
+      height: parseInt(parseArg('--height=', 600)) | 0,
+      layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
+    });
+  } else {
+    module.exports.open({
+      visible: true,
+      transparent: false,
+      _title: '',
+      url: url && require('url').parse(url),
+      nodes: inputs(delay, parseArg('--nodes=')),
+      edges: inputs(delay, parseArg('--edges=')),
+      width: parseInt(parseArg('--width=', 800)) | 0,
+      height: parseInt(parseArg('--height=', 600)) | 0,
+      layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
+    });
+  }
 
-    if (serve) {
-        require(`./server.js`)({
-            url: url && require('url').parse(url),
-            nodes: inputs(delay, parseArg('--nodes=')),
-            edges: inputs(delay, parseArg('--edges=')),
-            width: parseInt(parseArg('--width=', 800)) | 0,
-            height: parseInt(parseArg('--height=', 600)) | 0,
-            layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
-        });
-    } else {
-        module.exports.open({
-            visible: true,
-            transparent: false,
-            _title: '',
-            url: url && require('url').parse(url),
-            nodes: inputs(delay, parseArg('--nodes=')),
-            edges: inputs(delay, parseArg('--edges=')),
-            width: parseInt(parseArg('--width=', 800)) | 0,
-            height: parseInt(parseArg('--height=', 600)) | 0,
-            layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
-        });
+  async function* inputs(delay, paths) {
+    const sleep = (t) => new Promise((r) => setTimeout(r, t));
+    for (const path of paths.split(',')) {
+      yield path;
+      await sleep(delay);
     }
-
-    async function* inputs(delay, paths) {
-        const sleep = (t) => new Promise((r) => setTimeout(r, t));
-        for (const path of paths.split(',')) {
-            yield path;
-            await sleep(delay);
-        }
-    }
+  }
 }

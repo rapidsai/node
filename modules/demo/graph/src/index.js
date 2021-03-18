@@ -19,10 +19,10 @@ import App from './app';
 export default App;
 
 if (process.env.REACT_APP_ENVIRONMENT === 'browser') {
-    ReactDOM.render(
-        <React.StrictMode>
-            <App/>
-        </React.StrictMode>,
-        document.getElementById('root')
-    );
+  ReactDOM.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+    document.getElementById('root')
+  );
 }

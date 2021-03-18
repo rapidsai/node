@@ -21,39 +21,41 @@ export const edgeSourceColorAccessor = (gl) => ({ size: 4, stride: 8, offset: 0,
 export const edgeTargetColorAccessor = (gl) => ({ size: 4, stride: 8, offset: 4, type: gl.UNSIGNED_BYTE });
 
 export class EdgeListBuffer extends Buffer {
-    constructor(gl, byteLength = 0) {
-        byteLength = Math.max(byteLength || 0, 1);
-        super(gl, { byteLength, accessor: edgeListAccessor(gl) });
-    }
+  constructor(gl, byteLength = 0) {
+    byteLength = Math.max(byteLength || 0, 1);
+    super(gl, { byteLength, accessor: edgeListAccessor(gl) });
+  }
 }
 
 export class EdgeColorBuffer extends Buffer {
-    constructor(gl, byteLength = 0) {
-        byteLength = Math.max(byteLength || 0, 1);
-        super(gl, { byteLength, accessor: { ...edgeSourceColorAccessor(gl), size: 8 } });
-    }
+  constructor(gl, byteLength = 0) {
+    byteLength = Math.max(byteLength || 0, 1);
+    super(gl, { byteLength, accessor: { ...edgeSourceColorAccessor(gl), size: 8 } });
+  }
 }
 
 export class EdgeComponentBuffer extends Buffer {
-    constructor(gl, byteLength = 0) {
-        byteLength = Math.max(byteLength || 0, 1);
-        super(gl, { byteLength, accessor: edgeComponentAccessor(gl) });
-    }
+  constructor(gl, byteLength = 0) {
+    byteLength = Math.max(byteLength || 0, 1);
+    super(gl, { byteLength, accessor: edgeComponentAccessor(gl) });
+  }
 }
 
 // Transform feedback buffers
 export class EdgePositionTexture extends Texture2D {
-    constructor(gl) {
-        super(gl, {
-            format: gl.R32F,
-            type: gl.FLOAT,
-            width: 1,
-            height: 1,
-            parameters: {
-                [gl.TEXTURE_MIN_FILTER]: [gl.NEAREST],
-                [gl.TEXTURE_MAG_FILTER]: [gl.NEAREST]
-            },
-            mipmap: false
-        })
-    }
+  constructor(gl) {
+    super(gl, {
+      format: gl.R32F,
+      type: gl.FLOAT,
+      width: 1,
+      height: 1,
+      parameters: {
+        [gl.TEXTURE_MIN_FILTER]: [gl.NEAREST],
+        [gl.TEXTURE_MAG_FILTER]: [gl.NEAREST],
+        [gl.TEXTURE_WRAP_S]: [gl.CLAMP_TO_EDGE],
+        [gl.TEXTURE_WRAP_T]: [gl.CLAMP_TO_EDGE],
+      },
+      mipmap: false
+    })
+  }
 }

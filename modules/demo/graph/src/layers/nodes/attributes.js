@@ -20,32 +20,32 @@ export const nodeRadiusAccessor = (gl) => ({ size: 1, type: gl.UNSIGNED_BYTE });
 export const nodeElementIndicesAccessor = (gl) => ({ size: 1, type: gl.UNSIGNED_INT });
 
 export class NodeColorBuffer extends Buffer {
-    constructor(gl, byteLength = 0) {
-        byteLength = Math.max(byteLength || 0, 1);
-        super(gl, { byteLength, accessor: nodeColorAccessor(gl) });
-    }
+  constructor(gl, byteLength = 0) {
+    byteLength = Math.max(byteLength || 0, 1);
+    super(gl, { byteLength, accessor: nodeColorAccessor(gl) });
+  }
 }
 
 export class NodeRadiusBuffer extends Buffer {
-    constructor(gl, byteLength = 0) {
-        byteLength = Math.max(byteLength || 0, 1);
-        super(gl, { byteLength, accessor: nodeRadiusAccessor(gl) });
-    }
+  constructor(gl, byteLength = 0) {
+    byteLength = Math.max(byteLength || 0, 1);
+    super(gl, { byteLength, accessor: nodeRadiusAccessor(gl) });
+  }
 }
 
 export class NodePositionBuffer extends Buffer {
-    constructor(gl, byteLength = 0) {
-        byteLength = Math.max(byteLength || 0, 1);
-        super(gl, { byteLength, accessor: nodePositionAccessor(gl) });
-    }
+  constructor(gl, byteLength = 0) {
+    byteLength = Math.max(byteLength || 0, 1);
+    super(gl, { byteLength, accessor: nodePositionAccessor(gl) });
+  }
 }
 
 export class NodeElementIndicesBuffer extends Buffer {
-    constructor(gl, byteLength = 0) {
-        byteLength = Math.max(byteLength || 0, 1);
-        super(gl, {
-            byteLength,
-            accessor: nodeElementIndicesAccessor(gl)
-        });
-    }
+  constructor(gl, byteLength = 0) {
+    byteLength = Math.max(byteLength || 0, 1);
+    super(gl, {
+      byteLength,
+      accessor: nodeElementIndicesAccessor(gl)
+    });
+  }
 }
