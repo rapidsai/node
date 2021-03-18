@@ -238,16 +238,19 @@ Napi::Value read_csv_strings(Napi::Object const& options, std::vector<Span<char>
 }  // namespace
 
 Napi::Value Table::read_csv(Napi::CallbackInfo const& info) {
-  NODE_CUDF_EXPECT(info[0].IsObject(), "readCSV expects an Object of ReadCSVOptions", info.Env());
+  auto env = info.Env();
+
+  NODE_CUDF_EXPECT(info[0].IsObject(), "readCSV expects an Object of ReadCSVOptions", env);
 
   auto options = info[0].As<Napi::Object>();
   auto sources = options.Get("sources");
 
-  NODE_CUDF_EXPECT(sources.IsArray(), "readCSV expects an Array of paths or buffers", info.Env());
-
-  return (options.Get("sourceType").ToString().Utf8Value() == "files")
-           ? read_csv_files(options, NapiToCPP{sources})
-           : read_csv_strings(options, NapiToCPP{sources});
+  NODE_CUDF_EXPECT(sources.IsArray(), "readCSV expects an Array of paths or buffers", env);
+  try {
+    return (options.Get("sourceType").ToString().Utf8Value() == "files")
+             ? read_csv_files(options, NapiToCPP{sources})
+             : read_csv_strings(options, NapiToCPP{sources});
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
 }
 
 }  // namespace nv
