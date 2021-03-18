@@ -16,10 +16,10 @@ import {Buffer as LumaBuffer, BufferProps} from '@luma.gl/webgl';
 
 declare module '@luma.gl/webgl' {
   // Add protected props and methods missing on the luma.gl typings
-  interface Resource {
+  class Resource {
     _deleteHandle(handle?: any): void;
   }
-  interface Buffer extends Resource {
+  class Buffer {
     // _handle isn't mutable in practice, even though it is in the luma.gl typings
     _handle: any;
     _deleteHandle(): void;
@@ -28,9 +28,9 @@ declare module '@luma.gl/webgl' {
   }
 }
 
-export const Buffer = ((Buffer) => {
+export const Buffer = (() => {
   if (process.env.REACT_APP_ENVIRONMENT === 'browser') {
-    return class DeckBuffer extends Buffer {
+    return class DeckBuffer extends LumaBuffer {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       static mapResources(_buffers: any[] = []) {}
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -38,7 +38,7 @@ export const Buffer = ((Buffer) => {
     };
   } else {
     const {CUDA, Uint8Buffer} = require('@nvidia/cuda');
-    return class CUDABuffer extends Buffer {
+    return class CUDABuffer extends LumaBuffer {
       static mapResources(buffers: any[] = []) {
         buffers = buffers.filter((buffer) => buffer && buffer.handle &&
                                              buffer.handle.cudaGraphicsResource !== undefined &&
@@ -137,4 +137,4 @@ export const Buffer = ((Buffer) => {
       }
     };
   }
-})(LumaBuffer);
+})();

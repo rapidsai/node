@@ -12,40 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Buffer } from '@rapidsai/deck.gl';
+import {Buffer} from '../../buffer';
 
-export const nodePositionAccessor = (gl) => ({ size: 1, type: gl.FLOAT });
-export const nodeColorAccessor = (gl) => ({ size: 4, type: gl.UNSIGNED_BYTE, normalized: true });
-export const nodeRadiusAccessor = (gl) => ({ size: 1, type: gl.UNSIGNED_BYTE });
-export const nodeElementIndicesAccessor = (gl) => ({ size: 1, type: gl.UNSIGNED_INT });
+export const nodePositionAccessor = (gl: WebGLRenderingContext) => ({size: 1, type: gl.FLOAT});
+
+export const nodeColorAccessor = (gl: WebGLRenderingContext) =>
+  ({size: 4, type: gl.UNSIGNED_BYTE, normalized: true});
+
+export const nodeRadiusAccessor = (gl: WebGLRenderingContext) =>
+  ({size: 1, type: gl.UNSIGNED_BYTE});
+
+export const nodeElementIndicesAccessor = (gl: WebGLRenderingContext) =>
+  ({size: 1, type: gl.UNSIGNED_INT});
 
 export class NodeColorBuffer extends Buffer {
-  constructor(gl, byteLength = 0) {
+  constructor(gl: WebGLRenderingContext, byteLength = 0) {
     byteLength = Math.max(byteLength || 0, 1);
-    super(gl, { byteLength, accessor: nodeColorAccessor(gl) });
+    super(gl, {byteLength, accessor: nodeColorAccessor(gl)});
   }
 }
 
 export class NodeRadiusBuffer extends Buffer {
-  constructor(gl, byteLength = 0) {
+  constructor(gl: WebGLRenderingContext, byteLength = 0) {
     byteLength = Math.max(byteLength || 0, 1);
-    super(gl, { byteLength, accessor: nodeRadiusAccessor(gl) });
+    super(gl, {byteLength, accessor: nodeRadiusAccessor(gl)});
   }
 }
 
 export class NodePositionBuffer extends Buffer {
-  constructor(gl, byteLength = 0) {
+  constructor(gl: WebGLRenderingContext, byteLength = 0) {
     byteLength = Math.max(byteLength || 0, 1);
-    super(gl, { byteLength, accessor: nodePositionAccessor(gl) });
+    super(gl, {byteLength, accessor: nodePositionAccessor(gl)});
   }
 }
 
 export class NodeElementIndicesBuffer extends Buffer {
-  constructor(gl, byteLength = 0) {
+  constructor(gl: WebGLRenderingContext, byteLength = 0) {
     byteLength = Math.max(byteLength || 0, 1);
-    super(gl, {
-      byteLength,
-      accessor: nodeElementIndicesAccessor(gl)
-    });
+    super(gl, {byteLength, accessor: nodeElementIndicesAccessor(gl)});
   }
 }

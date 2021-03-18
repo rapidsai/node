@@ -12,31 +12,76 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Buffer } from '@rapidsai/deck.gl';
-import { TextLayer } from '@deck.gl/layers';
-import { CompositeLayer } from '@deck.gl/core';
+import '../deck.gl';
 
-import { NodeLayer } from './nodes';
-import { EdgeLayer } from './edges';
-import { ComputeEdgePositionsTransform } from './edges/positions';
-import { EdgeColorBuffer, EdgeListBuffer, EdgeComponentBuffer } from './edges/attributes';
-import { NodeColorBuffer, NodeRadiusBuffer, NodePositionBuffer, NodeElementIndicesBuffer } from './nodes/attributes';
+import {CompositeLayer, DeckContext, PickingInfo, UpdateStateProps} from '@deck.gl/core';
+import {TextLayer} from '@deck.gl/layers';
+import {Accessor} from '@luma.gl/webgl';
+import {Series} from '@rapidsai/cudf';
+
+import {Buffer} from '../buffer';
+
+import {EdgeLayer} from './edges';
+import {EdgeColorBuffer, EdgeComponentBuffer, EdgeListBuffer} from './edges/attributes';
+import {ComputeEdgePositionsTransform} from './edges/positions';
+import {NodeLayer} from './nodes';
+import {
+  NodeColorBuffer,
+  NodeElementIndicesBuffer,
+  NodePositionBuffer,
+  NodeRadiusBuffer
+} from './nodes/attributes';
 
 const edgeBufferNames = [
-  'edgeList', 'edgeBundles', 'edgeColors', 'edgeControlPoints', 'edgeSourcePositions', 'edgeTargetPositions'
+  'edgeList',
+  'edgeBundles',
+  'edgeColors',
+  'edgeControlPoints',
+  'edgeSourcePositions',
+  'edgeTargetPositions'
 ];
 const nodeBufferNames = [
-  'nodeXPositions', 'nodeYPositions', 'nodeRadius', 'nodeFillColors', 'nodeLineColors', 'nodeElementIndices'
+  'nodeXPositions',
+  'nodeYPositions',
+  'nodeRadius',
+  'nodeFillColors',
+  'nodeLineColors',
+  'nodeElementIndices'
 ];
 
 export class GraphLayer extends CompositeLayer {
-  static getAccessors(context) {
+  static get layerName() { return 'GraphLayer'; }
+  static get defaultProps() {
+    return {
+      // graph props
+      numNodes: {type: 'number', min: 0, value: 0},
+      numEdges: {type: 'number', min: 0, value: 0},
+      nodesVisible: {type: 'boolean', value: true},
+      edgesVisible: {type: 'boolean', value: true},
+      // edge props
+      edgeOpacity: EdgeLayer.defaultProps.opacity,
+      edgeStrokeWidth: EdgeLayer.defaultProps.width,
+      // node props
+      nodesFilled: NodeLayer.defaultProps.filled,
+      nodesStroked: NodeLayer.defaultProps.stroked,
+      nodeFillOpacity: NodeLayer.defaultProps.fillOpacity,
+      nodeStrokeRatio: NodeLayer.defaultProps.strokeRatio,
+      nodeStrokeOpacity: NodeLayer.defaultProps.strokeOpacity,
+      nodeRadiusScale: NodeLayer.defaultProps.radiusScale,
+      nodeLineWidthScale: NodeLayer.defaultProps.lineWidthScale,
+      nodeRadiusMinPixels: NodeLayer.defaultProps.radiusMinPixels,
+      nodeRadiusMaxPixels: NodeLayer.defaultProps.radiusMaxPixels,
+      nodeLineWidthMinPixels: NodeLayer.defaultProps.lineWidthMinPixels,
+      nodeLineWidthMaxPixels: NodeLayer.defaultProps.lineWidthMaxPixels,
+    };
+  }
+  static getAccessors(context: DeckContext) {
     return {
       ...NodeLayer.getAccessors(context),
       ...EdgeLayer.getAccessors(context),
-    }
+    };
   }
-  initializeState({ gl }) {
+  initializeState({gl}: DeckContext) {
     // GPGPU
     this.internalState.computeEdgePositions = new ComputeEdgePositionsTransform(gl);
     this.setState({
@@ -65,11 +110,11 @@ export class GraphLayer extends CompositeLayer {
       },
     });
   }
-  shouldUpdateState({ props, oldProps, changeFlags, ...rest }) {
-    return changeFlags.viewportChanged || super.shouldUpdateState({ props, changeFlags, ...rest });
+  shouldUpdateState({props, oldProps, changeFlags, ...rest}: UpdateStateProps) {
+    return changeFlags.viewportChanged ||
+           super.shouldUpdateState({props, changeFlags, oldProps, ...rest});
   }
-  updateState({ props, oldProps, changeFlags }) {
-
+  updateState({props, oldProps, changeFlags}: UpdateStateProps) {
     changeFlags = {
       ...changeFlags,
       edgesChanged: false,
@@ -79,10 +124,10 @@ export class GraphLayer extends CompositeLayer {
       numNodesChanged: false,
     };
 
-    let updates = [];
+    const updates = [];
 
     if (changeFlags.dataChanged && props.data) {
-      updates[0] = props.data;
+      updates[0]               = props.data;
       changeFlags.edgesChanged = updates.some((x) => !!x.edges && x.edges.length > 0);
       changeFlags.nodesChanged = updates.some((x) => !!x.nodes && x.nodes.length > 0);
       changeFlags.graphChanged = changeFlags.edgesChanged || changeFlags.nodesChanged;
@@ -108,31 +153,35 @@ export class GraphLayer extends CompositeLayer {
       });
     }
     if (changeFlags.graphChanged) {
-      this.setState(copyUpdatesIntoBuffers({ ...this.state, updates }));
+      this.setState(copyUpdatesIntoBuffers({...this.state, updates}));
     }
     if (props.edgesVisible && props.numEdges > 0) {
       this.setState(computePendingEdgePositions({
-        ...this.state, ...props, ...changeFlags,
+        ...this.state,
+        ...props,
+        ...changeFlags,
         computeEdgePositions: this.internalState.computeEdgePositions,
         edgeBuffers: edgeBufferNames.map((name) => this.state.buffers[name]),
         nodeBuffers: nodeBufferNames.map((name) => this.state.buffers[name]),
       }));
     }
   }
-  finalizeState() {
-
+  finalizeState(contex?: DeckContext) {
     [...edgeBufferNames, ...nodeBufferNames]
       .map((name) => this.state.buffers[name])
-      .filter(Boolean).forEach((b) => b.delete());
+      .filter(Boolean)
+      .forEach((b) => b.delete());
 
     if (this.internalState.computeEdgePositions) {
       this.internalState.computeEdgePositions.delete();
       this.internalState.computeEdgePositions = null;
     }
 
-    return super.finalizeState();
+    return super.finalizeState(contex);
   }
-  onHover({ layer, x, y, index, coordinate, edgeId = -1, nodeId = -1, sourceNodeId = -1, targetNodeId = -1 }) {
+  onHover({layer, x, y, coordinate, edgeId = -1, nodeId = -1, sourceNodeId = -1, targetNodeId = -1}:
+            PickingInfo&
+          {edgeId: number, nodeId: number, sourceNodeId: number, targetNodeId: number}) {
     this.setState({
       highlightedEdge: edgeId,
       highlightedNode: nodeId,
@@ -140,20 +189,27 @@ export class GraphLayer extends CompositeLayer {
       highlightedTargetNode: targetNodeId,
       labelColor: [255, 255, 255],
       labelPosition: coordinate || layer.context.viewport.unproject([x, y]),
-      labelText: ((names) => {
-        const get = (path) => path.split('.').reduce(((xs, x) => xs ? xs[x] : null), this.props);
-        return (nodeId !== -1) ?
-          ((names = get('data.nodes.attributes.nodeName')) ? names.getValue(nodeId) : `${nodeId}`) :
-          (edgeId !== -1) ?
-            ((names = get('data.edges.attributes.edgeName')) ? names.getValue(edgeId) : `${sourceNodeId} - ${targetNodeId}`) : ``;
+      labelText: ((names?: Series) => {
+        const get = (path: string): Series|null =>
+          path.split('.').reduce(((xs, x) => xs ? xs[x] : null), this.props);
+        if (nodeId !== -1) {
+          names = get('data.nodes.attributes.nodeName');
+          return names ? names.getValue(nodeId) : `${nodeId}`;
+        } else if (edgeId !== -1) {
+          names = get('data.edges.attributes.edgeName');
+          return names ? names.getValue(edgeId) : `${sourceNodeId} - ${targetNodeId}`;
+        }
+        return ``;
       })()
     });
   }
   renderLayers() {
-    const layers = [];
-    const { props, state } = this;
+    const layers         = [];
+    const {props, state} = this;
     const maxNumElements = 16777215 / 3;
-    const renderChunks = (numElements, LayerClass, getProps) => {
+    const renderChunks = (numElements: number,
+                          LayerClass: any,
+                          getProps: (index: number, offset: number, length: number) => any) => {
       const count = Math.ceil(numElements / maxNumElements);
       for (let index = -1; ++index < count;) {
         const offset = (index * maxNumElements);
@@ -163,9 +219,11 @@ export class GraphLayer extends CompositeLayer {
     };
 
     props.edgesVisible &&
-      renderChunks(this.state.numEdgesLoaded, EdgeLayer, (index, offset, length) => ({
-        id: `${props.id}-edge-layer-${index}`, ...edgeLayerProps(props, state, offset, length),
-      }));
+      renderChunks(
+        this.state.numEdgesLoaded, EdgeLayer, (index, offset, length) => ({
+                                                id: `${props.id as string}-edge-layer-${index}`,
+                                                ...edgeLayerProps(props, state, offset, length),
+                                              }));
 
     // render bezier control points for debugging
     // renderChunks(this.state.numEdgesLoaded, ScatterplotLayer, (index, offset, length) => ({
@@ -174,57 +232,42 @@ export class GraphLayer extends CompositeLayer {
     //     radiusScale: 2,
     //     data: {
     //         attributes: {
-    //             instancePositions: { buffer: state.buffers.edgeControlPoints, offset: offset * 3 },
-    //             instanceFillColors: { buffer: state.buffers.edgeColors, offset: offset * 4, stride: 8 },
+    //             instancePositions: { buffer: state.buffers.edgeControlPoints, offset: offset * 3
+    //             }, instanceFillColors: { buffer: state.buffers.edgeColors, offset: offset * 4,
+    //             stride: 8 },
     //         }
     //     },
     // }));
 
     props.nodesVisible &&
-      renderChunks(this.state.numNodesLoaded, NodeLayer, (index, offset, length) => ({
-        id: `${props.id}-node-layer-${index}`, ...nodeLayerProps(props, state, offset, length),
-      }));
+      renderChunks(
+        this.state.numNodesLoaded, NodeLayer, (index, offset, length) => ({
+                                                id: `${props.id as string}-node-layer-${index}`,
+                                                ...nodeLayerProps(props, state, offset, length),
+                                              }));
 
     if (this.state.labelText) {
       layers.push(new TextLayer(this.getSubLayerProps({
-        id: `${props.id}-text-layer-0`, ...textLayerProps(this.props, this.state),
+        id: `${props.id as string}-text-layer-0`,
+        ...textLayerProps(this.props, this.state),
       })));
     }
     return layers;
   }
 }
 
-GraphLayer.layerName = 'GraphLayer';
-GraphLayer.defaultProps = {
-  // graph props
-  numNodes: { type: 'number', min: 0, value: 0 },
-  numEdges: { type: 'number', min: 0, value: 0 },
-  nodesVisible: { type: 'boolean', value: true },
-  edgesVisible: { type: 'boolean', value: true },
-  // edge props
-  edgeOpacity: EdgeLayer.defaultProps.opacity,
-  edgeStrokeWidth: EdgeLayer.defaultProps.width,
-  // node props
-  nodesFilled: NodeLayer.defaultProps.filled,
-  nodesStroked: NodeLayer.defaultProps.stroked,
-  nodeFillOpacity: NodeLayer.defaultProps.fillOpacity,
-  nodeStrokeRatio: NodeLayer.defaultProps.strokeRatio,
-  nodeStrokeOpacity: NodeLayer.defaultProps.strokeOpacity,
-  nodeRadiusScale: NodeLayer.defaultProps.radiusScale,
-  nodeLineWidthScale: NodeLayer.defaultProps.lineWidthScale,
-  nodeRadiusMinPixels: NodeLayer.defaultProps.radiusMinPixels,
-  nodeRadiusMaxPixels: NodeLayer.defaultProps.radiusMaxPixels,
-  nodeLineWidthMinPixels: NodeLayer.defaultProps.lineWidthMinPixels,
-  nodeLineWidthMaxPixels: NodeLayer.defaultProps.lineWidthMaxPixels,
-};
+type LumaBuffer = import('@luma.gl/webgl').Buffer;
 
-const resizeBuffer = (length, buffer) => buffer.reallocate(length * buffer.accessor.BYTES_PER_VERTEX);
-const resizeBuffers = (length, buffers) => buffers.forEach((buffer) => resizeBuffer(length, buffer));
+const resizeBuffer = (length: number, buffer: LumaBuffer) =>
+  buffer.reallocate(length * (buffer.accessor as Accessor).BYTES_PER_VERTEX);
 
-const copyIntoBuffer = (target, source, offset) => target.subData({
+const resizeBuffers = (length: number, buffers: LumaBuffer[]) =>
+  buffers.forEach((buffer) => resizeBuffer(length, buffer));
+
+const copyIntoBuffer = (target: LumaBuffer, source: any, offset: number) => target.subData({
   data: source,
   srcOffset: source.byteOffset,
-  offset: offset * target.accessor.BYTES_PER_VERTEX
+  offset: offset * (target.accessor as Accessor).BYTES_PER_VERTEX
 });
 
 const copyUpdatesIntoBuffers = ({
@@ -233,38 +276,39 @@ const copyUpdatesIntoBuffers = ({
   numEdgesLoaded,
   numNodesLoaded,
   edgePositionRanges,
-}) => {
-
-  const updatedBufferNames = (names, { attributes }) => names.filter((name) => attributes[name]);
-  const copyUpdateIntoBuffers = (buffers, names, update) => {
+}: any) => {
+  const updatedBufferNames = (names: string[], {attributes}: any) =>
+    names.filter((name) => attributes[name]);
+  const copyUpdateIntoBuffers = (buffers: any, names: string[], update: any) => {
     for (const name of updatedBufferNames(names, update)) {
       copyIntoBuffer(buffers[name], update.attributes[name], update.offset);
     }
   };
 
   const buffersToUpdate = [
-    ...updates.reduce((names, { edges = {}, nodes = {} }) => new Set([
-      ...names,
-      ...updatedBufferNames(edgeBufferNames, edges),
-      ...updatedBufferNames(nodeBufferNames, nodes),
-    ]), new Set())
+    ...updates.reduce((names: string[], {edges = {}, nodes = {}}: any) => new Set([
+                        ...names,
+                        ...updatedBufferNames(edgeBufferNames, edges),
+                        ...updatedBufferNames(nodeBufferNames, nodes),
+                      ]),
+                      new Set())
   ].map((name) => buffers[name]);
 
   Buffer.mapResources(buffersToUpdate);
 
-  updates.forEach(({ edges = {}, nodes = {} }) => {
+  updates.forEach(({edges = {}, nodes = {}}: any) => {
     edges.offset = Math.max(0, edges.offset || 0);
     nodes.offset = Math.max(0, nodes.offset || 0);
     edges.length > 0 && edgePositionRanges.add([edges.offset, edges.length]);
     edges.length > 0 && copyUpdateIntoBuffers(buffers, edgeBufferNames, edges);
     nodes.length > 0 && copyUpdateIntoBuffers(buffers, nodeBufferNames, nodes);
-    numEdgesLoaded = Math.max(numEdgesLoaded, (edges.offset + edges.length) || 0);
-    numNodesLoaded = Math.max(numNodesLoaded, (nodes.offset + nodes.length) || 0);
+    numEdgesLoaded = Math.max(numEdgesLoaded, (<number>edges.offset + <number>edges.length) || 0);
+    numNodesLoaded = Math.max(numNodesLoaded, (<number>nodes.offset + <number>nodes.length) || 0);
   });
 
   Buffer.unmapResources(buffersToUpdate);
 
-  return { numEdgesLoaded, numNodesLoaded, edgePositionRanges };
+  return {numEdgesLoaded, numNodesLoaded, edgePositionRanges};
 };
 
 const computePendingEdgePositions = ({
@@ -280,24 +324,28 @@ const computePendingEdgePositions = ({
   edgeStrokeWidth,
   edgePositionRanges,
   computeEdgePositions,
-}) => {
+}: any) => {
+  const allElementsLoaded = (numTotal: number, numLoaded: number, buffers: LumaBuffer[]) =>
+    (numTotal > 0 && numLoaded === numTotal &&
+     buffers.every((buffer) => numTotal === (buffer.byteLength /
+                                             (buffer.accessor as Accessor).BYTES_PER_VERTEX)));
 
-  const allElementsLoaded = (numTotal, numLoaded, buffers) => (
-    numTotal > 0 && numLoaded === numTotal && buffers.every((buffer) =>
-      numTotal === (buffer.byteLength / buffer.accessor.BYTES_PER_VERTEX)));
-
-  const computeEdgePositionRanges = (ranges) => {
+  const computeEdgePositionRanges = (ranges: any) => {
     const args = {
-      ...buffers, edgeStrokeWidth,
-      offset: 0, length: numEdges,
-      numNodes, numNodesLoaded, nodesChanged,
+      ...buffers,
+      edgeStrokeWidth,
+      offset: 0,
+      length: numEdges,
+      numNodes,
+      numNodesLoaded,
+      nodesChanged,
     };
-    ranges.forEach(([offset, length]) => {
+    ranges.forEach(([offset, length]: [number, number]) => {
       args.offset = offset;
       args.length = length;
       computeEdgePositions.call(args);
     });
-    return { edgePositionRanges: new Set() };
+    return {edgePositionRanges: new Set()};
   };
 
   // If new node positions load after logical edges, copy all the
@@ -310,15 +358,13 @@ const computePendingEdgePositions = ({
     return computeEdgePositionRanges([...edgePositionRanges].sort(([a], [b]) => a - b));
   }
 
-  return { edgePositionRanges };
+  return {edgePositionRanges};
 };
 
-const sliceLayerAttrib = (multiplier, buffer, offset = 0) => ({
-  buffer,
-  offset: buffer.accessor.BYTES_PER_VERTEX * multiplier + offset
-});
+const sliceLayerAttrib = (multiplier: number, buffer: LumaBuffer, offset = 0) =>
+  ({buffer, offset: (buffer.accessor as Accessor).BYTES_PER_VERTEX * multiplier + offset});
 
-const edgeLayerProps = (props, state, offset, length) => ({
+const edgeLayerProps = (props: any, state: any, offset: number, length: number) => ({
   pickable: true,
   autoHighlight: false,
   highlightColor: [225, 225, 225, 100],
@@ -340,7 +386,7 @@ const edgeLayerProps = (props, state, offset, length) => ({
   }
 });
 
-const nodeLayerProps = (props, state, offset, length) => ({
+const nodeLayerProps = (props: any, state: any, offset: number, length: number) => ({
   pickable: true,
   autoHighlight: false,
   highlightColor: [225, 225, 225, 100],
@@ -375,7 +421,7 @@ const nodeLayerProps = (props, state, offset, length) => ({
   },
 });
 
-const textLayerProps = (props, state) => ({
+const textLayerProps = (_props: any, state: any) => ({
   sizeScale: 1.0,
   opacity: 1.0,
   maxWidth: -1,
@@ -384,10 +430,10 @@ const textLayerProps = (props, state) => ({
   getTextAnchor: 'start',
   getAlignmentBaseline: 'top',
   fontFamily: 'sans-serif, sans',
-  getSize: d => d.size,
-  getColor: d => d.color,
-  getPosition: d => d.position,
-  getPixelOffset: d => [d.size, 0],
+  getSize: (d: any)        => d.size,
+  getColor: (d: any)       => d.color,
+  getPosition: (d: any)    => d.position,
+  getPixelOffset: (d: any) => [d.size, 0],
   data: [{
     size: 12,
     text: state.labelText,
