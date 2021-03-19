@@ -226,7 +226,7 @@ export class AbstractSeries<T extends DataType = any> {
 
   scatter(source: Series<T>|T['scalarType'],
           indices: Series<Int32>|number[],
-          check_bounds?: boolean,
+          check_bounds = false,
           memoryResource?: MemoryResource): void {
     const dst  = new Table({columns: [this._col]});
     const inds = indices instanceof Series ? indices : new Series({type: new Int32, data: indices});

@@ -62,6 +62,13 @@ Napi::Value Table::gather(Napi::CallbackInfo const& info) {
 
 Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
+
+  if (args.Length() != 3 and args.Length() != 4) {
+    NAPI_THROW(Napi::Error::New(info.Env(),
+                                "scatter_scalar expects a vector of scalars, a Column, and "
+                                "optionally a bool and memory resource"));
+  }
+
   if (!args[0].IsArray()) {
     throw Napi::Error::New(info.Env(), "scatter_scalar source argument expects an array");
   }
@@ -80,24 +87,20 @@ Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {
   if (!Column::is_instance(args[1])) {
     throw Napi::Error::New(info.Env(), "scatter_scalar indices argument expects a Column");
   }
-  auto& indices = *Column::Unwrap(args[1]);
-
-  if (args.Length() == 2 or (args.Length() >= 2 and args[2].IsUndefined())) {
-    return scatter(source, indices)->Value();
-  }
-
-  if (args.Length() > 2 and args[2].IsBoolean()) {
-    auto check_bounds = NapiToCPP(args[2]);
-    auto* mr          = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
-    return scatter(source, indices, check_bounds, mr)->Value();
-  }
-  NAPI_THROW(Napi::Error::New(info.Env(),
-                              "scatter_scalar expects a vector of scalars, a Column, and "
-                              "optionally a bool and memory resource"));
+  auto& indices     = *Column::Unwrap(args[1]);
+  auto check_bounds = args[2];
+  auto* mr          = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
+  return scatter(source, indices, check_bounds, mr)->Value();
 }
 
 Napi::Value Table::scatter_table(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
+
+  if (args.Length() != 3 and args.Length() != 4) {
+    NAPI_THROW(Napi::Error::New(
+      info.Env(),
+      "scatter_table expects a Table, a Column, and optionally a bool and memory resource"));
+  }
 
   if (!Table::is_instance(args[0])) {
     throw Napi::Error::New(info.Env(), "scatter_table source argument expects a Table");
@@ -109,18 +112,9 @@ Napi::Value Table::scatter_table(Napi::CallbackInfo const& info) {
   }
   auto& indices = *Column::Unwrap(args[1]);
 
-  if (args.Length() == 2 or (args.Length() >= 2 and args[2].IsUndefined())) {
-    return scatter(source, indices)->Value();
-  }
-
-  if (args.Length() > 2 and args[2].IsBoolean()) {
-    auto check_bounds = NapiToCPP(args[2]);
-    auto* mr          = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
-    return scatter(source, indices, check_bounds, mr)->Value();
-  }
-  NAPI_THROW(Napi::Error::New(
-    info.Env(),
-    "scatter_table expects a Table, a Column, and optionally a bool and memory resource"));
+  auto check_bounds = args[2];
+  auto* mr          = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
+  return scatter(source, indices, check_bounds, mr)->Value();
 }
 
 }  // namespace nv
