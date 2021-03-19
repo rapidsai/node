@@ -206,7 +206,7 @@ export class AbstractSeries<T extends DataType = any> {
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
   scatter(value: T['scalarType'],
-          indices: Series<Int32>,
+          indices: Series<Int32>|number[],
           check_bounds?: boolean,
           memoryResource?: MemoryResource): void;
   /**
@@ -220,22 +220,23 @@ export class AbstractSeries<T extends DataType = any> {
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
   scatter(values: Series<T>,
-          indices: Series<Int32>,
+          indices: Series<Int32>|number[],
           check_bounds?: boolean,
           memoryResource?: MemoryResource): void;
 
   scatter(source: Series<T>|T['scalarType'],
-          indices: Series<Int32>,
+          indices: Series<Int32>|number[],
           check_bounds?: boolean,
           memoryResource?: MemoryResource): void {
-    const dst = new Table({columns: [this._col]});
+    const dst  = new Table({columns: [this._col]});
+    const inds = indices instanceof Series ? indices : new Series({type: new Int32, data: indices});
     if (source instanceof Series) {
       const src = new Table({columns: [source._col]});
-      const out = dst.scatterTable(src, indices._col, check_bounds, memoryResource);
+      const out = dst.scatterTable(src, inds._col, check_bounds, memoryResource);
       this._col = out.getColumnByIndex(0);
     } else {
       const src = [new Scalar({type: this.type, value: source})];
-      const out = dst.scatterScalar(src, indices._col, check_bounds, memoryResource);
+      const out = dst.scatterScalar(src, inds._col, check_bounds, memoryResource);
       this._col = out.getColumnByIndex(0);
     }
   }
@@ -251,11 +252,17 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * Return a value at the specified index to host memory
    *
-   * @param index
+   * @param index the index in this Series to return a value for
    */
   getValue(index: number) { return this._col.getValue(index); }
 
-  // setValue(index: number, value?: this[0] | null);
+  /**
+   * Set a value at the specified index
+   *
+   * @param index the index in this Series to set a value for
+   * @param value the value to set at `index`
+   */
+  setValue(index: number, value: T['scalarType']): void { this.scatter(value, [index]); }
 
   /**
    * Copy the underlying device memory to host, and return an Iterator of the values.
