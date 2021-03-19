@@ -1,8 +1,8 @@
-import React, {Component} from 'react';
-import {render} from 'react-dom';
-import {StaticMap} from 'react-map-gl';
-import {AmbientLight, PointLight, LightingEffect} from '@deck.gl/core';
-import {HexagonLayer} from '@deck.gl/aggregation-layers';
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+import { StaticMap } from 'react-map-gl';
+import { AmbientLight, PointLight, LightingEffect } from '@deck.gl/core';
+import { HexagonLayer } from '@deck.gl/aggregation-layers';
 import DeckGL from '@deck.gl/react';
 
 // Set your mapbox token here
@@ -29,7 +29,7 @@ const pointLight2 = new PointLight({
   position: [-3.807751, 54.104682, 8000]
 });
 
-const lightingEffect = new LightingEffect({ambientLight, pointLight1, pointLight2});
+const lightingEffect = new LightingEffect({ ambientLight, pointLight1, pointLight2 });
 
 const material = {
   ambient: 0.64,
@@ -57,7 +57,7 @@ const colorRange = [
   [209, 55, 78]
 ];
 
-const elevationScale = {min: 1, max: 50};
+const elevationScale = { min: 1, max: 50 };
 
 /* eslint-disable react/no-deprecated */
 export default class App extends Component {
@@ -70,10 +70,16 @@ export default class App extends Component {
     this.state = {
       elevationScale: elevationScale.min
     };
+    require('d3-request').csv(DATA_URL, (error, response) => {
+      if (!error) {
+        this.setState({ data: response.map(d => [Number(d.lng), Number(d.lat)]) });
+      }
+    });
   }
 
   _renderLayers() {
-    const {data, radius = 1000, upperPercentile = 100, coverage = 1} = this.props;
+    const { data } = this.state;
+    const { radius = 1000, upperPercentile = 100, coverage = 1 } = this.props;
 
     return [
       new HexagonLayer({
@@ -99,7 +105,7 @@ export default class App extends Component {
   }
 
   render() {
-    const {mapStyle = 'mapbox://styles/mapbox/dark-v9'} = this.props;
+    const { mapStyle = 'mapbox://styles/mapbox/dark-v9' } = this.props;
 
     return (
       <DeckGL
@@ -117,15 +123,4 @@ export default class App extends Component {
       </DeckGL>
     );
   }
-}
-
-export function renderToDOM(container) {
-  render(<App />, container);
-
-  require('d3-request').csv(DATA_URL, (error, response) => {
-    if (!error) {
-      const data = response.map(d => [Number(d.lng), Number(d.lat)]);
-      render(<App data={data} />, container);
-    }
-  });
 }

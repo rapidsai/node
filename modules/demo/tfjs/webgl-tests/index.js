@@ -16,26 +16,26 @@ require('@babel/register')({
   cache: false,
   babelrc: false,
   presets: [
-    ['@babel/preset-env', {'targets': {'node': 'current'}}],
-    ['@babel/preset-react', {'useBuiltIns': true}]
+    ['@babel/preset-env', { 'targets': { 'node': 'current' } }],
+    ['@babel/preset-react', { 'useBuiltIns': true }]
   ]
 });
 
 // Open a GLFW window and run the `tfjsWebGLTests` function
 require('@nvidia/glfw').createWindow(tfjsWebGLTests, true).open({
   __dirname,
-  // openGLProfile: require('@nvidia/glfw').GLFWOpenGLProfile.COMPAT,
+  openGLProfile: require('@nvidia/glfw').GLFWOpenGLProfile.COMPAT,
 });
 
-function tfjsWebGLTests({__dirname}) {
+function tfjsWebGLTests({ __dirname }) {
   // Silence all internal TF.js warnings
-  console.warn = () => {};
+  console.warn = () => { };
 
   // Silence internal TF.js "High memory usage..."
   Object.defineProperty(
     require('@tensorflow/tfjs-backend-webgl/dist/backend_webgl').MathBackendWebGL.prototype,
     'warnedAboutMemory',
-    {get() { return true; }, set() { /* noop */ }});
+    { get() { return true; }, set() { /* noop */ } });
 
   const runner = new (require('jasmine'))();
   require('@tensorflow/tfjs-core/dist/index');
