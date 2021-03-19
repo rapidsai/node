@@ -87,9 +87,9 @@ Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {
   if (!Column::is_instance(args[1])) {
     throw Napi::Error::New(info.Env(), "scatter_scalar indices argument expects a Column");
   }
-  auto& indices     = *Column::Unwrap(args[1]);
-  auto check_bounds = args[2];
-  auto* mr          = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
+  auto& indices                       = *Column::Unwrap(args[1]);
+  bool check_bounds                   = args[2];
+  rmm::mr::device_memory_resource* mr = args[3];
   return scatter(source, indices, check_bounds, mr)->Value();
 }
 
@@ -112,8 +112,8 @@ Napi::Value Table::scatter_table(Napi::CallbackInfo const& info) {
   }
   auto& indices = *Column::Unwrap(args[1]);
 
-  auto check_bounds = args[2];
-  auto* mr          = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
+  bool check_bounds                   = args[2];
+  rmm::mr::device_memory_resource* mr = args[3];
   return scatter(source, indices, check_bounds, mr)->Value();
 }
 
