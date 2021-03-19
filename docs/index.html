@@ -59,40 +59,62 @@
 				<a href="#nbsp-node-rapids" id="nbsp-node-rapids" style="color: inherit; text-decoration: none;">
 					<h1><div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids</h1>
 				</a>
-				<p>The <code>node-rapids</code> project comprises of collection of JavaScript bindings to the following Rapids libraries:</p>
-				<ol>
-					<li><a href="https://github.com/rapidsai/cudf">cudf</a></li>
-					<li><a href="https://github.com/rapidsai/cugraph">cugraph</a></li>
-					<li><a href="https://github.com/rapidsai/cuspatial">cuspatial</a></li>
-					<li><a href="https://github.com/rapidsai/rmm">rmm</a></li>
-				</ol>
-				<p>Additionally, <code>node-rapids</code> includes JavaScript bindings to <a href="https://developer.nvidia.com/cuda-toolkit">cuda</a> and <a href="https://github.com/glfw/glfw">glfw</a>.</p>
-				<p>For detailed APIs, follow our <a href="https://rapidsai.github.io/node-rapids/">API Documentation</a>.</p>
-				<a href="#setup-amp-installation" id="setup-amp-installation" style="color: inherit; text-decoration: none;">
-					<h2>Setup &amp; Installation</h2>
+				<p><a href="https://github.com/rapidsai/node-rapids"><code>node-rapids</code></a> is collection of <code>node</code> native C++ addons for the RAPIDS libraries:</p>
+				<ul>
+					<li><a href="https://github.com/rapidsai/node-rapids/tree/main/modules/rmm"><code>@rapidsai/rmm</code></a> - Bindings to the <a href="https://github.com/rapidsai/rmm">RAPIDS Memory Manager</a></li>
+					<li><a href="https://github.com/rapidsai/node-rapids/tree/main/modules/cudf"><code>@rapidsai/cudf</code></a> - Bindings to the <a href="https://github.com/rapidsai/cudf">RAPIDS GPU DataFrame</a></li>
+					<li><a href="https://github.com/rapidsai/node-rapids/tree/main/modules/cugraph"><code>@rapidsai/cugraph</code></a> - Bindings to the <a href="https://github.com/rapidsai/cugraph">RAPIDS Graph Analytics Library</a></li>
+					<li><a href="https://github.com/rapidsai/node-rapids/tree/main/modules/cuspatial"><code>@rapidsai/cuspatial</code></a> - Bindings to the <a href="https://github.com/rapidsai/cuspatial">RAPIDS Accelerated GIS Library</a></li>
+				</ul>
+				<p>Additionally, <code>node-rapids</code> includes <em>limited</em> bindings to:</p>
+				<ul>
+					<li><a href="https://github.com/rapidsai/node-rapids/tree/main/modules/cuda"><code>@nvidia/cuda</code></a> - Interact with GPUs via the <a href="https://developer.nvidia.com/cuda-toolkit">CUDA Runtime APIs</a></li>
+					<li><a href="https://github.com/rapidsai/node-rapids/tree/main/modules/glfw"><code>@nvidia/glfw</code></a> - Create platform-agnostic native windows with OpenGL contexts via <a href="https://github.com/glfw/glfw">GLFW</a></li>
+					<li><a href="https://github.com/rapidsai/node-rapids/tree/main/modules/webgl"><code>@nvidia/webgl</code></a> - Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext"><code>WebGL2RenderingContext</code></a> via <a href="https://www.khronos.org/opengles">OpenGL ES</a></li>
+				</ul>
+				<p>See the <a href="https://rapidsai.github.io/node-rapids/">API docs</a> for detailed information about each module.</p>
+				<a href="#setup" id="setup" style="color: inherit; text-decoration: none;">
+					<h2>Setup</h2>
 				</a>
-				<a href="#cudagpu-requirements" id="cudagpu-requirements" style="color: inherit; text-decoration: none;">
-					<h4>CUDA/GPU requirements</h4>
+				<a href="#systemcudagpu-requirements" id="systemcudagpu-requirements" style="color: inherit; text-decoration: none;">
+					<h4>System/CUDA/GPU requirements</h4>
 				</a>
 				<ul>
-					<li>CUDA 10.1+</li>
+					<li>Ubuntu 16.04+ (other Linuxes may work, but untested)</li>
+					<li>Docker 19.03+ (optional)</li>
+					<li>docker-compose v1.28.5+ (optional)</li>
+					<li>CUDAToolkit 10.1+</li>
 					<li>NVIDIA driver 418.39+</li>
-					<li>Pascal architecture or better (Compute Capability &gt;=6.0)</li>
+					<li>Pascal architecture (Compute Capability &gt;=6.0) or better</li>
 				</ul>
-				<p>To get started with <code>node-rapids</code>, follow the <a href="docs/setup.md">Setup Instructions</a>. Individual <code>node-rapids</code> modules can be installed separately as-needed.</p>
+				<p>To get started building and using <code>node-rapids</code>, follow the <a href="docs/setup.md">setup instructions</a>.</p>
+				<p>The <code>node-rapids</code> modules are not yet available on npm. They must be built locally or in our Docker environments.</p>
+				<a href="#notebooks" id="notebooks" style="color: inherit; text-decoration: none;">
+					<h2>Notebooks</h2>
+				</a>
+				<p>We&#39;ve included a container for launching <a href="https://nteract.io/desktop"><code>nteract/desktop</code></a> with access to locally built <code>node-rapids</code> modules:</p>
+				<pre><code class="language-shell"><span style="color: #008000"># Build the development and nteract containers (only necessary once)</span>
+<span style="color: #000000">yarn docker:build:devel &amp;&amp; yarn docker:build:nteract</span>
+
+<span style="color: #008000"># Compile the TypeScript and C++ modules inside the development container</span>
+<span style="color: #000000">yarn docker:run:devel bash -c </span><span style="color: #A31515">&#039;yarn &amp;&amp; yarn tsc:build&#039;</span>
+
+<span style="color: #008000"># Start a containerized nteract/desktop with the source tree as Docker volume mounts</span>
+<span style="color: #000000">yarn docker:run:nteract</span>
+</code></pre>
+				<p><code>node-rapids</code> packages are built with <a href="https://nodejs.org/api/n-api.html"><code>N-API</code></a> via the <a href="https://github.com/nodejs/node-addon-api"><code>node-addon-api</code></a> library.</p>
 				<a href="#demos" id="demos" style="color: inherit; text-decoration: none;">
 					<h2>Demos</h2>
 				</a>
 				<p>The demos module contains a bunch of examples which use a combination of node-rapids modules to re-implement some browser+webgl based examples. Some of them include:</p>
 				<ul>
-					<li><a href="modules/demo/deck/">deck</a></li>
-					<li><a href="modules/demo/graph/">graph</a></li>
-					<li><a href="modules/demo/luma/">luma</a></li>
-					<li><a href="modules/demo/tfjs/">tfjs</a></li>
-					<li><a href="modules/demo/umap/">umap</a></li>
-					<li><a href="modules/demo/xterm/">xterm</a></li>
+					<li><a href="modules/demo/deck/">deck.gl</a></li>
+					<li><a href="modules/demo/luma/">luma.gl</a></li>
+					<li><a href="modules/demo/tfjs/">TensorFlow.js</a></li>
+					<li><a href="modules/demo/xterm/">XTerm.js</a></li>
+					<li><a href="modules/demo/ipc/umap/">CUML UMAP</a></li>
 				</ul>
-				<p>After you build the modules, just run <code>yarn demo</code> from the command line, and choose the demo you want to run.</p>
+				<p>After you build the modules, run <code>yarn demo</code> from the command line to choose the demo you want to run.</p>
 				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
 					<h2>License</h2>
 				</a>
