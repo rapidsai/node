@@ -33,7 +33,7 @@ function(find_and_configure_cuspatial VERSION)
         GIT_REPOSITORY  https://github.com/trxcllnt/cuspatial.git
         # Can also use a local path to your repo clone for testing
         # GIT_REPOSITORY  /home/ptaylor/dev/rapids/cuspatial
-        GIT_TAG         fix/cmake-exports
+        GIT_TAG         fix/async-set-value-literal
         GIT_SHALLOW     TRUE
         SOURCE_SUBDIR   cpp
         OPTIONS         "BUILD_TESTS OFF"

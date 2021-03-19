@@ -28,8 +28,8 @@ function(find_and_configure_cudf VERSION)
 
     CPMAddPackage(NAME  cudf
         VERSION         ${VERSION}
-        GIT_REPOSITORY  https://github.com/rapidsai/cudf.git
-        GIT_TAG         branch-${VERSION}
+        GIT_REPOSITORY  https://github.com/trxcllnt/cudf.git
+        GIT_TAG         fix/async-set-value-literal
         GIT_SHALLOW     TRUE
         SOURCE_SUBDIR   cpp
         OPTIONS         "BUILD_TESTS OFF"
