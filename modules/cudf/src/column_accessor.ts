@@ -37,6 +37,8 @@ export class ColumnAccessor<T extends TypeMap = any> {
 
   get length() { return this._labels_to_indices.size; }
 
+  has(name: string) { return name in this._data; }
+
   get<R extends keyof T>(name: R) {
     if (!(name in this._data)) { throw new Error(`Unknown column name: ${name.toString()}`); }
     return this._data[name];

@@ -17,7 +17,6 @@ import '../deck.gl';
 import {CompositeLayer, DeckContext, PickingInfo, UpdateStateProps} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
 import {Accessor} from '@luma.gl/webgl';
-import {Series} from '@rapidsai/cudf';
 
 import {Buffer} from '../buffer';
 
@@ -182,26 +181,40 @@ export class GraphLayer extends CompositeLayer {
   onHover({layer, x, y, coordinate, edgeId = -1, nodeId = -1, sourceNodeId = -1, targetNodeId = -1}:
             PickingInfo&
           {edgeId: number, nodeId: number, sourceNodeId: number, targetNodeId: number}) {
-    this.setState({
+    const nextState = {
+      labels: [] as any[],
       highlightedEdge: edgeId,
       highlightedNode: nodeId,
       highlightedSourceNode: sourceNodeId,
       highlightedTargetNode: targetNodeId,
-      labelColor: [255, 255, 255],
-      labelPosition: coordinate || layer.context.viewport.unproject([x, y]),
-      labelText: ((names?: Series) => {
-        const get = (path: string): Series|null =>
-          path.split('.').reduce(((xs, x) => xs ? xs[x] : null), this.props);
-        if (nodeId !== -1) {
-          names = get('data.nodes.attributes.nodeName');
-          return names ? names.getValue(nodeId) : `${nodeId}`;
-        } else if (edgeId !== -1) {
-          names = get('data.edges.attributes.edgeName');
-          return names ? names.getValue(edgeId) : `${sourceNodeId} - ${targetNodeId}`;
-        }
-        return ``;
-      })()
-    });
+    };
+    let label = '';
+    if (nodeId !== -1) {
+      label = `${nodeId}`;
+      if (this.props.data.nodes.attributes.nodeName) {
+        label = this.props.data.nodes.attributes.nodeName.getValue(nodeId);
+      }
+    } else if (edgeId !== -1) {
+      label = `${sourceNodeId} - ${targetNodeId}`;
+      if (this.props.data.edges.attributes.edgeName) {
+        label = this.props.data.edges.attributes.edgeName.getValue(edgeId);
+      }
+    }
+    if (nodeId !== -1 && (typeof this.props.getNodeLabels === 'function')) {
+      nextState.labels = this.props.getNodeLabels(
+        {x, y, nodeId, edgeId, sourceNodeId, targetNodeId, layer, props: this.props});
+    } else if (edgeId !== -1 && (typeof this.props.getEdgeLabels === 'function')) {
+      nextState.labels = this.props.getEdgeLabels(
+        {x, y, nodeId, edgeId, sourceNodeId, targetNodeId, layer, props: this.props});
+    } else {
+      nextState.labels = [{
+        text: label,
+        size: this.props.labelTextSize || 14,
+        color: this.props.labelTextColor || [255, 255, 255],
+        position: coordinate || layer.context.viewport.unproject([x, y])
+      }];
+    }
+    this.setState(nextState);
   }
   renderLayers() {
     const layers         = [];
@@ -246,7 +259,7 @@ export class GraphLayer extends CompositeLayer {
                                                 ...nodeLayerProps(props, state, offset, length),
                                               }));
 
-    if (this.state.labelText) {
+    if (this.state.labels && this.state.labels.length) {
       layers.push(new TextLayer(this.getSubLayerProps({
         id: `${props.id as string}-text-layer-0`,
         ...textLayerProps(this.props, this.state),
@@ -433,11 +446,6 @@ const textLayerProps = (_props: any, state: any) => ({
   getSize: (d: any)        => d.size,
   getColor: (d: any)       => d.color,
   getPosition: (d: any)    => d.position,
-  getPixelOffset: (d: any) => [d.size, 0],
-  data: [{
-    size: 12,
-    text: state.labelText,
-    color: state.labelColor,
-    position: state.labelPosition,
-  }]
+  getPixelOffset: (d: any) => d.offset || [d.size, 0],
+  data: state.labels.filter((label: any) => !!label.text)
 });

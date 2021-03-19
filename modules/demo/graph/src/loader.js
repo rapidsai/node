@@ -123,6 +123,7 @@ export default async function* loadGraphData(props = {}) {
     id: 'uint32',
     color: 'uint32',
     size: 'uint8',
+    data: 'str',
   });
 
   let edgeDFs = getDataFrames(props.edges, getDefaultEdges, {
@@ -132,6 +133,7 @@ export default async function* loadGraphData(props = {}) {
     edge: 'uint64',
     color: 'uint64',
     bundle: 'uint64',
+    data: 'str',
   });
 
   /**
@@ -274,6 +276,7 @@ function createGraphRenderProps(nodes, edges, graph) {
           edgeList: edges.get('edge').data,
           edgeColors: edges.get('color').data,
           edgeBundles: edges.get('bundle').data,
+          edgeData: edges.has('data') ? edges.get('data') : null
         }
       },
       nodes: {
@@ -286,6 +289,7 @@ function createGraphRenderProps(nodes, edges, graph) {
           nodeYPositions: nodes.get('y').data,
           nodeFillColors: nodes.get('color').data,
           nodeElementIndices: nodes.get('id').data,
+          nodeData: nodes.has('data') ? nodes.get('data') : null
         }
       },
     },
