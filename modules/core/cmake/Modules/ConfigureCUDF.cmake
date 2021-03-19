@@ -28,8 +28,8 @@ function(find_and_configure_cudf VERSION)
 
     CPMAddPackage(NAME  cudf
         VERSION         ${VERSION}
-        GIT_REPOSITORY  https://github.com/rapidsai/cudf.git
-        GIT_TAG         branch-${VERSION}
+        GIT_REPOSITORY  https://github.com/trxcllnt/cudf.git
+        GIT_TAG         fix/async-set-value-literal
         GIT_SHALLOW     TRUE
         SOURCE_SUBDIR   cpp
         OPTIONS         "BUILD_TESTS OFF"
@@ -40,12 +40,14 @@ function(find_and_configure_cudf VERSION)
                         "PER_THREAD_DEFAULT_STREAM ON"
                         "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
 
-    # Make sure consumers of our libs can also see cudf::cudf
-    if(TARGET cudf::cudf)
-        get_target_property(cudf_is_imported cudf::cudf IMPORTED)
-        if(cudf_is_imported)
-            set_target_properties(cudf::cudf PROPERTIES IMPORTED_GLOBAL TRUE)
-        endif()
+    # Make sure consumers of our libs can see cudf::cudf
+    fix_cmake_global_defaults(cudf::cudf)
+    # Make sure consumers of our libs can see cudf::cudftestutil
+    fix_cmake_global_defaults(cudf::cudftestutil)
+
+    if(NOT cudf_BINARY_DIR IN_LIST CMAKE_PREFIX_PATH)
+        list(APPEND CMAKE_PREFIX_PATH "${cudf_BINARY_DIR}")
+        set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} PARENT_SCOPE)
     endif()
 endfunction()
 

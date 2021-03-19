@@ -29,12 +29,12 @@ function(find_and_configure_rmm VERSION)
                        "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}"
     )
 
-    # Make sure consumers of our libs can also see rmm::rmm
-    if(TARGET rmm::rmm)
-        get_target_property(rmm_is_imported rmm::rmm IMPORTED)
-        if(rmm_is_imported)
-            set_target_properties(rmm::rmm PROPERTIES IMPORTED_GLOBAL TRUE)
-        endif()
+    # Make sure consumers of our libs can see rmm::rmm
+    fix_cmake_global_defaults(rmm::rmm)
+
+    if(NOT rmm_BINARY_DIR IN_LIST CMAKE_PREFIX_PATH)
+        list(APPEND CMAKE_PREFIX_PATH "${rmm_BINARY_DIR}")
+        set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} PARENT_SCOPE)
     endif()
 endfunction()
 

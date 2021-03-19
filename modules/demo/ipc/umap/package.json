@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name":  "umap-demo",
+  "name":  "cuda-ipc-umap-demo",
   "main": "index.js",
   "version": "0.0.0",
   "license": "Apache-2.0",

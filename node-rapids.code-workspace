@@ -131,7 +131,7 @@
       "editor.tabSize": 2,
       "editor.formatOnSave": true,
       "editor.formatOnSaveMode": "file",
-      "editor.defaultFormatter": "xaver.clang-format"
+      "editor.defaultFormatter": "vscode.typescript-language-features"
     },
     "[typescript]": {
       "editor.tabSize": 2,

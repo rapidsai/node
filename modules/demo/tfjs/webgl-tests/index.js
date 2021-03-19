@@ -13,80 +13,79 @@
 // limitations under the License.
 
 require('@babel/register')({
-    cache: false,
-    babelrc: false,
-    presets: [
-        ["@babel/preset-env", { "targets": { "node": "current" } }],
-        ['@babel/preset-react', { "useBuiltIns": true }]
-    ]
+  cache: false,
+  babelrc: false,
+  presets: [
+    ['@babel/preset-env', { 'targets': { 'node': 'current' } }],
+    ['@babel/preset-react', { 'useBuiltIns': true }]
+  ]
 });
 
 // Open a GLFW window and run the `tfjsWebGLTests` function
 require('@nvidia/glfw').createWindow(tfjsWebGLTests, true).open({
-    __dirname,
-    // openGLProfile: require('@nvidia/glfw').GLFWOpenGLProfile.COMPAT,
+  __dirname,
+  openGLProfile: require('@nvidia/glfw').GLFWOpenGLProfile.COMPAT,
 });
 
 function tfjsWebGLTests({ __dirname }) {
+  // Silence all internal TF.js warnings
+  console.warn = () => { };
 
-    const runner = new (require('jasmine'))();
-    require('@tensorflow/tfjs-core/dist/index');
-    require('@tensorflow/tfjs-backend-webgl/dist/index');
+  // Silence internal TF.js "High memory usage..."
+  Object.defineProperty(
+    require('@tensorflow/tfjs-backend-webgl/dist/backend_webgl').MathBackendWebGL.prototype,
+    'warnedAboutMemory',
+    { get() { return true; }, set() { /* noop */ } });
 
-    // Force WebGL2
-    require('@tensorflow/tfjs-core/dist/jasmine_util').setTestEnvs([{
-        name: 'webgl2',
-        backendName: 'webgl',
-        flags: {
-            // 'DEBUG': true, // force DEBUG mode
-            'WEBGL_VERSION': 2,
-            // 'WEBGL_CPU_FORWARD': false,
-            // 'WEBGL_SIZE_UPLOAD_UNIFORM': 0,
-            // 'WEBGL_RENDER_FLOAT32_ENABLED': true,
-            // 'WEBGL_CHECK_NUMERICAL_PROBLEMS': false,
-        },
-        isDataSync: true
-    }]);
+  const runner = new (require('jasmine'))();
+  require('@tensorflow/tfjs-core/dist/index');
+  require('@tensorflow/tfjs-backend-webgl/dist/index');
 
-    // Silence all internal TF.js warnings
-    // console.warn = () => {};
+  // Force WebGL2
+  require('@tensorflow/tfjs-core/dist/jasmine_util').setTestEnvs([{
+    name: 'webgl2',
+    backendName: 'webgl',
+    flags: {
+      // 'DEBUG': true, // force DEBUG mode
+      'WEBGL_VERSION': 2,
+      // 'WEBGL_CPU_FORWARD': false,
+      // 'WEBGL_SIZE_UPLOAD_UNIFORM': 0,
+      // 'WEBGL_RENDER_FLOAT32_ENABLED': true,
+      // 'WEBGL_CHECK_NUMERICAL_PROBLEMS': false,
+    },
+    isDataSync: true
+  }]);
 
-    // Silence internal TF.js "High memory usage..."
-    // Object.defineProperty(
-    //     require('@tensorflow/tfjs-backend-webgl/dist/backend_webgl').MathBackendWebGL.prototype,
-    //     'warnedAboutMemory',
-    //     { get() { return true; }, set() { /* noop */} });
+  require('@tensorflow/tfjs-core/dist/jasmine_util').setupTestFilters([], (testName) => {
+    const toExclude = ['isBrowser: false', 'tensor in worker', 'dilation gradient'];
+    for (const subStr of toExclude) {
+      if (testName.includes(subStr)) { return false; }
+    }
+    return true;
+  });
 
-    require('@tensorflow/tfjs-core/dist/jasmine_util').setupTestFilters([], (testName) => {
-        const toExclude = ['isBrowser: false', 'tensor in worker', 'dilation gradient'];
-        for (const subStr of toExclude) {
-            if (testName.includes(subStr)) { return false; }
-        }
-        return true;
-    });
+  // Import and run tfjs-core tests
+  require('@tensorflow/tfjs-core/dist/tests');
 
-    // Import and run tfjs-core tests
-    require('@tensorflow/tfjs-core/dist/tests');
+  // Import and run tfjs-backend-webgl tests
+  require(`${__dirname}/test/backend_webgl_test`);
+  require(`${__dirname}/test/canvas_util_test`);
+  require(`${__dirname}/test/flags_webgl_test`);
+  require(`${__dirname}/test/gpgpu_context_test`);
+  require(`${__dirname}/test/gpgpu_util_test`);
+  require(`${__dirname}/test/Complex_test`);
+  require(`${__dirname}/test/Max_test`);
+  require(`${__dirname}/test/Mean_test`);
+  require(`${__dirname}/test/Reshape_test`);
+  require(`${__dirname}/test/STFT_test`);
+  require(`${__dirname}/test/reshape_packed_test`);
+  require(`${__dirname}/test/shader_compiler_util_test`);
+  require(`${__dirname}/test/tex_util_test`);
+  require(`${__dirname}/test/webgl_batchnorm_test`);
+  require(`${__dirname}/test/webgl_custom_op_test`);
+  require(`${__dirname}/test/webgl_ops_test`);
+  require(`${__dirname}/test/webgl_topixels_test`);
+  require(`${__dirname}/test/webgl_util_test`);
 
-    // Import and run tfjs-backend-webgl tests
-    require(`${__dirname}/test/backend_webgl_test`);
-    require(`${__dirname}/test/canvas_util_test`);
-    require(`${__dirname}/test/flags_webgl_test`);
-    require(`${__dirname}/test/gpgpu_context_test`);
-    require(`${__dirname}/test/gpgpu_util_test`);
-    require(`${__dirname}/test/Complex_test`);
-    require(`${__dirname}/test/Max_test`);
-    require(`${__dirname}/test/Mean_test`);
-    require(`${__dirname}/test/Reshape_test`);
-    require(`${__dirname}/test/STFT_test`);
-    require(`${__dirname}/test/reshape_packed_test`);
-    require(`${__dirname}/test/shader_compiler_util_test`);
-    require(`${__dirname}/test/tex_util_test`);
-    require(`${__dirname}/test/webgl_batchnorm_test`);
-    require(`${__dirname}/test/webgl_custom_op_test`);
-    require(`${__dirname}/test/webgl_ops_test`);
-    require(`${__dirname}/test/webgl_topixels_test`);
-    require(`${__dirname}/test/webgl_util_test`);
-
-    runner.execute();
+  runner.execute();
 }

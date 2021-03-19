@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {clampRange as clamp, Float32Buffer} from '@nvidia/cuda';
-import {DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
-import {GraphCOO} from '@rapidsai/cugraph';
-import {DeviceBuffer} from '@rapidsai/rmm';
+import { clampRange as clamp, Float32Buffer } from '@nvidia/cuda';
+import { DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String } from '@rapidsai/cudf';
+import { GraphCOO } from '@rapidsai/cugraph';
+import { DeviceBuffer } from '@rapidsai/rmm';
 import * as Arrow from 'apache-arrow';
-import {concat as concatAsync, zip as zipAsync} from 'ix/asynciterable';
-import {flatMap as flatMapAsync} from 'ix/asynciterable/operators';
+import { concat as concatAsync, zip as zipAsync } from 'ix/asynciterable';
+import { flatMap as flatMapAsync } from 'ix/asynciterable/operators';
 
 const defaultLayoutParams = {
-  simulating: {name: 'simulating', val: true},
-  autoCenter: {name: 'auto-center', val: false},
-  outboundAttraction: {name: 'outbound attraction', val: false},
-  linLogMode: {name: 'lin-log', val: false},
-  strongGravityMode: {name: 'strong gravity', val: false},
-  jitterTolerance: {name: 'layout speed', val: 0.05, min: 0.0001, max: 1.0, step: 0.001},
+  simulating: { name: 'simulating', val: true },
+  autoCenter: { name: 'auto-center', val: false },
+  outboundAttraction: { name: 'outbound attraction', val: false },
+  linLogMode: { name: 'lin-log', val: false },
+  strongGravityMode: { name: 'strong gravity', val: false },
+  jitterTolerance: { name: 'layout speed', val: 0.05, min: 0.0001, max: 1.0, step: 0.0001 },
   barnesHutTheta: {
     name: 'theta',
     val: 0.0,
@@ -48,18 +48,17 @@ const defaultLayoutParams = {
     max: 100.0,
     step: 0.1,
   },
-  controlsVisible: {name: 'controls visible', val: true},
+  controlsVisible: { name: 'controls visible', val: true },
 };
 
 const layoutParamNames = Object.keys(defaultLayoutParams);
 
 export default async function* loadGraphData(props = {}) {
-
-  const layoutParams = {...defaultLayoutParams};
+  const layoutParams = { ...defaultLayoutParams };
   if (props.layoutParams) {
     layoutParamNames.forEach((name) => {
       if (props.layoutParams.hasOwnProperty(name)) {
-        const {val, min, max} = layoutParams[name];
+        const { val, min, max } = layoutParams[name];
         switch (typeof val) {
           case 'boolean': layoutParams[name].val = !!props.layoutParams[name]; break;
           case 'number':
@@ -82,8 +81,8 @@ export default async function* loadGraphData(props = {}) {
       selectedParameter =
         clamp(layoutParamNames.length, selectedParameter + 1)[0] % layoutParamNames.length;
     } else if (['PageUp', 'PageDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.code) !== -1) {
-      const key                   = layoutParamNames[selectedParameter];
-      const {val, min, max, step} = layoutParams[key];
+      const key = layoutParamNames[selectedParameter];
+      const { val, min, max, step } = layoutParams[key];
       if (typeof val === 'boolean') {
         layoutParams[key].val = !val;
       } else if (e.code === 'PageUp') {
@@ -106,10 +105,10 @@ export default async function* loadGraphData(props = {}) {
     if (source instanceof DataFrame) { return yield source; }
     if (typeof source === 'string' && dataTypes) {
       return yield DataFrame.readCSV(
-        {header: 0, sourceType: 'files', sources: [source], dataTypes});
+        { header: 0, sourceType: 'files', sources: [source], dataTypes });
     }
     if (typeof source[Symbol.iterator] === 'function' ||
-        typeof source[Symbol.asyncIterator] === 'function') {
+      typeof source[Symbol.asyncIterator] === 'function') {
       let count = 0;
       for await (const x of flatMapAsync((x) => getDataFrames(x, undefined, dataTypes))(source)) {
         count++;
@@ -136,13 +135,11 @@ export default async function* loadGraphData(props = {}) {
   });
 
   /**
-   * @type DataFrame<{name: Utf8String, id: Uint32, color: Uint32, size: Uint8, x: Float32, y:
-   *   Float32}>
+   * @type DataFrame<{name: Utf8String, id: Uint32, color: Uint32, size: Uint8, x: Float32, y: Float32}>
    */
   let nodes = null;
   /**
-   * @type DataFrame<{name: Utf8String, src: Uint32, dst: Uint32, edge: Uint64, color: Uint64,
-   *   bundle: Uint64}>
+   * @type DataFrame<{name: Utf8String, src: Uint32, dst: Uint32, edge: Uint64, color: Uint64, bundle: Uint64}>
    */
   let edges = null;
   /**
@@ -154,35 +151,38 @@ export default async function* loadGraphData(props = {}) {
    */
   let positions = null;
 
-  let graphDesc     = {};
-  let bbox          = [0, 0, 0, 0];
-  let onAfterRender = () => {};
-  let rendered           = new Promise(() => {});
+  let graphDesc = {};
+  let bbox = [0, 0, 0, 0];
+  let onAfterRender = () => { };
+  let rendered = new Promise(() => { });
 
-  // Never yields "done", i.e. concat(source, AsyncIterable.never())
-  let dataframes = concatAsync(zipAsync(nodeDFs, edgeDFs), (async function*() {
-                                 const sleep = (t) => new Promise((r) => setTimeout(r, t));
-                                 while (1) { await sleep(1000); }
-                               })())[Symbol.asyncIterator]();
-  let nextFrames = dataframes.next(), graphUpdated = false, updateCount = 0;
+  let dataframes = concatAsync(zipAsync(nodeDFs, edgeDFs), (async function* () {
+    datasourceCompleted = true;
+    nextFrames = new Promise(() => { });
+  })())[Symbol.asyncIterator]();
+
+  let nextFrames = dataframes.next();
+  let datasourceCompleted = false;
+  let graphUpdated = false;
 
   while (true) {
     graphUpdated = false;
     // Wait for a new set of source dataframes or for the
     // most recent frame to finish rendering before advancing
-    const newDFs = await Promise.race([nextFrames, rendered]).then(({value} = {}) => value);
+    const newDFs = await (datasourceCompleted
+      ? rendered
+      : Promise.race([rendered, nextFrames.then(({ value } = {}) => value)]));
 
     // If new nodes/edges, recreate the GraphCOO
     if (newDFs) {
       if (newDFs[0] !== nodes || newDFs[1] !== edges) {
         graphUpdated = true;
-        console.log(`graph update ${++updateCount}`);
         [nodes, edges] = newDFs;
-        nextFrames     = dataframes.next();
-        graph          = new GraphCOO(     //
+        nextFrames = dataframes.next();
+        graph = new GraphCOO(     //
           edges.get('src')._col,  //
           edges.get('dst')._col,
-          {directedEdges: true});
+          { directedEdges: true });
       }
     }
 
@@ -208,21 +208,21 @@ export default async function* loadGraphData(props = {}) {
       // Compute positions from the previous positions
       positions = new Float32Buffer(graph.forceAtlas2({
         positions: positions && positions.length === n * 2 ? positions.buffer : undefined,
-        ...layoutParamNames.reduce((params, name) => ({...params, [name]: layoutParams[name].val}),
-                                   {})
+        ...layoutParamNames.reduce((params, name) => ({ ...params, [name]: layoutParams[name].val }),
+          {})
       }));
 
       // Extract the x and y positions and assign them as columns in our nodes DF
       nodes = nodes.assign({
-        x: Series.new({type: new Float32, length: n, offset: 0, data: positions}),
-        y: Series.new({type: new Float32, length: n, offset: n, data: positions}),
+        x: Series.new({ type: new Float32, length: n, offset: 0, data: positions }),
+        y: Series.new({ type: new Float32, length: n, offset: n, data: positions }),
       });
 
       // Compute the positions minimum bounding box [xMin, xMax, yMin, yMax]
       bbox = [...nodes.get('x').minmax(), ...nodes.get('y').minmax()];
 
       graphDesc = createGraphRenderProps(nodes, edges, graph);
-      ({promise: rendered, resolve: onAfterRender} = promiseSubject());
+      ({ promise: rendered, resolve: onAfterRender } = promiseSubject());
     }
 
     // Yield the results to the caller for rendering
@@ -236,7 +236,7 @@ export default async function* loadGraphData(props = {}) {
     };
 
     // Wait for the frame to finish rendering before advancing
-    rendered = rendered.catch(() => {}).then(() => {});
+    rendered = rendered.catch(() => { }).then(() => { });
   }
 }
 
@@ -244,9 +244,9 @@ function promiseSubject() {
   let resolve, reject;
   let promise = new Promise((r1, r2) => {
     resolve = r1;
-    reject  = r2;
+    reject = r2;
   });
-  return {promise, resolve, reject};
+  return { promise, resolve, reject };
 }
 
 /**
@@ -264,31 +264,31 @@ function createGraphRenderProps(nodes, edges, graph) {
   const numEdges = graph.numEdges;
   return {
     numNodes, numEdges, nodeRadiusScale: 1 / 75,
-      // nodeRadiusScale: 1/255,
-      nodeRadiusMinPixels: 5, nodeRadiusMaxPixels: 150, data: {
-        edges: {
-          offset: 0,
-          length: numEdges,
-          attributes: {
-            edgeName: edges.get('name'),
-            edgeList: edges.get('edge').data,
-            edgeColors: edges.get('color').data,
-            edgeBundles: edges.get('bundle').data,
-          }
-        },
-        nodes: {
-          offset: 0,
-          length: numNodes,
-          attributes: {
-            nodeName: nodes.get('name'),
-            nodeRadius: nodes.get('size').data,
-            nodeXPositions: nodes.get('x').data,
-            nodeYPositions: nodes.get('y').data,
-            nodeFillColors: nodes.get('color').data,
-            nodeElementIndices: nodes.get('id').data,
-          }
-        },
+    // nodeRadiusScale: 1/255,
+    nodeRadiusMinPixels: 5, nodeRadiusMaxPixels: 150, data: {
+      edges: {
+        offset: 0,
+        length: numEdges,
+        attributes: {
+          edgeName: edges.get('name'),
+          edgeList: edges.get('edge').data,
+          edgeColors: edges.get('color').data,
+          edgeBundles: edges.get('bundle').data,
+        }
       },
+      nodes: {
+        offset: 0,
+        length: numNodes,
+        attributes: {
+          nodeName: nodes.get('name'),
+          nodeRadius: nodes.get('size').data,
+          nodeXPositions: nodes.get('x').data,
+          nodeYPositions: nodes.get('y').data,
+          nodeFillColors: nodes.get('color').data,
+          nodeElementIndices: nodes.get('id').data,
+        }
+      },
+    },
   }
 }
 
@@ -339,7 +339,7 @@ function getDefaultNodes() {
     id: Series.new({
       type: new Uint32,
       data: [
-        0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
         20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39
       ]
     }),
@@ -357,8 +357,8 @@ function getDefaultNodes() {
     size: Series.new({
       type: new Uint8,
       data: [
-        1, 170, 1, 1, 1, 1, 85, 85, 255, 1, 1, 1, 1, 1, 1, 1,   1, 170, 1, 1,
-        1, 1,   1, 1, 1, 1, 1,  1,  1,   1, 1, 1, 1, 1, 1, 255, 1, 1,   1, 1
+        1, 170, 1, 1, 1, 1, 85, 85, 255, 1, 1, 1, 1, 1, 1, 1, 1, 170, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 255, 1, 1, 1, 1
       ]
     }),
   });
@@ -366,19 +366,19 @@ function getDefaultNodes() {
 
 function getDefaultEdges() {
   return new DataFrame({
-    name: Series.new(Arrow.Utf8Vector.from(Array.from({length: 312}, (_, i) => `${i}`))),
+    name: Series.new(Arrow.Utf8Vector.from(Array.from({ length: 312 }, (_, i) => `${i}`))),
     src: Series.new({
       type: new Uint32,
       data: [
-        1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,
-        1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,
-        1,  1,  2,  3,  4,  5,  2,  3,  4,  5,  2,  3,  4,  5,  2,  3,  4,  5,  2,  3,  4,  5,  2,
-        3,  4,  5,  2,  3,  4,  5,  2,  3,  4,  5,  2,  3,  4,  5,  2,  3,  4,  5,  2,  3,  4,  5,
-        6,  6,  7,  7,  6,  6,  7,  7,  6,  6,  7,  7,  6,  6,  7,  7,  6,  6,  7,  7,  6,  6,  7,
-        7,  6,  6,  7,  7,  6,  6,  7,  7,  6,  6,  7,  7,  6,  6,  7,  7,  8,  8,  8,  8,  8,  8,
-        8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-        8,  8,  8,  8,  8,  8,  8,  9,  10, 11, 12, 9,  10, 11, 12, 9,  10, 11, 12, 9,  10, 11, 12,
-        9,  10, 11, 12, 9,  10, 11, 12, 9,  10, 11, 12, 9,  10, 11, 12, 14, 15, 16, 13, 14, 15, 16,
+        1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1,
+        1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+        1, 1, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5, 2,
+        3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5,
+        6, 6, 7, 7, 6, 6, 7, 7, 6, 6, 7, 7, 6, 6, 7, 7, 6, 6, 7, 7, 6, 6, 7,
+        7, 6, 6, 7, 7, 6, 6, 7, 7, 6, 6, 7, 7, 6, 6, 7, 7, 8, 8, 8, 8, 8, 8,
+        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+        8, 8, 8, 8, 8, 8, 8, 9, 10, 11, 12, 9, 10, 11, 12, 9, 10, 11, 12, 9, 10, 11, 12,
+        9, 10, 11, 12, 9, 10, 11, 12, 9, 10, 11, 12, 9, 10, 11, 12, 14, 15, 16, 13, 14, 15, 16,
         13, 14, 15, 16, 13, 14, 15, 16, 13, 14, 15, 16, 13, 14, 15, 16, 13, 14, 15, 16, 13, 17, 18,
         17, 17, 17, 18, 17, 17, 17, 18, 17, 17, 17, 18, 17, 17, 17, 18, 17, 17, 17, 18, 17, 17, 19,
         20, 21, 22, 19, 20, 21, 22, 19, 20, 21, 22, 19, 20, 21, 22, 19, 20, 21, 22, 23, 24, 25, 26,
@@ -389,12 +389,12 @@ function getDefaultEdges() {
     dst: Series.new({
       type: new Uint32,
       data: [
-        2,  3,  4,  5,  6,  6,  7,  7,  8,  8,  8,  8,  9,  10, 11, 12, 14, 15, 16, 13, 17, 18, 17,
+        2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 8, 8, 9, 10, 11, 12, 14, 15, 16, 13, 17, 18, 17,
         17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 35, 35, 35, 36, 37,
-        38, 39, 6,  6,  7,  7,  8,  8,  8,  8,  9,  10, 11, 12, 14, 15, 16, 13, 17, 18, 17, 17, 19,
+        38, 39, 6, 6, 7, 7, 8, 8, 8, 8, 9, 10, 11, 12, 14, 15, 16, 13, 17, 18, 17, 17, 19,
         20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 35, 35, 35, 36, 37, 38, 39,
-        8,  8,  8,  8,  9,  10, 11, 12, 14, 15, 16, 13, 17, 18, 17, 17, 19, 20, 21, 22, 23, 24, 25,
-        26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 35, 35, 35, 36, 37, 38, 39, 9,  10, 11, 12, 14, 15,
+        8, 8, 8, 8, 9, 10, 11, 12, 14, 15, 16, 13, 17, 18, 17, 17, 19, 20, 21, 22, 23, 24, 25,
+        26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 35, 35, 35, 36, 37, 38, 39, 9, 10, 11, 12, 14, 15,
         16, 13, 17, 18, 17, 17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
         35, 35, 35, 36, 37, 38, 39, 14, 15, 16, 13, 17, 18, 17, 17, 19, 20, 21, 22, 23, 24, 25, 26,
         27, 28, 29, 30, 31, 32, 33, 34, 35, 35, 35, 35, 36, 37, 38, 39, 17, 18, 17, 17, 19, 20, 21,
@@ -408,49 +408,49 @@ function getDefaultEdges() {
     edge: Series.new({
       type: new Uint64,
       data: [
-        8589934593n,   12884901888n,  17179869185n,  21474836481n,  25769803777n,  25769803776n,
-        30064771073n,  30064771073n,  34359738369n,  34359738368n,  34359738369n,  34359738369n,
-        38654705665n,  42949672960n,  47244640257n,  51539607553n,  60129542145n,  64424509440n,
-        68719476737n,  55834574849n,  73014444033n,  77309411328n,  73014444033n,  73014444033n,
-        81604378625n,  85899345920n,  90194313217n,  94489280513n,  98784247809n,  103079215104n,
+        8589934593n, 12884901888n, 17179869185n, 21474836481n, 25769803777n, 25769803776n,
+        30064771073n, 30064771073n, 34359738369n, 34359738368n, 34359738369n, 34359738369n,
+        38654705665n, 42949672960n, 47244640257n, 51539607553n, 60129542145n, 64424509440n,
+        68719476737n, 55834574849n, 73014444033n, 77309411328n, 73014444033n, 73014444033n,
+        81604378625n, 85899345920n, 90194313217n, 94489280513n, 98784247809n, 103079215104n,
         107374182401n, 111669149697n, 115964116993n, 120259084288n, 124554051585n, 128849018881n,
         133143986177n, 137438953472n, 141733920769n, 146028888065n, 150323855361n, 150323855360n,
         150323855361n, 150323855361n, 154618822657n, 158913789952n, 163208757249n, 167503724545n,
-        25769803778n,  25769803779n,  30064771076n,  30064771077n,  34359738370n,  34359738371n,
-        34359738372n,  34359738373n,  38654705666n,  42949672963n,  47244640260n,  51539607557n,
-        60129542146n,  64424509443n,  68719476740n,  55834574853n,  73014444034n,  77309411331n,
-        73014444036n,  73014444037n,  81604378626n,  85899345923n,  90194313220n,  94489280517n,
-        98784247810n,  103079215107n, 107374182404n, 111669149701n, 115964116994n, 120259084291n,
+        25769803778n, 25769803779n, 30064771076n, 30064771077n, 34359738370n, 34359738371n,
+        34359738372n, 34359738373n, 38654705666n, 42949672963n, 47244640260n, 51539607557n,
+        60129542146n, 64424509443n, 68719476740n, 55834574853n, 73014444034n, 77309411331n,
+        73014444036n, 73014444037n, 81604378626n, 85899345923n, 90194313220n, 94489280517n,
+        98784247810n, 103079215107n, 107374182404n, 111669149701n, 115964116994n, 120259084291n,
         124554051588n, 128849018885n, 133143986178n, 137438953475n, 141733920772n, 146028888069n,
         150323855362n, 150323855363n, 150323855364n, 150323855365n, 154618822658n, 158913789955n,
-        163208757252n, 167503724549n, 34359738374n,  34359738374n,  34359738375n,  34359738375n,
-        38654705670n,  42949672966n,  47244640263n,  51539607559n,  60129542150n,  64424509446n,
-        68719476743n,  55834574855n,  73014444038n,  77309411334n,  73014444039n,  73014444039n,
-        81604378630n,  85899345926n,  90194313223n,  94489280519n,  98784247814n,  103079215110n,
+        163208757252n, 167503724549n, 34359738374n, 34359738374n, 34359738375n, 34359738375n,
+        38654705670n, 42949672966n, 47244640263n, 51539607559n, 60129542150n, 64424509446n,
+        68719476743n, 55834574855n, 73014444038n, 77309411334n, 73014444039n, 73014444039n,
+        81604378630n, 85899345926n, 90194313223n, 94489280519n, 98784247814n, 103079215110n,
         107374182407n, 111669149703n, 115964116998n, 120259084294n, 124554051591n, 128849018887n,
         133143986182n, 137438953478n, 141733920775n, 146028888071n, 150323855366n, 150323855366n,
         150323855367n, 150323855367n, 154618822662n, 158913789958n, 163208757255n, 167503724551n,
-        38654705672n,  42949672968n,  47244640264n,  51539607560n,  60129542152n,  64424509448n,
-        68719476744n,  55834574856n,  73014444040n,  77309411336n,  73014444040n,  73014444040n,
-        81604378632n,  85899345928n,  90194313224n,  94489280520n,  98784247816n,  103079215112n,
+        38654705672n, 42949672968n, 47244640264n, 51539607560n, 60129542152n, 64424509448n,
+        68719476744n, 55834574856n, 73014444040n, 77309411336n, 73014444040n, 73014444040n,
+        81604378632n, 85899345928n, 90194313224n, 94489280520n, 98784247816n, 103079215112n,
         107374182408n, 111669149704n, 115964117000n, 120259084296n, 124554051592n, 128849018888n,
         133143986184n, 137438953480n, 141733920776n, 146028888072n, 150323855368n, 150323855368n,
         150323855368n, 150323855368n, 154618822664n, 158913789960n, 163208757256n, 167503724552n,
-        60129542153n,  64424509450n,  68719476747n,  55834574860n,  73014444041n,  77309411338n,
-        73014444043n,  73014444044n,  81604378633n,  85899345930n,  90194313227n,  94489280524n,
-        98784247817n,  103079215114n, 107374182411n, 111669149708n, 115964117001n, 120259084298n,
+        60129542153n, 64424509450n, 68719476747n, 55834574860n, 73014444041n, 77309411338n,
+        73014444043n, 73014444044n, 81604378633n, 85899345930n, 90194313227n, 94489280524n,
+        98784247817n, 103079215114n, 107374182411n, 111669149708n, 115964117001n, 120259084298n,
         124554051595n, 128849018892n, 133143986185n, 137438953482n, 141733920779n, 146028888076n,
         150323855369n, 150323855370n, 150323855371n, 150323855372n, 154618822665n, 158913789962n,
-        163208757259n, 167503724556n, 73014444046n,  77309411343n,  73014444048n,  73014444045n,
-        81604378638n,  85899345935n,  90194313232n,  94489280525n,  98784247822n,  103079215119n,
+        163208757259n, 167503724556n, 73014444046n, 77309411343n, 73014444048n, 73014444045n,
+        81604378638n, 85899345935n, 90194313232n, 94489280525n, 98784247822n, 103079215119n,
         107374182416n, 111669149709n, 115964117006n, 120259084303n, 124554051600n, 128849018893n,
         133143986190n, 137438953487n, 141733920784n, 146028888077n, 150323855374n, 150323855375n,
         150323855376n, 150323855373n, 154618822670n, 158913789967n, 163208757264n, 167503724557n,
-        81604378641n,  85899345938n,  90194313233n,  94489280529n,  98784247825n,  103079215122n,
+        81604378641n, 85899345938n, 90194313233n, 94489280529n, 98784247825n, 103079215122n,
         107374182417n, 111669149713n, 115964117009n, 120259084306n, 124554051601n, 128849018897n,
         133143986193n, 137438953490n, 141733920785n, 146028888081n, 150323855377n, 150323855378n,
         150323855377n, 150323855377n, 154618822673n, 158913789970n, 163208757265n, 167503724561n,
-        98784247827n,  103079215124n, 107374182421n, 111669149718n, 115964117011n, 120259084308n,
+        98784247827n, 103079215124n, 107374182421n, 111669149718n, 115964117011n, 120259084308n,
         124554051605n, 128849018902n, 133143986195n, 137438953492n, 141733920789n, 146028888086n,
         150323855379n, 150323855380n, 150323855381n, 150323855382n, 154618822675n, 158913789972n,
         163208757269n, 167503724566n, 115964117015n, 120259084312n, 124554051609n, 128849018906n,
@@ -574,58 +574,58 @@ function getDefaultEdges() {
     bundle: Series.new({
       type: new Uint64,
       data: [
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        8589934592n,  8589934593n,  12884901888n, 4294967296n, 12884901889n, 12884901890n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  12884901890n, 4294967296n, 12884901888n, 12884901889n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 12884901888n, 4294967296n,
-        12884901889n, 12884901890n, 4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  8589934592n,  8589934593n, 8589934593n,  8589934592n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 8589934592n,  8589934593n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 8589934592n,  8589934593n,
-        8589934592n,  8589934593n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  12884901888n, 4294967296n, 12884901889n, 12884901890n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 17179869184n, 17179869185n,
-        17179869186n, 17179869187n, 4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 12884901888n, 4294967296n,
-        12884901889n, 12884901890n, 4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n,
-        4294967296n,  4294967296n,  4294967296n,  4294967296n, 4294967296n,  4294967296n
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        8589934592n, 8589934593n, 12884901888n, 4294967296n, 12884901889n, 12884901890n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 12884901890n, 4294967296n, 12884901888n, 12884901889n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 12884901888n, 4294967296n,
+        12884901889n, 12884901890n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 8589934592n, 8589934593n, 8589934593n, 8589934592n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 8589934592n, 8589934593n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 8589934592n, 8589934593n,
+        8589934592n, 8589934593n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 12884901888n, 4294967296n, 12884901889n, 12884901890n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 17179869184n, 17179869185n,
+        17179869186n, 17179869187n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 12884901888n, 4294967296n,
+        12884901889n, 12884901890n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n,
+        4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n, 4294967296n
       ]
     })
   });

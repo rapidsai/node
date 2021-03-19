@@ -30,9 +30,9 @@ import React from 'react';
 
 import { GraphLayer } from '@rapidsai/deck.gl';
 
-import loadGraphData from './loader';
-
 const composeFns = (fns) => function (...args) { fns.forEach((fn) => fn && fn.apply(this, args)); }
+
+import loadGraphData from './loader';
 
 export class App extends React.Component {
   constructor(props, context) {

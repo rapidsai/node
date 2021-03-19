@@ -1,13 +1,13 @@
-import React, {Component} from 'react';
-import {render} from 'react-dom';
-import {StaticMap} from 'react-map-gl';
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
-import {Tile3DLayer} from '@deck.gl/geo-layers';
+import { Tile3DLayer } from '@deck.gl/geo-layers';
 
-import {registerLoaders} from '@loaders.gl/core';
+import { registerLoaders } from '@loaders.gl/core';
 // To manage dependencies and bundle size, the app must decide which supporting loaders to bring in
-import {DracoWorkerLoader} from '@loaders.gl/draco';
-import {CesiumIonLoader} from '@loaders.gl/3d-tiles';
+import { DracoWorkerLoader } from '@loaders.gl/draco';
+import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
 
 registerLoaders([DracoWorkerLoader]);
 
@@ -48,7 +48,7 @@ export default class App extends Component {
 
   // Recenter view to cover the new tileset, with a fly-to transition
   _centerViewOnTileset(tileset) {
-    const {cartographicCenter, zoom} = tileset;
+    const { cartographicCenter, zoom } = tileset;
     this.setState({
       initialViewState: {
         ...INITIAL_VIEW_STATE,
@@ -69,15 +69,15 @@ export default class App extends Component {
       pointSize: 2,
       data: TILESET_URL,
       loader: CesiumIonLoader,
-      loadOptions: {'cesium-ion': {accessToken: ION_TOKEN}},
+      loadOptions: { 'cesium-ion': { accessToken: ION_TOKEN } },
       onTilesetLoad: this._onTilesetLoad.bind(this)
     });
   }
 
   render() {
-    const {initialViewState} = this.state;
+    const { initialViewState } = this.state;
     const tile3DLayer = this._renderTile3DLayer();
-    const {mapStyle = 'mapbox://styles/uberdata/cive485h000192imn6c6cc8fc'} = this.props;
+    const { mapStyle = 'mapbox://styles/uberdata/cive485h000192imn6c6cc8fc' } = this.props;
 
     return (
       <div>

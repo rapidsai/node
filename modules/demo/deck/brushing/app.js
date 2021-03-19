@@ -1,14 +1,14 @@
 /* global fetch */
-import React, {Component} from 'react';
-import {render} from 'react-dom';
-import {StaticMap} from 'react-map-gl';
+import React, { Component } from 'react';
+import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
-import {ScatterplotLayer, ArcLayer} from '@deck.gl/layers';
-import {BrushingExtension} from '@deck.gl/extensions';
-import {scaleLinear} from 'd3-scale';
+import { ScatterplotLayer, ArcLayer } from '@deck.gl/layers';
+import { BrushingExtension } from '@deck.gl/extensions';
+import { scaleLinear } from 'd3-scale';
 
 // Set your mapbox token here
-const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
+// const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
+const MAPBOX_TOKEN = "pk.eyJ1IjoicGF1bGV0YXlsb3IiLCJhIjoiY2pocHhhajlwMmtvbTMxczg0d2wzcnlwYiJ9.K0XJGZ_I7dQVIaJ8HpthTg"
 
 const TOOLTIP_STYLE = {
   position: 'absolute',
@@ -55,21 +55,18 @@ export default class App extends Component {
       ...this._getLayerData(props)
     };
     this._onHover = this._onHover.bind(this);
-  }
-
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.data !== this.props.data) {
-      this.setState({
-        ...this._getLayerData(nextProps)
+    fetch(DATA_URL)
+      .then(response => response.json())
+      .then(({ features }) => {
+        this.setState(this._getLayerData({ data: features }));
       });
-    }
   }
 
-  _onHover({x, y, object}) {
-    this.setState({x, y, hoveredObject: object});
+  _onHover({ x, y, object }) {
+    this.setState({ x, y, hoveredObject: object });
   }
 
-  _getLayerData({data}) {
+  _getLayerData({ data }) {
     if (!data || !data.length) {
       return null;
     }
@@ -79,8 +76,8 @@ export default class App extends Component {
     const pairs = {};
 
     data.forEach((county, i) => {
-      const {flows, centroid: targetCentroid} = county.properties;
-      const value = {gain: 0, loss: 0};
+      const { flows, centroid: targetCentroid } = county.properties;
+      const value = { gain: 0, loss: 0 };
 
       Object.keys(flows).forEach(toId => {
         value[flows[toId] > 0 ? 'gain' : 'loss'] += flows[toId];
@@ -135,18 +132,18 @@ export default class App extends Component {
       pt.radius = Math.sqrt(sizeScale(Math.abs(pt.net)));
     });
 
-    return {arcs, targets, sources};
+    return { arcs, targets, sources };
   }
 
   _renderTooltip() {
-    const {x, y, hoveredObject} = this.state;
+    const { x, y, hoveredObject } = this.state;
 
     if (!hoveredObject) {
       return null;
     }
 
     return (
-      <div style={{...TOOLTIP_STYLE, left: x, top: y}}>
+      <div style={{ ...TOOLTIP_STYLE, left: x, top: y }}>
         <div>{hoveredObject.name}</div>
         <div>{`Net gain: ${hoveredObject.net}`}</div>
       </div>
@@ -161,7 +158,7 @@ export default class App extends Component {
       opacity = 0.7
     } = this.props;
 
-    const {arcs, targets, sources} = this.state;
+    const { arcs, targets, sources } = this.state;
 
     if (!arcs || !targets) {
       return null;
@@ -220,7 +217,7 @@ export default class App extends Component {
   }
 
   render() {
-    const {mapStyle = 'mapbox://styles/mapbox/light-v9'} = this.props;
+    const { mapStyle = 'mapbox://styles/mapbox/light-v9' } = this.props;
 
     return (
       <DeckGL
@@ -240,14 +237,4 @@ export default class App extends Component {
       </DeckGL>
     );
   }
-}
-
-export function renderToDOM(container) {
-  render(<App />, container);
-
-  fetch(DATA_URL)
-    .then(response => response.json())
-    .then(({features}) => {
-      render(<App data={features} />, container);
-    });
 }

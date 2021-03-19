@@ -13,3 +13,4 @@
 // limitations under the License.
 
 export * from './buffer';
+export * from './layers/graph';

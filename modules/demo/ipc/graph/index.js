@@ -35,12 +35,14 @@ if (require.main === module) {
   const parseArg = (prefix, fallback = '') =>
     (args.find((arg) => arg.includes(prefix)) || `${prefix}${fallback}`).slice(prefix.length);
 
-  const delay = Math.max(0, parseInt(parseArg('--delay=', 0)) | 0);
+  const delay = Math.max(parseInt(parseArg('--delay=', 0)) | 0, 0);
+  const url = args.find((arg) => arg.includes('tcp://')) || 'tcp://0.0.0.0:6000';
 
   module.exports.open({
     visible: true,
     transparent: false,
     _title: '',
+    url: url && require('url').parse(url),
     nodes: inputs(delay, parseArg('--nodes=')),
     edges: inputs(delay, parseArg('--edges=')),
     width: parseInt(parseArg('--width=', 800)) | 0,

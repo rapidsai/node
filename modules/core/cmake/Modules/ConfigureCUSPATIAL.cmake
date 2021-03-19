@@ -33,7 +33,7 @@ function(find_and_configure_cuspatial VERSION)
         GIT_REPOSITORY  https://github.com/trxcllnt/cuspatial.git
         # Can also use a local path to your repo clone for testing
         # GIT_REPOSITORY  /home/ptaylor/dev/rapids/cuspatial
-        GIT_TAG         fix/cmake-exports
+        GIT_TAG         fix/async-set-value-literal
         GIT_SHALLOW     TRUE
         SOURCE_SUBDIR   cpp
         OPTIONS         "BUILD_TESTS OFF"
@@ -44,12 +44,12 @@ function(find_and_configure_cuspatial VERSION)
                         "PER_THREAD_DEFAULT_STREAM ON"
                         "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
 
-    # Make sure consumers of our libs can also see cuspatial::cuspatial
-    if(TARGET cuspatial::cuspatial)
-        get_target_property(cuspatial_is_imported cuspatial::cuspatial IMPORTED)
-        if(cuspatial_is_imported)
-            set_target_properties(cuspatial::cuspatial PROPERTIES IMPORTED_GLOBAL TRUE)
-        endif()
+    # Make sure consumers of our libs can see cuspatial::cuspatial
+    fix_cmake_global_defaults(cuspatial::cuspatial)
+
+    if(NOT cuspatial_BINARY_DIR IN_LIST CMAKE_PREFIX_PATH)
+        list(APPEND CMAKE_PREFIX_PATH "${cuspatial_BINARY_DIR}")
+        set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} PARENT_SCOPE)
     endif()
 endfunction()
 
