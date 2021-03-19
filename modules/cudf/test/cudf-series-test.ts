@@ -24,7 +24,7 @@ setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
 
 test('Series initialization with properties (non-null)', () => {
   const length = 100;
-  const s      = Series.new({type: new Int32(), data: new Int32Buffer(length)});
+  const s      = Series.new({type: new Int32, data: new Int32Buffer(length)});
 
   expect(s.type).toBeInstanceOf(Int32);
   expect(s.length).toBe(length);
@@ -36,7 +36,7 @@ test('Series initialization with properties (non-null)', () => {
 test('Series initialization with properties (null)', () => {
   const length = 10;
   const s      = Series.new({
-    type: new Int32(),
+    type: new Int32,
     data: new Int32Buffer(length),
     nullMask: new Uint8Buffer([250, 255]),
   });
@@ -72,8 +72,8 @@ test('Series initialization with Array of mixed values', () => {
 });
 
 test('test child(child_index), num_children', () => {
-  const utf8Col    = Series.new({type: new Uint8(), data: new Uint8Buffer(Buffer.from('hello'))});
-  const offsetsCol = Series.new({type: new Int32(), data: new Int32Buffer([0, utf8Col.length])});
+  const utf8Col    = Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from('hello'))});
+  const offsetsCol = Series.new({type: new Int32, data: new Int32Buffer([0, utf8Col.length])});
   const stringsCol = Series.new({
     type: new Utf8String(),
     length: 1,
@@ -91,40 +91,114 @@ test('test child(child_index), num_children', () => {
   expect(stringsCol.data.type).toBeInstanceOf(Uint8);
 });
 
-test('Series.gather', () => {
-  const col =
-    Series.new({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+test('Series.getValue', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+  for (let i = 0; i < 10; i++) { expect(col.getValue(i)).toEqual(i); }
+});
 
-  const selection = Series.new({type: new Int32(), data: new Int32Buffer([2, 4, 5, 8])});
+test('Series.setValue', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+  col.setValue(2, 999);
+  col.setValue(4, 999);
+  col.setValue(5, 999);
+  col.setValue(8, 999);
+  expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
+});
+
+test('Series.gather', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+
+  const selection = Series.new({type: new Int32, data: new Int32Buffer([2, 4, 5, 8])});
 
   const result = col.gather(selection);
 
   expect([...result.toArrow()]).toEqual([...selection.toArrow()]);
 });
 
+test('Series.scatter (series)', () => {
+  const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const values  = Series.new({type: new Int32, data: [200, 400, 500, 800]});
+  const indices = Series.new({type: new Int32, data: [2, 4, 5, 8]});
+
+  col.scatter(values, indices);
+
+  expect([...col]).toEqual([0, 1, 200, 3, 400, 500, 6, 7, 800, 9]);
+});
+
+test('Series.scatter (series with array indices)', () => {
+  const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const values  = Series.new({type: new Int32, data: [200, 400, 500, 800]});
+  const indices = [2, 4, 5, 8];
+
+  col.scatter(values, indices);
+
+  expect([...col]).toEqual([0, 1, 200, 3, 400, 500, 6, 7, 800, 9]);
+});
+
+test('Series.scatter (scalar)', () => {
+  const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const indices = Series.new({type: new Int32, data: [2, 4, 5, 8]});
+
+  col.scatter(999, indices);
+
+  expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
+});
+
+test('Series.scatter (scalar with array indicies)', () => {
+  const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const indices = [2, 4, 5, 8];
+
+  col.scatter(999, indices);
+
+  expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
+});
+
+test('Series.scatter (check_bounds)', () => {
+  const col          = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const values       = Series.new({type: new Int32, data: [200, 400, 500, 800]});
+  const good_indices = [2, 4, 5, 8];
+  const bad_indices  = [2, 4, 5, 18];
+
+  col.scatter(values, good_indices, true);
+  col.scatter(999, good_indices, true);
+
+  col.scatter(values, bad_indices);
+  col.scatter(999, bad_indices);
+  expect(() => col.scatter(values, bad_indices, true)).toThrowError();
+  expect(() => col.scatter(999, bad_indices, true)).toThrowError();
+});
+
+test('Series.scatter (scalar)', () => {
+  const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const indices = Series.new({type: new Int32, data: [2, 4, 5, 8]});
+
+  col.scatter(999, indices);
+
+  expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
+});
+
 test('Series.filter', () => {
-  const col =
-    Series.new({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
 
   const mask = Series.new(
-    {length: 10, type: new Bool8(), data: new Uint8Buffer([0, 0, 1, 0, 1, 1, 0, 0, 1, 0])});
+    {length: 10, type: new Bool8, data: new Uint8Buffer([0, 0, 1, 0, 1, 1, 0, 0, 1, 0])});
 
   const result = col.filter(mask);
 
-  const expected = Series.new({type: new Int32(), data: new Int32Buffer([2, 4, 5, 8])});
+  const expected = Series.new({type: new Int32, data: new Int32Buffer([2, 4, 5, 8])});
   expect([...result.toArrow()]).toEqual([...expected.toArrow()]);
 });
 
 describe('toArrow()', () => {
   test('converts Uint8 Series to Uint8Vector', () => {
-    const uint8Col = Series.new({type: new Uint8(), data: new Uint8Buffer(Buffer.from('hello'))});
+    const uint8Col = Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from('hello'))});
     const uint8Vec = uint8Col.toArrow();
     expect(uint8Vec).toBeInstanceOf(Uint8Vector);
     expect([...uint8Vec]).toEqual([...Buffer.from('hello')]);
   });
   test('converts String Series to Utf8Vector', () => {
-    const utf8Col    = Series.new({type: new Uint8(), data: new Uint8Buffer(Buffer.from('hello'))});
-    const offsetsCol = Series.new({type: new Int32(), data: new Int32Buffer([0, utf8Col.length])});
+    const utf8Col    = Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from('hello'))});
+    const offsetsCol = Series.new({type: new Int32, data: new Int32Buffer([0, utf8Col.length])});
     const stringsCol = Series.new({
       type: new Utf8String(),
       length: 1,
@@ -138,7 +212,7 @@ describe('toArrow()', () => {
 });
 
 test('Series.orderBy (ascending, non-null)', () => {
-  const col    = Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const col    = Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
   const result = col.orderBy(true, NullOrder.BEFORE);
 
   const expected = [5, 0, 4, 1, 3, 2];
@@ -146,7 +220,7 @@ test('Series.orderBy (ascending, non-null)', () => {
 });
 
 test('Series.orderBy (descending, non-null)', () => {
-  const col    = Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const col    = Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
   const result = col.orderBy(false, NullOrder.BEFORE);
 
   const expected = [2, 3, 1, 4, 0, 5];
@@ -156,7 +230,7 @@ test('Series.orderBy (descending, non-null)', () => {
 test('Series.orderBy (ascending, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
-    Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+    Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const result = col.orderBy(true, NullOrder.BEFORE);
 
   const expected = [1, 5, 0, 4, 3, 2];
@@ -166,7 +240,7 @@ test('Series.orderBy (ascending, null before)', () => {
 test('Series.orderBy (ascending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
-    Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+    Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const result = col.orderBy(true, NullOrder.AFTER);
 
   const expected = [5, 0, 4, 3, 2, 1];
@@ -176,7 +250,7 @@ test('Series.orderBy (ascending, null after)', () => {
 test('Series.orderBy (descendng, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
-    Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+    Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const result = col.orderBy(false, NullOrder.BEFORE);
 
   const expected = [2, 3, 4, 0, 5, 1];
@@ -187,7 +261,7 @@ test('Series.orderBy (descendng, null before)', () => {
 test('Series.orderBy (descending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
-    Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
+    Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const result = col.orderBy(false, NullOrder.AFTER);
 
   const expected = [1, 2, 3, 4, 0, 5];
@@ -195,7 +269,7 @@ test('Series.orderBy (descending, null after)', () => {
 });
 
 test('Series.sortValues (ascending)', () => {
-  const col    = Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const col    = Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
   const result = col.sortValues();
 
   const expected = [0, 1, 2, 3, 4, 5];
@@ -203,7 +277,7 @@ test('Series.sortValues (ascending)', () => {
 });
 
 test('Series.sortValues (descending)', () => {
-  const col    = Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
+  const col    = Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
   const result = col.sortValues(false);
 
   const expected = [5, 4, 3, 2, 1, 0];

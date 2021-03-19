@@ -37,6 +37,8 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
                                     {
                                       InstanceAccessor<&Table::num_columns>("numColumns"),
                                       InstanceAccessor<&Table::num_rows>("numRows"),
+                                      InstanceMethod<&Table::scatter_scalar>("scatterScalar"),
+                                      InstanceMethod<&Table::scatter_table>("scatterTable"),
                                       InstanceMethod<&Table::gather>("gather"),
                                       InstanceMethod<&Table::get_column>("getColumnByIndex"),
                                       InstanceMethod<&Table::to_arrow>("toArrow"),
@@ -136,18 +138,6 @@ Napi::Value Table::num_columns(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value Table::num_rows(Napi::CallbackInfo const& info) { return CPPToNapi(info)(num_rows()); }
-
-Napi::Value Table::gather(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  if (!Column::is_instance(args[0])) {
-    throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
-  }
-  auto& selection = *Column::Unwrap(args[0]);
-  if (selection.type().id() == cudf::type_id::BOOL8) {
-    return this->apply_boolean_mask(selection)->Value();
-  }
-  return this->gather(selection)->Value();
-}
 
 Napi::Value Table::get_column(Napi::CallbackInfo const& info) {
   cudf::size_type i = CallbackArgs{info}[0];
