@@ -88,14 +88,10 @@ Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {
 
   if (args.Length() > 2 and args[2].IsBoolean()) {
     auto check_bounds = NapiToCPP(args[2]);
-    if (args.Length() == 3) {
-      return scatter_scalar(source, indices, check_bounds)->Value();
-    } else if (args.Length() == 4 and args[2].IsBoolean()) {
-      auto* mr = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
-      return scatter_scalar(source, indices, check_bounds, mr)->Value();
-    }
+    auto* mr = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
+    return scatter_scalar(source, indices, check_bounds, mr)->Value();
   }
-  NAPI_THROW(Napi::Error::New(Env(),
+  NAPI_THROW(Napi::Error::New(info.Env(),
                               "scatter_scalar expects a vector of scalars, a Column, and "
                               "optionally a bool and memory resource"));
 }
@@ -119,15 +115,11 @@ Napi::Value Table::scatter_table(Napi::CallbackInfo const& info) {
 
   if (args.Length() > 2 and args[2].IsBoolean()) {
     auto check_bounds = NapiToCPP(args[2]);
-    if (args.Length() == 3) {
-      return scatter_table(source, indices, check_bounds)->Value();
-    } else if (args.Length() == 4 and args[2].IsBoolean()) {
-      auto* mr = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
-      return scatter_table(source, indices, check_bounds, mr)->Value();
-    }
+    auto* mr = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
+    return scatter_table(source, indices, check_bounds, mr)->Value();
   }
   NAPI_THROW(Napi::Error::New(
-    Env(), "scatter_table expects a Table, a Column, and optionally a bool and memory resource"));
+    info.Env(), "scatter_table expects a Table, a Column, and optionally a bool and memory resource"));
 }
 
 }  // namespace nv
