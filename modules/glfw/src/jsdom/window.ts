@@ -72,7 +72,7 @@ export abstract class GLFWDOMWindow {
                     openGLMajorVersion: 4,
                     openGLMinorVersion: 6,
                     openGLForwardCompat: true,
-                    openGLProfile: GLFWOpenGLProfile.COMPAT,
+                    openGLProfile: GLFWOpenGLProfile.ANY,
                     openGLClientAPI: GLFWClientAPI.OPENGL,
                     openGLContextCreationAPI: GLFWContextCreationAPI.EGL,
                     _title: 'Untitled',
