@@ -29,7 +29,7 @@ ObjectUnwrap<Table> Table::gather(Column const& gather_map,
   return Table::New(cudf::gather(cudf::table_view{{*this}}, gather_map, bounds_policy, mr));
 }
 
-ObjectUnwrap<Table> Table::scatter_scalar(
+ObjectUnwrap<Table> Table::scatter(
   std::vector<std::reference_wrapper<const cudf::scalar>> const& source,
   Column const& indices,
   bool check_bounds,
@@ -39,10 +39,10 @@ ObjectUnwrap<Table> Table::scatter_scalar(
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
-ObjectUnwrap<Table> Table::scatter_table(Table const& source,
-                                         Column const& indices,
-                                         bool check_bounds,
-                                         rmm::mr::device_memory_resource* mr) const {
+ObjectUnwrap<Table> Table::scatter(Table const& source,
+                                   Column const& indices,
+                                   bool check_bounds,
+                                   rmm::mr::device_memory_resource* mr) const {
   try {
     return Table::New(cudf::scatter(source.view(), indices.view(), this->view(), check_bounds, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
@@ -83,13 +83,13 @@ Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {
   auto& indices = *Column::Unwrap(args[1]);
 
   if (args.Length() == 2 or (args.Length() >= 2 and args[2].IsUndefined())) {
-    return scatter_scalar(source, indices)->Value();
+    return scatter(source, indices)->Value();
   }
 
   if (args.Length() > 2 and args[2].IsBoolean()) {
     auto check_bounds = NapiToCPP(args[2]);
-    auto* mr = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
-    return scatter_scalar(source, indices, check_bounds, mr)->Value();
+    auto* mr          = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
+    return scatter(source, indices, check_bounds, mr)->Value();
   }
   NAPI_THROW(Napi::Error::New(info.Env(),
                               "scatter_scalar expects a vector of scalars, a Column, and "
@@ -110,16 +110,17 @@ Napi::Value Table::scatter_table(Napi::CallbackInfo const& info) {
   auto& indices = *Column::Unwrap(args[1]);
 
   if (args.Length() == 2 or (args.Length() >= 2 and args[2].IsUndefined())) {
-    return scatter_table(source, indices)->Value();
+    return scatter(source, indices)->Value();
   }
 
   if (args.Length() > 2 and args[2].IsBoolean()) {
     auto check_bounds = NapiToCPP(args[2]);
-    auto* mr = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
-    return scatter_table(source, indices, check_bounds, mr)->Value();
+    auto* mr          = NapiToCPP(info[3]).operator rmm::mr::device_memory_resource*();
+    return scatter(source, indices, check_bounds, mr)->Value();
   }
   NAPI_THROW(Napi::Error::New(
-    info.Env(), "scatter_table expects a Table, a Column, and optionally a bool and memory resource"));
+    info.Env(),
+    "scatter_table expects a Table, a Column, and optionally a bool and memory resource"));
 }
 
 }  // namespace nv

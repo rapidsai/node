@@ -178,13 +178,13 @@ class Table : public Napi::ObjectWrap<Table> {
     cudf::out_of_bounds_policy bounds_policy = cudf::out_of_bounds_policy::DONT_CHECK,
     rmm::mr::device_memory_resource* mr      = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Table> scatter_scalar(
+  ObjectUnwrap<Table> scatter(
     std::vector<std::reference_wrapper<const cudf::scalar>> const& source,
     Column const& indices,
     bool check_bounds                   = false,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Table> scatter_table(
+  ObjectUnwrap<Table> scatter(
     Table const& source,
     Column const& indices,
     bool check_bounds                   = false,
