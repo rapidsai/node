@@ -100,6 +100,8 @@
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.table.html#gather" class="tsd-kind-icon">gather</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter"><a href="cudf_src.table.html#getcolumnbyindex" class="tsd-kind-icon">get<wbr>Column<wbr>ByIndex</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.table.html#orderby" class="tsd-kind-icon">order<wbr>By</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter"><a href="cudf_src.table.html#scatterscalar" class="tsd-kind-icon">scatter<wbr>Scalar</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.table.html#scattertable" class="tsd-kind-icon">scatter<wbr>Table</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.table.html#toarrow" class="tsd-kind-icon">to<wbr>Arrow</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.table.html#writecsv" class="tsd-kind-icon">writeCSV</a></li>
 							</ul>
@@ -115,7 +117,7 @@
 					<div class="tsd-signature tsd-kind-icon">num<wbr>Columns<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/646e862/modules/cudf/src/table.ts#L60">modules/cudf/src/table.ts:60</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/60c7aa1/modules/cudf/src/table.ts#L56">modules/cudf/src/table.ts:56</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -130,7 +132,7 @@
 					<div class="tsd-signature tsd-kind-icon">num<wbr>Rows<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/646e862/modules/cudf/src/table.ts#L65">modules/cudf/src/table.ts:65</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/60c7aa1/modules/cudf/src/table.ts#L61">modules/cudf/src/table.ts:61</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -152,7 +154,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/646e862/modules/cudf/src/table.ts#L102">modules/cudf/src/table.ts:102</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/60c7aa1/modules/cudf/src/table.ts#L128">modules/cudf/src/table.ts:128</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -178,7 +180,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/646e862/modules/cudf/src/table.ts#L103">modules/cudf/src/table.ts:103</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/60c7aa1/modules/cudf/src/table.ts#L129">modules/cudf/src/table.ts:129</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -204,7 +206,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/646e862/modules/cudf/src/table.ts#L72">modules/cudf/src/table.ts:72</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/60c7aa1/modules/cudf/src/table.ts#L68">modules/cudf/src/table.ts:68</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -234,7 +236,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/646e862/modules/cudf/src/table.ts#L81">modules/cudf/src/table.ts:81</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/60c7aa1/modules/cudf/src/table.ts#L107">modules/cudf/src/table.ts:107</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -276,7 +278,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/646e862/modules/cudf/src/table.ts#L93">modules/cudf/src/table.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/60c7aa1/modules/cudf/src/table.ts#L119">modules/cudf/src/table.ts:119</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -306,6 +308,111 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+					<a name="scatterscalar" class="tsd-anchor"></a>
+					<h3>scatter<wbr>Scalar</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">scatter<wbr>Scalar&lt;T&gt;<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Scalar</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span>, indices<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span>, check_bounds<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/60c7aa1/modules/cudf/src/table.ts#L80">modules/cudf/src/table.ts:80</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Scatters row of values into this Table according to provided indices.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#typemap" class="tsd-signature-type" data-tsd-kind="Type alias">TypeMap</a> = <span class="tsd-signature-type">any</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>source: <span class="tsd-signature-type">Scalar</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A column of values to be scattered in to this Series</p>
+									</div>
+								</li>
+								<li>
+									<h5>indices: <a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A column of integral indices that indicate the rows in the this Series to be
+										replaced by <code>value</code>.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> check_bounds: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optionally perform bounds checking on the indices and throw an error if any
+										of its values are out of bounds (default: false).</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>An optional MemoryResource used to allocate the result&#39;s device memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="scattertable" class="tsd-anchor"></a>
+					<h3>scatter<wbr>Table</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">scatter<wbr>Table<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a>, indices<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span>, check_bounds<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><a href="rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/60c7aa1/modules/cudf/src/table.ts#L95">modules/cudf/src/table.ts:95</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Scatters a Table of values into this Table according to provided indices.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>source: <a href="../modules/cudf_src.html#table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h5>
+								</li>
+								<li>
+									<h5>indices: <a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A column of integral indices that indicate the rows in the this Series to be
+										replaced by <code>value</code>.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> check_bounds: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optionally perform bounds checking on the indices and throw an error if any
+										of its values are out of bounds (default: false).</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <a href="rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>An optional MemoryResource used to allocate the result&#39;s device memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="toarrow" class="tsd-anchor"></a>
 					<h3>to<wbr>Arrow</h3>
@@ -316,7 +423,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/646e862/modules/cudf/src/table.ts#L94">modules/cudf/src/table.ts:94</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/60c7aa1/modules/cudf/src/table.ts#L120">modules/cudf/src/table.ts:120</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -339,7 +446,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/646e862/modules/cudf/src/table.ts#L100">modules/cudf/src/table.ts:100</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/60c7aa1/modules/cudf/src/table.ts#L126">modules/cudf/src/table.ts:126</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -421,6 +528,12 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="cudf_src.table.html#orderby" class="tsd-kind-icon">order<wbr>By</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+								<a href="cudf_src.table.html#scatterscalar" class="tsd-kind-icon">scatter<wbr>Scalar</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.table.html#scattertable" class="tsd-kind-icon">scatter<wbr>Table</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="cudf_src.table.html#toarrow" class="tsd-kind-icon">to<wbr>Arrow</a>
