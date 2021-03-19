@@ -77,8 +77,6 @@ Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {
     source.push_back(scalar);
   }
 
-  // TODO XXX actually copy source_array to source
-
   if (!Column::is_instance(args[1])) {
     throw Napi::Error::New(info.Env(), "scatter_scalar indices argument expects a Column");
   }
