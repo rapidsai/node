@@ -153,6 +153,30 @@ test('Series.scatter (scalar with array indicies)', () => {
   expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
 });
 
+test('Series.scatter (check_bounds)', () => {
+  const col          = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const values       = Series.new({type: new Int32, data: [200, 400, 500, 800]});
+  const good_indices = [2, 4, 5, 8];
+  const bad_indices  = [2, 4, 5, 18];
+
+  col.scatter(values, good_indices, true);
+  col.scatter(999, good_indices, true);
+
+  col.scatter(values, bad_indices);
+  col.scatter(999, bad_indices);
+  expect(() => col.scatter(values, bad_indices, true)).toThrowError();
+  expect(() => col.scatter(999, bad_indices, true)).toThrowError();
+});
+
+test('Series.scatter (scalar)', () => {
+  const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const indices = Series.new({type: new Int32, data: [2, 4, 5, 8]});
+
+  col.scatter(999, indices);
+
+  expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
+});
+
 test('Series.filter', () => {
   const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
 
