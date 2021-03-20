@@ -30,21 +30,22 @@ export class NodeLayer extends Layer {
   static get layerName() { return 'NodeLayer'; }
   static get defaultProps() {
     return {
-      filled: {type: 'boolean', value: true},
-      stroked: {type: 'boolean', value: true},
-      strokeRatio: {type: 'number', min: 0, max: 1, value: 0.05},
-      fillOpacity: {type: 'number', min: 0, max: 1, value: 1},
-      strokeOpacity: {type: 'number', min: 0, max: 1, value: 1},
-      radiusScale: {type: 'number', min: 0, value: 1},
-      lineWidthScale: {type: 'number', min: 0, value: 1},
-      radiusMinPixels: {type: 'number', min: 0, value: 0},  //  min point radius in pixels
-      radiusMaxPixels:
-        {type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER},  // max point radius in pixels
-      lineWidthMinPixels: {type: 'number', min: 0, value: 0},
-      lineWidthMaxPixels: {type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER},
-      highlightedNode: {type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1},
-      highlightedSourceNode: {type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1},
-      highlightedTargetNode: {type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1},
+      filled: true,
+      stroked: true,
+      strokeRatio: 0.05,
+      fillOpacity: 1,
+      strokeOpacity: 1,
+      radiusScale: 1,
+      lineWidthScale: 1,
+      //  min point radius in pixels
+      radiusMinPixels: 0,
+      // max point radius in pixels
+      radiusMaxPixels: Number.MAX_SAFE_INTEGER,
+      lineWidthMinPixels: 0,
+      lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
+      highlightedNode: -1,
+      highlightedSourceNode: -1,
+      highlightedTargetNode: -1,
     };
   }
   static getAccessors({gl}: {gl: WebGLRenderingContext}) {

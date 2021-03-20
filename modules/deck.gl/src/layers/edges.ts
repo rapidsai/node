@@ -32,10 +32,10 @@ export class EdgeLayer extends Layer {
   static get layerName() { return 'EdgeLayer'; }
   static get defaultProps() {
     return {
-      opacity: {type: 'number', min: 0, max: 1, value: 1},
-      width: {type: 'number', min: Number.MIN_VALUE, max: 100, value: 1},
-      highlightedNode: {type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1},
-      highlightedEdge: {type: 'number', min: -1, max: Number.MAX_SAFE_INTEGER, value: -1},
+      opacity: 1,
+      width: 1,
+      highlightedNode: -1,
+      highlightedEdge: -1,
     };
   }
   static getAccessors({gl}: {gl: WebGLRenderingContext}) {
