@@ -27,6 +27,7 @@ import {
   Integral,
   Numeric,
 } from './types/dtypes';
+import {ReplacePolicy} from './types/enums';
 import {CommonType, Interpolation} from './types/mappings';
 
 export type ColumnProps<T extends DataType = any> = {
@@ -129,6 +130,45 @@ export interface Column<T extends DataType = any> {
    * automatically.
    */
   setNullMask(mask: DeviceBuffer, nullCount?: number): void;
+
+  /**
+   * Fills a range of elements in a column out-of-place with a scalar value.
+   *
+   * @param begin The starting index of the fill range (inclusive).
+   * @param end The index of the last element in the fill range (exclusive).
+   * @param value The scalar value to fill.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  fill(value: Scalar<T>, begin?: number, end?: number, memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Fills a range of elements in-place in a column with a scalar value.
+   *
+   * @param begin The starting index of the fill range (inclusive)
+   * @param end The index of the last element in the fill range (exclusive)
+   * @param value The scalar value to fill
+   */
+  fillInPlace(value: Scalar<T>, begin?: number, end?: number): Column<T>;
+
+  /**
+   *
+   * @param value The scalar value to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNulls(value: Column<T>, memoryResource?: MemoryResource): Column<T>;
+  replaceNulls(value: Scalar<T>, memoryResource?: MemoryResource): Column<T>;
+  replaceNulls(value: ReplacePolicy, memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   *
+   * @param value The scalar value to use in place of NaNs.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNaNs(value: Column<T>, memoryResource?: MemoryResource): Column<T>;
+  replaceNaNs(value: Scalar<T>, memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Add this Column and another Column or scalar value.

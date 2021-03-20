@@ -46,7 +46,8 @@ export class App extends React.Component {
     this._isMounted = true;
     asAsyncIterable(loadGraphData(this.props))
       .pipe(takeWhile(() => this._isMounted))
-      .forEach((state) => this.setState(state));
+      .forEach((state) => this.setState(state))
+      .catch((e) => console.error(e));
   }
   render() {
     const { onAfterRender, ...props } = this.props;
@@ -153,9 +154,9 @@ function onDragEnd({ index }, { target }) {
 function centerOnBbox([minX, maxX, minY, maxY]) {
   const width = maxX - minX, height = maxY - minY;
   if ((width === width) && (height === height)) {
-    const { outerWidth, outerHeight, devicePixelRatio } = window;
-    const world = (outerWidth > outerHeight ? width : height);
-    const screen = (outerWidth > outerHeight ? outerWidth : outerHeight) / devicePixelRatio;
+    const { outerWidth, outerHeight } = window;
+    const world = (width > height ? width : height);
+    const screen = (width > height ? outerWidth : outerHeight);
     const zoom = world > screen ? -(world / screen) : (screen / world);
     return {
       minZoom: Number.NEGATIVE_INFINITY,
@@ -207,7 +208,6 @@ function getEdgeLabels({ x, y, coordinate, edgeId, props, layer }) {
     const [minX, , , maxY] = layer.context.viewport.getBounds();
     props.labels[1] = {
       size, color,
-      position: [0, 0],
       offset: [0, -size],
       position: [minX, maxY],
       text: props.data.edges.attributes.edgeData.getValue(edgeId),

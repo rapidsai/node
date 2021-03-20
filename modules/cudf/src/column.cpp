@@ -139,6 +139,9 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   InstanceMethod<&Column::set_null_count>("setNullCount"),
                   // column/copying.cpp
                   InstanceMethod<&Column::gather>("gather"),
+                  // column/filling.cpp
+                  InstanceMethod<&Column::fill>("fill"),
+                  InstanceMethod<&Column::fill_in_place>("fillInPlace"),
                   // column/binaryop.cpp
                   InstanceMethod<&Column::add>("add"),
                   InstanceMethod<&Column::sub>("sub"),
@@ -188,6 +191,9 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   InstanceMethod<&Column::variance>("var"),
                   InstanceMethod<&Column::std>("std"),
                   InstanceMethod<&Column::quantile>("quantile"),
+                  // column/replacement.cpp
+                  InstanceMethod<&Column::replace_nulls>("replaceNulls"),
+                  InstanceMethod<&Column::replace_nans>("replaceNaNs"),
                   // column/unaryop.cpp
                   InstanceMethod<&Column::cast>("cast"),
                   InstanceMethod<&Column::is_null>("isNull"),

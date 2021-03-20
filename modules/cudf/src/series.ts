@@ -20,6 +20,7 @@ import {VectorType} from 'apache-arrow/interfaces';
 import {Column, ColumnProps} from './column';
 import {fromArrow} from './column/from_arrow';
 import {DataFrame} from './data_frame';
+import {Scalar} from './scalar';
 import {Table} from './table';
 import {
   Bool8,
@@ -41,6 +42,7 @@ import {
 } from './types/dtypes';
 import {
   NullOrder,
+  ReplacePolicy,
 } from './types/enums';
 import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
@@ -184,6 +186,59 @@ export class AbstractSeries<T extends DataType = any> {
    * The number of child columns in this Series.
    */
   get numChildren() { return this._col.numChildren; }
+
+  /**
+   * Fills a range of elements in a column out-of-place with a scalar value.
+   *
+   * @param begin The starting index of the fill range (inclusive).
+   * @param end The index of the last element in the fill range (exclusive).
+   * @param value The scalar value to fill.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  fill(value: T, begin = 0, end = this.length, memoryResource?: MemoryResource): Series<T> {
+    return Series.new(
+      this._col.fill(new Scalar({type: this.type, value}), begin, end, memoryResource));
+  }
+
+  /**
+   * Fills a range of elements in-place in a column with a scalar value.
+   *
+   * @param begin The starting index of the fill range (inclusive)
+   * @param end The index of the last element in the fill range (exclusive)
+   * @param value The scalar value to fill
+   */
+  fillInPlace(value: T, begin = 0, end = this.length): Series<T> {
+    this._col.fillInPlace(new Scalar({type: this.type, value}), begin, end);
+    return <unknown>this as Series<T>;
+  }
+
+  replaceNulls(value: T, memoryResource?: MemoryResource): Series<T>;
+  replaceNulls(value: Series<T>, memoryResource?: MemoryResource): Series<T>;
+  replaceNulls(value: keyof ReplacePolicy, memoryResource?: MemoryResource): Series<T>;
+  replaceNulls(value: any, memoryResource?: MemoryResource): Series<T> {
+    if (value instanceof Series) {
+      return Series.new(this._col.replaceNulls(value._col, memoryResource));
+    } else if (value === 'PRECEDING') {
+      return Series.new(this._col.replaceNulls(ReplacePolicy.PRECEDING, memoryResource));
+    } else if (value === 'FOLLOWING') {
+      return Series.new(this._col.replaceNulls(ReplacePolicy.FOLLOWING, memoryResource));
+    } else {
+      return Series.new(
+        this._col.replaceNulls(new Scalar({type: this.type, value}), memoryResource));
+    }
+  }
+
+  replaceNaNs(value: T, memoryResource?: MemoryResource): Series<T>;
+  replaceNaNs(value: Series<T>, memoryResource?: MemoryResource): Series<T>;
+  replaceNaNs(value: any, memoryResource?: MemoryResource): Series<T> {
+    if (value instanceof Series) {
+      return Series.new(this._col.replaceNaNs(value._col, memoryResource));
+    } else {
+      return Series.new(
+        this._col.replaceNaNs(new Scalar({type: this.type, value}), memoryResource));
+    }
+  }
 
   /**
    * Return a sub-selection of this Series using the specified integral indices.

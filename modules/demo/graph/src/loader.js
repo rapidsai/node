@@ -214,6 +214,11 @@ export default async function* loadGraphData(props = {}) {
           {})
       }));
 
+      const positionSeries = Series.new({ type: new Float32, data: positions });
+      if (positionSeries.isNaN().any()) {
+        positions.copyFrom(positionSeries.replaceNaNs(0).data);
+      }
+
       // Extract the x and y positions and assign them as columns in our nodes DF
       nodes = nodes.assign({
         x: Series.new({ type: new Float32, length: n, offset: 0, data: positions }),
