@@ -208,9 +208,9 @@ export class AbstractSeries<T extends DataType = any> {
    * @param end The index of the last element in the fill range (exclusive)
    * @param value The scalar value to fill
    */
-  fillInPlace(value: T, begin = 0, end = this.length): Series<T> {
+  fillInPlace(value: T, begin = 0, end = this.length) {
     this._col.fillInPlace(new Scalar({type: this.type, value}), begin, end);
-    return <unknown>this as Series<T>;
+    return this;
   }
 
   /**
