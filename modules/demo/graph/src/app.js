@@ -12,25 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { log as deckLog } from '@deck.gl/core';
-import { log as lumaLog } from '@luma.gl/gltools';
-
-deckLog.level = 0;
-lumaLog.level = 0;
-deckLog.enable(false);
-lumaLog.enable(false);
-
-import { OrthographicView } from '@deck.gl/core';
-import { TextLayer } from '@deck.gl/layers';
-import DeckGL from '@deck.gl/react';
-import { createDeckGLReactRef } from '@rapidsai/deck.gl';
-import { as as asAsyncIterable } from 'ix/asynciterable/as';
-import { takeWhile } from 'ix/asynciterable/operators/takewhile';
 import React from 'react';
+
+import { TextLayer } from '@deck.gl/layers';
+import { default as DeckGL } from '@deck.gl/react';
+import { log as deckLog, OrthographicView } from '@deck.gl/core';
 
 import { GraphLayer } from '@rapidsai/deck.gl';
 
-import loadGraphData from './loader';
+import { as as asAsyncIterable } from 'ix/asynciterable/as';
+import { takeWhile } from 'ix/asynciterable/operators/takewhile';
+
+import { default as loadGraphData } from './loader';
+
+deckLog.level = 0;
+deckLog.enable(false);
 
 const composeFns = (fns) => function (...args) { fns.forEach((fn) => fn && fn.apply(this, args)); }
 
@@ -52,13 +48,13 @@ export class App extends React.Component {
   render() {
     const { onAfterRender, ...props } = this.props;
     const { params = {}, selectedParameter, labels } = this.state;
+    const [viewport] = (this._deck?.current?.viewports || []);
 
     if (this.state.autoCenter && this.state.bbox) {
       const viewState = centerOnBbox(this.state.bbox);
       viewState && (props.initialViewState = viewState);
     }
 
-    const [viewport] = (this._deck?.current?.viewports || []);
     let [
       minX = Number.NEGATIVE_INFINITY, minY = Number.NEGATIVE_INFINITY,
       maxX = Number.POSITIVE_INFINITY, maxY = Number.POSITIVE_INFINITY,
@@ -156,19 +152,19 @@ function centerOnBbox([minX, maxX, minY, maxY]) {
   if ((width === width) && (height === height)) {
     const { outerWidth, outerHeight } = window;
     const world = (width > height ? width : height);
-    const screen = (width > height ? outerWidth : outerHeight);
-    const zoom = world > screen ? -(world / screen) : (screen / world);
+    const screen = (width > height ? outerWidth : outerHeight) * .9;
+    const zoom = (world > screen ? -(world / screen) : (screen / world));
     return {
       minZoom: Number.NEGATIVE_INFINITY,
       maxZoom: Number.POSITIVE_INFINITY,
-      zoom: Math.log2(Math.abs(zoom)) * Math.sign(zoom),
+      zoom: Math.log(Math.abs(zoom)) * Math.sign(zoom),
       target: [minX + (width * .5), minY + (height * .5), 0],
     };
   }
 }
 
 function getNodeLabels({ x, y, coordinate, nodeId, props, layer }) {
-  const size = 14;
+  let size = 14;
   const color = [255, 255, 255];
   props.labels.length = 1;
   props.labels[0] = {
@@ -179,21 +175,23 @@ function getNodeLabels({ x, y, coordinate, nodeId, props, layer }) {
       : `${nodeId}`,
   };
   if (props.data.nodes.attributes.nodeData) {
+    size *= 1.5;
     props.labels.length = 2;
+    const text = `${props.data.nodes.attributes.nodeData.getValue(nodeId) || ''}`.trimEnd();
+    const lineSpacing = 3, padding = 20;
+    const nBreaks = ((text.match(/\n/ig) || []).length + 1);
+    const offsetX = 0, offsetY = (size + lineSpacing) * nBreaks;
     const [minX, , , maxY] = layer.context.viewport.getBounds();
     props.labels[1] = {
-      size, color,
-      position: [0, 0],
-      offset: [0, -size],
-      position: [minX, maxY],
-      text: props.data.nodes.attributes.nodeData.getValue(nodeId),
+      text, color, size, position: [minX, maxY],
+      offset: [offsetX + padding, -padding - offsetY],
     };
   }
   return props.labels;
 }
 
 function getEdgeLabels({ x, y, coordinate, edgeId, props, layer }) {
-  const size = 14;
+  let size = 14;
   const color = [255, 255, 255];
   props.labels.length = 1;
   props.labels[0] = {
@@ -204,13 +202,16 @@ function getEdgeLabels({ x, y, coordinate, edgeId, props, layer }) {
       : `${sourceNodeId} - ${targetNodeId}`,
   };
   if (props.data.edges.attributes.edgeData) {
+    size *= 1.5;
     props.labels.length = 2;
+    const text = `${props.data.edges.attributes.edgeData.getValue(edgeId) || ''}`.trimEnd();
+    const lineSpacing = 3, padding = 20;
+    const nBreaks = ((text.match(/\n/ig) || []).length + 1);
+    const offsetX = 0, offsetY = (size + lineSpacing) * nBreaks;
     const [minX, , , maxY] = layer.context.viewport.getBounds();
     props.labels[1] = {
-      size, color,
-      offset: [0, -size],
-      position: [minX, maxY],
-      text: props.data.edges.attributes.edgeData.getValue(edgeId),
+      text, color, size, position: [minX, maxY],
+      offset: [offsetX + padding, -padding - offsetY],
     };
   }
   return props.labels;
