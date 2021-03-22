@@ -213,30 +213,43 @@ export class AbstractSeries<T extends DataType = any> {
     return <unknown>this as Series<T>;
   }
 
-  replaceNulls(value: T, memoryResource?: MemoryResource): Series<T>;
+  /**
+   * Replace null values with a scalar value.
+   *
+   * @param value The scalar value to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNulls(value: T['scalarType'], memoryResource?: MemoryResource): Series<T>;
+
+  /**
+   * Replace null values with the corresponding elements from another Series.
+   *
+   * @param value The Series to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
   replaceNulls(value: Series<T>, memoryResource?: MemoryResource): Series<T>;
-  replaceNulls(value: keyof ReplacePolicy, memoryResource?: MemoryResource): Series<T>;
+
+  /**
+   * Replace null values with the closest non-null value before or after each null.
+   *
+   * @param value The {@link ReplacePolicy} indicating the side to search for the closest non-null
+   *   value.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNulls(value: keyof typeof ReplacePolicy, memoryResource?: MemoryResource): Series<T>;
+
   replaceNulls(value: any, memoryResource?: MemoryResource): Series<T> {
     if (value instanceof Series) {
       return Series.new(this._col.replaceNulls(value._col, memoryResource));
-    } else if (value === 'PRECEDING') {
-      return Series.new(this._col.replaceNulls(ReplacePolicy.PRECEDING, memoryResource));
-    } else if (value === 'FOLLOWING') {
-      return Series.new(this._col.replaceNulls(ReplacePolicy.FOLLOWING, memoryResource));
+    } else if (value in ReplacePolicy) {
+      return Series.new(
+        this._col.replaceNulls(ReplacePolicy[value as keyof typeof ReplacePolicy], memoryResource));
     } else {
       return Series.new(
         this._col.replaceNulls(new Scalar({type: this.type, value}), memoryResource));
-    }
-  }
-
-  replaceNaNs(value: T, memoryResource?: MemoryResource): Series<T>;
-  replaceNaNs(value: Series<T>, memoryResource?: MemoryResource): Series<T>;
-  replaceNaNs(value: any, memoryResource?: MemoryResource): Series<T> {
-    if (value instanceof Series) {
-      return Series.new(this._col.replaceNaNs(value._col, memoryResource));
-    } else {
-      return Series.new(
-        this._col.replaceNaNs(new Scalar({type: this.type, value}), memoryResource));
     }
   }
 

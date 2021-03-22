@@ -152,8 +152,9 @@ export interface Column<T extends DataType = any> {
   fillInPlace(value: Scalar<T>, begin?: number, end?: number): Column<T>;
 
   /**
+   * Replace null values with a `Column`, `Scalar`, or the first/last non-null value.
    *
-   * @param value The scalar value to use in place of nulls.
+   * @param value The value to use in place of nulls.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    */
@@ -162,8 +163,9 @@ export interface Column<T extends DataType = any> {
   replaceNulls(value: ReplacePolicy, memoryResource?: MemoryResource): Column<T>;
 
   /**
+   * Replace NaN values with a scalar value, or the corresponding elements from another Column.
    *
-   * @param value The scalar value to use in place of NaNs.
+   * @param value The value to use in place of NaNs.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    */
