@@ -12,18 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {MemoryResource} from '@rapidsai/rmm';
 import CUDF from './addon';
 import {Column} from './column';
+import {Scalar} from './scalar';
 import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {
-  Bool8,
-  DataType,
-  IndexType,
-  Int32,
-} from './types/dtypes';
-import {
-  NullOrder,
-} from './types/enums';
+import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
+import {NullOrder} from './types/enums';
+import {TypeMap} from './types/mappings';
 
 export type ToArrowMetadata = [string | number, ToArrowMetadata[]?];
 
@@ -70,6 +66,36 @@ export interface Table {
    * @param selection
    */
   gather(selection: Column<IndexType|Bool8>): Table;
+
+  /**
+   * Scatters row of values into this Table according to provided indices.
+   *
+   * @param source A column of values to be scattered in to this Series
+   * @param indices A column of integral indices that indicate the rows in the this Series to be
+   *   replaced by `value`.
+   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
+   *   of its values are out of bounds (default: false).
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  scatterScalar<T extends TypeMap = any>(source: (Scalar<T[keyof T]>)[],
+                                         indices: Column<Int32>,
+                                         check_bounds?: boolean,
+                                         memoryResource?: MemoryResource): Table;
+
+  /**
+   * Scatters a Table of values into this Table according to provided indices.
+   *
+   * @param value A value to be scattered in to this Series
+   * @param indices A column of integral indices that indicate the rows in the this Series to be
+   *   replaced by `value`.
+   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
+   *   of its values are out of bounds (default: false).
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  scatterTable(source: Table,
+               indices: Column<Int32>,
+               check_bounds?: boolean,
+               memoryResource?: MemoryResource): Table;
 
   /**
    * Get the Column at a specified index

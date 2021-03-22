@@ -141,7 +141,7 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /** @ignore */
-  public readonly _col: Column<T>;
+  public _col: Column<T>;
 
   protected constructor(input: SeriesProps<T>|Column<T>|arrow.Vector<T>) {
     this._col = asColumn<T>(input);
@@ -263,6 +263,52 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * Scatters single value into this Series according to provided indices.
+   *
+   * @param value A column of values to be scattered in to this Series
+   * @param indices A column of integral indices that indicate the rows in the this Series to be
+   *   replaced by `value`.
+   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
+   *   of its values are out of bounds (default: false).
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  scatter(value: T['scalarType'],
+          indices: Series<Int32>|number[],
+          check_bounds?: boolean,
+          memoryResource?: MemoryResource): void;
+  /**
+   * Scatters a column of values into this Series according to provided indices.
+   *
+   * @param value A value to be scattered in to this Series
+   * @param indices A column of integral indices that indicate the rows in the this Series to be
+   *   replaced by `value`.
+   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
+   *   of its values are out of bounds (default: false).
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  scatter(values: Series<T>,
+          indices: Series<Int32>|number[],
+          check_bounds?: boolean,
+          memoryResource?: MemoryResource): void;
+
+  scatter(source: Series<T>|T['scalarType'],
+          indices: Series<Int32>|number[],
+          check_bounds = false,
+          memoryResource?: MemoryResource): void {
+    const dst  = new Table({columns: [this._col]});
+    const inds = indices instanceof Series ? indices : new Series({type: new Int32, data: indices});
+    if (source instanceof Series) {
+      const src = new Table({columns: [source._col]});
+      const out = dst.scatterTable(src, inds._col, check_bounds, memoryResource);
+      this._col = out.getColumnByIndex(0);
+    } else {
+      const src = [new Scalar({type: this.type, value: source})];
+      const out = dst.scatterScalar(src, inds._col, check_bounds, memoryResource);
+      this._col = out.getColumnByIndex(0);
+    }
+  }
+
+  /**
    * Return a sub-selection of this Series using the specified boolean mask.
    *
    * @param mask A Series of boolean values for whose corresponding element in this Series will be
@@ -273,11 +319,17 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * Return a value at the specified index to host memory
    *
-   * @param index
+   * @param index the index in this Series to return a value for
    */
   getValue(index: number) { return this._col.getValue(index); }
 
-  // setValue(index: number, value?: this[0] | null);
+  /**
+   * Set a value at the specified index
+   *
+   * @param index the index in this Series to set a value for
+   * @param value the value to set at `index`
+   */
+  setValue(index: number, value: T['scalarType']): void { this.scatter(value, [index]); }
 
   /**
    * Copy the underlying device memory to host, and return an Iterator of the values.
