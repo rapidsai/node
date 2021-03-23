@@ -23,6 +23,14 @@ import {CommonType, Interpolation} from '../types/mappings';
 import {Float64Series} from './float';
 import {Int64Series} from './integral';
 
+export type SequenceOptions<U extends DataType = any> = {
+  type: U,
+  size: number,
+  init: number,
+  step?: number,
+  memoryResource?: MemoryResource
+};
+
 /**
  * A base class for Series of fixed-width numeric values.
  */
@@ -986,5 +994,22 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
            memoryResource?: MemoryResource) {
     return this._process_reduction(true)._col.quantile(
       q, Interpolation[interpolation], memoryResource);
+  }
+
+  /**
+   * Fills a Series with a sequence of values.
+   *
+   * If step is omitted, it takes a value of 1.
+   *
+   * @param opts Options for creating the sequence
+   * @returns Series with the sequence
+   */
+  public static sequence<U extends DataType>(opts: SequenceOptions<U>): Series<U> {
+    const init = new Scalar({type: opts.type, value: opts.init});
+    if (opts.step === undefined || opts.step == 1) {
+      return Series.new(Column.sequence<U>(opts.size, init, opts.memoryResource));
+    }
+    const step = new Scalar({type: opts.type, value: opts.step});
+    return Series.new(Column.sequence<U>(opts.size, init, step, opts.memoryResource));
   }
 }
