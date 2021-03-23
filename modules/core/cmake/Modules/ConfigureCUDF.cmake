@@ -38,7 +38,7 @@ function(find_and_configure_cudf VERSION)
     CPMFindPackage(NAME  cudf
         VERSION         ${VERSION}
         GIT_REPOSITORY  https://github.com/trxcllnt/cudf.git
-        GIT_TAG         fix/async-set-value-literal
+        GIT_TAG         nr/03232021
         GIT_SHALLOW     TRUE
         SOURCE_SUBDIR   cpp
         OPTIONS         "BUILD_TESTS OFF"
