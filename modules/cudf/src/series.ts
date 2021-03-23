@@ -33,6 +33,7 @@ import {
   Int64,
   Int8,
   List,
+  Numeric,
   Struct,
   Uint16,
   Uint32,
@@ -40,9 +41,7 @@ import {
   Uint8,
   Utf8String,
 } from './types/dtypes';
-import {
-  NullOrder,
-} from './types/enums';
+import {NullOrder} from './types/enums';
 import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
 export type SeriesProps<T extends DataType = any> = {
@@ -80,6 +79,14 @@ export type SeriesProps<T extends DataType = any> = {
   nullCount?: number;
   nullMask?: never;
   children?: ReadonlyArray<Series>|null;
+};
+
+export type SequenceOptions<U extends Numeric = any> = {
+  type: U,
+  size: number,
+  init: number,
+  step?: number,
+  memoryResource?: MemoryResource
 };
 
 export type Series<T extends arrow.DataType = any> = {
@@ -289,6 +296,23 @@ export class AbstractSeries<T extends DataType = any> {
   toArrow(): VectorType<T> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return new DataFrame({0: this}).toArrow().getChildAt<T>(0)!.chunks[0] as VectorType<T>;
+  }
+
+  /**
+   * Fills a Series with a sequence of values.
+   *
+   * If step is omitted, it takes a value of 1.
+   *
+   * @param opts Options for creating the sequence
+   * @returns Series with the sequence
+   */
+  public static sequence<U extends Numeric>(opts: SequenceOptions<U>): Series<U> {
+    const init = new Scalar({type: opts.type, value: opts.init});
+    if (opts.step === undefined || opts.step == 1) {
+      return Series.new(Column.sequence<U>(opts.size, init, opts.memoryResource));
+    }
+    const step = new Scalar({type: opts.type, value: opts.step});
+    return Series.new(Column.sequence<U>(opts.size, init, step, opts.memoryResource));
   }
 
   /**

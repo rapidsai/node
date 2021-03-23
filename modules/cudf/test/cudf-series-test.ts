@@ -13,7 +13,17 @@
 // limitations under the License.
 
 import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {Bool8, Column, Float32, Int32, NullOrder, Series, Uint8, Utf8String} from '@rapidsai/cudf';
+import {
+  Bool8,
+  Column,
+  Float32,
+  Float64,
+  Int32,
+  NullOrder,
+  Series,
+  Uint8,
+  Utf8String
+} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import {Uint8Vector, Utf8Vector} from 'apache-arrow';
 import {BoolVector} from 'apache-arrow';
@@ -313,4 +323,19 @@ test('FloatSeries.nansToNulls', () => {
   expect([...result.toArrow()]).toEqual(expected);
   expect(result.nullCount).toEqual(1);
   expect(col.nullCount).toEqual(0);
+});
+
+describe.each([new Int32, new Float32, new Float64])('Series.sequence({type=%p,, ...})', (typ) => {
+  test('no step', () => {
+    const col = Series.sequence({type: typ, size: 10, init: 0});
+    expect([...col.toArrow()]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+  test('step=1', () => {
+    const col = Series.sequence({type: typ, size: 10, step: 1, init: 0});
+    expect([...col.toArrow()]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+  test('step=2', () => {
+    const col = Series.sequence({type: typ, size: 10, step: 2, init: 0});
+    expect([...col.toArrow()]).toEqual([0, 2, 4, 6, 8, 10, 12, 14, 16, 18]);
+  });
 });
