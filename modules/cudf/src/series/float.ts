@@ -15,6 +15,8 @@
 import {Float32Buffer, Float64Buffer} from '@nvidia/cuda';
 import {MemoryResource} from '@rapidsai/rmm';
 
+import {Column} from '../column';
+import {Scalar} from '../scalar';
 import {Series} from '../series';
 import {Float32, Float64, FloatingPoint} from '../types/dtypes';
 
@@ -84,6 +86,33 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    */
   dropNaNs(memoryResource?: MemoryResource): Series<T> {
     return this.__construct(this._col.drop_nans(memoryResource));
+  }
+
+  /**
+   * Replace NaN values with a scalar value.
+   *
+   * @param value The value to use in place of NaNs.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNaNs(value: T['scalarType'], memoryResource?: MemoryResource): Series<T>;
+
+  /**
+   * Replace NaN values with the corresponding elements from another Series.
+   *
+   * @param value The Series to use in place of NaNs.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNaNs(value: Series<T>, memoryResource?: MemoryResource): Series<T>;
+
+  replaceNaNs(value: T['scalarType']|Series<T>, memoryResource?: MemoryResource): Series<T> {
+    if (value instanceof Series) {
+      return Series.new(this._col.replaceNaNs(value._col as Column<T>, memoryResource));
+    } else {
+      return Series.new(
+        this._col.replaceNaNs(new Scalar<T>({type: this.type, value}), memoryResource));
+    }
   }
 
   /**

@@ -41,7 +41,10 @@ import {
   Uint8,
   Utf8String,
 } from './types/dtypes';
-import {NullOrder} from './types/enums';
+import {
+  NullOrder,
+  ReplacePolicy,
+} from './types/enums';
 import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
 export type SeriesProps<T extends DataType = any> = {
@@ -192,6 +195,72 @@ export class AbstractSeries<T extends DataType = any> {
    * The number of child columns in this Series.
    */
   get numChildren() { return this._col.numChildren; }
+
+  /**
+   * Fills a range of elements in a column out-of-place with a scalar value.
+   *
+   * @param begin The starting index of the fill range (inclusive).
+   * @param end The index of the last element in the fill range (exclusive).
+   * @param value The scalar value to fill.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  fill(value: T, begin = 0, end = this.length, memoryResource?: MemoryResource): Series<T> {
+    return Series.new(
+      this._col.fill(new Scalar({type: this.type, value}), begin, end, memoryResource));
+  }
+
+  /**
+   * Fills a range of elements in-place in a column with a scalar value.
+   *
+   * @param begin The starting index of the fill range (inclusive)
+   * @param end The index of the last element in the fill range (exclusive)
+   * @param value The scalar value to fill
+   */
+  fillInPlace(value: T, begin = 0, end = this.length) {
+    this._col.fillInPlace(new Scalar({type: this.type, value}), begin, end);
+    return this;
+  }
+
+  /**
+   * Replace null values with a scalar value.
+   *
+   * @param value The scalar value to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNulls(value: T['scalarType'], memoryResource?: MemoryResource): Series<T>;
+
+  /**
+   * Replace null values with the corresponding elements from another Series.
+   *
+   * @param value The Series to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNulls(value: Series<T>, memoryResource?: MemoryResource): Series<T>;
+
+  /**
+   * Replace null values with the closest non-null value before or after each null.
+   *
+   * @param value The {@link ReplacePolicy} indicating the side to search for the closest non-null
+   *   value.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNulls(value: keyof typeof ReplacePolicy, memoryResource?: MemoryResource): Series<T>;
+
+  replaceNulls(value: any, memoryResource?: MemoryResource): Series<T> {
+    if (value instanceof Series) {
+      return Series.new(this._col.replaceNulls(value._col, memoryResource));
+    } else if (value in ReplacePolicy) {
+      return Series.new(
+        this._col.replaceNulls(ReplacePolicy[value as keyof typeof ReplacePolicy], memoryResource));
+    } else {
+      return Series.new(
+        this._col.replaceNulls(new Scalar({type: this.type, value}), memoryResource));
+    }
+  }
 
   /**
    * Return a sub-selection of this Series using the specified integral indices.

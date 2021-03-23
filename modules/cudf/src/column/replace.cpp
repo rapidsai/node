@@ -1,0 +1,70 @@
+// Copyright (c) 2021, NVIDIA CORPORATION.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <node_cudf/column.hpp>
+#include <node_cudf/scalar.hpp>
+
+#include <cudf/filling.hpp>
+#include <cudf/replace.hpp>
+
+namespace nv {
+
+ObjectUnwrap<Column> Column::replace_nulls(cudf::column_view const& replacement,
+                                           rmm::mr::device_memory_resource* mr) {
+  return Column::New(cudf::replace_nulls(*this, replacement, mr));
+}
+
+ObjectUnwrap<Column> Column::replace_nulls(cudf::scalar const& replacement,
+                                           rmm::mr::device_memory_resource* mr) {
+  return Column::New(cudf::replace_nulls(*this, replacement, mr));
+}
+
+ObjectUnwrap<Column> Column::replace_nulls(cudf::replace_policy const& replace_policy,
+                                           rmm::mr::device_memory_resource* mr) {
+  return Column::New(cudf::replace_nulls(*this, replace_policy, mr));
+}
+
+ObjectUnwrap<Column> Column::replace_nans(cudf::column_view const& replacement,
+                                          rmm::mr::device_memory_resource* mr) {
+  return Column::New(cudf::replace_nans(*this, replacement, mr));
+}
+
+ObjectUnwrap<Column> Column::replace_nans(cudf::scalar const& replacement,
+                                          rmm::mr::device_memory_resource* mr) {
+  return Column::New(cudf::replace_nans(*this, replacement, mr));
+}
+
+Napi::Value Column::replace_nulls(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  try {
+    if (Column::is_instance(info[0])) { return replace_nulls(*Column::Unwrap(args[0]), args[1]); }
+    if (Scalar::is_instance(info[0])) { return replace_nulls(*Scalar::Unwrap(args[0]), args[1]); }
+    if (args[0].IsBoolean()) {
+      cudf::replace_policy policy{args[0]};
+      return replace_nulls(policy, args[1]);
+    }
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
+  throw Napi::Error::New(info.Env(), "replace_nulls requires a Column, Scalar, or Boolean");
+}
+
+Napi::Value Column::replace_nans(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  try {
+    if (Column::is_instance(info[0])) { return replace_nans(*Column::Unwrap(args[0]), args[1]); }
+    if (Scalar::is_instance(info[0])) { return replace_nans(*Scalar::Unwrap(args[0]), args[1]); }
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
+  throw Napi::Error::New(info.Env(), "replace_nans requires a Column or Scalar");
+}
+
+}  // namespace nv

@@ -13,16 +13,47 @@
 // limitations under the License.
 
 #include <node_cudf/column.hpp>
+#include <node_cudf/scalar.hpp>
+
 #include <node_rmm/device_buffer.hpp>
 #include <nv_node/utilities/wrap.hpp>
 
-#include <napi.h>
 #include <cudf/column/column.hpp>
 #include <cudf/filling.hpp>
 #include <cudf/types.hpp>
 #include <rmm/device_buffer.hpp>
 
+#include <napi.h>
+
 namespace nv {
+
+ObjectUnwrap<Column> Column::fill(cudf::size_type begin,
+                                  cudf::size_type end,
+                                  cudf::scalar const& value,
+                                  rmm::mr::device_memory_resource* mr) {
+  return Column::New(cudf::fill(*this, begin, end, value, mr));
+}
+
+Napi::Value Column::fill(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  auto scalar           = Scalar::Unwrap(args[0].ToObject());
+  cudf::size_type begin = args.Length() > 1 ? args[1] : 0;
+  cudf::size_type end   = args.Length() > 2 ? args[2] : size();
+  try {
+    return fill(begin, end, *scalar, args[3]);
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
+}
+
+void Column::fill_in_place(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  auto scalar           = Scalar::Unwrap(args[0].ToObject());
+  cudf::size_type begin = args.Length() > 1 ? args[1] : 0;
+  cudf::size_type end   = args.Length() > 2 ? args[2] : size();
+  try {
+    cudf::mutable_column_view view = *this;
+    cudf::fill_in_place(view, begin, end, *scalar);
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
+}
 
 ObjectUnwrap<Column> Column::sequence(Napi::Env const& env,
                                       cudf::size_type size,
@@ -72,6 +103,6 @@ Napi::Value Column::sequence(Napi::CallbackInfo const& info) {
     rmm::mr::device_memory_resource* mr = args[3];
     return Column::sequence(info.Env(), size, init, step, mr);
   }
+}
 
-}  // namespace nv
 }  // namespace nv

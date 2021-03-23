@@ -51,7 +51,9 @@ if (require.main === module) {
   async function* inputs(delay, paths) {
     const sleep = (t) => new Promise((r) => setTimeout(r, t));
     for (const path of paths.split(',')) {
-      yield path;
+      if (path) {
+        yield path;
+      }
       await sleep(delay);
     }
   }
