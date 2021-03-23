@@ -1,0 +1,145 @@
+<html>
+  <head>
+    <title>deck.gl GeoJsonLayer (Polygon) Example</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/deck.gl@^8.0.0/dist.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://kit.fontawesome.com/7fe2f7f718.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js" integrity="sha512-wNH6xsp2n8CfB91nrBtfc4sfLwYPBMjSWVUwQOp60AYYXH6i8yCwuKFZ4rgK2i6pQek/b+bSyR7b01/922IBzQ==" crossorigin="anonymous"></script>
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.4.0/mapbox-gl.js"></script>
+
+    <style type="text/css">
+      body {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+        
+      }
+      .deck-tooltip {
+        font-family: Helvetica, Arial, sans-serif;
+        padding: 6px !important;
+        margin: 8px;
+        max-width: 300px;
+        font-size: 10px;
+      }
+      .legend{
+        background-color: #212121;
+        opacity: 0.8;
+      }
+      .container-fluid {
+        height: 100%;
+        /* width: 80%;
+        margin-left: 20%; */
+      }
+      .row {
+        height: 100%;
+      }
+      .bg-charts{
+        background-color: #212121!important
+      }
+      .row>*{
+        padding: 0% !important;
+      }
+      .bg-dark-custom{
+        background-color: #212121!important
+      }
+      #console-window {
+        z-index: 10;
+        bottom:20;
+        right:20;
+        position: absolute;
+        width: 350px;
+        height: 200px;
+      }
+      #textdiv {
+        overflow-y: auto;
+        padding: 20px !important;
+      }
+    </style>
+  </head>
+
+  <body>
+<!-- Image and text -->
+<nav class="navbar navbar-dark" style="background-color: #7300ff;">
+  <a class="navbar-brand" href="#">
+    <h2> <img src="https://camo.githubusercontent.com/a06b6a44ef25ee9aa6bc319b20e43c11c86325bdf2275761bec0acdaa20fee24/68747470733a2f2f7261706964732e61692f6173736574732f696d616765732f7261706964735f6c6f676f2e706e67" width="60" height="30" class="d-inline-block align-top" alt=""> Uber Movement Dashboard</h2>
+  </a>
+  <div class="d-flex float-end">
+    <button class="btn btn-info m-1" id="toggle-console"><i class="fas fa-terminal"></i></button>
+    <button class="btn btn-info m-1" id="reset-all-charts">Reset all</button>
+  </div>
+</nav>
+
+<div class="container-fluid bg-dark-custom">
+  <div class="row">
+      <div class="col col-3 card  bg-dark-custom mb-3">
+        <div class="card text-white bg-secondary m-3 mb-3" style="height: 12%;">
+          <h5 class="card-header ">Data Points Selected</h5>
+          <div class="card-body bg-charts">
+            <h3 class="card-title text-center" id="data-points"><div class="spinner-border" role="status">
+              <span class="sr-only"></span>
+            </div>
+              </h3>
+          </div>
+        </div>
+        <div class="card text-white bg-secondary m-3 mb-3" style="height: 36%;">
+          <h5 class="card-header ">Trips per day 
+          </h5>
+          <div class="card-body bg-charts">
+            <h3 class="card-title text-center" style="height: 90%;" id="bar-day"><div class="spinner-border" role="status">
+              <span class="sr-only"></span>
+            </div>
+              </h3>
+          </div>
+        </div>
+        <div class="card text-white bg-secondary m-3 mb-3" style="height: 37%;">
+          <h5 class="card-header">Trips per hour
+          </h5>
+          <div class="card-body bg-charts">
+            <h3 class="card-title text-center" style="height: 90%;" id="bar-hour"><div class="spinner-border" role="status">
+              <span class="sr-only"></span>
+            </div>
+              </h3>
+          </div>
+        </div>
+        </div>
+      <div class="col card bg-light m-3 mb-3" style="height: 90%;">
+        <div class="card-header text-white bg-secondary clearfix">
+        <p class="h5">Trip Source Counts (Aggregated by Travel Time)
+          <button class="btn btn-info float-end btn-sm" id="reset-src-map">Reset</button>
+        </p>
+      </div>
+      <div class="card-body bg-charts" id="map-src" style="z-index: 0;">
+        <svg class="legend" id="l1" height=110 width=200 style="z-index: 1; position:absolute"></svg>
+      </div>
+      </div>
+      <div class="col card bg-light m-3 mb-3" style="height: 90%;">
+        <div class="card-header text-white bg-secondary clearfix">
+          <p class="h5">Trip Destination Counts (Aggregated by Travel Time)
+            <button class="btn btn-info btn-sm float-end" id="reset-dst-map">Reset</button></p>
+        </div>
+        <div class="card-body bg-charts" id="map-dst">
+          <svg class="legend" id="l2" height=110 width=200 style="z-index: 1; position:absolute"></svg>
+        </div>
+      </div>
+      <div class="card bg-dark text-success" id="console-window">
+        <div class="bg-secondary card-header text-white"> Compute Times </div>
+        <div class="card-body" id="textdiv"></div>
+      </div>
+    </div>
+</div>
+
+</body>
+
+<script src="https://cdn.socket.io/3.1.3/socket.io.min.js" integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh" crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="js/util/console.js"></script>
+<script type="text/javascript" src="js/util/legend.js"></script>
+<script type="text/javascript" src="js/util/uber-dashboard-utils.js"></script>
+<script type="text/javascript" src="js/uber.js"></script>    
+
+</html>
