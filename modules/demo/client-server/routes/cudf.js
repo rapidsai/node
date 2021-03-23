@@ -1,21 +1,21 @@
-const express     = require('express');
-const {DataFrame} = require('@rapidsai/cudf');
-const path        = require('path');
-const router      = express.Router();
-const fetch       = require('node-fetch');
-const settings    = {
+const express = require('express');
+const { DataFrame } = require('@rapidsai/cudf');
+const path = require('path');
+const router = express.Router();
+const fetch = require('node-fetch');
+const settings = {
   method: 'Get'
 };
 
-let gjson         = '';
-let df            = undefined;
+let gjson = '';
+let df = undefined;
 let datasetLoaded = '';
 
 // read Mortgage Dataset from disk using cudf.DataFrame.readCSV, and fetch geoJSON file
 function readMortgageData(callback) {
   var t0 = new Date().getTime();
   console.log('readMortgageData');
-  df            = DataFrame.readCSV({
+  df = DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
     sources: [path.join(__dirname, '../public/data/m.csv')],
@@ -39,7 +39,7 @@ function readMortgageData(callback) {
     console.log('readMortgageData complete');
     var t1 = new Date().getTime();
     console.log('Time Taken:', t1 - t0, 'ms');
-    callback(true);
+    callback(null);
   });
 }
 
@@ -47,7 +47,7 @@ function readMortgageData(callback) {
 function readUberData(callback) {
   var t0 = new Date().getTime();
   console.log('readUberData');
-  df            = DataFrame.readCSV({
+  df = DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
     // sources: [path.join(__dirname, '../public/data/san_fran_uber.csv')],
@@ -70,26 +70,26 @@ function readUberData(callback) {
     console.log('readUberData complete');
     var t1 = new Date().getTime();
     console.log('Time Taken:', t1 - t0, 'ms');
-    callback(true);
+    callback(null);
   });
 }
 
 // release data from GPU memory
 function deleteData() {
-  delete df;
+  df = null;
   datasetLoaded = '';
 }
 
 /**
  * transform Arrow.Table to the format
- * [index[0]: {property: propertyValue, ....},
+ * {index[0]: {property: propertyValue, ....},
  * index[1]: {property: propertyValue, ....},
- * ...] for easier conversion to geoJSON object
+ * ...} for easier conversion to geoJSON object
  *
  * @param data Arrow.Table
  * @param by str, column name
  * @param params [{}, {}] result of Arrow.Table.toArray()
- * @returns [index:{props:propsValue}]
+ * @returns {index:{props:propsValue}}
  */
 function transform_data(data, by, params) {
   return data.reduce((a, v) => {
@@ -112,14 +112,14 @@ function transform_data(data, by, params) {
  * @returns geoJSON object consumable by DeckGL GeoJSONLayer
  */
 function convertToGeoJSON(data, by, properties, geojsonProp) {
-  data     = transform_data(data.toArray(), by, properties);
+  data = transform_data(data.toArray(), by, properties);
   tempjson = [];
   gjson.features.forEach((val) => {
     if (val.properties[geojsonProp] in data) {
       tempjson.push({
         type: val.type,
         geometry: val.geometry,
-        properties: {...val.properties, ...data[val.properties[geojsonProp]]}
+        properties: { ...val.properties, ...data[val.properties[geojsonProp]] }
       })
     }
   });
@@ -160,7 +160,7 @@ function filterByRange(column, min, max) {
  */
 function parseQuery(query_dict, ignore) {
   if (ignore in query_dict) { delete query_dict[ignore]; }
-  var t0       = new Date().getTime();
+  var t0 = new Date().getTime();
   let boolmask = undefined;
   for (const [key, value] of Object.entries(query_dict)) {
     let temp_boolmask = undefined;
@@ -196,12 +196,12 @@ function parseQuery(query_dict, ignore) {
  * @returns resulting cudf.DataFrame
  */
 function groupby(df, by, agg) {
-  var t0         = new Date().getTime();
-  const grp      = df.groupBy({by: by});
+  var t0 = new Date().getTime();
+  const grp = df.groupBy({ by: by });
   const validAgg = (agg in grp && typeof grp[agg] == 'function');
   if (!validAgg) { return ({}); }
   var res = grp[agg]();
-  var t1  = new Date().getTime();
+  var t1 = new Date().getTime();
   console.log('Group by ', by, ', agg:', agg, 'Time Taken:', t1 - t0, 'ms');
   return res;
 }
@@ -219,13 +219,13 @@ module.exports = (io) => {
     socket.on('readMortgageData', (callback) => {
       if (datasetLoaded == 'mortgage') {
         console.log('dataset already loaded');
-        socket.emit('data-points-update', df.toArrow().length);
-        callback(true);
+        socket.emit('data-points-update', df.numRows);
+        callback(null);
       } else {
         readMortgageData((cb) => {
           if (cb == true) {
-            socket.emit('data-points-update', df.toArrow().length);
-            callback(true);
+            socket.emit('data-points-update', df.numRows);
+            callback(null);
           }
         });
       }
@@ -234,13 +234,13 @@ module.exports = (io) => {
     socket.on('readUberData', (callback) => {
       if (datasetLoaded == 'uber') {
         console.log('dataset already loaded');
-        socket.emit('data-points-update', df.toArrow().length);
-        callback(true);
+        socket.emit('data-points-update', df.numRows);
+        callback(null);
       } else {
         readUberData((cb) => {
           if (cb == true) {
-            socket.emit('data-points-update', df.toArrow().length);
-            callback(true);
+            socket.emit('data-points-update', df.numRows);
+            callback(null);
           }
         });
       }
@@ -250,9 +250,9 @@ module.exports = (io) => {
       if (df == undefined) { callback({}); }
       console.log('\n\n');
       const res_df = parseQuery(query_dict, by);
-      res          = groupby(res_df, by, agg);
-      var t0       = new Date().getTime();
-      res          = res.sortValues({[by]: {ascending: true, null_order: 'AFTER'}});
+      res = groupby(res_df, by, agg);
+      var t0 = new Date().getTime();
+      res = res.sortValues({ [by]: { ascending: true, null_order: 'AFTER' } });
       console.log('Sort Dataframe by ', by, ', Time Taken:', new Date().getTime() - t0, 'ms');
       if (return_type.type == 'geojson') {
         callback(
@@ -264,12 +264,12 @@ module.exports = (io) => {
 
     socket.on('get-dataset-size', (query_dict, callback) => {
       if (df == undefined) { callback({}); }
-      socket.emit('data-points-update', parseQuery(query_dict, '').toArrow().length);
+      socket.emit('data-points-update', parseQuery(query_dict, '').numRows);
     });
 
     socket.on('delete-df', (callback) => {
       deleteData();
-      callback(true);
+      callback(null);
     });
   })
 
