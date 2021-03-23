@@ -72,6 +72,33 @@ export type ColumnProps<T extends DataType = any> = {
 interface ColumnConstructor {
   readonly prototype: Column;
   new<T extends DataType = any>(props: ColumnProps<T>): Column<T>;
+
+  /**
+   * Fills a column with a sequence of values specified by an initial value and a step of 1.
+   *
+   * @param size Size of the output column
+   * @param init First value in the sequence
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory
+   * @returns column with the sequence
+   */
+  sequence<U extends DataType>(size: number, init: Scalar<U>, memoryResource?: MemoryResource):
+    Column<U>;
+
+  /**
+   * Fills a column with a sequence of values specified by an initial value and a step.
+   *
+   * @param size Size of the output column
+   * @param init First value in the sequence
+   * @param step Increment value
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory
+   * @returns column with the sequence
+   */
+  sequence<U extends DataType>(size: number,
+                               init: Scalar<U>,
+                               step: Scalar<U>,
+                               memoryResource?: MemoryResource): Column<U>;
 }
 
 /**
