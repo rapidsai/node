@@ -68,7 +68,7 @@ Napi::Value Column::sequence(Napi::CallbackInfo const& info) {
     if (!Scalar::is_instance(args[2])) {
       throw Napi::Error::New(info.Env(), "sequence step argument expects a scalar");
     }
-    auto& step                          = *Scalar::Unwrap(args[1]);
+    auto& step                          = *Scalar::Unwrap(args[2]);
     rmm::mr::device_memory_resource* mr = args[3];
     return Column::sequence(info.Env(), size, init, step, mr);
   }
