@@ -598,6 +598,20 @@ class Column : public Napi::ObjectWrap<Column> {
   ObjectUnwrap<Column> drop_nans(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // column/filling.cpp
+  static ObjectUnwrap<Column> sequence(
+    Napi::Env const& env,
+    cudf::size_type size,
+    cudf::scalar const& init,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  static ObjectUnwrap<Column> sequence(
+    Napi::Env const& env,
+    cudf::size_type size,
+    cudf::scalar const& init,
+    cudf::scalar const& step,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
   // column/transform.cpp
   std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> nans_to_nulls(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
@@ -746,6 +760,9 @@ class Column : public Napi::ObjectWrap<Column> {
   // column/stream_compaction.cpp
   Napi::Value drop_nulls(Napi::CallbackInfo const& info);
   Napi::Value drop_nans(Napi::CallbackInfo const& info);
+
+  // column/filling.cpp
+  static Napi::Value sequence(Napi::CallbackInfo const& info);
 
   // column/transform.cpp
   Napi::Value nans_to_nulls(Napi::CallbackInfo const& info);
