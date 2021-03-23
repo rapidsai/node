@@ -18,6 +18,8 @@ export * from './loadnativemodule';
 
 export const modules_path = Path.resolve(__dirname, '..', '..', '..');
 
+export const project_root_dir_path = Path.resolve(modules_path, '..');
+
 export const ccache_path = Path.resolve(modules_path, '.cache', 'ccache');
 
 export const cpm_source_cache_path = Path.resolve(modules_path, '.cache', 'cpm');
@@ -25,3 +27,5 @@ export const cpm_source_cache_path = Path.resolve(modules_path, '.cache', 'cpm')
 export const cpp_include_path = Path.resolve(modules_path, 'core', 'include');
 
 export const cmake_modules_path = Path.resolve(modules_path, 'core', 'cmake', 'Modules');
+
+export const cmake_fetchcontent_base = Path.resolve(modules_path, '.cache', 'build');
