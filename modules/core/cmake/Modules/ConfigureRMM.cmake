@@ -18,7 +18,7 @@ function(find_and_configure_rmm VERSION)
 
     include(get_cpm)
 
-    CPMAddPackage(NAME rmm
+    CPMFindPackage(NAME rmm
         VERSION        ${RMM_VERSION}
         GIT_REPOSITORY https://github.com/rapidsai/rmm.git
         GIT_TAG        branch-${RMM_VERSION}

@@ -19,7 +19,7 @@ function(find_and_configure_cugraph VERSION)
     include(get_cpm)
     include(ConfigureRAFT)
 
-    CPMAddPackage(NAME cugraph
+    CPMFindPackage(NAME cugraph
         VERSION        ${CUGRAPH_VERSION}
         GIT_REPOSITORY https://github.com/rapidsai/cugraph.git
         GIT_TAG        branch-${CUGRAPH_VERSION}

@@ -35,7 +35,7 @@ function(find_and_configure_cudf VERSION)
     set(DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS})
     set(CUDF_GENERATED_INCLUDE_DIR ${NODE_RAPIDS_CPM_SOURCE_CACHE}/cudf-build)
 
-    CPMAddPackage(NAME  cudf
+    CPMFindPackage(NAME  cudf
         VERSION         ${VERSION}
         GIT_REPOSITORY  https://github.com/trxcllnt/cudf.git
         GIT_TAG         fix/async-set-value-literal
