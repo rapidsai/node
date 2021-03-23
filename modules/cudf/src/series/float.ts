@@ -100,7 +100,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   /**
    * Replace NaN values with the corresponding elements from another Series.
    *
-   * @param value The value to use in place of NaNs.
+   * @param value The Series to use in place of NaNs.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    */
