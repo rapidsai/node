@@ -88,7 +88,7 @@ export abstract class GLFWDOMWindow {
                     _modifiers: 0,
                     _xscale: 1,
                     _yscale: 1,
-                    _devicePixelRatio: 2,
+                    _devicePixelRatio: 1,
                     _focused: false,
                     _minimized: false,
                     _maximized: false,
@@ -253,7 +253,7 @@ export abstract class GLFWDOMWindow {
   public get shiftKey() { return isShiftKey(this._modifiers); }
   public get capsLock() { return isCapsLock(this._modifiers); }
 
-  protected _devicePixelRatio = 2;
+  protected _devicePixelRatio = 1;
   public get devicePixelRatio() { return this._devicePixelRatio; }
   public set devicePixelRatio(_: number) { this._devicePixelRatio = _; }
 
@@ -575,6 +575,8 @@ function onGLFWWindowEvent(this: GLFWDOMWindow, event: GLFWWindowEvent) {
   this._maximized         = event.maximized;
   this._frameBufferWidth  = event.frameBufferWidth;
   this._frameBufferHeight = event.frameBufferHeight;
+  this._devicePixelRatio =
+    Math.min(this._frameBufferWidth / this._width, this._frameBufferHeight / this._height);
   dispatchGLFWEvent(this, event, this.Event);
   if (event.type === 'close') { this._destroyGLFWWindow(); }
 }

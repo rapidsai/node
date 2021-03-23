@@ -23,10 +23,12 @@
 #include <nv_node/utilities/wrap.hpp>
 
 #include <napi.h>
+
 #include <cudf/aggregation.hpp>
 #include <cudf/binaryop.hpp>
 #include <cudf/column/column_view.hpp>
 #include <cudf/copying.hpp>
+#include <cudf/replace.hpp>
 #include <cudf/types.hpp>
 #include <cudf/unary.hpp>
 #include <rmm/device_buffer.hpp>
@@ -596,6 +598,20 @@ class Column : public Napi::ObjectWrap<Column> {
   ObjectUnwrap<Column> drop_nans(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // column/filling.cpp
+  static ObjectUnwrap<Column> sequence(
+    Napi::Env const& env,
+    cudf::size_type size,
+    cudf::scalar const& init,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  static ObjectUnwrap<Column> sequence(
+    Napi::Env const& env,
+    cudf::size_type size,
+    cudf::scalar const& init,
+    cudf::scalar const& step,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
   // column/transform.cpp
   std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> nans_to_nulls(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
@@ -605,6 +621,34 @@ class Column : public Napi::ObjectWrap<Column> {
     Column const& gather_map,
     cudf::out_of_bounds_policy bounds_policy = cudf::out_of_bounds_policy::DONT_CHECK,
     rmm::mr::device_memory_resource* mr      = rmm::mr::get_current_device_resource()) const;
+
+  // column/filling.cpp
+  ObjectUnwrap<Column> fill(
+    cudf::size_type begin,
+    cudf::size_type end,
+    cudf::scalar const& value,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  // column/replace.cpp
+  ObjectUnwrap<Column> replace_nulls(
+    cudf::column_view const& replacement,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  ObjectUnwrap<Column> replace_nulls(
+    cudf::scalar const& replacement,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  ObjectUnwrap<Column> replace_nulls(
+    cudf::replace_policy const& replace_policy,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  ObjectUnwrap<Column> replace_nans(
+    cudf::column_view const& replacement,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  ObjectUnwrap<Column> replace_nans(
+    cudf::scalar const& replacement,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   // column/unaryop.cpp
   ObjectUnwrap<Column> cast(
@@ -709,9 +753,16 @@ class Column : public Napi::ObjectWrap<Column> {
   Napi::Value null_max(Napi::CallbackInfo const& info);
   Napi::Value null_min(Napi::CallbackInfo const& info);
 
+  // column/filling.cpp
+  Napi::Value fill(Napi::CallbackInfo const& info);
+  void fill_in_place(Napi::CallbackInfo const& info);
+
   // column/stream_compaction.cpp
   Napi::Value drop_nulls(Napi::CallbackInfo const& info);
   Napi::Value drop_nans(Napi::CallbackInfo const& info);
+
+  // column/filling.cpp
+  static Napi::Value sequence(Napi::CallbackInfo const& info);
 
   // column/transform.cpp
   Napi::Value nans_to_nulls(Napi::CallbackInfo const& info);
@@ -731,6 +782,10 @@ class Column : public Napi::ObjectWrap<Column> {
   Napi::Value variance(Napi::CallbackInfo const& info);
   Napi::Value std(Napi::CallbackInfo const& info);
   Napi::Value quantile(Napi::CallbackInfo const& info);
+
+  // column/replace.cpp
+  Napi::Value replace_nulls(Napi::CallbackInfo const& info);
+  Napi::Value replace_nans(Napi::CallbackInfo const& info);
 
   // column/unaryop.cpp
   Napi::Value cast(Napi::CallbackInfo const& info);

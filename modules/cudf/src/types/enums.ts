@@ -20,3 +20,9 @@ export enum NullOrder
   AFTER,
   BEFORE
 }
+
+export enum ReplacePolicy
+{
+  PRECEDING,
+  FOLLOWING
+}

@@ -22,7 +22,7 @@ else()
     set(GLFW_GIT_BRANCH_NAME "${GLFW_VERSION}")
 endif()
 
-CPMAddPackage(NAME glfw
+CPMFindPackage(NAME glfw
     VERSION        ${GLFW_VERSION}
     GIT_REPOSITORY https://github.com/glfw/glfw.git
     GIT_TAG        ${GLFW_GIT_BRANCH_NAME}

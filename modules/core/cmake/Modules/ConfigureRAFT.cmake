@@ -18,7 +18,7 @@ function(find_and_configure_raft VERSION)
 
     include(get_cpm)
 
-    CPMAddPackage(NAME raft
+    CPMFindPackage(NAME raft
         VERSION        ${RAFT_VERSION}
         GIT_REPOSITORY https://github.com/rapidsai/raft.git
         GIT_TAG        ${RAFT_BRANCH}

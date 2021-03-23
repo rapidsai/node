@@ -49,6 +49,7 @@
     "@typescript-eslint/eslint-plugin": "4.17.0",
     "@typescript-eslint/parser": "4.17.0",
     "cmake-js": "6.0.0",
+    "dotenv": "8.2.0",
     "eslint": "7.22.0",
     "lerna": "3.22.1",
     "lint-staged": "10.5.1",

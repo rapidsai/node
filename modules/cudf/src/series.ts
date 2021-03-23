@@ -33,6 +33,7 @@ import {
   Int64,
   Int8,
   List,
+  Numeric,
   Struct,
   Uint16,
   Uint32,
@@ -42,6 +43,7 @@ import {
 } from './types/dtypes';
 import {
   NullOrder,
+  ReplacePolicy,
 } from './types/enums';
 import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
@@ -80,6 +82,14 @@ export type SeriesProps<T extends DataType = any> = {
   nullCount?: number;
   nullMask?: never;
   children?: ReadonlyArray<Series>|null;
+};
+
+export type SequenceOptions<U extends Numeric = any> = {
+  type: U,
+  size: number,
+  init: number,
+  step?: number,
+  memoryResource?: MemoryResource
 };
 
 export type Series<T extends arrow.DataType = any> = {
@@ -187,6 +197,72 @@ export class AbstractSeries<T extends DataType = any> {
   get numChildren() { return this._col.numChildren; }
 
   /**
+   * Fills a range of elements in a column out-of-place with a scalar value.
+   *
+   * @param begin The starting index of the fill range (inclusive).
+   * @param end The index of the last element in the fill range (exclusive).
+   * @param value The scalar value to fill.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  fill(value: T, begin = 0, end = this.length, memoryResource?: MemoryResource): Series<T> {
+    return Series.new(
+      this._col.fill(new Scalar({type: this.type, value}), begin, end, memoryResource));
+  }
+
+  /**
+   * Fills a range of elements in-place in a column with a scalar value.
+   *
+   * @param begin The starting index of the fill range (inclusive)
+   * @param end The index of the last element in the fill range (exclusive)
+   * @param value The scalar value to fill
+   */
+  fillInPlace(value: T, begin = 0, end = this.length) {
+    this._col.fillInPlace(new Scalar({type: this.type, value}), begin, end);
+    return this;
+  }
+
+  /**
+   * Replace null values with a scalar value.
+   *
+   * @param value The scalar value to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNulls(value: T['scalarType'], memoryResource?: MemoryResource): Series<T>;
+
+  /**
+   * Replace null values with the corresponding elements from another Series.
+   *
+   * @param value The Series to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNulls(value: Series<T>, memoryResource?: MemoryResource): Series<T>;
+
+  /**
+   * Replace null values with the closest non-null value before or after each null.
+   *
+   * @param value The {@link ReplacePolicy} indicating the side to search for the closest non-null
+   *   value.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   */
+  replaceNulls(value: keyof typeof ReplacePolicy, memoryResource?: MemoryResource): Series<T>;
+
+  replaceNulls(value: any, memoryResource?: MemoryResource): Series<T> {
+    if (value instanceof Series) {
+      return Series.new(this._col.replaceNulls(value._col, memoryResource));
+    } else if (value in ReplacePolicy) {
+      return Series.new(
+        this._col.replaceNulls(ReplacePolicy[value as keyof typeof ReplacePolicy], memoryResource));
+    } else {
+      return Series.new(
+        this._col.replaceNulls(new Scalar({type: this.type, value}), memoryResource));
+    }
+  }
+
+  /**
    * Return a sub-selection of this Series using the specified integral indices.
    *
    * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
@@ -289,6 +365,23 @@ export class AbstractSeries<T extends DataType = any> {
   toArrow(): VectorType<T> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return new DataFrame({0: this}).toArrow().getChildAt<T>(0)!.chunks[0] as VectorType<T>;
+  }
+
+  /**
+   * Fills a Series with a sequence of values.
+   *
+   * If step is omitted, it takes a value of 1.
+   *
+   * @param opts Options for creating the sequence
+   * @returns Series with the sequence
+   */
+  public static sequence<U extends Numeric>(opts: SequenceOptions<U>): Series<U> {
+    const init = new Scalar({type: opts.type, value: opts.init});
+    if (opts.step === undefined || opts.step == 1) {
+      return Series.new(Column.sequence<U>(opts.size, init, opts.memoryResource));
+    }
+    const step = new Scalar({type: opts.type, value: opts.step});
+    return Series.new(Column.sequence<U>(opts.size, init, step, opts.memoryResource));
   }
 
   /**

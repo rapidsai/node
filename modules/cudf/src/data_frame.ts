@@ -106,6 +106,13 @@ export class DataFrame<T extends TypeMap = any> {
   drop<R extends keyof T>(names: R[]) { return new DataFrame(this._accessor.dropColumns(names)); }
 
   /**
+   * Return whether the DataFrame has a Series.
+   *
+   * @param name Name of the Series to return.
+   */
+  has(name: string) { return this._accessor.has(name); }
+
+  /**
    * Return a series by name.
    *
    * @param name Name of the Series to return.

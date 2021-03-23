@@ -24,6 +24,8 @@ for DIR in $DIRS; do
     if [[ "$BIN" != $DIR/node_modules/.bin ]]; then
         rm -rf "$DIR/node_modules/.bin"
         ln -sf "$BIN" "$DIR/node_modules/.bin"
+        # copy the .env settings file
+        touch ".env" && cp ".env" "$DIR/.env"
         # copy the ESLint settings file (for the VSCode ESLint plugin)
         cp ".eslintrc.js" "$DIR/.eslintrc.js"
         # remove the local .cache symlink

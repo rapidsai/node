@@ -28,15 +28,15 @@ if(DEFINED ENV{CUDAARCHS})
     if("$ENV{CUDAARCHS}" STREQUAL "")
         # If CUDAARCHS is <empty_string>, auto-detect current GPU arch
         set(NODE_RAPIDS_CMAKE_BUILD_FOR_DETECTED_ARCHS TRUE)
-        message(STATUS "Auto-detecting GPU architecture because the CUDAARCH environment variable = '")
+        message(STATUS "Auto-detecting GPU architecture because the CUDAARCHS environment variable = '")
     elseif("$ENV{CUDAARCHS}" STREQUAL "ALL")
         # If CUDAARCHS is "ALL," build for all supported archs
         set(NODE_RAPIDS_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS TRUE)
-        message(STATUS "Building all supported GPU architectures because the CUDAARCH environment variable = 'ALL'")
+        message(STATUS "Building all supported GPU architectures because the CUDAARCHS environment variable = 'ALL'")
     else()
         # Use the current value of the CUDAARCHS env var
         set(CMAKE_CUDA_ARCHITECTURES "$ENV{CUDAARCHS}")
-        message(STATUS "Using GPU architectures from CUDAARCH env var: $ENV{CUDAARCHS}")
+        message(STATUS "Using GPU architectures from CUDAARCHS env var: $ENV{CUDAARCHS}")
     endif()
 elseif(DEFINED CMAKE_CUDA_ARCHITECTURES)
     if(CMAKE_CUDA_ARCHITECTURES STREQUAL "")
@@ -54,7 +54,7 @@ elseif(DEFINED CMAKE_CUDA_ARCHITECTURES)
 else()
     # Fall-back to auto-detecting the current GPU architecture
     set(NODE_RAPIDS_CMAKE_BUILD_FOR_DETECTED_ARCHS TRUE)
-    message(STATUS "Auto-detecting GPU architectures because CUDAARCH env var is not defined, and CMAKE_CUDA_ARCHITECTURES was not specified.")
+    message(STATUS "Auto-detecting GPU architectures because CUDAARCHS env var is not defined, and CMAKE_CUDA_ARCHITECTURES was not specified.")
 endif()
 
 # Build the list of supported architectures
@@ -117,6 +117,9 @@ endif()
 message(STATUS "BUILD_FOR_DETECTED_ARCHS: ${NODE_RAPIDS_CMAKE_BUILD_FOR_DETECTED_ARCHS}")
 message(STATUS "BUILD_FOR_ALL_CUDA_ARCHS: ${NODE_RAPIDS_CMAKE_BUILD_FOR_ALL_CUDA_ARCHS}")
 message(STATUS "CMAKE_CUDA_ARCHITECTURES: ${CMAKE_CUDA_ARCHITECTURES}")
+
+# Override the cached version from enable_language(CUDA)
+set(CMAKE_CUDA_ARCHITECTURES "${CMAKE_CUDA_ARCHITECTURES}" CACHE STRING "" FORCE)
 
 # Enable the CUDA language
 enable_language(CUDA)
