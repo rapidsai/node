@@ -40,7 +40,7 @@ function readMortgageData(callback) {
     console.log('readMortgageData complete');
     var t1 = performance.now();
     console.log('Time Taken:', (t1 - t0).toFixed(2), 'ms');
-    callback(true);
+    callback(null);
   });
 }
 
@@ -71,26 +71,26 @@ function readUberData(callback) {
     console.log('readUberData complete');
     var t1 = performance.now();
     console.log('Time Taken:', (t1 - t0).toFixed(2), 'ms');
-    callback(true);
+    callback(null);
   });
 }
 
 // release data from GPU memory
 function deleteData() {
-  delete df;
+  df = null;
   datasetLoaded = '';
 }
 
 /**
  * transform Arrow.Table to the format
- * [index[0]: {property: propertyValue, ....},
+ * {index[0]: {property: propertyValue, ....},
  * index[1]: {property: propertyValue, ....},
- * ...] for easier conversion to geoJSON object
+ * ...} for easier conversion to geoJSON object
  *
  * @param data Arrow.Table
  * @param by str, column name
  * @param params [{}, {}] result of Arrow.Table.toArray()
- * @returns [index:{props:propsValue}]
+ * @returns {index:{props:propsValue}}
  */
 function transform_data(data, by, params) {
   return data.reduce((a, v) => {
@@ -220,13 +220,13 @@ module.exports = (io) => {
     socket.on('readMortgageData', (callback) => {
       if (datasetLoaded == 'mortgage') {
         console.log('dataset already loaded');
-        socket.emit('data-points-update', df.toArrow().length);
-        callback(true);
+        socket.emit('data-points-update', df.numRows);
+        callback(null);
       } else {
         readMortgageData((cb) => {
           if (cb == true) {
-            socket.emit('data-points-update', df.toArrow().length);
-            callback(true);
+            socket.emit('data-points-update', df.numRows);
+            callback(null);
           }
         });
       }
@@ -235,13 +235,13 @@ module.exports = (io) => {
     socket.on('readUberData', (callback) => {
       if (datasetLoaded == 'uber') {
         console.log('dataset already loaded');
-        socket.emit('data-points-update', df.toArrow().length);
-        callback(true);
+        socket.emit('data-points-update', df.numRows);
+        callback(null);
       } else {
         readUberData((cb) => {
           if (cb == true) {
-            socket.emit('data-points-update', df.toArrow().length);
-            callback(true);
+            socket.emit('data-points-update', df.numRows);
+            callback(null);
           }
         });
       }
@@ -271,12 +271,12 @@ module.exports = (io) => {
 
     socket.on('get-dataset-size', (query_dict, callback) => {
       if (df == undefined) { callback({}); }
-      socket.emit('data-points-update', parseQuery(query_dict, '').toArrow().length);
+      socket.emit('data-points-update', parseQuery(query_dict, '').numRows);
     });
 
     socket.on('delete-df', (callback) => {
       deleteData();
-      callback(true);
+      callback(null);
     });
   })
 
