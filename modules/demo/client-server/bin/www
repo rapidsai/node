@@ -4,9 +4,12 @@
  * Module dependencies.
  */
 
-var app   = require('../app');
+// Change cwd to the example dir so relative file paths are resolved
+process.chdir(require('path').resolve(__dirname, '..'));
+
+var app = require('../app');
 var debug = require('debug')('node-cudf-server:server');
-var http  = require('http');
+var http = require('http');
 
 /**
  * Get port from environment and store in Express.

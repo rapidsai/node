@@ -1,21 +1,22 @@
-const express     = require('express');
-const {DataFrame} = require('@rapidsai/cudf');
-const path        = require('path');
-const router      = express.Router();
-const fetch       = require('node-fetch');
-const settings    = {
+const express = require('express');
+const { DataFrame } = require('@rapidsai/cudf');
+const path = require('path');
+const router = express.Router();
+const fetch = require('node-fetch');
+const { performance } = require('perf_hooks');
+const settings = {
   method: 'Get'
 };
 
-let gjson         = '';
-let df            = undefined;
+let gjson = '';
+let df = undefined;
 let datasetLoaded = '';
 
 // read Mortgage Dataset from disk using cudf.DataFrame.readCSV, and fetch geoJSON file
 function readMortgageData(callback) {
-  var t0 = new Date().getTime();
+  var t0 = performance.now();
   console.log('readMortgageData');
-  df            = DataFrame.readCSV({
+  df = DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
     sources: [path.join(__dirname, '../public/data/m.csv')],
@@ -37,21 +38,21 @@ function readMortgageData(callback) {
   fetch(url, settings).then(res => res.json()).then((json) => {
     gjson = json;
     console.log('readMortgageData complete');
-    var t1 = new Date().getTime();
-    console.log('Time Taken:', t1 - t0, 'ms');
+    var t1 = performance.now();
+    console.log('Time Taken:', (t1 - t0).toFixed(2), 'ms');
     callback(true);
   });
 }
 
 // read Uber Dataset from disk using cudf.DataFrame.readCSV, and fetch geoJSON file
 function readUberData(callback) {
-  var t0 = new Date().getTime();
+  var t0 = performance.now();
   console.log('readUberData');
-  df            = DataFrame.readCSV({
+  df = DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
     // sources: [path.join(__dirname, '../public/data/san_fran_uber.csv')],
-    sources: [('modules/demo/client-server/public/data/san_fran_uber.csv')],
+    sources: [('public/data/san_fran_uber.csv')],
     dataTypes: {
       sourceid: 'int16',
       dstid: 'int16',
@@ -68,8 +69,8 @@ function readUberData(callback) {
   fetch(url, settings).then(res => res.json()).then((json) => {
     gjson = json;
     console.log('readUberData complete');
-    var t1 = new Date().getTime();
-    console.log('Time Taken:', t1 - t0, 'ms');
+    var t1 = performance.now();
+    console.log('Time Taken:', (t1 - t0).toFixed(2), 'ms');
     callback(true);
   });
 }
@@ -112,14 +113,14 @@ function transform_data(data, by, params) {
  * @returns geoJSON object consumable by DeckGL GeoJSONLayer
  */
 function convertToGeoJSON(data, by, properties, geojsonProp) {
-  data     = transform_data(data.toArray(), by, properties);
+  data = transform_data(data.toArray(), by, properties);
   tempjson = [];
   gjson.features.forEach((val) => {
     if (val.properties[geojsonProp] in data) {
       tempjson.push({
         type: val.type,
         geometry: val.geometry,
-        properties: {...val.properties, ...data[val.properties[geojsonProp]]}
+        properties: { ...val.properties, ...data[val.properties[geojsonProp]] }
       })
     }
   });
@@ -160,7 +161,7 @@ function filterByRange(column, min, max) {
  */
 function parseQuery(query_dict, ignore) {
   if (ignore in query_dict) { delete query_dict[ignore]; }
-  var t0       = new Date().getTime();
+  var t0 = performance.now();
   let boolmask = undefined;
   for (const [key, value] of Object.entries(query_dict)) {
     let temp_boolmask = undefined;
@@ -181,8 +182,8 @@ function parseQuery(query_dict, ignore) {
   } else {
     res = df.filter(boolmask);
   }
-  var t1 = new Date().getTime();
-  console.log('Query ', query_dict, ', Time Taken:', t1 - t0, 'ms');
+  var t1 = performance.now();
+  console.log('Query ', query_dict, ', Time Taken:', (t1 - t0).toFixed(2), 'ms');
   return res;
 }
 
@@ -196,13 +197,13 @@ function parseQuery(query_dict, ignore) {
  * @returns resulting cudf.DataFrame
  */
 function groupby(df, by, agg) {
-  var t0         = new Date().getTime();
-  const grp      = df.groupBy({by: by});
+  var t0 = performance.now();
+  const grp = df.groupBy({ by: by });
   const validAgg = (agg in grp && typeof grp[agg] == 'function');
   if (!validAgg) { return ({}); }
   var res = grp[agg]();
-  var t1  = new Date().getTime();
-  console.log('Group by ', by, ', agg:', agg, 'Time Taken:', t1 - t0, 'ms');
+  var t1 = performance.now();
+  console.log('Group by ', by, ', agg:', agg, 'Time Taken:', (t1 - t0).toFixed(2), 'ms');
   return res;
 }
 
@@ -250,13 +251,19 @@ module.exports = (io) => {
       if (df == undefined) { callback({}); }
       console.log('\n\n');
       const res_df = parseQuery(query_dict, by);
-      res          = groupby(res_df, by, agg);
-      var t0       = new Date().getTime();
-      res          = res.sortValues({[by]: {ascending: true, null_order: 'AFTER'}});
-      console.log('Sort Dataframe by ', by, ', Time Taken:', new Date().getTime() - t0, 'ms');
+      res = groupby(res_df, by, agg);
+      var t0 = performance.now();
+      res = res.sortValues({ [by]: { ascending: true, null_order: 'AFTER' } });
+      console.log('Sort Dataframe by ', by, ', Time Taken:', (performance.now() - t0).toFixed(2), 'ms');
       if (return_type.type == 'geojson') {
-        callback(
-          convertToGeoJSON(res.toArrow(), by, return_type.properties, return_type.geojsonProp))
+        t0 = performance.now();
+        const geojson = convertToGeoJSON(res.toArrow(), by, return_type.properties, return_type.geojsonProp);
+        console.log(`convertToGeoJSON(${JSON.stringify({
+          by,
+          properties: return_type.properties,
+          geojsonProp: return_type.geojsonProp
+        })} Time Taken: ${(performance.now() - t0).toFixed(2)}ms`);
+        callback(geojson);
       } else {
         callback(res.select([by, return_type.column]).toArrow().toArray());
       }

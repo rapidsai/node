@@ -1,6 +1,6 @@
 
-const {DeckGL, GeoJsonLayer} = deck;
-const socket                 = io();
+const { DeckGL, GeoJsonLayer } = deck;
+const socket = io();
 
 const COLOR_SCALE = [
   [49, 130, 189, 100],
@@ -12,7 +12,7 @@ const COLOR_SCALE = [
 ];
 
 var geojsonLayer = '';
-var deck         = '';
+var deck = '';
 
 function calcZip3BinColors(value) {
   if (value == undefined) {
@@ -57,9 +57,9 @@ function init_deck() {
     getFillColor: f => calcZip3BinColors(f.properties.delinquency_12_prediction),
     getLineColor: [0, 188, 212, 100],
   });
-  deck         = new DeckGL({
+  deck = new DeckGL({
     mapStyle: 'https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json',
-    initialViewState: {longitude: -101, latitude: 37, zoom: 3, maxZoom: 16, pitch: 0, bearing: 0},
+    initialViewState: { longitude: -101, latitude: 37, zoom: 3, maxZoom: 16, pitch: 0, bearing: 0 },
     controller: true,
     layers: [geojsonLayer],
     getTooltip
@@ -68,19 +68,21 @@ function init_deck() {
 
 socket.on('connect', () => {
   socket.emit('readMortgageData',
-              () => {socket.emit(
-                'groupby',
-                'zip',
-                'mean',
-                ['dti', 'delinquency_12_prediction', 'borrower_credit_score', 'current_actual_upb'],
-                'ZIP3',
-                (data) => {
-                  init_deck();
-                  geojsonLayer.props.data = data;
-                })});
+    () => {
+      socket.emit(
+        'groupby',
+        'zip',
+        'mean',
+        ['dti', 'delinquency_12_prediction', 'borrower_credit_score', 'current_actual_upb'],
+        'ZIP3',
+        (data) => {
+          init_deck();
+          geojsonLayer.props.data = data;
+        })
+    });
 });
 
-function getTooltip({object}) {
+function getTooltip({ object }) {
   return object && `current_actual_upb: ${object.properties.current_actual_upb}
         delinquency_12_prediction: ${object.properties.delinquency_12_prediction}`;
 }

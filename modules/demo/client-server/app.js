@@ -1,42 +1,42 @@
 var createError = require('http-errors');
-var express     = require('express');
-var path        = require('path');
-var logger      = require('morgan');
-var cors        = require('cors')
+var express = require('express');
+var Path = require('path');
+var logger = require('morgan');
 
 const app = require('express')();
-app.io    = require('socket.io')();
+app.io = require('socket.io')();
 
-var indexRouter = require('./routes/index');
-var cudfRouter  = require('./routes/cudf')(app.io);
+app
+  .set('views', Path.join(__dirname, 'views'))
+  .set('view engine', 'jade')
+  .use(logger('dev'))
+  .use(require('cors')())
+  .use(require('cookie-parser')('keyboard cat'))
+  .use(express.json())
+  .use(express.urlencoded({ extended: true }))
+  .use(express.static(Path.join(__dirname, 'public'), { extensions: ['html'] }))
+  .use('/', require('./routes/index'))
+  // Add router to handle HTTP requests to `/uber` datasets
+  .use('/uber', require('./routes/uber')())
+  .use('/cudf', require('./routes/cudf')(app.io))
+  // catch 404 and forward to error handler
+  .use(function (req, res, next) { next(createError(404)); })
+  // error handler
+  .use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
+  });
 
-app.use(logger('dev'));
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-app.use(express.json());
-app.use(express.urlencoded({extended: false}));
-
-app.use(express.static(path.join(__dirname, 'public'), {extensions: ['html']}));
-
-app.use('/', indexRouter);
-app.use('/cudf', cudfRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) { next(createError(404)); });
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error   = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+['SIGTERM', 'SIGINT', 'SIGBREAK', 'SIGHUP'].forEach((signal) => {
+  signal === 'SIGINT'
+    ? process.on(signal, () => process.exit(0))
+    : process.on(signal, () => process.exit(1))
 });
 
-process.on('SIGINT', () => process.exit(1));
+console.log('dashboard demos running on: http://localhost:3000');
 
-console.log('dashboard demos running on: http://localhost:3000')
 module.exports = app;

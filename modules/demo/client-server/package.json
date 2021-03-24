@@ -2,6 +2,7 @@
   "name": "node-cudf-server",
   "version": "0.0.0",
   "private": true,
+  "main": "bin/www",
   "scripts": {
     "dev": "nodemon --watch routes node ./bin/www ",
     "start": "node ./bin/www",
@@ -9,17 +10,18 @@
   },
   "dependencies": {
     "@rapidsai/cudf": "^0.0.1",
-    "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
-    "express": "~4.16.1",
-    "http-errors": "~1.6.3",
-    "jade": "~1.11.0",
-    "morgan": "~1.9.1",
-    "nodemon": "2.0.7",
     "concurrently": "6.0.0",
-    "geojson": "0.5.0",
-    "node-fetch": "2.6.1",
+    "cookie-parser": "1.4.4",
     "cors": "2.8.5",
+    "debug": "2.6.9",
+    "express": "4.16.1",
+    "geojson": "0.5.0",
+    "http-errors": "1.6.3",
+    "jade": "1.11.0",
+    "morgan": "1.9.1",
+    "node-fetch": "2.6.1",
+    "nodemon": "2.0.7",
+    "query-string": "7.0.0",
     "socket.io":"4.0.0"
   }
 }
