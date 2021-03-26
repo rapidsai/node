@@ -18,7 +18,7 @@ function readMortgageData(callback) {
   df = DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
-    sources: [path.join(__dirname, '../public/data/m.csv')],
+    sources: [path.join(__dirname, '../public/data/mortgage.csv')],
     dataTypes: {
       index: 'int16',
       zip: 'int32',
@@ -159,7 +159,9 @@ function filterByRange(column, min, max) {
  * @returns resulting cudf.DataFrame
  */
 function parseQuery(query_dict, ignore) {
+  console.log(query_dict)
   if (ignore in query_dict) { delete query_dict[ignore]; }
+  console.log(query_dict)
   var t0 = new Date().getTime();
   let boolmask = undefined;
   for (const [key, value] of Object.entries(query_dict)) {
@@ -223,10 +225,8 @@ module.exports = (io) => {
         callback(null);
       } else {
         readMortgageData((cb) => {
-          if (cb == true) {
-            socket.emit('data-points-update', df.numRows);
-            callback(null);
-          }
+          socket.emit('data-points-update', df.numRows);
+          callback(null);
         });
       }
     });
