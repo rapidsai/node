@@ -238,10 +238,8 @@ module.exports = (io) => {
         callback(null);
       } else {
         readUberData((cb) => {
-          if (cb == true) {
-            socket.emit('data-points-update', df.numRows);
-            callback(null);
-          }
+          socket.emit('data-points-update', df.numRows);
+          callback(null);
         });
       }
     });
