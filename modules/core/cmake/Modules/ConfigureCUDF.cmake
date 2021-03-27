@@ -14,50 +14,53 @@
 # limitations under the License.
 #=============================================================================
 
+include(get_cpm)
+
+_set_package_dir_if_exists(cudf cudf)
+_set_package_dir_if_exists(dlpack dlpack)
+_set_package_dir_if_exists(jitify jitify)
+_set_package_dir_if_exists(Thrust thrust)
+_set_package_dir_if_exists(libcudacxx libcudacxx)
+_set_package_dir_if_exists(arrow_static arrow)
+_set_package_dir_if_exists(arrow_cuda_static arrow)
+
 function(find_and_configure_cudf VERSION)
 
-    include(get_cpm)
+    include(ConfigureRMM)
 
-    execute_process(COMMAND node -p
-                    "require('@rapidsai/core').cpm_source_cache_path"
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(NOT TARGET cudf::cudf)
 
-    # Have to set these in case configure and build steps are run separately
-    # TODO: figure out why
-    set(BUILD_TESTS OFF)
-    set(BUILD_BENCHMARKS OFF)
-    set(JITIFY_USE_CACHE ON)
-    set(CUDA_STATIC_RUNTIME ON)
-    set(CUDF_USE_ARROW_STATIC ON)
-    set(PER_THREAD_DEFAULT_STREAM ON)
-    set(DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS})
-    set(CUDF_GENERATED_INCLUDE_DIR ${NODE_RAPIDS_CPM_SOURCE_CACHE}/cudf-build)
+        if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+            if (EXISTS "${FETCHCONTENT_BASE_DIR}/thrust-subbuild")
+                file(REMOVE_RECURSE "${FETCHCONTENT_BASE_DIR}/thrust-subbuild")
+            endif()
+        endif()
 
-    CPMFindPackage(NAME  cudf
-        VERSION         ${VERSION}
-        GIT_REPOSITORY  https://github.com/trxcllnt/cudf.git
-        GIT_TAG         nr/03232021
-        GIT_SHALLOW     TRUE
-        SOURCE_SUBDIR   cpp
-        OPTIONS         "BUILD_TESTS OFF"
-                        "BUILD_BENCHMARKS OFF"
-                        "JITIFY_USE_CACHE ON"
-                        "CUDA_STATIC_RUNTIME ON"
-                        "CUDF_USE_ARROW_STATIC ON"
-                        "PER_THREAD_DEFAULT_STREAM ON"
-                        "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
+        execute_process(COMMAND node -p
+                        "require('@rapidsai/core').cpm_source_cache_path"
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
+                        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        CPMFindPackage(NAME cudf
+            VERSION         ${VERSION}
+            GIT_REPOSITORY  https://github.com/trxcllnt/cudf.git
+            GIT_TAG         nr/03262021
+            GIT_SHALLOW     TRUE
+            SOURCE_SUBDIR   cpp
+            OPTIONS         "BUILD_TESTS OFF"
+                            "BUILD_BENCHMARKS OFF"
+                            "JITIFY_USE_CACHE ON"
+                            "CUDA_STATIC_RUNTIME ON"
+                            "CUDF_USE_ARROW_STATIC ON"
+                            "PER_THREAD_DEFAULT_STREAM ON"
+                            "DISABLE_DEPRECATION_WARNING ON")
+    endif()
 
     # Make sure consumers of our libs can see cudf::cudf
-    fix_cmake_global_defaults(cudf::cudf)
+    _fix_cmake_global_defaults(cudf::cudf)
     # Make sure consumers of our libs can see cudf::cudftestutil
-    fix_cmake_global_defaults(cudf::cudftestutil)
-
-    if(NOT cudf_BINARY_DIR IN_LIST CMAKE_PREFIX_PATH)
-        list(APPEND CMAKE_PREFIX_PATH "${cudf_BINARY_DIR}")
-        set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} PARENT_SCOPE)
-    endif()
+    _fix_cmake_global_defaults(cudf::cudftestutil)
 endfunction()
 
 find_and_configure_cudf(${CUDF_VERSION})

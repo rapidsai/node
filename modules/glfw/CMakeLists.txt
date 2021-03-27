@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 project(node_glfw VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
 option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(NODE_GLFW_STATIC_LINK "Statically link GLEW and GLFW libraries" OFF)
@@ -71,29 +72,26 @@ set_target_properties(${PROJECT_NAME}
                CXX_STANDARD_REQUIRED               ON
                CUDA_STANDARD                       14
                CUDA_STANDARD_REQUIRED              ON
+               NO_SYSTEM_FROM_IMPORTED             ON
                POSITION_INDEPENDENT_CODE           ON
                INTERFACE_POSITION_INDEPENDENT_CODE ON
 )
 
 target_compile_options(${PROJECT_NAME}
-            PRIVATE "$<$<COMPILE_LANGUAGE:C>:${NODE_RAPIDS_CMAKE_C_FLAGS}>"
-                    "$<$<COMPILE_LANGUAGE:CXX>:${NODE_RAPIDS_CMAKE_CXX_FLAGS}>"
+            PRIVATE "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:C>:${NODE_RAPIDS_CMAKE_C_FLAGS}>>"
+                    "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CXX>:${NODE_RAPIDS_CMAKE_CXX_FLAGS}>>"
 )
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src"
            "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
-           "$<BUILD_INTERFACE:${GLEW_INCLUDE_DIR}>"
-           "$<BUILD_INTERFACE:${GLFW_INCLUDE_DIR}>"
-           "$<BUILD_INTERFACE:${OPENGL_INCLUDE_DIR}>"
-           "$<BUILD_INTERFACE:${OPENGL_EGL_INCLUDE_DIRS}>"
            "$<BUILD_INTERFACE:${DISPLAY_SERVER_INCLUDE_DIRS}>"
 )
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       ${GLEW_LIBRARY}
-                      ${GLFW_LIBRARY}
+                      glfw
                       OpenGL::EGL
                       OpenGL::OpenGL)
