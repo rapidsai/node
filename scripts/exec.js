@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-require('dotenv').config();
+try {
+  require('dotenv').config();
+} catch (e) { }
 
 var name = (() => {
   switch (require('os').platform()) {
