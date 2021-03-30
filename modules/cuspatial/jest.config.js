@@ -13,47 +13,44 @@
 // limitations under the License.
 
 module.exports = {
-    "cache": false,
-    "verbose": false,
-    "reporters": [
-      "jest-silent-reporter"
-    ],
-    "testEnvironment": "node",
-    "globals": {
-      "ts-jest": {
-        "diagnostics": false,
-        "tsconfig": "test/tsconfig.json"
-      }
-    },
-    "rootDir": "./",
-    "roots": [
-      "<rootDir>/test/"
-    ],
-    "moduleFileExtensions": [
-      "js",
-      "ts",
-      "tsx"
-    ],
-    "coverageReporters": [
-      "lcov"
-    ],
-    "coveragePathIgnorePatterns": [
-      "test\\/.*\\.(ts|tsx|js)$",
-      "/node_modules/"
-    ],
-    "transform": {
-      "^.+\\.jsx?$": "ts-jest",
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "transformIgnorePatterns": [
-      "/build/(js|Debug|Release)/*$",
-      "/node_modules/(?!web-stream-tools).+\\.js$"
-    ],
-    "testRegex": "(.*(-|\\.)(test|spec)s?)\\.(ts|tsx|js)$",
-    "preset": "ts-jest",
-    "testMatch": null,
-    "moduleNameMapper": {
-        "^@nvidia\/cuspatial(.*)": "<rootDir>/src/$1",
-        "^\.\.\/(Debug|Release)\/(node_cuspatial.node)$": "<rootDir>/build/$1/$2",
+  "cache": false,
+  "verbose": true,
+  "testEnvironment": "node",
+  "globals": {
+    "ts-jest": {
+      "diagnostics": false,
+      "tsconfig": "test/tsconfig.json"
     }
+  },
+  "rootDir": "./",
+  "roots": [
+    "<rootDir>/test/"
+  ],
+  "moduleFileExtensions": [
+    "js",
+    "ts",
+    "tsx"
+  ],
+  "coverageReporters": [
+    "lcov"
+  ],
+  "coveragePathIgnorePatterns": [
+    "test\\/.*\\.(ts|tsx|js)$",
+    "/node_modules/"
+  ],
+  "transform": {
+    "^.+\\.jsx?$": "ts-jest",
+    "^.+\\.tsx?$": "ts-jest"
+  },
+  "transformIgnorePatterns": [
+    "/build/(js|Debug|Release)/*$",
+    "/node_modules/(?!web-stream-tools).+\\.js$"
+  ],
+  "testRegex": "(.*(-|\\.)(test|spec)s?)\\.(ts|tsx|js)$",
+  "preset": "ts-jest",
+  "testMatch": null,
+  "moduleNameMapper": {
+    "^@nvidia\/cuspatial(.*)": "<rootDir>/src/$1",
+    "^\.\.\/(Debug|Release)\/(node_cuspatial.node)$": "<rootDir>/build/$1/$2",
+  }
 };
