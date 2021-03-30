@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,33 +57,6 @@ if(NODE_RAPIDS_USE_CCACHE)
         endif(DEFINED ENV{CCACHE_DIR})
     endif(CCACHE_PROGRAM_PATH)
 endif(NODE_RAPIDS_USE_CCACHE)
-
-execute_process(COMMAND node -p
-                "require('@rapidsai/core').cpm_source_cache_path"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-set(ENV{CPM_SOURCE_CACHE} ${NODE_RAPIDS_CPM_SOURCE_CACHE})
-message(STATUS "Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
-
-if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-    execute_process(COMMAND node -p
-                    "require('@rapidsai/core').cmake_fetchcontent_base"
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    OUTPUT_VARIABLE NODE_RAPIDS_FETCHCONTENT_BASE_DIR
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-    set(FETCHCONTENT_BASE_DIR "${NODE_RAPIDS_FETCHCONTENT_BASE_DIR}")
-    message(STATUS "Using CMake FetchContent base dir: ${FETCHCONTENT_BASE_DIR}")
-
-    # Can't set these yet because the order of include paths is different
-    # when using libcudf from a build dir vs. CPM running the CMakeLists.txt.
-    # set(rmm_ROOT "${FETCHCONTENT_BASE_DIR}/rmm-build")
-    # set(cudf_ROOT "${FETCHCONTENT_BASE_DIR}/cudf-build")
-    # # set(cugraph_ROOT "${FETCHCONTENT_BASE_DIR}/cugraph-build")
-    # set(cuspatial_ROOT "${FETCHCONTENT_BASE_DIR}/cuspatial-build")
-endif()
 
 execute_process(COMMAND node -p
                 "require('@rapidsai/core').cpp_include_path"

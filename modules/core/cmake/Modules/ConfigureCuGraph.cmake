@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,35 +14,82 @@
 # limitations under the License.
 #=============================================================================
 
+include(get_cpm)
+
+_set_package_dir_if_exists(cugraph cugraph)
+
 function(find_and_configure_cugraph VERSION)
 
-    include(get_cpm)
-    include(ConfigureRAFT)
+    include(ConfigureCUDF)
 
-    CPMFindPackage(NAME cugraph
-        VERSION        ${CUGRAPH_VERSION}
-        GIT_REPOSITORY https://github.com/rapidsai/cugraph.git
-        GIT_TAG        branch-${CUGRAPH_VERSION}
-        GIT_SHALLOW    TRUE
-        DOWNLOAD_ONLY
-    )
+    if(NOT TARGET cugraph::cugraph)
 
-    set(CUGRAPH_INCLUDE_DIR_REAL "${cugraph_SOURCE_DIR}/cpp/include")
-    set(CUGRAPH_INCLUDE_DIR "${cugraph_SOURCE_DIR}/cpp/fake_include")
+        include(ConfigureRAFT)
 
-    list(APPEND CUGRAPH_INCLUDE_DIRS ${RAFT_INCLUDE_DIR})
-    list(APPEND CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIR})
-    list(APPEND CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIR_REAL})
-    list(APPEND CUGRAPH_INCLUDE_DIRS ${cugraph_SOURCE_DIR}/cpp/src)
-    set(CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIRS} PARENT_SCOPE)
-    set(cugraph_SOURCE_DIR ${cugraph_SOURCE_DIR} PARENT_SCOPE)
+        # Have to set these in case configure and build steps are run separately
+        # TODO: figure out why
+        set(BUILD_TESTS OFF)
+        set(BUILD_BENCHMARKS OFF)
 
-    execute_process(COMMAND mkdir -p ${CUGRAPH_INCLUDE_DIR})
-    execute_process(COMMAND ln -s -f ${CUGRAPH_INCLUDE_DIR_REAL} ${CUGRAPH_INCLUDE_DIR}/cugraph)
+        CPMFindPackage(NAME cugraph
+            VERSION        ${CUGRAPH_VERSION}
+            GIT_REPOSITORY https://github.com/rapidsai/cugraph.git
+            GIT_TAG        branch-${CUGRAPH_VERSION}
+            GIT_SHALLOW    TRUE
+            # SOURCE_SUBDIR  cpp
+            DOWNLOAD_ONLY
+        )
 
-    message(STATUS "CUGRAPH_INCLUDE_DIR: ${CUGRAPH_INCLUDE_DIR}")
-    message(STATUS "CUGRAPH_INCLUDE_DIR_REAL: ${CUGRAPH_INCLUDE_DIR_REAL}")
-    message(STATUS "CUGRAPH_INCLUDE_DIRS: ${CUGRAPH_INCLUDE_DIRS}")
+        # set(CUGRAPH_INCLUDE_DIR_REAL "${cugraph_SOURCE_DIR}/cpp/include")
+        # set(CUGRAPH_INCLUDE_DIR "${cugraph_SOURCE_DIR}/cpp/fake_include")
+        # list(APPEND CUGRAPH_INCLUDE_DIRS ${RAFT_INCLUDE_DIR})
+        # list(APPEND CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIR})
+        # list(APPEND CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIR_REAL})
+        # list(APPEND CUGRAPH_INCLUDE_DIRS ${cugraph_SOURCE_DIR}/cpp/src)
+        # set(CUGRAPH_INCLUDE_DIRS ${CUGRAPH_INCLUDE_DIRS} PARENT_SCOPE)
+        # set(cugraph_SOURCE_DIR "${cugraph_SOURCE_DIR}" PARENT_SCOPE)
+
+        execute_process(COMMAND mkdir -p "${cugraph_SOURCE_DIR}/cpp/fake_include")
+        execute_process(COMMAND ln -s -f "${cugraph_SOURCE_DIR}/cpp/include" "${cugraph_SOURCE_DIR}/cpp/fake_include/cugraph")
+
+        # message(STATUS "CUGRAPH_INCLUDE_DIR: ${CUGRAPH_INCLUDE_DIR}")
+        # message(STATUS "CUGRAPH_INCLUDE_DIR_REAL: ${CUGRAPH_INCLUDE_DIR_REAL}")
+        # message(STATUS "CUGRAPH_INCLUDE_DIRS: ${CUGRAPH_INCLUDE_DIRS}")
+
+        # synthesize a cugraph::cugraph target
+        add_library(cugraph
+            "${cugraph_SOURCE_DIR}/cpp/src/structure/graph.cu"
+            "${cugraph_SOURCE_DIR}/cpp/src/layout/force_atlas2.cu")
+
+        set_target_properties(cugraph
+            PROPERTIES BUILD_RPATH                         "\$ORIGIN"
+                       # set target compile options
+                       CXX_STANDARD                        14
+                       CXX_STANDARD_REQUIRED               ON
+                       CUDA_STANDARD                       14
+                       CUDA_STANDARD_REQUIRED              ON
+                       NO_SYSTEM_FROM_IMPORTED             ON
+                       POSITION_INDEPENDENT_CODE           ON
+                       INTERFACE_POSITION_INDEPENDENT_CODE ON
+        )
+
+        target_include_directories(cugraph
+            PUBLIC "${cugraph_SOURCE_DIR}/cpp/fake_include"
+                   "${cugraph_SOURCE_DIR}/cpp/include"
+                   "${cugraph_SOURCE_DIR}/cpp/src")
+
+        set(NODE_RAPIDS_CUGRAPH_CUDA_FLAGS ${NODE_RAPIDS_CMAKE_CUDA_FLAGS})
+        list(APPEND NODE_RAPIDS_CUGRAPH_CUDA_FLAGS -Xptxas --disable-warnings)
+        list(APPEND NODE_RAPIDS_CUGRAPH_CUDA_FLAGS -Xcompiler=-Wall,-Wno-error=sign-compare,-Wno-error=unused-but-set-variable)
+
+        target_compile_options(cugraph
+            PRIVATE "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CUGRAPH_CUDA_FLAGS}>>"
+        )
+
+        target_link_libraries(cugraph PUBLIC raft::raft CUDA::cudart_static)
+
+        add_library(cugraph::cugraph ALIAS cugraph)
+    endif()
 endfunction()
 
 find_and_configure_cugraph(${CUGRAPH_VERSION})

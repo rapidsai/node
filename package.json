@@ -33,7 +33,7 @@
     "tsc:watch": "scripts/exec.js run tsc:watch --parallel",
     "dev:relink-bin-dirs": "scripts/exec.js relink-bin-dirs",
     "dev:install-cpp-dependencies": "modules/core/bin/exec_install_deps.js",
-    "nuke:from:orbit": "yarn cache clean && yarn clean && yarn --silent && yarn rebuild",
+    "nuke:from:orbit": "yarn cache clean && yarn clean && yarn && yarn rebuild",
     "postinstall": "yarn dev:relink-bin-dirs"
   },
   "workspaces": [

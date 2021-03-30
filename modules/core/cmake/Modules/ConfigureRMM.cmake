@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,28 +14,36 @@
 # limitations under the License.
 #=============================================================================
 
+include(get_cpm)
+
+_set_package_dir_if_exists(rmm rmm)
+_set_package_dir_if_exists(spdlog spdlog)
+_set_package_dir_if_exists(Thrust thrust)
+
 function(find_and_configure_rmm VERSION)
 
-    include(get_cpm)
+    if(NOT TARGET rmm::rmm)
 
-    CPMFindPackage(NAME rmm
-        VERSION        ${RMM_VERSION}
-        GIT_REPOSITORY https://github.com/rapidsai/rmm.git
-        GIT_TAG        branch-${RMM_VERSION}
-        GIT_SHALLOW    TRUE
-        OPTIONS        "BUILD_TESTS OFF"
-                       "BUILD_BENCHMARKS OFF"
-                       "CUDA_STATIC_RUNTIME ON"
-                       "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}"
-    )
+        if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+            if (EXISTS "${FETCHCONTENT_BASE_DIR}/thrust-subbuild")
+                file(REMOVE_RECURSE "${FETCHCONTENT_BASE_DIR}/thrust-subbuild")
+            endif()
+        endif()
+
+        CPMFindPackage(NAME        rmm
+            VERSION                ${RMM_VERSION}
+            GIT_REPOSITORY         https://github.com/rapidsai/rmm.git
+            GIT_TAG                branch-${RMM_VERSION}
+            GIT_SHALLOW            TRUE
+            OPTIONS                "BUILD_TESTS OFF"
+                                   "BUILD_BENCHMARKS OFF"
+                                   "CUDA_STATIC_RUNTIME ON"
+                                   "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}"
+        )
+    endif()
 
     # Make sure consumers of our libs can see rmm::rmm
-    fix_cmake_global_defaults(rmm::rmm)
-
-    if(NOT rmm_BINARY_DIR IN_LIST CMAKE_PREFIX_PATH)
-        list(APPEND CMAKE_PREFIX_PATH "${rmm_BINARY_DIR}")
-        set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} PARENT_SCOPE)
-    endif()
+    _fix_cmake_global_defaults(rmm::rmm)
 endfunction()
 
 find_and_configure_rmm(${RMM_VERSION})

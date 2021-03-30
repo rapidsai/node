@@ -18,7 +18,8 @@ cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 project(node_cuspatial VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
 option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
@@ -59,8 +60,6 @@ list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
 include(ConfigureCXX)
 include(ConfigureCUDA)
 include(ConfigureNapi)
-include(ConfigureRMM)
-include(ConfigureCUDF)
 include(ConfigureCUSPATIAL)
 
 ###################################################################################################
@@ -77,14 +76,15 @@ set_target_properties(${PROJECT_NAME}
                CXX_STANDARD_REQUIRED               ON
                CUDA_STANDARD                       14
                CUDA_STANDARD_REQUIRED              ON
+               NO_SYSTEM_FROM_IMPORTED             ON
                POSITION_INDEPENDENT_CODE           ON
                INTERFACE_POSITION_INDEPENDENT_CODE ON
 )
 
 target_compile_options(${PROJECT_NAME}
-            PRIVATE "$<$<COMPILE_LANGUAGE:C>:${NODE_RAPIDS_CMAKE_C_FLAGS}>"
-                    "$<$<COMPILE_LANGUAGE:CXX>:${NODE_RAPIDS_CMAKE_CXX_FLAGS}>"
-                    "$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>"
+            PRIVATE "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:C>:${NODE_RAPIDS_CMAKE_C_FLAGS}>>"
+                    "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CXX>:${NODE_RAPIDS_CMAKE_CXX_FLAGS}>>"
+                    "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>>"
 )
 
 target_include_directories(${PROJECT_NAME}
