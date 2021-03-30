@@ -32,12 +32,8 @@ function(find_and_configure_cuspatial VERSION)
 
         CPMFindPackage(NAME  cuspatial
             VERSION         ${VERSION}
-            # GIT_REPOSITORY https://github.com/rapidsai/cuspatial.git
-            # GIT_TAG        branch-${VERSION}
-            GIT_REPOSITORY  https://github.com/trxcllnt/cuspatial.git
-            # Can also use a local path to your repo clone for testing
-            # GIT_REPOSITORY  /home/ptaylor/dev/rapids/cuspatial
-            GIT_TAG         nr/03262021
+            GIT_REPOSITORY https://github.com/rapidsai/cuspatial.git
+            GIT_TAG        branch-${VERSION}
             GIT_SHALLOW     TRUE
             SOURCE_SUBDIR   cpp
             OPTIONS         "BUILD_TESTS OFF"

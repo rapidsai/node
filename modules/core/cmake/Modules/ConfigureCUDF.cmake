@@ -44,8 +44,8 @@ function(find_and_configure_cudf VERSION)
 
         CPMFindPackage(NAME cudf
             VERSION         ${VERSION}
-            GIT_REPOSITORY  https://github.com/trxcllnt/cudf.git
-            GIT_TAG         nr/03262021
+            GIT_REPOSITORY  https://github.com/rapidsai/cudf.git
+            GIT_TAG         branch-${VERSION}
             GIT_SHALLOW     TRUE
             SOURCE_SUBDIR   cpp
             OPTIONS         "BUILD_TESTS OFF"
