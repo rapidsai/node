@@ -11,7 +11,7 @@
   "scripts": {
     "clean": "rimraf build doc compile_commands.json",
     "doc": "rimraf doc && typedoc --options typedoc.js",
-    "test": "rimraf /tmp/jest_rs && jest -c jest.config.js test/*",
+    "test": "rimraf /tmp/jest_rs && jest --maxWorkers=${PARALLEL_LEVEL} -c jest.config.js test/*",
     "build": "yarn tsc:build && yarn cpp:build",
     "compile": "yarn tsc:build && yarn cpp:compile",
     "rebuild": "yarn tsc:build && yarn cpp:rebuild",
