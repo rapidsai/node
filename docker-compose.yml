@@ -20,6 +20,7 @@ x-common-service-settings: &common_service_settings
     XAUTHORITY: "${XAUTHORITY:-}"
     XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
     NVIDIA_DRIVER_CAPABILITIES: "all"
+    LIBCUDF_KERNEL_CACHE_PATH: "${PWD}/modules/.cache/jit"
   deploy:
     resources:
       reservations:
