@@ -11,7 +11,7 @@
   "scripts": {
     "clean": "rimraf build doc compile_commands.json",
     "doc": "rimraf doc && typedoc --options typedoc.js",
-    "test": "jest --runInBand --detectOpenHandles --verbose -c jest.config.js test/*",
+    "test": "rimraf /tmp/jest_rs && jest --maxWorkers=${PARALLEL_LEVEL} -c jest.config.js test/*",
     "build": "yarn tsc:build",
     "compile": "yarn tsc:build",
     "rebuild": "yarn tsc:build",
