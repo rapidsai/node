@@ -57,7 +57,7 @@ function(find_and_configure_cugraph VERSION)
         # message(STATUS "CUGRAPH_INCLUDE_DIRS: ${CUGRAPH_INCLUDE_DIRS}")
 
         # synthesize a cugraph::cugraph target
-        add_library(cugraph
+        add_library(cugraph SHARED
             "${cugraph_SOURCE_DIR}/cpp/src/structure/graph.cu"
             "${cugraph_SOURCE_DIR}/cpp/src/layout/force_atlas2.cu")
 
