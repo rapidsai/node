@@ -416,3 +416,23 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `view_adj_list()`              |                   |
 | `view_edge_list()`             |                   |
 | `view_transposed_adj_list()`   |                   |
+
+## cuSpatial
+
+| cuSpatial                              |          node-rapids          |
+| -------------------------------------- | :---------------------------: |
+| `directed_hausdorff_distance()`        |                               |
+| `haversine_distance()`                 |                               |
+| `lonlat_to_cartesian()`                |                               |
+| `point_in_polygon()`                   |    ✅ (`pointInPolygon()`)    |
+| `polygon_bounding_boxes()`             | ✅ (`polygonBoundingBoxes()`) |
+| `polyline_bounding_boxes()`            | ✅(`polylineBoundingBoxes()`) |
+| `quadtree_on_points()`                 |                               |
+| `points_in_spatial_window()`           |                               |
+| `join_quadtree_and_bounding_boxes()`   |                               |
+| `quadtree_point_in_polygon()`          |                               |
+| `quadtree_point_to_nearest_polyline()` |                               |
+| `derive_trajectories()`                |                               |
+| `trajectory_bounding_boxes()`          |                               |
+| `trajectory_distances_and_speeds()`    |                               |
+| `read_polygon_shapefile()`             |                               |
