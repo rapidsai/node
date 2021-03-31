@@ -45,6 +45,7 @@ module.exports = {
   "transformIgnorePatterns": [
     "/build/(js|Debug|Release)/*$",
     "/node_modules/(?!@tensorflow)/*$",
+    "/node_modules/(?!web-stream-tools).+\\.js$"
   ],
   "testRegex": "(.*(-|\\.)(test|spec)s?)\\.(ts|tsx|js)$",
   "preset": "ts-jest",

@@ -1,50 +1,50 @@
 test('CUDA-GL interop', () => {
 
-    require('@nvidia/glfw')
-        .createWindow('(' + testCUDAGLInterop.toString() + ')()', true)
-        .open();
+  require('@nvidia/glfw')
+    .createWindow(testCUDAGLInterop, true)
+    .open();
 
-    function testCUDAGLInterop() {
-    
-        const assert = require('assert');
-        const { Uint8Buffer, CUDA } = require('@nvidia/cuda');
-        const { Buffer: GLBuffer } = require('@luma.gl/core');
-        const { WebGL2RenderingContext } = require('@nvidia/webgl');
+  function testCUDAGLInterop() {
 
-        const gl = new WebGL2RenderingContext();
+    const assert = require('assert');
+    const { Uint8Buffer, CUDA } = require('@nvidia/cuda');
+    const { Buffer: GLBuffer } = require('@luma.gl/core');
+    const { WebGL2RenderingContext } = require('@nvidia/webgl');
 
-        const hostResult1 = Buffer.alloc(16);
-        const hostResult2 = Buffer.alloc(16);
-        const hostResult3 = Buffer.alloc(16);
+    const gl = new WebGL2RenderingContext();
 
-        const hostBuf = Buffer.alloc(16).fill(7);
+    const hostResult1 = Buffer.alloc(16);
+    const hostResult2 = Buffer.alloc(16);
+    const hostResult3 = Buffer.alloc(16);
 
-        const cudaBuf = new Uint8Buffer(16).copyFrom(hostBuf).copyInto(hostResult1);
+    const hostBuf = Buffer.alloc(16).fill(7);
 
-        const lumaBuf = new GLBuffer(gl, {
-            target: gl.ARRAY_BUFFER,
-            accessor: {
-                size: 1,
-                type: gl.UNSIGNED_BYTE
-            }
-        });
+    const cudaBuf = new Uint8Buffer(16).copyFrom(hostBuf).copyInto(hostResult1);
 
-        lumaBuf.reallocate(cudaBuf.length * lumaBuf.accessor.BYTES_PER_VERTEX);
+    const lumaBuf = new GLBuffer(gl, {
+      target: gl.ARRAY_BUFFER,
+      accessor: {
+        size: 1,
+        type: gl.UNSIGNED_BYTE
+      }
+    });
 
-        const cudaGLPtr = CUDA.gl.registerBuffer(lumaBuf.handle.ptr, 0);
-        CUDA.gl.mapResources([cudaGLPtr]);
+    lumaBuf.reallocate(cudaBuf.length * lumaBuf.accessor.BYTES_PER_VERTEX);
 
-        const cudaGLMem = CUDA.gl.getMappedPointer(cudaGLPtr);
+    const cudaGLPtr = CUDA.gl.registerBuffer(lumaBuf.handle.ptr, 0);
+    CUDA.gl.mapResources([cudaGLPtr]);
 
-        new Uint8Buffer(cudaGLMem).copyFrom(hostBuf).copyInto(hostResult2);
+    const cudaGLMem = CUDA.gl.getMappedPointer(cudaGLPtr);
 
-        CUDA.gl.unmapResources([cudaGLPtr]);
-        CUDA.gl.unregisterResource(cudaGLPtr);
+    new Uint8Buffer(cudaGLMem).copyFrom(hostBuf).copyInto(hostResult2);
 
-        lumaBuf.getData({dstData: hostResult3});
+    CUDA.gl.unmapResources([cudaGLPtr]);
+    CUDA.gl.unregisterResource(cudaGLPtr);
 
-        assert.ok(hostResult1.equals(hostBuf));
-        assert.ok(hostResult2.equals(hostBuf));
-        assert.ok(hostResult3.equals(hostBuf));
-    }
+    lumaBuf.getData({ dstData: hostResult3 });
+
+    assert.ok(hostResult1.equals(hostBuf));
+    assert.ok(hostResult2.equals(hostBuf));
+    assert.ok(hostResult3.equals(hostBuf));
+  }
 });
