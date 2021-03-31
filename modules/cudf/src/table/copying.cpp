@@ -80,8 +80,7 @@ Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {
       throw Napi::Error::New(info.Env(),
                              "scatter_scalar source argument expects an array of scalars");
     }
-    auto& scalar = *Scalar::Unwrap(source_array.Get(i).ToObject());
-    source.push_back(scalar);
+    source.push_back(std::ref<const cudf::scalar>(*Scalar::Unwrap(source_array.Get(i).ToObject())));
   }
 
   if (!Column::is_instance(args[1])) {

@@ -85,12 +85,12 @@ class Device : public Napi::ObjectWrap<Device> {
         NODE_CUDA_TRY(cudaSetDevice(new_id), constructor.Env());
       }
     };
+    change_device(cur_device_id, new_device_id);
     try {
-      change_device(cur_device_id, new_device_id);
       do_work();
-    } catch (...) {
+    } catch (std::exception const& e) {
       change_device(new_device_id, cur_device_id);
-      throw std::current_exception();
+      throw;
     }
     change_device(new_device_id, cur_device_id);
   }

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2020, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,13 +44,11 @@ module.exports = {
   },
   "transformIgnorePatterns": [
     "/build/(js|Debug|Release)/*$",
-    "/node_modules/(?!web-stream-tools).+\\.js$"
   ],
   "testRegex": "(.*(-|\\.)(test|spec)s?)\\.(ts|tsx|js)$",
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@nvidia\/cuspatial(.*)": "<rootDir>/src/$1",
-    "^\.\.\/(Debug|Release)\/(node_cuspatial.node)$": "<rootDir>/build/$1/$2",
+    "^@rapidsai\/deck\.gl(.*)": "<rootDir>/src/$1",
   }
 };
