@@ -371,3 +371,48 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `pipe()`          |             |
 | `rolling()`       |             |
 | `size()`          |             |
+
+## cuGraph
+
+| cuGraph                        | node-rapids |
+| ------------------------------ | :---------: |
+| `add_internal_vertex_id()`     |             |
+| `add_nodes_from()`             |             |
+| `clear()`                      |             |
+| `compute_renumber_edge_list()` |             |
+| `degree()`                     |             |
+| `degrees()`                    |             |
+| `delete_adj_list()`            |             |
+| `delete_edge_list()`           |             |
+| `edges()`                      |             |
+| `from_cudf_adjlist()`          |             |
+| `from_cudf_edgelist()`         |             |
+| `from_dask_cudf_edgelist()`    |             |
+| `from_numpy_array()`           |             |
+| `from_numpy_matrix()`          |             |
+| `from_pandas_adjacency()`      |             |
+| `from_pandas_edgelist()`       |             |
+| `get_two_hop_neighbors()`      |             |
+| `has_edge()`                   |             |
+| `has_node()`                   |             |
+| `in_degree()`                  |             |
+| `is_bipartite()`               |             |
+| `is_multigraph()`              |             |
+| `is_multipartite()`            |             |
+| `lookup_internal_vertex_id()`  |             |
+| `nodes()`                      |             |
+| `number_of_edges()`            |             |
+| `number_of_nodes()`            |             |
+| `number_of_vertices()`         |             |
+| `out_degree()`                 |             |
+| `sets()`                       |             |
+| `to_directed()`                |             |
+| `to_numpy_array()`             |             |
+| `to_numpy_matrix()`            |             |
+| `to_pandas_adjacency()`        |             |
+| `to_pandas_edgelist()`         |             |
+| `to_undirected()`              |             |
+| `unrenumber()`                 |             |
+| `view_adj_list()`              |             |
+| `view_edge_list()`             |             |
+| `view_transposed_adj_list()`   |             |
