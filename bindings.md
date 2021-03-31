@@ -145,8 +145,6 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 
 | cuDF                   | List Series | String Series | Struct Series |
 | ---------------------- | :---------: | :-----------: | :-----------: |
-| `abs()`                |             |               |               |
-| `acos()`               |             |               |               |
 | `add()`                |             |               |               |
 | `all()`                |             |               |               |
 | `any()`                |             |               |               |
@@ -155,39 +153,23 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `argsort()`            |             |               |               |
 | `as_index()`           |             |               |               |
 | `as_mask()`            |             |               |               |
-| `asin()`               |             |               |               |
 | `astype()`             |             |               |               |
-| `atan()`               |             |               |               |
-| `ceil()`               |             |               |               |
 | `clip()`               |             |               |               |
 | `copy()`               |             |               |               |
-| `corr()`               |             |               |               |
-| `cos()`                |             |               |               |
 | `count()`              |             |               |               |
-| `cov()`                |             |               |               |
-| `cummax()`             |             |               |               |
-| `cummin()`             |             |               |               |
-| `cumprod()`            |             |               |               |
-| `cumsum()`             |             |               |               |
 | `describe()`           |             |               |               |
 | `diff()`               |             |               |               |
 | `digitize()`           |             |               |               |
 | `drop_duplicates()`    |             |               |               |
 | `dropna()`             |             |               |               |
-| `eq()`                 |             |               |               |
 | `equals()`             |             |               |               |
-| `exp()`                |             |               |               |
 | `factorize()`          |             |               |               |
 | `fillna()`             |             |               |               |
-| `floor()`              |             |               |               |
-| `floordiv()`           |             |               |               |
 | `from_arrow()`         |             |               |               |
 | `from_categorical()`   |             |               |               |
 | `from_masked_array()`  |             |               |               |
 | `from_pandas()`        |             |               |               |
-| `ge()`                 |             |               |               |
 | `groupby()`            |             |               |               |
-| `gt()`                 |             |               |               |
 | `hash_encode()`        |             |               |               |
 | `hash_values()`        |             |               |               |
 | `head()`               |             |               |               |
@@ -199,33 +181,16 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `kurt()`               |             |               |               |
 | `kurtosis()`           |             |               |               |
 | `label_encoding()`     |             |               |               |
-| `le()`                 |             |               |               |
-| `log()`                |             |               |               |
-| `lt()`                 |             |               |               |
 | `map()`                |             |               |               |
 | `mask()`               |             |               |               |
-| `max()`                |             |               |               |
-| `mean()`               |             |               |               |
-| `median()`             |             |               |               |
 | `memory_usage()`       |             |               |               |
-| `min()`                |             |               |               |
-| `mod()`                |             |               |               |
-| `mode()`               |             |               |               |
-| `mul()`                |             |               |               |
 | `nans_to_nulls()`      |             |               |               |
-| `ne()`                 |             |               |               |
-| `nlargest()`           |             |               |               |
 | `notna()`              |             |               |               |
 | `notnull()`            |             |               |               |
-| `nsmallest()`          |             |               |               |
 | `nunique()`            |             |               |               |
 | `one_hot_encoding()`   |             |               |               |
 | `pipe()`               |             |               |               |
-| `pow()`                |             |               |               |
-| `prod()`               |             |               |               |
-| `product()`            |             |               |               |
 | `quantile()`           |             |               |               |
-| `radd()`               |             |               |               |
 | `rank()`               |             |               |               |
 | `reindex()`            |             |               |               |
 | `rename()`             |             |               |               |
@@ -233,32 +198,18 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `replace()`            |     ✅      |      ✅       |      ✅       |
 | `reset_index()`        |     ✅      |      ✅       |      ✅       |
 | `reverse()`            |     ✅      |      ✅       |      ✅       |
-| `rfloordiv()`          |     ✅      |      ✅       |      ✅       |
-| `rmod()`               |     ✅      |      ✅       |      ✅       |
-| `rmul()`               |     ✅      |      ✅       |      ✅       |
 | `rolling()`            |     ✅      |      ✅       |      ✅       |
-| `round()`              |     ✅      |      ✅       |      ✅       |
-| `rpow()`               |     ✅      |      ✅       |      ✅       |
-| `rsub()`               |     ✅      |      ✅       |      ✅       |
-| `rtruediv()`           |     ✅      |      ✅       |      ✅       |
 | `sample()`             |     ✅      |      ✅       |      ✅       |
-| `scale()`              |     ✅      |      ✅       |      ✅       |
 | `scatter_by_map()`     |     ✅      |      ✅       |      ✅       |
 | `searchsorted()`       |     ✅      |      ✅       |      ✅       |
 | `set_index()`          |     ✅      |      ✅       |      ✅       |
 | `set_mask()`           |     ✅      |      ✅       |      ✅       |
 | `shift()`              |     ✅      |      ✅       |      ✅       |
-| `sin()`                |     ✅      |      ✅       |      ✅       |
 | `skew()`               |     ✅      |      ✅       |      ✅       |
 | `sort_index()`         |     ✅      |      ✅       |      ✅       |
 | `sort_values()`        |     ✅      |      ✅       |      ✅       |
-| `sqrt()`               |     ✅      |      ✅       |      ✅       |
-| `std()`                |     ✅      |      ✅       |      ✅       |
-| `sub()`                |     ✅      |      ✅       |      ✅       |
-| `sum()`                |     ✅      |      ✅       |      ✅       |
 | `tail()`               |     ✅      |      ✅       |      ✅       |
 | `take()`               |     ✅      |      ✅       |      ✅       |
-| `tan()`                |     ✅      |      ✅       |      ✅       |
 | `tile()`               |     ✅      |      ✅       |      ✅       |
 | `to_array()`           |     ✅      |      ✅       |      ✅       |
 | `to_arrow()`           |     ✅      |      ✅       |      ✅       |
@@ -269,11 +220,9 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `to_json()`            |     ✅      |      ✅       |      ✅       |
 | `to_pandas()`          |     ✅      |      ✅       |      ✅       |
 | `to_string()`          |     ✅      |      ✅       |      ✅       |
-| `truediv()`            |     ✅      |      ✅       |      ✅       |
 | `unique()`             |     ✅      |      ✅       |      ✅       |
 | `value_counts()`       |     ✅      |      ✅       |      ✅       |
 | `values_to_string()`   |     ✅      |      ✅       |      ✅       |
-| `var()`                |     ✅      |      ✅       |      ✅       |
 | `where()`              |     ✅      |      ✅       |      ✅       |
 
 ### DataFrame
