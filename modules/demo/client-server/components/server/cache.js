@@ -17,7 +17,6 @@ const { DataFrame, Series, Uint32 } = require('@rapidsai/cudf');
 const { Field, Vector, Float32, List } = require('apache-arrow');
 
 module.exports = () => {
-
   let timeout = null;
   let uberTrips = null;
   let uberTracts = null;
@@ -28,20 +27,19 @@ module.exports = () => {
   }
 
   return async function loadUberDataMiddleware(req, res, next) {
-
     if (timeout) { clearTimeout(timeout); }
 
     // Set a 10-minute debounce to release server GPU memory
     timeout = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
 
     req.uberTrips = uberTrips || (uberTrips = await readUberTrips());
-    req.uberTracts = uberTracts || (uberTracts = await readUberTracts());
 
     next();
   }
 }
 
 async function readUberTrips() {
+  console.log("reading data");
   const trips = DataFrame.readCSV({
     header: 0,
     sourceType: 'files',

@@ -19,7 +19,7 @@ export default class FirstPost extends React.Component {
                                 by="sourceid"
                                 agg="mean"
                                 columns="travel_time"
-                                geojsonurl="/data/san_francisco_censustracts.geojson"
+                                geojsonurl="http://localhost:3000/data/san_francisco_censustracts.geojson"
                                 geojsonprop="MOVEMENT_ID"
                                 initialviewstate={{ longitude: -122, latitude: 37, zoom: 6, maxZoom: 16, pitch: 0, bearing: 0 }}
                             ></CustomChoropleth>
@@ -30,7 +30,7 @@ export default class FirstPost extends React.Component {
                                 by="dstid"
                                 agg="mean"
                                 columns="travel_time"
-                                geojsonurl="/data/san_francisco_censustracts.geojson"
+                                geojsonurl="http://localhost:3000/data/san_francisco_censustracts.geojson"
                                 geojsonprop="MOVEMENT_ID"
                                 initialviewstate={{ longitude: -122, latitude: 37, zoom: 6, maxZoom: 16, pitch: 0, bearing: 0 }}
                             ></CustomChoropleth>

@@ -1,11 +1,11 @@
-import {GeoJsonLayer} from '@deck.gl/layers';
+import { GeoJsonLayer } from '@deck.gl/layers';
 import DeckGL from '@deck.gl/react';
 import React from 'react';
 import { StaticMap } from 'react-map-gl';
-import {BASEMAP} from '@deck.gl/carto';
+import { BASEMAP } from '@deck.gl/carto';
 import { Table } from 'apache-arrow';
 import * as d3 from "d3";
-import { Button, Card} from 'react-bootstrap';
+import { Button, Card } from 'react-bootstrap';
 
 // color scale for choropleth charts
 const COLOR_SCALE = [
@@ -14,7 +14,7 @@ const COLOR_SCALE = [
     [123, 142, 216, 100],
     [226, 103, 152, 100],
     [255, 0, 104, 100],
-  ];
+];
 const thresholdScale =
     d3.scaleThreshold().domain([0, 400, 800, 1000, 2000, 4000]).range(COLOR_SCALE);
 
@@ -22,7 +22,7 @@ export default class CustomChoropleth extends React.Component {
     constructor(props) {
         super(props);
         const { geojsonurl = undefined } = this.props;
-        
+
         this.state = {
             gjson: [],
             data: [],
@@ -33,19 +33,19 @@ export default class CustomChoropleth extends React.Component {
         this._renderTooltip = this._renderTooltip.bind(this);
         this._getFillColor = this._getFillColor.bind(this);
         this._reset = this._reset.bind(this);
-        
-        if(geojsonurl){
+
+        if (geojsonurl) {
             fetch(geojsonurl)
                 .then(response => response.json())
-                .then(({features}) => {
-                    this.setState({gjson: features});
+                .then(({ features }) => {
+                    this.setState({ gjson: features });
                 })
                 .then(() => this._updateLayerData())
-                .then((data) => this.setState({data: data}))
+                .then((data) => this.setState({ data: data }))
                 .catch((e) => console.log(e));
         }
     }
-    _generateApiUrl(){
+    _generateApiUrl() {
         const {
             dataset = undefined,
             by = undefined,
@@ -53,8 +53,8 @@ export default class CustomChoropleth extends React.Component {
             columns = undefined //return all columns
         } = this.props;
 
-        if(!dataset || !by || !agg){ return null;}
-        return `http://localhost:5000/${dataset}/tracts/groupby/${by}/${agg}?columns=${columns}`;
+        if (!dataset || !by || !agg) { return null; }
+        return `http://localhost:3000/api/${dataset}/groupby/${by}/${agg}?columns=${columns}`;
     }
 
     /**
@@ -93,69 +93,69 @@ export default class CustomChoropleth extends React.Component {
         const data = this._transformData(table.toArray(), by, properties);
         let tempjson = [];
         this.state.gjson.forEach((val) => {
-        if (val.properties[geojsonProp] in data) {
-            tempjson.push({
-            type: val.type,
-            geometry: val.geometry,
-            properties: { ...val.properties, ...data[val.properties[geojsonProp]] }
-            })
-        }
+            if (val.properties[geojsonProp] in data) {
+                tempjson.push({
+                    type: val.type,
+                    geometry: val.geometry,
+                    properties: { ...val.properties, ...data[val.properties[geojsonProp]] }
+                })
+            }
         });
         return tempjson;
-    }  
+    }
 
-    async _updateLayerData(){
+    async _updateLayerData() {
         const url = this._generateApiUrl(); // `/uber/tracts/groupby/sourceid/mean?columns=travel_time`;
         if (!url) { return null; }
-        const table = await Table.from(fetch(url, {method: 'GET'}));
+        const table = await Table.from(fetch(url, { method: 'GET' }));
         return this._convertToGeoJSON(table, this.props.by, [this.props.columns], this.props.geojsonprop);
     }
 
 
-    _getFillColor(f){
+    _getFillColor(f) {
         const x = f?.properties?.travel_time;
         const id = f?.properties?.MOVEMENT_ID;
         if (x !== undefined && id !== undefined) {
             if (this.state.clicked !== false) {
-              if (this.state.clicked !== parseInt(id)) {
-                return ([255, 255, 255, 10]);
-              } else {
-                return thresholdScale(x);
-              }
+                if (this.state.clicked !== parseInt(id)) {
+                    return ([255, 255, 255, 10]);
+                } else {
+                    return thresholdScale(x);
+                }
             } else {
-              return thresholdScale(x);
+                return thresholdScale(x);
             }
-          }
-    }
-
-    _onHover({x, y, object}){
-        this.setState({x, y, hoveredCensusTract: object});
-    }
-
-    _renderTooltip(){
-        const { x, y, hoveredCensusTract } = this.state;
-        
-        return (
-            hoveredCensusTract && (
-                <div className="deck-tooltip" style={{position: 'absolute', left: x, top: y}}>
-                {hoveredCensusTract.properties.DISPLAY_NAME} <br/>
-                Mean Travel Time: {hoveredCensusTract.properties.travel_time}
-            </div>)
-        );
-    }
-
-    _onClick(f){
-        const id = f?.object?.properties?.MOVEMENT_ID;
-        console.log(id);
-        if(this.state.clicked !== parseInt(id)){
-            this.setState({clicked: parseInt(id)});
-        }else{
-            //double click deselects
-            this.setState({clicked: false});
         }
     }
 
-    _renderLayers(){
+    _onHover({ x, y, object }) {
+        this.setState({ x, y, hoveredCensusTract: object });
+    }
+
+    _renderTooltip() {
+        const { x, y, hoveredCensusTract } = this.state;
+
+        return (
+            hoveredCensusTract && (
+                <div className="deck-tooltip" style={{ position: 'absolute', left: x, top: y }}>
+                    {hoveredCensusTract.properties.DISPLAY_NAME} <br />
+                Mean Travel Time: {hoveredCensusTract.properties.travel_time}
+                </div>)
+        );
+    }
+
+    _onClick(f) {
+        const id = f?.object?.properties?.MOVEMENT_ID;
+        console.log(id);
+        if (this.state.clicked !== parseInt(id)) {
+            this.setState({ clicked: parseInt(id) });
+        } else {
+            //double click deselects
+            this.setState({ clicked: false });
+        }
+    }
+
+    _renderLayers() {
         const { data } = this.state;
 
         return [
@@ -173,7 +173,7 @@ export default class CustomChoropleth extends React.Component {
                 getRadius: 100,  // only if points
                 getLineWidth: 10,
                 opacity: 50,
-                getFillColor:this._getFillColor,
+                getFillColor: this._getFillColor,
                 getElevation: f => f?.properties?.travel_time * 10,
                 onClick: this._onClick,
                 onHover: this._onHover,
@@ -185,7 +185,7 @@ export default class CustomChoropleth extends React.Component {
         ]
     }
 
-    _reset(){
+    _reset() {
         this.setState({
             clicked: false
         })
@@ -203,8 +203,8 @@ export default class CustomChoropleth extends React.Component {
                         initialViewState={this.props.initialviewstate}
                         controller={true}
                     >
-                       <StaticMap mapStyle={BASEMAP.DARK_MATTER} />
-                     {this._renderTooltip}
+                        <StaticMap mapStyle={BASEMAP.DARK_MATTER} />
+                        {this._renderTooltip}
                     </DeckGL>
                 </Card.Body>
             </Card>
