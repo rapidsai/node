@@ -21,18 +21,21 @@ const thresholdScale =
 export default class CustomChoropleth extends React.Component {
     constructor(props) {
         super(props);
-        const { geojsonurl = undefined } = this.props;
-
         this.state = {
             gjson: [],
             data: [],
-            clicked: false
+            clicked: false,
+            current_query: this.props.getquery()
         }
         this._onHover = this._onHover.bind(this);
         this._onClick = this._onClick.bind(this);
         this._renderTooltip = this._renderTooltip.bind(this);
         this._getFillColor = this._getFillColor.bind(this);
         this._reset = this._reset.bind(this);
+    }
+
+    componentDidMount() {
+        const { geojsonurl = undefined } = this.props;
 
         if (geojsonurl) {
             fetch(geojsonurl)
@@ -45,6 +48,20 @@ export default class CustomChoropleth extends React.Component {
                 .catch((e) => console.log(e));
         }
     }
+
+    componentDidUpdate() {
+        // if parent componet `getquery()` is updated, and is not the same as state.current_query, 
+        // refetch the data with current query
+        if (this.props.getquery() !== this.state.current_query) {
+            this.setState({
+                current_query: this.props.getquery()
+            });
+            this._updateLayerData()
+                .then((data) => this.setState({ data: data }))
+                .catch((e) => console.log(e));
+        }
+    }
+
     _generateApiUrl() {
         const {
             dataset = undefined,
@@ -54,7 +71,8 @@ export default class CustomChoropleth extends React.Component {
         } = this.props;
 
         if (!dataset || !by || !agg) { return null; }
-        return `http://localhost:3000/api/${dataset}/groupby/${by}/${agg}?columns=${columns}`;
+        const query = JSON.stringify(this.props.getquery());
+        return `http://localhost:3000/api/${dataset}/groupby/${by}/${agg}?columns=${columns}&query_dict=${query}`;
     }
 
     /**
@@ -146,12 +164,12 @@ export default class CustomChoropleth extends React.Component {
 
     _onClick(f) {
         const id = f?.object?.properties?.MOVEMENT_ID;
-        console.log(id);
         if (this.state.clicked !== parseInt(id)) {
+            this.props.updatequery({ [this.props.by]: parseInt(id) });
             this.setState({ clicked: parseInt(id) });
         } else {
             //double click deselects
-            this.setState({ clicked: false });
+            this._reset();
         }
     }
 
@@ -179,13 +197,15 @@ export default class CustomChoropleth extends React.Component {
                 onHover: this._onHover,
                 getLineColor: [0, 188, 212, 100],
                 updateTriggers: {
-                    getFillColor: [this.state.clicked]
+                    getFillColor: [this.state.clicked, this.state.data],
+                    getElevation: [this.state.data]
                 }
             })
         ]
     }
 
     _reset() {
+        this.props.updatequery({ [this.props.by]: undefined });
         this.setState({
             clicked: false
         })
