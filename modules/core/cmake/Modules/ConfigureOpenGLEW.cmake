@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,27 +16,33 @@
 
 include(get_cpm)
 
-add_compile_definitions(GLEW_EGL)
-
-CPMFindPackage(NAME glew
-    VERSION        ${GLEW_VERSION}
-    GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
-    GIT_TAG        glew-cmake-${GLEW_VERSION}
-    GIT_SHALLOW    TRUE
-    GIT_CONFIG     "advice.detachedhead=false"
-    OPTIONS        "ONLY_LIBS 0"
-                   # Ignore glew's missing VERSION
-                   "CMAKE_POLICY_DEFAULT_CMP0048 NEW"
-                   "glew-cmake_BUILD_MULTI_CONTEXT OFF"
-                   "glew-cmake_BUILD_SINGLE_CONTEXT ON"
-                   "glew-cmake_BUILD_SHARED ${GLEW_USE_SHARED_LIBS}"
-                   "glew-cmake_BUILD_STATIC ${GLEW_USE_STATIC_LIBS}"
-)
-
-set(GLEW_INCLUDE_DIR "${glew_SOURCE_DIR}/include")
-
 if(GLEW_USE_STATIC_LIBS)
     set(GLEW_LIBRARY libglew_static)
 else()
     set(GLEW_LIBRARY libglew_shared)
 endif(GLEW_USE_STATIC_LIBS)
+
+_set_package_dir_if_exists(${GLEW_LIBRARY} glew)
+
+add_compile_definitions(GLEW_EGL)
+
+function(find_and_configure_glew VERSION)
+    if(NOT TARGET ${GLEW_LIBRARY})
+        CPMFindPackage(NAME glew
+            VERSION         ${VERSION}
+            GIT_REPOSITORY  https://github.com/Perlmint/glew-cmake.git
+            GIT_TAG         glew-cmake-${VERSION}
+            GIT_SHALLOW     TRUE
+            GIT_CONFIG      "advice.detachedhead=false"
+            OPTIONS         "ONLY_LIBS 0"
+                            # Ignore glew's missing VERSION
+                            "CMAKE_POLICY_DEFAULT_CMP0048 NEW"
+                            "glew-cmake_BUILD_MULTI_CONTEXT OFF"
+                            "glew-cmake_BUILD_SINGLE_CONTEXT ON"
+                            "glew-cmake_BUILD_SHARED ${GLEW_USE_SHARED_LIBS}"
+                            "glew-cmake_BUILD_STATIC ${GLEW_USE_STATIC_LIBS}"
+        )
+    endif()
+endfunction()
+
+find_and_configure_glew(${GLEW_VERSION})

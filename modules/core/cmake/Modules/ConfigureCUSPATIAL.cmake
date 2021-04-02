@@ -14,52 +14,40 @@
 # limitations under the License.
 #=============================================================================
 
+include(get_cpm)
+
+_set_package_dir_if_exists(cuspatial cuspatial)
+
 function(find_and_configure_cuspatial VERSION)
 
-    include(get_cpm)
+    include(ConfigureCUDF)
 
-    execute_process(COMMAND node -p
-                    "require('@rapidsai/core').cpm_source_cache_path"
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(NOT TARGET cuspatial::cuspatial)
 
-    # Have to set these in case configure and build steps are run separately
-    # TODO: figure out why
-    set(BUILD_TESTS OFF)
-    set(BUILD_BENCHMARKS OFF)
-    set(JITIFY_USE_CACHE ON)
-    set(CUDA_STATIC_RUNTIME ON)
-    set(CUDF_USE_ARROW_STATIC ON)
-    set(PER_THREAD_DEFAULT_STREAM ON)
-    set(DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS})
-    set(CUDF_GENERATED_INCLUDE_DIR ${NODE_RAPIDS_CPM_SOURCE_CACHE}/cudf-build)
+        execute_process(COMMAND node -p
+                        "require('@rapidsai/core').cpm_source_cache_path"
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
+                        OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-    CPMFindPackage(NAME  cuspatial
-        VERSION         ${VERSION}
-        # GIT_REPOSITORY https://github.com/rapidsai/cuspatial.git
-        # GIT_TAG        branch-${VERSION}
-        GIT_REPOSITORY  https://github.com/trxcllnt/cuspatial.git
-        # Can also use a local path to your repo clone for testing
-        # GIT_REPOSITORY  /home/ptaylor/dev/rapids/cuspatial
-        GIT_TAG         nr/03232021
-        GIT_SHALLOW     TRUE
-        SOURCE_SUBDIR   cpp
-        OPTIONS         "BUILD_TESTS OFF"
-                        "BUILD_BENCHMARKS OFF"
-                        "JITIFY_USE_CACHE ON"
-                        "CUDA_STATIC_RUNTIME ON"
-                        "CUDF_USE_ARROW_STATIC ON"
-                        "PER_THREAD_DEFAULT_STREAM ON"
-                        "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
+        CPMFindPackage(NAME  cuspatial
+            VERSION         ${VERSION}
+            GIT_REPOSITORY https://github.com/rapidsai/cuspatial.git
+            GIT_TAG        branch-${VERSION}
+            GIT_SHALLOW     TRUE
+            SOURCE_SUBDIR   cpp
+            OPTIONS         "BUILD_TESTS OFF"
+                            "BUILD_BENCHMARKS OFF"
+                            "JITIFY_USE_CACHE ON"
+                            "CUDA_STATIC_RUNTIME ON"
+                            "CUDF_USE_ARROW_STATIC ON"
+                            "PER_THREAD_DEFAULT_STREAM ON"
+                            "DISABLE_DEPRECATION_WARNING ON")
+    endif()
 
     # Make sure consumers of our libs can see cuspatial::cuspatial
-    fix_cmake_global_defaults(cuspatial::cuspatial)
+    _fix_cmake_global_defaults(cuspatial::cuspatial)
 
-    if(NOT cuspatial_BINARY_DIR IN_LIST CMAKE_PREFIX_PATH)
-        list(APPEND CMAKE_PREFIX_PATH "${cuspatial_BINARY_DIR}")
-        set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} PARENT_SCOPE)
-    endif()
 endfunction()
 
 find_and_configure_cuspatial(${CUSPATIAL_VERSION})

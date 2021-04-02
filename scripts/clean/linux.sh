@@ -11,4 +11,4 @@ fi
 # clean modules/*/build dirs
 lerna run --no-bail clean || true;
 lerna clean --loglevel error --yes || true;
-rimraf yarn.lock build node_modules compile_commands.json
+rimraf yarn.lock node_modules doc compile_commands.json modules/.cache/{build,cpm}

@@ -22,7 +22,8 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
 option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
@@ -65,15 +66,7 @@ list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
 include(ConfigureCXX)
 include(ConfigureCUDA)
 include(ConfigureNapi)
-include(ConfigureRMM)
-include(ConfigureCUDF)
 include(ConfigureCuGraph)
-
-###################################################################################################
-# - cuda compiler flags ---------------------------------------------------------------------------
-
-list(APPEND NODE_RAPIDS_CMAKE_CUDA_FLAGS -Xptxas --disable-warnings)
-list(APPEND NODE_RAPIDS_CMAKE_CUDA_FLAGS -Xcompiler=-Wall,-Wno-error=sign-compare,-Wno-error=unused-but-set-variable)
 
 ###################################################################################################
 # - node_cugraph target ---------------------------------------------------------------------------
@@ -84,14 +77,6 @@ file(GLOB_RECURSE NODE_CUGRAPH_CUDA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu"
 list(APPEND NODE_CUGRAPH_SRC_FILES ${NODE_CUGRAPH_CPP_FILES})
 list(APPEND NODE_CUGRAPH_SRC_FILES ${NODE_CUGRAPH_CUDA_FILES})
 
-if(cugraph_SOURCE_DIR)
-    list(
-        APPEND NODE_CUGRAPH_SRC_FILES
-        "${cugraph_SOURCE_DIR}/cpp/src/structure/graph.cu"
-        "${cugraph_SOURCE_DIR}/cpp/src/layout/force_atlas2.cu"
-    )
-endif()
-
 add_library(${PROJECT_NAME} SHARED ${NODE_CUGRAPH_SRC_FILES} ${CMAKE_JS_SRC})
 
 set_target_properties(${PROJECT_NAME}
@@ -101,14 +86,15 @@ set_target_properties(${PROJECT_NAME}
                CXX_STANDARD_REQUIRED               ON
                CUDA_STANDARD                       14
                CUDA_STANDARD_REQUIRED              ON
+               NO_SYSTEM_FROM_IMPORTED             ON
                POSITION_INDEPENDENT_CODE           ON
                INTERFACE_POSITION_INDEPENDENT_CODE ON
 )
 
 target_compile_options(${PROJECT_NAME}
-            PRIVATE "$<$<COMPILE_LANGUAGE:C>:${NODE_RAPIDS_CMAKE_C_FLAGS}>"
-                    "$<$<COMPILE_LANGUAGE:CXX>:${NODE_RAPIDS_CMAKE_CXX_FLAGS}>"
-                    "$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>"
+            PRIVATE "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:C>:${NODE_RAPIDS_CMAKE_C_FLAGS}>>"
+                    "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CXX>:${NODE_RAPIDS_CMAKE_CXX_FLAGS}>>"
+                    "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>>"
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -117,7 +103,6 @@ target_include_directories(${PROJECT_NAME}
            "$<BUILD_INTERFACE:${NODE_RAPIDS_RMM_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDA_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
-           "$<BUILD_INTERFACE:${CUGRAPH_INCLUDE_DIRS}>"
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
 )
 
@@ -125,7 +110,7 @@ target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       rmm::rmm
                       cudf::cudf
-                      CUDA::cuda_driver
+                      cugraph::cugraph
                       CUDA::cudart_static
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
