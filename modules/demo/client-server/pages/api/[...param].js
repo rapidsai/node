@@ -8,9 +8,9 @@ export default async function handler(req, res) {
   const query_dict = req.query.query_dict ? JSON.parse(req.query.query_dict) : undefined;
 
   if (dataset == "uber" && fn == "groupby") {
-    await groupBy(req.uberTrips, by, aggregation, req.query.columns, query_dict, res);
+    groupBy(req.uberTrips, by, aggregation, req.query.columns, query_dict, res);
   } else if (dataset == "uber" && fn == "numRows") {
-    await numRows(req.uberTrips, query_dict, res);
+    numRows(req.uberTrips, query_dict, res);
   }
 }
 

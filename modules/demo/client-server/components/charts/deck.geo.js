@@ -6,6 +6,7 @@ import { BASEMAP } from '@deck.gl/carto';
 import { Table } from 'apache-arrow';
 import * as d3 from "d3";
 import { Button, Card } from 'react-bootstrap';
+import { generateLegend } from '../../components/utils/legend';
 
 // color scale for choropleth charts
 const COLOR_SCALE = [
@@ -47,6 +48,12 @@ export default class CustomChoropleth extends React.Component {
                 .then((data) => this.setState({ data: data }))
                 .catch((e) => console.log(e));
         }
+        generateLegend("#" + this.props.by + "legend", {
+            0: '0s to 400s',
+            500: '400s to 800s',
+            900: '800s to 1000s',
+            1100: '1000s or higher',
+        }, thresholdScale);
     }
 
     componentDidUpdate() {
@@ -202,6 +209,7 @@ export default class CustomChoropleth extends React.Component {
                 onClick: this._onClick,
                 onHover: this._onHover,
                 getLineColor: [0, 188, 212, 100],
+                onSetColorDomain: event => console.log(event),
                 updateTriggers: {
                     getFillColor: [this.state.clicked, this.state.data],
                     getElevation: [this.state.data]
@@ -224,16 +232,17 @@ export default class CustomChoropleth extends React.Component {
                     <Button variant="primary" size="sm" onClick={this._reset} className="float-sm-right"> Reset </Button>
                 </Card.Header>
                 <Card.Body>
+                    <svg className="legend float-left" id={this.props.by + "legend"} height="110" width="200" style={{ "zIndex": 1, "position": "relative" }}></svg>
                     <DeckGL
                         layers={this._renderLayers()}
                         initialViewState={this.props.initialviewstate}
-                        controller={true}
+                        controller={true} style={{ "zIndex": 0 }}
                     >
                         <StaticMap mapStyle={BASEMAP.DARK_MATTER} />
                         {this._renderTooltip}
                     </DeckGL>
                 </Card.Body>
-            </Card>
+            </Card >
         )
     }
 }
