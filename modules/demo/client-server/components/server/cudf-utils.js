@@ -105,6 +105,8 @@ async function groupBy(df, by, aggregation, columns, query_dict, res) {
       res.writeHead(200, 'Ok', { 'Content-Type': 'application/octet-stream' })
     );
 
+    trips = null;
+
   } catch (e) {
     res.status(500).send(e ? `${(e.stack || e.message)}` : 'Unknown error');
   }
@@ -124,14 +126,14 @@ async function groupBy(df, by, aggregation, columns, query_dict, res) {
 
 
 async function numRows(df, query_dict, res) {
-
-  console.log('\n\n NumRows');
+  let t0 = performance.now();
+  console.log('\n\n');
 
   // filter the dataframe as the query_dict & ignore the by column (to make sure chart selection doesn't filter self)
   if (query_dict && Object.keys(query_dict).length > 0) {
     df = parseQuery(df, query_dict);
   }
-
+  console.log(`trips.query(${JSON.stringify(query_dict)}).numRows  Time Taken: ${(performance.now() - t0).toFixed(2)}ms`);
   res.send(df.numRows);
 }
 

@@ -19,7 +19,7 @@ const { Field, Vector, Float32, List } = require('apache-arrow');
 module.exports = () => {
   let timeout = null;
   let uberTrips = null;
-  let uberTracts = null;
+  // let uberTracts = null;
 
   function clearCachedGPUData() {
     uberTrips = null;
