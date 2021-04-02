@@ -2,6 +2,10 @@
   "name": "node-cudf-server",
   "version": "0.0.0",
   "private": true,
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Ajay Thorve(athorve@nvidia.com)"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
