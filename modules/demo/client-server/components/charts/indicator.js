@@ -1,6 +1,4 @@
 import React from 'react';
-import ReactECharts from 'echarts-for-react';
-import { Table } from 'apache-arrow';
 import * as d3 from "d3";
 import { Card } from 'react-bootstrap';
 
