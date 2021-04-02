@@ -53,9 +53,15 @@ export default class CustomChoropleth extends React.Component {
         // if parent componet `getquery()` is updated, and is not the same as state.current_query, 
         // refetch the data with current query
         if (this.props.getquery() !== this.state.current_query) {
-            this.setState({
-                current_query: this.props.getquery()
-            });
+            let updateState = { current_query: this.props.getquery() }
+
+            if (!this.props.getquery().hasOwnProperty(this.props.by)) {
+                // if current chart selections have also been reset
+                updateState['clicked'] = false;
+            }
+            // update state
+            this.setState(updateState);
+            // update data
             this._updateLayerData()
                 .then((data) => this.setState({ data: data }))
                 .catch((e) => console.log(e));
@@ -213,9 +219,9 @@ export default class CustomChoropleth extends React.Component {
 
     render() {
         return (
-            <Card border="dark">
-                <Card.Header>{this.props.by} choropleth
-                <Button variant="primary" onClick={this._reset}> Reset </Button>
+            <Card border="light" bg="secondary" text="light" className="text-center">
+                <Card.Header className="h4">Trip {this.props.by} aggregated by {this.props.agg}
+                    <Button variant="primary" size="sm" onClick={this._reset} className="float-sm-right"> Reset </Button>
                 </Card.Header>
                 <Card.Body>
                     <DeckGL

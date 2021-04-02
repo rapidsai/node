@@ -3,10 +3,11 @@ body {
   height: 100vh;
   margin: 0;
   overflow: hidden;
+  background-color: #212121!important
 }
 
 .container-fluid {
-  height: 80%;
+  height: 88%;
 }
 
 .row, .card {
@@ -15,6 +16,10 @@ body {
 
 .card-body {
   position: relative;
+  background-color: #212121!important
+}
+.row>*{
+  padding: 2px !important;
 }
 
 .deck-tooltip {

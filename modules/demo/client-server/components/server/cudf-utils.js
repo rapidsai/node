@@ -24,8 +24,8 @@ function filterByValue(df, column, value) { return df.get(column).eq(value); }
  */
 function filterByRange(df, column, minMaxArray) {
   const [min, max] = minMaxArray;
-  boolmask_gt_eq = (df.get(column).gt(min)).logical_or(df.get(column).eq(min))
-  boolmask_lt_eq = (df.get(column).lt(max)).logical_or(df.get(column).eq(max))
+  const boolmask_gt_eq = (df.get(column).gt(min)).logical_or(df.get(column).eq(min))
+  const boolmask_lt_eq = (df.get(column).lt(max)).logical_or(df.get(column).eq(max))
   return boolmask_gt_eq.logical_and(boolmask_lt_eq)
 }
 
@@ -59,16 +59,16 @@ function parseQuery(df, query_dict, ignore = null) {
 
 
   if (boolmask) { df = df.filter(boolmask); }
-  console.log('Query ', query_dict, ', Time Taken:', performance.now() - t0, 'ms');
+  console.log(`Query ${JSON.stringify(query_dict)}  Time Taken: ${(performance.now() - t0).toFixed(2)}ms`);
   return df;
 }
 
-export default async function groupBy(df, by, aggregation, columns, query_dict, res) {
+async function groupBy(df, by, aggregation, columns, query_dict, res) {
 
   console.log('\n\n');
 
   // filter the dataframe as the query_dict & ignore the by column (to make sure chart selection doesn't filter self)
-  if (Object.keys(query_dict).length > 0) {
+  if (query_dict && Object.keys(query_dict).length > 0) {
     df = parseQuery(df, query_dict, by);
   }
 
@@ -121,3 +121,19 @@ export default async function groupBy(df, by, aggregation, columns, query_dict, 
 
   // console.log(`tracts.gather(trips.get(${by})) Time Taken: ${(performance.now() - t0).toFixed(2)}ms`);
 }
+
+
+async function numRows(df, query_dict, res) {
+
+  console.log('\n\n NumRows');
+
+  // filter the dataframe as the query_dict & ignore the by column (to make sure chart selection doesn't filter self)
+  if (query_dict && Object.keys(query_dict).length > 0) {
+    df = parseQuery(df, query_dict);
+  }
+
+  res.send(df.numRows);
+}
+
+
+export { groupBy, numRows }
