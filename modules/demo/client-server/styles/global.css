@@ -7,7 +7,7 @@ body {
 }
 
 .container-fluid {
-  height: 88%;
+  height: 80%;
 }
 
 .row, .card {
@@ -18,8 +18,9 @@ body {
   position: relative;
   background-color: #212121!important
 }
-.row>*{
-  padding: 2px !important;
+.container-fluid .row .col{
+  margin: 2px 0px !important;
+  padding: 0px 1px;
 }
 
 .deck-tooltip {

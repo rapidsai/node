@@ -220,7 +220,7 @@ export default class CustomChoropleth extends React.Component {
     render() {
         return (
             <Card border="light" bg="secondary" text="light" className="text-center">
-                <Card.Header className="h4">Trip {this.props.by} aggregated by {this.props.agg}
+                <Card.Header className="h5">Trip {this.props.by} aggregated by {this.props.agg}
                     <Button variant="primary" size="sm" onClick={this._reset} className="float-sm-right"> Reset </Button>
                 </Card.Header>
                 <Card.Body>

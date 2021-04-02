@@ -52,9 +52,9 @@ export default class Indicator extends React.Component {
   render() {
     return (
       <Card border="light" bg="secondary" text="light" className="text-center">
-        <Card.Header className="h4"> Data Points Selected
+        <Card.Header className="h5"> Data Points Selected
         </Card.Header>
-        <Card.Body className="h3 text-center">
+        <Card.Body className="h4 text-center">
           {this.state.size}
         </Card.Body>
       </Card>
