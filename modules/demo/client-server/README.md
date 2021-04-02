@@ -44,8 +44,8 @@ yarn start #yarn dev for dev environment
 ```
 
 # Uber Movement Dashboard
-![Screenshot](./_static/uber.png)
+![Screenshot](./public/images/uber.png)
 
 
 # Mortgage Dashboard
-![Screenshot](./_static/mortgage.png)
+![Screenshot](./public/images/mortgage.png)
