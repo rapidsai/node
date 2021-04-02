@@ -68,13 +68,15 @@ export default class CustomBar extends React.Component {
   }
 
   _getOptions(data) {
+    console.log(data);
     this.setState({
       'x_axis_indices': data.reduce((a, c) => { return [...a, c[this.props.x]] }, [])
     })
+    console.log(this.state.x_axis_indices);
     return {
       xAxis: {
         type: 'category',
-        data: this.props.xaxisdata,
+        data: this.props.xaxisdata ? this.props.xaxisdata : this.state.x_axis_indices,
         axisLabel: { color: 'white' },
         splitLine: { show: false },
         name: 'Trips per ' + this.props.x,

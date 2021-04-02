@@ -72,13 +72,8 @@ async function groupBy(df, by, aggregation, columns, query_dict, res) {
     df = parseQuery(df, query_dict, by);
   }
 
-  // `query.columns` could be a string, or an Array of strings.
-  // This flattens either case into a single Array, or defaults to null.
-  columns = columns ? [].concat(columns) : null;
-
   // Perf: only include the subset of columns we want to return in `df.groupBy()[agg]()`
   const colsToUse = columns || df.names.filter((n) => n !== by);
-
   let t0;
   try {
 

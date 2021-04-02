@@ -18,28 +18,43 @@ const { Field, Vector, Float32, List } = require('apache-arrow');
 
 module.exports = () => {
   let timeout = null;
-  let uberTrips = null;
+  let datasets = {
+    uber: null,
+    mortgage: null
+  }
   // let uberTracts = null;
 
   function clearCachedGPUData() {
-    uberTrips = null;
-    uberTracts = null;
+    datasets.uber = null;
+    datasets.mortgage = null;
   }
 
-  return async function loadUberDataMiddleware(req, res, next) {
+  return async function loadDataMiddleware(datasetName, req, res, next) {
     if (timeout) { clearTimeout(timeout); }
 
     // Set a 10-minute debounce to release server GPU memory
     timeout = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
 
-    req.uberTrips = uberTrips || (uberTrips = await readUberTrips());
+    req[datasetName] = datasets[datasetName] || (datasets[datasetName] = await readDataset(datasets, datasetName));
 
     next();
   }
 }
 
+async function readDataset(datasets, datasetName) {
+  if (datasetName == "uber") {
+    //clear mortgage dataset from mem
+    datasets.mortgage = null;
+    return readUberTrips();
+  }
+  if (datasetName == "mortgage") {
+    //clear uber dataset from mem
+    datasets.uber = null;
+    return readMortgageData();
+  }
+}
+
 async function readUberTrips() {
-  console.log("reading data");
   const trips = DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
@@ -64,6 +79,35 @@ async function readUberTrips() {
     start_hour: trips.get('start_hour'),
     end_hour: trips.get('end_hour'),
     travel_time: trips.get('travel_time'),
+  });
+}
+
+async function readMortgageData() {
+  const mortgage = DataFrame.readCSV({
+    header: 0,
+    sourceType: 'files',
+    sources: [('public/data/mortgage.csv')],
+    dataTypes: {
+      index: 'int16',
+      zip: 'int32',
+      dti: 'float32',
+      current_actual_upb: 'float32',
+      borrower_credit_score: 'int16',
+      load_id: 'int32',
+      delinquency_12_prediction: 'float32',
+      seller_name: 'int16'
+    }
+  });
+  return new DataFrame({
+    // TODO: do we want to add our own indices?
+    // id: Series.sequence({ type: new Uint32, init: 0, size: trips.numRows }),
+    zip: mortgage.get('zip'),
+    dti: mortgage.get('dti'),
+    current_actual_upb: mortgage.get('current_actual_upb'),
+    borrower_credit_score: mortgage.get('borrower_credit_score'),
+    load_id: mortgage.get('load_id'),
+    delinquency_12_prediction: mortgage.get('delinquency_12_prediction'),
+    seller_name: mortgage.get('seller_name'),
   });
 }
 

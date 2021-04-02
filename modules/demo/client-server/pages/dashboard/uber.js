@@ -5,8 +5,20 @@ import CustomBar from '../../components/charts/echarts.bar';
 import Indicator from '../../components/charts/indicator';
 import { Row, Col, Container } from 'react-bootstrap';
 import Layout from '../../components/layout';
+import * as d3 from "d3";
 
-export default class FirstPost extends React.Component {
+// color scale for choropleth charts
+const COLOR_SCALE = [
+    [49, 130, 189, 100],
+    [107, 174, 214, 100],
+    [123, 142, 216, 100],
+    [226, 103, 152, 100],
+    [255, 0, 104, 100],
+];
+const thresholdScale =
+    d3.scaleThreshold().domain([0, 400, 800, 1000, 2000, 4000]).range(COLOR_SCALE);
+
+export default class UberDashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -38,7 +50,7 @@ export default class FirstPost extends React.Component {
         return (
             <Layout title="Uber Dashboard" resetall={this._resetQuery}>
                 <Head>
-                    <title>First Post</title>
+                    <title>Uber Dashboard</title>
                 </Head>
                 <Container fluid>
                     <Row>
@@ -81,12 +93,20 @@ export default class FirstPost extends React.Component {
                                         dataset="uber"
                                         by="sourceid"
                                         agg="mean"
-                                        columns="travel_time"
+                                        columns={["travel_time"]}
                                         geojsonurl="http://localhost:3000/data/san_francisco_censustracts.geojson"
                                         geojsonprop="MOVEMENT_ID"
                                         initialviewstate={{ longitude: -122, latitude: 37, zoom: 6, maxZoom: 16, pitch: 0, bearing: 0 }}
                                         getquery={this._getQuery}
                                         updatequery={this._updateQuery}
+                                        thresholdScale={thresholdScale}
+                                        legend_props={{
+                                            0: '0s to 400s',
+                                            500: '400s to 800s',
+                                            900: '800s to 1000s',
+                                            1100: '1000s or higher',
+                                        }}
+
                                     ></CustomChoropleth>
                                 </Col>
                                 <Col md={6}>
@@ -94,19 +114,27 @@ export default class FirstPost extends React.Component {
                                         dataset="uber"
                                         by="dstid"
                                         agg="mean"
-                                        columns="travel_time"
+                                        columns={["travel_time", "DISPLAY_NAME"]}
                                         geojsonurl="http://localhost:3000/data/san_francisco_censustracts.geojson"
                                         geojsonprop="MOVEMENT_ID"
                                         initialviewstate={{ longitude: -122, latitude: 37, zoom: 6, maxZoom: 16, pitch: 0, bearing: 0 }}
                                         getquery={this._getQuery}
                                         updatequery={this._updateQuery}
+                                        thresholdScale={thresholdScale}
+                                        legend_props={{
+                                            0: '0s to 400s',
+                                            500: '400s to 800s',
+                                            900: '800s to 1000s',
+                                            1100: '1000s or higher',
+                                        }}
+
                                     ></CustomChoropleth>
                                 </Col>
                             </Row>
                         </Col>
                     </Row>
-                </Container>
-            </Layout>
+                </Container >
+            </Layout >
         )
     }
 }

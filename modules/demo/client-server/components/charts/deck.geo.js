@@ -4,20 +4,9 @@ import React from 'react';
 import { StaticMap } from 'react-map-gl';
 import { BASEMAP } from '@deck.gl/carto';
 import { Table } from 'apache-arrow';
-import * as d3 from "d3";
 import { Button, Card } from 'react-bootstrap';
 import { generateLegend } from '../../components/utils/legend';
 
-// color scale for choropleth charts
-const COLOR_SCALE = [
-    [49, 130, 189, 100],
-    [107, 174, 214, 100],
-    [123, 142, 216, 100],
-    [226, 103, 152, 100],
-    [255, 0, 104, 100],
-];
-const thresholdScale =
-    d3.scaleThreshold().domain([0, 400, 800, 1000, 2000, 4000]).range(COLOR_SCALE);
 
 export default class CustomChoropleth extends React.Component {
     constructor(props) {
@@ -35,6 +24,16 @@ export default class CustomChoropleth extends React.Component {
         this._reset = this._reset.bind(this);
     }
 
+    _fillColor() {
+        if (!this.props.fillcolor) { return this.props.columns[0] }
+        return this.props.fillcolor;
+    }
+
+    _elevation() {
+        if (!this.props.elevation) { return this.props.columns[0] }
+        return this.props.elevation;
+    }
+
     componentDidMount() {
         const { geojsonurl = undefined } = this.props;
 
@@ -48,12 +47,7 @@ export default class CustomChoropleth extends React.Component {
                 .then((data) => this.setState({ data: data }))
                 .catch((e) => console.log(e));
         }
-        generateLegend("#" + this.props.by + "legend", {
-            0: '0s to 400s',
-            500: '400s to 800s',
-            900: '800s to 1000s',
-            1100: '1000s or higher',
-        }, thresholdScale);
+        generateLegend("#" + this.props.by + "legend", this.props.legend_props, this.props.thresholdScale);
     }
 
     componentDidUpdate() {
@@ -139,44 +133,50 @@ export default class CustomChoropleth extends React.Component {
         const url = this._generateApiUrl(); // `/uber/tracts/groupby/sourceid/mean?columns=travel_time`;
         if (!url) { return null; }
         const table = await Table.from(fetch(url, { method: 'GET' }));
-        return this._convertToGeoJSON(table, this.props.by, [this.props.columns], this.props.geojsonprop);
+        return this._convertToGeoJSON(table, this.props.by, this.props.columns, this.props.geojsonprop);
     }
 
 
     _getFillColor(f) {
-        const x = f?.properties?.travel_time;
-        const id = f?.properties?.MOVEMENT_ID;
+        const x = f?.properties[this._fillColor()];
+        const id = f?.properties[this.props.geojsonprop];
         if (x !== undefined && id !== undefined) {
             if (this.state.clicked !== false) {
                 if (this.state.clicked !== parseInt(id)) {
                     return ([255, 255, 255, 10]);
                 } else {
-                    return thresholdScale(x);
+                    return this.props.thresholdScale(x);
                 }
             } else {
-                return thresholdScale(x);
+                return this.props.thresholdScale(x);
             }
         }
     }
 
     _onHover({ x, y, object }) {
-        this.setState({ x, y, hoveredCensusTract: object });
+        this.setState({ x, y, hoveredRegion: object });
     }
 
     _renderTooltip() {
-        const { x, y, hoveredCensusTract } = this.state;
-
+        const { x, y, hoveredRegion } = this.state;
         return (
-            hoveredCensusTract && (
+            hoveredRegion && (
                 <div className="deck-tooltip" style={{ position: 'absolute', left: x, top: y }}>
-                    {hoveredCensusTract.properties.DISPLAY_NAME} <br />
-                Mean Travel Time: {hoveredCensusTract.properties.travel_time}
-                </div>)
+                    {
+                        Object.keys(hoveredRegion.properties).map((value, idx) => {
+                            return `
+                            ${value}: ${hoveredRegion.properties[[value]]}
+                            `;
+                        })
+                    }
+                    {/* {hoveredRegion.properties.DISPLAY_NAME} <br />
+                Mean Travel Time: {hoveredRegion.properties.travel_time} */}
+                </div >)
         );
     }
 
     _onClick(f) {
-        const id = f?.object?.properties?.MOVEMENT_ID;
+        const id = f?.object?.properties[this.props.geojsonprop];
         if (this.state.clicked !== parseInt(id)) {
             this.props.updatequery({ [this.props.by]: parseInt(id) });
             this.setState({ clicked: parseInt(id) });
@@ -205,11 +205,10 @@ export default class CustomChoropleth extends React.Component {
                 getLineWidth: 10,
                 opacity: 50,
                 getFillColor: this._getFillColor,
-                getElevation: f => f?.properties?.travel_time * 10,
+                getElevation: f => f?.properties[this._elevation()] * 5,
                 onClick: this._onClick,
                 onHover: this._onHover,
                 getLineColor: [0, 188, 212, 100],
-                onSetColorDomain: event => console.log(event),
                 updateTriggers: {
                     getFillColor: [this.state.clicked, this.state.data],
                     getElevation: [this.state.data]
