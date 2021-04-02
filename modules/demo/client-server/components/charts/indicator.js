@@ -51,11 +51,11 @@ export default class Indicator extends React.Component {
 
   render() {
     return (
-      <Card border="light" bg="secondary" text="light" className="text-center">
+      <Card border="light" bg="secondary" text="light" className="text-center mb-3">
         <Card.Header className="h5"> Data Points Selected
         </Card.Header>
-        <Card.Body className="h4 text-center">
-          {this.state.size}
+        <Card.Body>
+          <span className="h4 text-center">{this.state.size}</span>
         </Card.Body>
       </Card>
     )

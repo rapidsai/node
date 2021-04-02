@@ -18,6 +18,10 @@ body {
   position: relative;
   background-color: #212121!important
 }
+
+.card-header {
+  padding: 0.5rem 1rem !important;
+}
 .container-fluid .row .col{
   margin: 2px 0px !important;
   padding: 0px 1px;

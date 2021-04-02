@@ -59,6 +59,7 @@ export default class FirstPost extends React.Component {
                                     getquery={this._getQuery}
                                     updatequery={this._updateQuery}
                                     xaxisdata={Array.from({ length: 31 }, (v, k) => k + 1)}
+                                    className="mb-3"
                                 ></CustomBar>
                             </Col>
                             <Col>

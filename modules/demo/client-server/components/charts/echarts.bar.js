@@ -127,7 +127,7 @@ export default class CustomBar extends React.Component {
 
   render() {
     return (
-      <Card border="light" bg="secondary" text="light" className="text-center">
+      <Card border="light" bg="secondary" text="light" className={this.props.className + " text-center"}>
         <Card.Header className="h5"> Trips per {this.props.x}
         </Card.Header>
         <Card.Body>
