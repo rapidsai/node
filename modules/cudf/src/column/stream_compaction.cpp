@@ -59,4 +59,17 @@ Napi::Value Column::drop_nans(Napi::CallbackInfo const& info) {
   return drop_nans(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
 }
 
+ObjectUnwrap<Column> Column::drop_duplicates(cudf::duplicate_keep_option keep,
+                                             cudf::null_equality nulls_equal,
+                                             rmm::mr::device_memory_resource* mr) const {
+  std::vector<cudf::size_type> keys{0};
+  auto result = cudf::drop_duplicates(cudf::table_view{{*this}}, keys, keep, nulls_equal, mr);
+  std::vector<std::unique_ptr<cudf::column>> contents = result->release();
+  return Column::New(std::move(contents[0]));
+}
+
+Napi::Value Column::drop_duplicates(Napi::CallbackInfo const& info) {
+  return drop_duplicates();  // unsure how to use NapiToCPP to pass args here
+}
+
 }  // namespace nv
