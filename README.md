@@ -60,6 +60,10 @@ The demos module contains a bunch of examples which use a combination of node-ra
 
 After you build the modules, run `yarn demo` from the command line to choose the demo you want to run.
 
+## Bindings Progress
+
+You can review [BINDINGS.md](https://github.com/rapidsai/node-rapids/blob/main/BINDINGS.md) to see which bindings have been completed for each of the RAPIDS libraries.
+
 ## License
 
 This work is licensed under the [Apache-2.0 license](./LICENSE).
