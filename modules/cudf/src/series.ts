@@ -481,6 +481,15 @@ export class AbstractSeries<T extends DataType = any> {
    * @summary Hook for specialized Series to override when constructing from a C++ Column.
    */
   protected __construct(inp: Column<T>): Series<T> { return Series.new(inp); }
+
+  value_counts(): DataFrame {
+    const index = Array.from({length: this.length}, (_, i) => Number(i));
+    const df    = new DataFrame({
+      'index': Series.new({type: new Int32, data: index}),
+      'values': this,
+    });
+    return df.groupBy({by: 'values'}).count();
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
