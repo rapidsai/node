@@ -16,6 +16,7 @@
 
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
+#include "cudf/stream_compaction.hpp"
 
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
@@ -115,6 +116,16 @@ inline NapiToCPP::operator cudf::timestamp_ns() const {
 template <>
 inline NapiToCPP::operator cudf::interpolation() const {
   return static_cast<cudf::interpolation>(operator int32_t());
+}
+
+template <>
+inline NapiToCPP::operator cudf::duplicate_keep_option() const {
+  return static_cast<cudf::duplicate_keep_option>(operator int32_t());
+}
+
+template <>
+inline NapiToCPP::operator cudf::null_equality() const {
+  return static_cast<cudf::null_equality>(operator bool());
 }
 
 }  // namespace nv

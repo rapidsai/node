@@ -13,7 +13,11 @@
 // limitations under the License.
 
 #include <node_cudf/column.hpp>
+#include <node_cudf/utilities/napi_to_cpp.hpp>
+
 #include <node_rmm/device_buffer.hpp>
+#include <node_rmm/utilities/napi_to_cpp.hpp>
+
 #include <nv_node/utilities/wrap.hpp>
 
 #include <cudf/column/column.hpp>
@@ -22,6 +26,7 @@
 #include <cudf/stream_compaction.hpp>
 #include <cudf/table/table_view.hpp>
 #include <cudf/types.hpp>
+
 #include <rmm/device_buffer.hpp>
 
 #include <napi.h>
@@ -62,14 +67,13 @@ Napi::Value Column::drop_nans(Napi::CallbackInfo const& info) {
 ObjectUnwrap<Column> Column::drop_duplicates(cudf::duplicate_keep_option keep,
                                              cudf::null_equality nulls_equal,
                                              rmm::mr::device_memory_resource* mr) const {
-  std::vector<cudf::size_type> keys{0};
-  auto result = cudf::drop_duplicates(cudf::table_view{{*this}}, keys, keep, nulls_equal, mr);
-  std::vector<std::unique_ptr<cudf::column>> contents = result->release();
-  return Column::New(std::move(contents[0]));
+  return Column::New(std::move(
+    cudf::drop_duplicates(cudf::table_view{{*this}}, {0}, keep, nulls_equal, mr)->release()[0]));
 }
 
 Napi::Value Column::drop_duplicates(Napi::CallbackInfo const& info) {
-  return drop_duplicates();  // unsure how to use NapiToCPP to pass args here
+  CallbackArgs args{info};
+  return drop_duplicates(args[0], args[1], args[2]);
 }
 
 }  // namespace nv
