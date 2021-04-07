@@ -109,7 +109,7 @@ export default class CustomChoropleth extends React.Component {
      */
     _transformData(data, by, params) {
         return data.reduce((a, v) => {
-            a[v[[by]]] = params.reduce((res, x) => {
+            a[v[by]] = params.reduce((res, x) => {
                 res[x] = v[x];
                 return res
             }, {});
