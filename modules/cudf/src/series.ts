@@ -45,7 +45,12 @@ import {
   NullOrder,
   ReplacePolicy,
 } from './types/enums';
-import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
+import {
+  ArrowToCUDFType,
+  arrowToCUDFType,
+  DuplicateKeepOption,
+  NullEquality
+} from './types/mappings';
 
 export type SeriesProps<T extends DataType = any> = {
   /*
@@ -482,6 +487,10 @@ export class AbstractSeries<T extends DataType = any> {
    */
   protected __construct(inp: Column<T>): Series<T> { return Series.new(inp); }
 
+  /**
+   * TBD
+   * @returns TBD
+   */
   value_counts(): DataFrame {
     const index = Array.from({length: this.length}, (_, i) => Number(i));
     const df    = new DataFrame({
@@ -489,6 +498,21 @@ export class AbstractSeries<T extends DataType = any> {
       'values': this,
     });
     return df.groupBy({by: 'values'}).count();
+  }
+
+  /**
+   * Removes duplicate values from the Series.
+   *
+   * @param keep Determines whether to keep the first, last, or none of the duplicate items.
+   * @param nullsEqual Determines whether nulls are handled as equal values.
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   * @returns series without duplicate values
+   */
+  unique(keep: keyof typeof DuplicateKeepOption = 'keep_first',
+         nullsEqual: keyof typeof NullEquality  = 'equal',
+         memoryResource?: MemoryResource) {
+    return this.__construct(this._col.drop_duplicates(
+      DuplicateKeepOption[keep], NullEquality[nullsEqual], memoryResource));
   }
 }
 
