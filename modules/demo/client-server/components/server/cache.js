@@ -15,6 +15,7 @@
 const fs = require('fs/promises');
 const { DataFrame, Series, Uint32 } = require('@rapidsai/cudf');
 const { Field, Vector, Float32, List } = require('apache-arrow');
+const path = require('path');
 
 module.exports = () => {
   let timeout = null;
@@ -58,7 +59,7 @@ async function readUberTrips() {
   const trips = DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
-    sources: [('public/data/san_fran_uber.csv')],
+    sources: [path.resolve('./public', 'data/san_fran_uber.csv')],
     dataTypes: {
       sourceid: 'int16',
       dstid: 'int16',
@@ -86,7 +87,7 @@ async function readMortgageData() {
   const mortgage = DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
-    sources: [('public/data/mortgage.csv')],
+    sources: [path.resolve('./public', 'data/mortgage.csv')],
     dataTypes: {
       index: 'int16',
       zip: 'int32',
