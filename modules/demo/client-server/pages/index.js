@@ -52,7 +52,7 @@ export default function Home() {
         </CardGroup>
       </section >
 
-      <footer className="text-center" style={{ "position": "fixed", "bottom": 50, "width": "100%", "text-align": "center" }}>
+      <footer className="text-center" style={{ "position": "fixed", "bottom": 50, "width": "100%", "textAlign": "center" }}>
         <Row>
           <Col><a href="https://github.com/rapidsai/node-rapids/" target="_blank"> node-rapids github </a>{' '}</Col>
           <Col><a href="https://github.com/rapidsai/" target="_blank"> Explore other RAPIDS projects </a> </Col>
