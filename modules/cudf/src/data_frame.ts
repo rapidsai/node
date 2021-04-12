@@ -90,10 +90,15 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
-   * Return a new DataFrame with new columns added.
-   *
-   * @param data mapping of names to new columns to add or a GPU DataFrame object
+   *  @param data mapping of names to new columns to add
    */
+  assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<T&R>;
+
+  /**
+   *  @param data a GPU DataFrame object
+   */
+  assign<R extends TypeMap>(data: DataFrame<R>): DataFrame<T&R>;
+
   assign<R extends TypeMap>(data: SeriesMap<R>|DataFrame<R>) {
     const columns = (data instanceof DataFrame) ? data._accessor : _seriesToColumns(data);
     return new DataFrame(this._accessor.addColumns(columns));
