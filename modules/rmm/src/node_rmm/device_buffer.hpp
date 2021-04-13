@@ -68,14 +68,14 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   }
 
   /**
-   * @brief Construct a new DeviceBuffer instance from an ArrayBuffer.
+   * @brief Construct a new DeviceBuffer instance from a Uint8Array.
    *
-   * @param data ArrayBuffer to host memory to copy from.
+   * @param data Uint8Array of host memory to copy from.
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
    */
   static ObjectUnwrap<DeviceBuffer> New(
-    Napi::ArrayBuffer const& data,
+    Napi::Uint8Array const& data,
     ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
     rmm::cuda_stream_view stream           = rmm::cuda_stream_default);
 

@@ -53,7 +53,7 @@ ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(std::unique_ptr<rmm::device_buffer>
   return buf;
 }
 
-ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(Napi::ArrayBuffer const& data,
+ObjectUnwrap<DeviceBuffer> DeviceBuffer::New(Napi::TypedArrayOf<uint8_t> const& data,
                                              ObjectUnwrap<MemoryResource> const& mr,
                                              rmm::cuda_stream_view stream) {
   NODE_CUDA_EXPECT(MemoryResource::is_instance(mr.object()),

@@ -99,6 +99,17 @@ struct NapiToCPP {
     return false;
   }
 
+  inline bool IsDeviceMemoryLike() const {
+    if (IsObject() and not IsNull()) {
+      NapiToCPP::Object const& obj = val;
+      if (obj.Has("buffer")) {  //
+        return obj.Get("buffer").IsDeviceMemoryLike();
+      }
+      return obj.Has("ptr") and obj.Get("ptr").IsNumber();
+    }
+    return false;
+  }
+
   inline Napi::Boolean ToBoolean() const { return val.ToBoolean(); }
   inline Napi::Number ToNumber() const { return val.ToNumber(); }
   inline Napi::String ToString() const { return val.ToString(); }
@@ -132,10 +143,39 @@ struct NapiToCPP {
   }
   inline operator Napi::DataView() const { return val.As<Napi::DataView>(); }
   inline operator Napi::TypedArray() const { return val.As<Napi::TypedArray>(); }
+
+  template <typename T>
+  inline operator Napi::TypedArrayOf<T>() const {
+    bool is_valid{false};
+    std::size_t length{};
+    std::size_t offset{};
+    Napi::ArrayBuffer buffer;
+    if (IsArrayBuffer()) {
+      is_valid = true;
+      buffer   = val.As<Napi::ArrayBuffer>();
+      length   = buffer.ByteLength() / sizeof(T);
+    } else if (IsDataView()) {
+      is_valid       = true;
+      auto const ary = val.As<Napi::DataView>();
+      buffer         = ary.ArrayBuffer();
+      offset         = ary.ByteOffset();
+      length         = ary.ByteLength() / sizeof(T);
+    } else if (IsTypedArray()) {
+      is_valid       = true;
+      auto const ary = val.As<Napi::TypedArray>();
+      buffer         = ary.ArrayBuffer();
+      offset         = ary.ByteOffset();
+      length         = ary.ByteLength() / sizeof(T);
+    }
+    if (is_valid) { return Napi::TypedArrayOf<T>::New(Env(), length, buffer, offset); }
+    throw Napi::Error::New(Env(), "Expected ArrayBuffer or ArrayBufferView");
+  }
+
   template <typename T>
   inline operator Napi::Buffer<T>() const {
     return val.As<Napi::Buffer<T>>();
   }
+
   inline operator Object() const { return Object(val); }
 
   //

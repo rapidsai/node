@@ -69,6 +69,10 @@ struct CPPToNapi {
   inline Napi::DataView operator()(Napi::DataView const& val) const { return val; }
   inline Napi::TypedArray operator()(Napi::TypedArray const& val) const { return val; }
   template <typename T>
+  inline Napi::TypedArrayOf<T> operator()(Napi::TypedArrayOf<T> const& val) const {
+    return val;
+  }
+  template <typename T>
   inline Napi::Buffer<T> operator()(Napi::Buffer<T> const& val) const {
     return val;
   }
