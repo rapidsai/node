@@ -43,7 +43,8 @@
     "modules/demo/xterm",
     "modules/demo/ipc/*",
     "modules/demo/deck/*",
-    "modules/demo/tfjs/*"
+    "modules/demo/tfjs/*",
+    "modules/demo/client-server"
   ],
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "4.17.0",
@@ -77,7 +78,8 @@
   "resolutions": {
     "**/jsdom": "^16.2.2",
     "**/deck.gl": "8.4.9",
-    "**/react-map-gl": "6.1.10",
+    "**/react-map-gl": "5.*.*",
+    "**/apache-arrow": "^3.0.0",
     "**/@deck.gl/arcgis": "8.4.9",
     "**/@deck.gl/aggregation-layers": "8.4.9",
     "**/@deck.gl/core": "8.4.9",
