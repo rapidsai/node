@@ -31,11 +31,12 @@ function(find_and_configure_cugraph VERSION)
         set(BUILD_TESTS OFF)
         set(BUILD_BENCHMARKS OFF)
 
-        CPMFindPackage(NAME cugraph
-            VERSION        ${CUGRAPH_VERSION}
-            GIT_REPOSITORY https://github.com/rapidsai/cugraph.git
-            GIT_TAG        branch-${CUGRAPH_VERSION}
-            GIT_SHALLOW    TRUE
+        CPMFindPackage(NAME     cugraph
+            VERSION             ${CUGRAPH_VERSION}
+            GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
+            GIT_TAG             branch-${CUGRAPH_VERSION}
+            GIT_SHALLOW         TRUE
+            UPDATE_DISCONNECTED FALSE
             # SOURCE_SUBDIR  cpp
             DOWNLOAD_ONLY
         )

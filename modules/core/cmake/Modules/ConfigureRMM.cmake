@@ -25,25 +25,31 @@ function(find_and_configure_rmm VERSION)
     if(NOT TARGET rmm::rmm)
 
         if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+            # if (EXISTS "${FETCHCONTENT_BASE_DIR}/spdlog-build")
+            #     file(REMOVE_RECURSE "${FETCHCONTENT_BASE_DIR}/spdlog-build")
+            #     file(REMOVE_RECURSE "${FETCHCONTENT_BASE_DIR}/spdlog-subbuild")
+            # endif()
             if (EXISTS "${FETCHCONTENT_BASE_DIR}/thrust-subbuild")
                 file(REMOVE_RECURSE "${FETCHCONTENT_BASE_DIR}/thrust-subbuild")
             endif()
         endif()
 
-        CPMFindPackage(NAME        rmm
-            VERSION                ${RMM_VERSION}
-            GIT_REPOSITORY         https://github.com/rapidsai/rmm.git
-            GIT_TAG                branch-${RMM_VERSION}
-            GIT_SHALLOW            TRUE
-            OPTIONS                "BUILD_TESTS OFF"
-                                   "BUILD_BENCHMARKS OFF"
-                                   "CUDA_STATIC_RUNTIME ON"
-                                   "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}"
-        )
+        CPMFindPackage(NAME     rmm
+            VERSION             ${RMM_VERSION}
+            GIT_REPOSITORY      https://github.com/rapidsai/rmm.git
+            GIT_TAG             branch-${RMM_VERSION}
+            GIT_SHALLOW         TRUE
+            UPDATE_DISCONNECTED FALSE
+            OPTIONS             "BUILD_TESTS OFF"
+                                "BUILD_BENCHMARKS OFF"
+                                "CUDA_STATIC_RUNTIME ON"
+                                "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
     endif()
 
     # Make sure consumers of our libs can see rmm::rmm
     _fix_cmake_global_defaults(rmm::rmm)
+    _fix_cmake_global_defaults(rmm::Thrust)
+    _fix_cmake_global_defaults(rmm::spdlog_header_only)
 endfunction()
 
 find_and_configure_rmm(${RMM_VERSION})
