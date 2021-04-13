@@ -44,7 +44,8 @@ export class ColumnAccessor<T extends TypeMap = any> {
     return this._data[name];
   }
 
-  addColumns<R extends TypeMap>(data: ColumnsMap<R>) {
+  addColumns<R extends TypeMap>(data: ColumnsMap<R>|ColumnAccessor<R>) {
+    data = (data instanceof ColumnAccessor) ? data._data : data;
     return new ColumnAccessor({...this._data, ...data} as ColumnsMap<T&R>);
   }
 

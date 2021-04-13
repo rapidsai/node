@@ -190,6 +190,7 @@
       "**/.cache/**": true,
       "**/.cmake-js/**": true,
       "**/node_modules/**": true
-    }
+    },
+    "typescript.tsdk": "node-rapids/node_modules/typescript/lib"
   }
 }

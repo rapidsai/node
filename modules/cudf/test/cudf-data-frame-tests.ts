@@ -112,6 +112,7 @@ test('DataFrame.assign', () => {
 
   const col_2 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
   const col_3 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
+  const col_4 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
 
   const table_0 = new DataFrame({'col_0': col_0, 'col_1': col_1, 'col_2': col_2});
 
@@ -119,6 +120,13 @@ test('DataFrame.assign', () => {
   expect(table_1.numColumns).toBe(4);
   expect(table_1.numRows).toBe(length);
   expect(table_1.names).toStrictEqual(['col_0', 'col_1', 'col_2', 'col_3']);
+
+  // testing DataFrame.assign(DataFrame)
+  const table_2 = new DataFrame({'col_4': col_4});
+  const table_3 = table_0.assign(table_2);
+  expect(table_3.numColumns).toBe(4);
+  expect(table_3.numRows).toBe(length);
+  expect(table_3.names).toStrictEqual(['col_0', 'col_1', 'col_2', 'col_4']);
 });
 
 test('DataFrame.drop', () => {
