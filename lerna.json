@@ -7,8 +7,8 @@
     "modules/*",
     "modules/demo/graph",
     "modules/demo/luma",
+    "modules/demo/spatial",
     "modules/demo/xterm",
-    "modules/demo/cugraph",
     "modules/demo/deck/*",
     "modules/demo/ipc/*",
     "modules/demo/tfjs/*"
