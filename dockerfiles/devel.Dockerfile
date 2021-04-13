@@ -1,5 +1,5 @@
 ARG BASE_IMAGE
-ARG NODE_VERSION=14.10.1
+ARG NODE_VERSION=15.14.0
 
 FROM node:$NODE_VERSION-stretch-slim as node
 
@@ -24,7 +24,7 @@ fi') \
  && apt update -y \
  && apt install --no-install-recommends -y \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} \
-    jq git nano sudo wget ninja-build bash-completion \
+    jq git entr nano sudo wget ninja-build bash-completion \
     # ccache dependencies
     unzip automake autoconf libb2-dev libzstd-dev \
     # CMake dependencies
