@@ -65,9 +65,9 @@ function(find_and_configure_cugraph VERSION)
         set_target_properties(cugraph
             PROPERTIES BUILD_RPATH                         "\$ORIGIN"
                        # set target compile options
-                       CXX_STANDARD                        14
+                       CXX_STANDARD                        17
                        CXX_STANDARD_REQUIRED               ON
-                       CUDA_STANDARD                       14
+                       CUDA_STANDARD                       17
                        CUDA_STANDARD_REQUIRED              ON
                        NO_SYSTEM_FROM_IMPORTED             ON
                        POSITION_INDEPENDENT_CODE           ON
