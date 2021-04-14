@@ -28,11 +28,11 @@ unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
-set(RMM_VERSION "0.19")
-set(CUDF_VERSION "0.19")
-set(CUGRAPH_VERSION "0.19")
-set(RAFT_VERSION "0.19")
-set(RAFT_BRANCH "f75d7b437bf1da3df749108161b8a0505fb6b7b3")
+set(RMM_VERSION "0.20")
+set(CUDF_VERSION "0.20")
+set(CUGRAPH_VERSION "0.20")
+set(RAFT_VERSION "0.20")
+set(RAFT_BRANCH "f0cd81fb49638eaddc9bf18998cc894f292bc293")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------

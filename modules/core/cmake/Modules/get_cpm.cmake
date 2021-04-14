@@ -31,9 +31,11 @@ set(CPM_SOURCE_CACHE "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
 set(ENV{CPM_SOURCE_CACHE} "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
 message(STATUS "get_cpm: Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
 
-set(CPM_DOWNLOAD_VERSION 0.27.5)
+set(CPM_DOWNLOAD_VERSION 4fad2eac0a3741df3d9c44b791f9163b74aa7b07) # 0.32.0
 
 if(CPM_SOURCE_CACHE)
+  # Expand relative path. This is important if the provided path contains a tilde (~)
+  get_filename_component(CPM_SOURCE_CACHE ${CPM_SOURCE_CACHE} ABSOLUTE)
   set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
 elseif(DEFINED ENV{CPM_SOURCE_CACHE})
   set(CPM_DOWNLOAD_LOCATION "$ENV{CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
@@ -42,11 +44,11 @@ else()
 endif()
 
 if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
-  message(STATUS "get_cpm: Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
-  file(DOWNLOAD
-       https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
-       ${CPM_DOWNLOAD_LOCATION}
-  )
+  message(VERBOSE "get_cpm: Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
+  file(
+    DOWNLOAD
+    https://raw.githubusercontent.com/cpm-cmake/CPM.cmake/${CPM_DOWNLOAD_VERSION}/cmake/CPM.cmake
+    ${CPM_DOWNLOAD_LOCATION})
 endif()
 
 include(${CPM_DOWNLOAD_LOCATION})

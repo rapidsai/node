@@ -42,19 +42,20 @@ function(find_and_configure_cudf VERSION)
                         OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
                         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-        CPMFindPackage(NAME cudf
-            VERSION         ${VERSION}
-            GIT_REPOSITORY  https://github.com/rapidsai/cudf.git
-            GIT_TAG         branch-${VERSION}
-            GIT_SHALLOW     TRUE
-            SOURCE_SUBDIR   cpp
-            OPTIONS         "BUILD_TESTS OFF"
-                            "BUILD_BENCHMARKS OFF"
-                            "JITIFY_USE_CACHE ON"
-                            "CUDA_STATIC_RUNTIME ON"
-                            "CUDF_USE_ARROW_STATIC ON"
-                            "PER_THREAD_DEFAULT_STREAM ON"
-                            "DISABLE_DEPRECATION_WARNING ON")
+        CPMFindPackage(NAME     cudf
+            VERSION             ${VERSION}
+            GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
+            GIT_TAG             branch-${VERSION}
+            GIT_SHALLOW         TRUE
+            UPDATE_DISCONNECTED FALSE
+            SOURCE_SUBDIR       cpp
+            OPTIONS             "BUILD_TESTS OFF"
+                                "BUILD_BENCHMARKS OFF"
+                                "JITIFY_USE_CACHE ON"
+                                "CUDA_STATIC_RUNTIME ON"
+                                "CUDF_USE_ARROW_STATIC ON"
+                                "PER_THREAD_DEFAULT_STREAM ON"
+                                "DISABLE_DEPRECATION_WARNING ON")
     endif()
 
     # Make sure consumers of our libs can see cudf::cudf
