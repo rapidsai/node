@@ -35,6 +35,17 @@ export type OrderSpec = {
   null_order: NullOrder
 };
 
+export type JoinType = 'inner'|'outer'|'left'|'right'
+
+export type JoinProps<T extends TypeMap, R extends keyof T> = {
+  other: DataFrame<T>,
+  on: R[],
+  how: JoinType,
+  lsuffix?: string,
+  rsuffix?: string,
+  nullEquality?: boolean,
+}
+
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
   GroupBySingleProps<T, R>|Partial<GroupByMultipleProps<T, R, IndexKey>>;
 
@@ -258,6 +269,36 @@ export class DataFrame<T extends TypeMap = any> {
     this._accessor.names.forEach(
       (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
     return new DataFrame(series_map);
+  }
+
+  /**
+   * Join columns with other DataFrame.
+   *
+   * @param props the configuration for the join
+   * @returns the joined DataFrame
+   */
+  join<U extends TypeMap, R extends keyof U>(props: JoinProps<U, R>): DataFrame<any> {
+    const {how, other, on} = props;
+    const nullEquality     = props.nullEquality == undefined ? true : props.nullEquality;
+    const left             = this.select(on as any).asTable();
+    const right            = other.select(on as any).asTable();
+
+    const joins = {
+      'inner': () => Table.innerJoin(left, right, nullEquality),
+      'outer': () => Table.fullJoin(left, right, nullEquality),
+      'left': ()  => Table.leftJoin(left, right, nullEquality),
+      'right': () => Table.leftJoin(right, left, nullEquality),
+    };
+
+    const [left_gather, right_gather] = joins[how]();
+
+    // console.log([...Series.new(left_gather)], [...Series.new(right_gather)]);
+    const left_result  = this.gather(Series.new(left_gather));
+    const right_result = other.gather(Series.new(right_gather)).drop(on);
+
+    const result = left_result.assign(right_result);
+
+    return result;
   }
 
   /**

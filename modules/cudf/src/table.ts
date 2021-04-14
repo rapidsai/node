@@ -44,6 +44,41 @@ interface TableConstructor {
    */
   readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>):
     {names: (keyof T)[], table: Table};
+
+  /**
+   * Returns a pair of row index vectors corresponding to a full (outer) join between the specified
+   * tables.
+   *
+   * @param left_keys The left table
+   * @param right_keys The right table
+   * @param nullEquality controls whether null join-key values
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  fullJoin(left: Table, right: Table, nullEquality: boolean, memoryResource?: MemoryResource):
+    Column[];
+
+  /**
+   * Returns a pair of row index vectors corresponding to an inner join between the specified
+   * tables.
+   *
+   * @param left_keys The left table
+   * @param right_keys The right table
+   * @param nullEquality controls whether null join-key values
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  innerJoin(left: Table, right: Table, nullEquality: boolean, memoryResource?: MemoryResource):
+    Column[];
+
+  /**
+   * Returns a pair of row index vectors corresponding to a left join between the specified tables.
+   *
+   * @param left_keys The left table
+   * @param right_keys The right table
+   * @param nullEquality controls whether null join-key values
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  leftJoin(left: Table, right: Table, nullEquality: boolean, memoryResource?: MemoryResource):
+    Column[];
 }
 
 /**
