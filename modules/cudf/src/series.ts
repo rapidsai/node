@@ -145,7 +145,8 @@ export type Series<T extends arrow.DataType = any> = {
 export class AbstractSeries<T extends DataType = any> {
   static new<T extends arrow.Vector>(input: T): Series<ArrowToCUDFType<T['type']>>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>): Series<T>;
-  static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>) {
+  static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>|string[]|number[]|
+                                 bigint[]) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
   }
 
@@ -534,7 +535,8 @@ function inferType(value: any[]): DataType {
   throw new TypeError('Unable to infer type series type, explicit type declaration expected');
 }
 
-function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|arrow.Vector<T>): Column<T> {
+function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|arrow.Vector<T>|string[]|
+                                      number[]|bigint[]): Column<T> {
   if (value instanceof Array) {
     return fromArrow(arrow.Vector.from(
              {type: inferType(value), values: value, highWaterMark: Infinity})) as any;
