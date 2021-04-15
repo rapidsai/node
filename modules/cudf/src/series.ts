@@ -145,6 +145,9 @@ export type Series<T extends arrow.DataType = any> = {
 export class AbstractSeries<T extends DataType = any> {
   static new<T extends arrow.Vector>(input: T): Series<ArrowToCUDFType<T['type']>>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>): Series<T>;
+  static new(input: string[]): Series<Utf8String>;
+  static new(input: number[]): Series<Float64>;
+  static new(input: bigint[]): Series<Int64>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>|string[]|number[]|
                                  bigint[]) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;

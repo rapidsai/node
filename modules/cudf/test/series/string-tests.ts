@@ -35,19 +35,19 @@ const data: string[] = [
 describe.each([['foo'], [/foo/], [/foo/ig]])('Series regex search (pattern=%p)', (pattern) => {
   test('containsRe', () => {
     const expected = [true, true, true, true, true, false, false, true, true];
-    const s        = Series.new(data as any);
+    const s        = Series.new(data);
     expect([...s.containsRe(pattern)]).toEqual(expected);
   });
 
   test('countRe', () => {
     const expected = [1, 1, 1, 2, 1, 0, 0, 1, 1];
-    const s        = StringSeries.new(data as any);
+    const s        = StringSeries.new(data);
     expect([...s.countRe(pattern)]).toEqual(expected);
   });
 
   test('matchesRe', () => {
     const expected = [true, false, false, true, false, false, false, false, false];
-    const s        = StringSeries.new(data as any);
+    const s        = StringSeries.new(data);
     expect([...s.matchesRe(pattern)]).toEqual(expected);
   });
 });
