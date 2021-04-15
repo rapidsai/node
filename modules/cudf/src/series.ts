@@ -526,10 +526,29 @@ export {
   StructSeries,
 };
 
+function inferType(value: any[]): DataType {
+  if (value.length == 0) return new Float64;
+  if (value.every((val) => typeof val === 'string')) return new Utf8String;
+  if (value.every((val) => typeof val === 'number' || val === null)) return new Float64;
+  if (value.every((val) => typeof val === 'bigint')) return new Int64;
+  throw new TypeError('Unable to infer type series type, explicit type declaration expected');
+}
+
 function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|arrow.Vector<T>): Column<T> {
+  if (value instanceof Array) {
+    return fromArrow(arrow.Vector.from(
+             {type: inferType(value), values: value, highWaterMark: Infinity})) as any;
+  }
   if (value instanceof arrow.Vector) { return fromArrow(value) as any; }
+  if (!value.type && value.data instanceof Array) {
+    (value as any).type = inferType((value as any).data);
+  }
   if (!(value.type instanceof arrow.DataType)) {
     (value as any).type = arrowToCUDFType<T>(value.type);
+  }
+  if (value.data instanceof Array) {
+    return fromArrow(arrow.Vector.from(
+             {type: (value as any).type, values: value.data, highWaterMark: Infinity})) as any;
   }
   if (value instanceof Column) {
     return value;
