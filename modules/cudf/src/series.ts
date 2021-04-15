@@ -532,7 +532,7 @@ export {
 
 function inferType(value: any[]): DataType {
   if (value.length == 0) return new Float64;
-  if (value.every((val) => typeof val === 'string')) return new Utf8String;
+  if (value.every((val) => typeof val === 'string' || val === null)) return new Utf8String;
   if (value.every((val) => typeof val === 'number' || val === null)) return new Float64;
   if (value.every((val) => typeof val === 'bigint')) return new Int64;
   throw new TypeError('Unable to infer type series type, explicit type declaration expected');
