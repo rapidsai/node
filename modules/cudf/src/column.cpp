@@ -288,7 +288,7 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
 
   this->size_ = props.Get("length");
 
-  if (this->size_ <= 0) {
+  if (!props.Has("length")) {
     auto type = this->type();
     if (cudf::is_fixed_width(type)) {
       this->size_ = data->size() / cudf::size_of(type);
