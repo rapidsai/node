@@ -68,9 +68,9 @@ add_library(${PROJECT_NAME} SHARED ${NODE_GLFW_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME}
     PROPERTIES PREFIX                              ""
                SUFFIX                              ".node"
-               CXX_STANDARD                        14
+               CXX_STANDARD                        17
                CXX_STANDARD_REQUIRED               ON
-               CUDA_STANDARD                       14
+               CUDA_STANDARD                       17
                CUDA_STANDARD_REQUIRED              ON
                NO_SYSTEM_FROM_IMPORTED             ON
                POSITION_INDEPENDENT_CODE           ON

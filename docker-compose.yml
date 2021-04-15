@@ -10,7 +10,7 @@ x-common-service-settings: &common_service_settings
     args: &common_build_args
       UID: ${UID:-1000}
       ADDITIONAL_GROUPS: ""
-      NODE_VERSION: "${NODE_VERSION:-14.10.1}"
+      NODE_VERSION: "${NODE_VERSION:-15.14.0}"
       YARN_VERSION: "${YARN_VERSION:-1.22.5}"
   environment: &common_environment_variables
     # Colorize the terminal in the container if possible
@@ -71,6 +71,8 @@ services:
     cap_add:
       - SYS_ADMIN
       - SYS_PTRACE
+    security_opt:
+      - apparmor=unconfined
 
   nteract:
     <<: *common_service_settings
