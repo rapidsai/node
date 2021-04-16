@@ -145,11 +145,12 @@ export type Series<T extends arrow.DataType = any> = {
 export class AbstractSeries<T extends DataType = any> {
   static new<T extends arrow.Vector>(input: T): Series<ArrowToCUDFType<T['type']>>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>): Series<T>;
-  static new(input: string[]): Series<Utf8String>;
-  static new(input: number[]): Series<Float64>;
-  static new(input: bigint[]): Series<Int64>;
-  static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>|string[]|number[]|
-                                 bigint[]) {
+  static new(input: (string|null|undefined)[]): Series<Utf8String>;
+  static new(input: (number|null|undefined)[]): Series<Float64>;
+  static new(input: (bigint|null|undefined)[]): Series<Int64>;
+  static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>|
+                                 (string|null|undefined)[]|(number|null|undefined)[]|
+                                 (bigint|null|undefined)[]) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
   }
 
@@ -532,28 +533,34 @@ export {
 
 function inferType(value: any[]): DataType {
   if (value.length == 0) return new Float64;
-  if (value.every((val) => typeof val === 'string' || val === null)) return new Utf8String;
-  if (value.every((val) => typeof val === 'number' || val === null)) return new Float64;
-  if (value.every((val) => typeof val === 'bigint')) return new Int64;
+  if (value.every((val) => typeof val === 'string' || val == null)) return new Utf8String;
+  if (value.every((val) => typeof val === 'number' || val == null)) return new Float64;
+  if (value.every((val) => typeof val === 'bigint' || val == null)) return new Int64;
   throw new TypeError('Unable to infer type series type, explicit type declaration expected');
 }
 
-function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|arrow.Vector<T>|string[]|
-                                      number[]|bigint[]): Column<T> {
-  if (value instanceof Array) {
+function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|arrow.Vector<T>|
+                                      (string | null | undefined)[]|(number | null | undefined)[]|
+                                      (bigint | null | undefined)[]): Column<T> {
+  if (Array.isArray(value)) {
     return fromArrow(arrow.Vector.from(
              {type: inferType(value), values: value, highWaterMark: Infinity})) as any;
   }
   if (value instanceof arrow.Vector) { return fromArrow(value) as any; }
-  if (!value.type && value.data instanceof Array) {
-    (value as any).type = inferType((value as any).data);
+  if (!value.type && Array.isArray(value.data)) {
+    return fromArrow(arrow.Vector.from({
+             type: inferType((value as any).data),
+             values: (value as any).data,
+             highWaterMark: Infinity
+           })) as any;
   }
   if (!(value.type instanceof arrow.DataType)) {
     (value as any).type = arrowToCUDFType<T>(value.type);
   }
-  if (value.data instanceof Array) {
+  if (Array.isArray(value.data)) {
     return fromArrow(arrow.Vector.from(
-             {type: (value as any).type, values: value.data, highWaterMark: Infinity})) as any;
+             {type: (value as any).type, values: (value as any).data, highWaterMark: Infinity})) as
+           any;
   }
   if (value instanceof Column) {
     return value;
