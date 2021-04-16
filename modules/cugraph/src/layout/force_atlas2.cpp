@@ -64,8 +64,8 @@ Napi::Value GraphCOO::force_atlas2(Napi::CallbackInfo const &info) {
       y_start  = x_start + num_nodes();
       return buf->Value();
     }
-    return DeviceBuffer::New(
-      std::make_unique<rmm::device_buffer>(num_nodes() * 2 * sizeof(float), nullptr, mr));
+    return DeviceBuffer::New(std::make_unique<rmm::device_buffer>(
+      num_nodes() * 2 * sizeof(float), rmm::cuda_stream_default, mr));
   }(options.Get("positions"));
 
   auto graph = this->view();

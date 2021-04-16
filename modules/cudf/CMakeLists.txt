@@ -55,7 +55,7 @@ include(ConfigureCXX)
 include(ConfigureCUDA)
 include(ConfigureNapi)
 include(ConfigureCUDF)
-                    
+
 ###################################################################################################
 # - node_cudf target ------------------------------------------------------------------------------
 
@@ -66,6 +66,8 @@ add_library(${PROJECT_NAME} SHARED ${NODE_CUDF_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME}
     PROPERTIES PREFIX                              ""
                SUFFIX                              ".node"
+               BUILD_RPATH                         "\$ORIGIN"
+               INSTALL_RPATH                       "\$ORIGIN"
                CXX_STANDARD                        17
                CXX_STANDARD_REQUIRED               ON
                CUDA_STANDARD                       17

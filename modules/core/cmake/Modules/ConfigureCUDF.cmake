@@ -14,17 +14,19 @@
 # limitations under the License.
 #=============================================================================
 
-include(get_cpm)
-
-_set_package_dir_if_exists(cudf cudf)
-_set_package_dir_if_exists(dlpack dlpack)
-_set_package_dir_if_exists(jitify jitify)
-_set_package_dir_if_exists(Thrust thrust)
-_set_package_dir_if_exists(libcudacxx libcudacxx)
-_set_package_dir_if_exists(arrow_static arrow)
-_set_package_dir_if_exists(arrow_cuda_static arrow)
-
 function(find_and_configure_cudf VERSION)
+
+    include(get_cpm)
+
+    _clean_build_dirs_if_not_fully_built(cudf libcudf.so)
+
+    _set_package_dir_if_exists(cudf cudf)
+    _set_package_dir_if_exists(dlpack dlpack)
+    _set_package_dir_if_exists(jitify jitify)
+    _set_package_dir_if_exists(Thrust thrust)
+    _set_package_dir_if_exists(libcudacxx libcudacxx)
+    _set_package_dir_if_exists(arrow_static arrow)
+    _set_package_dir_if_exists(arrow_cuda_static arrow)
 
     include(ConfigureRMM)
 

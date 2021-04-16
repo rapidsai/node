@@ -14,11 +14,13 @@
 # limitations under the License.
 #=============================================================================
 
-include(get_cpm)
-
-_set_package_dir_if_exists(cuspatial cuspatial)
-
 function(find_and_configure_cuspatial VERSION)
+
+    include(get_cpm)
+
+    _clean_build_dirs_if_not_fully_built(cuspatial libcuspatial.so)
+
+    _set_package_dir_if_exists(cuspatial cuspatial)
 
     include(ConfigureCUDF)
 

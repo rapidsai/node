@@ -14,13 +14,13 @@
 # limitations under the License.
 #=============================================================================
 
-include(get_cpm)
-
-_set_package_dir_if_exists(rmm rmm)
-_set_package_dir_if_exists(spdlog spdlog)
-_set_package_dir_if_exists(Thrust thrust)
-
 function(find_and_configure_rmm VERSION)
+
+    include(get_cpm)
+
+    _set_package_dir_if_exists(rmm rmm)
+    _set_package_dir_if_exists(spdlog spdlog)
+    _set_package_dir_if_exists(Thrust thrust)
 
     if(NOT TARGET rmm::rmm)
 

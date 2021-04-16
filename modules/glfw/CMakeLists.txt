@@ -68,6 +68,8 @@ add_library(${PROJECT_NAME} SHARED ${NODE_GLFW_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME}
     PROPERTIES PREFIX                              ""
                SUFFIX                              ".node"
+               BUILD_RPATH                         "\$ORIGIN"
+               INSTALL_RPATH                       "\$ORIGIN"
                CXX_STANDARD                        17
                CXX_STANDARD_REQUIRED               ON
                CUDA_STANDARD                       17
@@ -83,7 +85,7 @@ target_compile_options(${PROJECT_NAME}
 )
 
 target_include_directories(${PROJECT_NAME}
-    PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src"
+    PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
            "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
            "$<BUILD_INTERFACE:${DISPLAY_SERVER_INCLUDE_DIRS}>"
