@@ -257,11 +257,15 @@ Napi::Value GroupBy::_single_aggregation(MakeAggregation const& make_aggregation
     requests.emplace_back(std::move(request));
   }
 
-  auto result = groupby_->aggregate(requests, mr);
+  std::pair<std::unique_ptr<cudf::table>, std::vector<cudf::groupby::aggregation_result>> result;
+
+  try {
+    result = groupby_->aggregate(requests, mr);
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
 
   auto result_keys = Table::New(std::move(result.first));
-
   auto result_cols = Napi::Array::New(info.Env(), result.second.size());
+
   for (size_t i = 0; i < result.second.size(); ++i) {
     result_cols.Set(i, Column::New(std::move(result.second[i].results[0]))->Value());
   }
