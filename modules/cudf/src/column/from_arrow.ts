@@ -73,44 +73,44 @@ class VectorToColumnVisitor extends arrow.Visitor {
   }
   visitInt8<T extends arrow.Int8>({length,
                                    data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
-    return new Column({type: new Int8, length, data, nullMask});
+    return new Column({type: new Int8, length, data: data.subarray(0, length), nullMask});
   }
   visitInt16<T extends arrow.Int16>({length,
                                      data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
-    return new Column({type: new Int16, length, data, nullMask});
+    return new Column({type: new Int16, length, data: data.subarray(0, length), nullMask});
   }
   visitInt32<T extends arrow.Int32>({length,
                                      data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
-    return new Column({type: new Int32, length, data, nullMask});
+    return new Column({type: new Int32, length, data: data.subarray(0, length), nullMask});
   }
   visitInt64<T extends arrow.Int64>({length,
                                      data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
-    return new Column({type: new Int64, length, data, nullMask});
+    return new Column({type: new Int64, length, data: data.subarray(0, length * 2), nullMask});
   }
   visitUint8<T extends arrow.Uint8>({length,
                                      data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
-    return new Column({type: new Uint8, length, data, nullMask});
+    return new Column({type: new Uint8, length, data: data.subarray(0, length), nullMask});
   }
   visitUint16<T extends arrow.Uint16>({length, data: {values: data, nullBitmap: nullMask}}:
                                         arrow.Vector<T>) {
-    return new Column({type: new Uint16, length, data, nullMask});
+    return new Column({type: new Uint16, length, data: data.subarray(0, length), nullMask});
   }
   visitUint32<T extends arrow.Uint32>({length, data: {values: data, nullBitmap: nullMask}}:
                                         arrow.Vector<T>) {
-    return new Column({type: new Uint32, length, data, nullMask});
+    return new Column({type: new Uint32, length, data: data.subarray(0, length), nullMask});
   }
   visitUint64<T extends arrow.Uint64>({length, data: {values: data, nullBitmap: nullMask}}:
                                         arrow.Vector<T>) {
-    return new Column({type: new Uint64, length, data, nullMask});
+    return new Column({type: new Uint64, length, data: data.subarray(0, length * 2), nullMask});
   }
   // visitFloat16<T extends arrow.Float16>(vector: arrow.Vector<T>) {}
   visitFloat32<T extends arrow.Float32>({length, data: {values: data, nullBitmap: nullMask}}:
                                           arrow.Vector<T>) {
-    return new Column({type: new Float32, length, data, nullMask});
+    return new Column({type: new Float32, length, data: data.subarray(0, length), nullMask});
   }
   visitFloat64<T extends arrow.Float64>({length, data: {values: data, nullBitmap: nullMask}}:
                                           arrow.Vector<T>) {
-    return new Column({type: new Float64, length, data, nullMask});
+    return new Column({type: new Float64, length, data: data.subarray(0, length), nullMask});
   }
   visitUtf8<T extends arrow.Utf8>({length,
                                    data: {values, valueOffsets, nullBitmap}}: arrow.Vector<T>) {

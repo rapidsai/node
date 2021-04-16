@@ -13,15 +13,14 @@
 // limitations under the License.
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {StringSeries} from '@rapidsai/cudf';
+import {Series, StringSeries} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
-import {Utf8Vector} from 'apache-arrow';
 
 const mr = new CudaMemoryResource();
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
 
-const data = [
+const data: string[] = [
   'foo bar baz',   // start of string
   ' foo bar baz',  // start of string after whitespace
   'baz bar foo',   // end of string
@@ -36,19 +35,19 @@ const data = [
 describe.each([['foo'], [/foo/], [/foo/ig]])('Series regex search (pattern=%p)', (pattern) => {
   test('containsRe', () => {
     const expected = [true, true, true, true, true, false, false, true, true];
-    const s        = StringSeries.new(Utf8Vector.from(data));
+    const s        = Series.new(data);
     expect([...s.containsRe(pattern)]).toEqual(expected);
   });
 
   test('countRe', () => {
     const expected = [1, 1, 1, 2, 1, 0, 0, 1, 1];
-    const s        = StringSeries.new(Utf8Vector.from(data));
+    const s        = StringSeries.new(data);
     expect([...s.countRe(pattern)]).toEqual(expected);
   });
 
   test('matchesRe', () => {
     const expected = [true, false, false, true, false, false, false, false, false];
-    const s        = StringSeries.new(Utf8Vector.from(data));
+    const s        = StringSeries.new(data);
     expect([...s.matchesRe(pattern)]).toEqual(expected);
   });
 });

@@ -162,11 +162,7 @@ test('getGroups basic two columns with values', () => {
 });
 
 test('getGroups all nulls', () => {
-  const a  = Series.new({
-    type: new Int32,
-    data: [1, 1, 2, 3, 1, 2],
-    nullMask: [false, false, false, false, false, false],
-  });
+  const a  = Series.new({type: new Int32, data: [null, null, null, null, null, null]});
   const df = new DataFrame({'a': a});
 
   const grp = new GroupBySingle(df, {by: 'a'});
@@ -182,11 +178,7 @@ test('getGroups all nulls', () => {
 });
 
 test('getGroups some nulls', () => {
-  const a  = Series.new({
-    type: new Int32,
-    data: [1, 1, 3, 2, 1, 2],
-    nullMask: [true, false, true, false, false, true],
-  });
+  const a  = Series.new({type: new Int32, data: [1, null, 3, null, null, 2]});
   const b  = Series.new({type: new Int32, data: [1, 2, 3, 4, 5, 6]});
   const c  = Series.new({type: new Int32, data: [1, 2, 3, 4, 5, 6]});
   const df = new DataFrame({a, b, c});
@@ -399,7 +391,7 @@ test(`Groupby quantile empty`, () => {
 
 for (const agg of BASIC_AGGS) {
   test(`Groupby ${agg} null keys`, () => {
-    const a      = Series.new({type: new Int32, data: [1, 2, 3], nullMask: [false, false, false]});
+    const a      = Series.new({type: new Int32, data: [null, null, null]});
     const b      = Series.new({type: new Float64, data: [3, 4, 5]});
     const c      = Series.new({type: new Float64, data: [3, 4, 5]});
     const df     = new DataFrame({a, b, c});
@@ -412,7 +404,7 @@ for (const agg of BASIC_AGGS) {
 }
 
 test(`Groupby nth null keys`, () => {
-  const a      = Series.new({type: new Int32, data: [1, 2, 3], nullMask: [false, false, false]});
+  const a      = Series.new({type: new Int32, data: [null, null, null]});
   const b      = Series.new({type: new Float64, data: [3, 4, 5]});
   const c      = Series.new({type: new Float64, data: [3, 4, 5]});
   const df     = new DataFrame({a, b, c});
@@ -424,7 +416,7 @@ test(`Groupby nth null keys`, () => {
 });
 
 test(`Groupby quantile null keys`, () => {
-  const a      = Series.new({type: new Int32, data: [1, 2, 3], nullMask: [false, false, false]});
+  const a      = Series.new({type: new Int32, data: [null, null, null]});
   const b      = Series.new({type: new Float64, data: [3, 4, 5]});
   const c      = Series.new({type: new Float64, data: [3, 4, 5]});
   const df     = new DataFrame({a, b, c});
@@ -437,11 +429,11 @@ test(`Groupby quantile null keys`, () => {
 
 for (const agg of BASIC_AGGS) {
   test(`Groupby ${agg} null values`, () => {
-    const a   = Series.new({type: new Int32, data: [1, 1, 1]});
-    const b   = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
-    const c   = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
-    const df  = new DataFrame({a, b, c});
-    const grp = new GroupBySingle(df, {by: 'a'});
+    const a      = Series.new({type: new Int32, data: [1, 1, 1]});
+    const b      = Series.new({type: new Float64, data: [null, null, null]});
+    const c      = Series.new({type: new Float64, data: [null, null, null]});
+    const df     = new DataFrame({a, b, c});
+    const grp    = new GroupBySingle(df, {by: 'a'});
     const result = grp[agg]();
     expect([...result.get('a').toArrow()]).toEqual([1]);
     expect(result.get('a').nullCount).toBe(0);
@@ -459,8 +451,8 @@ for (const agg of BASIC_AGGS) {
 
 test(`Groupby nth null values`, () => {
   const a      = Series.new({type: new Int32, data: [1, 1, 1]});
-  const b      = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
-  const c      = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
+  const b      = Series.new({type: new Float64, data: [null, null, null]});
+  const c      = Series.new({type: new Float64, data: [null, null, null]});
   const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.nth(0);
@@ -474,8 +466,8 @@ test(`Groupby nth null values`, () => {
 
 test(`Groupby quantile null values`, () => {
   const a      = Series.new({type: new Int32, data: [1, 1, 1]});
-  const b      = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
-  const c      = Series.new({type: new Float64, data: [3, 4, 5], nullMask: [false, false, false]});
+  const b      = Series.new({type: new Float64, data: [null, null, null]});
+  const c      = Series.new({type: new Float64, data: [null, null, null]});
   const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.quantile(0.5);
