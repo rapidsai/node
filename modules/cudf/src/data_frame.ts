@@ -64,16 +64,52 @@ export class DataFrame<T extends TypeMap = any> {
 
   /**
    * The number of rows in each column of this DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2]),
+   *  b: Series.new([1, 2]),
+   *  c: Series.new([1, 2])
+   * })
+   *
+   * df.numRows // 2
+   * ```
    */
   get numRows() { return this._accessor.columns[0].length; }
 
   /**
    * The number of columns in this DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2]),
+   *  b: Series.new([1, 2]),
+   *  c: Series.new([1, 2])
+   * })
+   *
+   * df.numColumns // 3
+   * ```
    */
   get numColumns() { return this._accessor.length; }
 
   /**
    * The names of columns in this DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2]),
+   *  b: Series.new([1, 2]),
+   *  c: Series.new([1, 2])
+   * })
+   *
+   * df.names // ['a', 'b', 'c']
+   * ```
    */
   get names() { return this._accessor.names; }
 
@@ -84,6 +120,18 @@ export class DataFrame<T extends TypeMap = any> {
    * Return a new DataFrame containing only specified columns.
    *
    * @param columns Names of columns keep.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([0, 1, 1, 2, 2, 2]),
+   *  b: Series.new([0, 1, 2, 3, 4, 4]),
+   *  c: Series.new([1, 2, 3, 4, 5, 6])
+   * })
+   *
+   * df.select(['a', 'b']) // returns df with {a, b}
+   * ```
    */
   select<R extends keyof T>(names: R[]) {
     return new DataFrame(this._accessor.selectByColumnNames(names));
@@ -92,14 +140,34 @@ export class DataFrame<T extends TypeMap = any> {
   /**
    * Return a new DataFrame with new columns added.
    *
-   *  @param data mapping of names to new columns to add
+   * @param data mapping of names to new columns to add
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({a: [1, 2, 3]});
+   *
+   * df.assign({b: ["foo", "bar", "bar"]})
+   * // returns df {a: [1, 2, 3], b: ["foo", "bar", "bar"]}
+   * ```
    */
   assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<T&R>;
 
   /**
    * Return a new DataFrame with new columns added.
    *
-   *  @param data a GPU DataFrame object
+   * @param data a GPU DataFrame object
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({a: [1, 2, 3]});
+   * const df1 = new DataFrame({b: ["foo", "bar", "bar"]});
+   *
+   * df.assign(df1) // returns df {a: [1, 2, 3], b: ["foo", "bar", "bar"]}
+   * ```
    */
   assign<R extends TypeMap>(data: DataFrame<R>): DataFrame<T&R>;
 
@@ -112,6 +180,17 @@ export class DataFrame<T extends TypeMap = any> {
    * Return a new DataFrame with specified columns removed.
    *
    * @param names Names of the columns to drop.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int32, data: [0, 1, 1, 2, 2, 2]}),
+   *  b: Series.new({type: new Float32, data: [0, 1, 2, 3, 4, 4]})
+   * });
+   *
+   * df.drop(['a']) // returns df {b: [0, 1, 2, 3, 4, 4]}
+   * ```
    */
   drop<R extends keyof T>(names: R[]) { return new DataFrame(this._accessor.dropColumns(names)); }
 
@@ -119,6 +198,18 @@ export class DataFrame<T extends TypeMap = any> {
    * Return whether the DataFrame has a Series.
    *
    * @param name Name of the Series to return.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int32, data: [0, 1, 1, 2, 2, 2]}),
+   *  b: Series.new({type: new Float32, data: [0, 1, 2, 3, 4, 4]})
+   * });
+   *
+   * df.has('a') // true
+   * df.has('c') // false
+   * ```
    */
   has(name: string) { return this._accessor.has(name); }
 
@@ -126,6 +217,18 @@ export class DataFrame<T extends TypeMap = any> {
    * Return a series by name.
    *
    * @param name Name of the Series to return.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int32, data: [0, 1, 1, 2, 2, 2]}),
+   *  b: Series.new({type: new Float32, data: [0, 1, 2, 3, 4, 4]})
+   * });
+   *
+   * df.get('a') // Int32Series { _col: Column {} }
+   * df.get('b') // Float32Series  { _col: Column {} }
+   * ```
    */
   get<P extends keyof T>(name: P): Series<T[P]> { return Series.new(this._accessor.get(name)); }
 
@@ -136,6 +239,17 @@ export class DataFrame<T extends TypeMap = any> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns DataFrame of Series cast to the new dtype
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int32, data: [0, 1, 1, 2, 2, 2]}),
+   *  b: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]})
+   * });
+   *
+   * df.cast({a: new Float32}); // returns df with a as Float32Series and b as Int32Series
+   * ```
    */
   cast<R extends {[P in keyof T]?: DataType}>(dataTypes: R, memoryResource?: MemoryResource) {
     const names = this._accessor.names;
@@ -158,6 +272,17 @@ export class DataFrame<T extends TypeMap = any> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns DataFrame of Series cast to the new dtype
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int32, data: [0, 1, 1, 2, 2, 2]}),
+   *  b: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]})
+   * })
+   *
+   * df.castAll(new Float32); // returns df with a and b as Float32Series
+   * ```
    */
   castAll<R extends DataType>(dataType: R, memoryResource?: MemoryResource) {
     return new DataFrame(this._accessor.names.reduce(
@@ -171,6 +296,24 @@ export class DataFrame<T extends TypeMap = any> {
    * @param options mapping of column names to sort order specifications
    *
    * @returns Series containting the permutation indices for the desired sort order
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, NullOrder}  from '@rapidsai/cudf';
+   * const df = new DataFrame({a: Series.new([null, 4, 3, 2, 1, 0])});
+   *
+   * df.orderBy({a: {ascending: true, null_order: NullOrder.BEFORE}});
+   * // Int32Series [0, 5, 4, 3, 2, 1]
+   *
+   * df.orderBy({a: {ascending: true, null_order: NullOrder.AFTER}});
+   * // Int32Series [5, 4, 3, 2, 1, 0]
+   *
+   * df.orderBy({a: {ascending: false, null_order: NullOrder.BEFORE}});
+   * // Int32Series [1, 2, 3, 4, 5, 0]
+   *
+   * df.orderBy({a: {ascending: false, null_order: NullOrder.AFTER}});
+   * // Int32Series [0, 1, 2, 3, 4, 5]
+   * ```
    */
   orderBy<R extends keyof T>(options: {[P in R]: OrderSpec}) {
     const column_orders = new Array<boolean>();
@@ -199,6 +342,27 @@ export class DataFrame<T extends TypeMap = any> {
    *   Default: AFTER
    *
    * @returns A new DataFrame of sorted values
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, NullOrder}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *   a: Series.new([null, 4, 3, 2, 1, 0]),
+   *   b: Series.new([0, 1, 2, 3, 4, 5])
+   * });
+   *
+   * df.sortValues({a: {ascending: true, null_order: NullOrder.AFTER}})
+   * // {a: [0, 1, 2, 3, 4, null], b: [5, 4, 3, 2, 1, 0]}
+   *
+   * df.sortValues({a: {ascending: true, null_order: NullOrder.BEFORE}})
+   * // {a: [null, 0, 1, 2, 3, 4], b: [0, 5, 4, 3, 2, 1]}
+   *
+   * df.sortValues({a: {ascending: false, null_order: NullOrder.AFTER}})
+   * // {a: [4, 3, 2, 1, 0, null], b: [1, 2, 3, 4, 5, 0]}
+   *
+   * df.sortValues({a: {ascending: false, null_order: NullOrder.BEFORE}})
+   * // {a: [null, 4, 3, 2, 1, 0], b: [0, 1, 2, 3, 4, 5]}
+   * ```
    */
   sortValues<R extends keyof T>(options: {[P in R]: OrderSpec}) {
     return this.gather(this.orderBy(options));
@@ -208,6 +372,19 @@ export class DataFrame<T extends TypeMap = any> {
    * Return sub-selection from a DataFrame from the specified indices
    *
    * @param selection
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *   a: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5]}),
+   *   b: Series.new([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
+   * });
+   *
+   * const selection = Series.new({type: new Int32, data: [2,4,5]});
+   *
+   * df.gather(selection); // {a: [2, 4, 5], b: [2.0, 4.0, 5.0]}
+   * ```
    */
   gather<R extends IndexType>(selection: Series<R>) {
     const temp       = new Table({columns: this._accessor.columns});
@@ -222,6 +399,19 @@ export class DataFrame<T extends TypeMap = any> {
    * Return a group-by on a single column.
    *
    * @param props configuration for the groupby
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([0, 1, 1, 2, 2, 2]),
+   *  b: Series.new([0, 1, 2, 3, 4, 4]),
+   *  c: Series.new([1, 2, 3, 4, 5, 6])
+   * })
+   *
+   * df.groupby({by: 'a']}).max() // { a: [2, 1, 0], b: [4, 2, 0], c: [6, 3, 1] }
+   *
+   * ```
    */
   groupBy<R extends keyof T>(props: GroupBySingleProps<T, R>): GroupBySingle<T, R>;
 
@@ -229,6 +419,23 @@ export class DataFrame<T extends TypeMap = any> {
    * Return a group-by on a multiple columns.
    *
    * @param props configuration for the groupby
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([0, 1, 1, 2, 2, 2]),
+   *  b: Series.new([0, 1, 2, 3, 4, 4]),
+   *  c: Series.new([1, 2, 3, 4, 5, 6])
+   * })
+   *
+   * df.groupby({by: ['a', 'b']}).max()
+   * // {
+   * //   "a_b": [{"a": [2, 1, 1, 2, 0], "b": [4, 2, 1, 3, 0]}],
+   * //   "c": [6, 3, 2, 4, 1]
+   * // }
+   *
+   * ```
    */
   groupBy<R extends keyof T, IndexKey extends string>(props: GroupByMultipleProps<T, R, IndexKey>):
     GroupByMultiple<T, R, IndexKey>;
@@ -250,6 +457,19 @@ export class DataFrame<T extends TypeMap = any> {
    * Return sub-selection from a DataFrame from the specified boolean mask
    *
    * @param mask
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Bool8}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([0, 1, 2, 3, 4, 4]),
+   *  b: Series.new([0, NaN, 2, 3, 4, 4])
+   * })
+   * const mask = Series.new({type: new Bool8, data: [0, 0, 1, 0, 1, 1]})
+   *
+   * df.filter(mask); // {a: [2, 4, 4], b: [2, 4, 4]}
+   *
+   * ```
    */
   filter(mask: Series<Bool8>) {
     const temp       = new Table({columns: this._accessor.columns});
@@ -280,6 +500,22 @@ export class DataFrame<T extends TypeMap = any> {
 
   /**
    * Copy a Series to an Arrow vector in host memory
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from "@rapidsai/cudf";
+   *
+   * const df = new DataFrame({a: Series.new([0,1,2]), b: Series.new(["one", "two", "three"])});
+   *
+   * const arrow_df = df.toArrow(); // Arrow table
+   *
+   * arrow_df.toArray();
+   * // [
+   * //    { "a": 0, "b": "one" },
+   * //    { "a": 1, "b": "two" },
+   * //    { "a": 2, "b": "three" }
+   * //  ]
+   * ```
    */
   toArrow() {
     const toArrowMetadata = (name: string|number, type?: DataType): ToArrowMetadata => {
@@ -406,14 +642,29 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    * const df = new DataFrame({
-   *  "ser_0": Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4], nullMask: [true,
-   * false, true, true, true, true]}), "ser_1": Series.new({type: new Float32, data: [0,
-   * NaN, 2, 3, 4, 4]})
+   *  a: Series.new([0, null, 2, null, 4, 4]),
+   *  b: Series.new([0, null, 2, 3, null, 4]),
+   *  c: Series.new([null, null, null, null, null, null])
    * });
-   * df.dropNulls(0); // returns df {ser_0: [0,2,3,4,4], ser_1: [0,2,3,4,4]}
-   * df.dropNulls(1); // returns df {ser_1: [0,NaN,2,3,4,4]}
+   *
+   * // delete rows with all nulls (default thresh=1)
+   * df.dropNulls(0);
+   * // return {a: [0, 2, null, 4, 4], b: [0, 2, 3, null, 4], c: [null, null, null, null,
+   * // null]}
+   *
+   * // delete rows with atleast one null
+   * df.dropNulls(0, df.numColumns);
+   * // returns empty df, since each row contains atleast one null
+   *
+   * // delete columns with all nulls (default thresh=1)
+   * df.dropNulls(1);
+   * // returns {a: [0, null, 2, null, 4, 4], b: [0, null, 2, 3, null, 4]}
+   *
+   * // delete columns with atleast one null
+   * df.dropNulls(1, df.numRows);
+   * // returns empty df, since each column contains atleast one null
    *
    * ```
    */
@@ -458,13 +709,29 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    * const df = new DataFrame({
-   *  "ser_0": Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]}),
-   *  "ser_1": Series.new({type: new Float32, data: [0, NaN, 2, 3, 4, 4]})
+   *  a: Series.new([0, NaN, 2, NaN, 4, 4]),
+   *  b: Series.new([0, NaN, 2, 3, NaN, 4]),
+   *  c: Series.new([NaN, NaN, NaN, NaN, NaN, NaN])
    * });
-   * df.dropNaNs(0); // returns df {ser_0: [0,2,3,4,4], ser_1: [0,2,3,4,4]}
-   * df.dropNaNs(1); // returns df {ser_0: [0, 1, 2, 3, 4, 4]}
+   *
+   * // delete rows with all NaNs (default thresh=1)
+   * df.dropNaNs(0);
+   * // return {a: [0, 2, NaN, 4, 4], b: [0, 2, 3, NaN, 4], c: [NaN, NaN, NaN, NaN,
+   * // NaN]}
+   *
+   * // delete rows with atleast one NaN
+   * df.dropNaNs(0, df.numColumns);
+   * // returns empty df, since each row contains atleast one NaN
+   *
+   * // delete columns with all NaNs (default thresh=1)
+   * df.dropNaNs(1);
+   * // returns {a: [0, NaN, 2, NaN, 4, 4], b: [0, NaN, 2, 3, NaN, 4]}
+   *
+   * // delete columns with atleast one NaN
+   * df.dropNaNs(1, df.numRows);
+   * // returns empty df, since each column contains atleast one NaN
    *
    * ```
    */
@@ -498,12 +765,12 @@ export class DataFrame<T extends TypeMap = any> {
    * ```typescript
    * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
    * const df = new DataFrame({
-   *  "ser_0": Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]}),
-   *  "ser_1": Series.new({type: new Float32, data: [0, NaN, 2, 3, 4, 4]})
+   *  a: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]}),
+   *  b: Series.new({type: new Float32, data: [0, NaN, 2, 3, 4, 4]})
    * });
-   * df.get("ser_1").nullCount; // 0
+   * df.get("b").nullCount; // 0
    * const df1 = df.nansToNulls();
-   * df1.get("ser_1").nullCount; // 1
+   * df1.get("b").nullCount; // 1
    *
    * ```
    */
