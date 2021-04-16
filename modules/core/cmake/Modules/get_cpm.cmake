@@ -89,7 +89,7 @@ endfunction()
 
 function(_clean_build_dirs_if_not_fully_built dir soname)
     if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-        if (NOT (EXISTS "${CPM_BINARY_CACHE}/${dir}-build/${soname}"))
+        if (EXISTS "${CPM_BINARY_CACHE}/${dir}-build/${soname}")
             message(STATUS "get_cpm: not clearing shared build dirs since '${CPM_BINARY_CACHE}/${dir}-build/${soname}' exists")
         else()
             file(REMOVE_RECURSE "${CPM_BINARY_CACHE}/${dir}-build")
