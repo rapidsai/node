@@ -13,13 +13,12 @@
 // limitations under the License.
 
 import {MemoryResource} from '@rapidsai/rmm';
-import {Int32} from 'apache-arrow';
 
 import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
-import {DataType} from '../types/dtypes';
+import {DataType, Int32} from '../types/dtypes';
 import {Interpolation, TypeMap} from '../types/mappings';
 
 import {GroupByBase, GroupByBaseProps} from './base';
@@ -49,7 +48,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   argmax(memoryResource?: MemoryResource) {
-    return this.prepare_results<{[P in R]: T[P]}&{[P in keyof T]: Int32}>(
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
       this._cudf_groupby._argmax(this._values.asTable(), memoryResource));
   }
 
@@ -60,7 +59,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   argmin(memoryResource?: MemoryResource) {
-    return this.prepare_results<{[P in R]: T[P]}&{[P in keyof T]: Int32}>(
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
       this._cudf_groupby._argmin(this._values.asTable(), memoryResource));
   }
 
@@ -71,7 +70,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   count(memoryResource?: MemoryResource) {
-    return this.prepare_results<{[P in R]: T[P]}&{[P in keyof T]: Int32}>(
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
       this._cudf_groupby._count(this._values.asTable(), memoryResource));
   }
 
@@ -136,7 +135,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    *   device memory.
    */
   nunique(memoryResource?: MemoryResource) {
-    return this.prepare_results<{[P in R]: T[P]}&{[P in keyof T]: Int32}>(
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
       this._cudf_groupby._nunique(this._values.asTable(), memoryResource));
   }
 

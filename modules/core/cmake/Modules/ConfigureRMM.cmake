@@ -23,13 +23,6 @@ function(find_and_configure_rmm VERSION)
     _set_package_dir_if_exists(Thrust thrust)
 
     if(NOT TARGET rmm::rmm)
-
-        if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-            if (EXISTS "${FETCHCONTENT_BASE_DIR}/thrust-subbuild")
-                file(REMOVE_RECURSE "${FETCHCONTENT_BASE_DIR}/thrust-subbuild")
-            endif()
-        endif()
-
         CPMFindPackage(NAME     rmm
             VERSION             ${RMM_VERSION}
             GIT_REPOSITORY      https://github.com/rapidsai/rmm.git

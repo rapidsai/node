@@ -31,23 +31,12 @@ function(find_and_configure_cudf VERSION)
     include(ConfigureRMM)
 
     if(NOT TARGET cudf::cudf)
-
-        if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-            if (EXISTS "${FETCHCONTENT_BASE_DIR}/thrust-subbuild")
-                file(REMOVE_RECURSE "${FETCHCONTENT_BASE_DIR}/thrust-subbuild")
-            endif()
-        endif()
-
-        execute_process(COMMAND node -p
-                        "require('@rapidsai/core').cpm_source_cache_path"
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                        OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
-                        OUTPUT_STRIP_TRAILING_WHITESPACE)
-
         CPMFindPackage(NAME     cudf
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
-            GIT_TAG             branch-${VERSION}
+            # GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
+            # GIT_TAG             branch-${VERSION}
+            GIT_REPOSITORY      https://github.com/trxcllnt/cudf.git
+            GIT_TAG             fix/cpm-v0.32.1
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
             SOURCE_SUBDIR       cpp
