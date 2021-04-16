@@ -24,8 +24,8 @@ export const ccache_path = Path.resolve(modules_path, '.cache', 'ccache');
 
 export const cpm_source_cache_path = Path.resolve(modules_path, '.cache', 'cpm');
 
-export const cpp_include_path = Path.resolve(modules_path, 'core', 'include');
+export const cpm_binary_cache_path = Path.resolve(modules_path, '.cache', 'build');
+
+export const cpp_core_include_path = Path.resolve(modules_path, 'core', 'include');
 
 export const cmake_modules_path = Path.resolve(modules_path, 'core', 'cmake', 'Modules');
-
-export const cmake_fetchcontent_base = Path.resolve(modules_path, '.cache', 'build');

@@ -36,7 +36,7 @@ export type OrderSpec = {
 };
 
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
-  GroupBySingleProps<T, R>|GroupByMultipleProps<T, R, IndexKey>;
+  GroupBySingleProps<T, R>|Partial<GroupByMultipleProps<T, R, IndexKey>>;
 
 function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   const columns = {} as any;
@@ -234,10 +234,15 @@ export class DataFrame<T extends TypeMap = any> {
     GroupByMultiple<T, R, IndexKey>;
 
   groupBy<R extends keyof T, IndexKey extends string>(props: CombinedGroupByProps<T, R, IndexKey>) {
-    if ('index_key' in props) {
-      return new GroupByMultiple(this, props);
+    if (!Array.isArray(props.by)) {
+      return new GroupBySingle(this, props as GroupBySingleProps<T, R>);
+    } else if ('index_key' in props) {
+      return new GroupByMultiple(this, props as GroupByMultipleProps<T, R, IndexKey>);
     } else {
-      return new GroupBySingle(this, props);
+      return new GroupByMultiple(this, {
+        ...props,
+        index_key: props.by.join('_'),
+      } as GroupByMultipleProps<T, R, any>);
     }
   }
 
