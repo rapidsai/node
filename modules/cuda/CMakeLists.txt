@@ -48,6 +48,8 @@ add_library(${PROJECT_NAME} SHARED ${NODE_CUDA_SRC_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME}
     PROPERTIES PREFIX                              ""
                SUFFIX                              ".node"
+               BUILD_RPATH                         "\$ORIGIN"
+               INSTALL_RPATH                       "\$ORIGIN"
                CXX_STANDARD                        17
                CXX_STANDARD_REQUIRED               ON
                CUDA_STANDARD                       17
