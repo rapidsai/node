@@ -220,9 +220,9 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @param selection
    */
-  gather<R extends IndexType>(selection: Series<R>) {
+  gather<R extends IndexType>(selection: Series<R>, nullify_out_of_bounds = false) {
     const temp       = new Table({columns: this._accessor.columns});
-    const columns    = temp.gather(selection._col);
+    const columns    = temp.gather(selection._col, nullify_out_of_bounds);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
       (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
@@ -264,7 +264,7 @@ export class DataFrame<T extends TypeMap = any> {
    */
   filter(mask: Series<Bool8>) {
     const temp       = new Table({columns: this._accessor.columns});
-    const columns    = temp.gather(mask._col);
+    const columns    = temp.gather(mask._col, false);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
       (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
@@ -292,9 +292,8 @@ export class DataFrame<T extends TypeMap = any> {
 
     const [left_gather, right_gather] = joins[how]();
 
-    // console.log([...Series.new(left_gather)], [...Series.new(right_gather)]);
-    const left_result  = this.gather(Series.new(left_gather));
-    const right_result = other.gather(Series.new(right_gather)).drop(on);
+    const left_result  = this.gather(Series.new(left_gather), true);
+    const right_result = other.gather(Series.new(right_gather), true).drop(on);
 
     const result = left_result.assign(right_result);
 

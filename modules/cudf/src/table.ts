@@ -100,7 +100,7 @@ export interface Table {
    *
    * @param selection
    */
-  gather(selection: Column<IndexType|Bool8>): Table;
+  gather(selection: Column<IndexType|Bool8>, nullify_out_of_bounds: boolean): Table;
 
   /**
    * Scatters row of values into this Table according to provided indices.

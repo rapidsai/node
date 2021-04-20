@@ -49,15 +49,22 @@ ObjectUnwrap<Table> Table::scatter(Table const& source,
 }
 
 Napi::Value Table::gather(Napi::CallbackInfo const& info) {
+  using namespace cudf;
+
   CallbackArgs args{info};
   if (!Column::is_instance(args[0])) {
     throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
   }
   auto& selection = *Column::Unwrap(args[0]);
-  if (selection.type().id() == cudf::type_id::BOOL8) {
+  if (selection.type().id() == type_id::BOOL8) {
     return this->apply_boolean_mask(selection)->Value();
   }
-  return this->gather(selection)->Value();
+  auto oob_policy = out_of_bounds_policy::DONT_CHECK;
+  if (args.Length() == 2 and args[1].IsBoolean()) {
+    oob_policy =
+      args[1].ToBoolean() ? out_of_bounds_policy::NULLIFY : out_of_bounds_policy::DONT_CHECK;
+  }
+  return this->gather(selection, oob_policy)->Value();
 }
 
 Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {
