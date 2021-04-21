@@ -148,9 +148,10 @@ export class AbstractSeries<T extends DataType = any> {
   static new(input: (string|null|undefined)[]): Series<Utf8String>;
   static new(input: (number|null|undefined)[]): Series<Float64>;
   static new(input: (bigint|null|undefined)[]): Series<Int64>;
+  static new(input: (boolean|null|undefined)[]): Series<Bool8>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>|
                                  (string|null|undefined)[]|(number|null|undefined)[]|
-                                 (bigint|null|undefined)[]) {
+                                 (bigint|null|undefined)[]|(boolean|null|undefined)[]) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
   }
 
@@ -536,12 +537,14 @@ function inferType(value: any[]): DataType {
   if (value.every((val) => typeof val === 'string' || val == null)) return new Utf8String;
   if (value.every((val) => typeof val === 'number' || val == null)) return new Float64;
   if (value.every((val) => typeof val === 'bigint' || val == null)) return new Int64;
+  if (value.every((val) => typeof val === 'boolean' || val == null)) return new Bool8;
   throw new TypeError('Unable to infer type series type, explicit type declaration expected');
 }
 
 function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|arrow.Vector<T>|
                                       (string | null | undefined)[]|(number | null | undefined)[]|
-                                      (bigint | null | undefined)[]): Column<T> {
+                                      (bigint | null | undefined)[]|
+                                      (boolean | null | undefined)[]): Column<T> {
   if (Array.isArray(value)) {
     return fromArrow(arrow.Vector.from(
              {type: inferType(value), values: value, highWaterMark: Infinity})) as any;
