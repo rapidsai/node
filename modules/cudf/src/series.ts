@@ -290,7 +290,7 @@ export class AbstractSeries<T extends DataType = any> {
   scatter(value: T['scalarType'],
           indices: Series<Int32>|number[],
           check_bounds?: boolean,
-          memoryResource?: MemoryResource): void;
+          memoryResource?: MemoryResource): Series<T>;
   /**
    * Scatters a column of values into this Series according to provided indices.
    *
@@ -304,12 +304,12 @@ export class AbstractSeries<T extends DataType = any> {
   scatter(values: Series<T>,
           indices: Series<Int32>|number[],
           check_bounds?: boolean,
-          memoryResource?: MemoryResource): void;
+          memoryResource?: MemoryResource): Series<T>;
 
   scatter(source: Series<T>|T['scalarType'],
           indices: Series<Int32>|number[],
           check_bounds = false,
-          memoryResource?: MemoryResource): void {
+          memoryResource?: MemoryResource): Series<T> {
     const dst  = new Table({columns: [this._col]});
     const inds = indices instanceof Series ? indices : new Series({type: new Int32, data: indices});
     if (source instanceof Series) {
@@ -344,7 +344,9 @@ export class AbstractSeries<T extends DataType = any> {
    * @param index the index in this Series to set a value for
    * @param value the value to set at `index`
    */
-  setValue(index: number, value: T['scalarType']): void { this.scatter(value, [index]); }
+  setValue(index: number, value: T['scalarType']): Series<T> {
+    return this.scatter(value, [index]);
+  }
 
   /**
    * Copy the underlying device memory to host, and return an Iterator of the values.
