@@ -18,52 +18,171 @@ import {DeviceBuffer} from '@rapidsai/rmm';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
-function makeLeftData() {
-  const a = Series.new({type: new Int32, data: [1, 2, 3, 4, 5]});
-  const b = Series.new({type: new Int32, data: [0, 0, 1, 1, 2]});
-  return new DataFrame({a, b});
-}
+const left = new DataFrame({
+  a: Series.new({type: new Int32, data: [1, 2, 3, 4, 5]}),
+  b: Series.new({type: new Int32, data: [0, 0, 1, 1, 2]})
+});
 
-function makeRightData() {
-  const b = Series.new({type: new Int32, data: [0, 1, 3]});
-  const c = Series.new({type: new Int32, data: [0, 10, 30]});
-  return new DataFrame({b, c});
-}
+const right = new DataFrame({
+  b: Series.new({type: new Int32, data: [0, 1, 3]}),
+  c: Series.new({type: new Int32, data: [0, 10, 30]})
+});
 
-describe('DataFrame.join ', () => {
-  test('can inner join', () => {
-    const left   = makeLeftData();
-    const right  = makeRightData();
+const right_conflict = new DataFrame({
+  b: Series.new({type: new Int32, data: [0, 1, 3]}),
+  a: Series.new({type: new Int32, data: [0, 10, 30]})
+});
+
+describe('DataFrame.join({how="inner"}) ', () => {
+  test('can join with no column name conflicts', () => {
     const result = left.join({other: right, on: ['b'], how: 'inner'});
     expect(result.numColumns).toEqual(3);
-    expect(result.names).toEqual(['a', 'b', 'c']);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
     expect([...result.get('b')]).toEqual([0, 0, 1, 1]);
     expect([...result.get('a')]).toEqual([1, 2, 3, 4]);
     expect([...result.get('c')]).toEqual([0, 0, 10, 10]);
   });
 
-  test('can left join', () => {
-    const left   = makeLeftData();
-    const right  = makeRightData();
+  test('discards right conflicts without suffices', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'inner'});
+    expect(result.numColumns).toEqual(2);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1]);
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4]);
+  });
+
+  test('applies lsuffix', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'inner', lsuffix: '_L'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'a_L']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1]);
+    expect([...result.get('a_L')]).toEqual([1, 2, 3, 4]);
+    expect([...result.get('a')]).toEqual([0, 0, 10, 10]);
+  });
+
+  test('applies rsuffix', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'inner', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'a_R']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1]);
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4]);
+    expect([...result.get('a_R')]).toEqual([0, 0, 10, 10]);
+  });
+
+  test('applies lsuffix and rsuffix', () => {
+    const result =
+      left.join({other: right_conflict, on: ['b'], how: 'inner', lsuffix: '_L', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a_L', 'b', 'a_R']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1]);
+    expect([...result.get('a_L')]).toEqual([1, 2, 3, 4]);
+    expect([...result.get('a_R')]).toEqual([0, 0, 10, 10]);
+  });
+});
+
+describe('DataFrame.join({how="left"}) ', () => {
+  test('can join with no column name conflicts', () => {
     const result = left.join({other: right, on: ['b'], how: 'left'});
     expect(result.numColumns).toEqual(3);
-    expect(result.names).toEqual(['a', 'b', 'c']);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
     expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2]);
     expect([...result.get('a')]).toEqual([1, 2, 3, 4, 5]);
     expect([...result.get('c')]).toEqual([0, 0, 10, 10, null]);
   });
 
-  test('can outer join', () => {
-    const left   = makeLeftData();
-    const right  = makeRightData();
+  test('discards right conflicts without suffices', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'left'});
+    expect(result.numColumns).toEqual(2);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2]);
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  test('applies lsuffix', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'left', lsuffix: '_L'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'a_L']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2]);
+    expect([...result.get('a_L')]).toEqual([1, 2, 3, 4, 5]);
+    expect([...result.get('a')]).toEqual([0, 0, 10, 10, null]);
+  });
+
+  test('applies rsuffix', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'left', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'a_R']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2]);
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4, 5]);
+    expect([...result.get('a_R')]).toEqual([0, 0, 10, 10, null]);
+  });
+
+  test('applies lsuffix and rsuffix', () => {
+    const result =
+      left.join({other: right_conflict, on: ['b'], how: 'left', lsuffix: '_L', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a_L', 'b', 'a_R']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2]);
+    expect([...result.get('a_L')]).toEqual([1, 2, 3, 4, 5]);
+    expect([...result.get('a_R')]).toEqual([0, 0, 10, 10, null]);
+  });
+});
+
+describe('DataFrame.join({how="outer"}) ', () => {
+  test('can join with no column name conflicts', () => {
     const result = left.join({other: right, on: ['b'], how: 'outer'});
     expect(result.numColumns).toEqual(3);
-    expect(result.names).toEqual(['a', 'b', 'c']);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2, 3]);
     expect([...result.get('a')]).toEqual([1, 2, 3, 4, 5, null]);
-
-    // This seems to disagree with pandas and cudf, which has [0, 0, 1, 1, 2, 3]
-    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2, null]);
-
     expect([...result.get('c')]).toEqual([0, 0, 10, 10, null, 30]);
+  });
+  test('discards right conflicts without suffices', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'outer'});
+    expect(result.numColumns).toEqual(2);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2, 3]);
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4, 5, null]);
+  });
+
+  test('applies lsuffix', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'outer', lsuffix: '_L'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'a_L']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2, 3]);
+    expect([...result.get('a_L')]).toEqual([1, 2, 3, 4, 5, null]);
+    expect([...result.get('a')]).toEqual([0, 0, 10, 10, null, 30]);
+    
+  });
+
+  test('applies rsuffix', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'outer', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'a_R']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2, 3]);
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4, 5, null]);
+    expect([...result.get('a_R')]).toEqual([0, 0, 10, 10, null, 30]);
+  });
+
+  test('applies lsuffix and rsuffix', () => {
+    const result =
+      left.join({other: right_conflict, on: ['b'], how: 'outer', lsuffix: '_L', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a_L', 'b', 'a_R']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2, 3]);
+    expect([...result.get('a_L')]).toEqual([1, 2, 3, 4, 5, null]);
+    expect([...result.get('a_R')]).toEqual([0, 0, 10, 10, null, 30]);
+  });
+});
+
+describe('DataFrame.join({how="right"}) ', () => {
+  test('can join with no column name conflicts', () => {
+    const result = left.join({other: right, on: ['b'], how: 'right'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
+
+    // sort order?
+    expect([...result.get('b')]).toEqual([0, 1, null, 0, 1]);
+    expect([...result.get('a')]).toEqual([1, 3, null, 2, 4]);
+    expect([...result.get('c')]).toEqual([0, 10, 30, 0, 10]);
   });
 });

@@ -280,6 +280,8 @@ export class DataFrame<T extends TypeMap = any> {
   join<U extends TypeMap, R extends keyof U>(props: JoinProps<U, R>): DataFrame<any> {
     const {how, other, on} = props;
     const nullEquality     = props.nullEquality == undefined ? true : props.nullEquality;
+    const lsuffix          = props.lsuffix == undefined ? '' : props.lsuffix;
+    const rsuffix          = props.rsuffix == undefined ? '' : props.rsuffix;
     const left             = this.select(on as any).asTable();
     const right            = other.select(on as any).asTable();
 
@@ -290,14 +292,45 @@ export class DataFrame<T extends TypeMap = any> {
       'right': () => Table.leftJoin(right, left, nullEquality),
     };
 
-    const [left_gather, right_gather] = joins[how]();
+    let [left_gather, right_gather] = joins[how]();
+    if (how == 'right') { [left_gather, right_gather] = [right_gather, left_gather]; }
 
-    const left_result  = this.gather(Series.new(left_gather), true);
-    const right_result = other.gather(Series.new(right_gather), true).drop(on);
+    let left_result  = this.gather(Series.new(left_gather), true);
+    let right_result = other.gather(Series.new(right_gather), true);
 
-    const result = left_result.assign(right_result);
+    // for an outer join, we need to to merge the values from both left and right "on" columns
+    if (how == 'outer') {
+      for (const name of on) {
+        const rcol   = right_result.get(name);
+        const lcol   = left_result.get(name as any);
+        const merged = lcol.replaceNulls(rcol as any);
+        left_result  = left_result.assign({[name]: merged});
+      }
+    }
 
-    return result;
+    right_result = right_result.drop(on) as any;
+
+    // if there are no suffices provided, and there are column conflicts, then we
+    // want to drop columns on the right results (so, assign over from left result)
+    if (lsuffix == '' && rsuffix == '') { return right_result.assign(left_result); }
+
+    const lnames = left_result.names;
+    const rnames = right_result.names;
+
+    // otherwise for any column name conflicts, apply the suffix before combining
+    for (const name of lnames) {
+      if (rnames.includes(name as any)) {
+        const rcol   = right_result.get(name as any);
+        right_result = right_result.drop([name as any]) as any;
+        right_result = right_result.assign({[name + rsuffix]: rcol});
+
+        const lcol  = left_result.get(name as any);
+        left_result = left_result.drop([name] as any) as any;
+        left_result = left_result.assign({[name + lsuffix]: lcol});
+      }
+    }
+
+    return left_result.assign(right_result);
   }
 
   /**
@@ -432,8 +465,8 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * thresh=1 (default) drops rows (or columns) containing all null values (non-null < thresh(1)).
    *
-   * if axis = 0, thresh=df.numColumns: drops only rows containing at-least one null value (non-null
-   * values in a row < thresh(df.numColumns)).
+   * if axis = 0, thresh=df.numColumns: drops only rows containing at-least one null value
+   * (non-null values in a row < thresh(df.numColumns)).
    *
    * if axis = 1, thresh=df.numRows: drops only columns containing at-least one null values
    * (non-null values in a column < thresh(df.numRows)).
@@ -487,8 +520,8 @@ export class DataFrame<T extends TypeMap = any> {
    * if axis = 0, thresh=df.numColumns: drops only rows containing at-least one NaN value (non-NaN
    * values in a row < thresh(df.numColumns)).
    *
-   * if axis = 1, thresh=df.numRows: drops only columns containing at-least one NaN values (non-NaN
-   * values in a column < thresh(df.numRows)).
+   * if axis = 1, thresh=df.numRows: drops only columns containing at-least one NaN values
+   * (non-NaN values in a column < thresh(df.numRows)).
    *  @param subset List of float columns to consider when dropping rows (all float columns are
    *   considered by default).
    * Alternatively, when dropping columns, subset is a Series<Integer> with indices to select rows
