@@ -315,11 +315,11 @@ export class AbstractSeries<T extends DataType = any> {
     if (source instanceof Series) {
       const src = new Table({columns: [source._col]});
       const out = dst.scatterTable(src, inds._col, check_bounds, memoryResource);
-      this._col = out.getColumnByIndex(0);
+      return Series.new(out.getColumnByIndex(0));
     } else {
       const src = [new Scalar({type: this.type, value: source})];
       const out = dst.scatterScalar(src, inds._col, check_bounds, memoryResource);
-      this._col = out.getColumnByIndex(0);
+      return Series.new(out.getColumnByIndex(0));
     }
   }
 
