@@ -205,10 +205,20 @@ export class AbstractSeries<T extends DataType = any> {
    * Fills a range of elements in a column out-of-place with a scalar value.
    *
    * @param begin The starting index of the fill range (inclusive).
-   * @param end The index of the last element in the fill range (exclusive).
+   * @param end The index of the last element in the fill range (exclusive), default this.length .
    * @param value The scalar value to fill.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 2, 3])
+   *
+   * a.fill(0) // [0, 0, 0]
+   * a.fill(0, 1) // [1, 0, 0]
+   * a.fill(0, 0, 1) // [0, 2, 3]
+   * ```
    */
   fill(value: T, begin = 0, end = this.length, memoryResource?: MemoryResource): Series<T> {
     return Series.new(
@@ -221,6 +231,16 @@ export class AbstractSeries<T extends DataType = any> {
    * @param begin The starting index of the fill range (inclusive)
    * @param end The index of the last element in the fill range (exclusive)
    * @param value The scalar value to fill
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 2, 3])
+   *
+   * a.fillInPlace(0) // [0, 0, 0]
+   * a.fillInPlace(0, 1) // [1, 0, 0]
+   * a.fillInPlace(0, 0, 1) // [0, 2, 3]
+   * ```
    */
   fillInPlace(value: T, begin = 0, end = this.length) {
     this._col.fillInPlace(new Scalar({type: this.type, value}), begin, end);
@@ -233,6 +253,14 @@ export class AbstractSeries<T extends DataType = any> {
    * @param value The scalar value to use in place of nulls.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, null, 3])
+   *
+   * a.replaceNulls(-1) // [1, -1, 3]
+   * ```
    */
   replaceNulls(value: T['scalarType'], memoryResource?: MemoryResource): Series<T>;
 
@@ -242,6 +270,15 @@ export class AbstractSeries<T extends DataType = any> {
    * @param value The Series to use in place of nulls.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, null, 3])
+   * const b = Series.new([1, 5, 3])
+   *
+   * a.replaceNulls(b) // [1, 5, 3]
+   * ```
    */
   replaceNulls(value: Series<T>, memoryResource?: MemoryResource): Series<T>;
 
@@ -252,6 +289,15 @@ export class AbstractSeries<T extends DataType = any> {
    *   value.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series, ReplacePolicy} from '@rapidsai/cudf';
+   * const a = Series.new({type: @extends {Series<T>}, [1, null, 3])
+   *
+   * a.replaceNulls(ReplacePolicy.PRECEDING) // [1, 1, 3]
+   * a.replaceNulls(ReplacePolicy.FOLLOWING) // [1, 3, 3]
+   * ```
    */
   replaceNulls(value: keyof typeof ReplacePolicy, memoryResource?: MemoryResource): Series<T>;
 
@@ -271,6 +317,18 @@ export class AbstractSeries<T extends DataType = any> {
    * Return a sub-selection of this Series using the specified integral indices.
    *
    * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int32} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([1,2,3]);
+   * const b = Series.new(["foo", "bar", "test"]);
+   * const selection = Series.new({type: new Int32, data: [0,2]});
+   *
+   * a.gather(selection) // Float64Series [1,3]
+   * b.gather(selection) // StringSeries ["foo", "test"]
+   * ```
    */
   gather<R extends IndexType>(selection: Series<R>): Series<T> {
     return this.__construct(this._col.gather(selection._col));
@@ -285,6 +343,19 @@ export class AbstractSeries<T extends DataType = any> {
    * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
    *   of its values are out of bounds (default: false).
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int32} from '@rapidsai/cudf';
+   * const a = Series.new({type: new Int32, data: [0, 1, 2, 3, 4]});
+   * const b = Series.new({type: new Int32, data: [200, 400]});
+   * const indices = Series.new({type: new Int32, data: [2, 4]});
+   * const indices_out_of_bounds = Series.new({type: new Int32, data: [5, 6]});
+   * a.scatter(b, indices); // [0, 1, 200, 3, 400];
+   *
+   * a.scatter(b, indices_out_of_bounds, true) // throws index out of bounds error
+   *
+   * ```
    */
   scatter(value: T['scalarType'],
           indices: Series<Int32>|number[],
