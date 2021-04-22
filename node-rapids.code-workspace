@@ -152,7 +152,6 @@
       "--background-index=true",
       "--all-scopes-completion",
       "--header-insertion=never",
-      "--suggest-missing-includes",
       "--completion-style=detailed",
       "--header-insertion-decorators"
     ],
@@ -163,6 +162,7 @@
     },
     "files.trimFinalNewlines": true,
     "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
     "files.associations": {
       "*.cu": "cuda",
       "*.cuh": "cuda",

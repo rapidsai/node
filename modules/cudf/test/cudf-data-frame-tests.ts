@@ -112,6 +112,7 @@ test('DataFrame.assign', () => {
 
   const col_2 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
   const col_3 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
+  const col_4 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
 
   const table_0 = new DataFrame({'col_0': col_0, 'col_1': col_1, 'col_2': col_2});
 
@@ -119,6 +120,13 @@ test('DataFrame.assign', () => {
   expect(table_1.numColumns).toBe(4);
   expect(table_1.numRows).toBe(length);
   expect(table_1.names).toStrictEqual(['col_0', 'col_1', 'col_2', 'col_3']);
+
+  // testing DataFrame.assign(DataFrame)
+  const table_2 = new DataFrame({'col_4': col_4});
+  const table_3 = table_0.assign(table_2);
+  expect(table_3.numColumns).toBe(4);
+  expect(table_3.numRows).toBe(length);
+  expect(table_3.names).toStrictEqual(['col_0', 'col_1', 'col_2', 'col_4']);
 });
 
 test('DataFrame.drop', () => {
@@ -265,22 +273,19 @@ test('Series.filter', () => {
 });
 
 test(
-  'dataframe.dropNulls(axis=0, thresh=df.numColumns), drop rows with non-null values < numColumn (drop row if atleast one NaN)',
+  'dataframe.dropNulls(axis=0, thresh=df.numColumns), drop rows with non-null values < numColumn (drop row if atleast one null)',
   () => {
     const a  = Series.new({
       type: new Float32,
-      data: [0, 1, 2, 3, 4, 4],
-      nullMask: [true, false, true, true, true, true]
+      data: [null, 1, null, null, null, null],
     });
     const b  = Series.new({
       type: new Float32,
-      data: [0, 1, 3, 5, 5, 6],
-      nullMask: [true, false, true, true, true, true]
+      data: [null, 1, null, null, null, null],
     });
     const c  = Series.new({
       type: new Float32,
-      data: [1, 2, 3, 4, 5, 6],
-      nullMask: [false, false, false, false, false, false]
+      data: [1, null, 3, 4, 5, 6],
     });
     const df = new DataFrame({'a': a, 'b': b, 'c': c});
 
@@ -294,28 +299,28 @@ test(
   () => {
     const a  = Series.new({
       type: new Float32,
-      data: [0, 1, 2, 3, 4, 4],
-      nullMask: [true, false, true, true, true, true]
+      data: [null, 1, null, null, null, null],
     });
     const b  = Series.new({
       type: new Float32,
-      data: [0, 1, 3, 5, 5, 6],
-      nullMask: [true, false, true, true, true, true]
+      data: [null, 1, null, null, null, null],
     });
     const c  = Series.new({
       type: new Float32,
-      data: [1, 2, 3, 4, 5, 6],
-      nullMask: [false, false, false, false, false, false]
+      data: [null, 2, 3, 4, 5, 6],
     });
     const df = new DataFrame({'a': a, 'b': b, 'c': c});
 
-    const expected_a = Series.new({type: new Float32, data: [0, 2, 3, 4, 4]});
+    const expected_a = Series.new({type: new Float32, data: [1, null, null, null, null]});
+    const expected_c = Series.new({type: new Float32, data: [2, 3, 4, 5, 6]});
 
     // row 1 is dropped as it contains all Nulls
     const result = df.dropNulls(0, 1);
     const ra     = result.get('a');
+    const rc     = result.get('c');
 
     expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
+    expect([...rc.toArrow()]).toEqual([...expected_c.toArrow()]);
     expect(result.numRows).toEqual(5);
   });
 
@@ -324,18 +329,15 @@ test(
   () => {
     const a  = Series.new({
       type: new Float32,
-      data: [0, 1, 2, 3, 4, 4],
-      nullMask: [true, false, true, true, true, true]
+      data: [null, 1, null, null, null, null],
     });
     const b  = Series.new({
       type: new Float32,
-      data: [0, 1, 3, 5, 5, 6],
-      nullMask: [true, false, true, true, true, true]
+      data: [null, 1, 2, 3, 4, null],
     });
     const c  = Series.new({
       type: new Float32,
-      data: [1, 2, 3, 4, 5, 6],
-      nullMask: [false, false, false, false, false, false]
+      data: [null, null, null, null, null, null],
     });
     const df = new DataFrame({'a': a, 'b': b, 'c': c});
 
@@ -349,21 +351,9 @@ test(
 test(
   'dataframe.dropNulls(axis=1, thresh=df.numRows), drop columns with non-ull values < numRows (drop if atleast one null)',
   () => {
-    const a  = Series.new({
-      type: new Float32,
-      data: [0, 1, 2, 3, 4, 4],
-      nullMask: [true, false, true, true, true, true]
-    });
-    const b  = Series.new({
-      type: new Float32,
-      data: [0, 1, 3, 5, 5, 6],
-      nullMask: [true, false, true, true, true, true]
-    });
-    const c  = Series.new({
-      type: new Float32,
-      data: [1, 2, 3, 4, 5, 6],
-      nullMask: [false, false, false, false, false, false]
-    });
+    const a  = Series.new({type: new Float32, data: [0, 1, null, 3, 4, 4]});
+    const b  = Series.new({type: new Float32, data: [0, 1, 3, 5, 5, null]});
+    const c  = Series.new({type: new Float32, data: [1, 2, 3, null, 5, 6]});
     const df = new DataFrame({'a': a, 'b': b, 'c': c});
 
     const result = df.dropNulls(1, df.numRows);

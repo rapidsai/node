@@ -19,6 +19,7 @@ import {
   Float32,
   Float64,
   Int32,
+  Int64,
   NullOrder,
   Series,
   Uint8,
@@ -81,6 +82,17 @@ test('Series initialization with Array of mixed values', () => {
   expect([...s]).toEqual([0, 1, null, 2]);
 });
 
+test('Series initialization with type inference', () => {
+  const a = Series.new([0, 1, 2, null]);
+  const b = Series.new(['foo', 'bar', 'test', null]);
+  const c = Series.new([0n, 1n, 2n, null]);
+  const d = Series.new([true, false, true, null]);
+
+  expect(a.type).toBeInstanceOf(Float64);
+  expect(b.type).toBeInstanceOf(Utf8String);
+  expect(c.type).toBeInstanceOf(Int64);
+  expect(d.type).toBeInstanceOf(Bool8);
+});
 test('test child(child_index), num_children', () => {
   const utf8Col    = Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from('hello'))});
   const offsetsCol = Series.new({type: new Int32, data: new Int32Buffer([0, utf8Col.length])});
@@ -188,10 +200,9 @@ test('Series.scatter (scalar)', () => {
 });
 
 test('Series.filter', () => {
-  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+  const col = Series.new([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-  const mask = Series.new(
-    {length: 10, type: new Bool8, data: new Uint8Buffer([0, 0, 1, 0, 1, 1, 0, 0, 1, 0])});
+  const mask = Series.new([false, false, true, false, true, true, false, false, true, false]);
 
   const result = col.filter(mask);
 

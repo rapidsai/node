@@ -1,0 +1,40 @@
+{
+  "private": true,
+  "name":  "spatial-demo",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "scripts": {
+    "start": "node -r esm index.js",
+    "watch": "find -type f | entr -c -d -r node -r esm index.js"
+  },
+  "dependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.0",
+    "@babel/preset-react": "^7.4.0",
+    "@babel/register": "^7.4.0",
+    "@deck.gl/core": "8.4.9",
+    "@deck.gl/react": "8.4.9",
+    "@luma.gl/core": "8.4.4",
+    "@nvidia/cuda": "0.0.1",
+    "@rapidsai/cudf": "0.0.1",
+    "@nvidia/glfw": "0.0.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "esm": {
+    "cjs": true,
+    "force": true,
+    "mode": "auto",
+    "cache": false,
+    "sourceMap": true,
+    "mainFields": [
+      "esnext",
+      "module",
+      "main"
+    ]
+  }
+}

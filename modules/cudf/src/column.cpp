@@ -47,11 +47,15 @@ namespace nv {
 
 namespace {
 
-ObjectUnwrap<DeviceBuffer> device_buffer_from_memorylike(NapiToCPP const& value) {
-  auto data = value;
-  if (value.IsMemoryViewLike()) { data = value.ToObject().Get("buffer"); }
-  if (DeviceBuffer::is_instance(data.val)) { return data.ToObject(); }
-  return DeviceBuffer::New(data.operator Napi::ArrayBuffer());
+ObjectUnwrap<DeviceBuffer> device_buffer_from_memorylike(NapiToCPP const& data) {
+  NapiToCPP::Object obj = data;
+  if (DeviceBuffer::is_instance(obj)) { return obj.val; }
+  if (data.IsDeviceMemoryLike()) {
+    NapiToCPP::Object buf = obj.Get("buffer");
+    if (DeviceBuffer::is_instance(buf)) { return buf.val; }
+    return DeviceBuffer::New(data.operator Span<uint8_t>());
+  }
+  return DeviceBuffer::New(data.operator Napi::Uint8Array());
 }
 
 ObjectUnwrap<DeviceBuffer> device_buffer_from_bool(NapiToCPP const& value, cudf::size_type size) {
@@ -287,9 +291,9 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
   auto const data = get_or_create_data(props.Get("data"), type());
   this->data_     = data.reference();
 
-  this->size_ = props.Get("length");
-
-  if (this->size_ <= 0) {
+  if (props.Has("length")) {
+    this->size_ = props.Get("length");
+  } else {
     auto type = this->type();
     if (cudf::is_fixed_width(type)) {
       this->size_ = data->size() / cudf::size_of(type);

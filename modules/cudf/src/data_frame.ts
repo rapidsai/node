@@ -36,7 +36,7 @@ export type OrderSpec = {
 };
 
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
-  GroupBySingleProps<T, R>|GroupByMultipleProps<T, R, IndexKey>;
+  GroupBySingleProps<T, R>|Partial<GroupByMultipleProps<T, R, IndexKey>>;
 
 function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   const columns = {} as any;
@@ -92,10 +92,20 @@ export class DataFrame<T extends TypeMap = any> {
   /**
    * Return a new DataFrame with new columns added.
    *
-   * @param data mapping of names to new columns to add.
+   *  @param data mapping of names to new columns to add
    */
-  assign<R extends TypeMap>(data: SeriesMap<R>) {
-    return new DataFrame(this._accessor.addColumns(_seriesToColumns(data)));
+  assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<T&R>;
+
+  /**
+   * Return a new DataFrame with new columns added.
+   *
+   *  @param data a GPU DataFrame object
+   */
+  assign<R extends TypeMap>(data: DataFrame<R>): DataFrame<T&R>;
+
+  assign<R extends TypeMap>(data: SeriesMap<R>|DataFrame<R>) {
+    const columns = (data instanceof DataFrame) ? data._accessor : _seriesToColumns(data);
+    return new DataFrame(this._accessor.addColumns(columns));
   }
 
   /**
@@ -224,10 +234,15 @@ export class DataFrame<T extends TypeMap = any> {
     GroupByMultiple<T, R, IndexKey>;
 
   groupBy<R extends keyof T, IndexKey extends string>(props: CombinedGroupByProps<T, R, IndexKey>) {
-    if ('index_key' in props) {
-      return new GroupByMultiple(this, props);
+    if (!Array.isArray(props.by)) {
+      return new GroupBySingle(this, props as GroupBySingleProps<T, R>);
+    } else if ('index_key' in props) {
+      return new GroupByMultiple(this, props as GroupByMultipleProps<T, R, IndexKey>);
     } else {
-      return new GroupBySingle(this, props);
+      return new GroupByMultiple(this, {
+        ...props,
+        index_key: props.by.join('_'),
+      } as GroupByMultipleProps<T, R, any>);
     }
   }
 

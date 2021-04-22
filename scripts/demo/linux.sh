@@ -29,7 +29,7 @@ fi
 
 if [[ "$DEMO" == "" ]]; then
     DEMOS="
-    $(echo modules/demo/{luma,graph,xterm}/package.json)
+    $(echo modules/demo/{graph,luma,spatial,xterm,client-server}/package.json)
     $(find modules/demo/{deck,tfjs,ipc} -maxdepth 2 -type f -name 'package.json')
     ";
     DEMOS="$(echo -e "$DEMOS" | grep -v node_modules | sort -Vr)";
@@ -55,4 +55,8 @@ if [[ "$DEMO" =~ "modules/demo/luma" ]]; then ARGS="${@:-01}";
 elif [[ "$DEMO" =~ "modules/demo/ipc/umap" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
 fi
 
-NODE_ENV=production exec node -r esm --trace-uncaught "$DEMO" $ARGS
+if [[ "$DEMO" =~ "modules/demo/client-server" ]]; then 
+    NODE_ENV=production exec npm --prefix="$DEMO" $ARGS start
+else
+    NODE_ENV=production exec node -r esm --trace-uncaught "$DEMO" $ARGS
+fi

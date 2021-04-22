@@ -59,7 +59,7 @@ if(NODE_RAPIDS_USE_CCACHE)
 endif(NODE_RAPIDS_USE_CCACHE)
 
 execute_process(COMMAND node -p
-                "require('@rapidsai/core').cpp_include_path"
+                "require('@rapidsai/core').cpp_core_include_path"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE RAPIDS_CORE_INCLUDE_DIR
                 OUTPUT_STRIP_TRAILING_WHITESPACE)

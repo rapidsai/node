@@ -14,11 +14,13 @@
 # limitations under the License.
 #=============================================================================
 
-include(get_cpm)
-
-_set_package_dir_if_exists(cugraph cugraph)
-
 function(find_and_configure_cugraph VERSION)
+
+    include(get_cpm)
+
+    _clean_build_dirs_if_not_fully_built(cugraph libcugraph.so)
+
+    _set_package_dir_if_exists(cugraph cugraph)
 
     include(ConfigureCUDF)
 
@@ -31,11 +33,12 @@ function(find_and_configure_cugraph VERSION)
         set(BUILD_TESTS OFF)
         set(BUILD_BENCHMARKS OFF)
 
-        CPMFindPackage(NAME cugraph
-            VERSION        ${CUGRAPH_VERSION}
-            GIT_REPOSITORY https://github.com/rapidsai/cugraph.git
-            GIT_TAG        branch-${CUGRAPH_VERSION}
-            GIT_SHALLOW    TRUE
+        CPMFindPackage(NAME     cugraph
+            VERSION             ${CUGRAPH_VERSION}
+            GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
+            GIT_TAG             branch-${CUGRAPH_VERSION}
+            GIT_SHALLOW         TRUE
+            UPDATE_DISCONNECTED FALSE
             # SOURCE_SUBDIR  cpp
             DOWNLOAD_ONLY
         )
@@ -63,10 +66,11 @@ function(find_and_configure_cugraph VERSION)
 
         set_target_properties(cugraph
             PROPERTIES BUILD_RPATH                         "\$ORIGIN"
+                       INSTALL_RPATH                       "\$ORIGIN"
                        # set target compile options
-                       CXX_STANDARD                        14
+                       CXX_STANDARD                        17
                        CXX_STANDARD_REQUIRED               ON
-                       CUDA_STANDARD                       14
+                       CUDA_STANDARD                       17
                        CUDA_STANDARD_REQUIRED              ON
                        NO_SYSTEM_FROM_IMPORTED             ON
                        POSITION_INDEPENDENT_CODE           ON
