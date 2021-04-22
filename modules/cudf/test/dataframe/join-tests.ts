@@ -33,6 +33,24 @@ const right_conflict = new DataFrame({
   a: Series.new({type: new Int32, data: [0, 10, 30]})
 });
 
+const left_double = new DataFrame({
+  a: Series.new({type: new Int32, data: [0, 1, 1]}),
+  b: Series.new({type: new Int32, data: [10, 20, 10]}),
+  c: Series.new({type: new Int32, data: [1., 2., 3.]})
+});
+
+const right_double = new DataFrame({
+  a: Series.new({type: new Int32, data: [0, 0, 1]}),
+  b: Series.new({type: new Int32, data: [10, 20, 20]}),
+  d: Series.new({type: new Int32, data: [10., 20., 30.]})
+});
+
+const right_double_conflict = new DataFrame({
+  a: Series.new({type: new Int32, data: [0, 0, 1]}),
+  b: Series.new({type: new Int32, data: [10, 20, 20]}),
+  c: Series.new({type: new Int32, data: [10., 20., 30.]})
+});
+
 describe('DataFrame.join({how="inner"}) ', () => {
   test('can join with no column name conflicts', () => {
     const result = left.join({other: right, on: ['b'], how: 'inner'});
@@ -77,6 +95,49 @@ describe('DataFrame.join({how="inner"}) ', () => {
     expect([...result.get('b')]).toEqual([0, 0, 1, 1]);
     expect([...result.get('a_L')]).toEqual([1, 2, 3, 4]);
     expect([...result.get('a_R')]).toEqual([0, 0, 10, 10]);
+  });
+
+  test('can join on multi-index', () => {
+    const result = left_double.join({other: right_double, on: ['a', 'b'], how: 'inner'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'd']));
+    expect([...result.get('a')]).toEqual([0, 1]);
+    expect([...result.get('b')]).toEqual([10, 20]);
+    expect([...result.get('c')]).toEqual([1, 2]);
+    expect([...result.get('d')]).toEqual([10, 30]);
+  });
+
+  test('can join on multi-index with conflict, rsuffix', () => {
+    const result =
+      left_double.join({other: right_double_conflict, on: ['a', 'b'], how: 'inner', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'c_R']));
+    expect([...result.get('a')]).toEqual([0, 1]);
+    expect([...result.get('b')]).toEqual([10, 20]);
+    expect([...result.get('c')]).toEqual([1, 2]);
+    expect([...result.get('c_R')]).toEqual([10, 30]);
+  });
+
+  test('can join on multi-index with conflict, lsuffix', () => {
+    const result =
+      left_double.join({other: right_double_conflict, on: ['a', 'b'], how: 'inner', lsuffix: '_L'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c_L', 'c']));
+    expect([...result.get('a')]).toEqual([0, 1]);
+    expect([...result.get('b')]).toEqual([10, 20]);
+    expect([...result.get('c_L')]).toEqual([1, 2]);
+    expect([...result.get('c')]).toEqual([10, 30]);
+  });
+
+  test('can join on multi-index with conflict, lsuffix and rsuffix', () => {
+    const result = left_double.join(
+      {other: right_double_conflict, on: ['a', 'b'], how: 'inner', lsuffix: '_L', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c_L', 'c_R']));
+    expect([...result.get('a')]).toEqual([0, 1]);
+    expect([...result.get('b')]).toEqual([10, 20]);
+    expect([...result.get('c_L')]).toEqual([1, 2]);
+    expect([...result.get('c_R')]).toEqual([10, 30]);
   });
 });
 
@@ -125,6 +186,49 @@ describe('DataFrame.join({how="left"}) ', () => {
     expect([...result.get('a_L')]).toEqual([1, 2, 3, 4, 5]);
     expect([...result.get('a_R')]).toEqual([0, 0, 10, 10, null]);
   });
+
+  test('can join on multi-index', () => {
+    const result = left_double.join({other: right_double, on: ['a', 'b'], how: 'left'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'd']));
+    expect([...result.get('a')]).toEqual([0, 1, 1]);
+    expect([...result.get('b')]).toEqual([10, 20, 10]);
+    expect([...result.get('c')]).toEqual([1, 2, 3]);
+    expect([...result.get('d')]).toEqual([10, 30, null]);
+  });
+
+  test('can join on multi-index with conflict, rsuffix', () => {
+    const result =
+      left_double.join({other: right_double_conflict, on: ['a', 'b'], how: 'left', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'c_R']));
+    expect([...result.get('a')]).toEqual([0, 1, 1]);
+    expect([...result.get('b')]).toEqual([10, 20, 10]);
+    expect([...result.get('c')]).toEqual([1, 2, 3]);
+    expect([...result.get('c_R')]).toEqual([10, 30, null]);
+  });
+
+  test('can join on multi-index with conflict, lsuffix', () => {
+    const result =
+      left_double.join({other: right_double_conflict, on: ['a', 'b'], how: 'left', lsuffix: '_L'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c_L', 'c']));
+    expect([...result.get('a')]).toEqual([0, 1, 1]);
+    expect([...result.get('b')]).toEqual([10, 20, 10]);
+    expect([...result.get('c_L')]).toEqual([1, 2, 3]);
+    expect([...result.get('c')]).toEqual([10, 30, null]);
+  });
+
+  test('can join on multi-index with conflict, lsuffix and rsuffix', () => {
+    const result = left_double.join(
+      {other: right_double_conflict, on: ['a', 'b'], how: 'left', lsuffix: '_L', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c_L', 'c_R']));
+    expect([...result.get('a')]).toEqual([0, 1, 1]);
+    expect([...result.get('b')]).toEqual([10, 20, 10]);
+    expect([...result.get('c_L')]).toEqual([1, 2, 3]);
+    expect([...result.get('c_R')]).toEqual([10, 30, null]);
+  });
 });
 
 describe('DataFrame.join({how="outer"}) ', () => {
@@ -170,6 +274,49 @@ describe('DataFrame.join({how="outer"}) ', () => {
     expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2, 3]);
     expect([...result.get('a_L')]).toEqual([1, 2, 3, 4, 5, null]);
     expect([...result.get('a_R')]).toEqual([0, 0, 10, 10, null, 30]);
+  });
+
+  test('can join on multi-index', () => {
+    const result = left_double.join({other: right_double, on: ['a', 'b'], how: 'outer'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'd']));
+    expect([...result.get('a')]).toEqual([0, 1, 1, 0]);
+    expect([...result.get('b')]).toEqual([10, 20, 10, 20]);
+    expect([...result.get('c')]).toEqual([1, 2, 3, null]);
+    expect([...result.get('d')]).toEqual([10, 30, null, 20]);
+  });
+
+  test('can join on multi-index with conflict, rsuffix', () => {
+    const result =
+      left_double.join({other: right_double_conflict, on: ['a', 'b'], how: 'outer', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'c_R']));
+    expect([...result.get('a')]).toEqual([0, 1, 1, 0]);
+    expect([...result.get('b')]).toEqual([10, 20, 10, 20]);
+    expect([...result.get('c')]).toEqual([1, 2, 3, null]);
+    expect([...result.get('c_R')]).toEqual([10, 30, null, 20]);
+  });
+
+  test('can join on multi-index with conflict, lsuffix', () => {
+    const result =
+      left_double.join({other: right_double_conflict, on: ['a', 'b'], how: 'outer', lsuffix: '_L'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c_L', 'c']));
+    expect([...result.get('a')]).toEqual([0, 1, 1, 0]);
+    expect([...result.get('b')]).toEqual([10, 20, 10, 20]);
+    expect([...result.get('c_L')]).toEqual([1, 2, 3, null]);
+    expect([...result.get('c')]).toEqual([10, 30, null, 20]);
+  });
+
+  test('can join on multi-index with conflict, lsuffix and rsuffix', () => {
+    const result = left_double.join(
+      {other: right_double_conflict, on: ['a', 'b'], how: 'outer', lsuffix: '_L', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c_L', 'c_R']));
+    expect([...result.get('a')]).toEqual([0, 1, 1, 0]);
+    expect([...result.get('b')]).toEqual([10, 20, 10, 20]);
+    expect([...result.get('c_L')]).toEqual([1, 2, 3, null]);
+    expect([...result.get('c_R')]).toEqual([10, 30, null, 20]);
   });
 });
 
@@ -238,4 +385,15 @@ describe('DataFrame.join({how="right"}) ', () => {
     expect([...sorted_result.get('a_L')]).toEqual([1, 2, 3, 4, null]);
     expect([...sorted_result.get('a_R')]).toEqual([0, 0, 10, 10, 30]);
   });
+
+  // XXXX This test does not agree with pd/cudf yet
+  // test('can join on multi-index', () => {
+  //   const result = left_double.join({other: right_double, on: ['a', 'b'], how: 'right'});
+  //   expect(result.numColumns).toEqual(4);
+  //   expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'd']));
+  //   expect([...result.get('a')]).toEqual([0, 1, 0]);
+  //   expect([...result.get('b')]).toEqual([10, 20, 30]);
+  //   expect([...result.get('c')]).toEqual([1, 2, null]);
+  //   expect([...result.get('d')]).toEqual([10, 30, 20]);
+  // });
 });
