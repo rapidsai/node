@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {DataFrame, Int32, Series} from '@rapidsai/cudf';
+import {DataFrame, Int32, NullOrder, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
@@ -151,7 +151,6 @@ describe('DataFrame.join({how="outer"}) ', () => {
     expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2, 3]);
     expect([...result.get('a_L')]).toEqual([1, 2, 3, 4, 5, null]);
     expect([...result.get('a')]).toEqual([0, 0, 10, 10, null, 30]);
-    
   });
 
   test('applies rsuffix', () => {
@@ -180,9 +179,63 @@ describe('DataFrame.join({how="right"}) ', () => {
     expect(result.numColumns).toEqual(3);
     expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
 
-    // sort order?
-    expect([...result.get('b')]).toEqual([0, 1, null, 0, 1]);
-    expect([...result.get('a')]).toEqual([1, 3, null, 2, 4]);
-    expect([...result.get('c')]).toEqual([0, 10, 30, 0, 10]);
+    // Sorting is just to get 1-1 agreement with order of pd/cudf results
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
+
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, null]);
+    expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4, null]);
+    expect([...sorted_result.get('c')]).toEqual([0, 0, 10, 10, 30]);
+  });
+
+  test('discards right conflicts without suffices', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'right'});
+    expect(result.numColumns).toEqual(2);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b']));
+
+    // Sorting is just to get 1-1 agreement with order of pd/cudf results
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
+
+    expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4, null]);
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, null]);
+  });
+
+  test('applies lsuffix', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'right', lsuffix: '_L'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'a_L']));
+
+    // Sorting is just to get 1-1 agreement with order of pd/cudf results
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
+
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, null]);
+    expect([...sorted_result.get('a_L')]).toEqual([1, 2, 3, 4, null]);
+    expect([...sorted_result.get('a')]).toEqual([0, 0, 10, 10, 30]);
+  });
+
+  test('applies rsuffix', () => {
+    const result = left.join({other: right_conflict, on: ['b'], how: 'right', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'a_R']));
+
+    // Sorting is just to get 1-1 agreement with order of pd/cudf results
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
+
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, null]);
+    expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4, null]);
+    expect([...sorted_result.get('a_R')]).toEqual([0, 0, 10, 10, 30]);
+  });
+
+  test('applies lsuffix and rsuffix', () => {
+    const result =
+      left.join({other: right_conflict, on: ['b'], how: 'right', lsuffix: '_L', rsuffix: '_R'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a_L', 'b', 'a_R']));
+
+    // Sorting is just to get 1-1 agreement with order of pd/cudf results
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
+
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, null]);
+    expect([...sorted_result.get('a_L')]).toEqual([1, 2, 3, 4, null]);
+    expect([...sorted_result.get('a_R')]).toEqual([0, 0, 10, 10, 30]);
   });
 });
