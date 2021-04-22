@@ -124,6 +124,15 @@ test('Series.setValue', () => {
   expect([...result]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
 });
 
+test('Series.setValueInPlace', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+  col.setValueInPlace(2, 999);
+  col.setValueInPlace(4, 999);
+  col.setValueInPlace(5, 999);
+  col.setValueInPlace(8, 999);
+  expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
+});
+
 test('Series.gather', () => {
   const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
 
