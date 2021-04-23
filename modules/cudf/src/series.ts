@@ -604,6 +604,17 @@ export class AbstractSeries<T extends DataType = any> {
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns A non-nullable Series of `BOOL8` elements with `true` representing `null`
    *   values.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, null, 3]).isNull() // [false, true, false]
+   * // StringSeries
+   * Series.new(["foo", "bar", null]).isNull() // [false, false, true]
+   * // Bool8Series
+   * Series.new([true, true, null]).isNull() // [false, false, true]
+   * ```
    */
   isNull(memoryResource?: MemoryResource) { return Series.new(this._col.isNull(memoryResource)); }
 
@@ -614,6 +625,18 @@ export class AbstractSeries<T extends DataType = any> {
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns A non-nullable Series of `BOOL8` elements with `false` representing `null`
    *   values.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, null, 3]).isValid() // [true, false, true]
+   * // StringSeries
+   * Series.new(["foo", "bar", null]).isValid() // [true, true, false]
+   * // Bool8Series
+   * Series.new([true, true, null]).isValid() // [true, true, false]
+   * ```
    */
   isValid(memoryResource?: MemoryResource) { return Series.new(this._col.isValid(memoryResource)); }
 
@@ -621,49 +644,31 @@ export class AbstractSeries<T extends DataType = any> {
    * drop Null values from the series
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns series without Null values
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, undefined, 3]).dropNulls() // [1, 3]
+   * Series.new([1, null, 3]).dropNulls() // [1, 3]
+   * Series.new([1, , 3]).dropNulls() // [1, 3]
+   *
+   * // StringSeries
+   * Series.new(["foo", "bar", undefined]).dropNulls() // ["foo", "bar"]
+   * Series.new(["foo", "bar", null]).dropNulls() // ["foo", "bar"]
+   * Series.new(["foo", "bar", ,]).dropNulls() // ["foo", "bar"]
+   *
+   * // Bool8Series
+   * Series.new([true, true, undefined]).dropNulls() // [true, true]
+   * Series.new([true, true, null]).dropNulls() // [true, true]
+   * Series.new([true, true, ,]).dropNulls() // [true, true]
+   * ```
    */
   dropNulls(memoryResource?: MemoryResource): Series<T> {
     return this.__construct(this._col.drop_nulls(memoryResource));
   }
 
-  /**
-   * Return whether all elements are true in Series.
-   *
-   * @param skipna bool
-   * Exclude null values. If the entire row/column is NA and skipna is true, then the result will
-   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
-   * these are not equal to zero.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
-   *
-   * @returns true if all elements are true in Series, else false.
-   */
-  all(skipna = true, memoryResource?: MemoryResource) {
-    if (skipna) {
-      if (this.length == this.nullCount) { return true; }
-    }
-    return this._col.all(memoryResource);
-  }
-
-  /**
-   * Return whether any elements are true in Series.
-   *
-   * @param skipna bool
-   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
-   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
-   * these are not equal to zero.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
-   *
-   * @returns true if any elements are true in Series, else false.
-   */
-  any(skipna = true, memoryResource?: MemoryResource) {
-    if (this.length == 0) { return false; }
-    if (skipna) {
-      if (this.length == this.nullCount) { return false; }
-    }
-    return this._col.any(memoryResource);
-  }
   /**
    * @summary Hook for specialized Series to override when constructing from a C++ Column.
    */
