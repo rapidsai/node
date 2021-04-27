@@ -57,6 +57,20 @@ export class DataFrame<T extends TypeMap = any> {
 
   private _accessor: ColumnAccessor<T>;
 
+  /**
+   * Create a new cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2]),
+   *  b: Series.new([true, false]),
+   *  c: Series.new(["foo", "bar"])
+   * })
+   *
+   * ```
+   */
   constructor(data: ColumnAccessor<T>|SeriesMap<T>) {
     this._accessor =
       (data instanceof ColumnAccessor) ? data : new ColumnAccessor(_seriesToColumns(data));

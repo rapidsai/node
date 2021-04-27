@@ -143,11 +143,81 @@ export type Series<T extends arrow.DataType = any> = {
  * One-dimensional GPU array
  */
 export class AbstractSeries<T extends DataType = any> {
+  /**
+   * Create a new cudf.Series from an apache arrow vector
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int32} from '@rapidsai/cudf';
+   * import * as arrow from 'apache-arrow';
+   *
+   * const arrow_vec = arrow.Vector.from({
+   *         type: new Int32,
+   *         values: [1,2,3,4],
+   *         highWaterMark: Infinity
+   *       });
+   * const a = Series.new(arrow_vec); // Int32Series [1, 2, 3, 4]
+   * ```
+   */
   static new<T extends arrow.Vector>(input: T): Series<ArrowToCUDFType<T['type']>>;
+  /**
+   * Create a new cudf.Series from SeriesProps or a cudf.Column
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int32} from '@rapidsai/cudf';
+   *
+   * //using SeriesProps
+   * const a = Series.new({type: new Int32, data: [1, 2, 3, 4]}); // Int32Series [1, 2, 3, 4]
+   *
+   * //using underlying cudf.Column
+   * const b = Series.new(a._col); // Int32Series [1, 2, 3, 4]
+   * ```
+   */
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>): Series<T>;
+  /**
+   * Create a new cudf.StringSeries
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new(["foo", "bar", "test",null]); // StringSeries ["foo", "bar", "test", null]
+   * ```
+   */
   static new(input: (string|null|undefined)[]): Series<Utf8String>;
+  /**
+   * Create a new cudf.Float64Series
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([1, 2, 3,, 4]); // Float64Series [1, 2, 3, null, 4]
+   * ```
+   */
   static new(input: (number|null|undefined)[]): Series<Float64>;
+  /**
+   * Create a new cudf.Int64Series
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([1n, 2n, 3n,undefined, 4n]); // Int64Series [1n, 2n, 3n, null, 4n]
+   * ```
+   */
   static new(input: (bigint|null|undefined)[]): Series<Int64>;
+  /**
+   * Create a new cudf.Bool8Series
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([true, false, true, false]); // Bool8Series [true, false, true, false]
+   * ```
+   */
   static new(input: (boolean|null|undefined)[]): Series<Bool8>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>|
                                  (string|null|undefined)[]|(number|null|undefined)[]|
