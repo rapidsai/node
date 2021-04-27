@@ -48,6 +48,25 @@ function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
  * A GPU Dataframe object.
  */
 export class DataFrame<T extends TypeMap = any> {
+  /**
+   * Read a csv from disk and create a cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = DataFrame.readCSV({
+   *  header: 0,
+   *  sourceType: 'files',
+   *  sources: ['test.csv'],
+   *  dataTypes: {
+   *    a: 'int16',
+   *    b: 'bool',
+   *    c: 'float32',
+   *    d: 'str'
+   *  }
+   * })
+   * ```
+   */
   public static readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>) {
     const {names, table} = Table.readCSV(options);
     return new DataFrame(new ColumnAccessor(
