@@ -38,12 +38,38 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
   }
   /**
    * Series of integer offsets for each list
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * import * as arrow from 'apache-arrow';
+   *
+   * const vec = arrow.Vector.from({
+   *   values: [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+   *   type: new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
+   * });
+   * const a = Series.new(vec);
+   *
+   * a.offsets // Int32Series [0, 3, 6, 9]
+   * ```
    */
   // TODO: account for this.offset
   get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
 
   /**
    * Series containing the elements of each list
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * import * as arrow from 'apache-arrow';
+   *
+   * const vec = arrow.Vector.from({
+   *   values: [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+   *   type: new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
+   * });
+   * const a = Series.new(vec);
+   *
+   * a.elements // Int32Series [0, 1, 2, 3, 4, 5, 6, 7, 8]
+   * ```
    */
   // TODO: account for this.offset
   get elements(): Series<T> { return Series.new(this._col.getChild<T>(1)); }

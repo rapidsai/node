@@ -157,6 +157,24 @@ export class AbstractSeries<T extends DataType = any> {
    *         highWaterMark: Infinity
    *       });
    * const a = Series.new(arrow_vec); // Int32Series [1, 2, 3, 4]
+   *
+   * const arrow_vec_list = arrow.Vector.from({
+   *   values: [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+   *   type: new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
+   * });
+   *
+   * const b = Series.new(arrow_vec_list) // ListSeries [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
+   *
+   * const arrow_vec_struct = arrow.Vector.from({
+   *   values: [{ x: 0, y: 3 }, { x: 1, y: 4 }, { x: 2, y: 5 }],
+   *   type: new arrow.Struct([
+   *     arrow.Field.new({ name: 'x', type: new arrow.Int32 }),
+   *     arrow.Field.new({ name: 'y', type: new arrow.Int32 })
+   *   ]),
+   * });
+   *
+   * const c = Series.new(arrow_vec_struct); // StructSeries  [{ x: 0, y: 3 }, { x: 1, y: 4 },
+   * // { x: 2, y: 5 }]
    * ```
    */
   static new<T extends arrow.Vector>(input: T): Series<ArrowToCUDFType<T['type']>>;
