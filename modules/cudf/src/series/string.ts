@@ -37,11 +37,25 @@ export class StringSeries extends Series<Utf8String> {
   }
   /**
    * Series of integer offsets for each string
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(["foo", "bar"]);
+   *
+   * a.offsets // Int32Array(3) [ 0, 3, 6 ]
+   * ```
    */
   // TODO: Account for this.offset
   get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
   /**
    * Series containing the utf8 characters of each string
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(["foo", "bar"]);
+   *
+   * a.data // Uint8Array(6) [ 102, 111, 111, 98, 97, 114 ]
+   * ```
    */
   // TODO: Account for this.offset
   get data() { return Series.new(this._col.getChild<Uint8>(1)); }
@@ -58,6 +72,15 @@ export class StringSeries extends Series<Utf8String> {
    * https://docs.rapids.ai/api/libcudf/stable/md_regex.html
    *
    * A RegExp may also be passed, however all flags are ignored (only `pattern.source` is used)
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(["foo", "bar"]);
+   *
+   * a.containsRe(/fo/ig) // [true, false]
+   * a.containsRe('foo') // [true, false]
+   * ```
    */
   containsRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Bool8> {
     const pat_string = pattern instanceof RegExp ? pattern.source : pattern;
@@ -77,6 +100,15 @@ export class StringSeries extends Series<Utf8String> {
    * https://docs.rapids.ai/api/libcudf/stable/md_regex.html
    *
    * A RegExp may also be passed, however all flags are ignored (only `pattern.source` is used)
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(["foo_fo", "bar"]);
+   *
+   * a.countRe(/o/ig) // [3, 0]
+   * a.countRe('fo') // [2, 0]
+   * ```
    */
   countRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Int32> {
     const pat_string = pattern instanceof RegExp ? pattern.source : pattern;
@@ -96,6 +128,15 @@ export class StringSeries extends Series<Utf8String> {
    * https://docs.rapids.ai/api/libcudf/stable/md_regex.html
    *
    * A RegExp may also be passed, however all flags are ignored (only `pattern.source` is used)
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(["foo_bar", "bar_foo"]);
+   *
+   * a.matchesRe(/foo/ig) // [true, false]
+   * a.matchesRe('bar') // [false, true]
+   * ```
    */
   matchesRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Bool8> {
     const pat_string = pattern instanceof RegExp ? pattern.source : pattern;
