@@ -41,6 +41,24 @@ export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
    * Return a child series by name.
    *
    * @param name Name of the Series to return.
+   *
+   * @example
+   * ```typescript
+   * import {Series} = require('@rapidsai/cudf');
+   * import * as arrow from 'apache-arrow';
+   *
+   * const vec = arrow.Vector.from({
+   *   values: [{ x: 0, y: 3 }, { x: 1, y: 4 }, { x: 2, y: 5 }],
+   *   type: new arrow.Struct([
+   *     arrow.Field.new({ name: 'x', type: new arrow.Int32 }),
+   *     arrow.Field.new({ name: 'y', type: new arrow.Int32 })
+   *   ]),
+   * });
+   * const a = Series.new(vec);
+   *
+   * a.getChild('x') // Int32Series [0, 1, 2]
+   * a.getChild('y') // Int32Series [3, 4, 5]
+   * ```
    */
   // TODO: Account for this.offset
   getChild<P extends keyof T>(name: P): Series<T[P]> {
