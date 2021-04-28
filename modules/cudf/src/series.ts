@@ -494,16 +494,21 @@ export class AbstractSeries<T extends DataType = any> {
   protected __construct(inp: Column<T>): Series<T> { return Series.new(inp); }
 
   /**
-   * TBD
-   * @returns TBD
+   * Returns an object with keys "value" and "count" whose respective values are new Series
+   * containing the unique values in the original series and the number of times they occur
+   * in the original series.
+   * @returns object with keys "value" and "count"
    */
-  value_counts(): DataFrame {
-    const index = Array.from({length: this.length}, (_, i) => Number(i));
-    const df    = new DataFrame({
-      'index': Series.new({type: new Int32, data: index}),
-      'values': this,
+  value_counts(): {count: Int32Series, value: Series<T>} {
+    const df = new DataFrame<{count: T, value: T}>({
+      'count': this,
+      'value': this,
     });
-    return df.groupBy({by: 'values'}).count();
+    const d  = df.groupBy({by: 'value'}).count();
+    return {
+      count: d.get('count'),
+      value: d.get('value'),
+    };
   }
 
   /**
