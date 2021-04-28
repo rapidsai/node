@@ -442,7 +442,7 @@ export class DataFrame<T extends TypeMap = any> {
    *  c: Series.new([1, 2, 3, 4, 5, 6])
    * })
    *
-   * df.groupby({by: 'a']}).max() // { a: [2, 1, 0], b: [4, 2, 0], c: [6, 3, 1] }
+   * df.groupby({by: 'a'}).max() // { a: [2, 1, 0], b: [4, 2, 0], c: [6, 3, 1] }
    *
    * ```
    */
