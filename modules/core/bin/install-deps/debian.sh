@@ -93,9 +93,9 @@ if [ -n "$INSTALL_CMAKE" ]; then
             'APT_DEPS=${APT_DEPS:+$APT_DEPS }qt5-default; CMAKE_OPTS=${CMAKE_OPTS:+$CMAKE_OPTS }--qt-gui;';
     fi
 
-    if [ "$(check_apt libcurl4-openssl-dev)" -eq "0" ]; then
-        ask_before_install "Missing libcurl4-openssl-dev needed by CMake. Install it now (y/n)?" \
-            'APT_DEPS=${APT_DEPS:+$APT_DEPS }libcurl4-openssl-dev; CMAKE_OPTS=${CMAKE_OPTS:+$CMAKE_OPTS }--system-curl;';
+    if [ "$(check_apt libcurl4-openssl-dev)" -eq "0" ] || [ "$(check_apt libssl-dev)" -eq "0" ]; then
+        ask_before_install "Missing libcurl4-openssl-dev and/or libssl-dev needed by CMake. Install them now (y/n)?" \
+            'APT_DEPS=${APT_DEPS:+$APT_DEPS }libcurl4-openssl-dev libssl-dev; CMAKE_OPTS=${CMAKE_OPTS:+$CMAKE_OPTS }--system-curl;';
     fi
 fi
 
