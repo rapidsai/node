@@ -76,10 +76,16 @@ export class StringSeries extends Series<Utf8String> {
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
-   * const a = Series.new(["foo", "bar"]);
+   * const a = Series.new(['Finland','Colombia','Florida', 'Russia','france']);
    *
-   * a.containsRe(/fo/ig) // [true, false]
-   * a.containsRe('foo') // [true, false]
+   * // items starting with F (only upper case)
+   * a.containsRe(/^F/) // [true, false, true, false, false]
+   * // items starting with F or f
+   * a.containsRe(/^[Ff]/) // [true, false, true, false, true]
+   * // items ending with a
+   * a.containsRe("a$") // [false, true, true, true, false]
+   * // items containing "us"
+   * a.containsRe("us") // [false, false, false, true, false]
    * ```
    */
   containsRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Bool8> {
@@ -104,10 +110,15 @@ export class StringSeries extends Series<Utf8String> {
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
-   * const a = Series.new(["foo_fo", "bar"]);
+   * const a = Series.new(['Finland','Colombia','Florida', 'Russia','france']);
    *
-   * a.countRe(/o/ig) // [3, 0]
-   * a.countRe('fo') // [2, 0]
+   * // count occurences of "o"
+   * a.countRe(/o/) // [0, 2, 1, 0, 0]
+   * // count occurences of "an"
+   * a.countRe('an') // [1, 0, 0, 0, 1]
+   *
+   * // get number of countries starting with F or f
+   * a.countRe(/^[fF]).count() // 3
    * ```
    */
   countRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Int32> {
@@ -132,10 +143,12 @@ export class StringSeries extends Series<Utf8String> {
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
-   * const a = Series.new(["foo_bar", "bar_foo"]);
+   * const a = Series.new(['Finland','Colombia','Florida', 'Russia','france']);
    *
-   * a.matchesRe(/foo/ig) // [true, false]
-   * a.matchesRe('bar') // [false, true]
+   * // start of item contains "C"
+   * a.matchesRe(/C/) // [false, true, false, false, false]
+   * // start of item contains "us", returns false since none of the items start with "us"
+   * a.matchesRe('us') // [false, false, false, false, false]
    * ```
    */
   matchesRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Bool8> {
