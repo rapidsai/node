@@ -34,6 +34,14 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns Series of same size as the current Series containing result of the `cast` operation.
+   * @example
+   * ```typescript
+   * import {Series, Bool8, Int32} from '@rapidsai/cudf';
+   *
+   * const a = Series.new({type:new Int32, data: [1,0,1,0]});
+   *
+   * a.cast(new Bool8); // Bool8Series [true, false, true, false];
+   * ```
    */
   cast<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Series<R> {
     return Series.new(this._col.cast(dataType, memoryResource));
@@ -77,6 +85,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([10, 12, 14, 20]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.add(3); // [13, 15, 17, 23]
+   * a.add(b); // [13, 14, 15, 23]
+   * ```
    */
   add(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   add(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -100,6 +117,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([10, 12, 14, 20]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.sub(3); // [7, 9, 11, 17]
+   * a.sub(b); // [7, 10, 13, 17]
+   * ```
    */
   sub(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   sub(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -123,6 +149,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([10, 12, 14, 20]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.mul(3); // [30, 36, 42, 60]
+   * a.mul(b); // [30, 24, 14, 60]
+   * ```
    */
   mul(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   mul(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -146,6 +181,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([10, 12, 14, 20]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.div(3); // [3.3333333333333335, 4, 4.666666666666667, 6.666666666666667]
+   * a.div(b); // [3.3333333333333335, 6, 14, 6.666666666666667]
+   * ```
    */
   div(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   div(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -169,6 +213,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([10, 12, 14, 20]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.true_div(3); // [3.3333333333333335, 4, 4.666666666666667, 6.666666666666667]
+   * a.true_div(b); // [3.3333333333333335, 6, 14, 6.666666666666667]
+   * ```
    */
   true_div(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   true_div(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -195,6 +248,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([10, 12, 14, 20]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.floor_div(3); // [ 3, 4, 4, 6 ]
+   * a.floor_div(b); // [ 3, 6, 14, 6 ]
+   * ```
    */
   floor_div(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   floor_div(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -221,6 +283,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([10, 12, 14, 20]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.mod(3); // [ 1, 0, 2, 2 ]
+   * a.mod(b); // [ 1, 0, 0, 2 ]
+   * ```
    */
   mod(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   mod(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -244,6 +315,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([0, 1, 2, 3]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.pow(2); // [ 0, 1, 4, 9 ]
+   * a.pow(b); // [ 0, 1, 2, 27 ]
+   * ```
    */
   pow(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   pow(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -267,6 +347,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of booleans with the comparison result.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([0, 1, 2, 3]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.eq(1); // [ false, true, false, false ]
+   * a.eq(b); // [ false, false, false, true ]
+   * ```
    */
   eq(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   eq(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
@@ -289,6 +378,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of booleans with the comparison result.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([0, 1, 2, 3]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.ne(1); // [true, false, true, true]
+   * a.ne(b); // [true, true, true, false]
+   * ```
    */
   ne(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   ne(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
@@ -311,6 +409,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of booleans with the comparison result.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([0, 1, 2, 3]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.lt(1); // [true, false, false, false]
+   * a.lt(b); // [true, true, false, false]
+   * ```
    */
   lt(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   lt(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
@@ -333,6 +440,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of booleans with the comparison result.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([0, 1, 2, 3]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.le(1); // [true, true, false, false]
+   * a.le(b); // [true, true, false, true]
+   * ```
    */
   le(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   le(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
@@ -355,6 +471,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of booleans with the comparison result.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([0, 1, 2, 3]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.gt(1); // [false, false, true, true]
+   * a.gt(b); // [false, false, true, false]
+   * ```
    */
   gt(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   gt(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
@@ -377,6 +502,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of booleans with the comparison result.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([0, 1, 2, 3]);
+   * const b = Series.new([3, 2, 1, 3]);
+   *
+   * a.ge(1); // [false, true, true, true]
+   * a.ge(b); // [false, false, true, true]
+   * ```
    */
   ge(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   ge(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
@@ -399,6 +533,16 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series, Bool8} from '@rapidsai/cudf';
+   * const a = Series.new([false, true, true, false]);
+   * const b = Series.new([false, false, false, false]);
+   *
+   * a.logical_and(0); // Float64Series [ 0, 0, 0, 0 ]
+   * a.logical_and(0).view(new Bool8); // Bool8Series [ false, false, false, false ]
+   * a.logical_and(b); // [false, false, false, false]
+   * ```
    */
   logical_and(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   logical_and(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -425,6 +569,16 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series, Bool8} from '@rapidsai/cudf';
+   * const a = Series.new([false, true, true, false]);
+   * const b = Series.new([false, false, false, false]);
+   *
+   * a.logical_or(0); // Float64Series [ 0, 1, 1, 0 ]
+   * a.logical_or(0).cast(new Bool8); // Bool8Series [ false, true, true, false ]
+   * a.logical_or(b); // [false, true, true, false]
+   * ```
    */
   logical_or(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   logical_or(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -477,6 +631,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 10, 100]);
+   * const b = Series.new([2, 10, 20]);
+   *
+   * a.log_base(10); // [0, 1, 2]
+   * a.log_base(b); // [0, 1, 1.537243573680482]
+   * ```
    */
   log_base(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   log_base(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -503,6 +666,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 3, 5, null, 7]);
+   * const b = Series.new([1, 3, 3, null, 9]);
+   *
+   * a.atan2(3);
+   * // [0.3217505543966422, 0.7853981633974483, 1.0303768265243125, 0, 1.1659045405098132]
+   *
+   * a.atan2(b);
+   * // [0.7853981633974483, 0.7853981633974483, 1.0303768265243125, 0, 0.6610431688506869]
+   * ```
    */
   atan2(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   atan2(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -530,6 +705,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 3, 5, null, 7]);
+   * const b = Series.new([1, 3, 3, null, 9]);
+   *
+   * a.null_equals(3); // [false, true, false, false, false]
+   * a.null_equals(b); // [true, true, false, true, false]
+   * ```
    */
   null_equals(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   null_equals(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
@@ -555,6 +739,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 3, 5, null, 7]);
+   * const b = Series.new([6, 6, 6, 6, 6]);
+   *
+   * a.null_max(4); // [4, 4, 5, 4, 7]
+   * a.null_max(b); // [6, 6, 6, 6, 7]
+   * ```
    */
   null_max(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   null_max(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -581,6 +774,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Series of a common numeric type with the results of the binary operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 3, 5, null, 7]);
+   * const c = Series.new([6, 6, 6, 6, 6]);
+   *
+   * a.null_min(4); // [1, 3, 4, 4, 4]
+   * a.null_min(b); // [1, 3, 5, 6, 6]
+   * ```
    */
   null_min(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   null_min(rhs: number, memoryResource?: MemoryResource): Float64Series;
@@ -606,6 +808,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([0, 45, 1]).sin(); // [0, 0.8509035245341184, 0.8414709848078965]
+   * ```
    */
   sin(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.sin(memoryResource));
@@ -617,6 +825,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([0, 45, 1]).cos(); // [1, 0.5253219888177297, 0.5403023058681398]
+   * ```
    */
   cos(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.cos(memoryResource));
@@ -628,6 +842,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([0, 45, 1]).tan(); // [0, 1.6197751905438615, 1.557407724654902]
+   * ```
    */
   tan(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.tan(memoryResource));
@@ -639,6 +859,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([0, 45, 1]).asin(); // [0, NaN, 1.5707963267948966]
+   * ```
    */
   asin(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.asin(memoryResource));
@@ -650,6 +876,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([0, 45, 1]).acos(); // [1.5707963267948966, NaN, 0]
+   * ```
    */
   acos(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.acos(memoryResource));
@@ -661,6 +893,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([0, 45, 1]).atan(); // [0, 1.5485777614681775, 0.7853981633974483]
+   * ```
    */
   atan(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.atan(memoryResource));
@@ -672,6 +910,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([0, 45, 1]).sinh(); // [0, 17467135528742547000, 1.1752011936438014]
+   * ```
    */
   sinh(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.sinh(memoryResource));
@@ -683,6 +927,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([0, 45, 1]).cosh(); // [1, 17467135528742547000, 1.5430806348152437]
+   * ```
    */
   cosh(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.cosh(memoryResource));
@@ -694,6 +944,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([0, 45, 1]).tanh(); // [0, 1, 0.7615941559557649]
+   * ```
    */
   tanh(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.tanh(memoryResource));
@@ -705,6 +961,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([0, 45, 1]).asinh(); // [0, 4.49993310426429, 0.8813735870195429]
+   * ```
    */
   asinh(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.asinh(memoryResource));
@@ -716,6 +978,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([7, 56, 1]).acosh(); // [2.6339157938496336, 4.71841914237288, 0]
+   * ```
    */
   acosh(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.acosh(memoryResource));
@@ -727,6 +995,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([0, -0.5]).atanh(); // [0, -0.5493061443340549]
+   * ```
    */
   atanh(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.atanh(memoryResource));
@@ -738,6 +1012,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([-1.2, 2.5]).exp(); // [0.30119421191220214, 12.182493960703473]
+   * ```
    */
   exp(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.exp(memoryResource));
@@ -749,6 +1029,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([-1.2, 2.5, 4]).log(); // [NaN, 0.9162907318741551, 1.3862943611198906]
+   * ```
    */
   log(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.log(memoryResource));
@@ -760,6 +1046,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([-1.2, 2.5, 4]).sqrt(); // [NaN, 1.5811388300841898, 2]
+   * ```
    */
   sqrt(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.sqrt(memoryResource));
@@ -771,6 +1063,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([-1.2, 2.5]).cbrt(); // [-1.0626585691826111, 1.3572088082974534]
+   * ```
    */
   cbrt(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.cbrt(memoryResource));
@@ -782,6 +1080,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([-1.2, 2.5, -3, 4.6, 5]).ceil(); // [-1, 3, -3, 5, 5]
+   * ```
    */
   ceil(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.ceil(memoryResource));
@@ -793,6 +1097,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([-1.2, 2.5, -3, 4.6, 5]).floor(); // [-2, 2, -3, 4, 5]
+   * ```
    */
   floor(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.floor(memoryResource));
@@ -804,6 +1114,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([-1, 2, -3, 4, 5]).abs(); // [1, 2, 3, 4, 5]
+   * ```
    */
   abs(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.abs(memoryResource));
@@ -815,6 +1131,14 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns A Series of the same number of elements containing the result of the operation.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([true, false, true, true, false])
+   * const b = Series.new([0, 1, 2, 3, 4])
+   *
+   * a.not() // [false, true, false, false, true]
+   * b.not() // [true, false, false, false, false]
    */
   not(memoryResource?: MemoryResource): Series<Bool8> {
     return Series.new(this._col.not(memoryResource));
@@ -831,6 +1155,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns The min of all the values in this Column.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([5, 4, 1, 1, 1])
+   *
+   * a.min() // [1]
    */
   min(skipna = true, memoryResource?: MemoryResource) {
     return this._process_reduction(skipna, memoryResource)._col.min(memoryResource);
@@ -843,6 +1173,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns The max of all the values in this Column.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([5, 4, 1, 1, 1])
+   *
+   * a.max() // 5
    */
   max(skipna = true, memoryResource?: MemoryResource) {
     return this._process_reduction(skipna, memoryResource)._col.max(memoryResource);
@@ -855,6 +1191,12 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns The pair of [min,max] of all the values in this Column.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([5, 4, 1, 1, 1])
+   *
+   * a.minmax() // [1,5]
    */
   minmax(skipna = true, memoryResource?: MemoryResource) {
     return this._process_reduction(skipna, memoryResource)._col.minmax(memoryResource);
@@ -867,6 +1209,13 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The sum of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([5, 4, 1, 1, 1])
+   *
+   * a.sum() // 20
+   * ```
    */
   sum(skipna = true, memoryResource?: MemoryResource) {
     return this._process_reduction(skipna, memoryResource)._col.sum(memoryResource);
@@ -880,6 +1229,13 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The product of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([5, 4, 1, 1, 1])
+   *
+   * a.product() // 20
+   * ```
    */
   product(skipna = true, memoryResource?: MemoryResource) {
     return this._process_reduction(skipna, memoryResource)._col.product(memoryResource);
@@ -893,6 +1249,13 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The sumOfSquares of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([5, 4, 1, 1, 1])
+   *
+   * a.sumOfSquares() // 44
+   * ```
    */
   sumOfSquares(skipna = true, memoryResource?: MemoryResource) {
     return this._process_reduction(skipna, memoryResource)._col.sum_of_squares(memoryResource);
@@ -906,6 +1269,13 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The mean of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([5, 4, 1, 1, 1])
+   *
+   * a.mean() // 2.4
+   * ```
    */
   mean(skipna = true, memoryResource?: MemoryResource) {
     if (!skipna && this.nullCount > 0) { return NaN; }
@@ -920,6 +1290,13 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The median of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([5, 4, 1, 1, 1])
+   *
+   * a.median() // 1
+   * ```
    */
   median(skipna = true, memoryResource?: MemoryResource) {
     if (!skipna && this.nullCount > 0) { return NaN; }
@@ -934,6 +1311,14 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The number of unqiue values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 2, 3, 4, 4, 5, null, null]);
+   *
+   * a.nunique() // 5
+   * a.nunique(false) // 6
+   * ```
    */
   nunique(dropna = true, memoryResource?: MemoryResource) {
     return this.nullCount === this.length ? dropna ? 0 : 1
@@ -950,6 +1335,15 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The unbiased variance of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 2, 3, 4, 5, null]);
+   *
+   * a.var() // 2.5
+   * a.var(true, 2) // 3.333333333333332
+   * a.var(true, 5) // NaN, ddof>=a.length results in NaN
+   * ```
    */
   var(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
     return this._process_reduction(skipna, memoryResource)._col.var(ddof, memoryResource);
@@ -965,6 +1359,17 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The standard deviation of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([1, 2, 3, 4, 5]);
+   *
+   * //skipna=true, ddof=1
+   * a.std() // 1.5811388300841898
+   * a.std(true, 2) // 1.8257418583505534
+   * a.std(true, 5) // NaN, ddof>=a.length results in NaN
+   * ```
    */
   std(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
     return this._process_reduction(skipna, memoryResource)._col.std(ddof, memoryResource);
@@ -980,11 +1385,78 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns values at the given quantile.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([1, 2, 3, 4, 5])
+   *
+   * a.quantile(0.3, "linear") // 2.2
+   * a.quantile(0.3, "lower") // 2
+   * a.quantile(0.3, "higher") // 3
+   * a.quantile(0.3, "midpoint") // 2.5
+   * a.quantile(0.3, "nearest") // 2
+   * ```
    */
   quantile(q                                         = 0.5,
            interpolation: keyof typeof Interpolation = 'linear',
            memoryResource?: MemoryResource) {
     return this._process_reduction(true)._col.quantile(
       q, Interpolation[interpolation], memoryResource);
+  }
+
+  /**
+   * Return whether all elements are true in Series.
+   *
+   * @param skipna bool
+   * Exclude null values. If the entire row/column is NA and skipna is true, then the result will
+   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
+   * these are not equal to zero.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns true if all elements are true in Series, else false.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * //boolean series
+   * Series.new([true, false, true]).all() // false
+   * Series.new([true, true, true]).all() // true
+   * ```
+   */
+  all(skipna = true, memoryResource?: MemoryResource) {
+    if (skipna) {
+      if (this.length == this.nullCount) { return true; }
+    }
+    return this._col.all(memoryResource);
+  }
+
+  /**
+   * Return whether any elements are true in Series.
+   *
+   * @param skipna bool
+   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
+   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
+   * these are not equal to zero.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns true if any elements are true in Series, else false.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * //boolean series
+   * Series.new([false, false, false]).any() // false
+   * Series.new([true, false, true]).any() // true
+   * ```
+   */
+  any(skipna = true, memoryResource?: MemoryResource) {
+    if (this.length == 0) { return false; }
+    if (skipna) {
+      if (this.length == this.nullCount) { return false; }
+    }
+    return this._col.any(memoryResource);
   }
 }

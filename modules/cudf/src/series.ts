@@ -143,11 +143,99 @@ export type Series<T extends arrow.DataType = any> = {
  * One-dimensional GPU array
  */
 export class AbstractSeries<T extends DataType = any> {
+  /**
+   * Create a new cudf.Series from an apache arrow vector
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int32} from '@rapidsai/cudf';
+   * import * as arrow from 'apache-arrow';
+   *
+   * const arrow_vec = arrow.Vector.from({
+   *         type: new Int32,
+   *         values: [1,2,3,4],
+   *         highWaterMark: Infinity
+   *       });
+   * const a = Series.new(arrow_vec); // Int32Series [1, 2, 3, 4]
+   *
+   * const arrow_vec_list = arrow.Vector.from({
+   *   values: [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+   *   type: new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
+   * });
+   *
+   * const b = Series.new(arrow_vec_list) // ListSeries [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
+   *
+   * const arrow_vec_struct = arrow.Vector.from({
+   *   values: [{ x: 0, y: 3 }, { x: 1, y: 4 }, { x: 2, y: 5 }],
+   *   type: new arrow.Struct([
+   *     arrow.Field.new({ name: 'x', type: new arrow.Int32 }),
+   *     arrow.Field.new({ name: 'y', type: new arrow.Int32 })
+   *   ]),
+   * });
+   *
+   * const c = Series.new(arrow_vec_struct); // StructSeries  [{ x: 0, y: 3 }, { x: 1, y: 4 },
+   * // { x: 2, y: 5 }]
+   * ```
+   */
   static new<T extends arrow.Vector>(input: T): Series<ArrowToCUDFType<T['type']>>;
+  /**
+   * Create a new cudf.Series from SeriesProps or a cudf.Column
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int32} from '@rapidsai/cudf';
+   *
+   * //using SeriesProps
+   * const a = Series.new({type: new Int32, data: [1, 2, 3, 4]}); // Int32Series [1, 2, 3, 4]
+   *
+   * //using underlying cudf.Column
+   * const b = Series.new(a._col); // Int32Series [1, 2, 3, 4]
+   * ```
+   */
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>): Series<T>;
+  /**
+   * Create a new cudf.StringSeries
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new(["foo", "bar", "test",null]); // StringSeries ["foo", "bar", "test", null]
+   * ```
+   */
   static new(input: (string|null|undefined)[]): Series<Utf8String>;
+  /**
+   * Create a new cudf.Float64Series
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([1, 2, 3,, 4]); // Float64Series [1, 2, 3, null, 4]
+   * ```
+   */
   static new(input: (number|null|undefined)[]): Series<Float64>;
+  /**
+   * Create a new cudf.Int64Series
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([1n, 2n, 3n,undefined, 4n]); // Int64Series [1n, 2n, 3n, null, 4n]
+   * ```
+   */
   static new(input: (bigint|null|undefined)[]): Series<Int64>;
+  /**
+   * Create a new cudf.Bool8Series
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([true, false, true, false]); // Bool8Series [true, false, true, false]
+   * ```
+   */
   static new(input: (boolean|null|undefined)[]): Series<Bool8>;
   static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>|
                                  (string|null|undefined)[]|(number|null|undefined)[]|
@@ -206,10 +294,22 @@ export class AbstractSeries<T extends DataType = any> {
    * Fills a range of elements in a column out-of-place with a scalar value.
    *
    * @param begin The starting index of the fill range (inclusive).
-   * @param end The index of the last element in the fill range (exclusive).
+   * @param end The index of the last element in the fill range (exclusive), default this.length .
    * @param value The scalar value to fill.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, 2, 3]).fill(0) // [0, 0, 0]
+   * // StringSeries
+   * Series.new(["foo", "bar", "test"]).fill("rplc", 0, 1) // ["rplc", "bar", "test"]
+   * // Bool8Series
+   * Series.new([true, true, true]).fill(false, 1) // [true, false, false]
+   * ```
    */
   fill(value: T, begin = 0, end = this.length, memoryResource?: MemoryResource): Series<T> {
     return Series.new(
@@ -222,6 +322,18 @@ export class AbstractSeries<T extends DataType = any> {
    * @param begin The starting index of the fill range (inclusive)
    * @param end The index of the last element in the fill range (exclusive)
    * @param value The scalar value to fill
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, 2, 3]).fillInPlace(0) // [0, 0, 0]
+   * // StringSeries
+   * Series.new(["foo", "bar", "test"]).fillInPlace("rplc", 0, 1) // ["rplc", "bar", "test"]
+   * // Bool8Series
+   * Series.new([true, true, true]).fillInPlace(false, 1) // [true, false, false]
+   * ```
    */
   fillInPlace(value: T, begin = 0, end = this.length) {
     this._col.fillInPlace(new Scalar({type: this.type, value}), begin, end);
@@ -234,6 +346,18 @@ export class AbstractSeries<T extends DataType = any> {
    * @param value The scalar value to use in place of nulls.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, null, 3]).replaceNulls(-1) // [1, -1, 3]
+   * // StringSeries
+   * Series.new(["foo", "bar", null]).replaceNulls("rplc") // ["foo", "bar", "rplc"]
+   * // Bool8Series
+   * Series.new([null, true, true]).replaceNulls(false) // [true, true, true]
+   * ```
    */
   replaceNulls(value: T['scalarType'], memoryResource?: MemoryResource): Series<T>;
 
@@ -243,6 +367,20 @@ export class AbstractSeries<T extends DataType = any> {
    * @param value The Series to use in place of nulls.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const replace = Series.new([10, 10, 10]);
+   * const replaceBool = Series.new([false, false, false]);
+   *
+   * // Float64Series
+   * Series.new([1, null, 3]).replaceNulls(replace) // [1, 10, 3]
+   * // StringSeries
+   * Series.new(["foo", "bar", null]).replaceNulls(replace) // ["foo", "bar", "10"]
+   * // Bool8Series
+   * Series.new([null, true, true]).replaceNulls(replaceBool) // [false, true, true]
+   * ```
    */
   replaceNulls(value: Series<T>, memoryResource?: MemoryResource): Series<T>;
 
@@ -253,6 +391,19 @@ export class AbstractSeries<T extends DataType = any> {
    *   value.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series, ReplacePolicy} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, null, 3]).replaceNulls(ReplacePolicy.PRECEDING) // [1, 1, 3]
+   * // StringSeries
+   * Series.new(["foo", "bar", null]).replaceNulls(ReplacePolicy.PRECEDING) // ["foo", "bar", "bar"]
+   * // Bool8Series
+   * Series.new([null, true, true]).replaceNulls(ReplacePolicy.FOLLOWING) // [true, true, true]
+   *
+   * ```
    */
   replaceNulls(value: keyof typeof ReplacePolicy, memoryResource?: MemoryResource): Series<T>;
 
@@ -272,6 +423,20 @@ export class AbstractSeries<T extends DataType = any> {
    * Return a sub-selection of this Series using the specified integral indices.
    *
    * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int32} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([1,2,3]);
+   * const b = Series.new(["foo", "bar", "test"]);
+   * const c = Series.new([true, false, true]);
+   * const selection = Series.new({type: new Int32, data: [0,2]});
+   *
+   * a.gather(selection) // Float64Series [1,3]
+   * b.gather(selection) // StringSeries ["foo", "test"]
+   * c.gather(selection) // Bool8Series [true, true]
+   * ```
    */
   gather<R extends IndexType>(selection: Series<R>): Series<T> {
     return this.__construct(this._col.gather(selection._col));
@@ -286,6 +451,18 @@ export class AbstractSeries<T extends DataType = any> {
    * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
    *   of its values are out of bounds (default: false).
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int32} from '@rapidsai/cudf';
+   * const a = Series.new({type: new Int32, data: [0, 1, 2, 3, 4]});
+   * const indices = Series.new({type: new Int32, data: [2, 4]});
+   * const indices_out_of_bounds = Series.new({type: new Int32, data: [5, 6]});
+   *
+   * a.scatter(-1, indices); // [0, 1, -1, 3, -1];
+   * a.scatter(-1, indices_out_of_bounds, true) // throws index out of bounds error
+   *
+   * ```
    */
   scatter(value: T['scalarType'],
           indices: Series<Int32>|number[],
@@ -300,6 +477,18 @@ export class AbstractSeries<T extends DataType = any> {
    * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
    *   of its values are out of bounds (default: false).
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int32} from '@rapidsai/cudf';
+   * const a = Series.new({type: new Int32, data: [0, 1, 2, 3, 4]});
+   * const b = Series.new({type: new Int32, data: [200, 400]});
+   * const indices = Series.new({type: new Int32, data: [2, 4]});
+   * const indices_out_of_bounds = Series.new({type: new Int32, data: [5, 6]});
+   *
+   * a.scatter(b, indices); // [0, 1, 200, 3, 400];
+   * a.scatter(b, indices_out_of_bounds, true) // throws index out of bounds error
+   * ```
    */
   scatter(values: Series<T>,
           indices: Series<Int32>|number[],
@@ -328,6 +517,19 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @param mask A Series of boolean values for whose corresponding element in this Series will be
    *   selected or ignored.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from "@rapidsai/cudf";
+   * const mask = Series.new([true, false, true]);
+   *
+   * // Float64Series
+   * Series.new([1, 2, 3]).filter(mask) // [1, 3]
+   * // StringSeries
+   * Series.new(["foo", "bar", "test"]).filter(mask) // ["foo", "test"]
+   * // Bool8Series
+   * Series.new([false, true, true]).filter(mask) // [false, true]
+   * ```
    */
   filter(mask: Series<Bool8>): Series<T> { return this.__construct(this._col.gather(mask._col)); }
 
@@ -335,6 +537,18 @@ export class AbstractSeries<T extends DataType = any> {
    * Return a value at the specified index to host memory
    *
    * @param index the index in this Series to return a value for
+   *
+   * @example
+   * ```typescript
+   * import {Series} from "@rapidsai/cudf";
+   *
+   * // Float64Series
+   * Series.new([1, 2, 3]).getValue(0) // 1
+   * // StringSeries
+   * Series.new(["foo", "bar", "test"]).getValue(2) // "test"
+   * // Bool8Series
+   * Series.new([false, true, true]).getValue(3) // throws index out of bounds error
+   * ```
    */
   getValue(index: number) { return this._col.getValue(index); }
 
@@ -380,6 +594,14 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @param opts Options for creating the sequence
    * @returns Series with the sequence
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int32, Float32} from '@rapidsai/cudf';
+   *
+   * Series.sequence({type: new Int32, size: 5, init: 0}) // [0, 1, 2, 3, 4]
+   * Series.sequence({type: new Float32, size: 5, step: 2, init: 1}) // [1, 3, 5, 7, 9]
+   * ```
    */
   public static sequence<U extends Numeric>(opts: SequenceOptions<U>): Series<U> {
     const init = new Scalar({type: opts.type, value: opts.init});
@@ -397,6 +619,27 @@ export class AbstractSeries<T extends DataType = any> {
    * @param null_order whether nulls should sort before or after other values
    *
    * @returns Series containting the permutation indices for the desired sort order
+   *
+   * @example
+   * ```typescript
+   * import {Series, NullOrder} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([50, 40, 30, 20, 10, 0]).orderBy(false) // [0, 1, 2, 3, 4, 5]
+   * Series.new([50, 40, 30, 20, 10, 0]).orderBy(true) // [5, 4, 3, 2, 1, 0]
+   *
+   * // StringSeries
+   * Series.new(["a", "b", "c", "d", "e"]).orderBy(false) // [4, 3, 2, 1, 0]
+   * Series.new(["a", "b", "c", "d", "e"]).orderBy(true) // [0, 1, 2, 3, 4]
+   *
+   * // Bool8Series
+   * Series.new([true, false, true, true, false]).orderBy(true) // [1, 4, 0, 2, 3]
+   * Series.new([true, false, true, true, false]).orderBy(false) // [0, 2, 3, 1, 4]
+   *
+   * // NullOrder usage
+   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, NullOrder.BEFORE) // [0, 1, 2, 3, 4, 5]
+   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, NullOrder.AFTER) // [5, 0, 1, 2, 3, 4]
+   * ```
    */
   orderBy(ascending = true, null_order: NullOrder = NullOrder.BEFORE) {
     return Series.new(new Table({columns: [this._col]}).orderBy([ascending], [null_order]));
@@ -411,6 +654,32 @@ export class AbstractSeries<T extends DataType = any> {
    *   Default: BEFORE
    *
    * @returns Sorted values
+   *
+   * @example
+   * ```typescript
+   * import {Series, NullOrder} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([50, 40, 30, 20, 10, 0]).sortValues(false) // [50, 40, 30, 20, 10, 0]
+   * Series.new([50, 40, 30, 20, 10, 0]).sortValues(true) // [0, 10, 20, 30, 40, 50]
+   *
+   * // StringSeries
+   * Series.new(["a", "b", "c", "d", "e"]).sortValues(false) // ["e", "d", "c", "b", "a"]
+   * Series.new(["a", "b", "c", "d", "e"]).sortValues(true) // ["a", "b", "c", "d", "e"]
+   *
+   * // Bool8Series
+   * Series.new([true, false, true, true, false]).sortValues(true) // [false, false, true, true,
+   * true]
+   * Series.new([true, false, true, true, false]).sortValues(false) // [true, true, true,
+   * false, false]
+   *
+   * // NullOrder usage
+   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, NullOrder.BEFORE) // [50, 40, 30, 20,
+   * 10, null]
+   *
+   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, NullOrder.AFTER) // [null, 50, 40, 30,
+   * 20, 10]
+   * ```
    */
   sortValues(ascending = true, null_order: NullOrder = NullOrder.BEFORE): Series<T> {
     return this.gather(this.orderBy(ascending, null_order));
@@ -423,6 +692,17 @@ export class AbstractSeries<T extends DataType = any> {
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns A non-nullable Series of `BOOL8` elements with `true` representing `null`
    *   values.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, null, 3]).isNull() // [false, true, false]
+   * // StringSeries
+   * Series.new(["foo", "bar", null]).isNull() // [false, false, true]
+   * // Bool8Series
+   * Series.new([true, true, null]).isNull() // [false, false, true]
+   * ```
    */
   isNull(memoryResource?: MemoryResource) { return Series.new(this._col.isNull(memoryResource)); }
 
@@ -433,6 +713,18 @@ export class AbstractSeries<T extends DataType = any> {
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns A non-nullable Series of `BOOL8` elements with `false` representing `null`
    *   values.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, null, 3]).isValid() // [true, false, true]
+   * // StringSeries
+   * Series.new(["foo", "bar", null]).isValid() // [true, true, false]
+   * // Bool8Series
+   * Series.new([true, true, null]).isValid() // [true, true, false]
+   * ```
    */
   isValid(memoryResource?: MemoryResource) { return Series.new(this._col.isValid(memoryResource)); }
 
@@ -440,49 +732,31 @@ export class AbstractSeries<T extends DataType = any> {
    * drop Null values from the series
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns series without Null values
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, undefined, 3]).dropNulls() // [1, 3]
+   * Series.new([1, null, 3]).dropNulls() // [1, 3]
+   * Series.new([1, , 3]).dropNulls() // [1, 3]
+   *
+   * // StringSeries
+   * Series.new(["foo", "bar", undefined]).dropNulls() // ["foo", "bar"]
+   * Series.new(["foo", "bar", null]).dropNulls() // ["foo", "bar"]
+   * Series.new(["foo", "bar", ,]).dropNulls() // ["foo", "bar"]
+   *
+   * // Bool8Series
+   * Series.new([true, true, undefined]).dropNulls() // [true, true]
+   * Series.new([true, true, null]).dropNulls() // [true, true]
+   * Series.new([true, true, ,]).dropNulls() // [true, true]
+   * ```
    */
   dropNulls(memoryResource?: MemoryResource): Series<T> {
     return this.__construct(this._col.drop_nulls(memoryResource));
   }
 
-  /**
-   * Return whether all elements are true in Series.
-   *
-   * @param skipna bool
-   * Exclude null values. If the entire row/column is NA and skipna is true, then the result will
-   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
-   * these are not equal to zero.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
-   *
-   * @returns true if all elements are true in Series, else false.
-   */
-  all(skipna = true, memoryResource?: MemoryResource) {
-    if (skipna) {
-      if (this.length == this.nullCount) { return true; }
-    }
-    return this._col.all(memoryResource);
-  }
-
-  /**
-   * Return whether any elements are true in Series.
-   *
-   * @param skipna bool
-   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
-   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
-   * these are not equal to zero.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
-   *
-   * @returns true if any elements are true in Series, else false.
-   */
-  any(skipna = true, memoryResource?: MemoryResource) {
-    if (this.length == 0) { return false; }
-    if (skipna) {
-      if (this.length == this.nullCount) { return false; }
-    }
-    return this._col.any(memoryResource);
-  }
   /**
    * @summary Hook for specialized Series to override when constructing from a C++ Column.
    */
@@ -533,9 +807,9 @@ export {
 };
 
 function inferType(value: any[]): DataType {
-  if (value.length == 0) return new Float64;
+  if (value.length == 0 || (value.every((val) => typeof val === 'number' || val == null)))
+    return new Float64;
   if (value.every((val) => typeof val === 'string' || val == null)) return new Utf8String;
-  if (value.every((val) => typeof val === 'number' || val == null)) return new Float64;
   if (value.every((val) => typeof val === 'bigint' || val == null)) return new Int64;
   if (value.every((val) => typeof val === 'boolean' || val == null)) return new Bool8;
   throw new TypeError('Unable to infer type series type, explicit type declaration expected');
