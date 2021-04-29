@@ -352,14 +352,18 @@ describe.each([new Int32, new Float32, new Float64])('Series.sequence({type=%p,,
 });
 
 test('Series.value_counts', () => {
-  const s      = Series.new({type: new Int32, data: [0, 1, 1, 2, 2, 2]});
+  const s      = Series.new({type: new Int32, data: [110, 120, 100, 110, 120, 120]});
   const result = s.value_counts();
   const count  = [...result.count.toArrow()];
   const value  = [...result.value.toArrow()];
 
-  expect(count[value.findIndex((el) => el === 0)]).toBe(1);
-  expect(count[value.findIndex((el) => el === 1)]).toBe(2);
-  expect(count[value.findIndex((el) => el === 2)]).toBe(3);
+  const countMap: Record<number, number> = {100: 1, 110: 2, 120: 3};
+
+  for (let i = 0; i < value.length; i++) {
+    const currentVal   = value[i] as number;
+    const currentCount = count[i];
+    expect(currentCount).toBe(countMap[currentVal]);
+  }
 });
 
 test.each`
