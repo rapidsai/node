@@ -66,10 +66,12 @@ Napi::Value Column::drop_nans(Napi::CallbackInfo const& info) {
 
 ObjectUnwrap<Column> Column::drop_duplicates(cudf::null_equality nulls_equal,
                                              rmm::mr::device_memory_resource* mr) const {
-  return Column::New(std::move(
-    cudf::drop_duplicates(
-      cudf::table_view{{*this}}, {0}, cudf::duplicate_keep_option::KEEP_FIRST, nulls_equal, mr)
-      ->release()[0]));
+  try {
+    return Column::New(std::move(
+      cudf::drop_duplicates(
+        cudf::table_view{{*this}}, {0}, cudf::duplicate_keep_option::KEEP_FIRST, nulls_equal, mr)
+        ->release()[0]));
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Napi::Value Column::drop_duplicates(Napi::CallbackInfo const& info) {
