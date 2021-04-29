@@ -1050,7 +1050,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
-   * Series.new([-1.2, 2.5, 4]).cbrt(); // [NaN, 1.5811388300841898, 2]
+   * Series.new([-1.2, 2.5, 4]).sqrt(); // [NaN, 1.5811388300841898, 2]
    * ```
    */
   sqrt(memoryResource?: MemoryResource): Series<T> {
