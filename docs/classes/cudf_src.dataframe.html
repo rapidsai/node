@@ -145,9 +145,26 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L58">modules/cudf/src/data_frame.ts:58</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L77">modules/cudf/src/data_frame.ts:77</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Create a new cudf.DataFrame</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #0000FF">true</span><span style="color: #000000">, </span><span style="color: #0000FF">false</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">c:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #A31515">&quot;foo&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;bar&quot;</span><span style="color: #000000">])</span>
+<span style="color: #000000">})</span>
+
+</code></pre>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -177,13 +194,26 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L78">modules/cudf/src/data_frame.ts:78</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L147">modules/cudf/src/data_frame.ts:147</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>The names of columns in this DataFrame</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">c:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">])</span>
+<span style="color: #000000">})</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #001080">names</span><span style="color: #000000"> </span><span style="color: #008000">// [&#039;a&#039;, &#039;b&#039;, &#039;c&#039;]</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">readonly </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h4>
 						</li>
@@ -199,13 +229,26 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L73">modules/cudf/src/data_frame.ts:73</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L130">modules/cudf/src/data_frame.ts:130</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>The number of columns in this DataFrame</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">c:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">])</span>
+<span style="color: #000000">})</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #001080">numColumns</span><span style="color: #000000"> </span><span style="color: #008000">// 3</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
 						</li>
@@ -221,13 +264,26 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L68">modules/cudf/src/data_frame.ts:68</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L113">modules/cudf/src/data_frame.ts:113</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>The number of rows in each column of this DataFrame</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">c:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">])</span>
+<span style="color: #000000">})</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #001080">numRows</span><span style="color: #000000"> </span><span style="color: #008000">// 2</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
 						</li>
@@ -247,13 +303,24 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L97">modules/cudf/src/data_frame.ts:97</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L188">modules/cudf/src/data_frame.ts:188</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Return a new DataFrame with new columns added.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]});</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">assign</span><span style="color: #000000">({</span><span style="color: #001080">b:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;foo&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;bar&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;bar&quot;</span><span style="color: #000000">]})</span>
+<span style="color: #008000">// returns df {a: [1, 2, 3], b: [&quot;foo&quot;, &quot;bar&quot;, &quot;bar&quot;]}</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -275,13 +342,24 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L104">modules/cudf/src/data_frame.ts:104</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L205">modules/cudf/src/data_frame.ts:205</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Return a new DataFrame with new columns added.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]});</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df1</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #001080">b:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;foo&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;bar&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;bar&quot;</span><span style="color: #000000">]});</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">assign</span><span style="color: #000000">(</span><span style="color: #001080">df1</span><span style="color: #000000">) </span><span style="color: #008000">// returns df {a: [1, 2, 3], b: [&quot;foo&quot;, &quot;bar&quot;, &quot;bar&quot;]}</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -312,13 +390,25 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L140">modules/cudf/src/data_frame.ts:140</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L287">modules/cudf/src/data_frame.ts:287</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Casts each Series in this DataFrame to a new dtype (similar to <code>static_cast</code> in C++).</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">Float32</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]}),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]})</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">cast</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Float32</span><span style="color: #000000">}); </span><span style="color: #008000">// returns df with a as Float32Series and b as Int32Series</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -357,13 +447,25 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L162">modules/cudf/src/data_frame.ts:162</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L320">modules/cudf/src/data_frame.ts:320</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Casts all the Series in this DataFrame to a new dtype (similar to <code>static_cast</code> in C++).</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">Float32</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]}),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]})</span>
+<span style="color: #000000">})</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">castAll</span><span style="color: #000000">(</span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Float32</span><span style="color: #000000">); </span><span style="color: #008000">// returns df with a and b as Float32Series</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -402,13 +504,25 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L116">modules/cudf/src/data_frame.ts:116</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L228">modules/cudf/src/data_frame.ts:228</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Return a new DataFrame with specified columns removed.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">Float32</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]}),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Float32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]})</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">drop</span><span style="color: #000000">([</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #000000">]) </span><span style="color: #008000">// returns df {b: [0, 1, 2, 3, 4, 4]}</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -439,7 +553,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L471">modules/cudf/src/data_frame.ts:471</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L775">modules/cudf/src/data_frame.ts:775</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -448,13 +562,31 @@
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
-									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">Float32</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
-<span style="color: #000000"> </span><span style="color: #A31515">&quot;ser_0&quot;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]}),</span>
-<span style="color: #000000"> </span><span style="color: #A31515">&quot;ser_1&quot;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Float32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]})</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">c:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">])</span>
 <span style="color: #000000">});</span>
-<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNaNs</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">); </span><span style="color: #008000">// returns df {ser_0: [0,2,3,4,4], ser_1: [0,2,3,4,4]}</span>
-<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNaNs</span><span style="color: #000000">(</span><span style="color: #098658">1</span><span style="color: #000000">); </span><span style="color: #008000">// returns df {ser_0: [0, 1, 2, 3, 4, 4]}</span>
+
+<span style="color: #008000">// delete rows with all NaNs (default thresh=1)</span>
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNaNs</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">);</span>
+<span style="color: #008000">// return {</span>
+<span style="color: #008000">//    a: [0, 2, NaN, 4, 4], b: [0, 2, 3, NaN, 4],</span>
+<span style="color: #008000">//    c: [NaN, NaN, NaN, NaN,NaN]</span>
+<span style="color: #008000">// }</span>
+
+<span style="color: #008000">// delete rows with atleast one NaN</span>
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNaNs</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #001080">numColumns</span><span style="color: #000000">);</span>
+<span style="color: #008000">// returns empty df, since each row contains atleast one NaN</span>
+
+<span style="color: #008000">// delete columns with all NaNs (default thresh=1)</span>
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNaNs</span><span style="color: #000000">(</span><span style="color: #098658">1</span><span style="color: #000000">);</span>
+<span style="color: #008000">// returns {a: [0, NaN, 2, NaN, 4, 4], b: [0, NaN, 2, 3, NaN, 4]}</span>
+
+<span style="color: #008000">// delete columns with atleast one NaN</span>
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNaNs</span><span style="color: #000000">(</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #001080">numRows</span><span style="color: #000000">);</span>
+<span style="color: #008000">// returns empty df, since each column contains atleast one NaN</span>
 
 </code></pre>
 									</dd>
@@ -510,7 +642,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L420">modules/cudf/src/data_frame.ts:420</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L706">modules/cudf/src/data_frame.ts:706</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -519,14 +651,31 @@
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
-									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">Float32</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
-<span style="color: #000000"> </span><span style="color: #A31515">&quot;ser_0&quot;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">], </span><span style="color: #001080">nullMask:</span><span style="color: #000000"> [</span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
-<span style="color: #0000FF">false</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">, </span><span style="color: #0000FF">true</span><span style="color: #000000">]}), </span><span style="color: #A31515">&quot;ser_1&quot;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Float32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">,</span>
-<span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]})</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">c:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">])</span>
 <span style="color: #000000">});</span>
-<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNulls</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">); </span><span style="color: #008000">// returns df {ser_0: [0,2,3,4,4], ser_1: [0,2,3,4,4]}</span>
-<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNulls</span><span style="color: #000000">(</span><span style="color: #098658">1</span><span style="color: #000000">); </span><span style="color: #008000">// returns df {ser_1: [0,NaN,2,3,4,4]}</span>
+
+<span style="color: #008000">// delete rows with all nulls (default thresh=1)</span>
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNulls</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">);</span>
+<span style="color: #008000">// return {</span>
+<span style="color: #008000">//   a: [0, 2, null, 4, 4], b: [0, 2, 3, null, 4],</span>
+<span style="color: #008000">//   c: [null, null, null, null, null]</span>
+<span style="color: #008000">// }</span>
+
+<span style="color: #008000">// delete rows with atleast one null</span>
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNulls</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #001080">numColumns</span><span style="color: #000000">);</span>
+<span style="color: #008000">// returns empty df, since each row contains atleast one null</span>
+
+<span style="color: #008000">// delete columns with all nulls (default thresh=1)</span>
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNulls</span><span style="color: #000000">(</span><span style="color: #098658">1</span><span style="color: #000000">);</span>
+<span style="color: #008000">// returns {a: [0, null, 2, null, 4, 4], b: [0, null, 2, 3, null, 4]}</span>
+
+<span style="color: #008000">// delete columns with atleast one null</span>
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">dropNulls</span><span style="color: #000000">(</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #001080">numRows</span><span style="color: #000000">);</span>
+<span style="color: #008000">// returns empty df, since each column contains atleast one null</span>
 
 </code></pre>
 									</dd>
@@ -582,13 +731,27 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L254">modules/cudf/src/data_frame.ts:254</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L507">modules/cudf/src/data_frame.ts:507</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Return sub-selection from a DataFrame from the specified boolean mask</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Bool8</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">])</span>
+<span style="color: #000000">})</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mask</span><span style="color: #000000"> = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Bool8</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">]})</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">filter</span><span style="color: #000000">(</span><span style="color: #001080">mask</span><span style="color: #000000">); </span><span style="color: #008000">// {a: [2, 4, 4], b: [2, 4, 4]}</span>
+
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -612,13 +775,27 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L212">modules/cudf/src/data_frame.ts:212</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L422">modules/cudf/src/data_frame.ts:422</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Return sub-selection from a DataFrame from the specified indices</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000">  </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">]}),</span>
+<span style="color: #000000">  </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0.0</span><span style="color: #000000">, </span><span style="color: #098658">1.0</span><span style="color: #000000">, </span><span style="color: #098658">2.0</span><span style="color: #000000">, </span><span style="color: #098658">3.0</span><span style="color: #000000">, </span><span style="color: #098658">4.0</span><span style="color: #000000">, </span><span style="color: #098658">5.0</span><span style="color: #000000">])</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">selection</span><span style="color: #000000"> = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">2</span><span style="color: #000000">,</span><span style="color: #098658">4</span><span style="color: #000000">,</span><span style="color: #098658">5</span><span style="color: #000000">]});</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">gather</span><span style="color: #000000">(</span><span style="color: #001080">selection</span><span style="color: #000000">); </span><span style="color: #008000">// {a: [2, 4, 5], b: [2.0, 4.0, 5.0]}</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -648,13 +825,26 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L130">modules/cudf/src/data_frame.ts:130</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L266">modules/cudf/src/data_frame.ts:266</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Return a series by name.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">Float32</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]}),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Float32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]})</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #000000">) </span><span style="color: #008000">// Int32Series</span>
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;b&#039;</span><span style="color: #000000">) </span><span style="color: #008000">// Float32Series</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -686,13 +876,27 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L226">modules/cudf/src/data_frame.ts:226</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L449">modules/cudf/src/data_frame.ts:449</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Return a group-by on a single column.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">c:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">])</span>
+<span style="color: #000000">})</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">groupby</span><span style="color: #000000">({</span><span style="color: #001080">by:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #000000">}).</span><span style="color: #795E26">max</span><span style="color: #000000">() </span><span style="color: #008000">// { a: [2, 1, 0], b: [4, 2, 0], c: [6, 3, 1] }</span>
+
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -714,13 +918,31 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L233">modules/cudf/src/data_frame.ts:233</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L473">modules/cudf/src/data_frame.ts:473</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Return a group-by on a multiple columns.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">c:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">])</span>
+<span style="color: #000000">})</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">groupby</span><span style="color: #000000">({</span><span style="color: #001080">by:</span><span style="color: #000000"> [</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;b&#039;</span><span style="color: #000000">]}).</span><span style="color: #795E26">max</span><span style="color: #000000">()</span>
+<span style="color: #008000">// {</span>
+<span style="color: #008000">//   &quot;a_b&quot;: [{&quot;a&quot;: [2, 1, 1, 2, 0], &quot;b&quot;: [4, 2, 1, 3, 0]}],</span>
+<span style="color: #008000">//   &quot;c&quot;: [6, 3, 2, 4, 1]</span>
+<span style="color: #008000">// }</span>
+
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -754,13 +976,26 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L123">modules/cudf/src/data_frame.ts:123</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L247">modules/cudf/src/data_frame.ts:247</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Return whether the DataFrame has a Series.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">Float32</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]}),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Float32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]})</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">has</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #000000">) </span><span style="color: #008000">// true</span>
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">has</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;c&#039;</span><span style="color: #000000">) </span><span style="color: #008000">// false</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -785,7 +1020,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L510">modules/cudf/src/data_frame.ts:510</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L814">modules/cudf/src/data_frame.ts:814</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -796,12 +1031,12 @@
 									<dt>example</dt>
 									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">Float32</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
-<span style="color: #000000"> </span><span style="color: #A31515">&quot;ser_0&quot;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]}),</span>
-<span style="color: #000000"> </span><span style="color: #A31515">&quot;ser_1&quot;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Float32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]})</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]}),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">Float32</span><span style="color: #000000">, </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #0000FF">NaN</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]})</span>
 <span style="color: #000000">});</span>
-<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;ser_1&quot;</span><span style="color: #000000">).</span><span style="color: #001080">nullCount</span><span style="color: #000000">; </span><span style="color: #008000">// 0</span>
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;b&quot;</span><span style="color: #000000">).</span><span style="color: #001080">nullCount</span><span style="color: #000000">; </span><span style="color: #008000">// 0</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df1</span><span style="color: #000000"> = </span><span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">nansToNulls</span><span style="color: #000000">();</span>
-<span style="color: #001080">df1</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;ser_1&quot;</span><span style="color: #000000">).</span><span style="color: #001080">nullCount</span><span style="color: #000000">; </span><span style="color: #008000">// 1</span>
+<span style="color: #001080">df1</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;b&quot;</span><span style="color: #000000">).</span><span style="color: #001080">nullCount</span><span style="color: #000000">; </span><span style="color: #008000">// 1</span>
 
 </code></pre>
 									</dd>
@@ -831,13 +1066,32 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L175">modules/cudf/src/data_frame.ts:175</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L351">modules/cudf/src/data_frame.ts:351</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Generate an ordering that sorts DataFrame columns in a specified way</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">NullOrder</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">])});</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">orderBy</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> {</span><span style="color: #001080">ascending:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">, </span><span style="color: #001080">null_order:</span><span style="color: #000000"> </span><span style="color: #001080">NullOrder</span><span style="color: #000000">.</span><span style="color: #0070C1">BEFORE</span><span style="color: #000000">}});</span>
+<span style="color: #008000">// Int32Series [0, 5, 4, 3, 2, 1]</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">orderBy</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> {</span><span style="color: #001080">ascending:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">, </span><span style="color: #001080">null_order:</span><span style="color: #000000"> </span><span style="color: #001080">NullOrder</span><span style="color: #000000">.</span><span style="color: #0070C1">AFTER</span><span style="color: #000000">}});</span>
+<span style="color: #008000">// Int32Series [5, 4, 3, 2, 1, 0]</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">orderBy</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> {</span><span style="color: #001080">ascending:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000">, </span><span style="color: #001080">null_order:</span><span style="color: #000000"> </span><span style="color: #001080">NullOrder</span><span style="color: #000000">.</span><span style="color: #0070C1">BEFORE</span><span style="color: #000000">}});</span>
+<span style="color: #008000">// Int32Series [1, 2, 3, 4, 5, 0]</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">orderBy</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> {</span><span style="color: #001080">ascending:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000">, </span><span style="color: #001080">null_order:</span><span style="color: #000000"> </span><span style="color: #001080">NullOrder</span><span style="color: #000000">.</span><span style="color: #0070C1">AFTER</span><span style="color: #000000">}});</span>
+<span style="color: #008000">// Int32Series [0, 1, 2, 3, 4, 5]</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -869,13 +1123,26 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L88">modules/cudf/src/data_frame.ts:88</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L169">modules/cudf/src/data_frame.ts:169</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Return a new DataFrame containing only specified columns.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">]),</span>
+<span style="color: #000000"> </span><span style="color: #001080">c:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">])</span>
+<span style="color: #000000">})</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">select</span><span style="color: #000000">([</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;b&#039;</span><span style="color: #000000">]) </span><span style="color: #008000">// returns df with {a, b}</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -903,13 +1170,35 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L203">modules/cudf/src/data_frame.ts:203</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L400">modules/cudf/src/data_frame.ts:400</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Generate a new DataFrame sorted in the specified way.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">, </span><span style="color: #001080">NullOrder</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span>
+<span style="color: #000000">  </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">]),</span>
+<span style="color: #000000">  </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">])</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">sortValues</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> {</span><span style="color: #001080">ascending:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">, </span><span style="color: #001080">null_order:</span><span style="color: #000000"> </span><span style="color: #001080">NullOrder</span><span style="color: #000000">.</span><span style="color: #0070C1">AFTER</span><span style="color: #000000">}})</span>
+<span style="color: #008000">// {a: [0, 1, 2, 3, 4, null], b: [5, 4, 3, 2, 1, 0]}</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">sortValues</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> {</span><span style="color: #001080">ascending:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">, </span><span style="color: #001080">null_order:</span><span style="color: #000000"> </span><span style="color: #001080">NullOrder</span><span style="color: #000000">.</span><span style="color: #0070C1">BEFORE</span><span style="color: #000000">}})</span>
+<span style="color: #008000">// {a: [null, 0, 1, 2, 3, 4], b: [0, 5, 4, 3, 2, 1]}</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">sortValues</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> {</span><span style="color: #001080">ascending:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000">, </span><span style="color: #001080">null_order:</span><span style="color: #000000"> </span><span style="color: #001080">NullOrder</span><span style="color: #000000">.</span><span style="color: #0070C1">AFTER</span><span style="color: #000000">}})</span>
+<span style="color: #008000">// {a: [4, 3, 2, 1, 0, null], b: [1, 2, 3, 4, 5, 0]}</span>
+
+<span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">sortValues</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> {</span><span style="color: #001080">ascending:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000">, </span><span style="color: #001080">null_order:</span><span style="color: #000000"> </span><span style="color: #001080">NullOrder</span><span style="color: #000000">.</span><span style="color: #0070C1">BEFORE</span><span style="color: #000000">}})</span>
+<span style="color: #008000">// {a: [null, 4, 3, 2, 1, 0], b: [0, 1, 2, 3, 4, 5]}</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -938,13 +1227,30 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L284">modules/cudf/src/data_frame.ts:284</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L553">modules/cudf/src/data_frame.ts:553</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
 									<p>Copy a Series to an Arrow vector in host memory</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;@rapidsai/cudf&quot;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">0</span><span style="color: #000000">,</span><span style="color: #098658">1</span><span style="color: #000000">,</span><span style="color: #098658">2</span><span style="color: #000000">]), </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #A31515">&quot;one&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;two&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;three&quot;</span><span style="color: #000000">])});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">arrow_df</span><span style="color: #000000"> = </span><span style="color: #001080">df</span><span style="color: #000000">.</span><span style="color: #795E26">toArrow</span><span style="color: #000000">(); </span><span style="color: #008000">// Arrow table</span>
+
+<span style="color: #001080">arrow_df</span><span style="color: #000000">.</span><span style="color: #795E26">toArray</span><span style="color: #000000">();</span>
+<span style="color: #008000">// [</span>
+<span style="color: #008000">//    { &quot;a&quot;: 0, &quot;b&quot;: &quot;one&quot; },</span>
+<span style="color: #008000">//    { &quot;a&quot;: 1, &quot;b&quot;: &quot;two&quot; },</span>
+<span style="color: #008000">//    { &quot;a&quot;: 2, &quot;b&quot;: &quot;three&quot; }</span>
+<span style="color: #008000">//  ]</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Table</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
@@ -960,7 +1266,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L270">modules/cudf/src/data_frame.ts:270</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L523">modules/cudf/src/data_frame.ts:523</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -992,9 +1298,31 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/95c80d6/modules/cudf/src/data_frame.ts#L51">modules/cudf/src/data_frame.ts:51</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/017cfb7/modules/cudf/src/data_frame.ts#L70">modules/cudf/src/data_frame.ts:70</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Read a csv from disk and create a cudf.DataFrame</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Series</span><span style="color: #000000">}  </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #001080">DataFrame</span><span style="color: #000000">.</span><span style="color: #795E26">readCSV</span><span style="color: #000000">({</span>
+<span style="color: #000000"> </span><span style="color: #001080">header:</span><span style="color: #000000"> </span><span style="color: #098658">0</span><span style="color: #000000">,</span>
+<span style="color: #000000"> </span><span style="color: #001080">sourceType:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;files&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000"> </span><span style="color: #001080">sources:</span><span style="color: #000000"> [</span><span style="color: #A31515">&#039;test.csv&#039;</span><span style="color: #000000">],</span>
+<span style="color: #000000"> </span><span style="color: #001080">dataTypes:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">   </span><span style="color: #001080">a:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;int16&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">   </span><span style="color: #001080">b:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;bool&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">   </span><span style="color: #001080">c:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;float32&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">   </span><span style="color: #001080">d:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;str&#039;</span>
+<span style="color: #000000"> }</span>
+<span style="color: #000000">})</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
