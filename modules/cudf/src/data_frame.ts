@@ -259,8 +259,8 @@ export class DataFrame<T extends TypeMap = any> {
    *  b: Series.new({type: new Float32, data: [0, 1, 2, 3, 4, 4]})
    * });
    *
-   * df.get('a') // Int32Series { _col: Column {} }
-   * df.get('b') // Float32Series  { _col: Column {} }
+   * df.get('a') // Int32Series
+   * df.get('b') // Float32Series
    * ```
    */
   get<P extends keyof T>(name: P): Series<T[P]> { return Series.new(this._accessor.get(name)); }
@@ -684,8 +684,10 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * // delete rows with all nulls (default thresh=1)
    * df.dropNulls(0);
-   * // return {a: [0, 2, null, 4, 4], b: [0, 2, 3, null, 4], c: [null, null, null, null,
-   * // null]}
+   * // return {
+   * //   a: [0, 2, null, 4, 4], b: [0, 2, 3, null, 4],
+   * //   c: [null, null, null, null, null]
+   * // }
    *
    * // delete rows with atleast one null
    * df.dropNulls(0, df.numColumns);
@@ -751,8 +753,10 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * // delete rows with all NaNs (default thresh=1)
    * df.dropNaNs(0);
-   * // return {a: [0, 2, NaN, 4, 4], b: [0, 2, 3, NaN, 4], c: [NaN, NaN, NaN, NaN,
-   * // NaN]}
+   * // return {
+   * //    a: [0, 2, NaN, 4, 4], b: [0, 2, 3, NaN, 4],
+   * //    c: [NaN, NaN, NaN, NaN,NaN]
+   * // }
    *
    * // delete rows with atleast one NaN
    * df.dropNaNs(0, df.numColumns);
