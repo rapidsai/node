@@ -1160,7 +1160,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([5, 4, 1, 1, 1])
    *
-   * a.mix() // [1]
+   * a.min() // [1]
    */
   min(skipna = true, memoryResource?: MemoryResource) {
     return this._process_reduction(skipna, memoryResource)._col.min(memoryResource);
