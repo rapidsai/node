@@ -28,7 +28,7 @@ import {
   Numeric,
 } from './types/dtypes';
 import {ReplacePolicy} from './types/enums';
-import {CommonType, DuplicateKeepOption, Interpolation, NullEquality} from './types/mappings';
+import {CommonType, Interpolation, NullEquality} from './types/mappings';
 
 export type ColumnProps<T extends DataType = any> = {
   /*
@@ -1055,15 +1055,12 @@ export interface Column<T extends DataType = any> {
   /**
    * Drop duplicate values from the column
    *
-   * @param keep Determines whether to keep the first, last, or none of the duplicate items.
    * @param nullsEqual Determines whether nulls are handled as equal values.
    * @param memoryResource The optional MemoryResource used to allocate the result column's device
    *   memory.
    * @returns column without duplicate values
    */
-  drop_duplicates(keep?: DuplicateKeepOption,
-                  nullsEqual?: NullEquality,
-                  memoryResource?: MemoryResource): Column<T>;
+  drop_duplicates(nullsEqual?: NullEquality, memoryResource?: MemoryResource): Column<T>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

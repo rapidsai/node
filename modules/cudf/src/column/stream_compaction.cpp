@@ -64,16 +64,17 @@ Napi::Value Column::drop_nans(Napi::CallbackInfo const& info) {
   return drop_nans(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
 }
 
-ObjectUnwrap<Column> Column::drop_duplicates(cudf::duplicate_keep_option keep,
-                                             cudf::null_equality nulls_equal,
+ObjectUnwrap<Column> Column::drop_duplicates(cudf::null_equality nulls_equal,
                                              rmm::mr::device_memory_resource* mr) const {
   return Column::New(std::move(
-    cudf::drop_duplicates(cudf::table_view{{*this}}, {0}, keep, nulls_equal, mr)->release()[0]));
+    cudf::drop_duplicates(
+      cudf::table_view{{*this}}, {0}, cudf::duplicate_keep_option::KEEP_FIRST, nulls_equal, mr)
+      ->release()[0]));
 }
 
 Napi::Value Column::drop_duplicates(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return drop_duplicates(args[0], args[1], args[2]);
+  return drop_duplicates(args[0], args[1]);
 }
 
 }  // namespace nv

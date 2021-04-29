@@ -119,11 +119,6 @@ inline NapiToCPP::operator cudf::interpolation() const {
 }
 
 template <>
-inline NapiToCPP::operator cudf::duplicate_keep_option() const {
-  return static_cast<cudf::duplicate_keep_option>(operator int32_t());
-}
-
-template <>
 inline NapiToCPP::operator cudf::null_equality() const {
   return static_cast<cudf::null_equality>(operator bool());
 }
