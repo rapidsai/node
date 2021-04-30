@@ -16,7 +16,8 @@
 
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
-#include "cudf/stream_compaction.hpp"
+
+#include <cudf/stream_compaction.hpp>
 
 #include <node_rmm/device_buffer.hpp>
 
