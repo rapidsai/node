@@ -278,10 +278,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns the joined DataFrame
    */
   join<U extends TypeMap, R extends keyof U>(props: JoinProps<U, R>): DataFrame<any> {
-    const {how, other, on} = props;
-    const nullEquality     = props.nullEquality == undefined ? true : props.nullEquality;
-    const lsuffix          = props.lsuffix == undefined ? '' : props.lsuffix;
-    const rsuffix          = props.rsuffix == undefined ? '' : props.rsuffix;
+    const { how, other, on, nullEquality = true, lsuffix = '', rsuffix = '' } = props;
     const left             = this.select(on as any).asTable();
     const right            = other.select(on as any).asTable();
 
@@ -310,7 +307,7 @@ export class DataFrame<T extends TypeMap = any> {
 
     right_result = right_result.drop(on) as any;
 
-    // if there are no suffices provided, and there are column conflicts, then we
+    // if there are no suffixes provided, and there are column conflicts, then we
     // want to drop columns on the right results (so, assign over from left result)
     if (lsuffix == '' && rsuffix == '') { return right_result.assign(left_result); }
 
