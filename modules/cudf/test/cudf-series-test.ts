@@ -368,8 +368,8 @@ test('Series.value_counts', () => {
 
 test.each`
 nulls_equal        | data                           | expected
-${'equal'}         | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, 1, 2, 3, 4]}
-${'unequal'}       | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, null, 1, 2, 3, 4]}
+${true}         | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, 1, 2, 3, 4]}
+${false}       | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, null, 1, 2, 3, 4]}
 `('Series.unique($nulls_equal)', ({nulls_equal, data, expected}) => {
   const s      = Series.new({type: new Int32, data});
   const result = s.unique(nulls_equal);

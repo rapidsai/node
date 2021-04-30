@@ -44,12 +44,6 @@ export enum Interpolation
   nearest    ///< i or j, whichever is nearest
 }
 
-export enum NullEquality
-{
-  equal,    // nulls compare equal
-  unequal,  // nulls compare unequal
-}
-
 export type TypeMap = {
   [key: string]: DataType
 };

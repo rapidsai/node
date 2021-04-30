@@ -28,7 +28,7 @@ import {
   Numeric,
 } from './types/dtypes';
 import {ReplacePolicy} from './types/enums';
-import {CommonType, Interpolation, NullEquality} from './types/mappings';
+import {CommonType, Interpolation} from './types/mappings';
 
 export type ColumnProps<T extends DataType = any> = {
   /*
@@ -1060,7 +1060,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns column without duplicate values
    */
-  drop_duplicates(nullsEqual?: NullEquality, memoryResource?: MemoryResource): Column<T>;
+  drop_duplicates(nullsEqual?: boolean, memoryResource?: MemoryResource): Column<T>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

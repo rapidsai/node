@@ -64,8 +64,11 @@ Napi::Value Column::drop_nans(Napi::CallbackInfo const& info) {
   return drop_nans(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
 }
 
-ObjectUnwrap<Column> Column::drop_duplicates(cudf::null_equality nulls_equal,
+ObjectUnwrap<Column> Column::drop_duplicates(bool is_nulls_equal,
                                              rmm::mr::device_memory_resource* mr) const {
+  cudf::null_equality nulls_equal =
+    is_nulls_equal ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
+
   try {
     return Column::New(std::move(
       cudf::drop_duplicates(

@@ -45,7 +45,7 @@ import {
   NullOrder,
   ReplacePolicy,
 } from './types/enums';
-import {ArrowToCUDFType, arrowToCUDFType, NullEquality} from './types/mappings';
+import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
 export type SeriesProps<T extends DataType = any> = {
   /*
@@ -513,8 +513,8 @@ export class AbstractSeries<T extends DataType = any> {
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns series without duplicate values
    */
-  unique(nullsEqual: keyof typeof NullEquality = 'equal', memoryResource?: MemoryResource) {
-    return this.__construct(this._col.drop_duplicates(NullEquality[nullsEqual], memoryResource));
+  unique(nullsEqual = true, memoryResource?: MemoryResource) {
+    return this.__construct(this._col.drop_duplicates(nullsEqual, memoryResource));
   }
 }
 

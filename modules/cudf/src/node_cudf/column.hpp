@@ -601,7 +601,7 @@ class Column : public Napi::ObjectWrap<Column> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   ObjectUnwrap<Column> drop_duplicates(
-    cudf::null_equality nulls_equal,
+    bool nulls_equal,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/filling.cpp
