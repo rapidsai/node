@@ -16,7 +16,8 @@
 
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
-#include "cudf/stream_compaction.hpp"
+
+#include <cudf/stream_compaction.hpp>
 
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
