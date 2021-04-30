@@ -37,16 +37,21 @@ namespace nv {
 
 ObjectUnwrap<Column> Column::apply_boolean_mask(Column const& boolean_mask,
                                                 rmm::mr::device_memory_resource* mr) const {
-  auto result = cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr);
-  std::vector<std::unique_ptr<cudf::column>> contents = result->release();
-  return Column::New(std::move(contents[0]));
+  try {
+    auto result = cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr);
+    std::vector<std::unique_ptr<cudf::column>> contents = result->release();
+    return Column::New(std::move(contents[0]));
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 ObjectUnwrap<Column> Column::drop_nulls(rmm::mr::device_memory_resource* mr) const {
   std::vector<cudf::size_type> keys{0};
-  auto result = cudf::drop_nulls(cudf::table_view{{*this}}, keys, mr);
-  std::vector<std::unique_ptr<cudf::column>> contents = result->release();
-  return Column::New(std::move(contents[0]));
+
+  try {
+    auto result = cudf::drop_nulls(cudf::table_view{{*this}}, keys, mr);
+    std::vector<std::unique_ptr<cudf::column>> contents = result->release();
+    return Column::New(std::move(contents[0]));
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Napi::Value Column::drop_nulls(Napi::CallbackInfo const& info) {
@@ -55,9 +60,12 @@ Napi::Value Column::drop_nulls(Napi::CallbackInfo const& info) {
 
 ObjectUnwrap<Column> Column::drop_nans(rmm::mr::device_memory_resource* mr) const {
   std::vector<cudf::size_type> keys{0};
-  auto result = cudf::drop_nans(cudf::table_view{{*this}}, keys, mr);
-  std::vector<std::unique_ptr<cudf::column>> contents = result->release();
-  return Column::New(std::move(contents[0]));
+
+  try {
+    auto result = cudf::drop_nans(cudf::table_view{{*this}}, keys, mr);
+    std::vector<std::unique_ptr<cudf::column>> contents = result->release();
+    return Column::New(std::move(contents[0]));
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Napi::Value Column::drop_nans(Napi::CallbackInfo const& info) {
