@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@ import * as Path from 'path';
 
 const NODE_DEBUG = ((<any>process.env).NODE_DEBUG || (<any>process.env).NODE_ENV === 'debug');
 
-export function loadNativeModule<T = any>({id}: import('module'), name: string): T {
+export function loadNativeModule<T = any>(
+  {id}: import('module'), name: string, init?: (init: (...args: any[]) => T) => T): T {
   let moduleBasePath            = Path.dirname(id);
   let nativeModule: T|undefined = undefined;
   const errors                  = [`\nFailed to load "${name}:"\n`];
@@ -38,7 +39,11 @@ export function loadNativeModule<T = any>({id}: import('module'), name: string):
     }
   }
   if (nativeModule) {
-    if (typeof (<any>nativeModule).init === 'function') {
+    if (typeof init === 'function') {
+      if (typeof (<any>nativeModule).init === 'function') {
+        return init((<any>nativeModule).init.bind(nativeModule)) || nativeModule;
+      }
+    } else if (typeof (<any>nativeModule).init === 'function') {
       return (<any>nativeModule).init() || nativeModule;
     }
     return nativeModule;

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <nv_node/addon.hpp>
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
 #include <napi.h>
 
-std::ostream& operator<<(std::ostream& os, const nv::NapiToCPP& self) {
+std::ostream& operator<<(std::ostream& os, nv::NapiToCPP const& self) {
   return os << self.operator std::string();
 };
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports) { return exports; }
+struct node_rapids_core : public nv::EnvLocalAddon, public Napi::Addon<node_rapids_core> {
+  node_rapids_core(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
+    DefineAddon(exports,
+                {
+                  InstanceValue("_cpp_exports", _cpp_exports.Value()),
+                  InstanceMethod("init", &node_rapids_core::InitAddon),
+                });
+  }
+};
 
-NODE_API_MODULE(node_rapids_core, initModule);
+NODE_API_ADDON(node_rapids_core);
