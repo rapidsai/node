@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 #include <node_rmm/device_buffer.hpp>
 
+#include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
 
 #include <cudf/copying.hpp>
@@ -33,74 +34,37 @@ namespace nv {
  * @brief An owning wrapper around a cudf::Table.
  *
  */
-class Table : public Napi::ObjectWrap<Table> {
- public:
+struct Table : public EnvLocalObjectWrap<Table> {
   /**
    * @brief Initialize and export the Table JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The Table constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new Table instance from existing device memory.
    *
    * @param children Array of child columns
+   * @return wrapper_t The new Table instance
    */
-  static Napi::Object New(Napi::Array const& columns = {});
+  static wrapper_t New(Napi::Env const& env, Napi::Array const& columns = {});
 
   /**
    * @brief Construct a new Table instance from an existing libcudf Table
    *
    * @param table The libcudf Table to adapt
-   * @return Napi::Object The new Table instance
+   * @return wrapper_t The new Table instance
    */
-  static Napi::Object New(std::unique_ptr<cudf::table> table);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `Table`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `Table`
-   * @return false if the value is not a `Table`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
+  static wrapper_t New(Napi::Env const& env, std::unique_ptr<cudf::table> table);
 
   /**
    * @brief Construct a new Column instance from JavaScript.
    *
    */
   Table(CallbackArgs const& args);
-
-  /**
-   * @brief Initialize the Table instance created by either C++ or JavaScript.
-   *
-   * @param data The Table's data.
-   * @param size The number of elements in the column.
-   * @param type The element data type.
-   */
-  void Initialize(Napi::Object const& data, cudf::size_type size, Napi::Object const& type) {
-    Initialize(Napi::Array::New(Env(), 0));
-  }
-
-  /**
-   * @brief Initialize the Table instance created by either C++ or JavaScript.
-   *
-   * @param children Array of columns
-   */
-  void Initialize(Napi::Array const& columns = {});
-
-  /**
-   * @brief Destructor called when the JavaScript VM garbage collects this Column
-   * instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
 
   /**
    * @brief Returns the number of columns in the table
@@ -158,41 +122,39 @@ class Table : public Napi::ObjectWrap<Table> {
     return *Column::Unwrap(columns_.Value().Get(i).ToObject());
   }
 
-  ObjectUnwrap<Table> apply_boolean_mask(
+  Table::wrapper_t apply_boolean_mask(
     Column const& boolean_mask,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Table> drop_nulls(
+  Table::wrapper_t drop_nulls(
     std::vector<cudf::size_type> keys,
     cudf::size_type threshold,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Table> drop_nans(
+  Table::wrapper_t drop_nans(
     std::vector<cudf::size_type> keys,
     cudf::size_type threshold,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // table/copying.cpp
-  ObjectUnwrap<Table> gather(
+  Table::wrapper_t gather(
     Column const& gather_map,
     cudf::out_of_bounds_policy bounds_policy = cudf::out_of_bounds_policy::DONT_CHECK,
     rmm::mr::device_memory_resource* mr      = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Table> scatter(
+  Table::wrapper_t scatter(
     std::vector<std::reference_wrapper<const cudf::scalar>> const& source,
     Column const& indices,
     bool check_bounds                   = false,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Table> scatter(
+  Table::wrapper_t scatter(
     Table const& source,
     Column const& indices,
     bool check_bounds                   = false,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
  private:
-  static Napi::FunctionReference constructor;
-
   cudf::size_type num_columns_{};           ///< The number of columns in the table
   cudf::size_type num_rows_{};              ///< The number of rows
   Napi::Reference<Napi::Array> columns_{};  ///< columns of table
@@ -209,7 +171,7 @@ class Table : public Napi::ObjectWrap<Table> {
   Napi::Value scatter_table(Napi::CallbackInfo const& info);
 
   static Napi::Value read_csv(Napi::CallbackInfo const& info);
-  Napi::Value write_csv(Napi::CallbackInfo const& info);
+  void write_csv(Napi::CallbackInfo const& info);
 
   Napi::Value to_arrow(Napi::CallbackInfo const& info);
   Napi::Value order_by(Napi::CallbackInfo const& info);

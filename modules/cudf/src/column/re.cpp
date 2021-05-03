@@ -19,29 +19,29 @@
 
 #include <cudf/unary.hpp>
 
-#include <rmm/mr/device/per_device_resource.hpp>
 #include <cudf/strings/contains.hpp>
+#include <rmm/mr/device/per_device_resource.hpp>
 
 namespace nv {
 
-ObjectUnwrap<Column> Column::contains_re(std::string const& pattern,
-                                         rmm::mr::device_memory_resource* mr) const {
-  try {
-    return Column::New(cudf::strings::contains_re(this->view(), pattern, mr));
-  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
-}
-
-ObjectUnwrap<Column> Column::count_re(std::string const& pattern,
+Column::wrapper_t Column::contains_re(std::string const& pattern,
                                       rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(cudf::strings::count_re(this->view(), pattern, mr));
+    return Column::New(Env(), cudf::strings::contains_re(this->view(), pattern, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
-ObjectUnwrap<Column> Column::matches_re(std::string const& pattern,
-                                        rmm::mr::device_memory_resource* mr) const {
+Column::wrapper_t Column::count_re(std::string const& pattern,
+                                   rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(cudf::strings::matches_re(this->view(), pattern, mr));
+    return Column::New(Env(), cudf::strings::count_re(this->view(), pattern, mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+}
+
+Column::wrapper_t Column::matches_re(std::string const& pattern,
+                                     rmm::mr::device_memory_resource* mr) const {
+  try {
+    return Column::New(Env(), cudf::strings::matches_re(this->view(), pattern, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
@@ -49,24 +49,24 @@ Napi::Value Column::contains_re(Napi::CallbackInfo const& info) {
   if (info.Length() < 1) {
     NODE_CUDF_THROW("Column contains_re expects a pattern and optional MemoryResource", info.Env());
   }
-  return contains_re(NapiToCPP{info[0]},
-                     NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs const args{info};
+  return contains_re(args[0], args[1]);
 }
 
 Napi::Value Column::count_re(Napi::CallbackInfo const& info) {
   if (info.Length() < 1) {
     NODE_CUDF_THROW("Column contains_re expects a pattern and optional MemoryResource", info.Env());
   }
-  return count_re(NapiToCPP{info[0]},
-                  NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs const args{info};
+  return count_re(args[0], args[1]);
 }
 
 Napi::Value Column::matches_re(Napi::CallbackInfo const& info) {
   if (info.Length() < 1) {
     NODE_CUDF_THROW("Column contains_re expects a pattern and optional MemoryResource", info.Env());
   }
-  return matches_re(NapiToCPP{info[0]},
-                    NapiToCPP(info[1]).operator rmm::mr::device_memory_resource*());
+  CallbackArgs const args{info};
+  return matches_re(args[0], args[1]);
 }
 
 }  // namespace nv

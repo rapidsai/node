@@ -31,3 +31,12 @@ Napi::Object column_to_arrow_type(Napi::Env const& env, cudf::column_view const&
 Napi::Value find_common_type(CallbackArgs const& args);
 
 }  // namespace nv
+
+namespace Napi {
+
+template <>
+inline Value Value::From(napi_env env, cudf::data_type const& type) {
+  return nv::cudf_to_arrow_type(env, type);
+}
+
+}  // namespace Napi
