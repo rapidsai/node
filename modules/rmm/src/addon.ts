@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '@nvidia/cuda';
+/* eslint-disable @typescript-eslint/no-redeclare */
+
+import {addon as CUDA} from '@nvidia/cuda';
 import {loadNativeModule} from '@rapidsai/core';
 
-export const RMM = loadNativeModule<any>(module, 'node_rmm');
-export default RMM;
+export const {
+  DeviceBuffer,
+  MemoryResource,
+  getPerDeviceResource,
+  setPerDeviceResource,
+  getCurrentDeviceResource,
+  setCurrentDeviceResource,
+  _cpp_exports,
+  per_device_resources
+} = loadNativeModule<typeof import('./node_rmm')>(module, 'node_rmm', init => init(CUDA));
+
+export type DeviceBuffer   = import('./node_rmm').DeviceBuffer;
+export type MemoryResource = import('./node_rmm').MemoryResource;
+
+export type setPerDeviceResource = typeof import('./node_rmm').setPerDeviceResource;
+
+export const enum MemoryResourceType
+{
+  CUDA      = 0,
+  MANAGED   = 1,
+  POOL      = 2,
+  FIXEDSIZE = 3,
+  BINNING   = 4,
+  LOGGING   = 5,
+}

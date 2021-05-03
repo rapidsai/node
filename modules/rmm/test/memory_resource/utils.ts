@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {devices} from '@nvidia/cuda';
 import {
   BinningMemoryResource,
   CudaMemoryResource,
@@ -27,8 +26,6 @@ import * as Path from 'path';
 
 import {sizes} from '../utils';
 
-const rimraf = require('rimraf');
-
 type TestConfig = {
   comparable: boolean; supportsStreams: boolean; supportsGetMemInfo: boolean;
   createMemoryResource(): MemoryResource;
@@ -42,6 +39,7 @@ beforeAll(() => {
 });
 
 afterAll(() => {
+  const rimraf = require('rimraf');
   return new Promise<void>((resolve, reject) => {  //
     rimraf(logFileDir, (err?: Error|null) => err ? reject(err) : resolve());
   });
@@ -49,7 +47,7 @@ afterAll(() => {
 
 export const memoryResourceTestConfigs = [
   [
-    `CudaMemoryResource (no device)`,
+    `CudaMemoryResource`,
     {
       comparable: true,
       supportsStreams: false,
@@ -57,15 +55,6 @@ export const memoryResourceTestConfigs = [
       createMemoryResource: () => new CudaMemoryResource(),
     }
   ],
-  ...[...devices].map((_, i) => ([
-                        `CudaMemoryResource (device ${i})`,
-                        {
-                          comparable: true,
-                          supportsStreams: false,
-                          supportsGetMemInfo: true,
-                          createMemoryResource: () => new CudaMemoryResource(i),
-                        }
-                      ])),
   [
     `ManagedMemoryResource`,
     {
