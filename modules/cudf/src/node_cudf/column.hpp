@@ -17,6 +17,8 @@
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 
+#include <cudf/stream_compaction.hpp>
+
 #include <node_rmm/device_buffer.hpp>
 
 #include <nv_node/utilities/args.hpp>
@@ -598,6 +600,10 @@ class Column : public Napi::ObjectWrap<Column> {
   ObjectUnwrap<Column> drop_nans(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  ObjectUnwrap<Column> drop_duplicates(
+    bool nulls_equal,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
   // column/filling.cpp
   static ObjectUnwrap<Column> sequence(
     Napi::Env const& env,
@@ -760,6 +766,7 @@ class Column : public Napi::ObjectWrap<Column> {
   // column/stream_compaction.cpp
   Napi::Value drop_nulls(Napi::CallbackInfo const& info);
   Napi::Value drop_nans(Napi::CallbackInfo const& info);
+  Napi::Value drop_duplicates(Napi::CallbackInfo const& info);
 
   // column/filling.cpp
   static Napi::Value sequence(Napi::CallbackInfo const& info);

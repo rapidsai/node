@@ -761,6 +761,35 @@ export class AbstractSeries<T extends DataType = any> {
    * @summary Hook for specialized Series to override when constructing from a C++ Column.
    */
   protected __construct(inp: Column<T>): Series<T> { return Series.new(inp); }
+
+  /**
+   * Returns an object with keys "value" and "count" whose respective values are new Series
+   * containing the unique values in the original series and the number of times they occur
+   * in the original series.
+   * @returns object with keys "value" and "count"
+   */
+  value_counts(): {count: Int32Series, value: Series<T>} {
+    const df = new DataFrame<{count: T, value: T}>({
+      'count': this,
+      'value': this,
+    });
+    const d  = df.groupBy({by: 'value'}).count();
+    return {
+      count: d.get('count'),
+      value: d.get('value'),
+    };
+  }
+
+  /**
+   * Removes duplicate values from the Series.
+   *
+   * @param nullsEqual Determines whether nulls are handled as equal values.
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   * @returns series without duplicate values
+   */
+  unique(nullsEqual = true, memoryResource?: MemoryResource) {
+    return this.__construct(this._col.drop_duplicates(nullsEqual, memoryResource));
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

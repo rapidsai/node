@@ -350,3 +350,28 @@ describe.each([new Int32, new Float32, new Float64])('Series.sequence({type=%p,,
     expect([...col.toArrow()]).toEqual([0, 2, 4, 6, 8, 10, 12, 14, 16, 18]);
   });
 });
+
+test('Series.value_counts', () => {
+  const s      = Series.new({type: new Int32, data: [110, 120, 100, 110, 120, 120]});
+  const result = s.value_counts();
+  const count  = [...result.count.toArrow()];
+  const value  = [...result.value.toArrow()];
+
+  const countMap: Record<number, number> = {100: 1, 110: 2, 120: 3};
+
+  for (let i = 0; i < value.length; i++) {
+    const currentVal   = value[i] as number;
+    const currentCount = count[i];
+    expect(currentCount).toBe(countMap[currentVal]);
+  }
+});
+
+test.each`
+nulls_equal        | data                           | expected
+${true}         | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, 1, 2, 3, 4]}
+${false}       | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, null, 1, 2, 3, 4]}
+`('Series.unique($nulls_equal)', ({nulls_equal, data, expected}) => {
+  const s      = Series.new({type: new Int32, data});
+  const result = s.unique(nulls_equal);
+  expect([...result.toArrow()]).toEqual(expected);
+});

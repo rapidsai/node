@@ -1051,6 +1051,16 @@ export interface Column<T extends DataType = any> {
    * @returns undefined if inplace=True, else updated column with Null values
    */
   nans_to_nulls(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Drop duplicate values from the column
+   *
+   * @param nullsEqual Determines whether nulls are handled as equal values.
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
+   * @returns column without duplicate values
+   */
+  drop_duplicates(nullsEqual?: boolean, memoryResource?: MemoryResource): Column<T>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
