@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -111,16 +111,16 @@ Napi::Value cuPointerGetAttributeNapi(CallbackArgs const& args) {
 }  // namespace
 
 namespace memory {
-Napi::Object initModule(Napi::Env env,
+Napi::Object initModule(Napi::Env const& env,
                         Napi::Object exports,
                         Napi::Object driver,
                         Napi::Object runtime) {
-  nv::PinnedMemory::Init(env, exports);
-  nv::DeviceMemory::Init(env, exports);
-  nv::ManagedMemory::Init(env, exports);
-  nv::IpcMemory::Init(env, exports);
-  nv::IpcHandle::Init(env, exports);
-  nv::MappedGLMemory::Init(env, exports);
+  // nv::PinnedMemory::Init(env, exports);
+  // nv::DeviceMemory::Init(env, exports);
+  // nv::ManagedMemory::Init(env, exports);
+  // nv::IpcMemory::Init(env, exports);
+  // nv::IpcHandle::Init(env, exports);
+  // nv::MappedGLMemory::Init(env, exports);
 
   EXPORT_FUNC(env, runtime, "cudaMemset", cudaMemsetNapi);
   EXPORT_FUNC(env, runtime, "cudaMemcpy", cudaMemcpyNapi);
@@ -128,15 +128,15 @@ Napi::Object initModule(Napi::Env env,
   EXPORT_FUNC(env, driver, "cuPointerGetAttribute", cuPointerGetAttributeNapi);
 
   auto PointerAttributes = Napi::Object::New(env);
-  EXPORT_ENUM(env, PointerAttributes, "context", CU_POINTER_ATTRIBUTE_CONTEXT);
-  EXPORT_ENUM(env, PointerAttributes, "memory_type", CU_POINTER_ATTRIBUTE_MEMORY_TYPE);
-  EXPORT_ENUM(env, PointerAttributes, "device_pointer", CU_POINTER_ATTRIBUTE_DEVICE_POINTER);
-  EXPORT_ENUM(env, PointerAttributes, "host_pointer", CU_POINTER_ATTRIBUTE_HOST_POINTER);
-  // EXPORT_ENUM(env, PointerAttributes, "p2p_tokens", CU_POINTER_ATTRIBUTE_P2P_TOKENS);
-  EXPORT_ENUM(env, PointerAttributes, "sync_memops", CU_POINTER_ATTRIBUTE_SYNC_MEMOPS);
-  EXPORT_ENUM(env, PointerAttributes, "buffer_id", CU_POINTER_ATTRIBUTE_BUFFER_ID);
-  EXPORT_ENUM(env, PointerAttributes, "is_managed", CU_POINTER_ATTRIBUTE_IS_MANAGED);
-  EXPORT_ENUM(env, PointerAttributes, "device_ordinal", CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL);
+  EXPORT_ENUM(env, PointerAttributes, "CONTEXT", CU_POINTER_ATTRIBUTE_CONTEXT);
+  EXPORT_ENUM(env, PointerAttributes, "MEMORY_TYPE", CU_POINTER_ATTRIBUTE_MEMORY_TYPE);
+  EXPORT_ENUM(env, PointerAttributes, "DEVICE_POINTER", CU_POINTER_ATTRIBUTE_DEVICE_POINTER);
+  EXPORT_ENUM(env, PointerAttributes, "HOST_POINTER", CU_POINTER_ATTRIBUTE_HOST_POINTER);
+  // EXPORT_ENUM(env, PointerAttributes, "P2P_TOKENS", CU_POINTER_ATTRIBUTE_P2P_TOKENS);
+  EXPORT_ENUM(env, PointerAttributes, "SYNC_MEMOPS", CU_POINTER_ATTRIBUTE_SYNC_MEMOPS);
+  EXPORT_ENUM(env, PointerAttributes, "BUFFER_ID", CU_POINTER_ATTRIBUTE_BUFFER_ID);
+  EXPORT_ENUM(env, PointerAttributes, "IS_MANAGED", CU_POINTER_ATTRIBUTE_IS_MANAGED);
+  EXPORT_ENUM(env, PointerAttributes, "DEVICE_ORDINAL", CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL);
 
   EXPORT_PROP(driver, "PointerAttributes", PointerAttributes);
 

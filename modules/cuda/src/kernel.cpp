@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace nv {
 //                         unsigned int blockDimY, unsigned int blockDimZ,
 //                         unsigned int sharedMemBytes, CUstream hStream,
 //                         void **kernelParams, void ** extra);
-Napi::Value cuLaunchKernel(CallbackArgs const& info) {
+void cuLaunchKernel(CallbackArgs const& info) {
   auto env                       = info.Env();
   CUfunction func                = info[0];
   std::vector<uint32_t> grid     = info[1];
@@ -47,13 +47,14 @@ Napi::Value cuLaunchKernel(CallbackArgs const& info) {
                                       (void**)params.data(),
                                       nullptr),
               env);
-
-  return env.Undefined();
 }
 
 namespace kernel {
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "launch", nv::cuLaunchKernel);
+Napi::Object initModule(Napi::Env const& env,
+                        Napi::Object exports,
+                        Napi::Object driver,
+                        Napi::Object runtime) {
+  EXPORT_FUNC(env, driver, "launchKernel", nv::cuLaunchKernel);
   return exports;
 }
 }  // namespace kernel

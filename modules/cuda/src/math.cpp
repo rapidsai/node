@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,24 +73,29 @@ Napi::Value math_tan(CallbackArgs const &info) {
 }
 
 namespace math {
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "abs", math_abs);
-  EXPORT_FUNC(env, exports, "acos", math_acos);
-  EXPORT_FUNC(env, exports, "asin", math_asin);
-  EXPORT_FUNC(env, exports, "atan", math_atan);
-  EXPORT_FUNC(env, exports, "atan2", math_atan2);
-  EXPORT_FUNC(env, exports, "ceil", math_ceil);
-  EXPORT_FUNC(env, exports, "cos", math_cos);
-  EXPORT_FUNC(env, exports, "exp", math_exp);
-  EXPORT_FUNC(env, exports, "floor", math_floor);
-  EXPORT_FUNC(env, exports, "log", math_log);
-  EXPORT_FUNC(env, exports, "max", math_max);
-  EXPORT_FUNC(env, exports, "min", math_min);
-  EXPORT_FUNC(env, exports, "pow", math_pow);
-  EXPORT_FUNC(env, exports, "round", math_round);
-  EXPORT_FUNC(env, exports, "sin", math_sin);
-  EXPORT_FUNC(env, exports, "sqrt", math_sqrt);
-  EXPORT_FUNC(env, exports, "tan", math_tan);
+Napi::Object initModule(Napi::Env const &env,
+                        Napi::Object exports,
+                        Napi::Object driver,
+                        Napi::Object runtime) {
+  auto Math = Napi::Object::New(env);
+  EXPORT_FUNC(env, Math, "abs", math_abs);
+  EXPORT_FUNC(env, Math, "acos", math_acos);
+  EXPORT_FUNC(env, Math, "asin", math_asin);
+  EXPORT_FUNC(env, Math, "atan", math_atan);
+  EXPORT_FUNC(env, Math, "atan2", math_atan2);
+  EXPORT_FUNC(env, Math, "ceil", math_ceil);
+  EXPORT_FUNC(env, Math, "cos", math_cos);
+  EXPORT_FUNC(env, Math, "exp", math_exp);
+  EXPORT_FUNC(env, Math, "floor", math_floor);
+  EXPORT_FUNC(env, Math, "log", math_log);
+  EXPORT_FUNC(env, Math, "max", math_max);
+  EXPORT_FUNC(env, Math, "min", math_min);
+  EXPORT_FUNC(env, Math, "pow", math_pow);
+  EXPORT_FUNC(env, Math, "round", math_round);
+  EXPORT_FUNC(env, Math, "sin", math_sin);
+  EXPORT_FUNC(env, Math, "sqrt", math_sqrt);
+  EXPORT_FUNC(env, Math, "tan", math_tan);
+  exports.Set("Math", Math);
   return exports;
 }
 }  // namespace math

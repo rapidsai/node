@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,54 +12,82 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "node_cuda/array.hpp"
-#include "node_cuda/utilities/cpp_to_napi.hpp"
-#include "node_cuda/utilities/napi_to_cpp.hpp"
+#include <node_cuda/array.hpp>
+#include <node_cuda/utilities/cpp_to_napi.hpp>
+#include <node_cuda/utilities/napi_to_cpp.hpp>
+
+#include <nv_node/macros.hpp>
+#include <nv_node/utilities/args.hpp>
 
 #include <cuda_runtime_api.h>
-#include <nv_node/utilities/args.hpp>
 
 namespace nv {
 
-Napi::FunctionReference CUDAArray::constructor;
+Napi::Function CUDAArray::Init(Napi::Env const& env, Napi::Object exports) {
+  auto ChannelFormatKind = Napi::Object::New(env);
 
-Napi::Object CUDAArray::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(
-    env,
-    "CUDAArray",
-    {
-      InstanceAccessor("channelFormatX", &CUDAArray::GetChannelFormatX, nullptr, napi_enumerable),
-      InstanceAccessor("channelFormatY", &CUDAArray::GetChannelFormatY, nullptr, napi_enumerable),
-      InstanceAccessor("channelFormatZ", &CUDAArray::GetChannelFormatZ, nullptr, napi_enumerable),
-      InstanceAccessor("channelFormatW", &CUDAArray::GetChannelFormatW, nullptr, napi_enumerable),
-      InstanceAccessor(
-        "channelFormatKind", &CUDAArray::GetChannelFormatKind, nullptr, napi_enumerable),
-      InstanceAccessor("width", &CUDAArray::GetWidth, nullptr, napi_enumerable),
-      InstanceAccessor("height", &CUDAArray::GetHeight, nullptr, napi_enumerable),
-      InstanceAccessor("depth", &CUDAArray::GetDepth, nullptr, napi_enumerable),
-      InstanceAccessor("bytesPerElement", &CUDAArray::GetBytesPerElement, nullptr, napi_enumerable),
-      InstanceAccessor("byteLength", &CUDAArray::GetByteLength, nullptr, napi_enumerable),
-      InstanceAccessor("ary", &CUDAArray::GetPointer, nullptr, napi_enumerable),
-    });
-  CUDAArray::constructor = Napi::Persistent(ctor);
-  CUDAArray::constructor.SuppressDestruct();
-  return exports;
+  EXPORT_ENUM(env, ChannelFormatKind, "SIGNED", cudaChannelFormatKindSigned);
+  EXPORT_ENUM(env, ChannelFormatKind, "UNSIGNED", cudaChannelFormatKindUnsigned);
+  EXPORT_ENUM(env, ChannelFormatKind, "FLOAT", cudaChannelFormatKindFloat);
+  EXPORT_ENUM(env, ChannelFormatKind, "NONE", cudaChannelFormatKindNone);
+  EXPORT_ENUM(env, ChannelFormatKind, "NV12", cudaChannelFormatKindNV12);
+  EXPORT_ENUM(env, ChannelFormatKind, "lmemResizeToMax", cudaDeviceLmemResizeToMax);
+  exports.Set("ChannelFormatKind", ChannelFormatKind);
+
+  return DefineClass(env,
+                     "CUDAArray",
+                     {
+                       InstanceAccessor<&CUDAArray::GetChannelFormatX>("channelFormatX"),
+                       InstanceAccessor<&CUDAArray::GetChannelFormatY>("channelFormatY"),
+                       InstanceAccessor<&CUDAArray::GetChannelFormatZ>("channelFormatZ"),
+                       InstanceAccessor<&CUDAArray::GetChannelFormatW>("channelFormatW"),
+                       InstanceAccessor<&CUDAArray::GetChannelFormatKind>("channelFormatKind"),
+                       InstanceAccessor<&CUDAArray::GetWidth>("width"),
+                       InstanceAccessor<&CUDAArray::GetHeight>("height"),
+                       InstanceAccessor<&CUDAArray::GetDepth>("depth"),
+                       InstanceAccessor<&CUDAArray::GetBytesPerElement>("bytesPerElement"),
+                       InstanceAccessor<&CUDAArray::GetByteLength>("byteLength"),
+                       InstanceAccessor<&CUDAArray::GetPointer>("ary"),
+                     });
 }
 
-CUDAArray::CUDAArray(Napi::CallbackInfo const& info) : Napi::ObjectWrap<CUDAArray>(info) {}
+CUDAArray::CUDAArray(CallbackArgs const& args) : EnvLocalObjectWrap<CUDAArray>(args) {
+  array_             = args[0];
+  extent_            = args[1];
+  channelFormatDesc_ = args[2];
+  flags_             = args[3];
+  type_              = args[4];
+}
 
-Napi::Value CUDAArray::New(cudaArray_t array,
-                           cudaExtent extent,
-                           cudaChannelFormatDesc channelFormatDesc,
-                           uint32_t flags,
-                           array_type type) {
-  auto ary                                   = CUDAArray::constructor.New({});
-  CUDAArray::Unwrap(ary)->array_             = array;
-  CUDAArray::Unwrap(ary)->extent_            = extent;
-  CUDAArray::Unwrap(ary)->channelFormatDesc_ = channelFormatDesc;
-  CUDAArray::Unwrap(ary)->flags_             = flags;
-  CUDAArray::Unwrap(ary)->type_              = type;
-  return ary;
+CUDAArray::wrapper_t CUDAArray::New(Napi::Env const& env,
+                                    cudaArray_t const& array,
+                                    cudaExtent const& extent,
+                                    cudaChannelFormatDesc const& channelFormatDesc,
+                                    uint32_t flags,
+                                    array_type type) {
+  return EnvLocalObjectWrap<CUDAArray>::New(
+    env,
+    {
+      Napi::External<cudaArray_t>::New(env, const_cast<cudaArray_t*>(&array)),
+      [&]() {
+        auto obj = Napi::Object::New(env);
+        obj.Set("width", extent.width);
+        obj.Set("height", extent.height);
+        obj.Set("depth", extent.depth);
+        return obj;
+      }(),
+      [&]() {
+        auto obj = Napi::Object::New(env);
+        obj.Set("x", channelFormatDesc.x);
+        obj.Set("y", channelFormatDesc.y);
+        obj.Set("z", channelFormatDesc.z);
+        obj.Set("w", channelFormatDesc.w);
+        obj.Set("f", static_cast<uint8_t>(channelFormatDesc.f));
+        return obj;
+      }(),
+      Napi::Number::New(env, flags),
+      Napi::Number::New(env, static_cast<uint8_t>(type)),
+    });
 }
 
 Napi::Value CUDAArray::GetBytesPerElement(Napi::CallbackInfo const& info) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -99,6 +99,36 @@ inline NapiToCPP::operator cudaDeviceProp() const {
     });
   }
   return props;
+}
+
+template <>
+inline NapiToCPP::operator cudaExtent() const {
+  if (IsObject()) {
+    auto const obj = ToObject();
+    return {
+      static_cast<size_t>(obj.Get("width").ToNumber().Int64Value()),
+      static_cast<size_t>(obj.Get("height").ToNumber().Int64Value()),
+      static_cast<size_t>(obj.Get("depth").ToNumber().Int64Value()),
+    };
+  }
+  NAPI_THROW(Napi::Error::New(
+    Env(), "expected cudaChannelFormatDesc Object with numeric x, y, z, w, f keys"));
+}
+
+template <>
+inline NapiToCPP::operator cudaChannelFormatDesc() const {
+  if (IsObject()) {
+    auto const obj = ToObject();
+    return {
+      obj.Get("x").ToNumber(),
+      obj.Get("y").ToNumber(),
+      obj.Get("z").ToNumber(),
+      obj.Get("w").ToNumber(),
+      static_cast<cudaChannelFormatKind>(obj.Get("f").ToNumber().Uint32Value()),
+    };
+  }
+  NAPI_THROW(Napi::Error::New(
+    Env(), "expected cudaChannelFormatDesc Object with numeric x, y, z, w, f keys"));
 }
 
 template <>
