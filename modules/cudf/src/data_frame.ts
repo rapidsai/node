@@ -278,9 +278,9 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns the joined DataFrame
    */
   join<U extends TypeMap, R extends keyof U>(props: JoinProps<U, R>): DataFrame<any> {
-    const { how, other, on, nullEquality = true, lsuffix = '', rsuffix = '' } = props;
-    const left             = this.select(on as any).asTable();
-    const right            = other.select(on as any).asTable();
+    const {how, other, on, nullEquality = true, lsuffix = '', rsuffix = ''} = props;
+    const left  = this.select(on as any).asTable();
+    const right = other.select(on as any).asTable();
 
     const joins = {
       'inner': () => Table.innerJoin(left, right, nullEquality),
@@ -305,7 +305,11 @@ export class DataFrame<T extends TypeMap = any> {
       }
     }
 
-    right_result = right_result.drop(on) as any;
+    if (how == 'right' && on.length > 1) {
+      left_result = left_result.drop(on as any) as any;
+    } else {
+      right_result = right_result.drop(on) as any;
+    }
 
     // if there are no suffixes provided, and there are column conflicts, then we
     // want to drop columns on the right results (so, assign over from left result)
@@ -315,15 +319,29 @@ export class DataFrame<T extends TypeMap = any> {
     const rnames = right_result.names;
 
     // otherwise for any column name conflicts, apply the suffix before combining
-    for (const name of lnames) {
-      if (rnames.includes(name as any)) {
-        const rcol   = right_result.get(name as any);
-        right_result = right_result.drop([name as any]) as any;
-        right_result = right_result.assign({[name + rsuffix]: rcol});
+    if (how == 'right') {
+      for (const name of rnames) {
+        if (lnames.includes(name as any)) {
+          const rcol   = right_result.get(name as any);
+          right_result = right_result.drop([name as any]) as any;
+          right_result = right_result.assign({[name + rsuffix]: rcol});
 
-        const lcol  = left_result.get(name as any);
-        left_result = left_result.drop([name] as any) as any;
-        left_result = left_result.assign({[name + lsuffix]: lcol});
+          const lcol  = left_result.get(name as any);
+          left_result = left_result.drop([name] as any) as any;
+          left_result = left_result.assign({[name + lsuffix]: lcol});
+        }
+      }
+    } else {
+      for (const name of lnames) {
+        if (rnames.includes(name as any)) {
+          const rcol   = right_result.get(name as any);
+          right_result = right_result.drop([name as any]) as any;
+          right_result = right_result.assign({[name + rsuffix]: rcol});
+
+          const lcol  = left_result.get(name as any);
+          left_result = left_result.drop([name] as any) as any;
+          left_result = left_result.assign({[name + lsuffix]: lcol});
+        }
       }
     }
 

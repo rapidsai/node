@@ -386,14 +386,13 @@ describe('DataFrame.join({how="right"}) ', () => {
     expect([...sorted_result.get('a_R')]).toEqual([0, 0, 10, 10, 30]);
   });
 
-  // XXXX This test does not agree with pd/cudf yet
-  // test('can join on multi-index', () => {
-  //   const result = left_double.join({other: right_double, on: ['a', 'b'], how: 'right'});
-  //   expect(result.numColumns).toEqual(4);
-  //   expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'd']));
-  //   expect([...result.get('a')]).toEqual([0, 1, 0]);
-  //   expect([...result.get('b')]).toEqual([10, 20, 30]);
-  //   expect([...result.get('c')]).toEqual([1, 2, null]);
-  //   expect([...result.get('d')]).toEqual([10, 30, 20]);
-  // });
+  test('can join on multi-index', () => {
+    const result = left_double.join({other: right_double, on: ['a', 'b'], how: 'right'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'd']));
+    expect([...result.get('a')]).toEqual([0, 1, 0]);
+    expect([...result.get('b')]).toEqual([10, 20, 20]);
+    expect([...result.get('c')]).toEqual([1, 2, null]);
+    expect([...result.get('d')]).toEqual([10, 30, 20]);
+  });
 });
