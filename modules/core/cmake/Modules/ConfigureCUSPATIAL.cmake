@@ -30,7 +30,7 @@ function(find_and_configure_cuspatial VERSION)
             # GIT_REPOSITORY      https://github.com/rapidsai/cuspatial.git
             # GIT_TAG             branch-${VERSION}
             GIT_REPOSITORY      https://github.com/trxcllnt/cuspatial.git
-            GIT_TAG             fix/cpm-v0.32.1
+            GIT_TAG             fix/hausdorff-Werror-sign-compare
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
             SOURCE_SUBDIR       cpp

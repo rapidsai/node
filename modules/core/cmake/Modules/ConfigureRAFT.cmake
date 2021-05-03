@@ -28,12 +28,13 @@ function(find_and_configure_raft VERSION)
         # TODO: figure out why
         set(BUILD_RAFT_TESTS OFF)
 
-        CPMFindPackage(NAME raft
-            VERSION        ${VERSION}
-            GIT_REPOSITORY https://github.com/rapidsai/raft.git
-            GIT_TAG        ${RAFT_BRANCH}
-            GIT_SHALLOW    TRUE
-            # SOURCE_SUBDIR  cpp
+        CPMFindPackage(NAME     raft
+            VERSION             ${VERSION}
+            GIT_REPOSITORY      https://github.com/rapidsai/raft.git
+            GIT_TAG             ${RAFT_BRANCH}
+            # GIT_SHALLOW         TRUE
+            # UPDATE_DISCONNECTED TRUE
+            # SOURCE_SUBDIR     cpp
             DOWNLOAD_ONLY
         )
 
