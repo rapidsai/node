@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,62 +21,55 @@
 namespace nv {
 
 // GL_EXPORT void glActiveTexture (GLenum texture);
-Napi::Value WebGL2RenderingContext::ActiveTexture(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::ActiveTexture(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glActiveTexture(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBindTexture (GLenum target, GLuint texture);
-Napi::Value WebGL2RenderingContext::BindTexture(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BindTexture(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glBindTexture(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCompressedTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei
 // width, GLsizei height, GLint border, GLsizei imageSize, const void *data);
-Napi::Value WebGL2RenderingContext::CompressedTexImage2D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::CompressedTexImage2D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glCompressedTexImage2D(
     args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCompressedTexImage3D (GLenum target, GLint level, GLenum internalformat, GLsizei
 // width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const void *data);
-Napi::Value WebGL2RenderingContext::CompressedTexImage3D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::CompressedTexImage3D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glCompressedTexImage3D(
     args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint
 // yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void *data);
-Napi::Value WebGL2RenderingContext::CompressedTexSubImage2D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::CompressedTexSubImage2D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glCompressedTexSubImage2D(
     args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCopyTexImage2D (GLenum target, GLint level, GLenum internalFormat, GLint x,
 // GLint y, GLsizei width, GLsizei height, GLint border);
-Napi::Value WebGL2RenderingContext::CopyTexImage2D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::CopyTexImage2D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glCopyTexImage2D(
     args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCopyTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset,
 // GLint x, GLint y, GLsizei width, GLsizei height);
-Napi::Value WebGL2RenderingContext::CopyTexSubImage2D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::CopyTexSubImage2D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glCopyTexSubImage2D(
     args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGenTextures (GLsizei n, GLuint* textures);
@@ -84,7 +77,7 @@ Napi::Value WebGL2RenderingContext::CreateTexture(Napi::CallbackInfo const& info
   CallbackArgs args = info;
   GLuint texture{};
   GL_EXPORT::glGenTextures(1, &texture);
-  return WebGLTexture::New(texture);
+  return WebGLTexture::New(info.Env(), texture);
 }
 
 // GL_EXPORT void glGenTextures (GLsizei n, GLuint* textures);
@@ -96,26 +89,23 @@ Napi::Value WebGL2RenderingContext::GenTextures(Napi::CallbackInfo const& info) 
 }
 
 // GL_EXPORT void glDeleteTextures (GLsizei n, const GLuint *textures);
-Napi::Value WebGL2RenderingContext::DeleteTexture(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteTexture(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLuint texture    = args[0];
   GL_EXPORT::glDeleteTextures(1, &texture);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDeleteTextures (GLsizei n, const GLuint *textures);
-Napi::Value WebGL2RenderingContext::DeleteTextures(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteTextures(Napi::CallbackInfo const& info) {
   CallbackArgs args            = info;
   std::vector<GLuint> textures = args[0];
   GL_EXPORT::glDeleteTextures(textures.size(), textures.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGenerateMipmap (GLenum target);
-Napi::Value WebGL2RenderingContext::GenerateMipmap(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::GenerateMipmap(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glGenerateMipmap(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGetTexParameterfv (GLenum target, GLenum pname, GLfloat *params);
@@ -170,7 +160,7 @@ Napi::Value WebGL2RenderingContext::IsTexture(Napi::CallbackInfo const& info) {
 
 // GL_EXPORT void glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width,
 // GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels);
-Napi::Value WebGL2RenderingContext::TexImage2D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::TexImage2D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   if (info.Length() < 9 || info[8].IsEmpty() || info[8].IsNull()) {
     GL_EXPORT::glTexImage2D(
@@ -191,26 +181,23 @@ Napi::Value WebGL2RenderingContext::TexImage2D(Napi::CallbackInfo const& info) {
     GL_EXPORT::glTexImage2D(
       args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], pixels);
   }
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glTexParameterf (GLenum target, GLenum pname, GLfloat param);
-Napi::Value WebGL2RenderingContext::TexParameterf(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::TexParameterf(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glTexParameterf(args[0], args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glTexParameteri (GLenum target, GLenum pname, GLint param);
-Napi::Value WebGL2RenderingContext::TexParameteri(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::TexParameteri(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glTexParameteri(args[0], args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei
 // width, GLsizei height, GLenum format, GLenum type, const void *pixels);
-Napi::Value WebGL2RenderingContext::TexSubImage2D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::TexSubImage2D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   if (info.Length() < 9 || info[8].IsEmpty() || info[8].IsNull()) {
     GL_EXPORT::glTexSubImage2D(
@@ -231,13 +218,12 @@ Napi::Value WebGL2RenderingContext::TexSubImage2D(Napi::CallbackInfo const& info
     GL_EXPORT::glTexSubImage2D(
       args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], pixels);
   }
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCompressedTexSubImage3D (GLenum target, GLint level, GLint xoffset, GLint
 // yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei
 // imageSize, const void *data);
-Napi::Value WebGL2RenderingContext::CompressedTexSubImage3D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::CompressedTexSubImage3D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glCompressedTexSubImage3D(args[0],
                                        args[1],
@@ -250,47 +236,42 @@ Napi::Value WebGL2RenderingContext::CompressedTexSubImage3D(Napi::CallbackInfo c
                                        args[8],
                                        args[9],
                                        args[10]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCopyTexSubImage3D (GLenum target, GLint level, GLint xoffset, GLint yoffset,
 // GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height);
-Napi::Value WebGL2RenderingContext::CopyTexSubImage3D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::CopyTexSubImage3D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glCopyTexSubImage3D(
     args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glTexImage3D (GLenum target, GLint level, GLint internalFormat, GLsizei width,
 // GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void *pixels);
-Napi::Value WebGL2RenderingContext::TexImage3D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::TexImage3D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glTexImage3D(
     args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glTexStorage2D (GLenum target, GLsizei levels, GLenum internalformat, GLsizei
 // width, GLsizei height);
-Napi::Value WebGL2RenderingContext::TexStorage2D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::TexStorage2D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glTexStorage2D(args[0], args[1], args[2], args[3], args[4]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glTexStorage3D (GLenum target, GLsizei levels, GLenum internalformat, GLsizei
 // width, GLsizei height, GLsizei depth);
-Napi::Value WebGL2RenderingContext::TexStorage3D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::TexStorage3D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glTexStorage3D(args[0], args[1], args[2], args[3], args[4], args[5]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glTexSubImage3D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint
 // zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const void
 // *pixels);
-Napi::Value WebGL2RenderingContext::TexSubImage3D(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::TexSubImage3D(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glTexSubImage3D(args[0],
                              args[1],
@@ -303,7 +284,6 @@ Napi::Value WebGL2RenderingContext::TexSubImage3D(Napi::CallbackInfo const& info
                              args[8],
                              args[9],
                              args[10]);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

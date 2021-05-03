@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,17 +21,15 @@
 namespace nv {
 
 // GL_EXPORT void glBeginTransformFeedback (GLenum primitiveMode);
-Napi::Value WebGL2RenderingContext::BeginTransformFeedback(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BeginTransformFeedback(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glBeginTransformFeedback(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBindTransformFeedback (GLenum target, GLuint id);
-Napi::Value WebGL2RenderingContext::BindTransformFeedback(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BindTransformFeedback(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glBindTransformFeedback(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCreateTransformFeedbacks (GLsizei n, GLuint* ids);
@@ -39,7 +37,7 @@ Napi::Value WebGL2RenderingContext::CreateTransformFeedback(Napi::CallbackInfo c
   CallbackArgs args = info;
   GLuint transform_feedback{};
   GL_EXPORT::glCreateTransformFeedbacks(1, &transform_feedback);
-  return WebGLTransformFeedback::New(transform_feedback);
+  return WebGLTransformFeedback::New(info.Env(), transform_feedback);
 }
 
 // GL_EXPORT void glCreateTransformFeedbacks (GLsizei n, GLuint* ids);
@@ -51,26 +49,23 @@ Napi::Value WebGL2RenderingContext::CreateTransformFeedbacks(Napi::CallbackInfo 
 }
 
 // GL_EXPORT void glDeleteTransformFeedbacks (GLsizei n, const GLuint* ids);
-Napi::Value WebGL2RenderingContext::DeleteTransformFeedback(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteTransformFeedback(Napi::CallbackInfo const& info) {
   CallbackArgs args         = info;
   GLuint transform_feedback = args[0];
   GL_EXPORT::glDeleteTransformFeedbacks(1, &transform_feedback);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDeleteTransformFeedbacks (GLsizei n, const GLuint* ids);
-Napi::Value WebGL2RenderingContext::DeleteTransformFeedbacks(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteTransformFeedbacks(Napi::CallbackInfo const& info) {
   CallbackArgs args                       = info;
   std::vector<GLuint> transform_feedbacks = args[0];
   GL_EXPORT::glDeleteTransformFeedbacks(transform_feedbacks.size(), transform_feedbacks.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glEndTransformFeedback (void);
-Napi::Value WebGL2RenderingContext::EndTransformFeedback(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::EndTransformFeedback(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glEndTransformFeedback();
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGetTransformFeedbackVarying (GLuint program, GLuint index, GLsizei bufSize,
@@ -87,7 +82,8 @@ Napi::Value WebGL2RenderingContext::GetTransformFeedbackVarying(Napi::CallbackIn
     GLchar* name = reinterpret_cast<GLchar*>(std::malloc(max_length));
     GL_EXPORT::glGetTransformFeedbackVarying(
       program, location, max_length, &len, &size, &type, name);
-    return WebGLActiveInfo::New(size, type, std::string{name, static_cast<size_t>(len)});
+    return WebGLActiveInfo::New(
+      info.Env(), size, type, std::string{name, static_cast<size_t>(len)});
   }
   return info.Env().Null();
 }
@@ -100,22 +96,20 @@ Napi::Value WebGL2RenderingContext::IsTransformFeedback(Napi::CallbackInfo const
 }
 
 // GL_EXPORT void glPauseTransformFeedback (void);
-Napi::Value WebGL2RenderingContext::PauseTransformFeedback(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::PauseTransformFeedback(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glPauseTransformFeedback();
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glResumeTransformFeedback (void);
-Napi::Value WebGL2RenderingContext::ResumeTransformFeedback(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::ResumeTransformFeedback(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glResumeTransformFeedback();
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glTransformFeedbackVaryings (GLuint program, GLsizei count, const GLchar *const*
 // varyings, GLenum bufferMode);
-Napi::Value WebGL2RenderingContext::TransformFeedbackVaryings(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::TransformFeedbackVaryings(Napi::CallbackInfo const& info) {
   CallbackArgs args                 = info;
   std::vector<std::string> varyings = args[1];
   std::vector<const GLchar*> varying_ptrs(varyings.size());
@@ -124,7 +118,6 @@ Napi::Value WebGL2RenderingContext::TransformFeedbackVaryings(Napi::CallbackInfo
       return str.data();
     });
   GL_EXPORT::glTransformFeedbackVaryings(args[0], varyings.size(), varying_ptrs.data(), args[2]);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

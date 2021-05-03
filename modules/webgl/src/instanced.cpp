@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,25 +22,22 @@ namespace nv {
 
 // GL_EXPORT void glDrawArraysInstanced (GLenum mode, GLint first, GLsizei count, GLsizei
 // primcount);
-Napi::Value WebGL2RenderingContext::DrawArraysInstanced(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DrawArraysInstanced(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glDrawArraysInstanced(args[0], args[1], args[2], args[3]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDrawElementsInstanced (GLenum mode, GLsizei count, GLenum type, const void*
 // indices, GLsizei primcount);
-Napi::Value WebGL2RenderingContext::DrawElementsInstanced(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DrawElementsInstanced(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glDrawElementsInstanced(args[0], args[1], args[2], args[3], args[4]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttribDivisor (GLuint index, GLuint divisor);
-Napi::Value WebGL2RenderingContext::VertexAttribDivisor(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttribDivisor(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttribDivisor(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv
