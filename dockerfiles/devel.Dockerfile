@@ -18,13 +18,22 @@ elif [[ "$CUDA_VERSION_MAJOR" == 11 ]]; then echo "9"; \
 else echo "10"; \
 fi') \
  && apt update -y \
- && apt install --no-install-recommends -y software-properties-common \
+ && apt install --no-install-recommends -y wget software-properties-common \
  && add-apt-repository --no-update -y ppa:git-core/ppa \
  && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
+ # Install LLVM apt sources
+ && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
+ && touch /etc/apt/sources.list.d/llvm.list \
+ && echo "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main" >> /etc/apt/sources.list.d/llvm.list \
+ && echo "deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main" >> /etc/apt/sources.list.d/llvm.list \
+ && echo "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-12 main" >> /etc/apt/sources.list.d/llvm.list \
+ && echo "deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-12 main" >> /etc/apt/sources.list.d/llvm.list \
  && apt update -y \
  && apt install --no-install-recommends -y \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} \
-    jq git entr nano sudo wget ninja-build bash-completion \
+    jq git entr nano sudo ninja-build bash-completion \
+    # Install gdb, lldb (for llnode), and clangd for C++ intellisense and debugging in the container
+    gdb lldb clangd clang-format-12 \
     # ccache dependencies
     unzip automake autoconf libb2-dev libzstd-dev \
     # CMake dependencies
@@ -54,7 +63,12 @@ fi') \
     --slave /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} \
     --slave /usr/bin/gcov gcov /usr/bin/gcov-${GCC_VERSION} \
  # Set gcc-${GCC_VERSION} as the default gcc
- && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION}
+ && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} \
+ # Set alternative for llvm-config so it's in the path for llnode
+ && LLMV_VERSION=$(lldb --version | cut -d" " -f3 | cut -d"." -f1) \
+ && update-alternatives --remove-all llvm-config >/dev/null 2>&1 || true \
+ && update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-${LLMV_VERSION} 100 \
+ && update-alternatives --set llvm-config /usr/bin/llvm-config-${LLMV_VERSION}
 
 ARG PARALLEL_LEVEL=4
 ARG CMAKE_VERSION=3.20.2
