@@ -1,0 +1,83 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "shell",
+            "label": "Rebuild node_cuspatial TS and C++ (slow)",
+            "group": { "kind": "build", "isDefault": true, },
+            "command": "if [[ \"${input:CMAKE_BUILD_TYPE}\" == \"Release\" ]]; then yarn rebuild; else yarn rebuild:debug; fi",
+            "problemMatcher": [
+                "$tsc",
+                {
+                    "owner": "cuda",
+                    "fileLocation": ["relative", "${workspaceFolder}/build/${input:CMAKE_BUILD_TYPE}"],
+                    "pattern": {
+                        "file": 1,
+                        "line": 2,
+                        "severity": 3,
+                        "message": 4,
+                        "regexp": "^(.*)\\((\\d+)\\):\\s+(error|warning|note|info):\\s+(.*)$"
+                    }
+                },
+                {
+                    "owner": "cpp",
+                    "fileLocation": ["relative", "${workspaceFolder}/build/${input:CMAKE_BUILD_TYPE}"],
+                    "pattern": {
+                        "file": 1,
+                        "line": 2,
+                        "severity": 4,
+                        "message": 5,
+                        "regexp": "^(.*):(\\d+):(\\d+):\\s+(error|warning|note|info):\\s+(.*)$"
+                    }
+                },
+            ],
+        },
+        {
+            "type": "npm",
+            "group": "build",
+            "label": "Recompile node_cuspatial TS (fast)",
+            "script": "tsc:build",
+            "detail": "yarn tsc:build",
+            "problemMatcher": ["$tsc"],
+        },
+        {
+            "type": "shell",
+            "group": "build",
+            "label": "Recompile node_cuspatial C++ (fast)",
+            "command": "ninja -C ${workspaceFolder}/build/${input:CMAKE_BUILD_TYPE}",
+            "problemMatcher": [
+                {
+                    "owner": "cuda",
+                    "fileLocation": ["relative", "${workspaceFolder}/build/${input:CMAKE_BUILD_TYPE}"],
+                    "pattern": {
+                        "file": 1,
+                        "line": 2,
+                        "severity": 3,
+                        "message": 4,
+                        "regexp": "^(.*)\\((\\d+)\\):\\s+(error|warning|note|info):\\s+(.*)$"
+                    }
+                },
+                {
+                    "owner": "cpp",
+                    "fileLocation": ["relative", "${workspaceFolder}/build/${input:CMAKE_BUILD_TYPE}"],
+                    "pattern": {
+                        "file": 1,
+                        "line": 2,
+                        "severity": 4,
+                        "message": 5,
+                        "regexp": "^(.*):(\\d+):(\\d+):\\s+(error|warning|note|info):\\s+(.*)$"
+                    }
+                },
+            ],
+        },
+    ],
+    "inputs": [
+        {
+            "type": "pickString",
+            "default": "Release",
+            "id": "CMAKE_BUILD_TYPE",
+            "options": ["Release", "Debug"],
+            "description": "C++ Build Type",
+        }
+    ]
+}
