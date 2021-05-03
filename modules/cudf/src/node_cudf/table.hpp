@@ -217,6 +217,20 @@ class Table : public Napi::ObjectWrap<Table> {
             bool null_equality,
             rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
+  static std::unique_ptr<rmm::device_uvector<cudf::size_type>> left_semi_join(
+    Napi::Env const& env,
+    Table const& left,
+    Table const& right,
+    bool null_equality,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  static std::unique_ptr<rmm::device_uvector<cudf::size_type>> left_anti_join(
+    Napi::Env const& env,
+    Table const& left,
+    Table const& right,
+    bool null_equality,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
  private:
   static Napi::FunctionReference constructor;
 
@@ -238,6 +252,8 @@ class Table : public Napi::ObjectWrap<Table> {
   static Napi::Value full_join(Napi::CallbackInfo const& info);
   static Napi::Value inner_join(Napi::CallbackInfo const& info);
   static Napi::Value left_join(Napi::CallbackInfo const& info);
+  static Napi::Value left_semi_join(Napi::CallbackInfo const& info);
+  static Napi::Value left_anti_join(Napi::CallbackInfo const& info);
 
   static Napi::Value read_csv(Napi::CallbackInfo const& info);
   Napi::Value write_csv(Napi::CallbackInfo const& info);

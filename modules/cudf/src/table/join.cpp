@@ -102,6 +102,30 @@ Table::left_join(Napi::Env const& env,
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
 }
 
+std::unique_ptr<rmm::device_uvector<cudf::size_type>> Table::left_semi_join(
+  Napi::Env const& env,
+  Table const& left,
+  Table const& right,
+  bool null_equality,
+  rmm::mr::device_memory_resource* mr) {
+  auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
+  try {
+    return cudf::left_semi_join(left, right, compare_nulls, mr);
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+}
+
+std::unique_ptr<rmm::device_uvector<cudf::size_type>> Table::left_anti_join(
+  Napi::Env const& env,
+  Table const& left,
+  Table const& right,
+  bool null_equality,
+  rmm::mr::device_memory_resource* mr) {
+  auto compare_nulls = null_equality ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
+  try {
+    return cudf::left_anti_join(left, right, compare_nulls, mr);
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
+}
+
 Napi::Value Table::full_join(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
 
@@ -145,6 +169,46 @@ Napi::Value Table::left_join(Napi::CallbackInfo const& info) {
   auto gathers = Table::left_join(info.Env(), left, right, null_equality, mr);
 
   return detail::prepare_gathers(info.Env(), gathers);
+}
+
+Napi::Value Table::left_semi_join(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+
+  detail::check_join_args("left_semi_join", args);
+
+  auto& left                          = *Table::Unwrap(args[0]);
+  auto& right                         = *Table::Unwrap(args[1]);
+  bool null_equality                  = args[2];
+  rmm::mr::device_memory_resource* mr = args[3];
+
+  auto gather = Table::left_semi_join(info.Env(), left, right, null_equality, mr);
+
+  using namespace cudf;
+
+  auto result =
+    std::make_unique<column>(data_type(type_id::INT32), gather->size(), gather->release());
+
+  return Column::New(std::move(result))->Value();
+}
+
+Napi::Value Table::left_anti_join(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+
+  detail::check_join_args("left_anti_join", args);
+
+  auto& left                          = *Table::Unwrap(args[0]);
+  auto& right                         = *Table::Unwrap(args[1]);
+  bool null_equality                  = args[2];
+  rmm::mr::device_memory_resource* mr = args[3];
+
+  auto gather = Table::left_anti_join(info.Env(), left, right, null_equality, mr);
+
+  using namespace cudf;
+
+  auto result =
+    std::make_unique<column>(data_type(type_id::INT32), gather->size(), gather->release());
+
+  return Column::New(std::move(result))->Value();
 }
 
 }  // namespace nv

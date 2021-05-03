@@ -50,6 +50,8 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
                                       StaticMethod<&Table::full_join>("fullJoin"),
                                       StaticMethod<&Table::inner_join>("innerJoin"),
                                       StaticMethod<&Table::left_join>("leftJoin"),
+                                      StaticMethod<&Table::left_semi_join>("leftSemiJoin"),
+                                      StaticMethod<&Table::left_anti_join>("leftAntiJoin"),
                                     });
 
   Table::constructor = Napi::Persistent(ctor);

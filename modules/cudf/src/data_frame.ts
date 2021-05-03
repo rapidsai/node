@@ -35,7 +35,7 @@ export type OrderSpec = {
   null_order: NullOrder
 };
 
-export type JoinType = 'inner'|'outer'|'left'|'right'
+export type JoinType = 'inner'|'outer'|'left'|'right'|'leftsemi'|'leftanti'
 
 export type JoinProps<T extends TypeMap, R extends keyof T> = {
   other: DataFrame<T>,
@@ -283,11 +283,18 @@ export class DataFrame<T extends TypeMap = any> {
     const right = other.select(on as any).asTable();
 
     const joins = {
-      'inner': () => Table.innerJoin(left, right, nullEquality),
-      'outer': () => Table.fullJoin(left, right, nullEquality),
-      'left': ()  => Table.leftJoin(left, right, nullEquality),
-      'right': () => Table.leftJoin(right, left, nullEquality),
+      'inner': ()    => Table.innerJoin(left, right, nullEquality),
+      'outer': ()    => Table.fullJoin(left, right, nullEquality),
+      'left': ()     => Table.leftJoin(left, right, nullEquality),
+      'leftsemi': () => Table.leftSemiJoin(left, right, nullEquality),
+      'leftanti': () => Table.leftAntiJoin(left, right, nullEquality),
+      'right': ()    => Table.leftJoin(right, left, nullEquality),
     };
+
+    if (how == 'leftsemi' || how == 'leftanti') {
+      const gather = joins[how]();
+      return this.gather(Series.new(gather), true);
+    }
 
     let [left_gather, right_gather] = joins[how]();
     if (how == 'right') { [left_gather, right_gather] = [right_gather, left_gather]; }

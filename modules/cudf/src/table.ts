@@ -79,6 +79,28 @@ interface TableConstructor {
    */
   leftJoin(left: Table, right: Table, nullEquality: boolean, memoryResource?: MemoryResource):
     Column[];
+
+  /**
+   * Returns an index vectors corresponding to a left semijoin between the specified tables.
+   *
+   * @param left_keys The left table
+   * @param right_keys The right table
+   * @param nullEquality controls whether null join-key values should match or not
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  leftSemiJoin(left: Table, right: Table, nullEquality: boolean, memoryResource?: MemoryResource):
+    Column;
+
+  /**
+   * Returns an index vectors corresponding to a left antijoin between the specified tables.
+   *
+   * @param left_keys The left table
+   * @param right_keys The right table
+   * @param nullEquality controls whether null join-key values should match or not
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  leftAntiJoin(left: Table, right: Table, nullEquality: boolean, memoryResource?: MemoryResource):
+    Column;
 }
 
 /**

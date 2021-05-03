@@ -396,3 +396,29 @@ describe('DataFrame.join({how="right"}) ', () => {
     expect([...result.get('d')]).toEqual([10, 30, 20]);
   });
 });
+
+describe('DataFrame.join({how="leftsemi"}) ', () => {
+  test('can semijoin with no column name conflicts', () => {
+    const result = left.join({other: right, on: ['b'], how: 'leftanti'});
+    expect(result.numColumns).toEqual(2);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b']));
+
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
+
+    expect([...sorted_result.get('b')]).toEqual([2]);
+    expect([...sorted_result.get('a')]).toEqual([5]);
+  });
+});
+
+describe('DataFrame.join({how="leftanti"}) ', () => {
+  test('can antijoin with no column name conflicts', () => {
+    const result = left.join({other: right, on: ['b'], how: 'leftsemi'});
+    expect(result.numColumns).toEqual(2);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b']));
+
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
+
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1]);
+    expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4]);
+  });
+});
