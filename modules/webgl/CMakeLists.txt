@@ -95,3 +95,9 @@ target_link_libraries(${PROJECT_NAME}
                       ${GLEW_LIBRARY}
                       OpenGL::EGL
                       OpenGL::OpenGL)
+
+# Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
+execute_process(COMMAND
+    ${CMAKE_COMMAND} -E create_symlink
+    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json)
