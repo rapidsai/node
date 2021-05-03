@@ -55,7 +55,7 @@ services:
         <<: *common_build_args
         ADDITIONAL_GROUPS: "--groups sudo"
         PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
-        CMAKE_VERSION: "${CMAKE_VERSION:-3.18.5}"
+        CMAKE_VERSION: "${CMAKE_VERSION:-3.20.2}"
         CCACHE_VERSION: "${CCACHE_VERSION:-4.1}"
         BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.0}-devel-${LINUX_VERSION:-ubuntu18.04}
     volumes:
@@ -132,7 +132,7 @@ services:
       args:
         <<: *common_build_args
         PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
-        CMAKE_VERSION: "${CMAKE_VERSION:-3.18.5}"
+        CMAKE_VERSION: "${CMAKE_VERSION:-3.20.2}"
         CCACHE_VERSION: "${CCACHE_VERSION:-4.1}"
         ADDITIONAL_GROUPS: "--groups sudo,video"
         BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.4

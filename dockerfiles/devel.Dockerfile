@@ -57,7 +57,7 @@ fi') \
  && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION}
 
 ARG PARALLEL_LEVEL=4
-ARG CMAKE_VERSION=3.18.5
+ARG CMAKE_VERSION=3.20.2
 
 # Install CMake
 RUN cd /tmp \
