@@ -75,24 +75,6 @@ export declare namespace runtime {
     WRITE_DISCARD,
   }
 
-  /**
-   * CUDAArray channel format kind
-   * @ignore
-   */
-  export enum ChannelFormatKind
-  {
-    /** Signed channel format */
-    SIGNED,
-    /** Unsigned channel format */
-    UNSIGNED,
-    /** Float channel format */
-    FLOAT,
-    /** No channel format */
-    NONE,
-    /** Unsigned 8-bit integers, planar 4:2:0 YUV format */
-    NV12,
-  }
-
   export function cudaMemGetInfo(): {free: number, total: number};
   export function cudaMemset(
     target: MemoryData, value: number, count: number, stream?: number): void;
@@ -124,8 +106,6 @@ export declare enum ChannelFormatKind
   FLOAT,
   /** No channel format */
   NONE,
-  /** Unsigned 8-bit integers, planar 4:2:0 YUV format */
-  NV12,
 }
 
 /** @ignore */
@@ -151,7 +131,7 @@ export declare class CUDAArray {
   readonly channelFormatY: number;
   readonly channelFormatZ: number;
   readonly channelFormatW: number;
-  readonly channelFormatKind: number;
+  readonly channelFormatKind: ChannelFormatKind;
 }
 
 /**

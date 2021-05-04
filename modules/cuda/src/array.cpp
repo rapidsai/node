@@ -30,7 +30,6 @@ Napi::Function CUDAArray::Init(Napi::Env const& env, Napi::Object exports) {
   EXPORT_ENUM(env, ChannelFormatKind, "UNSIGNED", cudaChannelFormatKindUnsigned);
   EXPORT_ENUM(env, ChannelFormatKind, "FLOAT", cudaChannelFormatKindFloat);
   EXPORT_ENUM(env, ChannelFormatKind, "NONE", cudaChannelFormatKindNone);
-  EXPORT_ENUM(env, ChannelFormatKind, "NV12", cudaChannelFormatKindNV12);
   EXPORT_ENUM(env, ChannelFormatKind, "lmemResizeToMax", cudaDeviceLmemResizeToMax);
   exports.Set("ChannelFormatKind", ChannelFormatKind);
 
