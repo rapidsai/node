@@ -19,6 +19,7 @@ import {
   Float32,
   Float64,
   Int32,
+  Int64,
   NullOrder,
   Series,
   Uint8,
@@ -81,6 +82,17 @@ test('Series initialization with Array of mixed values', () => {
   expect([...s]).toEqual([0, 1, null, 2]);
 });
 
+test('Series initialization with type inference', () => {
+  const a = Series.new([0, 1, 2, null]);
+  const b = Series.new(['foo', 'bar', 'test', null]);
+  const c = Series.new([0n, 1n, 2n, null]);
+  const d = Series.new([true, false, true, null]);
+
+  expect(a.type).toBeInstanceOf(Float64);
+  expect(b.type).toBeInstanceOf(Utf8String);
+  expect(c.type).toBeInstanceOf(Int64);
+  expect(d.type).toBeInstanceOf(Bool8);
+});
 test('test child(child_index), num_children', () => {
   const utf8Col    = Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from('hello'))});
   const offsetsCol = Series.new({type: new Int32, data: new Int32Buffer([0, utf8Col.length])});
@@ -188,10 +200,9 @@ test('Series.scatter (scalar)', () => {
 });
 
 test('Series.filter', () => {
-  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+  const col = Series.new([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-  const mask = Series.new(
-    {length: 10, type: new Bool8, data: new Uint8Buffer([0, 0, 1, 0, 1, 1, 0, 0, 1, 0])});
+  const mask = Series.new([false, false, true, false, true, true, false, false, true, false]);
 
   const result = col.filter(mask);
 
@@ -338,4 +349,29 @@ describe.each([new Int32, new Float32, new Float64])('Series.sequence({type=%p,,
     const col = Series.sequence({type: typ, size: 10, step: 2, init: 0});
     expect([...col.toArrow()]).toEqual([0, 2, 4, 6, 8, 10, 12, 14, 16, 18]);
   });
+});
+
+test('Series.value_counts', () => {
+  const s      = Series.new({type: new Int32, data: [110, 120, 100, 110, 120, 120]});
+  const result = s.value_counts();
+  const count  = [...result.count.toArrow()];
+  const value  = [...result.value.toArrow()];
+
+  const countMap: Record<number, number> = {100: 1, 110: 2, 120: 3};
+
+  for (let i = 0; i < value.length; i++) {
+    const currentVal   = value[i] as number;
+    const currentCount = count[i];
+    expect(currentCount).toBe(countMap[currentVal]);
+  }
+});
+
+test.each`
+nulls_equal        | data                           | expected
+${true}         | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, 1, 2, 3, 4]}
+${false}       | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, null, 1, 2, 3, 4]}
+`('Series.unique($nulls_equal)', ({nulls_equal, data, expected}) => {
+  const s      = Series.new({type: new Int32, data});
+  const result = s.unique(nulls_equal);
+  expect([...result.toArrow()]).toEqual(expected);
 });
