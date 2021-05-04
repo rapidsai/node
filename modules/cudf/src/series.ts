@@ -339,23 +339,23 @@ export class AbstractSeries<T extends DataType = any> {
   getValue(index: number) { return this._col.getValue(index); }
 
   /**
-   * Return a new Series with value set at the specified index
+   * set value at the specified index
    *
    * @param index the index in this Series to set a value for
    * @param value the value to set at `index`
    */
-  setValue(index: number, value: T['scalarType']): Series<T> {
-    return this.scatter(value, [index]);
+  setValue(index: number, value: T['scalarType']): void {
+    this._col = this.scatter(value, [index])._col as Column<T>;
   }
 
   /**
-   * Set a value at the specified index, inplace
+   * set values at the specified indices
    *
-   * @param index the index in this Series to set a value for
-   * @param value the value to set at `index`
+   * @param indices the indices in this Series to set values for
+   * @param values the values to set at Series of indices
    */
-  setValueInPlace(index: number, value: T['scalarType']): void {
-    this._col = this.scatter(value, [index])._col as Column<T>;
+  setValues(indices: Series<Int32>|number[], values: Series<T>|T['scalarType']): void {
+    this._col = this.scatter(values, indices)._col as Column<T>;
   }
 
   /**
