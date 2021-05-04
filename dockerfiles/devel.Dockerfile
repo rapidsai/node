@@ -5,35 +5,25 @@ FROM node:$NODE_VERSION-stretch-slim as node
 
 FROM ${BASE_IMAGE}
 
-ENV DEBIAN_FRONTEND=noninteractive
+ARG GCC_VERSION=9
+ARG LLMV_VERSION=12
 
 # Install dev dependencies and tools
-RUN GCC_VERSION=$(bash -c '\
-CUDA_VERSION=$(nvcc --version | head -n4 | tail -n1 | cut -d" " -f5 | cut -d"," -f1); \
-CUDA_VERSION_MAJOR=$(echo $CUDA_VERSION | tr -d '.' | cut -c 1-2); \
-CUDA_VERSION_MINOR=$(echo $CUDA_VERSION | tr -d '.' | cut -c 3); \
-  if [[ "$CUDA_VERSION_MAJOR" == 9 ]]; then echo "7"; \
-elif [[ "$CUDA_VERSION_MAJOR" == 10 ]]; then echo "8"; \
-elif [[ "$CUDA_VERSION_MAJOR" == 11 ]]; then echo "9"; \
-else echo "10"; \
-fi') \
+RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update -y \
  && apt install --no-install-recommends -y wget software-properties-common \
  && add-apt-repository --no-update -y ppa:git-core/ppa \
  && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
  # Install LLVM apt sources
  && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
- && touch /etc/apt/sources.list.d/llvm.list \
- && echo "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main" >> /etc/apt/sources.list.d/llvm.list \
- && echo "deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main" >> /etc/apt/sources.list.d/llvm.list \
- && echo "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-12 main" >> /etc/apt/sources.list.d/llvm.list \
- && echo "deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-12 main" >> /etc/apt/sources.list.d/llvm.list \
+ && echo "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLMV_VERSION} main" >> /etc/apt/sources.list.d/llvm.list \
+ && echo "deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLMV_VERSION} main" >> /etc/apt/sources.list.d/llvm.list \
  && apt update -y \
  && apt install --no-install-recommends -y \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} \
     jq git entr nano sudo ninja-build bash-completion \
     # Install gdb, lldb (for llnode), and clangd for C++ intellisense and debugging in the container
-    gdb lldb clangd clang-format-12 \
+    gdb lldb-${LLMV_VERSION} clangd-${LLMV_VERSION} clang-format-${LLMV_VERSION} \
     # ccache dependencies
     unzip automake autoconf libb2-dev libzstd-dev \
     # CMake dependencies
@@ -64,11 +54,17 @@ fi') \
     --slave /usr/bin/gcov gcov /usr/bin/gcov-${GCC_VERSION} \
  # Set gcc-${GCC_VERSION} as the default gcc
  && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} \
- # Set alternative for llvm-config so it's in the path for llnode
- && LLMV_VERSION=$(lldb --version | cut -d" " -f3 | cut -d"." -f1) \
+ # Set alternative for lldb and llvm-config so it's in the path for llnode
+ && update-alternatives --remove-all lldb >/dev/null 2>&1 || true \
+ && update-alternatives --remove-all clangd >/dev/null 2>&1 || true \
  && update-alternatives --remove-all llvm-config >/dev/null 2>&1 || true \
- && update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-${LLMV_VERSION} 100 \
- && update-alternatives --set llvm-config /usr/bin/llvm-config-${LLMV_VERSION}
+ && update-alternatives --remove-all clang-format >/dev/null 2>&1 || true \
+ && update-alternatives \
+    --install /usr/bin/lldb lldb /usr/bin/lldb-${LLMV_VERSION} 100 \
+    --slave /usr/bin/clangd clangd /usr/bin/clangd-${LLMV_VERSION} \
+    --slave /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-${LLMV_VERSION} \
+    --slave /usr/bin/clang-format clang-format /usr/bin/clang-format-${LLMV_VERSION} \
+ && update-alternatives --set lldb /usr/bin/lldb-${LLMV_VERSION}
 
 ARG PARALLEL_LEVEL=4
 ARG CMAKE_VERSION=3.20.2
