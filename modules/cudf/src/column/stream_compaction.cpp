@@ -78,10 +78,13 @@ ObjectUnwrap<Column> Column::drop_duplicates(bool is_nulls_equal,
     is_nulls_equal ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
 
   try {
-    return Column::New(std::move(
-      cudf::drop_duplicates(
-        cudf::table_view{{*this}}, {0}, cudf::duplicate_keep_option::KEEP_FIRST, nulls_equal, mr)
-        ->release()[0]));
+    return Column::New(std::move(cudf::drop_duplicates(cudf::table_view{{*this}},
+                                                       {0},
+                                                       cudf::duplicate_keep_option::KEEP_FIRST,
+                                                       nulls_equal,
+                                                       cudf::null_order::BEFORE,
+                                                       mr)
+                                   ->release()[0]));
   } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
