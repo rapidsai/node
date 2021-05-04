@@ -88,22 +88,22 @@ export type CommonType<T extends DataType, R extends Numeric> =
 /** @ignore */
 export type ArrowToCUDFType<T extends arrow.DataType> =
 //  T extends arrow.Null ? never :   // TODO
- T extends arrow.Int8 ? Int8 : 
- T extends arrow.Int16 ? Int16 : 
- T extends arrow.Int32 ? Int32 : 
- T extends arrow.Int64 ? Int64 : 
- T extends arrow.Uint8 ? Uint8 : 
- T extends arrow.Uint16 ? Uint16 : 
- T extends arrow.Uint32 ? Uint32 : 
- T extends arrow.Uint64 ? Uint64 : 
-//  T extends arrow.Int ? never : 
-//  T extends arrow.Float16 ? never : 
- T extends arrow.Float32 ? Float32 : 
- T extends arrow.Float64 ? Float64 : 
-//  T extends arrow.Float ? never : 
-//  T extends arrow.Binary ? never : 
- T extends arrow.Utf8 ? Utf8String : 
- T extends arrow.Bool ? Bool8 : 
+ T extends arrow.Int8 ? Int8 :
+ T extends arrow.Int16 ? Int16 :
+ T extends arrow.Int32 ? Int32 :
+ T extends arrow.Int64 ? Int64 :
+ T extends arrow.Uint8 ? Uint8 :
+ T extends arrow.Uint16 ? Uint16 :
+ T extends arrow.Uint32 ? Uint32 :
+ T extends arrow.Uint64 ? Uint64 :
+//  T extends arrow.Int ? never :
+//  T extends arrow.Float16 ? never :
+ T extends arrow.Float32 ? Float32 :
+ T extends arrow.Float64 ? Float64 :
+//  T extends arrow.Float ? never :
+//  T extends arrow.Binary ? never :
+ T extends arrow.Utf8 ? Utf8String :
+ T extends arrow.Bool ? Bool8 :
 //  T extends arrow.Decimal ? never :                // TODO
 //  T extends arrow.DateDay ? never :                // TODO
 //  T extends arrow.DateMillisecond ? never :        // TODO

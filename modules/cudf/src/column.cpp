@@ -178,6 +178,7 @@ Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
                   // column/stream_compaction.cpp
                   InstanceMethod<&Column::drop_nulls>("drop_nulls"),
                   InstanceMethod<&Column::drop_nans>("drop_nans"),
+                  InstanceMethod<&Column::drop_duplicates>("drop_duplicates"),
                   // column/filling.cpp
                   StaticMethod<&Column::sequence>("sequence"),
                   // column/transform.cpp
