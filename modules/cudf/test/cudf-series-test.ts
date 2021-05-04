@@ -120,16 +120,29 @@ test('Series.getValue', () => {
 
 test('Series.setValue', () => {
   const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
-  const result = col.setValue(2, 999).setValue(4, 999).setValue(5, 999).setValue(8, 999);
-  expect([...result]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
+  col.setValue(2, 999);
+  col.setValue(4, 999);
+  col.setValue(5, 999);
+  col.setValue(8, 999);
+  expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
 });
 
-test('Series.setValueInPlace', () => {
-  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
-  col.setValueInPlace(2, 999);
-  col.setValueInPlace(4, 999);
-  col.setValueInPlace(5, 999);
-  col.setValueInPlace(8, 999);
+test('Series.setValues (series)', () => {
+  const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const values  = Series.new({type: new Int32, data: [200, 400, 500, 800]});
+  const indices = Series.new({type: new Int32, data: [2, 4, 5, 8]});
+
+  col.setValues(indices, values);
+
+  expect([...col]).toEqual([0, 1, 200, 3, 400, 500, 6, 7, 800, 9]);
+});
+
+test('Series.setValues (scalar)', () => {
+  const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
+  const indices = Series.new({type: new Int32, data: [2, 4, 5, 8]});
+
+  col.setValues(indices, 999);
+
   expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
 });
 
