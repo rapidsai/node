@@ -70,7 +70,8 @@ Column::wrapper_t Column::drop_duplicates(bool is_nulls_equal,
     is_nulls_equal ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
 
   try {
-    return Column::New(std::move(cudf::drop_duplicates(cudf::table_view{{*this}},
+    return Column::New(Env(),
+                       std::move(cudf::drop_duplicates(cudf::table_view{{*this}},
                                                        {0},
                                                        cudf::duplicate_keep_option::KEEP_FIRST,
                                                        nulls_equal,
