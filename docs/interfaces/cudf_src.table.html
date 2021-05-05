@@ -117,7 +117,7 @@
 					<div class="tsd-signature tsd-kind-icon">num<wbr>Columns<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/table.ts#L56">modules/cudf/src/table.ts:56</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/table.ts#L113">modules/cudf/src/table.ts:113</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -132,7 +132,7 @@
 					<div class="tsd-signature tsd-kind-icon">num<wbr>Rows<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/table.ts#L61">modules/cudf/src/table.ts:61</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/table.ts#L118">modules/cudf/src/table.ts:118</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -154,7 +154,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/table.ts#L128">modules/cudf/src/table.ts:128</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/table.ts#L185">modules/cudf/src/table.ts:185</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -180,7 +180,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/table.ts#L129">modules/cudf/src/table.ts:129</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/table.ts#L186">modules/cudf/src/table.ts:186</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -200,13 +200,13 @@
 					<a name="gather" class="tsd-anchor"></a>
 					<h3>gather</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
-						<li class="tsd-signature tsd-kind-icon">gather<span class="tsd-signature-symbol">(</span>selection<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/cudf_src.html#indextype" class="tsd-signature-type" data-tsd-kind="Type alias">IndexType</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cudf_src.bool8.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></li>
+						<li class="tsd-signature tsd-kind-icon">gather<span class="tsd-signature-symbol">(</span>selection<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/cudf_src.html#indextype" class="tsd-signature-type" data-tsd-kind="Type alias">IndexType</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cudf_src.bool8.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8</a><span class="tsd-signature-symbol">&gt;</span>, nullify_out_of_bounds<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/table.ts#L68">modules/cudf/src/table.ts:68</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/table.ts#L125">modules/cudf/src/table.ts:125</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -220,6 +220,9 @@
 									<h5>selection: <a href="../modules/cudf_src.html#column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/cudf_src.html#indextype" class="tsd-signature-type" data-tsd-kind="Type alias">IndexType</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cudf_src.bool8.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8</a><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> nullify_out_of_bounds: <span class="tsd-signature-type">boolean</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h4>
@@ -236,7 +239,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/table.ts#L107">modules/cudf/src/table.ts:107</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/table.ts#L164">modules/cudf/src/table.ts:164</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -278,7 +281,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/table.ts#L119">modules/cudf/src/table.ts:119</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/table.ts#L176">modules/cudf/src/table.ts:176</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -318,7 +321,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/table.ts#L80">modules/cudf/src/table.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/table.ts#L137">modules/cudf/src/table.ts:137</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -375,7 +378,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/table.ts#L95">modules/cudf/src/table.ts:95</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/table.ts#L152">modules/cudf/src/table.ts:152</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -423,7 +426,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/table.ts#L120">modules/cudf/src/table.ts:120</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/table.ts#L177">modules/cudf/src/table.ts:177</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -446,7 +449,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/table.ts#L126">modules/cudf/src/table.ts:126</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/table.ts#L183">modules/cudf/src/table.ts:183</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

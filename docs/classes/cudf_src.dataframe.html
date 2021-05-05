@@ -121,6 +121,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.dataframe.html#get" class="tsd-kind-icon">get</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.dataframe.html#groupby" class="tsd-kind-icon">group<wbr>By</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.dataframe.html#has" class="tsd-kind-icon">has</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.dataframe.html#join" class="tsd-kind-icon">join</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.dataframe.html#nanstonulls" class="tsd-kind-icon">nans<wbr>ToNulls</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.dataframe.html#orderby" class="tsd-kind-icon">order<wbr>By</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="cudf_src.dataframe.html#select" class="tsd-kind-icon">select</a></li>
@@ -145,7 +146,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L77">modules/cudf/src/data_frame.ts:77</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L109">modules/cudf/src/data_frame.ts:109</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -188,13 +189,13 @@
 					<a name="names" class="tsd-anchor"></a>
 					<h3>names</h3>
 					<ul class="tsd-signatures tsd-kind-get-signature tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> names<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">readonly </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">get</span> names<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L147">modules/cudf/src/data_frame.ts:147</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L179">modules/cudf/src/data_frame.ts:179</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -215,7 +216,7 @@
 									</dd>
 								</dl>
 							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">readonly </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -229,7 +230,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L130">modules/cudf/src/data_frame.ts:130</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L162">modules/cudf/src/data_frame.ts:162</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -264,7 +265,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L113">modules/cudf/src/data_frame.ts:113</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L145">modules/cudf/src/data_frame.ts:145</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -303,7 +304,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L188">modules/cudf/src/data_frame.ts:188</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L220">modules/cudf/src/data_frame.ts:220</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -342,7 +343,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L205">modules/cudf/src/data_frame.ts:205</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L237">modules/cudf/src/data_frame.ts:237</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -390,7 +391,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L287">modules/cudf/src/data_frame.ts:287</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L319">modules/cudf/src/data_frame.ts:319</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -447,7 +448,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L320">modules/cudf/src/data_frame.ts:320</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L352">modules/cudf/src/data_frame.ts:352</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -504,7 +505,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L228">modules/cudf/src/data_frame.ts:228</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L260">modules/cudf/src/data_frame.ts:260</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -547,13 +548,13 @@
 					<a name="dropnans" class="tsd-anchor"></a>
 					<h3>drop<wbr>NaNs</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">drop<wbr>NaNs&lt;R&gt;<span class="tsd-signature-symbol">(</span>axis<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, thresh<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, subset<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#series-1" class="tsd-signature-type" data-tsd-kind="Variable">Series</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.dataframe.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">drop<wbr>NaNs&lt;R&gt;<span class="tsd-signature-symbol">(</span>axis<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, thresh<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, subset<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#series-1" class="tsd-signature-type" data-tsd-kind="Variable">Series</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.dataframe.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L775">modules/cudf/src/data_frame.ts:775</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L846">modules/cudf/src/data_frame.ts:846</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -613,12 +614,12 @@
 										<p>thresh=1 (default) drops rows (or columns) containing all NaN values (non-NaN &lt; thresh(1)).</p>
 										<p>if axis = 0, thresh=df.numColumns: drops only rows containing at-least one NaN value (non-NaN
 										values in a row &lt; thresh(df.numColumns)).</p>
-										<p>if axis = 1, thresh=df.numRows: drops only columns containing at-least one NaN values (non-NaN
-										values in a column &lt; thresh(df.numRows)).</p>
+										<p>if axis = 1, thresh=df.numRows: drops only columns containing at-least one NaN values
+										(non-NaN values in a column &lt; thresh(df.numRows)).</p>
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> subset: <span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#series-1" class="tsd-signature-type" data-tsd-kind="Variable">Series</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> subset: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#series-1" class="tsd-signature-type" data-tsd-kind="Variable">Series</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>List of float columns to consider when dropping rows (all float columns are
 											considered by default).
@@ -636,13 +637,13 @@
 					<a name="dropnulls" class="tsd-anchor"></a>
 					<h3>drop<wbr>Nulls</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">drop<wbr>Nulls&lt;R&gt;<span class="tsd-signature-symbol">(</span>axis<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, thresh<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, subset<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#series-1" class="tsd-signature-type" data-tsd-kind="Variable">Series</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.dataframe.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">drop<wbr>Nulls&lt;R&gt;<span class="tsd-signature-symbol">(</span>axis<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, thresh<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, subset<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#series-1" class="tsd-signature-type" data-tsd-kind="Variable">Series</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.dataframe.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L706">modules/cudf/src/data_frame.ts:706</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L777">modules/cudf/src/data_frame.ts:777</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -700,14 +701,14 @@
 									<div class="tsd-comment tsd-typography">
 										<p>drops every row (or column) containing less than thresh non-null values.</p>
 										<p>thresh=1 (default) drops rows (or columns) containing all null values (non-null &lt; thresh(1)).</p>
-										<p>if axis = 0, thresh=df.numColumns: drops only rows containing at-least one null value (non-null
-										values in a row &lt; thresh(df.numColumns)).</p>
+										<p>if axis = 0, thresh=df.numColumns: drops only rows containing at-least one null value
+										(non-null values in a row &lt; thresh(df.numColumns)).</p>
 										<p>if axis = 1, thresh=df.numRows: drops only columns containing at-least one null values
 										(non-null values in a column &lt; thresh(df.numRows)).</p>
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> subset: <span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#series-1" class="tsd-signature-type" data-tsd-kind="Variable">Series</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> subset: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#series-1" class="tsd-signature-type" data-tsd-kind="Variable">Series</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>List of columns to consider when dropping rows (all columns are considered by
 											default).
@@ -731,7 +732,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L507">modules/cudf/src/data_frame.ts:507</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L539">modules/cudf/src/data_frame.ts:539</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -769,13 +770,13 @@
 					<a name="gather" class="tsd-anchor"></a>
 					<h3>gather</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">gather&lt;R&gt;<span class="tsd-signature-symbol">(</span>selection<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#series-1" class="tsd-signature-type" data-tsd-kind="Variable">Series</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.dataframe.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">gather&lt;R&gt;<span class="tsd-signature-symbol">(</span>selection<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#series-1" class="tsd-signature-type" data-tsd-kind="Variable">Series</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">&gt;</span>, nullify_out_of_bounds<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.dataframe.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L422">modules/cudf/src/data_frame.ts:422</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L454">modules/cudf/src/data_frame.ts:454</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -810,6 +811,9 @@
 									<div class="tsd-comment tsd-typography">
 									</div>
 								</li>
+								<li>
+									<h5>nullify_out_of_bounds: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></h5>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="cudf_src.dataframe.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
@@ -825,7 +829,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L266">modules/cudf/src/data_frame.ts:266</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L298">modules/cudf/src/data_frame.ts:298</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -876,7 +880,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L449">modules/cudf/src/data_frame.ts:449</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L481">modules/cudf/src/data_frame.ts:481</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -918,7 +922,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L473">modules/cudf/src/data_frame.ts:473</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L505">modules/cudf/src/data_frame.ts:505</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -976,7 +980,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L247">modules/cudf/src/data_frame.ts:247</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L279">modules/cudf/src/data_frame.ts:279</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1010,6 +1014,86 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="join" class="tsd-anchor"></a>
+					<h3>join</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">join&lt;R, TOn, LSuffix, RSuffix&gt;<span class="tsd-signature-symbol">(</span>props<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">JoinProps</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">TOn</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;inner&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;outer&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;left&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;right&quot;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">LSuffix</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">RSuffix</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.dataframe.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{</span><span class="tsd-signature-symbol">[ </span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol"> in </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">JoinResult</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">TOn</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">LSuffix</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">RSuffix</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">join&lt;R, TOn&gt;<span class="tsd-signature-symbol">(</span>props<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">JoinProps</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">TOn</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;leftsemi&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;leftanti&quot;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;&quot;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.dataframe.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L555">modules/cudf/src/data_frame.ts:555</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Join columns with other DataFrame.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>R<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#typemap" class="tsd-signature-type" data-tsd-kind="Type alias">TypeMap</a></h4>
+								</li>
+								<li>
+									<h4>TOn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h4>
+								</li>
+								<li>
+									<h4>LSuffix<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span> = <span class="tsd-signature-type">&quot;&quot;</span></h4>
+								</li>
+								<li>
+									<h4>RSuffix<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span> = <span class="tsd-signature-type">&quot;&quot;</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>props: <span class="tsd-signature-type">JoinProps</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">TOn</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;inner&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;outer&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;left&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;right&quot;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">LSuffix</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">RSuffix</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the configuration for the join</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.dataframe.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{</span><span class="tsd-signature-symbol">[ </span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol"> in </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">JoinResult</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">TOn</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">LSuffix</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">RSuffix</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>the joined DataFrame</p>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L570">modules/cudf/src/data_frame.ts:570</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Join columns with other DataFrame.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>R<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#typemap" class="tsd-signature-type" data-tsd-kind="Type alias">TypeMap</a></h4>
+								</li>
+								<li>
+									<h4>TOn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>props: <span class="tsd-signature-type">JoinProps</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">TOn</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;leftsemi&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;leftanti&quot;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;&quot;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;&quot;</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the configuration for the join</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.dataframe.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>the joined DataFrame</p>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="nanstonulls" class="tsd-anchor"></a>
 					<h3>nans<wbr>ToNulls</h3>
@@ -1020,7 +1104,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L814">modules/cudf/src/data_frame.ts:814</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L885">modules/cudf/src/data_frame.ts:885</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1066,7 +1150,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L351">modules/cudf/src/data_frame.ts:351</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L383">modules/cudf/src/data_frame.ts:383</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1123,7 +1207,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L169">modules/cudf/src/data_frame.ts:169</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L201">modules/cudf/src/data_frame.ts:201</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1170,7 +1254,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L400">modules/cudf/src/data_frame.ts:400</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L432">modules/cudf/src/data_frame.ts:432</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1227,7 +1311,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L553">modules/cudf/src/data_frame.ts:553</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L626">modules/cudf/src/data_frame.ts:626</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1266,7 +1350,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L523">modules/cudf/src/data_frame.ts:523</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L596">modules/cudf/src/data_frame.ts:596</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1298,7 +1382,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/985681f/modules/cudf/src/data_frame.ts#L70">modules/cudf/src/data_frame.ts:70</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cudf/src/data_frame.ts#L102">modules/cudf/src/data_frame.ts:102</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1424,6 +1508,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="cudf_src.dataframe.html#has" class="tsd-kind-icon">has</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="cudf_src.dataframe.html#join" class="tsd-kind-icon">join</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="cudf_src.dataframe.html#nanstonulls" class="tsd-kind-icon">nans<wbr>ToNulls</a>
