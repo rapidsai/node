@@ -55,7 +55,7 @@ interface TableConstructor {
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
   fullJoin(left: Table, right: Table, nullEquality: boolean, memoryResource?: MemoryResource):
-    Column[];
+    [Column<Int32>, Column<Int32>];
 
   /**
    * Returns a pair of row index vectors corresponding to an inner join between the specified
@@ -67,7 +67,7 @@ interface TableConstructor {
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
   innerJoin(left: Table, right: Table, nullEquality: boolean, memoryResource?: MemoryResource):
-    Column[];
+    [Column<Int32>, Column<Int32>];
 
   /**
    * Returns a pair of row index vectors corresponding to a left join between the specified tables.
@@ -78,7 +78,7 @@ interface TableConstructor {
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
   leftJoin(left: Table, right: Table, nullEquality: boolean, memoryResource?: MemoryResource):
-    Column[];
+    [Column<Int32>, Column<Int32>];
 
   /**
    * Returns an index vectors corresponding to a left semijoin between the specified tables.
@@ -89,7 +89,7 @@ interface TableConstructor {
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
   leftSemiJoin(left: Table, right: Table, nullEquality: boolean, memoryResource?: MemoryResource):
-    Column;
+    Column<Int32>;
 
   /**
    * Returns an index vectors corresponding to a left antijoin between the specified tables.
@@ -100,7 +100,7 @@ interface TableConstructor {
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
   leftAntiJoin(left: Table, right: Table, nullEquality: boolean, memoryResource?: MemoryResource):
-    Column;
+    Column<Int32>;
 }
 
 /**
@@ -122,7 +122,7 @@ export interface Table {
    *
    * @param selection
    */
-  gather(selection: Column<IndexType|Bool8>, nullify_out_of_bounds: boolean): Table;
+  gather(selection: Column<IndexType|Bool8>, nullify_out_of_bounds?: boolean): Table;
 
   /**
    * Scatters row of values into this Table according to provided indices.

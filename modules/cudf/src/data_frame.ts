@@ -18,6 +18,7 @@ import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor';
+import {Join, JoinKey} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {AbstractSeries, Float32Series, Float64Series, Series} from './series';
 import {Table, ToArrowMetadata} from './table';
@@ -35,16 +36,36 @@ export type OrderSpec = {
   null_order: NullOrder
 };
 
-export type JoinType = 'inner'|'outer'|'left'|'right'|'leftsemi'|'leftanti'
+type JoinType = 'inner'|'outer'|'left'|'right'|'leftsemi'|'leftanti';
 
-export type JoinProps<T extends TypeMap, R extends keyof T> = {
-  other: DataFrame<T>,
-  on: R[],
-  how: JoinType,
-  lsuffix?: string,
-  rsuffix?: string,
+type JoinProps<
+  Rhs extends TypeMap,
+  TOn extends string[],
+  How extends JoinType = 'inner',
+  LSuffix extends string = '',
+  RSuffix extends string = '',
+> = {
+  other: DataFrame<Rhs>,
+  on: TOn,
+  how: How,
+  lsuffix?: LSuffix,
+  rsuffix?: RSuffix,
   nullEquality?: boolean,
-}
+};
+
+// clang-format off
+type JoinResult<
+  Lhs extends TypeMap,
+  Rhs extends TypeMap,
+  TOn extends(string & keyof Lhs & keyof Rhs)[],
+  LSuffix extends string,
+  RSuffix extends string
+> = {
+  [P in (string&keyof Lhs) as JoinKey<P, Rhs, LSuffix, TOn>]: Lhs[P]
+} & {
+  [P in (string&keyof Rhs) as JoinKey<P, Lhs, RSuffix, TOn>]: Rhs[P]
+};
+// clang-format on
 
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
   GroupBySingleProps<T, R>|Partial<GroupByMultipleProps<T, R, IndexKey>>;
@@ -277,82 +298,39 @@ export class DataFrame<T extends TypeMap = any> {
    * @param props the configuration for the join
    * @returns the joined DataFrame
    */
-  join<U extends TypeMap, R extends keyof U>(props: JoinProps<U, R>): DataFrame<any> {
-    const {how, other, on, nullEquality = true, lsuffix = '', rsuffix = ''} = props;
-    const left  = this.select(on as any).asTable();
-    const right = other.select(on as any).asTable();
+  // clang-format off
+  join<R extends TypeMap, TOn extends (string & keyof T & keyof R)[], LSuffix extends string = '', RSuffix extends string = ''>(
+    props: JoinProps<R, TOn, 'inner'|'outer'|'left'|'right', LSuffix, RSuffix>
+  ): DataFrame<{
+    [P in keyof JoinResult<T, R, TOn, LSuffix, RSuffix>]:
+                JoinResult<T, R, TOn, LSuffix, RSuffix>[P]
+  }>;
+  // clang-format on
 
-    const joins = {
-      'inner': ()    => Table.innerJoin(left, right, nullEquality),
-      'outer': ()    => Table.fullJoin(left, right, nullEquality),
-      'left': ()     => Table.leftJoin(left, right, nullEquality),
-      'leftsemi': () => Table.leftSemiJoin(left, right, nullEquality),
-      'leftanti': () => Table.leftAntiJoin(left, right, nullEquality),
-      'right': ()    => Table.leftJoin(right, left, nullEquality),
-    };
+  /**
+   * Join columns with other DataFrame.
+   *
+   * @param props the configuration for the join
+   * @returns the joined DataFrame
+   */
+  // clang-format off
+  join<R extends TypeMap, TOn extends (string & keyof T & keyof R)[]>(
+    props: JoinProps<R, TOn, 'leftsemi'|'leftanti'>
+  ): DataFrame<T>;
+  // clang-format on
 
-    if (how == 'leftsemi' || how == 'leftanti') {
-      const gather = joins[how]();
-      return this.gather(Series.new(gather), true);
+  // clang-format off
+  join(props: any): any {
+    // clang-format on
+    const {how = 'inner', other, ...opts} = props;
+    switch (how) {
+      case 'left': return new Join({...opts, lhs: this, rhs: other}).left();
+      case 'right': return new Join({...opts, lhs: this, rhs: other}).right();
+      case 'inner': return new Join({...opts, lhs: this, rhs: other}).inner();
+      case 'outer': return new Join({...opts, lhs: this, rhs: other}).outer();
+      case 'leftsemi': return new Join({...opts, lhs: this, rhs: other}).leftSemi();
+      case 'leftanti': return new Join({...opts, lhs: this, rhs: other}).leftAnti();
     }
-
-    let [left_gather, right_gather] = joins[how]();
-    if (how == 'right') { [left_gather, right_gather] = [right_gather, left_gather]; }
-
-    let left_result  = this.gather(Series.new(left_gather), true);
-    let right_result = other.gather(Series.new(right_gather), true);
-
-    // for an outer join, we need to to merge the values from both left and right "on" columns
-    if (how == 'outer') {
-      for (const name of on) {
-        const rcol   = right_result.get(name);
-        const lcol   = left_result.get(name as any);
-        const merged = lcol.replaceNulls(rcol as any);
-        left_result  = left_result.assign({[name]: merged});
-      }
-    }
-
-    if (how == 'right' && on.length > 1) {
-      left_result = left_result.drop(on as any) as any;
-    } else {
-      right_result = right_result.drop(on) as any;
-    }
-
-    // if there are no suffixes provided, and there are column conflicts, then we
-    // want to drop columns on the right results (so, assign over from left result)
-    if (lsuffix == '' && rsuffix == '') { return right_result.assign(left_result); }
-
-    const lnames = left_result.names;
-    const rnames = right_result.names;
-
-    // otherwise for any column name conflicts, apply the suffix before combining
-    if (how == 'right') {
-      for (const name of rnames) {
-        if (lnames.includes(name as any)) {
-          const rcol   = right_result.get(name as any);
-          right_result = right_result.drop([name as any]) as any;
-          right_result = right_result.assign({[name + rsuffix]: rcol});
-
-          const lcol  = left_result.get(name as any);
-          left_result = left_result.drop([name] as any) as any;
-          left_result = left_result.assign({[name + lsuffix]: lcol});
-        }
-      }
-    } else {
-      for (const name of lnames) {
-        if (rnames.includes(name as any)) {
-          const rcol   = right_result.get(name as any);
-          right_result = right_result.drop([name as any]) as any;
-          right_result = right_result.assign({[name + rsuffix]: rcol});
-
-          const lcol  = left_result.get(name as any);
-          left_result = left_result.drop([name] as any) as any;
-          left_result = left_result.assign({[name + lsuffix]: lcol});
-        }
-      }
-    }
-
-    return left_result.assign(right_result);
   }
 
   /**
@@ -394,10 +372,9 @@ export class DataFrame<T extends TypeMap = any> {
    * drop null rows
    * @ignore
    */
-  _dropNullsRows(thresh = 1, subset?: (keyof T)[]) {
+  _dropNullsRows(thresh = 1, subset = this.names) {
     const column_names: (keyof T)[] = [];
     const column_indices: number[]  = [];
-    subset                          = (subset == undefined) ? this.names as (keyof T)[] : subset;
     subset.forEach((col, idx) => {
       if (this.names.includes(col)) {
         column_names.push(col);
@@ -417,10 +394,9 @@ export class DataFrame<T extends TypeMap = any> {
    * drop rows with NaN values (float type only)
    * @ignore
    */
-  _dropNaNsRows(thresh = 1, subset?: (keyof T)[]) {
+  _dropNaNsRows(thresh = 1, subset = this.names) {
     const column_names: (keyof T)[] = [];
     const column_indices: number[]  = [];
-    subset                          = (subset == undefined) ? this.names as (keyof T)[] : subset;
     subset.forEach((col, idx) => {
       if (this.names.includes(col) &&
           (this.get(col) instanceof Float32Series || this.get(col) instanceof Float64Series)) {
@@ -512,7 +488,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  dropNulls<R extends IndexType>(axis = 0, thresh = 1, subset?: (keyof T)[]|Series<R>):
+  dropNulls<R extends IndexType>(axis = 0, thresh = 1, subset?: (string&keyof T)[]|Series<R>):
     DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {
@@ -563,7 +539,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  dropNaNs<R extends IndexType>(axis = 0, thresh = 1, subset?: (keyof T)[]|Series<R>):
+  dropNaNs<R extends IndexType>(axis = 0, thresh = 1, subset?: (string&keyof T)[]|Series<R>):
     DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {
