@@ -329,7 +329,7 @@ describe('DataFrame.join({how="right"}) ', () => {
     // Sorting is just to get 1-1 agreement with order of pd/cudf results
     const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
 
-    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, null]);
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
     expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4, null]);
     expect([...sorted_result.get('c')]).toEqual([0, 0, 10, 10, 30]);
   });
@@ -342,8 +342,8 @@ describe('DataFrame.join({how="right"}) ', () => {
     // Sorting is just to get 1-1 agreement with order of pd/cudf results
     const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
 
-    expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4, null]);
-    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, null]);
+    expect([...sorted_result.get('a')]).toEqual([0, 0, 10, 10, 30]);
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
   });
 
   test('applies lsuffix', () => {
@@ -354,7 +354,7 @@ describe('DataFrame.join({how="right"}) ', () => {
     // Sorting is just to get 1-1 agreement with order of pd/cudf results
     const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
 
-    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, null]);
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
     expect([...sorted_result.get('a_L')]).toEqual([1, 2, 3, 4, null]);
     expect([...sorted_result.get('a')]).toEqual([0, 0, 10, 10, 30]);
   });
@@ -367,7 +367,7 @@ describe('DataFrame.join({how="right"}) ', () => {
     // Sorting is just to get 1-1 agreement with order of pd/cudf results
     const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
 
-    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, null]);
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
     expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4, null]);
     expect([...sorted_result.get('a_R')]).toEqual([0, 0, 10, 10, 30]);
   });
@@ -381,7 +381,7 @@ describe('DataFrame.join({how="right"}) ', () => {
     // Sorting is just to get 1-1 agreement with order of pd/cudf results
     const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
 
-    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, null]);
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
     expect([...sorted_result.get('a_L')]).toEqual([1, 2, 3, 4, null]);
     expect([...sorted_result.get('a_R')]).toEqual([0, 0, 10, 10, 30]);
   });
