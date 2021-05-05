@@ -47,6 +47,11 @@ Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
                                       InstanceMethod<&Table::write_csv>("writeCSV"),
                                       InstanceMethod<&Table::drop_nans>("drop_nans"),
                                       InstanceMethod<&Table::drop_nulls>("drop_nulls"),
+                                      StaticMethod<&Table::full_join>("fullJoin"),
+                                      StaticMethod<&Table::inner_join>("innerJoin"),
+                                      StaticMethod<&Table::left_join>("leftJoin"),
+                                      StaticMethod<&Table::left_semi_join>("leftSemiJoin"),
+                                      StaticMethod<&Table::left_anti_join>("leftAntiJoin"),
                                     });
 
   Table::constructor = Napi::Persistent(ctor);
@@ -129,6 +134,8 @@ cudf::mutable_table_view Table::mutable_view() {
 
   return cudf::mutable_table_view{child_views};
 }
+
+Table::operator Napi::Value() const { return Value(); }
 
 //
 // Private API
