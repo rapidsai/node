@@ -154,6 +154,45 @@ struct Table : public EnvLocalObjectWrap<Table> {
     bool check_bounds                   = false,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // table/join.cpp
+  static std::pair<std::unique_ptr<rmm::device_uvector<cudf::size_type>>,
+                   std::unique_ptr<rmm::device_uvector<cudf::size_type>>>
+  full_join(Napi::Env const& env,
+            Table const& left,
+            Table const& right,
+            bool null_equality,
+            rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  static std::pair<std::unique_ptr<rmm::device_uvector<cudf::size_type>>,
+                   std::unique_ptr<rmm::device_uvector<cudf::size_type>>>
+  inner_join(Napi::Env const& env,
+             Table const& left,
+             Table const& right,
+             bool null_equality,
+             rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  static std::pair<std::unique_ptr<rmm::device_uvector<cudf::size_type>>,
+                   std::unique_ptr<rmm::device_uvector<cudf::size_type>>>
+  left_join(Napi::Env const& env,
+            Table const& left,
+            Table const& right,
+            bool null_equality,
+            rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  static std::unique_ptr<rmm::device_uvector<cudf::size_type>> left_semi_join(
+    Napi::Env const& env,
+    Table const& left,
+    Table const& right,
+    bool null_equality,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  static std::unique_ptr<rmm::device_uvector<cudf::size_type>> left_anti_join(
+    Napi::Env const& env,
+    Table const& left,
+    Table const& right,
+    bool null_equality,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
  private:
   cudf::size_type num_columns_{};           ///< The number of columns in the table
   cudf::size_type num_rows_{};              ///< The number of rows
@@ -169,6 +208,12 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Napi::Value gather(Napi::CallbackInfo const& info);
   Napi::Value scatter_scalar(Napi::CallbackInfo const& info);
   Napi::Value scatter_table(Napi::CallbackInfo const& info);
+  // table/join.cpp
+  static Napi::Value full_join(Napi::CallbackInfo const& info);
+  static Napi::Value inner_join(Napi::CallbackInfo const& info);
+  static Napi::Value left_join(Napi::CallbackInfo const& info);
+  static Napi::Value left_semi_join(Napi::CallbackInfo const& info);
+  static Napi::Value left_anti_join(Napi::CallbackInfo const& info);
 
   static Napi::Value read_csv(Napi::CallbackInfo const& info);
   void write_csv(Napi::CallbackInfo const& info);
