@@ -31,9 +31,9 @@ export class ColumnAccessor<T extends TypeMap = any> {
     this.names.forEach((val, index) => this._labels_to_indices.set(val, index));
   }
 
-  get names() { return Object.keys(this._data) as ReadonlyArray<keyof T>; }
+  get names() { return Object.keys(this._data) as (string & keyof T)[]; }
 
-  get columns(): ReadonlyArray<Column> { return Object.values(this._data); }
+  get columns(): Column<T[keyof T]>[] { return Object.values(this._data); }
 
   get length() { return this._labels_to_indices.size; }
 
