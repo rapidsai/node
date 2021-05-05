@@ -18,6 +18,7 @@ import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor';
+import {Join, JoinKey} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {AbstractSeries, Float32Series, Float64Series, Series} from './series';
 import {Table, ToArrowMetadata} from './table';
@@ -34,6 +35,37 @@ export type OrderSpec = {
   ascending: boolean,
   null_order: NullOrder
 };
+
+type JoinType = 'inner'|'outer'|'left'|'right'|'leftsemi'|'leftanti';
+
+type JoinProps<
+  Rhs extends TypeMap,
+  TOn extends string[],
+  How extends JoinType = 'inner',
+  LSuffix extends string = '',
+  RSuffix extends string = '',
+> = {
+  other: DataFrame<Rhs>,
+  on: TOn,
+  how: How,
+  lsuffix?: LSuffix,
+  rsuffix?: RSuffix,
+  nullEquality?: boolean,
+};
+
+// clang-format off
+type JoinResult<
+  Lhs extends TypeMap,
+  Rhs extends TypeMap,
+  TOn extends(string & keyof Lhs & keyof Rhs)[],
+  LSuffix extends string,
+  RSuffix extends string
+> = {
+  [P in (string&keyof Lhs) as JoinKey<P, Rhs, LSuffix, TOn>]: Lhs[P]
+} & {
+  [P in (string&keyof Rhs) as JoinKey<P, Lhs, RSuffix, TOn>]: Rhs[P]
+};
+// clang-format on
 
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
   GroupBySingleProps<T, R>|Partial<GroupByMultipleProps<T, R, IndexKey>>;
@@ -419,9 +451,9 @@ export class DataFrame<T extends TypeMap = any> {
    * df.gather(selection); // {a: [2, 4, 5], b: [2.0, 4.0, 5.0]}
    * ```
    */
-  gather<R extends IndexType>(selection: Series<R>) {
+  gather<R extends IndexType>(selection: Series<R>, nullify_out_of_bounds = false) {
     const temp       = new Table({columns: this._accessor.columns});
-    const columns    = temp.gather(selection._col);
+    const columns    = temp.gather(selection._col, nullify_out_of_bounds);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
       (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
@@ -506,11 +538,52 @@ export class DataFrame<T extends TypeMap = any> {
    */
   filter(mask: Series<Bool8>) {
     const temp       = new Table({columns: this._accessor.columns});
-    const columns    = temp.gather(mask._col);
+    const columns    = temp.gather(mask._col, false);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
       (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
     return new DataFrame(series_map);
+  }
+
+  /**
+   * Join columns with other DataFrame.
+   *
+   * @param props the configuration for the join
+   * @returns the joined DataFrame
+   */
+  // clang-format off
+  join<R extends TypeMap, TOn extends (string & keyof T & keyof R)[], LSuffix extends string = '', RSuffix extends string = ''>(
+    props: JoinProps<R, TOn, 'inner'|'outer'|'left'|'right', LSuffix, RSuffix>
+  ): DataFrame<{
+    [P in keyof JoinResult<T, R, TOn, LSuffix, RSuffix>]:
+                JoinResult<T, R, TOn, LSuffix, RSuffix>[P]
+  }>;
+  // clang-format on
+
+  /**
+   * Join columns with other DataFrame.
+   *
+   * @param props the configuration for the join
+   * @returns the joined DataFrame
+   */
+  // clang-format off
+  join<R extends TypeMap, TOn extends (string & keyof T & keyof R)[]>(
+    props: JoinProps<R, TOn, 'leftsemi'|'leftanti'>
+  ): DataFrame<T>;
+  // clang-format on
+
+  // clang-format off
+  join(props: any): any {
+    // clang-format on
+    const {how = 'inner', other, ...opts} = props;
+    switch (how) {
+      case 'left': return new Join({...opts, lhs: this, rhs: other}).left();
+      case 'right': return new Join({...opts, lhs: this, rhs: other}).right();
+      case 'inner': return new Join({...opts, lhs: this, rhs: other}).inner();
+      case 'outer': return new Join({...opts, lhs: this, rhs: other}).outer();
+      case 'leftsemi': return new Join({...opts, lhs: this, rhs: other}).leftSemi();
+      case 'leftanti': return new Join({...opts, lhs: this, rhs: other}).leftAnti();
+    }
   }
 
   /**
@@ -568,10 +641,9 @@ export class DataFrame<T extends TypeMap = any> {
    * drop null rows
    * @ignore
    */
-  _dropNullsRows(thresh = 1, subset?: (keyof T)[]) {
+  _dropNullsRows(thresh = 1, subset = this.names) {
     const column_names: (keyof T)[] = [];
     const column_indices: number[]  = [];
-    subset                          = (subset == undefined) ? this.names as (keyof T)[] : subset;
     subset.forEach((col, idx) => {
       if (this.names.includes(col)) {
         column_names.push(col);
@@ -591,10 +663,9 @@ export class DataFrame<T extends TypeMap = any> {
    * drop rows with NaN values (float type only)
    * @ignore
    */
-  _dropNaNsRows(thresh = 1, subset?: (keyof T)[]) {
+  _dropNaNsRows(thresh = 1, subset = this.names) {
     const column_names: (keyof T)[] = [];
     const column_indices: number[]  = [];
-    subset                          = (subset == undefined) ? this.names as (keyof T)[] : subset;
     subset.forEach((col, idx) => {
       if (this.names.includes(col) &&
           (this.get(col) instanceof Float32Series || this.get(col) instanceof Float64Series)) {
@@ -661,8 +732,8 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * thresh=1 (default) drops rows (or columns) containing all null values (non-null < thresh(1)).
    *
-   * if axis = 0, thresh=df.numColumns: drops only rows containing at-least one null value (non-null
-   * values in a row < thresh(df.numColumns)).
+   * if axis = 0, thresh=df.numColumns: drops only rows containing at-least one null value
+   * (non-null values in a row < thresh(df.numColumns)).
    *
    * if axis = 1, thresh=df.numRows: drops only columns containing at-least one null values
    * (non-null values in a column < thresh(df.numRows)).
@@ -703,7 +774,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  dropNulls<R extends IndexType>(axis = 0, thresh = 1, subset?: (keyof T)[]|Series<R>):
+  dropNulls<R extends IndexType>(axis = 0, thresh = 1, subset?: (string&keyof T)[]|Series<R>):
     DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {
@@ -733,8 +804,8 @@ export class DataFrame<T extends TypeMap = any> {
    * if axis = 0, thresh=df.numColumns: drops only rows containing at-least one NaN value (non-NaN
    * values in a row < thresh(df.numColumns)).
    *
-   * if axis = 1, thresh=df.numRows: drops only columns containing at-least one NaN values (non-NaN
-   * values in a column < thresh(df.numRows)).
+   * if axis = 1, thresh=df.numRows: drops only columns containing at-least one NaN values
+   * (non-NaN values in a column < thresh(df.numRows)).
    *  @param subset List of float columns to consider when dropping rows (all float columns are
    *   considered by default).
    * Alternatively, when dropping columns, subset is a Series<Integer> with indices to select rows
@@ -772,7 +843,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  dropNaNs<R extends IndexType>(axis = 0, thresh = 1, subset?: (keyof T)[]|Series<R>):
+  dropNaNs<R extends IndexType>(axis = 0, thresh = 1, subset?: (string&keyof T)[]|Series<R>):
     DataFrame<T> {
     if (axis == 0) {
       if (subset instanceof Series) {
