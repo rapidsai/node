@@ -459,7 +459,7 @@ export class AbstractSeries<T extends DataType = any> {
    * const indices = Series.new({type: new Int32, data: [2, 4]});
    * const indices_out_of_bounds = Series.new({type: new Int32, data: [5, 6]});
    *
-   * a.scatter(-1, indices); // [0, 1, -1, 3, -1];
+   * a.scatter(-1, indices); // returns [0, 1, -1, 3, -1];
    * a.scatter(-1, indices_out_of_bounds, true) // throws index out of bounds error
    *
    * ```
@@ -467,7 +467,7 @@ export class AbstractSeries<T extends DataType = any> {
   scatter(value: T['scalarType'],
           indices: Series<Int32>|number[],
           check_bounds?: boolean,
-          memoryResource?: MemoryResource): void;
+          memoryResource?: MemoryResource): Series<T>;
   /**
    * Scatters a column of values into this Series according to provided indices.
    *
@@ -486,29 +486,29 @@ export class AbstractSeries<T extends DataType = any> {
    * const indices = Series.new({type: new Int32, data: [2, 4]});
    * const indices_out_of_bounds = Series.new({type: new Int32, data: [5, 6]});
    *
-   * a.scatter(b, indices); // [0, 1, 200, 3, 400];
+   * a.scatter(b, indices); // returns [0, 1, 200, 3, 400];
    * a.scatter(b, indices_out_of_bounds, true) // throws index out of bounds error
    * ```
    */
   scatter(values: Series<T>,
           indices: Series<Int32>|number[],
           check_bounds?: boolean,
-          memoryResource?: MemoryResource): void;
+          memoryResource?: MemoryResource): Series<T>;
 
   scatter(source: Series<T>|T['scalarType'],
           indices: Series<Int32>|number[],
           check_bounds = false,
-          memoryResource?: MemoryResource): void {
+          memoryResource?: MemoryResource): Series<T> {
     const dst  = new Table({columns: [this._col]});
     const inds = indices instanceof Series ? indices : new Series({type: new Int32, data: indices});
     if (source instanceof Series) {
       const src = new Table({columns: [source._col]});
       const out = dst.scatterTable(src, inds._col, check_bounds, memoryResource);
-      this._col = out.getColumnByIndex(0);
+      return Series.new(out.getColumnByIndex(0));
     } else {
       const src = [new Scalar({type: this.type, value: source})];
       const out = dst.scatterScalar(src, inds._col, check_bounds, memoryResource);
-      this._col = out.getColumnByIndex(0);
+      return Series.new(out.getColumnByIndex(0));
     }
   }
 
@@ -553,12 +553,51 @@ export class AbstractSeries<T extends DataType = any> {
   getValue(index: number) { return this._col.getValue(index); }
 
   /**
-   * Set a value at the specified index
+   * set value at the specified index
    *
    * @param index the index in this Series to set a value for
    * @param value the value to set at `index`
+   *
+   * @example
+   * ```typescript
+   * import {Series} from "@rapidsai/cudf";
+   *
+   * // Float64Series
+   * const a = Series.new([1, 2, 3]);
+   * a.setValue(0, -1) // inplace update [-1, 2, 3]
+   *
+   * // StringSeries
+   * const b = Series.new(["foo", "bar", "test"])
+   * b.setValue(1,"test1") // inplace update ["foo", "test1", "test"]
+   * // Bool8Series
+   * const c = Series.new([false, true, true])
+   * c.cetValue(2, false) // inplace update [false, true, false]
+   * ```
    */
-  setValue(index: number, value: T['scalarType']): void { this.scatter(value, [index]); }
+  setValue(index: number, value: T['scalarType']): void {
+    this._col = this.scatter(value, [index])._col as Column<T>;
+  }
+
+  /**
+   * set values at the specified indices
+   *
+   * @param indices the indices in this Series to set values for
+   * @param values the values to set at Series of indices
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int32} from '@rapidsai/cudf';
+   * const a = Series.new({type: new Int32, data: [0, 1, 2, 3, 4]});
+   * const values = Series.new({type: new Int32, data: [200, 400]});
+   * const indices = Series.new({type: new Int32, data: [2, 4]});
+   *
+   * a.setValues(indices, values); // inplace update [0, 1, 200, 3, 400];
+   * a.setValues(indices, -1); // inplace update [0, 1, -1, 3, -1];
+   * ```
+   */
+  setValues(indices: Series<Int32>|number[], values: Series<T>|T['scalarType']): void {
+    this._col = this.scatter(values, indices)._col as Column<T>;
+  }
 
   /**
    * Copy the underlying device memory to host, and return an Iterator of the values.
