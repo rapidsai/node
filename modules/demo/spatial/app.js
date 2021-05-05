@@ -198,9 +198,10 @@ function copyPointsDtoH(polyIds, points) {
 
   const positions = (() => {
     const size = points.numRows;
-    const positions = Series.sequence({ type: new Float32, init: 0, size: size * 3, step: 0 });
-    positions.scatter(points.get('x'), Series.sequence({ type: new Uint32, init: 0, size, step: 3 }));
-    positions.scatter(points.get('y'), Series.sequence({ type: new Uint32, init: 1, size, step: 3 }));
+
+    let positions = Series.sequence({ type: new Float32, init: 0, size: size * 3, step: 0 });
+    positions = positions.scatter(points.get('x'), Series.sequence({ type: new Uint32, init: 0, size, step: 3 }));
+    positions = positions.scatter(points.get('y'), Series.sequence({ type: new Uint32, init: 1, size, step: 3 }));
     return positions;
   })();
 
