@@ -65,8 +65,8 @@ describe('Series unaryops (Int64)', () => {
     const actual = makeTestData([null, 3n, 6n]).isNull();
     expect([...actual]).toEqual([true, false, false]);
   });
-  test('Series.isValid', () => {
-    const actual = makeTestData([null, 3n, 6n]).isValid();
+  test('Series.isNotNull', () => {
+    const actual = makeTestData([null, 3n, 6n]).isNotNull();
     expect([...actual]).toEqual([false, true, true]);
   });
   test('Series.bit_invert', () => {
