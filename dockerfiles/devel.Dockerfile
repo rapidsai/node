@@ -124,6 +124,7 @@ RUN useradd --uid $UID --user-group ${ADDITIONAL_GROUPS} --shell /bin/bash --cre
  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
  && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
+ && npm install -g npm \
  # smoke tests
  && node --version && npm --version && yarn --version \
  && sed -ri "s/32m/33m/g" /home/node/.bashrc \
@@ -150,7 +151,9 @@ export HISTFILE=\"\$DOCKER_WORKDIR/modules/.cache/.eternal_bash_history\";\n\
     https://raw.githubusercontent.com/dsifford/yarn-completion/5bf2968493a7a76649606595cfca880a77e6ac0e/yarn-completion.bash \
   | tee /etc/bash_completion.d/yarn >/dev/null \
  # globally install llnode
- && yarn global add github:trxcllnt/llnode#use-llvm-project-monorepo
+ && git clone --branch use-llvm-project-monorepo https://github.com/trxcllnt/llnode.git /usr/local/lib/llnode \
+ && npm install --global --unsafe-perm --no-audit --no-fund /usr/local/lib/llnode \
+ && which -a llnode
 
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda"
