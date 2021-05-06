@@ -21,6 +21,10 @@
             "path": "modules/cudf"
         },
         {
+            "name": "cuml",
+            "path": "modules/cuml"
+        },
+        {
             "name": "cugraph",
             "path": "modules/cugraph"
         },
