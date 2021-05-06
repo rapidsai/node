@@ -148,7 +148,9 @@ export HISTFILE=\"\$DOCKER_WORKDIR/modules/.cache/.eternal_bash_history\";\n\
  # add yarn completions
  && curl -fsSL --compressed \
     https://raw.githubusercontent.com/dsifford/yarn-completion/5bf2968493a7a76649606595cfca880a77e6ac0e/yarn-completion.bash \
-  | tee /etc/bash_completion.d/yarn >/dev/null
+  | tee /etc/bash_completion.d/yarn >/dev/null \
+ # globally install llnode
+ && yarn global add github:trxcllnt/llnode#use-llvm-project-monorepo
 
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda"
