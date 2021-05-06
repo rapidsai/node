@@ -57,7 +57,7 @@ if __name__ == \"__main__\":\n\
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
  # Install ijavascript
- && npm install -g --unsafe-perm ijavascript \
+ && npm install --global --unsafe-perm --no-audit --no-fund ijavascript \
  && ijsinstall --install=global --spec-path=full
 
 USER node
