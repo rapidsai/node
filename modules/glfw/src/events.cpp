@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,32 +20,23 @@
 namespace nv {
 
 // GLFWAPI void glfwPollEvents(void);
-Napi::Value glfwPollEvents(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GLFW_TRY(env, GLFWAPI::glfwPollEvents());
-  return env.Undefined();
+void glfwPollEvents(Napi::CallbackInfo const& info) {
+  GLFW_TRY(info.Env(), GLFWAPI::glfwPollEvents());
 }
 
 // GLFWAPI void glfwWaitEvents(void);
-Napi::Value glfwWaitEvents(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GLFW_TRY(env, GLFWAPI::glfwWaitEvents());
-  return env.Undefined();
+void glfwWaitEvents(Napi::CallbackInfo const& info) {
+  GLFW_TRY(info.Env(), GLFWAPI::glfwWaitEvents());
 }
 
 // GLFWAPI void glfwWaitEventsTimeout(double timeout);
-Napi::Value glfwWaitEventsTimeout(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  CallbackArgs args{info};
-  GLFW_TRY(env, GLFWAPI::glfwWaitEventsTimeout(args[0]));
-  return env.Undefined();
+void glfwWaitEventsTimeout(Napi::CallbackInfo const& info) {
+  GLFW_TRY(info.Env(), GLFWAPI::glfwWaitEventsTimeout(info[0].ToNumber()));
 }
 
 // GLFWAPI void glfwPostEmptyEvent(void);
-Napi::Value glfwPostEmptyEvent(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  GLFW_TRY(env, GLFWAPI::glfwPostEmptyEvent());
-  return env.Undefined();
+void glfwPostEmptyEvent(Napi::CallbackInfo const& info) {
+  GLFW_TRY(info.Env(), GLFWAPI::glfwPostEmptyEvent());
 }
 
 }  // namespace nv

@@ -24,15 +24,14 @@
 #include <cuspatial/polyline_bounding_box.hpp>
 
 #include <nv_node/utilities/args.hpp>
-#include <nv_node/utilities/wrap.hpp>
 
 namespace nv {
 
 Napi::Value compute_polygon_bounding_boxes(CallbackArgs const& args) {
-  auto poly_offsets                   = Column::Unwrap(args[0]);
-  auto ring_offsets                   = Column::Unwrap(args[1]);
-  auto point_x                        = Column::Unwrap(args[2]);
-  auto point_y                        = Column::Unwrap(args[3]);
+  Column::wrapper_t poly_offsets      = args[0];
+  Column::wrapper_t ring_offsets      = args[1];
+  Column::wrapper_t point_x           = args[2];
+  Column::wrapper_t point_y           = args[3];
   rmm::mr::device_memory_resource* mr = args[4];
   auto result                         = [&]() {
     try {
@@ -47,14 +46,14 @@ Napi::Value compute_polygon_bounding_boxes(CallbackArgs const& args) {
   names.Set(2u, "x_max");
   names.Set(3u, "y_max");
   output.Set("names", names);
-  output.Set("table", Table::New(std::move(result)));
+  output.Set("table", Table::New(args.Env(), std::move(result)));
   return output;
 }
 
 Napi::Value compute_polyline_bounding_boxes(CallbackArgs const& args) {
-  auto poly_offsets                   = Column::Unwrap(args[0]);
-  auto point_x                        = Column::Unwrap(args[1]);
-  auto point_y                        = Column::Unwrap(args[2]);
+  Column::wrapper_t poly_offsets      = args[0];
+  Column::wrapper_t point_x           = args[1];
+  Column::wrapper_t point_y           = args[2];
   double expansion_radius             = args[3];
   rmm::mr::device_memory_resource* mr = args[4];
   auto result                         = [&]() {
@@ -70,7 +69,7 @@ Napi::Value compute_polyline_bounding_boxes(CallbackArgs const& args) {
   names.Set(2u, "x_max");
   names.Set(3u, "y_max");
   output.Set("names", names);
-  output.Set("table", Table::New(std::move(result)));
+  output.Set("table", Table::New(args.Env(), std::move(result)));
   return output;
 }
 
