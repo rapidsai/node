@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -131,11 +131,10 @@ Napi::Value glfwGetVideoMode(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwSetGamma(GLFWmonitor* monitor, float gamma);
-Napi::Value glfwSetGamma(Napi::CallbackInfo const& info) {
+void glfwSetGamma(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwSetGamma(args[0], args[1]));
-  return env.Undefined();
 }
 
 // GLFWAPI const GLFWgammaramp* glfwGetGammaRamp(GLFWmonitor* monitor);
@@ -153,7 +152,7 @@ Napi::Value glfwGetGammaRamp(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwSetGammaRamp(GLFWmonitor* monitor, const GLFWgammaramp* ramp);
-Napi::Value glfwSetGammaRamp(Napi::CallbackInfo const& info) {
+void glfwSetGammaRamp(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFWmonitor* monitor  = args[0];
@@ -165,7 +164,6 @@ Napi::Value glfwSetGammaRamp(Napi::CallbackInfo const& info) {
 
   GLFWgammaramp ramp{red, green, blue, size};
   GLFW_TRY(env, GLFWAPI::glfwSetGammaRamp(monitor, &ramp));
-  return env.Undefined();
 }
 
 }  // namespace nv
