@@ -329,7 +329,7 @@ test('Series.isNull (numeric)', () => {
   const result = col.isNull();
 
   const expected = [false, false, true, false, false, true, false, true];
-  expect([...result.toArrow()]).toEqual(expected);
+  expect([...result]).toEqual(expected);
 });
 
 test('Series.dropNulls (drop nulls only)', () => {
