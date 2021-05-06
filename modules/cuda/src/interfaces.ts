@@ -39,8 +39,8 @@ export type TypedArrayConstructor<T extends TypedArray|BigIntArray> = {
 
 /** @ignore */
 export type MemoryData = TypedArray|BigIntArray|ArrayBufferView|ArrayBufferLike  //
-  |(import('./memory').DeviceMemory)                                             //
-  |(import('./memory').PinnedMemory)                                             //
-  |(import('./memory').ManagedMemory)                                            //
-  |(import('./memory').IpcMemory)                                                //
-  |(import('./memory').MappedGLMemory);
+  |(import('./addon').DeviceMemory)                                              //
+  |(import('./addon').PinnedMemory)                                              //
+  |(import('./addon').ManagedMemory)                                             //
+  |(import('./addon').IpcMemory)                                                 //
+  |(import('./addon').MappedGLMemory);

@@ -18,9 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import {Layer, fp64LowPart, picking} from '@deck.gl/core';
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import { Layer, fp64LowPart, picking } from '@deck.gl/core';
 import GL from '@luma.gl/constants';
-import {Model, Geometry} from '@luma.gl/core';
+import { Model, Geometry } from '@luma.gl/core';
 
 import vs from './bezier-curve-layer-vertex.glsl';
 import fs from './bezier-curve-layer-fragment.glsl';
@@ -29,17 +43,17 @@ const NUM_SEGMENTS = 40;
 const DEFAULT_COLOR = [0, 0, 0, 255];
 
 const defaultProps = {
-  strokeWidth: {type: 'number', min: 0, value: 1},
-  getSourcePosition: {type: 'accessor', value: x => x.sourcePosition},
-  getTargetPosition: {type: 'accessor', value: x => x.targetPosition},
-  getControlPoint: {type: 'accessor', value: x => x.controlPoint},
-  getSourceColor: {type: 'accessor', value: DEFAULT_COLOR},
-  getTargetColor: {type: 'accessor', value: DEFAULT_COLOR},
+  strokeWidth: { type: 'number', min: 0, value: 1 },
+  getSourcePosition: { type: 'accessor', value: x => x.sourcePosition },
+  getTargetPosition: { type: 'accessor', value: x => x.targetPosition },
+  getControlPoint: { type: 'accessor', value: x => x.controlPoint },
+  getSourceColor: { type: 'accessor', value: DEFAULT_COLOR },
+  getTargetColor: { type: 'accessor', value: DEFAULT_COLOR },
 };
 
 export default class BezierCurveLayer extends Layer {
   getShaders() {
-    return {vs, fs, modules: [picking]};
+    return { vs, fs, modules: [picking] };
   }
 
   initializeState() {
@@ -83,20 +97,20 @@ export default class BezierCurveLayer extends Layer {
     /* eslint-enable max-len */
   }
 
-  updateState({props, oldProps, changeFlags}) {
-    super.updateState({props, oldProps, changeFlags});
+  updateState({ props, oldProps, changeFlags }) {
+    super.updateState({ props, oldProps, changeFlags });
 
     if (changeFlags.extensionsChanged) {
-      const {gl} = this.context;
+      const { gl } = this.context;
       if (this.state.model) {
         this.state.model.delete();
       }
-      this.setState({model: this._getModel(gl)});
+      this.setState({ model: this._getModel(gl) });
     }
   }
 
-  draw({uniforms}) {
-    const {strokeWidth} = this.props;
+  draw({ uniforms }) {
+    const { strokeWidth } = this.props;
 
     this.state.model.render(
       Object.assign({}, uniforms, {
@@ -132,13 +146,13 @@ export default class BezierCurveLayer extends Layer {
         shaderCache: this.context.shaderCache
       })
     );
-    model.setUniforms({numSegments: NUM_SEGMENTS});
+    model.setUniforms({ numSegments: NUM_SEGMENTS });
     return model;
   }
 
   calculateInstanceSourceTargetPositions64xyLow(attribute) {
-    const {data, getSourcePosition, getTargetPosition} = this.props;
-    const {value, size} = attribute;
+    const { data, getSourcePosition, getTargetPosition } = this.props;
+    const { value, size } = attribute;
     let i = 0;
     data.forEach(object => {
       const sourcePosition = getSourcePosition(object);

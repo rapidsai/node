@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,30 +23,27 @@
 namespace nv {
 
 // GLFWAPI void glfwDefaultWindowHints(void);
-Napi::Value glfwDefaultWindowHints(Napi::CallbackInfo const& info) {
+void glfwDefaultWindowHints(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   GLFW_TRY(env, GLFWAPI::glfwDefaultWindowHints());
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwWindowHint(int hint, int value);
-Napi::Value glfwWindowHint(Napi::CallbackInfo const& info) {
+void glfwWindowHint(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   int32_t hint  = args[0];
   int32_t value = args[1];
   GLFW_TRY(env, GLFWAPI::glfwWindowHint(hint, value));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwWindowHintString(int hint, const char* value);
-Napi::Value glfwWindowHintString(Napi::CallbackInfo const& info) {
+void glfwWindowHintString(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   int32_t hint      = args[0];
   std::string value = args[1];
   GLFW_TRY(env, GLFWAPI::glfwWindowHintString(hint, value.data()));
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height, const char* title, GLFWmonitor*
@@ -70,9 +67,7 @@ Napi::Value glfwCreateWindow(Napi::CallbackInfo const& info) {
 #ifdef __linux__
 
 // void glfwReparentWindow(GLFWwindow* window);
-Napi::Value glfwReparentWindow(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-
+void glfwReparentWindow(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   int32_t targetX = args[2];
   int32_t targetY = args[3];
@@ -84,17 +79,14 @@ Napi::Value glfwReparentWindow(Napi::CallbackInfo const& info) {
   XGetWindowAttributes(display, parent, &attrs);
   XReparentWindow(display, child, parent, targetX, targetY);
   XResizeWindow(display, child, attrs.width - targetX, attrs.height - targetY);
-
-  return env.Undefined();
 }
 #endif
 
 // GLFWAPI void glfwDestroyWindow(GLFWwindow* window);
-Napi::Value glfwDestroyWindow(Napi::CallbackInfo const& info) {
+void glfwDestroyWindow(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwDestroyWindow(args[0]));
-  return env.Undefined();
 }
 
 // GLFWAPI int glfwWindowShouldClose(GLFWwindow* window);
@@ -105,24 +97,22 @@ Napi::Value glfwWindowShouldClose(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwSetWindowShouldClose(GLFWwindow* window, int value);
-Napi::Value glfwSetWindowShouldClose(Napi::CallbackInfo const& info) {
+void glfwSetWindowShouldClose(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwSetWindowShouldClose(args[0], args[1]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwSetWindowTitle(GLFWwindow* window, const char* title);
-Napi::Value glfwSetWindowTitle(Napi::CallbackInfo const& info) {
+void glfwSetWindowTitle(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   std::string title = args[1];
   GLFW_TRY(env, GLFWAPI::glfwSetWindowTitle(args[0], title.data()));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwSetWindowIcon(GLFWwindow* window, int count, const GLFWimage* images);
-Napi::Value glfwSetWindowIcon(Napi::CallbackInfo const& info) {
+void glfwSetWindowIcon(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFWwindow* window    = args[0];
@@ -138,7 +128,6 @@ Napi::Value glfwSetWindowIcon(Napi::CallbackInfo const& info) {
     };
   });
   GLFW_TRY(env, GLFWAPI::glfwSetWindowIcon(window, images.size(), images.data()));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwGetWindowPos(GLFWwindow* window, int* xpos, int* ypos);
@@ -152,13 +141,12 @@ Napi::Value glfwGetWindowPos(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwSetWindowPos(GLFWwindow* window, int xpos, int ypos);
-Napi::Value glfwSetWindowPos(Napi::CallbackInfo const& info) {
+void glfwSetWindowPos(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFWwindow* window                 = args[0];
   std::map<std::string, int32_t> pos = args[1];
   GLFW_TRY(env, GLFWAPI::glfwSetWindowPos(window, pos["x"], pos["y"]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwGetWindowSize(GLFWwindow* window, int* width, int* height);
@@ -173,7 +161,7 @@ Napi::Value glfwGetWindowSize(Napi::CallbackInfo const& info) {
 
 // GLFWAPI void glfwSetWindowSizeLimits(GLFWwindow* window, int minwidth, int minheight, int
 // maxwidth, int maxheight);
-Napi::Value glfwSetWindowSizeLimits(Napi::CallbackInfo const& info) {
+void glfwSetWindowSizeLimits(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFWwindow* window                 = args[0];
@@ -185,25 +173,22 @@ Napi::Value glfwSetWindowSizeLimits(Napi::CallbackInfo const& info) {
              pos["minHeight"],
              pos["maxWidth"],
              pos["maxHeight"]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwSetWindowAspectRatio(GLFWwindow* window, int numer, int denom);
-Napi::Value glfwSetWindowAspectRatio(Napi::CallbackInfo const& info) {
+void glfwSetWindowAspectRatio(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwSetWindowAspectRatio(args[0], args[1], args[2]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwSetWindowSize(GLFWwindow* window, int width, int height);
-Napi::Value glfwSetWindowSize(Napi::CallbackInfo const& info) {
+void glfwSetWindowSize(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFWwindow* window                 = args[0];
   std::map<std::string, int32_t> pos = args[1];
   GLFW_TRY(env, GLFWAPI::glfwSetWindowSize(window, pos["width"], pos["height"]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwGetFramebufferSize(GLFWwindow* window, int* width, int* height);
@@ -250,67 +235,59 @@ Napi::Value glfwGetWindowOpacity(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwSetWindowOpacity(GLFWwindow* window, float opacity);
-Napi::Value glfwSetWindowOpacity(Napi::CallbackInfo const& info) {
+void glfwSetWindowOpacity(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwSetWindowOpacity(args[0], args[1]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwIconifyWindow(GLFWwindow* window);
-Napi::Value glfwIconifyWindow(Napi::CallbackInfo const& info) {
+void glfwIconifyWindow(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwIconifyWindow(args[0]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwRestoreWindow(GLFWwindow* window);
-Napi::Value glfwRestoreWindow(Napi::CallbackInfo const& info) {
+void glfwRestoreWindow(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwRestoreWindow(args[0]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwMaximizeWindow(GLFWwindow* window);
-Napi::Value glfwMaximizeWindow(Napi::CallbackInfo const& info) {
+void glfwMaximizeWindow(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwMaximizeWindow(args[0]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwShowWindow(GLFWwindow* window);
-Napi::Value glfwShowWindow(Napi::CallbackInfo const& info) {
+void glfwShowWindow(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwShowWindow(args[0]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwHideWindow(GLFWwindow* window);
-Napi::Value glfwHideWindow(Napi::CallbackInfo const& info) {
+void glfwHideWindow(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwHideWindow(args[0]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwFocusWindow(GLFWwindow* window);
-Napi::Value glfwFocusWindow(Napi::CallbackInfo const& info) {
+void glfwFocusWindow(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwFocusWindow(args[0]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwRequestWindowAttention(GLFWwindow* window);
-Napi::Value glfwRequestWindowAttention(Napi::CallbackInfo const& info) {
+void glfwRequestWindowAttention(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwRequestWindowAttention(args[0]));
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWmonitor* glfwGetWindowMonitor(GLFWwindow* window);
@@ -321,7 +298,7 @@ Napi::Value glfwGetWindowMonitor(Napi::CallbackInfo const& info) {
 
 // GLFWAPI void glfwSetWindowMonitor(GLFWwindow* window, GLFWmonitor* monitor, int xpos, int ypos,
 // int width, int height, int refreshRate);
-Napi::Value glfwSetWindowMonitor(Napi::CallbackInfo const& info) {
+void glfwSetWindowMonitor(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFWwindow* window                 = args[0];
@@ -336,7 +313,6 @@ Napi::Value glfwSetWindowMonitor(Napi::CallbackInfo const& info) {
              map["width"],
              map["height"],
              map["refreshRate"]));
-  return env.Undefined();
 }
 
 // GLFWAPI int glfwGetWindowAttrib(GLFWwindow* window, int attrib);
@@ -346,14 +322,13 @@ Napi::Value glfwGetWindowAttrib(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwSetWindowAttrib(GLFWwindow* window, int attrib, int value);
-Napi::Value glfwSetWindowAttrib(Napi::CallbackInfo const& info) {
+void glfwSetWindowAttrib(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFWwindow* window = args[0];
   int32_t attrib     = args[1];
   int32_t value      = args[2];
   GLFW_TRY(env, GLFWAPI::glfwSetWindowAttrib(window, attrib, value));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwSetWindowUserPointer(GLFWwindow* window, void* pointer);
@@ -369,11 +344,10 @@ Napi::Value glfwGetInputMode(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwSetInputMode(GLFWwindow* window, int mode, int value);
-Napi::Value glfwSetInputMode(Napi::CallbackInfo const& info) {
+void glfwSetInputMode(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwSetInputMode(args[0], args[1], args[2]));
-  return env.Undefined();
 }
 
 // GLFWAPI int glfwGetKey(GLFWwindow* window, int key);
@@ -401,30 +375,27 @@ Napi::Value glfwGetCursorPos(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos);
-Napi::Value glfwSetCursorPos(Napi::CallbackInfo const& info) {
+void glfwSetCursorPos(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFWwindow* window                 = args[0];
   std::map<std::string, int32_t> pos = args[1];
   GLFW_TRY(env, GLFWAPI::glfwSetCursorPos(window, pos["x"], pos["y"]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwSetCursor(GLFWwindow* window, GLFWcursor* cursor);
-Napi::Value glfwSetCursor(Napi::CallbackInfo const& info) {
+void glfwSetCursor(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwSetCursor(args[0], args[1]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwSetClipboardString(GLFWwindow* window, const char* string);
-Napi::Value glfwSetClipboardString(Napi::CallbackInfo const& info) {
+void glfwSetClipboardString(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   std::string str = args[1];
   GLFW_TRY(env, GLFWAPI::glfwSetClipboardString(args[0], str.data()));
-  return env.Undefined();
 }
 
 // GLFWAPI const char* glfwGetClipboardString(GLFWwindow* window);
@@ -435,11 +406,10 @@ Napi::Value glfwGetClipboardString(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwMakeContextCurrent(GLFWwindow* window);
-Napi::Value glfwMakeContextCurrent(Napi::CallbackInfo const& info) {
+void glfwMakeContextCurrent(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwMakeContextCurrent(args[0]));
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWwindow* glfwGetCurrentContext(void);
@@ -448,11 +418,10 @@ Napi::Value glfwGetCurrentContext(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwSwapBuffers(GLFWwindow* window);
-Napi::Value glfwSwapBuffers(Napi::CallbackInfo const& info) {
+void glfwSwapBuffers(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwSwapBuffers(args[0]));
-  return env.Undefined();
 }
 
 }  // namespace nv

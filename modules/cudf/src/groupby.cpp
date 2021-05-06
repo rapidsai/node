@@ -29,70 +29,59 @@ namespace nv {
 // Public API
 //
 
-Napi::FunctionReference GroupBy::constructor;
-
-Napi::Object GroupBy::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(env,
-                                    "GroupBy",
-                                    {
-                                      InstanceMethod<&GroupBy::get_groups>("_getGroups"),
-                                      // aggregations
-                                      InstanceMethod<&GroupBy::argmax>("_argmax"),
-                                      InstanceMethod<&GroupBy::argmin>("_argmin"),
-                                      InstanceMethod<&GroupBy::count>("_count"),
-                                      InstanceMethod<&GroupBy::max>("_max"),
-                                      InstanceMethod<&GroupBy::mean>("_mean"),
-                                      InstanceMethod<&GroupBy::median>("_median"),
-                                      InstanceMethod<&GroupBy::min>("_min"),
-                                      InstanceMethod<&GroupBy::nth>("_nth"),
-                                      InstanceMethod<&GroupBy::nunique>("_nunique"),
-                                      InstanceMethod<&GroupBy::std>("_std"),
-                                      InstanceMethod<&GroupBy::sum>("_sum"),
-                                      InstanceMethod<&GroupBy::var>("_var"),
-                                      InstanceMethod<&GroupBy::quantile>("_quantile"),
-                                    });
-
-  GroupBy::constructor = Napi::Persistent(ctor);
-  GroupBy::constructor.SuppressDestruct();
-  exports.Set("GroupBy", ctor);
-
-  return exports;
+Napi::Function GroupBy::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(env,
+                     "GroupBy",
+                     {
+                       InstanceMethod<&GroupBy::get_groups>("_getGroups"),
+                       // aggregations
+                       InstanceMethod<&GroupBy::argmax>("_argmax"),
+                       InstanceMethod<&GroupBy::argmin>("_argmin"),
+                       InstanceMethod<&GroupBy::count>("_count"),
+                       InstanceMethod<&GroupBy::max>("_max"),
+                       InstanceMethod<&GroupBy::mean>("_mean"),
+                       InstanceMethod<&GroupBy::median>("_median"),
+                       InstanceMethod<&GroupBy::min>("_min"),
+                       InstanceMethod<&GroupBy::nth>("_nth"),
+                       InstanceMethod<&GroupBy::nunique>("_nunique"),
+                       InstanceMethod<&GroupBy::std>("_std"),
+                       InstanceMethod<&GroupBy::sum>("_sum"),
+                       InstanceMethod<&GroupBy::var>("_var"),
+                       InstanceMethod<&GroupBy::quantile>("_quantile"),
+                     });
 }
 
-Napi::Object GroupBy::New() {
-  auto inst = GroupBy::constructor.New({});
-  return inst;
+GroupBy::wrapper_t GroupBy::New(Napi::Env const& env) {
+  return EnvLocalObjectWrap<GroupBy>::New(env, {});
 }
 
-GroupBy::GroupBy(CallbackArgs const& args) : Napi::ObjectWrap<GroupBy>(args) {
+GroupBy::GroupBy(CallbackArgs const& args) : EnvLocalObjectWrap<GroupBy>(args) {
   using namespace cudf;
 
-  Napi::Object props = args[0];
+  NapiToCPP::Object props = args[0];
   NODE_CUDA_EXPECT(props.Has("keys"), "GroupBy constructor expects options to have a 'keys' field");
 
-  if (!Table::is_instance(props.Get("keys"))) {
+  if (!Table::IsInstance(props.Get("keys"))) {
     NAPI_THROW(Napi::Error::New(args.Env(), "GroupBy constructor 'keys' field expects a Table."));
   }
 
-  cudf::table_view table_view = Table::Unwrap(props.Get("keys").ToObject())->view();
+  Table::wrapper_t table = props.Get("keys").ToObject();
 
   auto null_handling = null_policy::EXCLUDE;
-  if (props.Has("include_nulls")) { null_handling = NapiToCPP(props.Get("include_nulls")); }
+  if (props.Has("include_nulls")) { null_handling = props.Get("include_nulls"); }
 
   auto keys_are_sorted = sorted::NO;
-  if (props.Has("keys_are_sorted")) { keys_are_sorted = NapiToCPP(props.Get("keys_are_sorted")); }
+  if (props.Has("keys_are_sorted")) { keys_are_sorted = props.Get("keys_are_sorted"); }
 
   std::vector<order> column_order =
-    NapiToCPP{props.Has("column_order") ? props["column_order"] : args.Env().Null()};
+    props.Has("column_order") ? props.Get("column_order") : NapiToCPP{args.Env().Null()};
 
   std::vector<null_order> null_precedence =
-    NapiToCPP{props.Has("null_precedence") ? props["null_precedence"] : args.Env().Null()};
+    props.Has("null_precedence") ? props.Get("null_precedence") : NapiToCPP{args.Env().Null()};
 
   groupby_.reset(new groupby::groupby(
-    table_view, null_handling, keys_are_sorted, column_order, null_precedence));
+    table->view(), null_handling, keys_are_sorted, column_order, null_precedence));
 }
-
-void GroupBy::Finalize(Napi::Env env) { this->groupby_.reset(nullptr); }
 
 //
 // Private API
@@ -100,20 +89,24 @@ void GroupBy::Finalize(Napi::Env env) { this->groupby_.reset(nullptr); }
 
 Napi::Value GroupBy::get_groups(Napi::CallbackInfo const& info) {
   auto values = info[0];
+  auto env    = info.Env();
   CallbackArgs args{info};
   rmm::mr::device_memory_resource* mr = args[1];
 
   cudf::table_view table{cudf::table{}};
-  if (Table::is_instance(values)) { table = *Table::Unwrap(values.ToObject()); }
+  if (Table::IsInstance(values)) { table = *Table::Unwrap(values.ToObject()); }
   auto groups = groupby_->get_groups(table, mr);
 
-  auto result = Napi::Object::New(info.Env());
-  result.Set("keys", Table::New(std::move(groups.keys)));
+  auto result = Napi::Object::New(env);
+  result.Set("keys", Table::New(env, std::move(groups.keys)));
 
   auto const& offsets = groups.offsets;
   result.Set("offsets", CPPToNapi(info)(std::make_tuple(offsets.data(), offsets.size())));
 
-  if (groups.values != nullptr) { result.Set("values", Table::New(std::move(groups.values))); }
+  if (groups.values != nullptr) {  //
+    result.Set("values", Table::New(env, std::move(groups.values)));
+  }
+
   return result;
 }
 
@@ -172,12 +165,12 @@ Napi::Value GroupBy::nth(Napi::CallbackInfo const& info) {
   cudf::size_type n = args[0];
 
   auto values = args[1];
-  NODE_CUDA_EXPECT(Table::is_instance(values),
+  NODE_CUDA_EXPECT(Table::IsInstance(values),
                    "aggregation expects options to have a 'values' table");
   nv::Table* values_table = Table::Unwrap(values.ToObject());
 
-  auto mr = MemoryResource::is_instance(info[2]) ? *MemoryResource::Unwrap(info[2].ToObject())
-                                                 : rmm::mr::get_current_device_resource();
+  auto mr = MemoryResource::IsInstance(info[2]) ? *MemoryResource::Unwrap(info[2].ToObject())
+                                                : rmm::mr::get_current_device_resource();
 
   return _single_aggregation(
     [&]() { return cudf::make_nth_element_aggregation(n); }, values_table, mr, info);
@@ -218,14 +211,14 @@ Napi::Value GroupBy::quantile(Napi::CallbackInfo const& info) {
   std::vector<double> qs{q};
 
   auto values = args[1];
-  NODE_CUDA_EXPECT(Table::is_instance(values),
+  NODE_CUDA_EXPECT(Table::IsInstance(values),
                    "GroupBy quantile_agg expects options to have a 'values' table");
   nv::Table* values_table = Table::Unwrap(values.ToObject());
 
   cudf::interpolation interpolation = args[2];
 
-  auto mr = MemoryResource::is_instance(info[3]) ? *MemoryResource::Unwrap(info[3].ToObject())
-                                                 : rmm::mr::get_current_device_resource();
+  auto mr = MemoryResource::IsInstance(info[3]) ? *MemoryResource::Unwrap(info[3].ToObject())
+                                                : rmm::mr::get_current_device_resource();
 
   return _single_aggregation(
     [&]() { return cudf::make_quantile_aggregation(qs, interpolation); }, values_table, mr, info);
@@ -236,7 +229,7 @@ std::pair<nv::Table*, rmm::mr::device_memory_resource*> GroupBy::_get_basic_args
   CallbackArgs args{info};
 
   auto values = args[0];
-  NODE_CUDA_EXPECT(Table::is_instance(values), "aggregation expects to have a 'values' table");
+  NODE_CUDA_EXPECT(Table::IsInstance(values), "aggregation expects to have a 'values' table");
 
   rmm::mr::device_memory_resource* mr = args[1];
 
@@ -248,6 +241,8 @@ Napi::Value GroupBy::_single_aggregation(MakeAggregation const& make_aggregation
                                          const nv::Table* const values_table,
                                          rmm::mr::device_memory_resource* const mr,
                                          Napi::CallbackInfo const& info) {
+  auto env = info.Env();
+
   std::vector<cudf::groupby::aggregation_request> requests;
 
   for (cudf::size_type i = 0; i < values_table->num_columns(); ++i) {
@@ -261,16 +256,16 @@ Napi::Value GroupBy::_single_aggregation(MakeAggregation const& make_aggregation
 
   try {
     result = groupby_->aggregate(requests, mr);
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(env, e.what())); }
 
-  auto result_keys = Table::New(std::move(result.first));
-  auto result_cols = Napi::Array::New(info.Env(), result.second.size());
+  auto result_keys = Table::New(env, std::move(result.first));
+  auto result_cols = Napi::Array::New(env, result.second.size());
 
   for (size_t i = 0; i < result.second.size(); ++i) {
-    result_cols.Set(i, Column::New(std::move(result.second[i].results[0]))->Value());
+    result_cols.Set(i, Column::New(env, std::move(result.second[i].results[0]))->Value());
   }
 
-  auto obj = Napi::Object::New(info.Env());
+  auto obj = Napi::Object::New(env);
   obj.Set("keys", result_keys);
   obj.Set("cols", result_cols);
 

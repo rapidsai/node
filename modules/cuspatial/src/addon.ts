@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 // Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '@rapidsai/rmm';
+/* eslint-disable @typescript-eslint/unbound-method */
 
+import {addon as CUDA} from '@nvidia/cuda';
 import {loadNativeModule} from '@rapidsai/core';
-import {Column, FloatingPoint, Int32, Table, Uint32} from '@rapidsai/cudf';
-import {MemoryResource} from '@rapidsai/rmm';
+import {addon as CUDF, Column, FloatingPoint, Int32, Table, Uint32} from '@rapidsai/cudf';
+import {addon as RMM, MemoryResource} from '@rapidsai/rmm';
 
 export const {
   createQuadtree,
@@ -81,4 +81,4 @@ export const {
                                                           polylinePointsY: Column<T>,
                                                           memoryResource?: MemoryResource):
     {table: Table, names: ['point_index', 'polyline_index', 'distance']},
-}>(module, 'node_cuspatial');
+}>(module, 'node_cuspatial', init => init(CUDA, RMM, CUDF));

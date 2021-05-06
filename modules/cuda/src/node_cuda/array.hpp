@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,23 +14,38 @@
 
 #pragma once
 
+#include <nv_node/objectwrap.hpp>
+#include <nv_node/utilities/args.hpp>
+
 #include <cuda_runtime_api.h>
+
 #include <napi.h>
 
 namespace nv {
 
 enum class array_type : uint8_t { CUDA = 0, IPC = 1, GL = 2 };
 
-class CUDAArray : public Napi::ObjectWrap<CUDAArray> {
- public:
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
-  static Napi::Value New(cudaArray_t array,
-                         cudaExtent extent,
-                         cudaChannelFormatDesc channelFormatDesc,
-                         uint32_t flags  = 0,
-                         array_type type = array_type::CUDA);
+struct CUDAArray : public EnvLocalObjectWrap<CUDAArray> {
+  /**
+   * @brief Initialize and export the CUDAArray JavaScript constructor and prototype.
+   *
+   * @param env The active JavaScript environment.
+   * @param exports The exports object to decorate.
+   * @return Napi::Function The CUDAArray constructor function.
+   */
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
-  CUDAArray(Napi::CallbackInfo const& info);
+  /**
+   * @brief Construct a new CUDAArray instance from C++.
+   */
+  static wrapper_t New(Napi::Env const& env,
+                       cudaArray_t const& array,
+                       cudaExtent const& extent,
+                       cudaChannelFormatDesc const& channelFormatDesc,
+                       uint32_t flags  = 0,
+                       array_type type = array_type::CUDA);
+
+  CUDAArray(CallbackArgs const& args);
 
   cudaArray_t Array() { return array_; }
   cudaExtent& Extent() { return extent_; }
@@ -47,11 +62,7 @@ class CUDAArray : public Napi::ObjectWrap<CUDAArray> {
     return (x + y + z + w) >> 3;
   }
 
-  // void Finalize(Napi::Env env) override;
-
  private:
-  static Napi::FunctionReference constructor;
-
   Napi::Value GetPointer(Napi::CallbackInfo const& info);
   Napi::Value GetByteLength(Napi::CallbackInfo const& info);
   Napi::Value GetBytesPerElement(Napi::CallbackInfo const& info);

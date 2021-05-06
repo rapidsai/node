@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,16 +28,15 @@ Napi::Value WebGL2RenderingContext::ClientWaitSync(Napi::CallbackInfo const& inf
 }
 
 // GL_EXPORT void glDeleteSync (GLsync GLsync);
-Napi::Value WebGL2RenderingContext::DeleteSync(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteSync(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glDeleteSync(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT GLsync glFenceSync (GLenum condition, GLbitfield flags);
 Napi::Value WebGL2RenderingContext::FenceSync(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
-  return WebGLSync::New(GL_EXPORT::glFenceSync(args[0], args[1]));
+  return WebGLSync::New(info.Env(), GL_EXPORT::glFenceSync(args[0], args[1]));
 }
 
 // GL_EXPORT void glGetSynciv (GLsync GLsync, GLenum pname, GLsizei bufSize, GLsizei* length, GLint
@@ -56,10 +55,9 @@ Napi::Value WebGL2RenderingContext::IsSync(Napi::CallbackInfo const& info) {
 }
 
 // GL_EXPORT void glWaitSync (GLsync GLsync, GLbitfield flags, GLuint64 timeout);
-Napi::Value WebGL2RenderingContext::WaitSync(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::WaitSync(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glWaitSync(args[0], args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,25 +21,22 @@
 namespace nv {
 
 // GLEWAPI void glBindAttribLocation (GLuint program, GLuint index, const GLchar* name);
-Napi::Value WebGL2RenderingContext::BindAttribLocation(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BindAttribLocation(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   std::string name  = args[2];
   GL_EXPORT::glBindAttribLocation(args[0], args[1], name.data());
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glDisableVertexAttribArray (GLuint index);
-Napi::Value WebGL2RenderingContext::DisableVertexAttribArray(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DisableVertexAttribArray(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glDisableVertexAttribArray(args[0]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glEnableVertexAttribArray (GLuint index);
-Napi::Value WebGL2RenderingContext::EnableVertexAttribArray(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::EnableVertexAttribArray(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glEnableVertexAttribArray(args[0]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glGetActiveAttrib (GLuint program, GLuint index, GLsizei maxLength, GLsizei* length,
@@ -55,7 +52,8 @@ Napi::Value WebGL2RenderingContext::GetActiveAttrib(Napi::CallbackInfo const& in
     GLint size{0}, length{0};
     GLchar* name = reinterpret_cast<GLchar*>(std::malloc(max_len));
     GL_EXPORT::glGetActiveAttrib(program, attrib_, max_len, &length, &size, &type, name);
-    return WebGLActiveInfo::New(size, type, std::string{name, static_cast<size_t>(length)});
+    return WebGLActiveInfo::New(
+      info.Env(), size, type, std::string{name, static_cast<size_t>(length)});
   }
   return info.Env().Null();
 }
@@ -111,64 +109,56 @@ Napi::Value WebGL2RenderingContext::GetVertexAttribPointerv(Napi::CallbackInfo c
 }
 
 // GLEWAPI void glVertexAttrib1f (GLuint index, GLfloat x);
-Napi::Value WebGL2RenderingContext::VertexAttrib1f(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttrib1f(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttrib1f(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttrib1fv (GLuint index, const GLfloat* v);
-Napi::Value WebGL2RenderingContext::VertexAttrib1fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttrib1fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttrib1fv(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttrib2f (GLuint index, GLfloat x, GLfloat y);
-Napi::Value WebGL2RenderingContext::VertexAttrib2f(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttrib2f(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttrib2f(args[0], args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttrib2fv (GLuint index, const GLfloat* v);
-Napi::Value WebGL2RenderingContext::VertexAttrib2fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttrib2fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttrib2fv(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttrib3f (GLuint index, GLfloat x, GLfloat y, GLfloat z);
-Napi::Value WebGL2RenderingContext::VertexAttrib3f(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttrib3f(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttrib3f(args[0], args[1], args[2], args[3]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttrib3fv (GLuint index, const GLfloat* v);
-Napi::Value WebGL2RenderingContext::VertexAttrib3fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttrib3fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttrib3fv(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttrib4f (GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
-Napi::Value WebGL2RenderingContext::VertexAttrib4f(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttrib4f(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttrib4f(args[0], args[1], args[2], args[3], args[4]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttrib4fv (GLuint index, const GLfloat* v);
-Napi::Value WebGL2RenderingContext::VertexAttrib4fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttrib4fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttrib4fv(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttribPointer (GLuint index, GLint size, GLenum type, GLboolean normalized,
 // GLsizei stride, const void* pointer);
-Napi::Value WebGL2RenderingContext::VertexAttribPointer(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttribPointer(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLuint index      = args[0];
   GLint size        = args[1];
@@ -182,40 +172,35 @@ Napi::Value WebGL2RenderingContext::VertexAttribPointer(Napi::CallbackInfo const
                                    normalized ? GL_TRUE : GL_FALSE,
                                    stride,
                                    ptr == 0 ? NULL : reinterpret_cast<void*>(ptr));
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttribI4i (GLuint index, GLint v0, GLint v1, GLint v2, GLint v3);
-Napi::Value WebGL2RenderingContext::VertexAttribI4i(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttribI4i(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttribI4i(args[0], args[1], args[2], args[3], args[4]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttribI4iv (GLuint index, const GLint* v0);
-Napi::Value WebGL2RenderingContext::VertexAttribI4iv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttribI4iv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttribI4iv(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttribI4ui (GLuint index, GLuint v0, GLuint v1, GLuint v2, GLuint v3);
-Napi::Value WebGL2RenderingContext::VertexAttribI4ui(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttribI4ui(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttribI4ui(args[0], args[1], args[2], args[3], args[4]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttribI4uiv (GLuint index, const GLuint* v0);
-Napi::Value WebGL2RenderingContext::VertexAttribI4uiv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttribI4uiv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glVertexAttribI4uiv(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GLEWAPI void glVertexAttribIPointer (GLuint index, GLint size, GLenum type, GLsizei stride, const
 // void*pointer);
-Napi::Value WebGL2RenderingContext::VertexAttribIPointer(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::VertexAttribIPointer(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLuint index      = args[0];
   GLint size        = args[1];
@@ -224,7 +209,6 @@ Napi::Value WebGL2RenderingContext::VertexAttribIPointer(Napi::CallbackInfo cons
   GLintptr ptr      = args[4];
   GL_EXPORT::glVertexAttribIPointer(
     index, size, type, stride, ptr == 0 ? NULL : reinterpret_cast<void*>(ptr));
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

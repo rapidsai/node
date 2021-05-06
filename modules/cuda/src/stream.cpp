@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,26 +30,27 @@ Napi::Value cudaStreamCreate(CallbackArgs const& info) {
 }
 
 // cudaError_t cudaStreamDestroy(cudaStream_t stream);
-Napi::Value cudaStreamDestroy(CallbackArgs const& info) {
+void cudaStreamDestroy(CallbackArgs const& info) {
   auto env            = info.Env();
   cudaStream_t stream = info[0];
   NODE_CUDA_TRY(CUDARTAPI::cudaStreamDestroy(stream), env);
-  return env.Undefined();
 }
 
 // cudaError_t cudaStreamSynchronize(cudaStream_t stream);
-Napi::Value cudaStreamSynchronize(CallbackArgs const& info) {
+void cudaStreamSynchronize(CallbackArgs const& info) {
   auto env            = info.Env();
   cudaStream_t stream = info[0];
   NODE_CUDA_TRY(CUDARTAPI::cudaStreamSynchronize(stream), env);
-  return env.Undefined();
 }
 
 namespace stream {
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "create", nv::cudaStreamCreate);
-  EXPORT_FUNC(env, exports, "destroy", nv::cudaStreamDestroy);
-  EXPORT_FUNC(env, exports, "synchronize", nv::cudaStreamSynchronize);
+Napi::Object initModule(Napi::Env const& env,
+                        Napi::Object exports,
+                        Napi::Object driver,
+                        Napi::Object runtime) {
+  EXPORT_FUNC(env, runtime, "create", nv::cudaStreamCreate);
+  EXPORT_FUNC(env, runtime, "destroy", nv::cudaStreamDestroy);
+  EXPORT_FUNC(env, runtime, "synchronize", nv::cudaStreamSynchronize);
 
   return exports;
 }

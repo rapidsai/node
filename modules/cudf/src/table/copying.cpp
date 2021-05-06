@@ -19,32 +19,33 @@
 #include <cudf/copying.hpp>
 #include <cudf/table/table_view.hpp>
 
+#include <functional>
 #include <memory>
 
 namespace nv {
 
-ObjectUnwrap<Table> Table::gather(Column const& gather_map,
-                                  cudf::out_of_bounds_policy bounds_policy,
-                                  rmm::mr::device_memory_resource* mr) const {
-  return Table::New(cudf::gather(cudf::table_view{{*this}}, gather_map, bounds_policy, mr));
+Table::wrapper_t Table::gather(Column const& gather_map,
+                               cudf::out_of_bounds_policy bounds_policy,
+                               rmm::mr::device_memory_resource* mr) const {
+  return Table::New(Env(), cudf::gather(cudf::table_view{{*this}}, gather_map, bounds_policy, mr));
 }
 
-ObjectUnwrap<Table> Table::scatter(
+Table::wrapper_t Table::scatter(
   std::vector<std::reference_wrapper<const cudf::scalar>> const& source,
   Column const& indices,
   bool check_bounds,
   rmm::mr::device_memory_resource* mr) const {
   try {
-    return Table::New(cudf::scatter(source, indices.view(), this->view(), check_bounds, mr));
+    return Table::New(Env(), cudf::scatter(source, indices, *this, check_bounds, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
-ObjectUnwrap<Table> Table::scatter(Table const& source,
-                                   Column const& indices,
-                                   bool check_bounds,
-                                   rmm::mr::device_memory_resource* mr) const {
+Table::wrapper_t Table::scatter(Table const& source,
+                                Column const& indices,
+                                bool check_bounds,
+                                rmm::mr::device_memory_resource* mr) const {
   try {
-    return Table::New(cudf::scatter(source.view(), indices.view(), this->view(), check_bounds, mr));
+    return Table::New(Env(), cudf::scatter(source, indices, *this, check_bounds, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
@@ -52,19 +53,17 @@ Napi::Value Table::gather(Napi::CallbackInfo const& info) {
   using namespace cudf;
 
   CallbackArgs args{info};
-  if (!Column::is_instance(args[0])) {
+  if (!Column::IsInstance(args[0])) {
     throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
   }
   auto& selection = *Column::Unwrap(args[0]);
-  if (selection.type().id() == type_id::BOOL8) {
-    return this->apply_boolean_mask(selection)->Value();
-  }
+  if (selection.type().id() == type_id::BOOL8) { return this->apply_boolean_mask(selection); }
   auto oob_policy = out_of_bounds_policy::DONT_CHECK;
   if (args.Length() == 2 and args[1].IsBoolean()) {
     oob_policy =
       args[1].ToBoolean() ? out_of_bounds_policy::NULLIFY : out_of_bounds_policy::DONT_CHECK;
   }
-  return this->gather(selection, oob_policy)->Value();
+  return this->gather(selection, oob_policy);
 }
 
 Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {
@@ -83,14 +82,14 @@ Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {
   std::vector<std::reference_wrapper<const cudf::scalar>> source{};
 
   for (uint32_t i = 0; i < source_array.Length(); ++i) {
-    if (!Scalar::is_instance(source_array.Get(i))) {
+    if (!Scalar::IsInstance(source_array.Get(i))) {
       throw Napi::Error::New(info.Env(),
                              "scatter_scalar source argument expects an array of scalars");
     }
     source.push_back(std::ref<const cudf::scalar>(*Scalar::Unwrap(source_array.Get(i).ToObject())));
   }
 
-  if (!Column::is_instance(args[1])) {
+  if (!Column::IsInstance(args[1])) {
     throw Napi::Error::New(info.Env(), "scatter_scalar indices argument expects a Column");
   }
   auto& indices                       = *Column::Unwrap(args[1]);
@@ -108,12 +107,12 @@ Napi::Value Table::scatter_table(Napi::CallbackInfo const& info) {
       "scatter_table expects a Table, a Column, and optionally a bool and memory resource"));
   }
 
-  if (!Table::is_instance(args[0])) {
+  if (!Table::IsInstance(args[0])) {
     throw Napi::Error::New(info.Env(), "scatter_table source argument expects a Table");
   }
   auto& source = *Table::Unwrap(args[0]);
 
-  if (!Column::is_instance(args[1])) {
+  if (!Column::IsInstance(args[1])) {
     throw Napi::Error::New(info.Env(), "scatter_table indices argument expects a Column");
   }
   auto& indices = *Column::Unwrap(args[1]);

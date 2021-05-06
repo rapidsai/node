@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,17 +15,20 @@
 require('segfault-handler').registerHandler('./crash.log');
 
 require('@babel/register')({
-    cache: false,
-    babelrc: false,
-    presets: [
-        ["@babel/preset-env", { "targets": { "node": "current" }}],
-        ['@babel/preset-react', { "useBuiltIns": true }]
-    ]
+  cache: false,
+  babelrc: false,
+  presets: [
+    ["@babel/preset-env", { "targets": { "node": "current" } }],
+    ['@babel/preset-react', { "useBuiltIns": true }]
+  ]
 });
+
+// Change cwd to the example dir so relative file paths are resolved
+process.chdir(__dirname);
 
 const { createReactWindow } = require('@nvidia/glfw');
 module.exports = createReactWindow(`${__dirname}/app.js`, true);
 
 if (require.main === module) {
-    module.exports.open({ transparent: false });
+  module.exports.open({ transparent: false });
 }
