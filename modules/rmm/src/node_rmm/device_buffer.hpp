@@ -18,7 +18,6 @@
 #include <node_rmm/utilities/napi_to_cpp.hpp>
 
 #include <nv_node/utilities/span.hpp>
-#include <nv_node/utilities/wrap.hpp>
 
 #include <rmm/cuda_stream_view.hpp>
 #include <rmm/device_buffer.hpp>
@@ -28,15 +27,22 @@
 
 namespace nv {
 
-struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+struct DeviceBuffer : public EnvLocalObjectWrap<DeviceBuffer> {
+  /**
+   * @brief Initialize and export the DeviceBuffer JavaScript constructor and prototype.
+   *
+   * @param env The active JavaScript environment.
+   * @param exports The exports object to decorate.
+   * @return Napi::Function The DeviceBuffer constructor function.
+   */
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new DeviceBuffer instance from an rmm::device_buffer.
    *
    * @param buffer Pointer the rmm::device_buffer to own.
    */
-  static ObjectUnwrap<DeviceBuffer> New(std::unique_ptr<rmm::device_buffer> buffer);
+  static wrapper_t New(Napi::Env const& env, std::unique_ptr<rmm::device_buffer> buffer);
 
   /**
    * @brief Construct a new uninitialized DeviceBuffer instance from C++.
@@ -45,26 +51,38 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
    */
-  inline static ObjectUnwrap<DeviceBuffer> New(
-    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
-    rmm::cuda_stream_view stream           = rmm::cuda_stream_default) {
-    return DeviceBuffer::New(nullptr, 0, mr, stream);
+  inline static wrapper_t New(Napi::Env const& env,
+                              MemoryResource::wrapper_t const& mr,
+                              rmm::cuda_stream_view stream = rmm::cuda_stream_default) {
+    return EnvLocalObjectWrap<DeviceBuffer>::New(env, 0, mr, stream);
+  }
+
+  /**
+   * @brief Construct a new uninitialized DeviceBuffer instance from C++.
+   *
+   * @param stream CUDA stream on which memory may be allocated if the memory
+   * resource supports streams.
+   */
+  inline static wrapper_t New(Napi::Env const& env,
+                              rmm::cuda_stream_view stream = rmm::cuda_stream_default) {
+    return EnvLocalObjectWrap<DeviceBuffer>::New(env, 0, MemoryResource::Cuda(env), stream);
   }
 
   /**
    * @brief Construct a new DeviceBuffer instance from an Array.
    *
    * @param data Array to copy from.
+   * @param mr Memory resource to use for the device memory allocation.
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
    */
   template <typename T = double>
-  inline static ObjectUnwrap<DeviceBuffer> New(
-    Napi::Array const& data,
-    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
-    rmm::cuda_stream_view stream           = rmm::cuda_stream_default) {
+  inline static wrapper_t New(Napi::Env const& env,
+                              Napi::Array const& data,
+                              MemoryResource::wrapper_t const& mr,
+                              rmm::cuda_stream_view stream = rmm::cuda_stream_default) {
     std::vector<T> hvec = NapiToCPP{data};
-    return New(hvec.data(), hvec.size() * sizeof(T), mr.object(), stream);
+    return New(env, Span<char>{hvec.data(), hvec.size()}, mr, stream);
   }
 
   /**
@@ -74,10 +92,10 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
    */
-  static ObjectUnwrap<DeviceBuffer> New(
-    Napi::Uint8Array const& data,
-    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
-    rmm::cuda_stream_view stream           = rmm::cuda_stream_default);
+  static wrapper_t New(Napi::Env const& env,
+                       Napi::Uint8Array const& data,
+                       MemoryResource::wrapper_t const& mr,
+                       rmm::cuda_stream_view stream = rmm::cuda_stream_default);
 
   /**
    * @brief Construct a new DeviceBuffer instance from C++.
@@ -86,10 +104,10 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * @param stream CUDA stream on which memory may be allocated if the memory
    * resource supports streams.
    */
-  static ObjectUnwrap<DeviceBuffer> New(
-    Span<char> const& data,
-    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
-    rmm::cuda_stream_view stream           = rmm::cuda_stream_default);
+  static wrapper_t New(Napi::Env const& env,
+                       Span<char> const& data,
+                       MemoryResource::wrapper_t const& mr,
+                       rmm::cuda_stream_view stream = rmm::cuda_stream_default);
 
   /**
    * @brief Construct a new DeviceBuffer instance from C++.
@@ -100,35 +118,14 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    * resource supports streams.
    * @param mr Memory resource to use for the device memory allocation.
    */
-  static ObjectUnwrap<DeviceBuffer> New(
-    void* const data,
-    size_t const size,
-    ObjectUnwrap<MemoryResource> const& mr = MemoryResource::Cuda(),
-    rmm::cuda_stream_view stream           = rmm::cuda_stream_default);
+  static wrapper_t New(Napi::Env const& env,
+                       void* const data,
+                       size_t const size,
+                       MemoryResource::wrapper_t const& mr,
+                       rmm::cuda_stream_view stream = rmm::cuda_stream_default);
 
   /**
-   * @brief Check whether an Napi object is an instance of `DeviceBuffer`.
-   *
-   * @param val The Napi::Object to test
-   * @return true if the object is a `DeviceBuffer`
-   * @return false if the object is not a `DeviceBuffer`
-   */
-  inline static bool is_instance(Napi::Object const& val) {
-    return val.InstanceOf(constructor.Value());
-  }
-  /**
-   * @brief Check whether an Napi value is an instance of `DeviceBuffer`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `DeviceBuffer`
-   * @return false if the value is not a `DeviceBuffer`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and is_instance(val.As<Napi::Object>());
-  }
-
-  /**
-   * @brief Construct a new DeviceBuffer instance from JavaScript.
+   * @brief Construct a new DeviceBuffer instance.
    *
    */
   DeviceBuffer(CallbackArgs const& info);
@@ -141,27 +138,47 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
    */
   void Finalize(Napi::Env env) override;
 
-  inline void* data() const { return buffer_->data(); }
+  void dispose(Napi::Env env);
 
-  inline size_t size() const { return buffer_->size(); }
+  rmm::cuda_device_id device() const noexcept;
 
-  inline bool is_empty() const { return buffer_->is_empty(); }
+  inline void* data() const { return buffer_.get() != nullptr ? buffer_->data() : nullptr; }
 
-  inline ValueWrap<rmm::cuda_stream_view> stream() { return {Env(), buffer_->stream()}; }
+  inline size_t size() const { return buffer_.get() != nullptr ? buffer_->size() : 0; }
 
-  ValueWrap<int32_t> device() const;
+  inline size_t capacity() const { return buffer_.get() != nullptr ? buffer_->capacity() : 0; }
 
-  inline explicit operator rmm::cuda_device_id() const { return NapiToCPP(mr_.Value()); }
+  inline bool is_empty() const { return buffer_.get() != nullptr ? buffer_->is_empty() : true; }
 
-  inline rmm::mr::device_memory_resource* get_mr() const { return NapiToCPP(mr_.Value()); }
+  inline rmm::cuda_stream_view stream() {
+    return buffer_.get() != nullptr ? buffer_->stream() : rmm::cuda_stream_default;
+  }
 
-  inline operator Napi::Value() const { return Value(); }
+  inline rmm::mr::device_memory_resource* get_mr() const {
+    return mr_.Value()->operator rmm::mr::device_memory_resource*();
+  }
+
+  // convert to void*
+  inline operator void*() const { return static_cast<void*>(data()); }
+  // convert to const void*
+  inline operator const void*() const { return static_cast<void*>(data()); }
+
+  // convert to cudf::valid_type*
+  inline operator uint8_t*() const { return static_cast<uint8_t*>(data()); }
+  // convert to const cudf::valid_type*
+  inline operator const uint8_t*() const { return static_cast<uint8_t*>(data()); }
+
+  // convert to cudf::offset_type*
+  inline operator int32_t*() const { return static_cast<int32_t*>(data()); }
+  // convert to const cudf::offset_type*
+  inline operator const int32_t*() const { return static_cast<int32_t*>(data()); }
+
+  // convert to cudf::bitmask_type*
+  inline operator uint32_t*() const { return static_cast<uint32_t*>(data()); }
+  // convert to const cudf::bitmask_type*
+  inline operator const uint32_t*() const { return static_cast<uint32_t*>(data()); }
 
  private:
-  static ConstructorReference constructor;
-
-  rmm::device_buffer& buffer() const { return *buffer_; }
-
   Napi::Value get_mr(Napi::CallbackInfo const& info);
   Napi::Value byte_length(Napi::CallbackInfo const& info);
   Napi::Value capacity(Napi::CallbackInfo const& info);
@@ -169,13 +186,17 @@ struct DeviceBuffer : public Napi::ObjectWrap<DeviceBuffer> {
   Napi::Value ptr(Napi::CallbackInfo const& info);
   Napi::Value device(Napi::CallbackInfo const& info);
   Napi::Value stream(Napi::CallbackInfo const& info);
-  Napi::Value resize(Napi::CallbackInfo const& info);
-  Napi::Value set_stream(Napi::CallbackInfo const& info);
-  Napi::Value shrink_to_fit(Napi::CallbackInfo const& info);
+  void resize(Napi::CallbackInfo const& info);
+  void set_stream(Napi::CallbackInfo const& info);
+  void shrink_to_fit(Napi::CallbackInfo const& info);
   Napi::Value slice(Napi::CallbackInfo const& info);
 
+  void dispose(Napi::CallbackInfo const&);
+
   std::unique_ptr<rmm::device_buffer> buffer_;  ///< Pointer to the underlying rmm::device_buffer
-  Napi::ObjectReference mr_;  ///< Reference to the JS MemoryResource used by this device_buffer
+  Napi::Reference<MemoryResource::wrapper_t>
+    mr_;  ///< Reference to the JS MemoryResource used by this device_buffer
+  rmm::cuda_device_id device_id_{Device::active_device_id()};
 };
 
 }  // namespace nv

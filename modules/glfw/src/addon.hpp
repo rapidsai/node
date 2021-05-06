@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ namespace nv {
 Napi::Value glfwInit(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwTerminate(void);
-Napi::Value glfwTerminate(Napi::CallbackInfo const& info);
+void glfwTerminate(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwInitHint(int hint, int value);
-Napi::Value glfwInitHint(Napi::CallbackInfo const& info);
+void glfwInitHint(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwGetVersion(int* major, int* minor, int* rev);
 Napi::Value glfwGetVersion(Napi::CallbackInfo const& info);
@@ -38,7 +38,7 @@ Napi::Value glfwGetVersionString(Napi::CallbackInfo const& info);
 Napi::Value glfwGetError(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWerrorfun glfwSetErrorCallback(GLFWerrorfun callback);
-Napi::Value glfwSetErrorCallback(Napi::CallbackInfo const& info);
+void glfwSetErrorCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWmonitor** glfwGetMonitors(int* count);
 Napi::Value glfwGetMonitors(Napi::CallbackInfo const& info);
@@ -63,13 +63,13 @@ Napi::Value glfwGetMonitorContentScale(Napi::CallbackInfo const& info);
 Napi::Value glfwGetMonitorName(Napi::CallbackInfo const& info);
 
 // // GLFWAPI void glfwSetMonitorUserPointer(GLFWmonitor* monitor, void* pointer);
-// Napi::Value glfwSetMonitorUserPointer(Napi::CallbackInfo const& info);
+// void glfwSetMonitorUserPointer(Napi::CallbackInfo const& info);
 
 // // GLFWAPI void* glfwGetMonitorUserPointer(GLFWmonitor* monitor);
 // Napi::Value glfwGetMonitorUserPointer(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWmonitorfun glfwSetMonitorCallback(GLFWmonitorfun callback);
-Napi::Value glfwSetMonitorCallback(Napi::CallbackInfo const& info);
+void glfwSetMonitorCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI const GLFWvidmode* glfwGetVideoModes(GLFWmonitor* monitor, int* count);
 Napi::Value glfwGetVideoModes(Napi::CallbackInfo const& info);
@@ -78,13 +78,13 @@ Napi::Value glfwGetVideoModes(Napi::CallbackInfo const& info);
 Napi::Value glfwGetVideoMode(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetGamma(GLFWmonitor* monitor, float gamma);
-Napi::Value glfwSetGamma(Napi::CallbackInfo const& info);
+void glfwSetGamma(Napi::CallbackInfo const& info);
 
 // GLFWAPI const GLFWgammaramp* glfwGetGammaRamp(GLFWmonitor* monitor);
 Napi::Value glfwGetGammaRamp(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetGammaRamp(GLFWmonitor* monitor, const GLFWgammaramp* ramp);
-Napi::Value glfwSetGammaRamp(Napi::CallbackInfo const& info);
+void glfwSetGammaRamp(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwDefaultWindowHints(void);
 Napi::Value glfwDefaultWindowHints(Napi::CallbackInfo const& info);
@@ -111,32 +111,32 @@ Napi::Value glfwDestroyWindow(Napi::CallbackInfo const& info);
 Napi::Value glfwWindowShouldClose(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetWindowShouldClose(GLFWwindow* window, int value);
-Napi::Value glfwSetWindowShouldClose(Napi::CallbackInfo const& info);
+void glfwSetWindowShouldClose(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetWindowTitle(GLFWwindow* window, const char* title);
-Napi::Value glfwSetWindowTitle(Napi::CallbackInfo const& info);
+void glfwSetWindowTitle(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetWindowIcon(GLFWwindow* window, int count, const GLFWimage* images);
-Napi::Value glfwSetWindowIcon(Napi::CallbackInfo const& info);
+void glfwSetWindowIcon(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwGetWindowPos(GLFWwindow* window, int* xpos, int* ypos);
 Napi::Value glfwGetWindowPos(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetWindowPos(GLFWwindow* window, int xpos, int ypos);
-Napi::Value glfwSetWindowPos(Napi::CallbackInfo const& info);
+void glfwSetWindowPos(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwGetWindowSize(GLFWwindow* window, int* width, int* height);
 Napi::Value glfwGetWindowSize(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetWindowSizeLimits(GLFWwindow* window, int minwidth, int minheight, int
 // maxwidth, int maxheight);
-Napi::Value glfwSetWindowSizeLimits(Napi::CallbackInfo const& info);
+void glfwSetWindowSizeLimits(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetWindowAspectRatio(GLFWwindow* window, int numer, int denom);
-Napi::Value glfwSetWindowAspectRatio(Napi::CallbackInfo const& info);
+void glfwSetWindowAspectRatio(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetWindowSize(GLFWwindow* window, int width, int height);
-Napi::Value glfwSetWindowSize(Napi::CallbackInfo const& info);
+void glfwSetWindowSize(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwGetFramebufferSize(GLFWwindow* window, int* width, int* height);
 Napi::Value glfwGetFramebufferSize(Napi::CallbackInfo const& info);
@@ -152,7 +152,7 @@ Napi::Value glfwGetWindowContentScale(Napi::CallbackInfo const& info);
 Napi::Value glfwGetWindowOpacity(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetWindowOpacity(GLFWwindow* window, float opacity);
-Napi::Value glfwSetWindowOpacity(Napi::CallbackInfo const& info);
+void glfwSetWindowOpacity(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwIconifyWindow(GLFWwindow* window);
 Napi::Value glfwIconifyWindow(Napi::CallbackInfo const& info);
@@ -180,72 +180,72 @@ Napi::Value glfwGetWindowMonitor(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetWindowMonitor(GLFWwindow* window, GLFWmonitor* monitor, int xpos, int ypos,
 // int width, int height, int refreshRate);
-Napi::Value glfwSetWindowMonitor(Napi::CallbackInfo const& info);
+void glfwSetWindowMonitor(Napi::CallbackInfo const& info);
 
 // GLFWAPI int glfwGetWindowAttrib(GLFWwindow* window, int attrib);
 Napi::Value glfwGetWindowAttrib(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetWindowAttrib(GLFWwindow* window, int attrib, int value);
-Napi::Value glfwSetWindowAttrib(Napi::CallbackInfo const& info);
+void glfwSetWindowAttrib(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetWindowUserPointer(GLFWwindow* window, void* pointer);
-// Napi::Value glfwSetWindowUserPointer(Napi::CallbackInfo const& info);
+// void glfwSetWindowUserPointer(Napi::CallbackInfo const& info);
 
 // GLFWAPI void* glfwGetWindowUserPointer(GLFWwindow* window);
 // Napi::Value glfwGetWindowUserPointer(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWwindowposfun glfwSetWindowPosCallback(GLFWwindow* window, GLFWwindowposfun callback);
-Napi::Value glfwSetWindowPosCallback(Napi::CallbackInfo const& info);
+void glfwSetWindowPosCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWwindowsizefun glfwSetWindowSizeCallback(GLFWwindow* window, GLFWwindowsizefun
 // callback);
-Napi::Value glfwSetWindowSizeCallback(Napi::CallbackInfo const& info);
+void glfwSetWindowSizeCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWwindowclosefun glfwSetWindowCloseCallback(GLFWwindow* window, GLFWwindowclosefun
 // callback);
-Napi::Value glfwSetWindowCloseCallback(Napi::CallbackInfo const& info);
+void glfwSetWindowCloseCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWwindowrefreshfun glfwSetWindowRefreshCallback(GLFWwindow* window,
 // GLFWwindowrefreshfun callback);
-Napi::Value glfwSetWindowRefreshCallback(Napi::CallbackInfo const& info);
+void glfwSetWindowRefreshCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWwindowfocusfun glfwSetWindowFocusCallback(GLFWwindow* window, GLFWwindowfocusfun
 // callback);
-Napi::Value glfwSetWindowFocusCallback(Napi::CallbackInfo const& info);
+void glfwSetWindowFocusCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWwindowiconifyfun glfwSetWindowIconifyCallback(GLFWwindow* window,
 // GLFWwindowiconifyfun callback);
-Napi::Value glfwSetWindowIconifyCallback(Napi::CallbackInfo const& info);
+void glfwSetWindowIconifyCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWwindowmaximizefun glfwSetWindowMaximizeCallback(GLFWwindow* window,
 // GLFWwindowmaximizefun callback);
-Napi::Value glfwSetWindowMaximizeCallback(Napi::CallbackInfo const& info);
+void glfwSetWindowMaximizeCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWframebuffersizefun glfwSetFramebufferSizeCallback(GLFWwindow* window,
 // GLFWframebuffersizefun callback);
-Napi::Value glfwSetFramebufferSizeCallback(Napi::CallbackInfo const& info);
+void glfwSetFramebufferSizeCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWwindowcontentscalefun glfwSetWindowContentScaleCallback(GLFWwindow* window,
 // GLFWwindowcontentscalefun callback);
-Napi::Value glfwSetWindowContentScaleCallback(Napi::CallbackInfo const& info);
+void glfwSetWindowContentScaleCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwPollEvents(void);
-Napi::Value glfwPollEvents(Napi::CallbackInfo const& info);
+void glfwPollEvents(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwWaitEvents(void);
-Napi::Value glfwWaitEvents(Napi::CallbackInfo const& info);
+void glfwWaitEvents(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwWaitEventsTimeout(double timeout);
-Napi::Value glfwWaitEventsTimeout(Napi::CallbackInfo const& info);
+void glfwWaitEventsTimeout(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwPostEmptyEvent(void);
-Napi::Value glfwPostEmptyEvent(Napi::CallbackInfo const& info);
+void glfwPostEmptyEvent(Napi::CallbackInfo const& info);
 
 // GLFWAPI int glfwGetInputMode(GLFWwindow* window, int mode);
 Napi::Value glfwGetInputMode(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetInputMode(GLFWwindow* window, int mode, int value);
-Napi::Value glfwSetInputMode(Napi::CallbackInfo const& info);
+void glfwSetInputMode(Napi::CallbackInfo const& info);
 
 // GLFWAPI int glfwRawMouseMotionSupported(void);
 Napi::Value glfwRawMouseMotionSupported(Napi::CallbackInfo const& info);
@@ -266,7 +266,7 @@ Napi::Value glfwGetMouseButton(Napi::CallbackInfo const& info);
 Napi::Value glfwGetCursorPos(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos);
-Napi::Value glfwSetCursorPos(Napi::CallbackInfo const& info);
+void glfwSetCursorPos(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot);
 Napi::Value glfwCreateCursor(Napi::CallbackInfo const& info);
@@ -275,36 +275,36 @@ Napi::Value glfwCreateCursor(Napi::CallbackInfo const& info);
 Napi::Value glfwCreateStandardCursor(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwDestroyCursor(GLFWcursor* cursor);
-Napi::Value glfwDestroyCursor(Napi::CallbackInfo const& info);
+void glfwDestroyCursor(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetCursor(GLFWwindow* window, GLFWcursor* cursor);
-Napi::Value glfwSetCursor(Napi::CallbackInfo const& info);
+void glfwSetCursor(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWkeyfun glfwSetKeyCallback(GLFWwindow* window, GLFWkeyfun callback);
-Napi::Value glfwSetKeyCallback(Napi::CallbackInfo const& info);
+void glfwSetKeyCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWcharfun glfwSetCharCallback(GLFWwindow* window, GLFWcharfun callback);
-Napi::Value glfwSetCharCallback(Napi::CallbackInfo const& info);
+void glfwSetCharCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWcharmodsfun glfwSetCharModsCallback(GLFWwindow* window, GLFWcharmodsfun callback);
-Napi::Value glfwSetCharModsCallback(Napi::CallbackInfo const& info);
+void glfwSetCharModsCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWmousebuttonfun glfwSetMouseButtonCallback(GLFWwindow* window, GLFWmousebuttonfun
 // callback);
-Napi::Value glfwSetMouseButtonCallback(Napi::CallbackInfo const& info);
+void glfwSetMouseButtonCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWcursorposfun glfwSetCursorPosCallback(GLFWwindow* window, GLFWcursorposfun callback);
-Napi::Value glfwSetCursorPosCallback(Napi::CallbackInfo const& info);
+void glfwSetCursorPosCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWcursorenterfun glfwSetCursorEnterCallback(GLFWwindow* window, GLFWcursorenterfun
 // callback);
-Napi::Value glfwSetCursorEnterCallback(Napi::CallbackInfo const& info);
+void glfwSetCursorEnterCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWscrollfun glfwSetScrollCallback(GLFWwindow* window, GLFWscrollfun callback);
-Napi::Value glfwSetScrollCallback(Napi::CallbackInfo const& info);
+void glfwSetScrollCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWdropfun glfwSetDropCallback(GLFWwindow* window, GLFWdropfun callback);
-Napi::Value glfwSetDropCallback(Napi::CallbackInfo const& info);
+void glfwSetDropCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI int glfwJoystickPresent(int jid);
 Napi::Value glfwJoystickPresent(Napi::CallbackInfo const& info);
@@ -325,7 +325,7 @@ Napi::Value glfwGetJoystickName(Napi::CallbackInfo const& info);
 Napi::Value glfwGetJoystickGUID(Napi::CallbackInfo const& info);
 
 // // GLFWAPI void glfwSetJoystickUserPointer(int jid, void* pointer);
-// Napi::Value glfwSetJoystickUserPointer(Napi::CallbackInfo const& info);
+// void glfwSetJoystickUserPointer(Napi::CallbackInfo const& info);
 
 // // GLFWAPI void* glfwGetJoystickUserPointer(int jid);
 // Napi::Value glfwGetJoystickUserPointer(Napi::CallbackInfo const& info);
@@ -334,10 +334,10 @@ Napi::Value glfwGetJoystickGUID(Napi::CallbackInfo const& info);
 Napi::Value glfwJoystickIsGamepad(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWjoystickfun glfwSetJoystickCallback(GLFWjoystickfun callback);
-Napi::Value glfwSetJoystickCallback(Napi::CallbackInfo const& info);
+void glfwSetJoystickCallback(Napi::CallbackInfo const& info);
 
 // GLFWAPI int glfwUpdateGamepadMappings(const char* string);
-Napi::Value glfwUpdateGamepadMappings(Napi::CallbackInfo const& info);
+void glfwUpdateGamepadMappings(Napi::CallbackInfo const& info);
 
 // GLFWAPI const char* glfwGetGamepadName(int jid);
 Napi::Value glfwGetGamepadName(Napi::CallbackInfo const& info);
@@ -346,7 +346,7 @@ Napi::Value glfwGetGamepadName(Napi::CallbackInfo const& info);
 Napi::Value glfwGetGamepadState(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetClipboardString(GLFWwindow* window, const char* string);
-Napi::Value glfwSetClipboardString(Napi::CallbackInfo const& info);
+void glfwSetClipboardString(Napi::CallbackInfo const& info);
 
 // GLFWAPI const char* glfwGetClipboardString(GLFWwindow* window);
 Napi::Value glfwGetClipboardString(Napi::CallbackInfo const& info);
@@ -355,7 +355,7 @@ Napi::Value glfwGetClipboardString(Napi::CallbackInfo const& info);
 Napi::Value glfwGetTime(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSetTime(double time);
-Napi::Value glfwSetTime(Napi::CallbackInfo const& info);
+void glfwSetTime(Napi::CallbackInfo const& info);
 
 // GLFWAPI uint64_t glfwGetTimerValue(void);
 Napi::Value glfwGetTimerValue(Napi::CallbackInfo const& info);
@@ -364,16 +364,16 @@ Napi::Value glfwGetTimerValue(Napi::CallbackInfo const& info);
 Napi::Value glfwGetTimerFrequency(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwMakeContextCurrent(GLFWwindow* window);
-Napi::Value glfwMakeContextCurrent(Napi::CallbackInfo const& info);
+void glfwMakeContextCurrent(Napi::CallbackInfo const& info);
 
 // GLFWAPI GLFWwindow* glfwGetCurrentContext(void);
 Napi::Value glfwGetCurrentContext(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSwapBuffers(GLFWwindow* window);
-Napi::Value glfwSwapBuffers(Napi::CallbackInfo const& info);
+void glfwSwapBuffers(Napi::CallbackInfo const& info);
 
 // GLFWAPI void glfwSwapInterval(int interval);
-Napi::Value glfwSwapInterval(Napi::CallbackInfo const& info);
+void glfwSwapInterval(Napi::CallbackInfo const& info);
 
 // GLFWAPI int glfwExtensionSupported(const char* extension);
 Napi::Value glfwExtensionSupported(Napi::CallbackInfo const& info);

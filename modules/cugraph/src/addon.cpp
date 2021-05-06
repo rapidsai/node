@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cugraph/addon.hpp>
-#include <node_cugraph/graph_coo.hpp>
+#include "node_cugraph/graph_coo.hpp"
 
-#include <nv_node/macros.hpp>
+#include <nv_node/addon.hpp>
 
-#include <napi.h>
+struct node_cugraph : public nv::EnvLocalAddon, public Napi::Addon<node_cugraph> {
+  node_cugraph(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
+    DefineAddon(exports,
+                {
+                  InstanceMethod("init", &node_cugraph::InitAddon),
+                  InstanceValue("_cpp_exports", _cpp_exports.Value()),
 
-namespace nv {
-Napi::Value cugraphInit(Napi::CallbackInfo const& info) {
-  // todo
-  return info.This();
-}
-}  // namespace nv
+                  InstanceValue("GraphCOO", InitClass<nv::GraphCOO>(env, exports)),
+                });
+  }
+};
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", nv::cugraphInit);
-  nv::GraphCOO::Init(env, exports);
-  return exports;
-}
-
-NODE_API_MODULE(node_cugraph, initModule);
+NODE_API_ADDON(node_cugraph);

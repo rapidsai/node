@@ -28,31 +28,31 @@
 
 namespace nv {
 
-ObjectUnwrap<Table> Table::apply_boolean_mask(Column const& boolean_mask,
-                                              rmm::mr::device_memory_resource* mr) const {
-  return Table::New(cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr));
+Table::wrapper_t Table::apply_boolean_mask(Column const& boolean_mask,
+                                           rmm::mr::device_memory_resource* mr) const {
+  return Table::New(Env(), cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr));
 }
 
-ObjectUnwrap<Table> Table::drop_nulls(std::vector<cudf::size_type> keys,
-                                      cudf::size_type threshold,
-                                      rmm::mr::device_memory_resource* mr) const {
-  return Table::New(cudf::drop_nulls(*this, keys, threshold, mr));
+Table::wrapper_t Table::drop_nulls(std::vector<cudf::size_type> keys,
+                                   cudf::size_type threshold,
+                                   rmm::mr::device_memory_resource* mr) const {
+  return Table::New(Env(), cudf::drop_nulls(*this, keys, threshold, mr));
 }
 
 Napi::Value Table::drop_nulls(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return drop_nulls(args[0], args[1], args[2])->Value();
+  return drop_nulls(args[0], args[1], args[2]);
 }
 
-ObjectUnwrap<Table> Table::drop_nans(std::vector<cudf::size_type> keys,
-                                     cudf::size_type threshold,
-                                     rmm::mr::device_memory_resource* mr) const {
-  return Table::New(cudf::drop_nans(*this, keys, threshold, mr));
+Table::wrapper_t Table::drop_nans(std::vector<cudf::size_type> keys,
+                                  cudf::size_type threshold,
+                                  rmm::mr::device_memory_resource* mr) const {
+  return Table::New(Env(), cudf::drop_nans(*this, keys, threshold, mr));
 }
 
 Napi::Value Table::drop_nans(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return drop_nans(args[0], args[1], args[2])->Value();
+  return drop_nans(args[0], args[1], args[2]);
 }
 
 }  // namespace nv

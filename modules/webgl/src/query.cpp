@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,10 +21,9 @@
 namespace nv {
 
 // GL_EXPORT void glBeginQuery (GLenum target, GLuint id);
-Napi::Value WebGL2RenderingContext::BeginQuery(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BeginQuery(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glBeginQuery(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGenQueries (GLsizei n, GLuint* ids);
@@ -32,7 +31,7 @@ Napi::Value WebGL2RenderingContext::CreateQuery(Napi::CallbackInfo const& info) 
   CallbackArgs args = info;
   GLuint query{};
   GL_EXPORT::glGenQueries(1, &query);
-  return WebGLQuery::New(query);
+  return WebGLQuery::New(info.Env(), query);
 }
 
 // GL_EXPORT void glGenQueries (GLsizei n, GLuint* ids);
@@ -44,26 +43,23 @@ Napi::Value WebGL2RenderingContext::CreateQueries(Napi::CallbackInfo const& info
 }
 
 // GL_EXPORT void glDeleteQueries (GLsizei n, const GLuint* ids);
-Napi::Value WebGL2RenderingContext::DeleteQuery(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteQuery(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLuint query      = args[0];
   GL_EXPORT::glDeleteQueries(1, &query);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDeleteQueries (GLsizei n, const GLuint* ids);
-Napi::Value WebGL2RenderingContext::DeleteQueries(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteQueries(Napi::CallbackInfo const& info) {
   CallbackArgs args           = info;
   std::vector<GLuint> queries = args[0];
   GL_EXPORT::glDeleteQueries(queries.size(), queries.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glEndQuery (GLenum target);
-Napi::Value WebGL2RenderingContext::EndQuery(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::EndQuery(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glEndQuery(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGetQueryiv (GLenum target, GLenum pname, GLint* params);
@@ -102,10 +98,9 @@ Napi::Value WebGL2RenderingContext::IsQuery(Napi::CallbackInfo const& info) {
 }
 
 // GL_EXPORT void glQueryCounter (GLuint id, GLenum target);
-Napi::Value WebGL2RenderingContext::QueryCounter(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::QueryCounter(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glQueryCounter(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

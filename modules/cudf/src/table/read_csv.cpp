@@ -213,25 +213,27 @@ Napi::Array get_output_cols(Napi::Env const& env, cudf::io::table_with_metadata 
   auto contents = result.tbl->release();
   auto columns  = Napi::Array::New(env, contents.size());
   for (std::size_t i = 0; i < contents.size(); ++i) {
-    columns.Set(i, Column::New(std::move(contents[i]))->Value());
+    columns.Set(i, Column::New(env, std::move(contents[i]))->Value());
   }
   return columns;
 }
 
 Napi::Value read_csv_files(Napi::Object const& options, std::vector<std::string> const& sources) {
+  auto env    = options.Env();
   auto result = cudf::io::read_csv(make_reader_options(options, cudf::io::source_info{sources}));
-  auto output = Napi::Object::New(options.Env());
-  output.Set("names", get_output_names(options.Env(), result));
-  output.Set("table", Table::New(get_output_cols(options.Env(), result)));
+  auto output = Napi::Object::New(env);
+  output.Set("names", get_output_names(env, result));
+  output.Set("table", Table::New(env, get_output_cols(env, result)));
   return output;
 }
 
 Napi::Value read_csv_strings(Napi::Object const& options, std::vector<Span<char>> const& sources) {
+  auto env    = options.Env();
   auto result = cudf::io::read_csv(
     make_reader_options(options, cudf::io::source_info{get_host_buffers(sources)}));
-  auto output = Napi::Object::New(options.Env());
-  output.Set("names", get_output_names(options.Env(), result));
-  output.Set("table", Table::New(get_output_cols(options.Env(), result)));
+  auto output = Napi::Object::New(env);
+  output.Set("names", get_output_names(env, result));
+  output.Set("table", Table::New(env, get_output_cols(env, result)));
   return output;
 }
 

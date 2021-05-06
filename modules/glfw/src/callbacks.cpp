@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -120,7 +120,7 @@ void GLFWdrop_cb(GLFWwindow* window, int count, const char** paths) {
 }
 
 // GLFWAPI GLFWerrorfun glfwSetErrorCallback(GLFWerrorfun callback);
-Napi::Value glfwSetErrorCallback(Napi::CallbackInfo const& info) {
+void glfwSetErrorCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   if (info[0].IsNull() || info[0].IsEmpty()) {
     GLFWerror_cb_js.Reset();
@@ -129,11 +129,10 @@ Napi::Value glfwSetErrorCallback(Napi::CallbackInfo const& info) {
     GLFWerror_cb_js.Reset(info[0].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetErrorCallback(GLFWerror_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWmonitorfun glfwSetMonitorCallback(GLFWmonitorfun callback);
-Napi::Value glfwSetMonitorCallback(Napi::CallbackInfo const& info) {
+void glfwSetMonitorCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   if (info[0].IsNull() || info[0].IsEmpty()) {
     GLFWmonitor_cb_js.Reset();
@@ -142,11 +141,10 @@ Napi::Value glfwSetMonitorCallback(Napi::CallbackInfo const& info) {
     GLFWmonitor_cb_js.Reset(info[0].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetMonitorCallback(GLFWmonitor_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWjoystickfun glfwSetJoystickCallback(GLFWjoystickfun callback);
-Napi::Value glfwSetJoystickCallback(Napi::CallbackInfo const& info) {
+void glfwSetJoystickCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   if (info[0].IsNull() || info[0].IsEmpty()) {
     GLFWjoystick_cb_js.Reset();
@@ -155,11 +153,10 @@ Napi::Value glfwSetJoystickCallback(Napi::CallbackInfo const& info) {
     GLFWjoystick_cb_js.Reset(info[0].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetJoystickCallback(GLFWjoystick_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWwindowposfun glfwSetWindowPosCallback(GLFWwindow* window, GLFWwindowposfun callback);
-Napi::Value glfwSetWindowPosCallback(Napi::CallbackInfo const& info) {
+void glfwSetWindowPosCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -169,12 +166,11 @@ Napi::Value glfwSetWindowPosCallback(Napi::CallbackInfo const& info) {
     GLFWwindowpos_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetWindowPosCallback(args[0], GLFWwindowpos_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWwindowsizefun glfwSetWindowSizeCallback(GLFWwindow* window, GLFWwindowsizefun
 // callback);
-Napi::Value glfwSetWindowSizeCallback(Napi::CallbackInfo const& info) {
+void glfwSetWindowSizeCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -184,12 +180,11 @@ Napi::Value glfwSetWindowSizeCallback(Napi::CallbackInfo const& info) {
     GLFWwindowsize_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetWindowSizeCallback(args[0], GLFWwindowsize_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWwindowclosefun glfwSetWindowCloseCallback(GLFWwindow* window, GLFWwindowclosefun
 // callback);
-Napi::Value glfwSetWindowCloseCallback(Napi::CallbackInfo const& info) {
+void glfwSetWindowCloseCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -199,12 +194,11 @@ Napi::Value glfwSetWindowCloseCallback(Napi::CallbackInfo const& info) {
     GLFWwindowclose_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetWindowCloseCallback(args[0], GLFWwindowclose_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWwindowrefreshfun glfwSetWindowRefreshCallback(GLFWwindow* window,
 // GLFWwindowrefreshfun callback);
-Napi::Value glfwSetWindowRefreshCallback(Napi::CallbackInfo const& info) {
+void glfwSetWindowRefreshCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -214,12 +208,11 @@ Napi::Value glfwSetWindowRefreshCallback(Napi::CallbackInfo const& info) {
     GLFWwindowrefresh_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetWindowRefreshCallback(args[0], GLFWwindowrefresh_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWwindowfocusfun glfwSetWindowFocusCallback(GLFWwindow* window, GLFWwindowfocusfun
 // callback);
-Napi::Value glfwSetWindowFocusCallback(Napi::CallbackInfo const& info) {
+void glfwSetWindowFocusCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -229,12 +222,11 @@ Napi::Value glfwSetWindowFocusCallback(Napi::CallbackInfo const& info) {
     GLFWwindowfocus_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetWindowFocusCallback(args[0], GLFWwindowfocus_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWwindowiconifyfun glfwSetWindowIconifyCallback(GLFWwindow* window,
 // GLFWwindowiconifyfun callback);
-Napi::Value glfwSetWindowIconifyCallback(Napi::CallbackInfo const& info) {
+void glfwSetWindowIconifyCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -244,12 +236,11 @@ Napi::Value glfwSetWindowIconifyCallback(Napi::CallbackInfo const& info) {
     GLFWwindowiconify_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetWindowIconifyCallback(args[0], GLFWwindowiconify_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWwindowmaximizefun glfwSetWindowMaximizeCallback(GLFWwindow* window,
 // GLFWwindowmaximizefun callback);
-Napi::Value glfwSetWindowMaximizeCallback(Napi::CallbackInfo const& info) {
+void glfwSetWindowMaximizeCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -259,12 +250,11 @@ Napi::Value glfwSetWindowMaximizeCallback(Napi::CallbackInfo const& info) {
     GLFWwindowmaximize_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetWindowMaximizeCallback(args[0], GLFWwindowmaximize_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWframebuffersizefun glfwSetFramebufferSizeCallback(GLFWwindow* window,
 // GLFWframebuffersizefun callback);
-Napi::Value glfwSetFramebufferSizeCallback(Napi::CallbackInfo const& info) {
+void glfwSetFramebufferSizeCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -274,12 +264,11 @@ Napi::Value glfwSetFramebufferSizeCallback(Napi::CallbackInfo const& info) {
     GLFWframebuffersize_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetFramebufferSizeCallback(args[0], GLFWframebuffersize_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWwindowcontentscalefun glfwSetWindowContentScaleCallback(GLFWwindow* window,
 // GLFWwindowcontentscalefun callback);
-Napi::Value glfwSetWindowContentScaleCallback(Napi::CallbackInfo const& info) {
+void glfwSetWindowContentScaleCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -289,11 +278,10 @@ Napi::Value glfwSetWindowContentScaleCallback(Napi::CallbackInfo const& info) {
     GLFWwindowcontentscale_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetWindowContentScaleCallback(args[0], GLFWwindowcontentscale_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWkeyfun glfwSetKeyCallback(GLFWwindow* window, GLFWkeyfun callback);
-Napi::Value glfwSetKeyCallback(Napi::CallbackInfo const& info) {
+void glfwSetKeyCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -303,11 +291,10 @@ Napi::Value glfwSetKeyCallback(Napi::CallbackInfo const& info) {
     GLFWkey_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetKeyCallback(args[0], GLFWkey_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWcharfun glfwSetCharCallback(GLFWwindow* window, GLFWcharfun callback);
-Napi::Value glfwSetCharCallback(Napi::CallbackInfo const& info) {
+void glfwSetCharCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -317,11 +304,10 @@ Napi::Value glfwSetCharCallback(Napi::CallbackInfo const& info) {
     GLFWchar_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetCharCallback(args[0], GLFWchar_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWcharmodsfun glfwSetCharModsCallback(GLFWwindow* window, GLFWcharmodsfun callback);
-Napi::Value glfwSetCharModsCallback(Napi::CallbackInfo const& info) {
+void glfwSetCharModsCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -331,12 +317,11 @@ Napi::Value glfwSetCharModsCallback(Napi::CallbackInfo const& info) {
     GLFWcharmods_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetCharModsCallback(args[0], GLFWcharmods_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWmousebuttonfun glfwSetMouseButtonCallback(GLFWwindow* window, GLFWmousebuttonfun
 // callback);
-Napi::Value glfwSetMouseButtonCallback(Napi::CallbackInfo const& info) {
+void glfwSetMouseButtonCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -346,10 +331,9 @@ Napi::Value glfwSetMouseButtonCallback(Napi::CallbackInfo const& info) {
     GLFWmousebutton_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetMouseButtonCallback(args[0], GLFWmousebutton_cb));
   }
-  return env.Undefined();
 }
 
-Napi::Value glfwSetCursorPosCallback(Napi::CallbackInfo const& info) {
+void glfwSetCursorPosCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -359,12 +343,11 @@ Napi::Value glfwSetCursorPosCallback(Napi::CallbackInfo const& info) {
     GLFWcursorpos_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetCursorPosCallback(args[0], GLFWcursorpos_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWcursorenterfun glfwSetCursorEnterCallback(GLFWwindow* window, GLFWcursorenterfun
 // callback);
-Napi::Value glfwSetCursorEnterCallback(Napi::CallbackInfo const& info) {
+void glfwSetCursorEnterCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -374,11 +357,10 @@ Napi::Value glfwSetCursorEnterCallback(Napi::CallbackInfo const& info) {
     GLFWcursorenter_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetCursorEnterCallback(args[0], GLFWcursorenter_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWscrollfun glfwSetScrollCallback(GLFWwindow* window, GLFWscrollfun callback);
-Napi::Value glfwSetScrollCallback(Napi::CallbackInfo const& info) {
+void glfwSetScrollCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -388,11 +370,10 @@ Napi::Value glfwSetScrollCallback(Napi::CallbackInfo const& info) {
     GLFWscroll_cb_js.Reset(info[1].As<Napi::Function>());
     GLFW_TRY(env, GLFWAPI::glfwSetScrollCallback(args[0], GLFWscroll_cb));
   }
-  return env.Undefined();
 }
 
 // GLFWAPI GLFWdropfun glfwSetDropCallback(GLFWwindow* window, GLFWdropfun callback);
-Napi::Value glfwSetDropCallback(Napi::CallbackInfo const& info) {
+void glfwSetDropCallback(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   if (info[1].IsNull() || info[1].IsEmpty() || info[1].IsUndefined()) {
@@ -403,7 +384,6 @@ Napi::Value glfwSetDropCallback(Napi::CallbackInfo const& info) {
     GLFWdrop_cb_js.SuppressDestruct();
     GLFW_TRY(env, GLFWAPI::glfwSetDropCallback(args[0], GLFWdrop_cb));
   }
-  return env.Undefined();
 }
 
 }  // namespace nv

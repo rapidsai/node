@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,14 +43,16 @@ export const Buffer = (() => {
         buffers = buffers.filter((buffer) => buffer && buffer.handle &&
                                              buffer.handle.cudaGraphicsResource !== undefined &&
                                              buffer.handle.cudaGraphicsResourceMapped === false);
-        CUDA.gl.mapResources(buffers.map((buffer) => buffer.handle.cudaGraphicsResource));
+        CUDA.runtime.cudaGraphicsMapResources(
+          buffers.map((buffer) => buffer.handle.cudaGraphicsResource));
         buffers.forEach((buffer) => buffer.handle.cudaGraphicsResourceMapped = true);
       }
       static unmapResources(buffers: any[] = []) {
         buffers = buffers.filter((buffer) => buffer && buffer.handle &&
                                              buffer.handle.cudaGraphicsResource !== undefined &&
                                              buffer.handle.cudaGraphicsResourceMapped === true);
-        CUDA.gl.unmapResources(buffers.map((buffer) => buffer.handle.cudaGraphicsResource));
+        CUDA.runtime.cudaGraphicsUnmapResources(
+          buffers.map((buffer) => buffer.handle.cudaGraphicsResource));
         buffers.forEach((buffer) => buffer.handle.cudaGraphicsResourceMapped = false);
       }
       constructor(gl: WebGLRenderingContext, props?: BufferProps);
@@ -81,7 +83,9 @@ export const Buffer = (() => {
       asCUDABuffer(byteOffset = 0, byteLength = this.byteLength - byteOffset) {
         if (this._handle.cudaGraphicsResourceMapped) {
           return new Uint8Buffer(
-            CUDA.gl.getMappedPointer(this._handle.cudaGraphicsResource), byteOffset, byteLength);
+            CUDA.runtime.cudaGraphicsResourceGetMappedPointer(this._handle.cudaGraphicsResource),
+            byteOffset,
+            byteLength);
         }
         throw new Error(
           'OpenGL Buffer must be mapped as a CUDAGraphicsResource to create a CUDA buffer');
@@ -109,28 +113,28 @@ export const Buffer = (() => {
         if (handle && handle.cudaGraphicsResource === undefined) {
           this._handle                      = handle;
           handle.cudaGraphicsResourceMapped = false;
-          handle.cudaGraphicsResource       = CUDA.gl.registerBuffer(handle.ptr, 0);
+          handle.cudaGraphicsResource = CUDA.runtime.cudaGraphicsGLRegisterBuffer(handle.ptr, 0);
         }
         return this;
       }
       _unregisterResource(handle = this._handle) {
         if (handle && handle.cudaGraphicsResource !== undefined) {
           this._unmapResource(handle);
-          CUDA.gl.unregisterResource(handle.cudaGraphicsResource);
+          CUDA.runtime.cudaGraphicsUnregisterResource(handle.cudaGraphicsResource);
           handle.cudaGraphicsResource = undefined;
         }
         return this;
       }
       _mapResource(handle = this._handle) {
         if (handle && !handle.cudaGraphicsResourceMapped) {
-          CUDA.gl.mapResources([handle.cudaGraphicsResource]);
+          CUDA.runtime.cudaGraphicsMapResources([handle.cudaGraphicsResource]);
           handle.cudaGraphicsResourceMapped = true;
         }
         return this;
       }
       _unmapResource(handle = this._handle) {
         if (handle && handle.cudaGraphicsResourceMapped) {
-          CUDA.gl.unmapResources([handle.cudaGraphicsResource]);
+          CUDA.runtime.cudaGraphicsUnmapResources([handle.cudaGraphicsResource]);
           handle.cudaGraphicsResourceMapped = false;
         }
         return this;

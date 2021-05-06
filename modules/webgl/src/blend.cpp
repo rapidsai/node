@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,39 +21,34 @@
 namespace nv {
 
 // GL_EXPORT void glBlendColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
-Napi::Value WebGL2RenderingContext::BlendColor(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BlendColor(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glBlendColor(args[0], args[1], args[2], args[3]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBlendEquation (GLenum mode);
-Napi::Value WebGL2RenderingContext::BlendEquation(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BlendEquation(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glBlendEquation(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBlendEquationSeparate (GLenum modeRGB, GLenum modeAlpha);
-Napi::Value WebGL2RenderingContext::BlendEquationSeparate(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BlendEquationSeparate(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glBlendEquationSeparate(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBlendFunc (GLenum sfactor, GLenum dfactor);
-Napi::Value WebGL2RenderingContext::BlendFunc(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BlendFunc(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glBlendFunc(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glBlendFuncSeparate (GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha,
 // GLenum dfactorAlpha);
-Napi::Value WebGL2RenderingContext::BlendFuncSeparate(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BlendFuncSeparate(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glBlendFuncSeparate(args[0], args[1], args[2], args[3]);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

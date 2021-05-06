@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <node_cugraph/cugraph/algorithms.hpp>
-
 #include <node_cugraph/graph_coo.hpp>
 
 #include <node_rmm/device_buffer.hpp>
@@ -57,15 +56,16 @@ Napi::Value GraphCOO::force_atlas2(Napi::CallbackInfo const &info) {
   float *x_start{nullptr};
   float *y_start{nullptr};
 
-  auto positions = [&](auto const &initial_positions) mutable -> ObjectUnwrap<DeviceBuffer> {
-    if (DeviceBuffer::is_instance(initial_positions.val)) {
+  auto positions = [&](auto const &initial_positions) mutable -> DeviceBuffer::wrapper_t {
+    if (DeviceBuffer::IsInstance(initial_positions.val)) {
       auto buf = DeviceBuffer::Unwrap(initial_positions);
       x_start  = reinterpret_cast<float *>(buf->data());
       y_start  = x_start + num_nodes();
-      return buf->Value();
+      return *buf;
     }
-    return DeviceBuffer::New(std::make_unique<rmm::device_buffer>(
-      num_nodes() * 2 * sizeof(float), rmm::cuda_stream_default, mr));
+    return DeviceBuffer::New(info.Env(),
+                             std::make_unique<rmm::device_buffer>(
+                               num_nodes() * 2 * sizeof(float), rmm::cuda_stream_default, mr));
   }(options.Get("positions"));
 
   auto graph = this->view();

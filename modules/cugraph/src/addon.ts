@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '@rapidsai/cudf';
-
+import {addon as CUDA} from '@nvidia/cuda';
 import {loadNativeModule} from '@rapidsai/core';
+import {addon as CUDF} from '@rapidsai/cudf';
+import {addon as RMM} from '@rapidsai/rmm';
 import {GraphCOOConstructor} from './graph_coo';
 
 export const {GraphCOO} = loadNativeModule<{
   GraphCOO: GraphCOOConstructor,  //
-}>(module, 'node_cugraph');
+}>(module, 'node_cugraph', init => init(CUDA, CUDF, RMM));

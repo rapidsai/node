@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,52 +21,45 @@
 namespace nv {
 
 // GL_EXPORT void glClearStencil (GLint s);
-Napi::Value WebGL2RenderingContext::ClearStencil(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::ClearStencil(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glClearStencil(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glStencilFunc (GLenum func, GLint ref, GLuint mask);
-Napi::Value WebGL2RenderingContext::StencilFunc(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::StencilFunc(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glStencilFunc(args[0], args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glStencilFuncSeparate (GLenum frontfunc, GLenum backfunc, GLint ref, GLuint mask);
-Napi::Value WebGL2RenderingContext::StencilFuncSeparate(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::StencilFuncSeparate(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glStencilFuncSeparate(args[0], args[1], args[2], args[3]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glStencilMask (GLuint mask);
-Napi::Value WebGL2RenderingContext::StencilMask(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::StencilMask(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glStencilMask(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glStencilMaskSeparate (GLenum face, GLuint mask);
-Napi::Value WebGL2RenderingContext::StencilMaskSeparate(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::StencilMaskSeparate(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glStencilMaskSeparate(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glStencilOp (GLenum fail, GLenum zfail, GLenum zpass);
-Napi::Value WebGL2RenderingContext::StencilOp(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::StencilOp(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glStencilOp(args[0], args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glStencilOpSeparate (GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
-Napi::Value WebGL2RenderingContext::StencilOpSeparate(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::StencilOpSeparate(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glStencilOpSeparate(args[0], args[1], args[2], args[3]);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv
