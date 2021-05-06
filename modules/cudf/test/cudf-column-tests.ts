@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ test('Column.drop_nans', () => {
   const result = col.drop_nans();
 
   const expected = [1, 3, 4, 2, 0];
-  expect([...Series.new(result).toArrow()]).toEqual(expected);
+  expect([...Series.new(result)]).toEqual(expected);
 });
 
 test('Column.drop_nulls', () => {
@@ -132,7 +132,7 @@ test('Column.drop_nulls', () => {
   const result = col.drop_nulls();
 
   const expected = [3, NaN, 4, 2];
-  expect([...Series.new(result).toArrow()]).toEqual(expected);
+  expect([...Series.new(result)]).toEqual(expected);
 });
 
 test('Column.nans_to_nulls', () => {
@@ -141,5 +141,5 @@ test('Column.nans_to_nulls', () => {
   const result = col.nans_to_nulls();
 
   const expected = [1, 3, null, 4, 2, 0];
-  expect([...Series.new(result).toArrow()]).toEqual(expected);
+  expect([...Series.new(result)]).toEqual(expected);
 });

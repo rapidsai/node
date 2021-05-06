@@ -36,9 +36,9 @@ describe('DataFrame.readCSV', () => {
       sources: [Buffer.from(makeCSVString({rows}))],
       dataTypes: {a: 'int32', b: 'float64', c: 'str'},
     });
-    expect(df.get('a').toArrow().values).toEqual(new Int32Array([0, 1, 2]));
-    expect(df.get('b').toArrow().toArray()).toEqual(new Float64Array([1.0, 2.0, 3.0]));
-    expect([...df.get('c').toArrow()]).toEqual(['2', '3', '4']);
+    expect(df.get('a').data.toArray()).toEqual(new Int32Array([0, 1, 2]));
+    expect(df.get('b').data.toArray()).toEqual(new Float64Array([1.0, 2.0, 3.0]));
+    expect([...df.get('c')]).toEqual(['2', '3', '4']);
   });
 
   test('can read a CSV file', async () => {
@@ -55,9 +55,9 @@ describe('DataFrame.readCSV', () => {
       sources: [path],
       dataTypes: {a: 'int32', b: 'float64', c: 'str'},
     });
-    expect(df.get('a').toArrow().values).toEqual(new Int32Array([0, 1, 2]));
-    expect(df.get('b').toArrow().toArray()).toEqual(new Float64Array([1.0, 2.0, 3.0]));
-    expect([...df.get('c').toArrow()]).toEqual(['2', '3', '4']);
+    expect(df.get('a').data.toArray()).toEqual(new Int32Array([0, 1, 2]));
+    expect(df.get('b').data.toArray()).toEqual(new Float64Array([1.0, 2.0, 3.0]));
+    expect([...df.get('c')]).toEqual(['2', '3', '4']);
     await new Promise<void>((resolve, reject) =>
                               rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
   });

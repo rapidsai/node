@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Float64Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
-import {DataFrame, Float64, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
+import {Float64Buffer, Int32Buffer, setDefaultAllocator} from '@nvidia/cuda';
+import {DataFrame, Float64, Int32, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {makeCSVString, toStringAsync} from './utils';
@@ -30,14 +30,7 @@ describe('DataFrame.writeCSV', () => {
     const df = new DataFrame({
       a: Series.new({length: 3, type: new Int32, data: new Int32Buffer([0, 1, 2])}),
       b: Series.new({length: 3, type: new Float64, data: new Float64Buffer([1.0, 2.0, 3.0])}),
-      c: Series.new({
-        type: new Utf8String(),
-        length: 3,
-        children: [
-          Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3])}),
-          Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from('234'))})
-        ]
-      }),
+      c: Series.new(['2', '3', '4']),
     });
     expect((await toStringAsync(df.toCSV()))).toEqual(makeCSVString({rows}));
   });

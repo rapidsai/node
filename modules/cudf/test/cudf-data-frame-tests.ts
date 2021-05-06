@@ -155,7 +155,7 @@ test('DataFrame.orderBy (ascending, non-null)', () => {
   const result = df.orderBy({'a': {ascending: true, null_order: NullOrder.BEFORE}});
 
   const expected = [5, 0, 4, 1, 3, 2];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.orderBy (descending, non-null)', () => {
@@ -164,7 +164,7 @@ test('DataFrame.orderBy (descending, non-null)', () => {
   const result = df.orderBy({'a': {ascending: false, null_order: NullOrder.BEFORE}});
 
   const expected = [2, 3, 1, 4, 0, 5];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.orderBy (ascending, null before)', () => {
@@ -175,7 +175,7 @@ test('DataFrame.orderBy (ascending, null before)', () => {
   const result = df.orderBy({'a': {ascending: true, null_order: NullOrder.BEFORE}});
 
   const expected = [1, 5, 0, 4, 3, 2];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.orderBy (ascending, null after)', () => {
@@ -186,7 +186,7 @@ test('DataFrame.orderBy (ascending, null after)', () => {
   const result = df.orderBy({'a': {ascending: true, null_order: NullOrder.AFTER}});
 
   const expected = [5, 0, 4, 3, 2, 1];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.orderBy (descendng, null before)', () => {
@@ -198,7 +198,7 @@ test('DataFrame.orderBy (descendng, null before)', () => {
 
   const expected = [2, 3, 4, 0, 5, 1];
 
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.orderBy (descending, null after)', () => {
@@ -209,7 +209,7 @@ test('DataFrame.orderBy (descending, null after)', () => {
   const result = df.orderBy({'a': {ascending: false, null_order: NullOrder.AFTER}});
 
   const expected = [1, 2, 3, 4, 0, 5];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual([...Buffer.from(expected)]);
 });
 
 test('DataFrame.gather (indices)', () => {
@@ -227,10 +227,10 @@ test('DataFrame.gather (indices)', () => {
   const rb = result.get('b');
 
   const expected_a = Series.new({type: new Int32(), data: new Int32Buffer([2, 4, 5])});
-  expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
+  expect([...ra]).toEqual([...expected_a]);
 
   const expected_b = Series.new({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
-  expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
+  expect([...rb]).toEqual([...expected_b]);
 });
 
 test('DataFrame groupBy (single)', () => {
@@ -266,10 +266,10 @@ test('DataFrame filter', () => {
   const rb = result.get('b');
 
   const expected_a = Series.new({type: new Int32(), data: new Int32Buffer([2, 4, 5])});
-  expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
+  expect([...ra]).toEqual([...expected_a]);
 
   const expected_b = Series.new({type: new Float32(), data: new Float32Buffer([2.0, 4.0, 5.0])});
-  expect([...rb.toArrow()]).toEqual([...expected_b.toArrow()]);
+  expect([...rb]).toEqual([...expected_b]);
 });
 
 test(
@@ -319,8 +319,8 @@ test(
     const ra     = result.get('a');
     const rc     = result.get('c');
 
-    expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
-    expect([...rc.toArrow()]).toEqual([...expected_c.toArrow()]);
+    expect([...ra]).toEqual([...expected_a]);
+    expect([...rc]).toEqual([...expected_c]);
     expect(result.numRows).toEqual(5);
   });
 
@@ -391,7 +391,7 @@ test('dataframe.dropNaNs(axis=0, thresh=1), drop row with non-NaN values < 1 (dr
        const result = df.dropNaNs(0, 1);
        const ra     = result.get('a');
 
-       expect([...ra.toArrow()]).toEqual([...expected_a.toArrow()]);
+       expect([...ra]).toEqual([...expected_a]);
        expect(result.numRows).toEqual(5);
      });
 
