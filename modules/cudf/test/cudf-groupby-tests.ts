@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 // Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import './jest-extensions';
 
@@ -46,7 +47,7 @@ function basicAggCompare<T extends {a: DataType, b: DataType, c: DataType}>(
   const rc = result.get('c');
 
   const a_expected = Series.new({type: new Int32, data: [1, 2, 3]});
-  expect([...ra.toArrow()]).toEqual([...a_expected.toArrow()]);
+  expect([...ra]).toEqual([...a_expected]);
 
   const b_expected = Series.new({type: rb.type, data: expected});
   expect(rb.toArrow().toArray()).toEqualTypedArray(b_expected.toArrow().toArray() as any);
@@ -62,7 +63,7 @@ test('getGroups basic', () => {
   const groups = grp.getGroups();
 
   const keys_result = groups['keys'].get('a');
-  expect([...keys_result.toArrow()]).toEqual([1, 1, 1, 2, 2, 3]);
+  expect([...keys_result]).toEqual([1, 1, 1, 2, 2, 3]);
 
   expect(groups.values).toBeUndefined();
 
@@ -79,10 +80,10 @@ test('getGroups basic two columns', () => {
   const groups = grp.getGroups();
 
   const keys_result_a = groups['keys'].get('a');
-  expect([...keys_result_a.toArrow()]).toEqual([1, 1, 1, 2, 2, 3]);
+  expect([...keys_result_a]).toEqual([1, 1, 1, 2, 2, 3]);
 
   const keys_result_aa = groups['keys'].get('aa');
-  expect([...keys_result_aa.toArrow()]).toEqual([4, 4, 5, 4, 4, 3]);
+  expect([...keys_result_aa]).toEqual([4, 4, 5, 4, 4, 3]);
 
   expect(groups.values).toBeUndefined();
 
@@ -116,17 +117,17 @@ test('getGroups basic with values', () => {
   const groups = grp.getGroups();
 
   const keys_result = groups['keys'].get('a');
-  expect([...keys_result.toArrow()]).toEqual([0, 1, 2, 3, 4, 5]);
+  expect([...keys_result]).toEqual([0, 1, 2, 3, 4, 5]);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const values_result_b = groups.values?.get('b')!;
   expect(values_result_b).toBeDefined();
-  expect([...values_result_b.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
+  expect([...values_result_b]).toEqual([2, 2, 1, 1, 0, 0]);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const values_result_c = groups.values?.get('c')!;
   expect(values_result_c).toBeDefined();
-  expect([...values_result_c.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
+  expect([...values_result_c]).toEqual([2, 2, 1, 1, 0, 0]);
 
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3, 4, 5, 6]);
 });
@@ -143,20 +144,20 @@ test('getGroups basic two columns with values', () => {
   const groups = grp.getGroups();
 
   const keys_result_a = groups['keys'].get('a');
-  expect([...keys_result_a.toArrow()]).toEqual([0, 1, 2, 3, 4, 5]);
+  expect([...keys_result_a]).toEqual([0, 1, 2, 3, 4, 5]);
 
   const keys_result_aa = groups['keys'].get('aa');
-  expect([...keys_result_aa.toArrow()]).toEqual([3, 4, 4, 4, 5, 4]);
+  expect([...keys_result_aa]).toEqual([3, 4, 4, 4, 5, 4]);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const values_result_b = groups.values?.get('b')!;
   expect(values_result_b).toBeDefined();
-  expect([...values_result_b.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
+  expect([...values_result_b]).toEqual([2, 2, 1, 1, 0, 0]);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const values_result_c = groups.values?.get('c')!;
   expect(values_result_c).toBeDefined();
-  expect([...values_result_c.toArrow()]).toEqual([2, 2, 1, 1, 0, 0]);
+  expect([...values_result_c]).toEqual([2, 2, 1, 1, 0, 0]);
 
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3, 4, 5, 6]);
 });
@@ -188,18 +189,18 @@ test('getGroups some nulls', () => {
   const groups = grp.getGroups();
 
   const keys_result = groups['keys'].get('a');
-  expect([...keys_result.toArrow()]).toEqual([1, 2, 3]);
+  expect([...keys_result]).toEqual([1, 2, 3]);
   expect(keys_result.nullCount).toBe(0);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const values_result_b = groups.values?.get('b')!;
   expect(values_result_b).toBeDefined();
-  expect([...values_result_b.toArrow()]).toEqual([1, 6, 3]);
+  expect([...values_result_b]).toEqual([1, 6, 3]);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const values_result_c = groups.values?.get('c')!;
   expect(values_result_c).toBeDefined();
-  expect([...values_result_c.toArrow()]).toEqual([1, 6, 3]);
+  expect([...values_result_c]).toEqual([1, 6, 3]);
 
   expect([...groups['offsets']]).toEqual([0, 1, 2, 3]);
 });
@@ -220,7 +221,7 @@ test('aggregation column name with two columns', () => {
   const keys_result_aa = result_out.getChild('aa');
 
   const sorter = [0, 1, 2, 3, 4, 5];
-  const ka     = [...keys_result_a.toArrow()];
+  const ka     = [...keys_result_a];
   sorter.sort((i, j) => ka[i]! - ka[j]!);
 
   const sorted_a =
@@ -435,7 +436,7 @@ for (const agg of BASIC_AGGS) {
     const df     = new DataFrame({a, b, c});
     const grp    = new GroupBySingle(df, {by: 'a'});
     const result = grp[agg]();
-    expect([...result.get('a').toArrow()]).toEqual([1]);
+    expect([...result.get('a')]).toEqual([1]);
     expect(result.get('a').nullCount).toBe(0);
     expect(result.get('b').length).toBe(1);
     expect(result.get('c').length).toBe(1);
@@ -456,7 +457,7 @@ test(`Groupby nth null values`, () => {
   const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.nth(0);
-  expect([...result.get('a').toArrow()]).toEqual([1]);
+  expect([...result.get('a')]).toEqual([1]);
   expect(result.get('a').nullCount).toBe(0);
   expect(result.get('b').length).toBe(1);
   expect(result.get('b').nullCount).toBe(1);
@@ -471,7 +472,7 @@ test(`Groupby quantile null values`, () => {
   const df     = new DataFrame({a, b, c});
   const grp    = new GroupBySingle(df, {by: 'a'});
   const result = grp.quantile(0.5);
-  expect([...result.get('a').toArrow()]).toEqual([1]);
+  expect([...result.get('a')]).toEqual([1]);
   expect(result.get('a').nullCount).toBe(0);
   expect(result.get('b').length).toBe(1);
   expect(result.get('b').nullCount).toBe(1);

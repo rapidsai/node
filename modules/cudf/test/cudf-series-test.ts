@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ test('Series.gather', () => {
 
   const result = col.gather(selection);
 
-  expect([...result.toArrow()]).toEqual([...selection.toArrow()]);
+  expect([...result]).toEqual([...selection]);
 });
 
 test('Series.scatter (series)', () => {
@@ -226,7 +226,7 @@ test('Series.filter', () => {
   const result = col.filter(mask);
 
   const expected = Series.new({type: new Int32, data: new Int32Buffer([2, 4, 5, 8])});
-  expect([...result.toArrow()]).toEqual([...expected.toArrow()]);
+  expect([...result]).toEqual([...expected]);
 });
 
 describe('toArrow()', () => {
@@ -256,7 +256,7 @@ test('Series.orderBy (ascending, non-null)', () => {
   const result = col.orderBy(true, NullOrder.BEFORE);
 
   const expected = [5, 0, 4, 1, 3, 2];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual(expected);
 });
 
 test('Series.orderBy (descending, non-null)', () => {
@@ -264,7 +264,7 @@ test('Series.orderBy (descending, non-null)', () => {
   const result = col.orderBy(false, NullOrder.BEFORE);
 
   const expected = [2, 3, 1, 4, 0, 5];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual(expected);
 });
 
 test('Series.orderBy (ascending, null before)', () => {
@@ -274,7 +274,7 @@ test('Series.orderBy (ascending, null before)', () => {
   const result = col.orderBy(true, NullOrder.BEFORE);
 
   const expected = [1, 5, 0, 4, 3, 2];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual(expected);
 });
 
 test('Series.orderBy (ascending, null after)', () => {
@@ -284,7 +284,7 @@ test('Series.orderBy (ascending, null after)', () => {
   const result = col.orderBy(true, NullOrder.AFTER);
 
   const expected = [5, 0, 4, 3, 2, 1];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual(expected);
 });
 
 test('Series.orderBy (descendng, null before)', () => {
@@ -295,7 +295,7 @@ test('Series.orderBy (descendng, null before)', () => {
 
   const expected = [2, 3, 4, 0, 5, 1];
 
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual(expected);
 });
 
 test('Series.orderBy (descending, null after)', () => {
@@ -305,7 +305,7 @@ test('Series.orderBy (descending, null after)', () => {
   const result = col.orderBy(false, NullOrder.AFTER);
 
   const expected = [1, 2, 3, 4, 0, 5];
-  expect([...result.toArrow()]).toEqual([...Buffer.from(expected)]);
+  expect([...result]).toEqual(expected);
 });
 
 test('Series.sortValues (ascending)', () => {
@@ -313,7 +313,7 @@ test('Series.sortValues (ascending)', () => {
   const result = col.sortValues();
 
   const expected = [0, 1, 2, 3, 4, 5];
-  expect([...result.toArrow()]).toEqual(expected);
+  expect([...result]).toEqual(expected);
 });
 
 test('Series.sortValues (descending)', () => {
@@ -321,7 +321,7 @@ test('Series.sortValues (descending)', () => {
   const result = col.sortValues(false);
 
   const expected = [5, 4, 3, 2, 1, 0];
-  expect([...result.toArrow()]).toEqual(expected);
+  expect([...result]).toEqual(expected);
 });
 
 test('Series.dropNulls (drop nulls only)', () => {
@@ -331,7 +331,7 @@ test('Series.dropNulls (drop nulls only)', () => {
   const result = col.dropNulls();
 
   const expected = [3, NaN, 4, 2];
-  expect([...result.toArrow()]).toEqual(expected);
+  expect([...result]).toEqual(expected);
 });
 
 test('FloatSeries.dropNaNs (drop NaN values only)', () => {
@@ -341,7 +341,7 @@ test('FloatSeries.dropNaNs (drop NaN values only)', () => {
   const result = col.dropNaNs();
 
   const expected = [null, 3, 4, 2, null];
-  expect([...result.toArrow()]).toEqual(expected);
+  expect([...result]).toEqual(expected);
 });
 
 test('FloatSeries.nansToNulls', () => {
@@ -350,7 +350,7 @@ test('FloatSeries.nansToNulls', () => {
   const result = col.nansToNulls();
 
   const expected = [1, 3, null, 4, 2, 0];
-  expect([...result.toArrow()]).toEqual(expected);
+  expect([...result]).toEqual(expected);
   expect(result.nullCount).toEqual(1);
   expect(col.nullCount).toEqual(0);
 });
@@ -358,23 +358,23 @@ test('FloatSeries.nansToNulls', () => {
 describe.each([new Int32, new Float32, new Float64])('Series.sequence({type=%p,, ...})', (typ) => {
   test('no step', () => {
     const col = Series.sequence({type: typ, size: 10, init: 0});
-    expect([...col.toArrow()]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect([...col]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
   test('step=1', () => {
     const col = Series.sequence({type: typ, size: 10, step: 1, init: 0});
-    expect([...col.toArrow()]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect([...col]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
   test('step=2', () => {
     const col = Series.sequence({type: typ, size: 10, step: 2, init: 0});
-    expect([...col.toArrow()]).toEqual([0, 2, 4, 6, 8, 10, 12, 14, 16, 18]);
+    expect([...col]).toEqual([0, 2, 4, 6, 8, 10, 12, 14, 16, 18]);
   });
 });
 
 test('Series.value_counts', () => {
   const s      = Series.new({type: new Int32, data: [110, 120, 100, 110, 120, 120]});
   const result = s.value_counts();
-  const count  = [...result.count.toArrow()];
-  const value  = [...result.value.toArrow()];
+  const count  = [...result.count];
+  const value  = [...result.value];
 
   const countMap: Record<number, number> = {100: 1, 110: 2, 120: 3};
 
@@ -392,5 +392,5 @@ ${false}       | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, null, 1, 2, 3, 4]}
 `('Series.unique($nulls_equal)', ({nulls_equal, data, expected}) => {
   const s      = Series.new({type: new Int32, data});
   const result = s.unique(nulls_equal);
-  expect([...result.toArrow()]).toEqual(expected);
+  expect([...result]).toEqual(expected);
 });
