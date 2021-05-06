@@ -24,13 +24,12 @@
 #include <cuspatial/spatial_join.hpp>
 
 #include <nv_node/utilities/args.hpp>
-#include <nv_node/utilities/wrap.hpp>
 
 namespace nv {
 
 Napi::Value create_quadtree(CallbackArgs const& args) {
-  auto xs                             = Column::Unwrap(args[0]);
-  auto ys                             = Column::Unwrap(args[1]);
+  Column::wrapper_t xs                = args[0];
+  Column::wrapper_t ys                = args[1];
   double x_min                        = args[2];
   double x_max                        = args[3];
   double y_min                        = args[4];
@@ -53,14 +52,14 @@ Napi::Value create_quadtree(CallbackArgs const& args) {
   names.Set(3u, "length");
   names.Set(4u, "offset");
   output.Set("names", names);
-  output.Set("table", Table::New(std::move(result.second)));
-  output.Set("keyMap", Column::New(std::move(result.first))->Value());
+  output.Set("table", Table::New(args.Env(), std::move(result.second)));
+  output.Set("keyMap", Column::New(args.Env(), std::move(result.first)));
   return output;
 }
 
 Napi::Value quadtree_bounding_box_intersections(CallbackArgs const& args) {
-  auto quadtree                       = Table::Unwrap(args[0]);
-  auto poly_bbox                      = Table::Unwrap(args[1]);
+  Table::wrapper_t quadtree           = args[0];
+  Table::wrapper_t poly_bbox          = args[1];
   double x_min                        = args[2];
   double x_max                        = args[3];
   double y_min                        = args[4];
@@ -79,20 +78,20 @@ Napi::Value quadtree_bounding_box_intersections(CallbackArgs const& args) {
   names.Set(0u, "polygon_index");
   names.Set(1u, "point_index");
   output.Set("names", names);
-  output.Set("table", Table::New(std::move(result)));
+  output.Set("table", Table::New(args.Env(), std::move(result)));
   return output;
 }
 
 Napi::Value find_points_in_polygons(CallbackArgs const& args) {
-  auto intersections                  = Table::Unwrap(args[0]);
-  auto quadtree                       = Table::Unwrap(args[1]);
-  auto point_indices                  = Column::Unwrap(args[2]);
-  auto x                              = Column::Unwrap(args[3]);
-  auto y                              = Column::Unwrap(args[4]);
-  auto polygon_offsets                = Column::Unwrap(args[5]);
-  auto ring_offsets                   = Column::Unwrap(args[6]);
-  auto polygon_points_x               = Column::Unwrap(args[7]);
-  auto polygon_points_y               = Column::Unwrap(args[8]);
+  Table::wrapper_t intersections      = args[0];
+  Table::wrapper_t quadtree           = args[1];
+  Column::wrapper_t point_indices     = args[2];
+  Column::wrapper_t x                 = args[3];
+  Column::wrapper_t y                 = args[4];
+  Column::wrapper_t polygon_offsets   = args[5];
+  Column::wrapper_t ring_offsets      = args[6];
+  Column::wrapper_t polygon_points_x  = args[7];
+  Column::wrapper_t polygon_points_y  = args[8];
   rmm::mr::device_memory_resource* mr = args[9];
   auto result                         = [&]() {
     try {
@@ -113,19 +112,19 @@ Napi::Value find_points_in_polygons(CallbackArgs const& args) {
   names.Set(0u, "polygon_index");
   names.Set(1u, "point_index");
   output.Set("names", names);
-  output.Set("table", Table::New(std::move(result)));
+  output.Set("table", Table::New(args.Env(), std::move(result)));
   return output;
 }
 
 Napi::Value find_polyline_nearest_to_each_point(CallbackArgs const& args) {
-  auto intersections                  = Table::Unwrap(args[0]);
-  auto quadtree                       = Table::Unwrap(args[1]);
-  auto point_indices                  = Column::Unwrap(args[2]);
-  auto x                              = Column::Unwrap(args[3]);
-  auto y                              = Column::Unwrap(args[4]);
-  auto polyline_offsets               = Column::Unwrap(args[5]);
-  auto polyline_points_x              = Column::Unwrap(args[6]);
-  auto polyline_points_y              = Column::Unwrap(args[7]);
+  Table::wrapper_t intersections      = args[0];
+  Table::wrapper_t quadtree           = args[1];
+  Column::wrapper_t point_indices     = args[2];
+  Column::wrapper_t x                 = args[3];
+  Column::wrapper_t y                 = args[4];
+  Column::wrapper_t polyline_offsets  = args[5];
+  Column::wrapper_t polyline_points_x = args[6];
+  Column::wrapper_t polyline_points_y = args[7];
   rmm::mr::device_memory_resource* mr = args[8];
   auto result                         = [&]() {
     try {
@@ -146,7 +145,7 @@ Napi::Value find_polyline_nearest_to_each_point(CallbackArgs const& args) {
   names.Set(1u, "polyline_index");
   names.Set(2u, "distance");
   output.Set("names", names);
-  output.Set("table", Table::New(std::move(result)));
+  output.Set("table", Table::New(args.Env(), std::move(result)));
   return output;
 }
 

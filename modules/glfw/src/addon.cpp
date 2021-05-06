@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,18 +33,16 @@ Napi::Value glfwInit(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwTerminate(void);
-Napi::Value glfwTerminate(Napi::CallbackInfo const& info) {
+void glfwTerminate(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   GLFW_TRY(env, GLFWAPI::glfwTerminate());
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwInitHint(int hint, int value);
-Napi::Value glfwInitHint(Napi::CallbackInfo const& info) {
+void glfwInitHint(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwInitHint(args[0], args[1]));
-  return env.Undefined();
 }
 
 // GLFWAPI void glfwGetVersion(int* major, int* minor, int* rev);
@@ -92,11 +90,10 @@ Napi::Value glfwGetTime(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwSetTime(double time);
-Napi::Value glfwSetTime(Napi::CallbackInfo const& info) {
+void glfwSetTime(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwSetTime(args[0]));
-  return env.Undefined();
 }
 
 // GLFWAPI uint64_t glfwGetTimerValue(void);
@@ -110,11 +107,10 @@ Napi::Value glfwGetTimerFrequency(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwSwapInterval(int interval);
-Napi::Value glfwSwapInterval(Napi::CallbackInfo const& info) {
+void glfwSwapInterval(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFW_TRY(env, GLFWAPI::glfwSwapInterval(args[0]));
-  return env.Undefined();
 }
 
 // GLFWAPI int glfwExtensionSupported(const char* extension);

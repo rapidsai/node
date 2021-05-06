@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,12 +45,11 @@ Napi::Value glfwCreateStandardCursor(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI void glfwDestroyCursor(GLFWcursor* cursor);
-Napi::Value glfwDestroyCursor(Napi::CallbackInfo const& info) {
+void glfwDestroyCursor(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   GLFWcursor* cursor = args[0];
   GLFW_TRY(env, GLFWAPI::glfwDestroyCursor(cursor));
-  return env.Undefined();
 }
 
 }  // namespace nv

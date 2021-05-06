@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,9 +83,9 @@ inline Napi::Error node_cuda_error(std::string const& message,
 }  // namespace nv
 
 #ifndef NODE_CUDA_EXPECT
-#define NODE_CUDA_EXPECT(expr, message, ...)                                              \
-  do {                                                                                    \
-    if (!(expr)) NAPI_THROW(node_cuda_error(message, __FILE__, __LINE__, ##__VA_ARGS__)); \
+#define NODE_CUDA_EXPECT(expr, message, ...)                                                  \
+  do {                                                                                        \
+    if (!(expr)) NAPI_THROW(nv::node_cuda_error(message, __FILE__, __LINE__, ##__VA_ARGS__)); \
   } while (0)
 #endif
 

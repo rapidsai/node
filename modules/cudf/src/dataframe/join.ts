@@ -42,7 +42,6 @@ interface JoinProps<
   nullEquality?: boolean;
 }
 
-
 // clang-format off
 export class Join<
   Lhs extends TypeMap,

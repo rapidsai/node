@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,6 @@ const { polyIds, points } = (() => {
 
     return points;
   })(Table.from(readFileSync('data/168898952_points.arrow')));
-
 
   const [xMin, xMax] = points.get('x').minmax();
   const [yMin, yMax] = points.get('y').minmax();

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace nv {
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudf::type_id const& id) const {
-  return Napi::Number::New(env, static_cast<int32_t>(id));
+  return Napi::Number::New(Env(), static_cast<int32_t>(id));
 }
 
 template <>
@@ -165,7 +165,7 @@ struct get_scalar_value {
 
 template <>
 inline Napi::Value CPPToNapi::operator()(std::unique_ptr<cudf::scalar> const& scalar) const {
-  return cudf::type_dispatcher(scalar->type(), detail::get_scalar_value{env}, scalar);
+  return cudf::type_dispatcher(scalar->type(), detail::get_scalar_value{Env()}, scalar);
 }
 
 }  // namespace nv

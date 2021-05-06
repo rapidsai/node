@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,70 +13,66 @@
 // limitations under the License.
 
 #include "node_cuda/addon.hpp"
+#include "node_cuda/array.hpp"
 #include "node_cuda/device.hpp"
 #include "node_cuda/memory.hpp"
 #include "node_cuda/utilities/cpp_to_napi.hpp"
 #include "node_cuda/utilities/napi_to_cpp.hpp"
 
+#include <nv_node/addon.hpp>
 #include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
 
-namespace nv {
+struct node_cuda : public nv::EnvLocalAddon, public Napi::Addon<node_cuda> {
+  node_cuda(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
+    _driver     = Napi::Persistent(Napi::Object::New(env));
+    _runtime    = Napi::Persistent(Napi::Object::New(env));
+    _after_init = Napi::Persistent(Napi::Function::New(
+      env, [](Napi::CallbackInfo const& info) { NODE_CU_TRY(cuInit(0), info.Env()); }));
 
-// CUresult cuInit(unsigned int Flags)
-Napi::Value cuInit(CallbackArgs const& info) {
-  NODE_CU_TRY(CUDAAPI::cuInit(0), info.Env());
-  return info.This();
-}
+    nv::gl::initModule(env, exports, _driver.Value(), _runtime.Value());
+    nv::kernel::initModule(env, exports, _driver.Value(), _runtime.Value());
+    nv::math::initModule(env, exports, _driver.Value(), _runtime.Value());
+    nv::program::initModule(env, exports, _driver.Value(), _runtime.Value());
+    nv::stream::initModule(env, exports, _driver.Value(), _runtime.Value());
+    // nv::texture::initModule(env, exports, _driver.Value(), _runtime.Value());
+    nv::memory::initModule(env, exports, _driver.Value(), _runtime.Value());
 
-// CUresult cuDriverGetVersion(int* driverVersion);
-Napi::Value cuDriverGetVersion(CallbackArgs const& info) {
-  int driverVersion;
-  NODE_CU_TRY(CUDAAPI::cuDriverGetVersion(&driverVersion), info.Env());
-  return CPPToNapi(info)(driverVersion);
-}
+    DefineAddon(exports,
+                {
+                  InstanceMethod("init", &node_cuda::InitAddon),
+                  InstanceValue("_cpp_exports", _cpp_exports.Value()),
 
-}  // namespace nv
+                  InstanceValue("driver", _driver.Value()),
+                  InstanceValue("runtime", _runtime.Value()),
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", nv::cuInit);
-  EXPORT_FUNC(env, exports, "getDriverVersion", nv::cuDriverGetVersion);
+                  InstanceValue("VERSION", Napi::Number::New(env, CUDA_VERSION)),
+                  InstanceValue("IPC_HANDLE_SIZE", Napi::Number::New(env, CU_IPC_HANDLE_SIZE)),
 
-  auto gl      = Napi::Object::New(env);
-  auto kernel  = Napi::Object::New(env);
-  auto math    = Napi::Object::New(env);
-  auto mem     = Napi::Object::New(env);
-  auto program = Napi::Object::New(env);
-  auto stream  = Napi::Object::New(env);
+                  InstanceMethod<&node_cuda::get_driver_version>("getDriverVersion"),
 
-  EXPORT_PROP(exports, "gl", gl);
-  EXPORT_PROP(exports, "kernel", kernel);
-  EXPORT_PROP(exports, "math", math);
-  EXPORT_PROP(exports, "mem", mem);
-  EXPORT_PROP(exports, "program", program);
-  EXPORT_PROP(exports, "stream", stream);
-  EXPORT_PROP(exports, "texture", stream);
+                  InstanceValue("Device", InitClass<nv::Device>(env, exports)),
+                  InstanceValue("PinnedMemory", InitClass<nv::PinnedMemory>(env, exports)),
+                  InstanceValue("DeviceMemory", InitClass<nv::DeviceMemory>(env, exports)),
+                  InstanceValue("ManagedMemory", InitClass<nv::ManagedMemory>(env, exports)),
+                  InstanceValue("IpcMemory", InitClass<nv::IpcMemory>(env, exports)),
+                  InstanceValue("IpcHandle", InitClass<nv::IpcHandle>(env, exports)),
+                  InstanceValue("MappedGLMemory", InitClass<nv::MappedGLMemory>(env, exports)),
+                  InstanceValue("CUDAArray", InitClass<nv::CUDAArray>(env, exports)),
 
-  nv::gl::initModule(env, gl);
-  nv::kernel::initModule(env, kernel);
-  nv::math::initModule(env, math);
-  nv::program::initModule(env, program);
-  nv::stream::initModule(env, stream);
-  nv::texture::initModule(env, stream);
+                });
+  }
 
-  EXPORT_ENUM(env, exports, "VERSION", CUDA_VERSION);
-  EXPORT_ENUM(env, exports, "IPC_HANDLE_SIZE", CU_IPC_HANDLE_SIZE);
+ private:
+  Napi::ObjectReference _driver;
+  Napi::ObjectReference _runtime;
 
-  auto driver  = Napi::Object::New(env);
-  auto runtime = Napi::Object::New(env);
+  Napi::Value get_driver_version(Napi::CallbackInfo const& info) {
+    int driverVersion;
+    auto env = info.Env();
+    NODE_CU_TRY(cuDriverGetVersion(&driverVersion), env);
+    return Napi::Number::New(env, driverVersion);
+  }
+};
 
-  EXPORT_PROP(exports, "driver", driver);
-  EXPORT_PROP(exports, "runtime", runtime);
-
-  nv::Device::Init(env, exports);
-  nv::memory::initModule(env, exports, driver, runtime);
-
-  return exports;
-}
-
-NODE_API_MODULE(node_cuda, initModule);
+NODE_API_ADDON(node_cuda);

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,42 +37,42 @@ inline Napi::Value CPPToNapi::operator()(cudaUUID_t const& data) const {
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaError_t const& error) const {
-  return Napi::Number::New(env, error);
+  return Napi::Number::New(Env(), error);
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaStream_t const& stream) const {
-  return Napi::Number::New(env, reinterpret_cast<size_t>(stream));
+  return Napi::Number::New(Env(), reinterpret_cast<size_t>(stream));
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaEvent_t const& event) const {
-  return Napi::Number::New(env, reinterpret_cast<uintptr_t>(event));
+  return Napi::Number::New(Env(), reinterpret_cast<uintptr_t>(event));
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaGraph_t const& graph) const {
-  return Napi::Number::New(env, reinterpret_cast<uintptr_t>(graph));
+  return Napi::Number::New(Env(), reinterpret_cast<uintptr_t>(graph));
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaGraphNode_t const& graphNode) const {
-  return Napi::Number::New(env, reinterpret_cast<uintptr_t>(graphNode));
+  return Napi::Number::New(Env(), reinterpret_cast<uintptr_t>(graphNode));
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaGraphExec_t const& graphExec) const {
-  return Napi::Number::New(env, reinterpret_cast<uintptr_t>(graphExec));
+  return Napi::Number::New(Env(), reinterpret_cast<uintptr_t>(graphExec));
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaGraphicsResource_t const& resource) const {
-  return Napi::Number::New(env, reinterpret_cast<uintptr_t>(resource));
+  return Napi::Number::New(Env(), reinterpret_cast<uintptr_t>(resource));
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaIpcMemHandle_t const& data) const {
-  auto buf = Napi::ArrayBuffer::New(env, CUDA_IPC_HANDLE_SIZE);
+  auto buf = Napi::ArrayBuffer::New(Env(), CUDA_IPC_HANDLE_SIZE);
   std::memcpy(buf.Data(), &data, CUDA_IPC_HANDLE_SIZE);
   return buffer_to_typed_array<uint8_t>(buf);
   // return this->operator()(data.reserved, CUDA_IPC_HANDLE_SIZE);
@@ -81,7 +81,7 @@ inline Napi::Value CPPToNapi::operator()(cudaIpcMemHandle_t const& data) const {
 template <>
 inline Napi::Value CPPToNapi::operator()(cudaDeviceProp const& props) const {
   auto cast_t = *this;
-  auto obj    = Napi::Object::New(env);
+  auto obj    = Napi::Object::New(Env());
   visit_struct::for_each(props, [&](char const* name, auto const& val) {  //
     using T = typename std::decay<decltype(val)>::type;
     if (std::is_pointer<T>()) {
