@@ -21,7 +21,6 @@ x-common-service-settings: &common_service_settings
     XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
     NVIDIA_DRIVER_CAPABILITIES: "all"
     LIBCUDF_KERNEL_CACHE_PATH: "${PWD}/modules/.cache/jit"
-    LIBCUDF_KERNEL_CACHE_FILE_LIMIT: 100000
   deploy:
     resources:
       reservations:
