@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,12 +80,11 @@ Napi::Value glfwJoystickIsGamepad(Napi::CallbackInfo const& info) {
 }
 
 // GLFWAPI int glfwUpdateGamepadMappings(const char* string);
-Napi::Value glfwUpdateGamepadMappings(Napi::CallbackInfo const& info) {
+void glfwUpdateGamepadMappings(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   std::string mappings = args[0];
   GLFW_TRY(env, GLFWAPI::glfwUpdateGamepadMappings(mappings.data()));
-  return env.Undefined();
 }
 
 // GLFWAPI const char* glfwGetGamepadName(int jid);

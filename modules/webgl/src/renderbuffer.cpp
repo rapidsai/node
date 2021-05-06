@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ Napi::Value WebGL2RenderingContext::CreateRenderbuffer(Napi::CallbackInfo const&
   CallbackArgs args = info;
   GLuint renderbuffer{};
   GL_EXPORT::glCreateRenderbuffers(1, &renderbuffer);
-  return WebGLRenderbuffer::New(renderbuffer);
+  return WebGLRenderbuffer::New(info.Env(), renderbuffer);
 }
 
 // GL_EXPORT void glCreateRenderbuffers (GLsizei n, GLuint* renderbuffers);
@@ -37,26 +37,23 @@ Napi::Value WebGL2RenderingContext::CreateRenderbuffers(Napi::CallbackInfo const
 }
 
 // GL_EXPORT void glBindRenderbuffer (GLenum target, GLuint renderbuffer);
-Napi::Value WebGL2RenderingContext::BindRenderbuffer(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BindRenderbuffer(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glBindRenderbuffer(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDeleteRenderbuffers (GLsizei n, const GLuint* renderbuffers);
-Napi::Value WebGL2RenderingContext::DeleteRenderbuffer(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteRenderbuffer(Napi::CallbackInfo const& info) {
   CallbackArgs args   = info;
   GLuint renderbuffer = args[0];
   GL_EXPORT::glDeleteRenderbuffers(1, &renderbuffer);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDeleteRenderbuffers (GLsizei n, const GLuint* renderbuffers);
-Napi::Value WebGL2RenderingContext::DeleteRenderbuffers(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteRenderbuffers(Napi::CallbackInfo const& info) {
   CallbackArgs args                 = info;
   std::vector<GLuint> renderbuffers = args[0];
   GL_EXPORT::glDeleteRenderbuffers(renderbuffers.size(), renderbuffers.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGetRenderbufferParameteriv (GLenum target, GLenum pname, GLint* params);
@@ -75,18 +72,16 @@ Napi::Value WebGL2RenderingContext::IsRenderbuffer(Napi::CallbackInfo const& inf
 
 // GL_EXPORT void glRenderbufferStorage (GLenum target, GLenum internalformat, GLsizei width,
 // GLsizei height);
-Napi::Value WebGL2RenderingContext::RenderbufferStorage(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::RenderbufferStorage(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glRenderbufferStorage(args[0], args[1], args[2], args[3]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glRenderbufferStorageMultisample (GLenum target, GLsizei samples, GLenum
 // internalformat, GLsizei width, GLsizei height);
-Napi::Value WebGL2RenderingContext::RenderbufferStorageMultisample(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::RenderbufferStorageMultisample(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glRenderbufferStorageMultisample(args[0], args[1], args[2], args[3], args[4]);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

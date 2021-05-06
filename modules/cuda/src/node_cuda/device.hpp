@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #include "node_cuda/utilities/error.hpp"
 
+#include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
 
 #include <cuda_runtime_api.h>
@@ -25,16 +26,15 @@
 
 namespace nv {
 
-class Device : public Napi::ObjectWrap<Device> {
- public:
+struct Device : public EnvLocalObjectWrap<Device> {
   /**
    * @brief Initialize the Device JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The Device constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new Device instance from C++.
@@ -42,7 +42,9 @@ class Device : public Napi::ObjectWrap<Device> {
    * @param id The zero-based CUDA device ordinal.
    * @param flags Flags for the device's primary context.
    */
-  static Napi::Object New(int32_t id = active_device_id(), uint32_t flags = cudaDeviceScheduleAuto);
+  static wrapper_t New(Napi::Env const& env,
+                       int32_t id     = active_device_id(),
+                       uint32_t flags = cudaDeviceScheduleAuto);
 
   /**
    * @brief Retrieve the id of the current CUDA device for this thread.
@@ -73,16 +75,16 @@ class Device : public Napi::ObjectWrap<Device> {
    * @return true if the value is a `Device`
    * @return false if the value is not a `Device`
    */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
+  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   template <typename Function>
-  static inline void call_in_context(int32_t new_device_id, Function const& do_work) {
+  static inline void call_in_context(Napi::Env const& env,
+                                     int32_t new_device_id,
+                                     Function do_work) {
     auto cur_device_id = active_device_id();
     auto change_device = [&](int32_t cur_id, int32_t new_id) {
       if (cur_id != new_id) {  //
-        NODE_CUDA_TRY(cudaSetDevice(new_id), constructor.Env());
+        NODE_CUDA_TRY(cudaSetDevice(new_id), env);
       }
     };
     change_device(cur_device_id, new_device_id);
@@ -108,7 +110,9 @@ class Device : public Napi::ObjectWrap<Device> {
    * @param id The zero-based CUDA device id.
    * @param flags Flags for the device's primary context.
    */
-  void Initialize(int32_t id = active_device_id(), uint32_t flags = cudaDeviceScheduleAuto);
+  void Initialize(Napi::Env const& env,
+                  int32_t id     = active_device_id(),
+                  uint32_t flags = cudaDeviceScheduleAuto);
 
   /**
    * @brief Destroy all allocations and reset all state on the current
@@ -159,7 +163,7 @@ class Device : public Napi::ObjectWrap<Device> {
    *
    * @return Device const&
    */
-  Device& synchronize();
+  Device& synchronize(Napi::Env const& env);
 
   /**
    * @brief Get the flags for the device's primary context.
@@ -173,7 +177,7 @@ class Device : public Napi::ObjectWrap<Device> {
    *
    * @param new_flags New flags for the device's primary context.
    */
-  void set_flags(uint32_t new_flags);
+  void set_flags(Napi::Env const& env, uint32_t new_flags);
 
   /**
    * @brief Queries if a device may directly access a peer device's memory.
@@ -185,7 +189,7 @@ class Device : public Napi::ObjectWrap<Device> {
    * @param peer
    * @return bool
    */
-  bool can_access_peer_device(Device const& peer) const;
+  bool can_access_peer_device(Napi::Env const& env, Device const& peer) const;
 
   /**
    * @brief Enables direct access to memory allocations in a peer device.
@@ -193,7 +197,7 @@ class Device : public Napi::ObjectWrap<Device> {
    * @param peer
    * @return Device const&
    */
-  Device& enable_peer_access(Device const& peer);
+  Device& enable_peer_access(Napi::Env const& env, Device const& peer);
 
   /**
    * @brief Disables direct access to memory allocations in a peer device and unregisters any
@@ -202,22 +206,20 @@ class Device : public Napi::ObjectWrap<Device> {
    * @param peer
    * @return Device const&
    */
-  Device& disable_peer_access(Device const& peer);
+  Device& disable_peer_access(Napi::Env const& env, Device const& peer);
 
   int32_t id() const { return id_; }
   cudaDeviceProp const& props() const { return props_; }
   std::string const& pci_bus_name() const { return pci_bus_name_; }
 
  private:
-  static Napi::FunctionReference constructor;
-
   int32_t id_{};              ///< The CUDA device identifer
   cudaDeviceProp props_;      ///< The CUDA device properties
   std::string pci_bus_name_;  ///< The CUDA device PCI bus id string
 
   template <typename Function>
-  inline void call_in_context(Function const& do_work) {
-    Device::call_in_context(this->id(), do_work);
+  inline void call_in_context(Function do_work) {
+    Device::call_in_context(Env(), id(), do_work);
   }
 
   static Napi::Value get_num_devices(Napi::CallbackInfo const& info);

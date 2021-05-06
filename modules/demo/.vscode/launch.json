@@ -3,11 +3,20 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Debug Demo (TS and C++)",
+            "configurations": [
+                "Debug Demo (launch gdb)",
+                "Debug Demo (attach node)",
+            ]
+        }
+    ],
     "configurations": [
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug Demo",
+            "name": "Debug Demo (TS only)",
             "program": "${workspaceFolder}/${input:DEMO_NAME}",
             "stopOnEntry": false,
             "runtimeArgs": ["-r", "esm"],
@@ -20,8 +29,66 @@
                 "READABLE_STREAM": "disable",
             }
         },
+        {
+            "name": "Debug Demo (launch gdb)",
+            // hide the individual configurations from the debug dropdown list
+            "presentation": { "hidden": true },
+            "type": "cppdbg",
+            "request": "launch",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            // "envFile": "${workspaceFolder}/.env",
+            "cwd": "${workspaceFolder}/${input:DEMO_NAME}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "program": "${input:NODE_BINARY}",
+            "environment": [
+                { "name": "NODE_DEBUG", "value": "1" },
+                { "name": "NODE_NO_WARNINGS", "value": "1" },
+                { "name": "NODE_ENV", "value": "production" },
+                { "name": "READABLE_STREAM", "value": "disable" },
+            ],
+            "args": [
+                "-r", "esm",
+                "--inspect=9229",
+                "--expose-internals",
+                "${workspaceFolder}/${input:DEMO_NAME}",
+                // "${input:DEMO_ARGS}"
+            ],
+        },
+        {
+            "name": "Debug Demo (attach node)",
+            "type": "node",
+            "request": "attach",
+            // hide the individual configurations from the debug dropdown list
+            "presentation": { "hidden": true },
+            "port": 9229,
+            "timeout": 60000,
+            "cwd": "${workspaceFolder}",
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/node_modules/**"
+            ],
+        },
     ],
     "inputs": [
+        {
+            "type": "command",
+            "id": "NODE_BINARY",
+            "command": "shellCommand.execute",
+            "args": {
+                "description": "path to node",
+                "command": "which node",
+                "useFirstResult": true,
+            }
+        },
         {
             "id": "DEMO_ARGS",
             "type": "promptString",

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -258,164 +258,148 @@ Napi::Value WebGL2RenderingContext::GetUniformLocation(Napi::CallbackInfo const&
   GLuint program      = args[0];
   std::string name    = args[1];
   auto const location = GL_EXPORT::glGetUniformLocation(program, name.c_str());
-  return location > -1 ? WebGLUniformLocation::New(location) : info.Env().Null();
+  return location > -1 ? WebGLUniformLocation::New(info.Env(), location) : info.Env().Null();
 }
 
 // GL_EXPORT void glUniform1f (GLint location, GLfloat v0);
-Napi::Value WebGL2RenderingContext::Uniform1f(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform1f(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform1f(loc, args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform1fv (GLint location, GLsizei count, const GLfloat* value);
-Napi::Value WebGL2RenderingContext::Uniform1fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform1fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{1};
   Span<GLfloat> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform1fv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform1i (GLint location, GLint v0);
-Napi::Value WebGL2RenderingContext::Uniform1i(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform1i(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform1i(loc, args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform1iv (GLint location, GLsizei count, const GLint* value);
-Napi::Value WebGL2RenderingContext::Uniform1iv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform1iv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{1};
   Span<GLint> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform1iv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform2f (GLint location, GLfloat v0, GLfloat v1);
-Napi::Value WebGL2RenderingContext::Uniform2f(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform2f(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform2f(loc, args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform2fv (GLint location, GLsizei count, const GLfloat* value);
-Napi::Value WebGL2RenderingContext::Uniform2fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform2fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{2};
   Span<GLfloat> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform2fv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform2i (GLint location, GLint v0, GLint v1);
-Napi::Value WebGL2RenderingContext::Uniform2i(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform2i(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform2i(loc, args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform2iv (GLint location, GLsizei count, const GLint* value);
-Napi::Value WebGL2RenderingContext::Uniform2iv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform2iv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{2};
   Span<GLint> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform2iv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform3f (GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
-Napi::Value WebGL2RenderingContext::Uniform3f(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform3f(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform3f(loc, args[1], args[2], args[3]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform3fv (GLint location, GLsizei count, const GLfloat* value);
-Napi::Value WebGL2RenderingContext::Uniform3fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform3fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{3};
   Span<GLfloat> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform3fv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform3i (GLint location, GLint v0, GLint v1, GLint v2);
-Napi::Value WebGL2RenderingContext::Uniform3i(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform3i(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform3i(loc, args[1], args[2], args[3]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform3iv (GLint location, GLsizei count, const GLint* value);
-Napi::Value WebGL2RenderingContext::Uniform3iv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform3iv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{3};
   Span<GLint> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform3iv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform4f (GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
-Napi::Value WebGL2RenderingContext::Uniform4f(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform4f(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform4f(loc, args[1], args[2], args[3], args[4]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform4fv (GLint location, GLsizei count, const GLfloat* value);
-Napi::Value WebGL2RenderingContext::Uniform4fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform4fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{4};
   Span<GLfloat> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform4fv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform4i (GLint location, GLint v0, GLint v1, GLint v2, GLint v3);
-Napi::Value WebGL2RenderingContext::Uniform4i(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform4i(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform4i(loc, args[1], args[2], args[3], args[4]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform4iv (GLint location, GLsizei count, const GLint* value);
-Napi::Value WebGL2RenderingContext::Uniform4iv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform4iv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{4};
   Span<GLint> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform4iv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniformMatrix2fv (GLint location, GLsizei count, GLboolean transpose, const
 // GLfloat* value);
-Napi::Value WebGL2RenderingContext::UniformMatrix2fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::UniformMatrix2fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   bool transpose    = args[1];
@@ -423,12 +407,11 @@ Napi::Value WebGL2RenderingContext::UniformMatrix2fv(Napi::CallbackInfo const& i
   Span<GLfloat> ptr = args[2];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniformMatrix2fv(loc, ptr.size() / size, transpose, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniformMatrix3fv (GLint location, GLsizei count, GLboolean transpose, const
 // GLfloat* value);
-Napi::Value WebGL2RenderingContext::UniformMatrix3fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::UniformMatrix3fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   bool transpose    = args[1];
@@ -436,12 +419,11 @@ Napi::Value WebGL2RenderingContext::UniformMatrix3fv(Napi::CallbackInfo const& i
   Span<GLfloat> ptr = args[2];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniformMatrix3fv(loc, ptr.size() / size, transpose, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const
 // GLfloat* value);
-Napi::Value WebGL2RenderingContext::UniformMatrix4fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::UniformMatrix4fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   bool transpose    = args[1];
@@ -449,12 +431,11 @@ Napi::Value WebGL2RenderingContext::UniformMatrix4fv(Napi::CallbackInfo const& i
   Span<GLfloat> ptr = args[2];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniformMatrix4fv(loc, ptr.size() / size, transpose, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniformMatrix2x3fv (GLint location, GLsizei count, GLboolean transpose, const
 // GLfloat *value);
-Napi::Value WebGL2RenderingContext::UniformMatrix2x3fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::UniformMatrix2x3fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   bool transpose    = args[1];
@@ -462,12 +443,11 @@ Napi::Value WebGL2RenderingContext::UniformMatrix2x3fv(Napi::CallbackInfo const&
   Span<GLfloat> ptr = args[2];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniformMatrix2x3fv(loc, ptr.size() / size, transpose, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniformMatrix2x4fv (GLint location, GLsizei count, GLboolean transpose, const
 // GLfloat *value);
-Napi::Value WebGL2RenderingContext::UniformMatrix2x4fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::UniformMatrix2x4fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   bool transpose    = args[1];
@@ -475,12 +455,11 @@ Napi::Value WebGL2RenderingContext::UniformMatrix2x4fv(Napi::CallbackInfo const&
   Span<GLfloat> ptr = args[2];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniformMatrix2x4fv(loc, ptr.size() / size, transpose, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniformMatrix3x2fv (GLint location, GLsizei count, GLboolean transpose, const
 // GLfloat *value);
-Napi::Value WebGL2RenderingContext::UniformMatrix3x2fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::UniformMatrix3x2fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   bool transpose    = args[1];
@@ -488,12 +467,11 @@ Napi::Value WebGL2RenderingContext::UniformMatrix3x2fv(Napi::CallbackInfo const&
   Span<GLfloat> ptr = args[2];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniformMatrix3x2fv(loc, ptr.size() / size, transpose, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniformMatrix3x4fv (GLint location, GLsizei count, GLboolean transpose, const
 // GLfloat *value);
-Napi::Value WebGL2RenderingContext::UniformMatrix3x4fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::UniformMatrix3x4fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   bool transpose    = args[1];
@@ -501,12 +479,11 @@ Napi::Value WebGL2RenderingContext::UniformMatrix3x4fv(Napi::CallbackInfo const&
   Span<GLfloat> ptr = args[2];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniformMatrix3x4fv(loc, ptr.size() / size, transpose, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniformMatrix4x2fv (GLint location, GLsizei count, GLboolean transpose, const
 // GLfloat *value);
-Napi::Value WebGL2RenderingContext::UniformMatrix4x2fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::UniformMatrix4x2fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   bool transpose    = args[1];
@@ -514,12 +491,11 @@ Napi::Value WebGL2RenderingContext::UniformMatrix4x2fv(Napi::CallbackInfo const&
   Span<GLfloat> ptr = args[2];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniformMatrix4x2fv(loc, ptr.size() / size, transpose, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniformMatrix4x3fv (GLint location, GLsizei count, GLboolean transpose, const
 // GLfloat *value);
-Napi::Value WebGL2RenderingContext::UniformMatrix4x3fv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::UniformMatrix4x3fv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   bool transpose    = args[1];
@@ -527,83 +503,74 @@ Napi::Value WebGL2RenderingContext::UniformMatrix4x3fv(Napi::CallbackInfo const&
   Span<GLfloat> ptr = args[2];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniformMatrix4x3fv(loc, ptr.size() / size, transpose, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform1ui (GLint location, GLuint v0);
-Napi::Value WebGL2RenderingContext::Uniform1ui(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform1ui(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform1ui(loc, args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform1uiv (GLint location, GLsizei count, const GLuint* value);
-Napi::Value WebGL2RenderingContext::Uniform1uiv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform1uiv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{1};
   Span<GLuint> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform1uiv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform2ui (GLint location, GLuint v0, GLuint v1);
-Napi::Value WebGL2RenderingContext::Uniform2ui(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform2ui(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform2ui(loc, args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform2uiv (GLint location, GLsizei count, const GLuint* value);
-Napi::Value WebGL2RenderingContext::Uniform2uiv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform2uiv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{2};
   Span<GLuint> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform2uiv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform3ui (GLint location, GLuint v0, GLuint v1, GLuint v2);
-Napi::Value WebGL2RenderingContext::Uniform3ui(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform3ui(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform3ui(loc, args[1], args[2], args[3]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform3uiv (GLint location, GLsizei count, const GLuint* value);
-Napi::Value WebGL2RenderingContext::Uniform3uiv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform3uiv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{3};
   Span<GLuint> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform3uiv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform4ui (GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3);
-Napi::Value WebGL2RenderingContext::Uniform4ui(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform4ui(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   GL_EXPORT::glUniform4ui(loc, args[1], args[2], args[3], args[4]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUniform4uiv (GLint location, GLsizei count, const GLuint* value);
-Napi::Value WebGL2RenderingContext::Uniform4uiv(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::Uniform4uiv(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLint loc         = args[0];
   static constexpr GLint size{4};
   Span<GLuint> ptr = args[1];
   if ((ptr.size() < size) || (ptr.size() % size) != 0) { GLEW_THROW(info.Env(), GL_INVALID_VALUE); }
   GL_EXPORT::glUniform4uiv(loc, ptr.size() / size, ptr.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGetActiveUniformBlockName (GLuint program, GLuint uniformBlockIndex, GLsizei
@@ -667,10 +634,9 @@ Napi::Value WebGL2RenderingContext::GetUniformIndices(Napi::CallbackInfo const& 
 
 // GL_EXPORT void glUniformBlockBinding (GLuint program, GLuint uniformBlockIndex, GLuint
 // uniformBlockBinding);
-Napi::Value WebGL2RenderingContext::UniformBlockBinding(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::UniformBlockBinding(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glUniformBlockBinding(args[0], args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

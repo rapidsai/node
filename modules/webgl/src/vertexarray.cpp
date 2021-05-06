@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ Napi::Value WebGL2RenderingContext::CreateVertexArray(Napi::CallbackInfo const& 
   CallbackArgs args = info;
   GLuint vertex_array{};
   GL_EXPORT::glCreateVertexArrays(1, &vertex_array);
-  return WebGLVertexArrayObject::New(vertex_array);
+  return WebGLVertexArrayObject::New(info.Env(), vertex_array);
 }
 
 // GL_EXPORT void glCreateVertexArrays (GLsizei n, GLuint* arrays);
@@ -37,26 +37,23 @@ Napi::Value WebGL2RenderingContext::CreateVertexArrays(Napi::CallbackInfo const&
 }
 
 // GL_EXPORT void glBindVertexArray (GLuint array);
-Napi::Value WebGL2RenderingContext::BindVertexArray(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BindVertexArray(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glBindVertexArray(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDeleteVertexArrays (GLsizei n, const GLuint* arrays);
-Napi::Value WebGL2RenderingContext::DeleteVertexArray(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteVertexArray(Napi::CallbackInfo const& info) {
   CallbackArgs args   = info;
   GLuint vertex_array = args[0];
   GL_EXPORT::glDeleteVertexArrays(1, &vertex_array);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDeleteVertexArrays (GLsizei n, const GLuint* arrays);
-Napi::Value WebGL2RenderingContext::DeleteVertexArrays(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteVertexArrays(Napi::CallbackInfo const& info) {
   CallbackArgs args                 = info;
   std::vector<GLuint> vertex_arrays = args[0];
   GL_EXPORT::glDeleteVertexArrays(vertex_arrays.size(), vertex_arrays.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT GLboolean glIsVertexArray (GLuint array);

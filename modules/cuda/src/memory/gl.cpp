@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,47 +17,37 @@
 
 namespace nv {
 
-Napi::FunctionReference MappedGLMemory::constructor;
-
-Napi::Object MappedGLMemory::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "MappedGLMemory",
-                {
-                  InstanceValue(Napi::Symbol::WellKnown(env, "toStringTag"),
-                                Napi::String::New(env, "MappedGLMemory"),
-                                napi_enumerable),
-                  InstanceAccessor("byteLength", &MappedGLMemory::size, nullptr, napi_enumerable),
-                  InstanceAccessor("device", &MappedGLMemory::device, nullptr, napi_enumerable),
-                  InstanceAccessor("ptr", &MappedGLMemory::ptr, nullptr, napi_enumerable),
-                  InstanceMethod("slice", &MappedGLMemory::slice),
-                });
-  MappedGLMemory::constructor = Napi::Persistent(ctor);
-  MappedGLMemory::constructor.SuppressDestruct();
-
-  exports.Set("MappedGLMemory", ctor);
-
-  return exports;
+Napi::Function MappedGLMemory::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(
+    env,
+    "MappedGLMemory",
+    {
+      InstanceValue(Napi::Symbol::WellKnown(env, "toStringTag"),
+                    Napi::String::New(env, "MappedGLMemory"),
+                    napi_enumerable),
+      InstanceAccessor("byteLength", &MappedGLMemory::size, nullptr, napi_enumerable),
+      InstanceAccessor("device", &MappedGLMemory::device, nullptr, napi_enumerable),
+      InstanceAccessor("ptr", &MappedGLMemory::ptr, nullptr, napi_enumerable),
+      InstanceMethod("slice", &MappedGLMemory::slice),
+    });
 }
 
 MappedGLMemory::MappedGLMemory(CallbackArgs const& args)
-  : Napi::ObjectWrap<MappedGLMemory>(args), Memory(args) {
+  : EnvLocalObjectWrap<MappedGLMemory>(args), Memory(args) {
   NODE_CUDA_EXPECT(args.IsConstructCall(), "MappedGLMemory constructor requires 'new'", args.Env());
   NODE_CUDA_EXPECT(args.Length() == 0 || (args.Length() == 1 && args[0].IsNumber()),
                    "MappedGLMemory constructor requires a numeric byteLength argument",
                    args.Env());
-  if (args.Length() == 1) { Initialize(args[0]); }
+  if (args.Length() == 1 && args[0].IsNumber()) {
+    cudaGraphicsResource_t resource = args[0];
+    NODE_CUDA_TRY(cudaGraphicsResourceGetMappedPointer(&data_, &size_, resource), Env());
+    Napi::MemoryManagement::AdjustExternalMemory(Env(), size_);
+  }
 }
 
-Napi::Object MappedGLMemory::New(cudaGraphicsResource_t resource) {
-  auto inst = MappedGLMemory::constructor.New({});
-  MappedGLMemory::Unwrap(inst)->Initialize(resource);
-  return inst;
-}
-
-void MappedGLMemory::Initialize(cudaGraphicsResource_t resource) {
-  NODE_CUDA_TRY(cudaGraphicsResourceGetMappedPointer(&data_, &size_, resource), Env());
-  Napi::MemoryManagement::AdjustExternalMemory(Env(), size_);
+MappedGLMemory::wrapper_t MappedGLMemory::New(Napi::Env const& env,
+                                              cudaGraphicsResource_t resource) {
+  return EnvLocalObjectWrap<MappedGLMemory>::New(env, reinterpret_cast<std::ptrdiff_t>(resource));
 }
 
 void MappedGLMemory::Finalize(Napi::Env env) {
@@ -70,10 +60,9 @@ Napi::Value MappedGLMemory::slice(Napi::CallbackInfo const& info) {
   int64_t lhs        = args.Length() > 0 ? args[0] : 0;
   int64_t rhs        = args.Length() > 1 ? args[1] : size_;
   std::tie(lhs, rhs) = clamp_slice_args(size_, lhs, rhs);
-  auto copy          = DeviceMemory::New(rhs - lhs);
+  auto copy          = DeviceMemory::New(info.Env(), rhs - lhs);
   if (rhs - lhs > 0) {
-    NODE_CUDA_TRY(
-      cudaMemcpy(DeviceMemory::Unwrap(copy)->base(), base() + lhs, rhs - lhs, cudaMemcpyDefault));
+    NODE_CUDA_TRY(cudaMemcpy(copy->base(), base() + lhs, rhs - lhs, cudaMemcpyDefault));
   }
   return copy;
 }

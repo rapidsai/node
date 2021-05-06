@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 #include <node_cudf/utilities/dtypes.hpp>
 #include <node_cudf/utilities/error.hpp>
 
+#include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/cpp_to_napi.hpp>
-#include <nv_node/utilities/wrap.hpp>
 
 #include <cudf/scalar/scalar.hpp>
 #include <cudf/types.hpp>
@@ -29,44 +29,43 @@
 
 namespace nv {
 
-class Scalar : public Napi::ObjectWrap<Scalar> {
- public:
+struct Scalar : public EnvLocalObjectWrap<Scalar> {
   /**
    * @brief Initialize and export the Scalar JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The Scalar constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new Scalar instance from a scalar in device memory.
    *
    * @param scalar The scalar in device memory.
    */
-  static ObjectUnwrap<Scalar> New(std::unique_ptr<cudf::scalar> scalar);
+  static wrapper_t New(Napi::Env const& env, std::unique_ptr<cudf::scalar> scalar);
 
   /**
    * @brief Construct a new Scalar instance from a Number.
    *
    * @param value The Number to use.
    */
-  static ObjectUnwrap<Scalar> New(Napi::Number const& value);
+  static wrapper_t New(Napi::Env const& env, Napi::Number const& value);
 
   /**
    * @brief Construct a new Scalar instance from a BigInt.
    *
    * @param value The BigInt to use.
    */
-  static ObjectUnwrap<Scalar> New(Napi::BigInt const& value);
+  static wrapper_t New(Napi::Env const& env, Napi::BigInt const& value);
 
   /**
    * @brief Construct a new Scalar instance from a String.
    *
    * @param value The String to use.
    */
-  static ObjectUnwrap<Scalar> New(Napi::String const& value);
+  static wrapper_t New(Napi::Env const& env, Napi::String const& value);
 
   /**
    * @brief Construct a new Scalar instance from a Value and data type.
@@ -74,31 +73,13 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
    * @param value The Value to use.
    * @param type The cudf::data_type for the scalar.
    */
-  static ObjectUnwrap<Scalar> New(Napi::Value const& value, cudf::data_type type);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `Scalar`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `Scalar`
-   * @return false if the value is not a `Scalar`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
+  static wrapper_t New(Napi::Env const& env, Napi::Value const& value, cudf::data_type type);
 
   /**
    * @brief Construct a new Scalar instance from JavaScript.
    *
    */
   Scalar(CallbackArgs const& args);
-
-  /**
-   * @brief Destructor called when the JavaScript VM garbage collects this Scalar instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
 
   /**
    * @brief Move a unique scalar pointer so it's owned by this Scalar wrapper.
@@ -144,15 +125,11 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
 
   operator cudf::scalar&() const;
 
-  operator Napi::Value() const;
-
   Napi::Value get_value() const;
 
   void set_value(Napi::CallbackInfo const& info, Napi::Value const& value);
 
  private:
-  static Napi::FunctionReference constructor;
-
   Napi::Reference<Napi::Object> type_{};  ///< Logical type of elements in the column
   std::unique_ptr<cudf::scalar> scalar_;
 
@@ -161,3 +138,12 @@ class Scalar : public Napi::ObjectWrap<Scalar> {
 };
 
 }  // namespace nv
+
+namespace Napi {
+
+template <>
+inline Value Value::From(napi_env env, nv::Scalar::wrapper_t const& scalar) {
+  return scalar->get_value();
+}
+
+}  // namespace Napi

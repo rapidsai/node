@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ class Task : public Napi::AsyncWorker {
     if (!task->notified_ && (task->notified_ = true)) { task->Queue(); }
   }
 
-  Task(Napi::Env env) : Task(env, env.Undefined()){};
-  Task(Napi::Env env, Napi::Value value)
+  Task(Napi::Env const& env) : Task(env, env.Undefined()){};
+  Task(Napi::Env const& env, Napi::Value value)
     : Napi::AsyncWorker(env), deferred_(Napi::Promise::Deferred::New(env)) {
     this->Inject(value);
   }

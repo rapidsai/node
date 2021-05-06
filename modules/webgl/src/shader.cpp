@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,38 +21,34 @@
 namespace nv {
 
 // GL_EXPORT void glAttachShader (GLuint program, GLuint shader);
-Napi::Value WebGL2RenderingContext::AttachShader(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::AttachShader(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glAttachShader(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCompileShader (GLuint shader);
-Napi::Value WebGL2RenderingContext::CompileShader(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::CompileShader(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glCompileShader(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT GLuint glCreateShader (GLenum type);
 Napi::Value WebGL2RenderingContext::CreateShader(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   auto shader       = GL_EXPORT::glCreateShader(args[0]);
-  return WebGLShader::New(shader);
+  return WebGLShader::New(info.Env(), shader);
 }
 
 // GL_EXPORT void glDeleteShader (GLuint shader);
-Napi::Value WebGL2RenderingContext::DeleteShader(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteShader(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glDeleteShader(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDetachShader (GLuint shader, GLuint shader);
-Napi::Value WebGL2RenderingContext::DetachShader(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DetachShader(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glDetachShader(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGetAttachedShaders (GLuint shader, GLsizei maxCount, GLsizei* count, GLuint*
@@ -69,8 +65,9 @@ Napi::Value WebGL2RenderingContext::GetAttachedShaders(Napi::CallbackInfo const&
     shaders.resize(count);
     shaders.shrink_to_fit();
     std::vector<Napi::Object> objs(count);
-    std::transform(
-      shaders.begin(), shaders.end(), objs.begin(), [&](auto s) { return WebGLShader::New(s); });
+    std::transform(shaders.begin(), shaders.end(), objs.begin(), [&](GLuint s) {
+      return WebGLShader::New(info.Env(), s);
+    });
     return CPPToNapi(info)(objs);
   }
   return info.Env().Null();
@@ -123,7 +120,7 @@ Napi::Value WebGL2RenderingContext::GetShaderPrecisionFormat(Napi::CallbackInfo 
   std::vector<GLint> range(2);
   GLint precision{};
   GL_EXPORT::glGetShaderPrecisionFormat(args[0], args[1], range.data(), &precision);
-  return WebGLShaderPrecisionFormat::New(range[0], range[1], precision);
+  return WebGLShaderPrecisionFormat::New(info.Env(), range[0], range[1], precision);
 }
 
 // GL_EXPORT void glGetShaderSource (GLuint obj, GLsizei maxLength, GLsizei* length, GLchar*
@@ -169,7 +166,7 @@ Napi::Value WebGL2RenderingContext::IsShader(Napi::CallbackInfo const& info) {
 
 // GL_EXPORT void glShaderSource (GLuint shader, GLsizei count, const GLchar *const* string, const
 // GLint* length);
-Napi::Value WebGL2RenderingContext::ShaderSource(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::ShaderSource(Napi::CallbackInfo const& info) {
   CallbackArgs args                = info;
   GLuint shader                    = args[0];
   std::vector<std::string> sources = args[1];
@@ -181,7 +178,6 @@ Napi::Value WebGL2RenderingContext::ShaderSource(Napi::CallbackInfo const& info)
     source_lengths[idx] = src.size();
   });
   GL_EXPORT::glShaderSource(shader, sources.size(), source_ptrs.data(), source_lengths.data());
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,10 @@ Napi::Value createProgram(CallbackArgs const& info) {
 }
 
 namespace program {
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
+Napi::Object initModule(Napi::Env const& env,
+                        Napi::Object exports,
+                        Napi::Object driver,
+                        Napi::Object runtime) {
   EXPORT_FUNC(env, exports, "create", nv::createProgram);
   return exports;
 }

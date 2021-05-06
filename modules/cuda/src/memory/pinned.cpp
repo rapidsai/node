@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,50 +17,36 @@
 
 namespace nv {
 
-Napi::FunctionReference PinnedMemory::constructor;
-
-Napi::Object PinnedMemory::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "PinnedMemory",
-                {
-                  InstanceValue(Napi::Symbol::WellKnown(env, "toStringTag"),
-                                Napi::String::New(env, "PinnedMemory"),
-                                napi_enumerable),
-                  InstanceAccessor("byteLength", &PinnedMemory::size, nullptr, napi_enumerable),
-                  InstanceAccessor("device", &PinnedMemory::device, nullptr, napi_enumerable),
-                  InstanceAccessor("ptr", &PinnedMemory::ptr, nullptr, napi_enumerable),
-                  InstanceMethod("slice", &PinnedMemory::slice),
-                });
-  PinnedMemory::constructor = Napi::Persistent(ctor);
-  PinnedMemory::constructor.SuppressDestruct();
-
-  exports.Set("PinnedMemory", ctor);
-
-  return exports;
+Napi::Function PinnedMemory::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(
+    env,
+    "PinnedMemory",
+    {
+      InstanceValue(Napi::Symbol::WellKnown(env, "toStringTag"),
+                    Napi::String::New(env, "PinnedMemory"),
+                    napi_enumerable),
+      InstanceAccessor("byteLength", &PinnedMemory::size, nullptr, napi_enumerable),
+      InstanceAccessor("device", &PinnedMemory::device, nullptr, napi_enumerable),
+      InstanceAccessor("ptr", &PinnedMemory::ptr, nullptr, napi_enumerable),
+      InstanceMethod("slice", &PinnedMemory::slice),
+    });
 }
 
 PinnedMemory::PinnedMemory(CallbackArgs const& args)
-  : Napi::ObjectWrap<PinnedMemory>(args), Memory(args) {
+  : EnvLocalObjectWrap<PinnedMemory>(args), Memory(args) {
   NODE_CUDA_EXPECT(args.IsConstructCall(), "PinnedMemory constructor requires 'new'", args.Env());
   NODE_CUDA_EXPECT(args.Length() == 0 || (args.Length() == 1 && args[0].IsNumber()),
                    "PinnedMemory constructor requires a numeric byteLength argument",
                    args.Env());
-  Initialize(args[0]);
-}
-
-Napi::Object PinnedMemory::New(size_t size) {
-  auto inst = PinnedMemory::constructor.New({});
-  PinnedMemory::Unwrap(inst)->Initialize(size);
-  return inst;
-}
-
-void PinnedMemory::Initialize(size_t size) {
-  size_ = size;
+  size_ = args[0];
   if (size_ > 0) {
     NODE_CUDA_TRY(cudaMallocHost(&data_, size_));
     Napi::MemoryManagement::AdjustExternalMemory(Env(), size_);
   }
+}
+
+PinnedMemory::wrapper_t PinnedMemory::New(Napi::Env const& env, size_t size) {
+  return EnvLocalObjectWrap<PinnedMemory>::New(env, size);
 }
 
 void PinnedMemory::Finalize(Napi::Env env) {
@@ -78,10 +64,9 @@ Napi::Value PinnedMemory::slice(Napi::CallbackInfo const& info) {
   int64_t lhs        = args.Length() > 0 ? args[0] : 0;
   int64_t rhs        = args.Length() > 1 ? args[1] : size_;
   std::tie(lhs, rhs) = clamp_slice_args(size_, lhs, rhs);
-  auto copy          = PinnedMemory::New(rhs - lhs);
+  auto copy          = PinnedMemory::New(info.Env(), rhs - lhs);
   if (rhs - lhs > 0) {
-    NODE_CUDA_TRY(
-      cudaMemcpy(PinnedMemory::Unwrap(copy)->base(), base() + lhs, rhs - lhs, cudaMemcpyDefault));
+    NODE_CUDA_TRY(cudaMemcpy(copy->base(), base() + lhs, rhs - lhs, cudaMemcpyDefault));
   }
   return copy;
 }

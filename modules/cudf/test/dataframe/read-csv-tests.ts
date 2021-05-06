@@ -16,7 +16,7 @@ import {setDefaultAllocator} from '@nvidia/cuda';
 import {DataFrame} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
-import {mkdtempSync, promises} from 'fs';
+import {promises} from 'fs';
 import * as Path from 'path';
 
 import {makeCSVString} from './utils';
@@ -58,7 +58,8 @@ describe('DataFrame.readCSV', () => {
     expect(df.get('a').toArrow().values).toEqual(new Int32Array([0, 1, 2]));
     expect(df.get('b').toArrow().toArray()).toEqual(new Float64Array([1.0, 2.0, 3.0]));
     expect([...df.get('c').toArrow()]).toEqual(['2', '3', '4']);
-    await new Promise<void>((r) => rimraf(path, () => r()));
+    await new Promise<void>((resolve, reject) =>
+                              rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
   });
 });
 
@@ -66,7 +67,9 @@ let csvTmpDir = '';
 
 const rimraf = require('rimraf');
 
-beforeAll(() => { csvTmpDir = mkdtempSync(Path.join('/tmp', 'node_cudf')); });
+beforeAll(async () => {  //
+  csvTmpDir = await promises.mkdtemp(Path.join('/tmp', 'node_cudf'));
+});
 
 afterAll(() => {
   return new Promise<void>((resolve, reject) => {  //

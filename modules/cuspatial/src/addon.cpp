@@ -12,34 +12,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cuspatial/addon.hpp>
-#include <node_cuspatial/geometry.hpp>
-#include <node_cuspatial/quadtree.hpp>
+#include "node_cuspatial/geometry.hpp"
+#include "node_cuspatial/quadtree.hpp"
 
-#include <nv_node/macros.hpp>
+#include <nv_node/addon.hpp>
 
-#include <napi.h>
+struct node_cuspatial : public nv::EnvLocalAddon, public Napi::Addon<node_cuspatial> {
+  node_cuspatial(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
+    DefineAddon(exports,
+                {
+                  InstanceMethod("init", &node_cuspatial::InitAddon),
+                  InstanceValue("_cpp_exports", _cpp_exports.Value()),
+                  InstanceMethod<&node_cuspatial::create_quadtree>("createQuadtree"),
+                  InstanceMethod<&node_cuspatial::quadtree_bounding_box_intersections>(
+                    "findQuadtreeAndBoundingBoxIntersections"),
+                  InstanceMethod<&node_cuspatial::find_points_in_polygons>("findPointsInPolygons"),
+                  InstanceMethod<&node_cuspatial::find_polyline_nearest_to_each_point>(
+                    "findPolylineNearestToEachPoint"),
+                  InstanceMethod<&node_cuspatial::compute_polygon_bounding_boxes>(
+                    "computePolygonBoundingBoxes"),
+                  InstanceMethod<&node_cuspatial::compute_polyline_bounding_boxes>(
+                    "computePolylineBoundingBoxes"),
+                });
+  }
 
-namespace nv {
-Napi::Value cuspatialInit(Napi::CallbackInfo const& info) {
-  // todo
-  return info.This();
-}
-}  // namespace nv
+ private:
+  Napi::Value create_quadtree(Napi::CallbackInfo const& info) { return nv::create_quadtree(info); }
+  Napi::Value quadtree_bounding_box_intersections(Napi::CallbackInfo const& info) {
+    return nv::quadtree_bounding_box_intersections(info);
+  }
+  Napi::Value find_points_in_polygons(Napi::CallbackInfo const& info) {
+    return nv::find_points_in_polygons(info);
+  }
+  Napi::Value find_polyline_nearest_to_each_point(Napi::CallbackInfo const& info) {
+    return nv::find_polyline_nearest_to_each_point(info);
+  }
+  Napi::Value compute_polygon_bounding_boxes(Napi::CallbackInfo const& info) {
+    return nv::compute_polygon_bounding_boxes(info);
+  }
+  Napi::Value compute_polyline_bounding_boxes(Napi::CallbackInfo const& info) {
+    return nv::compute_polyline_bounding_boxes(info);
+  }
+};
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", nv::cuspatialInit);
-  EXPORT_FUNC(env, exports, "createQuadtree", nv::create_quadtree);
-  EXPORT_FUNC(env,
-              exports,
-              "findQuadtreeAndBoundingBoxIntersections",
-              nv::quadtree_bounding_box_intersections);
-  EXPORT_FUNC(env, exports, "findPointsInPolygons", nv::find_points_in_polygons);
-  EXPORT_FUNC(
-    env, exports, "findPolylineNearestToEachPoint", nv::find_polyline_nearest_to_each_point);
-  EXPORT_FUNC(env, exports, "computePolygonBoundingBoxes", nv::compute_polygon_bounding_boxes);
-  EXPORT_FUNC(env, exports, "computePolylineBoundingBoxes", nv::compute_polyline_bounding_boxes);
-  return exports;
-}
-
-NODE_API_MODULE(node_cuspatial, initModule);
+NODE_API_ADDON(node_cuspatial);
