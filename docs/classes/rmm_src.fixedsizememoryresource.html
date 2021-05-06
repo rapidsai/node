@@ -70,8 +70,8 @@
 				<div class="tsd-comment tsd-typography">
 					<dl class="tsd-comment-tags">
 						<dt>summary</dt>
-						<dd><p>A <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> which allocates memory blocks of a single fixed size using an
-							upstream <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>.</p>
+						<dd><p>A <a href="../modules/rmm_src.addon.html#memoryresource-1">MemoryResource</a> which allocates memory blocks of a single fixed size using an
+							upstream <a href="../modules/rmm_src.addon.html#memoryresource-1">MemoryResource</a>.</p>
 						</dd>
 						<dt>note</dt>
 						<dd><p>Supports only allocations of size smaller than the configured <code>blockSize</code>.</p>
@@ -83,10 +83,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a>
-					</li>
-					<li>
-						<span class="tsd-signature-type">MemoryResource</span>
+						<a href="../modules/rmm_src.addon.html#memoryresource-1" class="tsd-signature-type" data-tsd-kind="Variable">MemoryResource</a>
 						<ul class="tsd-hierarchy">
 							<li>
 								<span class="target">FixedSizeMemoryResource</span>
@@ -129,30 +126,30 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Fixed<wbr>Size<wbr>Memory<wbr>Resource<span class="tsd-signature-symbol">(</span>upstreamMemoryResource<span class="tsd-signature-symbol">: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a>, blockSize<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, blocksToPreallocate<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="rmm_src.fixedsizememoryresource.html" class="tsd-signature-type" data-tsd-kind="Class">FixedSizeMemoryResource</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Fixed<wbr>Size<wbr>Memory<wbr>Resource<span class="tsd-signature-symbol">(</span>upstreamMemoryResource<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">MemoryResource</span>, blockSize<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, blocksToPreallocate<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="rmm_src.fixedsizememoryresource.html" class="tsd-signature-type" data-tsd-kind="Class">FixedSizeMemoryResource</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Inherited from MemoryResource.constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/rmm/src/memory_resource.ts#L148">modules/rmm/src/memory_resource.ts:148</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/rmm/src/memory_resource.ts#L81">modules/rmm/src/memory_resource.ts:81</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<dl class="tsd-comment-tags">
 									<dt>summary</dt>
 									<dd><p>Constructs a MemoryResource which allocates memory blocks of a single fixed size using
-										an upstream <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>.</p>
+										an upstream <a href="../modules/rmm_src.addon.html#memoryresource-1">MemoryResource</a>.</p>
 									</dd>
 								</dl>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>upstreamMemoryResource: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<h5>upstreamMemoryResource: <span class="tsd-signature-type">MemoryResource</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>The <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> from which to allocate blocks for the
+										<p>The <a href="../modules/rmm_src.addon.html#memoryresource-1">MemoryResource</a> from which to allocate blocks for the
 										pool.</p>
 									</div>
 								</li>
@@ -179,16 +176,16 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="memoryresource" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> memory<wbr>Resource</h3>
-					<div class="tsd-signature tsd-kind-icon">memory<wbr>Resource<span class="tsd-signature-symbol">:</span> <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></div>
+					<div class="tsd-signature tsd-kind-icon">memory<wbr>Resource<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">MemoryResource</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/rmm/src/memory_resource.ts#L139">modules/rmm/src/memory_resource.ts:139</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/rmm/src/memory_resource.ts#L72">modules/rmm/src/memory_resource.ts:72</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<dl class="tsd-comment-tags">
 							<dt>summary</dt>
-							<dd><p>The <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a> from which to allocate blocks for the pool.</p>
+							<dd><p>The <a href="../modules/rmm_src.addon.html#memoryresource-1">MemoryResource</a> from which to allocate blocks for the pool.</p>
 							</dd>
 						</dl>
 					</div>
@@ -198,9 +195,9 @@
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> supports<wbr>Get<wbr>Mem<wbr>Info</h3>
 					<div class="tsd-signature tsd-kind-icon">supports<wbr>Get<wbr>Mem<wbr>Info<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>.<a href="../interfaces/rmm_src.memoryresource.html#supportsgetmeminfo">supportsGetMemInfo</a></p>
+						<p>Inherited from MemoryResource.supportsGetMemInfo</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/rmm/src/memory_resource.ts#L59">modules/rmm/src/memory_resource.ts:59</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/rmm/src/node_rmm.ts#L155">modules/rmm/src/node_rmm.ts:155</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -216,9 +213,9 @@
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> supports<wbr>Streams</h3>
 					<div class="tsd-signature tsd-kind-icon">supports<wbr>Streams<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>.<a href="../interfaces/rmm_src.memoryresource.html#supportsstreams">supportsStreams</a></p>
+						<p>Inherited from MemoryResource.supportsStreams</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/rmm/src/memory_resource.ts#L54">modules/rmm/src/memory_resource.ts:54</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/rmm/src/node_rmm.ts#L150">modules/rmm/src/node_rmm.ts:150</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -237,14 +234,14 @@
 					<a name="getmeminfo" class="tsd-anchor"></a>
 					<h3>get<wbr>Mem<wbr>Info</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Mem<wbr>Info<span class="tsd-signature-symbol">(</span>stream<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Mem<wbr>Info<span class="tsd-signature-symbol">(</span>stream<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>.<a href="../interfaces/rmm_src.memoryresource.html#getmeminfo">getMemInfo</a></p>
+								<p>Inherited from MemoryResource.getMemInfo</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/rmm/src/memory_resource.ts#L68">modules/rmm/src/memory_resource.ts:68</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/rmm/src/node_rmm.ts#L164">modules/rmm/src/node_rmm.ts:164</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -255,7 +252,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>stream: <span class="tsd-signature-type">number</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> stream: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>the stream whose memory manager we want to retrieve</p>
 									</div>
@@ -270,14 +267,14 @@
 					<a name="isequal" class="tsd-anchor"></a>
 					<h3>is<wbr>Equal</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">is<wbr>Equal<span class="tsd-signature-symbol">(</span>other<span class="tsd-signature-symbol">: </span><a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Equal<span class="tsd-signature-symbol">(</span>other<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">MemoryResource</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="../interfaces/rmm_src.memoryresource.html">MemoryResource</a>.<a href="../interfaces/rmm_src.memoryresource.html#isequal">isEqual</a></p>
+								<p>Inherited from MemoryResource.isEqual</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/rmm/src/memory_resource.ts#L80">modules/rmm/src/memory_resource.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/rmm/src/node_rmm.ts#L176">modules/rmm/src/node_rmm.ts:176</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -294,7 +291,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>other: <a href="../interfaces/rmm_src.memoryresource.html" class="tsd-signature-type" data-tsd-kind="Interface">MemoryResource</a></h5>
+									<h5>other: <span class="tsd-signature-type">MemoryResource</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The other resource to compare to</p>
 									</div>
@@ -341,6 +338,21 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/rmm_src.html#devicebuffer" class="tsd-kind-icon">Device<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/rmm_src.html#getcurrentdeviceresource" class="tsd-kind-icon">get<wbr>Current<wbr>Device<wbr>Resource</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/rmm_src.html#getperdeviceresource" class="tsd-kind-icon">get<wbr>Per<wbr>Device<wbr>Resource</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/rmm_src.html#setcurrentdeviceresource" class="tsd-kind-icon">set<wbr>Current<wbr>Device<wbr>Resource</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/rmm_src.html#setperdeviceresource" class="tsd-kind-icon">set<wbr>Per<wbr>Device<wbr>Resource</a>
+					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="rmm_src.binningmemoryresource.html" class="tsd-kind-icon">Binning<wbr>Memory<wbr>Resource</a>
 					</li>
@@ -382,27 +394,6 @@
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="rmm_src.poolmemoryresource.html" class="tsd-kind-icon">Pool<wbr>Memory<wbr>Resource</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/rmm_src.devicebuffer.html" class="tsd-kind-icon">Device<wbr>Buffer</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/rmm_src.memoryresource.html" class="tsd-kind-icon">Memory<wbr>Resource</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="../modules/rmm_src.html#getcurrentdeviceresource" class="tsd-kind-icon">get<wbr>Current<wbr>Device<wbr>Resource</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="../modules/rmm_src.html#getperdeviceresource" class="tsd-kind-icon">get<wbr>Per<wbr>Device<wbr>Resource</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="../modules/rmm_src.html#getperdeviceresourcetype" class="tsd-kind-icon">get<wbr>Per<wbr>Device<wbr>Resource<wbr>Type</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="../modules/rmm_src.html#setcurrentdeviceresource" class="tsd-kind-icon">set<wbr>Current<wbr>Device<wbr>Resource</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="../modules/rmm_src.html#setperdeviceresource" class="tsd-kind-icon">set<wbr>Per<wbr>Device<wbr>Resource</a>
 					</li>
 				</ul>
 			</nav>

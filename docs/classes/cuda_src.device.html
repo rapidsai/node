@@ -70,7 +70,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">CUDADevice</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">&gt;</span>
+						<a href="../modules/cuda_src.addon.html#device-1" class="tsd-signature-type" data-tsd-kind="Variable">Device</a>
 						<ul class="tsd-hierarchy">
 							<li>
 								<span class="target">Device</span>
@@ -129,14 +129,14 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Device<span class="tsd-signature-symbol">(</span>deviceId<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, flags<span class="tsd-signature-symbol">?: </span><a href="../enums/cuda_src.deviceflags.html" class="tsd-signature-type" data-tsd-kind="Enumeration">DeviceFlags</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Device<span class="tsd-signature-symbol">(</span>deviceId<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, flags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">DeviceFlags</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).constructor</p>
+								<p>Inherited from CUDADevice.constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L156">modules/cuda/src/device.ts:156</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L200">modules/cuda/src/node_cuda.ts:200</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -145,7 +145,7 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> deviceId: <span class="tsd-signature-type">number</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> flags: <a href="../enums/cuda_src.deviceflags.html" class="tsd-signature-type" data-tsd-kind="Enumeration">DeviceFlags</a></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> flags: <span class="tsd-signature-type">DeviceFlags</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></h4>
@@ -160,9 +160,9 @@
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> id</h3>
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).id</p>
+						<p>Inherited from CUDADevice.id</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L164">modules/cuda/src/device.ts:164</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L207">modules/cuda/src/node_cuda.ts:207</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -176,9 +176,9 @@
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> pci<wbr>Bus<wbr>Name</h3>
 					<div class="tsd-signature tsd-kind-icon">pci<wbr>Bus<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).pciBusName</p>
+						<p>Inherited from CUDADevice.pciBusName</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L169">modules/cuda/src/device.ts:169</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L212">modules/cuda/src/node_cuda.ts:212</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -192,9 +192,9 @@
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> <span class="tsd-flag ts-flagStatic">Static</span> active<wbr>Device<wbr>Id</h3>
 					<div class="tsd-signature tsd-kind-icon">active<wbr>Device<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Overrides (&lt;CUDADeviceConstructor&gt;CUDA.Device).activeDeviceId</p>
+						<p>Overrides CUDADevice.activeDeviceId</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L25">modules/cuda/src/device.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/device.ts#L27">modules/cuda/src/device.ts:27</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -208,9 +208,9 @@
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> <span class="tsd-flag ts-flagStatic">Static</span> num<wbr>Devices</h3>
 					<div class="tsd-signature tsd-kind-icon">num<wbr>Devices<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Overrides (&lt;CUDADeviceConstructor&gt;CUDA.Device).numDevices</p>
+						<p>Overrides CUDADevice.numDevices</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L21">modules/cuda/src/device.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/device.ts#L23">modules/cuda/src/device.ts:23</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -232,7 +232,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L30">modules/cuda/src/device.ts:30</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/device.ts#L32">modules/cuda/src/device.ts:32</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -254,7 +254,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L34">modules/cuda/src/device.ts:34</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/device.ts#L36">modules/cuda/src/device.ts:36</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -278,9 +278,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).activate</p>
+								<p>Inherited from CUDADevice.activate</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L203">modules/cuda/src/device.ts:203</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L246">modules/cuda/src/node_cuda.ts:246</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -317,9 +317,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).callInContext</p>
+								<p>Inherited from CUDADevice.callInContext</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L242">modules/cuda/src/device.ts:242</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L285">modules/cuda/src/node_cuda.ts:285</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -361,14 +361,14 @@
 					<a name="canaccesspeerdevice" class="tsd-anchor"></a>
 					<h3>can<wbr>Access<wbr>Peer<wbr>Device</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">can<wbr>Access<wbr>Peer<wbr>Device<span class="tsd-signature-symbol">(</span>peerDevice<span class="tsd-signature-symbol">: </span><a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">can<wbr>Access<wbr>Peer<wbr>Device<span class="tsd-signature-symbol">(</span>peerDevice<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Device</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).canAccessPeerDevice</p>
+								<p>Inherited from CUDADevice.canAccessPeerDevice</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L254">modules/cuda/src/device.ts:254</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L297">modules/cuda/src/node_cuda.ts:297</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -385,7 +385,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>peerDevice: <a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></h5>
+									<h5>peerDevice: <span class="tsd-signature-type">Device</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -398,14 +398,14 @@
 					<a name="disablepeeraccess" class="tsd-anchor"></a>
 					<h3>disable<wbr>Peer<wbr>Access</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">disable<wbr>Peer<wbr>Access<span class="tsd-signature-symbol">(</span>peerDevice<span class="tsd-signature-symbol">: </span><a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></li>
+						<li class="tsd-signature tsd-kind-icon">disable<wbr>Peer<wbr>Access<span class="tsd-signature-symbol">(</span>peerDevice<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Device</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).disablePeerAccess</p>
+								<p>Inherited from CUDADevice.disablePeerAccess</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L265">modules/cuda/src/device.ts:265</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L308">modules/cuda/src/node_cuda.ts:308</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -419,7 +419,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>peerDevice: <a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></h5>
+									<h5>peerDevice: <span class="tsd-signature-type">Device</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></h4>
@@ -430,14 +430,14 @@
 					<a name="enablepeeraccess" class="tsd-anchor"></a>
 					<h3>enable<wbr>Peer<wbr>Access</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">enable<wbr>Peer<wbr>Access<span class="tsd-signature-symbol">(</span>peerDevice<span class="tsd-signature-symbol">: </span><a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></li>
+						<li class="tsd-signature tsd-kind-icon">enable<wbr>Peer<wbr>Access<span class="tsd-signature-symbol">(</span>peerDevice<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Device</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).enablePeerAccess</p>
+								<p>Inherited from CUDADevice.enablePeerAccess</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L259">modules/cuda/src/device.ts:259</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L302">modules/cuda/src/node_cuda.ts:302</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -450,7 +450,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>peerDevice: <a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></h5>
+									<h5>peerDevice: <span class="tsd-signature-type">Device</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="cuda_src.device.html" class="tsd-signature-type" data-tsd-kind="Class">Device</a></h4>
@@ -461,24 +461,24 @@
 					<a name="getflags" class="tsd-anchor"></a>
 					<h3>get<wbr>Flags</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Flags<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../enums/cuda_src.deviceflags.html" class="tsd-signature-type" data-tsd-kind="Enumeration">DeviceFlags</a></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Flags<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DeviceFlags</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).getFlags</p>
+								<p>Inherited from CUDADevice.getFlags</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L208">modules/cuda/src/device.ts:208</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L251">modules/cuda/src/node_cuda.ts:251</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<dl class="tsd-comment-tags">
 									<dt>summary</dt>
-									<dd><p>Get the <a href="../enums/cuda_src.deviceflags.html">device flags</a> used to initialize this device.</p>
+									<dd><p>Get the {@link DeviceFlag_ device flags} used to initialize this device.</p>
 									</dd>
 								</dl>
 							</div>
-							<h4 class="tsd-returns-title">Returns <a href="../enums/cuda_src.deviceflags.html" class="tsd-signature-type" data-tsd-kind="Enumeration">DeviceFlags</a></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">DeviceFlags</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -486,14 +486,14 @@
 					<a name="getproperties" class="tsd-anchor"></a>
 					<h3>get<wbr>Properties</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Properties<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/cuda_src.deviceproperties.html" class="tsd-signature-type" data-tsd-kind="Interface">DeviceProperties</a></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Properties<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DeviceProperties</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides (&lt;CUDADeviceConstructor&gt;CUDA.Device).getProperties</p>
+								<p>Overrides CUDADevice.getProperties</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L42">modules/cuda/src/device.ts:42</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/device.ts#L44">modules/cuda/src/device.ts:44</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -503,7 +503,7 @@
 									</dd>
 								</dl>
 							</div>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/cuda_src.deviceproperties.html" class="tsd-signature-type" data-tsd-kind="Interface">DeviceProperties</a></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">DeviceProperties</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -516,9 +516,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).reset</p>
+								<p>Inherited from CUDADevice.reset</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L184">modules/cuda/src/device.ts:184</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L227">modules/cuda/src/node_cuda.ts:227</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -546,27 +546,27 @@
 					<a name="setflags" class="tsd-anchor"></a>
 					<h3>set<wbr>Flags</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Flags<span class="tsd-signature-symbol">(</span>newFlags<span class="tsd-signature-symbol">: </span><a href="../enums/cuda_src.deviceflags.html" class="tsd-signature-type" data-tsd-kind="Enumeration">DeviceFlags</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Flags<span class="tsd-signature-symbol">(</span>newFlags<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DeviceFlags</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).setFlags</p>
+								<p>Inherited from CUDADevice.setFlags</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L215">modules/cuda/src/device.ts:215</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L258">modules/cuda/src/node_cuda.ts:258</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<dl class="tsd-comment-tags">
 									<dt>summary</dt>
-									<dd><p>Set the <a href="../enums/cuda_src.deviceflags.html">device flags</a> for the device&#39;s primary context.</p>
+									<dd><p>Set the {@link DeviceFlag device flags} for the device&#39;s primary context.</p>
 									</dd>
 								</dl>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>newFlags: <a href="../enums/cuda_src.deviceflags.html" class="tsd-signature-type" data-tsd-kind="Enumeration">DeviceFlags</a></h5>
+									<h5>newFlags: <span class="tsd-signature-type">DeviceFlags</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>The new flags for the device&#39;s primary context.</p>
 									</div>
@@ -585,9 +585,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from (&lt;CUDADeviceConstructor&gt;CUDA.Device).synchronize</p>
+								<p>Inherited from CUDADevice.synchronize</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/9de90b1/modules/cuda/src/device.ts#L233">modules/cuda/src/device.ts:233</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/7f31563/modules/cuda/src/node_cuda.ts#L276">modules/cuda/src/node_cuda.ts:276</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -646,8 +646,35 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-enum tsd-parent-kind-module">
-						<a href="../enums/cuda_src.deviceflags.html" class="tsd-kind-icon">Device<wbr>Flags</a>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#cuda" class="tsd-kind-icon">CUDA</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#deviceflags" class="tsd-kind-icon">Device<wbr>Flags</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#devicememory" class="tsd-kind-icon">Device<wbr>Memory</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#ipcmemory" class="tsd-kind-icon">Ipc<wbr>Memory</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#managedmemory" class="tsd-kind-icon">Managed<wbr>Memory</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#mappedglmemory" class="tsd-kind-icon">MappedGLMemory</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#memory" class="tsd-kind-icon">Memory</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#pinnedmemory" class="tsd-kind-icon">Pinned<wbr>Memory</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#driver" class="tsd-kind-icon">driver</a>
+					</li>
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/cuda_src.html#runtime" class="tsd-kind-icon">runtime</a>
 					</li>
 				</ul>
 				<ul class="current">
@@ -747,24 +774,6 @@
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="cuda_src.uint8clampedbuffer.html" class="tsd-kind-icon">Uint8<wbr>Clamped<wbr>Buffer</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/cuda_src.devicememory.html" class="tsd-kind-icon">Device<wbr>Memory</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/cuda_src.deviceproperties.html" class="tsd-kind-icon">Device<wbr>Properties</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/cuda_src.ipcmemory.html" class="tsd-kind-icon">Ipc<wbr>Memory</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/cuda_src.managedmemory.html" class="tsd-kind-icon">Managed<wbr>Memory</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/cuda_src.mappedglmemory.html" class="tsd-kind-icon">MappedGLMemory</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/cuda_src.pinnedmemory.html" class="tsd-kind-icon">Pinned<wbr>Memory</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
 						<a href="../modules/cuda_src.html#cudamemoryview" class="tsd-kind-icon">CUDAMemory<wbr>View</a>
