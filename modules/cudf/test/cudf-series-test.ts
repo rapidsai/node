@@ -324,6 +324,14 @@ test('Series.sortValues (descending)', () => {
   expect([...result.toArrow()]).toEqual(expected);
 });
 
+test('Series.isNull (numeric)', () => {
+  const col    = Series.new({type: new Int32, data: [0, 1, null, 3, 4, null, 6, null]});
+  const result = col.isNull();
+
+  const expected = [false, false, true, false, false, true, false, true];
+  expect([...result.toArrow()]).toEqual(expected);
+});
+
 test('Series.dropNulls (drop nulls only)', () => {
   const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
   const col =
