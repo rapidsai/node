@@ -78,52 +78,46 @@ struct set_scalar_value {
 
 }  // namespace
 
-Napi::FunctionReference Scalar::constructor;
-
-Napi::Object Scalar::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(
+Napi::Function Scalar::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(
     env,
     "Scalar",
     {
       InstanceAccessor("type", &Scalar::type, nullptr, napi_enumerable),
       InstanceAccessor("value", &Scalar::get_value, &Scalar::set_value, napi_enumerable),
     });
-
-  Scalar::constructor = Napi::Persistent(ctor);
-  Scalar::constructor.SuppressDestruct();
-  exports.Set("Scalar", ctor);
-
-  return exports;
 }
 
-ObjectUnwrap<Scalar> Scalar::New(std::unique_ptr<cudf::scalar> scalar) {
-  auto opts = Napi::Object::New(constructor.Env());
-  opts.Set("type", cudf_to_arrow_type(opts.Env(), scalar->type()));
-  ObjectUnwrap<Scalar> inst{constructor.New({opts})};
+Scalar::wrapper_t Scalar::New(Napi::Env const& env, std::unique_ptr<cudf::scalar> scalar) {
+  auto opts = Napi::Object::New(env);
+  opts.Set("type", cudf_to_arrow_type(env, scalar->type()));
+  auto inst     = EnvLocalObjectWrap<Scalar>::New(env, {opts});
   inst->scalar_ = std::move(scalar);
   return inst;
 }
 
-ObjectUnwrap<Scalar> Scalar::New(Napi::Number const& value) {
-  return New(value, cudf::data_type{cudf::type_id::FLOAT64});
+Scalar::wrapper_t Scalar::New(Napi::Env const& env, Napi::Number const& value) {
+  return New(env, value, cudf::data_type{cudf::type_id::FLOAT64});
 }
 
-ObjectUnwrap<Scalar> Scalar::New(Napi::BigInt const& value) {
-  return New(value, cudf::data_type{cudf::type_id::INT64});
+Scalar::wrapper_t Scalar::New(Napi::Env const& env, Napi::BigInt const& value) {
+  return New(env, value, cudf::data_type{cudf::type_id::INT64});
 }
 
-ObjectUnwrap<Scalar> Scalar::New(Napi::String const& value) {
-  return New(value, cudf::data_type{cudf::type_id::STRING});
+Scalar::wrapper_t Scalar::New(Napi::Env const& env, Napi::String const& value) {
+  return New(env, value, cudf::data_type{cudf::type_id::STRING});
 }
 
-ObjectUnwrap<Scalar> Scalar::New(Napi::Value const& value, cudf::data_type type) {
-  auto opts = Napi::Object::New(constructor.Env());
+Scalar::wrapper_t Scalar::New(Napi::Env const& env,
+                              Napi::Value const& value,
+                              cudf::data_type type) {
+  auto opts = Napi::Object::New(env);
   opts.Set("value", value);
   opts.Set("type", cudf_to_arrow_type(opts.Env(), type));
-  return constructor.New({opts});
+  return EnvLocalObjectWrap<Scalar>::New(env, {opts});
 }
 
-Scalar::Scalar(CallbackArgs const& args) : Napi::ObjectWrap<Scalar>(args) {
+Scalar::Scalar(CallbackArgs const& args) : EnvLocalObjectWrap<Scalar>(args) {
   NODE_CUDF_EXPECT(
     args[0].IsObject(), "Scalar constructor expects an Object options argument", args.Env());
   Napi::Object props = args[0];
@@ -139,17 +133,13 @@ Scalar::Scalar(CallbackArgs const& args) : Napi::ObjectWrap<Scalar>(args) {
   if (props.Has("value")) { set_value(args, props.Get("value")); }
 }
 
-void Scalar::Finalize(Napi::Env env) { this->scalar_.reset(nullptr); }
+Scalar::operator cudf::scalar&() const { return *scalar_; }
 
 Napi::Value Scalar::type(Napi::CallbackInfo const& info) { return type_.Value(); }
 
-Napi::Value Scalar::get_value() const { return CPPToNapi(Env())(scalar_); }
+Napi::Value Scalar::get_value() const { return Napi::Value::From(Env(), scalar_); }
 
-Scalar::operator Napi::Value() const { return get_value(); }
-
-Scalar::operator cudf::scalar&() const { return *scalar_; }
-
-Napi::Value Scalar::get_value(Napi::CallbackInfo const& info) { return get_value(); }
+Napi::Value Scalar::get_value(Napi::CallbackInfo const& info) { return this->get_value(); }
 
 void Scalar::set_value(Napi::CallbackInfo const& info, Napi::Value const& value) {
   if (value.IsNull() or value.IsUndefined()) {

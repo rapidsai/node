@@ -47,25 +47,26 @@ namespace nv {
 
 namespace {
 
-ObjectUnwrap<DeviceBuffer> device_buffer_from_memorylike(NapiToCPP const& data) {
+DeviceBuffer::wrapper_t device_buffer_from_memorylike(NapiToCPP const& data) {
+  auto const env        = data.Env();
   NapiToCPP::Object obj = data;
-  if (DeviceBuffer::is_instance(obj)) { return obj.val; }
+  if (DeviceBuffer::IsInstance(obj)) { return obj.val; }
   if (data.IsDeviceMemoryLike()) {
     NapiToCPP::Object buf = obj.Get("buffer");
-    if (DeviceBuffer::is_instance(buf)) { return buf.val; }
-    return DeviceBuffer::New(data.operator Span<uint8_t>());
+    if (DeviceBuffer::IsInstance(buf)) { return buf.val; }
+    return DeviceBuffer::New(env, data.operator Span<uint8_t>(), MemoryResource::Current(env));
   }
-  return DeviceBuffer::New(data.operator Napi::Uint8Array());
+  return DeviceBuffer::New(env, data.operator Napi::Uint8Array(), MemoryResource::Current(env));
 }
 
-ObjectUnwrap<DeviceBuffer> device_buffer_from_bool(NapiToCPP const& value, cudf::size_type size) {
+DeviceBuffer::wrapper_t device_buffer_from_bool(NapiToCPP const& value, cudf::size_type size) {
   bool const valid = value;
   auto state       = valid ? cudf::mask_state::ALL_VALID : cudf::mask_state::ALL_NULL;
   return DeviceBuffer::New(
-    std::make_unique<rmm::device_buffer>(cudf::create_null_mask(size, state)));
+    value.Env(), std::make_unique<rmm::device_buffer>(cudf::create_null_mask(size, state)));
 }
 
-ObjectUnwrap<DeviceBuffer> null_mask_from_data_array(NapiToCPP const& value, cudf::size_type size) {
+DeviceBuffer::wrapper_t null_mask_from_data_array(NapiToCPP const& value, cudf::size_type size) {
   auto const env       = value.Env();
   auto const vals      = value.As<Napi::Array>();
   auto const mask_size = cudf::bitmask_allocation_size_bytes(size);
@@ -77,11 +78,10 @@ ObjectUnwrap<DeviceBuffer> null_mask_from_data_array(NapiToCPP const& value, cud
     // Set the valid bit if the value isn't `null` or `undefined`
     if (!(elt.IsNull() or elt.IsUndefined())) { cudf::set_bit_unsafe(mask_data, i); }
   }
-  return DeviceBuffer::New(mask_data, mask_size);
+  return DeviceBuffer::New(env, mask_data, mask_size, MemoryResource::Current(env));
 }
 
-ObjectUnwrap<DeviceBuffer> null_mask_from_valid_array(NapiToCPP const& value,
-                                                      cudf::size_type size) {
+DeviceBuffer::wrapper_t null_mask_from_valid_array(NapiToCPP const& value, cudf::size_type size) {
   auto const env       = value.Env();
   auto const vals      = value.As<Napi::Array>();
   auto const mask_size = cudf::bitmask_allocation_size_bytes(size);
@@ -93,25 +93,31 @@ ObjectUnwrap<DeviceBuffer> null_mask_from_valid_array(NapiToCPP const& value,
     // Set the valid bit if the value is "truthy" by JS standards
     if (elt.ToBoolean().Value()) { cudf::set_bit_unsafe(mask_data, i); }
   }
-  return DeviceBuffer::New(mask_data, mask_size);
+  return DeviceBuffer::New(env, mask_data, mask_size, MemoryResource::Current(env));
 }
 
-ObjectUnwrap<DeviceBuffer> get_or_create_data(NapiToCPP const& value, cudf::data_type type) {
+DeviceBuffer::wrapper_t get_or_create_data(NapiToCPP const& value, cudf::data_type type) {
   if (value.IsMemoryLike()) { return device_buffer_from_memorylike(value); }
+  auto const env = value.Env();
   if (value.IsArray()) {
     switch (type.id()) {
-      case cudf::type_id::INT64: return DeviceBuffer::New<int64_t>(value.As<Napi::Array>());
-      case cudf::type_id::UINT64: return DeviceBuffer::New<uint64_t>(value.As<Napi::Array>());
+      case cudf::type_id::INT64:
+        return DeviceBuffer::New<int64_t>(
+          env, value.As<Napi::Array>(), MemoryResource::Current(env));
+      case cudf::type_id::UINT64:
+        return DeviceBuffer::New<uint64_t>(
+          env, value.As<Napi::Array>(), MemoryResource::Current(env));
       default:
-        auto buf = DeviceBuffer::New<double>(value.As<Napi::Array>());
+        auto buf =
+          DeviceBuffer::New<double>(env, value.As<Napi::Array>(), MemoryResource::Current(env));
         return (type.id() == cudf::type_id::FLOAT64) ? buf : [&]() {
           cudf::size_type size = buf->size() / sizeof(double);
           cudf::column_view view{cudf::data_type{cudf::type_id::FLOAT64}, size, buf->data()};
-          return DeviceBuffer::New(std::move(cudf::cast(view, type)->release().data));
+          return DeviceBuffer::New(env, std::move(cudf::cast(view, type)->release().data));
         }();
     }
   }
-  return DeviceBuffer::New();
+  return DeviceBuffer::New(env);
 }
 
 }  // namespace
@@ -120,130 +126,120 @@ ObjectUnwrap<DeviceBuffer> get_or_create_data(NapiToCPP const& value, cudf::data
 // Public API
 //
 
-Napi::FunctionReference Column::constructor;
+Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(env,
+                     "Column",
+                     {
+                       InstanceAccessor<&Column::type, &Column::type>("type"),
+                       InstanceAccessor<&Column::data>("data"),
+                       InstanceAccessor<&Column::null_mask>("mask"),
+                       InstanceAccessor<&Column::offset>("offset"),
+                       InstanceAccessor<&Column::size>("length"),
+                       InstanceAccessor<&Column::has_nulls>("hasNulls"),
+                       InstanceAccessor<&Column::null_count>("nullCount"),
+                       InstanceAccessor<&Column::is_nullable>("nullable"),
+                       InstanceAccessor<&Column::num_children>("numChildren"),
 
-Napi::Object Column::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "Column",
-                {
-                  InstanceAccessor<&Column::type, &Column::type>("type"),
-                  InstanceAccessor<&Column::data>("data"),
-                  InstanceAccessor<&Column::null_mask>("mask"),
-                  InstanceAccessor<&Column::offset>("offset"),
-                  InstanceAccessor<&Column::size>("length"),
-                  InstanceAccessor<&Column::has_nulls>("hasNulls"),
-                  InstanceAccessor<&Column::null_count>("nullCount"),
-                  InstanceAccessor<&Column::is_nullable>("nullable"),
-                  InstanceAccessor<&Column::num_children>("numChildren"),
-
-                  InstanceMethod<&Column::get_child>("getChild"),
-                  InstanceMethod<&Column::get_value>("getValue"),
-                  InstanceMethod<&Column::set_null_mask>("setNullMask"),
-                  InstanceMethod<&Column::set_null_count>("setNullCount"),
-                  // column/copying.cpp
-                  InstanceMethod<&Column::gather>("gather"),
-                  // column/filling.cpp
-                  InstanceMethod<&Column::fill>("fill"),
-                  InstanceMethod<&Column::fill_in_place>("fillInPlace"),
-                  // column/binaryop.cpp
-                  InstanceMethod<&Column::add>("add"),
-                  InstanceMethod<&Column::sub>("sub"),
-                  InstanceMethod<&Column::mul>("mul"),
-                  InstanceMethod<&Column::div>("div"),
-                  InstanceMethod<&Column::true_div>("true_div"),
-                  InstanceMethod<&Column::floor_div>("floor_div"),
-                  InstanceMethod<&Column::mod>("mod"),
-                  InstanceMethod<&Column::pow>("pow"),
-                  InstanceMethod<&Column::eq>("eq"),
-                  InstanceMethod<&Column::ne>("ne"),
-                  InstanceMethod<&Column::lt>("lt"),
-                  InstanceMethod<&Column::gt>("gt"),
-                  InstanceMethod<&Column::le>("le"),
-                  InstanceMethod<&Column::ge>("ge"),
-                  InstanceMethod<&Column::bitwise_and>("bitwise_and"),
-                  InstanceMethod<&Column::bitwise_or>("bitwise_or"),
-                  InstanceMethod<&Column::bitwise_xor>("bitwise_xor"),
-                  InstanceMethod<&Column::logical_and>("logical_and"),
-                  InstanceMethod<&Column::logical_or>("logical_or"),
-                  InstanceMethod<&Column::coalesce>("coalesce"),
-                  InstanceMethod<&Column::shift_left>("shift_left"),
-                  InstanceMethod<&Column::shift_right>("shift_right"),
-                  InstanceMethod<&Column::shift_right_unsigned>("shift_right_unsigned"),
-                  InstanceMethod<&Column::log_base>("log_base"),
-                  InstanceMethod<&Column::atan2>("atan2"),
-                  InstanceMethod<&Column::null_equals>("null_equals"),
-                  InstanceMethod<&Column::null_max>("null_max"),
-                  InstanceMethod<&Column::null_min>("null_min"),
-                  // column/stream_compaction.cpp
-                  InstanceMethod<&Column::drop_nulls>("drop_nulls"),
-                  InstanceMethod<&Column::drop_nans>("drop_nans"),
-                  InstanceMethod<&Column::drop_duplicates>("drop_duplicates"),
-                  // column/filling.cpp
-                  StaticMethod<&Column::sequence>("sequence"),
-                  // column/transform.cpp
-                  InstanceMethod<&Column::nans_to_nulls>("nans_to_nulls"),
-                  // column/reduction.cpp
-                  InstanceMethod<&Column::min>("min"),
-                  InstanceMethod<&Column::max>("max"),
-                  InstanceMethod<&Column::minmax>("minmax"),
-                  InstanceMethod<&Column::sum>("sum"),
-                  InstanceMethod<&Column::product>("product"),
-                  InstanceMethod<&Column::any>("any"),
-                  InstanceMethod<&Column::all>("all"),
-                  InstanceMethod<&Column::sum_of_squares>("sum_of_squares"),
-                  InstanceMethod<&Column::mean>("mean"),
-                  InstanceMethod<&Column::median>("median"),
-                  InstanceMethod<&Column::nunique>("nunique"),
-                  InstanceMethod<&Column::variance>("var"),
-                  InstanceMethod<&Column::std>("std"),
-                  InstanceMethod<&Column::quantile>("quantile"),
-                  // column/replacement.cpp
-                  InstanceMethod<&Column::replace_nulls>("replaceNulls"),
-                  InstanceMethod<&Column::replace_nans>("replaceNaNs"),
-                  // column/unaryop.cpp
-                  InstanceMethod<&Column::cast>("cast"),
-                  InstanceMethod<&Column::is_null>("isNull"),
-                  InstanceMethod<&Column::is_valid>("isValid"),
-                  InstanceMethod<&Column::is_nan>("isNaN"),
-                  InstanceMethod<&Column::is_not_nan>("isNotNaN"),
-                  InstanceMethod<&Column::sin>("sin"),
-                  InstanceMethod<&Column::cos>("cos"),
-                  InstanceMethod<&Column::tan>("tan"),
-                  InstanceMethod<&Column::arcsin>("asin"),
-                  InstanceMethod<&Column::arccos>("acos"),
-                  InstanceMethod<&Column::arctan>("atan"),
-                  InstanceMethod<&Column::sinh>("sinh"),
-                  InstanceMethod<&Column::cosh>("cosh"),
-                  InstanceMethod<&Column::tanh>("tanh"),
-                  InstanceMethod<&Column::arcsinh>("asinh"),
-                  InstanceMethod<&Column::arccosh>("acosh"),
-                  InstanceMethod<&Column::arctanh>("atanh"),
-                  InstanceMethod<&Column::exp>("exp"),
-                  InstanceMethod<&Column::log>("log"),
-                  InstanceMethod<&Column::sqrt>("sqrt"),
-                  InstanceMethod<&Column::cbrt>("cbrt"),
-                  InstanceMethod<&Column::ceil>("ceil"),
-                  InstanceMethod<&Column::floor>("floor"),
-                  InstanceMethod<&Column::abs>("abs"),
-                  InstanceMethod<&Column::rint>("rint"),
-                  InstanceMethod<&Column::bit_invert>("bit_invert"),
-                  InstanceMethod<&Column::unary_not>("not"),
-                  // column/re.cpp
-                  InstanceMethod<&Column::contains_re>("containsRe"),
-                  InstanceMethod<&Column::count_re>("countRe"),
-                  InstanceMethod<&Column::matches_re>("matchesRe"),
-                });
-
-  Column::constructor = Napi::Persistent(ctor);
-  Column::constructor.SuppressDestruct();
-  exports.Set("Column", ctor);
-
-  return exports;
+                       InstanceMethod<&Column::get_child>("getChild"),
+                       InstanceMethod<&Column::get_value>("getValue"),
+                       InstanceMethod<&Column::set_null_mask>("setNullMask"),
+                       InstanceMethod<&Column::set_null_count>("setNullCount"),
+                       // column/copying.cpp
+                       InstanceMethod<&Column::gather>("gather"),
+                       // column/filling.cpp
+                       InstanceMethod<&Column::fill>("fill"),
+                       InstanceMethod<&Column::fill_in_place>("fillInPlace"),
+                       // column/binaryop.cpp
+                       InstanceMethod<&Column::add>("add"),
+                       InstanceMethod<&Column::sub>("sub"),
+                       InstanceMethod<&Column::mul>("mul"),
+                       InstanceMethod<&Column::div>("div"),
+                       InstanceMethod<&Column::true_div>("true_div"),
+                       InstanceMethod<&Column::floor_div>("floor_div"),
+                       InstanceMethod<&Column::mod>("mod"),
+                       InstanceMethod<&Column::pow>("pow"),
+                       InstanceMethod<&Column::eq>("eq"),
+                       InstanceMethod<&Column::ne>("ne"),
+                       InstanceMethod<&Column::lt>("lt"),
+                       InstanceMethod<&Column::gt>("gt"),
+                       InstanceMethod<&Column::le>("le"),
+                       InstanceMethod<&Column::ge>("ge"),
+                       InstanceMethod<&Column::bitwise_and>("bitwise_and"),
+                       InstanceMethod<&Column::bitwise_or>("bitwise_or"),
+                       InstanceMethod<&Column::bitwise_xor>("bitwise_xor"),
+                       InstanceMethod<&Column::logical_and>("logical_and"),
+                       InstanceMethod<&Column::logical_or>("logical_or"),
+                       InstanceMethod<&Column::coalesce>("coalesce"),
+                       InstanceMethod<&Column::shift_left>("shift_left"),
+                       InstanceMethod<&Column::shift_right>("shift_right"),
+                       InstanceMethod<&Column::shift_right_unsigned>("shift_right_unsigned"),
+                       InstanceMethod<&Column::log_base>("log_base"),
+                       InstanceMethod<&Column::atan2>("atan2"),
+                       InstanceMethod<&Column::null_equals>("null_equals"),
+                       InstanceMethod<&Column::null_max>("null_max"),
+                       InstanceMethod<&Column::null_min>("null_min"),
+                       // column/stream_compaction.cpp
+                       InstanceMethod<&Column::drop_nulls>("drop_nulls"),
+                       InstanceMethod<&Column::drop_nans>("drop_nans"),
+                       InstanceMethod<&Column::drop_duplicates>("drop_duplicates"),
+                       // column/filling.cpp
+                       StaticMethod<&Column::sequence>("sequence"),
+                       // column/transform.cpp
+                       InstanceMethod<&Column::nans_to_nulls>("nans_to_nulls"),
+                       // column/reduction.cpp
+                       InstanceMethod<&Column::min>("min"),
+                       InstanceMethod<&Column::max>("max"),
+                       InstanceMethod<&Column::minmax>("minmax"),
+                       InstanceMethod<&Column::sum>("sum"),
+                       InstanceMethod<&Column::product>("product"),
+                       InstanceMethod<&Column::any>("any"),
+                       InstanceMethod<&Column::all>("all"),
+                       InstanceMethod<&Column::sum_of_squares>("sum_of_squares"),
+                       InstanceMethod<&Column::mean>("mean"),
+                       InstanceMethod<&Column::median>("median"),
+                       InstanceMethod<&Column::nunique>("nunique"),
+                       InstanceMethod<&Column::variance>("var"),
+                       InstanceMethod<&Column::std>("std"),
+                       InstanceMethod<&Column::quantile>("quantile"),
+                       // column/replacement.cpp
+                       InstanceMethod<&Column::replace_nulls>("replaceNulls"),
+                       InstanceMethod<&Column::replace_nans>("replaceNaNs"),
+                       // column/unaryop.cpp
+                       InstanceMethod<&Column::cast>("cast"),
+                       InstanceMethod<&Column::is_null>("isNull"),
+                       InstanceMethod<&Column::is_valid>("isValid"),
+                       InstanceMethod<&Column::is_nan>("isNaN"),
+                       InstanceMethod<&Column::is_not_nan>("isNotNaN"),
+                       InstanceMethod<&Column::sin>("sin"),
+                       InstanceMethod<&Column::cos>("cos"),
+                       InstanceMethod<&Column::tan>("tan"),
+                       InstanceMethod<&Column::arcsin>("asin"),
+                       InstanceMethod<&Column::arccos>("acos"),
+                       InstanceMethod<&Column::arctan>("atan"),
+                       InstanceMethod<&Column::sinh>("sinh"),
+                       InstanceMethod<&Column::cosh>("cosh"),
+                       InstanceMethod<&Column::tanh>("tanh"),
+                       InstanceMethod<&Column::arcsinh>("asinh"),
+                       InstanceMethod<&Column::arccosh>("acosh"),
+                       InstanceMethod<&Column::arctanh>("atanh"),
+                       InstanceMethod<&Column::exp>("exp"),
+                       InstanceMethod<&Column::log>("log"),
+                       InstanceMethod<&Column::sqrt>("sqrt"),
+                       InstanceMethod<&Column::cbrt>("cbrt"),
+                       InstanceMethod<&Column::ceil>("ceil"),
+                       InstanceMethod<&Column::floor>("floor"),
+                       InstanceMethod<&Column::abs>("abs"),
+                       InstanceMethod<&Column::rint>("rint"),
+                       InstanceMethod<&Column::bit_invert>("bit_invert"),
+                       InstanceMethod<&Column::unary_not>("not"),
+                       // column/re.cpp
+                       InstanceMethod<&Column::contains_re>("containsRe"),
+                       InstanceMethod<&Column::count_re>("countRe"),
+                       InstanceMethod<&Column::matches_re>("matchesRe"),
+                     });
 }
 
-ObjectUnwrap<Column> Column::New(std::unique_ptr<cudf::column> column) {
-  auto env   = constructor.Env();
+Column::wrapper_t Column::New(Napi::Env const& env, std::unique_ptr<cudf::column> column) {
   auto props = Napi::Object::New(env);
 
   props.Set("offset", 0);
@@ -259,18 +255,18 @@ ObjectUnwrap<Column> Column::New(std::unique_ptr<cudf::column> column) {
   props.Set("children", [&]() {
     auto ary = Napi::Array::New(env, children.size());
     for (size_t i = 0; i < children.size(); ++i) {  //
-      ary.Set(i, New(std::move(children.at(i)))->Value());
+      ary.Set(i, New(env, std::move(children.at(i))));
     }
     return ary;
   }());
 
-  props.Set("data", DeviceBuffer::New(std::move(data))->Value());
-  props.Set("nullMask", DeviceBuffer::New(std::move(mask))->Value());
+  props.Set("data", DeviceBuffer::New(env, std::move(data)));
+  props.Set("nullMask", DeviceBuffer::New(env, std::move(mask)));
 
-  return constructor.New({props});
+  return EnvLocalObjectWrap<Column>::New(env, {props});
 }
 
-Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
+Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
   auto env = args.Env();
 
   NODE_CUDF_EXPECT(args.IsConstructCall(), "Column constructor requires 'new'", env);
@@ -289,7 +285,7 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
                                                            : Napi::Array::New(Env(), 0));
 
   auto const data = get_or_create_data(props.Get("data"), type());
-  this->data_     = data.reference();
+  this->data_     = Napi::Persistent(data);
 
   if (props.Has("length")) {
     this->size_ = props.Get("length");
@@ -298,15 +294,15 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
     if (cudf::is_fixed_width(type)) {
       this->size_ = data->size() / cudf::size_of(type);
     } else if (type.id() == cudf::type_id::LIST) {
-      if (num_children() > 0) { this->size_ = child(0).size() - 1; }
+      if (num_children() > 0) { this->size_ = child(0)->size() - 1; }
     } else if (type.id() == cudf::type_id::STRING) {
-      if (num_children() > 0) { this->size_ = child(0).size() - 1; }
+      if (num_children() > 0) { this->size_ = child(0)->size() - 1; }
     } else if (type.id() == cudf::type_id::STRUCT) {
       if (num_children() > 0) {
-        this->size_ = child(0).size();
+        this->size_ = child(0)->size();
         for (cudf::size_type i = 0; ++i < num_children();) {
           NODE_CUDF_EXPECT(
-            child(i).size() == this->size_, "Struct column children must be the same size", env);
+            child(i)->size() == this->size_, "Struct column children must be the same size", env);
         }
       }
     }
@@ -326,50 +322,46 @@ Column::Column(CallbackArgs const& args) : Napi::ObjectWrap<Column>(args) {
       return null_mask_from_data_array(props.Get("data"), this->size_);
     }
     // Otherwise return an empty bitmask indicating all-valid/non-nullable
-    return DeviceBuffer::New();
+    return DeviceBuffer::New(env);
   }();
 
-  this->null_mask_ = mask.reference();
+  this->null_mask_ = Napi::Persistent(mask);
   if (!nullable()) {
     this->null_count_ = 0;
   } else if (!(props.Has("nullCount") && props.Get("nullCount").IsNumber())) {
     this->null_count_ = cudf::UNKNOWN_NULL_COUNT;
   } else {
-    this->null_count_ =
-      std::max(cudf::UNKNOWN_NULL_COUNT, static_cast<cudf::size_type>(props.Get("nullCount")));
+    this->null_count_ = std::max<cudf::size_type>(cudf::UNKNOWN_NULL_COUNT, props.Get("nullCount"));
   }
-}
-
-void Column::Finalize(Napi::Env env) {
-  data_.Reset();
-  type_.Reset();
-  null_mask_.Reset();
-  children_.Reset();
 }
 
 // If the null count is known, return it. Else, compute and return it
 cudf::size_type Column::null_count() const {
   CUDF_FUNC_RANGE();
   if (null_count_ <= cudf::UNKNOWN_NULL_COUNT) {
-    auto& mask = this->null_mask();
-    null_count_ =
-      cudf::count_unset_bits(static_cast<cudf::bitmask_type const*>(mask.data()), 0, size());
+    auto const mask = this->null_mask();
+    try {
+      null_count_ = cudf::count_unset_bits(*mask, 0, size());
+    } catch (std::exception const& e) {
+      null_count_ = cudf::UNKNOWN_NULL_COUNT;
+      NAPI_THROW(Napi::Error::New(Env(), e.what()));
+    }
   }
   return null_count_;
 }
 
 void Column::set_null_mask(Napi::Value const& new_null_mask, cudf::size_type new_null_count) {
   null_count_ = new_null_count;
-  if (new_null_mask.IsNull() || new_null_mask.IsUndefined()) {
-    null_mask_ = DeviceBuffer::New().reference();
+  if (new_null_mask.IsNull() || new_null_mask.IsUndefined() || !new_null_mask.IsObject()) {
+    null_mask_ = Napi::Persistent(DeviceBuffer::New(new_null_mask.Env()));
   } else {
-    ObjectUnwrap<DeviceBuffer> new_mask = new_null_mask;
+    DeviceBuffer::wrapper_t new_mask = new_null_mask.ToObject();
     if (new_null_count > 0) {
       NODE_CUDF_EXPECT(new_mask->size() >= cudf::bitmask_allocation_size_bytes(this->size()),
                        "Column with null values must be nullable, and the null mask "
                        "buffer size should match the size of the column.");
     }
-    null_mask_ = new_mask.reference();
+    null_mask_ = Napi::Persistent(new_mask);
   }
 }
 
@@ -379,10 +371,10 @@ void Column::set_null_count(cudf::size_type new_null_count) {
 }
 
 cudf::column_view Column::view() const {
-  auto type     = this->type();
-  auto& data    = this->data();
-  auto& mask    = this->null_mask();
-  auto children = children_.Value().As<Napi::Array>();
+  auto const type     = this->type();
+  auto const data     = this->data();
+  auto const mask     = this->null_mask();
+  auto const children = children_.Value().As<Napi::Array>();
 
   // Create views of children
   std::vector<cudf::column_view> child_views;
@@ -392,19 +384,13 @@ cudf::column_view Column::view() const {
     child_views.emplace_back(*Column::Unwrap(child));
   }
 
-  return cudf::column_view{type,
-                           size(),
-                           data.data(),
-                           static_cast<cudf::bitmask_type const*>(mask.data()),
-                           null_count(),
-                           offset(),
-                           child_views};
+  return cudf::column_view{type, size(), *data, *mask, null_count(), offset(), child_views};
 }
 
 cudf::mutable_column_view Column::mutable_view() {
   auto type     = this->type();
-  auto& data    = this->data();
-  auto& mask    = this->null_mask();
+  auto data     = this->data();
+  auto mask     = this->null_mask();
   auto children = children_.Value().As<Napi::Array>();
 
   // Create views of children
@@ -426,18 +412,11 @@ cudf::mutable_column_view Column::mutable_view() {
   // recomputed on the next invocation of `null_count()`.
   set_null_count(cudf::UNKNOWN_NULL_COUNT);
 
-  return cudf::mutable_column_view{type,
-                                   size(),
-                                   data.data(),
-                                   static_cast<cudf::bitmask_type*>(mask.data()),
-                                   current_null_count,
-                                   offset(),
-                                   child_views};
+  return cudf::mutable_column_view{
+    type, size(), *data, *mask, current_null_count, offset(), child_views};
 }
 
-Column::operator Napi::Value() const { return Value(); }
-
-ObjectUnwrap<Column> Column::operator[](Column const& selection) const {
+Column::wrapper_t Column::operator[](Column const& selection) const {
   if (selection.type().id() == cudf::type_id::BOOL8) {  //
     return this->apply_boolean_mask(selection);
   }
@@ -453,77 +432,86 @@ void Column::type(Napi::CallbackInfo const& info, Napi::Value const& value) {
   type_ = Napi::Persistent(value.As<Napi::Object>());
 }
 
-Napi::Value Column::size(Napi::CallbackInfo const& info) { return CPPToNapi(info)(size()); }
+Napi::Value Column::size(Napi::CallbackInfo const& info) {
+  return Napi::Value::From(info.Env(), size());
+}
 
-Napi::Value Column::offset(Napi::CallbackInfo const& info) { return CPPToNapi(info)(offset()); }
+Napi::Value Column::offset(Napi::CallbackInfo const& info) {
+  return Napi::Value::From(info.Env(), offset());
+}
 
 Napi::Value Column::data(Napi::CallbackInfo const& info) { return data_.Value(); }
 
 Napi::Value Column::has_nulls(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(null_count() > 0);
+  return Napi::Value::From(info.Env(), null_count() > 0);
+}
+
+Napi::Value Column::null_count(Napi::CallbackInfo const& info) {
+  return Napi::Value::From(info.Env(), null_count());
 }
 
 Napi::Value Column::is_nullable(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(nullable());
+  return Napi::Value::From(info.Env(), nullable());
 }
 
 Napi::Value Column::num_children(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(num_children());
+  return Napi::Value::From(info.Env(), num_children());
 }
 
 Napi::Value Column::null_mask(Napi::CallbackInfo const& info) { return null_mask_.Value(); }
 
-Napi::Value Column::set_null_mask(Napi::CallbackInfo const& info) {
+void Column::set_null_mask(Napi::CallbackInfo const& info) {
+  auto const env = info.Env();
   CallbackArgs args{info};
 
-  auto mask            = args.Length() > 0 ? args[0] : NapiToCPP(info.Env().Null());
-  cudf::size_type size = args.Length() > 1 ? args[1] : mask.IsNull() ? 0 : cudf::UNKNOWN_NULL_COUNT;
+  Napi::Value mask     = info.Length() > 0 ? info[0] : info.Env().Null();
+  cudf::size_type size = info.Length() > 1 ? args[1] : mask.IsNull() ? 0 : cudf::UNKNOWN_NULL_COUNT;
 
-  NODE_CUDF_EXPECT((mask.IsNull() && size == 0) || mask.IsMemoryLike(),
+  NODE_CUDF_EXPECT((mask.IsNull() && size == 0) || NapiToCPP(mask).IsMemoryLike(),
                    "Expected nullMask to be an ArrayBuffer, ArrayBufferView, or DeviceBuffer",
                    Env());
 
-  // Unwrap MemoryViews to get the buffer
-  if (mask.IsMemoryViewLike()) { mask = NapiToCPP(mask.ToObject().Get("buffer")); }
+  if (NapiToCPP(mask).IsMemoryViewLike()) { mask = NapiToCPP(mask.ToObject().Get("buffer")); }
 
-  // If arg isn't a DeviceBuffer, copy the input data into a new DeviceBuffer
-  if (!DeviceBuffer::is_instance(mask.val)) {
-    mask = DeviceBuffer::New(mask.operator Span<char>())->Value();
+  if (NapiToCPP(mask).IsMemoryLike()) {
+    // Unwrap MemoryViews to get the buffer
+    mask = device_buffer_from_memorylike(mask);
+  } else if (mask.IsArray()) {
+    // If arg is Array, construct a DeviceBuffer bitmask from the non-null elements
+    mask = null_mask_from_valid_array(mask, size);
+  } else if (mask.IsBoolean()) {
+    // If arg is boolean, construct a DeviceBuffer bitmask of all-true or all-false
+    mask = device_buffer_from_bool(mask, size);
+  }
+
+  if (!DeviceBuffer::IsInstance(mask)) {
+    mask =
+      DeviceBuffer::New(env, NapiToCPP(mask).operator Span<char>(), MemoryResource::Current(env));
   }
 
   set_null_mask(mask, size);
-
-  return info.Env().Undefined();
 }
 
-Napi::Value Column::null_count(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(null_count());
-}
-
-Napi::Value Column::set_null_count(Napi::CallbackInfo const& info) {
-  this->set_null_count(CallbackArgs{info}[0].operator cudf::size_type());
-  return info.Env().Undefined();
+void Column::set_null_count(Napi::CallbackInfo const& info) {
+  this->set_null_count(info[0].ToNumber());
 }
 
 Napi::Value Column::gather(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  if (!Column::is_instance(args[0])) {
+  if (!Column::IsInstance(info[0])) {
     throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
   }
-  auto& selection = *Column::Unwrap(args[0]);
-  auto result     = (*this)[selection];
-  return result->Value();
+  return this->operator[](*Column::Unwrap(info[0].ToObject()));
 }
 
 Napi::Value Column::get_child(Napi::CallbackInfo const& info) {
-  return children_.Value().Get(CallbackArgs{info}[0].operator cudf::size_type());
+  return children_.Value().Get(info[0].ToNumber());
 }
 
 // Napi::Value Column::set_child(Napi::CallbackInfo const& info) {
 // }
 
 Napi::Value Column::get_value(Napi::CallbackInfo const& info) {
-  return CPPToNapi(info)(cudf::get_element(*this, CallbackArgs{info}[0]));
+  return Napi::Value::From(info.Env(), cudf::get_element(*this, info[0].ToNumber()));
 }
 
 // Napi::Value Column::set_value(Napi::CallbackInfo const& info) {

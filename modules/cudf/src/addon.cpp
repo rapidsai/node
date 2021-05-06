@@ -12,36 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cudf/addon.hpp>
-#include <node_cudf/column.hpp>
-#include <node_cudf/groupby.hpp>
-#include <node_cudf/scalar.hpp>
-#include <node_cudf/table.hpp>
-#include <node_cudf/utilities/dtypes.hpp>
+#include "node_cudf/column.hpp"
+#include "node_cudf/groupby.hpp"
+#include "node_cudf/scalar.hpp"
+#include "node_cudf/table.hpp"
+#include "node_cudf/utilities/dtypes.hpp"
 
+#include <nv_node/addon.hpp>
 #include <nv_node/macros.hpp>
 
 #include <napi.h>
 
-namespace nv {
+struct node_cudf : public nv::EnvLocalAddon, public Napi::Addon<node_cudf> {
+  node_cudf(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
+    DefineAddon(exports,
+                {
+                  InstanceMethod("init", &node_cudf::InitAddon),
+                  InstanceValue("_cpp_exports", _cpp_exports.Value()),
 
-Napi::Value cudfInit(Napi::CallbackInfo const& info) {
-  // todo
-  return info.This();
-}
+                  InstanceMethod<&node_cudf::find_common_type>("findCommonType"),
 
-}  // namespace nv
+                  InstanceValue("Column", InitClass<nv::Column>(env, exports)),
+                  InstanceValue("Table", InitClass<nv::Table>(env, exports)),
+                  InstanceValue("Scalar", InitClass<nv::Scalar>(env, exports)),
+                  InstanceValue("GroupBy", InitClass<nv::GroupBy>(env, exports)),
+                });
+  }
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "init", nv::cudfInit);
-  EXPORT_FUNC(env, exports, "findCommonType", nv::find_common_type);
+ private:
+  Napi::Value find_common_type(Napi::CallbackInfo const& info) {
+    return nv::find_common_type(info);
+  }
+};
 
-  nv::Column::Init(env, exports);
-  nv::Table::Init(env, exports);
-  nv::Scalar::Init(env, exports);
-  nv::GroupBy::Init(env, exports);
-
-  return exports;
-}
-
-NODE_API_MODULE(node_cudf, initModule);
+NODE_API_ADDON(node_cudf);

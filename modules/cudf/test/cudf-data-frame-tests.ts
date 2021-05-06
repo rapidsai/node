@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -250,7 +250,7 @@ test('DataFrame groupBy (single)', () => {
   expect(out instanceof GroupByMultiple).toBe(true);
 });
 
-test('Series.filter', () => {
+test('DataFrame filter', () => {
   const a = Series.new({type: new Int32(), data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
   const b =
     Series.new({type: new Float32(), data: new Float32Buffer([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])});

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,56 +29,46 @@ namespace nv {
 // Public API
 //
 
-Napi::FunctionReference Table::constructor;
-
-Napi::Object Table::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(env,
-                                    "Table",
-                                    {
-                                      InstanceAccessor<&Table::num_columns>("numColumns"),
-                                      InstanceAccessor<&Table::num_rows>("numRows"),
-                                      InstanceMethod<&Table::scatter_scalar>("scatterScalar"),
-                                      InstanceMethod<&Table::scatter_table>("scatterTable"),
-                                      InstanceMethod<&Table::gather>("gather"),
-                                      InstanceMethod<&Table::get_column>("getColumnByIndex"),
-                                      InstanceMethod<&Table::to_arrow>("toArrow"),
-                                      InstanceMethod<&Table::order_by>("orderBy"),
-                                      StaticMethod<&Table::read_csv>("readCSV"),
-                                      InstanceMethod<&Table::write_csv>("writeCSV"),
-                                      InstanceMethod<&Table::drop_nans>("drop_nans"),
-                                      InstanceMethod<&Table::drop_nulls>("drop_nulls"),
-                                      StaticMethod<&Table::full_join>("fullJoin"),
-                                      StaticMethod<&Table::inner_join>("innerJoin"),
-                                      StaticMethod<&Table::left_join>("leftJoin"),
-                                      StaticMethod<&Table::left_semi_join>("leftSemiJoin"),
-                                      StaticMethod<&Table::left_anti_join>("leftAntiJoin"),
-                                    });
-
-  Table::constructor = Napi::Persistent(ctor);
-  Table::constructor.SuppressDestruct();
-  exports.Set("Table", ctor);
-
-  return exports;
+Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(env,
+                     "Table",
+                     {
+                       InstanceAccessor<&Table::num_columns>("numColumns"),
+                       InstanceAccessor<&Table::num_rows>("numRows"),
+                       InstanceMethod<&Table::scatter_scalar>("scatterScalar"),
+                       InstanceMethod<&Table::scatter_table>("scatterTable"),
+                       InstanceMethod<&Table::gather>("gather"),
+                       InstanceMethod<&Table::get_column>("getColumnByIndex"),
+                       InstanceMethod<&Table::to_arrow>("toArrow"),
+                       InstanceMethod<&Table::order_by>("orderBy"),
+                       StaticMethod<&Table::read_csv>("readCSV"),
+                       InstanceMethod<&Table::write_csv>("writeCSV"),
+                       InstanceMethod<&Table::drop_nans>("drop_nans"),
+                       InstanceMethod<&Table::drop_nulls>("drop_nulls"),
+                       StaticMethod<&Table::full_join>("fullJoin"),
+                       StaticMethod<&Table::inner_join>("innerJoin"),
+                       StaticMethod<&Table::left_join>("leftJoin"),
+                       StaticMethod<&Table::left_semi_join>("leftSemiJoin"),
+                       StaticMethod<&Table::left_anti_join>("leftAntiJoin"),
+                     });
 }
 
-Napi::Object Table::New(Napi::Array const& columns) {
-  auto inst = Table::constructor.New({});
-  Table::Unwrap(inst)->Initialize(columns);
-  return inst;
+Table::wrapper_t Table::New(Napi::Env const& env, Napi::Array const& columns) {
+  auto opts = Napi::Object::New(env);
+  opts.Set("columns", columns);
+  return EnvLocalObjectWrap<Table>::New(env, {opts});
 }
 
-Napi::Object Table::New(std::unique_ptr<cudf::table> table) {
-  auto inst     = Table::constructor.New({});
+Table::wrapper_t Table::New(Napi::Env const& env, std::unique_ptr<cudf::table> table) {
   auto contents = table->release();
-  auto columns  = Napi::Array::New(Table::constructor.Env(), contents.size());
+  auto columns  = Napi::Array::New(env, contents.size());
   for (auto i = 0u; i < columns.Length(); ++i) {
-    columns.Set(i, Column::New(std::move(contents[i]))->Value());
+    columns.Set(i, Column::New(env, std::move(contents[i])));
   }
-  Table::Unwrap(inst)->Initialize(columns);
-  return inst;
+  return New(env, columns);
 }
 
-Table::Table(CallbackArgs const& args) : Napi::ObjectWrap<Table>(args) {
+Table::Table(CallbackArgs const& args) : EnvLocalObjectWrap<Table>(args) {
   NODE_CUDF_EXPECT(args.IsConstructCall(), "Table constructor requires 'new'");
 
   if (args.Length() != 1 || !args[0].IsObject()) { return; }
@@ -89,23 +79,18 @@ Table::Table(CallbackArgs const& args) : Napi::ObjectWrap<Table>(args) {
                           ? props.Get("columns").As<Napi::Array>()
                           : Napi::Array::New(Env(), 0);
 
-  Initialize(columns);
-}
-
-void Table::Initialize(Napi::Array const& columns) {
   num_columns_ = columns.Length();
   if (num_columns_ > 0) {
-    num_rows_ = nv::Column::Unwrap(columns.Get(0u).As<Napi::Object>())->size();
+    Column::wrapper_t col{columns.Get(0u).ToObject()};
+    num_rows_ = col->size();
     for (auto i = 1u; i < columns.Length(); ++i) {
-      NODE_CUDF_EXPECT((nv::Column::Unwrap(columns.Get(i).As<Napi::Object>())->size() == num_rows_),
-                       "All Columns must be of same length");
+      col = Column::wrapper_t{columns.Get(i).ToObject()};
+      NODE_CUDF_EXPECT(col->size() == num_rows_, "All Columns must be of same length");
     }
   }
 
-  columns_.Reset(columns, 1);
+  columns_ = Napi::Persistent(columns);
 }
-
-void Table::Finalize(Napi::Env env) { columns_.Reset(); }
 
 cudf::table_view Table::view() const {
   auto columns = columns_.Value().As<Napi::Array>();
@@ -134,8 +119,6 @@ cudf::mutable_table_view Table::mutable_view() {
 
   return cudf::mutable_table_view{child_views};
 }
-
-Table::operator Napi::Value() const { return Value(); }
 
 //
 // Private API
@@ -189,7 +172,7 @@ Napi::Value Table::order_by(Napi::CallbackInfo const& info) {
   std::unique_ptr<cudf::column> result =
     cudf::sorted_order(table_view, column_order, null_precedece);
 
-  return Column::New(std::move(result))->Value();
+  return Column::New(info.Env(), std::move(result))->Value();
 }
 
 }  // namespace nv
