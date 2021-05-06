@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ inline NapiToCPP::operator mr_type() const {
 
 template <>
 inline NapiToCPP::operator rmm::mr::device_memory_resource*() const {
-  if (MemoryResource::is_instance(val)) { return *MemoryResource::Unwrap(val.ToObject()); }
+  if (MemoryResource::IsInstance(val)) { return *MemoryResource::Unwrap(val.ToObject()); }
   if (val.IsNull() or val.IsUndefined()) { return rmm::mr::get_current_device_resource(); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a MemoryResource instance");
 }
@@ -39,9 +39,6 @@ inline NapiToCPP::operator rmm::mr::device_memory_resource*() const {
 template <>
 inline NapiToCPP::operator rmm::cuda_device_id() const {
   if (this->IsNumber()) { return rmm::cuda_device_id{this->operator int32_t()}; }
-  if (MemoryResource::is_instance(val)) {
-    return rmm::cuda_device_id{MemoryResource::Unwrap(val.ToObject())->device()};
-  }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a numeric device ordinal");
 }
 

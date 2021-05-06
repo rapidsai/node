@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {describe, test} from '@jest/globals';
-import {Device, devices} from '@nvidia/cuda';
+// import {test} from '@jest/globals';
+// import {Device, devices} from '@nvidia/cuda';
 
 export const sizes = {
   '1_MiB': 1 << 20,
@@ -22,11 +22,14 @@ export const sizes = {
   '16_MiB': 1 << 24,
 };
 
-export const testForEachDevice = (name: string, fn: (() => void)|((d: Device) => void)) =>
-  test.each([...devices])(name, (d: Device) => { d.callInContext(() => fn(d));});
-
-export const describeForEachDevice = (name: string, fn: (() => void)|((d: Device) => void)) =>
-  describe.each([...devices])(name, (d: Device) => { d.callInContext(() => fn(d));});
+// export const testForEachDevice = (name: string, fn: (() => void)|((d: Device) => void)) =>
+//   test.each([...devices])(name, (d: Device) => {
+//     d.callInContext(() => {
+//       d.synchronize();
+//       fn(d);
+//       d.synchronize();
+//     });
+//   });
 
 import {
   beforeAll,

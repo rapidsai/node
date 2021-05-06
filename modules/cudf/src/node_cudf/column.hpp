@@ -21,8 +21,8 @@
 
 #include <node_rmm/device_buffer.hpp>
 
+#include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
-#include <nv_node/utilities/wrap.hpp>
 
 #include <napi.h>
 
@@ -41,48 +41,28 @@ namespace nv {
  * @brief An owning wrapper around a cudf::Column.
  *
  */
-class Column : public Napi::ObjectWrap<Column> {
- public:
+struct Column : public EnvLocalObjectWrap<Column> {
   /**
    * @brief Initialize and export the Column JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The Column constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new Column instance from a cudf::column.
    *
    * @param column The column in device memory.
    */
-  static ObjectUnwrap<Column> New(std::unique_ptr<cudf::column> column);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `Column`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `Column`
-   * @return false if the value is not a `Column`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
+  static wrapper_t New(Napi::Env const& env, std::unique_ptr<cudf::column> column);
 
   /**
    * @brief Construct a new Column instance from JavaScript.
    *
    */
   Column(CallbackArgs const& args);
-
-  /**
-   * @brief Destructor called when the JavaScript VM garbage collects this Column
-   * instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
 
   /**
    * @brief Returns the column's logical element type
@@ -100,14 +80,14 @@ class Column : public Napi::ObjectWrap<Column> {
   inline cudf::size_type offset() const noexcept { return offset_; }
 
   /**
-   * @brief Return a const reference to the data buffer
+   * @brief Return a const pointer to the data buffer
    */
-  inline DeviceBuffer const& data() const { return *DeviceBuffer::Unwrap(data_.Value()); }
+  inline DeviceBuffer::wrapper_t data() const { return data_.Value(); }
 
   /**
-   * @brief Return a const reference to the null bitmask buffer
+   * @brief Return a const pointer to the null bitmask buffer
    */
-  inline DeviceBuffer const& null_mask() const { return *DeviceBuffer::Unwrap(null_mask_.Value()); }
+  inline DeviceBuffer::wrapper_t null_mask() const { return null_mask_.Value(); }
 
   /**
    * @brief Sets the column's null value indicator bitmask to `new_null_mask`.
@@ -150,7 +130,7 @@ class Column : public Napi::ObjectWrap<Column> {
    * @return true The column can hold null values
    * @return false The column cannot hold null values
    */
-  inline bool nullable() const { return null_mask().size() > 0; }
+  inline bool nullable() const { return null_mask()->size() > 0; }
 
   /**
    * @brief Returns the count of null elements.
@@ -181,8 +161,8 @@ class Column : public Napi::ObjectWrap<Column> {
    * @param child_index Index of the desired child
    * @return column const& Const reference to the desired child
    */
-  Column const& child(cudf::size_type child_index) const noexcept {
-    return *Column::Unwrap(children_.Value().Get(child_index).ToObject());
+  Column::wrapper_t child(cudf::size_type child_index) const noexcept {
+    return children_.Value().Get(child_index).ToObject();
   };
 
   /**
@@ -225,8 +205,6 @@ class Column : public Napi::ObjectWrap<Column> {
    */
   operator cudf::mutable_column_view() { return this->mutable_view(); };
 
-  operator Napi::Value() const;
-
   // column/reductions.cpp
 
   /**
@@ -234,7 +212,7 @@ class Column : public Napi::ObjectWrap<Column> {
    *
    * @return std::pair<Scalar, Scalar>
    */
-  std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> minmax(
+  std::pair<Scalar::wrapper_t, Scalar::wrapper_t> minmax(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
@@ -243,7 +221,7 @@ class Column : public Napi::ObjectWrap<Column> {
    *
    * @return Scalar
    */
-  ObjectUnwrap<Scalar> reduce(
+  Scalar::wrapper_t reduce(
     std::unique_ptr<cudf::aggregation> const& agg,
     cudf::data_type const& output_dtype,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
@@ -253,7 +231,7 @@ class Column : public Napi::ObjectWrap<Column> {
    *
    * @return Scalar
    */
-  ObjectUnwrap<Scalar> sum(
+  Scalar::wrapper_t sum(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
@@ -261,7 +239,7 @@ class Column : public Napi::ObjectWrap<Column> {
    *
    * @return Scalar
    */
-  ObjectUnwrap<Scalar> product(
+  Scalar::wrapper_t product(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
@@ -269,7 +247,7 @@ class Column : public Napi::ObjectWrap<Column> {
    *
    * @return Scalar
    */
-  ObjectUnwrap<Scalar> sum_of_squares(
+  Scalar::wrapper_t sum_of_squares(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
@@ -279,7 +257,7 @@ class Column : public Napi::ObjectWrap<Column> {
    *
    * @return Scalar
    */
-  ObjectUnwrap<Scalar> mean(
+  Scalar::wrapper_t mean(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
@@ -289,7 +267,7 @@ class Column : public Napi::ObjectWrap<Column> {
    *
    * @return Scalar
    */
-  ObjectUnwrap<Scalar> median(
+  Scalar::wrapper_t median(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
@@ -300,7 +278,7 @@ class Column : public Napi::ObjectWrap<Column> {
    * @param rmm::mr::device_memory_resource* mr
    * @return Scalar
    */
-  ObjectUnwrap<Scalar> nunique(
+  Scalar::wrapper_t nunique(
     bool dropna                         = true,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
@@ -312,7 +290,7 @@ class Column : public Napi::ObjectWrap<Column> {
    * @param rmm::mr::device_memory_resource* mr
    * @return Scalar
    */
-  ObjectUnwrap<Scalar> variance(
+  Scalar::wrapper_t variance(
     cudf::size_type ddof                = 1,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
@@ -324,7 +302,7 @@ class Column : public Napi::ObjectWrap<Column> {
    * @param rmm::mr::device_memory_resource* mr
    * @return Scalar
    */
-  ObjectUnwrap<Scalar> std(
+  Scalar::wrapper_t std(
     cudf::size_type ddof                = 1,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
@@ -335,7 +313,7 @@ class Column : public Napi::ObjectWrap<Column> {
    * @param rmm::mr::device_memory_resource* mr
    * @return Scalar
    */
-  ObjectUnwrap<Scalar> quantile(
+  Scalar::wrapper_t quantile(
     double q                            = 0.5,
     cudf::interpolation i               = cudf::interpolation::LINEAR,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
@@ -343,275 +321,275 @@ class Column : public Napi::ObjectWrap<Column> {
   // column/binaryop.cpp
 
   // cudf::binary_operator::ADD
-  ObjectUnwrap<Column> operator+(Column const& other) const;
-  ObjectUnwrap<Column> operator+(Scalar const& other) const;
-  ObjectUnwrap<Column> add(
+  Column::wrapper_t operator+(Column const& other) const;
+  Column::wrapper_t operator+(Scalar const& other) const;
+  Column::wrapper_t add(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> add(
+  Column::wrapper_t add(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::SUB
-  ObjectUnwrap<Column> operator-(Column const& other) const;
-  ObjectUnwrap<Column> operator-(Scalar const& other) const;
-  ObjectUnwrap<Column> sub(
+  Column::wrapper_t operator-(Column const& other) const;
+  Column::wrapper_t operator-(Scalar const& other) const;
+  Column::wrapper_t sub(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> sub(
+  Column::wrapper_t sub(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::MUL
-  ObjectUnwrap<Column> operator*(Column const& other) const;
-  ObjectUnwrap<Column> operator*(Scalar const& other) const;
-  ObjectUnwrap<Column> mul(
+  Column::wrapper_t operator*(Column const& other) const;
+  Column::wrapper_t operator*(Scalar const& other) const;
+  Column::wrapper_t mul(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> mul(
+  Column::wrapper_t mul(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::DIV
-  ObjectUnwrap<Column> operator/(Column const& other) const;
-  ObjectUnwrap<Column> operator/(Scalar const& other) const;
-  ObjectUnwrap<Column> div(
+  Column::wrapper_t operator/(Column const& other) const;
+  Column::wrapper_t operator/(Scalar const& other) const;
+  Column::wrapper_t div(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> div(
+  Column::wrapper_t div(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::TRUE_DIV
-  ObjectUnwrap<Column> true_div(
+  Column::wrapper_t true_div(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> true_div(
+  Column::wrapper_t true_div(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::FLOOR_DIV
-  ObjectUnwrap<Column> floor_div(
+  Column::wrapper_t floor_div(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> floor_div(
+  Column::wrapper_t floor_div(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::MOD
-  ObjectUnwrap<Column> operator%(Column const& other) const;
-  ObjectUnwrap<Column> operator%(Scalar const& other) const;
-  ObjectUnwrap<Column> mod(
+  Column::wrapper_t operator%(Column const& other) const;
+  Column::wrapper_t operator%(Scalar const& other) const;
+  Column::wrapper_t mod(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> mod(
+  Column::wrapper_t mod(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::POW
-  ObjectUnwrap<Column> pow(
+  Column::wrapper_t pow(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> pow(
+  Column::wrapper_t pow(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::EQUAL
-  ObjectUnwrap<Column> operator==(Column const& other) const;
-  ObjectUnwrap<Column> operator==(Scalar const& other) const;
-  ObjectUnwrap<Column> eq(
+  Column::wrapper_t operator==(Column const& other) const;
+  Column::wrapper_t operator==(Scalar const& other) const;
+  Column::wrapper_t eq(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> eq(
+  Column::wrapper_t eq(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::NOT_EQUAL
-  ObjectUnwrap<Column> operator!=(Column const& other) const;
-  ObjectUnwrap<Column> operator!=(Scalar const& other) const;
-  ObjectUnwrap<Column> ne(
+  Column::wrapper_t operator!=(Column const& other) const;
+  Column::wrapper_t operator!=(Scalar const& other) const;
+  Column::wrapper_t ne(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> ne(
+  Column::wrapper_t ne(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::LESS
-  ObjectUnwrap<Column> operator<(Column const& other) const;
-  ObjectUnwrap<Column> operator<(Scalar const& other) const;
-  ObjectUnwrap<Column> lt(
+  Column::wrapper_t operator<(Column const& other) const;
+  Column::wrapper_t operator<(Scalar const& other) const;
+  Column::wrapper_t lt(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> lt(
+  Column::wrapper_t lt(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::GREATER
-  ObjectUnwrap<Column> operator>(Column const& other) const;
-  ObjectUnwrap<Column> operator>(Scalar const& other) const;
-  ObjectUnwrap<Column> gt(
+  Column::wrapper_t operator>(Column const& other) const;
+  Column::wrapper_t operator>(Scalar const& other) const;
+  Column::wrapper_t gt(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> gt(
+  Column::wrapper_t gt(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::LESS_EQUAL
-  ObjectUnwrap<Column> operator<=(Column const& other) const;
-  ObjectUnwrap<Column> operator<=(Scalar const& other) const;
-  ObjectUnwrap<Column> le(
+  Column::wrapper_t operator<=(Column const& other) const;
+  Column::wrapper_t operator<=(Scalar const& other) const;
+  Column::wrapper_t le(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> le(
+  Column::wrapper_t le(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::GREATER_EQUAL
-  ObjectUnwrap<Column> operator>=(Column const& other) const;
-  ObjectUnwrap<Column> operator>=(Scalar const& other) const;
-  ObjectUnwrap<Column> ge(
+  Column::wrapper_t operator>=(Column const& other) const;
+  Column::wrapper_t operator>=(Scalar const& other) const;
+  Column::wrapper_t ge(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> ge(
+  Column::wrapper_t ge(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::BITWISE_AND
-  ObjectUnwrap<Column> operator&(Column const& other) const;
-  ObjectUnwrap<Column> operator&(Scalar const& other) const;
-  ObjectUnwrap<Column> bitwise_and(
+  Column::wrapper_t operator&(Column const& other) const;
+  Column::wrapper_t operator&(Scalar const& other) const;
+  Column::wrapper_t bitwise_and(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> bitwise_and(
+  Column::wrapper_t bitwise_and(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::BITWISE_OR
-  ObjectUnwrap<Column> operator|(Column const& other) const;
-  ObjectUnwrap<Column> operator|(Scalar const& other) const;
-  ObjectUnwrap<Column> bitwise_or(
+  Column::wrapper_t operator|(Column const& other) const;
+  Column::wrapper_t operator|(Scalar const& other) const;
+  Column::wrapper_t bitwise_or(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> bitwise_or(
+  Column::wrapper_t bitwise_or(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::BITWISE_XOR
-  ObjectUnwrap<Column> operator^(Column const& other) const;
-  ObjectUnwrap<Column> operator^(Scalar const& other) const;
-  ObjectUnwrap<Column> bitwise_xor(
+  Column::wrapper_t operator^(Column const& other) const;
+  Column::wrapper_t operator^(Scalar const& other) const;
+  Column::wrapper_t bitwise_xor(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> bitwise_xor(
+  Column::wrapper_t bitwise_xor(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::LOGICAL_AND
-  ObjectUnwrap<Column> operator&&(Column const& other) const;
-  ObjectUnwrap<Column> operator&&(Scalar const& other) const;
-  ObjectUnwrap<Column> logical_and(
+  Column::wrapper_t operator&&(Column const& other) const;
+  Column::wrapper_t operator&&(Scalar const& other) const;
+  Column::wrapper_t logical_and(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> logical_and(
+  Column::wrapper_t logical_and(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::LOGICAL_OR
-  ObjectUnwrap<Column> operator||(Column const& other) const;
-  ObjectUnwrap<Column> operator||(Scalar const& other) const;
-  ObjectUnwrap<Column> logical_or(
+  Column::wrapper_t operator||(Column const& other) const;
+  Column::wrapper_t operator||(Scalar const& other) const;
+  Column::wrapper_t logical_or(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> logical_or(
+  Column::wrapper_t logical_or(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::COALESCE
-  ObjectUnwrap<Column> coalesce(
+  Column::wrapper_t coalesce(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> coalesce(
+  Column::wrapper_t coalesce(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::SHIFT_LEFT
-  ObjectUnwrap<Column> operator<<(Column const& other) const;
-  ObjectUnwrap<Column> operator<<(Scalar const& other) const;
-  ObjectUnwrap<Column> shift_left(
+  Column::wrapper_t operator<<(Column const& other) const;
+  Column::wrapper_t operator<<(Scalar const& other) const;
+  Column::wrapper_t shift_left(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> shift_left(
+  Column::wrapper_t shift_left(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::SHIFT_RIGHT
-  ObjectUnwrap<Column> operator>>(Column const& other) const;
-  ObjectUnwrap<Column> operator>>(Scalar const& other) const;
-  ObjectUnwrap<Column> shift_right(
+  Column::wrapper_t operator>>(Column const& other) const;
+  Column::wrapper_t operator>>(Scalar const& other) const;
+  Column::wrapper_t shift_right(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> shift_right(
+  Column::wrapper_t shift_right(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::SHIFT_RIGHT_UNSIGNED
-  ObjectUnwrap<Column> shift_right_unsigned(
+  Column::wrapper_t shift_right_unsigned(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> shift_right_unsigned(
+  Column::wrapper_t shift_right_unsigned(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::LOG_BASE
-  ObjectUnwrap<Column> log_base(
+  Column::wrapper_t log_base(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> log_base(
+  Column::wrapper_t log_base(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::ATAN2
-  ObjectUnwrap<Column> atan2(
+  Column::wrapper_t atan2(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> atan2(
+  Column::wrapper_t atan2(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::NULL_EQUALS
-  ObjectUnwrap<Column> null_equals(
+  Column::wrapper_t null_equals(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> null_equals(
+  Column::wrapper_t null_equals(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::NULL_MAX
-  ObjectUnwrap<Column> null_max(
+  Column::wrapper_t null_max(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> null_max(
+  Column::wrapper_t null_max(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::NULL_MIN
-  ObjectUnwrap<Column> null_min(
+  Column::wrapper_t null_min(
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  ObjectUnwrap<Column> null_min(
+  Column::wrapper_t null_min(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Column> operator[](Column const& gather_map) const;
+  Column::wrapper_t operator[](Column const& gather_map) const;
 
-  ObjectUnwrap<Column> binary_operation(
+  Column::wrapper_t binary_operation(
     Column const& rhs,
     cudf::binary_operator op,
     cudf::type_id output_type,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Column> binary_operation(
+  Column::wrapper_t binary_operation(
     Scalar const& rhs,
     cudf::binary_operator op,
     cudf::type_id output_type,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/stream_compaction.cpp
-  ObjectUnwrap<Column> apply_boolean_mask(
+  Column::wrapper_t apply_boolean_mask(
     Column const& boolean_mask,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Column> drop_nulls(
+  Column::wrapper_t drop_nulls(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Column> drop_nans(
+  Column::wrapper_t drop_nans(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Column> drop_duplicates(
+  Column::wrapper_t drop_duplicates(
     bool nulls_equal,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/filling.cpp
-  static ObjectUnwrap<Column> sequence(
+  static Column::wrapper_t sequence(
     Napi::Env const& env,
     cudf::size_type size,
     cudf::scalar const& init,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
-  static ObjectUnwrap<Column> sequence(
+  static Column::wrapper_t sequence(
     Napi::Env const& env,
     cudf::size_type size,
     cudf::scalar const& init,
@@ -623,88 +601,86 @@ class Column : public Napi::ObjectWrap<Column> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/copying.cpp
-  ObjectUnwrap<Column> gather(
+  Column::wrapper_t gather(
     Column const& gather_map,
     cudf::out_of_bounds_policy bounds_policy = cudf::out_of_bounds_policy::DONT_CHECK,
     rmm::mr::device_memory_resource* mr      = rmm::mr::get_current_device_resource()) const;
 
   // column/filling.cpp
-  ObjectUnwrap<Column> fill(
+  Column::wrapper_t fill(
     cudf::size_type begin,
     cudf::size_type end,
     cudf::scalar const& value,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   // column/replace.cpp
-  ObjectUnwrap<Column> replace_nulls(
+  Column::wrapper_t replace_nulls(
     cudf::column_view const& replacement,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
-  ObjectUnwrap<Column> replace_nulls(
+  Column::wrapper_t replace_nulls(
     cudf::scalar const& replacement,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
-  ObjectUnwrap<Column> replace_nulls(
+  Column::wrapper_t replace_nulls(
     cudf::replace_policy const& replace_policy,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
-  ObjectUnwrap<Column> replace_nans(
+  Column::wrapper_t replace_nans(
     cudf::column_view const& replacement,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
-  ObjectUnwrap<Column> replace_nans(
+  Column::wrapper_t replace_nans(
     cudf::scalar const& replacement,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   // column/unaryop.cpp
-  ObjectUnwrap<Column> cast(
+  Column::wrapper_t cast(
     cudf::data_type out_type,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Column> is_null(
+  Column::wrapper_t is_null(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Column> is_valid(
+  Column::wrapper_t is_valid(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Column> is_nan(
+  Column::wrapper_t is_nan(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Column> is_not_nan(
+  Column::wrapper_t is_not_nan(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Column> unary_operation(
+  Column::wrapper_t unary_operation(
     cudf::unary_operator op,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/re.cpp
-  ObjectUnwrap<Column> contains_re(
+  Column::wrapper_t contains_re(
     std::string const& pattern,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  ObjectUnwrap<Column> count_re(
+  Column::wrapper_t count_re(
     std::string const& pattern,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // TODO: findall_re
 
-  ObjectUnwrap<Column> matches_re(
+  Column::wrapper_t matches_re(
     std::string const& pattern,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
  private:
-  static Napi::FunctionReference constructor;
-
-  cudf::size_type size_{};                     ///< The number of elements in the column
-  cudf::size_type offset_{};                   ///< The offset of elements in the data
-  Napi::Reference<Napi::Object> type_{};       ///< Logical type of elements in the column
-  Napi::Reference<Napi::Object> data_{};       ///< Dense, contiguous, type erased device memory
-                                               ///< buffer containing the column elements
-  Napi::Reference<Napi::Object> null_mask_{};  ///< Bitmask used to represent null values.
-                                               ///< May be empty if `null_count() == 0`
+  cudf::size_type size_{};                         ///< The number of elements in the column
+  cudf::size_type offset_{};                       ///< The offset of elements in the data
+  Napi::Reference<Napi::Object> type_;             ///< Logical type of elements in the column
+  Napi::Reference<DeviceBuffer::wrapper_t> data_;  ///< Dense, contiguous, type erased device memory
+                                                   ///< buffer containing the column elements
+  Napi::Reference<DeviceBuffer::wrapper_t> null_mask_;  ///< Bitmask used to represent null values.
+                                                        ///< May be empty if `null_count() == 0`
   mutable cudf::size_type null_count_{cudf::UNKNOWN_NULL_COUNT};  ///< The number of null elements
-  Napi::Reference<Napi::Array> children_{};  ///< Depending on element type, child
-                                             ///< columns may contain additional data
+  Napi::Reference<Napi::Array> children_;  ///< Depending on element type, child
+                                           ///< columns may contain additional data
 
   Napi::Value type(Napi::CallbackInfo const& info);
   void type(Napi::CallbackInfo const& info, Napi::Value const& value);
@@ -726,8 +702,8 @@ class Column : public Napi::ObjectWrap<Column> {
   Napi::Value get_value(Napi::CallbackInfo const& info);
   // Napi::Value set_value(Napi::CallbackInfo const& info);
 
-  Napi::Value set_null_mask(Napi::CallbackInfo const& info);
-  Napi::Value set_null_count(Napi::CallbackInfo const& info);
+  void set_null_mask(Napi::CallbackInfo const& info);
+  void set_null_count(Napi::CallbackInfo const& info);
 
   // column/binaryop.cpp
   Napi::Value add(Napi::CallbackInfo const& info);

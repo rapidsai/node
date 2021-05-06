@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
+
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
@@ -46,86 +47,98 @@ cudf::data_type _compute_dtype(cudf::type_id id) {
 }
 }  // namespace
 
-std::pair<ObjectUnwrap<Scalar>, ObjectUnwrap<Scalar>> Column::minmax(
+std::pair<Scalar::wrapper_t, Scalar::wrapper_t> Column::minmax(
   rmm::mr::device_memory_resource* mr) const {
-  auto result = cudf::minmax(*this, mr);
-  return {Scalar::New(std::move(result.first)),  //
-          Scalar::New(std::move(result.second))};
+  try {
+    auto result = cudf::minmax(*this, mr);
+    return {Scalar::New(Env(), std::move(result.first)),  //
+            Scalar::New(Env(), std::move(result.second))};
+  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Napi::Value Column::min(Napi::CallbackInfo const& info) {
-  return minmax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()).first;
+  return Napi::Value::From(
+    info.Env(), minmax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()).first);
 }
 
 Napi::Value Column::max(Napi::CallbackInfo const& info) {
-  return minmax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()).second;
+  return Napi::Value::From(
+    info.Env(), minmax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()).second);
 }
 
 Napi::Value Column::minmax(Napi::CallbackInfo const& info) {
-  auto m_m = minmax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
-  auto ary = Napi::Array::New(info.Env(), 2);
-  ary.Set(0u, m_m.first->get_value());
-  ary.Set(1u, m_m.second->get_value());
-  return ary;
+  return Napi::Value::From(info.Env(),
+                           minmax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
 }
 
-ObjectUnwrap<Scalar> Column::reduce(std::unique_ptr<cudf::aggregation> const& agg,
-                                    cudf::data_type const& output_dtype,
-                                    rmm::mr::device_memory_resource* mr) const {
-  return Scalar::New(cudf::reduce(*this, agg, output_dtype, mr));
+Scalar::wrapper_t Column::reduce(std::unique_ptr<cudf::aggregation> const& agg,
+                                 cudf::data_type const& output_dtype,
+                                 rmm::mr::device_memory_resource* mr) const {
+  try {
+    return Scalar::New(Env(), cudf::reduce(*this, agg, output_dtype, mr));
+  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
-ObjectUnwrap<Scalar> Column::sum(rmm::mr::device_memory_resource* mr) const {
+Scalar::wrapper_t Column::sum(rmm::mr::device_memory_resource* mr) const {
   return reduce(cudf::make_sum_aggregation(), _compute_dtype(this->type().id()), mr);
 }
 
 Napi::Value Column::sum(Napi::CallbackInfo const& info) {
-  return sum(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+  return Napi::Value::From(info.Env(),
+                           sum(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
 }
 
-ObjectUnwrap<Scalar> Column::product(rmm::mr::device_memory_resource* mr) const {
+Scalar::wrapper_t Column::product(rmm::mr::device_memory_resource* mr) const {
   return reduce(cudf::make_product_aggregation(), _compute_dtype(this->type().id()), mr);
 }
 
 Napi::Value Column::product(Napi::CallbackInfo const& info) {
-  return product(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+  return Napi::Value::From(info.Env(),
+                           product(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
 }
 
-ObjectUnwrap<Scalar> Column::sum_of_squares(rmm::mr::device_memory_resource* mr) const {
+Scalar::wrapper_t Column::sum_of_squares(rmm::mr::device_memory_resource* mr) const {
   return reduce(cudf::make_sum_of_squares_aggregation(), _compute_dtype(this->type().id()), mr);
 }
 
 Napi::Value Column::sum_of_squares(Napi::CallbackInfo const& info) {
-  return sum_of_squares(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+  return Napi::Value::From(
+    info.Env(), sum_of_squares(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
 }
 
 Napi::Value Column::any(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return reduce(cudf::make_any_aggregation(), cudf::data_type(cudf::type_id::BOOL8), args[0]);
+  return Napi::Value::From(
+    info.Env(),
+    reduce(cudf::make_any_aggregation(), cudf::data_type(cudf::type_id::BOOL8), args[0]));
 }
 
 Napi::Value Column::all(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return reduce(cudf::make_all_aggregation(), cudf::data_type(cudf::type_id::BOOL8), args[0]);
+  return Napi::Value::From(
+    info.Env(),
+    reduce(cudf::make_all_aggregation(), cudf::data_type(cudf::type_id::BOOL8), args[0]));
 }
 
-ObjectUnwrap<Scalar> Column::mean(rmm::mr::device_memory_resource* mr) const {
+Scalar::wrapper_t Column::mean(rmm::mr::device_memory_resource* mr) const {
   return reduce(cudf::make_mean_aggregation(), cudf::data_type(cudf::type_id::FLOAT64), mr);
 }
 
 Napi::Value Column::mean(Napi::CallbackInfo const& info) {
-  return mean(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+  return Napi::Value::From(info.Env(),
+                           mean(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
 }
 
-ObjectUnwrap<Scalar> Column::median(rmm::mr::device_memory_resource* mr) const {
+Scalar::wrapper_t Column::median(rmm::mr::device_memory_resource* mr) const {
   return reduce(cudf::make_median_aggregation(), cudf::data_type(cudf::type_id::FLOAT64), mr);
 }
 
 Napi::Value Column::median(Napi::CallbackInfo const& info) {
-  return median(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*());
+  return Napi::Value::From(info.Env(),
+                           median(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
 }
 
-ObjectUnwrap<Scalar> Column::nunique(bool dropna, rmm::mr::device_memory_resource* mr) const {
+Scalar::wrapper_t Column::nunique(bool dropna, rmm::mr::device_memory_resource* mr) const {
   cudf::null_policy null_policy =
     (dropna == true) ? cudf::null_policy::EXCLUDE : cudf::null_policy::INCLUDE;
   return reduce(cudf::make_nunique_aggregation(null_policy),
@@ -135,38 +148,38 @@ ObjectUnwrap<Scalar> Column::nunique(bool dropna, rmm::mr::device_memory_resourc
 
 Napi::Value Column::nunique(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return nunique(args[0], args[1]);
+  return Napi::Value::From(info.Env(), nunique(args[0], args[1]));
 }
 
-ObjectUnwrap<Scalar> Column::variance(cudf::size_type ddof,
-                                      rmm::mr::device_memory_resource* mr) const {
+Scalar::wrapper_t Column::variance(cudf::size_type ddof,
+                                   rmm::mr::device_memory_resource* mr) const {
   return reduce(cudf::make_variance_aggregation(ddof), cudf::data_type(cudf::type_id::FLOAT64), mr);
 }
 
 Napi::Value Column::variance(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return variance(args[0], args[1]);
+  return Napi::Value::From(info.Env(), variance(args[0], args[1]));
 }
 
-ObjectUnwrap<Scalar> Column::std(cudf::size_type ddof, rmm::mr::device_memory_resource* mr) const {
+Scalar::wrapper_t Column::std(cudf::size_type ddof, rmm::mr::device_memory_resource* mr) const {
   return reduce(cudf::make_std_aggregation(ddof), cudf::data_type(cudf::type_id::FLOAT64), mr);
 }
 
 Napi::Value Column::std(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return std(args[0], args[1]);
+  return Napi::Value::From(info.Env(), std(args[0], args[1]));
 }
 
-ObjectUnwrap<Scalar> Column::quantile(double q,
-                                      cudf::interpolation i,
-                                      rmm::mr::device_memory_resource* mr) const {
+Scalar::wrapper_t Column::quantile(double q,
+                                   cudf::interpolation i,
+                                   rmm::mr::device_memory_resource* mr) const {
   return reduce(
     cudf::make_quantile_aggregation({q}, i), cudf::data_type(cudf::type_id::FLOAT64), mr);
 }
 
 Napi::Value Column::quantile(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return quantile(args[0], args[1], args[2]);
+  return Napi::Value::From(info.Env(), quantile(args[0], args[1], args[2]));
 }
 
 }  // namespace nv

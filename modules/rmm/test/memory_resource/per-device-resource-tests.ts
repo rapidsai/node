@@ -13,23 +13,29 @@
 // limitations under the License.
 
 import {expect} from '@jest/globals';
-import {Uint8Buffer} from '@nvidia/cuda';
-import {DeviceBuffer, getPerDeviceResource, setPerDeviceResource} from '@rapidsai/rmm';
+import {devices} from '@nvidia/cuda';
+import {
+  DeviceBuffer,
+  getPerDeviceResource,
+  MemoryResource,
+  setPerDeviceResource
+} from '@rapidsai/rmm';
 
-import {sizes, testForEachDevice} from '../utils';
+import {sizes} from '../utils';
 
 import {memoryResourceTestConfigs} from './utils';
 
 describe.each(memoryResourceTestConfigs)(`%s`, (_, {createMemoryResource}) => {
-  testForEachDevice(`set/get per-device resource`, (device) => {
-    const currentMr = getPerDeviceResource(device.id);
+  test(`set/get per-device resource`, () => {
+    const device                  = devices[0];
+    let prev: MemoryResource|null = null;
     try {
       const mr = createMemoryResource();
-      setPerDeviceResource(device.id, mr);
+      prev     = setPerDeviceResource(device.id, mr);
       expect(getPerDeviceResource(device.id)).toBe(mr);
-      // Fill the buffer with 1s, because CUDA Managed
-      // memory is only allocated when it's actually used.
-      new Uint8Buffer(new DeviceBuffer(sizes['2_MiB'], mr)).fill(1);
-    } finally { setPerDeviceResource(device.id, currentMr); }
+      new DeviceBuffer(sizes['2_MiB'], mr);
+    } finally {
+      if (prev !== null) { setPerDeviceResource(device.id, prev); }
+    }
   });
 });

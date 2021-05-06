@@ -36,12 +36,16 @@ Napi::Value quadtree_bounding_box_intersections(CallbackArgs const& args);
 
 /**
  * @brief Test whether the specified points are inside any of the specified polygons.
+ *
+ * @param args CallbackArgs JavaScript arguments list.
  */
 Napi::Value find_points_in_polygons(CallbackArgs const& args);
 
 /**
  * @brief Finds the nearest polyline to each point in a quadrant, and computes the distances between
  * each point and polyline.
+ *
+ * @param args CallbackArgs JavaScript arguments list.
  */
 Napi::Value find_polyline_nearest_to_each_point(CallbackArgs const& args);
 

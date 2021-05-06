@@ -12,77 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import RMM from './addon';
-
-const enum MemoryResourceType
-{
-  CUDA      = 0,
-  MANAGED   = 1,
-  POOL      = 2,
-  FIXEDSIZE = 3,
-  BINNING   = 4,
-  LOGGING   = 5,
-}
-
-interface MemoryResourceConstructor {
-  readonly prototype: MemoryResource;
-  new(type: MemoryResourceType.CUDA, device?: number): MemoryResource;
-  new(type: MemoryResourceType.MANAGED): MemoryResource;
-  new(type: MemoryResourceType.POOL,
-      upstreamMemoryResource: MemoryResource,
-      initialPoolSize?: number,
-      maximumPoolSize?: number): MemoryResource;
-  new(type: MemoryResourceType.FIXEDSIZE,
-      upstreamMemoryResource: MemoryResource,
-      blockSize?: number,
-      blocksToPreallocate?: number): MemoryResource;
-  new(type: MemoryResourceType.BINNING,
-      upstreamMemoryResource: MemoryResource,
-      minSizeExponent?: number,
-      maxSizeExponent?: number): MemoryResource;
-  new(type: MemoryResourceType.LOGGING,
-      upstreamMemoryResource: MemoryResource,
-      logFilePath?: string,
-      autoFlush?: boolean): MemoryResource;
-}
-
-export interface MemoryResource {
-  /**
-   * @summary A boolean indicating whether the resource supports use of non-null CUDA streams for
-   * allocation/deallocation.
-   */
-  readonly supportsStreams: boolean;
-
-  /**
-   * @summary A boolean indicating whether the resource supports the getMemInfo() API.
-   */
-  readonly supportsGetMemInfo: boolean;
-
-  /**
-   * Queries the amount of free and total memory for the resource.
-   *
-   * @param stream - the stream whose memory manager we want to retrieve
-   *
-   * @returns a tuple which contains `[free memory, total memory]` (in bytes)
-   */
-  getMemInfo(stream: number): [number, number];
-
-  /**
-   * @summary Compare this resource to another.
-   *
-   * @remarks
-   * Two `CudaMemoryResource` instances always compare equal, because they can each
-   * deallocate memory allocated by the other.
-   *
-   * @param other - The other resource to compare to
-   * @returns true if the two resources are equal, else false
-   */
-  isEqual(other: MemoryResource): boolean;
-}
+import {MemoryResource, MemoryResourceType} from './addon';
 
 /** @ignore */
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-const MemoryResource: MemoryResourceConstructor = RMM.MemoryResource;
+export {MemoryResource, MemoryResourceType};
 
 /**
  * @summary {@link MemoryResource} that uses cudaMalloc/Free for allocation/deallocation.
