@@ -39,7 +39,7 @@ We've included a container for launching [`nteract/desktop`](https://nteract.io/
 yarn docker:build:devel && yarn docker:build:nteract
 
 # Compile the TypeScript and C++ modules inside the development container
-yarn docker:run:devel bash -c 'yarn && yarn tsc:build'
+yarn docker:run:devel bash -c 'yarn && yarn build'
 
 # Start a containerized nteract/desktop with the source tree as Docker volume mounts
 yarn docker:run:nteract
