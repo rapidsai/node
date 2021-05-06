@@ -45,7 +45,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   /**
    * Creates a Series of `BOOL8` elements indicating the absence of `NaN` values in a
    * column of floating point values. The output element at row `i` is `false` if the element in
-   * `input` at row i is `NAN`, else `true`
+   * `input` at row i is `NaN`, else `true`
    *
    * @param memoryResource Memory resource used to allocate the result Series's device memory.
    * @returns A non-nullable Series of `BOOL8` elements with `true` representing `NAN`
