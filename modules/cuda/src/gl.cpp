@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,39 +69,36 @@ Napi::Value cudaGraphicsGLRegisterImage(CallbackArgs const& info) {
 }
 
 // cudaError_t CUDARTAPI cudaGraphicsUnregisterResource(cudaGraphicsResource_t resource)
-Napi::Value cudaGraphicsUnregisterResource(CallbackArgs const& info) {
+void cudaGraphicsUnregisterResource(CallbackArgs const& info) {
   auto env                        = info.Env();
   cudaGraphicsResource_t resource = info[0];
   NODE_CUDA_TRY(CUDARTAPI::cudaGraphicsUnregisterResource(resource), env);
-  return env.Undefined();
 }
 
 // cudaError_t CUDARTAPI cudaGraphicsMapResources(int count, cudaGraphicsResource_t *resources,
 // cudaStream_t stream = 0)
-Napi::Value cudaGraphicsMapResources(CallbackArgs const& info) {
+void cudaGraphicsMapResources(CallbackArgs const& info) {
   auto env                                      = info.Env();
   std::vector<cudaGraphicsResource_t> resources = info[0];
   cudaStream_t stream                           = info[1];
   NODE_CUDA_TRY(CUDARTAPI::cudaGraphicsMapResources(resources.size(), resources.data(), stream),
                 env);
-  return env.Undefined();
 }
 
 // cudaError_t CUDARTAPI cudaGraphicsUnmapResources(int count, cudaGraphicsResource_t *resources,
 // cudaStream_t stream = 0)
-Napi::Value cudaGraphicsUnmapResources(CallbackArgs const& info) {
+void cudaGraphicsUnmapResources(CallbackArgs const& info) {
   auto env                                      = info.Env();
   std::vector<cudaGraphicsResource_t> resources = info[0];
   cudaStream_t stream                           = info[1];
   NODE_CUDA_TRY(CUDARTAPI::cudaGraphicsUnmapResources(resources.size(), resources.data(), stream),
                 env);
-  return env.Undefined();
 }
 
 // cudaError_t CUDARTAPI cudaGraphicsResourceGetMappedPointer(void **devPtr, size_t *size,
 // cudaGraphicsResource_t resource)
 Napi::Value cudaGraphicsResourceGetMappedPointer(CallbackArgs const& info) {
-  return MappedGLMemory::New(info[0]);
+  return MappedGLMemory::New(info.Env(), {info[0]});
 }
 
 // cudaError_t CUDARTAPI cudaGraphicsSubResourceGetMappedArray(cudaArray_t *array,
@@ -118,26 +115,31 @@ Napi::Value cudaGraphicsSubResourceGetMappedArray(CallbackArgs const& info) {
   cudaExtent extent{};
   cudaChannelFormatDesc desc{};
   NODE_CUDA_TRY(CUDARTAPI::cudaArrayGetInfo(&desc, &extent, &flags, array), env);
-  return CUDAArray::New(array, extent, desc, flags, array_type::GL);
+  return CUDAArray::New(info.Env(), array, extent, desc, flags, array_type::GL);
 }
 
 namespace gl {
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  EXPORT_FUNC(env, exports, "getDevices", nv::cudaGLGetDevices);
-  EXPORT_FUNC(env, exports, "registerBuffer", nv::cudaGraphicsGLRegisterBuffer);
-  EXPORT_FUNC(env, exports, "registerImage", nv::cudaGraphicsGLRegisterImage);
-  EXPORT_FUNC(env, exports, "unregisterResource", nv::cudaGraphicsUnregisterResource);
-  EXPORT_FUNC(env, exports, "mapResources", nv::cudaGraphicsMapResources);
-  EXPORT_FUNC(env, exports, "unmapResources", nv::cudaGraphicsUnmapResources);
-  EXPORT_FUNC(env, exports, "getMappedPointer", nv::cudaGraphicsResourceGetMappedPointer);
-  EXPORT_FUNC(env, exports, "getMappedArray", nv::cudaGraphicsSubResourceGetMappedArray);
+Napi::Object initModule(Napi::Env const& env,
+                        Napi::Object exports,
+                        Napi::Object driver,
+                        Napi::Object runtime) {
+  EXPORT_FUNC(env, runtime, "cudaGLGetDevices", nv::cudaGLGetDevices);
+  EXPORT_FUNC(env, runtime, "cudaGraphicsGLRegisterBuffer", nv::cudaGraphicsGLRegisterBuffer);
+  EXPORT_FUNC(env, runtime, "cudaGraphicsGLRegisterImage", nv::cudaGraphicsGLRegisterImage);
+  EXPORT_FUNC(env, runtime, "cudaGraphicsUnregisterResource", nv::cudaGraphicsUnregisterResource);
+  EXPORT_FUNC(env, runtime, "cudaGraphicsMapResources", nv::cudaGraphicsMapResources);
+  EXPORT_FUNC(env, runtime, "cudaGraphicsUnmapResources", nv::cudaGraphicsUnmapResources);
+  EXPORT_FUNC(
+    env, runtime, "cudaGraphicsResourceGetMappedPointer", nv::cudaGraphicsResourceGetMappedPointer);
+  EXPORT_FUNC(
+    env, runtime, "cudaGraphicsResourceGetMappedArray", nv::cudaGraphicsSubResourceGetMappedArray);
 
-  auto cudaGraphicsRegisterFlags = Napi::Object::New(env);
-  EXPORT_ENUM(env, cudaGraphicsRegisterFlags, "none", CU_GRAPHICS_REGISTER_FLAGS_NONE);
-  EXPORT_ENUM(env, cudaGraphicsRegisterFlags, "read_only", CU_GRAPHICS_REGISTER_FLAGS_READ_ONLY);
+  auto GraphicsRegisterFlags = Napi::Object::New(env);
+  EXPORT_ENUM(env, GraphicsRegisterFlags, "NONE", CU_GRAPHICS_REGISTER_FLAGS_NONE);
+  EXPORT_ENUM(env, GraphicsRegisterFlags, "READ_ONLY", CU_GRAPHICS_REGISTER_FLAGS_READ_ONLY);
   EXPORT_ENUM(
-    env, cudaGraphicsRegisterFlags, "write_discard", CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
-  EXPORT_PROP(exports, "graphicsRegisterFlags", cudaGraphicsRegisterFlags);
+    env, GraphicsRegisterFlags, "WRITE_DISCARD", CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
+  EXPORT_PROP(runtime, "GraphicsRegisterFlags", GraphicsRegisterFlags);
 
   return exports;
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #include "node_cuda/utilities/cpp_to_napi.hpp"
 
+#include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
 
 #include <cuda_runtime_api.h>
@@ -29,8 +30,7 @@ namespace nv {
  * @brief Base class for an owning wrapper around a memory allocation.
  *
  */
-class Memory {
- public:
+struct Memory {
   /**
    * @brief Construct a new Memory instance from JavaScript.
    *
@@ -70,23 +70,22 @@ class Memory {
  * @brief An owning wrapper around a pinned host memory allocation.
  *
  */
-class PinnedMemory : public Napi::ObjectWrap<PinnedMemory>, public Memory {
- public:
+struct PinnedMemory : public EnvLocalObjectWrap<PinnedMemory>, public Memory {
   /**
    * @brief Initialize and export the PinnedMemory JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The PinnedMemory constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new PinnedMemory instance from C++.
    *
    * @param size Size in bytes to allocate in pinned host memory.
    */
-  static Napi::Object New(size_t size);
+  static wrapper_t New(Napi::Env const& env, size_t size);
 
   /**
    * @brief Check whether an Napi value is an instance of `PinnedMemory`.
@@ -95,23 +94,14 @@ class PinnedMemory : public Napi::ObjectWrap<PinnedMemory>, public Memory {
    * @return true if the value is a `PinnedMemory`
    * @return false if the value is not a `PinnedMemory`
    */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
+  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
-   * @brief Construct a new PinnedMemory instance from JavaScript.
+   * @brief Constructs a new PinnedMemory instance.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
   PinnedMemory(CallbackArgs const& args);
-
-  /**
-   * @brief Initialize the PinnedMemory instance created by either C++ or JavaScript.
-   *
-   * @param size Size in bytes to allocate in pinned host memory.
-   */
-  void Initialize(size_t size);
 
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this PinnedMemory instance.
@@ -121,8 +111,6 @@ class PinnedMemory : public Napi::ObjectWrap<PinnedMemory>, public Memory {
   void Finalize(Napi::Env env) override;
 
  private:
-  static Napi::FunctionReference constructor;
-
   Napi::Value slice(Napi::CallbackInfo const& info);
 };
 
@@ -130,23 +118,22 @@ class PinnedMemory : public Napi::ObjectWrap<PinnedMemory>, public Memory {
  * @brief An owning wrapper around a device memory allocation.
  *
  */
-class DeviceMemory : public Napi::ObjectWrap<DeviceMemory>, public Memory {
- public:
+struct DeviceMemory : public EnvLocalObjectWrap<DeviceMemory>, public Memory {
   /**
    * @brief Initialize and export the DeviceMemory JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The DeviceMemory constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new DeviceMemory instance from C++.
    *
    * @param size Size in bytes to allocate in device memory.
    */
-  static Napi::Object New(size_t size);
+  static wrapper_t New(Napi::Env const& env, std::size_t size);
 
   /**
    * @brief Check whether an Napi value is an instance of `DeviceMemory`.
@@ -155,23 +142,14 @@ class DeviceMemory : public Napi::ObjectWrap<DeviceMemory>, public Memory {
    * @return true if the value is a `DeviceMemory`
    * @return false if the value is not a `DeviceMemory`
    */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
+  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
-   * @brief Construct a new DeviceMemory instance from JavaScript.
+   * @brief Constructs a new DeviceMemory instance.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
   DeviceMemory(CallbackArgs const& args);
-
-  /**
-   * @brief Initialize the DeviceMemory instance created by either C++ or JavaScript.
-   *
-   * @param size Size in bytes to allocate in device memory.
-   */
-  void Initialize(size_t size);
 
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this DeviceMemory instance.
@@ -181,8 +159,6 @@ class DeviceMemory : public Napi::ObjectWrap<DeviceMemory>, public Memory {
   void Finalize(Napi::Env env) override;
 
  private:
-  static Napi::FunctionReference constructor;
-
   Napi::Value slice(Napi::CallbackInfo const& info);
 };
 
@@ -190,23 +166,22 @@ class DeviceMemory : public Napi::ObjectWrap<DeviceMemory>, public Memory {
  * @brief An owning wrapper around a CUDA managed memory allocation.
  *
  */
-class ManagedMemory : public Napi::ObjectWrap<ManagedMemory>, public Memory {
- public:
+struct ManagedMemory : public EnvLocalObjectWrap<ManagedMemory>, public Memory {
   /**
    * @brief Initialize and export the ManagedMemory JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The ManagedMemory constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new ManagedMemory instance from C++.
    *
    * @param size Size in bytes to allocate in CUDA managed memory.
    */
-  static Napi::Object New(size_t size);
+  static wrapper_t New(Napi::Env const& env, size_t size);
 
   /**
    * @brief Check whether an Napi value is an instance of `ManagedMemory`.
@@ -215,23 +190,14 @@ class ManagedMemory : public Napi::ObjectWrap<ManagedMemory>, public Memory {
    * @return true if the value is a `ManagedMemory`
    * @return false if the value is not a `ManagedMemory`
    */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
+  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
-   * @brief Construct a new ManagedMemory instance from JavaScript.
+   * @brief Constructs a new ManagedMemory instance.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
   ManagedMemory(CallbackArgs const& args);
-
-  /**
-   * @brief Initialize the ManagedMemory instance created by either C++ or JavaScript.
-   *
-   * @param size Size in bytes to allocate in CUDA managed memory.
-   */
-  void Initialize(size_t size);
 
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this ManagedMemory instance.
@@ -241,8 +207,6 @@ class ManagedMemory : public Napi::ObjectWrap<ManagedMemory>, public Memory {
   void Finalize(Napi::Env env) override;
 
  private:
-  static Napi::FunctionReference constructor;
-
   Napi::Value slice(Napi::CallbackInfo const& info);
 };
 
@@ -250,23 +214,22 @@ class ManagedMemory : public Napi::ObjectWrap<ManagedMemory>, public Memory {
  * @brief An owning wrapper around a CUDA device memory allocation shared by another process.
  *
  */
-class IpcMemory : public Napi::ObjectWrap<IpcMemory>, public Memory {
- public:
+struct IpcMemory : public EnvLocalObjectWrap<IpcMemory>, public Memory {
   /**
    * @brief Initialize and export the IPCMemory JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The IpcMemory constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new IPCMemory instance from C++.
    *
    * @param handle Handle to the device memory shared by another process.
    */
-  static Napi::Object New(cudaIpcMemHandle_t const& handle);
+  static wrapper_t New(Napi::Env const& env, cudaIpcMemHandle_t const& handle);
 
   /**
    * @brief Check whether an Napi value is an instance of `IpcMemory`.
@@ -275,23 +238,14 @@ class IpcMemory : public Napi::ObjectWrap<IpcMemory>, public Memory {
    * @return true if the value is a `IpcMemory`
    * @return false if the value is not a `IpcMemory`
    */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
+  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
-   * @brief Construct a new IPCMemory instance from JavaScript.
+   * @brief Constructs a new IPCMemory instance.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
   IpcMemory(CallbackArgs const& args);
-
-  /**
-   * @brief Initialize the IPCMemory instance created by either C++ or JavaScript.
-   *
-   * @param handle Handle to the device memory shared by another process.
-   */
-  void Initialize(cudaIpcMemHandle_t const& handle);
 
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this IPCMemory instance.
@@ -309,29 +263,27 @@ class IpcMemory : public Napi::ObjectWrap<IpcMemory>, public Memory {
   void close(Napi::Env const& env);
 
  private:
-  static Napi::FunctionReference constructor;
+  void close(Napi::CallbackInfo const& info);
 
   Napi::Value slice(Napi::CallbackInfo const& info);
-  Napi::Value close(Napi::CallbackInfo const& info);
 };
 
-class IpcHandle : public Napi::ObjectWrap<IpcHandle> {
- public:
+struct IpcHandle : public EnvLocalObjectWrap<IpcHandle> {
   /**
    * @brief Initialize and export the IpcMemoryHandle JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The IpcHandle constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new IpcMemoryHandle instance from C++.
    *
    * @param dmem Device memory for which to create an IPC memory handle.
    */
-  static Napi::Object New(DeviceMemory const& dmem);
+  static wrapper_t New(Napi::Env const& env, DeviceMemory const& dmem);
 
   /**
    * @brief Check whether an Napi value is an instance of `IpcHandle`.
@@ -340,23 +292,14 @@ class IpcHandle : public Napi::ObjectWrap<IpcHandle> {
    * @return true if the value is a `IpcHandle`
    * @return false if the value is not a `IpcHandle`
    */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
+  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
-   * @brief Construct a new IpcMemoryHandle instance from JavaScript.
+   * @brief Constructs a new IpcMemoryHandle instance.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
   IpcHandle(CallbackArgs const& args);
-
-  /**
-   * @brief Initialize the IpcMemoryHandle instance created by either C++ or JavaScript.
-   *
-   * @param dmem Device memory for which to create an IPC memory handle.
-   */
-  void Initialize(DeviceMemory const& dmem);
 
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this IpcMemoryHandle instance.
@@ -367,7 +310,7 @@ class IpcHandle : public Napi::ObjectWrap<IpcHandle> {
 
   int32_t device() const {
     if (!dmem_.IsEmpty()) {  //
-      return DeviceMemory::Unwrap(dmem_.Value())->device();
+      return dmem_.Value()->device();
     }
     return -1;
   }
@@ -384,38 +327,36 @@ class IpcHandle : public Napi::ObjectWrap<IpcHandle> {
   void close(Napi::Env const& env);
 
  private:
-  static Napi::FunctionReference constructor;
-
-  Napi::ObjectReference dmem_;
+  Napi::Reference<Wrapper<DeviceMemory>> dmem_;
   Napi::Reference<Napi::Uint8Array> handle_;
+
+  void close(Napi::CallbackInfo const& info);
 
   Napi::Value buffer(Napi::CallbackInfo const& info);
   Napi::Value device(Napi::CallbackInfo const& info);
   Napi::Value handle(Napi::CallbackInfo const& info);
-  Napi::Value close(Napi::CallbackInfo const& info);
 };
 
 /**
  * @brief An owning wrapper around a CUDA managed memory allocation.
  *
  */
-class MappedGLMemory : public Napi::ObjectWrap<MappedGLMemory>, public Memory {
- public:
+struct MappedGLMemory : public EnvLocalObjectWrap<MappedGLMemory>, public Memory {
   /**
    * @brief Initialize and export the MappedGLMemory JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The MappedGLMemory constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new MappedGLMemory instance from C++.
    *
    * @param resource The registered CUDA Graphics Resource for an OpenGL buffer.
    */
-  static Napi::Object New(cudaGraphicsResource_t resource);
+  static wrapper_t New(Napi::Env const& env, cudaGraphicsResource_t resource);
 
   /**
    * @brief Check whether an Napi value is an instance of `MappedGLMemory`.
@@ -424,9 +365,7 @@ class MappedGLMemory : public Napi::ObjectWrap<MappedGLMemory>, public Memory {
    * @return true if the value is a `MappedGLMemory`
    * @return false if the value is not a `MappedGLMemory`
    */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
+  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
    * @brief Construct a new MappedGLMemory instance from JavaScript.
@@ -436,13 +375,6 @@ class MappedGLMemory : public Napi::ObjectWrap<MappedGLMemory>, public Memory {
   MappedGLMemory(CallbackArgs const& args);
 
   /**
-   * @brief Initialize the MappedGLMemory instance created by either C++ or JavaScript.
-   *
-   * @param resource The registered CUDA Graphics Resource for an OpenGL buffer.
-   */
-  void Initialize(cudaGraphicsResource_t resource);
-
-  /**
    * @brief Destructor called when the JavaScript VM garbage collects this MappedGLMemory instance.
    *
    * @param env The active JavaScript environment.
@@ -450,9 +382,41 @@ class MappedGLMemory : public Napi::ObjectWrap<MappedGLMemory>, public Memory {
   void Finalize(Napi::Env env) override;
 
  private:
-  static Napi::FunctionReference constructor;
-
   Napi::Value slice(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv
+
+namespace Napi {
+
+template <>
+inline Value Value::From(napi_env env, nv::DeviceMemory const& mem) {
+  return mem.operator nv::DeviceMemory::wrapper_t();
+}
+
+template <>
+inline Value Value::From(napi_env env, nv::ManagedMemory const& mem) {
+  return mem.operator nv::ManagedMemory::wrapper_t();
+}
+
+template <>
+inline Value Value::From(napi_env env, nv::PinnedMemory const& mem) {
+  return mem.operator nv::PinnedMemory::wrapper_t();
+}
+
+template <>
+inline Value Value::From(napi_env env, nv::IpcMemory const& mem) {
+  return mem.operator nv::IpcMemory::wrapper_t();
+}
+
+template <>
+inline Value Value::From(napi_env env, nv::IpcHandle const& mem) {
+  return mem.operator nv::IpcHandle::wrapper_t();
+}
+
+template <>
+inline Value Value::From(napi_env env, nv::MappedGLMemory const& mem) {
+  return mem.operator nv::MappedGLMemory::wrapper_t();
+}
+
+}  // namespace Napi

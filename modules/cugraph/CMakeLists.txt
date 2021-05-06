@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
-cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
 project(node_cugraph VERSION 0.0.1 LANGUAGES C CXX)
 
@@ -32,7 +32,7 @@ set(RMM_VERSION "0.20")
 set(CUDF_VERSION "0.20")
 set(CUGRAPH_VERSION "0.20")
 set(RAFT_VERSION "0.20")
-set(RAFT_BRANCH "f0cd81fb49638eaddc9bf18998cc894f292bc293")
+set(RAFT_BRANCH "66f82b4e79a3e268d0da3cc864ec7ce4ad065296")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
@@ -117,3 +117,9 @@ target_link_libraries(${PROJECT_NAME}
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
+
+# Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
+execute_process(COMMAND
+    ${CMAKE_COMMAND} -E create_symlink
+    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json)

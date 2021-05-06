@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
 
 #include <cudf/groupby.hpp>
@@ -27,22 +28,21 @@ namespace nv {
  * @brief An owning wrapper around a cudf::groupy::groupby.
  *
  */
-class GroupBy : public Napi::ObjectWrap<GroupBy> {
- public:
+struct GroupBy : public EnvLocalObjectWrap<GroupBy> {
   /**
    * @brief Initialize and export the Groupby JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The GroupBy constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new Groupby instance
    *
    */
-  static Napi::Object New();
+  static wrapper_t New(Napi::Env const& env);
 
   /**
    * @brief Construct a new Groupby instance from JavaScript.
@@ -50,17 +50,7 @@ class GroupBy : public Napi::ObjectWrap<GroupBy> {
    */
   GroupBy(CallbackArgs const& args);
 
-  /**
-   * @brief Destructor called when the JavaScript VM garbage collects this Column
-   * instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
-
  private:
-  static Napi::FunctionReference constructor;
-
   std::unique_ptr<cudf::groupby::groupby> groupby_;
 
   Napi::Value get_groups(Napi::CallbackInfo const& info);

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
-cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
 project(node_rmm VERSION 0.0.1 LANGUAGES C CXX)
 
@@ -91,3 +91,9 @@ target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       rmm::rmm
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
+
+# Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
+execute_process(COMMAND
+    ${CMAKE_COMMAND} -E create_symlink
+    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json)

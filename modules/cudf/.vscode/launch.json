@@ -3,11 +3,21 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Debug Tests (TS and C++)",
+            "configurations": [
+                "Debug Tests (launch gdb)",
+                // "Debug Tests (launch lldb)",
+                "Debug Tests (attach node)",
+            ]
+        }
+    ],
     "configurations": [
         {
+            "name": "Debug Tests (TS only)",
             "type": "node",
             "request": "launch",
-            "name": "Debug Tests",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
@@ -22,23 +32,116 @@
             },
             "args": [
                 "--verbose",
-                "--no-cache",
                 "--runInBand",
                 "-c", "jest.config.js",
                 "${input:TEST_FILE}"
             ]
         },
+        // {
+        //     "name": "Debug Tests (launch lldb)",
+        //     // hide the individual configurations from the debug dropdown list
+        //     "presentation": { "hidden": true },
+        //     "type": "lldb",
+        //     "request": "launch",
+        //     "stdio": null,
+        //     "cwd": "${workspaceFolder}",
+        //     "preLaunchTask": "cpp:ensure:debug:build",
+        //     "env": {
+        //         "NODE_DEBUG": "1",
+        //         "NODE_NO_WARNINGS": "1",
+        //         "NODE_ENV": "production",
+        //         "READABLE_STREAM": "disable",
+        //     },
+        //     "stopOnEntry": false,
+        //     "terminal": "console",
+        //     "program": "${input:NODE_BINARY}",
+        //     "initCommands": [
+        //         "settings set target.disable-aslr false",
+        //     ],
+        //     "sourceLanguages": ["cpp", "cuda", "javascript"],
+        //     "args": [
+        //         "--inspect=9229",
+        //         "--expose-internals",
+        //         "${workspaceFolder}/node_modules/.bin/jest",
+        //         "--verbose",
+        //         "--runInBand",
+        //         "-c",
+        //         "jest.config.js",
+        //         "${input:TEST_FILE}"
+        //     ],
+        // },
+        {
+            "name": "Debug Tests (launch gdb)",
+            // hide the individual configurations from the debug dropdown list
+            "presentation": { "hidden": true },
+            "type": "cppdbg",
+            "request": "launch",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "cwd": "${workspaceFolder}",
+            "envFile": "${workspaceFolder}/.env",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "program": "${input:NODE_BINARY}",
+            "environment": [
+                { "name": "NODE_DEBUG", "value": "1" },
+                { "name": "NODE_NO_WARNINGS", "value": "1" },
+                { "name": "NODE_ENV", "value": "production" },
+                { "name": "READABLE_STREAM", "value": "disable" },
+            ],
+            "args": [
+                "--inspect=9229",
+                "--expose-internals",
+                "${workspaceFolder}/node_modules/.bin/jest",
+                "--verbose",
+                "--runInBand",
+                "-c",
+                "jest.config.js",
+                "${input:TEST_FILE}"
+            ],
+        },
+        {
+            "name": "Debug Tests (attach node)",
+            "type": "node",
+            "request": "attach",
+            // hide the individual configurations from the debug dropdown list
+            "presentation": { "hidden": true },
+            "port": 9229,
+            "timeout": 60000,
+            "cwd": "${workspaceFolder}",
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/node_modules/**"
+            ],
+        },
     ],
     "inputs": [
+        {
+            "type": "command",
+            "id": "NODE_BINARY",
+            "command": "shellCommand.execute",
+            "args": {
+                "description": "path to node",
+                "command": "which node",
+                "useFirstResult": true,
+            }
+        },
         {
             "type": "command",
             "id": "TEST_FILE",
             "command": "shellCommand.execute",
             "args": {
-                "description": "Select a file to debug",
                 "cwd": "${workspaceFolder}/modules/cudf",
+                "description": "Select a file to debug",
                 "command": "./node_modules/.bin/jest --listTests | sed -r \"s@$PWD/test/@@g\"",
             }
         },
-    ]
+    ],
 }

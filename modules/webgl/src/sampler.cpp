@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,11 +21,10 @@
 namespace nv {
 
 // GL_EXPORT void glBindSampler (GLuint unit, GLuint sampler);
-Napi::Value WebGL2RenderingContext::BindSampler(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::BindSampler(Napi::CallbackInfo const& info) {
   CallbackArgs args            = info;
   std::vector<GLuint> samplers = args[0];
   GL_EXPORT::glBindSampler(args[0], args[1]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glCreateSamplers (GLsizei n, GLuint* samplers);
@@ -33,7 +32,7 @@ Napi::Value WebGL2RenderingContext::CreateSampler(Napi::CallbackInfo const& info
   CallbackArgs args = info;
   GLuint sampler{};
   GL_EXPORT::glCreateSamplers(1, &sampler);
-  return WebGLSampler::New(sampler);
+  return WebGLSampler::New(info.Env(), sampler);
 }
 
 // GL_EXPORT void glCreateSamplers (GLsizei n, GLuint* samplers);
@@ -45,19 +44,17 @@ Napi::Value WebGL2RenderingContext::CreateSamplers(Napi::CallbackInfo const& inf
 }
 
 // GL_EXPORT void glDeleteSamplers (GLsizei count, const GLuint * samplers);
-Napi::Value WebGL2RenderingContext::DeleteSampler(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteSampler(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GLuint sampler    = args[0];
   GL_EXPORT::glDeleteSamplers(1, &sampler);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glDeleteSamplers (GLsizei count, const GLuint * samplers);
-Napi::Value WebGL2RenderingContext::DeleteSamplers(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteSamplers(Napi::CallbackInfo const& info) {
   CallbackArgs args            = info;
   std::vector<GLuint> samplers = args[0];
   GL_EXPORT::glDeleteSamplers(samplers.size(), samplers.data());
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGetSamplerParameterfv (GLuint sampler, GLenum pname, GLfloat* params);
@@ -96,17 +93,15 @@ Napi::Value WebGL2RenderingContext::IsSampler(Napi::CallbackInfo const& info) {
 }
 
 // GL_EXPORT void glSamplerParameterf (GLuint sampler, GLenum pname, GLfloat param);
-Napi::Value WebGL2RenderingContext::SamplerParameterf(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::SamplerParameterf(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glSamplerParameterf(args[0], args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glSamplerParameteri (GLuint sampler, GLenum pname, GLint param);
-Napi::Value WebGL2RenderingContext::SamplerParameteri(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::SamplerParameteri(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glSamplerParameteri(args[0], args[1], args[2]);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

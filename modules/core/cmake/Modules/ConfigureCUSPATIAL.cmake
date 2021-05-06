@@ -27,10 +27,8 @@ function(find_and_configure_cuspatial VERSION)
     if(NOT TARGET cuspatial::cuspatial)
         CPMFindPackage(NAME     cuspatial
             VERSION             ${VERSION}
-            # GIT_REPOSITORY      https://github.com/rapidsai/cuspatial.git
-            # GIT_TAG             branch-${VERSION}
-            GIT_REPOSITORY      https://github.com/trxcllnt/cuspatial.git
-            GIT_TAG             fix/cpm-v0.32.1
+            GIT_REPOSITORY      https://github.com/rapidsai/cuspatial.git
+            GIT_TAG             branch-${VERSION}
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
             SOURCE_SUBDIR       cpp

@@ -22,41 +22,48 @@ namespace nv {
 
 namespace detail {
 
-void check_join_args(std::string func_name, CallbackArgs& args) {
-  if (args.Length() != 3 and args.Length() != 4) {
+void check_join_args(std::string const& func_name, Napi::CallbackInfo const& info) {
+  if (info.Length() != 3 and info.Length() != 4) {
     NAPI_THROW(Napi::Error::New(
-      args.Env(),
+      info.Env(),
       func_name + "expects a left, right, null_eqaulity and optionally a memory resource"));
   }
 
-  if (!Table::is_instance(args[0])) {
-    throw Napi::Error::New(args.Env(), func_name + " left argument expects a Table");
+  if (!Table::IsInstance(info[0])) {
+    throw Napi::Error::New(info.Env(), func_name + " left argument expects a Table");
   }
 
-  if (!Table::is_instance(args[1])) {
-    throw Napi::Error::New(args.Env(), func_name + " right argument expects a Table");
+  if (!Table::IsInstance(info[1])) {
+    throw Napi::Error::New(info.Env(), func_name + " right argument expects a Table");
   }
 
-  if (!args[2].IsBoolean()) {
-    throw Napi::Error::New(args.Env(), func_name + " null_equality argument expects an bool");
+  if (!info[2].IsBoolean()) {
+    throw Napi::Error::New(info.Env(), func_name + " null_equality argument expects an bool");
   }
 }
 
-Napi::Value prepare_gathers(
+Napi::Value make_gather_maps(
   Napi::Env const& env,
   std::pair<std::unique_ptr<rmm::device_uvector<cudf::size_type>>,
-            std::unique_ptr<rmm::device_uvector<cudf::size_type>>>& gathers) {
+            std::unique_ptr<rmm::device_uvector<cudf::size_type>>> gathers) {
   using namespace cudf;
 
-  auto left_gather = std::make_unique<column>(
-    data_type(type_id::INT32), gathers.first->size(), gathers.first->release());
-
-  auto right_gather = std::make_unique<column>(
-    data_type(type_id::INT32), gathers.second->size(), gathers.second->release());
+  auto& lhs_map = gathers.first;
+  auto& rhs_map = gathers.second;
+  auto lhs_size = static_cast<size_type>(lhs_map->size());
+  auto rhs_size = static_cast<size_type>(rhs_map->size());
 
   auto result = Napi::Array::New(env, 2);
-  result.Set(0u, Column::New(std::move(left_gather))->Value());
-  result.Set(1u, Column::New(std::move(right_gather))->Value());
+
+  result.Set(
+    0u,
+    Column::New(env,
+                std::make_unique<column>(data_type{type_id::INT32}, lhs_size, lhs_map->release())));
+
+  result.Set(
+    1u,
+    Column::New(env,
+                std::make_unique<column>(data_type{type_id::INT32}, rhs_size, rhs_map->release())));
 
   return result;
 }
@@ -127,88 +134,83 @@ std::unique_ptr<rmm::device_uvector<cudf::size_type>> Table::left_anti_join(
 }
 
 Napi::Value Table::full_join(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
+  CallbackArgs const args{info};
 
-  detail::check_join_args("full_join", args);
+  detail::check_join_args("full_join", info);
 
-  auto& left                          = *Table::Unwrap(args[0]);
-  auto& right                         = *Table::Unwrap(args[1]);
+  Table::wrapper_t lhs                = args[0];
+  Table::wrapper_t rhs                = args[1];
   bool null_equality                  = args[2];
   rmm::mr::device_memory_resource* mr = args[3];
 
-  auto gathers = Table::full_join(info.Env(), left, right, null_equality, mr);
-
-  return detail::prepare_gathers(info.Env(), gathers);
+  return detail::make_gather_maps(info.Env(),
+                                  Table::full_join(info.Env(), lhs, rhs, null_equality, mr));
 }
 
 Napi::Value Table::inner_join(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
+  CallbackArgs const args{info};
 
-  detail::check_join_args("inner_join", args);
+  detail::check_join_args("inner_join", info);
 
-  auto& left                          = *Table::Unwrap(args[0]);
-  auto& right                         = *Table::Unwrap(args[1]);
+  Table::wrapper_t lhs                = args[0];
+  Table::wrapper_t rhs                = args[1];
   bool null_equality                  = args[2];
   rmm::mr::device_memory_resource* mr = args[3];
 
-  auto gathers = Table::inner_join(info.Env(), left, right, null_equality, mr);
-
-  return detail::prepare_gathers(info.Env(), gathers);
+  return detail::make_gather_maps(info.Env(),
+                                  Table::inner_join(info.Env(), lhs, rhs, null_equality, mr));
 }
 
 Napi::Value Table::left_join(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
+  CallbackArgs const args{info};
 
-  detail::check_join_args("left_join", args);
+  detail::check_join_args("left_join", info);
 
-  auto& left                          = *Table::Unwrap(args[0]);
-  auto& right                         = *Table::Unwrap(args[1]);
+  Table::wrapper_t lhs                = args[0];
+  Table::wrapper_t rhs                = args[1];
   bool null_equality                  = args[2];
   rmm::mr::device_memory_resource* mr = args[3];
 
-  auto gathers = Table::left_join(info.Env(), left, right, null_equality, mr);
-
-  return detail::prepare_gathers(info.Env(), gathers);
+  return detail::make_gather_maps(info.Env(),
+                                  Table::left_join(info.Env(), lhs, rhs, null_equality, mr));
 }
 
 Napi::Value Table::left_semi_join(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
+  using namespace cudf;
 
-  detail::check_join_args("left_semi_join", args);
+  CallbackArgs const args{info};
 
-  auto& left                          = *Table::Unwrap(args[0]);
-  auto& right                         = *Table::Unwrap(args[1]);
+  detail::check_join_args("left_semi_join", info);
+
+  Table::wrapper_t lhs                = args[0];
+  Table::wrapper_t rhs                = args[1];
   bool null_equality                  = args[2];
   rmm::mr::device_memory_resource* mr = args[3];
 
-  auto gather = Table::left_semi_join(info.Env(), left, right, null_equality, mr);
+  auto map      = Table::left_semi_join(info.Env(), lhs, rhs, null_equality, mr);
+  auto map_size = static_cast<size_type>(map->size());
 
-  using namespace cudf;
-
-  auto result =
-    std::make_unique<column>(data_type(type_id::INT32), gather->size(), gather->release());
-
-  return Column::New(std::move(result))->Value();
+  return Column::New(info.Env(),
+                     std::make_unique<column>(data_type{type_id::INT32}, map_size, map->release()));
 }
 
 Napi::Value Table::left_anti_join(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
+  using namespace cudf;
 
-  detail::check_join_args("left_anti_join", args);
+  CallbackArgs const args{info};
 
-  auto& left                          = *Table::Unwrap(args[0]);
-  auto& right                         = *Table::Unwrap(args[1]);
+  detail::check_join_args("left_anti_join", info);
+
+  Table::wrapper_t lhs                = args[0];
+  Table::wrapper_t rhs                = args[1];
   bool null_equality                  = args[2];
   rmm::mr::device_memory_resource* mr = args[3];
 
-  auto gather = Table::left_anti_join(info.Env(), left, right, null_equality, mr);
+  auto map      = Table::left_anti_join(info.Env(), lhs, rhs, null_equality, mr);
+  auto map_size = static_cast<size_type>(map->size());
 
-  using namespace cudf;
-
-  auto result =
-    std::make_unique<column>(data_type(type_id::INT32), gather->size(), gather->release());
-
-  return Column::New(std::move(result))->Value();
+  return Column::New(info.Env(),
+                     std::make_unique<column>(data_type{type_id::INT32}, map_size, map->release()));
 }
 
 }  // namespace nv

@@ -103,7 +103,7 @@ struct callback_sink : public cudf::io::data_sink {
 
 }  // namespace
 
-Napi::Value Table::write_csv(Napi::CallbackInfo const& info) {
+void Table::write_csv(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   NODE_CUDF_EXPECT(info[0].IsObject(), "writeCSV expects an Object of WriteCSVOptions", env);
 
@@ -123,8 +123,6 @@ Napi::Value Table::write_csv(Napi::CallbackInfo const& info) {
   cudf::io::write_csv(make_writer_options(options, cudf::io::sink_info{&sink}, table, &metadata));
 
   complete.As<Napi::Function>()({});
-
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

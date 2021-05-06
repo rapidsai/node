@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,14 +22,13 @@ namespace nv {
 
 // GL_EXPORT GLuint glCreateProgram (void);
 Napi::Value WebGL2RenderingContext::CreateProgram(Napi::CallbackInfo const& info) {
-  return WebGLProgram::New(GL_EXPORT::glCreateProgram());
+  return WebGLProgram::New(info.Env(), GL_EXPORT::glCreateProgram());
 }
 
 // GL_EXPORT void glDeleteProgram (GLuint program);
-Napi::Value WebGL2RenderingContext::DeleteProgram(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::DeleteProgram(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glDeleteProgram(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glGetProgramInfoLog (GLuint program, GLsizei bufSize, GLsizei* length, GLchar*
@@ -83,24 +82,21 @@ Napi::Value WebGL2RenderingContext::IsProgram(Napi::CallbackInfo const& info) {
 }
 
 // GL_EXPORT void glLinkProgram (GLuint program);
-Napi::Value WebGL2RenderingContext::LinkProgram(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::LinkProgram(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glLinkProgram(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glUseProgram (GLuint program);
-Napi::Value WebGL2RenderingContext::UseProgram(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::UseProgram(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glUseProgram(args[0]);
-  return info.Env().Undefined();
 }
 
 // GL_EXPORT void glValidateProgram (GLuint program);
-Napi::Value WebGL2RenderingContext::ValidateProgram(Napi::CallbackInfo const& info) {
+void WebGL2RenderingContext::ValidateProgram(Napi::CallbackInfo const& info) {
   CallbackArgs args = info;
   GL_EXPORT::glValidateProgram(args[0]);
-  return info.Env().Undefined();
 }
 
 }  // namespace nv

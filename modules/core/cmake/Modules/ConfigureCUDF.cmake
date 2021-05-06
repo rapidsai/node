@@ -33,10 +33,8 @@ function(find_and_configure_cudf VERSION)
     if(NOT TARGET cudf::cudf)
         CPMFindPackage(NAME     cudf
             VERSION             ${VERSION}
-            # GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
-            # GIT_TAG             branch-${VERSION}
-            GIT_REPOSITORY      https://github.com/trxcllnt/cudf.git
-            GIT_TAG             fix/cpm-v0.32.1
+            GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
+            GIT_TAG             branch-${VERSION}
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
             SOURCE_SUBDIR       cpp

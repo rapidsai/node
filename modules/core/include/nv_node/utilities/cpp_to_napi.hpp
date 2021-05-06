@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 #include <stdexcept>
 #include <string>
 #include <type_traits>
-#include <typeinfo>
 #include <vector>
 
 namespace nv {
@@ -46,9 +45,10 @@ template <std::size_t I = 0, typename FuncT, typename... Tp>
 }  // namespace casting
 
 struct CPPToNapi {
-  Napi::Env const env;
-  inline CPPToNapi(Napi::Env const& env) : env(env) {}
+  inline CPPToNapi(Napi::Env const& env) : _env(env) {}
   inline CPPToNapi(Napi::CallbackInfo const& info) : CPPToNapi(info.Env()) {}
+
+  inline Napi::Env Env() const { return _env; }
 
   template <typename Arg>
   Napi::Value operator()(Arg const&) const;
@@ -78,22 +78,28 @@ struct CPPToNapi {
   }
 
   // Primitives
-  inline Napi::Boolean operator()(bool const& val) const { return Napi::Boolean::New(env, val); }
-  inline Napi::Number operator()(float const& val) const { return Napi::Number::New(env, val); }
-  inline Napi::Number operator()(double const& val) const { return Napi::Number::New(env, val); }
-  inline Napi::Number operator()(int8_t const& val) const { return Napi::Number::New(env, val); }
-  inline Napi::Number operator()(int16_t const& val) const { return Napi::Number::New(env, val); }
-  inline Napi::Number operator()(int32_t const& val) const { return Napi::Number::New(env, val); }
-  inline Napi::Number operator()(int64_t const& val) const { return Napi::Number::New(env, val); }
-  inline Napi::Number operator()(uint8_t const& val) const { return Napi::Number::New(env, val); }
-  inline Napi::Number operator()(uint16_t const& val) const { return Napi::Number::New(env, val); }
-  inline Napi::Number operator()(uint32_t const& val) const { return Napi::Number::New(env, val); }
-  inline Napi::Number operator()(uint64_t const& val) const { return Napi::Number::New(env, val); }
+  inline Napi::Boolean operator()(bool const& val) const { return Napi::Boolean::New(Env(), val); }
+  inline Napi::Number operator()(float const& val) const { return Napi::Number::New(Env(), val); }
+  inline Napi::Number operator()(double const& val) const { return Napi::Number::New(Env(), val); }
+  inline Napi::Number operator()(int8_t const& val) const { return Napi::Number::New(Env(), val); }
+  inline Napi::Number operator()(int16_t const& val) const { return Napi::Number::New(Env(), val); }
+  inline Napi::Number operator()(int32_t const& val) const { return Napi::Number::New(Env(), val); }
+  inline Napi::Number operator()(int64_t const& val) const { return Napi::Number::New(Env(), val); }
+  inline Napi::Number operator()(uint8_t const& val) const { return Napi::Number::New(Env(), val); }
+  inline Napi::Number operator()(uint16_t const& val) const {
+    return Napi::Number::New(Env(), val);
+  }
+  inline Napi::Number operator()(uint32_t const& val) const {
+    return Napi::Number::New(Env(), val);
+  }
+  inline Napi::Number operator()(uint64_t const& val) const {
+    return Napi::Number::New(Env(), val);
+  }
   inline Napi::String operator()(std::string const& val) const {
-    return Napi::String::New(env, val);
+    return Napi::String::New(Env(), val);
   }
   inline Napi::String operator()(std::u16string const& val) const {
-    return Napi::String::New(env, val);
+    return Napi::String::New(Env(), val);
   }
 
   //
@@ -102,7 +108,7 @@ struct CPPToNapi {
   template <typename T>
   Napi::Object inline operator()(std::pair<T, T> const& pair) const {
     auto cast_t = *this;
-    auto obj    = Napi::Array::New(env, 2);
+    auto obj    = Napi::Array::New(Env(), 2);
     obj.Set(uint32_t(0), cast_t(pair.first));
     obj.Set(uint32_t(1), cast_t(pair.second));
     return obj;
@@ -119,7 +125,7 @@ struct CPPToNapi {
   template <typename T>
   inline Napi::Array operator()(std::vector<T> const& vec) const {
     uint32_t idx = 0;
-    auto arr     = Napi::Array::New(env, vec.size());
+    auto arr     = Napi::Array::New(Env(), vec.size());
     std::for_each(
       vec.begin(), vec.end(), [&](T const& val) mutable { arr.Set((*this)(idx++), (*this)(val)); });
     return arr;
@@ -128,7 +134,7 @@ struct CPPToNapi {
   template <typename T>
   inline Napi::Array operator()(std::initializer_list<T> const& vec) const {
     uint32_t idx = 0;
-    auto arr     = Napi::Array::New(env, vec.size());
+    auto arr     = Napi::Array::New(Env(), vec.size());
     std::for_each(
       vec.begin(), vec.end(), [&](T const& val) mutable { arr.Set((*this)(idx++), (*this)(val)); });
     return arr;
@@ -140,7 +146,7 @@ struct CPPToNapi {
   template <typename Key, typename Val>
   Napi::Object inline operator()(const std::map<Key, Val> map) const {
     auto cast_t = *this;
-    auto obj    = Napi::Object::New(this->env);
+    auto obj    = Napi::Object::New(Env());
     for (auto pair : map) { obj.Set(cast_t(pair.first), cast_t(pair.second)); }
     return obj;
   }
@@ -151,7 +157,7 @@ struct CPPToNapi {
     auto self = *this;
     auto val  = vals.begin();
     auto key  = keys.begin();
-    auto obj  = Napi::Object::New(env);
+    auto obj  = Napi::Object::New(Env());
     while ((val != vals.end()) && (key != keys.end())) {
       obj.Set(self(*key), self(*val));
       std::advance(key, 1);
@@ -165,7 +171,7 @@ struct CPPToNapi {
                                  std::tuple<Vals...> const& vals) const {
     auto cast_t = *this;
     auto key    = keys.begin();
-    auto obj    = Napi::Object::New(this->env);
+    auto obj    = Napi::Object::New(Env());
     nv::casting::for_each(vals, [&](auto val) {
       obj.Set(cast_t(*key), cast_t(val));
       std::advance(key, 1);
@@ -179,25 +185,25 @@ struct CPPToNapi {
 
   template <typename T>
   inline Napi::Value operator()(T* data) const {
-    return Napi::Number::New(env, reinterpret_cast<uintptr_t>(data));
+    return Napi::Number::New(Env(), reinterpret_cast<uintptr_t>(data));
   }
 
   template <typename T>
   inline Napi::Value operator()(T const* data) const {
-    return Napi::Number::New(env, reinterpret_cast<uintptr_t>(data));
+    return Napi::Number::New(Env(), reinterpret_cast<uintptr_t>(data));
   }
 
   template <typename T>
   inline Napi::Value operator()(std::tuple<T const*, size_t> pair) const {
     auto size = sizeof(T) * std::get<1>(pair);
-    auto buf  = Napi::ArrayBuffer::New(env, size);
+    auto buf  = Napi::ArrayBuffer::New(Env(), size);
     std::memcpy(buf.Data(), std::get<0>(pair), size);
     return buffer_to_typed_array<T>(buf);
   }
 
   template <typename T>
   inline Napi::Value operator()(Span<T> const& span) const {
-    auto obj          = Napi::Object::New(env);
+    auto obj          = Napi::Object::New(Env());
     obj["ptr"]        = span.addr();
     obj["byteLength"] = span.size();
     return obj;
@@ -205,22 +211,22 @@ struct CPPToNapi {
 
 #ifdef GLEW_VERSION
   inline Napi::External<void> operator()(GLsync const& sync) const {
-    return Napi::External<void>::New(env, sync);
+    return Napi::External<void>::New(Env(), sync);
   }
 #endif
 
 #ifdef GLFW_APIENTRY_DEFINED
   inline Napi::Number operator()(GLFWcursor* ptr) const {
-    return Napi::Number::New(env, reinterpret_cast<size_t>(ptr));
+    return Napi::Number::New(Env(), reinterpret_cast<size_t>(ptr));
   }
   inline Napi::Number operator()(GLFWwindow* ptr) const {
-    return Napi::Number::New(env, reinterpret_cast<size_t>(ptr));
+    return Napi::Number::New(Env(), reinterpret_cast<size_t>(ptr));
   }
   inline Napi::Number operator()(GLFWmonitor* ptr) const {
-    return Napi::Number::New(env, reinterpret_cast<size_t>(ptr));
+    return Napi::Number::New(Env(), reinterpret_cast<size_t>(ptr));
   }
   inline Napi::Number operator()(GLFWglproc* ptr) const {
-    return Napi::Number::New(env, reinterpret_cast<size_t>(ptr));
+    return Napi::Number::New(Env(), reinterpret_cast<size_t>(ptr));
   }
 #endif
 
@@ -229,31 +235,34 @@ struct CPPToNapi {
   Napi::Value buffer_to_typed_array(Napi::ArrayBuffer const& buf) const {
     auto len = const_cast<Napi::ArrayBuffer&>(buf).ByteLength() / sizeof(T);
     if (std::is_same<T, int8_t>() || std::is_same<T, char>()) {
-      return Napi::Int8Array::New(env, len, buf, 0);
+      return Napi::Int8Array::New(Env(), len, buf, 0);
     }
     if (std::is_same<T, uint8_t>() || std::is_same<T, unsigned char>()) {
-      return Napi::Uint8Array::New(env, len, buf, 0);
+      return Napi::Uint8Array::New(Env(), len, buf, 0);
     }
     if (std::is_same<T, int16_t>() || std::is_same<T, short>()) {
-      return Napi::Int16Array::New(env, len, buf, 0);
+      return Napi::Int16Array::New(Env(), len, buf, 0);
     }
     if (std::is_same<T, uint16_t>() || std::is_same<T, unsigned short>()) {
-      return Napi::Uint16Array::New(env, len, buf, 0);
+      return Napi::Uint16Array::New(Env(), len, buf, 0);
     }
     if (std::is_same<T, int32_t>()) {  //
-      return Napi::Int32Array::New(env, len, buf, 0);
+      return Napi::Int32Array::New(Env(), len, buf, 0);
     }
     if (std::is_same<T, uint32_t>()) {  //
-      return Napi::Uint32Array::New(env, len, buf, 0);
+      return Napi::Uint32Array::New(Env(), len, buf, 0);
     }
     if (std::is_same<T, float>()) {  //
-      return Napi::Float32Array::New(env, len, buf, 0);
+      return Napi::Float32Array::New(Env(), len, buf, 0);
     }
     if (std::is_same<T, double>()) {  //
-      return Napi::Float64Array::New(env, len, buf, 0);
+      return Napi::Float64Array::New(Env(), len, buf, 0);
     }
     NAPI_THROW(std::runtime_error{"Unknown TypedArray type"}, env.Undefined());
   }
+
+ private:
+  Napi::Env const _env;
 };
 
 }  // namespace nv
@@ -262,11 +271,24 @@ namespace Napi {
 namespace details {
 
 template <typename T>
+struct can_make_string<nv::Span<T>> : std::false_type {};
+
+template <typename T>
+struct vf_fallback<nv::Span<T>> {
+  inline static Value From(napi_env env, nv::Span<T> const& span) {
+    auto obj          = Napi::Object::New(env);
+    obj["ptr"]        = span.addr();
+    obj["byteLength"] = span.size();
+    return obj;
+  }
+};
+
+template <typename T>
 struct vf_fallback<std::pair<T, T>> {
-  static Value From(napi_env env, std::pair<T, T> const& pair) {
+  inline static Value From(napi_env env, std::pair<T, T> const& pair) {
     auto obj = Array::New(env, 2);
-    obj.Set(uint32_t{0}, Value::From(env, pair.first));
-    obj.Set(uint32_t{1}, Value::From(env, pair.second));
+    obj.Set(0u, Value::From(env, pair.first));
+    obj.Set(1u, Value::From(env, pair.second));
     return obj;
   }
 };

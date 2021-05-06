@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,26 +20,6 @@
 #include <napi.h>
 
 namespace nv {
-
-struct CPPToNapiValues {
-  CPPToNapiValues(Napi::Env const& env) : env_(env) {}
-
-  inline Napi::Env Env() const { return env_; }
-  inline operator Napi::Env() const { return Env(); }
-
-  template <typename... Ts>
-  inline std::vector<napi_value> operator()(Ts&&... args) const {
-    CPPToNapi cast_t{env_};
-    std::vector<napi_value> napi_values{};
-    napi_values.reserve(sizeof...(Ts));
-    nv::casting::for_each(std::make_tuple<Ts...>(std::forward<Ts>(args)...),
-                          [&](auto x) { napi_values.push_back(cast_t(x)); });
-    return napi_values;
-  }
-
- private:
-  Napi::Env env_;
-};
 
 struct CallbackArgs {
   // Constructor that accepts the same arguments as the Napi::CallbackInfo constructor
@@ -76,34 +56,6 @@ struct CallbackArgs {
  private:
   bool owns_info_{false};
   Napi::CallbackInfo const* info_{nullptr};
-};
-
-struct ConstructorReference : public Napi::FunctionReference {
-  inline static ConstructorReference Persistent(Napi::Function const& value) {
-    return Napi::Reference<Napi::Function>::New(value, 1);
-  }
-
-  inline ConstructorReference() : Napi::FunctionReference() {}
-  inline ConstructorReference(napi_env env, napi_ref ref) : Napi::FunctionReference(env, ref) {}
-
-  // A reference can be moved but cannot be copied.
-  inline ConstructorReference(Napi::Reference<Napi::Function>&& other)
-    : Napi::FunctionReference(std::move(other)){};
-  inline ConstructorReference& operator=(Napi::Reference<Napi::Function>&& other) {
-    static_cast<Napi::Reference<Napi::Function>*>(this)->operator=(std::move(other));
-    return *this;
-  }
-  inline ConstructorReference(ConstructorReference&& other)
-    : Napi::FunctionReference(std::move(other)){};
-  inline ConstructorReference& operator=(ConstructorReference&& other) {
-    static_cast<Napi::Reference<Napi::Function>*>(this)->operator=(std::move(other));
-    return *this;
-  }
-
-  template <typename... Args>
-  inline Napi::Object New(Args&&... xs) const {
-    return Napi::FunctionReference::New(CPPToNapiValues{_env}(std::forward<Args>(xs)...));
-  }
 };
 
 }  // namespace nv

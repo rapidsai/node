@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,31 +14,44 @@
 
 #include "webgl.hpp"
 
+#include <nv_node/addon.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
+
+#include <napi.h>
 
 std::ostream& operator<<(std::ostream& os, const nv::NapiToCPP& self) {
   return os << self.operator std::string();
 };
 
-Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-  nv::WebGL2RenderingContext::Init(env, exports);
-  nv::WebGLActiveInfo::Init(env, exports);
-  nv::WebGLShaderPrecisionFormat::Init(env, exports);
-  nv::WebGLBuffer::Init(env, exports);
-  nv::WebGLContextEvent::Init(env, exports);
-  nv::WebGLFramebuffer::Init(env, exports);
-  nv::WebGLProgram::Init(env, exports);
-  nv::WebGLQuery::Init(env, exports);
-  nv::WebGLRenderbuffer::Init(env, exports);
-  nv::WebGLSampler::Init(env, exports);
-  nv::WebGLShader::Init(env, exports);
-  nv::WebGLSync::Init(env, exports);
-  nv::WebGLTexture::Init(env, exports);
-  nv::WebGLTransformFeedback::Init(env, exports);
-  nv::WebGLUniformLocation::Init(env, exports);
-  nv::WebGLVertexArrayObject::Init(env, exports);
+struct node_webgl : public nv::EnvLocalAddon, public Napi::Addon<node_webgl> {
+  node_webgl(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
+    DefineAddon(
+      exports,
+      {
+        InstanceValue("_cpp_exports", _cpp_exports.Value()),
+        InstanceMethod("init", &node_webgl::InitAddon),
+        InstanceValue("WebGL2RenderingContext",
+                      InitClass<nv::WebGL2RenderingContext>(env, exports)),
+        InstanceValue("WebGLActiveInfo", InitClass<nv::WebGLActiveInfo>(env, exports)),
+        InstanceValue("WebGLShaderPrecisionFormat",
+                      InitClass<nv::WebGLShaderPrecisionFormat>(env, exports)),
+        InstanceValue("WebGLBuffer", InitClass<nv::WebGLBuffer>(env, exports)),
+        InstanceValue("WebGLContextEvent", InitClass<nv::WebGLContextEvent>(env, exports)),
+        InstanceValue("WebGLFramebuffer", InitClass<nv::WebGLFramebuffer>(env, exports)),
+        InstanceValue("WebGLProgram", InitClass<nv::WebGLProgram>(env, exports)),
+        InstanceValue("WebGLQuery", InitClass<nv::WebGLQuery>(env, exports)),
+        InstanceValue("WebGLRenderbuffer", InitClass<nv::WebGLRenderbuffer>(env, exports)),
+        InstanceValue("WebGLSampler", InitClass<nv::WebGLSampler>(env, exports)),
+        InstanceValue("WebGLShader", InitClass<nv::WebGLShader>(env, exports)),
+        InstanceValue("WebGLSync", InitClass<nv::WebGLSync>(env, exports)),
+        InstanceValue("WebGLTexture", InitClass<nv::WebGLTexture>(env, exports)),
+        InstanceValue("WebGLTransformFeedback",
+                      InitClass<nv::WebGLTransformFeedback>(env, exports)),
+        InstanceValue("WebGLUniformLocation", InitClass<nv::WebGLUniformLocation>(env, exports)),
+        InstanceValue("WebGLVertexArrayObject",
+                      InitClass<nv::WebGLVertexArrayObject>(env, exports)),
+      });
+  }
+};
 
-  return exports;
-}
-
-NODE_API_MODULE(node_webgl, initModule);
+NODE_API_ADDON(node_webgl);

@@ -18,9 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import {Layer, project32, picking} from '@deck.gl/core';
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import { Layer, project32, picking } from '@deck.gl/core';
 import GL from '@luma.gl/constants';
-import {Model, Geometry} from '@luma.gl/core';
+import { Model, Geometry } from '@luma.gl/core';
 
 import vs from './node-layer-vertex.glsl';
 import fs from './node-layer-fragment.glsl';
@@ -28,33 +42,33 @@ import fs from './node-layer-fragment.glsl';
 const DEFAULT_COLOR = [0, 0, 0, 255];
 
 const defaultProps = {
-  radiusScale: {type: 'number', min: 0, value: 1},
-  radiusMinPixels: {type: 'number', min: 0, value: 0}, //  min point radius in pixels
-  radiusMaxPixels: {type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER}, // max point radius in pixels
+  radiusScale: { type: 'number', min: 0, value: 1 },
+  radiusMinPixels: { type: 'number', min: 0, value: 0 }, //  min point radius in pixels
+  radiusMaxPixels: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER }, // max point radius in pixels
 
   lineWidthUnits: 'meters',
-  lineWidthScale: {type: 'number', min: 0, value: 1},
-  lineWidthMinPixels: {type: 'number', min: 0, value: 0},
-  lineWidthMaxPixels: {type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER},
+  lineWidthScale: { type: 'number', min: 0, value: 1 },
+  lineWidthMinPixels: { type: 'number', min: 0, value: 0 },
+  lineWidthMaxPixels: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER },
 
   stroked: false,
   filled: true,
 
-  getPosition: {type: 'accessor', value: x => x.position},
-  getRadius: {type: 'accessor', value: 1},
-  getFillColor: {type: 'accessor', value: DEFAULT_COLOR},
-  getLineColor: {type: 'accessor', value: DEFAULT_COLOR},
-  getLineWidth: {type: 'accessor', value: 1},
+  getPosition: { type: 'accessor', value: x => x.position },
+  getRadius: { type: 'accessor', value: 1 },
+  getFillColor: { type: 'accessor', value: DEFAULT_COLOR },
+  getLineColor: { type: 'accessor', value: DEFAULT_COLOR },
+  getLineWidth: { type: 'accessor', value: 1 },
 
   // deprecated
-  strokeWidth: {deprecatedFor: 'getLineWidth'},
-  outline: {deprecatedFor: 'stroked'},
-  getColor: {deprecatedFor: ['getFillColor', 'getLineColor']}
+  strokeWidth: { deprecatedFor: 'getLineWidth' },
+  outline: { deprecatedFor: 'stroked' },
+  getColor: { deprecatedFor: ['getFillColor', 'getLineColor'] }
 };
 
 export default class NodeLayer extends Layer {
   getShaders(id) {
-    return super.getShaders({vs, fs, modules: [project32, picking]});
+    return super.getShaders({ vs, fs, modules: [project32, picking] });
   }
 
   initializeState() {
@@ -98,20 +112,20 @@ export default class NodeLayer extends Layer {
     });
   }
 
-  updateState({props, oldProps, changeFlags}) {
-    super.updateState({props, oldProps, changeFlags});
+  updateState({ props, oldProps, changeFlags }) {
+    super.updateState({ props, oldProps, changeFlags });
     if (changeFlags.extensionsChanged) {
-      const {gl} = this.context;
+      const { gl } = this.context;
       if (this.state.model) {
         this.state.model.delete();
       }
-      this.setState({model: this._getModel(gl)});
+      this.setState({ model: this._getModel(gl) });
       this.getAttributeManager().invalidateAll();
     }
   }
 
-  draw({uniforms}) {
-    const {viewport} = this.context;
+  draw({ uniforms }) {
+    const { viewport } = this.context;
     const {
       radiusScale,
       radiusMinPixels,
@@ -153,7 +167,7 @@ export default class NodeLayer extends Layer {
           drawMode: GL.TRIANGLE_FAN,
           vertexCount: 4,
           attributes: {
-            positions: {size: 3, value: new Float32Array(positions)}
+            positions: { size: 3, value: new Float32Array(positions) }
           }
         }),
         isInstanced: true

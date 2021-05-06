@@ -5,26 +5,25 @@ FROM node:$NODE_VERSION-stretch-slim as node
 
 FROM ${BASE_IMAGE}
 
-ENV DEBIAN_FRONTEND=noninteractive
+ARG GCC_VERSION=9
+ARG LLMV_VERSION=12
 
 # Install dev dependencies and tools
-RUN GCC_VERSION=$(bash -c '\
-CUDA_VERSION=$(nvcc --version | head -n4 | tail -n1 | cut -d" " -f5 | cut -d"," -f1); \
-CUDA_VERSION_MAJOR=$(echo $CUDA_VERSION | tr -d '.' | cut -c 1-2); \
-CUDA_VERSION_MINOR=$(echo $CUDA_VERSION | tr -d '.' | cut -c 3); \
-  if [[ "$CUDA_VERSION_MAJOR" == 9 ]]; then echo "7"; \
-elif [[ "$CUDA_VERSION_MAJOR" == 10 ]]; then echo "8"; \
-elif [[ "$CUDA_VERSION_MAJOR" == 11 ]]; then echo "9"; \
-else echo "10"; \
-fi') \
+RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update -y \
- && apt install --no-install-recommends -y software-properties-common \
+ && apt install --no-install-recommends -y wget software-properties-common \
  && add-apt-repository --no-update -y ppa:git-core/ppa \
  && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
+ # Install LLVM apt sources
+ && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
+ && echo "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLMV_VERSION} main" >> /etc/apt/sources.list.d/llvm.list \
+ && echo "deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLMV_VERSION} main" >> /etc/apt/sources.list.d/llvm.list \
  && apt update -y \
  && apt install --no-install-recommends -y \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} \
-    jq git entr nano sudo wget ninja-build bash-completion \
+    jq git entr nano sudo ninja-build bash-completion \
+    # Install gdb, lldb (for llnode), and clangd for C++ intellisense and debugging in the container
+    gdb lldb-${LLMV_VERSION} clangd-${LLMV_VERSION} clang-format-${LLMV_VERSION} \
     # ccache dependencies
     unzip automake autoconf libb2-dev libzstd-dev \
     # CMake dependencies
@@ -54,10 +53,21 @@ fi') \
     --slave /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} \
     --slave /usr/bin/gcov gcov /usr/bin/gcov-${GCC_VERSION} \
  # Set gcc-${GCC_VERSION} as the default gcc
- && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION}
+ && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} \
+ # Set alternative for lldb and llvm-config so it's in the path for llnode
+ && update-alternatives --remove-all lldb >/dev/null 2>&1 || true \
+ && update-alternatives --remove-all clangd >/dev/null 2>&1 || true \
+ && update-alternatives --remove-all llvm-config >/dev/null 2>&1 || true \
+ && update-alternatives --remove-all clang-format >/dev/null 2>&1 || true \
+ && update-alternatives \
+    --install /usr/bin/lldb lldb /usr/bin/lldb-${LLMV_VERSION} 100 \
+    --slave /usr/bin/clangd clangd /usr/bin/clangd-${LLMV_VERSION} \
+    --slave /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-${LLMV_VERSION} \
+    --slave /usr/bin/clang-format clang-format /usr/bin/clang-format-${LLMV_VERSION} \
+ && update-alternatives --set lldb /usr/bin/lldb-${LLMV_VERSION}
 
 ARG PARALLEL_LEVEL=4
-ARG CMAKE_VERSION=3.18.5
+ARG CMAKE_VERSION=3.20.2
 
 # Install CMake
 RUN cd /tmp \
@@ -118,6 +128,20 @@ RUN useradd --uid $UID --user-group ${ADDITIONAL_GROUPS} --shell /bin/bash --cre
  && node --version && npm --version && yarn --version \
  && sed -ri "s/32m/33m/g" /home/node/.bashrc \
  && sed -ri "s/34m/36m/g" /home/node/.bashrc \
+ # persist infinite bash history on the host
+ && bash -c 'echo -e "\
+# Infinite bash history\n\
+export HISTSIZE=-1;\n\
+export HISTFILESIZE=-1;\n\
+export HISTCONTROL=ignoreboth;\n\
+# flush commands to .bash_history immediately\n\
+export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
+# Change the file location because certain bash sessions truncate .bash_history file upon close.\n\
+# http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login\n\
+export HISTFILE=\"\$DOCKER_WORKDIR/modules/.cache/.eternal_bash_history\";\n\
+"' >> /home/node/.bashrc \
+ # Modify the entrypoint script to export the entrypoint as a DOCKER_WORKDIR env var
+ && sed -ri 's/exec "\$@"/export DOCKER_WORKDIR="\$(pwd)";\nexec "\$@"/g' /usr/local/bin/docker-entrypoint.sh \
  && mkdir -p /etc/bash_completion.d \
  # add npm completions
  && npm completion > /etc/bash_completion.d/npm \

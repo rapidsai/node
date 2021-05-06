@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,33 +16,30 @@
 
 namespace nv {
 
-Napi::FunctionReference WebGLActiveInfo::constructor;
-
 WebGLActiveInfo::WebGLActiveInfo(Napi::CallbackInfo const& info)
-  : Napi::ObjectWrap<WebGLActiveInfo>(info){};
-
-Napi::Object WebGLActiveInfo::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLActiveInfo",
-                {
-                  InstanceAccessor("size", &WebGLActiveInfo::GetSize, nullptr, napi_enumerable),
-                  InstanceAccessor("type", &WebGLActiveInfo::GetType, nullptr, napi_enumerable),
-                  InstanceAccessor("name", &WebGLActiveInfo::GetName, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLActiveInfo::ToString),
-                });
-  WebGLActiveInfo::constructor = Napi::Persistent(ctor);
-  WebGLActiveInfo::constructor.SuppressDestruct();
-  exports.Set("WebGLActiveInfo", ctor);
-  return exports;
+  : EnvLocalObjectWrap<WebGLActiveInfo>(info) {
+  if (info.Length() > 0) size_ = info[0].ToNumber();
+  if (info.Length() > 1) type_ = info[1].ToNumber();
+  if (info.Length() > 2) name_ = info[2].ToString();
 };
 
-Napi::Object WebGLActiveInfo::New(GLint size, GLuint type, std::string name) {
-  auto obj                            = WebGLActiveInfo::constructor.New({});
-  WebGLActiveInfo::Unwrap(obj)->size_ = size;
-  WebGLActiveInfo::Unwrap(obj)->type_ = type;
-  WebGLActiveInfo::Unwrap(obj)->name_ = name;
-  return obj;
+Napi::Function WebGLActiveInfo::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(
+    env,
+    "WebGLActiveInfo",
+    {
+      InstanceAccessor("size", &WebGLActiveInfo::GetSize, nullptr, napi_enumerable),
+      InstanceAccessor("type", &WebGLActiveInfo::GetType, nullptr, napi_enumerable),
+      InstanceAccessor("name", &WebGLActiveInfo::GetName, nullptr, napi_enumerable),
+      InstanceMethod("toString", &WebGLActiveInfo::ToString),
+    });
+};
+
+WebGLActiveInfo::wrapper_t WebGLActiveInfo::New(Napi::Env const& env,
+                                                GLint size,
+                                                GLuint type,
+                                                std::string name) {
+  return EnvLocalObjectWrap<WebGLActiveInfo>::New(env, size, type, name);
 };
 
 Napi::Value WebGLActiveInfo::GetSize(Napi::CallbackInfo const& info) {
@@ -63,13 +60,15 @@ Napi::Value WebGLActiveInfo::ToString(Napi::CallbackInfo const& info) {
                              " type=" + std::to_string(type_) + " name='" + name_ + "' ]");
 }
 
-Napi::FunctionReference WebGLShaderPrecisionFormat::constructor;
-
 WebGLShaderPrecisionFormat::WebGLShaderPrecisionFormat(Napi::CallbackInfo const& info)
-  : Napi::ObjectWrap<WebGLShaderPrecisionFormat>(info){};
+  : EnvLocalObjectWrap<WebGLShaderPrecisionFormat>(info) {
+  if (info.Length() > 0) rangeMin_ = info[0].ToNumber();
+  if (info.Length() > 1) rangeMax_ = info[1].ToNumber();
+  if (info.Length() > 2) precision_ = info[2].ToNumber();
+};
 
-Napi::Object WebGLShaderPrecisionFormat::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(
+Napi::Function WebGLShaderPrecisionFormat::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(
     env,
     "WebGLShaderPrecisionFormat",
     {
@@ -81,26 +80,21 @@ Napi::Object WebGLShaderPrecisionFormat::Init(Napi::Env env, Napi::Object export
         "precision", &WebGLShaderPrecisionFormat::GetPrecision, nullptr, napi_enumerable),
       InstanceMethod("toString", &WebGLShaderPrecisionFormat::ToString),
     });
-  WebGLShaderPrecisionFormat::constructor = Napi::Persistent(ctor);
-  WebGLShaderPrecisionFormat::constructor.SuppressDestruct();
-  exports.Set("WebGLShaderPrecisionFormat", ctor);
-  return exports;
 };
 
-Napi::Object WebGLShaderPrecisionFormat::New(GLint rangeMax, GLint rangeMin, GLint precision) {
-  auto obj = WebGLShaderPrecisionFormat::constructor.New({});
-  WebGLShaderPrecisionFormat::Unwrap(obj)->rangeMax_  = rangeMax;
-  WebGLShaderPrecisionFormat::Unwrap(obj)->rangeMin_  = rangeMin;
-  WebGLShaderPrecisionFormat::Unwrap(obj)->precision_ = precision;
-  return obj;
+WebGLShaderPrecisionFormat::wrapper_t WebGLShaderPrecisionFormat::New(Napi::Env const& env,
+                                                                      GLint rangeMin,
+                                                                      GLint rangeMax,
+                                                                      GLint precision) {
+  return EnvLocalObjectWrap<WebGLShaderPrecisionFormat>::New(env, rangeMin, rangeMax, precision);
 };
-
-Napi::Value WebGLShaderPrecisionFormat::GetRangeMax(Napi::CallbackInfo const& info) {
-  return Napi::Number::New(this->Env(), this->rangeMax_);
-}
 
 Napi::Value WebGLShaderPrecisionFormat::GetRangeMin(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->rangeMin_);
+}
+
+Napi::Value WebGLShaderPrecisionFormat::GetRangeMax(Napi::CallbackInfo const& info) {
+  return Napi::Number::New(this->Env(), this->rangeMax_);
 }
 
 Napi::Value WebGLShaderPrecisionFormat::GetPrecision(Napi::CallbackInfo const& info) {
@@ -114,28 +108,21 @@ Napi::Value WebGLShaderPrecisionFormat::ToString(Napi::CallbackInfo const& info)
       " rangeMin=" + std::to_string(rangeMin_) + " precision=" + std::to_string(precision_) + " ]");
 }
 
-Napi::FunctionReference WebGLBuffer::constructor;
-
-WebGLBuffer::WebGLBuffer(Napi::CallbackInfo const& info) : Napi::ObjectWrap<WebGLBuffer>(info){};
-
-Napi::Object WebGLBuffer::New(GLuint value) {
-  auto obj                         = WebGLBuffer::constructor.New({});
-  WebGLBuffer::Unwrap(obj)->value_ = value;
-  return obj;
+WebGLBuffer::WebGLBuffer(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<WebGLBuffer>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLBuffer::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLBuffer",
-                {
-                  InstanceAccessor("ptr", &WebGLBuffer::GetValue, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLBuffer::ToString),
-                });
-  WebGLBuffer::constructor = Napi::Persistent(ctor);
-  WebGLBuffer::constructor.SuppressDestruct();
-  exports.Set("WebGLBuffer", ctor);
-  return exports;
+WebGLBuffer::wrapper_t WebGLBuffer::New(Napi::Env const& env, GLuint value) {
+  return EnvLocalObjectWrap<WebGLBuffer>::New(env, value);
+};
+
+Napi::Function WebGLBuffer::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(env,
+                     "WebGLBuffer",
+                     {
+                       InstanceAccessor("ptr", &WebGLBuffer::GetValue, nullptr, napi_enumerable),
+                       InstanceMethod("toString", &WebGLBuffer::ToString),
+                     });
 };
 
 Napi::Value WebGLBuffer::ToString(Napi::CallbackInfo const& info) {
@@ -146,29 +133,23 @@ Napi::Value WebGLBuffer::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-Napi::FunctionReference WebGLContextEvent::constructor;
-
 WebGLContextEvent::WebGLContextEvent(Napi::CallbackInfo const& info)
-  : Napi::ObjectWrap<WebGLContextEvent>(info){};
-
-Napi::Object WebGLContextEvent::New(GLuint value) {
-  auto obj                               = WebGLContextEvent::constructor.New({});
-  WebGLContextEvent::Unwrap(obj)->value_ = value;
-  return obj;
+  : EnvLocalObjectWrap<WebGLContextEvent>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLContextEvent::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLContextEvent",
-                {
-                  InstanceAccessor("ptr", &WebGLContextEvent::GetValue, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLContextEvent::ToString),
-                });
-  WebGLContextEvent::constructor = Napi::Persistent(ctor);
-  WebGLContextEvent::constructor.SuppressDestruct();
-  exports.Set("WebGLContextEvent", ctor);
-  return exports;
+WebGLContextEvent::wrapper_t WebGLContextEvent::New(Napi::Env const& env, GLuint value) {
+  return EnvLocalObjectWrap<WebGLContextEvent>::New(env, value);
+};
+
+Napi::Function WebGLContextEvent::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(
+    env,
+    "WebGLContextEvent",
+    {
+      InstanceAccessor("ptr", &WebGLContextEvent::GetValue, nullptr, napi_enumerable),
+      InstanceMethod("toString", &WebGLContextEvent::ToString),
+    });
 };
 
 Napi::Value WebGLContextEvent::ToString(Napi::CallbackInfo const& info) {
@@ -180,29 +161,23 @@ Napi::Value WebGLContextEvent::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-Napi::FunctionReference WebGLFramebuffer::constructor;
-
 WebGLFramebuffer::WebGLFramebuffer(Napi::CallbackInfo const& info)
-  : Napi::ObjectWrap<WebGLFramebuffer>(info){};
-
-Napi::Object WebGLFramebuffer::New(GLuint value) {
-  auto obj                              = WebGLFramebuffer::constructor.New({});
-  WebGLFramebuffer::Unwrap(obj)->value_ = value;
-  return obj;
+  : EnvLocalObjectWrap<WebGLFramebuffer>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLFramebuffer::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLFramebuffer",
-                {
-                  InstanceAccessor("ptr", &WebGLFramebuffer::GetValue, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLFramebuffer::ToString),
-                });
-  WebGLFramebuffer::constructor = Napi::Persistent(ctor);
-  WebGLFramebuffer::constructor.SuppressDestruct();
-  exports.Set("WebGLFramebuffer", ctor);
-  return exports;
+WebGLFramebuffer::wrapper_t WebGLFramebuffer::New(Napi::Env const& env, GLuint value) {
+  return EnvLocalObjectWrap<WebGLFramebuffer>::New(env, value);
+};
+
+Napi::Function WebGLFramebuffer::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(
+    env,
+    "WebGLFramebuffer",
+    {
+      InstanceAccessor("ptr", &WebGLFramebuffer::GetValue, nullptr, napi_enumerable),
+      InstanceMethod("toString", &WebGLFramebuffer::ToString),
+    });
 };
 
 Napi::Value WebGLFramebuffer::ToString(Napi::CallbackInfo const& info) {
@@ -214,28 +189,22 @@ Napi::Value WebGLFramebuffer::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-Napi::FunctionReference WebGLProgram::constructor;
-
-WebGLProgram::WebGLProgram(Napi::CallbackInfo const& info) : Napi::ObjectWrap<WebGLProgram>(info){};
-
-Napi::Object WebGLProgram::New(GLuint value) {
-  auto obj                          = WebGLProgram::constructor.New({});
-  WebGLProgram::Unwrap(obj)->value_ = value;
-  return obj;
+WebGLProgram::WebGLProgram(Napi::CallbackInfo const& info)
+  : EnvLocalObjectWrap<WebGLProgram>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLProgram::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLProgram",
-                {
-                  InstanceAccessor("ptr", &WebGLProgram::GetValue, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLProgram::ToString),
-                });
-  WebGLProgram::constructor = Napi::Persistent(ctor);
-  WebGLProgram::constructor.SuppressDestruct();
-  exports.Set("WebGLProgram", ctor);
-  return exports;
+WebGLProgram::wrapper_t WebGLProgram::New(Napi::Env const& env, GLuint value) {
+  return EnvLocalObjectWrap<WebGLProgram>::New(env, value);
+};
+
+Napi::Function WebGLProgram::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(env,
+                     "WebGLProgram",
+                     {
+                       InstanceAccessor("ptr", &WebGLProgram::GetValue, nullptr, napi_enumerable),
+                       InstanceMethod("toString", &WebGLProgram::ToString),
+                     });
 };
 
 Napi::Value WebGLProgram::ToString(Napi::CallbackInfo const& info) {
@@ -246,28 +215,21 @@ Napi::Value WebGLProgram::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-Napi::FunctionReference WebGLQuery::constructor;
-
-WebGLQuery::WebGLQuery(Napi::CallbackInfo const& info) : Napi::ObjectWrap<WebGLQuery>(info){};
-
-Napi::Object WebGLQuery::New(GLuint value) {
-  auto obj                        = WebGLQuery::constructor.New({});
-  WebGLQuery::Unwrap(obj)->value_ = value;
-  return obj;
+WebGLQuery::WebGLQuery(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<WebGLQuery>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLQuery::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLQuery",
-                {
-                  InstanceAccessor("ptr", &WebGLQuery::GetValue, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLQuery::ToString),
-                });
-  WebGLQuery::constructor = Napi::Persistent(ctor);
-  WebGLQuery::constructor.SuppressDestruct();
-  exports.Set("WebGLQuery", ctor);
-  return exports;
+WebGLQuery::wrapper_t WebGLQuery::New(Napi::Env const& env, GLuint value) {
+  return EnvLocalObjectWrap<WebGLQuery>::New(env, value);
+};
+
+Napi::Function WebGLQuery::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(env,
+                     "WebGLQuery",
+                     {
+                       InstanceAccessor("ptr", &WebGLQuery::GetValue, nullptr, napi_enumerable),
+                       InstanceMethod("toString", &WebGLQuery::ToString),
+                     });
 };
 
 Napi::Value WebGLQuery::ToString(Napi::CallbackInfo const& info) {
@@ -278,29 +240,23 @@ Napi::Value WebGLQuery::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-Napi::FunctionReference WebGLRenderbuffer::constructor;
-
 WebGLRenderbuffer::WebGLRenderbuffer(Napi::CallbackInfo const& info)
-  : Napi::ObjectWrap<WebGLRenderbuffer>(info){};
-
-Napi::Object WebGLRenderbuffer::New(GLuint value) {
-  auto obj                               = WebGLRenderbuffer::constructor.New({});
-  WebGLRenderbuffer::Unwrap(obj)->value_ = value;
-  return obj;
+  : EnvLocalObjectWrap<WebGLRenderbuffer>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLRenderbuffer::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLRenderbuffer",
-                {
-                  InstanceAccessor("ptr", &WebGLRenderbuffer::GetValue, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLRenderbuffer::ToString),
-                });
-  WebGLRenderbuffer::constructor = Napi::Persistent(ctor);
-  WebGLRenderbuffer::constructor.SuppressDestruct();
-  exports.Set("WebGLRenderbuffer", ctor);
-  return exports;
+WebGLRenderbuffer::wrapper_t WebGLRenderbuffer::New(Napi::Env const& env, GLuint value) {
+  return EnvLocalObjectWrap<WebGLRenderbuffer>::New(env, value);
+};
+
+Napi::Function WebGLRenderbuffer::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(
+    env,
+    "WebGLRenderbuffer",
+    {
+      InstanceAccessor("ptr", &WebGLRenderbuffer::GetValue, nullptr, napi_enumerable),
+      InstanceMethod("toString", &WebGLRenderbuffer::ToString),
+    });
 };
 
 Napi::Value WebGLRenderbuffer::ToString(Napi::CallbackInfo const& info) {
@@ -312,28 +268,22 @@ Napi::Value WebGLRenderbuffer::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-Napi::FunctionReference WebGLSampler::constructor;
-
-WebGLSampler::WebGLSampler(Napi::CallbackInfo const& info) : Napi::ObjectWrap<WebGLSampler>(info){};
-
-Napi::Object WebGLSampler::New(GLuint value) {
-  auto obj                          = WebGLSampler::constructor.New({});
-  WebGLSampler::Unwrap(obj)->value_ = value;
-  return obj;
+WebGLSampler::WebGLSampler(Napi::CallbackInfo const& info)
+  : EnvLocalObjectWrap<WebGLSampler>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLSampler::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLSampler",
-                {
-                  InstanceAccessor("ptr", &WebGLSampler::GetValue, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLSampler::ToString),
-                });
-  WebGLSampler::constructor = Napi::Persistent(ctor);
-  WebGLSampler::constructor.SuppressDestruct();
-  exports.Set("WebGLSampler", ctor);
-  return exports;
+WebGLSampler::wrapper_t WebGLSampler::New(Napi::Env const& env, GLuint value) {
+  return EnvLocalObjectWrap<WebGLSampler>::New(env, value);
+};
+
+Napi::Function WebGLSampler::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(env,
+                     "WebGLSampler",
+                     {
+                       InstanceAccessor("ptr", &WebGLSampler::GetValue, nullptr, napi_enumerable),
+                       InstanceMethod("toString", &WebGLSampler::ToString),
+                     });
 };
 
 Napi::Value WebGLSampler::ToString(Napi::CallbackInfo const& info) {
@@ -344,28 +294,21 @@ Napi::Value WebGLSampler::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-Napi::FunctionReference WebGLShader::constructor;
-
-WebGLShader::WebGLShader(Napi::CallbackInfo const& info) : Napi::ObjectWrap<WebGLShader>(info){};
-
-Napi::Object WebGLShader::New(GLuint value) {
-  auto obj                         = WebGLShader::constructor.New({});
-  WebGLShader::Unwrap(obj)->value_ = value;
-  return obj;
+WebGLShader::WebGLShader(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<WebGLShader>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLShader::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLShader",
-                {
-                  InstanceAccessor("ptr", &WebGLShader::GetValue, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLShader::ToString),
-                });
-  WebGLShader::constructor = Napi::Persistent(ctor);
-  WebGLShader::constructor.SuppressDestruct();
-  exports.Set("WebGLShader", ctor);
-  return exports;
+WebGLShader::wrapper_t WebGLShader::New(Napi::Env const& env, GLuint value) {
+  return EnvLocalObjectWrap<WebGLShader>::New(env, value);
+};
+
+Napi::Function WebGLShader::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(env,
+                     "WebGLShader",
+                     {
+                       InstanceAccessor("ptr", &WebGLShader::GetValue, nullptr, napi_enumerable),
+                       InstanceMethod("toString", &WebGLShader::ToString),
+                     });
 };
 
 Napi::Value WebGLShader::ToString(Napi::CallbackInfo const& info) {
@@ -376,28 +319,23 @@ Napi::Value WebGLShader::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-Napi::FunctionReference WebGLSync::constructor;
-
-WebGLSync::WebGLSync(Napi::CallbackInfo const& info) : Napi::ObjectWrap<WebGLSync>(info){};
-
-Napi::Object WebGLSync::New(GLsync value) {
-  auto obj                       = WebGLSync::constructor.New({});
-  WebGLSync::Unwrap(obj)->value_ = value;
-  return obj;
+WebGLSync::WebGLSync(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<WebGLSync>(info) {
+  if (info.Length() > 0) {
+    value_ = reinterpret_cast<GLsync>(info[0].As<Napi::External<void>>().Data());
+  }
 };
 
-Napi::Object WebGLSync::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLSync",
-                {
-                  InstanceAccessor("ptr", &WebGLSync::GetValue, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLSync::ToString),
-                });
-  WebGLSync::constructor = Napi::Persistent(ctor);
-  WebGLSync::constructor.SuppressDestruct();
-  exports.Set("WebGLSync", ctor);
-  return exports;
+WebGLSync::wrapper_t WebGLSync::New(Napi::Env const& env, GLsync value) {
+  return EnvLocalObjectWrap<WebGLSync>::New(env, {Napi::External<void>::New(env, value)});
+};
+
+Napi::Function WebGLSync::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(env,
+                     "WebGLSync",
+                     {
+                       InstanceAccessor("ptr", &WebGLSync::GetValue, nullptr, napi_enumerable),
+                       InstanceMethod("toString", &WebGLSync::ToString),
+                     });
 };
 
 Napi::Value WebGLSync::ToString(Napi::CallbackInfo const& info) {
@@ -409,28 +347,22 @@ Napi::Value WebGLSync::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), reinterpret_cast<uintptr_t>(this->value_));
 }
 
-Napi::FunctionReference WebGLTexture::constructor;
-
-WebGLTexture::WebGLTexture(Napi::CallbackInfo const& info) : Napi::ObjectWrap<WebGLTexture>(info){};
-
-Napi::Object WebGLTexture::New(GLuint value) {
-  auto obj                          = WebGLTexture::constructor.New({});
-  WebGLTexture::Unwrap(obj)->value_ = value;
-  return obj;
+WebGLTexture::WebGLTexture(Napi::CallbackInfo const& info)
+  : EnvLocalObjectWrap<WebGLTexture>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLTexture::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor =
-    DefineClass(env,
-                "WebGLTexture",
-                {
-                  InstanceAccessor("ptr", &WebGLTexture::GetValue, nullptr, napi_enumerable),
-                  InstanceMethod("toString", &WebGLTexture::ToString),
-                });
-  WebGLTexture::constructor = Napi::Persistent(ctor);
-  WebGLTexture::constructor.SuppressDestruct();
-  exports.Set("WebGLTexture", ctor);
-  return exports;
+WebGLTexture::wrapper_t WebGLTexture::New(Napi::Env const& env, GLuint value) {
+  return EnvLocalObjectWrap<WebGLTexture>::New(env, value);
+};
+
+Napi::Function WebGLTexture::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(env,
+                     "WebGLTexture",
+                     {
+                       InstanceAccessor("ptr", &WebGLTexture::GetValue, nullptr, napi_enumerable),
+                       InstanceMethod("toString", &WebGLTexture::ToString),
+                     });
 };
 
 Napi::Value WebGLTexture::ToString(Napi::CallbackInfo const& info) {
@@ -441,29 +373,23 @@ Napi::Value WebGLTexture::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-Napi::FunctionReference WebGLTransformFeedback::constructor;
-
 WebGLTransformFeedback::WebGLTransformFeedback(Napi::CallbackInfo const& info)
-  : Napi::ObjectWrap<WebGLTransformFeedback>(info){};
-
-Napi::Object WebGLTransformFeedback::New(GLuint value) {
-  auto obj                                    = WebGLTransformFeedback::constructor.New({});
-  WebGLTransformFeedback::Unwrap(obj)->value_ = value;
-  return obj;
+  : EnvLocalObjectWrap<WebGLTransformFeedback>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLTransformFeedback::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(
+WebGLTransformFeedback::wrapper_t WebGLTransformFeedback::New(Napi::Env const& env, GLuint value) {
+  return EnvLocalObjectWrap<WebGLTransformFeedback>::New(env, value);
+};
+
+Napi::Function WebGLTransformFeedback::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(
     env,
     "WebGLTransformFeedback",
     {
       InstanceAccessor("ptr", &WebGLTransformFeedback::GetValue, nullptr, napi_enumerable),
       InstanceMethod("toString", &WebGLTransformFeedback::ToString),
     });
-  WebGLTransformFeedback::constructor = Napi::Persistent(ctor);
-  WebGLTransformFeedback::constructor.SuppressDestruct();
-  exports.Set("WebGLTransformFeedback", ctor);
-  return exports;
 };
 
 Napi::Value WebGLTransformFeedback::ToString(Napi::CallbackInfo const& info) {
@@ -475,29 +401,23 @@ Napi::Value WebGLTransformFeedback::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-Napi::FunctionReference WebGLUniformLocation::constructor;
-
 WebGLUniformLocation::WebGLUniformLocation(Napi::CallbackInfo const& info)
-  : Napi::ObjectWrap<WebGLUniformLocation>(info){};
-
-Napi::Object WebGLUniformLocation::New(GLint value) {
-  auto obj                                  = WebGLUniformLocation::constructor.New({});
-  WebGLUniformLocation::Unwrap(obj)->value_ = value;
-  return obj;
+  : EnvLocalObjectWrap<WebGLUniformLocation>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLUniformLocation::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(
+WebGLUniformLocation::wrapper_t WebGLUniformLocation::New(Napi::Env const& env, GLint value) {
+  return EnvLocalObjectWrap<WebGLUniformLocation>::New(env, value);
+};
+
+Napi::Function WebGLUniformLocation::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(
     env,
     "WebGLUniformLocation",
     {
       InstanceAccessor("ptr", &WebGLUniformLocation::GetValue, nullptr, napi_enumerable),
       InstanceMethod("toString", &WebGLUniformLocation::ToString),
     });
-  WebGLUniformLocation::constructor = Napi::Persistent(ctor);
-  WebGLUniformLocation::constructor.SuppressDestruct();
-  exports.Set("WebGLUniformLocation", ctor);
-  return exports;
 };
 
 Napi::Value WebGLUniformLocation::ToString(Napi::CallbackInfo const& info) {
@@ -509,29 +429,23 @@ Napi::Value WebGLUniformLocation::GetValue(Napi::CallbackInfo const& info) {
   return Napi::Number::New(this->Env(), this->value_);
 }
 
-Napi::FunctionReference WebGLVertexArrayObject::constructor;
-
 WebGLVertexArrayObject::WebGLVertexArrayObject(Napi::CallbackInfo const& info)
-  : Napi::ObjectWrap<WebGLVertexArrayObject>(info){};
-
-Napi::Object WebGLVertexArrayObject::New(GLuint value) {
-  auto obj                                    = WebGLVertexArrayObject::constructor.New({});
-  WebGLVertexArrayObject::Unwrap(obj)->value_ = value;
-  return obj;
+  : EnvLocalObjectWrap<WebGLVertexArrayObject>(info) {
+  if (info.Length() > 0) value_ = info[0].ToNumber();
 };
 
-Napi::Object WebGLVertexArrayObject::Init(Napi::Env env, Napi::Object exports) {
-  Napi::Function ctor = DefineClass(
+WebGLVertexArrayObject::wrapper_t WebGLVertexArrayObject::New(Napi::Env const& env, GLuint value) {
+  return EnvLocalObjectWrap<WebGLVertexArrayObject>::New(env, value);
+};
+
+Napi::Function WebGLVertexArrayObject::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(
     env,
     "WebGLVertexArrayObject",
     {
       InstanceAccessor("ptr", &WebGLVertexArrayObject::GetValue, nullptr, napi_enumerable),
       InstanceMethod("toString", &WebGLVertexArrayObject::ToString),
     });
-  WebGLVertexArrayObject::constructor = Napi::Persistent(ctor);
-  WebGLVertexArrayObject::constructor.SuppressDestruct();
-  exports.Set("WebGLVertexArrayObject", ctor);
-  return exports;
 };
 
 Napi::Value WebGLVertexArrayObject::ToString(Napi::CallbackInfo const& info) {

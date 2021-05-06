@@ -21,23 +21,22 @@
 #include <node_rmm/device_buffer.hpp>
 #include <node_rmm/memory_resource.hpp>
 
+#include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
-#include <nv_node/utilities/wrap.hpp>
 
 #include <napi.h>
 
 namespace nv {
 
-class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
- public:
+struct GraphCOO : public EnvLocalObjectWrap<GraphCOO> {
   /**
    * @brief Initialize and export the GraphCOO JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Object The decorated exports object.
+   * @return Napi::Function The GraphCOO constructor function.
    */
-  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
    * @brief Construct a new GraphCOO instance from C++.
@@ -45,7 +44,9 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
    * @param  src The source node indices for edges
    * @param  dst The destination node indices for edges
    */
-  static ObjectUnwrap<GraphCOO> New(nv::Column const& src, nv::Column const& dst);
+  static wrapper_t New(Napi::Env const& env,
+                       Column::wrapper_t const& src,
+                       Column::wrapper_t const& dst);
 
   /**
    * @brief Construct a new GraphCOO instance from JavaScript.
@@ -53,35 +54,16 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
   GraphCOO(CallbackArgs const& args);
 
   /**
-   * @brief Destructor called when the JavaScript VM garbage collects this GraphCOO
-   * instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
-
-  /**
-   * @brief Check whether an Napi value is an instance of `GraphCOO`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `GraphCOO`
-   * @return false if the value is not a `GraphCOO`
-   */
-  inline static bool is_instance(Napi::Value const& val) {
-    return val.IsObject() and val.As<Napi::Object>().InstanceOf(constructor.Value());
-  }
-
-  /**
    * @brief Get the number of edges in the graph
    *
    */
-  ValueWrap<size_t> num_edges();
+  size_t num_edges();
 
   /**
    * @brief Get the number of nodes in the graph
    *
    */
-  ValueWrap<size_t> num_nodes();
+  size_t num_nodes();
 
   /**
    * @brief Conversion operator to get a non-owning view of the GraphCOO
@@ -96,22 +78,20 @@ class GraphCOO : public Napi::ObjectWrap<GraphCOO> {
   cugraph::GraphCOOView<int32_t, int32_t, float> view();
 
  private:
-  static Napi::FunctionReference constructor;
-
   Napi::Value num_edges(Napi::CallbackInfo const& info);
   Napi::Value num_nodes(Napi::CallbackInfo const& info);
   Napi::Value force_atlas2(Napi::CallbackInfo const& info);
 
   bool directed_edges_{false};
 
-  size_t edge_count_{};
+  cudf::size_type edge_count_{};
   bool edge_count_computed_{false};
 
-  size_t node_count_{};
+  cudf::size_type node_count_{};
   bool node_count_computed_{false};
 
-  Napi::ObjectReference src_{};
-  Napi::ObjectReference dst_{};
+  Napi::Reference<Column::wrapper_t> src_{};
+  Napi::Reference<Column::wrapper_t> dst_{};
 };
 
 }  // namespace nv

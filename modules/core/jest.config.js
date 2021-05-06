@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+try {
+  require('dotenv').config();
+} catch (e) { }
+
 module.exports = {
-  "cache": false,
   "verbose": true,
   "testEnvironment": "node",
+  "maxWorkers": process.env.PARALLEL_LEVEL || 1,
   "globals": {
     "ts-jest": {
       "diagnostics": false,

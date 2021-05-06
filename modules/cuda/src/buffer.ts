@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CUDA from './addon';
+import {Math, runtime} from './addon';
 import {BigIntArray, MemoryData, TypedArray, TypedArrayConstructor} from './interfaces';
 import {DeviceMemory, IpcHandle, Memory} from './memory';
 import {
@@ -26,8 +26,8 @@ import {
   isObject
 } from './util';
 
-const {min, max}                          = Math;
-const {runtime: {cudaMemcpy, cudaMemset}} = CUDA;
+const {min, max}               = Math;
+const {cudaMemcpy, cudaMemset} = runtime;
 
 /** @ignore */
 // clang-format off

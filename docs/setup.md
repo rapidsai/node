@@ -44,13 +44,13 @@ You can also build and run on a properly configured Linux installation without d
 
 ### Dependencies
 
-We assume you have [node, npm](https://github.com/nvm-sh/nvm#installing-and-updating), [yarn](https://yarnpkg.com/getting-started/install), [CMake v3.18.5+](https://cmake.org/), and [CUDA Toolkit 11.0+](https://developer.nvidia.com/cuda-downloads) installed.
+We assume you have [node, npm](https://github.com/nvm-sh/nvm#installing-and-updating), [yarn](https://yarnpkg.com/getting-started/install), [CMake v3.20.2+](https://cmake.org/), and [CUDA Toolkit 11.0+](https://developer.nvidia.com/cuda-downloads) installed.
 
 <details>
 <summary>Click here to see Ubuntu 16.04+ CMake installation commands:</summary>
 <pre>
-# Install CMake v3.18.5, or select any CMake 3.18.x release in https://github.com/Kitware/CMake/releases
-CMAKE_VERSION=3.18.5<br/>
+# Install CMake v3.20.2, or select any CMake 3.18.x release in https://github.com/Kitware/CMake/releases
+CMAKE_VERSION=3.20.2<br/>
 wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz \
  && tar -xvzf cmake-${CMAKE_VERSION}.tar.gz && cd cmake-${CMAKE_VERSION} \
  && ./bootstrap --system-curl --parallel=$(nproc) && sudo make install -j \
@@ -115,11 +115,11 @@ yarn demo modules/demo/luma 01
 Some rememedies for potential error messages you may encounter.
 
 * > unsupported GNU version! gcc versions later than 8 are not supported!
-  
+
   Install a [compatible CUDA host compiler](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#system-requirements) for your CUDA toolkit and OS versions.
 
 * >  No CMAKE_CUDA_COMPILER could be found.
-  
+
   This likely means your CUDA toolkit bin directory isn't in your environment's `$PATH`.
   Run the following commands to append the CUDA toolkit bin directory to your path,
   then reinitialize your current shell environment:
@@ -129,7 +129,7 @@ Some rememedies for potential error messages you may encounter.
   export CUDA_HOME="/usr/local/cuda"
   export PATH="$PATH:$CUDA_HOME/bin"
   ' >> ~/.bashrc
-  
+
   source ~/.bashrc
   ```
 
