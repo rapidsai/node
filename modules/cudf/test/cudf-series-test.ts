@@ -403,12 +403,33 @@ ${[true, false, null]} | ${Series.new([false, false, false])} | ${[true, false, 
 ${[1, null, 3]} | ${9} | ${[1, 9, 3]}
 ${['foo', 'bar', null]} | ${'test'} | ${['foo', 'bar', 'test']}
 ${[true, false, null]} | ${false} | ${[true, false, false]}
-${[1, null, 3]} | ${'FOLLOWING'} | ${[1, 3, 3]}
-${['foo', 'bar', null]} | ${'PRECEDING'} | ${['foo', 'bar', 'bar']}
-${[true, false, null]} | ${'PRECEDING'} | ${[true, false, false]}
 `('Series.replaceNulls', ({data, replaceValue, expected}) => {
   const s       = Series.new(data);
   const result  = s.replaceNulls(replaceValue);
+
+  expect([...result]).toEqual(expected);
+});
+
+test.each`
+data | expected
+${[1, null, 3]} | ${[1, 1, 3]}
+${['foo', 'bar', null]} | ${['foo', 'bar', 'bar']}
+${[true, false, null]} | ${[true, false, false]}
+`('Series.replaceNullsPreceding', ({data, expected})=> {
+  const s       = Series.new(data);
+  const result  = s.replaceNullsPreceding();
+
+  expect([...result]).toEqual(expected);
+});
+
+test.each`
+data | expected
+${[1, null, 3]} | ${[1, 3, 3]}
+${['foo', 'bar', null]} | ${['foo', 'bar', null]}
+${[true, null, true]} | ${[true, true, true]}
+`('Series.replaceNullsFollowing', ({data, expected})=> {
+  const s       = Series.new(data);
+  const result  = s.replaceNullsFollowing();
 
   expect([...result]).toEqual(expected);
 });
