@@ -58,8 +58,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `head`               |                     |
 | `interleave_columns` |                     |
 | `isin`               |                     |
-| `isna`               |                     |
-| `isnull`             |                     |
+| `isna`               |    ✅ (`isNull`)    |
+| `isnull`             |         ✅          |
 | `keys`               |                     |
 | `kurt`               |                     |
 | `kurtosis`           |                     |
@@ -175,8 +175,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `head`               |                     |                     |                     |
 | `interleave_columns` |                     |                     |                     |
 | `isin`               |                     |                     |                     |
-| `isna`               |                     |                     |                     |
-| `isnull`             |                     |                     |                     |
+| `isna`               |    ✅ (`isNull`)    |    ✅ (`isNull`)    |    ✅ (`isNull`)    |
+| `isnull`             |         ✅          |         ✅          |         ✅          |
 | `keys`               |                     |                     |                     |
 | `kurt`               |                     |                     |                     |
 | `kurtosis`           |                     |                     |                     |
