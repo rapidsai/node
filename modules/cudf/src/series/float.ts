@@ -27,23 +27,28 @@ import {NumericSeries} from './numeric';
  */
 abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   /**
-   * Creates a column of `BOOL8` elements indicating the presence of `NaN` values in a
-   * column of floating point values. The output element at row `i` is `true` if the element in
-   * `input` at row i is `NAN`, else `false`
+   * Creates a Series of `BOOL8` elements where `true` indicates the value is `NaN` and `false`
+   * indicates the value is valid.
    *
-   * @param memoryResource Memory resource used to allocate the result Series's device memory.
-   * @returns A non-nullable column of `BOOL8` elements with `true` representing `NAN`
-   *   values
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   * @returns A non-nullable Series of `BOOL8` elements with `true` representing `NaN` values.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, NaN, 3]).isNaN() // [false, true, false]
+   * ```
    */
   isNaN(memoryResource?: MemoryResource) { return Series.new(this._col.isNaN(memoryResource)); }
 
   /**
-   * Creates a column of `BOOL8` elements indicating the absence of `NaN` values in a
+   * Creates a Series of `BOOL8` elements indicating the absence of `NaN` values in a
    * column of floating point values. The output element at row `i` is `false` if the element in
-   * `input` at row i is `NAN`, else `true`
+   * `input` at row i is `NaN`, else `true`
    *
    * @param memoryResource Memory resource used to allocate the result Series's device memory.
-   * @returns A non-nullable column of `BOOL8` elements with `true` representing `NAN`
+   * @returns A non-nullable Series of `BOOL8` elements with `true` representing `NAN`
    *   values
    */
   isNotNaN(memoryResource?: MemoryResource) {
