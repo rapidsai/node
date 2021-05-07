@@ -27,7 +27,6 @@ import {
   Integral,
   Numeric,
 } from './types/dtypes';
-import {ReplacePolicy} from './types/enums';
 import {CommonType, Interpolation} from './types/mappings';
 
 export type ColumnProps<T extends DataType = any> = {
@@ -187,7 +186,7 @@ export interface Column<T extends DataType = any> {
    */
   replaceNulls(value: Column<T>, memoryResource?: MemoryResource): Column<T>;
   replaceNulls(value: Scalar<T>, memoryResource?: MemoryResource): Column<T>;
-  replaceNulls(value: ReplacePolicy, memoryResource?: MemoryResource): Column<T>;
+  replaceNulls(value: boolean, memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Replace NaN values with a scalar value, or the corresponding elements from another Column.
