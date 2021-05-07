@@ -21,10 +21,25 @@ import {Numeric} from '../types/dtypes';
 import {ColumnsMap, CommonType, TypeMap} from '../types/mappings';
 
 export type JoinKey<
-    P extends string,
-    T extends TypeMap,
-    Suffix extends string,
-> = P extends keyof T ? `${P}${Suffix}` : `${P}`;
+  P extends string,
+  T extends TypeMap,
+  TOn extends string,
+  Suffix extends string,
+> = P extends TOn ? `${P}` : P extends keyof T ? `${P}${Suffix}` : `${P}`;
+
+// clang-format off
+export type JoinResult<
+  Lhs extends TypeMap,
+  Rhs extends TypeMap,
+  TOn extends(string & keyof Lhs & keyof Rhs),
+  LSuffix extends string,
+  RSuffix extends string
+> = {
+  [P in string&keyof Lhs as JoinKey<P, Rhs, TOn, LSuffix>]: Lhs[P]
+} & {
+  [P in string&keyof Rhs as JoinKey<P, Lhs, TOn, RSuffix>]: Rhs[P]
+};
+// clang-format on
 
 interface JoinProps<
   // clang-format off
@@ -180,20 +195,22 @@ function mergeResults<
   LSuffix extends string,
   RSuffix extends string
 >(lhs: DataFrame<Lhs>, rhs: DataFrame<Rhs>, on: TOn[], lsuffix: LSuffix, rsuffix: RSuffix) {
+  type TResult = JoinResult<Lhs, Rhs, TOn, LSuffix, RSuffix>;
   // clang-format on
   function getColumns<T extends TypeMap>(lhs: DataFrame<T>, rhsNames: string[], suffix: string) {
-    return lhs.names.reduce(
-             (cols, name) => {
-               const newName = on.includes(name as TOn)  ? name
-                               : rhsNames.includes(name) ? `${name}${suffix}`
-                                                         : name;
-               cols[newName] = lhs.get(name)._col;
-               return cols;
-             },
-             <any>{}) as
-           ColumnsMap<{[P in TOn]: Rhs[P] extends Numeric ? CommonType<Lhs[P], Rhs[P]>: Rhs[P]}&
-                      {[P in Exclude<string&keyof Lhs, TOn>as JoinKey<P, Rhs, LSuffix>]: Lhs[P]}&
-                      {[P in Exclude<string&keyof Rhs, TOn>as JoinKey<P, Lhs, RSuffix>]: Rhs[P]}>;
+    return lhs.names.reduce((cols, name) => {
+      const newName = on.includes(name as TOn)  ? name
+                      : rhsNames.includes(name) ? `${name}${suffix}`
+                                                : name;
+      cols[newName] = lhs.get(name)._col;
+      return cols;
+    }, <any>{}) as ColumnsMap<{
+             [P in keyof TResult]:  //
+               P extends TOn
+             ? Rhs[P] extends Numeric ? CommonType<Lhs[P], Numeric&Rhs[P]>  //
+                                      : TResult[P]
+             : TResult[P]
+           }>;
   }
 
   const lhsCols = getColumns(lhs, rhs.names, lsuffix);

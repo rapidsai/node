@@ -18,7 +18,7 @@ import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor';
-import {Join, JoinKey} from './dataframe/join';
+import {Join, JoinResult} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {AbstractSeries, Float32Series, Float64Series, Series} from './series';
 import {Table, ToArrowMetadata} from './table';
@@ -541,11 +541,11 @@ export class DataFrame<T extends TypeMap = any> {
   join<R extends TypeMap, TOn extends (string & keyof T & keyof R), LSuffix extends string = '', RSuffix extends string = ''>(
     props: JoinProps<R, TOn, 'inner'|'outer'|'left'|'right', LSuffix, RSuffix>
   ): DataFrame<{
-    [P in TOn]: R[P] extends Numeric ? CommonType<T[P], R[P]> : R[P]
-  } & {
-    [P in Exclude<string&keyof T, TOn> as JoinKey<P, R, LSuffix>]: T[P]
-  } & {
-    [P in Exclude<string&keyof R, TOn> as JoinKey<P, T, RSuffix>]: R[P]
+    [P in keyof JoinResult<T, R, TOn, LSuffix, RSuffix>]:
+      R[P] extends Numeric ? P extends TOn //
+        ? CommonType<T[P], Numeric & R[P]> //
+        : JoinResult<T, R, TOn, LSuffix, RSuffix>[P] //
+        : JoinResult<T, R, TOn, LSuffix, RSuffix>[P]
   }>;
   // clang-format on
 
