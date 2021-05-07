@@ -139,6 +139,34 @@ describe('DataFrame.join({how="inner"}) ', () => {
     expect([...result.get('c_L')]).toEqual([1, 2]);
     expect([...result.get('c_R')]).toEqual([10, 30]);
   });
+
+  test('can find common type for single-index join', () => {
+    const left_float =
+      new DataFrame({a: Series.new([1, 2, 3, 4, 5]), b: Series.new([0, 0, 1, 1, 2])});
+
+    const result = left_float.join({other: right, on: ['b'], how: 'inner'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1]);
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4]);
+    expect([...result.get('c')]).toEqual([0, 0, 10, 10]);
+  });
+
+  test('can find common type on multi-index join', () => {
+    const left_double_float = new DataFrame({
+      a: Series.new([0, 1, 1]),
+      b: Series.new([10, 20, 10]),
+      c: Series.new({type: new Int32, data: [1., 2., 3.]})
+    });
+
+    const result = left_double_float.join({other: right_double, on: ['a', 'b'], how: 'inner'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'd']));
+    expect([...result.get('a')]).toEqual([0, 1]);
+    expect([...result.get('b')]).toEqual([10, 20]);
+    expect([...result.get('c')]).toEqual([1, 2]);
+    expect([...result.get('d')]).toEqual([10, 30]);
+  });
 });
 
 describe('DataFrame.join({how="left"}) ', () => {
@@ -229,6 +257,34 @@ describe('DataFrame.join({how="left"}) ', () => {
     expect([...result.get('c_L')]).toEqual([1, 2, 3]);
     expect([...result.get('c_R')]).toEqual([10, 30, null]);
   });
+
+  test('can find common type for single-index join', () => {
+    const left_float =
+      new DataFrame({a: Series.new([1, 2, 3, 4, 5]), b: Series.new([0, 0, 1, 1, 2])});
+
+    const result = left_float.join({other: right, on: ['b'], how: 'left'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2]);
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4, 5]);
+    expect([...result.get('c')]).toEqual([0, 0, 10, 10, null]);
+  });
+
+  test('can find common type on multi-index join', () => {
+    const left_double_float = new DataFrame({
+      a: Series.new([0, 1, 1]),
+      b: Series.new([10, 20, 10]),
+      c: Series.new({type: new Int32, data: [1., 2., 3.]})
+    });
+
+    const result = left_double_float.join({other: right_double, on: ['a', 'b'], how: 'left'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'd']));
+    expect([...result.get('a')]).toEqual([0, 1, 1]);
+    expect([...result.get('b')]).toEqual([10, 20, 10]);
+    expect([...result.get('c')]).toEqual([1, 2, 3]);
+    expect([...result.get('d')]).toEqual([10, 30, null]);
+  });
 });
 
 describe('DataFrame.join({how="outer"}) ', () => {
@@ -318,6 +374,34 @@ describe('DataFrame.join({how="outer"}) ', () => {
     expect([...result.get('c_L')]).toEqual([1, 2, 3, null]);
     expect([...result.get('c_R')]).toEqual([10, 30, null, 20]);
   });
+
+  test('can find common type for single-index join', () => {
+    const left_float =
+      new DataFrame({a: Series.new([1, 2, 3, 4, 5]), b: Series.new([0, 0, 1, 1, 2])});
+
+    const result = left_float.join({other: right, on: ['b'], how: 'outer'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
+    expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2, 3]);
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4, 5, null]);
+    expect([...result.get('c')]).toEqual([0, 0, 10, 10, null, 30]);
+  });
+
+  test('can find common type on multi-index join', () => {
+    const left_double_float = new DataFrame({
+      a: Series.new([0, 1, 1]),
+      b: Series.new([10, 20, 10]),
+      c: Series.new({type: new Int32, data: [1., 2., 3.]})
+    });
+
+    const result = left_double_float.join({other: right_double, on: ['a', 'b'], how: 'outer'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'd']));
+    expect([...result.get('a')]).toEqual([0, 1, 1, 0]);
+    expect([...result.get('b')]).toEqual([10, 20, 10, 20]);
+    expect([...result.get('c')]).toEqual([1, 2, 3, null]);
+    expect([...result.get('d')]).toEqual([10, 30, null, 20]);
+  });
 });
 
 describe('DataFrame.join({how="right"}) ', () => {
@@ -388,6 +472,38 @@ describe('DataFrame.join({how="right"}) ', () => {
 
   test('can join on multi-index', () => {
     const result = left_double.join({other: right_double, on: ['a', 'b'], how: 'right'});
+    expect(result.numColumns).toEqual(4);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'd']));
+    expect([...result.get('a')]).toEqual([0, 1, 0]);
+    expect([...result.get('b')]).toEqual([10, 20, 20]);
+    expect([...result.get('c')]).toEqual([1, 2, null]);
+    expect([...result.get('d')]).toEqual([10, 30, 20]);
+  });
+
+  test('can find common type for single-index join', () => {
+    const left_float =
+      new DataFrame({a: Series.new([1, 2, 3, 4, 5]), b: Series.new([0, 0, 1, 1, 2])});
+
+    const result = left_float.join({other: right, on: ['b'], how: 'right'});
+    expect(result.numColumns).toEqual(3);
+    expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
+
+    // Sorting is just to get 1-1 agreement with order of pd/cudf results
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: NullOrder.AFTER}});
+
+    expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
+    expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4, null]);
+    expect([...sorted_result.get('c')]).toEqual([0, 0, 10, 10, 30]);
+  });
+
+  test('can find common type on multi-index join', () => {
+    const left_double_float = new DataFrame({
+      a: Series.new([0, 1, 1]),
+      b: Series.new([10, 20, 10]),
+      c: Series.new({type: new Int32, data: [1., 2., 3.]})
+    });
+
+    const result = left_double_float.join({other: right_double, on: ['a', 'b'], how: 'right'});
     expect(result.numColumns).toEqual(4);
     expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c', 'd']));
     expect([...result.get('a')]).toEqual([0, 1, 0]);

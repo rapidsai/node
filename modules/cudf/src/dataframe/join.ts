@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CUDF from '../addon';
 import {ColumnAccessor} from '../column_accessor';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
@@ -66,6 +67,14 @@ export class Join<
     this.lsuffix                                            = lsuffix;
     this.rsuffix                                            = rsuffix;
     this.nullEquality                                       = nullEquality;
+
+    this.on.forEach((name) => {
+      const lhs_col = this.lhs.get(name);
+      const rhs_col = this.rhs.get(name);
+      const type    = CUDF.findCommonType(lhs_col.type, rhs_col.type);
+      this.lhs      = this.lhs.assign({[name]: lhs_col.cast(type)});
+      this.rhs      = this.rhs.assign({[name]: rhs_col.cast(type)});
+    });
   }
 
   public left() {
