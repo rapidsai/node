@@ -61,7 +61,7 @@ Napi::Value Column::replace_nulls(Napi::CallbackInfo const& info) {
     if (Column::IsInstance(info[0])) { return replace_nulls(*Column::Unwrap(args[0]), args[1]); }
     if (Scalar::IsInstance(info[0])) { return replace_nulls(*Scalar::Unwrap(args[0]), args[1]); }
     if (args[0].IsBoolean()) {
-      cudf::replace_policy policy{args[0]};
+      cudf::replace_policy policy{static_cast<bool>(args[0])};
       return replace_nulls(policy, args[1]);
     }
   } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
