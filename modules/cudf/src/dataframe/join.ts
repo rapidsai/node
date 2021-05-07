@@ -17,27 +17,27 @@ import {ColumnAccessor} from '../column_accessor';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
-import {ColumnsMap, TypeMap} from '../types/mappings';
+import {Numeric} from '../types/dtypes';
+import {ColumnsMap, CommonType, TypeMap} from '../types/mappings';
 
 export type JoinKey<
     P extends string,
     T extends TypeMap,
     Suffix extends string,
-    TOn extends string[],
-> = [P] extends TOn ? `${P}` : P extends keyof T ? `${P}${Suffix}` : `${P}`;
+> = P extends keyof T ? `${P}${Suffix}` : `${P}`;
 
 interface JoinProps<
   // clang-format off
   Lhs extends TypeMap,
   Rhs extends TypeMap,
-  TOn extends(string & keyof Lhs & keyof Rhs)[],
+  TOn extends(string & keyof Lhs & keyof Rhs),
   LSuffix extends string,
   RSuffix extends string
   // clang-format on
   > {
   lhs: DataFrame<Lhs>;
   rhs: DataFrame<Rhs>;
-  on: TOn;
+  on: TOn[];
   lsuffix?: LSuffix;
   rsuffix?: RSuffix;
   nullEquality?: boolean;
@@ -47,14 +47,14 @@ interface JoinProps<
 export class Join<
   Lhs extends TypeMap,
   Rhs extends TypeMap,
-  TOn extends (string & keyof Lhs & keyof Rhs)[],
+  TOn extends (string & keyof Lhs & keyof Rhs),
   LSuffix extends string,
   RSuffix extends string
 > {
   // clang-format on
   private lhs: DataFrame<Lhs>;
   private rhs: DataFrame<Rhs>;
-  private on: TOn;
+  private on: TOn[];
   private lsuffix: LSuffix|'';
   private rsuffix: RSuffix|'';
   private nullEquality: boolean;
@@ -176,26 +176,24 @@ export class Join<
 function mergeResults<
   Lhs extends TypeMap,
   Rhs extends TypeMap,
-  TOn extends string[],
+  TOn extends string,
   LSuffix extends string,
   RSuffix extends string
->(lhs: DataFrame<Lhs>, rhs: DataFrame<Rhs>, on: TOn, lsuffix: LSuffix, rsuffix: RSuffix) {
-
-  type TResult = {
-    [P in (string & keyof Lhs) as JoinKey<P, Rhs, LSuffix, TOn>]: Lhs[P]
-  } & {
-    [P in (string & keyof Rhs) as JoinKey<P, Lhs, RSuffix, TOn>]: Rhs[P]
-  };
-
+>(lhs: DataFrame<Lhs>, rhs: DataFrame<Rhs>, on: TOn[], lsuffix: LSuffix, rsuffix: RSuffix) {
   // clang-format on
   function getColumns<T extends TypeMap>(lhs: DataFrame<T>, rhsNames: string[], suffix: string) {
-    return lhs.names.reduce((cols, name) => {
-      const newName = on.includes(name)         ? name
-                      : rhsNames.includes(name) ? `${name}${suffix}`
-                                                : name;
-      cols[newName] = lhs.get(name)._col;
-      return cols;
-    }, <any>{}) as ColumnsMap<{[P in keyof TResult]: TResult[P]}>;
+    return lhs.names.reduce(
+             (cols, name) => {
+               const newName = on.includes(name as TOn)  ? name
+                               : rhsNames.includes(name) ? `${name}${suffix}`
+                                                         : name;
+               cols[newName] = lhs.get(name)._col;
+               return cols;
+             },
+             <any>{}) as
+           ColumnsMap<{[P in TOn]: Rhs[P] extends Numeric ? CommonType<Lhs[P], Rhs[P]>: Rhs[P]}&
+                      {[P in Exclude<string&keyof Lhs, TOn>as JoinKey<P, Rhs, LSuffix>]: Lhs[P]}&
+                      {[P in Exclude<string&keyof Rhs, TOn>as JoinKey<P, Lhs, RSuffix>]: Rhs[P]}>;
   }
 
   const lhsCols = getColumns(lhs, rhs.names, lsuffix);

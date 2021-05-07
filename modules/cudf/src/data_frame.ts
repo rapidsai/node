@@ -23,9 +23,9 @@ import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps
 import {AbstractSeries, Float32Series, Float64Series, Series} from './series';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {Bool8, DataType, IndexType} from './types/dtypes';
+import {Bool8, DataType, IndexType, Numeric} from './types/dtypes';
 import {NullOrder} from './types/enums';
-import {ColumnsMap, TypeMap} from './types/mappings';
+import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
 export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
@@ -40,32 +40,18 @@ type JoinType = 'inner'|'outer'|'left'|'right'|'leftsemi'|'leftanti';
 
 type JoinProps<
   Rhs extends TypeMap,
-  TOn extends string[],
+  TOn extends string,
   How extends JoinType = 'inner',
   LSuffix extends string = '',
   RSuffix extends string = '',
 > = {
   other: DataFrame<Rhs>,
-  on: TOn,
+  on: TOn[],
   how: How,
   lsuffix?: LSuffix,
   rsuffix?: RSuffix,
   nullEquality?: boolean,
 };
-
-// clang-format off
-type JoinResult<
-  Lhs extends TypeMap,
-  Rhs extends TypeMap,
-  TOn extends(string & keyof Lhs & keyof Rhs)[],
-  LSuffix extends string,
-  RSuffix extends string
-> = {
-  [P in (string&keyof Lhs) as JoinKey<P, Rhs, LSuffix, TOn>]: Lhs[P]
-} & {
-  [P in (string&keyof Rhs) as JoinKey<P, Lhs, RSuffix, TOn>]: Rhs[P]
-};
-// clang-format on
 
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
   GroupBySingleProps<T, R>|Partial<GroupByMultipleProps<T, R, IndexKey>>;
@@ -552,11 +538,14 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns the joined DataFrame
    */
   // clang-format off
-  join<R extends TypeMap, TOn extends (string & keyof T & keyof R)[], LSuffix extends string = '', RSuffix extends string = ''>(
+  join<R extends TypeMap, TOn extends (string & keyof T & keyof R), LSuffix extends string = '', RSuffix extends string = ''>(
     props: JoinProps<R, TOn, 'inner'|'outer'|'left'|'right', LSuffix, RSuffix>
   ): DataFrame<{
-    [P in keyof JoinResult<T, R, TOn, LSuffix, RSuffix>]:
-                JoinResult<T, R, TOn, LSuffix, RSuffix>[P]
+    [P in TOn]: R[P] extends Numeric ? CommonType<T[P], R[P]> : R[P]
+  } & {
+    [P in Exclude<string&keyof T, TOn> as JoinKey<P, R, LSuffix>]: T[P]
+  } & {
+    [P in Exclude<string&keyof R, TOn> as JoinKey<P, T, RSuffix>]: R[P]
   }>;
   // clang-format on
 
@@ -567,7 +556,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns the joined DataFrame
    */
   // clang-format off
-  join<R extends TypeMap, TOn extends (string & keyof T & keyof R)[]>(
+  join<R extends TypeMap, TOn extends (string & keyof T & keyof R)>(
     props: JoinProps<R, TOn, 'leftsemi'|'leftanti'>
   ): DataFrame<T>;
   // clang-format on
