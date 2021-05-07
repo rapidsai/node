@@ -394,3 +394,21 @@ ${false}       | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, null, 1, 2, 3, 4]}
   const result = s.unique(nulls_equal);
   expect([...result]).toEqual(expected);
 });
+
+test.each`
+data | replaceValue | expected
+${[1, null, 3]} | ${Series.new([9, 9, 9])} | ${[1, 9, 3]}
+${['foo', 'bar', null]} | ${Series.new(['test','test','test'])} | ${['foo', 'bar', 'test']}
+${[true, false, null]} | ${Series.new([false, false, false])} | ${[true, false, false]}
+${[1, null, 3]} | ${9} | ${[1, 9, 3]}
+${['foo', 'bar', null]} | ${'test'} | ${['foo', 'bar', 'test']}
+${[true, false, null]} | ${false} | ${[true, false, false]}
+${[1, null, 3]} | ${'FOLLOWING'} | ${[1, 3, 3]}
+${['foo', 'bar', null]} | ${'PRECEDING'} | ${['foo', 'bar', 'bar']}
+${[true, false, null]} | ${'PRECEDING'} | ${[true, false, false]}
+`('Series.replaceNulls', ({data, replaceValue, expected}) => {
+  const s       = Series.new(data);
+  const result  = s.replaceNulls(replaceValue);
+
+  expect([...result]).toEqual(expected);
+});
