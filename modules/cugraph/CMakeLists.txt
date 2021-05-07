@@ -32,7 +32,7 @@ set(RMM_VERSION "0.20")
 set(CUDF_VERSION "0.20")
 set(CUGRAPH_VERSION "0.20")
 set(RAFT_VERSION "0.20")
-set(RAFT_BRANCH "66f82b4e79a3e268d0da3cc864ec7ce4ad065296")
+set(RAFT_BRANCH "use_rapids_cmake")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
