@@ -105,7 +105,7 @@ export class Utf8String extends arrow.Utf8 {}
 
 export interface List<T extends DataType = any> extends arrow.List<T> {
   childType: T;
-  scalarType: T['scalarType'][];
+  scalarType: any;
 }
 export class List<T extends DataType = any> extends arrow.List<T> {}
 

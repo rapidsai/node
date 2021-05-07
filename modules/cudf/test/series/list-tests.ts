@@ -48,6 +48,18 @@ describe('ListSeries', () => {
     validateElements(ints, col.elements);
   });
 
+  // Uncomment after https://github.com/rapidsai/cudf/pull/8071 is merged
+  // test('Can get individual values', () => {
+  //   const vec = listsOfInt32s([[0, 1, 2], [3, 4, 5]]);
+  //   const col = Series.new(vec);
+  //   for (let i = -1; ++i < col.length;) {
+  //     const elt = col.getValue(i);
+  //     expect(elt).not.toBeNull();
+  //     expect(elt).toBeInstanceOf(Int32Series);
+  //     expect([...elt!]).toEqual([...vec.get(i)!]);
+  //   }
+  // });
+
   test('Can create a List of Lists from Arrow', () => {
     const vec  = listsOfListsOfInt32s([[[0, 1, 2]], [[3, 4, 5], [7, 8, 9]]]);
     const list = vec.getChildAt<ListOfInt32>(0)! as VectorType<ListOfInt32>;

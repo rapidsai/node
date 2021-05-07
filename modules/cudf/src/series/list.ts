@@ -74,6 +74,11 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
   // TODO: account for this.offset
   get elements(): Series<T> { return Series.new(this._col.getChild<T>(1)); }
 
+  getValue(index: number): Series<T>|null {
+    const value = this._col.getValue(index);
+    return value === null ? null : Series.new(value);
+  }
+
   /** @ignore */
   protected __construct(col: Column<List<T>>) {
     return new ListSeries(Object.assign(col, {type: fixNames(this.type, col.type)}));
