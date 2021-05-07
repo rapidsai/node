@@ -411,8 +411,7 @@ export class AbstractSeries<T extends DataType = any> {
     if (value instanceof Series) {
       return Series.new(this._col.replaceNulls(value._col, memoryResource));
     } else if (value in ReplacePolicy) {
-      return Series.new(
-        this._col.replaceNulls(ReplacePolicy[value as keyof typeof ReplacePolicy], memoryResource));
+      return Series.new(this._col.replaceNulls(value == 'FOLLOWING', memoryResource));
     } else {
       return Series.new(
         this._col.replaceNulls(new Scalar({type: this.type, value}), memoryResource));
