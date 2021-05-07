@@ -332,6 +332,14 @@ test('Series.isNull (numeric)', () => {
   expect([...result]).toEqual(expected);
 });
 
+test('Series.isNotNull (numeric)', () => {
+  const col    = Series.new({type: new Int32, data: [0, 1, null, 3, 4, null, 6, null]});
+  const result = col.isNotNull();
+
+  const expected = [true, true, false, true, true, false, true, false];
+  expect([...result]).toEqual(expected);
+});
+
 test('Series.dropNulls (drop nulls only)', () => {
   const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
   const col =

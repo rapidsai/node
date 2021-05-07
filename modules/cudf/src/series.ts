@@ -758,14 +758,16 @@ export class AbstractSeries<T extends DataType = any> {
    * import {Series} from '@rapidsai/cudf';
    *
    * // Float64Series
-   * Series.new([1, null, 3]).isValid() // [true, false, true]
+   * Series.new([1, null, 3]).isNotNull() // [true, false, true]
    * // StringSeries
-   * Series.new(["foo", "bar", null]).isValid() // [true, true, false]
+   * Series.new(["foo", "bar", null]).isNotNull() // [true, true, false]
    * // Bool8Series
-   * Series.new([true, true, null]).isValid() // [true, true, false]
+   * Series.new([true, true, null]).isNotNull() // [true, true, false]
    * ```
    */
-  isValid(memoryResource?: MemoryResource) { return Series.new(this._col.isValid(memoryResource)); }
+  isNotNull(memoryResource?: MemoryResource) {
+    return Series.new(this._col.isValid(memoryResource));
+  }
 
   /**
    * drop Null values from the series

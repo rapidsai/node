@@ -51,8 +51,8 @@ describe('Series unaryops (Float64)', () => {
     const actual = makeTestData([null, 2.5, 5]).isNull();
     expect([...actual]).toEqual([true, false, false]);
   });
-  test('Series.isValid', () => {
-    const actual = makeTestData([null, 2.5, 5]).isValid();
+  test('Series.isNotNull', () => {
+    const actual = makeTestData([null, 2.5, 5]).isNotNull();
     expect([...actual]).toEqual([false, true, true]);
   });
   test('Series.isNaN', () => {
