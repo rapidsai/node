@@ -43,7 +43,6 @@ import {
 } from './types/dtypes';
 import {
   NullOrder,
-  ReplacePolicy,
 } from './types/enums';
 import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
@@ -359,7 +358,7 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([null, true, true]).replaceNulls(false) // [true, true, true]
    * ```
    */
-  replaceNulls(value: T['scalarType'], memoryResource?: MemoryResource): Series<T>;
+  replaceNulls(value: T['scalarType']|any, memoryResource?: MemoryResource): Series<T>;
 
   /**
    * Replace null values with the corresponding elements from another Series.
@@ -384,38 +383,59 @@ export class AbstractSeries<T extends DataType = any> {
    */
   replaceNulls(value: Series<T>, memoryResource?: MemoryResource): Series<T>;
 
+  replaceNulls(value: any, memoryResource?: MemoryResource): Series<T> {
+    if (value instanceof Series) {
+      return Series.new(this._col.replaceNulls(value._col, memoryResource));
+    } else {
+      return Series.new(
+        this._col.replaceNulls(new Scalar({type: this.type, value}), memoryResource));
+    }
+  }
+
   /**
-   * Replace null values with the closest non-null value before or after each null.
+   * Replace null values with the non-null value following the null value in the same series.
    *
-   * @param value The {@link ReplacePolicy} indicating the side to search for the closest non-null
-   *   value.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    *
    * @example
    * ```typescript
-   * import {Series, ReplacePolicy} from '@rapidsai/cudf';
+   * import {Series} from '@rapidsai/cudf';
    *
    * // Float64Series
-   * Series.new([1, null, 3]).replaceNulls(ReplacePolicy.PRECEDING) // [1, 1, 3]
+   * Series.new([1, null, 3]).replaceNullsFollowing() // [1, 3, 3]
    * // StringSeries
-   * Series.new(["foo", "bar", null]).replaceNulls(ReplacePolicy.PRECEDING) // ["foo", "bar", "bar"]
+   * Series.new(["foo", "bar", null]).replaceNullsFollowing() // ["foo", "bar", null]
+   * Series.new(["foo", null, "bar"]).replaceNullsFollowing() // ["foo", "bar", "bar"]
    * // Bool8Series
-   * Series.new([null, true, true]).replaceNulls(ReplacePolicy.FOLLOWING) // [true, true, true]
-   *
+   * Series.new([null, true, true]).replaceNullsFollowing() // [true, true, true]
    * ```
    */
-  replaceNulls(value: keyof typeof ReplacePolicy, memoryResource?: MemoryResource): Series<T>;
+  replaceNullsFollowing(memoryResource?: MemoryResource): Series<T> {
+    return Series.new(this._col.replaceNulls(true, memoryResource));
+  }
 
-  replaceNulls(value: any, memoryResource?: MemoryResource): Series<T> {
-    if (value instanceof Series) {
-      return Series.new(this._col.replaceNulls(value._col, memoryResource));
-    } else if (value in ReplacePolicy) {
-      return Series.new(this._col.replaceNulls(value == 'FOLLOWING', memoryResource));
-    } else {
-      return Series.new(
-        this._col.replaceNulls(new Scalar({type: this.type, value}), memoryResource));
-    }
+  /**
+   * Replace null values with the non-null value preceding the null value in the same series.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, null, 3]).replaceNullsPreceding() // [1, 1, 3]
+   * // StringSeries
+   * Series.new([null, "foo", "bar"]).replaceNullsPreceding() // [null, "foo", "bar"]
+   * Series.new(["foo", null, "bar"]).replaceNullsPreceding() // ["foo", "foo", "bar"]
+   * // Bool8Series
+   * Series.new([true, null, false]).replaceNullsPreceding() // [true, true, false]
+   * ```
+   */
+  replaceNullsPreceding(memoryResource?: MemoryResource): Series<T> {
+    return Series.new(this._col.replaceNulls(false, memoryResource));
   }
 
   /**
