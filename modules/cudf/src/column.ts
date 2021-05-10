@@ -189,6 +189,8 @@ export interface Column<T extends DataType = any> {
   replaceNulls(value: Scalar<T>, memoryResource?: MemoryResource): Column<T>;
   replaceNulls(value: ReplacePolicy, memoryResource?: MemoryResource): Column<T>;
 
+  concat(other: Column<T>, memoryResource?: MemoryResource): Column<T>;
+
   /**
    * Replace NaN values with a scalar value, or the corresponding elements from another Column.
    *

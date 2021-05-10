@@ -15,7 +15,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `add`                |         ✅          |
 | `all`                |         ✅          |
 | `any`                |         ✅          |
-| `append`             |                     |
+| `append`             |    ✅ (`concat`)    |
 | `applymap`           |                     |
 | `argsort`            |                     |
 | `as_index`           |                     |
@@ -148,7 +148,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `add`                |                     |                     |                     |
 | `all`                |         ✅          |         ✅          |         ✅          |
 | `any`                |         ✅          |         ✅          |         ✅          |
-| `append`             |                     |                     |                     |
+| `append`             |    ✅ (`concat`)    |    ✅ (`concat`)    |    ✅ (`concat`)    |
 | `applymap`           |                     |                     |                     |
 | `argsort`            |                     |                     |                     |
 | `as_index`           |                     |                     |                     |

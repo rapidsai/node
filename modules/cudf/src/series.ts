@@ -420,6 +420,28 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * Concat a Series to the end of the caller, returning a new object.
+   *
+   * @param other The Series to concat to the end of the caller.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, 2, 3]).concat(Series.new([4, 5, 6])) // [1, 2, 3, 4, 5, 6]
+   * // StringSeries
+   * Series.new(["foo"]).concat(Series.new(["bar"])) // ["foo", "bar"]
+   *
+   * ```
+   */
+  concat(other: Series<T>, memoryResource?: MemoryResource): Series<T>;
+
+  concat(other: any, memoryResource?: MemoryResource): Series<T> {
+    return Series.new(this._col.concat(other._col, memoryResource));
+  }
+
+  /**
    * Return a sub-selection of this Series using the specified integral indices.
    *
    * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.

@@ -146,6 +146,15 @@ test('Series.setValues (scalar)', () => {
   expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
 });
 
+test('Series.concat (numeric)', () => {
+  const col         = Series.new({type: new Int32, data: new Int32Buffer([1, 2, 3, 4, 5])});
+  const colToConcat = Series.new({type: new Int32, data: new Int32Buffer([6, 7, 8, 9, 10])});
+
+  const result = col.concat(colToConcat);
+
+  expect([...result]).toEqual([...col, ...colToConcat]);
+});
+
 test('Series.gather', () => {
   const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
 
