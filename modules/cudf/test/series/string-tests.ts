@@ -55,12 +55,12 @@ describe.each([['foo'], [/foo/], [/foo/ig]])('Series regex search (pattern=%p)',
 // getJSONObject tests
 test('getJSONObject', () => {
   const object_data =
-    [{goat: {id: 0, species: 'Capra Hircus'}}, {leapord: {id: 1, species: 'Panthera pardus'}}];
+    [{goat: {id: 0, species: 'Capra Hircus'}}, {leopard: {id: 1, species: 'Panthera pardus'}}];
   const a = Series.new((object_data as any).map(JSON.stringify));
 
   expect(([...a.getJSONObject('$.goat')] as any).map(JSON.parse)[0]).toEqual(object_data[0].goat);
-  expect(([...a.getJSONObject('$.leapord')] as any).map(JSON.parse)[1])
-    .toEqual(object_data[1].leapord);
+  expect(([...a.getJSONObject('$.leopard')] as any).map(JSON.parse)[1])
+    .toEqual(object_data[1].leopard);
 
   const b = Series.new(['']);
   expect([...b.getJSONObject('$')]).toStrictEqual([null]);
