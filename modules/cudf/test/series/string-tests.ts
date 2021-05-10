@@ -51,3 +51,18 @@ describe.each([['foo'], [/foo/], [/foo/ig]])('Series regex search (pattern=%p)',
     expect([...s.matchesRe(pattern)]).toEqual(expected);
   });
 });
+
+// getJSONObject tests
+test('getJSONObject', () => {
+  const object_data =
+    [{goat: {id: 0, species: 'Capra Hircus'}}, {leapord: {id: 1, species: 'Panthera pardus'}}];
+  const a = Series.new((object_data as any).map(JSON.stringify));
+
+  expect(([...a.getJSONObject('$.goat')] as any).map(JSON.parse)[0]).toEqual(object_data[0].goat);
+  expect(([...a.getJSONObject('$.leapord')] as any).map(JSON.parse)[1])
+    .toEqual(object_data[1].leapord);
+
+  const b = Series.new(['']);
+  expect([...b.getJSONObject('$')]).toStrictEqual([null]);
+  expect([...b.getJSONObject('')]).toStrictEqual([]);
+});
