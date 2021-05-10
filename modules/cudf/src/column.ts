@@ -1060,6 +1060,8 @@ export interface Column<T extends DataType = any> {
    * @returns column without duplicate values
    */
   drop_duplicates(nullsEqual?: boolean, memoryResource?: MemoryResource): Column<T>;
+
+  getJSONObject(jsonPath?: string, memoryResource?: MemoryResource): Column<T>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
