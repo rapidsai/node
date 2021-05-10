@@ -26,10 +26,7 @@ Column::wrapper_t Column::concat(cudf::column_view const& other,
 
 Napi::Value Column::concat(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  try {
-    return concat(*Column::Unwrap(args[0]), args[1]);
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
-  throw Napi::Error::New(info.Env(), "Concat requires a Column");
+  return concat(*Column::Unwrap(args[0]), args[1]);
 }
 
 }  // namespace nv
