@@ -420,7 +420,7 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
-   * Concat a Series to the end of the caller, returning a new object.
+   * Concat a Series to the end of the caller, returning a new Series.
    *
    * @param other The Series to concat to the end of the caller.
    *

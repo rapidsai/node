@@ -189,6 +189,11 @@ export interface Column<T extends DataType = any> {
   replaceNulls(value: Scalar<T>, memoryResource?: MemoryResource): Column<T>;
   replaceNulls(value: ReplacePolicy, memoryResource?: MemoryResource): Column<T>;
 
+  /**
+   * Concat a Column to the end of the caller, returning a new Column.
+   *
+   * @param other The Column to concat to the end of the caller.
+   */
   concat(other: Column<T>, memoryResource?: MemoryResource): Column<T>;
 
   /**
