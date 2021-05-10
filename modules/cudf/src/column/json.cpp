@@ -31,7 +31,6 @@ Napi::Value Column::get_json_object(Napi::CallbackInfo const& info) {
   try {
     return get_json_object(args[0], args[1]);
   } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
-  throw Napi::Error::New(info.Env(), "get_json_object requires a string value as json_path");
 }
 
 }  // namespace nv
