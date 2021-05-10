@@ -27,12 +27,8 @@ Column::wrapper_t Column::get_json_object(std::string const& json_path,
 }
 
 Napi::Value Column::get_json_object(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
   try {
-    if (info.Length() < 1) {
-      NODE_CUDF_THROW("Column get_json_object expects a jsonPath and optional MemoryResource",
-                      info.Env());
-    }
-    CallbackArgs args{info};
     return get_json_object(args[0], args[1]);
   } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
   throw Napi::Error::New(info.Env(), "get_json_object requires a string value as json_path");
