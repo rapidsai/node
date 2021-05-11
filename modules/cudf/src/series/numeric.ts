@@ -14,6 +14,7 @@
 
 import {MemoryResource} from '@rapidsai/rmm';
 
+import CUDF from '../addon';
 import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
@@ -76,6 +77,25 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     }
     const newLength = byteLength / dataType.BYTES_PER_ELEMENT;
     return Series.new({type: dataType, data: this._col.data, length: newLength});
+  }
+
+  /**
+   * Concat a NumericSeries to the end of the caller, returning a new NumericSeries.
+   *
+   * @param other The NumericSeries to concat to the end of the caller.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([1, 2, 3]).concat(Series.new([4, 5, 6])) // [1, 2, 3, 4, 5, 6]
+   * ```
+   */
+  concat<R extends Numeric>(other: Series<R>,
+                            memoryResource?: MemoryResource): Series<CommonType<T, R>> {
+    const type = CUDF.findCommonType(this.type, other.type);
+    return Series.new(this._col.cast(type, memoryResource)
+                        .concat(other._col.cast(type, memoryResource), memoryResource));
   }
 
   /**

@@ -74,6 +74,15 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
   // TODO: account for this.offset
   get elements(): Series<T> { return Series.new(this._col.getChild<T>(1)); }
 
+  /**
+   * Concat a ListSeries to the end of the caller, returning a new ListSeries.
+   *
+   * @param other The ListSeries to concat to the end of the caller.
+   */
+  concat(other: Series<List<T>>, memoryResource?: MemoryResource): Series<List<T>> {
+    return this.__construct(this._col.concat(other._col, memoryResource));
+  }
+
   /** @ignore */
   protected __construct(col: Column<List<T>>) {
     return new ListSeries(Object.assign(col, {type: fixNames(this.type, col.type)}));

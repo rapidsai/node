@@ -155,4 +155,20 @@ export class StringSeries extends Series<Utf8String> {
     const pat_string = pattern instanceof RegExp ? pattern.source : pattern;
     return Series.new(this._col.matchesRe(pat_string, memoryResource));
   }
+
+  /**
+   * Concat a StringSeries to the end of the caller, returning a new StringSeries.
+   *
+   * @param other The StringSeries to concat to the end of the caller.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new(["foo"]).concat(Series.new(["bar"])) // ["foo", "bar"]
+   * ```
+   */
+  concat(other: Series<Utf8String>, memoryResource?: MemoryResource): Series<Utf8String> {
+    return this.__construct(this._col.concat(other._col, memoryResource));
+  }
 }
