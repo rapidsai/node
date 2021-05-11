@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import * as arrow from 'apache-arrow';
+import {Column} from '../column';
 import {TypeMap} from './mappings';
 
 export type FloatingPoint = Float32|Float64;
@@ -105,7 +106,7 @@ export class Utf8String extends arrow.Utf8 {}
 
 export interface List<T extends DataType = any> extends arrow.List<T> {
   childType: T;
-  scalarType: any;
+  scalarType: Column<T>;
 }
 export class List<T extends DataType = any> extends arrow.List<T> {}
 

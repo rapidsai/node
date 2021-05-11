@@ -534,51 +534,6 @@ export class AbstractSeries<T extends DataType = any> {
   filter(mask: Series<Bool8>): Series<T> { return this.__construct(this._col.gather(mask._col)); }
 
   /**
-   * Return a value at the specified index to host memory
-   *
-   * @param index the index in this Series to return a value for
-   *
-   * @example
-   * ```typescript
-   * import {Series} from "@rapidsai/cudf";
-   *
-   * // Float64Series
-   * Series.new([1, 2, 3]).getValue(0) // 1
-   * // StringSeries
-   * Series.new(["foo", "bar", "test"]).getValue(2) // "test"
-   * // Bool8Series
-   * Series.new([false, true, true]).getValue(3) // throws index out of bounds error
-   * ```
-   */
-  getValue(index: number) { return this._col.getValue(index); }
-
-  /**
-   * set value at the specified index
-   *
-   * @param index the index in this Series to set a value for
-   * @param value the value to set at `index`
-   *
-   * @example
-   * ```typescript
-   * import {Series} from "@rapidsai/cudf";
-   *
-   * // Float64Series
-   * const a = Series.new([1, 2, 3]);
-   * a.setValue(0, -1) // inplace update [-1, 2, 3]
-   *
-   * // StringSeries
-   * const b = Series.new(["foo", "bar", "test"])
-   * b.setValue(1,"test1") // inplace update ["foo", "test1", "test"]
-   * // Bool8Series
-   * const c = Series.new([false, true, true])
-   * c.cetValue(2, false) // inplace update [false, true, false]
-   * ```
-   */
-  setValue(index: number, value: T['scalarType']): void {
-    this._col = this.scatter(value, [index])._col as Column<T>;
-  }
-
-  /**
    * set values at the specified indices
    *
    * @param indices the indices in this Series to set values for
