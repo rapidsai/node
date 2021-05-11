@@ -39,6 +39,12 @@ describe('ListSeries', () => {
     expect(expectedElements).toEqualTypedArray(actualElements);
   };
 
+  test('Can create from JS Arrays', () => {
+    const listOfLists = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, null]];
+    const col         = Series.new(listOfLists);
+    expect([...col].map((elt) => [...elt!])).toEqual(listOfLists);
+  });
+
   test('Can create from Arrow', () => {
     const vec  = listsOfInt32s([[0, 1, 2], [3, 4, 5]]);
     const ints = vec.getChildAt<arrow.Int32>(0)! as VectorType<arrow.Int32>;

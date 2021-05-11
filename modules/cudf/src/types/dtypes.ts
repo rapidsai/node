@@ -44,6 +44,7 @@ export class Int32 extends arrow.Int32 {}
 (Int32.prototype as any).BYTES_PER_ELEMENT = 4;
 
 export interface Int64 extends arrow.Int64 {
+  TValue: bigint;
   scalarType: bigint;
   readonly BYTES_PER_ELEMENT: number;
 }
@@ -72,6 +73,7 @@ export class Uint32 extends arrow.Uint32 {}
 (Uint32.prototype as any).BYTES_PER_ELEMENT = 4;
 
 export interface Uint64 extends arrow.Uint64 {
+  TValue: bigint;
   scalarType: bigint;
   readonly BYTES_PER_ELEMENT: number;
 }

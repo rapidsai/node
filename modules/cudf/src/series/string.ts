@@ -45,12 +45,10 @@ export class StringSeries extends Series<Utf8String> {
    * ```typescript
    * import {Series} from "@rapidsai/cudf";
    *
-   * // Float64Series
-   * Series.new([1, 2, 3]).getValue(0) // 1
    * // StringSeries
+   * Series.new(["foo", "bar", "test"]).getValue(0) // "foo"
    * Series.new(["foo", "bar", "test"]).getValue(2) // "test"
-   * // Bool8Series
-   * Series.new([false, true, true]).getValue(3) // throws index out of bounds error
+   * Series.new(["foo", "bar", "test"]).getValue(3) // throws index out of bounds error
    * ```
    */
   getValue(index: number) { return this._col.getValue(index); }
@@ -65,16 +63,9 @@ export class StringSeries extends Series<Utf8String> {
    * ```typescript
    * import {Series} from "@rapidsai/cudf";
    *
-   * // Float64Series
-   * const a = Series.new([1, 2, 3]);
-   * a.setValue(0, -1) // inplace update [-1, 2, 3]
-   *
    * // StringSeries
-   * const b = Series.new(["foo", "bar", "test"])
-   * b.setValue(1,"test1") // inplace update ["foo", "test1", "test"]
-   * // Bool8Series
-   * const c = Series.new([false, true, true])
-   * c.cetValue(2, false) // inplace update [false, true, false]
+   * const a = Series.new(["foo", "bar", "test"])
+   * a.setValue(2, "test1") // inplace update -> Series(["foo", "bar", "test1"])
    * ```
    */
   setValue(index: number, value: string): void { this._col = this.scatter(value, [index])._col; }

@@ -84,12 +84,14 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
    * ```typescript
    * import {Series} from "@rapidsai/cudf";
    *
-   * // Float64Series
-   * Series.new([1, 2, 3]).getValue(0) // 1
-   * // StringSeries
-   * Series.new(["foo", "bar", "test"]).getValue(2) // "test"
-   * // Bool8Series
-   * Series.new([false, true, true]).getValue(3) // throws index out of bounds error
+   * // Series<List<Float64>>
+   * Series.new([[1, 2], [3]]).getValue(0) // Series([1, 2])
+   *
+   * // Series<List<Utf8String>>
+   * Series.new([["foo", "bar"], ["test"]]).getValue(1) // Series(["test"])
+   *
+   * // Series<List<Bool8>>
+   * Series.new([[false, true], [true]]).getValue(2) // throws index out of bounds error
    * ```
    */
   getValue(index: number) {
@@ -107,20 +109,21 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
    * ```typescript
    * import {Series} from "@rapidsai/cudf";
    *
-   * // Float64Series
-   * const a = Series.new([1, 2, 3]);
-   * a.setValue(0, -1) // inplace update [-1, 2, 3]
+   * // Series<List<Float64>>
+   * const a = Series.new([[1, 2], [3]])
+   * a.setValue(0, [-1]) // inplace update -> Series([[-1], [3]])
    *
-   * // StringSeries
-   * const b = Series.new(["foo", "bar", "test"])
-   * b.setValue(1,"test1") // inplace update ["foo", "test1", "test"]
-   * // Bool8Series
-   * const c = Series.new([false, true, true])
-   * c.cetValue(2, false) // inplace update [false, true, false]
+   * // Series<List<Utf8String>>
+   * const b = Series.new([["foo", "bar"], ["test"]])
+   * b.setValue(0, ["test1"]) // inplace update -> Series([["test1"] ["test"]])
+   *
+   * // Series<List<Bool8>>
+   * const c = Series.new([[false, true], [true]])
+   * c.setValue(0, [false]) // inplace update -> Series([[false], [true]])
    * ```
    */
-  setValue(index: number, value: Series<T>): void {
-    this._col = this.scatter(value._col as Column<T>, [index])._col;
+  setValue(index: number, value: T['scalarType'][]|Series<T>): void {
+    this._col = this.scatter(Series.new<T>(<any>value)._col as Column<T>, [index])._col;
   }
 
   /** @ignore */
