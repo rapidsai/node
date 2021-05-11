@@ -31,9 +31,6 @@ option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated 
 set(RMM_VERSION "0.20")
 set(CUDF_VERSION "0.20")
 set(CUML_VERSION "0.20")
-set(RAFT_VERSION "0.20")
-set(RAFT_GITHUB_URL "https://github.com/dantegd/raft.git")
-set(RAFT_BRANCH "842af95285714104a8eee2d9a3794d264744e7e8")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------

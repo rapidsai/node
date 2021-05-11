@@ -25,28 +25,6 @@ function(find_and_configure_cuml VERSION)
     include(ConfigureCUDF)
 
     if(NOT TARGET cuml::cuml)
-
-        include(ConfigureRAFT)
-
-        # Have to set these in case configure and build steps are run separately
-        # TODO: figure out why
-
-        # set(SINGLEGPU ON)
-        # set(WITH_UCX OFF)
-        # set(DISABLE_OPENMP OFF)
-        # set(DETECT_CONDA_ENV OFF)
-        # set(ENABLE_CUMLPRIMS_MG OFF)
-        # set(BUILD_CUML_MG_TESTS OFF)
-        # set(BUILD_CUML_STD_COMMS OFF)
-        # set(BUILD_CUML_MPI_COMMS OFF)
-
-        # set(BUILD_CUML_TESTS OFF)
-        # set(BUILD_CUML_BENCH OFF)
-        # set(BUILD_PRIMS_TESTS OFF)
-        # set(BUILD_CUML_EXAMPLES OFF)
-        # set(BUILD_CUML_C_LIBRARY OFF)
-        # set(BUILD_CUML_CPP_LIBRARY OFF)
-
         CPMFindPackage(NAME     cuml
             VERSION             ${CUML_VERSION}
             # GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
@@ -58,6 +36,7 @@ function(find_and_configure_cuml VERSION)
             SOURCE_SUBDIR       cpp
             OPTIONS             "SINGLEGPU ON"
                                 "WITH_UCX OFF"
+                                "BUILD_TESTS OFF"
                                 "DISABLE_OPENMP OFF"
                                 "DETECT_CONDA_ENV OFF"
                                 "ENABLE_CUMLPRIMS_MG OFF"
