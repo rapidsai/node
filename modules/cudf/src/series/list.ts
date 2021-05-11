@@ -36,6 +36,7 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
     throw new Error(`Cast from ${arrow.Type[this.type.typeId]} to ${
       arrow.Type[dataType.typeId]} not implemented`);
   }
+
   /**
    * Series of integer offsets for each list
    * @example
@@ -73,6 +74,30 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
    */
   // TODO: account for this.offset
   get elements(): Series<T> { return Series.new(this._col.getChild<T>(1)); }
+
+  /**
+   * Return a value at the specified index to host memory
+   *
+   * @param index the index in this Series to return a value for
+   *
+   * @example
+   * ```typescript
+   * import {Series} from "@rapidsai/cudf";
+   *
+   * // Series<List<Float64>>
+   * Series.new([[1, 2], [3]]).getValue(0) // Series([1, 2])
+   *
+   * // Series<List<Utf8String>>
+   * Series.new([["foo", "bar"], ["test"]]).getValue(1) // Series(["test"])
+   *
+   * // Series<List<Bool8>>
+   * Series.new([[false, true], [true]]).getValue(2) // throws index out of bounds error
+   * ```
+   */
+  getValue(index: number) {
+    const value = this._col.getValue(index);
+    return value === null ? null : Series.new(value);
+  }
 
   /** @ignore */
   protected __construct(col: Column<List<T>>) {

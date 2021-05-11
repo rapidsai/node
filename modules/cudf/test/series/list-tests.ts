@@ -17,7 +17,7 @@
 import '../jest-extensions';
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {Int32, List, Series} from '@rapidsai/cudf';
+import {Int32, Int32Series, List, Series} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';
@@ -39,6 +39,12 @@ describe('ListSeries', () => {
     expect(expectedElements).toEqualTypedArray(actualElements);
   };
 
+  test('Can create from JS Arrays', () => {
+    const listOfLists = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, null]];
+    const col         = Series.new(listOfLists);
+    expect([...col].map((elt) => [...elt!])).toEqual(listOfLists);
+  });
+
   test('Can create from Arrow', () => {
     const vec  = listsOfInt32s([[0, 1, 2], [3, 4, 5]]);
     const ints = vec.getChildAt<arrow.Int32>(0)! as VectorType<arrow.Int32>;
@@ -47,6 +53,26 @@ describe('ListSeries', () => {
     validateOffsets(vec, col);
     validateElements(ints, col.elements);
   });
+
+  test('Can get individual values', () => {
+    const vec = listsOfInt32s([[0, 1, 2], [3, 4, 5]]);
+    const col = Series.new(vec);
+    for (let i = -1; ++i < col.length;) {
+      const elt = col.getValue(i);
+      expect(elt).not.toBeNull();
+      expect(elt).toBeInstanceOf(Int32Series);
+      expect([...elt!]).toEqual([...vec.get(i)!]);
+    }
+  });
+
+  // Uncomment this once libcudf supports scatter w/ list_scalar
+  // test('Can set individual values', () => {
+  //   const listOfLists = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, null]];
+  //   const col         = Series.new(listOfLists);
+  //   col.setValue(0, [1, 1, 1]);
+  //   expect([...col].map((elt) => [...elt!])).toEqual([[1, 1, 1], [3, 4, 5], [6, 7, 8], [9,
+  //   null]]);
+  // });
 
   test('Can create a List of Lists from Arrow', () => {
     const vec  = listsOfListsOfInt32s([[[0, 1, 2]], [[3, 4, 5], [7, 8, 9]]]);
