@@ -31,65 +31,49 @@ function(find_and_configure_cuml VERSION)
         # Have to set these in case configure and build steps are run separately
         # TODO: figure out why
 
-        set(SINGLEGPU ON)
-        set(WITH_UCX OFF)
-        set(DISABLE_OPENMP OFF)
-        set(DETECT_CONDA_ENV OFF)
-        set(ENABLE_CUMLPRIMS_MG OFF)
-        set(BUILD_CUML_MG_TESTS OFF)
-        set(BUILD_CUML_STD_COMMS OFF)
-        set(BUILD_CUML_MPI_COMMS OFF)
+        # set(SINGLEGPU ON)
+        # set(WITH_UCX OFF)
+        # set(DISABLE_OPENMP OFF)
+        # set(DETECT_CONDA_ENV OFF)
+        # set(ENABLE_CUMLPRIMS_MG OFF)
+        # set(BUILD_CUML_MG_TESTS OFF)
+        # set(BUILD_CUML_STD_COMMS OFF)
+        # set(BUILD_CUML_MPI_COMMS OFF)
 
-        set(BUILD_CUML_TESTS OFF)
-        set(BUILD_CUML_BENCH OFF)
-        set(BUILD_PRIMS_TESTS OFF)
-        set(BUILD_CUML_EXAMPLES OFF)
-        set(BUILD_CUML_C_LIBRARY OFF)
-        set(BUILD_CUML_CPP_LIBRARY OFF)
+        # set(BUILD_CUML_TESTS OFF)
+        # set(BUILD_CUML_BENCH OFF)
+        # set(BUILD_PRIMS_TESTS OFF)
+        # set(BUILD_CUML_EXAMPLES OFF)
+        # set(BUILD_CUML_C_LIBRARY OFF)
+        # set(BUILD_CUML_CPP_LIBRARY OFF)
 
         CPMFindPackage(NAME     cuml
             VERSION             ${CUML_VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
-            GIT_TAG             branch-${CUML_VERSION}
+            # GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
+            # GIT_TAG             branch-${CUML_VERSION}
+            GIT_REPOSITORY      https://github.com/dantegd/cuml.git
+            GIT_TAG             fea-rapids-cmake
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
-            # SOURCE_SUBDIR  cpp
-            DOWNLOAD_ONLY
+            SOURCE_SUBDIR       cpp
+            OPTIONS             "SINGLEGPU ON"
+                                "WITH_UCX OFF"
+                                "DISABLE_OPENMP OFF"
+                                "DETECT_CONDA_ENV OFF"
+                                "ENABLE_CUMLPRIMS_MG OFF"
+                                "BUILD_CUML_MG_TESTS OFF"
+                                "BUILD_CUML_STD_COMMS OFF"
+                                "BUILD_CUML_MPI_COMMS OFF"
+                                "BUILD_CUML_TESTS OFF"
+                                "BUILD_CUML_BENCH OFF"
+                                "BUILD_PRIMS_TESTS OFF"
+                                "BUILD_CUML_EXAMPLES OFF"
+                                "BUILD_CUML_C_LIBRARY OFF"
+                                "BUILD_CUML_CPP_LIBRARY ON"
         )
 
-        # synthesize a cuml::cuml target
-        add_library(cuml SHARED
-            "${cuml_SOURCE_DIR}/cpp/src/umap/umap.cu")
-
-        set_target_properties(cuml
-            PROPERTIES BUILD_RPATH                         "\$ORIGIN"
-                       INSTALL_RPATH                       "\$ORIGIN"
-                       # set target compile options
-                       CXX_STANDARD                        17
-                       CXX_STANDARD_REQUIRED               ON
-                       CUDA_STANDARD                       17
-                       CUDA_STANDARD_REQUIRED              ON
-                       NO_SYSTEM_FROM_IMPORTED             ON
-                       POSITION_INDEPENDENT_CODE           ON
-                       INTERFACE_POSITION_INDEPENDENT_CODE ON
-        )
-
-        target_include_directories(cuml
-            PUBLIC "${cuml_SOURCE_DIR}/cpp/include"
-                   "${cuml_SOURCE_DIR}/cpp/src_prims"
-                   "${cuml_SOURCE_DIR}/cpp/src")
-
-        set(NODE_RAPIDS_CUML_CUDA_FLAGS ${NODE_RAPIDS_CMAKE_CUDA_FLAGS})
-
-        list(APPEND NODE_RAPIDS_CUML_CUDA_FLAGS -Xcudafe --diag_suppress=unrecognized_gcc_pragma -Xfatbin=-compress-all)
-
-        target_compile_options(cuml
-            PRIVATE "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CUML_CUDA_FLAGS}>>"
-        )
-
-        target_link_libraries(cuml PUBLIC raft::raft CUDA::cudart_static)
-
-        add_library(cuml::cuml ALIAS cuml)
+        # Make sure consumers of our libs can see cuml::cuml++
+        _fix_cmake_global_defaults(cuml::cuml++)
     endif()
 endfunction()
 

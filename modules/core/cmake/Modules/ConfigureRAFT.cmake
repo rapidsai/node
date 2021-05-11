@@ -14,11 +14,11 @@
 # limitations under the License.
 #=============================================================================
 
-include(get_cpm)
-
-_set_package_dir_if_exists(raft raft)
-
 function(find_and_configure_raft VERSION)
+
+    include(get_cpm)
+
+    _set_package_dir_if_exists(raft raft)
 
     if(NOT TARGET raft::raft)
 
@@ -30,17 +30,16 @@ function(find_and_configure_raft VERSION)
 
         CPMFindPackage(NAME     raft
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/raft.git
+            GIT_REPOSITORY      ${RAFT_GITHUB_URL}
             GIT_TAG             ${RAFT_BRANCH}
-            # GIT_SHALLOW         TRUE
-            # UPDATE_DISCONNECTED TRUE
-            # SOURCE_SUBDIR     cpp
             DOWNLOAD_ONLY
         )
 
         # Synthesize a raft::raft target
         add_library(raft INTERFACE)
-        target_include_directories(raft INTERFACE "${raft_SOURCE_DIR}/cpp/include")
+        target_include_directories(raft
+            INTERFACE "$<BUILD_INTERFACE:${raft_SOURCE_DIR}/cpp/include>")
+
         target_link_libraries(raft
             INTERFACE rmm::rmm
                       CUDA::cublas
@@ -50,6 +49,22 @@ function(find_and_configure_raft VERSION)
                       CUDA::cudart_static)
 
         add_library(raft::raft ALIAS raft)
+
+        install(TARGETS raft
+                DESTINATION lib
+                EXPORT raft-exports)
+
+        install(EXPORT raft-exports
+                DESTINATION "lib/cmake/raft"
+                FILE raft-targets.cmake
+                NAMESPACE raft::)
+
+        export(EXPORT raft-exports
+               FILE raft-targets.cmake
+               NAMESPACE raft::)
+
+        # Make sure consumers of our libs can see raft::raft
+        _fix_cmake_global_defaults(raft::raft)
     endif()
 endfunction()
 

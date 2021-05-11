@@ -32,7 +32,8 @@ set(RMM_VERSION "0.20")
 set(CUDF_VERSION "0.20")
 set(CUML_VERSION "0.20")
 set(RAFT_VERSION "0.20")
-set(RAFT_BRANCH "37faba16f263b6556583208517d4237d9041bfc0")
+set(RAFT_GITHUB_URL "https://github.com/dantegd/raft.git")
+set(RAFT_BRANCH "842af95285714104a8eee2d9a3794d264744e7e8")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
@@ -112,7 +113,7 @@ target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       rmm::rmm
                       cudf::cudf
-                      cuml::cuml
+                      cuml::cuml++
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
