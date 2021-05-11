@@ -68,7 +68,7 @@ You can review [BINDINGS.md](https://github.com/rapidsai/node-rapids/blob/main/B
 
 ### What is the `.env` file used for and what variables can be set in it?
 
-The `.env` file is used by the [docker-compose.yml](/docker-compose.yml) file when building the development containers (i.e. `yarn docker:build:devel`). Any variables in the [docker-compose.yml](/docker-compose.yml) file can be set in the `.env` file. The [.env.sample](/.env.sample) file includes some common variables that may be set in the `.env` file.
+The `.env` file is used by the [docker-compose.yml](/docker-compose.yml) file when building and running the development containers (i.e. `yarn docker:build:devel` and `yarn docker:run:devel`). Any variables in the [docker-compose.yml](/docker-compose.yml) file can be set in the `.env` file. The [.env.sample](/.env.sample) file includes some common variables that may be set in the `.env` file.
 
 ## License
 
