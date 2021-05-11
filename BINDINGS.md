@@ -273,7 +273,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `interleave_columns` |                    |
 | `isin`               |                    |
 | `isna`               |                    |
-| `isnull`             |                    |
+| `isnull`             |         ✅         |
 | `iteritems`          |                    |
 | `join`               |                    |
 | `keys`               |                    |

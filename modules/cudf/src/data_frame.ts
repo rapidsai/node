@@ -884,4 +884,35 @@ export class DataFrame<T extends TypeMap = any> {
     });
     return new DataFrame(series_map);
   }
+
+  /**
+   * Creates a DataFrame of `BOOL8` Series where `true` indicates the value is `null` or `NaN` and
+   * `false` indicates the value is valid.
+   *
+   * @returns DataFrame<Bool8> with series of `BOOL8` elements with `true` representing `null` or
+   * `NaN` values
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]}),
+   *  b: Series.new({type: new Float32, data: [0, NaN, 2, 3, 4, 4]})
+   * });
+   *
+   * df.isNull()
+   * ```
+   */
+  isNull(): DataFrame<T> {
+    const temp       = new Table({columns: this.select(this.names)._accessor.columns});
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name, index) => {
+      if (this.get(name) instanceof Float32Series || this.get(name) instanceof Float64Series) {
+        series_map[name] = Series.new(temp.getColumnByIndex(index).isNaN()) as any;
+      } else {
+        series_map[name] = Series.new(temp.getColumnByIndex(index).isNull()) as any;
+      }
+    });
+    return new DataFrame(series_map);
+  }
 }
