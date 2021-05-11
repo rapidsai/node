@@ -99,33 +99,6 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
     return value === null ? null : Series.new(value);
   }
 
-  /**
-   * set value at the specified index
-   *
-   * @param index the index in this Series to set a value for
-   * @param value the value to set at `index`
-   *
-   * @example
-   * ```typescript
-   * import {Series} from "@rapidsai/cudf";
-   *
-   * // Series<List<Float64>>
-   * const a = Series.new([[1, 2], [3]])
-   * a.setValue(0, [-1]) // inplace update -> Series([[-1], [3]])
-   *
-   * // Series<List<Utf8String>>
-   * const b = Series.new([["foo", "bar"], ["test"]])
-   * b.setValue(0, ["test1"]) // inplace update -> Series([["test1"] ["test"]])
-   *
-   * // Series<List<Bool8>>
-   * const c = Series.new([[false, true], [true]])
-   * c.setValue(0, [false]) // inplace update -> Series([[false], [true]])
-   * ```
-   */
-  setValue(index: number, value: T['scalarType'][]|Series<T>): void {
-    this._col = this.scatter(Series.new<T>(<any>value)._col as Column<T>, [index])._col;
-  }
-
   /** @ignore */
   protected __construct(col: Column<List<T>>) {
     return new ListSeries(Object.assign(col, {type: fixNames(this.type, col.type)}));

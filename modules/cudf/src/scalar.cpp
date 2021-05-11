@@ -16,6 +16,7 @@
 #include <node_cudf/utilities/cpp_to_napi.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
+#include <node_cudf/utilities/value_to_scalar.hpp>
 
 #include <node_cuda/utilities/error.hpp>
 #include <node_cuda/utilities/napi_to_cpp.hpp>
@@ -33,50 +34,6 @@
 #include <type_traits>
 
 namespace nv {
-
-namespace {
-
-struct set_scalar_value {
-  Napi::Value val;
-
-  template <typename T>
-  inline std::enable_if_t<cudf::is_numeric<T>(), void> operator()(
-    std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
-    static_cast<cudf::numeric_scalar<T>*>(scalar.get())->set_value(NapiToCPP(val), stream);
-  }
-  template <typename T>
-  inline std::enable_if_t<std::is_same<T, cudf::string_view>::value, void> operator()(
-    std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
-    scalar.reset(new cudf::string_scalar(val.ToString(), true, stream));
-  }
-  template <typename T>
-  inline std::enable_if_t<cudf::is_duration<T>(), void> operator()(
-    std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
-    static_cast<cudf::duration_scalar<T>*>(scalar.get())->set_value(NapiToCPP(val), stream);
-  }
-  template <typename T>
-  inline std::enable_if_t<cudf::is_timestamp<T>(), void> operator()(
-    std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
-    static_cast<cudf::timestamp_scalar<T>*>(scalar.get())->set_value(NapiToCPP(val), stream);
-  }
-  template <typename T>
-  inline std::enable_if_t<cudf::is_fixed_point<T>(), void> operator()(
-    std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
-    scalar.reset(new cudf::fixed_point_scalar<T>(val.ToNumber(), true, stream));
-  }
-  template <typename T>
-  inline std::enable_if_t<!(cudf::is_numeric<T>() ||                      //
-                            std::is_same<T, cudf::string_view>::value ||  //
-                            cudf::is_duration<T>() ||                     //
-                            cudf::is_timestamp<T>() ||                    //
-                            cudf::is_fixed_point<T>()),
-                          void>
-  operator()(std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
-    NAPI_THROW(Napi::Error::New(val.Env(), "Unsupported dtype"));
-  }
-};
-
-}  // namespace
 
 Napi::Function Scalar::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(
@@ -145,7 +102,7 @@ void Scalar::set_value(Napi::CallbackInfo const& info, Napi::Value const& value)
   if (value.IsNull() or value.IsUndefined()) {
     this->set_valid(false);
   } else {
-    cudf::type_dispatcher(this->type(), set_scalar_value{value}, scalar_);
+    cudf::type_dispatcher(this->type(), detail::set_scalar_value{value}, scalar_);
   }
 }
 
