@@ -77,8 +77,6 @@ install_vscode_extensions() {
 install_apt_deps jq software-properties-common \
     # cuSpatial dependencies
     libgdal-dev \
-    # cuDF dependencies
-    libboost-filesystem-dev \
     # X11 dependencies
     libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev \
     # node-canvas dependencies
