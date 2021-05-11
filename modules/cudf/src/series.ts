@@ -435,10 +435,8 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * ```
    */
-  concat(other: Series<T>, memoryResource?: MemoryResource): Series<T>;
-
-  concat(other: any, memoryResource?: MemoryResource): Series<T> {
-    return Series.new(this._col.concat(other._col, memoryResource));
+  concat(other: Series<T>, memoryResource?: MemoryResource): Series<T> {
+    return Series.new(this._col.concat(other._col as Column<T>, memoryResource));
   }
 
   /**
