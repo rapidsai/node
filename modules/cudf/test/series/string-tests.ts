@@ -58,9 +58,8 @@ test('getJSONObject', () => {
     [{goat: {id: 0, species: 'Capra Hircus'}}, {leopard: {id: 1, species: 'Panthera pardus'}}];
   const a = Series.new((object_data as any).map(JSON.stringify));
 
-  expect(([...a.getJSONObject('$.goat')] as any).map(JSON.parse)[0]).toEqual(object_data[0].goat);
-  expect(([...a.getJSONObject('$.leopard')] as any).map(JSON.parse)[1])
-    .toEqual(object_data[1].leopard);
+  expect(JSON.parse(a.getJSONObject('$.goat').getValue(0))).toEqual(object_data[0].goat);
+  expect(JSON.parse(a.getJSONObject('$.leopard').getValue(1))).toEqual(object_data[1].leopard);
 
   const b = Series.new(['']);
   expect([...b.getJSONObject('$')]).toStrictEqual([null]);
