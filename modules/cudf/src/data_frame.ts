@@ -896,11 +896,15 @@ export class DataFrame<T extends TypeMap = any> {
    * ```typescript
    * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]}),
-   *  b: Series.new({type: new Float32, data: [0, NaN, 2, 3, 4, 4]})
+   *  a: Series.new({type: new Int32, data: [0, null, 2, null, 4]}),
+   *  b: Series.new({type: new Float32, data: [0, 1, 2, NaN, 4, NaN]})
    * });
    *
    * df.isNull()
+   * // return {
+   * //    a: [false, true, false, true, false],
+   * //    b: [false, false, false, true, false, true],
+   * // }
    * ```
    */
   isNull(): DataFrame<T> {
