@@ -34,8 +34,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
     # GLEW dependencies
     build-essential libxmu-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
-    # cuDF dependencies
-    libboost-filesystem-dev \
     # cuSpatial dependencies
     libgdal-dev \
  && apt autoremove -y \

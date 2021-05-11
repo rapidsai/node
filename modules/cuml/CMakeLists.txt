@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
-project(node_cugraph VERSION 0.0.1 LANGUAGES C CXX)
+project(node_cuml VERSION 0.0.1 LANGUAGES C CXX)
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
     return()
@@ -30,10 +30,7 @@ option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated 
 
 set(RMM_VERSION "0.20")
 set(CUDF_VERSION "0.20")
-set(CUGRAPH_VERSION "0.20")
-set(RAFT_VERSION "0.20")
-set(RAFT_GITHUB_URL "https://github.com/robertmaynard/raft.git")
-set(RAFT_BRANCH "use_rapids_cmake")
+set(CUML_VERSION "0.20")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
@@ -67,18 +64,18 @@ list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
 include(ConfigureCXX)
 include(ConfigureCUDA)
 include(ConfigureNapi)
-include(ConfigureCuGraph)
+include(ConfigureCUML)
 
 ###################################################################################################
-# - node_cugraph target ---------------------------------------------------------------------------
+# - node_cuml target ---------------------------------------------------------------------------
 
-file(GLOB_RECURSE NODE_CUGRAPH_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
-file(GLOB_RECURSE NODE_CUGRAPH_CUDA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu")
+file(GLOB_RECURSE NODE_CUML_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE NODE_CUML_CUDA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu")
 
-list(APPEND NODE_CUGRAPH_SRC_FILES ${NODE_CUGRAPH_CPP_FILES})
-list(APPEND NODE_CUGRAPH_SRC_FILES ${NODE_CUGRAPH_CUDA_FILES})
+list(APPEND NODE_CUML_SRC_FILES ${NODE_CUML_CPP_FILES})
+list(APPEND NODE_CUML_SRC_FILES ${NODE_CUML_CUDA_FILES})
 
-add_library(${PROJECT_NAME} SHARED ${NODE_CUGRAPH_SRC_FILES} ${CMAKE_JS_SRC})
+add_library(${PROJECT_NAME} SHARED ${NODE_CUML_SRC_FILES} ${CMAKE_JS_SRC})
 
 set_target_properties(${PROJECT_NAME}
     PROPERTIES PREFIX                              ""
@@ -113,8 +110,7 @@ target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       rmm::rmm
                       cudf::cudf
-                      cugraph::cugraph
-                      CUDA::cudart_static
+                      cuml::cuml++
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")

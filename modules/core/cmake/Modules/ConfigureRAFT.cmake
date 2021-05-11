@@ -30,7 +30,7 @@ function(find_and_configure_raft VERSION)
 
         CPMFindPackage(NAME     raft
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/robertmaynard/raft.git
+            GIT_REPOSITORY      ${RAFT_GITHUB_URL}
             GIT_TAG             ${RAFT_BRANCH}
             DOWNLOAD_ONLY
         )
