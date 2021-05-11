@@ -28,9 +28,7 @@ Column::wrapper_t Column::get_json_object(std::string const& json_path,
 
 Napi::Value Column::get_json_object(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  try {
-    return get_json_object(args[0], args[1]);
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
+  return get_json_object(args[0], args[1]);
 }
 
 }  // namespace nv
