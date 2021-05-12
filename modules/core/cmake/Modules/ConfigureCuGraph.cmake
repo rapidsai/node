@@ -23,7 +23,6 @@ function(find_and_configure_cugraph VERSION)
     _clean_build_dirs_if_not_fully_built(cugraph libcugraph.so)
 
     _set_package_dir_if_exists(cuco cuco)
-    _set_package_dir_if_exists(raft raft)
     _set_package_dir_if_exists(FAISS faiss)
     # _set_package_dir_if_exists(gunrock gunrock)
     _set_package_dir_if_exists(cuhornet cuhornet)
@@ -31,8 +30,6 @@ function(find_and_configure_cugraph VERSION)
     _set_package_dir_if_exists(cugraph cugraph)
 
     if(NOT TARGET cugraph::cugraph)
-
-        include(ConfigureRAFT)
 
         # Have to set these in case configure and build steps are run separately
         # TODO: figure out why
@@ -55,12 +52,8 @@ function(find_and_configure_cugraph VERSION)
                                 "BUILD_BENCHMARKS OFF"
         )
 
-        execute_process(COMMAND mkdir -p "${cugraph_SOURCE_DIR}/cpp/fake_include")
-        execute_process(COMMAND ln -s -f "${cugraph_SOURCE_DIR}/cpp/include" "${cugraph_SOURCE_DIR}/cpp/fake_include/cugraph")
-
-        target_include_directories(cugraph
-            PUBLIC "${cugraph_SOURCE_DIR}/cpp/fake_include"
-                   "${cugraph_SOURCE_DIR}/cpp/include")
+        # Make sure consumers of our libs can see cugraph::cugraph
+        _fix_cmake_global_defaults(cugraph::cugraph)
     endif()
 endfunction()
 
