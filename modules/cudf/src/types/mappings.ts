@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import * as arrow from 'apache-arrow';
+import CUDF from '../addon';
 
 import {Column} from '../column';
 
@@ -83,6 +84,11 @@ export type CommonType<T extends DataType, R extends Numeric> =
   : T extends Float64 ? CommonType_Float64<R>
   : never;
 // clang-format on
+
+export function findCommonType<T extends DataType, R extends Numeric>(lhs: T,
+                                                                      rhs: R): CommonType<T, R> {
+  return arrowToCUDFType(CUDF.findCommonType(lhs, rhs)) as CommonType<T, R>;
+}
 
 // clang-format off
 /** @ignore */

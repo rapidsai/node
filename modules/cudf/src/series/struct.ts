@@ -67,6 +67,15 @@ export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
       this._col.getChild<T[P]>(this.type.children.findIndex((f) => f.name === name)));
   }
 
+  /**
+   * Concat a StructSeries to the end of the caller, returning a new StructSeries.
+   *
+   * @param other The StructSeries to concat to the end of the caller.
+   */
+  concat(other: Series<Struct<T>>, memoryResource?: MemoryResource): Series<Struct<T>> {
+    return this.__construct(this._col.concat(other._col, memoryResource));
+  }
+
   /** @ignore */
   protected __construct(col: Column<Struct<T>>) {
     return new StructSeries(Object.assign(col, {type: fixNames(this.type, col.type)}));

@@ -32,6 +32,17 @@ const data: string[] = [
   'bar\nfoo'       // multi-line
 ];
 
+describe('StringSeries', () => {
+  test('Can concat', () => {
+    const col         = StringSeries.new(['foo']);
+    const colToConcat = StringSeries.new(['bar']);
+
+    const result = col.concat(colToConcat);
+
+    expect([...result]).toEqual([...col, ...colToConcat]);
+  });
+});
+
 describe.each([['foo'], [/foo/], [/foo/ig]])('Series regex search (pattern=%p)', (pattern) => {
   test('containsRe', () => {
     const expected = [true, true, true, true, true, false, false, true, true];

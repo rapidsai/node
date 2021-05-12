@@ -178,6 +178,8 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::null_equals>("null_equals"),
                        InstanceMethod<&Column::null_max>("null_max"),
                        InstanceMethod<&Column::null_min>("null_min"),
+                       // column/concatenate.cpp
+                       InstanceMethod<&Column::concat>("concat"),
                        // column/stream_compaction.cpp
                        InstanceMethod<&Column::drop_nulls>("drop_nulls"),
                        InstanceMethod<&Column::drop_nans>("drop_nans"),

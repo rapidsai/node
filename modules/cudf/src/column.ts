@@ -189,6 +189,13 @@ export interface Column<T extends DataType = any> {
   replaceNulls(value: boolean, memoryResource?: MemoryResource): Column<T>;
 
   /**
+   * Concat a Column to the end of the caller, returning a new Column.
+   *
+   * @param other The Column to concat to the end of the caller.
+   */
+  concat(other: Column<T>, memoryResource?: MemoryResource): Column<T>;
+
+  /**
    * Replace NaN values with a scalar value, or the corresponding elements from another Column.
    *
    * @param value The value to use in place of NaNs.

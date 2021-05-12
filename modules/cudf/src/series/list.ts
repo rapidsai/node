@@ -76,6 +76,15 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
   get elements(): Series<T> { return Series.new(this._col.getChild<T>(1)); }
 
   /**
+   * Concat a ListSeries to the end of the caller, returning a new ListSeries.
+   *
+   * @param other The ListSeries to concat to the end of the caller.
+   */
+  concat(other: Series<List<T>>, memoryResource?: MemoryResource): Series<List<T>> {
+    return this.__construct(this._col.concat(other._col, memoryResource));
+  }
+
+  /**
    * Return a value at the specified index to host memory
    *
    * @param index the index in this Series to return a value for
