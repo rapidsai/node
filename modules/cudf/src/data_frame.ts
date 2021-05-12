@@ -893,7 +893,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    * const df = new DataFrame({
    *  a: Series.new([0, null, 2]);
    *  b: Series.new(['foo', 'bar', null]);
