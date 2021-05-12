@@ -440,13 +440,13 @@ test('dataframe.nansToNulls', () => {
 
 test('dataframe.isNull', () => {
   const a      = Series.new([0, null, 2, 3, null]);
-  const b      = Series.new([NaN, 0, 3, NaN, 5]);
+  const b      = Series.new([NaN, 0, 3, NaN, null]);
   const c      = Series.new([null, null, 'foo', 'bar', '']);
   const df     = new DataFrame({'a': a, 'b': b, 'c': c});
   const result = df.isNull();
 
   const expected_a = Series.new({type: new Bool8, data: [false, true, false, false, true]});
-  const expected_b = Series.new({type: new Bool8, data: [true, false, false, true, false]});
+  const expected_b = Series.new({type: new Bool8, data: [true, false, false, true, true]});
   const expected_c = Series.new({type: new Bool8, data: [true, true, false, false, false]});
 
   expect([...result.get('a')]).toEqual([...expected_a]);
