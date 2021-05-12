@@ -14,12 +14,11 @@
 
 import {MemoryResource} from '@rapidsai/rmm';
 
-import CUDF from '../addon';
 import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
 import {Bool8, DataType, Numeric} from '../types/dtypes';
-import {CommonType, Interpolation} from '../types/mappings';
+import {CommonType, findCommonType, Interpolation} from '../types/mappings';
 
 import {Float64Series} from './float';
 import {Int64Series} from './integral';
@@ -91,11 +90,14 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * Series.new([1, 2, 3]).concat(Series.new([4, 5, 6])) // [1, 2, 3, 4, 5, 6]
    * ```
    */
-  concat<R extends Numeric>(other: Series<R>,
-                            memoryResource?: MemoryResource): Series<CommonType<T, R>> {
-    const type = CUDF.findCommonType(this.type, other.type);
-    return Series.new(this._col.cast(type, memoryResource)
-                        .concat(other._col.cast(type, memoryResource), memoryResource));
+  concat<R extends Numeric>(other: NumericSeries<R>, memoryResource?: MemoryResource) {
+    type U     = typeof type;
+    const type = findCommonType(this.type, other.type);
+    const lhs =
+      <Column<U>>(type.compareTo(this.type) ? this._col : this._col.cast(type, memoryResource));
+    const rhs =
+      <Column<U>>(type.compareTo(other.type) ? other._col : other._col.cast(type, memoryResource));
+    return Series.new(lhs.concat(rhs, memoryResource));
   }
 
   /**
