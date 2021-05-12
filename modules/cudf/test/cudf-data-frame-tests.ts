@@ -437,3 +437,19 @@ test('dataframe.nansToNulls', () => {
 
   expect(result.get('b').nullCount).toEqual(1);
 });
+
+test('dataframe.isNaN', () => {
+  const a      = Series.new({type: new Int32, data: [0, null, 2, 3, null]});
+  const b      = Series.new({type: new Float32, data: [NaN, 0, 3, NaN, null]});
+  const c      = Series.new([null, null, 'foo', 'bar', '']);
+  const df     = new DataFrame({'a': a, 'b': b, 'c': c});
+  const result = df.isNaN();
+
+  const expected_a = Series.new(a);
+  const expected_b = Series.new([true, false, false, true, false]);
+  const expected_c = Series.new(c);
+
+  expect([...result.get('a')]).toEqual([...expected_a]);
+  expect([...result.get('b')]).toEqual([...expected_b]);
+  expect([...result.get('c')]).toEqual([...expected_c]);
+});
