@@ -35,6 +35,11 @@ import {
   List,
   Numeric,
   Struct,
+  TimestampDay,
+  TimestampMicrosecond,
+  TimestampMillisecond,
+  TimestampNanosecond,
+  TimestampSecond,
   Uint16,
   Uint32,
   Uint64,
@@ -110,23 +115,23 @@ export type Series<T extends arrow.DataType = any> = {
   [arrow.Type.Binary]: never,
   [arrow.Type.Utf8]: StringSeries,
   [arrow.Type.Bool]: Bool8Series,
-  [arrow.Type.Decimal]: never,               // TODO
-  [arrow.Type.Date]: never,                  // TODO
-  [arrow.Type.DateDay]: never,               // TODO
-  [arrow.Type.DateMillisecond]: never,       // TODO
-  [arrow.Type.Time]: never,                  // TODO
-  [arrow.Type.TimeSecond]: never,            // TODO
-  [arrow.Type.TimeMillisecond]: never,       // TODO
-  [arrow.Type.TimeMicrosecond]: never,       // TODO
-  [arrow.Type.TimeNanosecond]: never,        // TODO
-  [arrow.Type.Timestamp]: never,             // TODO
-  [arrow.Type.TimestampSecond]: never,       // TODO
-  [arrow.Type.TimestampMillisecond]: never,  // TODO
-  [arrow.Type.TimestampMicrosecond]: never,  // TODO
-  [arrow.Type.TimestampNanosecond]: never,   // TODO
-  [arrow.Type.Interval]: never,              // TODO
-  [arrow.Type.IntervalDayTime]: never,       // TODO
-  [arrow.Type.IntervalYearMonth]: never,     // TODO
+  [arrow.Type.Decimal]: never,  // TODO
+  [arrow.Type.Date]: never,     // TODO
+  [arrow.Type.DateDay]: TimestampDaySeries,
+  [arrow.Type.DateMillisecond]: TimestampMillisecondSeries,
+  [arrow.Type.Time]: never,             // TODO
+  [arrow.Type.TimeSecond]: never,       // TODO
+  [arrow.Type.TimeMillisecond]: never,  // TODO
+  [arrow.Type.TimeMicrosecond]: never,  // TODO
+  [arrow.Type.TimeNanosecond]: never,   // TODO
+  [arrow.Type.Timestamp]: never,        // TODO
+  [arrow.Type.TimestampSecond]: TimestampSecondSeries,
+  [arrow.Type.TimestampMillisecond]: TimestampMillisecondSeries,
+  [arrow.Type.TimestampMicrosecond]: TimestampMicrosecondSeries,
+  [arrow.Type.TimestampNanosecond]: TimestampNanosecondSeries,
+  [arrow.Type.Interval]: never,           // TODO
+  [arrow.Type.IntervalDayTime]: never,    // TODO
+  [arrow.Type.IntervalYearMonth]: never,  // TODO
   [arrow.Type.List]: ListSeries<(T extends List ? T['childType'] : any)>,
   [arrow.Type.Struct]: StructSeries<(T extends Struct ? T['childTypes'] : any)>,
   [arrow.Type.Union]: never,            // TODO
@@ -895,6 +900,13 @@ import {
 import {StringSeries} from './series/string';
 import {ListSeries} from './series/list';
 import {StructSeries} from './series/struct';
+import {
+  TimestampDaySeries,
+  TimestampMicrosecondSeries,
+  TimestampMillisecondSeries,
+  TimestampNanosecondSeries,
+  TimestampSecondSeries
+} from './series/timestamp';
 
 export {
   Bool8Series,
@@ -1042,12 +1054,12 @@ const columnToSeries = (() => {
     public visitUtf8                 <T extends Utf8String>(col: Column<T>) { return new (StringSeries as any)(col); }
     // public visitBinary               <T extends Binary>(col: Column<T>) { return new (BinarySeries as any)(col); }
     // public visitFixedSizeBinary      <T extends FixedSizeBinary>(col: Column<T>) { return new (FixedSizeBinarySeries as any)(col); }
-    // public visitDateDay              <T extends DateDay>(col: Column<T>) { return new (DateDaySeries as any)(col); }
-    // public visitDateMillisecond      <T extends DateMillisecond>(col: Column<T>) { return new (DateMillisecondSeries as any)(col); }
-    // public visitTimestampSecond      <T extends TimestampSecond>(col: Column<T>) { return new (TimestampSecondSeries as any)(col); }
-    // public visitTimestampMillisecond <T extends TimestampMillisecond>(col: Column<T>) { return new (TimestampMillisecondSeries as any)(col); }
-    // public visitTimestampMicrosecond <T extends TimestampMicrosecond>(col: Column<T>) { return new (TimestampMicrosecondSeries as any)(col); }
-    // public visitTimestampNanosecond  <T extends TimestampNanosecond>(col: Column<T>) { return new (TimestampNanosecondSeries as any)(col); }
+    public visitDateDay              <T extends TimestampDay>(col: Column<T>) { return new (TimestampDaySeries as any)(col); }
+    public visitDateMillisecond      <T extends TimestampMillisecond>(col: Column<T>) { return new (TimestampMillisecondSeries as any)(col); }
+    public visitTimestampSecond      <T extends TimestampSecond>(col: Column<T>) { return new (TimestampSecondSeries as any)(col); }
+    public visitTimestampMillisecond <T extends TimestampMillisecond>(col: Column<T>) { return new (TimestampMillisecondSeries as any)(col); }
+    public visitTimestampMicrosecond <T extends TimestampMicrosecond>(col: Column<T>) { return new (TimestampMicrosecondSeries as any)(col); }
+    public visitTimestampNanosecond  <T extends TimestampNanosecond>(col: Column<T>) { return new (TimestampNanosecondSeries as any)(col); }
     // public visitTimeSecond           <T extends TimeSecond>(col: Column<T>) { return new (TimeSecondSeries as any)(col); }
     // public visitTimeMillisecond      <T extends TimeMillisecond>(col: Column<T>) { return new (TimeMillisecondSeries as any)(col); }
     // public visitTimeMicrosecond      <T extends TimeMicrosecond>(col: Column<T>) { return new (TimeMicrosecondSeries as any)(col); }

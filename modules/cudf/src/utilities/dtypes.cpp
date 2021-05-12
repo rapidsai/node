@@ -94,9 +94,21 @@ cudf::data_type arrow_to_cudf_type(Napi::Object const& type) {
     case 5 /*Arrow.Utf8            */: return data_type{type_id::STRING};
     case 6 /*Arrow.Bool            */: return data_type{type_id::BOOL8};
     // case 7 /*Arrow.Decimal         */:
-    // case 8 /*Arrow.Date            */:
+    case 8 /*Arrow.Date            */: {
+      switch (type.Get("unit").ToNumber().Int32Value()) {
+        case 0: return data_type{type_id::TIMESTAMP_DAYS};
+        case 1: return data_type{type_id::TIMESTAMP_MILLISECONDS};
+      }
+    }
     // case 9 /*Arrow.Time            */:
-    // case 10 /*Arrow.Timestamp       */:
+    case 10 /*Arrow.Timestamp       */: {
+      switch (type.Get("unit").ToNumber().Int32Value()) {
+        case 0: return data_type{type_id::TIMESTAMP_SECONDS};
+        case 1: return data_type{type_id::TIMESTAMP_MILLISECONDS};
+        case 2: return data_type{type_id::TIMESTAMP_MICROSECONDS};
+        case 3: return data_type{type_id::TIMESTAMP_NANOSECONDS};
+      }
+    }
     // case 11 /*Arrow.Interval        */:
     case 12 /*Arrow.List            */: return data_type{type_id::LIST};
     case 13 /*Arrow.Struct          */:
