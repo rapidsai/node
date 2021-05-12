@@ -37,6 +37,7 @@ export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
     throw new Error(`Cast from ${arrow.Type[this.type.typeId]} to ${
       arrow.Type[dataType.typeId]} not implemented`);
   }
+
   /**
    * Return a child series by name.
    *
