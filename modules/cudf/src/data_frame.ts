@@ -908,15 +908,13 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   isNull(): DataFrame<T> {
-    const temp       = new Table({columns: this.select(this.names)._accessor.columns});
-    const series_map = {} as SeriesMap<T>;
-    this._accessor.names.forEach((name, index) => {
-      if (this.get(name) instanceof Float32Series || this.get(name) instanceof Float64Series) {
-        series_map[name] = Series.new(temp.getColumnByIndex(index).isNaN()) as any;
-      } else {
-        series_map[name] = Series.new(temp.getColumnByIndex(index).isNull()) as any;
-      }
-    });
-    return new DataFrame(series_map);
+    return new DataFrame(this.names.reduce(
+      (map, name) => ({
+        ...map,
+        [name]: (this.get(name) instanceof Float32Series || this.get(name) instanceof Float64Series)
+                  ? Series.new(this._accessor.get(name).isNaN())
+                  : Series.new(this._accessor.get(name).isNull())
+      }),
+      {} as SeriesMap<T>));
   }
 }

@@ -22,7 +22,6 @@ import {
   Int32,
   NullOrder,
   Series,
-  StringSeries,
   Table
 } from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
@@ -442,7 +441,7 @@ test('dataframe.nansToNulls', () => {
 test('dataframe.isNull', () => {
   const a      = Series.new({type: new Int32, data: [0, null, 2, 3, null]});
   const b      = Series.new({type: new Float32, data: new Float32Buffer([NaN, 0, 3, NaN, 5])});
-  const c      = StringSeries.new([null, null, 'foo', 'bar', '']);
+  const c      = Series.new([null, null, 'foo', 'bar', '']);
   const df     = new DataFrame({'a': a, 'b': b, 'c': c});
   const result = df.isNull();
 
