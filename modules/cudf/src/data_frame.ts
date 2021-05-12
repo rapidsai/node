@@ -906,9 +906,10 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  isNull(): DataFrame<T> {
-    return new DataFrame(this.names.reduce(
-      (map, name) => ({...map, [name]: Series.new(this._accessor.get(name).isNull())}),
-      {} as SeriesMap<T>));
+  isNull(): DataFrame<{[P in keyof T]: Bool8}> {
+    return new DataFrame(new ColumnAccessor(this.names.reduce((cols, name) => {
+      cols[name] = this.get(name).isNull()._col;
+      return cols;
+    }, {} as ColumnsMap<{[P in keyof T]: Bool8}>)));
   }
 }
