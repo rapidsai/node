@@ -56,10 +56,12 @@ describe.each([['foo'], [/foo/], [/foo/ig]])('Series regex search (pattern=%p)',
 test('getJSONObject', () => {
   const object_data =
     [{goat: {id: 0, species: 'Capra Hircus'}}, {leopard: {id: 1, species: 'Panthera pardus'}}];
-  const a = Series.new((object_data as any).map(JSON.stringify));
+  const a = Series.new(object_data.map((x) => JSON.stringify(x)));
 
-  expect(JSON.parse(a.getJSONObject('$.goat').getValue(0))).toEqual(object_data[0].goat);
-  expect(JSON.parse(a.getJSONObject('$.leopard').getValue(1))).toEqual(object_data[1].leopard);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  expect(JSON.parse(a.getJSONObject('$.goat').getValue(0)!)).toEqual(object_data[0].goat);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  expect(JSON.parse(a.getJSONObject('$.leopard').getValue(1)!)).toEqual(object_data[1].leopard);
 
   const b = Series.new(['']);
   expect([...b.getJSONObject('$')]).toStrictEqual([null]);
