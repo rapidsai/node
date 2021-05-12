@@ -64,6 +64,12 @@ After you build the modules, run `yarn demo` from the command line to choose the
 
 You can review [BINDINGS.md](https://github.com/rapidsai/node-rapids/blob/main/BINDINGS.md) to see which bindings have been completed for each of the RAPIDS libraries.
 
+## FAQs
+
+### What is the `.env` file used for and what variables can be set in it?
+
+The `.env` file is used by the [docker-compose.yml](/docker-compose.yml) file when building and running the development containers (i.e. `yarn docker:build:devel` and `yarn docker:run:devel`). Any variables in the [docker-compose.yml](/docker-compose.yml) file can be set in the `.env` file. The [.env.sample](/.env.sample) file includes some common variables that may be set in the `.env` file.
+
 ## License
 
 This work is licensed under the [Apache-2.0 license](./LICENSE).
