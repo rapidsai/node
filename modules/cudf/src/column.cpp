@@ -201,6 +201,8 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::variance>("var"),
                        InstanceMethod<&Column::std>("std"),
                        InstanceMethod<&Column::quantile>("quantile"),
+                       // column/strings/json.cpp
+                       InstanceMethod<&Column::get_json_object>("getJSONObject"),
                        // column/replacement.cpp
                        InstanceMethod<&Column::replace_nulls>("replaceNulls"),
                        InstanceMethod<&Column::replace_nans>("replaceNaNs"),

@@ -613,6 +613,11 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::scalar const& value,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
+  // column/strings/json.cpp
+  Column::wrapper_t get_json_object(
+    std::string const& json_path,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
   // column/replace.cpp
   Column::wrapper_t replace_nulls(
     cudf::column_view const& replacement,
@@ -765,6 +770,9 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value variance(Napi::CallbackInfo const& info);
   Napi::Value std(Napi::CallbackInfo const& info);
   Napi::Value quantile(Napi::CallbackInfo const& info);
+
+  // column/strings/json.cpp
+  Napi::Value get_json_object(Napi::CallbackInfo const& info);
 
   // column/replace.cpp
   Napi::Value replace_nulls(Napi::CallbackInfo const& info);
