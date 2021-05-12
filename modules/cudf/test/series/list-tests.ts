@@ -99,6 +99,28 @@ describe('ListSeries', () => {
     validateOffsets(list, col.elements);
     validateElements(ints, col.elements.elements);
   });
+
+  test('Can concat Lists', () => {
+    const vec = listsOfInt32s([[1, 2, 3], [4, 5, 6]]);
+    const col = Series.new(vec);
+
+    const vecToConcat = listsOfInt32s([[7, 8, 9], [10, 11, 12]]);
+    const colToConcat = Series.new(vecToConcat);
+
+    const result = col.concat(colToConcat);
+    expect([...result]).toEqual([...col, ...colToConcat]);
+  });
+
+  test('Can concat List of Lists', () => {
+    const vec = listsOfListsOfInt32s([[[0, 1, 2]], [[3, 4, 5], [7, 8, 9]]]);
+    const col = Series.new(vec);
+
+    const vecToConcat = listsOfListsOfInt32s([[[10, 11, 12]], [[13, 14, 15], [16, 17, 18]]]);
+    const colToConcat = Series.new(vecToConcat);
+
+    const result = col.concat(colToConcat);
+    expect([...result]).toEqual([...col, ...colToConcat]);
+  });
 });
 
 type ListOfInt32 = arrow.List<arrow.Int32>;

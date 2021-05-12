@@ -97,6 +97,22 @@ export class StringSeries extends Series<Utf8String> {
   get data() { return Series.new(this._col.getChild<Uint8>(1)); }
 
   /**
+   * Concat a StringSeries to the end of the caller, returning a new StringSeries.
+   *
+   * @param other The StringSeries to concat to the end of the caller.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new(["foo"]).concat(Series.new(["bar"])) // ["foo", "bar"]
+   * ```
+   */
+  concat(other: Series<Utf8String>, memoryResource?: MemoryResource): Series<Utf8String> {
+    return this.__construct(this._col.concat(other._col, memoryResource));
+  }
+
+  /**
    * Returns a boolean series identifying rows which match the given regex pattern.
    *
    * @param pattern Regex pattern to match to each string.
@@ -190,5 +206,32 @@ export class StringSeries extends Series<Utf8String> {
   matchesRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Bool8> {
     const pat_string = pattern instanceof RegExp ? pattern.source : pattern;
     return Series.new(this._col.matchesRe(pat_string, memoryResource));
+  }
+
+  /**
+   * Applies a JSONPath(string) where each row in the series is a valid json string. Returns New
+   * StringSeries containing the retrieved json object strings
+   *
+   * @param jsonPath The JSONPath string to be applied to each row of the input column
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = const lines = Series.new([
+   *  {foo: {bar: "baz"}},
+   *  {foo: {baz: "bar"}},
+   * ].map(JSON.stringify)); // StringSeries ['{"foo":{"bar":"baz"}}', '{"foo":{"baz":"bar"}}']
+   *
+   * a.getJSONObject("$.foo") // StringSeries ['{"bar":"baz"}', '{"baz":"bar"}']
+   * a.getJSONObject("$.foo.bar") // StringSeries ["baz", null]
+   *
+   * // parse the resulting strings using JSON.parse
+   * [...a.getJSONObject("$.foo").map(JSON.parse)] // object [{ bar: 'baz' }, { baz: 'bar' }]
+   * ```
+   */
+  getJSONObject(jsonPath: string, memoryResource?: MemoryResource): StringSeries {
+    return Series.new(this._col.getJSONObject(jsonPath, memoryResource));
   }
 }

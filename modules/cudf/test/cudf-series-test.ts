@@ -93,6 +93,7 @@ test('Series initialization with type inference', () => {
   expect(c.type).toBeInstanceOf(Int64);
   expect(d.type).toBeInstanceOf(Bool8);
 });
+
 test('test child(child_index), num_children', () => {
   const utf8Col    = Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from('hello'))});
   const offsetsCol = Series.new({type: new Int32, data: new Int32Buffer([0, utf8Col.length])});
@@ -144,6 +145,25 @@ test('Series.setValues (scalar)', () => {
   col.setValues(indices, 999);
 
   expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
+});
+
+test('NumericSeries.concat', () => {
+  const col         = Series.new({type: new Int32, data: new Int32Buffer([1, 2, 3, 4, 5])});
+  const colToConcat = Series.new({type: new Int32, data: new Int32Buffer([6, 7, 8, 9, 10])});
+
+  const result = col.concat(colToConcat);
+
+  expect([...result]).toEqual([...col, ...colToConcat]);
+});
+
+test('NumericSeries.concat up-casts to common dtype', () => {
+  const col         = Series.new([1, 2, 3, 4, 5]).cast(new Int32);
+  const colToConcat = Series.new([6, 7, 8, 9, 10]);
+
+  const result = col.concat(colToConcat);
+
+  expect(result.type).toBeInstanceOf(Float64);
+  expect([...result]).toEqual([...col, ...colToConcat]);
 });
 
 test('Series.gather', () => {

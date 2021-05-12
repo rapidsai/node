@@ -82,6 +82,22 @@ describe('StructSeries', () => {
     validateElements(xs, col.getChild('point').getChild('x'));
     validateElements(ys, col.getChild('point').getChild('y'));
   });
+
+  test('Can concat', () => {
+    const vec         = structsOfStructsOfInt32s([
+      {point: {x: 0, y: 3}},
+      {point: {x: 1, y: 4}},
+      {point: {x: 2, y: 5}},
+    ]);
+    const vecToConcat = structsOfStructsOfInt32s([
+      {point: {x: 0, y: 3}},
+      {point: {x: 1, y: 4}},
+      {point: {x: 2, y: 5}},
+    ]);
+
+    const result = vec.concat(vecToConcat);
+    expect([...result]).toEqual([...vec, ...vecToConcat]);
+  });
 });
 
 type StructOfInt32   = arrow.Struct<{x: arrow.Int32, y: arrow.Int32}>;

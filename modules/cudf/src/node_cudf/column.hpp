@@ -567,6 +567,11 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::type_id output_type,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // column/concatenate.cpp
+  Column::wrapper_t concat(
+    cudf::column_view const& other,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
   // column/stream_compaction.cpp
   Column::wrapper_t apply_boolean_mask(
     Column const& boolean_mask,
@@ -611,6 +616,11 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::size_type begin,
     cudf::size_type end,
     cudf::scalar const& value,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
+  // column/strings/json.cpp
+  Column::wrapper_t get_json_object(
+    std::string const& json_path,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   // column/replace.cpp
@@ -735,6 +745,9 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value null_max(Napi::CallbackInfo const& info);
   Napi::Value null_min(Napi::CallbackInfo const& info);
 
+  // column/concatenate.cpp
+  Napi::Value concat(Napi::CallbackInfo const& info);
+
   // column/filling.cpp
   Napi::Value fill(Napi::CallbackInfo const& info);
   void fill_in_place(Napi::CallbackInfo const& info);
@@ -765,6 +778,9 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value variance(Napi::CallbackInfo const& info);
   Napi::Value std(Napi::CallbackInfo const& info);
   Napi::Value quantile(Napi::CallbackInfo const& info);
+
+  // column/strings/json.cpp
+  Napi::Value get_json_object(Napi::CallbackInfo const& info);
 
   // column/replace.cpp
   Napi::Value replace_nulls(Napi::CallbackInfo const& info);

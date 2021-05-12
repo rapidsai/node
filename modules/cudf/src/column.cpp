@@ -178,6 +178,8 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::null_equals>("null_equals"),
                        InstanceMethod<&Column::null_max>("null_max"),
                        InstanceMethod<&Column::null_min>("null_min"),
+                       // column/concatenate.cpp
+                       InstanceMethod<&Column::concat>("concat"),
                        // column/stream_compaction.cpp
                        InstanceMethod<&Column::drop_nulls>("drop_nulls"),
                        InstanceMethod<&Column::drop_nans>("drop_nans"),
@@ -201,6 +203,8 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::variance>("var"),
                        InstanceMethod<&Column::std>("std"),
                        InstanceMethod<&Column::quantile>("quantile"),
+                       // column/strings/json.cpp
+                       InstanceMethod<&Column::get_json_object>("getJSONObject"),
                        // column/replacement.cpp
                        InstanceMethod<&Column::replace_nulls>("replaceNulls"),
                        InstanceMethod<&Column::replace_nans>("replaceNaNs"),

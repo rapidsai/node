@@ -32,6 +32,17 @@ const data: string[] = [
   'bar\nfoo'       // multi-line
 ];
 
+describe('StringSeries', () => {
+  test('Can concat', () => {
+    const col         = StringSeries.new(['foo']);
+    const colToConcat = StringSeries.new(['bar']);
+
+    const result = col.concat(colToConcat);
+
+    expect([...result]).toEqual([...col, ...colToConcat]);
+  });
+});
+
 describe.each([['foo'], [/foo/], [/foo/ig]])('Series regex search (pattern=%p)', (pattern) => {
   test('containsRe', () => {
     const expected = [true, true, true, true, true, false, false, true, true];
@@ -50,4 +61,20 @@ describe.each([['foo'], [/foo/], [/foo/ig]])('Series regex search (pattern=%p)',
     const s        = StringSeries.new(data);
     expect([...s.matchesRe(pattern)]).toEqual(expected);
   });
+});
+
+// getJSONObject tests
+test('getJSONObject', () => {
+  const object_data =
+    [{goat: {id: 0, species: 'Capra Hircus'}}, {leopard: {id: 1, species: 'Panthera pardus'}}];
+  const a = Series.new(object_data.map((x) => JSON.stringify(x)));
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  expect(JSON.parse(a.getJSONObject('$.goat').getValue(0)!)).toEqual(object_data[0].goat);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  expect(JSON.parse(a.getJSONObject('$.leopard').getValue(1)!)).toEqual(object_data[1].leopard);
+
+  const b = Series.new(['']);
+  expect([...b.getJSONObject('$')]).toStrictEqual([null]);
+  expect([...b.getJSONObject('')]).toStrictEqual([]);
 });
