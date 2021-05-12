@@ -744,33 +744,25 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
-   * Creates a Series of `BOOL8` elements where `true` indicates the value is invalid and `false`
+   * Creates a Series of `BOOL8` elements where `true` indicates the value is null and `false`
    * indicates the value is valid.
    *
-   * Invalid values are either `null` or `NaN`
-   *
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
-   * @returns A non-nullable Series of `BOOL8` elements with `true` representing invalid
+   * @returns A non-nullable Series of `BOOL8` elements with `true` representing `null`
    *   values.
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
    * // Float64Series
-   * Series.new([1, null, NaN]).isNull() // [false, true, true]
+   * Series.new([1, null, 3]).isNull() // [false, true, false]
    * // StringSeries
    * Series.new(["foo", "bar", null]).isNull() // [false, false, true]
    * // Bool8Series
    * Series.new([true, true, null]).isNull() // [false, false, true]
    * ```
    */
-  isNull(memoryResource?: MemoryResource): Bool8Series {
-    const isNullSeries = Series.new(this._col.isNull(memoryResource));
-    if (this.type instanceof Float32 || this.type instanceof Float64) {
-      return isNullSeries.logical_or(Series.new(this._col.isNaN(memoryResource)));
-    }
-    return isNullSeries;
-  }
+  isNull(memoryResource?: MemoryResource) { return Series.new(this._col.isNull(memoryResource)); }
 
   /**
    * Creates a Series of `BOOL8` elements where `true` indicates the value is valid and `false`

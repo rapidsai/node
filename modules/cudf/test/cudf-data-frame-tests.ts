@@ -446,7 +446,7 @@ test('dataframe.isNull', () => {
   const result = df.isNull();
 
   const expected_a = Series.new({type: new Bool8, data: [false, true, false, false, true]});
-  const expected_b = Series.new({type: new Bool8, data: [true, false, false, true, true]});
+  const expected_b = Series.new({type: new Bool8, data: [false, false, false, false, true]});
   const expected_c = Series.new({type: new Bool8, data: [true, true, false, false, false]});
 
   expect([...result.get('a')]).toEqual([...expected_a]);
