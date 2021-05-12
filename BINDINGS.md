@@ -58,8 +58,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `head`               |                     |
 | `interleave_columns` |                     |
 | `isin`               |                     |
-| `isna`               |                     |
-| `isnull`             |                     |
+| `isna`               |    ✅ (`isNull`)    |
+| `isnull`             |         ✅          |
 | `keys`               |                     |
 | `kurt`               |                     |
 | `kurtosis`           |                     |
@@ -80,8 +80,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `nans_to_nulls`      |                     |
 | `ne`                 |         ✅          |
 | `nlargest`           |                     |
-| `notna`              |                     |
-| `notnull`            |                     |
+| `notna`              |  ✅ (`isNotNull`)   |
+| `notnull`            |  ✅ (`isNotNull`)   |
 | `nsmallest`          |                     |
 | `nunique`            |         ✅          |
 | `one_hot_encoding`   |                     |
@@ -175,8 +175,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `head`               |                     |                     |                     |
 | `interleave_columns` |                     |                     |                     |
 | `isin`               |                     |                     |                     |
-| `isna`               |                     |                     |                     |
-| `isnull`             |                     |                     |                     |
+| `isna`               |    ✅ (`isNull`)    |    ✅ (`isNull`)    |    ✅ (`isNull`)    |
+| `isnull`             |         ✅          |         ✅          |         ✅          |
 | `keys`               |                     |                     |                     |
 | `kurt`               |                     |                     |                     |
 | `kurtosis`           |                     |                     |                     |
@@ -185,8 +185,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `mask`               |                     |                     |                     |
 | `memory_usage`       |                     |                     |                     |
 | `nans_to_nulls`      |                     |                     |                     |
-| `notna`              |                     |                     |                     |
-| `notnull`            |                     |                     |                     |
+| `notna`              |  ✅ (`isNotNull`)   |  ✅ (`isNotNull`)   |  ✅ (`isNotNull`)   |
+| `notnull`            |  ✅ (`isNotNull`)   |  ✅ (`isNotNull`)   |  ✅ (`isNotNull`)   |
 | `nunique`            |                     |                     |                     |
 | `one_hot_encoding`   |                     |                     |                     |
 | `pipe`               |                     |                     |                     |
@@ -224,6 +224,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `value_counts`       |                     |                     |                     |
 | `values_to_string`   |                     |                     |                     |
 | `where`              |                     |                     |                     |
+| `get_json_object`    |                     | ✅ (`getJSONObject`)|                     |
 
 ### DataFrame
 

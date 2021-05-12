@@ -27,7 +27,6 @@ import {
   Integral,
   Numeric,
 } from './types/dtypes';
-import {ReplacePolicy} from './types/enums';
 import {CommonType, Interpolation} from './types/mappings';
 
 export type ColumnProps<T extends DataType = any> = {
@@ -187,7 +186,7 @@ export interface Column<T extends DataType = any> {
    */
   replaceNulls(value: Column<T>, memoryResource?: MemoryResource): Column<T>;
   replaceNulls(value: Scalar<T>, memoryResource?: MemoryResource): Column<T>;
-  replaceNulls(value: ReplacePolicy, memoryResource?: MemoryResource): Column<T>;
+  replaceNulls(value: boolean, memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Concat a Column to the end of the caller, returning a new Column.
@@ -1068,6 +1067,8 @@ export interface Column<T extends DataType = any> {
    * @returns column without duplicate values
    */
   drop_duplicates(nullsEqual?: boolean, memoryResource?: MemoryResource): Column<T>;
+
+  getJSONObject(jsonPath?: string, memoryResource?: MemoryResource): Column<T>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

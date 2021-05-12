@@ -12,31 +12,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CUDF from '../addon';
 import {ColumnAccessor} from '../column_accessor';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
-import {ColumnsMap, TypeMap} from '../types/mappings';
+import {Numeric} from '../types/dtypes';
+import {ColumnsMap, CommonType, TypeMap} from '../types/mappings';
 
 export type JoinKey<
-    P extends string,
-    T extends TypeMap,
-    Suffix extends string,
-    TOn extends string[],
-> = [P] extends TOn ? `${P}` : P extends keyof T ? `${P}${Suffix}` : `${P}`;
+  P extends string,
+  T extends TypeMap,
+  TOn extends string,
+  Suffix extends string,
+> = P extends TOn ? `${P}` : P extends keyof T ? `${P}${Suffix}` : `${P}`;
+
+// clang-format off
+export type JoinResult<
+  Lhs extends TypeMap,
+  Rhs extends TypeMap,
+  TOn extends(string & keyof Lhs & keyof Rhs),
+  LSuffix extends string,
+  RSuffix extends string
+> = {
+  [P in string&keyof Lhs as JoinKey<P, Rhs, TOn, LSuffix>]: Lhs[P]
+} & {
+  [P in string&keyof Rhs as JoinKey<P, Lhs, TOn, RSuffix>]: Rhs[P]
+};
+// clang-format on
 
 interface JoinProps<
   // clang-format off
   Lhs extends TypeMap,
   Rhs extends TypeMap,
-  TOn extends(string & keyof Lhs & keyof Rhs)[],
+  TOn extends(string & keyof Lhs & keyof Rhs),
   LSuffix extends string,
   RSuffix extends string
   // clang-format on
   > {
   lhs: DataFrame<Lhs>;
   rhs: DataFrame<Rhs>;
-  on: TOn;
+  on: TOn[];
   lsuffix?: LSuffix;
   rsuffix?: RSuffix;
   nullEquality?: boolean;
@@ -46,14 +62,14 @@ interface JoinProps<
 export class Join<
   Lhs extends TypeMap,
   Rhs extends TypeMap,
-  TOn extends (string & keyof Lhs & keyof Rhs)[],
+  TOn extends (string & keyof Lhs & keyof Rhs),
   LSuffix extends string,
   RSuffix extends string
 > {
   // clang-format on
   private lhs: DataFrame<Lhs>;
   private rhs: DataFrame<Rhs>;
-  private on: TOn;
+  private on: TOn[];
   private lsuffix: LSuffix|'';
   private rsuffix: RSuffix|'';
   private nullEquality: boolean;
@@ -66,6 +82,14 @@ export class Join<
     this.lsuffix                                            = lsuffix;
     this.rsuffix                                            = rsuffix;
     this.nullEquality                                       = nullEquality;
+
+    this.on.forEach((name) => {
+      const lhs_col = this.lhs.get(name);
+      const rhs_col = this.rhs.get(name);
+      const type    = CUDF.findCommonType(lhs_col.type, rhs_col.type);
+      this.lhs      = this.lhs.assign({[name]: lhs_col.cast(type)});
+      this.rhs      = this.rhs.assign({[name]: rhs_col.cast(type)});
+    });
   }
 
   public left() {
@@ -167,26 +191,26 @@ export class Join<
 function mergeResults<
   Lhs extends TypeMap,
   Rhs extends TypeMap,
-  TOn extends string[],
+  TOn extends string,
   LSuffix extends string,
   RSuffix extends string
->(lhs: DataFrame<Lhs>, rhs: DataFrame<Rhs>, on: TOn, lsuffix: LSuffix, rsuffix: RSuffix) {
-
-  type TResult = {
-    [P in (string & keyof Lhs) as JoinKey<P, Rhs, LSuffix, TOn>]: Lhs[P]
-  } & {
-    [P in (string & keyof Rhs) as JoinKey<P, Lhs, RSuffix, TOn>]: Rhs[P]
-  };
-
+>(lhs: DataFrame<Lhs>, rhs: DataFrame<Rhs>, on: TOn[], lsuffix: LSuffix, rsuffix: RSuffix) {
+  type TResult = JoinResult<Lhs, Rhs, TOn, LSuffix, RSuffix>;
   // clang-format on
   function getColumns<T extends TypeMap>(lhs: DataFrame<T>, rhsNames: string[], suffix: string) {
     return lhs.names.reduce((cols, name) => {
-      const newName = on.includes(name)         ? name
+      const newName = on.includes(name as TOn)  ? name
                       : rhsNames.includes(name) ? `${name}${suffix}`
                                                 : name;
       cols[newName] = lhs.get(name)._col;
       return cols;
-    }, <any>{}) as ColumnsMap<{[P in keyof TResult]: TResult[P]}>;
+    }, <any>{}) as ColumnsMap<{
+             [P in keyof TResult]:  //
+               P extends TOn
+             ? Rhs[P] extends Numeric ? CommonType<Lhs[P], Numeric&Rhs[P]>  //
+                                      : TResult[P]
+             : TResult[P]
+           }>;
   }
 
   const lhsCols = getColumns(lhs, rhs.names, lsuffix);

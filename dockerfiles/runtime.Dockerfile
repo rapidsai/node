@@ -10,8 +10,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install dependencies
 RUN apt update -y \
  && apt install --no-install-recommends -y \
-    # cuDF dependencies
-    libboost-filesystem-dev \
     # cuSpatial dependencies
     libgdal-dev \
  && apt autoremove -y \

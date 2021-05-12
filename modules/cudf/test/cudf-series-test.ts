@@ -333,6 +333,22 @@ test('Series.sortValues (descending)', () => {
   expect([...result]).toEqual(expected);
 });
 
+test('Series.isNull (numeric)', () => {
+  const col    = Series.new({type: new Int32, data: [0, 1, null, 3, 4, null, 6, null]});
+  const result = col.isNull();
+
+  const expected = [false, false, true, false, false, true, false, true];
+  expect([...result]).toEqual(expected);
+});
+
+test('Series.isNotNull (numeric)', () => {
+  const col    = Series.new({type: new Int32, data: [0, 1, null, 3, 4, null, 6, null]});
+  const result = col.isNotNull();
+
+  const expected = [true, true, false, true, true, false, true, false];
+  expect([...result]).toEqual(expected);
+});
+
 test('Series.dropNulls (drop nulls only)', () => {
   const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
   const col =
@@ -401,5 +417,44 @@ ${false}       | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, null, 1, 2, 3, 4]}
 `('Series.unique($nulls_equal)', ({nulls_equal, data, expected}) => {
   const s      = Series.new({type: new Int32, data});
   const result = s.unique(nulls_equal);
+  expect([...result]).toEqual(expected);
+});
+
+test.each`
+data | replaceValue | expected
+${[1, null, 3]} | ${Series.new([9, 9, 9])} | ${[1, 9, 3]}
+${['foo', 'bar', null]} | ${Series.new(['test','test','test'])} | ${['foo', 'bar', 'test']}
+${[true, false, null]} | ${Series.new([false, false, false])} | ${[true, false, false]}
+${[1, null, 3]} | ${9} | ${[1, 9, 3]}
+${['foo', 'bar', null]} | ${'test'} | ${['foo', 'bar', 'test']}
+${[true, false, null]} | ${false} | ${[true, false, false]}
+`('Series.replaceNulls', ({data, replaceValue, expected}) => {
+  const s       = Series.new(data);
+  const result  = s.replaceNulls(replaceValue);
+
+  expect([...result]).toEqual(expected);
+});
+
+test.each`
+data | expected
+${[1, null, 3]} | ${[1, 1, 3]}
+${['foo', 'bar', null]} | ${['foo', 'bar', 'bar']}
+${[true, false, null]} | ${[true, false, false]}
+`('Series.replaceNullsPreceding', ({data, expected})=> {
+  const s       = Series.new(data);
+  const result  = s.replaceNullsPreceding();
+
+  expect([...result]).toEqual(expected);
+});
+
+test.each`
+data | expected
+${[1, null, 3]} | ${[1, 3, 3]}
+${['foo', 'bar', null]} | ${['foo', 'bar', null]}
+${[true, null, true]} | ${[true, true, true]}
+`('Series.replaceNullsFollowing', ({data, expected})=> {
+  const s       = Series.new(data);
+  const result  = s.replaceNullsFollowing();
+
   expect([...result]).toEqual(expected);
 });

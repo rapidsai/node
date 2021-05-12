@@ -43,7 +43,6 @@ import {
 } from './types/dtypes';
 import {
   NullOrder,
-  ReplacePolicy,
 } from './types/enums';
 import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
@@ -192,7 +191,7 @@ export class AbstractSeries<T extends DataType = any> {
    * const b = Series.new(a._col); // Int32Series [1, 2, 3, 4]
    * ```
    */
-  static new<T extends DataType>(input: Column<T>|SeriesProps<T>): Series<T>;
+  static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>): Series<T>;
   /**
    * Create a new cudf.StringSeries
    *
@@ -200,7 +199,8 @@ export class AbstractSeries<T extends DataType = any> {
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
-   * const a = Series.new(["foo", "bar", "test",null]); // StringSeries ["foo", "bar", "test", null]
+   * // StringSeries ["foo", "bar", "test", null]
+   * const a = Series.new(["foo", "bar", "test", null]);
    * ```
    */
   static new(input: (string|null|undefined)[]): Series<Utf8String>;
@@ -211,7 +211,8 @@ export class AbstractSeries<T extends DataType = any> {
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
-   * const a = Series.new([1, 2, 3,, 4]); // Float64Series [1, 2, 3, null, 4]
+   * // Float64Series [1, 2, 3, null, 4]
+   * const a = Series.new([1, 2, 3, undefined, 4]);
    * ```
    */
   static new(input: (number|null|undefined)[]): Series<Float64>;
@@ -222,7 +223,8 @@ export class AbstractSeries<T extends DataType = any> {
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
-   * const a = Series.new([1n, 2n, 3n,undefined, 4n]); // Int64Series [1n, 2n, 3n, null, 4n]
+   * // Int64Series [1n, 2n, 3n, null, 4n]
+   * const a = Series.new([1n, 2n, 3n, undefined, 4n]);
    * ```
    */
   static new(input: (bigint|null|undefined)[]): Series<Int64>;
@@ -233,20 +235,80 @@ export class AbstractSeries<T extends DataType = any> {
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
-   * const a = Series.new([true, false, true, false]); // Bool8Series [true, false, true, false]
+   * // Bool8Series [true, false, null, false]
+   * const a = Series.new([true, false, undefined, false]);
    * ```
    */
   static new(input: (boolean|null|undefined)[]): Series<Bool8>;
-  static new<T extends DataType>(input: Column<T>|SeriesProps<T>|arrow.Vector<T>|
+  /**
+   * Create a new cudf.ListSeries that contain cudf.StringSeries elements.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // ListSeries [["foo", "bar"], ["test", null]]
+   * const a = Series.new([["foo", "bar"], ["test",null]]);
+   * a.getValue(0) // StringSeries ["foo", "bar"]
+   * a.getValue(1) // StringSeries ["test", null]
+   * ```
+   */
+  static new(input: (string|null|undefined)[][]): Series<List<Utf8String>>;
+  /**
+   * Create a new cudf.ListSeries that contain cudf.Float64Series elements.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // ListSeries [[1, 2], [3, null, 4]]
+   * const a = Series.new([[1, 2], [3, undefined, 4]]);
+   * a.getValue(0) // Float64Series [1, 2]
+   * a.getValue(1) // Float64Series [3, null, 4]
+   * ```
+   */
+  static new(input: (number|null|undefined)[][]): Series<List<Float64>>;
+  /**
+   * Create a new cudf.ListSeries that contain cudf.Int64Series elements.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // ListSeries [[1n, 2n], [3n, null, 4n]]
+   * const a = Series.new([[1n, 2n], [3n, undefined, 4n]]);
+   * a.getValue(0) // Int64Series [1n, 2n]
+   * a.getValue(1) // Int64Series [3n, null, 4n]
+   * ```
+   */
+  static new(input: (bigint|null|undefined)[][]): Series<List<Int64>>;
+  /**
+   * Create a new cudf.ListSeries that contain cudf.Bool8Series elements.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // ListSeries [[true, false], [null, false]]
+   * const a = Series.new([[true, false], [undefined, false]]);
+   * a.getValue(0) // Bool8Series [true, false]
+   * a.getValue(1) // Bool8Series [null, false]
+   * ```
+   */
+  static new(input: (boolean|null|undefined)[][]): Series<List<Bool8>>;
+
+  static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>|arrow.Vector<T>|
                                  (string|null|undefined)[]|(number|null|undefined)[]|
-                                 (bigint|null|undefined)[]|(boolean|null|undefined)[]) {
+                                 (bigint|null|undefined)[]|(boolean|null|undefined)[]|
+                                 (string|null|undefined)[][]|(number|null|undefined)[][]|
+                                 (bigint|null|undefined)[][]|(boolean|null|undefined)[][]) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
   }
 
   /** @ignore */
   public _col: Column<T>;
 
-  protected constructor(input: SeriesProps<T>|Column<T>|arrow.Vector<T>) {
+  protected constructor(input: AbstractSeries<T>|SeriesProps<T>|Column<T>|arrow.Vector<T>) {
     this._col = asColumn<T>(input);
   }
 
@@ -359,7 +421,7 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([null, true, true]).replaceNulls(false) // [true, true, true]
    * ```
    */
-  replaceNulls(value: T['scalarType'], memoryResource?: MemoryResource): Series<T>;
+  replaceNulls(value: T['scalarType']|any, memoryResource?: MemoryResource): Series<T>;
 
   /**
    * Replace null values with the corresponding elements from another Series.
@@ -384,39 +446,59 @@ export class AbstractSeries<T extends DataType = any> {
    */
   replaceNulls(value: Series<T>, memoryResource?: MemoryResource): Series<T>;
 
+  replaceNulls(value: any, memoryResource?: MemoryResource): Series<T> {
+    if (value instanceof Series) {
+      return Series.new(this._col.replaceNulls(value._col, memoryResource));
+    } else {
+      return Series.new(
+        this._col.replaceNulls(new Scalar({type: this.type, value}), memoryResource));
+    }
+  }
+
   /**
-   * Replace null values with the closest non-null value before or after each null.
+   * Replace null values with the non-null value following the null value in the same series.
    *
-   * @param value The {@link ReplacePolicy} indicating the side to search for the closest non-null
-   *   value.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    *
    * @example
    * ```typescript
-   * import {Series, ReplacePolicy} from '@rapidsai/cudf';
+   * import {Series} from '@rapidsai/cudf';
    *
    * // Float64Series
-   * Series.new([1, null, 3]).replaceNulls(ReplacePolicy.PRECEDING) // [1, 1, 3]
+   * Series.new([1, null, 3]).replaceNullsFollowing() // [1, 3, 3]
    * // StringSeries
-   * Series.new(["foo", "bar", null]).replaceNulls(ReplacePolicy.PRECEDING) // ["foo", "bar", "bar"]
+   * Series.new(["foo", "bar", null]).replaceNullsFollowing() // ["foo", "bar", null]
+   * Series.new(["foo", null, "bar"]).replaceNullsFollowing() // ["foo", "bar", "bar"]
    * // Bool8Series
-   * Series.new([null, true, true]).replaceNulls(ReplacePolicy.FOLLOWING) // [true, true, true]
-   *
+   * Series.new([null, true, true]).replaceNullsFollowing() // [true, true, true]
    * ```
    */
-  replaceNulls(value: keyof typeof ReplacePolicy, memoryResource?: MemoryResource): Series<T>;
+  replaceNullsFollowing(memoryResource?: MemoryResource): Series<T> {
+    return Series.new(this._col.replaceNulls(true, memoryResource));
+  }
 
-  replaceNulls(value: any, memoryResource?: MemoryResource): Series<T> {
-    if (value instanceof Series) {
-      return Series.new(this._col.replaceNulls(value._col, memoryResource));
-    } else if (value in ReplacePolicy) {
-      return Series.new(
-        this._col.replaceNulls(ReplacePolicy[value as keyof typeof ReplacePolicy], memoryResource));
-    } else {
-      return Series.new(
-        this._col.replaceNulls(new Scalar({type: this.type, value}), memoryResource));
-    }
+  /**
+   * Replace null values with the non-null value preceding the null value in the same series.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, null, 3]).replaceNullsPreceding() // [1, 1, 3]
+   * // StringSeries
+   * Series.new([null, "foo", "bar"]).replaceNullsPreceding() // [null, "foo", "bar"]
+   * Series.new(["foo", null, "bar"]).replaceNullsPreceding() // ["foo", "foo", "bar"]
+   * // Bool8Series
+   * Series.new([true, null, false]).replaceNullsPreceding() // [true, true, false]
+   * ```
+   */
+  replaceNullsPreceding(memoryResource?: MemoryResource): Series<T> {
+    return Series.new(this._col.replaceNulls(false, memoryResource));
   }
 
   /**
@@ -534,51 +616,6 @@ export class AbstractSeries<T extends DataType = any> {
   filter(mask: Series<Bool8>): Series<T> { return this.__construct(this._col.gather(mask._col)); }
 
   /**
-   * Return a value at the specified index to host memory
-   *
-   * @param index the index in this Series to return a value for
-   *
-   * @example
-   * ```typescript
-   * import {Series} from "@rapidsai/cudf";
-   *
-   * // Float64Series
-   * Series.new([1, 2, 3]).getValue(0) // 1
-   * // StringSeries
-   * Series.new(["foo", "bar", "test"]).getValue(2) // "test"
-   * // Bool8Series
-   * Series.new([false, true, true]).getValue(3) // throws index out of bounds error
-   * ```
-   */
-  getValue(index: number) { return this._col.getValue(index); }
-
-  /**
-   * set value at the specified index
-   *
-   * @param index the index in this Series to set a value for
-   * @param value the value to set at `index`
-   *
-   * @example
-   * ```typescript
-   * import {Series} from "@rapidsai/cudf";
-   *
-   * // Float64Series
-   * const a = Series.new([1, 2, 3]);
-   * a.setValue(0, -1) // inplace update [-1, 2, 3]
-   *
-   * // StringSeries
-   * const b = Series.new(["foo", "bar", "test"])
-   * b.setValue(1,"test1") // inplace update ["foo", "test1", "test"]
-   * // Bool8Series
-   * const c = Series.new([false, true, true])
-   * c.cetValue(2, false) // inplace update [false, true, false]
-   * ```
-   */
-  setValue(index: number, value: T['scalarType']): void {
-    this._col = this.scatter(value, [index])._col as Column<T>;
-  }
-
-  /**
    * set values at the specified indices
    *
    * @param indices the indices in this Series to set values for
@@ -602,8 +639,8 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * Copy the underlying device memory to host, and return an Iterator of the values.
    */
-  [Symbol.iterator](): IterableIterator<T['scalarType']|null> {
-    return this.toArrow()[Symbol.iterator]();
+  [Symbol.iterator](): IterableIterator<T['TValue']|null> {
+    return this.toArrow()[Symbol.iterator]() as IterableIterator<T['TValue']|null>;
   }
 
   /**
@@ -758,14 +795,16 @@ export class AbstractSeries<T extends DataType = any> {
    * import {Series} from '@rapidsai/cudf';
    *
    * // Float64Series
-   * Series.new([1, null, 3]).isValid() // [true, false, true]
+   * Series.new([1, null, 3]).isNotNull() // [true, false, true]
    * // StringSeries
-   * Series.new(["foo", "bar", null]).isValid() // [true, true, false]
+   * Series.new(["foo", "bar", null]).isNotNull() // [true, true, false]
    * // Bool8Series
-   * Series.new([true, true, null]).isValid() // [true, true, false]
+   * Series.new([true, true, null]).isNotNull() // [true, true, false]
    * ```
    */
-  isValid(memoryResource?: MemoryResource) { return Series.new(this._col.isValid(memoryResource)); }
+  isNotNull(memoryResource?: MemoryResource) {
+    return Series.new(this._col.isValid(memoryResource));
+  }
 
   /**
    * drop Null values from the series
@@ -875,21 +914,72 @@ export {
 };
 
 function inferType(value: any[]): DataType {
-  if (value.length == 0 || (value.every((val) => typeof val === 'number' || val == null)))
-    return new Float64;
-  if (value.every((val) => typeof val === 'string' || val == null)) return new Utf8String;
-  if (value.every((val) => typeof val === 'bigint' || val == null)) return new Int64;
-  if (value.every((val) => typeof val === 'boolean' || val == null)) return new Bool8;
-  throw new TypeError('Unable to infer type series type, explicit type declaration expected');
+  if (value.length === 0) { return new Float64; }
+  let nullsCount    = 0;
+  let arraysCount   = 0;
+  let objectsCount  = 0;
+  let numbersCount  = 0;
+  let stringsCount  = 0;
+  let bigintsCount  = 0;
+  let booleansCount = 0;
+  let unknownCount  = 0;
+  value.forEach((val) => {
+    if (val == null) { return ++nullsCount; }
+    switch (typeof val) {
+      case 'bigint': return ++bigintsCount;
+      case 'boolean': return ++booleansCount;
+      case 'number': return ++numbersCount;
+      case 'string': return ++stringsCount;
+      case 'object': return Array.isArray(val) ? ++arraysCount : ++objectsCount;
+    }
+    return ++unknownCount;
+  });
+  if (unknownCount === 0) {
+    if (numbersCount + nullsCount === value.length) {
+      return new Float64;
+    } else if (stringsCount + nullsCount === value.length) {
+      return new Utf8String;
+    } else if (bigintsCount + nullsCount === value.length) {
+      return new Int64;
+    } else if (booleansCount + nullsCount === value.length) {
+      return new Bool8;
+    } else if (arraysCount + nullsCount === value.length) {
+      const childType = inferType(value[value.findIndex((ary) => ary != null)]);
+      if (value.every((ary) => ary == null || childType.compareTo(inferType(ary)))) {
+        return new List(new arrow.Field('', childType));
+      }
+    } else if (objectsCount + nullsCount === value.length) {
+      const fields = new Map<string, arrow.Field>();
+      value.forEach((val) => {
+        Object.keys(val).forEach((key) => {
+          if (!fields.has(key)) {
+            // use the type inferred for the first instance of a found key
+            fields.set(key, new arrow.Field(key, inferType(val[key])));
+          }
+        });
+      }, {});
+      return new Struct<any>([...fields.values()]);
+    }
+  }
+  throw new TypeError(
+    'Unable to infer Series type from input values, explicit type declaration expected');
 }
 
-function asColumn<T extends DataType>(value: SeriesProps<T>|Column<T>|arrow.Vector<T>|
-                                      (string | null | undefined)[]|(number | null | undefined)[]|
-                                      (bigint | null | undefined)[]|
-                                      (boolean | null | undefined)[]): Column<T> {
+function asColumn<T extends DataType>(
+  value: AbstractSeries<T>|SeriesProps<T>|Column<T>|arrow.Vector<T>  //
+  |(string | null | undefined)[]                                     //
+  |(number | null | undefined)[]                                     //
+  |(bigint | null | undefined)[]                                     //
+  |(boolean | null | undefined)[]                                    //
+  |(string | null | undefined)[][]                                   //
+  |(number | null | undefined)[][]                                   //
+  |(bigint | null | undefined)[][]                                   //
+  |(boolean | null | undefined)[][]                                  //
+  ): Column<T> {
+  if (value instanceof AbstractSeries) { return value._col; }
   if (Array.isArray(value)) {
     return fromArrow(arrow.Vector.from(
-             {type: inferType(value), values: value, highWaterMark: Infinity})) as any;
+             {type: inferType(value), values: value as any, highWaterMark: Infinity})) as any;
   }
   if (value instanceof arrow.Vector) { return fromArrow(value) as any; }
   if (!value.type && Array.isArray(value.data)) {

@@ -35,6 +35,41 @@ export class StringSeries extends Series<Utf8String> {
     throw new Error(`Cast from ${arrow.Type[this.type.typeId]} to ${
       arrow.Type[dataType.typeId]} not implemented`);
   }
+
+  /**
+   * Return a value at the specified index to host memory
+   *
+   * @param index the index in this Series to return a value for
+   *
+   * @example
+   * ```typescript
+   * import {Series} from "@rapidsai/cudf";
+   *
+   * // StringSeries
+   * Series.new(["foo", "bar", "test"]).getValue(0) // "foo"
+   * Series.new(["foo", "bar", "test"]).getValue(2) // "test"
+   * Series.new(["foo", "bar", "test"]).getValue(3) // throws index out of bounds error
+   * ```
+   */
+  getValue(index: number) { return this._col.getValue(index); }
+
+  /**
+   * set value at the specified index
+   *
+   * @param index the index in this Series to set a value for
+   * @param value the value to set at `index`
+   *
+   * @example
+   * ```typescript
+   * import {Series} from "@rapidsai/cudf";
+   *
+   * // StringSeries
+   * const a = Series.new(["foo", "bar", "test"])
+   * a.setValue(2, "test1") // inplace update -> Series(["foo", "bar", "test1"])
+   * ```
+   */
+  setValue(index: number, value: string): void { this._col = this.scatter(value, [index])._col; }
+
   /**
    * Series of integer offsets for each string
    * @example
@@ -47,6 +82,7 @@ export class StringSeries extends Series<Utf8String> {
    */
   // TODO: Account for this.offset
   get offsets() { return Series.new(this._col.getChild<Int32>(0)); }
+
   /**
    * Series containing the utf8 characters of each string
    * @example
@@ -59,6 +95,22 @@ export class StringSeries extends Series<Utf8String> {
    */
   // TODO: Account for this.offset
   get data() { return Series.new(this._col.getChild<Uint8>(1)); }
+
+  /**
+   * Concat a StringSeries to the end of the caller, returning a new StringSeries.
+   *
+   * @param other The StringSeries to concat to the end of the caller.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new(["foo"]).concat(Series.new(["bar"])) // ["foo", "bar"]
+   * ```
+   */
+  concat(other: Series<Utf8String>, memoryResource?: MemoryResource): Series<Utf8String> {
+    return this.__construct(this._col.concat(other._col, memoryResource));
+  }
 
   /**
    * Returns a boolean series identifying rows which match the given regex pattern.
@@ -157,18 +209,29 @@ export class StringSeries extends Series<Utf8String> {
   }
 
   /**
-   * Concat a StringSeries to the end of the caller, returning a new StringSeries.
+   * Applies a JSONPath(string) where each row in the series is a valid json string. Returns New
+   * StringSeries containing the retrieved json object strings
    *
-   * @param other The StringSeries to concat to the end of the caller.
+   * @param jsonPath The JSONPath string to be applied to each row of the input column
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
    *
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
+   * const a = const lines = Series.new([
+   *  {foo: {bar: "baz"}},
+   *  {foo: {baz: "bar"}},
+   * ].map(JSON.stringify)); // StringSeries ['{"foo":{"bar":"baz"}}', '{"foo":{"baz":"bar"}}']
    *
-   * Series.new(["foo"]).concat(Series.new(["bar"])) // ["foo", "bar"]
+   * a.getJSONObject("$.foo") // StringSeries ['{"bar":"baz"}', '{"baz":"bar"}']
+   * a.getJSONObject("$.foo.bar") // StringSeries ["baz", null]
+   *
+   * // parse the resulting strings using JSON.parse
+   * [...a.getJSONObject("$.foo").map(JSON.parse)] // object [{ bar: 'baz' }, { baz: 'bar' }]
    * ```
    */
-  concat(other: Series<Utf8String>, memoryResource?: MemoryResource): Series<Utf8String> {
-    return this.__construct(this._col.concat(other._col, memoryResource));
+  getJSONObject(jsonPath: string, memoryResource?: MemoryResource): StringSeries {
+    return Series.new(this._col.getJSONObject(jsonPath, memoryResource));
   }
 }
