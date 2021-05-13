@@ -18,11 +18,11 @@ function(find_and_configure_cuml VERSION)
 
     include(get_cpm)
 
+    include(ConfigureCUDF)
+
     _clean_build_dirs_if_not_fully_built(cuml libcuml.so)
 
     _set_package_dir_if_exists(cuml cuml)
-
-    include(ConfigureCUDF)
 
     if(NOT TARGET cuml::cuml)
         CPMFindPackage(NAME     cuml

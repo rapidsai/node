@@ -18,6 +18,8 @@ function(find_and_configure_cudf VERSION)
 
     include(get_cpm)
 
+    include(ConfigureRMM)
+
     _clean_build_dirs_if_not_fully_built(cudf libcudf.so)
 
     _set_package_dir_if_exists(cudf cudf)
@@ -27,8 +29,6 @@ function(find_and_configure_cudf VERSION)
     _set_package_dir_if_exists(libcudacxx libcudacxx)
     _set_package_dir_if_exists(arrow_static arrow)
     _set_package_dir_if_exists(arrow_cuda_static arrow)
-
-    include(ConfigureRMM)
 
     if(NOT TARGET cudf::cudf)
         CPMFindPackage(NAME     cudf
