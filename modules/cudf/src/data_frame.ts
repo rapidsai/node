@@ -886,7 +886,7 @@ export class DataFrame<T extends TypeMap = any> {
    * value is `NaN` and `false` indicates the value is valid.
    *
    * @returns a DataFrame replacing instances of FloatSeries with a Bool8Series where `true`
-   *   indicates the value is `NaN`
+   * indicates the value is `NaN`
    *
    * @example
    * ```typescript
@@ -938,6 +938,66 @@ export class DataFrame<T extends TypeMap = any> {
   isNull(): DataFrame<{[P in keyof T]: Bool8}> {
     return new DataFrame(
       this.names.reduce((cols, name) => ({...cols, [name]: this.get(name).isNull()}),
+                        {} as SeriesMap<{[P in keyof T]: Bool8}>));
+  }
+
+  /**
+   * Creates a DataFrame replacing any FloatSeries with a Bool8Series where `false` indicates the
+   * value is `NaN` and `true` indicates the value is valid.
+   *
+   * @returns a DataFrame replacing instances of FloatSeries with a Bool8Series where `false`
+   * indicates the value is `NaN`
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int32, data: [0, 1, null]}),
+   *  b: Series.new({type: new Float32, data: [0, NaN, 2]})
+   * });
+   *
+   * df.isNotNaN()
+   * // return {
+   * //    a: [0, 1, null],
+   * //    b: [true, false, true],
+   * // }
+   * ```
+   */
+  isNotNaN(): DataFrame<T> {
+    return new DataFrame(this.names.reduce(
+      (map, name) => ({
+        ...map,
+        [name]: [new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))
+                  ? Series.new(this._accessor.get(name).isNotNaN())
+                  : Series.new(this._accessor.get(name))
+      }),
+      {} as SeriesMap<T>));
+  }
+
+  /**
+   * Creates a DataFrame of `BOOL8` Series where `false` indicates the value is null and
+   * `true` indicates the value is valid.
+   *
+   * @returns a DataFrame containing Series of 'BOOL8' where 'false' indicates the value is null
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([0, null, 2]);
+   *  b: Series.new(['foo', 'bar', null]);
+   * });
+   *
+   * df.isNotNull()
+   * // return {
+   * //    a: [true, false, true],
+   * //    b: [true, true, false],
+   * // }
+   * ```
+   */
+  isNotNull(): DataFrame<{[P in keyof T]: Bool8}> {
+    return new DataFrame(
+      this.names.reduce((cols, name) => ({...cols, [name]: this.get(name).isNotNull()}),
                         {} as SeriesMap<{[P in keyof T]: Bool8}>));
   }
 }
