@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
+import {
+  Float32Buffer,
+  Int32Buffer,
+  Int64Buffer,
+  setDefaultAllocator,
+  Uint8Buffer
+} from '@nvidia/cuda';
 import {
   Bool8,
   Column,
@@ -22,6 +28,11 @@ import {
   Int64,
   NullOrder,
   Series,
+  TimestampDay,
+  TimestampMicrosecond,
+  TimestampMillisecond,
+  TimestampNanosecond,
+  TimestampSecond,
   Uint8,
   Utf8String
 } from '@rapidsai/cudf';
@@ -468,4 +479,69 @@ ${[true, null, true]} | ${[true, true, true]}
   const result  = s.replaceNullsFollowing();
 
   expect([...result]).toEqual(expected);
+});
+
+test('Series.TimestampDay', () => {
+  const dateTime = Math.floor(new Date(2021, 4, 13, 20, 11, 30, 100).getTime() / 86400000);
+  const s        = Series.new({type: new TimestampDay, data: new Int32Buffer([dateTime])});
+  const val      = s.getValue(0);
+
+  expect(val?.getFullYear()).toBe(2021);
+  expect(val?.getMonth()).toBe(4);
+  expect(val?.getDate()).toBe(13);
+});
+
+test('Series.TimestampSecond', () => {
+  const dateTime = Math.floor(new Date(2021, 4, 13, 20, 11, 30).getTime() / 1000);
+  const s        = Series.new({type: new TimestampSecond, data: new Int64Buffer([dateTime])});
+  const val      = s.getValue(0);
+
+  expect(val?.getFullYear()).toBe(2021);
+  expect(val?.getMonth()).toBe(4);
+  expect(val?.getDate()).toBe(13);
+  expect(val?.getHours()).toBe(20);
+  expect(val?.getMinutes()).toBe(11);
+  expect(val?.getSeconds()).toBe(30);
+});
+
+test('Series.TimestampMillisecond', () => {
+  const dateTime = new Date(2021, 4, 13, 20, 11, 30, 100).getTime();
+  const s        = Series.new({type: new TimestampMillisecond, data: new Int64Buffer([dateTime])});
+  const val      = s.getValue(0);
+
+  expect(val?.getFullYear()).toBe(2021);
+  expect(val?.getMonth()).toBe(4);
+  expect(val?.getDate()).toBe(13);
+  expect(val?.getHours()).toBe(20);
+  expect(val?.getMinutes()).toBe(11);
+  expect(val?.getSeconds()).toBe(30);
+  expect(val?.getMilliseconds()).toBe(100);
+});
+
+test('Series.TimestampNanosecond', () => {
+  const dateTime = new Date(2021, 4, 13, 20, 11, 30, 100).getTime() * 1000;
+  const s        = Series.new({type: new TimestampMicrosecond, data: new Int64Buffer([dateTime])});
+  const val      = s.getValue(0);
+
+  expect(val?.getFullYear()).toBe(2021);
+  expect(val?.getMonth()).toBe(4);
+  expect(val?.getDate()).toBe(13);
+  expect(val?.getHours()).toBe(20);
+  expect(val?.getMinutes()).toBe(11);
+  expect(val?.getSeconds()).toBe(30);
+  expect(val?.getMilliseconds()).toBe(100);
+});
+
+test('Series.TimestampMicrosecond', () => {
+  const dateTime = new Date(2021, 4, 13, 20, 11, 30, 100).getTime() * 1000000;
+  const s        = Series.new({type: new TimestampNanosecond, data: new Int64Buffer([dateTime])});
+  const val      = s.getValue(0);
+
+  expect(val?.getFullYear()).toBe(2021);
+  expect(val?.getMonth()).toBe(4);
+  expect(val?.getDate()).toBe(13);
+  expect(val?.getHours()).toBe(20);
+  expect(val?.getMinutes()).toBe(11);
+  expect(val?.getSeconds()).toBe(30);
+  expect(val?.getMilliseconds()).toBe(100);
 });
