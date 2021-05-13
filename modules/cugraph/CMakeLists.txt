@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2020-2021, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,9 +31,6 @@ option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated 
 set(RMM_VERSION "0.20")
 set(CUDF_VERSION "0.20")
 set(CUGRAPH_VERSION "0.20")
-set(RAFT_VERSION "0.20")
-set(RAFT_GITHUB_URL "https://github.com/rapidsai/raft.git")
-set(RAFT_BRANCH "66f82b4e79a3e268d0da3cc864ec7ce4ad065296")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------

@@ -20,7 +20,7 @@ import {Column} from './column';
 import {ColumnAccessor} from './column_accessor';
 import {Join, JoinResult} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
-import {AbstractSeries, Float32Series, Float64Series, Series} from './series';
+import {AbstractSeries, Series} from './series';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, Float32, Float64, IndexType, Numeric} from './types/dtypes';
@@ -323,11 +323,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns DataFrame of Series cast to the new dtype
-   *
-   * @example
-   * ```typescript
-   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
-   * const df = new DataFrame({
+   *make notebooks.run
    *  a: Series.new({type: new Int32, data: [0, 1, 1, 2, 2, 2]}),
    *  b: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]})
    * })
@@ -657,7 +653,7 @@ export class DataFrame<T extends TypeMap = any> {
     const column_indices: number[]  = [];
     subset.forEach((col, idx) => {
       if (this.names.includes(col) &&
-          (this.get(col) instanceof Float32Series || this.get(col) instanceof Float64Series)) {
+          [new Float32, new Float64].some((t) => this.get(col).type.compareTo(t))) {
         column_names.push(col);
         column_indices.push(idx);
       } else if (!this.names.includes(col)) {
@@ -698,7 +694,7 @@ export class DataFrame<T extends TypeMap = any> {
     const df                        = (subset !== undefined) ? this.gather(subset) : this;
 
     this.names.forEach(col => {
-      if (df.get(col) instanceof Float32Series || df.get(col) instanceof Float64Series) {
+      if ([new Float32, new Float64].some((t) => this.get(col).type.compareTo(t))) {
         const nanCount =
           df.get(col)._col.nans_to_nulls(memoryResource).nullCount - this.get(col).nullCount;
 
@@ -876,7 +872,7 @@ export class DataFrame<T extends TypeMap = any> {
     const temp       = new Table({columns: this.select(subset)._accessor.columns});
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach((name, index) => {
-      if (this.get(name) instanceof Float32Series || this.get(name) instanceof Float64Series) {
+      if ([new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))) {
         series_map[name] = Series.new(temp.getColumnByIndex(index).nans_to_nulls());
       } else {
         series_map[name] = Series.new(temp.getColumnByIndex(index));
@@ -916,5 +912,32 @@ export class DataFrame<T extends TypeMap = any> {
                   : Series.new(this._accessor.get(name))
       }),
       {} as SeriesMap<T>));
+  }
+
+  /**
+   * Creates a DataFrame of `BOOL8` Series where `true` indicates the value is null and
+   * `false` indicates the value is valid.
+   *
+   * @returns a DataFrame containing Series of 'BOOL8' where 'true' indicates the value is null
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([0, null, 2]);
+   *  b: Series.new(['foo', 'bar', null]);
+   * });
+   *
+   * df.isNull()
+   * // return {
+   * //    a: [false, true, false],
+   * //    b: [false, false, true],
+   * // }
+   * ```
+   */
+  isNull(): DataFrame<{[P in keyof T]: Bool8}> {
+    return new DataFrame(
+      this.names.reduce((cols, name) => ({...cols, [name]: this.get(name).isNull()}),
+                        {} as SeriesMap<{[P in keyof T]: Bool8}>));
   }
 }

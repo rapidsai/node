@@ -26,7 +26,7 @@ See the [API docs](https://rapidsai.github.io/node-rapids/) for detailed informa
 - NVIDIA driver 418.39+
 - Pascal architecture (Compute Capability >=6.0) or better
 
-To get started building and using `node-rapids`, follow the [setup instructions](docs/setup.md).
+To get started building and using `node-rapids`, follow the [setup instructions](https://github.com/rapidsai/node-rapids/tree/main/docs/setup.md).
 
 The `node-rapids` modules are not yet available on npm. They must be built locally or in our Docker environments.
 
@@ -52,11 +52,11 @@ yarn docker:run:nteract
 
 The demos module contains a bunch of examples which use a combination of node-rapids modules to re-implement some browser+webgl based examples. Some of them include:
 
-- [deck.gl](modules/demo/deck/)
-- [luma.gl](modules/demo/luma/)
-- [TensorFlow.js](modules/demo/tfjs/)
-- [XTerm.js](modules/demo/xterm/)
-- [CUML UMAP](modules/demo/ipc/umap/)
+- [deck.gl](https://github.com/rapidsai/node-rapids/tree/main/modules/demo/deck/)
+- [luma.gl](https://github.com/rapidsai/node-rapids/tree/main/modules/demo/luma/)
+- [TensorFlow.js](https://github.com/rapidsai/node-rapids/tree/main/modules/demo/tfjs/)
+- [XTerm.js](https://github.com/rapidsai/node-rapids/tree/main/modules/demo/xterm/)
+- [CUML UMAP](https://github.com/rapidsai/node-rapids/tree/main/modules/demo/ipc/umap/)
 
 After you build the modules, run `yarn demo` from the command line to choose the demo you want to run.
 
@@ -68,10 +68,10 @@ You can review [BINDINGS.md](https://github.com/rapidsai/node-rapids/blob/main/B
 
 ### What is the `.env` file used for and what variables can be set in it?
 
-The `.env` file is used by the [docker-compose.yml](/docker-compose.yml) file when building and running the development containers (i.e. `yarn docker:build:devel` and `yarn docker:run:devel`). Any variables in the [docker-compose.yml](/docker-compose.yml) file can be set in the `.env` file. The [.env.sample](/.env.sample) file includes some common variables that may be set in the `.env` file.
+The `.env` file is used by the [docker-compose.yml](https://github.com/rapidsai/node-rapids/tree/main/docker-compose.yml) file when building and running the development containers (i.e. `yarn docker:build:devel` and `yarn docker:run:devel`). Any variables in the [docker-compose.yml](https://github.com/rapidsai/node-rapids/tree/main/docker-compose.yml) file can be set in the `.env` file. The [.env.sample](https://github.com/rapidsai/node-rapids/tree/main/.env.sample) file includes some common variables that may be set in the `.env` file.
 
 ## License
 
-This work is licensed under the [Apache-2.0 license](./LICENSE).
+This work is licensed under the [Apache-2.0 license](https://github.com/rapidsai/node-rapids/tree/main/LICENSE).
 
 ---
