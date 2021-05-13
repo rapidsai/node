@@ -18,11 +18,11 @@ function(find_and_configure_cuspatial VERSION)
 
     include(get_cpm)
 
+    include(ConfigureCUDF)
+
     _clean_build_dirs_if_not_fully_built(cuspatial libcuspatial.so)
 
     _set_package_dir_if_exists(cuspatial cuspatial)
-
-    include(ConfigureCUDF)
 
     if(NOT TARGET cuspatial::cuspatial)
         CPMFindPackage(NAME     cuspatial
