@@ -20,6 +20,7 @@ import {
   GroupByMultiple,
   GroupBySingle,
   Int32,
+  Int8,
   NullOrder,
   Series,
   Table
@@ -426,6 +427,20 @@ test(
     expect(result.names).toEqual([]);
   });
 
+describe('dataframe mathematicalUnaryOps', () => {
+  const a  = Series.new({type: new Int32, data: [-3, 0, 3]});
+  const b  = Series.new({type: new Int8, data: [-3, 0, 3]});
+  const c  = Series.new(['foo', null, 'bar']);
+  const df = new DataFrame({'a': a, 'b': b, 'c': c});
+
+  test('dataframe.acos', () => {
+    const result = df.acos();
+    expect([...result.get('a')]).toEqual([-2147483648, 1, -2147483648]);
+    expect([...result.get('b')]).toEqual([0, 1, 0]);
+    expect([...result.get('c')]).toEqual([...c]);
+  });
+});
+
 test('dataframe.nansToNulls', () => {
   const a  = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]});
   const b  = Series.new({type: new Float32, data: new Float32Buffer([0, NaN, 3, 5, 5, 6])});
@@ -448,12 +463,12 @@ test('dataframe.isNaN', () => {
   const expected_a = Series.new(a);
   const expected_b = Series.new([true, false, false, true, false]);
   const expected_c = Series.new(c);
-  
+
   expect([...result.get('a')]).toEqual([...expected_a]);
   expect([...result.get('b')]).toEqual([...expected_b]);
   expect([...result.get('c')]).toEqual([...expected_c]);
 });
-  
+
 test('dataframe.isNull', () => {
   const a      = Series.new([0, null, 2, 3, null]);
   const b      = Series.new([NaN, 0, 3, NaN, null]);

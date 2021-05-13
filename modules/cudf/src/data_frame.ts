@@ -21,6 +21,7 @@ import {ColumnAccessor} from './column_accessor';
 import {Join, JoinResult} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {AbstractSeries, Series} from './series';
+import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, Float32, Float64, IndexType, Numeric} from './types/dtypes';
@@ -845,6 +846,33 @@ export class DataFrame<T extends TypeMap = any> {
     } else {
       throw new Error('invalid axis value, expected {0, 1} ');
     }
+  }
+
+  /**
+   * Compute the trigonometric cosine inverse for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.acos();
+   * // return {
+   * //    a: [0, 1, 0],
+   * // }
+   * ```
+   */
+  acos(): DataFrame<T> {
+    return new DataFrame(this.names.reduce((map, name) => ({
+                                             ...map,
+                                             [name]: this.get(name) instanceof NumericSeries
+                                                       ? Series.new(this._accessor.get(name).acos())
+                                                       : Series.new(this._accessor.get(name))
+                                           }),
+                                           {} as SeriesMap<T>));
   }
 
   /**
