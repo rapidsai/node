@@ -882,6 +882,39 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Creates a DataFrame replacing any FloatSeries with a Bool8Series where `true` indicates the
+   * value is `NaN` and `false` indicates the value is valid.
+   *
+   * @returns a DataFrame replacing instances of FloatSeries with a Bool8Series where `true`
+   *   indicates the value is `NaN`
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int32, data: [0, 1, null]}),
+   *  b: Series.new({type: new Float32, data: [0, NaN, 2]})
+   * });
+   *
+   * df.isNaN()
+   * // return {
+   * //    a: [0, 1, null],
+   * //    b: [false, true, false],
+   * // }
+   * ```
+   */
+  isNaN(): DataFrame<T> {
+    return new DataFrame(this.names.reduce(
+      (map, name) => ({
+        ...map,
+        [name]: [new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))
+                  ? Series.new(this._accessor.get(name).isNaN())
+                  : Series.new(this._accessor.get(name))
+      }),
+      {} as SeriesMap<T>));
+  }
+
+  /**
    * Creates a DataFrame of `BOOL8` Series where `true` indicates the value is null and
    * `false` indicates the value is valid.
    *
