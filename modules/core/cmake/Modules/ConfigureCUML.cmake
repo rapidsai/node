@@ -23,6 +23,9 @@ function(find_and_configure_cuml VERSION)
     _clean_build_dirs_if_not_fully_built(cuml libcuml.so)
 
     _set_package_dir_if_exists(cuml cuml)
+    _set_package_dir_if_exists(fmt fmtlib)
+    _set_package_dir_if_exists(faiss faiss)
+    _set_package_dir_if_exists(RapidJSON rapidjson)
 
     if(NOT TARGET cuml::cuml)
         CPMFindPackage(NAME     cuml

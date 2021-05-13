@@ -23,11 +23,9 @@ function(find_and_configure_cugraph VERSION)
     _clean_build_dirs_if_not_fully_built(cugraph libcugraph.so)
 
     _set_package_dir_if_exists(cuco cuco)
-    _set_package_dir_if_exists(FAISS faiss)
-    # _set_package_dir_if_exists(gunrock gunrock)
-    _set_package_dir_if_exists(cuhornet cuhornet)
-
+    _set_package_dir_if_exists(faiss faiss)
     _set_package_dir_if_exists(cugraph cugraph)
+    _set_package_dir_if_exists(cuhornet cuhornet)
 
     if(NOT TARGET cugraph::cugraph)
 
