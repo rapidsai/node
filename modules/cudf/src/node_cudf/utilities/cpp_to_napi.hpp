@@ -41,22 +41,22 @@ inline Napi::Value CPPToNapi::operator()(cudf::duration_D const& val) const {
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudf::duration_s const& val) const {
-  return (*this)(val.count());
+  return Napi::BigInt::New(Env(), val.count());
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudf::duration_ms const& val) const {
-  return (*this)(val.count());
+  return Napi::BigInt::New(Env(), val.count());
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudf::duration_us const& val) const {
-  return (*this)(val.count());
+  return Napi::BigInt::New(Env(), val.count());
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudf::duration_ns const& val) const {
-  return (*this)(val.count());
+  return Napi::BigInt::New(Env(), val.count());
 }
 
 template <>
@@ -105,22 +105,22 @@ inline Value Value::From(napi_env env, cudf::duration_D const& val) {
 
 template <>
 inline Value Value::From(napi_env env, cudf::duration_s const& val) {
-  return Value::From(env, val.count());
+  return Napi::BigInt::New(env, val.count());
 }
 
 template <>
 inline Value Value::From(napi_env env, cudf::duration_ms const& val) {
-  return Value::From(env, val.count());
+  return Napi::BigInt::New(env, val.count());
 }
 
 template <>
 inline Value Value::From(napi_env env, cudf::duration_us const& val) {
-  return Value::From(env, val.count());
+  return Napi::BigInt::New(env, val.count());
 }
 
 template <>
 inline Value Value::From(napi_env env, cudf::duration_ns const& val) {
-  return Value::From(env, val.count());
+  return Napi::BigInt::New(env, val.count());
 }
 
 template <>

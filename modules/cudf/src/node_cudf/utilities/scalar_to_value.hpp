@@ -66,29 +66,32 @@ struct get_scalar_value {
   inline std::enable_if_t<std::is_same<T, cudf::string_view>::value, Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? CPPToNapi(env)(static_cast<cudf::string_scalar*>(scalar.get())->to_string(stream))
+             ? Napi::Value::From(env,
+                                 static_cast<cudf::string_scalar*>(scalar.get())->to_string(stream))
              : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<cudf::is_duration<T>(), Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? CPPToNapi(env)(static_cast<cudf::duration_scalar<T>*>(scalar.get())->value(stream))
+             ? Napi::Value::From(
+                 env, static_cast<cudf::duration_scalar<T>*>(scalar.get())->value(stream))
              : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<cudf::is_timestamp<T>(), Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? CPPToNapi(env)(static_cast<cudf::timestamp_scalar<T>*>(scalar.get())->value(stream))
+             ? Napi::Value::From(
+                 env, static_cast<cudf::timestamp_scalar<T>*>(scalar.get())->value(stream))
              : env.Null();
   }
   template <typename T>
   inline std::enable_if_t<cudf::is_fixed_point<T>(), Napi::Value> operator()(
     std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     return scalar->is_valid(stream)
-             ? CPPToNapi(env)(
-                 static_cast<cudf::fixed_point_scalar<T>*>(scalar.get())->value(stream))
+             ? Napi::Value::From(
+                 env, static_cast<cudf::fixed_point_scalar<T>*>(scalar.get())->value(stream))
              : env.Null();
   }
   template <typename T>
