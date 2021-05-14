@@ -75,7 +75,7 @@ export class TimestampDaySeries extends TimestampSeries<TimestampDay> {
 
 export class TimestampSecondSeries extends TimestampSeries<TimestampSecond> {
   get data() {
-    return new Int32Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+    return new Int64Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
 
   /**

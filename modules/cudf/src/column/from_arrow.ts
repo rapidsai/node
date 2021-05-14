@@ -145,22 +145,22 @@ class VectorToColumnVisitor extends arrow.Visitor {
   visitTimestampSecond<T extends arrow.TimestampSecond>(
     {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
     return new Column(
-      {type: new TimestampSecond, length, data: data.subarray(0, length), nullMask});
+      {type: new TimestampSecond, length, data: data.subarray(0, length * 2), nullMask});
   }
   visitTimestampMillisecond<T extends arrow.TimestampMillisecond>(
     {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
     return new Column(
-      {type: new TimestampMillisecond, length, data: data.subarray(0, length), nullMask});
+      {type: new TimestampMillisecond, length, data: data.subarray(0, length * 2), nullMask});
   }
   visitTimestampMicrosecond<T extends arrow.TimestampMicrosecond>(
     {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
     return new Column(
-      {type: new TimestampMicrosecond, length, data: data.subarray(0, length), nullMask});
+      {type: new TimestampMicrosecond, length, data: data.subarray(0, length * 2), nullMask});
   }
   visitTimestampNanosecond<T extends arrow.TimestampNanosecond>(
     {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
     return new Column(
-      {type: new TimestampNanosecond, length, data: data.subarray(0, length), nullMask});
+      {type: new TimestampNanosecond, length, data: data.subarray(0, length * 2), nullMask});
   }
   // visitTimeSecond<T extends arrow.TimeSecond>(vector: arrow.Vector<T>) {}
   // visitTimeMillisecond<T extends arrow.TimeMillisecond>(vector: arrow.Vector<T>) {}
