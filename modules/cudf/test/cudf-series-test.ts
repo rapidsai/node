@@ -493,8 +493,8 @@ test('Series.TimestampDay', () => {
 
 test('Series.TimestampSecond', () => {
   const dateTime = Math.floor(new Date('May 13, 2021 16:38:30:100 GMT+00:00').getTime() / 1000);
-  const s        = Series.new({type: new TimestampSecond, data: new Int64Buffer([dateTime])});
-  const val      = s.getValue(0);
+  const s = Series.new({type: new TimestampSecond, data: new Int64Buffer([dateTime].map(BigInt))});
+  const val = s.getValue(0);
 
   expect(val?.getUTCFullYear()).toBe(2021);
   expect(val?.getUTCMonth()).toBe(4);
@@ -506,8 +506,9 @@ test('Series.TimestampSecond', () => {
 
 test('Series.TimestampMillisecond', () => {
   const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00').getTime();
-  const s        = Series.new({type: new TimestampMillisecond, data: new Int64Buffer([dateTime])});
-  const val      = s.getValue(0);
+  const s =
+    Series.new({type: new TimestampMillisecond, data: new Int64Buffer([dateTime].map(BigInt))});
+  const val = s.getValue(0);
 
   expect(val?.getUTCFullYear()).toBe(2021);
   expect(val?.getUTCMonth()).toBe(4);
@@ -520,8 +521,9 @@ test('Series.TimestampMillisecond', () => {
 
 test('Series.TimestampNanosecond', () => {
   const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00').getTime() * 1000;
-  const s        = Series.new({type: new TimestampMicrosecond, data: new Int64Buffer([dateTime])});
-  const val      = s.getValue(0);
+  const s =
+    Series.new({type: new TimestampMicrosecond, data: new Int64Buffer([dateTime].map(BigInt))});
+  const val = s.getValue(0);
 
   expect(val?.getUTCFullYear()).toBe(2021);
   expect(val?.getUTCMonth()).toBe(4);
@@ -534,8 +536,9 @@ test('Series.TimestampNanosecond', () => {
 
 test('Series.TimestampMicrosecond', () => {
   const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00').getTime() * 1000000;
-  const s        = Series.new({type: new TimestampNanosecond, data: new Int64Buffer([dateTime])});
-  const val      = s.getValue(0);
+  const s =
+    Series.new({type: new TimestampNanosecond, data: new Int64Buffer([dateTime].map(BigInt))});
+  const val = s.getValue(0);
 
   expect(val?.getUTCFullYear()).toBe(2021);
   expect(val?.getUTCMonth()).toBe(4);
