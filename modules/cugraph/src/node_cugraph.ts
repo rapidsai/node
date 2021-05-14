@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Column, Int32} from '@rapidsai/cudf';
+import {Column, FloatingPoint, Integral} from '@rapidsai/cudf';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 
-export interface GraphCOOConstructor {
-  readonly prototype: GraphCOO;
-  new(src: Column<Int32>, dst: Column<Int32>, options?: {directedEdges?: boolean}): GraphCOO;
-}
+/** @ignore */
+export declare const _cpp_exports: any;
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-interface GraphCOO {
-  readonly numEdges: number;
-  readonly numNodes: number;
+export declare class GraphCOO {
+  constructor(src: Column<Integral|FloatingPoint>,
+              dst: Column<Integral|FloatingPoint>,
+              options?: {directedEdges?: boolean});
+
+  numEdges(): number;
+  numNodes(): number;
 
   forceAtlas2(options: {
     memoryResource?: MemoryResource,
@@ -41,5 +42,3 @@ interface GraphCOO {
     verbose?: boolean,
   }): DeviceBuffer;
 }
-
-export {GraphCOO} from './addon';

@@ -14,9 +14,12 @@
 
 #include <node_cugraph/graph_coo.hpp>
 
+#include <node_cudf/utilities/dtypes.hpp>
+
 #include <node_cuda/utilities/error.hpp>
 #include <node_cuda/utilities/napi_to_cpp.hpp>
 
+#include <cudf/reduction.hpp>
 #include <cudf/types.hpp>
 
 #include <napi.h>
@@ -27,8 +30,8 @@ Napi::Function GraphCOO::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(env,
                      "GraphCOO",
                      {
-                       InstanceAccessor<&GraphCOO::num_edges>("numEdges"),
-                       InstanceAccessor<&GraphCOO::num_nodes>("numNodes"),
+                       InstanceMethod<&GraphCOO::num_edges>("numEdges"),
+                       InstanceMethod<&GraphCOO::num_nodes>("numNodes"),
                        InstanceMethod<&GraphCOO::force_atlas2>("forceAtlas2"),
                      });
 }
@@ -45,8 +48,16 @@ GraphCOO::GraphCOO(CallbackArgs const& args) : EnvLocalObjectWrap<GraphCOO>(args
   NODE_CUDA_EXPECT(
     Column::IsInstance(args[1]), "GraphCOO requires dst argument to a Column", args.Env());
 
-  Column::wrapper_t const src     = args[0];
-  Column::wrapper_t const dst     = args[1];
+  Column::wrapper_t src = args[0];
+  if (src->type().id() != cudf::type_id::INT32) {
+    src = src->cast(cudf::data_type{cudf::type_id::INT32});
+  }
+
+  Column::wrapper_t dst = args[1];
+  if (dst->type().id() != cudf::type_id::INT32) {
+    dst = dst->cast(cudf::data_type{cudf::type_id::INT32});
+  }
+
   NapiToCPP::Object const options = args[2];
 
   src_            = Napi::Persistent(src);
@@ -56,13 +67,10 @@ GraphCOO::GraphCOO(CallbackArgs const& args) : EnvLocalObjectWrap<GraphCOO>(args
 
 size_t GraphCOO::num_nodes() {
   if (!node_count_computed_) {
-    auto const& src      = *src_.Value();
-    auto const& dst      = *dst_.Value();
-    auto const src_max   = src.minmax().second;
-    auto const dst_max   = dst.minmax().second;
-    node_count_          = 1 + std::max<int32_t>(  //
-                        src_max->get_value().ToNumber(),
-                        dst_max->get_value().ToNumber());
+    auto max_id = [&](Napi::Reference<Column::wrapper_t> const& col) -> int32_t {
+      return col.Value()->minmax().second->get_value().ToNumber();
+    };
+    node_count_          = 1 + std::max(max_id(src_), max_id(dst_));
     node_count_computed_ = true;
   }
   return node_count_;

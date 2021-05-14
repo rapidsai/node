@@ -188,7 +188,7 @@ export default async function* loadGraphData(props = {}) {
       }
     }
 
-    const n = graph.numNodes;
+    const n = graph.numNodes();
 
     // If new nodes, update existing positions
     if (positions && positions.length < (n * 2)) {
@@ -267,8 +267,8 @@ function promiseSubject() {
  * @param {*} graph
  */
 function createGraphRenderProps(nodes, edges, graph) {
-  const numNodes = graph.numNodes;
-  const numEdges = graph.numEdges;
+  const numNodes = graph.numNodes();
+  const numEdges = graph.numEdges();
   return {
     numNodes, numEdges, nodeRadiusScale: 1 / 75,
     // nodeRadiusScale: 1/255,
