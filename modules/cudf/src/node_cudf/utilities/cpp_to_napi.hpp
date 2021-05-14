@@ -26,6 +26,7 @@
 #include <cudf/wrappers/timestamps.hpp>
 
 #include <napi.h>
+#include <cuda/std/chrono>
 
 namespace nv {
 
@@ -61,27 +62,32 @@ inline Napi::Value CPPToNapi::operator()(cudf::duration_ns const& val) const {
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudf::timestamp_D const& val) const {
-  return (*this)(val.time_since_epoch());
+  return Napi::Number::New(
+    Env(), cuda::std::chrono::duration_cast<cudf::duration_ms>(val.time_since_epoch()).count());
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudf::timestamp_s const& val) const {
-  return (*this)(val.time_since_epoch());
+  return Napi::BigInt::New(
+    Env(), cuda::std::chrono::duration_cast<cudf::duration_ms>(val.time_since_epoch()).count());
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudf::timestamp_ms const& val) const {
-  return (*this)(val.time_since_epoch());
+  return Napi::BigInt::New(
+    Env(), cuda::std::chrono::duration_cast<cudf::duration_ms>(val.time_since_epoch()).count());
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudf::timestamp_us const& val) const {
-  return (*this)(val.time_since_epoch());
+  return Napi::BigInt::New(
+    Env(), cuda::std::chrono::duration_cast<cudf::duration_ms>(val.time_since_epoch()).count());
 }
 
 template <>
 inline Napi::Value CPPToNapi::operator()(cudf::timestamp_ns const& val) const {
-  return (*this)(val.time_since_epoch());
+  return Napi::BigInt::New(
+    Env(), cuda::std::chrono::duration_cast<cudf::duration_ms>(val.time_since_epoch()).count());
 }
 
 template <>
@@ -125,27 +131,32 @@ inline Value Value::From(napi_env env, cudf::duration_ns const& val) {
 
 template <>
 inline Value Value::From(napi_env env, cudf::timestamp_D const& val) {
-  return Value::From(env, val.time_since_epoch());
+  return Napi::Number::New(
+    env, cuda::std::chrono::duration_cast<cudf::duration_ms>(val.time_since_epoch()).count());
 }
 
 template <>
 inline Value Value::From(napi_env env, cudf::timestamp_s const& val) {
-  return Value::From(env, val.time_since_epoch());
+  return Napi::BigInt::New(
+    env, cuda::std::chrono::duration_cast<cudf::duration_ms>(val.time_since_epoch()).count());
 }
 
 template <>
 inline Value Value::From(napi_env env, cudf::timestamp_ms const& val) {
-  return Value::From(env, val.time_since_epoch());
+  return Napi::BigInt::New(
+    env, cuda::std::chrono::duration_cast<cudf::duration_ms>(val.time_since_epoch()).count());
 }
 
 template <>
 inline Value Value::From(napi_env env, cudf::timestamp_us const& val) {
-  return Value::From(env, val.time_since_epoch());
+  return Napi::BigInt::New(
+    env, cuda::std::chrono::duration_cast<cudf::duration_ms>(val.time_since_epoch()).count());
 }
 
 template <>
 inline Value Value::From(napi_env env, cudf::timestamp_ns const& val) {
-  return Value::From(env, val.time_since_epoch());
+  return Napi::BigInt::New(
+    env, cuda::std::chrono::duration_cast<cudf::duration_ms>(val.time_since_epoch()).count());
 }
 
 }  // namespace Napi

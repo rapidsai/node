@@ -69,7 +69,7 @@ export class TimestampDaySeries extends TimestampSeries<TimestampDay> {
    */
   getValue(index: number) {
     const val = this._col.getValue(index);
-    return val === null ? null : new Date(val * 86400000);
+    return val === null ? null : new Date(val);
   }
 }
 
@@ -95,7 +95,7 @@ export class TimestampSecondSeries extends TimestampSeries<TimestampSecond> {
    */
   getValue(index: number) {
     const val = this._col.getValue(index);
-    return val === null ? null : new Date(Number(val * 1000n));
+    return val === null ? null : new Date(Number(val));
   }
 }
 
@@ -121,7 +121,7 @@ export class TimestampMicrosecondSeries extends TimestampSeries<TimestampMicrose
    */
   getValue(index: number) {
     const val = this._col.getValue(index);
-    return val === null ? null : new Date(Number(val / 1000n));
+    return val === null ? null : new Date(Number(val));
   }
 }
 
@@ -173,6 +173,6 @@ export class TimestampNanosecondSeries extends TimestampSeries<TimestampNanoseco
    */
   getValue(index: number) {
     const val = this._col.getValue(index);
-    return val === null ? null : new Date(Number(val / 1000000n));
+    return val === null ? null : new Date(Number(val));
   }
 }
