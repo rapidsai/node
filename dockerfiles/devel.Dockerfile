@@ -162,7 +162,9 @@ export HISTCONTROL=ignoreboth;\n\
 export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 # Change the file location because certain bash sessions truncate .bash_history file upon close.\n\
 # http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login\n\
-export HISTFILE=\"\$DOCKER_WORKDIR/modules/.cache/.eternal_bash_history\";\n\
+if [ -n \"\${DOCKER_WORKDIR}\" ]; then\n\
+    export HISTFILE=\"\${DOCKER_WORKDIR}/modules/.cache/.eternal_bash_history\";\n\
+fi\n\
 "' >> /home/node/.bashrc \
  # Modify the entrypoint script to export the entrypoint as a DOCKER_WORKDIR env var
  && sed -ri 's/exec "\$@"/export DOCKER_WORKDIR="\$(pwd)";\nexec "\$@"/g' /usr/local/bin/docker-entrypoint.sh \
