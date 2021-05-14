@@ -64,7 +64,7 @@ list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
 include(ConfigureCXX)
 include(ConfigureCUDA)
 include(ConfigureNapi)
-include(ConfigureCuGraph)
+include(ConfigureCUGRAPH)
 
 ###################################################################################################
 # - node_cugraph target ---------------------------------------------------------------------------
