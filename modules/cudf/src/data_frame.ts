@@ -877,8 +877,9 @@ export class DataFrame<T extends TypeMap = any> {
   acos(): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
-        ...map, [name]: this._performMathOp(
-                  name, () => {return Series.new(this._accessor.get(name).acos());})
+        ...map,
+        [name]:
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).acos()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -887,11 +888,11 @@ export class DataFrame<T extends TypeMap = any> {
   acos2(): DataFrame<T> {
     return new DataFrame(this.names.reduce((map: SeriesMap<T>, name: string) => {
       return {
-        ...map, [name]: this._performMathOp(
-                  name, () => {return Series.new(this._accessor.get(name).acos());})
+        ...map,
+        [name]:
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).acos()); })
       };
-    },
-                                           {} as SeriesMap<T>));
+    }, {} as SeriesMap<T>));
   }
 
   acos3(): DataFrame<T> {
