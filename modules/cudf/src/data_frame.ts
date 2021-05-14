@@ -849,6 +849,15 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Perform a math operation on a column which is of type
+   * @ignore
+   */
+  _performMathOp<R extends DataType>(columnName: string, mathOp: () => Series<R>): Series<R> {
+    if (this.get(columnName) instanceof NumericSeries) { return mathOp(); }
+    return Series.new(this._accessor.get(columnName));
+  }
+
+  /**
    * Compute the trigonometric cosine inverse for all NumericSeries in the DataFrame
    *
    * @returns A DataFrame with the operation performed on all NumericSeries
@@ -866,13 +875,13 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   acos(): DataFrame<T> {
-    return new DataFrame(this.names.reduce((map, name) => ({
-                                             ...map,
-                                             [name]: this.get(name) instanceof NumericSeries
-                                                       ? Series.new(this._accessor.get(name).acos())
-                                                       : Series.new(this._accessor.get(name))
-                                           }),
-                                           {} as SeriesMap<T>));
+    return new DataFrame(this.names.reduce(
+      (map, name) => ({
+        ...map,
+        [name]:
+          this._performMathOp(name, () => {return Series.new(this._accessor.get(name).acos());})
+      }),
+      {} as SeriesMap<T>));
   }
 
   /**
