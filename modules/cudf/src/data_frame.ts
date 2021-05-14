@@ -63,6 +63,12 @@ function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   return <ColumnsMap<T>>columns;
 }
 
+function _invokeIfNumericSeries<P extends keyof T, T extends TypeMap, R extends DataType>(
+  series: Series<T[P]>, func: () => Series<R>) {
+  if (series instanceof NumericSeries) { return func(); }
+  return Series.new(series._col as Column<R>);
+}
+
 /**
  * A GPU Dataframe object.
  */
@@ -849,15 +855,6 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
-   * Perform a math operation on a column that is of type NumericSeries
-   * @ignore
-   */
-  _performMathOp<R extends DataType>(columnName: string, mathOp: () => Series<R>): Series<R> {
-    if (this.get(columnName) instanceof NumericSeries) { return mathOp(); }
-    return Series.new(this._accessor.get(columnName));
-  }
-
-  /**
    * Compute the trigonometric sine for all NumericSeries in the DataFrame
    *
    * @returns A DataFrame with the operation performed on all NumericSeries
@@ -878,8 +875,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).sin()); })
+        [name]: _invokeIfNumericSeries(this.get(name),
+                                       () => { return Series.new(this._accessor.get(name).sin()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -906,8 +903,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).cos()); })
+        [name]: _invokeIfNumericSeries(this.get(name),
+                                       () => { return Series.new(this._accessor.get(name).cos()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -934,8 +931,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).tan()); })
+        [name]: _invokeIfNumericSeries(this.get(name),
+                                       () => { return Series.new(this._accessor.get(name).tan()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -962,8 +959,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).asin()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name), () => { return Series.new(this._accessor.get(name).asin()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -990,8 +987,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).acos()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name), () => { return Series.new(this._accessor.get(name).acos()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1018,8 +1015,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).atan()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name), () => { return Series.new(this._accessor.get(name).atan()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1046,8 +1043,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).sinh()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name), () => { return Series.new(this._accessor.get(name).sinh()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1074,8 +1071,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).cosh()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name), () => { return Series.new(this._accessor.get(name).cosh()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1102,8 +1099,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).tanh()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name), () => { return Series.new(this._accessor.get(name).tanh()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1130,8 +1127,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).asinh()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name), () => { return Series.new(this._accessor.get(name).asinh()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1158,8 +1155,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).acosh()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name), () => { return Series.new(this._accessor.get(name).acosh()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1186,8 +1183,8 @@ export class DataFrame<T extends TypeMap = any> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).atanh()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name), () => { return Series.new(this._accessor.get(name).atanh()); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
