@@ -849,7 +849,7 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
-   * Perform a math operation on a column which is of type
+   * Perform a math operation on a column that is of type NumericSeries
    * @ignore
    */
   _performMathOp<R extends DataType>(columnName: string, mathOp: () => Series<R>): Series<R> {
@@ -879,7 +879,7 @@ export class DataFrame<T extends TypeMap = any> {
       (map, name) => ({
         ...map,
         [name]:
-          this._performMathOp(name, () => {return Series.new(this._accessor.get(name).acos());})
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).acos()); })
       }),
       {} as SeriesMap<T>));
   }
