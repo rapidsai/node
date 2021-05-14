@@ -28,18 +28,15 @@ struct Wrapper : public Napi::Object {
 
   // Mirror the Napi::Object parent constructor
   inline Wrapper(napi_env env, napi_value value) : Napi::Object(env, value) {
-    if (not T::IsInstance(*this)) {
-      NAPI_THROW(Napi::Error::New(Env(), "Attempted to create Wrapper for incompatible Object."));
-    }
     _parent = T::Unwrap(*this);
   }
 
   // Copy from an Napi::Object to Wrapper<T>
   inline Wrapper(Napi::Object const& value) : Napi::Object(value.Env(), value) {
-    if (not T::IsInstance(*this)) {
+    if (not T::IsInstance(value)) {
       NAPI_THROW(Napi::Error::New(Env(), "Attempted to create Wrapper for incompatible Object."));
     }
-    _parent = T::Unwrap(*this);
+    _parent = T::Unwrap(value);
   }
 
   // use default move constructor
