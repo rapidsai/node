@@ -6,7 +6,9 @@ FROM node:$NODE_VERSION-stretch-slim as node
 FROM ${BASE_IMAGE}
 
 ARG GCC_VERSION=9
-ARG LLMV_VERSION=12
+ARG LLDB_VERSION=12
+ARG CLANGD_VERSION=12
+ARG CLANG_FORMAT_VERSION=12
 
 # Install dev dependencies and tools
 RUN export DEBIAN_FRONTEND=noninteractive \
@@ -16,14 +18,30 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
  # Install LLVM apt sources
  && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
- && echo "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLMV_VERSION} main" >> /etc/apt/sources.list.d/llvm.list \
- && echo "deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLMV_VERSION} main" >> /etc/apt/sources.list.d/llvm.list \
+ && bash -c 'echo -e "\
+deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main\n\
+deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main\n\
+"' > /etc/apt/sources.list.d/llvm-dev.list \
+ && bash -c 'echo -e "\
+deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
+deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
+"' > /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list \
+ && bash -c 'echo -e "\
+deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANGD_VERSION} main\n\
+deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANGD_VERSION} main\n\
+"' > /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list \
+ && bash -c 'echo -e "\
+deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
+deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
+"' > /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list \
  && apt update -y \
  && apt install --no-install-recommends -y \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} \
     jq git entr nano sudo ninja-build bash-completion \
+    # needed by cuda-gdb
+    libtinfo5 libncursesw5 \
     # Install gdb, lldb (for llnode), and clangd for C++ intellisense and debugging in the container
-    gdb lldb-${LLMV_VERSION} clangd-${LLMV_VERSION} clang-format-${LLMV_VERSION} \
+    gdb lldb-${LLDB_VERSION} clangd-${CLANGD_VERSION} clang-format-${CLANG_FORMAT_VERSION} \
     # ccache dependencies
     unzip automake autoconf libb2-dev libzstd-dev \
     # CMake dependencies
@@ -52,17 +70,24 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     --slave /usr/bin/gcov gcov /usr/bin/gcov-${GCC_VERSION} \
  # Set gcc-${GCC_VERSION} as the default gcc
  && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} \
- # Set alternative for lldb and llvm-config so it's in the path for llnode
- && update-alternatives --remove-all lldb >/dev/null 2>&1 || true \
+ # Set alternatives for clangd
  && update-alternatives --remove-all clangd >/dev/null 2>&1 || true \
- && update-alternatives --remove-all llvm-config >/dev/null 2>&1 || true \
+ && update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-${CLANGD_VERSION} 100 \
+ # Set clangd-${CLANGD_VERSION} as the default clangd
+ && update-alternatives --set clangd /usr/bin/clangd-${CLANGD_VERSION} \
+ # Set alternatives for clang-format
  && update-alternatives --remove-all clang-format >/dev/null 2>&1 || true \
+ && update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-${CLANG_FORMAT_VERSION} 100 \
+ # Set clang-format-${CLANG_FORMAT_VERSION} as the default clang-format
+ && update-alternatives --set clang-format /usr/bin/clang-format-${CLANG_FORMAT_VERSION} \
+ # Set alternatives for lldb and llvm-config so it's in the path for llnode
+ && update-alternatives --remove-all lldb >/dev/null 2>&1 || true \
+ && update-alternatives --remove-all llvm-config >/dev/null 2>&1 || true \
  && update-alternatives \
-    --install /usr/bin/lldb lldb /usr/bin/lldb-${LLMV_VERSION} 100 \
-    --slave /usr/bin/clangd clangd /usr/bin/clangd-${LLMV_VERSION} \
-    --slave /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-${LLMV_VERSION} \
-    --slave /usr/bin/clang-format clang-format /usr/bin/clang-format-${LLMV_VERSION} \
- && update-alternatives --set lldb /usr/bin/lldb-${LLMV_VERSION}
+    --install /usr/bin/lldb lldb /usr/bin/lldb-${LLDB_VERSION} 100 \
+    --slave /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-${LLDB_VERSION} \
+ # Set lldb-${LLDB_VERSION} as the default lldb, llvm-config-${LLDB_VERSION} as default llvm-config
+ && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION}
 
 ARG PARALLEL_LEVEL=4
 ARG CMAKE_VERSION=3.20.2
@@ -137,7 +162,9 @@ export HISTCONTROL=ignoreboth;\n\
 export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 # Change the file location because certain bash sessions truncate .bash_history file upon close.\n\
 # http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login\n\
-export HISTFILE=\"\$DOCKER_WORKDIR/modules/.cache/.eternal_bash_history\";\n\
+if [ -n \"\${DOCKER_WORKDIR}\" ]; then\n\
+    export HISTFILE=\"\${DOCKER_WORKDIR}/modules/.cache/.eternal_bash_history\";\n\
+fi\n\
 "' >> /home/node/.bashrc \
  # Modify the entrypoint script to export the entrypoint as a DOCKER_WORKDIR env var
  && sed -ri 's/exec "\$@"/export DOCKER_WORKDIR="\$(pwd)";\nexec "\$@"/g' /usr/local/bin/docker-entrypoint.sh \

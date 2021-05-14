@@ -294,8 +294,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `mul`                |                    |
 | `nans_to_nulls`      | ✅ (`nansToNulls`) |
 | `nlargest`           |                    |
-| `notna`              |                    |
-| `notnull`            |                    |
+| `notna`              |  ✅ (`isNotNaN`)   |
+| `notnull`            |  ✅ (`isNotNull`)  |
 | `nsmallest`          |                    |
 | `one_hot_encoding`   |                    |
 | `partition_by_hash`  |                    |
