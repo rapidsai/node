@@ -230,7 +230,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 
 | cuDF                 |    node-rapids     |
 | -------------------- | :----------------: |
-| `acos`               |                    |
+| `acos`               |         ✅         |
 | `add`                |                    |
 | `agg`                |                    |
 | `all`                |                    |
@@ -241,14 +241,14 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `argsort`            |                    |
 | `as_gpu_matrix`      |                    |
 | `as_matrix`          |                    |
-| `asin`               |                    |
+| `asin`               |         ✅         |
 | `assign`             |         ✅         |
 | `astype`             |                    |
-| `atan`               |                    |
+| `atan`               |         ✅         |
 | `clip`               |                    |
 | `copy`               |                    |
 | `corr`               |                    |
-| `cos`                |                    |
+| `cos`                |         ✅         |
 | `count`              |                    |
 | `cov`                |                    |
 | `cummax`             |                    |
@@ -329,7 +329,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `select_dtypes`      |                    |
 | `set_index`          |                    |
 | `shift`              |                    |
-| `sin`                |                    |
+| `sin`                |         ✅         |
 | `skew`               |                    |
 | `sort_index`         |                    |
 | `sort_values`        | ✅ (`sortValues`)  |
@@ -340,7 +340,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `sum`                |                    |
 | `tail`               |                    |
 | `take`               |   ✅ (`gather`)    |
-| `tan`                |                    |
+| `tan`                |         ✅         |
 | `tile`               |                    |
 | `to_arrow`           |   ✅ (`toArrow`)   |
 | `to_csv`             |    ✅ (`toCSV`)    |

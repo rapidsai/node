@@ -858,12 +858,124 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Compute the trigonometric sine for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.sin();
+   * // return {
+   * //    a: [0, 0, 0],
+   * // }
+   * ```
+   */
+  sin(): DataFrame<T> {
+    const mapper = (map: SeriesMap<T>, name: string) => {
+      return {
+        ...map,
+        [name]:
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).sin()); })
+      };
+    };
+    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  }
+
+  /**
+   * Compute the trigonometric cosine for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.cos();
+   * // return {
+   * //    a: [0, 1, 0],
+   * // }
+   * ```
+   */
+  cos(): DataFrame<T> {
+    const mapper = (map: SeriesMap<T>, name: string) => {
+      return {
+        ...map,
+        [name]:
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).cos()); })
+      };
+    };
+    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  }
+
+  /**
+   * Compute the trigonometric tangent for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.tan();
+   * // return {
+   * //    a: [0, 0, 0],
+   * // }
+   * ```
+   */
+  tan(): DataFrame<T> {
+    const mapper = (map: SeriesMap<T>, name: string) => {
+      return {
+        ...map,
+        [name]:
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).tan()); })
+      };
+    };
+    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  }
+
+  /**
+   * Compute the trigonometric sine inverse for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.asin();
+   * // return {
+   * //    a: [0, 0, 0],
+   * // }
+   * ```
+   */
+  asin(): DataFrame<T> {
+    const mapper = (map: SeriesMap<T>, name: string) => {
+      return {
+        ...map,
+        [name]:
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).asin()); })
+      };
+    };
+    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  }
+
+  /**
    * Compute the trigonometric cosine inverse for all NumericSeries in the DataFrame
    *
    * @returns A DataFrame with the operation performed on all NumericSeries
    * @example
    * ```typescript
-   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
    *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
@@ -885,24 +997,200 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
   }
 
-  acos2(): DataFrame<T> {
-    return new DataFrame(this.names.reduce((map: SeriesMap<T>, name: string) => {
+  /**
+   * Compute the trigonometric tangent inverse for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.atan();
+   * // return {
+   * //    a: [-1, 0, 1],
+   * // }
+   * ```
+   */
+  atan(): DataFrame<T> {
+    const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
         [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).acos()); })
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).atan()); })
       };
-    }, {} as SeriesMap<T>));
+    };
+    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
   }
 
-  acos3(): DataFrame<T> {
-    return new DataFrame(this.names.reduce(
-      (map, name) => ({
+  /**
+   * Compute the hyperbolic sine for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.sinh();
+   * // return {
+   * //    a: [-10, 0, 10],
+   * // }
+   * ```
+   */
+  sinh(): DataFrame<T> {
+    const mapper = (map: SeriesMap<T>, name: string) => {
+      return {
         ...map,
         [name]:
-          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).acos()); })
-      }),
-      {} as SeriesMap<T>));
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).sinh()); })
+      };
+    };
+    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  }
+
+  /**
+   * Compute the hyperbolic cosine for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.cosh();
+   * // return {
+   * //    a: [10, 1, 10],
+   * // }
+   * ```
+   */
+  cosh(): DataFrame<T> {
+    const mapper = (map: SeriesMap<T>, name: string) => {
+      return {
+        ...map,
+        [name]:
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).cosh()); })
+      };
+    };
+    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  }
+
+  /**
+   * Compute the hyperbolic tangent for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.tanh();
+   * // return {
+   * //    a: [0, 0, 0],
+   * // }
+   * ```
+   */
+  tanh(): DataFrame<T> {
+    const mapper = (map: SeriesMap<T>, name: string) => {
+      return {
+        ...map,
+        [name]:
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).tanh()); })
+      };
+    };
+    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  }
+
+  /**
+   * Compute the hyperbolic sine inverse for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.asinh();
+   * // return {
+   * //    a: [-1, 0, 1],
+   * // }
+   * ```
+   */
+  asinh(): DataFrame<T> {
+    const mapper = (map: SeriesMap<T>, name: string) => {
+      return {
+        ...map,
+        [name]:
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).asinh()); })
+      };
+    };
+    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  }
+
+  /**
+   * Compute the hyperbolic cosine inverse for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.acosh();
+   * // return {
+   * //    a: [0, 0, 1],
+   * // }
+   * ```
+   */
+  acosh(): DataFrame<T> {
+    const mapper = (map: SeriesMap<T>, name: string) => {
+      return {
+        ...map,
+        [name]:
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).acosh()); })
+      };
+    };
+    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  }
+
+  /**
+   * Compute the hyperbolic tangent inverse for all NumericSeries in the DataFrame
+   *
+   * @returns A DataFrame with the operation performed on all NumericSeries
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   * });
+   * df.atanh();
+   * // return {
+   * //    a: [0, 0, 0],
+   * // }
+   * ```
+   */
+  atanh(): DataFrame<T> {
+    const mapper = (map: SeriesMap<T>, name: string) => {
+      return {
+        ...map,
+        [name]:
+          this._performMathOp(name, () => { return Series.new(this._accessor.get(name).atanh()); })
+      };
+    };
+    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
   }
 
   /**
