@@ -246,6 +246,18 @@ export class AbstractSeries<T extends DataType = any> {
    */
   static new(input: (boolean|null|undefined)[]): Series<Bool8>;
   /**
+   * Create a new cudf.TimestampMillisecondSeries
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // TimestampMillisecondSeries [2021-05-13T00:00:00.000Z, null, 2021-05-13T00:00:00.000Z, null]
+   * const a = Series.new([new Date(), undefined, new Date(), undefined]);
+   * ```
+   */
+  static new(input: (Date|null|undefined)[]): Series<TimestampMillisecond>;
+  /**
    * Create a new cudf.ListSeries that contain cudf.StringSeries elements.
    *
    * @example
@@ -301,12 +313,27 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   static new(input: (boolean|null|undefined)[][]): Series<List<Bool8>>;
+  /**
+   * Create a new cudf.ListSeries that contain cudf.TimestampMillisecondSeries elements.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // ListSeries [[2021-05-13T00:00:00.000Z, null], [null, 2021-05-13T00:00:00.000Z]]
+   * const a = Series.new([[new Date(), undefined], [undefined, new Date()]]);
+   * a.getValue(0) // TimestampMillisecondSeries [2021-05-13T00:00:00.000Z, null]
+   * a.getValue(1) // TimestampMillisecondSeries [null, 2021-05-13T00:00:00.000Z]
+   * ```
+   */
+  static new(input: (Date|null|undefined)[][]): Series<List<TimestampMillisecond>>;
 
   static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>|arrow.Vector<T>|
                                  (string|null|undefined)[]|(number|null|undefined)[]|
                                  (bigint|null|undefined)[]|(boolean|null|undefined)[]|
-                                 (string|null|undefined)[][]|(number|null|undefined)[][]|
-                                 (bigint|null|undefined)[][]|(boolean|null|undefined)[][]) {
+                                 (Date|null|undefined)[]|(string|null|undefined)[][]|
+                                 (number|null|undefined)[][]|(bigint|null|undefined)[][]|
+                                 (boolean|null|undefined)[][]|(Date|null|undefined)[][]) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
   }
 
@@ -983,10 +1010,12 @@ function asColumn<T extends DataType>(
   |(number | null | undefined)[]                                     //
   |(bigint | null | undefined)[]                                     //
   |(boolean | null | undefined)[]                                    //
+  |(Date | null | undefined)[]                                       //
   |(string | null | undefined)[][]                                   //
   |(number | null | undefined)[][]                                   //
   |(bigint | null | undefined)[][]                                   //
   |(boolean | null | undefined)[][]                                  //
+  |(Date | null | undefined)[][]                                     //
   ): Column<T> {
   if (value instanceof AbstractSeries) { return value._col; }
   if (Array.isArray(value)) {
