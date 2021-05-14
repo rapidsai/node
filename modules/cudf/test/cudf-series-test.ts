@@ -481,7 +481,7 @@ ${[true, null, true]} | ${[true, true, true]}
   expect([...result]).toEqual(expected);
 });
 
-test('Series.TimestampDay', () => {
+test('Series.TimestampDay (Int32Buffer)', () => {
   const dateTime = Math.floor(new Date('May 13, 2021 16:38:30:100 GMT+00:00').getTime() / 86400000);
   const s        = Series.new({type: new TimestampDay, data: new Int32Buffer([dateTime])});
   const val      = s.getValue(0);
@@ -491,7 +491,7 @@ test('Series.TimestampDay', () => {
   expect(val?.getUTCDate()).toBe(13);
 });
 
-test('Series.TimestampSecond', () => {
+test('Series.TimestampSecond (Int64Buffer)', () => {
   const dateTime = Math.floor(new Date('May 13, 2021 16:38:30:100 GMT+00:00').getTime() / 1000);
   const s = Series.new({type: new TimestampSecond, data: new Int64Buffer([dateTime].map(BigInt))});
   const val = s.getValue(0);
@@ -504,7 +504,7 @@ test('Series.TimestampSecond', () => {
   expect(val?.getUTCSeconds()).toBe(30);
 });
 
-test('Series.TimestampMillisecond', () => {
+test('Series.TimestampMillisecond (Int64Buffer)', () => {
   const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00').getTime();
   const s =
     Series.new({type: new TimestampMillisecond, data: new Int64Buffer([dateTime].map(BigInt))});
@@ -519,7 +519,7 @@ test('Series.TimestampMillisecond', () => {
   expect(val?.getUTCMilliseconds()).toBe(100);
 });
 
-test('Series.TimestampNanosecond', () => {
+test('Series.TimestampNanosecond (Int64Buffer)', () => {
   const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00').getTime() * 1000;
   const s =
     Series.new({type: new TimestampMicrosecond, data: new Int64Buffer([dateTime].map(BigInt))});
@@ -534,11 +534,90 @@ test('Series.TimestampNanosecond', () => {
   expect(val?.getUTCMilliseconds()).toBe(100);
 });
 
-test('Series.TimestampMicrosecond', () => {
+test('Series.TimestampMicrosecond (Int64Buffer)', () => {
   const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00').getTime() * 1000000;
   const s =
     Series.new({type: new TimestampNanosecond, data: new Int64Buffer([dateTime].map(BigInt))});
   const val = s.getValue(0);
+
+  expect(val?.getUTCFullYear()).toBe(2021);
+  expect(val?.getUTCMonth()).toBe(4);
+  expect(val?.getUTCDate()).toBe(13);
+  expect(val?.getUTCHours()).toBe(16);
+  expect(val?.getUTCMinutes()).toBe(38);
+  expect(val?.getUTCSeconds()).toBe(30);
+  expect(val?.getUTCMilliseconds()).toBe(100);
+});
+
+test('Series.TimestampDay', () => {
+  const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00');
+  const s        = Series.new({type: new TimestampDay, data: [dateTime]});
+  const val      = s.getValue(0);
+
+  expect(val?.getUTCFullYear()).toBe(2021);
+  expect(val?.getUTCMonth()).toBe(4);
+  expect(val?.getUTCDate()).toBe(13);
+});
+
+test('Series.TimestampSecond', () => {
+  const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00');
+  const s        = Series.new({type: new TimestampSecond, data: [dateTime]});
+  const val      = s.getValue(0);
+
+  expect(val?.getUTCFullYear()).toBe(2021);
+  expect(val?.getUTCMonth()).toBe(4);
+  expect(val?.getUTCDate()).toBe(13);
+  expect(val?.getUTCHours()).toBe(16);
+  expect(val?.getUTCMinutes()).toBe(38);
+  expect(val?.getUTCSeconds()).toBe(30);
+});
+
+test('Series.TimestampMillisecond', () => {
+  const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00');
+  const s        = Series.new({type: new TimestampMillisecond, data: [dateTime]});
+  const val      = s.getValue(0);
+
+  expect(val?.getUTCFullYear()).toBe(2021);
+  expect(val?.getUTCMonth()).toBe(4);
+  expect(val?.getUTCDate()).toBe(13);
+  expect(val?.getUTCHours()).toBe(16);
+  expect(val?.getUTCMinutes()).toBe(38);
+  expect(val?.getUTCSeconds()).toBe(30);
+  expect(val?.getUTCMilliseconds()).toBe(100);
+});
+
+test('Series.TimestampNanosecond', () => {
+  const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00');
+  const s        = Series.new({type: new TimestampMicrosecond, data: [dateTime]});
+  const val      = s.getValue(0);
+
+  expect(val?.getUTCFullYear()).toBe(2021);
+  expect(val?.getUTCMonth()).toBe(4);
+  expect(val?.getUTCDate()).toBe(13);
+  expect(val?.getUTCHours()).toBe(16);
+  expect(val?.getUTCMinutes()).toBe(38);
+  expect(val?.getUTCSeconds()).toBe(30);
+  expect(val?.getUTCMilliseconds()).toBe(100);
+});
+
+test('Series.TimestampMicrosecond', () => {
+  const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00');
+  const s        = Series.new({type: new TimestampNanosecond, data: [dateTime]});
+  const val      = s.getValue(0);
+
+  expect(val?.getUTCFullYear()).toBe(2021);
+  expect(val?.getUTCMonth()).toBe(4);
+  expect(val?.getUTCDate()).toBe(13);
+  expect(val?.getUTCHours()).toBe(16);
+  expect(val?.getUTCMinutes()).toBe(38);
+  expect(val?.getUTCSeconds()).toBe(30);
+  expect(val?.getUTCMilliseconds()).toBe(100);
+});
+
+test('Series initialization with Date', () => {
+  const dateTime = new Date('May 13, 2021 16:38:30:100 GMT+00:00');
+  const s        = Series.new([dateTime]);
+  const val      = s.getValue(0);
 
   expect(val?.getUTCFullYear()).toBe(2021);
   expect(val?.getUTCMonth()).toBe(4);
