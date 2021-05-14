@@ -961,7 +961,7 @@ function inferType(value: any[]): DataType {
   let stringsCount  = 0;
   let bigintsCount  = 0;
   let booleansCount = 0;
-  let unknownCount  = 0;
+  let datesCount    = 0;
   value.forEach((val) => {
     if (val == null) { return ++nullsCount; }
     switch (typeof val) {
@@ -969,37 +969,48 @@ function inferType(value: any[]): DataType {
       case 'boolean': return ++booleansCount;
       case 'number': return ++numbersCount;
       case 'string': return ++stringsCount;
-      case 'object': return Array.isArray(val) ? ++arraysCount : ++objectsCount;
+      case 'object':
+        if (Array.isArray(val)) {
+          ++arraysCount;
+        } else if (Object.prototype.toString.call(val) === '[object Date]') {
+          ++datesCount;
+        } else {
+          ++objectsCount;
+        }
+        return;
     }
-    return ++unknownCount;
+    throw new TypeError(
+      'Unable to infer Series type from input values, explicit type declaration expected');
   });
-  if (unknownCount === 0) {
-    if (numbersCount + nullsCount === value.length) {
-      return new Float64;
-    } else if (stringsCount + nullsCount === value.length) {
-      return new Utf8String;
-    } else if (bigintsCount + nullsCount === value.length) {
-      return new Int64;
-    } else if (booleansCount + nullsCount === value.length) {
-      return new Bool8;
-    } else if (arraysCount + nullsCount === value.length) {
-      const childType = inferType(value[value.findIndex((ary) => ary != null)]);
-      if (value.every((ary) => ary == null || childType.compareTo(inferType(ary)))) {
-        return new List(new arrow.Field('', childType));
-      }
-    } else if (objectsCount + nullsCount === value.length) {
-      const fields = new Map<string, arrow.Field>();
-      value.forEach((val) => {
-        Object.keys(val).forEach((key) => {
-          if (!fields.has(key)) {
-            // use the type inferred for the first instance of a found key
-            fields.set(key, new arrow.Field(key, inferType(val[key])));
-          }
-        });
-      }, {});
-      return new Struct<any>([...fields.values()]);
+
+  if (numbersCount + nullsCount === value.length) {
+    return new Float64;
+  } else if (stringsCount + nullsCount === value.length) {
+    return new Utf8String;
+  } else if (bigintsCount + nullsCount === value.length) {
+    return new Int64;
+  } else if (booleansCount + nullsCount === value.length) {
+    return new Bool8;
+  } else if (datesCount + nullsCount === value.length) {
+    return new TimestampMillisecond;
+  } else if (arraysCount + nullsCount === value.length) {
+    const childType = inferType(value[value.findIndex((ary) => ary != null)]);
+    if (value.every((ary) => ary == null || childType.compareTo(inferType(ary)))) {
+      return new List(new arrow.Field('', childType));
     }
+  } else if (objectsCount + nullsCount === value.length) {
+    const fields = new Map<string, arrow.Field>();
+    value.forEach((val) => {
+      Object.keys(val).forEach((key) => {
+        if (!fields.has(key)) {
+          // use the type inferred for the first instance of a found key
+          fields.set(key, new arrow.Field(key, inferType(val[key])));
+        }
+      });
+    }, {});
+    return new Struct<any>([...fields.values()]);
   }
+
   throw new TypeError(
     'Unable to infer Series type from input values, explicit type declaration expected');
 }
