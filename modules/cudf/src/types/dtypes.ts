@@ -121,31 +121,31 @@ export interface Struct<T extends TypeMap = any> extends arrow.Struct<T> {
 export class Struct<T extends TypeMap = any> extends arrow.Struct<T> {}
 
 export interface TimestampDay extends arrow.DateDay {
-  scalarType: number;
+  scalarType: Date;
 }
 
 export class TimestampDay extends arrow.DateDay {}
 
 export interface TimestampSecond extends arrow.TimestampSecond {
-  scalarType: bigint;
+  scalarType: Date;
 }
 
 export class TimestampSecond extends arrow.TimestampSecond {}
 
 export interface TimestampMillisecond extends arrow.TimestampMillisecond {
-  scalarType: bigint;
+  scalarType: Date;
 }
 
 export class TimestampMillisecond extends arrow.TimestampMillisecond {}
 
 export interface TimestampMicrosecond extends arrow.TimestampMicrosecond {
-  scalarType: bigint;
+  scalarType: Date;
 }
 
 export class TimestampMicrosecond extends arrow.TimestampMicrosecond {}
 
 export interface TimestampNanosecond extends arrow.TimestampNanosecond {
-  scalarType: bigint;
+  scalarType: Date;
 }
 
 export class TimestampNanosecond extends arrow.TimestampNanosecond {}
