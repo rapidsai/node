@@ -33,14 +33,6 @@ export abstract class TimestampSeries<T extends Timestamp> extends Series<T> {
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns Series of same size as the current Series containing result of the `cast` operation.
-   * @example
-   * ```typescript
-   * import {Series, Bool8, Int32} from '@rapidsai/cudf';
-   *
-   * const a = Series.new({type:new Int32, data: [1,0,1,0]});
-   *
-   * a.cast(new Bool8); // Bool8Series [true, false, true, false];
-   * ```
    */
   cast<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Series<R> {
     return Series.new(this._col.cast(dataType, memoryResource));
@@ -59,12 +51,15 @@ export class TimestampDaySeries extends TimestampSeries<TimestampDay> {
    *
    * @example
    * ```typescript
-   * import {Series} from "@rapidsai/cudf";
+   * import {Series, TimestampDay} from "@rapidsai/cudf";
    *
-   * // Float64Series
-   * Series.new([1, 2, 3]).getValue(0) // 1
-   * Series.new([1, 2, 3]).getValue(2) // 3
-   * Series.new([1, 2, 3]).getValue(3) // throws index out of bounds error
+   * // TimestampDaySeries
+   * const s = Series.new({
+   *   type: new TimestampDay,
+   *   data: [new Date('May 13, 2021 16:38:30:100 GMT+00:00')]
+   * });
+   *
+   * s.getValue(0) // 2021-05-13T00:00:00.000Z
    * ```
    */
   getValue(index: number) {
@@ -85,12 +80,15 @@ export class TimestampSecondSeries extends TimestampSeries<TimestampSecond> {
    *
    * @example
    * ```typescript
-   * import {Series} from "@rapidsai/cudf";
+   * import {Series, TimestampSecond} from "@rapidsai/cudf";
    *
-   * // Float64Series
-   * Series.new([1, 2, 3]).getValue(0) // 1
-   * Series.new([1, 2, 3]).getValue(2) // 3
-   * Series.new([1, 2, 3]).getValue(3) // throws index out of bounds error
+   * // TimestampSecondSeries
+   * const s = Series.new({
+   *   type: new TimestampSecond,
+   *   data: [new Date('May 13, 2021 16:38:30:100 GMT+00:00')]
+   * });
+   *
+   * s.getValue(0) // 2021-05-13T16:38:30.000Z
    * ```
    */
   getValue(index: number) {
@@ -111,12 +109,15 @@ export class TimestampMicrosecondSeries extends TimestampSeries<TimestampMicrose
    *
    * @example
    * ```typescript
-   * import {Series} from "@rapidsai/cudf";
+   * import {Series, TimestampMicrosecond} from "@rapidsai/cudf";
    *
-   * // Float64Series
-   * Series.new([1, 2, 3]).getValue(0) // 1
-   * Series.new([1, 2, 3]).getValue(2) // 3
-   * Series.new([1, 2, 3]).getValue(3) // throws index out of bounds error
+   * // TimestampMicrosecondSeries
+   * const s = Series.new({
+   *   type: new TimestampMicrosecond,
+   *   data: [new Date('May 13, 2021 16:38:30:100 GMT+00:00')]
+   * });
+   *
+   * s.getValue(0) // 2021-05-13T16:38:30.100Z
    * ```
    */
   getValue(index: number) {
@@ -137,12 +138,15 @@ export class TimestampMillisecondSeries extends TimestampSeries<TimestampMillise
    *
    * @example
    * ```typescript
-   * import {Series} from "@rapidsai/cudf";
+   * import {Series, TimestampMillisecond} from "@rapidsai/cudf";
    *
-   * // Float64Series
-   * Series.new([1, 2, 3]).getValue(0) // 1
-   * Series.new([1, 2, 3]).getValue(2) // 3
-   * Series.new([1, 2, 3]).getValue(3) // throws index out of bounds error
+   * // TimestampMillisecondSeries
+   * const s = Series.new({
+   *   type: new TimestampMillisecond,
+   *   data: [new Date('May 13, 2021 16:38:30:100 GMT+00:00')]
+   * });
+   *
+   * s.getValue(0) // 2021-05-13T16:38:30.100Z
    * ```
    */
   getValue(index: number) {
@@ -163,12 +167,15 @@ export class TimestampNanosecondSeries extends TimestampSeries<TimestampNanoseco
    *
    * @example
    * ```typescript
-   * import {Series} from "@rapidsai/cudf";
+   * import {Series, TimestampNanosecond} from "@rapidsai/cudf";
    *
-   * // Float64Series
-   * Series.new([1, 2, 3]).getValue(0) // 1
-   * Series.new([1, 2, 3]).getValue(2) // 3
-   * Series.new([1, 2, 3]).getValue(3) // throws index out of bounds error
+   * // TimestampNanosecondSeries
+   * const s = Series.new({
+   *   type: new TimestampNanosecond,
+   *   data: [new Date('May 13, 2021 16:38:30:100 GMT+00:00')]
+   * });
+   *
+   * s.getValue(0) // 2021-05-13T16:38:30.100Z
    * ```
    */
   getValue(index: number) {
