@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable @typescript-eslint/no-redeclare */
+
 import {addon as CUDA} from '@nvidia/cuda';
 import {loadNativeModule} from '@rapidsai/core';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
-import {GraphCOOConstructor} from './graph_coo';
 
-export const {GraphCOO} = loadNativeModule<{
-  GraphCOO: GraphCOOConstructor,  //
-}>(module, 'node_cugraph', init => init(CUDA, CUDF, RMM));
+export const {GraphCOO, _cpp_exports} = loadNativeModule<typeof import('./node_cugraph')>(
+  module, 'node_cugraph', init => init(CUDA, CUDF, RMM));
+
+export type GraphCOO = import('./node_cugraph').GraphCOO;

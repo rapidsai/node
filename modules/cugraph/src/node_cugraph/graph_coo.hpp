@@ -90,8 +90,8 @@ struct GraphCOO : public EnvLocalObjectWrap<GraphCOO> {
   cudf::size_type node_count_{};
   bool node_count_computed_{false};
 
-  Napi::Reference<Column::wrapper_t> src_{};
-  Napi::Reference<Column::wrapper_t> dst_{};
+  Napi::Reference<Column::wrapper_t> src_;
+  Napi::Reference<Column::wrapper_t> dst_;
 };
 
 }  // namespace nv
