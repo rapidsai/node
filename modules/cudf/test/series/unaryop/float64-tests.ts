@@ -63,6 +63,10 @@ describe('Series unaryops (Float64)', () => {
     const actual = makeTestData([NaN, 2.5, 5]).isNotNaN();
     expect([...actual]).toEqual([false, true, true]);
   });
+  test('Series.nansToNulls', () => {
+    const actual = makeTestData([NaN, 2.5, 5]).nansToNulls();
+    expect([...actual]).toEqual([null, 2.5, 5]);
+  });
   test('Series.rint', () => {
     const actual = makeTestData([NaN, 2.5, 5]).rint();
     expect([...actual]).toEqual([NaN, 2, 5]);
