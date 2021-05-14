@@ -21,6 +21,7 @@ x-common-service-settings: &common_service_settings
     XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
     NVIDIA_DRIVER_CAPABILITIES: "all"
     LIBCUDF_KERNEL_CACHE_PATH: "${PWD}/modules/.cache/jit"
+    CCACHE_CONFIGPATH: "${PWD}/modules/.cache/ccache/ccache.conf"
   deploy:
     resources:
       reservations:
