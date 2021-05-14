@@ -28,7 +28,6 @@ if(NODE_RAPIDS_USE_CCACHE)
         set(CCACHE_COMMAND CACHE STRING "${CCACHE_PROGRAM_PATH}")
         if(DEFINED ENV{CCACHE_DIR})
             message(STATUS "Using ccache directory: $ENV{CCACHE_DIR}")
-            set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_PROGRAM_PATH}")
             set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM_PATH}")
         else()
             execute_process(COMMAND node -p
@@ -50,8 +49,6 @@ if(NODE_RAPIDS_USE_CCACHE)
             # Write or update the ccache configuration file
             configure_file("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ccache.conf.in" "${NODE_RAPIDS_CMAKE_CCACHE_DIR}/ccache.conf")
             set(ENV{CCACHE_CONFIGPATH} "${NODE_RAPIDS_CMAKE_CCACHE_DIR}/ccache.conf")
-            set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK
-                "CCACHE_CONFIGPATH=${NODE_RAPIDS_CMAKE_CCACHE_DIR}/ccache.conf ${CCACHE_PROGRAM_PATH}")
             set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE
                 "CCACHE_CONFIGPATH=${NODE_RAPIDS_CMAKE_CCACHE_DIR}/ccache.conf ${CCACHE_PROGRAM_PATH}")
         endif(DEFINED ENV{CCACHE_DIR})
