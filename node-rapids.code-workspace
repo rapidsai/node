@@ -206,7 +206,7 @@
                 "label": "Rebuild all TS and C++ (slow)",
                 "group": {
                     "kind": "build",
-                    "isDefault": true
+                    "isDefault": true,
                 },
                 "command": "if [[ \"${input:CMAKE_BUILD_TYPE}\" == \"Release\" ]]; then yarn rebuild; else yarn rebuild:debug; fi",
                 "problemMatcher": [
@@ -238,9 +238,9 @@
                             "message": 5,
                             "regexp": "^(.*):(\\d+):(\\d+):\\s+(error|warning|note|info):\\s+(.*)$"
                         }
-                    }
-                ]
-            }
+                    },
+                ],
+            },
         ],
         "inputs": [
             {
