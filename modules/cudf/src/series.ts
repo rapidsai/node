@@ -971,13 +971,12 @@ function inferType(value: any[]): DataType {
       case 'string': return ++stringsCount;
       case 'object':
         if (Array.isArray(val)) {
-          ++arraysCount;
+          return ++arraysCount;
         } else if (Object.prototype.toString.call(val) === '[object Date]') {
-          ++datesCount;
+          return ++datesCount;
         } else {
-          ++objectsCount;
+          return ++objectsCount;
         }
-        return;
     }
     throw new TypeError(
       'Unable to infer Series type from input values, explicit type declaration expected');
