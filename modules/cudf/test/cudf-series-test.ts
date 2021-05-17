@@ -391,11 +391,11 @@ test('FloatSeries.nansToNulls', () => {
   expect(col.nullCount).toEqual(0);
 });
 
-test('Series.count', () => {
-  expect(Series.new([]).count()).toEqual(0);
-  expect(Series.new([0, 1, null, 3, 4, null, 6, null]).count()).toEqual(5);
-  expect(Series.new(['foo', null, 'bar']).count()).toEqual(2);
-  expect(Series.new([NaN, null, 10, 15, 17, null]).count()).toEqual(4);
+test('Series.countNonNulls', () => {
+  expect(Series.new([]).countNonNulls()).toEqual(0);
+  expect(Series.new([0, 1, null, 3, 4, null, 6, null]).countNonNulls()).toEqual(5);
+  expect(Series.new(['foo', null, 'bar']).countNonNulls()).toEqual(2);
+  expect(Series.new([NaN, null, 10, 15, 17, null]).countNonNulls()).toEqual(4);
 });
 
 describe.each([new Int32, new Float32, new Float64])('Series.sequence({type=%p,, ...})', (typ) => {

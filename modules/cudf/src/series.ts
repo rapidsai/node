@@ -361,11 +361,11 @@ export class AbstractSeries<T extends DataType = any> {
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
-   * Series.new([1, 2, 3]).count(); // 3
-   * Series.new([1, null, 3]).count(); // 2
+   * Series.new([1, 2, 3]).countNonNulls(); // 3
+   * Series.new([1, null, 3]).countNonNulls(); // 2
    * ```
    */
-  count(): number { return this._col.length - this._col.nullCount; }
+  countNonNulls(): number { return this._col.length - this._col.nullCount; }
 
   /**
    * Fills a range of elements in a column out-of-place with a scalar value.
