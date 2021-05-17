@@ -77,7 +77,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `mod`                |         ✅          |
 | `mode`               |                     |
 | `mul`                |         ✅          |
-| `nans_to_nulls`      |                     |
+| `nans_to_nulls`      |  ✅ (`nansToNulls`) |
 | `ne`                 |         ✅          |
 | `nlargest`           |                     |
 | `notna`              |  ✅ (`isNotNull`)   |
@@ -184,7 +184,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `map`                |                     |                     |                     |
 | `mask`               |                     |                     |                     |
 | `memory_usage`       |                     |                     |                     |
-| `nans_to_nulls`      |                     |                     |                     |
+| `nans_to_nulls`      |  ✅ (`nansToNulls`) |  ✅ (`nansToNulls`) |  ✅ (`nansToNulls`) |
 | `notna`              |  ✅ (`isNotNull`)   |  ✅ (`isNotNull`)   |  ✅ (`isNotNull`)   |
 | `notnull`            |  ✅ (`isNotNull`)   |  ✅ (`isNotNull`)   |  ✅ (`isNotNull`)   |
 | `nunique`            |                     |                     |                     |
