@@ -28,7 +28,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `copy`               |                     |
 | `corr`               |                     |
 | `cos`                |         ✅          |
-| `count`              |                     |
+| `count`              |         ✅          |
 | `cov`                |                     |
 | `cummax`             |                     |
 | `cummin`             |                     |
