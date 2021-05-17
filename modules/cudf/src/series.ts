@@ -355,6 +355,8 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * Return the number of non-null elements in the Series.
    *
+   * @returns The number of non-null elements
+   *
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
