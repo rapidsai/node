@@ -20,6 +20,7 @@ import {
   GroupByMultiple,
   GroupBySingle,
   Int32,
+  Int8,
   NullOrder,
   Series,
   Table
@@ -425,6 +426,110 @@ test(
     expect(result.numColumns).toEqual(0);
     expect(result.names).toEqual([]);
   });
+
+describe('dataframe mathematicalUnaryOps', () => {
+  const a  = Series.new({type: new Int32, data: [-3, 0, 3]});
+  const b  = Series.new({type: new Int8, data: [-3, 0, 3]});
+  const c  = Series.new(['foo', null, 'bar']);
+  const d  = Series.new({type: new Float32, data: [-2.7, 0, 3.1]});
+  const df = new DataFrame({'a': a, 'b': b, 'c': c, 'd': d});
+
+  test('dataframe.sin', () => {
+    const result = df.sin();
+    expect([...result.get('a')]).toEqual([0, 0, 0]);
+    expect([...result.get('b')]).toEqual([0, 0, 0]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.sin()]);
+  });
+
+  test('dataframe.cos', () => {
+    const result = df.cos();
+    expect([...result.get('a')]).toEqual([0, 1, 0]);
+    expect([...result.get('b')]).toEqual([0, 1, 0]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.cos()]);
+  });
+
+  test('dataframe.tan', () => {
+    const result = df.tan();
+    expect([...result.get('a')]).toEqual([0, 0, 0]);
+    expect([...result.get('b')]).toEqual([0, 0, 0]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.tan()]);
+  });
+
+  test('dataframe.asin', () => {
+    const result = df.asin();
+    expect([...result.get('a')]).toEqual([-2147483648, 0, -2147483648]);
+    expect([...result.get('b')]).toEqual([0, 0, 0]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.asin()]);
+  });
+
+  test('dataframe.acos', () => {
+    const result = df.acos();
+    expect([...result.get('a')]).toEqual([-2147483648, 1, -2147483648]);
+    expect([...result.get('b')]).toEqual([0, 1, 0]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.acos()]);
+  });
+
+  test('dataframe.atan', () => {
+    const result = df.atan();
+    expect([...result.get('a')]).toEqual([-1, 0, 1]);
+    expect([...result.get('b')]).toEqual([-1, 0, 1]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.atan()]);
+  });
+
+  test('dataframe.sinh', () => {
+    const result = df.sinh();
+    expect([...result.get('a')]).toEqual([-10, 0, 10]);
+    expect([...result.get('b')]).toEqual([-10, 0, 10]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.sinh()]);
+  });
+
+  test('dataframe.cosh', () => {
+    const result = df.cosh();
+    expect([...result.get('a')]).toEqual([10, 1, 10]);
+    expect([...result.get('b')]).toEqual([10, 1, 10]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.cosh()]);
+  });
+
+  test('dataframe.tanh', () => {
+    const result = df.tanh();
+    expect([...result.get('a')]).toEqual([0, 0, 0]);
+    expect([...result.get('b')]).toEqual([0, 0, 0]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.tanh()]);
+  });
+
+  test('dataframe.asinh', () => {
+    const result = df.asinh();
+    expect([...result.get('a')]).toEqual([-1, 0, 1]);
+    expect([...result.get('b')]).toEqual([-1, 0, 1]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.asinh()]);
+  });
+
+  test('dataframe.acosh', () => {
+    const result = df.acosh();
+    expect([...result.get('a')]).toEqual([-2147483648, -2147483648, 1]);
+    expect([...result.get('b')]).toEqual([0, 0, 1]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.acosh()]);
+  });
+
+  test('dataframe.atanh', () => {
+    const result = df.atanh();
+    expect([...result.get('a')]).toEqual([-2147483648, 0, -2147483648]);
+    expect([...result.get('b')]).toEqual([0, 0, 0]);
+    expect([...result.get('c')]).toEqual([...c]);
+    expect([...result.get('d')]).toEqual([...d.atanh()]);
+  });
+});
 
 test('dataframe.nansToNulls', () => {
   const a  = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]});
