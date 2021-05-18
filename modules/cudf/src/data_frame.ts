@@ -1208,7 +1208,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns A DataFrame with the operation performed on all NumericSeries
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
    *  a: Series.new([-1.2, 2.5]);
@@ -1237,7 +1237,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns A DataFrame with the operation performed on all NumericSeries
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
    *  a: Series.new([-1.2, 2.5, 4]);
@@ -1266,7 +1266,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns A DataFrame with the operation performed on all NumericSeries
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
    *  a: Series.new([-1.2, 2.5, 4]);
@@ -1295,7 +1295,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns A DataFrame with the operation performed on all NumericSeries
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
    *  a: Series.new([-1.2, 2.5]);
@@ -1324,7 +1324,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns A DataFrame with the operation performed on all NumericSeries
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
    *  a: Series.new([-1.2, 2.5, -3, 4.6, 5]);
@@ -1353,7 +1353,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns A DataFrame with the operation performed on all NumericSeries
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
    *  a: Series.new([-1.2, 2.5, -3, 4.6, 5]);
@@ -1382,7 +1382,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns A DataFrame with the operation performed on all NumericSeries
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
    *  a: Series.new([-1, 2, -3, 4, 5]);
@@ -1411,7 +1411,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @returns A DataFrame with the operation performed on all NumericSeries
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
    *  a: Series.new([0, 1, 2, 3, 4]);
