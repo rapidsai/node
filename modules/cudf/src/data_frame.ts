@@ -871,12 +871,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  sin(): DataFrame<T> {
+  sin(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]: _invokeIfNumericSeries(this.get(name),
-                                       () => { return Series.new(this._accessor.get(name).sin()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).sin(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -899,12 +900,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  cos(): DataFrame<T> {
+  cos(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]: _invokeIfNumericSeries(this.get(name),
-                                       () => { return Series.new(this._accessor.get(name).cos()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).cos(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -927,12 +929,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  tan(): DataFrame<T> {
+  tan(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
-        [name]: _invokeIfNumericSeries(this.get(name),
-                                       () => { return Series.new(this._accessor.get(name).tan()); })
+        [name]: _invokeIfNumericSeries(
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).tan(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -955,12 +958,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  asin(): DataFrame<T> {
+  asin(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
         [name]: _invokeIfNumericSeries(
-          this.get(name), () => { return Series.new(this._accessor.get(name).asin()); })
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).asin(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -983,12 +987,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  acos(): DataFrame<T> {
+  acos(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
         [name]: _invokeIfNumericSeries(
-          this.get(name), () => { return Series.new(this._accessor.get(name).acos()); })
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).acos(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1011,12 +1016,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  atan(): DataFrame<T> {
+  atan(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
         [name]: _invokeIfNumericSeries(
-          this.get(name), () => { return Series.new(this._accessor.get(name).atan()); })
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).atan(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1039,12 +1045,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  sinh(): DataFrame<T> {
+  sinh(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
         [name]: _invokeIfNumericSeries(
-          this.get(name), () => { return Series.new(this._accessor.get(name).sinh()); })
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).sinh(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1067,12 +1074,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  cosh(): DataFrame<T> {
+  cosh(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
         [name]: _invokeIfNumericSeries(
-          this.get(name), () => { return Series.new(this._accessor.get(name).cosh()); })
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).cosh(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1095,12 +1103,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  tanh(): DataFrame<T> {
+  tanh(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
         [name]: _invokeIfNumericSeries(
-          this.get(name), () => { return Series.new(this._accessor.get(name).tanh()); })
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).tanh(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1123,12 +1132,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  asinh(): DataFrame<T> {
+  asinh(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
         [name]: _invokeIfNumericSeries(
-          this.get(name), () => { return Series.new(this._accessor.get(name).asinh()); })
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).asinh(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1151,12 +1161,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  acosh(): DataFrame<T> {
+  acosh(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
         [name]: _invokeIfNumericSeries(
-          this.get(name), () => { return Series.new(this._accessor.get(name).acosh()); })
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).acosh(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1179,12 +1190,13 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  atanh(): DataFrame<T> {
+  atanh(memoryResource?: MemoryResource): DataFrame<T> {
     const mapper = (map: SeriesMap<T>, name: string) => {
       return {
         ...map,
         [name]: _invokeIfNumericSeries(
-          this.get(name), () => { return Series.new(this._accessor.get(name).atanh()); })
+          this.get(name),
+          () => { return Series.new(this._accessor.get(name).atanh(memoryResource)); })
       };
     };
     return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
@@ -1210,13 +1222,13 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  nansToNulls(subset?: (keyof T)[]): DataFrame<T> {
+  nansToNulls(subset?: (keyof T)[], memoryResource?: MemoryResource): DataFrame<T> {
     subset           = (subset == undefined) ? this.names as (keyof T)[] : subset;
     const temp       = new Table({columns: this.select(subset)._accessor.columns});
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach((name, index) => {
       if ([new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))) {
-        series_map[name] = Series.new(temp.getColumnByIndex(index).nans_to_nulls());
+        series_map[name] = Series.new(temp.getColumnByIndex(index).nans_to_nulls(memoryResource));
       } else {
         series_map[name] = Series.new(temp.getColumnByIndex(index));
       }
@@ -1246,12 +1258,12 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  isNaN(): DataFrame<T> {
+  isNaN(memoryResource?: MemoryResource): DataFrame<T> {
     return new DataFrame(this.names.reduce(
       (map, name) => ({
         ...map,
         [name]: [new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))
-                  ? Series.new(this._accessor.get(name).isNaN())
+                  ? Series.new(this._accessor.get(name).isNaN(memoryResource))
                   : Series.new(this._accessor.get(name))
       }),
       {} as SeriesMap<T>));
@@ -1278,9 +1290,9 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  isNull(): DataFrame<{[P in keyof T]: Bool8}> {
+  isNull(memoryResource?: MemoryResource): DataFrame<{[P in keyof T]: Bool8}> {
     return new DataFrame(
-      this.names.reduce((cols, name) => ({...cols, [name]: this.get(name).isNull()}),
+      this.names.reduce((cols, name) => ({...cols, [name]: this.get(name).isNull(memoryResource)}),
                         {} as SeriesMap<{[P in keyof T]: Bool8}>));
   }
 }
