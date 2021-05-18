@@ -136,6 +136,9 @@ struct Table : public EnvLocalObjectWrap<Table> {
     cudf::size_type threshold,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // table/concatenate.cpp
+  Table::wrapper_t concat(cudf::table_view const& other, rmm::mr::device_memory_resource* mr) const;
+
   // table/copying.cpp
   Table::wrapper_t gather(
     Column const& gather_map,
@@ -204,6 +207,8 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Napi::Value get_column(Napi::CallbackInfo const& info);
   Napi::Value drop_nulls(Napi::CallbackInfo const& info);
   Napi::Value drop_nans(Napi::CallbackInfo const& info);
+  // table/concatenate.cpp
+  Napi::Value concat(Napi::CallbackInfo const& info);
   // table/copying.cpp
   Napi::Value gather(Napi::CallbackInfo const& info);
   Napi::Value scatter_scalar(Napi::CallbackInfo const& info);

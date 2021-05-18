@@ -344,6 +344,14 @@ export class DataFrame<T extends TypeMap = any> {
       {} as SeriesMap<{[P in keyof T]: R}>));
   }
 
+  concat<R extends TypeMap>(other: DataFrame<R>, memoryResource?: MemoryResource): DataFrame<T> {
+    const temp       = new Table({columns: this._accessor.columns});
+    const columns    = temp.concat(new Table({columns: other._accessor.columns}), memoryResource);
+    const series_map = {} as SeriesMap<T>;
+
+    return new DataFrame(series_map);
+  }
+
   /**
    * Generate an ordering that sorts DataFrame columns in a specified way
    *

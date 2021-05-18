@@ -606,3 +606,28 @@ test('dataframe.isNotNull', () => {
   expect([...result.get('b')]).toEqual([...expected_b]);
   expect([...result.get('c')]).toEqual([...expected_c]);
 });
+
+describe('dataframe.concat', () => {
+  test('concat to single column', () => {
+    const a   = Series.new([1, 2, 3, 4]);
+    const dfa = new DataFrame({'a': a});
+    const dfb = new DataFrame({'a': a});
+
+    const result = dfa.concat(dfb);
+
+    expect([...result.get('a')]).toEqual([...a, ...a]);
+  });
+
+  test('concat to different column', () => {
+    const a   = Series.new([1, 2, 3, 4]);
+    const dfa = new DataFrame({'a': a});
+
+    const b   = Series.new([1, 2, 3, 4]);
+    const dfb = new DataFrame({'b': b});
+
+    const result = dfa.concat(dfb);
+
+    // expect([...result.get('a')]).toEqual([...a, null, null, null]);
+    // expect([...result.get('b')]).toEqual([...b, null, null, null]);
+  });
+});

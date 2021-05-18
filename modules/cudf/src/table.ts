@@ -117,6 +117,8 @@ export interface Table {
    */
   readonly numRows: number;
 
+  concat(other: Table, memoryResource?: MemoryResource): Table;
+
   /**
    * Return sub-selection from a Table
    *

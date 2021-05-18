@@ -37,6 +37,7 @@ Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceAccessor<&Table::num_rows>("numRows"),
                        InstanceMethod<&Table::scatter_scalar>("scatterScalar"),
                        InstanceMethod<&Table::scatter_table>("scatterTable"),
+                       InstanceMethod<&Table::concat>("concat"),
                        InstanceMethod<&Table::gather>("gather"),
                        InstanceMethod<&Table::get_column>("getColumnByIndex"),
                        InstanceMethod<&Table::to_arrow>("toArrow"),
