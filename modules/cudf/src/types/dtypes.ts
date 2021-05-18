@@ -20,7 +20,9 @@ export type FloatingPoint = Float32|Float64;
 export type IndexType     = Int8|Int16|Int32|Uint8|Uint16|Uint32;
 export type Integral      = IndexType|Int64|Uint64;
 export type Numeric       = Integral|FloatingPoint|Bool8;
-export type DataType      = Numeric|Utf8String|List|Struct;
+export type Timestamp =
+  TimestampDay|TimestampSecond|TimestampMillisecond|TimestampMicrosecond|TimestampNanosecond;
+export type DataType = Numeric|Utf8String|List|Struct|Timestamp;
 
 export interface Int8 extends arrow.Int8 {
   scalarType: number;
@@ -117,3 +119,33 @@ export interface Struct<T extends TypeMap = any> extends arrow.Struct<T> {
   scalarType: {[P in keyof T]: T[P]['scalarType']};
 }
 export class Struct<T extends TypeMap = any> extends arrow.Struct<T> {}
+
+export interface TimestampDay extends arrow.DateDay {
+  scalarType: Date;
+}
+
+export class TimestampDay extends arrow.DateDay {}
+
+export interface TimestampSecond extends arrow.TimestampSecond {
+  scalarType: Date;
+}
+
+export class TimestampSecond extends arrow.TimestampSecond {}
+
+export interface TimestampMillisecond extends arrow.TimestampMillisecond {
+  scalarType: Date;
+}
+
+export class TimestampMillisecond extends arrow.TimestampMillisecond {}
+
+export interface TimestampMicrosecond extends arrow.TimestampMicrosecond {
+  scalarType: Date;
+}
+
+export class TimestampMicrosecond extends arrow.TimestampMicrosecond {}
+
+export interface TimestampNanosecond extends arrow.TimestampNanosecond {
+  scalarType: Date;
+}
+
+export class TimestampNanosecond extends arrow.TimestampNanosecond {}

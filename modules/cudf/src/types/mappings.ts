@@ -29,11 +29,16 @@ import {
   List,
   Numeric,
   Struct,
+  TimestampDay,
+  TimestampMicrosecond,
+  TimestampMillisecond,
+  TimestampNanosecond,
+  TimestampSecond,
   Uint16,
   Uint32,
   Uint64,
   Uint8,
-  Utf8String,
+  Utf8String
 } from './dtypes';
 
 export enum Interpolation
@@ -111,18 +116,18 @@ export type ArrowToCUDFType<T extends arrow.DataType> =
  T extends arrow.Utf8 ? Utf8String :
  T extends arrow.Bool ? Bool8 :
 //  T extends arrow.Decimal ? never :                // TODO
-//  T extends arrow.DateDay ? never :                // TODO
-//  T extends arrow.DateMillisecond ? never :        // TODO
+ T extends arrow.DateDay ? TimestampDay :
+ T extends arrow.DateMillisecond ? TimestampMillisecond :
 //  T extends arrow.Date_ ? never :                  // TODO
 //  T extends arrow.TimeSecond ? never :             // TODO
 //  T extends arrow.TimeMillisecond ? never :        // TODO
 //  T extends arrow.TimeMicrosecond ? never :        // TODO
 //  T extends arrow.TimeNanosecond ? never :         // TODO
 //  T extends arrow.Time ? never :                   // TODO
-//  T extends arrow.TimestampSecond ? never :        // TODO
-//  T extends arrow.TimestampMillisecond ? never :   // TODO
-//  T extends arrow.TimestampMicrosecond ? never :   // TODO
-//  T extends arrow.TimestampNanosecond ? never :    // TODO
+ T extends arrow.TimestampSecond ? TimestampSecond :
+ T extends arrow.TimestampMillisecond ? TimestampMillisecond :
+ T extends arrow.TimestampMicrosecond ? TimestampMicrosecond :
+ T extends arrow.TimestampNanosecond ? TimestampNanosecond :
 //  T extends arrow.Timestamp ? never :              // TODO
 //  T extends arrow.IntervalDayTime ? never :        // TODO
 //  T extends arrow.IntervalYearMonth ? never :      // TODO
@@ -173,12 +178,12 @@ export const arrowToCUDFType = (() => {
     public visitUtf8                 <T extends arrow.Utf8>(_type: T) { return new Utf8String; }
     // public visitBinary               <T extends arrow.Binary>(_type: T) { return new Binary; }
     // public visitFixedSizeBinary      <T extends arrow.FixedSizeBinary>(type: T) { return new FixedSizeBinary(type); }
-    // public visitDateDay              <T extends arrow.DateDay>(_type: T) { return new DateDay; }
-    // public visitDateMillisecond      <T extends arrow.DateMillisecond>(_type: T) { return new DateMillisecond; }
-    // public visitTimestampSecond      <T extends arrow.TimestampSecond>(_type: T) { return new TimestampSecond; }
-    // public visitTimestampMillisecond <T extends arrow.TimestampMillisecond>(_type: T) { return new TimestampMillisecond; }
-    // public visitTimestampMicrosecond <T extends arrow.TimestampMicrosecond>(_type: T) { return new TimestampMicrosecond; }
-    // public visitTimestampNanosecond  <T extends arrow.TimestampNanosecond>(_type: T) { return new TimestampNanosecond; }
+    public visitDateDay              <T extends arrow.DateDay>(_type: T) { return new TimestampDay; }
+    public visitDateMillisecond      <T extends arrow.DateMillisecond>(_type: T) { return new TimestampMillisecond; }
+    public visitTimestampSecond      <T extends arrow.TimestampSecond>(_type: T) { return new TimestampSecond; }
+    public visitTimestampMillisecond <T extends arrow.TimestampMillisecond>(_type: T) { return new TimestampMillisecond; }
+    public visitTimestampMicrosecond <T extends arrow.TimestampMicrosecond>(_type: T) { return new TimestampMicrosecond; }
+    public visitTimestampNanosecond  <T extends arrow.TimestampNanosecond>(_type: T) { return new TimestampNanosecond; }
     // public visitTimeSecond           <T extends arrow.TimeSecond>(_type: T) { return new TimeSecond; }
     // public visitTimeMillisecond      <T extends arrow.TimeMillisecond>(_type: T) { return new TimeMillisecond; }
     // public visitTimeMicrosecond      <T extends arrow.TimeMicrosecond>(_type: T) { return new TimeMicrosecond; }

@@ -19,8 +19,6 @@ import {
   // Binary,
   Bool8,
   // Date_,
-  // DateDay,
-  // DateMillisecond,
   // Decimal,
   // DenseUnion,
   // Dictionary,
@@ -37,6 +35,11 @@ import {
   // IntervalYearMonth,
   List,
   Struct,
+  TimestampDay,
+  TimestampMicrosecond,
+  TimestampMillisecond,
+  TimestampNanosecond,
+  TimestampSecond,
   // Map_,
   // Null,
   // SparseUnion,
@@ -45,10 +48,6 @@ import {
   // TimeMillisecond,
   // TimeNanosecond,
   // TimeSecond,
-  // TimestampMicrosecond,
-  // TimestampMillisecond,
-  // TimestampNanosecond,
-  // TimestampSecond,
   Uint16,
   Uint32,
   Uint64,
@@ -134,12 +133,35 @@ class VectorToColumnVisitor extends arrow.Visitor {
   // visitBinary<T extends arrow.Binary>(vector: arrow.Vector<T>) {}
   // visitFixedSizeBinary<T extends arrow.FixedSizeBinary>(vector: arrow.Vector<T>) {}
   // visitDate<T extends arrow.Date_>(vector: arrow.Vector<T>) {}
-  // visitDateDay<T extends arrow.DateDay>(vector: arrow.Vector<T>) {}
-  // visitDateMillisecond<T extends arrow.DateMillisecond>(vector: arrow.Vector<T>) {}
-  // visitTimestampSecond<T extends arrow.TimestampSecond>(vector: arrow.Vector<T>) {}
-  // visitTimestampMillisecond<T extends arrow.TimestampMillisecond>(vector: arrow.Vector<T>) {}
-  // visitTimestampMicrosecond<T extends arrow.TimestampMicrosecond>(vector: arrow.Vector<T>) {}
-  // visitTimestampNanosecond<T extends arrow.TimestampNanosecond>(vector: arrow.Vector<T>) {}
+  visitDateDay<T extends arrow.DateDay>({length, data: {values: data, nullBitmap: nullMask}}:
+                                          arrow.Vector<T>) {
+    return new Column({type: new TimestampDay, length, data: data.subarray(0, length), nullMask});
+  }
+  visitDateMillisecond<T extends arrow.DateMillisecond>(
+    {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+    return new Column(
+      {type: new TimestampMillisecond, length, data: data.subarray(0, length), nullMask});
+  }
+  visitTimestampSecond<T extends arrow.TimestampSecond>(
+    {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+    return new Column(
+      {type: new TimestampSecond, length, data: data.subarray(0, length * 2), nullMask});
+  }
+  visitTimestampMillisecond<T extends arrow.TimestampMillisecond>(
+    {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+    return new Column(
+      {type: new TimestampMillisecond, length, data: data.subarray(0, length * 2), nullMask});
+  }
+  visitTimestampMicrosecond<T extends arrow.TimestampMicrosecond>(
+    {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+    return new Column(
+      {type: new TimestampMicrosecond, length, data: data.subarray(0, length * 2), nullMask});
+  }
+  visitTimestampNanosecond<T extends arrow.TimestampNanosecond>(
+    {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+    return new Column(
+      {type: new TimestampNanosecond, length, data: data.subarray(0, length * 2), nullMask});
+  }
   // visitTimeSecond<T extends arrow.TimeSecond>(vector: arrow.Vector<T>) {}
   // visitTimeMillisecond<T extends arrow.TimeMillisecond>(vector: arrow.Vector<T>) {}
   // visitTimeMicrosecond<T extends arrow.TimeMicrosecond>(vector: arrow.Vector<T>) {}

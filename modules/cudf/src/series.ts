@@ -35,6 +35,11 @@ import {
   List,
   Numeric,
   Struct,
+  TimestampDay,
+  TimestampMicrosecond,
+  TimestampMillisecond,
+  TimestampNanosecond,
+  TimestampSecond,
   Uint16,
   Uint32,
   Uint64,
@@ -110,23 +115,23 @@ export type Series<T extends arrow.DataType = any> = {
   [arrow.Type.Binary]: never,
   [arrow.Type.Utf8]: StringSeries,
   [arrow.Type.Bool]: Bool8Series,
-  [arrow.Type.Decimal]: never,               // TODO
-  [arrow.Type.Date]: never,                  // TODO
-  [arrow.Type.DateDay]: never,               // TODO
-  [arrow.Type.DateMillisecond]: never,       // TODO
-  [arrow.Type.Time]: never,                  // TODO
-  [arrow.Type.TimeSecond]: never,            // TODO
-  [arrow.Type.TimeMillisecond]: never,       // TODO
-  [arrow.Type.TimeMicrosecond]: never,       // TODO
-  [arrow.Type.TimeNanosecond]: never,        // TODO
-  [arrow.Type.Timestamp]: never,             // TODO
-  [arrow.Type.TimestampSecond]: never,       // TODO
-  [arrow.Type.TimestampMillisecond]: never,  // TODO
-  [arrow.Type.TimestampMicrosecond]: never,  // TODO
-  [arrow.Type.TimestampNanosecond]: never,   // TODO
-  [arrow.Type.Interval]: never,              // TODO
-  [arrow.Type.IntervalDayTime]: never,       // TODO
-  [arrow.Type.IntervalYearMonth]: never,     // TODO
+  [arrow.Type.Decimal]: never,  // TODO
+  [arrow.Type.Date]: never,     // TODO
+  [arrow.Type.DateDay]: TimestampDaySeries,
+  [arrow.Type.DateMillisecond]: TimestampMillisecondSeries,
+  [arrow.Type.Time]: never,             // TODO
+  [arrow.Type.TimeSecond]: never,       // TODO
+  [arrow.Type.TimeMillisecond]: never,  // TODO
+  [arrow.Type.TimeMicrosecond]: never,  // TODO
+  [arrow.Type.TimeNanosecond]: never,   // TODO
+  [arrow.Type.Timestamp]: never,        // TODO
+  [arrow.Type.TimestampSecond]: TimestampSecondSeries,
+  [arrow.Type.TimestampMillisecond]: TimestampMillisecondSeries,
+  [arrow.Type.TimestampMicrosecond]: TimestampMicrosecondSeries,
+  [arrow.Type.TimestampNanosecond]: TimestampNanosecondSeries,
+  [arrow.Type.Interval]: never,           // TODO
+  [arrow.Type.IntervalDayTime]: never,    // TODO
+  [arrow.Type.IntervalYearMonth]: never,  // TODO
   [arrow.Type.List]: ListSeries<(T extends List ? T['childType'] : any)>,
   [arrow.Type.Struct]: StructSeries<(T extends Struct ? T['childTypes'] : any)>,
   [arrow.Type.Union]: never,            // TODO
@@ -241,6 +246,18 @@ export class AbstractSeries<T extends DataType = any> {
    */
   static new(input: (boolean|null|undefined)[]): Series<Bool8>;
   /**
+   * Create a new cudf.TimestampMillisecondSeries
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // TimestampMillisecondSeries [2021-05-13T00:00:00.000Z, null, 2021-05-13T00:00:00.000Z, null]
+   * const a = Series.new([new Date(), undefined, new Date(), undefined]);
+   * ```
+   */
+  static new(input: (Date|null|undefined)[]): Series<TimestampMillisecond>;
+  /**
    * Create a new cudf.ListSeries that contain cudf.StringSeries elements.
    *
    * @example
@@ -296,12 +313,27 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   static new(input: (boolean|null|undefined)[][]): Series<List<Bool8>>;
+  /**
+   * Create a new cudf.ListSeries that contain cudf.TimestampMillisecondSeries elements.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // ListSeries [[2021-05-13T00:00:00.000Z, null], [null, 2021-05-13T00:00:00.000Z]]
+   * const a = Series.new([[new Date(), undefined], [undefined, new Date()]]);
+   * a.getValue(0) // TimestampMillisecondSeries [2021-05-13T00:00:00.000Z, null]
+   * a.getValue(1) // TimestampMillisecondSeries [null, 2021-05-13T00:00:00.000Z]
+   * ```
+   */
+  static new(input: (Date|null|undefined)[][]): Series<List<TimestampMillisecond>>;
 
   static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>|arrow.Vector<T>|
                                  (string|null|undefined)[]|(number|null|undefined)[]|
                                  (bigint|null|undefined)[]|(boolean|null|undefined)[]|
-                                 (string|null|undefined)[][]|(number|null|undefined)[][]|
-                                 (bigint|null|undefined)[][]|(boolean|null|undefined)[][]) {
+                                 (Date|null|undefined)[]|(string|null|undefined)[][]|
+                                 (number|null|undefined)[][]|(bigint|null|undefined)[][]|
+                                 (boolean|null|undefined)[][]|(Date|null|undefined)[][]) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
   }
 
@@ -895,6 +927,13 @@ import {
 import {StringSeries} from './series/string';
 import {ListSeries} from './series/list';
 import {StructSeries} from './series/struct';
+import {
+  TimestampDaySeries,
+  TimestampMicrosecondSeries,
+  TimestampMillisecondSeries,
+  TimestampNanosecondSeries,
+  TimestampSecondSeries
+} from './series/timestamp';
 
 export {
   Bool8Series,
@@ -922,7 +961,7 @@ function inferType(value: any[]): DataType {
   let stringsCount  = 0;
   let bigintsCount  = 0;
   let booleansCount = 0;
-  let unknownCount  = 0;
+  let datesCount    = 0;
   value.forEach((val) => {
     if (val == null) { return ++nullsCount; }
     switch (typeof val) {
@@ -930,37 +969,47 @@ function inferType(value: any[]): DataType {
       case 'boolean': return ++booleansCount;
       case 'number': return ++numbersCount;
       case 'string': return ++stringsCount;
-      case 'object': return Array.isArray(val) ? ++arraysCount : ++objectsCount;
+      case 'object':
+        if (Array.isArray(val)) {
+          return ++arraysCount;
+        } else if (Object.prototype.toString.call(val) === '[object Date]') {
+          return ++datesCount;
+        } else {
+          return ++objectsCount;
+        }
     }
-    return ++unknownCount;
+    throw new TypeError(
+      'Unable to infer Series type from input values, explicit type declaration expected');
   });
-  if (unknownCount === 0) {
-    if (numbersCount + nullsCount === value.length) {
-      return new Float64;
-    } else if (stringsCount + nullsCount === value.length) {
-      return new Utf8String;
-    } else if (bigintsCount + nullsCount === value.length) {
-      return new Int64;
-    } else if (booleansCount + nullsCount === value.length) {
-      return new Bool8;
-    } else if (arraysCount + nullsCount === value.length) {
-      const childType = inferType(value[value.findIndex((ary) => ary != null)]);
-      if (value.every((ary) => ary == null || childType.compareTo(inferType(ary)))) {
-        return new List(new arrow.Field('', childType));
-      }
-    } else if (objectsCount + nullsCount === value.length) {
-      const fields = new Map<string, arrow.Field>();
-      value.forEach((val) => {
-        Object.keys(val).forEach((key) => {
-          if (!fields.has(key)) {
-            // use the type inferred for the first instance of a found key
-            fields.set(key, new arrow.Field(key, inferType(val[key])));
-          }
-        });
-      }, {});
-      return new Struct<any>([...fields.values()]);
+
+  if (numbersCount + nullsCount === value.length) {
+    return new Float64;
+  } else if (stringsCount + nullsCount === value.length) {
+    return new Utf8String;
+  } else if (bigintsCount + nullsCount === value.length) {
+    return new Int64;
+  } else if (booleansCount + nullsCount === value.length) {
+    return new Bool8;
+  } else if (datesCount + nullsCount === value.length) {
+    return new TimestampMillisecond;
+  } else if (arraysCount + nullsCount === value.length) {
+    const childType = inferType(value[value.findIndex((ary) => ary != null)]);
+    if (value.every((ary) => ary == null || childType.compareTo(inferType(ary)))) {
+      return new List(new arrow.Field('', childType));
     }
+  } else if (objectsCount + nullsCount === value.length) {
+    const fields = new Map<string, arrow.Field>();
+    value.forEach((val) => {
+      Object.keys(val).forEach((key) => {
+        if (!fields.has(key)) {
+          // use the type inferred for the first instance of a found key
+          fields.set(key, new arrow.Field(key, inferType(val[key])));
+        }
+      });
+    }, {});
+    return new Struct<any>([...fields.values()]);
   }
+
   throw new TypeError(
     'Unable to infer Series type from input values, explicit type declaration expected');
 }
@@ -971,10 +1020,12 @@ function asColumn<T extends DataType>(
   |(number | null | undefined)[]                                     //
   |(bigint | null | undefined)[]                                     //
   |(boolean | null | undefined)[]                                    //
+  |(Date | null | undefined)[]                                       //
   |(string | null | undefined)[][]                                   //
   |(number | null | undefined)[][]                                   //
   |(bigint | null | undefined)[][]                                   //
   |(boolean | null | undefined)[][]                                  //
+  |(Date | null | undefined)[][]                                     //
   ): Column<T> {
   if (value instanceof AbstractSeries) { return value._col; }
   if (Array.isArray(value)) {
@@ -1042,12 +1093,12 @@ const columnToSeries = (() => {
     public visitUtf8                 <T extends Utf8String>(col: Column<T>) { return new (StringSeries as any)(col); }
     // public visitBinary               <T extends Binary>(col: Column<T>) { return new (BinarySeries as any)(col); }
     // public visitFixedSizeBinary      <T extends FixedSizeBinary>(col: Column<T>) { return new (FixedSizeBinarySeries as any)(col); }
-    // public visitDateDay              <T extends DateDay>(col: Column<T>) { return new (DateDaySeries as any)(col); }
-    // public visitDateMillisecond      <T extends DateMillisecond>(col: Column<T>) { return new (DateMillisecondSeries as any)(col); }
-    // public visitTimestampSecond      <T extends TimestampSecond>(col: Column<T>) { return new (TimestampSecondSeries as any)(col); }
-    // public visitTimestampMillisecond <T extends TimestampMillisecond>(col: Column<T>) { return new (TimestampMillisecondSeries as any)(col); }
-    // public visitTimestampMicrosecond <T extends TimestampMicrosecond>(col: Column<T>) { return new (TimestampMicrosecondSeries as any)(col); }
-    // public visitTimestampNanosecond  <T extends TimestampNanosecond>(col: Column<T>) { return new (TimestampNanosecondSeries as any)(col); }
+    public visitDateDay              <T extends TimestampDay>(col: Column<T>) { return new (TimestampDaySeries as any)(col); }
+    public visitDateMillisecond      <T extends TimestampMillisecond>(col: Column<T>) { return new (TimestampMillisecondSeries as any)(col); }
+    public visitTimestampSecond      <T extends TimestampSecond>(col: Column<T>) { return new (TimestampSecondSeries as any)(col); }
+    public visitTimestampMillisecond <T extends TimestampMillisecond>(col: Column<T>) { return new (TimestampMillisecondSeries as any)(col); }
+    public visitTimestampMicrosecond <T extends TimestampMicrosecond>(col: Column<T>) { return new (TimestampMicrosecondSeries as any)(col); }
+    public visitTimestampNanosecond  <T extends TimestampNanosecond>(col: Column<T>) { return new (TimestampNanosecondSeries as any)(col); }
     // public visitTimeSecond           <T extends TimeSecond>(col: Column<T>) { return new (TimeSecondSeries as any)(col); }
     // public visitTimeMillisecond      <T extends TimeMillisecond>(col: Column<T>) { return new (TimeMillisecondSeries as any)(col); }
     // public visitTimeMicrosecond      <T extends TimeMicrosecond>(col: Column<T>) { return new (TimeMicrosecondSeries as any)(col); }
