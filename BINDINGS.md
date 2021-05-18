@@ -261,7 +261,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `drop_duplicates`    |                    |
 | `dropna`             |  ✅ (`dropNulls`)  |
 | `equals`             |                    |
-| `exp`                |                    |
+| `exp`                |         ✅         |
 | `fillna`             |                    |
 | `floordiv`           |                    |
 | `from_arrow`         |                    |
@@ -281,7 +281,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `kurt`               |                    |
 | `kurtosis`           |                    |
 | `label_encoding`     |                    |
-| `log`                |                    |
+| `log`                |         ✅         |
 | `mask`               |                    |
 | `max`                |                    |
 | `mean`               |                    |
@@ -333,7 +333,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `skew`               |                    |
 | `sort_index`         |                    |
 | `sort_values`        | ✅ (`sortValues`)  |
-| `sqrt`               |                    |
+| `sqrt`               |         ✅         |
 | `stack`              |                    |
 | `std`                |                    |
 | `sub`                |                    |
