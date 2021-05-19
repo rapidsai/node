@@ -385,6 +385,21 @@ export class AbstractSeries<T extends DataType = any> {
   get numChildren() { return this._col.numChildren; }
 
   /**
+   * Return the number of non-null elements in the Series.
+   *
+   * @returns The number of non-null elements
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([1, 2, 3]).countNonNulls(); // 3
+   * Series.new([1, null, 3]).countNonNulls(); // 2
+   * ```
+   */
+  countNonNulls(): number { return this._col.length - this._col.nullCount; }
+
+  /**
    * Fills a range of elements in a column out-of-place with a scalar value.
    *
    * @param begin The starting index of the fill range (inclusive).
