@@ -86,7 +86,7 @@ struct Scalar : public EnvLocalObjectWrap<Scalar> {
    *
    * @param other The scalar to move.
    */
-  Scalar& operator=(std::unique_ptr<cudf::scalar>&& other) {
+  inline Scalar& operator=(std::unique_ptr<cudf::scalar>&& other) {
     scalar_ = std::move(other);
     return *this;
   }
@@ -94,7 +94,7 @@ struct Scalar : public EnvLocalObjectWrap<Scalar> {
   /**
    * @brief Returns the scalar's logical value type
    */
-  cudf::data_type type() const noexcept { return arrow_to_cudf_type(type_.Value()); }
+  inline cudf::data_type type() const { return arrow_to_cudf_type(type_.Value()); }
 
   /**
    * @brief Updates the validity of the value
@@ -102,7 +102,9 @@ struct Scalar : public EnvLocalObjectWrap<Scalar> {
    * @param is_valid true: set the value to valid. false: set it to null
    * @param stream CUDA stream used for device memory operations.
    */
-  void set_valid(bool is_valid, cudaStream_t stream = 0) { scalar_->set_valid(is_valid, stream); }
+  inline void set_valid(bool is_valid, cudaStream_t stream = 0) {
+    scalar_->set_valid(is_valid, stream);
+  }
 
   /**
    * @brief Indicates whether the scalar contains a valid value
@@ -113,7 +115,7 @@ struct Scalar : public EnvLocalObjectWrap<Scalar> {
    * @return true Value is valid
    * @return false Value is invalid/null
    */
-  bool is_valid(cudaStream_t stream = 0) const { return scalar_->is_valid(stream); };
+  inline bool is_valid(cudaStream_t stream = 0) const { return scalar_->is_valid(stream); };
 
   template <typename scalar_type>
   inline operator scalar_type*() const {
