@@ -48,9 +48,8 @@ Napi::Function Scalar::Init(Napi::Env const& env, Napi::Object exports) {
 Scalar::wrapper_t Scalar::New(Napi::Env const& env, std::unique_ptr<cudf::scalar> scalar) {
   auto opts = Napi::Object::New(env);
   opts.Set("type", cudf_to_arrow_type(env, scalar->type()));
-  auto inst     = EnvLocalObjectWrap<Scalar>::New(env, {opts});
-  inst->scalar_ = std::move(scalar);
-  return inst;
+  auto wrap = Napi::External<std::unique_ptr<cudf::scalar>>::New(env, &scalar);
+  return EnvLocalObjectWrap<Scalar>::New(env, {opts, wrap});
 }
 
 Scalar::wrapper_t Scalar::New(Napi::Env const& env, Napi::Number const& value) {
@@ -70,24 +69,33 @@ Scalar::wrapper_t Scalar::New(Napi::Env const& env,
                               cudf::data_type type) {
   auto opts = Napi::Object::New(env);
   opts.Set("value", value);
-  opts.Set("type", cudf_to_arrow_type(opts.Env(), type));
+  opts.Set("type", cudf_to_arrow_type(env, type));
   return EnvLocalObjectWrap<Scalar>::New(env, {opts});
 }
 
 Scalar::Scalar(CallbackArgs const& args) : EnvLocalObjectWrap<Scalar>(args) {
-  NODE_CUDF_EXPECT(
-    args[0].IsObject(), "Scalar constructor expects an Object options argument", args.Env());
-  Napi::Object props = args[0];
+  auto env = args.Env();
+
+  NODE_CUDF_EXPECT(args.Length() > 0 && args[0].IsObject(),
+                   "Scalar constructor expects an Object options argument",
+                   env);
+
+  NapiToCPP::Object props = args[0];
 
   NODE_CUDF_EXPECT(
-    props.Has("type"), "Scalar constructor expects options to have a 'type' field", args.Env());
-  NODE_CUDF_EXPECT(props.Get("type").IsObject(),
-                   "Scalar constructor expects 'type' option to be a DataType",
-                   args.Env());
+    props.Has("type"), "Scalar constructor expects options to have a 'type' field", env);
 
-  type_   = Napi::Persistent(props.Get("type").As<Napi::Object>());
-  scalar_ = cudf::make_default_constructed_scalar(this->type());
-  if (props.Has("value")) { set_value(args, props.Get("value")); }
+  NODE_CUDF_EXPECT(
+    props.Get("type").IsObject(), "Scalar constructor expects 'type' option to be a DataType", env);
+
+  type_ = Napi::Persistent<Napi::Object>(props.Get("type"));
+
+  if (args.Length() == 1) {
+    *this = cudf::make_default_constructed_scalar(this->type());
+    if (props.Has("value")) { set_value(args, props.Get("value")); }
+  } else if (args.Length() == 2 && args[1].IsExternal()) {
+    *this = std::move(*args[1].As<Napi::External<std::unique_ptr<cudf::scalar>>>().Data());
+  }
 }
 
 Scalar::operator cudf::scalar&() const { return *scalar_; }

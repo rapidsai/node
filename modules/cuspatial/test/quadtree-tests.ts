@@ -79,11 +79,11 @@ describe('Quadtree', () => {
 
     expect(polygonAndPointIdxs.get('polygon_index').data.toArray())
       .toEqualTypedArray(
-        new Uint32Array([0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3]));
+        new Uint32Array([3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3]));
 
     expect(polygonAndPointIdxs.get('point_index').data.toArray())
       .toEqualTypedArray(new Uint32Array(
-        [62, 60, 45, 46, 47, 48, 49, 50, 51, 52, 54, 28, 29, 30, 31, 32, 33, 34, 35]));
+        [28, 29, 30, 31, 32, 33, 34, 35, 45, 46, 47, 48, 49, 50, 51, 52, 54, 62, 60]));
   });
 
   test(`point to nearest polyline`, () => {
