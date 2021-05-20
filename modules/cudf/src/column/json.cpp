@@ -22,7 +22,9 @@ namespace nv {
 Column::wrapper_t Column::get_json_object(std::string const& json_path,
                                           rmm::mr::device_memory_resource* mr) {
   try {
-    return Column::New(Env(), cudf::strings::get_json_object(this->view(), json_path, mr));
+    return Column::New(Env(),
+                       cudf::strings::get_json_object(
+                         this->view(), json_path, cudf::strings::get_json_object_options{}, mr));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
