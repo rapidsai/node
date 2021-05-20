@@ -99,25 +99,23 @@ DeviceBuffer::wrapper_t null_mask_from_valid_array(NapiToCPP const& value, cudf:
 DeviceBuffer::wrapper_t get_or_create_data(NapiToCPP const& value, cudf::data_type type) {
   if (value.IsMemoryLike()) { return device_buffer_from_memorylike(value); }
   auto const env = value.Env();
+  auto const mr  = MemoryResource::Current(env);
   if (value.IsArray()) {
     switch (type.id()) {
       case cudf::type_id::INT64:
-        return DeviceBuffer::New<int64_t>(
-          env, value.As<Napi::Array>(), MemoryResource::Current(env));
+        return DeviceBuffer::New<int64_t>(env, value.As<Napi::Array>(), mr);
       case cudf::type_id::UINT64:
-        return DeviceBuffer::New<uint64_t>(
-          env, value.As<Napi::Array>(), MemoryResource::Current(env));
+        return DeviceBuffer::New<uint64_t>(env, value.As<Napi::Array>(), mr);
       default:
-        auto buf =
-          DeviceBuffer::New<double>(env, value.As<Napi::Array>(), MemoryResource::Current(env));
+        auto buf = DeviceBuffer::New<double>(env, value.As<Napi::Array>(), mr);
         return (type.id() == cudf::type_id::FLOAT64) ? buf : [&]() {
           cudf::size_type size = buf->size() / sizeof(double);
           cudf::column_view view{cudf::data_type{cudf::type_id::FLOAT64}, size, buf->data()};
-          return DeviceBuffer::New(env, std::move(cudf::cast(view, type)->release().data));
+          return DeviceBuffer::New(env, std::move(cudf::cast(view, type)->release().data), mr);
         }();
     }
   }
-  return DeviceBuffer::New(env);
+  return DeviceBuffer::New(env, mr);
 }
 
 }  // namespace

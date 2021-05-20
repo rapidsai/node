@@ -42,7 +42,13 @@ Napi::Function DeviceBuffer::Init(Napi::Env const& env, Napi::Object exports) {
 
 DeviceBuffer::wrapper_t DeviceBuffer::New(Napi::Env const& env,
                                           std::unique_ptr<rmm::device_buffer> buffer) {
-  auto buf     = New(env, MemoryResource::Cuda(env), buffer->stream());
+  return New(env, std::move(buffer), MemoryResource::Current(env));
+}
+
+DeviceBuffer::wrapper_t DeviceBuffer::New(Napi::Env const& env,
+                                          std::unique_ptr<rmm::device_buffer> buffer,
+                                          MemoryResource::wrapper_t const& mr) {
+  auto buf     = New(env, mr, buffer->stream());
   buf->buffer_ = std::move(buffer);
   return buf;
 }
