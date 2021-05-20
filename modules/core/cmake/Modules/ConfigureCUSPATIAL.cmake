@@ -25,10 +25,17 @@ function(find_and_configure_cuspatial VERSION)
     _set_package_dir_if_exists(cuspatial cuspatial)
 
     if(NOT TARGET cuspatial::cuspatial)
+
+        if(${VERSION} MATCHES [=[([0-9]+)\.([0-9]+)\.([0-9]+)]=])
+            set(MAJOR_AND_MINOR "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
+        else()
+            set(MAJOR_AND_MINOR "${VERSION}")
+        endif()
+
         CPMFindPackage(NAME     cuspatial
             VERSION             ${VERSION}
             GIT_REPOSITORY      https://github.com/rapidsai/cuspatial.git
-            GIT_TAG             branch-${VERSION}
+            GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
             SOURCE_SUBDIR       cpp

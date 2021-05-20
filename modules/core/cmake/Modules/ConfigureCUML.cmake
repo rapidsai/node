@@ -28,10 +28,35 @@ function(find_and_configure_cuml VERSION)
     _set_package_dir_if_exists(RapidJSON rapidjson)
 
     if(NOT TARGET cuml::cuml)
+
+        set(SINGLEGPU ON)
+        set(WITH_UCX OFF)
+        set(DISABLE_OPENMP OFF)
+        set(DETECT_CONDA_ENV OFF)
+        set(ENABLE_CUMLPRIMS_MG OFF)
+
+        set(BUILD_TESTS OFF)
+        set(BUILD_BENCHMARKS OFF)
+        set(BUILD_CUML_MG_TESTS OFF)
+        set(BUILD_CUML_STD_COMMS OFF)
+        set(BUILD_CUML_MPI_COMMS OFF)
+        set(BUILD_CUML_TESTS OFF)
+        set(BUILD_CUML_BENCH OFF)
+        set(BUILD_PRIMS_TESTS OFF)
+        set(BUILD_CUML_EXAMPLES OFF)
+        set(BUILD_CUML_C_LIBRARY OFF)
+        set(BUILD_CUML_CPP_LIBRARY ON)
+
+        if(${VERSION} MATCHES [=[([0-9]+)\.([0-9]+)\.([0-9]+)]=])
+            set(MAJOR_AND_MINOR "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
+        else()
+            set(MAJOR_AND_MINOR "${VERSION}")
+        endif()
+
         CPMFindPackage(NAME     cuml
-            VERSION             ${CUML_VERSION}
+            VERSION             ${VERSION}
             # GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
-            # GIT_TAG             branch-${CUML_VERSION}
+            # GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_REPOSITORY      https://github.com/dantegd/cuml.git
             GIT_TAG             fea-rapids-cmake
             GIT_SHALLOW         TRUE
@@ -40,6 +65,7 @@ function(find_and_configure_cuml VERSION)
             OPTIONS             "SINGLEGPU ON"
                                 "WITH_UCX OFF"
                                 "BUILD_TESTS OFF"
+                                "BUILD_BENCHMARKS OFF"
                                 "DISABLE_OPENMP OFF"
                                 "DETECT_CONDA_ENV OFF"
                                 "ENABLE_CUMLPRIMS_MG OFF"
