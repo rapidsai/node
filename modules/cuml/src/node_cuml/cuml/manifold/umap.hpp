@@ -13,17 +13,69 @@
 // limitations under the License.
 
 #pragma once
+#include <node_cudf/column.hpp>
 
-#ifdef CUDA_TRY
-#undef CUDA_TRY
-#endif
-#ifdef CHECK_CUDA
-#undef CHECK_CUDA
-#endif
+#include <nv_node/objectwrap.hpp>
+#include <nv_node/utilities/args.hpp>
+
+#include <cuml/manifold/umapparams.h>
 #include <cuml/manifold/umap.hpp>
-#ifdef CHECK_CUDA
-#undef CHECK_CUDA
-#endif
 #ifdef CUDA_TRY
 #undef CUDA_TRY
 #endif
+#include <raft/handle.hpp>
+
+#include <napi.h>
+
+namespace nv {
+/**
+ * @brief An owning wrapper around a cuml::manifold::UMAP
+ *
+ */
+struct UMAP : public EnvLocalObjectWrap<UMAP> {
+  /**
+   * @brief Initialize and export the UMAP JavaScript constructor and prototype
+   *
+   * @param env The active JavaScript environment
+   * @param exports The exports object to decorate
+   * @return Napi::Function The UMAP constructor function
+   */
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
+
+  /**
+   * @brief Construct a new UMAP instance from C++.
+   */
+  static wrapper_t New(Napi::Env const& env);
+
+  /**
+   * @brief Construct a new UMAP instance from JavaScript
+   *
+   * @param args
+   */
+  UMAP(CallbackArgs const& args);
+
+  void fit(DeviceBuffer const& X,
+           cudf::size_type n_samples,
+           cudf::size_type n_features,
+           DeviceBuffer const& y,
+           DeviceBuffer knn_graph,
+           bool convert_dtype = true);
+
+ private:
+  ML::UMAPParams params_{};
+  Napi::Value fit(Napi::CallbackInfo const& info);
+};
+}  // namespace nv
+// #ifdef CUDA_TRY
+// #undef CUDA_TRY
+// #endif
+// #ifdef CHECK_CUDA
+// #undef CHECK_CUDA
+// #endif
+
+// #ifdef CHECK_CUDA
+// #undef CHECK_CUDA
+// #endif
+// #ifdef CUDA_TRY
+// #undef CUDA_TRY
+// #endif

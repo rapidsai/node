@@ -13,3 +13,5 @@
 // limitations under the License.
 
 export * as addon from './addon';
+
+export * from './umap';
