@@ -28,9 +28,9 @@ unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
-set(RMM_VERSION "0.20")
-set(CUDF_VERSION "0.20")
-set(CUML_VERSION "0.20")
+set(RMM_VERSION "21.06.00")
+set(CUDF_VERSION "21.06.00")
+set(CUML_VERSION "21.06.00")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------

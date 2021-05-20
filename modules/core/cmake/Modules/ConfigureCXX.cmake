@@ -106,3 +106,5 @@ endif(DISABLE_DEPRECATION_WARNINGS)
 list(APPEND NODE_RAPIDS_CMAKE_C_FLAGS -fdiagnostics-color=always)
 list(APPEND NODE_RAPIDS_CMAKE_CXX_FLAGS -fdiagnostics-color=always)
 list(APPEND NODE_RAPIDS_CMAKE_CUDA_FLAGS -Xcompiler=-fdiagnostics-color=always)
+
+set(NO_SYSTEM_FROM_IMPORTED ON)
