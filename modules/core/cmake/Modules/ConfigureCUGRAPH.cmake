@@ -47,7 +47,7 @@ function(find_and_configure_cugraph VERSION)
             VERSION             ${VERSION}
             # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
             # GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_REPOSITORY      https://github.com/robertmaynard/cugraph.git
+            GIT_REPOSITORY      https://github.com/trxcllnt/cugraph.git
             GIT_TAG             use_rapids_cmake
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
