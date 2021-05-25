@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * 		The desired order of null compared to other elements for a column.
+ * @summary The desired order of null compared to other elements for a column.
  */
 export enum NullOrder
 {

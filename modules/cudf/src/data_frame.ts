@@ -35,6 +35,8 @@ export type SeriesMap<T extends TypeMap> = {
 export type OrderSpec = {
   ascending: boolean,
   null_order: NullOrder
+  ascending?: boolean,
+  null_order?: keyof typeof NullOrder
 };
 
 type JoinType = 'inner'|'outer'|'left'|'right'|'leftsemi'|'leftanti';
@@ -374,12 +376,12 @@ export class DataFrame<T extends TypeMap = any> {
     const null_orders   = new Array<NullOrder>();
     const columns       = new Array<Column<T[keyof T]>>();
     const entries       = Object.entries(options) as [R, OrderSpec][];
-    entries.forEach(([name, {ascending, null_order}]) => {
+    entries.forEach(([name, {ascending = true, null_order = 'AFTER'}]) => {
       const child = this.get(name);
       if (child) {
         columns.push(child._col as Column<T[keyof T]>);
         column_orders.push(ascending);
-        null_orders.push(null_order);
+        null_orders.push(NullOrder[null_order]);
       }
     });
     // Compute the sorted sorted_indices
