@@ -33,8 +33,6 @@ export type SeriesMap<T extends TypeMap> = {
 };
 
 export type OrderSpec = {
-  ascending: boolean,
-  null_order: NullOrder
   ascending?: boolean,
   null_order?: keyof typeof NullOrder
 };
@@ -48,12 +46,13 @@ type JoinProps<
   LSuffix extends string = '',
   RSuffix extends string = '',
 > = {
-  other: DataFrame<Rhs>,
-  on: TOn[],
-  how: How,
-  lsuffix?: LSuffix,
-  rsuffix?: RSuffix,
-  nullEquality?: boolean,
+  other: DataFrame<Rhs>;
+  on: TOn[];
+  how?: How;
+  lsuffix?: LSuffix;
+  rsuffix?: RSuffix;
+  nullEquality?: boolean;
+  memoryResource?: MemoryResource;
 };
 
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
