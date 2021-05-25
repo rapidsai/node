@@ -34,9 +34,6 @@ function(find_and_configure_cugraph VERSION)
         set(BUILD_TESTS OFF)
         set(BUILD_BENCHMARKS OFF)
 
-        set(NCCL_LIBRARY "/usr/local/cuda/lib64/libnccl.so")
-        set(NCCL_INCLUDE_DIR "/usr/local/cuda/include")
-
         if(${VERSION} MATCHES [=[([0-9]+)\.([0-9]+)\.([0-9]+)]=])
             set(MAJOR_AND_MINOR "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
         else()
@@ -45,10 +42,8 @@ function(find_and_configure_cugraph VERSION)
 
         CPMFindPackage(NAME     cugraph
             VERSION             ${VERSION}
-            # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
-            # GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_REPOSITORY      https://github.com/trxcllnt/cugraph.git
-            GIT_TAG             use_rapids_cmake
+            GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
+            GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
             SOURCE_SUBDIR       cpp
