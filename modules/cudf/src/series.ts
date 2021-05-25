@@ -815,12 +815,13 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([true, false, true, true, false]).orderBy(false) // [0, 2, 3, 1, 4]
    *
    * // NullOrder usage
-   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, NullOrder.BEFORE) // [0, 1, 2, 3, 4, 5]
-   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, NullOrder.AFTER) // [5, 0, 1, 2, 3, 4]
+   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, 'BEFORE') // [0, 1, 2, 3, 4, 5]
+   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, 'AFTER') // [5, 0, 1, 2, 3, 4]
    * ```
    */
-  orderBy(ascending = true, null_order: NullOrder = NullOrder.BEFORE) {
-    return Series.new(new Table({columns: [this._col]}).orderBy([ascending], [null_order]));
+  orderBy(ascending = true, null_order: keyof typeof NullOrder = 'AFTER') {
+    return Series.new(
+      new Table({columns: [this._col]}).orderBy([ascending], [NullOrder[null_order]]));
   }
 
   /**
@@ -852,14 +853,14 @@ export class AbstractSeries<T extends DataType = any> {
    * false, false]
    *
    * // NullOrder usage
-   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, NullOrder.BEFORE) // [50, 40, 30, 20,
+   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, 'BEFORE') // [50, 40, 30, 20,
    * 10, null]
    *
-   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, NullOrder.AFTER) // [null, 50, 40, 30,
+   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, 'AFTER') // [null, 50, 40, 30,
    * 20, 10]
    * ```
    */
-  sortValues(ascending = true, null_order: NullOrder = NullOrder.BEFORE): Series<T> {
+  sortValues(ascending = true, null_order: keyof typeof NullOrder = 'AFTER'): Series<T> {
     return this.gather(this.orderBy(ascending, null_order));
   }
 

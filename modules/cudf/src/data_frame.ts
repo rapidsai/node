@@ -357,16 +357,16 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int32, NullOrder}  from '@rapidsai/cudf';
    * const df = new DataFrame({a: Series.new([null, 4, 3, 2, 1, 0])});
    *
-   * df.orderBy({a: {ascending: true, null_order: NullOrder.BEFORE}});
+   * df.orderBy({a: {ascending: true, null_order: 'BEFORE'}});
    * // Int32Series [0, 5, 4, 3, 2, 1]
    *
-   * df.orderBy({a: {ascending: true, null_order: NullOrder.AFTER}});
+   * df.orderBy({a: {ascending: true, null_order: 'AFTER'}});
    * // Int32Series [5, 4, 3, 2, 1, 0]
    *
-   * df.orderBy({a: {ascending: false, null_order: NullOrder.BEFORE}});
+   * df.orderBy({a: {ascending: false, null_order: 'BEFORE'}});
    * // Int32Series [1, 2, 3, 4, 5, 0]
    *
-   * df.orderBy({a: {ascending: false, null_order: NullOrder.AFTER}});
+   * df.orderBy({a: {ascending: false, null_order: 'AFTER'}});
    * // Int32Series [0, 1, 2, 3, 4, 5]
    * ```
    */
@@ -406,16 +406,16 @@ export class DataFrame<T extends TypeMap = any> {
    *   b: Series.new([0, 1, 2, 3, 4, 5])
    * });
    *
-   * df.sortValues({a: {ascending: true, null_order: NullOrder.AFTER}})
+   * df.sortValues({a: {ascending: true, null_order: 'AFTER'}})
    * // {a: [0, 1, 2, 3, 4, null], b: [5, 4, 3, 2, 1, 0]}
    *
-   * df.sortValues({a: {ascending: true, null_order: NullOrder.BEFORE}})
+   * df.sortValues({a: {ascending: true, null_order: 'BEFORE'}})
    * // {a: [null, 0, 1, 2, 3, 4], b: [0, 5, 4, 3, 2, 1]}
    *
-   * df.sortValues({a: {ascending: false, null_order: NullOrder.AFTER}})
+   * df.sortValues({a: {ascending: false, null_order: 'AFTER'}})
    * // {a: [4, 3, 2, 1, 0, null], b: [1, 2, 3, 4, 5, 0]}
    *
-   * df.sortValues({a: {ascending: false, null_order: NullOrder.BEFORE}})
+   * df.sortValues({a: {ascending: false, null_order: 'BEFORE'}})
    * // {a: [null, 4, 3, 2, 1, 0], b: [0, 1, 2, 3, 4, 5]}
    * ```
    */
