@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <node_cudf/column.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 #include <node_cudf/utilities/error.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
@@ -63,6 +64,7 @@ cudf::data_type arrow_to_cudf_type(Napi::Object const& type) {
   using cudf::data_type;
   using cudf::type_id;
   switch (type.Get("typeId").ToNumber().Int32Value()) {
+    case -1 /*Arrow.Dictionary     */: return data_type{type_id::DICTIONARY32};
     case 0 /*Arrow.NONE            */: return data_type{type_id::EMPTY};
     case 1 /*Arrow.Null            */: return data_type{type_id::EMPTY};
     case 2 /*Arrow.Int             */: {
@@ -205,7 +207,13 @@ Napi::Object column_to_arrow_type(Napi::Env const& env, cudf::column_view const&
     // case cudf::type_id::DURATION_MILLISECONDS: // TODO
     // case cudf::type_id::DURATION_MICROSECONDS: // TODO
     // case cudf::type_id::DURATION_NANOSECONDS: // TODO
-    // case cudf::type_id::DICTIONARY32: // TODO
+    case cudf::type_id::DICTIONARY32: {
+      arrow_type.Set("typeId", -1);
+      arrow_type.Set("indices", column_to_arrow_type(env, column.child(0)));
+      arrow_type.Set("dictionary", column_to_arrow_type(env, column.child(1)));
+      arrow_type.Set("isOrdered", false);
+      break;
+    }
     case cudf::type_id::STRING: {
       arrow_type.Set("typeId", 5);
       break;

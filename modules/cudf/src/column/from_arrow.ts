@@ -165,7 +165,13 @@ class VectorToColumnVisitor extends arrow.Visitor {
   }
   // visitDenseUnion<T extends arrow.DenseUnion>(vector: arrow.Vector<T>) {}
   // visitSparseUnion<T extends arrow.SparseUnion>(vector: arrow.Vector<T>) {}
-  // visitDictionary<T extends arrow.Dictionary>(vector: arrow.Vector<T>) {}
+  visitDictionary<T extends arrow.Dictionary>(vector: arrow.Vector<T>) {
+    const {type, length, data: {nullBitmap: nullMask}} = vector;
+    const indices = this.visit(arrow.Vector.new(vector.data.clone(type.indices))).cast(new Int32);
+    const dictionary = this.visit(vector.data.dictionary!);
+    return new Column(
+      {length, type: arrowToCUDFType(type), nullMask, children: [indices, dictionary]});
+  }
   // visitIntervalDayTime<T extends arrow.IntervalDayTime>(vector: arrow.Vector<T>) {}
   // visitIntervalYearMonth<T extends arrow.IntervalYearMonth>(vector: arrow.Vector<T>) {}
   // visitFixedSizeList<T extends arrow.FixedSizeList>(vector: arrow.Vector<T>) {}
