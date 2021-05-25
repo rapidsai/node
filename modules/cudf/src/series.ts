@@ -91,8 +91,8 @@ export type SeriesProps<T extends DataType = any> = {
 export type SequenceOptions<U extends Numeric = any> = {
   type: U,
   size: number,
-  init: number,
-  step?: number,
+  init: U['scalarType'],
+  step?: U['scalarType'],
   memoryResource?: MemoryResource
 };
 
