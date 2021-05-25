@@ -540,7 +540,7 @@ describe('dataframe unaryops', () => {
 
   test('dataframe.log', () => {
     const result = df.log();
-    expect([...result.get('a')]).toEqual([-2147483648, -2147483648, 1);
+    expect([...result.get('a')]).toEqual([-2147483648, -2147483648, 1]);
     expect([...result.get('b')]).toEqual([0, 0, 1]);
     expect([...result.get('c')]).toEqual([...c]);
     expect([...result.get('d')]).toEqual([...d.log()]);
