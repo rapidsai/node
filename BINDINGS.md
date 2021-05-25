@@ -135,8 +135,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `to_pandas`          |                     |
 | `to_string`          |                     |
 | `truediv`            |         ✅          |
-| `unique`             |                     |
-| `value_counts`       |                     |
+| `unique`             |         ✅          |
+| `value_counts`       |         ✅          |
 | `values_to_string`   |                     |
 | `var`                |         ✅          |
 | `where`              |                     |
