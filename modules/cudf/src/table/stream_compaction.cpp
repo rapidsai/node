@@ -30,13 +30,17 @@ namespace nv {
 
 Table::wrapper_t Table::apply_boolean_mask(Column const& boolean_mask,
                                            rmm::mr::device_memory_resource* mr) const {
-  return Table::New(Env(), cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr));
+  try {
+    return Table::New(Env(), cudf::apply_boolean_mask(cudf::table_view{{*this}}, boolean_mask, mr));
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Table::wrapper_t Table::drop_nulls(std::vector<cudf::size_type> keys,
                                    cudf::size_type threshold,
                                    rmm::mr::device_memory_resource* mr) const {
-  return Table::New(Env(), cudf::drop_nulls(*this, keys, threshold, mr));
+  try {
+    return Table::New(Env(), cudf::drop_nulls(*this, keys, threshold, mr));
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Napi::Value Table::drop_nulls(Napi::CallbackInfo const& info) {
@@ -47,7 +51,9 @@ Napi::Value Table::drop_nulls(Napi::CallbackInfo const& info) {
 Table::wrapper_t Table::drop_nans(std::vector<cudf::size_type> keys,
                                   cudf::size_type threshold,
                                   rmm::mr::device_memory_resource* mr) const {
-  return Table::New(Env(), cudf::drop_nans(*this, keys, threshold, mr));
+  try {
+    return Table::New(Env(), cudf::drop_nans(*this, keys, threshold, mr));
+  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Napi::Value Table::drop_nans(Napi::CallbackInfo const& info) {
