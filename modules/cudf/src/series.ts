@@ -19,6 +19,7 @@ import {VectorType} from 'apache-arrow/interfaces';
 
 import {Column, ColumnProps} from './column';
 import {fromArrow} from './column/from_arrow';
+import {ColumnAccessor} from './column_accessor';
 import {DataFrame} from './data_frame';
 import {Scalar} from './scalar';
 import {Table} from './table';
@@ -436,7 +437,7 @@ export class AbstractSeries<T extends DataType = any> {
     // `sortValues` calls are GC'd as soon as possible.
     //
     return new DataFrame(new ColumnAccessor({
-             value: this._col as Column<T>,
+             value: this._col,
              order: Series.sequence({type: new Int32, init: 0, step: 1, size: this.length})._col
            }))
              .join({
@@ -1004,7 +1005,6 @@ import {
   TimestampNanosecondSeries,
   TimestampSecondSeries
 } from './series/timestamp';
-import {ColumnAccessor} from './column_accessor';
 
 export {
   Bool8Series,

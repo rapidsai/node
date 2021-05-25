@@ -168,6 +168,7 @@ class VectorToColumnVisitor extends arrow.Visitor {
   visitDictionary<T extends arrow.Dictionary>(vector: arrow.Vector<T>) {
     const {type, length, data: {nullBitmap: nullMask}} = vector;
     const indices = this.visit(arrow.Vector.new(vector.data.clone(type.indices))).cast(new Int32);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const dictionary = this.visit(vector.data.dictionary!);
     return new Column(
       {length, type: arrowToCUDFType(type), nullMask, children: [indices, dictionary]});

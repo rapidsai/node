@@ -82,7 +82,7 @@ export class CategoricalSeries<T extends DataType> extends Series<Categorical<T>
     if (type instanceof Categorical) {
       return this.castCategories(type.dictionary, memoryResource);
     }
-    const result = this.categories.gather(this.codes).cast(type, memoryResource) as Series<R>;
+    const result = this.categories.gather(this.codes).cast(type, memoryResource);
     result.setNullMask(this.mask);
     return result;
   }
