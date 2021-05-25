@@ -406,13 +406,14 @@ export class AbstractSeries<T extends DataType = any> {
    * Encode the Series values into integer labels.
    *
    *
-   * @param categories Th optional Series of values to encode into integers. Defaults to the unique
+   * @param categories The optional Series of values to encode into integers. Defaults to the unique
    *   elements in this Series.
    * @param type The optional integer DataType to use for the returned Series. Defaults to Int32.
    * @param nullSentinel The optional value used to indicate missing category. Defaults to -1.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
-   * @returns A sequence of encoded integer labels with values between `0` and `n-1` categories
+   * @returns A sequence of encoded integer labels with values between `0` and `n-1` categories, and
+   *   `nullSentinel` for any null values
    */
   encodeLabels<R extends Integral = Int32>(categories: Series<T>         = this.unique(true),
                                            type: R                       = new Int32 as R,
