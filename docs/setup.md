@@ -44,7 +44,7 @@ You can also build and run on a properly configured Linux installation without d
 
 ### Dependencies
 
-We assume you have [node, npm](https://github.com/nvm-sh/nvm#installing-and-updating), [yarn](https://yarnpkg.com/getting-started/install), [CMake v3.20.2+](https://cmake.org/), and [CUDA Toolkit 11.0+](https://developer.nvidia.com/cuda-downloads) installed.
+We assume you have [node, npm](https://github.com/nvm-sh/nvm#installing-and-updating), [yarn](https://yarnpkg.com/getting-started/install), [CMake v3.20.2+](https://cmake.org/), and [CUDA Toolkit 11.2+](https://developer.nvidia.com/cuda-downloads) installed.
 
 <details>
 <summary>Click here to see Ubuntu 16.04+ CMake installation commands:</summary>

@@ -68,9 +68,11 @@ Napi::Value GraphCOO::force_atlas2(Napi::CallbackInfo const &info) {
                                num_nodes() * 2 * sizeof(float), rmm::cuda_stream_default, mr));
   }(options.Get("positions"));
 
-  auto graph = this->view();
+  auto graph  = this->view();
+  auto handle = std::make_unique<raft::handle_t>();
 
-  cugraph::force_atlas2(graph,
+  cugraph::force_atlas2(*handle,
+                        graph,
                         reinterpret_cast<float *>(positions->data()),
                         max_iter,
                         x_start,
