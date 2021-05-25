@@ -54,16 +54,48 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
    */
   UMAP(CallbackArgs const& args);
 
-  void fit(DeviceBuffer const& X,
+  inline rmm::device_buffer get_embeddings() const noexcept { return embeddings_; }
+  void fit(float* X,
            cudf::size_type n_samples,
            cudf::size_type n_features,
-           DeviceBuffer const& y,
-           DeviceBuffer knn_graph,
+           float* y,
+           int64_t* knn_indices,
+           float* knn_dists,
            bool convert_dtype = true);
+
+  // void fit_sparse(float* X,
+  //                 cudf::size_type n_samples,
+  //                 cudf::size_type n_features,
+  //                 float* y,
+  //                 int64_t* knn_indices,
+  //                 float* knn_dists,
+  //                 bool convert_dtype = true);
+
+  void transform(float* X,
+                 cudf::size_type n_samples,
+                 cudf::size_type n_features,
+                 int64_t* knn_indices,
+                 float* knn_dists,
+                 float* orig_X,
+                 int orig_n,
+                 bool convert_dtype = true);
+
+  // void transform_sparse(float* X,
+  //                       cudf::size_type n_samples,
+  //                       cudf::size_type n_features,
+  //                       float* y,
+  //                       int64_t* knn_indices,
+  //                       float* knn_dists,
+  //                       bool convert_dtype = true);
 
  private:
   ML::UMAPParams params_{};
+  rmm::device_buffer embeddings_;
   Napi::Value fit(Napi::CallbackInfo const& info);
+  Napi::Value fit_sparse(Napi::CallbackInfo const& info);
+  Napi::Value transform(Napi::CallbackInfo const& info);
+  Napi::Value transform_sparse(Napi::CallbackInfo const& info);
+  Napi::Value get_embeddings(Napi::CallbackInfo const& info);
 };
 }  // namespace nv
 // #ifdef CUDA_TRY

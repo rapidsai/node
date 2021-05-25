@@ -13,8 +13,9 @@
 // limitations under the License.
 
 #include <node_cuda/utilities/error.hpp>
-#include <node_cuda/utilities/napi_to_cpp.hpp>
+#include <node_cudf/utilities/napi_to_cpp.hpp>
 #include <node_cuml/cuml/manifold/umap.hpp>
+#include <node_rmm/device_buffer.hpp>
 
 #include <cuml/manifold/umapparams.h>
 #include <cudf/reduction.hpp>
@@ -38,7 +39,11 @@ float get_float(NapiToCPP const& opt, float const default_val) {
 }
 
 Napi::Function UMAP::Init(Napi::Env const& env, Napi::Object exports) {
-  return DefineClass(env, "UMAP", {InstanceMethod<&UMAP::fit>("fit")});
+  return DefineClass(env,
+                     "UMAP",
+                     {InstanceMethod<&UMAP::fit>("fit"),
+                      InstanceMethod<&UMAP::get_embeddings>("getEmbeddings"),
+                      InstanceMethod<&UMAP::transform>("transform")});
 }
 
 ML::UMAPParams update_params(NapiToCPP::Object props) {
@@ -76,28 +81,105 @@ UMAP::UMAP(CallbackArgs const& args) : EnvLocalObjectWrap<UMAP>(args) {
   NODE_CUDA_EXPECT(args.IsConstructCall(), "UMAP constructor requires 'new'", env);
   // NODE_CUDA_EXPECT(args[0].IsObject(), "UMAP constructor requires a properties Object",
   // env);
-  this->params_ = update_params(args[0]);
+  this->params_     = update_params(args[0]);
+  this->embeddings_ = rmm::device_buffer();
 }
 
-void UMAP::fit(DeviceBuffer const& X,
+void UMAP::fit(float* X,
                cudf::size_type n_samples,
                cudf::size_type n_features,
-               DeviceBuffer const& y,
-               DeviceBuffer knn_graph,
+               float* y,
+               int64_t* knn_indices,
+               float* knn_dists,
                bool convert_dtype) {
   raft::handle_t handle;
-  cudaStream_t stream = handle.get_stream();
-  MLCommon::device_buffer<float> X_d(
-    handle.get_device_allocator(), handle.get_stream(), n_samples * n_features);
+  CUDA_CHECK(cudaStreamSynchronize(handle.get_stream()));
+  this->embeddings_.resize(n_samples * this->params_.n_components, handle.get_stream());
+  ML::UMAP::fit(handle,
+                X,
+                y,
+                n_samples,
+                n_features,
+                knn_indices,
+                knn_dists,
+                &this->params_,
+                reinterpret_cast<float*>(this->embeddings_.data()));
+}
 
-  raft::update_device(
-    X_d.data(), reinterpret_cast<float*>(X.data()), n_samples * n_features, stream);
+void UMAP::transform(float* X,
+                     cudf::size_type n_samples,
+                     cudf::size_type n_features,
+                     int64_t* knn_indices,
+                     float* knn_dists,
+                     float* orig_X,
+                     int orig_n,
+                     bool convert_dtype) {
+  raft::handle_t handle;
+  CUDA_CHECK(cudaStreamSynchronize(handle.get_stream()));
+  auto transformed = rmm::device_buffer();
+  transformed.resize(n_samples * this->params_.n_components, handle.get_stream());
+
+  ML::UMAP::transform(handle,
+                      X,
+                      n_samples,
+                      n_features,
+                      knn_indices,
+                      knn_dists,
+                      orig_X,
+                      orig_n,
+                      reinterpret_cast<float*>(this->embeddings_.data()),
+                      n_samples,
+                      &this->params_,
+                      reinterpret_cast<float*>(transformed.data()));
 }
 
 Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  fit(args[0], args[1], args[2], args[3], args[4], args[5]);
+
+  auto X           = DeviceBuffer::wrapper_t(*DeviceBuffer::Unwrap(args[0]));
+  auto y           = DeviceBuffer::IsInstance(args[3])
+                       ? reinterpret_cast<float*>(DeviceBuffer::Unwrap(args[3])->data())
+                       : nullptr;
+  auto knn_indices = DeviceBuffer::IsInstance(args[4])
+                       ? reinterpret_cast<int64_t*>(DeviceBuffer::Unwrap(args[4])->data())
+                       : nullptr;
+  auto knn_dists   = DeviceBuffer::IsInstance(args[5])
+                       ? reinterpret_cast<float*>(DeviceBuffer::Unwrap(args[5])->data())
+                       : nullptr;
+
+  fit(reinterpret_cast<float*>(X->data()), args[1], args[2], y, knn_indices, knn_dists, args[6]);
+
   return Napi::Value::From(info.Env(), info.Env().Undefined());
+}
+
+Napi::Value UMAP::transform(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+
+  auto X           = DeviceBuffer::wrapper_t(*DeviceBuffer::Unwrap(args[0]));
+  auto knn_indices = DeviceBuffer::IsInstance(args[3])
+                       ? reinterpret_cast<int64_t*>(DeviceBuffer::Unwrap(args[3])->data())
+                       : nullptr;
+  auto knn_dists   = DeviceBuffer::IsInstance(args[4])
+                       ? reinterpret_cast<float*>(DeviceBuffer::Unwrap(args[4])->data())
+                       : nullptr;
+
+  transform(reinterpret_cast<float*>(X->data()),
+            args[1],
+            args[2],
+            knn_indices,
+            knn_dists,
+            reinterpret_cast<float*>(X->data()),
+            args[1],
+            args[5]);
+
+  return DeviceBuffer::wrapper_t(
+    DeviceBuffer::New(info.Env(), std::make_unique<rmm::device_buffer>(this->get_embeddings())));
+  ;
+}
+
+Napi::Value UMAP::get_embeddings(Napi::CallbackInfo const& info) {
+  return DeviceBuffer::wrapper_t(
+    DeviceBuffer::New(info.Env(), std::make_unique<rmm::device_buffer>(this->get_embeddings())));
 }
 
 }  // namespace nv
