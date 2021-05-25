@@ -50,6 +50,13 @@ export enum Interpolation
   nearest    ///< i or j, whichever is nearest
 }
 
+export enum DuplicateKeepOption
+{
+  keep_first,  // Keeps first duplicate row and unique rows.
+  keep_last,   // Keeps last duplicate row and unique rows.
+  keep_none,   // Keeps only unique rows are kept.
+}
+
 export type TypeMap = {
   [key: string]: DataType
 };

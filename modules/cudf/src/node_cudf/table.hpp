@@ -122,6 +122,7 @@ struct Table : public EnvLocalObjectWrap<Table> {
     return *Column::Unwrap(columns_.Value().Get(i).ToObject());
   }
 
+  // table/stream_compaction.cpp
   Table::wrapper_t apply_boolean_mask(
     Column const& boolean_mask,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
@@ -134,6 +135,12 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Table::wrapper_t drop_nans(
     std::vector<cudf::size_type> keys,
     cudf::size_type threshold,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Table::wrapper_t drop_duplicates(
+    cudf::duplicate_keep_option keep,
+    bool nulls_equal,
+    bool is_nulls_first,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // table/copying.cpp
@@ -202,8 +209,10 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Napi::Value num_rows(Napi::CallbackInfo const& info);
   Napi::Value select(Napi::CallbackInfo const& info);
   Napi::Value get_column(Napi::CallbackInfo const& info);
+  // table/stream_compaction.cpp
   Napi::Value drop_nulls(Napi::CallbackInfo const& info);
   Napi::Value drop_nans(Napi::CallbackInfo const& info);
+  Napi::Value drop_duplicates(Napi::CallbackInfo const& info);
   // table/copying.cpp
   Napi::Value gather(Napi::CallbackInfo const& info);
   Napi::Value scatter_scalar(Napi::CallbackInfo const& info);
