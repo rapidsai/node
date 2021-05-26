@@ -45,7 +45,7 @@ Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Table::write_csv>("writeCSV"),
                        InstanceMethod<&Table::drop_nans>("drop_nans"),
                        InstanceMethod<&Table::drop_nulls>("drop_nulls"),
-                       InstanceMethod<&Table::drop_duplicates>("drop_duplicates"),
+                       InstanceMethod<&Table::drop_duplicates>("dropDuplicates"),
                        StaticMethod<&Table::full_join>("fullJoin"),
                        StaticMethod<&Table::inner_join>("innerJoin"),
                        StaticMethod<&Table::left_join>("leftJoin"),
