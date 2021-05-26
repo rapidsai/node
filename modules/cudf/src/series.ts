@@ -907,14 +907,23 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
-   * Removes duplicate values from the Series.
+   * Returns a new Series with only the unique values that were found in the original
    *
    * @param nullsEqual Determines whether nulls are handled as equal values.
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns series without duplicate values
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([null, null, 1, 2, 3, 3]).unique(true) // [null, 1, 2, 3]
+   * Series.new([null, null, 1, 2, 3, 3]).unique(false) // [null, null, 1, 2, 3]
+   * ```
    */
   unique(nullsEqual = true, memoryResource?: MemoryResource) {
-    return this.__construct(this._col.drop_duplicates(nullsEqual, memoryResource));
+    return this.dropDuplicates([0], 'keep_first', nullsEqual, true, memoryResource);
   }
 
   /**
