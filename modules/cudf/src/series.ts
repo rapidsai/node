@@ -19,11 +19,13 @@ import {VectorType} from 'apache-arrow/interfaces';
 
 import {Column, ColumnProps} from './column';
 import {fromArrow} from './column/from_arrow';
+import {ColumnAccessor} from './column_accessor';
 import {DataFrame} from './data_frame';
 import {Scalar} from './scalar';
 import {Table} from './table';
 import {
   Bool8,
+  Categorical,
   DataType,
   Float32,
   Float64,
@@ -32,6 +34,7 @@ import {
   Int32,
   Int64,
   Int8,
+  Integral,
   List,
   Numeric,
   Struct,
@@ -91,8 +94,8 @@ export type SeriesProps<T extends DataType = any> = {
 export type SequenceOptions<U extends Numeric = any> = {
   type: U,
   size: number,
-  init: number,
-  step?: number,
+  init: U['scalarType'],
+  step?: U['scalarType'],
   memoryResource?: MemoryResource
 };
 
@@ -140,7 +143,7 @@ export type Series<T extends arrow.DataType = any> = {
   [arrow.Type.FixedSizeBinary]: never,  // TODO
   [arrow.Type.FixedSizeList]: never,    // TODO
   [arrow.Type.Map]: never,              // TODO
-  [arrow.Type.Dictionary]: never,       // TODO
+  [arrow.Type.Dictionary]: CategoricalSeries<(T extends arrow.Dictionary ? T['valueType'] : any)>
 }[T['TType']];
 
 /**
@@ -398,6 +401,59 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   countNonNulls(): number { return this._col.length - this._col.nullCount; }
+
+  /**
+   * Encode the Series values into integer labels.
+   *
+   *
+   * @param categories The optional Series of values to encode into integers. Defaults to the unique
+   *   elements in this Series.
+   * @param type The optional integer DataType to use for the returned Series. Defaults to Int32.
+   * @param nullSentinel The optional value used to indicate missing category. Defaults to -1.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A sequence of encoded integer labels with values between `0` and `n-1` categories, and
+   *   `nullSentinel` for any null values
+   */
+  encodeLabels<R extends Integral = Int32>(categories: Series<T>         = this.unique(true),
+                                           type: R                       = new Int32 as R,
+                                           nullSentinel: R['scalarType'] = -1,
+                                           memoryResource?: MemoryResource): Series<R> {
+    try {
+      // If there is a failure casting to the current dtype, catch the exception and return encoded
+      // labels with all values set to `nullSentinel`, since this means the Column cannot contain
+      // any of the encoded categories.
+      categories = categories.cast(this.type);
+    } catch {
+      return Series.sequence(
+        {type, init: nullSentinel, step: 0, memoryResource, size: this.length});
+    }
+    //
+    // 1. Join this Series' values with the `categories` Series to determine the index positions
+    //    (i.e. `codes`) of the values to keep.
+    // 2. Sort the codes by the original value's position in this Series.
+    // 3. Replace missing codes with `nullSentinel`.
+    //
+    // Note: Written as a single expression so the intermediate memory allocated for the `join` and
+    // `sortValues` calls are GC'd as soon as possible.
+    //
+    return new DataFrame(new ColumnAccessor({
+             value: this._col,
+             order: Series.sequence({type: new Int32, init: 0, step: 1, size: this.length})._col
+           }))
+             .join({
+               on: ['value'],
+               how: 'left',
+               nullEquality: true,
+               other: new DataFrame(new ColumnAccessor({
+                 value: categories._col as Column<T>,
+                 codes: Series.sequence({type, init: 0, step: 1, size: categories.length})._col
+               })),
+             })
+             .sortValues({order: {ascending: true}})
+             .get('codes')
+             .replaceNulls(nullSentinel, memoryResource) as Series<R>;
+  }
 
   /**
    * Fills a range of elements in a column out-of-place with a scalar value.
@@ -760,12 +816,13 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([true, false, true, true, false]).orderBy(false) // [0, 2, 3, 1, 4]
    *
    * // NullOrder usage
-   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, NullOrder.BEFORE) // [0, 1, 2, 3, 4, 5]
-   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, NullOrder.AFTER) // [5, 0, 1, 2, 3, 4]
+   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, 'BEFORE') // [0, 1, 2, 3, 4, 5]
+   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, 'AFTER') // [5, 0, 1, 2, 3, 4]
    * ```
    */
-  orderBy(ascending = true, null_order: NullOrder = NullOrder.BEFORE) {
-    return Series.new(new Table({columns: [this._col]}).orderBy([ascending], [null_order]));
+  orderBy(ascending = true, null_order: keyof typeof NullOrder = 'AFTER') {
+    return Series.new(
+      new Table({columns: [this._col]}).orderBy([ascending], [NullOrder[null_order]]));
   }
 
   /**
@@ -797,14 +854,14 @@ export class AbstractSeries<T extends DataType = any> {
    * false, false]
    *
    * // NullOrder usage
-   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, NullOrder.BEFORE) // [50, 40, 30, 20,
+   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, 'BEFORE') // [50, 40, 30, 20,
    * 10, null]
    *
-   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, NullOrder.AFTER) // [null, 50, 40, 30,
+   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, 'AFTER') // [null, 50, 40, 30,
    * 20, 10]
    * ```
    */
-  sortValues(ascending = true, null_order: NullOrder = NullOrder.BEFORE): Series<T> {
+  sortValues(ascending = true, null_order: keyof typeof NullOrder = 'AFTER'): Series<T> {
     return this.gather(this.orderBy(ascending, null_order));
   }
 
@@ -928,6 +985,7 @@ Object.defineProperty(Series.prototype, '__construct', {
 });
 
 import {Bool8Series} from './series/bool';
+import {CategoricalSeries} from './series/categorical';
 import {Float32Series, Float64Series} from './series/float';
 import {
   Int8Series,
@@ -1123,7 +1181,7 @@ const columnToSeries = (() => {
     public visitStruct               <T extends Struct>(col: Column<T>) { return new (StructSeries as any)(col); }
     // public visitDenseUnion           <T extends DenseUnion>(col: Column<T>) { return new (DenseUnionSeries as any)(col); }
     // public visitSparseUnion          <T extends SparseUnion>(col: Column<T>) { return new (SparseUnionSeries as any)(col); }
-    // public visitDictionary           <T extends Dictionary>(col: Column<T>) { return new (DictionarySeries as any)(col); }
+    public visitDictionary           <T extends Categorical>(col: Column<T>) { return new (CategoricalSeries as any)(col); }
     // public visitIntervalDayTime      <T extends IntervalDayTime>(col: Column<T>) { return new (IntervalDayTimeSeries as any)(col); }
     // public visitIntervalYearMonth    <T extends IntervalYearMonth>(col: Column<T>) { return new (IntervalYearMonthSeries as any)(col); }
     // public visitFixedSizeList        <T extends FixedSizeList>(col: Column<T>) { return new (FixedSizeListSeries as any)(col); }

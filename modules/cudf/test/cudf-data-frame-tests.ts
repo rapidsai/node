@@ -21,7 +21,6 @@ import {
   GroupBySingle,
   Int32,
   Int8,
-  NullOrder,
   Series,
   Table
 } from '@rapidsai/cudf';
@@ -153,7 +152,7 @@ test('DataFrame.drop', () => {
 test('DataFrame.orderBy (ascending, non-null)', () => {
   const col    = Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: true, null_order: NullOrder.BEFORE}});
+  const result = df.orderBy({'a': {ascending: true, null_order: 'BEFORE'}});
 
   const expected = [5, 0, 4, 1, 3, 2];
   expect([...result]).toEqual([...Buffer.from(expected)]);
@@ -162,7 +161,7 @@ test('DataFrame.orderBy (ascending, non-null)', () => {
 test('DataFrame.orderBy (descending, non-null)', () => {
   const col    = Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: false, null_order: NullOrder.BEFORE}});
+  const result = df.orderBy({'a': {ascending: false, null_order: 'BEFORE'}});
 
   const expected = [2, 3, 1, 4, 0, 5];
   expect([...result]).toEqual([...Buffer.from(expected)]);
@@ -173,7 +172,7 @@ test('DataFrame.orderBy (ascending, null before)', () => {
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: true, null_order: NullOrder.BEFORE}});
+  const result = df.orderBy({'a': {ascending: true, null_order: 'BEFORE'}});
 
   const expected = [1, 5, 0, 4, 3, 2];
   expect([...result]).toEqual([...Buffer.from(expected)]);
@@ -184,7 +183,7 @@ test('DataFrame.orderBy (ascending, null after)', () => {
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: true, null_order: NullOrder.AFTER}});
+  const result = df.orderBy({'a': {ascending: true, null_order: 'AFTER'}});
 
   const expected = [5, 0, 4, 3, 2, 1];
   expect([...result]).toEqual([...Buffer.from(expected)]);
@@ -195,7 +194,7 @@ test('DataFrame.orderBy (descendng, null before)', () => {
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: false, null_order: NullOrder.BEFORE}});
+  const result = df.orderBy({'a': {ascending: false, null_order: 'BEFORE'}});
 
   const expected = [2, 3, 4, 0, 5, 1];
 
@@ -207,7 +206,7 @@ test('DataFrame.orderBy (descending, null after)', () => {
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: false, null_order: NullOrder.AFTER}});
+  const result = df.orderBy({'a': {ascending: false, null_order: 'AFTER'}});
 
   const expected = [1, 2, 3, 4, 0, 5];
   expect([...result]).toEqual([...Buffer.from(expected)]);

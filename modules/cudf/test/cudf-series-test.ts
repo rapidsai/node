@@ -26,7 +26,6 @@ import {
   Float64,
   Int32,
   Int64,
-  NullOrder,
   Series,
   TimestampDay,
   TimestampMicrosecond,
@@ -284,7 +283,7 @@ describe('toArrow()', () => {
 
 test('Series.orderBy (ascending, non-null)', () => {
   const col    = Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
-  const result = col.orderBy(true, NullOrder.BEFORE);
+  const result = col.orderBy(true, 'BEFORE');
 
   const expected = [5, 0, 4, 1, 3, 2];
   expect([...result]).toEqual(expected);
@@ -292,7 +291,7 @@ test('Series.orderBy (ascending, non-null)', () => {
 
 test('Series.orderBy (descending, non-null)', () => {
   const col    = Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
-  const result = col.orderBy(false, NullOrder.BEFORE);
+  const result = col.orderBy(false, 'BEFORE');
 
   const expected = [2, 3, 1, 4, 0, 5];
   expect([...result]).toEqual(expected);
@@ -302,7 +301,7 @@ test('Series.orderBy (ascending, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.orderBy(true, NullOrder.BEFORE);
+  const result = col.orderBy(true, 'BEFORE');
 
   const expected = [1, 5, 0, 4, 3, 2];
   expect([...result]).toEqual(expected);
@@ -312,7 +311,7 @@ test('Series.orderBy (ascending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.orderBy(true, NullOrder.AFTER);
+  const result = col.orderBy(true, 'AFTER');
 
   const expected = [5, 0, 4, 3, 2, 1];
   expect([...result]).toEqual(expected);
@@ -322,7 +321,7 @@ test('Series.orderBy (descendng, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.orderBy(false, NullOrder.BEFORE);
+  const result = col.orderBy(false, 'BEFORE');
 
   const expected = [2, 3, 4, 0, 5, 1];
 
@@ -333,7 +332,7 @@ test('Series.orderBy (descending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.orderBy(false, NullOrder.AFTER);
+  const result = col.orderBy(false, 'AFTER');
 
   const expected = [1, 2, 3, 4, 0, 5];
   expect([...result]).toEqual(expected);
