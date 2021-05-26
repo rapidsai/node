@@ -916,6 +916,27 @@ export class AbstractSeries<T extends DataType = any> {
   unique(nullsEqual = true, memoryResource?: MemoryResource) {
     return this.__construct(this._col.drop_duplicates(nullsEqual, memoryResource));
   }
+
+  /**
+   * Returns a new Series with duplicate values from the original removed
+   *
+   * @param keys The indices of columns that should be considered when searching for duplicate
+   *   values
+   * @param keep Determines whether to keep the first, last, or none of the duplicate items.
+   * @param nullsEqual Determines whether nulls are handled as equal values.
+   * @param nullsFirst Determines whether null values are inserted before or after non-null values
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   * @returns series without duplicate values
+   */
+  dropDuplicates(keys: number[],
+                 keep: keyof typeof DuplicateKeepOption,
+                 nullsEqual: boolean,
+                 nullsFirst: boolean,
+                 memoryResource?: MemoryResource) {
+    return Series.new(new Table({columns: [this._col]})
+                        .dropDuplicates(keys, keep, nullsEqual, nullsFirst, memoryResource)
+                        .getColumnByIndex(0));
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
