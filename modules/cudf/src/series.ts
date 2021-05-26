@@ -939,9 +939,10 @@ export class AbstractSeries<T extends DataType = any> {
                  nullsEqual: boolean,
                  nullsFirst: boolean,
                  memoryResource?: MemoryResource) {
-    return Series.new(new Table({columns: [this._col]})
-                        .dropDuplicates([0], keep, nullsEqual, nullsFirst, memoryResource)
-                        .getColumnByIndex(0));
+    return Series.new(
+      new Table({columns: [this._col]})
+        .dropDuplicates([0], DuplicateKeepOption[keep], nullsEqual, nullsFirst, memoryResource)
+        .getColumnByIndex(0));
   }
 }
 

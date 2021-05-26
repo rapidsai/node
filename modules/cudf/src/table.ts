@@ -185,7 +185,7 @@ export interface Table {
   drop_nans(keys: number[], threshold: number): Table;
   drop_nulls(keys: number[], threshold: number): Table;
   dropDuplicates(keys: number[],
-                 keep: keyof typeof DuplicateKeepOption,
+                 keep: DuplicateKeepOption,
                  nullsEqual: boolean,
                  nullsFirst: boolean,
                  memoryResource?: MemoryResource): Table;
