@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Struct | RAPIDS</title>
+	<title>Categorical | RAPIDS</title>
 	<meta name="description" content="Documentation for RAPIDS">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="../modules/cudf_src.html">cudf/src</a>
 				</li>
 				<li>
-					<a href="cudf_src.struct.html">Struct</a>
+					<a href="cudf_src.categorical.html">Categorical</a>
 				</li>
 			</ul>
-			<h1>Class Struct&lt;T&gt;</h1>
+			<h1>Class Categorical&lt;T&gt;</h1>
 		</div>
 	</div>
 </header>
@@ -70,7 +70,7 @@
 				<h3>Type parameters</h3>
 				<ul class="tsd-type-parameters">
 					<li>
-						<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#typemap" class="tsd-signature-type" data-tsd-kind="Type alias">TypeMap</a> = <span class="tsd-signature-type">any</span></h4>
+						<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#datatype" class="tsd-signature-type" data-tsd-kind="Type alias">DataType</a> = <span class="tsd-signature-type">any</span></h4>
 					</li>
 				</ul>
 			</section>
@@ -78,10 +78,10 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">Struct</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span>
+						<span class="tsd-signature-type">Dictionary</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">, </span><a href="cudf_src.int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">Struct</span>
+								<span class="target">Categorical</span>
 							</li>
 						</ul>
 					</li>
@@ -94,14 +94,13 @@
 						<section class="tsd-index-section tsd-is-inherited">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited"><a href="cudf_src.struct.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited"><a href="cudf_src.categorical.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="cudf_src.struct.html#childtypes" class="tsd-kind-icon">child<wbr>Types</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="cudf_src.struct.html#scalartype" class="tsd-kind-icon">scalar<wbr>Type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="cudf_src.categorical.html#scalartype" class="tsd-kind-icon">scalar<wbr>Type</a></li>
 							</ul>
 						</section>
 					</div>
@@ -113,29 +112,35 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Struct&lt;T&gt;<span class="tsd-signature-symbol">(</span>children<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Field</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Categorical&lt;T&gt;<span class="tsd-signature-symbol">(</span>dictionary<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span>, id<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, isOrdered<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.categorical.html" class="tsd-signature-type" data-tsd-kind="Class">Categorical</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from arrow.Struct&lt;T&gt;.constructor</p>
+								<p>Inherited from arrow.Dictionary&lt;T, Int32&gt;.constructor</p>
 								<ul>
-									<li>Defined in node_modules/apache-arrow/type.d.ts:464</li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/0b893c2/modules/cudf/src/types/dtypes.ts#L151">modules/cudf/src/types/dtypes.ts:151</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
-									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#typemap" class="tsd-signature-type" data-tsd-kind="Type alias">TypeMap</a> = <span class="tsd-signature-type">any</span></h4>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><a href="../modules/cudf_src.html#indextype" class="tsd-signature-type" data-tsd-kind="Type alias">IndexType</a><span class="tsd-signature-symbol"> | </span><a href="cudf_src.int64.html" class="tsd-signature-type" data-tsd-kind="Class">Int64</a><span class="tsd-signature-symbol"> | </span><a href="cudf_src.uint64.html" class="tsd-signature-type" data-tsd-kind="Class">Uint64</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#floatingpoint" class="tsd-signature-type" data-tsd-kind="Type alias">FloatingPoint</a><span class="tsd-signature-symbol"> | </span><a href="cudf_src.bool8.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><a href="cudf_src.utf8string.html" class="tsd-signature-type" data-tsd-kind="Class">Utf8String</a><span class="tsd-signature-symbol"> | </span><a href="cudf_src.list.html" class="tsd-signature-type" data-tsd-kind="Class">List</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#timestamp" class="tsd-signature-type" data-tsd-kind="Type alias">Timestamp</a><span class="tsd-signature-symbol"> | </span><a href="cudf_src.categorical.html" class="tsd-signature-type" data-tsd-kind="Class">Categorical</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span> = <span class="tsd-signature-type">any</span></h4>
 								</li>
 							</ul>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>children: <span class="tsd-signature-type">Field</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
+									<h5>dictionary: <span class="tsd-signature-type">T</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> id: <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> isOrdered: <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cudf_src.struct.html" class="tsd-signature-type" data-tsd-kind="Class">Struct</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.categorical.html" class="tsd-signature-type" data-tsd-kind="Class">Categorical</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -143,22 +148,12 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="childtypes" class="tsd-anchor"></a>
-					<h3>child<wbr>Types</h3>
-					<div class="tsd-signature tsd-kind-icon">child<wbr>Types<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/0b893c2/modules/cudf/src/types/dtypes.ts#L118">modules/cudf/src/types/dtypes.ts:118</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="scalartype" class="tsd-anchor"></a>
 					<h3>scalar<wbr>Type</h3>
-					<div class="tsd-signature tsd-kind-icon">scalar<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{</span><span class="tsd-signature-symbol">[ </span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol"> in </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;scalarType&quot;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol"> }</span></div>
+					<div class="tsd-signature tsd-kind-icon">scalar<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">&quot;scalarType&quot;</span><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/0b893c2/modules/cudf/src/types/dtypes.ts#L119">modules/cudf/src/types/dtypes.ts:119</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/0b893c2/modules/cudf/src/types/dtypes.ts#L149">modules/cudf/src/types/dtypes.ts:149</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -201,16 +196,13 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class tsd-parent-kind-module tsd-has-type-parameter">
-						<a href="cudf_src.struct.html" class="tsd-kind-icon">Struct</a>
+						<a href="cudf_src.categorical.html" class="tsd-kind-icon">Categorical</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
-								<a href="cudf_src.struct.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="cudf_src.categorical.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="cudf_src.struct.html#childtypes" class="tsd-kind-icon">child<wbr>Types</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="cudf_src.struct.html#scalartype" class="tsd-kind-icon">scalar<wbr>Type</a>
+								<a href="cudf_src.categorical.html#scalartype" class="tsd-kind-icon">scalar<wbr>Type</a>
 							</li>
 						</ul>
 					</li>
