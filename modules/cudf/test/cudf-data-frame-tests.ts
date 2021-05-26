@@ -671,7 +671,7 @@ test('dataframe.isNotNull', () => {
 });
 
 describe('dataframe.concat', () => {
-  test('concat to single column', () => {
+  test('one series in common', () => {
     const a   = Series.new([1, 2, 3, 4]);
     const b   = Series.new([5, 6, 7, 8]);
     const c   = Series.new([9, 10, 11, 12]);
@@ -680,19 +680,20 @@ describe('dataframe.concat', () => {
 
     const result = dfa.concat(dfb);
 
+    expect([...result.get('a')]).toEqual([...a, null, null, null, null]);
     expect([...result.get('b')]).toEqual([...b, ...b]);
+    expect([...result.get('c')]).toEqual([null, null, null, null, ...c]);
   });
 
-  // test('concat to different column', () => {
-  //   const a   = Series.new([1, 2, 3, 4]);
-  //   const dfa = new DataFrame({'a': a});
+  test('two series in common', () => {
+    const a   = Series.new([1, 2, 3, 4]);
+    const b   = Series.new([5, 6, 7, 8]);
+    const dfa = new DataFrame({'a': a, 'b': b});
+    const dfb = new DataFrame({'a': a, 'b': b});
 
-  //   const b   = Series.new([1, 2, 3, 4]);
-  //   const dfb = new DataFrame({'b': b});
+    const result = dfa.concat(dfb);
 
-  //   const result = dfa.concat(dfb);
-
-  // expect([...result.get('a')]).toEqual([...a, null, null, null]);
-  // expect([...result.get('b')]).toEqual([...b, null, null, null]);
-  // });
+    expect([...result.get('a')]).toEqual([...a, ...a]);
+    expect([...result.get('b')]).toEqual([...b, ...b]);
+  });
 });

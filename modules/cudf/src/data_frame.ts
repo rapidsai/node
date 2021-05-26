@@ -70,12 +70,12 @@ function _invokeIfNumericSeries<P extends keyof T, T extends TypeMap, R extends 
   return Series.new(series._col as Column<R>);
 }
 
-function concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataFrame<T> {
-  const allNames = [...dfs
-                      .reduce((namesMap, df) => df.names.reduce(
-                                (namesMap, name) => namesMap.set(name, true), namesMap),
-                              new Map<string, boolean>())
-                      .keys()];
+function concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataFrame {
+  const all_column_names = [...dfs
+                              .reduce((namesMap, df) => df.names.reduce(
+                                        (namesMap, name) => namesMap.set(name, true), namesMap),
+                                      new Map<string, boolean>())
+                              .keys()];
 
   /**
    * Array<Array<(Column|null)>> -- If a DF has a Column for a given name, it will be in the list
@@ -89,57 +89,68 @@ function concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataFr
    * ]
    * ```
    */
-  const columnsPerDF =
-    dfs.map((df) => allNames.map((name) => df.has(name) ? df.get(name)._col : null));
+  const columns_per_df: any[][] =
+    dfs.map((df) => all_column_names.map((name) => df.has(name) ? df.get(name)._col : null));
 
-  // Get first non null dtype, refactor before PR
+  // TODO MZEGAR: Consider throwing if [0] doesn't exist.
+  const num_of_cols = columns_per_df[0].length;
+  const num_of_rows = columns_per_df.length;
+
   /**
-   * [
-   * [float, float, float],
-   * ]
+   * Array<[number, DataType]> -- Find the first non null dtype in each column, save the column
+   * index and dtype in a tuple.
+   * ```
+   * [[0, float], [1, float], [2, float]],
+   * ```
    */
-  const firstNonNullDType: any[] = Array(columnsPerDF[0].length).fill(null);
-  for (let colIdx = 0; colIdx < columnsPerDF[0].length; ++colIdx) {
-    const numRows = columnsPerDF.length;
-    for (let rowIdx = 0; rowIdx < numRows; ++rowIdx) {
-      if (columnsPerDF[rowIdx][colIdx] !== null) {
-        firstNonNullDType[colIdx] = columnsPerDF[rowIdx][colIdx].type;
-        // Can break after first found
-      }
+  const first_non_null_dtype: [number, DataType][] = Array(num_of_cols).fill(null);
+  first_non_null_dtype.forEach((_, col_idx) => {
+    for (let row_idx = 0; row_idx < num_of_rows; ++row_idx) {
+      const col = columns_per_df[row_idx][col_idx];
+      if (col !== null) { first_non_null_dtype[col_idx] = [row_idx, col.type]; }
     }
-  }
+  });
 
-  const commonTypes: any[] = Array(columnsPerDF[0].length).fill(null);
-  // Find common dtype
-  for (let colIdx = 0; colIdx < columnsPerDF[0].length; ++colIdx) {
-    const numRows = columnsPerDF.length;
-    for (let rowIdx = 0; rowIdx < numRows; ++rowIdx) {
-      if (columnsPerDF[rowIdx][colIdx] !== null) {
-        commonTypes[colIdx] =
-          findCommonType(firstNonNullDType[colIdx], columnsPerDF[rowIdx][colIdx].type);
-      }
+  // TODO MZEGAR: If one of the items in [first_non_null_dtype] is null, consider throwing.
+
+  /**
+   * Find the common dtype in each column.
+   */
+  const common_dtypes: any[] = first_non_null_dtype.map((tuple) => { return tuple[1]; });
+  first_non_null_dtype.forEach((tuple, col_idx) => {
+    const start_idx =
+      tuple[0] + 1;  // The starting idx should be one after the first non null dtype
+    for (let row_idx = start_idx; row_idx < num_of_rows; ++row_idx) {
+      const col = columns_per_df[row_idx][col_idx];
+      if (col !== null) { common_dtypes[col_idx] = findCommonType(tuple[1], col.type); }
     }
-  }
+  });
 
-  for (let colIdx = 0; colIdx < columnsPerDF[0].length; ++colIdx) {
-    const numRows = columnsPerDF.length;
-    for (let rowIdx = 0; rowIdx < numRows; ++rowIdx) {
-      if (columnsPerDF[rowIdx][colIdx] === null) {
-        columnsPerDF[rowIdx][colIdx] = new Column({
-          type: commonTypes[colIdx],
-          data: new Array<null>(4)
-        });  // TODO: Actually get proper array length
+  // TODO MZEGAR: If any of the common_dtypes are null, throw?
+
+  /**
+   * If any columns are null, create an empty column with type of common dtype
+   * Otherwise cast the column using the common dtype
+   */
+  common_dtypes.forEach((common_dtype, col_idx) => {
+    for (let row_idx = 0; row_idx < num_of_rows; ++row_idx) {
+      if (columns_per_df[row_idx][col_idx] === null) {
+        const empty_column_length =
+          columns_per_df.reduce((row) => row.find((col) => col !== null)).length;
+        columns_per_df[row_idx][col_idx] =
+          new Column({type: common_dtype, data: new Array(empty_column_length)});
       } else {
-        columnsPerDF[rowIdx][colIdx].cast(commonTypes[colIdx]);
+        columns_per_df[row_idx][col_idx].cast(common_dtype);
       }
     }
-  }
+  });
 
+  // TODO MZEGAR: Use some nifty lambda expression for this.
   const tables: Table[] = [];
-  columnsPerDF.forEach((column) => { tables.push(new Table({columns: column})); });
+  columns_per_df.forEach((column) => { tables.push(new Table({columns: column})); });
   const concatenatedTable = Table.concat(tables);
 
-  return new DataFrame(allNames.reduce(
+  return new DataFrame(all_column_names.reduce(
     (map, name, index) => ({...map, [name]: Series.new(concatenatedTable.getColumnByIndex(index))}),
     {} as SeriesMap<T>));
 }
@@ -420,7 +431,7 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   // TODO: MZEGAR write docstrings
-  concat<DFs extends DataFrame[]>(...dfs: DFs): DataFrame<T> { return concat(...[this, ...dfs]); }
+  concat<DFs extends DataFrame[]>(...dfs: DFs): DataFrame { return concat(...[this, ...dfs]); }
 
   /**
    * Generate an ordering that sorts DataFrame columns in a specified way
