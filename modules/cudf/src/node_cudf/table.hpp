@@ -208,6 +208,8 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Napi::Value gather(Napi::CallbackInfo const& info);
   Napi::Value scatter_scalar(Napi::CallbackInfo const& info);
   Napi::Value scatter_table(Napi::CallbackInfo const& info);
+  // table/concatenate.cpp
+  static Napi::Value concat(Napi::CallbackInfo const& info);
   // table/join.cpp
   static Napi::Value full_join(Napi::CallbackInfo const& info);
   static Napi::Value inner_join(Napi::CallbackInfo const& info);

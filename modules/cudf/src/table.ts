@@ -45,6 +45,9 @@ interface TableConstructor {
   readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>):
     {names: (keyof T)[], table: Table};
 
+  // TODO MZEGAR: write docstrings
+  concat(tables: Table[], memoryResource?: MemoryResource): Table;
+
   /**
    * Returns a pair of row index vectors corresponding to a full (outer) join between the specified
    * tables.
