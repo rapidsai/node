@@ -923,25 +923,44 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   unique(nullsEqual = true, memoryResource?: MemoryResource) {
-    return this.dropDuplicates('keep_first', nullsEqual, true, memoryResource);
+    return this.dropDuplicates(true, nullsEqual, true, memoryResource);
   }
 
   /**
    * Returns a new Series with duplicate values from the original removed
    *
-   * @param keep Determines whether to keep the first, last, or none of the duplicate items.
+   * @param keep Determines whether or not to keep the duplicate items.
    * @param nullsEqual Determines whether nulls are handled as equal values.
    * @param nullsFirst Determines whether null values are inserted before or after non-null values
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns series without duplicate values
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([4, null, 1, 2, null, 3, 4]).dropDuplicates(
+   *   true,
+   *   true,
+   *   true
+   * ) // [null, 1, 2, 3, 4]
+   *
+   * Series.new([4, null, 1, 2, null, 3, 4]).dropDuplicates(
+   *   false,
+   *   true,
+   *   true
+   * ) // [1, 2, 3]
+   * ```
    */
-  dropDuplicates(keep: keyof typeof DuplicateKeepOption,
+  dropDuplicates(keep: boolean,
                  nullsEqual: boolean,
                  nullsFirst: boolean,
                  memoryResource?: MemoryResource) {
     return Series.new(
       new Table({columns: [this._col]})
-        .dropDuplicates([0], DuplicateKeepOption[keep], nullsEqual, nullsFirst, memoryResource)
+        .dropDuplicates(
+          [0], DuplicateKeepOption[keep ? 'first' : 'none'], nullsEqual, nullsFirst, memoryResource)
         .getColumnByIndex(0));
   }
 }
