@@ -47,6 +47,7 @@ import {
   Utf8String,
 } from './types/dtypes';
 import {
+  DuplicateKeepOption,
   NullOrder,
 } from './types/enums';
 import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';

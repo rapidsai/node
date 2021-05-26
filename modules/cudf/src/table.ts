@@ -18,8 +18,8 @@ import {Column} from './column';
 import {Scalar} from './scalar';
 import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
-import {NullOrder} from './types/enums';
-import {DuplicateKeepOption, TypeMap} from './types/mappings';
+import {DuplicateKeepOption, NullOrder} from './types/enums';
+import {TypeMap} from './types/mappings';
 
 export type ToArrowMetadata = [string | number, ToArrowMetadata[]?];
 
