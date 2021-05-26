@@ -61,7 +61,8 @@ Napi::Value Table::drop_nans(Napi::CallbackInfo const& info) {
   return drop_nans(args[0], args[1], args[2]);
 }
 
-Table::wrapper_t Table::drop_duplicates(cudf::duplicate_keep_option keep,
+Table::wrapper_t Table::drop_duplicates(std::vector<cudf::size_type> keys,
+                                        cudf::duplicate_keep_option keep,
                                         bool is_nulls_equal,
                                         bool is_nulls_first,
                                         rmm::mr::device_memory_resource* mr) const {
@@ -77,7 +78,7 @@ Table::wrapper_t Table::drop_duplicates(cudf::duplicate_keep_option keep,
 
 Napi::Value Table::drop_duplicates(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return drop_duplicates(args[0], args[1], args[2], args[3]);
+  return drop_duplicates(args[0], args[1], args[2], args[3], args[4]);
 }
 
 }  // namespace nv

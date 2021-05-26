@@ -184,8 +184,11 @@ export interface Table {
 
   drop_nans(keys: number[], threshold: number): Table;
   drop_nulls(keys: number[], threshold: number): Table;
-  drop_duplicates(keep: keyof typeof DuplicateKeepOption, nullsEqual: boolean, nullsFirst: boolean):
-    Table;
+  dropDuplicates(keys: number[],
+                 keep: keyof typeof DuplicateKeepOption,
+                 nullsEqual: boolean,
+                 nullsFirst: boolean,
+                 memoryResource?: MemoryResource): Table;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

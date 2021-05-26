@@ -138,6 +138,7 @@ struct Table : public EnvLocalObjectWrap<Table> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   Table::wrapper_t drop_duplicates(
+    std::vector<cudf::size_type> keys,
     cudf::duplicate_keep_option keep,
     bool nulls_equal,
     bool is_nulls_first,
