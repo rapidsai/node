@@ -72,7 +72,8 @@ Table::wrapper_t Table::drop_duplicates(std::vector<cudf::size_type> keys,
     is_nulls_first ? cudf::null_order::BEFORE : cudf::null_order::AFTER;
 
   try {
-    return Table::New(Env(), cudf::drop_duplicates(*this, {0}, keep, nulls_equal, nulls_first, mr));
+    return Table::New(Env(),
+                      cudf::drop_duplicates(*this, keys, keep, nulls_equal, nulls_first, mr));
   } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
