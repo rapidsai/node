@@ -70,7 +70,7 @@ function _invokeIfNumericSeries<P extends keyof T, T extends TypeMap, R extends 
   return Series.new(series._col as Column<R>);
 }
 
-function concat<DFs extends DataFrame[]>(...dfs: DFs) {
+function concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataFrame<T> {
   const allNames = [...dfs
                       .reduce((namesMap, df) => df.names.reduce(
                                 (namesMap, name) => namesMap.set(name, true), namesMap),
@@ -138,7 +138,10 @@ function concat<DFs extends DataFrame[]>(...dfs: DFs) {
   const tables: Table[] = [];
   columnsPerDF.forEach((column) => { tables.push(new Table({columns: column})); });
   const concatenatedTable = Table.concat(tables);
-  console.log(concatenatedTable);
+
+  return new DataFrame(allNames.reduce(
+    (map, name, index) => ({...map, [name]: Series.new(concatenatedTable.getColumnByIndex(index))}),
+    {} as SeriesMap<T>));
 }
 
 /**
@@ -417,7 +420,7 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   // TODO: MZEGAR write docstrings
-  concat<DFs extends DataFrame[]>(...dfs: DFs) { return concat(...[this, ...dfs]); }
+  concat<DFs extends DataFrame[]>(...dfs: DFs): DataFrame<T> { return concat(...[this, ...dfs]); }
 
   /**
    * Generate an ordering that sorts DataFrame columns in a specified way

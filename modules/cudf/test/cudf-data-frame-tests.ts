@@ -680,7 +680,7 @@ describe('dataframe.concat', () => {
 
     const result = dfa.concat(dfb);
 
-    // expect([...result.get('a')]).toEqual([...a, ...a]);
+    expect([...result.get('b')]).toEqual([...b, ...b]);
   });
 
   // test('concat to different column', () => {
