@@ -637,3 +637,19 @@ test('Series initialization with Date', () => {
   expect(val?.getUTCSeconds()).toBe(30);
   expect(val?.getUTCMilliseconds()).toBe(100);
 });
+
+test.each`
+keep     | nullsEqual | nullsFirst | data                           | expected
+${true}  | ${true}    | ${true}    | ${[4, null, 1, 2, null, 3, 4]} | ${[null, 1, 2, 3, 4]}
+${false} | ${true}    | ${true}    | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3]}
+${true}  | ${true}    | ${false}   | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3, 4, null]}
+${false} | ${true}    | ${false}   | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3]}
+${true}  | ${false}   | ${true}    | ${[4, null, 1, 2, null, 3, 4]} | ${[null, null, 1, 2, 3, 4]}
+${false} | ${false}   | ${true}    | ${[4, null, 1, 2, null, 3, 4]} | ${[null, null, 1, 2, 3]}
+${true}  | ${false}   | ${false}   | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3, 4, null, null]}
+${false} | ${false}   | ${false}   | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3, null, null]}
+`('Series.dropDuplicates($keep, $nullsEqual, $nullsFirst)', ({keep, nullsEqual, nullsFirst, data, expected}) => {
+  const s      = Series.new({type: new Int32, data});
+  const result = s.dropDuplicates(keep, nullsEqual, nullsFirst);
+  expect([...result]).toEqual(expected);
+});
