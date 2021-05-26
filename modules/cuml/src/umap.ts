@@ -2,6 +2,7 @@ import {
   DataFrame,
   Float32,
   Float64,
+  // Int16,
   Int32,
   Int64,
   Int8,
@@ -33,20 +34,21 @@ export class UMAP {
     input.names.forEach((col) => {
       result = result.scatter(
         input.get(col),
-        Series.sequence({type: new Int32, init: _i, size: input.numRows, step: input.numColumns}));
+        Series.sequence({type: new Int32, init: _i * input.numRows, size: input.numRows, step: 1}));
+      // Series.sequence({type: new Int32, init: _i, size: input.numRows, step: input.numColumns}));
       _i++;
     });
     return result;
   }
 
-  private _series_to_dataframe(input: DeviceBuffer, n_samples: number, n_features: number):
-    DataFrame {
-    const input_series = Series.new({type: new Float32, data: input});
-    let result         = new DataFrame({});
-    for (let i = 0; i < n_features; i++) {
+  private _series_to_dataframe(input: DeviceBuffer, n_samples: number): DataFrame {
+    const input_series = Series.new({type: new Int8, data: input});
+    console.log([...input_series], input_series.length);
+    let result = new DataFrame({});
+    for (let i = 0; i < this._umap.nComponents; i++) {
       result = result.assign({
-        [i]: input_series.gather(
-          Series.sequence({type: new Int32, init: i * n_samples, size: n_samples, step: 1}))
+        [i]: input_series.gather(Series.sequence(
+          {type: new Int32, init: i, size: n_samples, step: this._umap.nComponents}))
       });
     }
     return result;
@@ -87,7 +89,7 @@ export class UMAP {
     const result = this._umap.transform(
       this._transform_input_to_device_buffer(X), n_samples, n_features, null, null, convertDType);
 
-    return this._series_to_dataframe(result, n_samples, n_features);
+    return this._series_to_dataframe(result, n_samples);
   }
 
   get embeddings(): DeviceBuffer { return this._umap.getEmbeddings(); }
