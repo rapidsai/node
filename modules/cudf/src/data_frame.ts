@@ -116,7 +116,7 @@ function _concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataF
    * [Float64, Int32, Float64]
    * ```
    */
-  const common_dtypes: any[] = first_non_null_dtype.map((tuple) => { return tuple[1]; });
+  const common_dtypes: DataType[] = first_non_null_dtype.map((tuple) => { return tuple[1]; });
   first_non_null_dtype.forEach((tuple, col_idx) => {
     const first_non_null_dtype_idx = tuple[0];
     const start_idx                = first_non_null_dtype_idx + 1;
