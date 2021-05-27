@@ -634,12 +634,11 @@ export class DataFrame<T extends TypeMap = any> {
    * @ignore
    */
   _dropNullsRows(thresh = 1, subset = this.names) {
-    const column_names: (keyof T)[] = [];
-    const column_indices: number[]  = [];
-    subset.forEach((col, idx) => {
-      if (this.names.includes(col)) {
-        column_names.push(col);
-        column_indices.push(idx);
+    const column_indices: number[] = [];
+    const allNames                 = this.names;
+    subset.forEach((col) => {
+      if (allNames.includes(col)) {
+        column_indices.push(allNames.indexOf(col));
       } else {
         throw new Error(`Unknown column name: ${col.toString()}`);
       }
@@ -647,23 +646,22 @@ export class DataFrame<T extends TypeMap = any> {
 
     const table_result = new Table({columns: this._accessor.columns});
     const result       = table_result.drop_nulls(column_indices, thresh);
-    return new DataFrame(this.names.reduce(
-      (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
-      {} as SeriesMap<T>));
+    return new DataFrame(
+      allNames.reduce((map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
+                      {} as SeriesMap<T>));
   }
   /**
    * drop rows with NaN values (float type only)
    * @ignore
    */
   _dropNaNsRows(thresh = 1, subset = this.names) {
-    const column_names: (keyof T)[] = [];
-    const column_indices: number[]  = [];
-    subset.forEach((col, idx) => {
-      if (this.names.includes(col) &&
+    const column_indices: number[] = [];
+    const allNames                 = this.names;
+    subset.forEach((col) => {
+      if (allNames.includes(col) &&
           [new Float32, new Float64].some((t) => this.get(col).type.compareTo(t))) {
-        column_names.push(col);
-        column_indices.push(idx);
-      } else if (!this.names.includes(col)) {
+        column_indices.push(allNames.indexOf(col));
+      } else if (!allNames.includes(col)) {
         throw new Error(`Unknown column name: ${col.toString()}`);
       } else {
         // col exists but not of floating type
@@ -672,9 +670,9 @@ export class DataFrame<T extends TypeMap = any> {
     });
     const table_result = new Table({columns: this._accessor.columns});
     const result       = table_result.drop_nans(column_indices, thresh);
-    return new DataFrame(this.names.reduce(
-      (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
-      {} as SeriesMap<T>));
+    return new DataFrame(
+      allNames.reduce((map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
+                      {} as SeriesMap<T>));
   }
   /**
    * drop columns with nulls
