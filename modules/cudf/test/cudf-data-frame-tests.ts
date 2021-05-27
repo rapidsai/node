@@ -670,3 +670,35 @@ test('dataframe.isNotNull', () => {
   expect([...result.get('b')]).toEqual([...expected_b]);
   expect([...result.get('c')]).toEqual([...expected_c]);
 });
+
+test.each`
+keep       | nullsEqual | nullsFirst | data                                                    | expected
+${'first'} | ${true}    | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[null, 1, 3, 4], [null, 5, 8, 4]]}
+${'last'}  | ${true}    | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[null, 1, 3, 4], [null, 5, 8, 4]]}
+${'none'}  | ${true}    | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3], [5, 8]]}
+${'first'} | ${false}   | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[null, null, 1, 3, 4], [null, null, 5, 8, 4]]}
+${'last'}  | ${false}   | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[null, null, 1, 3, 4], [null, null, 5, 8, 4]]}
+${'none'}  | ${false}   | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[null, null, 1, 3], [null, null, 5, 8]]}
+${'first'} | ${true}    | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3, 4, null], [5, 8, 4, null]]}
+${'last'}  | ${true}    | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3, 4, null], [5, 8, 4, null]]}
+${'none'}  | ${true}    | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3], [5, 8]]}
+${'first'} | ${false}   | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3, 4, null, null], [5, 8, 4, null, null]]}
+${'last'}  | ${false}   | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3, 4, null, null], [5, 8, 4, null, null]]}
+${'none'}  | ${false}   | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3, null, null], [5, 8, null, null]]}
+`('DataFrame.dropDuplicates($keep, $nullsEqual, $nullsFirst)', ({keep, nullsEqual, nullsFirst, data, expected}) => {
+  const a      = Series.new(data[0]);
+  const b      = Series.new(data[1]);
+  const df = new DataFrame({a, b});
+  const result = df.dropDuplicates(keep, nullsEqual, nullsFirst);
+  expect([...result.get('a')]).toEqual(expected[0]);
+  expect([...result.get('b')]).toEqual(expected[1]);
+});
+
+test(`DataFrame.dropDuplicates("first", true, true, ['a'])`, () => {
+  const a      = Series.new([4, null, 1, null, 3, 4]);
+  const b      = Series.new([2, null, 5, null, 8, 9]);
+  const df     = new DataFrame({a, b});
+  const result = df.dropDuplicates('first', true, true, ['a']);
+  expect([...result.get('a')]).toEqual([null, 1, 3, 4]);
+  expect([...result.get('b')]).toEqual([null, 5, 8, 2]);
+});
