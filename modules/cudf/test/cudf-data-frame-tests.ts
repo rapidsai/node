@@ -721,4 +721,19 @@ describe('dataframe.concat', () => {
     expect(result.get('a').type).toBeInstanceOf(Float64);
     expect([...result.get('a')]).toEqual([...a, ...a2]);
   });
+
+  test('array of dataframes', () => {
+    const a   = Series.new([1, 2, 3, 4]);
+    const b   = Series.new([5, 6, 7, 8]);
+    const c   = Series.new([9, 10, 11, 12]);
+    const dfa = new DataFrame({'a': a, 'b': b});
+    const dfb = new DataFrame({'b': b, 'c': c});
+    const dfc = new DataFrame({'a': a, 'c': c});
+
+    const result = dfa.concat(dfb, dfc);
+
+    expect([...result.get('a')]).toEqual([...a, null, null, null, null, ...a]);
+    expect([...result.get('b')]).toEqual([...b, ...b, null, null, null, null]);
+    expect([...result.get('c')]).toEqual([null, null, null, null, ...c, ...c]);
+  });
 });
