@@ -92,10 +92,6 @@ function _concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataF
   const columns_per_df: any[][] =
     dfs.map((df) => all_column_names.map((name) => df.has(name) ? df.get(name)._col : null));
 
-  if (columns_per_df.length === 0) {
-    throw new Error(`DataFrame(s) provided contain series with no length.`);
-  }
-
   const num_of_cols = columns_per_df[0].length;
   const num_of_rows = columns_per_df.length;
 
@@ -103,7 +99,7 @@ function _concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataF
    * Array<[number, DataType]> -- Find the first non null dtype in each column, save the column
    * index and dtype in a tuple.
    * ```
-   * [[0, float], [1, float], [2, float]],
+   * [[0, Float64], [1, Int32], [2, Float64]],
    * ```
    */
   const first_non_null_dtype: [number, DataType][] = Array(num_of_cols).fill(null);
@@ -114,36 +110,39 @@ function _concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataF
     }
   });
 
-  if (first_non_null_dtype.some((dtype) => dtype === null)) {
-    throw new Error(`Unable to find non-null type for one or more of the DataFrame series.`);
-  }
-
   /**
    * Find the common dtype in each column.
+   * ```
+   * [Float64, Int32, Float64]
+   * ```
    */
   const common_dtypes: any[] = first_non_null_dtype.map((tuple) => { return tuple[1]; });
   first_non_null_dtype.forEach((tuple, col_idx) => {
-    const start_idx =
-      tuple[0] + 1;  // The starting idx should be one after the first non null dtype
+    const first_non_null_dtype_idx = tuple[0];
+    const start_idx                = first_non_null_dtype_idx + 1;
     for (let row_idx = start_idx; row_idx < num_of_rows; ++row_idx) {
-      const col = columns_per_df[row_idx][col_idx];
-      if (col !== null) { common_dtypes[col_idx] = findCommonType(tuple[1], col.type); }
+      const first_non_null_dtype = tuple[1];
+      const col                  = columns_per_df[row_idx][col_idx];
+      if (col !== null) { common_dtypes[col_idx] = findCommonType(first_non_null_dtype, col.type); }
     }
   });
 
   /**
    * If any columns are null, create an empty column with type of common dtype
-   * Otherwise cast the column using the common dtype.
+   * Otherwise cast the column using the common dtype (if it isn't already the correct type).
    */
   common_dtypes.forEach((common_dtype, col_idx) => {
     for (let row_idx = 0; row_idx < num_of_rows; ++row_idx) {
-      if (columns_per_df[row_idx][col_idx] === null) {
+      const col = columns_per_df[row_idx][col_idx];
+      if (col === null) {
         const empty_column_length =
           columns_per_df.reduce((row) => row.find((col) => col !== null)).length;
         columns_per_df[row_idx][col_idx] =
           new Column({type: common_dtype, data: new Array(empty_column_length)});
       } else {
-        columns_per_df[row_idx][col_idx].cast(common_dtype);
+        if (!col.type.compareTo(common_dtype)) {
+          columns_per_df[row_idx][col_idx] = col.cast(common_dtype);
+        }
       }
     }
   });

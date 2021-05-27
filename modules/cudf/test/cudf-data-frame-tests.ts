@@ -17,6 +17,7 @@ import {
   Bool8,
   DataFrame,
   Float32,
+  Float64,
   GroupByMultiple,
   GroupBySingle,
   Int32,
@@ -707,5 +708,17 @@ describe('dataframe.concat', () => {
 
     expect([...result.get('a')]).toEqual([...a, ...a]);
     expect([...result.get('b')]).toEqual([...b, ...b]);
+  });
+
+  test('up-casts to common dtype', () => {
+    const a   = Series.new([1, 2, 3, 4, 5]).cast(new Int32);
+    const a2  = Series.new([6, 7, 8, 9, 10]);
+    const df  = new DataFrame({'a': a});
+    const df2 = new DataFrame({'a': a2});
+
+    const result = df.concat(df2);
+
+    expect(result.get('a').type).toBeInstanceOf(Float64);
+    expect([...result.get('a')]).toEqual([...a, ...a2]);
   });
 });
