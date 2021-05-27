@@ -931,7 +931,7 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @param keep Determines whether or not to keep the duplicate items.
    * @param nullsEqual Determines whether nulls are handled as equal values.
-   * @param nullsFirst Determines whether null values are inserted before or after non-null values
+   * @param nullsFirst Determines whether null values are inserted before or after non-null values.
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns series without duplicate values
    *

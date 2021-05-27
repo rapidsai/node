@@ -25,7 +25,7 @@ import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, Float32, Float64, IndexType, Numeric} from './types/dtypes';
-import {NullOrder} from './types/enums';
+import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
 export type SeriesMap<T extends TypeMap> = {
@@ -1583,5 +1583,40 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(
       this.names.reduce((cols, name) => ({...cols, [name]: this.get(name).isNotNull()}),
                         {} as SeriesMap<{[P in keyof T]: Bool8}>));
+  }
+
+  /**
+   * Drops duplicate rows from a DataFrame
+   *
+   * @param keep Determines whether to keep the first, last, or none of the duplicate items.
+   * @param nullsEqual Determines whether nulls are handled as equal values.
+   * @param nullsFirst Determines whether null values are inserted before or after non-null values.
+   * @param subset List of columns to consider when dropping rows (all columns are considered by
+   * default).
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   *
+   * @returns a DataFrame without duplicate rows
+   * ```
+   */
+  dropDuplicates(keep: keyof typeof DuplicateKeepOption,
+                 nullsEqual: boolean,
+                 nullsFirst: boolean,
+                 subset: (string&keyof T)[] = this.names,
+                 memoryResource?: MemoryResource) {
+    const column_indices: number[] = [];
+    const allNames                 = this.names;
+
+    subset.forEach((col) => {
+      if (allNames.includes(col)) {
+        column_indices.push(allNames.indexOf(col));
+      } else {
+        throw new Error(`Unknown column name: ${col}`);
+      }
+    });
+    const table = this.asTable().dropDuplicates(
+      column_indices, DuplicateKeepOption[keep], nullsEqual, nullsFirst, memoryResource);
+    return new DataFrame(
+      allNames.reduce((map, name, i) => ({...map, [name]: Series.new(table.getColumnByIndex(i))}),
+                      {} as SeriesMap<T>));
   }
 }
