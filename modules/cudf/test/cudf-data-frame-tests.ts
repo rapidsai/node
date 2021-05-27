@@ -426,6 +426,31 @@ test(
     expect(result.names).toEqual([]);
   });
 
+test('dataframe.cast', () => {
+  const a  = Series.new({type: new Int32, data: [1, 2, 3, 4]});
+  const b  = Series.new({type: new Float32, data: new Float32Buffer([1.5, 2.3, 3.1, 4])});
+  const df = new DataFrame({'a': a, 'b': b});
+
+  const result = df.cast({b: new Int32});
+
+  expect(result.get('a').type).toBeInstanceOf(Int32);
+  expect(result.get('b').type).toBeInstanceOf(Int32);
+  expect([...result.get('b')]).toEqual([1, 2, 3, 4]);
+});
+
+test('dataframe.castAll', () => {
+  const a  = Series.new({type: new Int8, data: [1, 2, 3, 4]});
+  const b  = Series.new({type: new Float32, data: new Float32Buffer([1.5, 2.3, 3.1, 4])});
+  const df = new DataFrame({'a': a, 'b': b});
+
+  const result = df.castAll(new Int32);
+
+  expect(result.get('a').type).toBeInstanceOf(Int32);
+  expect(result.get('b').type).toBeInstanceOf(Int32);
+  expect([...result.get('a')]).toEqual([1, 2, 3, 4]);
+  expect([...result.get('b')]).toEqual([1, 2, 3, 4]);
+});
+
 describe('dataframe unaryops', () => {
   const a  = Series.new({type: new Int32, data: [-3, 0, 3]});
   const b  = Series.new({type: new Int8, data: [-3, 0, 3]});
