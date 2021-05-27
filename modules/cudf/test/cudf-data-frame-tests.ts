@@ -671,6 +671,18 @@ test('dataframe.isNotNull', () => {
 });
 
 describe('dataframe.concat', () => {
+  test('zero series in common', () => {
+    const a   = Series.new([1, 2, 3, 4]);
+    const b   = Series.new([5, 6, 7, 8]);
+    const dfa = new DataFrame({'a': a});
+    const dfb = new DataFrame({'b': b});
+
+    const result = dfa.concat(dfb);
+
+    expect([...result.get('a')]).toEqual([...a, null, null, null, null]);
+    expect([...result.get('b')]).toEqual([null, null, null, null, ...b]);
+  });
+
   test('one series in common', () => {
     const a   = Series.new([1, 2, 3, 4]);
     const b   = Series.new([5, 6, 7, 8]);

@@ -45,7 +45,12 @@ interface TableConstructor {
   readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>):
     {names: (keyof T)[], table: Table};
 
-  // TODO MZEGAR: write docstrings
+  /**
+   * Returns tables concatenated to each other.
+   *
+   * @param tables The tables to concatenate
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
   concat(tables: Table[], memoryResource?: MemoryResource): Table;
 
   /**

@@ -70,7 +70,7 @@ function _invokeIfNumericSeries<P extends keyof T, T extends TypeMap, R extends 
   return Series.new(series._col as Column<R>);
 }
 
-function concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataFrame {
+function _concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataFrame {
   const all_column_names = [...dfs
                               .reduce((namesMap, df) => df.names.reduce(
                                         (namesMap, name) => namesMap.set(name, true), namesMap),
@@ -92,7 +92,10 @@ function concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataFr
   const columns_per_df: any[][] =
     dfs.map((df) => all_column_names.map((name) => df.has(name) ? df.get(name)._col : null));
 
-  // TODO MZEGAR: Consider throwing if [0] doesn't exist.
+  if (columns_per_df.length === 0) {
+    throw new Error(`DataFrame(s) provided contain series with no length.`);
+  }
+
   const num_of_cols = columns_per_df[0].length;
   const num_of_rows = columns_per_df.length;
 
@@ -111,7 +114,9 @@ function concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataFr
     }
   });
 
-  // TODO MZEGAR: If one of the items in [first_non_null_dtype] is null, consider throwing.
+  if (first_non_null_dtype.some((dtype) => dtype === null)) {
+    throw new Error(`Unable to find non-null type for one or more of the DataFrame series.`);
+  }
 
   /**
    * Find the common dtype in each column.
@@ -126,11 +131,9 @@ function concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataFr
     }
   });
 
-  // TODO MZEGAR: If any of the common_dtypes are null, throw?
-
   /**
    * If any columns are null, create an empty column with type of common dtype
-   * Otherwise cast the column using the common dtype
+   * Otherwise cast the column using the common dtype.
    */
   common_dtypes.forEach((common_dtype, col_idx) => {
     for (let row_idx = 0; row_idx < num_of_rows; ++row_idx) {
@@ -145,9 +148,9 @@ function concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataFr
     }
   });
 
-  // TODO MZEGAR: Use some nifty lambda expression for this.
   const tables: Table[] = [];
-  columns_per_df.forEach((column) => { tables.push(new Table({columns: column})); });
+  columns_per_df.forEach((col) => { tables.push(new Table({columns: col})); });
+
   const concatenatedTable = Table.concat(tables);
 
   return new DataFrame(all_column_names.reduce(
@@ -430,8 +433,30 @@ export class DataFrame<T extends TypeMap = any> {
       {} as SeriesMap<{[P in keyof T]: R}>));
   }
 
-  // TODO: MZEGAR write docstrings
-  concat<DFs extends DataFrame[]>(...dfs: DFs): DataFrame { return concat(...[this, ...dfs]); }
+  /**
+   * Concat DataFrame(s) to the end of the caller, returning a new DataFrame.
+   *
+   * @param dfs The DataFrame(s) to concat to the end of the caller.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *   a: Series.new([1, 2, 3, 4]),
+   * });
+   *
+   * const df2 = new DataFrame({
+   *   b: Series.new([5, 6, 7, 8]),
+   * });
+   *
+   * df.concat(df2);
+   * // return {
+   * //    a: [1, 2, 3, 4, null, null, null, null],
+   * //    b: [null, null, null, null, 5, 6, 7, 8],
+   * // }
+   * ```
+   */
+  concat<DFs extends DataFrame[]>(...dfs: DFs): DataFrame { return _concat(...[this, ...dfs]); }
 
   /**
    * Generate an ordering that sorts DataFrame columns in a specified way
