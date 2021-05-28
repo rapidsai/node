@@ -182,8 +182,8 @@ export interface Table {
    */
   writeCSV(options: TableWriteCSVOptions): void;
 
-  drop_nans(keys: number[], threshold: number): Table;
-  drop_nulls(keys: number[], threshold: number): Table;
+  dropNans(keys: number[], threshold: number): Table;
+  dropNulls(keys: number[], threshold: number): Table;
   dropDuplicates(keys: number[],
                  keep: DuplicateKeepOption,
                  nullsEqual: boolean,

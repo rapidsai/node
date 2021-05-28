@@ -646,7 +646,7 @@ export class DataFrame<T extends TypeMap = any> {
     });
 
     const table_result = new Table({columns: this._accessor.columns});
-    const result       = table_result.drop_nulls(column_indices, thresh);
+    const result       = table_result.dropNulls(column_indices, thresh);
     return new DataFrame(
       allNames.reduce((map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
                       {} as SeriesMap<T>));
@@ -670,7 +670,7 @@ export class DataFrame<T extends TypeMap = any> {
       }
     });
     const table_result = new Table({columns: this._accessor.columns});
-    const result       = table_result.drop_nans(column_indices, thresh);
+    const result       = table_result.dropNans(column_indices, thresh);
     return new DataFrame(
       allNames.reduce((map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
                       {} as SeriesMap<T>));
@@ -702,7 +702,7 @@ export class DataFrame<T extends TypeMap = any> {
     this.names.forEach(col => {
       if ([new Float32, new Float64].some((t) => this.get(col).type.compareTo(t))) {
         const nanCount =
-          df.get(col)._col.nans_to_nulls(memoryResource).nullCount - this.get(col).nullCount;
+          df.get(col)._col.nansToNulls(memoryResource).nullCount - this.get(col).nullCount;
 
         const no_threshold_valid_count = (df.get(col).length - nanCount) < thresh;
         if (!no_threshold_valid_count) { column_names.push(col); }
@@ -1458,7 +1458,7 @@ export class DataFrame<T extends TypeMap = any> {
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach((name, index) => {
       if ([new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))) {
-        series_map[name] = Series.new(temp.getColumnByIndex(index).nans_to_nulls(memoryResource));
+        series_map[name] = Series.new(temp.getColumnByIndex(index).nansToNulls(memoryResource));
       } else {
         series_map[name] = Series.new(temp.getColumnByIndex(index));
       }
