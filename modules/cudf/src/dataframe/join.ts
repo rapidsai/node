@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CUDF from '../addon';
+import {MemoryResource} from '@rapidsai/rmm';
+
 import {ColumnAccessor} from '../column_accessor';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
 import {Numeric} from '../types/dtypes';
-import {ColumnsMap, CommonType, TypeMap} from '../types/mappings';
+import {ColumnsMap, CommonType, findCommonType, TypeMap} from '../types/mappings';
 
 export type JoinKey<
   P extends string,
@@ -56,6 +57,7 @@ interface JoinProps<
   lsuffix?: LSuffix;
   rsuffix?: RSuffix;
   nullEquality?: boolean;
+  memoryResource?: MemoryResource;
 }
 
 // clang-format off
@@ -73,6 +75,7 @@ export class Join<
   private lsuffix: LSuffix|'';
   private rsuffix: RSuffix|'';
   private nullEquality: boolean;
+  private memoryResource?: MemoryResource;
 
   constructor(props: JoinProps<Lhs, Rhs, TOn, LSuffix, RSuffix>) {
     const {lsuffix = '', rsuffix = '', nullEquality = true} = props;
@@ -82,13 +85,16 @@ export class Join<
     this.lsuffix                                            = lsuffix;
     this.rsuffix                                            = rsuffix;
     this.nullEquality                                       = nullEquality;
+    this.memoryResource                                     = props.memoryResource;
 
     this.on.forEach((name) => {
       const lhs_col = this.lhs.get(name);
       const rhs_col = this.rhs.get(name);
-      const type    = CUDF.findCommonType(lhs_col.type, rhs_col.type);
-      this.lhs      = this.lhs.assign({[name]: lhs_col.cast(type)});
-      this.rhs      = this.rhs.assign({[name]: rhs_col.cast(type)});
+      if (!lhs_col.type.compareTo(rhs_col.type)) {
+        const type = findCommonType(lhs_col.type, rhs_col.type);
+        this.lhs   = this.lhs.assign({[name]: lhs_col.cast(type)});
+        this.rhs   = this.rhs.assign({[name]: rhs_col.cast(type)});
+      }
     });
   }
 
@@ -99,7 +105,8 @@ export class Join<
     const [lhsMap, rhsMap] = Table.leftJoin(
       this.lhs.select(on).asTable(),
       this.rhs.select(on).asTable(),
-      this.nullEquality
+      this.nullEquality,
+      this.memoryResource
     ).map((col) => Series.new(col));
     // clang-format on
 
@@ -127,7 +134,8 @@ export class Join<
     const [lhsMap, rhsMap] = Table.innerJoin(
       this.lhs.select(on).asTable(),
       this.rhs.select(on).asTable(),
-      this.nullEquality
+      this.nullEquality,
+      this.memoryResource
     ).map((col) => Series.new(col));
     // clang-format on
 
@@ -144,7 +152,8 @@ export class Join<
     const [lhsMap, rhsMap] = Table.fullJoin(
       this.lhs.select(on).asTable(),
       this.rhs.select(on).asTable(),
-      this.nullEquality
+      this.nullEquality,
+      this.memoryResource
     ).map((col) => Series.new(col));
     // clang-format on
 
@@ -168,7 +177,8 @@ export class Join<
     const lhsMap = Series.new(Table.leftSemiJoin(
       this.lhs.select(on).asTable(),
       this.rhs.select(on).asTable(),
-      this.nullEquality
+      this.nullEquality,
+      this.memoryResource
     ));
     // clang-format on
     return this.lhs.gather(lhsMap, true);
@@ -180,7 +190,8 @@ export class Join<
     const lhsMap = Series.new(Table.leftAntiJoin(
       this.lhs.select(on).asTable(),
       this.rhs.select(on).asTable(),
-      this.nullEquality
+      this.nullEquality,
+      this.memoryResource
     ));
     // clang-format on
     return this.lhs.gather(lhsMap, true);

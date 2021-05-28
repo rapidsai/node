@@ -22,7 +22,7 @@ export type Integral      = IndexType|Int64|Uint64;
 export type Numeric       = Integral|FloatingPoint|Bool8;
 export type Timestamp =
   TimestampDay|TimestampSecond|TimestampMillisecond|TimestampMicrosecond|TimestampNanosecond;
-export type DataType = Numeric|Utf8String|List|Struct|Timestamp;
+export type DataType = Numeric|Utf8String|List|Struct|Timestamp|Categorical;
 
 export interface Int8 extends arrow.Int8 {
   scalarType: number;
@@ -123,29 +123,33 @@ export class Struct<T extends TypeMap = any> extends arrow.Struct<T> {}
 export interface TimestampDay extends arrow.DateDay {
   scalarType: Date;
 }
-
 export class TimestampDay extends arrow.DateDay {}
 
 export interface TimestampSecond extends arrow.TimestampSecond {
   scalarType: Date;
 }
-
 export class TimestampSecond extends arrow.TimestampSecond {}
 
 export interface TimestampMillisecond extends arrow.TimestampMillisecond {
   scalarType: Date;
 }
-
 export class TimestampMillisecond extends arrow.TimestampMillisecond {}
 
 export interface TimestampMicrosecond extends arrow.TimestampMicrosecond {
   scalarType: Date;
 }
-
 export class TimestampMicrosecond extends arrow.TimestampMicrosecond {}
 
 export interface TimestampNanosecond extends arrow.TimestampNanosecond {
   scalarType: Date;
 }
-
 export class TimestampNanosecond extends arrow.TimestampNanosecond {}
+
+export interface Categorical<T extends DataType = any> extends arrow.Dictionary<T, Int32> {
+  scalarType: T['scalarType'];
+}
+export class Categorical<T extends DataType = any> extends arrow.Dictionary<T, Int32> {
+  constructor(dictionary: T, id?: number|null, isOrdered?: boolean|null) {
+    super(dictionary, new Int32, id, isOrdered);
+  }
+}

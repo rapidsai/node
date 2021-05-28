@@ -19,6 +19,7 @@ import {Column} from '../column';
 
 import {
   Bool8,
+  Categorical,
   DataType,
   Float32,
   Float64,
@@ -140,7 +141,7 @@ export type ArrowToCUDFType<T extends arrow.DataType> =
 //  T extends arrow.FixedSizeBinary ? never :
 //  T extends arrow.FixedSizeList ? never :
 //  T extends arrow.Map_ ? never :
-//  T extends arrow.Dictionary ? never :
+ T extends arrow.Dictionary ? T extends Categorical ? T : Categorical<ArrowToCUDFType<T['valueType']>> :
  never;
 // clang-format on
 
@@ -200,7 +201,9 @@ export const arrowToCUDFType = (() => {
     }
     // public visitDenseUnion           <T extends arrow.DenseUnion>(type: T) { return new DenseUnion(type); }
     // public visitSparseUnion          <T extends arrow.SparseUnion>(type: T) { return new SparseUnion(type); }
-    // public visitDictionary           <T extends arrow.Dictionary>(type: T) { return new Dictionary(type); }
+    public visitDictionary           <T extends arrow.Dictionary>({dictionary, id, isOrdered}: T) {
+      return new Categorical(dictionary, id, isOrdered);
+    }
     // public visitIntervalDayTime      <T extends arrow.IntervalDayTime>(type: T) { return new IntervalDayTime; }
     // public visitIntervalYearMonth    <T extends arrow.IntervalYearMonth>(type: T) { return new IntervalYearMonth; }
     // public visitFixedSizeList        <T extends arrow.FixedSizeList>(type: T) { return new FixedSizeList(type); }
