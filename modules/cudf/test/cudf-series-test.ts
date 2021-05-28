@@ -157,6 +157,19 @@ test('Series.setValues (scalar)', () => {
   expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
 });
 
+test('NumericSeries.cast', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4])});
+
+  expect(col.cast(new Int64).type).toBeInstanceOf(Int64);
+  expect(col.cast(new Float32).type).toBeInstanceOf(Float32);
+  expect(col.cast(new Float64).type).toBeInstanceOf(Float64);
+
+  const floatCol = Series.new({type: new Float32, data: new Float32Buffer([1.5, 2.8, 3.1, 4.2])});
+  const result   = floatCol.cast(new Int32);
+
+  expect([...result]).toEqual([1, 2, 3, 4]);
+});
+
 test('NumericSeries.concat', () => {
   const col         = Series.new({type: new Int32, data: new Int32Buffer([1, 2, 3, 4, 5])});
   const colToConcat = Series.new({type: new Int32, data: new Int32Buffer([6, 7, 8, 9, 10])});

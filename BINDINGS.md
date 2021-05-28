@@ -21,7 +21,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `as_index`           |                     |
 | `as_mask`            |                     |
 | `asin`               |         ✅          |
-| `astype`             |                     |
+| `astype`             |     ✅ (`cast`)     |
 | `atan`               |         ✅          |
 | `ceil`               |         ✅          |
 | `clip`               |                     |
@@ -153,7 +153,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `argsort`            |                     |                     |                     |
 | `as_index`           |                     |                     |                     |
 | `as_mask`            |                     |                     |                     |
-| `astype`             |                     |                     |                     |
+| `astype`             |     ✅ (`cast`)     |     ✅ (`cast`)     |     ✅ (`cast`)     |
 | `clip`               |                     |                     |                     |
 | `copy`               |                     |                     |                     |
 | `count`              |✅ (`countNonNulls`) |✅ (`countNonNulls`) |✅ (`countNonNulls`) |
@@ -243,7 +243,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `as_matrix`          |                    |
 | `asin`               |         ✅         |
 | `assign`             |         ✅         |
-| `astype`             |                    |
+| `astype`             |    ✅ (`cast`)     |
 | `atan`               |         ✅         |
 | `clip`               |                    |
 | `copy`               |                    |
