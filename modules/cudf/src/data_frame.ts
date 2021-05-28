@@ -357,16 +357,16 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int32, NullOrder}  from '@rapidsai/cudf';
    * const df = new DataFrame({a: Series.new([null, 4, 3, 2, 1, 0])});
    *
-   * df.orderBy({a: {ascending: true, null_order: 'BEFORE'}});
+   * df.orderBy({a: {ascending: true, null_order: 'before'}});
    * // Int32Series [0, 5, 4, 3, 2, 1]
    *
-   * df.orderBy({a: {ascending: true, null_order: 'AFTER'}});
+   * df.orderBy({a: {ascending: true, null_order: 'after'}});
    * // Int32Series [5, 4, 3, 2, 1, 0]
    *
-   * df.orderBy({a: {ascending: false, null_order: 'BEFORE'}});
+   * df.orderBy({a: {ascending: false, null_order: 'before'}});
    * // Int32Series [1, 2, 3, 4, 5, 0]
    *
-   * df.orderBy({a: {ascending: false, null_order: 'AFTER'}});
+   * df.orderBy({a: {ascending: false, null_order: 'after'}});
    * // Int32Series [0, 1, 2, 3, 4, 5]
    * ```
    */
@@ -375,7 +375,7 @@ export class DataFrame<T extends TypeMap = any> {
     const null_orders   = new Array<NullOrder>();
     const columns       = new Array<Column<T[keyof T]>>();
     const entries       = Object.entries(options) as [R, OrderSpec][];
-    entries.forEach(([name, {ascending = true, null_order = 'AFTER'}]) => {
+    entries.forEach(([name, {ascending = true, null_order = 'after'}]) => {
       const child = this.get(name);
       if (child) {
         columns.push(child._col as Column<T[keyof T]>);
@@ -394,7 +394,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @param ascending whether to sort ascending (true) or descending (false)
    *   Default: true
    * @param null_order whether nulls should sort before or after other values
-   *   Default: AFTER
+   *   Default: after
    *
    * @returns A new DataFrame of sorted values
    *
@@ -406,16 +406,16 @@ export class DataFrame<T extends TypeMap = any> {
    *   b: Series.new([0, 1, 2, 3, 4, 5])
    * });
    *
-   * df.sortValues({a: {ascending: true, null_order: 'AFTER'}})
+   * df.sortValues({a: {ascending: true, null_order: 'after'}})
    * // {a: [0, 1, 2, 3, 4, null], b: [5, 4, 3, 2, 1, 0]}
    *
-   * df.sortValues({a: {ascending: true, null_order: 'BEFORE'}})
+   * df.sortValues({a: {ascending: true, null_order: 'before'}})
    * // {a: [null, 0, 1, 2, 3, 4], b: [0, 5, 4, 3, 2, 1]}
    *
-   * df.sortValues({a: {ascending: false, null_order: 'AFTER'}})
+   * df.sortValues({a: {ascending: false, null_order: 'after'}})
    * // {a: [4, 3, 2, 1, 0, null], b: [1, 2, 3, 4, 5, 0]}
    *
-   * df.sortValues({a: {ascending: false, null_order: 'BEFORE'}})
+   * df.sortValues({a: {ascending: false, null_order: 'before'}})
    * // {a: [null, 4, 3, 2, 1, 0], b: [0, 1, 2, 3, 4, 5]}
    * ```
    */

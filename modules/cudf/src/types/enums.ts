@@ -17,8 +17,8 @@
  */
 export enum NullOrder
 {
-  AFTER,
-  BEFORE
+  after,
+  before
 }
 
 export enum DuplicateKeepOption
