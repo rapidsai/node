@@ -136,7 +136,7 @@ function _concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataF
       const col = columns_per_df[row_idx][col_idx];
       if (col === null) {
         const empty_column_length =
-          columns_per_df.find((row) => row !== null)?.find((col) => col !== null).length ?? 0;
+          columns_per_df[row_idx]?.find((col) => col !== null).length ?? 0;
         columns_per_df[row_idx][col_idx] =
           new Column({type: common_dtype, data: new Array(empty_column_length)});
       } else {

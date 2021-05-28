@@ -86,7 +86,10 @@ Table::Table(CallbackArgs const& args) : EnvLocalObjectWrap<Table>(args) {
     num_rows_ = col->size();
     for (auto i = 1u; i < columns.Length(); ++i) {
       col = Column::wrapper_t{columns.Get(i).ToObject()};
-      NODE_CUDF_EXPECT(col->size() == num_rows_, "All Columns must be of same length");
+      if (!(col->size() == num_rows_)) {
+        NAPI_THROW(Napi::Error::New(args.Env(),
+                                    "Table constructor requires all columns to be of same length"));
+      }
     }
   }
 

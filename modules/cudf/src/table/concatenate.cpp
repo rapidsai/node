@@ -30,7 +30,9 @@ Napi::Value Table::concat(Napi::CallbackInfo const& info) {
                  std::back_inserter(table_views),
                  [](const Table::wrapper_t& t) -> cudf::table_view { return t->view(); });
 
-  return Table::New(info.Env(), cudf::concatenate(table_views, mr))->Value();
+  try {
+    return Table::New(info.Env(), cudf::concatenate(table_views, mr))->Value();
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(info.Env(), err.what())); }
 }
 
 }  // namespace nv

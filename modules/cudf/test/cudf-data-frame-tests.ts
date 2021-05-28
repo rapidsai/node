@@ -736,4 +736,15 @@ describe('dataframe.concat', () => {
     expect([...result.get('b')]).toEqual([...b, ...b, null, null, null, null]);
     expect([...result.get('c')]).toEqual([null, null, null, null, ...c, ...c]);
   });
+
+  test('unique mismatched series length', () => {
+    const a   = Series.new([1, 2, 3, 4]);
+    const b   = Series.new([5, 6, 7, 8, 9]);
+    const dfa = new DataFrame({'a': a});
+    const dfb = new DataFrame({'b': b});
+
+    const result = dfa.concat(dfb);
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4, null, null, null, null, null]);
+    expect([...result.get('b')]).toEqual([null, null, null, null, 5, 6, 7, 8, 9]);
+  });
 });
