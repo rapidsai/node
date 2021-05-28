@@ -235,7 +235,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `agg`                |                    |
 | `all`                |                    |
 | `any`                |                    |
-| `append`             |                    |
+| `append`             |   ✅ (`concat`)    |
 | `apply_chunks`       |                    |
 | `apply_rows`         |                    |
 | `argsort`            |                    |

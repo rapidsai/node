@@ -111,7 +111,7 @@ function _concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataF
   });
 
   /**
-   * Find the common dtype in each column.
+   * Array<DataType> -- Find the common dtype in each column.
    * ```
    * [Float64, Int32, Float64]
    * ```
@@ -136,7 +136,7 @@ function _concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataF
       const col = columns_per_df[row_idx][col_idx];
       if (col === null) {
         const empty_column_length =
-          columns_per_df.find((row) => row !== null)?.find((col) => col !== null).length;
+          columns_per_df.find((row) => row !== null)?.find((col) => col !== null).length ?? 0;
         columns_per_df[row_idx][col_idx] =
           new Column({type: common_dtype, data: new Array(empty_column_length)});
       } else {
@@ -147,11 +147,7 @@ function _concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataF
     }
   });
 
-  const tables: Table[] = [];
-  columns_per_df.forEach((col) => { tables.push(new Table({columns: col})); });
-
-  const concatenatedTable = Table.concat(tables);
-
+  const concatenatedTable = Table.concat(columns_per_df.map((columns) => new Table({columns})));
   return new DataFrame(all_column_names.reduce(
     (map, name, index) => ({...map, [name]: Series.new(concatenatedTable.getColumnByIndex(index))}),
     {} as SeriesMap<T>));
@@ -442,16 +438,17 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series} from '@rapidsai/cudf';
    * const df = new DataFrame({
    *   a: Series.new([1, 2, 3, 4]),
+   *   b: Series.new([1, 2, 3, 4]),
    * });
    *
    * const df2 = new DataFrame({
-   *   b: Series.new([5, 6, 7, 8]),
+   *   a: Series.new([5, 6, 7, 8]),
    * });
    *
    * df.concat(df2);
    * // return {
-   * //    a: [1, 2, 3, 4, null, null, null, null],
-   * //    b: [null, null, null, null, 5, 6, 7, 8],
+   * //    a: [1, 2, 3, 4, 5, 6, 7, 8],
+   * //    b: [1, 2, 3, 4, null, null, null, null],
    * // }
    * ```
    */
