@@ -937,7 +937,7 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   dropNulls(memoryResource?: MemoryResource): Series<T> {
-    return this.__construct(this._col.drop_nulls(memoryResource));
+    return this.__construct(this._col.dropNulls(memoryResource));
   }
 
   /**
@@ -951,7 +951,7 @@ export class AbstractSeries<T extends DataType = any> {
    * in the original series.
    * @returns object with keys "value" and "count"
    */
-  value_counts(): {count: Int32Series, value: Series<T>} {
+  valueCounts(): {count: Int32Series, value: Series<T>} {
     const df = new DataFrame<{count: T, value: T}>({
       'count': this,
       'value': this,
