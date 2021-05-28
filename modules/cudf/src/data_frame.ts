@@ -292,7 +292,7 @@ export class DataFrame<T extends TypeMap = any> {
   get<P extends keyof T>(name: P): Series<T[P]> { return Series.new(this._accessor.get(name)); }
 
   /**
-   * Casts each Series in this DataFrame to a new dtype (similar to `static_cast` in C++).
+   * Casts each selected Series in this DataFrame to a new dtype (similar to `static_cast` in C++).
    *
    * @param dataTypes The map from column names to new dtypes.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
