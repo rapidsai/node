@@ -634,7 +634,7 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @example
    * ```typescript
-   * import {Series, Int32} from '@rapidsai/cudf';
+   * import {Series} from '@rapidsai/cudf';
    *
    * const a = Series.new([4, 6, 8, 10, 12, 1, 2]);
    * const b = Series.new(["foo", "bar", "test"]);
@@ -660,7 +660,7 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @example
    * ```typescript
-   * import {Series, Int32} from '@rapidsai/cudf';
+   * import {Series} from '@rapidsai/cudf';
    *
    * const a = Series.new([4, 6, 8, 10, 12, 1, 2]);
    * const b = Series.new(["foo", "bar", "test"]);

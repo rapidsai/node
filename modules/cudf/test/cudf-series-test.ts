@@ -200,27 +200,15 @@ test('Series.gather', () => {
 });
 
 describe('Series.head', () => {
-  test('default index', () => {
-    const col =
-      Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
-    expect([...col.head()]).toEqual([0, 1, 2, 3, 4]);
-  });
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
 
-  test('invalid index', () => {
-    const col =
-      Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
-    expect(() => col.head(-1)).toThrowError();
-  });
+  test('default index', () => { expect([...col.head()]).toEqual([0, 1, 2, 3, 4]); });
 
-  test('providing index', () => {
-    const col =
-      Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
-    expect([...col.head(8)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
-  });
+  test('invalid index', () => { expect(() => col.head(-1)).toThrowError(); });
+
+  test('providing index', () => { expect([...col.head(8)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7]); });
 
   test('index longer than length of series', () => {
-    const col =
-      Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
     expect([...col.head(25)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 });

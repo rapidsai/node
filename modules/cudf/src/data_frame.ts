@@ -457,7 +457,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series} from '@rapidsai/cudf';
+   * import {DataFrame, Series, Int32} from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
    *   a: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6]}),
@@ -490,7 +490,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series} from '@rapidsai/cudf';
+   * import {DataFrame, Series, Int32} from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
    *   a: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6]}),
