@@ -199,6 +199,46 @@ test('Series.gather', () => {
   expect([...result]).toEqual([...selection]);
 });
 
+describe('Series.head', () => {
+  test('default index', () => {
+    const col =
+      Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+    expect([...col.head()]).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  test('invalid index', () => {
+    const col =
+      Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+    expect(() => col.head(-1)).toThrowError();
+  });
+
+  test('providing index', () => {
+    const col =
+      Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+    expect([...col.head(8)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+  });
+
+  test('index longer than length of series', () => {
+    const col =
+      Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+    expect([...col.head(25)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+});
+
+describe('Series.tail', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+
+  test('default index', () => { expect([...col.tail()]).toEqual([5, 6, 7, 8, 9]); });
+
+  test('invalid index', () => { expect(() => col.tail(-1)).toThrowError(); });
+
+  test('providing index', () => { expect([...col.tail(8)]).toEqual([2, 3, 4, 5, 6, 7, 8, 9]); });
+
+  test('index longer than length of series', () => {
+    expect([...col.tail(25)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+});
+
 test('Series.scatter (series)', () => {
   const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
   const values  = Series.new({type: new Int32, data: [200, 400, 500, 800]});
