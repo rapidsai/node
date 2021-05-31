@@ -203,11 +203,11 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame} from '@rapidsai/cudf';
+   * import {DataFrame, Series} from '@rapidsai/cudf';
    *
    * const df = new DataFrame({a: [1, 2, 3]});
    *
-   * df.assign({b: ["foo", "bar", "bar"]})
+   * df.assign({b: Series.new(["foo", "bar", "bar"])})
    * // returns df {a: [1, 2, 3], b: ["foo", "bar", "bar"]}
    * ```
    */
@@ -1586,5 +1586,76 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(
       this.names.reduce((cols, name) => ({...cols, [name]: this.get(name).isNotNull()}),
                         {} as SeriesMap<{[P in keyof T]: Bool8}>));
+  }
+
+  /**
+   * Replace null values with a scalar value.
+   *
+   * @param value The scalar value to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([0, null, 2]);
+   *  b: Series.new([null, null, null]);
+   * });
+   *
+   * df.replaceNulls(1);
+   * // return {
+   * //    a: [0, 1, 2],
+   * //    b: [1, 1, 1],
+   * // }
+   * ```
+   */
+  replaceNulls(value: T['scalarType']|any, memoryResource?: MemoryResource): DataFrame;
+
+  /**
+   * Replace null values with the corresponding elements from another Map of Series.
+   *
+   * @param value The map of Series to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([0, null, 2]);
+   *  b: Series.new([null, null, null]);
+   * });
+   *
+   * df.replaceNulls({'a': Series.new([0, 1, 2]), 'b': Series.new([1, 1, 1])});
+   * // return {
+   * //    a: [0, 1, 2],
+   * //    b: [1, 1, 1],
+   * // }
+   * ```
+   */
+  replaceNulls(value: SeriesMap<T>, memoryResource?: MemoryResource): DataFrame;
+
+  replaceNulls(value: any, memoryResource?: MemoryResource): DataFrame {
+    if (value instanceof Object) {
+      const columns = new ColumnAccessor(_seriesToColumns(value as SeriesMap<T>));
+      return new DataFrame(this.names.reduce(
+        (map, name) => ({
+          ...map,
+          [name]: columns.names.includes(name) ? Series.new(this._accessor.get(name).replaceNulls(
+                                                   columns.get(name), memoryResource))
+                                               : Series.new(this._accessor.get(name))
+        }),
+        {} as SeriesMap<T>));
+    } else {
+      return new DataFrame(this.names.reduce(
+        (map, name) => ({
+          ...map,
+          [name]: Series.new(this._accessor.get(name)).replaceNulls(value, memoryResource)
+        }),
+        {} as SeriesMap<T>));
+    }
   }
 }
