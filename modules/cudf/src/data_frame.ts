@@ -20,6 +20,7 @@ import {Column} from './column';
 import {ColumnAccessor} from './column_accessor';
 import {Join, JoinResult} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
+import {Scalar} from './scalar';
 import {AbstractSeries, Series} from './series';
 import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
@@ -1653,7 +1654,8 @@ export class DataFrame<T extends TypeMap = any> {
       return new DataFrame(this.names.reduce(
         (map, name) => ({
           ...map,
-          [name]: Series.new(this._accessor.get(name)).replaceNulls(value, memoryResource)
+          [name]: Series.new(this._accessor.get(name).replaceNulls(
+            new Scalar({type: this._accessor.get(name).type, value: value}), memoryResource))
         }),
         {} as SeriesMap<T>));
     }
