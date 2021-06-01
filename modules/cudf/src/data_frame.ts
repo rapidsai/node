@@ -1588,6 +1588,31 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Replace null values with a number, string, or boolean value.
+   *
+   * @param value The scalar value to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([0, null, 2]);
+   *  b: Series.new([null, null, null]);
+   * });
+   *
+   * df.replaceNulls(1);
+   * // return {
+   * //    a: [0, 1, 2],
+   * //    b: [1, 1, 1],
+   * // }
+   * ```
+   */
+  replaceNulls(value: number|string|boolean, memoryResource?: MemoryResource): DataFrame;
+
+  /**
    * Replace null values with the corresponding elements from another Map of Series.
    *
    * @param value The map of Series to use in place of nulls.
@@ -1610,7 +1635,7 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  replaceNulls(value: SeriesMap<T>, memoryResource?: MemoryResource): DataFrame<T>;
+  replaceNulls(value: SeriesMap<T>, memoryResource?: MemoryResource): DataFrame;
 
   /**
    * Replace null values with a scalar value.
@@ -1635,7 +1660,7 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  replaceNulls(value: any, memoryResource?: MemoryResource): DataFrame<T> {
+  replaceNulls(value: any, memoryResource?: MemoryResource): DataFrame {
     if (value instanceof Object) {
       const columns = new ColumnAccessor(_seriesToColumns(value as SeriesMap<T>));
       return new DataFrame(this.names.reduce(
