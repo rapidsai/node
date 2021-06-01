@@ -17,6 +17,13 @@
  */
 export enum NullOrder
 {
-  AFTER,
-  BEFORE
+  after,
+  before
+}
+
+export enum DuplicateKeepOption
+{
+  first,  // Keeps first duplicate row and unique rows.
+  last,   // Keeps last duplicate row and unique rows.
+  none,   // Keeps only unique rows are kept.
 }

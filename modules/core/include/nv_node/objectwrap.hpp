@@ -15,11 +15,34 @@
 #pragma once
 
 #include <nv_node/addon.hpp>
-#include <nv_node/utilities/cpp_to_napi.hpp>
 
-#include <cassert>
+#include <napi.h>
+
+#include <type_traits>
 
 namespace nv {
+
+namespace detail {
+namespace tuple {
+// compile-time tuple iteration
+
+template <std::size_t I = 0, typename FuncT, typename... Tp>
+inline typename std::enable_if<I == sizeof...(Tp), void>::type for_each(
+  std::tuple<Tp...> const&,
+  FuncT)  // Unused arguments are given no names.
+{
+  // end recursion
+}
+
+template <std::size_t I = 0, typename FuncT, typename... Tp>
+  inline typename std::enable_if <
+  I<sizeof...(Tp), void>::type for_each(std::tuple<Tp...> const& t, FuncT func) {
+  func(std::get<I>(t));
+  // recurse
+  for_each<I + 1, FuncT, Tp...>(t, func);
+}
+}  // namespace tuple
+}  // namespace detail
 
 template <typename T>
 struct Wrapper : public Napi::Object {
@@ -98,49 +121,54 @@ struct EnvLocalObjectWrap : public Napi::ObjectWrap<T>,  //
    * @brief Construct a new instance of `T` from C++.
    *
    * @param env The currently active JavaScript environment.
-   * @param args The Napi::Value arguments to pass to the constructor for type `T`.
+   * @param napi_values The Napi::Value arguments to pass to the constructor for
+   * type `T`.
    * @return Wrapper<T> The JavaScript Object representing the new C++ instance.
-   * The lifetime of the C++ instance is tied to the lifetime of the returned wrapper.
+   * The lifetime of the C++ instance is tied to the lifetime of the returned
+   * wrapper.
    */
-  inline static wrapper_t New(Napi::Env env, std::initializer_list<napi_value> const& args) {
-    return env.GetInstanceData<EnvLocalAddon>()->GetConstructor<T>().New(args);
+  inline static wrapper_t New(Napi::Env env, std::initializer_list<napi_value> const& napi_values) {
+    return Constructor(env).New(napi_values);
   }
 
   /**
    * @brief Construct a new instance of `T` from C++.
    *
    * @param env The currently active JavaScript environment.
-   * @param args The Napi::Value arguments to pass to the constructor for type `T`.
+   * @param napi_values The Napi::Value arguments to pass to the constructor for
+   * type `T`.
    * @return Wrapper<T> The JavaScript Object representing the new C++ instance.
-   * The lifetime of the C++ instance is tied to the lifetime of the returned wrapper.
+   * The lifetime of the C++ instance is tied to the lifetime of the returned
+   * wrapper.
    */
-  inline static wrapper_t New(Napi::Env env, std::vector<napi_value> const& args) {
-    return env.GetInstanceData<EnvLocalAddon>()->GetConstructor<T>().New(args);
+  inline static wrapper_t New(Napi::Env env, std::vector<napi_value> const& napi_values) {
+    return Constructor(env).New(napi_values);
   }
 
   /**
    * @brief Construct a new instance of `T` from C++ values.
    *
    * @param env The currently active JavaScript environment.
-   * @param args The Napi::Value arguments to pass to the constructor for type `T`.
+   * @param args VarArgs converted to Napi::Value and passed to the constructor
+   * for type `T`.
    * @return Wrapper<T> The JavaScript Object representing the new C++ instance.
-   * The lifetime of the C++ instance is tied to the lifetime of the returned wrapper.
+   * The lifetime of the C++ instance is tied to the lifetime of the returned
+   * wrapper.
    */
   template <typename... Args>
   inline static wrapper_t New(Napi::Env env, Args&&... args) {
     std::vector<napi_value> napi_values;
+
     napi_values.reserve(sizeof...(Args));
-    nv::casting::for_each(
+
+    detail::tuple::for_each(
       std::make_tuple<Args...>(std::forward<Args>(args)...),
       [&](auto const& x) mutable { napi_values.push_back(Napi::Value::From(env, x)); });
-    return env.GetInstanceData<EnvLocalAddon>()->GetConstructor<T>().New(napi_values);
+
+    return Constructor(env).New(napi_values);
   }
 
   inline operator wrapper_t() const { return Value(); }
-
-  // inline operator Napi::Value() const { return Value(); }
-
-  // inline operator Napi::Object() const { return Value(); }
 
   inline wrapper_t Value() const { return Napi::ObjectWrap<T>::Value(); }
 };

@@ -102,7 +102,7 @@ async function groupBy(df, by, aggregation, columns, query_dict, res) {
     trips = trips.sortValues({
       [by]: {
         ascending: true,
-        null_order: 'AFTER'
+        null_order: 'after'
       }
     });
 

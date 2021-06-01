@@ -157,6 +157,19 @@ test('Series.setValues (scalar)', () => {
   expect([...col]).toEqual([0, 1, 999, 3, 999, 999, 6, 7, 999, 9]);
 });
 
+test('NumericSeries.cast', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4])});
+
+  expect(col.cast(new Int64).type).toBeInstanceOf(Int64);
+  expect(col.cast(new Float32).type).toBeInstanceOf(Float32);
+  expect(col.cast(new Float64).type).toBeInstanceOf(Float64);
+
+  const floatCol = Series.new({type: new Float32, data: new Float32Buffer([1.5, 2.8, 3.1, 4.2])});
+  const result   = floatCol.cast(new Int32);
+
+  expect([...result]).toEqual([1, 2, 3, 4]);
+});
+
 test('NumericSeries.concat', () => {
   const col         = Series.new({type: new Int32, data: new Int32Buffer([1, 2, 3, 4, 5])});
   const colToConcat = Series.new({type: new Int32, data: new Int32Buffer([6, 7, 8, 9, 10])});
@@ -283,7 +296,7 @@ describe('toArrow()', () => {
 
 test('Series.orderBy (ascending, non-null)', () => {
   const col    = Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
-  const result = col.orderBy(true, 'BEFORE');
+  const result = col.orderBy(true, 'before');
 
   const expected = [5, 0, 4, 1, 3, 2];
   expect([...result]).toEqual(expected);
@@ -291,7 +304,7 @@ test('Series.orderBy (ascending, non-null)', () => {
 
 test('Series.orderBy (descending, non-null)', () => {
   const col    = Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
-  const result = col.orderBy(false, 'BEFORE');
+  const result = col.orderBy(false, 'before');
 
   const expected = [2, 3, 1, 4, 0, 5];
   expect([...result]).toEqual(expected);
@@ -301,7 +314,7 @@ test('Series.orderBy (ascending, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.orderBy(true, 'BEFORE');
+  const result = col.orderBy(true, 'before');
 
   const expected = [1, 5, 0, 4, 3, 2];
   expect([...result]).toEqual(expected);
@@ -311,7 +324,7 @@ test('Series.orderBy (ascending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.orderBy(true, 'AFTER');
+  const result = col.orderBy(true, 'after');
 
   const expected = [5, 0, 4, 3, 2, 1];
   expect([...result]).toEqual(expected);
@@ -321,7 +334,7 @@ test('Series.orderBy (descendng, null before)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.orderBy(false, 'BEFORE');
+  const result = col.orderBy(false, 'before');
 
   const expected = [2, 3, 4, 0, 5, 1];
 
@@ -332,7 +345,7 @@ test('Series.orderBy (descending, null after)', () => {
   const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
-  const result = col.orderBy(false, 'AFTER');
+  const result = col.orderBy(false, 'after');
 
   const expected = [1, 2, 3, 4, 0, 5];
   expect([...result]).toEqual(expected);
@@ -635,4 +648,20 @@ test('Series initialization with Date', () => {
   expect(val?.getUTCMinutes()).toBe(38);
   expect(val?.getUTCSeconds()).toBe(30);
   expect(val?.getUTCMilliseconds()).toBe(100);
+});
+
+test.each`
+keep     | nullsEqual | nullsFirst | data                           | expected
+${true}  | ${true}    | ${true}    | ${[4, null, 1, 2, null, 3, 4]} | ${[null, 1, 2, 3, 4]}
+${false} | ${true}    | ${true}    | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3]}
+${true}  | ${true}    | ${false}   | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3, 4, null]}
+${false} | ${true}    | ${false}   | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3]}
+${true}  | ${false}   | ${true}    | ${[4, null, 1, 2, null, 3, 4]} | ${[null, null, 1, 2, 3, 4]}
+${false} | ${false}   | ${true}    | ${[4, null, 1, 2, null, 3, 4]} | ${[null, null, 1, 2, 3]}
+${true}  | ${false}   | ${false}   | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3, 4, null, null]}
+${false} | ${false}   | ${false}   | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3, null, null]}
+`('Series.dropDuplicates($keep, $nullsEqual, $nullsFirst)', ({keep, nullsEqual, nullsFirst, data, expected}) => {
+  const s      = Series.new({type: new Int32, data});
+  const result = s.dropDuplicates(keep, nullsEqual, nullsFirst);
+  expect([...result]).toEqual(expected);
 });
