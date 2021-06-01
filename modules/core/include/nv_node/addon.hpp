@@ -14,9 +14,10 @@
 
 #pragma once
 
-#include <typeinfo>
-
 #include <napi.h>
+
+#include <string>
+#include <typeinfo>
 
 namespace nv {
 
@@ -29,7 +30,7 @@ struct EnvLocalAddon {
 
   template <typename Class>
   inline Napi::Function GetConstructor() {
-    return _cpp_exports.Get(typeid(Class).hash_code()).As<Napi::Function>();
+    return _cpp_exports.Get(std::to_string(typeid(Class).hash_code())).As<Napi::Function>();
   }
 
  protected:
@@ -39,7 +40,7 @@ struct EnvLocalAddon {
   template <typename Class>
   inline Napi::Function InitClass(Napi::Env const& env, Napi::Object exports) {
     auto const constructor = Class::Init(env, exports);
-    _cpp_exports.Set(typeid(Class).hash_code(), constructor);
+    _cpp_exports.Set(std::to_string(typeid(Class).hash_code()), constructor);
     return constructor;
   }
 
