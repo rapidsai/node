@@ -95,6 +95,7 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.table.html#dropduplicates" class="tsd-kind-icon">drop<wbr>Duplicates</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.table.html#drop_nans" class="tsd-kind-icon">drop_<wbr>nans</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.table.html#drop_nulls" class="tsd-kind-icon">drop_<wbr>nulls</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.table.html#gather" class="tsd-kind-icon">gather</a></li>
@@ -117,7 +118,7 @@
 					<div class="tsd-signature tsd-kind-icon">num<wbr>Columns<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/457466b/modules/cudf/src/table.ts#L113">modules/cudf/src/table.ts:113</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L113">modules/cudf/src/table.ts:113</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -132,7 +133,7 @@
 					<div class="tsd-signature tsd-kind-icon">num<wbr>Rows<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/457466b/modules/cudf/src/table.ts#L118">modules/cudf/src/table.ts:118</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L118">modules/cudf/src/table.ts:118</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -145,6 +146,41 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="dropduplicates" class="tsd-anchor"></a>
+					<h3>drop<wbr>Duplicates</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">drop<wbr>Duplicates<span class="tsd-signature-symbol">(</span>keys<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span>, keep<span class="tsd-signature-symbol">: </span><a href="../enums/cudf_src.duplicatekeepoption.html" class="tsd-signature-type" data-tsd-kind="Enumeration">DuplicateKeepOption</a>, nullsEqual<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, nullsFirst<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">MemoryResource</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L187">modules/cudf/src/table.ts:187</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>keys: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>keep: <a href="../enums/cudf_src.duplicatekeepoption.html" class="tsd-signature-type" data-tsd-kind="Enumeration">DuplicateKeepOption</a></h5>
+								</li>
+								<li>
+									<h5>nullsEqual: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+								<li>
+									<h5>nullsFirst: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <span class="tsd-signature-type">MemoryResource</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
 					<a name="drop_nans" class="tsd-anchor"></a>
 					<h3>drop_<wbr>nans</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -154,7 +190,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/457466b/modules/cudf/src/table.ts#L185">modules/cudf/src/table.ts:185</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L185">modules/cudf/src/table.ts:185</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -180,7 +216,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/457466b/modules/cudf/src/table.ts#L186">modules/cudf/src/table.ts:186</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L186">modules/cudf/src/table.ts:186</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -206,7 +242,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/457466b/modules/cudf/src/table.ts#L125">modules/cudf/src/table.ts:125</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L125">modules/cudf/src/table.ts:125</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -239,7 +275,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/457466b/modules/cudf/src/table.ts#L164">modules/cudf/src/table.ts:164</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L164">modules/cudf/src/table.ts:164</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -281,7 +317,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/457466b/modules/cudf/src/table.ts#L176">modules/cudf/src/table.ts:176</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L176">modules/cudf/src/table.ts:176</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -321,7 +357,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/457466b/modules/cudf/src/table.ts#L137">modules/cudf/src/table.ts:137</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L137">modules/cudf/src/table.ts:137</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -378,7 +414,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/457466b/modules/cudf/src/table.ts#L152">modules/cudf/src/table.ts:152</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L152">modules/cudf/src/table.ts:152</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -426,7 +462,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/457466b/modules/cudf/src/table.ts#L177">modules/cudf/src/table.ts:177</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L177">modules/cudf/src/table.ts:177</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -449,7 +485,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/457466b/modules/cudf/src/table.ts#L183">modules/cudf/src/table.ts:183</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/f23f294/modules/cudf/src/table.ts#L183">modules/cudf/src/table.ts:183</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -516,6 +552,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="cudf_src.table.html#numrows" class="tsd-kind-icon">num<wbr>Rows</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.table.html#dropduplicates" class="tsd-kind-icon">drop<wbr>Duplicates</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface">
 								<a href="cudf_src.table.html#drop_nans" class="tsd-kind-icon">drop_<wbr>nans</a>
