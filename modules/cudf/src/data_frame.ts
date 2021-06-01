@@ -1610,7 +1610,7 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  replaceNulls(value: number|string|boolean, memoryResource?: MemoryResource): DataFrame;
+  replaceNulls(value: number|string|boolean, memoryResource?: MemoryResource): DataFrame<T>;
 
   /**
    * Replace null values with the corresponding elements from another Map of Series.
@@ -1635,7 +1635,7 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  replaceNulls(value: SeriesMap<T>, memoryResource?: MemoryResource): DataFrame;
+  replaceNulls(value: SeriesMap<T>, memoryResource?: MemoryResource): DataFrame<T>;
 
   /**
    * Replace null values with a scalar value.
@@ -1660,7 +1660,7 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  replaceNulls(value: any, memoryResource?: MemoryResource): DataFrame {
+  replaceNulls(value: any, memoryResource?: MemoryResource): DataFrame<T> {
     if (value instanceof Object) {
       const columns = new ColumnAccessor(_seriesToColumns(value as SeriesMap<T>));
       return new DataFrame(this.names.reduce(
