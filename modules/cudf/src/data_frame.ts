@@ -26,7 +26,7 @@ import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, Float32, Float64, IndexType, Numeric} from './types/dtypes';
-import {NullOrder} from './types/enums';
+import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
 export type SeriesMap<T extends TypeMap> = {
@@ -358,16 +358,16 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int32, NullOrder}  from '@rapidsai/cudf';
    * const df = new DataFrame({a: Series.new([null, 4, 3, 2, 1, 0])});
    *
-   * df.orderBy({a: {ascending: true, null_order: 'BEFORE'}});
+   * df.orderBy({a: {ascending: true, null_order: 'before'}});
    * // Int32Series [0, 5, 4, 3, 2, 1]
    *
-   * df.orderBy({a: {ascending: true, null_order: 'AFTER'}});
+   * df.orderBy({a: {ascending: true, null_order: 'after'}});
    * // Int32Series [5, 4, 3, 2, 1, 0]
    *
-   * df.orderBy({a: {ascending: false, null_order: 'BEFORE'}});
+   * df.orderBy({a: {ascending: false, null_order: 'before'}});
    * // Int32Series [1, 2, 3, 4, 5, 0]
    *
-   * df.orderBy({a: {ascending: false, null_order: 'AFTER'}});
+   * df.orderBy({a: {ascending: false, null_order: 'after'}});
    * // Int32Series [0, 1, 2, 3, 4, 5]
    * ```
    */
@@ -376,7 +376,7 @@ export class DataFrame<T extends TypeMap = any> {
     const null_orders   = new Array<NullOrder>();
     const columns       = new Array<Column<T[keyof T]>>();
     const entries       = Object.entries(options) as [R, OrderSpec][];
-    entries.forEach(([name, {ascending = true, null_order = 'AFTER'}]) => {
+    entries.forEach(([name, {ascending = true, null_order = 'after'}]) => {
       const child = this.get(name);
       if (child) {
         columns.push(child._col as Column<T[keyof T]>);
@@ -395,7 +395,7 @@ export class DataFrame<T extends TypeMap = any> {
    * @param ascending whether to sort ascending (true) or descending (false)
    *   Default: true
    * @param null_order whether nulls should sort before or after other values
-   *   Default: AFTER
+   *   Default: after
    *
    * @returns A new DataFrame of sorted values
    *
@@ -407,16 +407,16 @@ export class DataFrame<T extends TypeMap = any> {
    *   b: Series.new([0, 1, 2, 3, 4, 5])
    * });
    *
-   * df.sortValues({a: {ascending: true, null_order: 'AFTER'}})
+   * df.sortValues({a: {ascending: true, null_order: 'after'}})
    * // {a: [0, 1, 2, 3, 4, null], b: [5, 4, 3, 2, 1, 0]}
    *
-   * df.sortValues({a: {ascending: true, null_order: 'BEFORE'}})
+   * df.sortValues({a: {ascending: true, null_order: 'before'}})
    * // {a: [null, 0, 1, 2, 3, 4], b: [0, 5, 4, 3, 2, 1]}
    *
-   * df.sortValues({a: {ascending: false, null_order: 'AFTER'}})
+   * df.sortValues({a: {ascending: false, null_order: 'after'}})
    * // {a: [4, 3, 2, 1, 0, null], b: [1, 2, 3, 4, 5, 0]}
    *
-   * df.sortValues({a: {ascending: false, null_order: 'BEFORE'}})
+   * df.sortValues({a: {ascending: false, null_order: 'before'}})
    * // {a: [null, 4, 3, 2, 1, 0], b: [0, 1, 2, 3, 4, 5]}
    * ```
    */
@@ -636,12 +636,11 @@ export class DataFrame<T extends TypeMap = any> {
    * @ignore
    */
   _dropNullsRows(thresh = 1, subset = this.names) {
-    const column_names: (keyof T)[] = [];
-    const column_indices: number[]  = [];
-    subset.forEach((col, idx) => {
-      if (this.names.includes(col)) {
-        column_names.push(col);
-        column_indices.push(idx);
+    const column_indices: number[] = [];
+    const allNames                 = this.names;
+    subset.forEach((col) => {
+      if (allNames.includes(col)) {
+        column_indices.push(allNames.indexOf(col));
       } else {
         throw new Error(`Unknown column name: ${col.toString()}`);
       }
@@ -649,23 +648,22 @@ export class DataFrame<T extends TypeMap = any> {
 
     const table_result = new Table({columns: this._accessor.columns});
     const result       = table_result.drop_nulls(column_indices, thresh);
-    return new DataFrame(this.names.reduce(
-      (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
-      {} as SeriesMap<T>));
+    return new DataFrame(
+      allNames.reduce((map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
+                      {} as SeriesMap<T>));
   }
   /**
    * drop rows with NaN values (float type only)
    * @ignore
    */
   _dropNaNsRows(thresh = 1, subset = this.names) {
-    const column_names: (keyof T)[] = [];
-    const column_indices: number[]  = [];
-    subset.forEach((col, idx) => {
-      if (this.names.includes(col) &&
+    const column_indices: number[] = [];
+    const allNames                 = this.names;
+    subset.forEach((col) => {
+      if (allNames.includes(col) &&
           [new Float32, new Float64].some((t) => this.get(col).type.compareTo(t))) {
-        column_names.push(col);
-        column_indices.push(idx);
-      } else if (!this.names.includes(col)) {
+        column_indices.push(allNames.indexOf(col));
+      } else if (!allNames.includes(col)) {
         throw new Error(`Unknown column name: ${col.toString()}`);
       } else {
         // col exists but not of floating type
@@ -674,9 +672,9 @@ export class DataFrame<T extends TypeMap = any> {
     });
     const table_result = new Table({columns: this._accessor.columns});
     const result       = table_result.drop_nans(column_indices, thresh);
-    return new DataFrame(this.names.reduce(
-      (map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
-      {} as SeriesMap<T>));
+    return new DataFrame(
+      allNames.reduce((map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
+                      {} as SeriesMap<T>));
   }
   /**
    * drop columns with nulls
@@ -1590,31 +1588,6 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
-   * Replace null values with a scalar value.
-   *
-   * @param value The scalar value to use in place of nulls.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
-   *
-   * @example
-   * ```typescript
-   * import {DataFrame, Series} from '@rapidsai/cudf';
-   *
-   * const df = new DataFrame({
-   *  a: Series.new([0, null, 2]);
-   *  b: Series.new([null, null, null]);
-   * });
-   *
-   * df.replaceNulls(1);
-   * // return {
-   * //    a: [0, 1, 2],
-   * //    b: [1, 1, 1],
-   * // }
-   * ```
-   */
-  replaceNulls(value: T['scalarType']|any, memoryResource?: MemoryResource): DataFrame;
-
-  /**
    * Replace null values with the corresponding elements from another Map of Series.
    *
    * @param value The map of Series to use in place of nulls.
@@ -1637,9 +1610,32 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  replaceNulls(value: SeriesMap<T>, memoryResource?: MemoryResource): DataFrame;
+  replaceNulls(value: SeriesMap<T>, memoryResource?: MemoryResource): DataFrame<T>;
 
-  replaceNulls(value: any, memoryResource?: MemoryResource): DataFrame {
+  /**
+   * Replace null values with a scalar value.
+   *
+   * @param value The scalar value to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([0, null, 2]);
+   *  b: Series.new([null, null, null]);
+   * });
+   *
+   * df.replaceNulls(1);
+   * // return {
+   * //    a: [0, 1, 2],
+   * //    b: [1, 1, 1],
+   * // }
+   * ```
+   */
+  replaceNulls(value: any, memoryResource?: MemoryResource): DataFrame<T> {
     if (value instanceof Object) {
       const columns = new ColumnAccessor(_seriesToColumns(value as SeriesMap<T>));
       return new DataFrame(this.names.reduce(
@@ -1659,5 +1655,40 @@ export class DataFrame<T extends TypeMap = any> {
         }),
         {} as SeriesMap<T>));
     }
+  }
+
+  /**
+   * Drops duplicate rows from a DataFrame
+   *
+   * @param keep Determines whether to keep the first, last, or none of the duplicate items.
+   * @param nullsEqual Determines whether nulls are handled as equal values.
+   * @param nullsFirst Determines whether null values are inserted before or after non-null values.
+   * @param subset List of columns to consider when dropping rows (all columns are considered by
+   * default).
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   *
+   * @returns a DataFrame without duplicate rows
+   * ```
+   */
+  dropDuplicates(keep: keyof typeof DuplicateKeepOption,
+                 nullsEqual: boolean,
+                 nullsFirst: boolean,
+                 subset: (string&keyof T)[] = this.names,
+                 memoryResource?: MemoryResource) {
+    const column_indices: number[] = [];
+    const allNames                 = this.names;
+
+    subset.forEach((col) => {
+      if (allNames.includes(col)) {
+        column_indices.push(allNames.indexOf(col));
+      } else {
+        throw new Error(`Unknown column name: ${col}`);
+      }
+    });
+    const table = this.asTable().dropDuplicates(
+      column_indices, DuplicateKeepOption[keep], nullsEqual, nullsFirst, memoryResource);
+    return new DataFrame(
+      allNames.reduce((map, name, i) => ({...map, [name]: Series.new(table.getColumnByIndex(i))}),
+                      {} as SeriesMap<T>));
   }
 }

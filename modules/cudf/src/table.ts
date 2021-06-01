@@ -18,7 +18,7 @@ import {Column} from './column';
 import {Scalar} from './scalar';
 import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
-import {NullOrder} from './types/enums';
+import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {TypeMap} from './types/mappings';
 
 export type ToArrowMetadata = [string | number, ToArrowMetadata[]?];
@@ -184,6 +184,11 @@ export interface Table {
 
   drop_nans(keys: number[], threshold: number): Table;
   drop_nulls(keys: number[], threshold: number): Table;
+  dropDuplicates(keys: number[],
+                 keep: DuplicateKeepOption,
+                 nullsEqual: boolean,
+                 nullsFirst: boolean,
+                 memoryResource?: MemoryResource): Table;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

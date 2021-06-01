@@ -1058,16 +1058,6 @@ export interface Column<T extends DataType = any> {
    */
   nans_to_nulls(memoryResource?: MemoryResource): Column<T>;
 
-  /**
-   * Drop duplicate values from the column
-   *
-   * @param nullsEqual Determines whether nulls are handled as equal values.
-   * @param memoryResource The optional MemoryResource used to allocate the result column's device
-   *   memory.
-   * @returns column without duplicate values
-   */
-  drop_duplicates(nullsEqual?: boolean, memoryResource?: MemoryResource): Column<T>;
-
   getJSONObject(jsonPath?: string, memoryResource?: MemoryResource): Column<T>;
 }
 
