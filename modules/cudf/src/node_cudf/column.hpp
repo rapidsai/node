@@ -583,10 +583,6 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Column::wrapper_t drop_nans(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  Column::wrapper_t drop_duplicates(
-    bool nulls_equal,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-
   // column/filling.cpp
   static Column::wrapper_t sequence(
     Napi::Env const& env,
@@ -755,7 +751,6 @@ struct Column : public EnvLocalObjectWrap<Column> {
   // column/stream_compaction.cpp
   Napi::Value drop_nulls(Napi::CallbackInfo const& info);
   Napi::Value drop_nans(Napi::CallbackInfo const& info);
-  Napi::Value drop_duplicates(Napi::CallbackInfo const& info);
 
   // column/filling.cpp
   static Napi::Value sequence(Napi::CallbackInfo const& info);
