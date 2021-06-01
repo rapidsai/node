@@ -70,7 +70,7 @@ Table::wrapper_t Table::New(Napi::Env const& env, std::unique_ptr<cudf::table> t
 }
 
 Table::Table(CallbackArgs const& args) : EnvLocalObjectWrap<Table>(args) {
-  NODE_CUDF_EXPECT(args.IsConstructCall(), "Table constructor requires 'new'");
+  NODE_CUDF_EXPECT(args.IsConstructCall(), "Table constructor requires 'new'", args.Env());
 
   if (args.Length() != 1 || !args[0].IsObject()) { return; }
 
@@ -86,10 +86,9 @@ Table::Table(CallbackArgs const& args) : EnvLocalObjectWrap<Table>(args) {
     num_rows_ = col->size();
     for (auto i = 1u; i < columns.Length(); ++i) {
       col = Column::wrapper_t{columns.Get(i).ToObject()};
-      if (!(col->size() == num_rows_)) {
-        NAPI_THROW(Napi::Error::New(args.Env(),
-                                    "Table constructor requires all columns to be of same length"));
-      }
+      NODE_CUDF_EXPECT(col->size() == num_rows_,
+                       "Table constructor requires all columns to be of same length",
+                       args.Env());
     }
   }
 

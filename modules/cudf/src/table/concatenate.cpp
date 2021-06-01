@@ -23,6 +23,9 @@ Napi::Value Table::concat(Napi::CallbackInfo const& info) {
   std::vector<Table::wrapper_t> tables = args[0];
   rmm::mr::device_memory_resource* mr  = args[1];
 
+  NODE_CUDF_EXPECT(
+    tables.size() > 0, "Table concat requires non-empty array of tables", args.Env());
+
   std::vector<cudf::table_view> table_views;
   table_views.reserve(tables.size());
   std::transform(tables.begin(),
