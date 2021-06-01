@@ -50,6 +50,7 @@ import {
   Utf8String,
 } from './types/dtypes';
 import {
+  DuplicateKeepOption,
   NullOrder,
 } from './types/enums';
 import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
@@ -646,10 +647,8 @@ export class AbstractSeries<T extends DataType = any> {
    */
   head(n = 5): Series<T> {
     if (n < 0) { throw new Error('Index provided is out of bounds'); }
-    const selection = Series.new({
-      type: new Int32,
-      data: Array.from({length: n < this._col.length ? n : this._col.length}, (_, i) => i)
-    });
+    const selection = Series.sequence(
+      {type: new Int32, size: n < this._col.length ? n : this._col.length, init: 0});
     return this.__construct(this._col.gather(selection._col));
   }
 
@@ -672,11 +671,9 @@ export class AbstractSeries<T extends DataType = any> {
    */
   tail(n = 5): Series<T> {
     if (n < 0) { throw new Error('Index provided is out of bounds'); }
-    const length    = n < this._col.length ? n : this._col.length;
-    const selection = Series.new({
-      type: new Int32,
-      data: Array.from({length: length}, (_, i) => this._col.length - length + i)
-    });
+    const length = n < this._col.length ? n : this._col.length;
+    const selection =
+      Series.sequence({type: new Int32, size: length, init: this._col.length - length});
     return this.__construct(this._col.gather(selection._col));
   }
 
@@ -869,11 +866,11 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([true, false, true, true, false]).orderBy(false) // [0, 2, 3, 1, 4]
    *
    * // NullOrder usage
-   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, 'BEFORE') // [0, 1, 2, 3, 4, 5]
-   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, 'AFTER') // [5, 0, 1, 2, 3, 4]
+   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, 'before') // [0, 1, 2, 3, 4, 5]
+   * Series.new([50, 40, 30, 20, 10, null]).orderBy(false, 'after') // [5, 0, 1, 2, 3, 4]
    * ```
    */
-  orderBy(ascending = true, null_order: keyof typeof NullOrder = 'AFTER') {
+  orderBy(ascending = true, null_order: keyof typeof NullOrder = 'after') {
     return Series.new(
       new Table({columns: [this._col]}).orderBy([ascending], [NullOrder[null_order]]));
   }
@@ -884,7 +881,7 @@ export class AbstractSeries<T extends DataType = any> {
    * @param ascending whether to sort ascending (true) or descending (false)
    *   Default: true
    * @param null_order whether nulls should sort before or after other values
-   *   Default: BEFORE
+   *   Default: before
    *
    * @returns Sorted values
    *
@@ -907,14 +904,14 @@ export class AbstractSeries<T extends DataType = any> {
    * false, false]
    *
    * // NullOrder usage
-   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, 'BEFORE') // [50, 40, 30, 20,
+   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, 'before') // [50, 40, 30, 20,
    * 10, null]
    *
-   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, 'AFTER') // [null, 50, 40, 30,
+   * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, 'after') // [null, 50, 40, 30,
    * 20, 10]
    * ```
    */
-  sortValues(ascending = true, null_order: keyof typeof NullOrder = 'AFTER'): Series<T> {
+  sortValues(ascending = true, null_order: keyof typeof NullOrder = 'after'): Series<T> {
     return this.gather(this.orderBy(ascending, null_order));
   }
 
@@ -1016,14 +1013,61 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
-   * Removes duplicate values from the Series.
+   * Returns a new Series with only the unique values that were found in the original
    *
    * @param nullsEqual Determines whether nulls are handled as equal values.
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns series without duplicate values
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([null, null, 1, 2, 3, 3]).unique(true) // [null, 1, 2, 3]
+   * Series.new([null, null, 1, 2, 3, 3]).unique(false) // [null, null, 1, 2, 3]
+   * ```
    */
   unique(nullsEqual = true, memoryResource?: MemoryResource) {
-    return this.__construct(this._col.drop_duplicates(nullsEqual, memoryResource));
+    return this.dropDuplicates(true, nullsEqual, true, memoryResource);
+  }
+
+  /**
+   * Returns a new Series with duplicate values from the original removed
+   *
+   * @param keep Determines whether or not to keep the duplicate items.
+   * @param nullsEqual Determines whether nulls are handled as equal values.
+   * @param nullsFirst Determines whether null values are inserted before or after non-null values.
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   * @returns series without duplicate values
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([4, null, 1, 2, null, 3, 4]).dropDuplicates(
+   *   true,
+   *   true,
+   *   true
+   * ) // [null, 1, 2, 3, 4]
+   *
+   * Series.new([4, null, 1, 2, null, 3, 4]).dropDuplicates(
+   *   false,
+   *   true,
+   *   true
+   * ) // [1, 2, 3]
+   * ```
+   */
+  dropDuplicates(keep: boolean,
+                 nullsEqual: boolean,
+                 nullsFirst: boolean,
+                 memoryResource?: MemoryResource) {
+    return Series.new(
+      new Table({columns: [this._col]})
+        .dropDuplicates(
+          [0], DuplicateKeepOption[keep ? 'first' : 'none'], nullsEqual, nullsFirst, memoryResource)
+        .getColumnByIndex(0));
   }
 }
 

@@ -411,7 +411,7 @@ describe('DataFrame.join({how="right"}) ', () => {
     expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
 
     // Sorting is just to get 1-1 agreement with order of pd/cudf results
-    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'AFTER'}});
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'after'}});
 
     expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
     expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4, null]);
@@ -424,7 +424,7 @@ describe('DataFrame.join({how="right"}) ', () => {
     expect(result.names).toEqual(expect.arrayContaining(['a', 'b']));
 
     // Sorting is just to get 1-1 agreement with order of pd/cudf results
-    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'AFTER'}});
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'after'}});
 
     expect([...sorted_result.get('a')]).toEqual([0, 0, 10, 10, 30]);
     expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
@@ -436,7 +436,7 @@ describe('DataFrame.join({how="right"}) ', () => {
     expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'a_L']));
 
     // Sorting is just to get 1-1 agreement with order of pd/cudf results
-    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'AFTER'}});
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'after'}});
 
     expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
     expect([...sorted_result.get('a_L')]).toEqual([1, 2, 3, 4, null]);
@@ -449,7 +449,7 @@ describe('DataFrame.join({how="right"}) ', () => {
     expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'a_R']));
 
     // Sorting is just to get 1-1 agreement with order of pd/cudf results
-    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'AFTER'}});
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'after'}});
 
     expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
     expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4, null]);
@@ -463,7 +463,7 @@ describe('DataFrame.join({how="right"}) ', () => {
     expect(result.names).toEqual(expect.arrayContaining(['a_L', 'b', 'a_R']));
 
     // Sorting is just to get 1-1 agreement with order of pd/cudf results
-    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'AFTER'}});
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'after'}});
 
     expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
     expect([...sorted_result.get('a_L')]).toEqual([1, 2, 3, 4, null]);
@@ -489,7 +489,7 @@ describe('DataFrame.join({how="right"}) ', () => {
     expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
 
     // Sorting is just to get 1-1 agreement with order of pd/cudf results
-    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'AFTER'}});
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'after'}});
 
     expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1, 3]);
     expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4, null]);
@@ -519,7 +519,7 @@ describe('DataFrame.join({how="leftsemi"}) ', () => {
     expect(result.numColumns).toEqual(2);
     expect(result.names).toEqual(expect.arrayContaining(['a', 'b']));
 
-    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'AFTER'}});
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'after'}});
 
     expect([...sorted_result.get('b')]).toEqual([2]);
     expect([...sorted_result.get('a')]).toEqual([5]);
@@ -532,7 +532,7 @@ describe('DataFrame.join({how="leftanti"}) ', () => {
     expect(result.numColumns).toEqual(2);
     expect(result.names).toEqual(expect.arrayContaining(['a', 'b']));
 
-    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'AFTER'}});
+    const sorted_result = result.sortValues({b: {ascending: true, null_order: 'after'}});
 
     expect([...sorted_result.get('b')]).toEqual([0, 0, 1, 1]);
     expect([...sorted_result.get('a')]).toEqual([1, 2, 3, 4]);

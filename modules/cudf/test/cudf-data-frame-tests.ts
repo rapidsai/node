@@ -152,7 +152,7 @@ test('DataFrame.drop', () => {
 test('DataFrame.orderBy (ascending, non-null)', () => {
   const col    = Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: true, null_order: 'BEFORE'}});
+  const result = df.orderBy({'a': {ascending: true, null_order: 'before'}});
 
   const expected = [5, 0, 4, 1, 3, 2];
   expect([...result]).toEqual([...Buffer.from(expected)]);
@@ -161,7 +161,7 @@ test('DataFrame.orderBy (ascending, non-null)', () => {
 test('DataFrame.orderBy (descending, non-null)', () => {
   const col    = Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: false, null_order: 'BEFORE'}});
+  const result = df.orderBy({'a': {ascending: false, null_order: 'before'}});
 
   const expected = [2, 3, 1, 4, 0, 5];
   expect([...result]).toEqual([...Buffer.from(expected)]);
@@ -172,7 +172,7 @@ test('DataFrame.orderBy (ascending, null before)', () => {
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: true, null_order: 'BEFORE'}});
+  const result = df.orderBy({'a': {ascending: true, null_order: 'before'}});
 
   const expected = [1, 5, 0, 4, 3, 2];
   expect([...result]).toEqual([...Buffer.from(expected)]);
@@ -183,7 +183,7 @@ test('DataFrame.orderBy (ascending, null after)', () => {
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: true, null_order: 'AFTER'}});
+  const result = df.orderBy({'a': {ascending: true, null_order: 'after'}});
 
   const expected = [5, 0, 4, 3, 2, 1];
   expect([...result]).toEqual([...Buffer.from(expected)]);
@@ -194,7 +194,7 @@ test('DataFrame.orderBy (descendng, null before)', () => {
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: false, null_order: 'BEFORE'}});
+  const result = df.orderBy({'a': {ascending: false, null_order: 'before'}});
 
   const expected = [2, 3, 4, 0, 5, 1];
 
@@ -206,7 +206,7 @@ test('DataFrame.orderBy (descending, null after)', () => {
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
-  const result = df.orderBy({'a': {ascending: false, null_order: 'AFTER'}});
+  const result = df.orderBy({'a': {ascending: false, null_order: 'after'}});
 
   const expected = [1, 2, 3, 4, 0, 5];
   expect([...result]).toEqual([...Buffer.from(expected)]);
@@ -239,7 +239,7 @@ describe('Dataframe.head', () => {
   const c  = Series.new(['foo', null, null, 'bar', null, null, 'foo']);
   const df = new DataFrame({'a': a, 'b': b, 'c': c});
 
-  test('default index', () => {
+  test('default n', () => {
     const result = df.head();
     expect(result.numRows).toEqual(5);
     expect([...result.get('a')]).toEqual([0, 1, 2, 3, 4]);
@@ -247,9 +247,9 @@ describe('Dataframe.head', () => {
     expect([...result.get('c')]).toEqual(['foo', null, null, 'bar', null]);
   });
 
-  test('invalid index', () => { expect(() => df.head(-1)).toThrowError(); });
+  test('invalid n', () => { expect(() => df.head(-1)).toThrowError(); });
 
-  test('providing index', () => {
+  test('providing n', () => {
     const result = df.head(2);
     expect(result.numRows).toEqual(2);
     expect([...result.get('a')]).toEqual([0, 1]);
@@ -257,7 +257,7 @@ describe('Dataframe.head', () => {
     expect([...result.get('c')]).toEqual(['foo', null]);
   });
 
-  test('index longer than length of series', () => {
+  test('n longer than length of series', () => {
     const result = df.head(25);
     expect(result.numRows).toEqual(7);
     expect([...result.get('a')]).toEqual([...a]);
@@ -272,7 +272,7 @@ describe('Dataframe.tail', () => {
   const c  = Series.new(['foo', null, null, 'bar', null, null, 'foo']);
   const df = new DataFrame({'a': a, 'b': b, 'c': c});
 
-  test('default index', () => {
+  test('default n', () => {
     const result = df.tail();
     expect(result.numRows).toEqual(5);
     expect([...result.get('a')]).toEqual([2, 3, 4, 5, 6]);
@@ -280,9 +280,9 @@ describe('Dataframe.tail', () => {
     expect([...result.get('c')]).toEqual([null, 'bar', null, null, 'foo']);
   });
 
-  test('invalid index', () => { expect(() => df.tail(-1)).toThrowError(); });
+  test('invalid n', () => { expect(() => df.tail(-1)).toThrowError(); });
 
-  test('providing index', () => {
+  test('providing n', () => {
     const result = df.tail(2);
     expect(result.numRows).toEqual(2);
     expect([...result.get('a')]).toEqual([5, 6]);
@@ -290,7 +290,7 @@ describe('Dataframe.tail', () => {
     expect([...result.get('c')]).toEqual([null, 'foo']);
   });
 
-  test('index longer than length of series', () => {
+  test('n longer than length of series', () => {
     const result = df.tail(25);
     expect(result.numRows).toEqual(7);
     expect([...result.get('a')]).toEqual([...a]);
@@ -759,4 +759,36 @@ test('dataframe.isNotNull', () => {
   expect([...result.get('a')]).toEqual([...expected_a]);
   expect([...result.get('b')]).toEqual([...expected_b]);
   expect([...result.get('c')]).toEqual([...expected_c]);
+});
+
+test.each`
+keep       | nullsEqual | nullsFirst | data                                                    | expected
+${'first'} | ${true}    | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[null, 1, 3, 4], [null, 5, 8, 4]]}
+${'last'}  | ${true}    | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[null, 1, 3, 4], [null, 5, 8, 4]]}
+${'none'}  | ${true}    | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3], [5, 8]]}
+${'first'} | ${false}   | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[null, null, 1, 3, 4], [null, null, 5, 8, 4]]}
+${'last'}  | ${false}   | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[null, null, 1, 3, 4], [null, null, 5, 8, 4]]}
+${'none'}  | ${false}   | ${true}    | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[null, null, 1, 3], [null, null, 5, 8]]}
+${'first'} | ${true}    | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3, 4, null], [5, 8, 4, null]]}
+${'last'}  | ${true}    | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3, 4, null], [5, 8, 4, null]]}
+${'none'}  | ${true}    | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3], [5, 8]]}
+${'first'} | ${false}   | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3, 4, null, null], [5, 8, 4, null, null]]}
+${'last'}  | ${false}   | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3, 4, null, null], [5, 8, 4, null, null]]}
+${'none'}  | ${false}   | ${false}   | ${[[4, null, 1, null, 3, 4], [4, null, 5, null, 8, 4]]} | ${[[1, 3, null, null], [5, 8, null, null]]}
+`('DataFrame.dropDuplicates($keep, $nullsEqual, $nullsFirst)', ({keep, nullsEqual, nullsFirst, data, expected}) => {
+  const a      = Series.new(data[0]);
+  const b      = Series.new(data[1]);
+  const df = new DataFrame({a, b});
+  const result = df.dropDuplicates(keep, nullsEqual, nullsFirst);
+  expect([...result.get('a')]).toEqual(expected[0]);
+  expect([...result.get('b')]).toEqual(expected[1]);
+});
+
+test(`DataFrame.dropDuplicates("first", true, true, ['a'])`, () => {
+  const a      = Series.new([4, null, 1, null, 3, 4]);
+  const b      = Series.new([2, null, 5, null, 8, 9]);
+  const df     = new DataFrame({a, b});
+  const result = df.dropDuplicates('first', true, true, ['a']);
+  expect([...result.get('a')]).toEqual([null, 1, 3, 4]);
+  expect([...result.get('b')]).toEqual([null, 5, 8, 2]);
 });
