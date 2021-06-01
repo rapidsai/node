@@ -360,14 +360,15 @@ void Column::set_null_mask(Napi::Value const& new_null_mask, cudf::size_type new
     if (new_null_count > 0) {
       NODE_CUDF_EXPECT(new_mask->size() >= cudf::bitmask_allocation_size_bytes(this->size()),
                        "Column with null values must be nullable, and the null mask "
-                       "buffer size should match the size of the column.");
+                       "buffer size should match the size of the column.",
+                       Env());
     }
     null_mask_ = Napi::Persistent(new_mask);
   }
 }
 
 void Column::set_null_count(cudf::size_type new_null_count) {
-  if (new_null_count > 0) { NODE_CUDF_EXPECT(nullable(), "Invalid null count."); }
+  if (new_null_count > 0) { NODE_CUDF_EXPECT(nullable(), "Invalid null count.", Env()); }
   null_count_ = new_null_count;
 }
 
