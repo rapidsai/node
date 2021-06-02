@@ -2,12 +2,9 @@ import {
   DataFrame,
   Float32,
   Float64,
-  // Int16,
   Int32,
   Int64,
   Int8,
-  // DataType,
-  // Float64Series,
   Series,
   TypeMap,
   Uint32,
@@ -41,13 +38,12 @@ export class UMAP {
     return result;
   }
 
-  private _series_to_dataframe(input: DeviceBuffer, n_samples: number): DataFrame {
-    const input_series = Series.new({type: new Int8, data: input});
-    console.log([...input_series], input_series.length);
+  private _series_to_dataframe(input: Series, n_samples: number): DataFrame {
+    // console.log([...input], input.length);
     let result = new DataFrame({});
     for (let i = 0; i < this._umap.nComponents; i++) {
       result = result.assign({
-        [i]: input_series.gather(Series.sequence(
+        [i]: input.gather(Series.sequence(
           {type: new Int32, init: i, size: n_samples, step: this._umap.nComponents}))
       });
     }
@@ -89,8 +85,8 @@ export class UMAP {
     const result = this._umap.transform(
       this._transform_input_to_device_buffer(X), n_samples, n_features, null, null, convertDType);
 
-    return this._series_to_dataframe(result, n_samples);
+    return this._series_to_dataframe(Series.new(result), n_samples);
   }
 
-  get embeddings(): DeviceBuffer { return this._umap.getEmbeddings(); }
+  get embeddings(): Series<Numeric> { return Series.new(this._umap.getEmbeddings()); }
 }

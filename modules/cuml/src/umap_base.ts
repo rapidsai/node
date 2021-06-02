@@ -1,4 +1,5 @@
-import {DeviceBuffer} from '@rapidsai/rmm/build/js';
+import {Column} from '@rapidsai/cudf';
+import {DeviceBuffer} from '@rapidsai/rmm';
 import {CUML} from './addon';
 
 export type UMAPParams = {
@@ -65,9 +66,9 @@ export interface UMAPInterface {
             n_features: number,
             knnIndices: DeviceBuffer|null,
             knnDists: DeviceBuffer|null,
-            convertDType: boolean): DeviceBuffer;
+            convertDType: boolean): Column;
 
-  getEmbeddings(): DeviceBuffer;
+  getEmbeddings(): Column;
 }
 
 export const UMAPBase: UMAPConstructor = CUML.UMAP;
