@@ -255,6 +255,28 @@ export class DataFrame<T extends TypeMap = any> {
    */
   get names() { return this._accessor.names; }
 
+  /**
+   * A map of this DataFrame's Series names to their DataTypes
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2]),
+   *  b: Series.new(["foo", "bar"]),
+   *  c: Series.new([[1, 2], [3]]),
+   * })
+   *
+   * df.types
+   * // {
+   * //   a: [Object Float64],
+   * //   b: [Object Utf8String],
+   * //   c: [Object List]
+   * // }
+   * ```
+   */
+  get types() { return this._accessor.types; }
+
   /** @ignore */
   asTable() { return new Table({columns: this._accessor.columns}); }
 
