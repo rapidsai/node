@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
@@ -97,7 +96,7 @@ export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(firs
         const empty_column_length =
           columns_per_df[row_idx]?.find((col) => col !== null).length ?? 0;
         columns_per_df[row_idx][col_idx] =
-          new Column({type: common_dtype, data: new Array(empty_column_length)});
+          Series.new({type: common_dtype, data: new Array(empty_column_length)})._col;
       } else {
         if (!col.type.compareTo(common_dtype)) {
           columns_per_df[row_idx][col_idx] = col.cast(common_dtype);

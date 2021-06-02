@@ -709,7 +709,7 @@ describe('dataframe.concat', () => {
     expect([...result.get('b')]).toEqual([null, null, null, null, ...b]);
   });
 
-  test.skip('zero series in common different types', () => {
+  test('zero series in common different types', () => {
     const a   = Series.new([1, 2, 3, 4]);
     const b   = Series.new(['5', '6', '7', '8']);
     const dfa = new DataFrame({'a': a});
