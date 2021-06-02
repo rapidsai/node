@@ -26,7 +26,7 @@ import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, Float32, Float64, IndexType, Int32, Numeric} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
-import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
+import {ColumnsMap, CommonType, findCommonType, TypeMap} from './types/mappings';
 
 export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
@@ -1492,6 +1492,22 @@ export class DataFrame<T extends TypeMap = any> {
           () => { return Series.new(this._accessor.get(name).not(memoryResource)); })
       }),
       {} as SeriesMap<{[P in keyof T]: Bool8}>));
+  }
+
+  sum(subset?: (keyof T)[], dtype?: DataType) {
+    subset     = (subset == undefined) ? this.names as (keyof T)[] : subset;
+    const temp = new Table({columns: this.select(subset)._accessor.columns});
+
+    let common_dtype: DataType = temp.getColumnByIndex(0).type;
+    const sums: number[]         = new Array(temp.numColumns);
+    for (let i = 0; i < temp.numColumns; ++i) {
+      const col    = temp.getColumnByIndex(i);
+      common_dtype = findCommonType(common_dtype, col.type);
+      sums[i]      = Number(col.sum());
+    }
+
+    const result = Series.new({type: common_dtype, data: sums});
+    return dtype ? result.cast(dtype) : result;
   }
 
   /**

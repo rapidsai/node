@@ -685,6 +685,31 @@ describe('dataframe unaryops', () => {
   });
 });
 
+describe('dataframe.sum', () => {
+  test('int and float', () => {
+    const a  = Series.new({type: new Int32, data: [1, 2, 3]});
+    const b  = Series.new({type: new Float32, data: [2, 3, 2.5]});
+    const df = new DataFrame({'a': a, 'b': b});
+
+    expect([...df.sum()]).toEqual([6, 7.5]);
+  });
+
+  test('empty dataframe', () => {
+    const df = new DataFrame({'a': Series.new([]), 'b': Series.new([])});
+    expect([...df.sum()]).toEqual([0, 0]);
+  });
+
+  test('cast to int', () => {
+    const df = new DataFrame({'a': Series.new([1.5, 2.5, 3.5]), 'b': Series.new([4.5, 5.5, 6.5])});
+    expect([...df.sum(undefined, new Int32)]).toEqual([7, 16]);
+  });
+
+  test('subset', () => {
+    const df = new DataFrame({'a': Series.new([1, 2, 3]), 'b': Series.new([4.5, 5.5, 6.5])});
+    expect([...df.sum(['a'])]).toEqual([6]);
+  });
+});
+
 test('dataframe.nansToNulls', () => {
   const a  = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]});
   const b  = Series.new({type: new Float32, data: new Float32Buffer([0, NaN, 3, 5, 5, 6])});
