@@ -19,10 +19,10 @@ import {DataType} from '../types/dtypes';
 import {CommonTypes, findCommonType} from '../types/mappings';
 
 // clang-format off
-export type ConcatResult<D extends DataFrame, T extends unknown[]> =
+export type ConcatTypeMap<D extends DataFrame, T extends unknown[]> =
   T extends []                      ? D['types'] :
   T extends [DataFrame]             ? CommonTypes<D['types'], T[0]['types']> :
-  T extends [DataFrame, ...infer U] ? CommonTypes<D['types'], ConcatResult<T[0], U>> :
+  T extends [DataFrame, ...infer U] ? CommonTypes<D['types'], ConcatTypeMap<T[0], U>> :
                                       D['types'] ;
 // clang-format on
 
@@ -107,9 +107,9 @@ export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(firs
 
   const concatenatedTable = Table.concat(columns_per_df.map((columns) => new Table({columns})));
 
-  type TResult = ConcatResult<TFirst, TRest>;
+  type TResultTypeMap = ConcatTypeMap<TFirst, TRest>;
 
   return new DataFrame(all_column_names.reduce(
     (map, name, index) => ({...map, [name]: Series.new(concatenatedTable.getColumnByIndex(index))}),
-    {} as SeriesMap<{[P in keyof TResult]: TResult[P]}>));
+    {} as SeriesMap<{[P in keyof TResultTypeMap]: TResultTypeMap[P]}>));
 }
