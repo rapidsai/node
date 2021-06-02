@@ -67,7 +67,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
 
   _process_reduction(skipna = true, memoryResource?: MemoryResource): Series<T> {
     if (skipna == true) {
-      return this.__construct(this._col.nans_to_nulls(memoryResource).drop_nulls());
+      return this.__construct(this._col.nansToNulls(memoryResource).dropNulls());
     }
     return this.__construct(this._col);
   }
@@ -79,7 +79,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * @returns updated Series with Null values
    */
   nansToNulls(memoryResource?: MemoryResource): Series<T> {
-    return this.__construct(this._col.nans_to_nulls(memoryResource));
+    return this.__construct(this._col.nansToNulls(memoryResource));
   }
 
   /**
@@ -90,7 +90,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * @returns column without NaN values
    */
   dropNaNs(memoryResource?: MemoryResource): Series<T> {
-    return this.__construct(this._col.drop_nans(memoryResource));
+    return this.__construct(this._col.dropNans(memoryResource));
   }
 
   /**
@@ -200,7 +200,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * @returns The number of unqiue values in this Series.
    */
   nunique(dropna = true, memoryResource?: MemoryResource) {
-    return (dropna) ? this._col.nans_to_nulls(memoryResource).nunique(dropna, memoryResource)
+    return (dropna) ? this._col.nansToNulls(memoryResource).nunique(dropna, memoryResource)
                     : this._col.nunique(dropna, memoryResource);
   }
 }

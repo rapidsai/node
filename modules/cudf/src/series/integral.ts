@@ -51,20 +51,20 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  bitwise_and(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  bitwise_and(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwise_and<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_and<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_and<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                  memoryResource?: MemoryResource) {
+  bitwiseAnd(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
+  bitwiseAnd(rhs: number, memoryResource?: MemoryResource): Series<T>;
+  bitwiseAnd<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseAnd<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseAnd<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                 memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.bitwise_and(rhs, memoryResource));
-      case 'number': return Series.new(this._col.bitwise_and(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.bitwiseAnd(rhs, memoryResource));
+      case 'number': return Series.new(this._col.bitwiseAnd(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.bitwise_and(rhs, memoryResource))
-             : Series.new(this._col.bitwise_and(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.bitwiseAnd(rhs, memoryResource))
+             : Series.new(this._col.bitwiseAnd(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -73,20 +73,20 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  bitwise_or(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  bitwise_or(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwise_or<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_or<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_or<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                 memoryResource?: MemoryResource) {
+  bitwiseOr(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
+  bitwiseOr(rhs: number, memoryResource?: MemoryResource): Series<T>;
+  bitwiseOr<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseOr<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseOr<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.bitwise_or(rhs, memoryResource));
-      case 'number': return Series.new(this._col.bitwise_or(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.bitwiseOr(rhs, memoryResource));
+      case 'number': return Series.new(this._col.bitwiseOr(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.bitwise_or(rhs, memoryResource))
-             : Series.new(this._col.bitwise_or(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.bitwiseOr(rhs, memoryResource))
+             : Series.new(this._col.bitwiseOr(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -95,20 +95,20 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  bitwise_xor(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  bitwise_xor(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwise_xor<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_xor<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwise_xor<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                  memoryResource?: MemoryResource) {
+  bitwiseXor(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
+  bitwiseXor(rhs: number, memoryResource?: MemoryResource): Series<T>;
+  bitwiseXor<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseXor<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseXor<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                 memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.bitwise_xor(rhs, memoryResource));
-      case 'number': return Series.new(this._col.bitwise_xor(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.bitwiseXor(rhs, memoryResource));
+      case 'number': return Series.new(this._col.bitwiseXor(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.bitwise_xor(rhs, memoryResource))
-             : Series.new(this._col.bitwise_xor(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.bitwiseXor(rhs, memoryResource))
+             : Series.new(this._col.bitwiseXor(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -117,20 +117,20 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  shift_left(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  shift_left(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shift_left<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  shift_left<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
-  shift_left<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                 memoryResource?: MemoryResource) {
+  shiftLeft(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
+  shiftLeft(rhs: number, memoryResource?: MemoryResource): Series<T>;
+  shiftLeft<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
+  shiftLeft<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  shiftLeft<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.shift_left(rhs, memoryResource));
-      case 'number': return Series.new(this._col.shift_left(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.shiftLeft(rhs, memoryResource));
+      case 'number': return Series.new(this._col.shiftLeft(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.shift_left(rhs, memoryResource))
-             : Series.new(this._col.shift_left(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.shiftLeft(rhs, memoryResource))
+             : Series.new(this._col.shiftLeft(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -140,45 +140,45 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  shift_right(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  shift_right(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shift_right<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  shift_right<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
-  shift_right<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                  memoryResource?: MemoryResource) {
+  shiftRight(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
+  shiftRight(rhs: number, memoryResource?: MemoryResource): Series<T>;
+  shiftRight<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
+  shiftRight<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  shiftRight<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                 memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.shift_right(rhs, memoryResource));
-      case 'number': return Series.new(this._col.shift_right(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.shiftRight(rhs, memoryResource));
+      case 'number': return Series.new(this._col.shiftRight(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.shift_right(rhs, memoryResource))
-             : Series.new(this._col.shift_right(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.shiftRight(rhs, memoryResource))
+             : Series.new(this._col.shiftRight(rhs._col as Column<R>, memoryResource));
   }
 
   /**
-   * Perform a binary `shift_right_unsigned` operation between this Series and another Series or
+   * Perform a binary `shiftRightUnsigned` operation between this Series and another Series or
    * scalar value.
    *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  shift_right_unsigned(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  shift_right_unsigned(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shift_right_unsigned<R extends Integral>(rhs: Scalar<R>,
-                                           memoryResource?: MemoryResource): Series<T>;
-  shift_right_unsigned<R extends Integral>(rhs: IntSeries<R>,
-                                           memoryResource?: MemoryResource): Series<T>;
-  shift_right_unsigned<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                           memoryResource?: MemoryResource) {
+  shiftRightUnsigned(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
+  shiftRightUnsigned(rhs: number, memoryResource?: MemoryResource): Series<T>;
+  shiftRightUnsigned<R extends Integral>(rhs: Scalar<R>,
+                                         memoryResource?: MemoryResource): Series<T>;
+  shiftRightUnsigned<R extends Integral>(rhs: IntSeries<R>,
+                                         memoryResource?: MemoryResource): Series<T>;
+  shiftRightUnsigned<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                         memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.shift_right_unsigned(rhs, memoryResource));
-      case 'number': return Series.new(this._col.shift_right_unsigned(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.shiftRightUnsigned(rhs, memoryResource));
+      case 'number': return Series.new(this._col.shiftRightUnsigned(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.shift_right_unsigned(rhs, memoryResource))
-             : Series.new(this._col.shift_right_unsigned(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.shiftRightUnsigned(rhs, memoryResource))
+             : Series.new(this._col.shiftRightUnsigned(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -187,8 +187,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param memoryResource Memory resource used to allocate the result Series's device memory.
    * @returns A Series of the same number of elements containing the result of the operation.
    */
-  bit_invert(memoryResource?: MemoryResource): Series<T> {
-    return Series.new(this._col.bit_invert(memoryResource));
+  bitInvert(memoryResource?: MemoryResource): Series<T> {
+    return Series.new(this._col.bitInvert(memoryResource));
   }
 }
 

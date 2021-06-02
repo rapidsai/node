@@ -277,26 +277,26 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * const a = Series.new([10, 12, 14, 20]);
    * const b = Series.new([3, 2, 1, 3]);
    *
-   * a.true_div(3); // [3.3333333333333335, 4, 4.666666666666667, 6.666666666666667]
-   * a.true_div(b); // [3.3333333333333335, 6, 14, 6.666666666666667]
+   * a.trueDiv(3); // [3.3333333333333335, 4, 4.666666666666667, 6.666666666666667]
+   * a.trueDiv(b); // [3.3333333333333335, 6, 14, 6.666666666666667]
    * ```
    */
-  true_div(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
-  true_div(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  true_div<R extends Numeric>(rhs: Scalar<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  true_div<R extends Numeric>(rhs: NumericSeries<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  true_div<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                              memoryResource?: MemoryResource) {
+  trueDiv(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  trueDiv(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  trueDiv<R extends Numeric>(rhs: Scalar<R>,
+                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  trueDiv<R extends Numeric>(rhs: NumericSeries<R>,
+                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  trueDiv<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
+                             memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.true_div(rhs, memoryResource));
-      case 'number': return Series.new(this._col.true_div(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.trueDiv(rhs, memoryResource));
+      case 'number': return Series.new(this._col.trueDiv(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.true_div(rhs, memoryResource))
-             : Series.new(this._col.true_div(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.trueDiv(rhs, memoryResource))
+             : Series.new(this._col.trueDiv(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -312,26 +312,26 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * const a = Series.new([10, 12, 14, 20]);
    * const b = Series.new([3, 2, 1, 3]);
    *
-   * a.floor_div(3); // [ 3, 4, 4, 6 ]
-   * a.floor_div(b); // [ 3, 6, 14, 6 ]
+   * a.floorDiv(3); // [ 3, 4, 4, 6 ]
+   * a.floorDiv(b); // [ 3, 6, 14, 6 ]
    * ```
    */
-  floor_div(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
-  floor_div(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  floor_div<R extends Numeric>(rhs: Scalar<R>,
-                               memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  floor_div<R extends Numeric>(rhs: NumericSeries<R>,
-                               memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  floor_div<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                               memoryResource?: MemoryResource) {
+  floorDiv(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  floorDiv(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  floorDiv<R extends Numeric>(rhs: Scalar<R>,
+                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  floorDiv<R extends Numeric>(rhs: NumericSeries<R>,
+                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  floorDiv<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
+                              memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.floor_div(rhs, memoryResource));
-      case 'number': return Series.new(this._col.floor_div(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.floorDiv(rhs, memoryResource));
+      case 'number': return Series.new(this._col.floorDiv(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.floor_div(rhs, memoryResource))
-             : Series.new(this._col.floor_div(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.floorDiv(rhs, memoryResource))
+             : Series.new(this._col.floorDiv(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -597,27 +597,27 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * const a = Series.new([false, true, true, false]);
    * const b = Series.new([false, false, false, false]);
    *
-   * a.logical_and(0); // Float64Series [ 0, 0, 0, 0 ]
-   * a.logical_and(0).view(new Bool8); // Bool8Series [ false, false, false, false ]
-   * a.logical_and(b); // [false, false, false, false]
+   * a.logicalAnd(0); // Float64Series [ 0, 0, 0, 0 ]
+   * a.logicalAnd(0).view(new Bool8); // Bool8Series [ false, false, false, false ]
+   * a.logicalAnd(b); // [false, false, false, false]
    * ```
    */
-  logical_and(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
-  logical_and(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  logical_and<R extends Numeric>(rhs: Scalar<R>,
-                                 memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  logical_and<R extends Numeric>(rhs: NumericSeries<R>,
-                                 memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  logical_and<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                 memoryResource?: MemoryResource) {
+  logicalAnd(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  logicalAnd(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  logicalAnd<R extends Numeric>(rhs: Scalar<R>,
+                                memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  logicalAnd<R extends Numeric>(rhs: NumericSeries<R>,
+                                memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  logicalAnd<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.logical_and(rhs, memoryResource));
-      case 'number': return Series.new(this._col.logical_and(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.logicalAnd(rhs, memoryResource));
+      case 'number': return Series.new(this._col.logicalAnd(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.logical_and(rhs, memoryResource))
-             : Series.new(this._col.logical_and(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.logicalAnd(rhs, memoryResource))
+             : Series.new(this._col.logicalAnd(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -633,27 +633,27 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * const a = Series.new([false, true, true, false]);
    * const b = Series.new([false, false, false, false]);
    *
-   * a.logical_or(0); // Float64Series [ 0, 1, 1, 0 ]
-   * a.logical_or(0).cast(new Bool8); // Bool8Series [ false, true, true, false ]
-   * a.logical_or(b); // [false, true, true, false]
+   * a.logicalOr(0); // Float64Series [ 0, 1, 1, 0 ]
+   * a.logicalOr(0).cast(new Bool8); // Bool8Series [ false, true, true, false ]
+   * a.logicalOr(b); // [false, true, true, false]
    * ```
    */
-  logical_or(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
-  logical_or(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  logical_or<R extends Numeric>(rhs: Scalar<R>,
-                                memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  logical_or<R extends Numeric>(rhs: NumericSeries<R>,
-                                memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  logical_or<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                memoryResource?: MemoryResource) {
+  logicalOr(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  logicalOr(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  logicalOr<R extends Numeric>(rhs: Scalar<R>,
+                               memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  logicalOr<R extends Numeric>(rhs: NumericSeries<R>,
+                               memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  logicalOr<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
+                               memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.logical_or(rhs, memoryResource));
-      case 'number': return Series.new(this._col.logical_or(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.logicalOr(rhs, memoryResource));
+      case 'number': return Series.new(this._col.logicalOr(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.logical_or(rhs, memoryResource))
-             : Series.new(this._col.logical_or(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.logicalOr(rhs, memoryResource))
+             : Series.new(this._col.logicalOr(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -683,7 +683,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   }
 
   /**
-   * Perform a binary `log_base` operation between this Series and another Series or scalar value.
+   * Perform a binary `logBase` operation between this Series and another Series or scalar value.
    *
    * @param rhs The other Series or scalar to use.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
@@ -695,26 +695,26 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * const a = Series.new([1, 10, 100]);
    * const b = Series.new([2, 10, 20]);
    *
-   * a.log_base(10); // [0, 1, 2]
-   * a.log_base(b); // [0, 1, 1.537243573680482]
+   * a.logBase(10); // [0, 1, 2]
+   * a.logBase(b); // [0, 1, 1.537243573680482]
    * ```
    */
-  log_base(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
-  log_base(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  log_base<R extends Numeric>(rhs: Scalar<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  log_base<R extends Numeric>(rhs: NumericSeries<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  log_base<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                              memoryResource?: MemoryResource) {
+  logBase(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  logBase(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  logBase<R extends Numeric>(rhs: Scalar<R>,
+                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  logBase<R extends Numeric>(rhs: NumericSeries<R>,
+                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  logBase<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
+                             memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.log_base(rhs, memoryResource));
-      case 'number': return Series.new(this._col.log_base(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.logBase(rhs, memoryResource));
+      case 'number': return Series.new(this._col.logBase(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.log_base(rhs, memoryResource))
-             : Series.new(this._col.log_base(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.logBase(rhs, memoryResource))
+             : Series.new(this._col.logBase(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -756,7 +756,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   }
 
   /**
-   * Perform a binary `null_equals` operation between this Series and another Series or scalar
+   * Perform a binary `nullEquals` operation between this Series and another Series or scalar
    * value.
    *
    * @param rhs The other Series or scalar to use.
@@ -769,29 +769,29 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * const a = Series.new([1, 3, 5, null, 7]);
    * const b = Series.new([1, 3, 3, null, 9]);
    *
-   * a.null_equals(3); // [false, true, false, false, false]
-   * a.null_equals(b); // [true, true, false, true, false]
+   * a.nullEquals(3); // [false, true, false, false, false]
+   * a.nullEquals(b); // [true, true, false, true, false]
    * ```
    */
-  null_equals(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
-  null_equals(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
-  null_equals<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  null_equals<R extends Numeric>(rhs: NumericSeries<R>,
-                                 memoryResource?: MemoryResource): Series<Bool8>;
-  null_equals<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                 memoryResource?: MemoryResource) {
+  nullEquals(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
+  nullEquals(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
+  nullEquals<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<Bool8>;
+  nullEquals<R extends Numeric>(rhs: NumericSeries<R>,
+                                memoryResource?: MemoryResource): Series<Bool8>;
+  nullEquals<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
+                                memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.null_equals(rhs, memoryResource));
-      case 'number': return Series.new(this._col.null_equals(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.nullEquals(rhs, memoryResource));
+      case 'number': return Series.new(this._col.nullEquals(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.null_equals(rhs, memoryResource))
-             : Series.new(this._col.null_equals(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.nullEquals(rhs, memoryResource))
+             : Series.new(this._col.nullEquals(rhs._col as Column<R>, memoryResource));
   }
 
   /**
-   * Perform a binary `null_max` operation between this Series and another Series or scalar value.
+   * Perform a binary `nullMax` operation between this Series and another Series or scalar value.
    *
    * @param rhs The other Series or scalar to use.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
@@ -803,30 +803,30 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * const a = Series.new([1, 3, 5, null, 7]);
    * const b = Series.new([6, 6, 6, 6, 6]);
    *
-   * a.null_max(4); // [4, 4, 5, 4, 7]
-   * a.null_max(b); // [6, 6, 6, 6, 7]
+   * a.nullMax(4); // [4, 4, 5, 4, 7]
+   * a.nullMax(b); // [6, 6, 6, 6, 7]
    * ```
    */
-  null_max(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
-  null_max(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  null_max<R extends Numeric>(rhs: Scalar<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  null_max<R extends Numeric>(rhs: NumericSeries<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  null_max<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                              memoryResource?: MemoryResource) {
+  nullMax(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  nullMax(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  nullMax<R extends Numeric>(rhs: Scalar<R>,
+                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  nullMax<R extends Numeric>(rhs: NumericSeries<R>,
+                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  nullMax<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
+                             memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.null_max(rhs, memoryResource));
-      case 'number': return Series.new(this._col.null_max(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.nullMax(rhs, memoryResource));
+      case 'number': return Series.new(this._col.nullMax(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.null_max(rhs, memoryResource))
-             : Series.new(this._col.null_max(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.nullMax(rhs, memoryResource))
+             : Series.new(this._col.nullMax(rhs._col as Column<R>, memoryResource));
   }
 
   /**
-   * Perform a binary `null_min` operation between this Series and another Series or scalar value.
+   * Perform a binary `nullMin` operation between this Series and another Series or scalar value.
    *
    * @param rhs The other Series or scalar to use.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
@@ -838,26 +838,26 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * const a = Series.new([1, 3, 5, null, 7]);
    * const c = Series.new([6, 6, 6, 6, 6]);
    *
-   * a.null_min(4); // [1, 3, 4, 4, 4]
-   * a.null_min(b); // [1, 3, 5, 6, 6]
+   * a.nullMin(4); // [1, 3, 4, 4, 4]
+   * a.nullMin(b); // [1, 3, 5, 6, 6]
    * ```
    */
-  null_min(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
-  null_min(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  null_min<R extends Numeric>(rhs: Scalar<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  null_min<R extends Numeric>(rhs: NumericSeries<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  null_min<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                              memoryResource?: MemoryResource) {
+  nullMin(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  nullMin(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  nullMin<R extends Numeric>(rhs: Scalar<R>,
+                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  nullMin<R extends Numeric>(rhs: NumericSeries<R>,
+                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
+  nullMin<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
+                             memoryResource?: MemoryResource) {
     switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.null_min(rhs, memoryResource));
-      case 'number': return Series.new(this._col.null_min(rhs, memoryResource));
+      case 'bigint': return Series.new(this._col.nullMin(rhs, memoryResource));
+      case 'number': return Series.new(this._col.nullMin(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar
-             ? Series.new(this._col.null_min(rhs, memoryResource))
-             : Series.new(this._col.null_min(rhs._col as Column<R>, memoryResource));
+             ? Series.new(this._col.nullMin(rhs, memoryResource))
+             : Series.new(this._col.nullMin(rhs._col as Column<R>, memoryResource));
   }
 
   /**
@@ -1316,7 +1316,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   sumOfSquares(skipna = true, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna, memoryResource)._col.sum_of_squares(memoryResource);
+    return this._process_reduction(skipna, memoryResource)._col.sumOfSquares(memoryResource);
   }
 
   /**

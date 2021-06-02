@@ -265,12 +265,12 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  true_div(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
-  true_div(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
-  true_div<R extends Numeric>(rhs: Scalar<R>,
-                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  true_div<R extends Numeric>(rhs: Column<R>,
-                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  trueDiv(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
+  trueDiv(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
+  trueDiv<R extends Numeric>(rhs: Scalar<R>,
+                             memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  trueDiv<R extends Numeric>(rhs: Column<R>,
+                             memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
    * Floor-divide this Column and another Column or scalar value.
@@ -280,12 +280,12 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  floor_div(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
-  floor_div(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
-  floor_div<R extends Numeric>(rhs: Scalar<R>,
-                               memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  floor_div<R extends Numeric>(rhs: Column<R>,
-                               memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  floorDiv(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
+  floorDiv(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
+  floorDiv<R extends Numeric>(rhs: Scalar<R>,
+                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  floorDiv<R extends Numeric>(rhs: Column<R>,
+                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
    * Modulo this Column and another Column or scalar value.
@@ -399,12 +399,12 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  bitwise_and(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
-  bitwise_and(rhs: number, memoryResource?: MemoryResource): Column<T>;
-  bitwise_and<R extends Numeric>(rhs: Scalar<R>,
-                                 memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  bitwise_and<R extends Numeric>(rhs: Column<R>,
-                                 memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  bitwiseAnd(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
+  bitwiseAnd(rhs: number, memoryResource?: MemoryResource): Column<T>;
+  bitwiseAnd<R extends Numeric>(rhs: Scalar<R>,
+                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  bitwiseAnd<R extends Numeric>(rhs: Column<R>,
+                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
    * Perform a binary `|` operation between this Column and another Column or scalar value.
@@ -414,12 +414,12 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  bitwise_or(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
-  bitwise_or(rhs: number, memoryResource?: MemoryResource): Column<T>;
-  bitwise_or<R extends Numeric>(rhs: Scalar<R>,
-                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  bitwise_or<R extends Numeric>(rhs: Column<R>,
-                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  bitwiseOr(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
+  bitwiseOr(rhs: number, memoryResource?: MemoryResource): Column<T>;
+  bitwiseOr<R extends Numeric>(rhs: Scalar<R>,
+                               memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  bitwiseOr<R extends Numeric>(rhs: Column<R>,
+                               memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
    * Perform a binary `^` operation between this Column and another Column or scalar value.
@@ -429,12 +429,12 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  bitwise_xor(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
-  bitwise_xor(rhs: number, memoryResource?: MemoryResource): Column<T>;
-  bitwise_xor<R extends Numeric>(rhs: Scalar<R>,
-                                 memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  bitwise_xor<R extends Numeric>(rhs: Column<R>,
-                                 memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  bitwiseXor(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
+  bitwiseXor(rhs: number, memoryResource?: MemoryResource): Column<T>;
+  bitwiseXor<R extends Numeric>(rhs: Scalar<R>,
+                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  bitwiseXor<R extends Numeric>(rhs: Column<R>,
+                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
    * Perform a binary `&&` operation between this Column and another Column or scalar value.
@@ -444,12 +444,12 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  logical_and(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
-  logical_and(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
-  logical_and<R extends Numeric>(rhs: Scalar<R>,
-                                 memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  logical_and<R extends Numeric>(rhs: Column<R>,
-                                 memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  logicalAnd(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
+  logicalAnd(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
+  logicalAnd<R extends Numeric>(rhs: Scalar<R>,
+                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  logicalAnd<R extends Numeric>(rhs: Column<R>,
+                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
    * Perform a binary `||` operation between this Column and another Column or scalar value.
@@ -459,12 +459,12 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  logical_or(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
-  logical_or(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
-  logical_or<R extends Numeric>(rhs: Scalar<R>,
-                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  logical_or<R extends Numeric>(rhs: Column<R>,
-                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  logicalOr(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
+  logicalOr(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
+  logicalOr<R extends Numeric>(rhs: Scalar<R>,
+                               memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  logicalOr<R extends Numeric>(rhs: Column<R>,
+                               memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
    * Perform a binary `coalesce` operation between this Column and another Column or scalar value.
@@ -489,12 +489,12 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  shift_left(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
-  shift_left(rhs: number, memoryResource?: MemoryResource): Column<T>;
-  shift_left<R extends Numeric>(rhs: Scalar<R>,
-                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  shift_left<R extends Numeric>(rhs: Column<R>,
-                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  shiftLeft(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
+  shiftLeft(rhs: number, memoryResource?: MemoryResource): Column<T>;
+  shiftLeft<R extends Numeric>(rhs: Scalar<R>,
+                               memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  shiftLeft<R extends Numeric>(rhs: Column<R>,
+                               memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
    * Perform a binary `>>` operation between this Column and another Column or scalar
@@ -505,15 +505,15 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  shift_right(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
-  shift_right(rhs: number, memoryResource?: MemoryResource): Column<T>;
-  shift_right<R extends Numeric>(rhs: Scalar<R>,
-                                 memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  shift_right<R extends Numeric>(rhs: Column<R>,
-                                 memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  shiftRight(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
+  shiftRight(rhs: number, memoryResource?: MemoryResource): Column<T>;
+  shiftRight<R extends Numeric>(rhs: Scalar<R>,
+                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  shiftRight<R extends Numeric>(rhs: Column<R>,
+                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
-   * Perform a binary `shift_right_unsigned` operation between this Column and another Column or
+   * Perform a binary `shiftRightUnsigned` operation between this Column and another Column or
    * scalar value.
    *
    * @param rhs The other Column or scalar to use.
@@ -521,27 +521,27 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  shift_right_unsigned(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
-  shift_right_unsigned(rhs: number, memoryResource?: MemoryResource): Column<T>;
-  shift_right_unsigned<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource):
-    Column<CommonType<T, R>>;
-  shift_right_unsigned<R extends Numeric>(rhs: Column<R>, memoryResource?: MemoryResource):
-    Column<CommonType<T, R>>;
+  shiftRightUnsigned(rhs: bigint, memoryResource?: MemoryResource): Column<T>;
+  shiftRightUnsigned(rhs: number, memoryResource?: MemoryResource): Column<T>;
+  shiftRightUnsigned<R extends Numeric>(rhs: Scalar<R>,
+                                        memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  shiftRightUnsigned<R extends Numeric>(rhs: Column<R>,
+                                        memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
-   * Perform a binary `log_base` operation between this Column and another Column or scalar value.
+   * Perform a binary `logBase` operation between this Column and another Column or scalar value.
    *
    * @param rhs The other Column or scalar to use.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  log_base(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
-  log_base(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
-  log_base<R extends Numeric>(rhs: Scalar<R>,
-                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  log_base<R extends Numeric>(rhs: Column<R>,
-                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  logBase(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
+  logBase(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
+  logBase<R extends Numeric>(rhs: Scalar<R>,
+                             memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  logBase<R extends Numeric>(rhs: Column<R>,
+                             memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
    * Perform a binary `atan2` operation between this Column and another Column or scalar value.
@@ -559,7 +559,7 @@ export interface Column<T extends DataType = any> {
                            memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
-   * Perform a binary `null_equals` operation between this Column and another Column or scalar
+   * Perform a binary `nullEquals` operation between this Column and another Column or scalar
    * value.
    *
    * @param rhs The other Column or scalar to use.
@@ -567,40 +567,40 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  null_equals(rhs: bigint, memoryResource?: MemoryResource): Column<Bool8>;
-  null_equals(rhs: number, memoryResource?: MemoryResource): Column<Bool8>;
-  null_equals<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Column<Bool8>;
-  null_equals<R extends Numeric>(rhs: Column<R>, memoryResource?: MemoryResource): Column<Bool8>;
+  nullEquals(rhs: bigint, memoryResource?: MemoryResource): Column<Bool8>;
+  nullEquals(rhs: number, memoryResource?: MemoryResource): Column<Bool8>;
+  nullEquals<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Column<Bool8>;
+  nullEquals<R extends Numeric>(rhs: Column<R>, memoryResource?: MemoryResource): Column<Bool8>;
 
   /**
-   * Perform a binary `null_max` operation between this Column and another Column or scalar value.
+   * Perform a binary `nullMax` operation between this Column and another Column or scalar value.
    *
    * @param rhs The other Column or scalar to use.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  null_max(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
-  null_max(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
-  null_max<R extends Numeric>(rhs: Scalar<R>,
-                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  null_max<R extends Numeric>(rhs: Column<R>,
-                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  nullMax(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
+  nullMax(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
+  nullMax<R extends Numeric>(rhs: Scalar<R>,
+                             memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  nullMax<R extends Numeric>(rhs: Column<R>,
+                             memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
-   * Perform a binary `null_min` operation between this Column and another Column or scalar value.
+   * Perform a binary `nullMin` operation between this Column and another Column or scalar value.
    *
    * @param rhs The other Column or scalar to use.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    * @returns A Column of a common numeric type with the results of the binary operation.
    */
-  null_min(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
-  null_min(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
-  null_min<R extends Numeric>(rhs: Scalar<R>,
-                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  null_min<R extends Numeric>(rhs: Column<R>,
-                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  nullMin(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
+  nullMin(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
+  nullMin<R extends Numeric>(rhs: Scalar<R>,
+                             memoryResource?: MemoryResource): Column<CommonType<T, R>>;
+  nullMin<R extends Numeric>(rhs: Column<R>,
+                             memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
    * Casts data from dtype specified in input to dtype specified in output.
@@ -882,7 +882,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns A Column of the same number of elements containing the result of the operation.
    */
-  bit_invert(memoryResource?: MemoryResource): Column<T>;
+  bitInvert(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Compute the logical not (!) for each value in this Column.
@@ -939,13 +939,13 @@ export interface Column<T extends DataType = any> {
   product(memoryResource?: MemoryResource): T extends Integral? bigint: number;
 
   /**
-   * Compute the sum_of_squares of all values in this Column.
+   * Compute the sumOfSquares of all values in this Column.
    *
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
-   * @returns The sum_of_squares of all the values in this Column.
+   * @returns The sumOfSquares of all the values in this Column.
    */
-  sum_of_squares(memoryResource?: MemoryResource): T extends Integral? bigint: number;
+  sumOfSquares(memoryResource?: MemoryResource): T extends Integral? bigint: number;
 
   /**
    * Compute the mean of all values in this Column.
@@ -1037,7 +1037,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns column without NaN and Null values
    */
-  drop_nulls(memoryResource?: MemoryResource): Column<T>;
+  dropNulls(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * drop NA values from the column if column is of floating-type
@@ -1046,7 +1046,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns column without NaN and Null values
    */
-  drop_nans(memoryResource?: MemoryResource): Column<T>;
+  dropNans(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * convert NaN values in the column with Null values,
@@ -1056,7 +1056,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns undefined if inplace=True, else updated column with Null values
    */
-  nans_to_nulls(memoryResource?: MemoryResource): Column<T>;
+  nansToNulls(memoryResource?: MemoryResource): Column<T>;
 
   getJSONObject(jsonPath?: string, memoryResource?: MemoryResource): Column<T>;
 }

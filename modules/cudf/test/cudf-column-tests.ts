@@ -116,29 +116,29 @@ test('test child(child_index), num_children', () => {
   expect(stringsCol.getChild(1).type).toBeInstanceOf(Uint8);
 });
 
-test('Column.drop_nans', () => {
+test('Column.dropNans', () => {
   const col    = new Column({type: new Float32(), data: new Float32Buffer([1, 3, NaN, 4, 2, 0])});
-  const result = col.drop_nans();
+  const result = col.dropNans();
 
   const expected = [1, 3, 4, 2, 0];
   expect([...Series.new(result)]).toEqual(expected);
 });
 
-test('Column.drop_nulls', () => {
+test('Column.dropNulls', () => {
   const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
 
   const col = new Column(
     {type: new Float32(), data: new Float32Buffer([1, 3, NaN, 4, 2, 0]), nullMask: mask});
-  const result = col.drop_nulls();
+  const result = col.dropNulls();
 
   const expected = [3, NaN, 4, 2];
   expect([...Series.new(result)]).toEqual(expected);
 });
 
-test('Column.nans_to_nulls', () => {
+test('Column.nansToNulls', () => {
   const col = new Column({type: new Float32(), data: new Float32Buffer([1, 3, NaN, 4, 2, 0])});
 
-  const result = col.nans_to_nulls();
+  const result = col.nansToNulls();
 
   const expected = [1, 3, null, 4, 2, 0];
   expect([...Series.new(result)]).toEqual(expected);

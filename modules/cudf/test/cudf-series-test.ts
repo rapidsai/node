@@ -439,9 +439,9 @@ describe.each([new Int32, new Float32, new Float64])('Series.sequence({type=%p,,
   });
 });
 
-test('Series.value_counts', () => {
+test('Series.valueCounts', () => {
   const s      = Series.new({type: new Int32, data: [110, 120, 100, 110, 120, 120]});
-  const result = s.value_counts();
+  const result = s.valueCounts();
   const count  = [...result.count];
   const value  = [...result.value];
 
@@ -455,12 +455,12 @@ test('Series.value_counts', () => {
 });
 
 test.each`
-nulls_equal        | data                           | expected
+nullsEqual        | data                           | expected
 ${true}         | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, 1, 2, 3, 4]}
 ${false}       | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, null, 1, 2, 3, 4]}
-`('Series.unique($nulls_equal)', ({nulls_equal, data, expected}) => {
+`('Series.unique($nullsEqual)', ({nullsEqual, data, expected}) => {
   const s      = Series.new({type: new Int32, data});
-  const result = s.unique(nulls_equal);
+  const result = s.unique(nullsEqual);
   expect([...result]).toEqual(expected);
 });
 
