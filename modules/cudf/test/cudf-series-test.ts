@@ -199,6 +199,34 @@ test('Series.gather', () => {
   expect([...result]).toEqual([...selection]);
 });
 
+describe('Series.head', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+
+  test('default n', () => { expect([...col.head()]).toEqual([0, 1, 2, 3, 4]); });
+
+  test('invalid n', () => { expect(() => col.head(-1)).toThrowError(); });
+
+  test('providing n', () => { expect([...col.head(8)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7]); });
+
+  test('n longer than length of series', () => {
+    expect([...col.head(25)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+});
+
+describe('Series.tail', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+
+  test('default n', () => { expect([...col.tail()]).toEqual([5, 6, 7, 8, 9]); });
+
+  test('invalid n', () => { expect(() => col.tail(-1)).toThrowError(); });
+
+  test('providing n', () => { expect([...col.tail(8)]).toEqual([2, 3, 4, 5, 6, 7, 8, 9]); });
+
+  test('n longer than length of series', () => {
+    expect([...col.tail(25)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+});
+
 test('Series.scatter (series)', () => {
   const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
   const values  = Series.new({type: new Int32, data: [200, 400, 500, 800]});

@@ -233,6 +233,72 @@ test('DataFrame.gather (indices)', () => {
   expect([...rb]).toEqual([...expected_b]);
 });
 
+describe('Dataframe.head', () => {
+  const a  = Series.new([0, 1, 2, 3, 4, 5, 6]);
+  const b  = Series.new([0.0, 1.1, 2.2, 3.3, 4.4, 5.5, 6.6]);
+  const c  = Series.new(['foo', null, null, 'bar', null, null, 'foo']);
+  const df = new DataFrame({'a': a, 'b': b, 'c': c});
+
+  test('default n', () => {
+    const result = df.head();
+    expect(result.numRows).toEqual(5);
+    expect([...result.get('a')]).toEqual([0, 1, 2, 3, 4]);
+    expect([...result.get('b')]).toEqual([0.0, 1.1, 2.2, 3.3, 4.4]);
+    expect([...result.get('c')]).toEqual(['foo', null, null, 'bar', null]);
+  });
+
+  test('invalid n', () => { expect(() => df.head(-1)).toThrowError(); });
+
+  test('providing n', () => {
+    const result = df.head(2);
+    expect(result.numRows).toEqual(2);
+    expect([...result.get('a')]).toEqual([0, 1]);
+    expect([...result.get('b')]).toEqual([0.0, 1.1]);
+    expect([...result.get('c')]).toEqual(['foo', null]);
+  });
+
+  test('n longer than length of series', () => {
+    const result = df.head(25);
+    expect(result.numRows).toEqual(7);
+    expect([...result.get('a')]).toEqual([...a]);
+    expect([...result.get('b')]).toEqual([...b]);
+    expect([...result.get('c')]).toEqual([...c]);
+  });
+});
+
+describe('Dataframe.tail', () => {
+  const a  = Series.new([0, 1, 2, 3, 4, 5, 6]);
+  const b  = Series.new([0.0, 1.1, 2.2, 3.3, 4.4, 5.5, 6.6]);
+  const c  = Series.new(['foo', null, null, 'bar', null, null, 'foo']);
+  const df = new DataFrame({'a': a, 'b': b, 'c': c});
+
+  test('default n', () => {
+    const result = df.tail();
+    expect(result.numRows).toEqual(5);
+    expect([...result.get('a')]).toEqual([2, 3, 4, 5, 6]);
+    expect([...result.get('b')]).toEqual([2.2, 3.3, 4.4, 5.5, 6.6]);
+    expect([...result.get('c')]).toEqual([null, 'bar', null, null, 'foo']);
+  });
+
+  test('invalid n', () => { expect(() => df.tail(-1)).toThrowError(); });
+
+  test('providing n', () => {
+    const result = df.tail(2);
+    expect(result.numRows).toEqual(2);
+    expect([...result.get('a')]).toEqual([5, 6]);
+    expect([...result.get('b')]).toEqual([5.5, 6.6]);
+    expect([...result.get('c')]).toEqual([null, 'foo']);
+  });
+
+  test('n longer than length of series', () => {
+    const result = df.tail(25);
+    expect(result.numRows).toEqual(7);
+    expect([...result.get('a')]).toEqual([...a]);
+    expect([...result.get('b')]).toEqual([...b]);
+    expect([...result.get('c')]).toEqual([...c]);
+  });
+});
+
 test('DataFrame groupBy (single)', () => {
   const a   = Series.new({type: new Int32, data: [1, 2, 3, 1, 2, 2, 1, 3, 3, 2]});
   const b   = Series.new({type: new Float32, data: [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]});

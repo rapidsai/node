@@ -24,7 +24,7 @@ import {AbstractSeries, Series} from './series';
 import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {Bool8, DataType, Float32, Float64, IndexType, Numeric} from './types/dtypes';
+import {Bool8, DataType, Float32, Float64, IndexType, Int32, Numeric} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
@@ -448,6 +448,68 @@ export class DataFrame<T extends TypeMap = any> {
     this._accessor.names.forEach(
       (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
     return new DataFrame(series_map);
+  }
+
+  /**
+   * Returns the first n rows as a new DataFrame.
+   *
+   * @param n The number of rows to return.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *   a: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6]}),
+   *   b: Series.new([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+   * });
+   *
+   * a.head();
+   * // {a: [0, 1, 2, 3, 4], b: [0.0, 1.0, 2.0, 3.0, 4.0]}
+   *
+   * b.head(1);
+   * // {a: [0], b: [0.0]}
+   *
+   * a.head(-1);
+   * // throws index out of bounds error
+   * ```
+   */
+  head(n = 5): DataFrame<T> {
+    if (n < 0) { throw new Error('Index provided is out of bounds'); }
+    const selection =
+      Series.sequence({type: new Int32, size: n < this.numRows ? n : this.numRows, init: 0});
+    return this.gather(selection);
+  }
+
+  /**
+   * Returns the last n rows as a new DataFrame.
+   *
+   * @param n The number of rows to return.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *   a: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6]}),
+   *   b: Series.new([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+   * });
+   *
+   * a.tail();
+   * // {a: [2, 3, 4, 5, 6], b: [2.0, 3.0, 4.0, 5.0, 6.0]}
+   *
+   * b.tail(1);
+   * // {a: [6], b: [6.0]}
+   *
+   * a.tail(-1);
+   * // throws index out of bounds error
+   * ```
+   */
+  tail(n = 5): DataFrame<T> {
+    if (n < 0) { throw new Error('Index provided is out of bounds'); }
+    const length    = n < this.numRows ? n : this.numRows;
+    const selection = Series.sequence({type: new Int32, size: length, init: this.numRows - length});
+    return this.gather(selection);
   }
 
   /**
