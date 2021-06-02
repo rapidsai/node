@@ -16,7 +16,7 @@ import {setDefaultAllocator} from '@nvidia/cuda';
 import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
-import {makeTestBigInts, makeTestSeries} from '../utils';
+import {makeTestBigInts, makeTestSeries, toBigInt} from '../utils';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
@@ -41,10 +41,10 @@ describe('Series binaryops (Int64)', () => {
     });
     test('adds a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.add(-1n)].map(BigInt)).toEqual([-1n, 0n, 1n]);
-      expect([...lhs.add(0n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.add(1n)].map(BigInt)).toEqual([1n, 2n, 3n]);
-      expect([...lhs.add(2n)].map(BigInt)).toEqual([2n, 3n, 4n]);
+      expect([...lhs.add(-1n)].map(toBigInt)).toEqual([-1n, 0n, 1n]);
+      expect([...lhs.add(0n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.add(1n)].map(toBigInt)).toEqual([1n, 2n, 3n]);
+      expect([...lhs.add(2n)].map(toBigInt)).toEqual([2n, 3n, 4n]);
     });
   });
 
@@ -67,10 +67,10 @@ describe('Series binaryops (Int64)', () => {
     });
     test('subtracts a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.sub(-1n)].map(BigInt)).toEqual([1n, 2n, 3n]);
-      expect([...lhs.sub(0n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.sub(1n)].map(BigInt)).toEqual([-1n, 0n, 1n]);
-      expect([...lhs.sub(2n)].map(BigInt)).toEqual([-2n, -1n, 0n]);
+      expect([...lhs.sub(-1n)].map(toBigInt)).toEqual([1n, 2n, 3n]);
+      expect([...lhs.sub(0n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.sub(1n)].map(toBigInt)).toEqual([-1n, 0n, 1n]);
+      expect([...lhs.sub(2n)].map(toBigInt)).toEqual([-2n, -1n, 0n]);
     });
   });
 
@@ -91,10 +91,10 @@ describe('Series binaryops (Int64)', () => {
     });
     test('multiplies against a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.mul(-1n)].map(BigInt)).toEqual([0n, -1n, -2n]);
-      expect([...lhs.mul(0n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.mul(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.mul(2n)].map(BigInt)).toEqual([0n, 2n, 4n]);
+      expect([...lhs.mul(-1n)].map(toBigInt)).toEqual([0n, -1n, -2n]);
+      expect([...lhs.mul(0n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.mul(1n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.mul(2n)].map(toBigInt)).toEqual([0n, 2n, 4n]);
     });
   });
 
@@ -115,10 +115,10 @@ describe('Series binaryops (Int64)', () => {
     });
     test('divides by a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.div(-1n)].map(BigInt)).toEqual([0n, -1n, -2n]);
-      expect([...lhs.div(0n)].map(BigInt)).toEqual([4294967295n, 4294967295n, 4294967295n]);
-      expect([...lhs.div(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.div(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.div(-1n)].map(toBigInt)).toEqual([0n, -1n, -2n]);
+      expect([...lhs.div(0n)].map(toBigInt)).toEqual([4294967295n, 4294967295n, 4294967295n]);
+      expect([...lhs.div(1n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.div(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
     });
   });
 
@@ -139,11 +139,11 @@ describe('Series binaryops (Int64)', () => {
     });
     test('true_divides by a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.true_div(-1n)].map(BigInt)).toEqual([0n, -1n, -2n]);
-      expect([...lhs.true_div(0n)].map(BigInt))
+      expect([...lhs.true_div(-1n)].map(toBigInt)).toEqual([0n, -1n, -2n]);
+      expect([...lhs.true_div(0n)].map(toBigInt))
         .toEqual([-9223372036854775808n, 9223372036854775807n, 9223372036854775807n]);
-      expect([...lhs.true_div(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.true_div(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.true_div(1n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.true_div(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
     });
   });
 
@@ -164,11 +164,11 @@ describe('Series binaryops (Int64)', () => {
     });
     test('floor_divides by a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.floor_div(-1n)].map(BigInt)).toEqual([0n, -1n, -2n]);
-      expect([...lhs.floor_div(0n)].map(BigInt))
+      expect([...lhs.floor_div(-1n)].map(toBigInt)).toEqual([0n, -1n, -2n]);
+      expect([...lhs.floor_div(0n)].map(toBigInt))
         .toEqual([-9223372036854775808n, 9223372036854775807n, 9223372036854775807n]);
-      expect([...lhs.floor_div(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.floor_div(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.floor_div(1n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.floor_div(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
     });
   });
 
@@ -236,9 +236,9 @@ describe('Series binaryops (Int64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.eq(0n)].map(BigInt)).toEqual([1n, 0n, 0n]);
-      expect([...lhs.eq(1n)].map(BigInt)).toEqual([0n, 1n, 0n]);
-      expect([...lhs.eq(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.eq(0n)].map(toBigInt)).toEqual([1n, 0n, 0n]);
+      expect([...lhs.eq(1n)].map(toBigInt)).toEqual([0n, 1n, 0n]);
+      expect([...lhs.eq(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
     });
   });
 
@@ -258,9 +258,9 @@ describe('Series binaryops (Int64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.ne(0n)].map(BigInt)).toEqual([0n, 1n, 1n]);
-      expect([...lhs.ne(1n)].map(BigInt)).toEqual([1n, 0n, 1n]);
-      expect([...lhs.ne(2n)].map(BigInt)).toEqual([1n, 1n, 0n]);
+      expect([...lhs.ne(0n)].map(toBigInt)).toEqual([0n, 1n, 1n]);
+      expect([...lhs.ne(1n)].map(toBigInt)).toEqual([1n, 0n, 1n]);
+      expect([...lhs.ne(2n)].map(toBigInt)).toEqual([1n, 1n, 0n]);
     });
   });
 
@@ -283,10 +283,10 @@ describe('Series binaryops (Int64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.lt(3n)].map(BigInt)).toEqual([1n, 1n, 1n]);
-      expect([...lhs.lt(2n)].map(BigInt)).toEqual([1n, 1n, 0n]);
-      expect([...lhs.lt(1n)].map(BigInt)).toEqual([1n, 0n, 0n]);
-      expect([...lhs.lt(0n)].map(BigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.lt(3n)].map(toBigInt)).toEqual([1n, 1n, 1n]);
+      expect([...lhs.lt(2n)].map(toBigInt)).toEqual([1n, 1n, 0n]);
+      expect([...lhs.lt(1n)].map(toBigInt)).toEqual([1n, 0n, 0n]);
+      expect([...lhs.lt(0n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
     });
   });
 
@@ -308,9 +308,9 @@ describe('Series binaryops (Int64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.le(2n)].map(BigInt)).toEqual([1n, 1n, 1n]);
-      expect([...lhs.le(1n)].map(BigInt)).toEqual([1n, 1n, 0n]);
-      expect([...lhs.le(0n)].map(BigInt)).toEqual([1n, 0n, 0n]);
+      expect([...lhs.le(2n)].map(toBigInt)).toEqual([1n, 1n, 1n]);
+      expect([...lhs.le(1n)].map(toBigInt)).toEqual([1n, 1n, 0n]);
+      expect([...lhs.le(0n)].map(toBigInt)).toEqual([1n, 0n, 0n]);
     });
   });
 
@@ -333,10 +333,10 @@ describe('Series binaryops (Int64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.gt(2n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.gt(1n)].map(BigInt)).toEqual([0n, 0n, 1n]);
-      expect([...lhs.gt(0n)].map(BigInt)).toEqual([0n, 1n, 1n]);
-      expect([...lhs.gt(-1n)].map(BigInt)).toEqual([1n, 1n, 1n]);
+      expect([...lhs.gt(2n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.gt(1n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.gt(0n)].map(toBigInt)).toEqual([0n, 1n, 1n]);
+      expect([...lhs.gt(-1n)].map(toBigInt)).toEqual([1n, 1n, 1n]);
     });
   });
 
@@ -357,10 +357,10 @@ describe('Series binaryops (Int64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.ge(3n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.ge(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
-      expect([...lhs.ge(1n)].map(BigInt)).toEqual([0n, 1n, 1n]);
-      expect([...lhs.ge(0n)].map(BigInt)).toEqual([1n, 1n, 1n]);
+      expect([...lhs.ge(3n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.ge(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.ge(1n)].map(toBigInt)).toEqual([0n, 1n, 1n]);
+      expect([...lhs.ge(0n)].map(toBigInt)).toEqual([1n, 1n, 1n]);
     });
   });
 

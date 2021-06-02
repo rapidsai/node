@@ -35,6 +35,8 @@ import {
 } from '@rapidsai/cudf';
 import * as arrow from 'apache-arrow';
 
+export function toBigInt(value: any) { return BigInt(value == null ? 0n : value); }
+
 export function makeTestNumbers(values: (number|null)[] = [0, 1, 2]) {
   return [
     values.map((x: number|null) => x == null ? null : Number(x) + 0),

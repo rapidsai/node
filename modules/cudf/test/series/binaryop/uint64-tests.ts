@@ -16,7 +16,7 @@ import {setDefaultAllocator} from '@nvidia/cuda';
 import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
-import {makeTestBigInts, makeTestSeries} from '../utils';
+import {makeTestBigInts, makeTestSeries, toBigInt} from '../utils';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
@@ -239,9 +239,9 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.eq(0n)].map(BigInt)).toEqual([1n, 0n, 0n]);
-      expect([...lhs.eq(1n)].map(BigInt)).toEqual([0n, 1n, 0n]);
-      expect([...lhs.eq(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.eq(0n)].map(toBigInt)).toEqual([1n, 0n, 0n]);
+      expect([...lhs.eq(1n)].map(toBigInt)).toEqual([0n, 1n, 0n]);
+      expect([...lhs.eq(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
     });
   });
 
@@ -261,9 +261,9 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.ne(0n)].map(BigInt)).toEqual([0n, 1n, 1n]);
-      expect([...lhs.ne(1n)].map(BigInt)).toEqual([1n, 0n, 1n]);
-      expect([...lhs.ne(2n)].map(BigInt)).toEqual([1n, 1n, 0n]);
+      expect([...lhs.ne(0n)].map(toBigInt)).toEqual([0n, 1n, 1n]);
+      expect([...lhs.ne(1n)].map(toBigInt)).toEqual([1n, 0n, 1n]);
+      expect([...lhs.ne(2n)].map(toBigInt)).toEqual([1n, 1n, 0n]);
     });
   });
 
@@ -286,10 +286,10 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.lt(3n)].map(BigInt)).toEqual([1n, 1n, 1n]);
-      expect([...lhs.lt(2n)].map(BigInt)).toEqual([1n, 1n, 0n]);
-      expect([...lhs.lt(1n)].map(BigInt)).toEqual([1n, 0n, 0n]);
-      expect([...lhs.lt(0n)].map(BigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.lt(3n)].map(toBigInt)).toEqual([1n, 1n, 1n]);
+      expect([...lhs.lt(2n)].map(toBigInt)).toEqual([1n, 1n, 0n]);
+      expect([...lhs.lt(1n)].map(toBigInt)).toEqual([1n, 0n, 0n]);
+      expect([...lhs.lt(0n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
     });
   });
 
@@ -311,9 +311,9 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.le(2n)].map(BigInt)).toEqual([1n, 1n, 1n]);
-      expect([...lhs.le(1n)].map(BigInt)).toEqual([1n, 1n, 0n]);
-      expect([...lhs.le(0n)].map(BigInt)).toEqual([1n, 0n, 0n]);
+      expect([...lhs.le(2n)].map(toBigInt)).toEqual([1n, 1n, 1n]);
+      expect([...lhs.le(1n)].map(toBigInt)).toEqual([1n, 1n, 0n]);
+      expect([...lhs.le(0n)].map(toBigInt)).toEqual([1n, 0n, 0n]);
     });
   });
 
@@ -336,10 +336,10 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.gt(2n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.gt(1n)].map(BigInt)).toEqual([0n, 0n, 1n]);
-      expect([...lhs.gt(0n)].map(BigInt)).toEqual([0n, 1n, 1n]);
-      expect([...lhs.gt(-1n)].map(BigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.gt(2n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.gt(1n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.gt(0n)].map(toBigInt)).toEqual([0n, 1n, 1n]);
+      expect([...lhs.gt(-1n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
     });
   });
 
@@ -360,10 +360,10 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.ge(3n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.ge(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
-      expect([...lhs.ge(1n)].map(BigInt)).toEqual([0n, 1n, 1n]);
-      expect([...lhs.ge(0n)].map(BigInt)).toEqual([1n, 1n, 1n]);
+      expect([...lhs.ge(3n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.ge(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.ge(1n)].map(toBigInt)).toEqual([0n, 1n, 1n]);
+      expect([...lhs.ge(0n)].map(toBigInt)).toEqual([1n, 1n, 1n]);
     });
   });
 
