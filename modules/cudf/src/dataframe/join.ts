@@ -208,7 +208,8 @@ function mergeResults<
 >(lhs: DataFrame<Lhs>, rhs: DataFrame<Rhs>, on: TOn[], lsuffix: LSuffix, rsuffix: RSuffix) {
   type TResult = JoinResult<Lhs, Rhs, TOn, LSuffix, RSuffix>;
   // clang-format on
-  function getColumns<T extends TypeMap>(lhs: DataFrame<T>, rhsNames: string[], suffix: string) {
+  function getColumns<T extends TypeMap>(
+    lhs: DataFrame<T>, rhsNames: readonly string[], suffix: string) {
     return lhs.names.reduce((cols, name) => {
       const newName = on.includes(name as TOn)  ? name
                       : rhsNames.includes(name) ? `${name}${suffix}`

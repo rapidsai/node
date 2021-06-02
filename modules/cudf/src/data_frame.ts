@@ -1711,7 +1711,7 @@ export class DataFrame<T extends TypeMap = any> {
   dropDuplicates(keep: keyof typeof DuplicateKeepOption,
                  nullsEqual: boolean,
                  nullsFirst: boolean,
-                 subset: (string&keyof T)[] = this.names,
+                 subset = this.names,
                  memoryResource?: MemoryResource) {
     const column_indices: number[] = [];
     const allNames                 = this.names;
