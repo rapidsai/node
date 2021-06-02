@@ -18,6 +18,7 @@ import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor';
+import {concat as concatDataFrames} from './dataframe/concat';
 import {Join, JoinResult} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {AbstractSeries, Series} from './series';
@@ -26,7 +27,7 @@ import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, Float32, Float64, IndexType, Numeric} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
-import {ColumnsMap, CommonType, findCommonType, TypeMap} from './types/mappings';
+import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
 export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
@@ -68,89 +69,6 @@ function _invokeIfNumericSeries<P extends keyof T, T extends TypeMap, R extends 
   series: Series<T[P]>, func: () => Series<R>) {
   if (series instanceof NumericSeries) { return func(); }
   return Series.new(series._col as Column<R>);
-}
-
-function _concat<DFs extends DataFrame[], T extends TypeMap>(...dfs: DFs): DataFrame {
-  const all_column_names = [...dfs
-                              .reduce((namesMap, df) => df.names.reduce(
-                                        (namesMap, name) => namesMap.set(name, true), namesMap),
-                                      new Map<string, boolean>())
-                              .keys()];
-
-  /**
-   * Array<Array<(Column|null)>> -- If a DF has a Column for a given name, it will be in the list
-   * otherwise there will be a null in that slot. For example:
-   * ```
-   * concat(new DataFrame({a, b}), new DataFrame({b, c}))
-   *
-   * columnsPerDF == [
-   *  [dfs[0].get("a"), dfs[0].get("b"),            null],
-   *  [           null, dfs[1].get("b"), dfs[1].get("c")]
-   * ]
-   * ```
-   */
-  const columns_per_df: any[][] =
-    dfs.map((df) => all_column_names.map((name) => df.has(name) ? df.get(name)._col : null));
-
-  const num_of_cols = columns_per_df[0].length;
-  const num_of_rows = columns_per_df.length;
-
-  /**
-   * Array<[number, DataType]> -- Find the first non null dtype in each column, save the column
-   * index and dtype in a tuple.
-   * ```
-   * [[0, Float64], [1, Int32], [2, Float64]],
-   * ```
-   */
-  const first_non_null_dtype: [number, DataType][] = Array(num_of_cols).fill(null);
-  first_non_null_dtype.forEach((_, col_idx) => {
-    for (let row_idx = 0; row_idx < num_of_rows; ++row_idx) {
-      const col = columns_per_df[row_idx][col_idx];
-      if (col !== null) { first_non_null_dtype[col_idx] = [row_idx, col.type]; }
-    }
-  });
-
-  /**
-   * Array<DataType> -- Find the common dtype in each column.
-   * ```
-   * [Float64, Int32, Float64]
-   * ```
-   */
-  const common_dtypes: DataType[] = first_non_null_dtype.map((tuple) => { return tuple[1]; });
-  first_non_null_dtype.forEach((tuple, col_idx) => {
-    const first_non_null_dtype_idx = tuple[0];
-    const start_idx                = first_non_null_dtype_idx + 1;
-    for (let row_idx = start_idx; row_idx < num_of_rows; ++row_idx) {
-      const first_non_null_dtype = tuple[1];
-      const col                  = columns_per_df[row_idx][col_idx];
-      if (col !== null) { common_dtypes[col_idx] = findCommonType(first_non_null_dtype, col.type); }
-    }
-  });
-
-  /**
-   * If any columns are null, create an empty column with type of common dtype
-   * Otherwise cast the column using the common dtype (if it isn't already the correct type).
-   */
-  common_dtypes.forEach((common_dtype, col_idx) => {
-    for (let row_idx = 0; row_idx < num_of_rows; ++row_idx) {
-      const col = columns_per_df[row_idx][col_idx];
-      if (col === null) {
-        const empty_column_length =
-          columns_per_df[row_idx]?.find((col) => col !== null).length ?? 0;
-        columns_per_df[row_idx][col_idx] =
-          new Column({type: common_dtype, data: new Array(empty_column_length)});
-      } else {
-        if (!col.type.compareTo(common_dtype)) {
-          columns_per_df[row_idx][col_idx] = col.cast(common_dtype);
-        }
-      }
-    }
-  });
-
-  const concatenatedTable = Table.concat(columns_per_df.map((columns) => new Table({columns})));
-  return new DataFrame(all_column_names.reduce(
-    (map, name, index) => ({...map, [name]: Series.new(concatenatedTable.getColumnByIndex(index))}),
-    {} as SeriesMap<T>));
 }
 
 /**
@@ -453,7 +371,7 @@ export class DataFrame<T extends TypeMap = any> {
   /**
    * Concat DataFrame(s) to the end of the caller, returning a new DataFrame.
    *
-   * @param dfs The DataFrame(s) to concat to the end of the caller.
+   * @param others The DataFrame(s) to concat to the end of the caller.
    *
    * @example
    * ```typescript
@@ -474,7 +392,7 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  concat<DFs extends DataFrame[]>(...dfs: DFs): DataFrame { return _concat(...[this, ...dfs]); }
+  concat<U extends DataFrame[]>(...others: U) { return concatDataFrames(this, ...others); }
 
   /**
    * Generate an ordering that sorts DataFrame columns in a specified way
