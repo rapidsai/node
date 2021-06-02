@@ -697,9 +697,21 @@ test('dataframe.isNotNull', () => {
 });
 
 describe('dataframe.concat', () => {
-  test('zero series in common', () => {
+  test('zero series in common same types', () => {
     const a   = Series.new([1, 2, 3, 4]);
     const b   = Series.new([5, 6, 7, 8]);
+    const dfa = new DataFrame({'a': a});
+    const dfb = new DataFrame({'b': b});
+
+    const result = dfa.concat(dfb);
+
+    expect([...result.get('a')]).toEqual([...a, null, null, null, null]);
+    expect([...result.get('b')]).toEqual([null, null, null, null, ...b]);
+  });
+
+  test.skip('zero series in common different types', () => {
+    const a   = Series.new([1, 2, 3, 4]);
+    const b   = Series.new(['5', '6', '7', '8']);
     const dfa = new DataFrame({'a': a});
     const dfb = new DataFrame({'b': b});
 
@@ -743,7 +755,14 @@ describe('dataframe.concat', () => {
 
     const result = df.concat(df2);
 
-    expect(result.get('a').type).toBeInstanceOf(Float64);
+    // Helper function to throw a compile error if `df.concat()` fails
+    // up-cast the `(Int32 | Float64)` type union to Float64, e.g.:
+    // ```ts
+    // expectFloat64(<Int32|Float64>new Float64());
+    // ```
+    function expectFloat64(type: Float64) { expect(type).toBeInstanceOf(Float64); }
+
+    expectFloat64(result.get('a').type);
     expect([...result.get('a')]).toEqual([...a, ...a2]);
   });
 
