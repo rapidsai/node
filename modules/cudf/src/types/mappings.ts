@@ -89,6 +89,19 @@ export type CommonType<T extends DataType, R extends Numeric> =
   : T extends Float32 ? CommonType_Float32<R>
   : T extends Float64 ? CommonType_Float64<R>
   : never;
+
+export type CommonTypes<T extends TypeMap, R extends TypeMap> =
+  {
+    [P in keyof T]:
+      P extends keyof R
+        ? CommonType<T[P], Numeric & R[P]>
+        : T[P]
+  } & {
+    [P in keyof R]:
+      P extends keyof T
+        ? CommonType<R[P], Numeric & T[P]>
+        : R[P]
+  };
 // clang-format on
 
 export function findCommonType<T extends DataType, R extends Numeric>(lhs: T,
