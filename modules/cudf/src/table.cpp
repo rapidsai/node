@@ -43,8 +43,8 @@ Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Table::order_by>("orderBy"),
                        StaticMethod<&Table::read_csv>("readCSV"),
                        InstanceMethod<&Table::write_csv>("writeCSV"),
-                       InstanceMethod<&Table::drop_nans>("drop_nans"),
-                       InstanceMethod<&Table::drop_nulls>("drop_nulls"),
+                       InstanceMethod<&Table::drop_nans>("dropNans"),
+                       InstanceMethod<&Table::drop_nulls>("dropNulls"),
                        InstanceMethod<&Table::drop_duplicates>("dropDuplicates"),
                        StaticMethod<&Table::concat>("concat"),
                        StaticMethod<&Table::full_join>("fullJoin"),
@@ -87,9 +87,7 @@ Table::Table(CallbackArgs const& args) : EnvLocalObjectWrap<Table>(args) {
     num_rows_ = col->size();
     for (auto i = 1u; i < columns.Length(); ++i) {
       col = Column::wrapper_t{columns.Get(i).ToObject()};
-      NODE_CUDF_EXPECT(col->size() == num_rows_,
-                       "Table constructor requires all columns to be of same length",
-                       args.Env());
+      NODE_CUDF_EXPECT(col->size() == num_rows_, "All Columns must be of same length", args.Env());
     }
   }
 
@@ -142,14 +140,15 @@ Napi::Value Table::get_column(Napi::CallbackInfo const& info) {
 Napi::Value Table::order_by(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
 
-  NODE_CUDF_EXPECT(args[0].IsArray(), "order_by ascending argument expects an array");
-  NODE_CUDF_EXPECT(args[1].IsArray(), "order_by null_order argument expects an array");
+  NODE_CUDF_EXPECT(args[0].IsArray(), "order_by ascending argument expects an array", args.Env());
+  NODE_CUDF_EXPECT(args[1].IsArray(), "order_by null_order argument expects an array", args.Env());
 
   std::vector<bool> ascending  = args[0];
   std::vector<bool> null_order = args[1];
 
   NODE_CUDF_EXPECT(ascending.size() == null_order.size(),
-                   "ascending and null_order must be the same size");
+                   "ascending and null_order must be the same size",
+                   args.Env());
 
   auto table_view = view();
 

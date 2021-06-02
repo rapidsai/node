@@ -152,8 +152,8 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::sub>("sub"),
                        InstanceMethod<&Column::mul>("mul"),
                        InstanceMethod<&Column::div>("div"),
-                       InstanceMethod<&Column::true_div>("true_div"),
-                       InstanceMethod<&Column::floor_div>("floor_div"),
+                       InstanceMethod<&Column::true_div>("trueDiv"),
+                       InstanceMethod<&Column::floor_div>("floorDiv"),
                        InstanceMethod<&Column::mod>("mod"),
                        InstanceMethod<&Column::pow>("pow"),
                        InstanceMethod<&Column::eq>("eq"),
@@ -162,29 +162,29 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::gt>("gt"),
                        InstanceMethod<&Column::le>("le"),
                        InstanceMethod<&Column::ge>("ge"),
-                       InstanceMethod<&Column::bitwise_and>("bitwise_and"),
-                       InstanceMethod<&Column::bitwise_or>("bitwise_or"),
-                       InstanceMethod<&Column::bitwise_xor>("bitwise_xor"),
-                       InstanceMethod<&Column::logical_and>("logical_and"),
-                       InstanceMethod<&Column::logical_or>("logical_or"),
+                       InstanceMethod<&Column::bitwise_and>("bitwiseAnd"),
+                       InstanceMethod<&Column::bitwise_or>("bitwiseOr"),
+                       InstanceMethod<&Column::bitwise_xor>("bitwiseXor"),
+                       InstanceMethod<&Column::logical_and>("logicalAnd"),
+                       InstanceMethod<&Column::logical_or>("logicalOr"),
                        InstanceMethod<&Column::coalesce>("coalesce"),
-                       InstanceMethod<&Column::shift_left>("shift_left"),
-                       InstanceMethod<&Column::shift_right>("shift_right"),
-                       InstanceMethod<&Column::shift_right_unsigned>("shift_right_unsigned"),
-                       InstanceMethod<&Column::log_base>("log_base"),
+                       InstanceMethod<&Column::shift_left>("shiftLeft"),
+                       InstanceMethod<&Column::shift_right>("shiftRight"),
+                       InstanceMethod<&Column::shift_right_unsigned>("shiftRightUnsigned"),
+                       InstanceMethod<&Column::log_base>("logBase"),
                        InstanceMethod<&Column::atan2>("atan2"),
-                       InstanceMethod<&Column::null_equals>("null_equals"),
-                       InstanceMethod<&Column::null_max>("null_max"),
-                       InstanceMethod<&Column::null_min>("null_min"),
+                       InstanceMethod<&Column::null_equals>("nullEquals"),
+                       InstanceMethod<&Column::null_max>("nullMax"),
+                       InstanceMethod<&Column::null_min>("nullMin"),
                        // column/concatenate.cpp
                        InstanceMethod<&Column::concat>("concat"),
                        // column/stream_compaction.cpp
-                       InstanceMethod<&Column::drop_nulls>("drop_nulls"),
-                       InstanceMethod<&Column::drop_nans>("drop_nans"),
+                       InstanceMethod<&Column::drop_nulls>("dropNulls"),
+                       InstanceMethod<&Column::drop_nans>("dropNans"),
                        // column/filling.cpp
                        StaticMethod<&Column::sequence>("sequence"),
                        // column/transform.cpp
-                       InstanceMethod<&Column::nans_to_nulls>("nans_to_nulls"),
+                       InstanceMethod<&Column::nans_to_nulls>("nansToNulls"),
                        // column/reduction.cpp
                        InstanceMethod<&Column::min>("min"),
                        InstanceMethod<&Column::max>("max"),
@@ -193,7 +193,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::product>("product"),
                        InstanceMethod<&Column::any>("any"),
                        InstanceMethod<&Column::all>("all"),
-                       InstanceMethod<&Column::sum_of_squares>("sum_of_squares"),
+                       InstanceMethod<&Column::sum_of_squares>("sumOfSquares"),
                        InstanceMethod<&Column::mean>("mean"),
                        InstanceMethod<&Column::median>("median"),
                        InstanceMethod<&Column::nunique>("nunique"),
@@ -231,7 +231,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::floor>("floor"),
                        InstanceMethod<&Column::abs>("abs"),
                        InstanceMethod<&Column::rint>("rint"),
-                       InstanceMethod<&Column::bit_invert>("bit_invert"),
+                       InstanceMethod<&Column::bit_invert>("bitInvert"),
                        InstanceMethod<&Column::unary_not>("not"),
                        // column/re.cpp
                        InstanceMethod<&Column::contains_re>("containsRe"),
@@ -360,14 +360,15 @@ void Column::set_null_mask(Napi::Value const& new_null_mask, cudf::size_type new
     if (new_null_count > 0) {
       NODE_CUDF_EXPECT(new_mask->size() >= cudf::bitmask_allocation_size_bytes(this->size()),
                        "Column with null values must be nullable, and the null mask "
-                       "buffer size should match the size of the column.");
+                       "buffer size should match the size of the column.",
+                       Env());
     }
     null_mask_ = Napi::Persistent(new_mask);
   }
 }
 
 void Column::set_null_count(cudf::size_type new_null_count) {
-  if (new_null_count > 0) { NODE_CUDF_EXPECT(nullable(), "Invalid null count."); }
+  if (new_null_count > 0) { NODE_CUDF_EXPECT(nullable(), "Invalid null count.", Env()); }
   null_count_ = new_null_count;
 }
 

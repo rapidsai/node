@@ -199,6 +199,34 @@ test('Series.gather', () => {
   expect([...result]).toEqual([...selection]);
 });
 
+describe('Series.head', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+
+  test('default n', () => { expect([...col.head()]).toEqual([0, 1, 2, 3, 4]); });
+
+  test('invalid n', () => { expect(() => col.head(-1)).toThrowError(); });
+
+  test('providing n', () => { expect([...col.head(8)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7]); });
+
+  test('n longer than length of series', () => {
+    expect([...col.head(25)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+});
+
+describe('Series.tail', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
+
+  test('default n', () => { expect([...col.tail()]).toEqual([5, 6, 7, 8, 9]); });
+
+  test('invalid n', () => { expect(() => col.tail(-1)).toThrowError(); });
+
+  test('providing n', () => { expect([...col.tail(8)]).toEqual([2, 3, 4, 5, 6, 7, 8, 9]); });
+
+  test('n longer than length of series', () => {
+    expect([...col.tail(25)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+});
+
 test('Series.scatter (series)', () => {
   const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
   const values  = Series.new({type: new Int32, data: [200, 400, 500, 800]});
@@ -439,9 +467,9 @@ describe.each([new Int32, new Float32, new Float64])('Series.sequence({type=%p,,
   });
 });
 
-test('Series.value_counts', () => {
+test('Series.valueCounts', () => {
   const s      = Series.new({type: new Int32, data: [110, 120, 100, 110, 120, 120]});
-  const result = s.value_counts();
+  const result = s.valueCounts();
   const count  = [...result.count];
   const value  = [...result.value];
 
@@ -455,12 +483,12 @@ test('Series.value_counts', () => {
 });
 
 test.each`
-nulls_equal        | data                           | expected
+nullsEqual        | data                           | expected
 ${true}         | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, 1, 2, 3, 4]}
 ${false}       | ${[null, null, 1, 2, 3, 4, 4]} | ${[null, null, 1, 2, 3, 4]}
-`('Series.unique($nulls_equal)', ({nulls_equal, data, expected}) => {
+`('Series.unique($nullsEqual)', ({nullsEqual, data, expected}) => {
   const s      = Series.new({type: new Int32, data});
-  const result = s.unique(nulls_equal);
+  const result = s.unique(nullsEqual);
   expect([...result]).toEqual(expected);
 });
 

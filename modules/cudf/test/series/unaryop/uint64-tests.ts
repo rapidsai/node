@@ -69,8 +69,8 @@ describe('Series unaryops (Uint64)', () => {
     const actual = makeTestData([null, 3n, 6n]).isNotNull();
     expect([...actual]).toEqual([false, true, true]);
   });
-  test('Series.bit_invert', () => {
-    const actual = makeTestData([null, 0n, 3n, 6n]).bit_invert();
+  test('Series.bitInvert', () => {
+    const actual = makeTestData([null, 0n, 3n, 6n]).bitInvert();
     expect([...actual].map(toBigInt)).toEqual([null, ~0n, ~3n, ~6n].map(toBigInt));
   });
   testForEachNumericType(

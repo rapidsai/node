@@ -69,8 +69,8 @@ describe('Series unaryops (Int32)', () => {
     const actual = makeTestData([null, 3, 6]).isNotNull();
     expect([...actual]).toEqual([false, true, true]);
   });
-  test('Series.bit_invert', () => {
-    const actual = makeTestData([null, 0, 3, 6]).bit_invert();
+  test('Series.bitInvert', () => {
+    const actual = makeTestData([null, 0, 3, 6]).bitInvert();
     expect([...actual]).toEqual([null, ~0, ~3, ~6]);
   });
   const clampValuesLikeUnaryCast = clampIntValuesLikeUnaryCast(new Int32Array([0]));
