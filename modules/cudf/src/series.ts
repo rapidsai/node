@@ -620,7 +620,10 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([false, true]).reverse() // [true, false]
    * ```
    */
-  reverse(): Series<T> { return Series.new({type: this.type, data: [...this].reverse()}); }
+  reverse(): Series<T> {
+    return this.gather(
+      Series.sequence({type: new Int32, size: this.length, step: -1, init: this.length - 1}));
+  }
 
   /**
    * Return a sub-selection of this Series using the specified integral indices.
