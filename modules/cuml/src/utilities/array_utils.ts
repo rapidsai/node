@@ -1,16 +1,11 @@
 import {
   DataFrame,
-  Float32,
-  Float64,
   Int32,
-  Int64,
-  Int8,
+  Numeric,
   Series,
   TypeMap,
-  Uint32
 } from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm/';
-export type Numeric = Float32|Float64|Int32|Int64|Int8|Uint32;
 
 /**
  * convert a dataframe to a single series to replicate conversion to a matrix in an organized

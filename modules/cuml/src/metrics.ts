@@ -1,7 +1,7 @@
-import {DataFrame, Series, TypeMap} from '@rapidsai/cudf';
+import {DataFrame, Numeric, Series, TypeMap} from '@rapidsai/cudf';
 
 import {CUML} from './addon';
-import {Numeric, transform_input_to_device_buffer} from './utilities/array_utils';
+import {transform_input_to_device_buffer} from './utilities/array_utils';
 
 export function trustworthiness(X: Series<Numeric>|DataFrame<TypeMap>,
                                 embedded: Series<Numeric>|DataFrame<TypeMap>,

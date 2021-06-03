@@ -1,26 +1,28 @@
 import {DeviceBuffer} from '@rapidsai/rmm';
 import {CUML} from './addon';
+import {CUMLLogLevels, MetricType} from './mappings';
 
 export type UMAPParams = {
-  n_neighbors?: number,
-  n_components?: number,
-  n_epochs?: number,
-  learning_rate?: number,
-  min_dist?: number,
+  nNeighbors?: number,
+  nComponents?: number,
+  nEpochs?: number,
+  learningRate?: number,
+  minDist?: number,
   spread?: number,
-  set_op_mix_ratio?: number,
-  local_connectivity?: number,
-  repulsion_strength?: number,
-  negative_sample_rate?: number,
-  transform_queue_size?: number,
-  // verbosity?: number,
+  setOpMixRatio?: number,
+  localConnectivity?: number,
+  repulsionStrength?: number,
+  negativeSampleRate?: number,
+  transformQueueSize?: number,
+  verbosity?: keyof typeof CUMLLogLevels,
   a?: number,
   b?: number,
-  initial_alpha?: number,
+  initialAlpha?: number,
   init?: number,
-  target_n_neighbors?: number,
-  // target_metric?: number,
-  target_weight?: number,
+  targetNNeighbors?: number,
+  targetMetric?: MetricType,
+  targetWeight?: number,
+  randomState?: number,
 };
 
 interface UMAPConstructor {
@@ -39,13 +41,13 @@ export interface UMAPInterface {
   readonly repulsionStrength: number;
   readonly negativeSampleRate: number;
   readonly transformQueueSize: number;
-  // readonly verbosity: number;
+  readonly verbosity: number;
   readonly a: number;
   readonly b: number;
   readonly initialAlpha: number;
   readonly init: number;
   readonly targetNNeighbors: number;
-  // readonly targetMetric: number;
+  readonly targetMetric: number;
   readonly targetWeight: number;
   readonly randomState: number;
 

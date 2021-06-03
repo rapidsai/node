@@ -71,8 +71,6 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
   //                 float* knn_dists,
   //                 bool convert_dtype = true);
 
-  // inline DeviceBuffer::wrapper_t get_embeddings() const noexcept { return embeddings_; }
-
   void transform(float* X,
                  cudf::size_type n_samples,
                  cudf::size_type n_features,
@@ -117,19 +115,8 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
   Napi::Value init(Napi::CallbackInfo const& info);
   Napi::Value target_n_neighbors(Napi::CallbackInfo const& info);
   Napi::Value target_weight(Napi::CallbackInfo const& info);
+  Napi::Value target_metric(Napi::CallbackInfo const& info);
+  Napi::Value verbosity(Napi::CallbackInfo const& info);
   Napi::Value random_state(Napi::CallbackInfo const& info);
 };
 }  // namespace nv
-// #ifdef CUDA_TRY
-// #undef CUDA_TRY
-// #endif
-// #ifdef CHECK_CUDA
-// #undef CHECK_CUDA
-// #endif
-
-// #ifdef CHECK_CUDA
-// #undef CHECK_CUDA
-// #endif
-// #ifdef CUDA_TRY
-// #undef CUDA_TRY
-// #endif

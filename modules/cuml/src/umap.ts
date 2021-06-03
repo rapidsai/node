@@ -1,20 +1,15 @@
 import {
   DataFrame,
   Float32,
-  Float64,
-  Int32,
-  Int64,
-  Int8,
+  Numeric,
   Series,
   TypeMap,
-  Uint32,
 } from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm/';
+import {CUMLLogLevels, MetricType} from './mappings';
 
 import {UMAPBase, UMAPInterface, UMAPParams} from './umap_base';
 import {series_to_dataframe, transform_input_to_device_buffer} from './utilities/array_utils';
-
-export type Numeric = Float32|Float64|Int32|Int64|Int8|Uint32;
 
 export class UMAP {
   public _umap: UMAPInterface;
@@ -25,13 +20,17 @@ export class UMAP {
     this._embeddings = new DeviceBuffer();
   }
 
+  private _generate_embeddings(n_samples: number): Series<Float32> {
+    return Series.sequence(
+      {type: new Float32, size: n_samples * this._umap.nComponents, init: 0, step: 0});
+  }
+
   fit(X: Series<Numeric>|DataFrame<TypeMap>,
       y: null|Series<Numeric>|DataFrame<TypeMap>,
       convertDType: boolean): void {
     const n_samples  = (X instanceof Series) ? X.length : X.numRows;
     const n_features = (X instanceof Series) ? 1 : X.numColumns;
-    this._embeddings = transform_input_to_device_buffer(Series.sequence(
-      {type: new Float32, size: n_samples * this._umap.nComponents, init: 0, step: 0}));
+    this._embeddings = transform_input_to_device_buffer(this._generate_embeddings(n_samples));
 
     this._embeddings = this._umap.fit(transform_input_to_device_buffer(X),
                                       n_samples,
@@ -55,8 +54,7 @@ export class UMAP {
   transform(X: Series<Numeric>|DataFrame<TypeMap>, convertDType: boolean): DataFrame {
     const n_samples  = (X instanceof Series) ? X.length : X.numRows;
     const n_features = (X instanceof Series) ? 1 : X.numColumns;
-    const embeddings = transform_input_to_device_buffer(Series.sequence(
-      {type: new Float32, size: n_samples * this._umap.nComponents, init: 0, step: 0}));
+    const embeddings = transform_input_to_device_buffer(this._generate_embeddings(n_samples));
 
     const result = this._umap.transform(transform_input_to_device_buffer(X),
                                         n_samples,
@@ -92,4 +90,6 @@ export class UMAP {
   get targetNNeighbors(): number { return this._umap.targetNNeighbors; }
   get targetWeight(): number { return this._umap.targetWeight; }
   get randomState(): number { return this._umap.randomState; }
+  get targetMetric(): string { return MetricType[this._umap.targetMetric]; }
+  get verbosity(): string { return CUMLLogLevels[this._umap.verbosity]; }
 }

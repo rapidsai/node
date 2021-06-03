@@ -16,3 +16,4 @@ export * as addon from './addon';
 
 export * from './umap';
 export * from './metrics';
+export * from './mappings';
