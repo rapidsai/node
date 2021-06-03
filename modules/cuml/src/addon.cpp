@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <node_cuml/cuml/manifold/umap.hpp>
+#include <node_cuml/metrics/metrics.hpp>
 #include <nv_node/addon.hpp>
 
 struct node_cuml : public nv::EnvLocalAddon, public Napi::Addon<node_cuml> {
@@ -23,7 +24,13 @@ struct node_cuml : public nv::EnvLocalAddon, public Napi::Addon<node_cuml> {
                   InstanceValue("_cpp_exports", _cpp_exports.Value()),
 
                   InstanceValue("UMAP", InitClass<nv::UMAP>(env, exports)),
+                  InstanceMethod("trustworthiness", &node_cuml::trustworthiness),
                 });
+  }
+
+ private:
+  Napi::Value trustworthiness(Napi::CallbackInfo const& info) {
+    return nv::Metrics::trustworthiness(info);
   }
 };
 

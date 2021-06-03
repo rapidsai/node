@@ -54,14 +54,14 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
    */
   UMAP(CallbackArgs const& args);
 
-  inline rmm::device_buffer get_embeddings() const noexcept { return embeddings_; }
   void fit(float* X,
            cudf::size_type n_samples,
            cudf::size_type n_features,
            float* y,
            int64_t* knn_indices,
            float* knn_dists,
-           bool convert_dtype = true);
+           bool convert_dtype,
+           float* embeddings);
 
   // void fit_sparse(float* X,
   //                 cudf::size_type n_samples,
@@ -71,6 +71,8 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
   //                 float* knn_dists,
   //                 bool convert_dtype = true);
 
+  // inline DeviceBuffer::wrapper_t get_embeddings() const noexcept { return embeddings_; }
+
   void transform(float* X,
                  cudf::size_type n_samples,
                  cudf::size_type n_features,
@@ -78,7 +80,9 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
                  float* knn_dists,
                  float* orig_X,
                  int orig_n,
-                 bool convert_dtype = true);
+                 bool convert_dtype,
+                 float* embeddings,
+                 float* transformed);
 
   // void transform_sparse(float* X,
   //                       cudf::size_type n_samples,
@@ -90,12 +94,30 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
 
  private:
   ML::UMAPParams params_{};
-  rmm::device_buffer embeddings_;
+  DeviceBuffer::wrapper_t embeddings_;
+  Napi::Value get_embeddings(Napi::CallbackInfo const& info);
   Napi::Value fit(Napi::CallbackInfo const& info);
   Napi::Value fit_sparse(Napi::CallbackInfo const& info);
   Napi::Value transform(Napi::CallbackInfo const& info);
   Napi::Value transform_sparse(Napi::CallbackInfo const& info);
-  Napi::Value get_embeddings(Napi::CallbackInfo const& info);
+  Napi::Value n_neighbors(Napi::CallbackInfo const& info);
+  Napi::Value n_components(Napi::CallbackInfo const& info);
+  Napi::Value n_epochs(Napi::CallbackInfo const& info);
+  Napi::Value learning_rate(Napi::CallbackInfo const& info);
+  Napi::Value min_dist(Napi::CallbackInfo const& info);
+  Napi::Value spread(Napi::CallbackInfo const& info);
+  Napi::Value set_op_mix_ratio(Napi::CallbackInfo const& info);
+  Napi::Value local_connectivity(Napi::CallbackInfo const& info);
+  Napi::Value repulsion_strength(Napi::CallbackInfo const& info);
+  Napi::Value negative_sample_rate(Napi::CallbackInfo const& info);
+  Napi::Value transform_queue_size(Napi::CallbackInfo const& info);
+  Napi::Value a(Napi::CallbackInfo const& info);
+  Napi::Value b(Napi::CallbackInfo const& info);
+  Napi::Value initial_alpha(Napi::CallbackInfo const& info);
+  Napi::Value init(Napi::CallbackInfo const& info);
+  Napi::Value target_n_neighbors(Napi::CallbackInfo const& info);
+  Napi::Value target_weight(Napi::CallbackInfo const& info);
+  Napi::Value random_state(Napi::CallbackInfo const& info);
 };
 }  // namespace nv
 // #ifdef CUDA_TRY

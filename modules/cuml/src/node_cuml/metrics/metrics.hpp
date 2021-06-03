@@ -12,7 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * as addon from './addon';
+#pragma once
 
-export * from './umap';
-export * from './metrics';
+#include <nv_node/utilities/args.hpp>
+#ifdef CUDA_TRY
+#undef CUDA_TRY
+#endif
+#include <raft/handle.hpp>
+
+#include <napi.h>
+
+namespace nv {
+
+namespace Metrics {
+Napi::Value trustworthiness(Napi::CallbackInfo const& info);
+}  // namespace Metrics
+}  // namespace nv

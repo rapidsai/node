@@ -1,4 +1,3 @@
-import {Column} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 import {CUML} from './addon';
 
@@ -21,9 +20,7 @@ export type UMAPParams = {
   init?: number,
   target_n_neighbors?: number,
   // target_metric?: number,
-  target_weights?: number,
-  multicore_implem?: boolean,
-  optim_batch_size?: number
+  target_weight?: number,
 };
 
 interface UMAPConstructor {
@@ -49,9 +46,8 @@ export interface UMAPInterface {
   readonly init: number;
   readonly targetNNeighbors: number;
   // readonly targetMetric: number;
-  readonly targetWeights: number;
-  readonly multicoreImplem: number;
-  readonly optimBatchSize: number;
+  readonly targetWeight: number;
+  readonly randomState: number;
 
   fit(X: DeviceBuffer,
       n_samples: number,
@@ -59,16 +55,17 @@ export interface UMAPInterface {
       y: DeviceBuffer|null,
       knnIndices: DeviceBuffer|null,
       knnDists: DeviceBuffer|null,
-      convertDType: boolean): void;
+      convertDType: boolean,
+      embeddings: DeviceBuffer): DeviceBuffer;
 
   transform(X: DeviceBuffer,
             n_samples: number,
             n_features: number,
             knnIndices: DeviceBuffer|null,
             knnDists: DeviceBuffer|null,
-            convertDType: boolean): Column;
-
-  getEmbeddings(): Column;
+            convertDType: boolean,
+            embeddings: DeviceBuffer,
+            transformed: DeviceBuffer): DeviceBuffer;
 }
 
 export const UMAPBase: UMAPConstructor = CUML.UMAP;
