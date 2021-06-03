@@ -452,6 +452,13 @@ test('FloatSeries.nansToNulls', () => {
   expect(col.nullCount).toEqual(0);
 });
 
+test('Series.reverse', () => {
+  const array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const col   = Series.new(array);
+
+  expect([...col.reverse()]).toEqual(array.reverse());
+});
+
 describe.each([new Int32, new Float32, new Float64])('Series.sequence({type=%p,, ...})', (typ) => {
   test('no step', () => {
     const col = Series.sequence({type: typ, size: 10, init: 0});

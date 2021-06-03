@@ -606,6 +606,23 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * Returns a new series with reversed elements.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, 2, 3]).reverse() // [3, 2, 1]
+   * // StringSeries
+   * Series.new(["foo", "bar"]).reverse() // ["bar", "foo"]
+   * // Bool8Series
+   * Series.new([false, true]).reverse() // [true, false]
+   * ```
+   */
+  reverse(): Series<T> { return Series.new({type: this.type, data: [...this].reverse()}); }
+
+  /**
    * Return a sub-selection of this Series using the specified integral indices.
    *
    * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
