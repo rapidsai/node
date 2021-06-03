@@ -32,20 +32,20 @@ export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(firs
   const all_column_names =
     [...new Set(dfs.reduce((names: string[], df) => names.concat(df.names), [])).keys()];
 
-    /**
-     * Array<Array<(Column|null)>> -- If a DF has a Column for a given name, it will be in the list
-     * otherwise there will be a null in that slot. For example:
-     * ```
-     * concat(new DataFrame({a, b}), new DataFrame({b, c}))
-     *
-     * columnsPerDF == [
-     *  [dfs[0].get("a"), dfs[0].get("b"),            null],
-     *  [           null, dfs[1].get("b"), dfs[1].get("c")]
-     * ]
-     * ```
-     */
-    const columns_per_df: any[][] =
-      dfs.map((df) => all_column_names.map((name) => df.has(name) ? df.get(name)._col : null));
+  /**
+   * Array<Array<(Column|null)>> -- If a DF has a Column for a given name, it will be in the list
+   * otherwise there will be a null in that slot. For example:
+   * ```
+   * concat(new DataFrame({a, b}), new DataFrame({b, c}))
+   *
+   * columnsPerDF == [
+   *  [dfs[0].get("a"), dfs[0].get("b"),            null],
+   *  [           null, dfs[1].get("b"), dfs[1].get("c")]
+   * ]
+   * ```
+   */
+  const columns_per_df: any[][] =
+    dfs.map((df) => all_column_names.map((name) => df.has(name) ? df.get(name)._col : null));
 
   const num_of_cols = columns_per_df[0].length;
   const num_of_rows = columns_per_df.length;
