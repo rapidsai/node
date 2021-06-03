@@ -1494,20 +1494,20 @@ export class DataFrame<T extends TypeMap = any> {
       {} as SeriesMap<{[P in keyof T]: Bool8}>));
   }
 
-  sum(subset?: (keyof T)[], dtype?: DataType) {
+  sum(subset?: (keyof T)[], dtype?: DataType, memoryResource?: MemoryResource) {
     subset     = (subset == undefined) ? this.names as (keyof T)[] : subset;
     const temp = new Table({columns: this.select(subset)._accessor.columns});
 
     let common_dtype: DataType = temp.getColumnByIndex(0).type;
-    const sums: number[]         = new Array(temp.numColumns);
+    const sums: number[]       = new Array(temp.numColumns);
     for (let i = 0; i < temp.numColumns; ++i) {
       const col    = temp.getColumnByIndex(i);
       common_dtype = findCommonType(common_dtype, col.type);
-      sums[i]      = Number(col.sum());
+      sums[i]      = Number(col.sum(memoryResource));
     }
 
     const result = Series.new({type: common_dtype, data: sums});
-    return dtype ? result.cast(dtype) : result;
+    return dtype ? result.cast(dtype, memoryResource) : result;
   }
 
   /**
