@@ -34,7 +34,7 @@ Napi::Value Table::concat(Napi::CallbackInfo const& info) {
                  [](const Table::wrapper_t& t) -> cudf::table_view { return t->view(); });
 
   try {
-    return Table::New(info.Env(), cudf::concatenate(table_views, mr))->Value();
+    return Table::New(info.Env(), cudf::concatenate(table_views, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(info.Env(), err.what())); }
 }
 

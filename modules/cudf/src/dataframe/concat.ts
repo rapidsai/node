@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
+import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
@@ -29,7 +32,7 @@ export type ConcatTypeMap<D extends DataFrame, T extends unknown[]> =
 export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(first: TFirst,
                                                                             ...others: TRest) {
   const dfs = [first, ...others] as [TFirst, ...TRest];
-  const all_column_names =
+  const names =
     [...new Set(dfs.reduce((names: string[], df) => names.concat(df.names), [])).keys()];
 
   /**
@@ -44,69 +47,65 @@ export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(firs
    * ]
    * ```
    */
-  const columns_per_df: any[][] =
-    dfs.map((df) => all_column_names.map((name) => df.has(name) ? df.get(name)._col : null));
-
-  const num_of_cols = columns_per_df[0].length;
-  const num_of_rows = columns_per_df.length;
-
-  /**
-   * Array<[number, DataType]> -- Find the first non null dtype in each column, save the column
-   * index and dtype in a tuple.
-   * ```
-   * [[0, Float64], [1, Int32], [2, Float64]],
-   * ```
-   */
-  const first_non_null_dtype: [number, DataType][] = Array(num_of_cols).fill(null);
-  first_non_null_dtype.forEach((_, col_idx) => {
-    for (let row_idx = 0; row_idx < num_of_rows; ++row_idx) {
-      const col = columns_per_df[row_idx][col_idx];
-      if (col !== null) { first_non_null_dtype[col_idx] = [row_idx, col.type]; }
-    }
+  const rows = dfs.map((df) => {                        //
+    return names.map((name) => {                        //
+      return df.has(name)                               //
+               ? df.get(name)._col as Column<DataType>  //
+               : null;
+    });
   });
 
   /**
-   * Array<DataType> -- Find the common dtype in each column.
+   * Array<DataType> -- Find the common dtype for each column in the final table.
    * ```
    * [Float64, Int32, Float64]
    * ```
    */
-  const common_dtypes: DataType[] = first_non_null_dtype.map((tuple) => { return tuple[1]; });
-  first_non_null_dtype.forEach((tuple, col_idx) => {
-    const first_non_null_dtype_idx = tuple[0];
-    const start_idx                = first_non_null_dtype_idx + 1;
-    for (let row_idx = start_idx; row_idx < num_of_rows; ++row_idx) {
-      const first_non_null_dtype = tuple[1];
-      const col                  = columns_per_df[row_idx][col_idx];
-      if (col !== null) { common_dtypes[col_idx] = findCommonType(first_non_null_dtype, col.type); }
-    }
+  const commonDtypes = names.map((_, colIdx) => {
+    return rows.reduce((commonDtype: DataType|null, columns) => {
+      const column = columns[colIdx];
+      return !column        ? commonDtype  ///< If Column is null, return the latest common dtype
+             : !commonDtype ? column.type  ///< If this is the first non-null Column, use its dtype
+                            : findCommonType(commonDtype, column.type);  ///< find the common dtype
+    }, null)!;
   });
 
   /**
    * If any columns are null, create an empty column with type of common dtype
    * Otherwise cast the column using the common dtype (if it isn't already the correct type).
    */
-  common_dtypes.forEach((common_dtype, col_idx) => {
-    for (let row_idx = 0; row_idx < num_of_rows; ++row_idx) {
-      const col = columns_per_df[row_idx][col_idx];
-      if (col === null) {
-        const empty_column_length =
-          columns_per_df[row_idx]?.find((col) => col !== null).length ?? 0;
-        columns_per_df[row_idx][col_idx] =
-          Series.new({type: common_dtype, data: new Array(empty_column_length)})._col;
-      } else {
-        if (!col.type.compareTo(common_dtype)) {
-          columns_per_df[row_idx][col_idx] = col.cast(common_dtype);
-        }
+  const tables = dfs.map((df, rowIdx) => {
+    // Function to create an empty Column
+    const makeEmptyColumn = (() => {
+      let data: any[]|undefined;
+      return (type: DataType) => {
+        // Lazily create and reuse the empty data Array
+        data = data || new Array(df.numRows);
+        return Series.new({type, data})._col;
+      };
+    })();
+
+    // 1. Create empty Columns for any null slots
+    // 2. Cast non-null Columns to the common dtype
+    const columns = rows[rowIdx].map((column, colIdx) => {
+      const commonDtype = commonDtypes[colIdx];
+      if (column === null) {  // 1.
+        return makeEmptyColumn(commonDtype);
+      } else if (!column.type.compareTo(commonDtype)) {  // 2.
+        return column.cast(commonDtype);
       }
-    }
+      return column;
+    });
+
+    // Return a Table
+    return new Table({columns});
   });
 
-  const concatenatedTable = Table.concat(columns_per_df.map((columns) => new Table({columns})));
+  const concatenatedTable = Table.concat(tables);
 
   type TResultTypeMap = ConcatTypeMap<TFirst, TRest>;
 
-  return new DataFrame(all_column_names.reduce(
+  return new DataFrame(names.reduce(
     (map, name, index) => ({...map, [name]: Series.new(concatenatedTable.getColumnByIndex(index))}),
     {} as SeriesMap<{[P in keyof TResultTypeMap]: TResultTypeMap[P]}>));
 }
