@@ -865,7 +865,7 @@ describe('dataframe.concat', () => {
       // For now, we'll just verify that concat returns a DataFrame<{ a: never }>
       verifyConcatResultType(result);
 
-      function verifyConcatResultType(_: DataFrame<{a: never}>) {}
+      function verifyConcatResultType(_: DataFrame<{a: never}>) { return _; }
     }).toThrow();
   });
 
