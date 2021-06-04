@@ -25,7 +25,7 @@ import {AbstractSeries, Series} from './series';
 import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {Bool8, DataType, Float32, Float64, IndexType, Int32, Numeric} from './types/dtypes';
+import {Bool8, DataType, Float32, Float64, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
@@ -657,9 +657,8 @@ export class DataFrame<T extends TypeMap = any> {
     props: JoinProps<R, TOn, 'inner'|'outer'|'left'|'right', LSuffix, RSuffix>
   ): DataFrame<{
     [P in keyof JoinResult<T, R, TOn, LSuffix, RSuffix>]:
-      R[P] extends Numeric ? P extends TOn //
-        ? CommonType<T[P], Numeric & R[P]> //
-        : JoinResult<T, R, TOn, LSuffix, RSuffix>[P] //
+      P extends TOn
+        ? CommonType<T[P], R[P]>
         : JoinResult<T, R, TOn, LSuffix, RSuffix>[P]
   }>;
   // clang-format on

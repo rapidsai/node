@@ -18,7 +18,6 @@ import {ColumnAccessor} from '../column_accessor';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
-import {Numeric} from '../types/dtypes';
 import {ColumnsMap, CommonType, findCommonType, TypeMap} from '../types/mappings';
 
 export type JoinKey<
@@ -218,10 +217,7 @@ function mergeResults<
       return cols;
     }, <any>{}) as ColumnsMap<{
              [P in keyof TResult]:  //
-               P extends TOn
-             ? Rhs[P] extends Numeric ? CommonType<Lhs[P], Numeric&Rhs[P]>  //
-                                      : TResult[P]
-             : TResult[P]
+               P extends TOn ? CommonType<Lhs[P], Rhs[P]>: TResult[P]
            }>;
   }
 
