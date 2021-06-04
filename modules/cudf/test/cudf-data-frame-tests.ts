@@ -846,6 +846,29 @@ describe('dataframe.concat', () => {
     expect([...result.get('a')]).toEqual([...a1, ...a2]);
   });
 
+  test('fails to up-cast between Float64 and String', () => {
+    const a1  = Series.new([1, 2, 3, 4, 5]);
+    const a2  = Series.new(['6', '7', '8', '9', '10']);
+    const df1 = new DataFrame({'a': a1});
+    const df2 = new DataFrame({'a': a2});
+
+    expect(() => {
+      // This throws a runtime exception because it
+      // can't find a common dtype between Float64 and String.
+      // Ideally this should cause a compile-time error, but it
+      // TS has no generic equivalent of the C #error directive.
+      const result = df1.concat(df2);
+
+      // A compilation error does happen when someone tries to use the "a" Column:
+      // result.get('a').type; // `Property 'type' does not exist on type 'never'.ts(2339)`
+
+      // For now, we'll just verify that concat returns a DataFrame<{ a: never }>
+      verifyConcatResultType(result);
+
+      function verifyConcatResultType(_: DataFrame<{a: never}>) {}
+    }).toThrow();
+  });
+
   test('array of dataframes', () => {
     const a   = Series.new([1, 2, 3, 4]);
     const b   = Series.new([5, 6, 7, 8]);
