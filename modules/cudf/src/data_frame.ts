@@ -1698,6 +1698,32 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Replace null values with a value.
+   *
+   * @param value The scalar value to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([0, null, 2]);
+   *  b: Series.new([null, null, null]);
+   * });
+   *
+   * df.replaceNulls(1);
+   * // return {
+   * //    a: [0, 1, 2],
+   * //    b: [1, 1, 1],
+   * // }
+   * ```
+   */
+  replaceNulls(value: (DataType&keyof T)['scalarType'],
+               memoryResource?: MemoryResource): DataFrame<T>;
+
+  /**
    * Replace null values with the corresponding elements from another Map of Series.
    *
    * @param value The map of Series to use in place of nulls.
@@ -1722,29 +1748,6 @@ export class DataFrame<T extends TypeMap = any> {
    */
   replaceNulls(value: SeriesMap<T>, memoryResource?: MemoryResource): DataFrame<T>;
 
-  /**
-   * Replace null values with a value.
-   *
-   * @param value The scalar value to use in place of nulls.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
-   *
-   * @example
-   * ```typescript
-   * import {DataFrame, Series} from '@rapidsai/cudf';
-   *
-   * const df = new DataFrame({
-   *  a: Series.new([0, null, 2]);
-   *  b: Series.new([null, null, null]);
-   * });
-   *
-   * df.replaceNulls(1);
-   * // return {
-   * //    a: [0, 1, 2],
-   * //    b: [1, 1, 1],
-   * // }
-   * ```
-   */
   replaceNulls(value: any, memoryResource?: MemoryResource): DataFrame<T> {
     if (value instanceof Object) {
       const columns = new ColumnAccessor(_seriesToColumns(value as SeriesMap<T>));
@@ -1761,7 +1764,7 @@ export class DataFrame<T extends TypeMap = any> {
         (map, name) => ({
           ...map,
           [name]: Series.new(this._accessor.get(name).replaceNulls(
-            new Scalar({type: this._accessor.get(name).type, value: value}), memoryResource))
+            new Scalar({type: this._accessor.get(name).type, value: value }), memoryResource))
         }),
         {} as SeriesMap<T>));
     }
