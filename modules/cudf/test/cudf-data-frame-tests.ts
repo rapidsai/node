@@ -697,17 +697,22 @@ describe('dataframe.sum', () => {
 
   test('empty dataframe', () => {
     const df = new DataFrame({'a': Series.new([]), 'b': Series.new([])});
-    expect([...df.sum()]).toEqual([null, null]);
+    expect([...df.sum()]).toEqual([0, 0]);
   });
 
   test('cast to int', () => {
     const df = new DataFrame({'a': Series.new([1.5, 2.5, 3.5]), 'b': Series.new([4.5, 5.5, 6.5])});
-    expect([...df.sum(undefined, new Int32)]).toEqual([7, 16]);
+    expect([...df.sum(undefined, true, new Int32)]).toEqual([7, 16]);
   });
 
   test('subset', () => {
     const df = new DataFrame({'a': Series.new([1, 2, 3]), 'b': Series.new([4.5, 5.5, 6.5])});
     expect([...df.sum(['a'])]).toEqual([6]);
+  });
+
+  test('throws if incompatiable types', () => {
+    const df = new DataFrame({'a': Series.new(['foo', 'bar']), 'b': Series.new([4.5, 5.5])});
+    expect(() => df.sum()).toThrow();
   });
 });
 

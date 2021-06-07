@@ -1542,14 +1542,43 @@ export class DataFrame<T extends TypeMap = any> {
       {} as SeriesMap<{[P in keyof T]: Bool8}>));
   }
 
-  sum(subset?: (keyof T)[], dtype?: DataType, memoryResource?: MemoryResource) {
+  /**
+   * Compute the sum for all Series in the DataFrame.
+   *
+   * @returns A Series containing the sum of all values for each Series
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2]),
+   *  b: Series.new([3.5, 4])
+   * });
+   * df.sum(); // [3, 7.5]
+   *
+   * const df2 = new DataFrame({
+   *  a: Series.new(['foo', 'bar']),
+   *  b: Series.new([3, 4])
+   * });
+   *
+   * df2.sum(); // throws error
+   * ```
+   */
+  sum(subset?: (keyof T)[], skipna = true, dtype?: DataType, memoryResource?: MemoryResource):
+    Series {
     subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const commonDtype = subset.reduce(
       (type: DataType|null, name) => findCommonType(type ?? this.types[name], this.types[name]),
       null)!;
-    const sums   = subset.map((name) => this.get(name)._col.sum(memoryResource));
-    const result = Series.new({type: commonDtype, data: sums});
+    const sums = subset.map((name) => {
+      if (!(this.get(name) instanceof NumericSeries)) {
+        throw new Error('Unable to sum the results of non NumericSeries type');
+      }
+      return Number(this.get(name)._col.sum());
+    });
+    let result = Series.new({type: commonDtype, data: sums});
+    if (skipna) result = result.dropNulls();
     return dtype ? result.cast(dtype, memoryResource) : result;
   }
 
