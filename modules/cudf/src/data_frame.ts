@@ -1571,17 +1571,15 @@ export class DataFrame<T extends TypeMap = any> {
     const commonDtype = subset.reduce(
       (type: DataType|null, name) => findCommonType(type ?? this.types[name], this.types[name]),
       null)!;
-    const sums   = subset.map((name) => {
+    const sums = subset.map((name) => {
       if (!(this.get(name) instanceof NumericSeries)) {
         throw new Error('Unable to sum the results of non NumericSeries');
       }
       return Number(this.get(name)._col.sum(memoryResource));
     });
-    const result = Series.new({type: commonDtype, data: sums});
-    return dtype && skipna ? result.dropNulls(memoryResource).cast(dtype, memoryResource)
-           : skipna        ? result.dropNulls(memoryResource)
-           : dtype         ? result.cast(dtype, memoryResource)
-                           : result;
+    let result = Series.new({type: commonDtype, data: sums});
+    if (skipna) result = result.dropNulls();
+    return dtype ? result.cast(dtype) : result;
   }
 
   /**
