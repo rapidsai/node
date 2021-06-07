@@ -76,23 +76,41 @@ type CommonType_Float64<T extends Numeric> =
   T extends Bool8|Int8|Uint8|Int16|Uint16|Int32|Uint32|Float32 ? Float64 : T;
 
 // clang-format off
-export type CommonType<T extends DataType, R extends Numeric> =
-    T extends Bool8   ? CommonType_Bool8<R>
-  : T extends Int8    ? CommonType_Int8<R>
-  : T extends Int16   ? CommonType_Int16<R>
-  : T extends Int32   ? CommonType_Int32<R>
-  : T extends Int64   ? CommonType_Int64<R>
-  : T extends Uint8   ? CommonType_Uint8<R>
-  : T extends Uint16  ? CommonType_Uint16<R>
-  : T extends Uint32  ? CommonType_Uint32<R>
-  : T extends Uint64  ? CommonType_Uint64<R>
-  : T extends Float32 ? CommonType_Float32<R>
-  : T extends Float64 ? CommonType_Float64<R>
+export type CommonType<T extends DataType, R extends DataType> =
+  T extends R
+    ? R extends T ? T : R :
+  R extends Numeric
+    ? T extends Bool8   ? CommonType_Bool8<R>
+    : T extends Int8    ? CommonType_Int8<R>
+    : T extends Int16   ? CommonType_Int16<R>
+    : T extends Int32   ? CommonType_Int32<R>
+    : T extends Int64   ? CommonType_Int64<R>
+    : T extends Uint8   ? CommonType_Uint8<R>
+    : T extends Uint16  ? CommonType_Uint16<R>
+    : T extends Uint32  ? CommonType_Uint32<R>
+    : T extends Uint64  ? CommonType_Uint64<R>
+    : T extends Float32 ? CommonType_Float32<R>
+    : T extends Float64 ? CommonType_Float64<R>
+    : never
   : never;
+
+export type CommonTypes<T extends TypeMap, R extends TypeMap> =
+  {
+    [P in keyof T]:
+      P extends keyof R
+        ? CommonType<T[P], R[P]>
+        : T[P]
+  } & {
+    [P in keyof R]:
+      P extends keyof T
+        ? CommonType<R[P], T[P]>
+        : R[P]
+  };
 // clang-format on
 
-export function findCommonType<T extends DataType, R extends Numeric>(lhs: T,
-                                                                      rhs: R): CommonType<T, R> {
+export function findCommonType<T extends DataType, R extends DataType>(lhs: T,
+                                                                       rhs: R): CommonType<T, R> {
+  if (lhs.compareTo(rhs)) { return arrowToCUDFType(lhs) as CommonType<T, R>; }
   return arrowToCUDFType(CUDF.findCommonType(lhs, rhs)) as CommonType<T, R>;
 }
 

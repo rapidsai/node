@@ -16,7 +16,7 @@ import {setDefaultAllocator} from '@nvidia/cuda';
 import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
-import {makeTestNumbers, makeTestSeries} from '../utils';
+import {makeTestNumbers, makeTestSeries, toBigInt} from '../utils';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
@@ -41,10 +41,10 @@ describe('Series binaryops (Int16)', () => {
     });
     test('adds a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.add(-1n)].map(BigInt)).toEqual([-1n, 0n, 1n]);
-      expect([...lhs.add(0n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.add(1n)].map(BigInt)).toEqual([1n, 2n, 3n]);
-      expect([...lhs.add(2n)].map(BigInt)).toEqual([2n, 3n, 4n]);
+      expect([...lhs.add(-1n)].map(toBigInt)).toEqual([-1n, 0n, 1n]);
+      expect([...lhs.add(0n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.add(1n)].map(toBigInt)).toEqual([1n, 2n, 3n]);
+      expect([...lhs.add(2n)].map(toBigInt)).toEqual([2n, 3n, 4n]);
     });
   });
 
@@ -67,10 +67,10 @@ describe('Series binaryops (Int16)', () => {
     });
     test('subtracts a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.sub(-1n)].map(BigInt)).toEqual([1n, 2n, 3n]);
-      expect([...lhs.sub(0n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.sub(1n)].map(BigInt)).toEqual([-1n, 0n, 1n]);
-      expect([...lhs.sub(2n)].map(BigInt)).toEqual([-2n, -1n, 0n]);
+      expect([...lhs.sub(-1n)].map(toBigInt)).toEqual([1n, 2n, 3n]);
+      expect([...lhs.sub(0n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.sub(1n)].map(toBigInt)).toEqual([-1n, 0n, 1n]);
+      expect([...lhs.sub(2n)].map(toBigInt)).toEqual([-2n, -1n, 0n]);
     });
   });
 
@@ -91,10 +91,10 @@ describe('Series binaryops (Int16)', () => {
     });
     test('multiplies against a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.mul(-1n)].map(BigInt)).toEqual([0n, -1n, -2n]);
-      expect([...lhs.mul(0n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.mul(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.mul(2n)].map(BigInt)).toEqual([0n, 2n, 4n]);
+      expect([...lhs.mul(-1n)].map(toBigInt)).toEqual([0n, -1n, -2n]);
+      expect([...lhs.mul(0n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.mul(1n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.mul(2n)].map(toBigInt)).toEqual([0n, 2n, 4n]);
     });
   });
 
@@ -115,60 +115,60 @@ describe('Series binaryops (Int16)', () => {
     });
     test('divides by a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.div(-1n)].map(BigInt)).toEqual([0n, -1n, -2n]);
-      expect([...lhs.div(0n)].map(BigInt)).toEqual([4294967295n, 4294967295n, 4294967295n]);
-      expect([...lhs.div(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.div(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.div(-1n)].map(toBigInt)).toEqual([0n, -1n, -2n]);
+      expect([...lhs.div(0n)].map(toBigInt)).toEqual([4294967295n, 4294967295n, 4294967295n]);
+      expect([...lhs.div(1n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.div(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
     });
   });
 
-  describe('Series.true_div', () => {
-    test('true_divides by a Series', () => {
+  describe('Series.trueDiv', () => {
+    test('trueDivides by a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs / lhs == [0/0, 1/1, 2/2]
-      expect([...lhs.true_div(lhs)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.trueDiv(lhs)].map(Number)).toEqual([0, 1, 1]);
       // lhs / rhs == [0/1, 1/2, 2/3]
-      expect([...lhs.true_div(rhs)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.trueDiv(rhs)].map(Number)).toEqual([0, 0, 0]);
     });
-    test('true_divides by a number', () => {
+    test('trueDivides by a number', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.true_div(-1)].map(Number)).toEqual([-0, -1, -2]);
-      expect([...lhs.true_div(0)].map(Number)).toEqual([NaN, Infinity, Infinity]);
-      expect([...lhs.true_div(1)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.true_div(2)].map(Number)).toEqual([0, 0.5, 1]);
+      expect([...lhs.trueDiv(-1)].map(Number)).toEqual([-0, -1, -2]);
+      expect([...lhs.trueDiv(0)].map(Number)).toEqual([NaN, Infinity, Infinity]);
+      expect([...lhs.trueDiv(1)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.trueDiv(2)].map(Number)).toEqual([0, 0.5, 1]);
     });
-    test('true_divides by a bigint', () => {
+    test('trueDivides by a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.true_div(-1n)].map(BigInt)).toEqual([0n, -1n, -2n]);
-      expect([...lhs.true_div(0n)].map(BigInt))
+      expect([...lhs.trueDiv(-1n)].map(toBigInt)).toEqual([0n, -1n, -2n]);
+      expect([...lhs.trueDiv(0n)].map(toBigInt))
         .toEqual([-9223372036854775808n, 9223372036854775807n, 9223372036854775807n]);
-      expect([...lhs.true_div(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.true_div(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.trueDiv(1n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.trueDiv(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
     });
   });
 
-  describe('Series.floor_div', () => {
-    test('floor_divides by a Series', () => {
+  describe('Series.floorDiv', () => {
+    test('floorDivides by a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs / lhs == floor([0/0, 1/1, 2/2])
-      expect([...lhs.floor_div(lhs)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.floorDiv(lhs)].map(Number)).toEqual([0, 1, 1]);
       // lhs / rhs == floor([0/1, 1/2, 2/3])
-      expect([...lhs.floor_div(rhs)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.floorDiv(rhs)].map(Number)).toEqual([0, 0, 0]);
     });
-    test('floor_divides by a number', () => {
+    test('floorDivides by a number', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.floor_div(-1)].map(Number)).toEqual([-0, -1, -2]);
-      expect([...lhs.floor_div(0)].map(Number)).toEqual([NaN, Infinity, Infinity]);
-      expect([...lhs.floor_div(1)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.floor_div(2)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.floorDiv(-1)].map(Number)).toEqual([-0, -1, -2]);
+      expect([...lhs.floorDiv(0)].map(Number)).toEqual([NaN, Infinity, Infinity]);
+      expect([...lhs.floorDiv(1)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.floorDiv(2)].map(Number)).toEqual([0, 0, 1]);
     });
-    test('floor_divides by a bigint', () => {
+    test('floorDivides by a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.floor_div(-1n)].map(BigInt)).toEqual([0n, -1n, -2n]);
-      expect([...lhs.floor_div(0n)].map(BigInt))
+      expect([...lhs.floorDiv(-1n)].map(toBigInt)).toEqual([0n, -1n, -2n]);
+      expect([...lhs.floorDiv(0n)].map(toBigInt))
         .toEqual([-9223372036854775808n, 9223372036854775807n, 9223372036854775807n]);
-      expect([...lhs.floor_div(1n)].map(BigInt)).toEqual([0n, 1n, 2n]);
-      expect([...lhs.floor_div(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.floorDiv(1n)].map(toBigInt)).toEqual([0n, 1n, 2n]);
+      expect([...lhs.floorDiv(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
     });
   });
 
@@ -236,9 +236,9 @@ describe('Series binaryops (Int16)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.eq(0n)].map(BigInt)).toEqual([1n, 0n, 0n]);
-      expect([...lhs.eq(1n)].map(BigInt)).toEqual([0n, 1n, 0n]);
-      expect([...lhs.eq(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.eq(0n)].map(toBigInt)).toEqual([1n, 0n, 0n]);
+      expect([...lhs.eq(1n)].map(toBigInt)).toEqual([0n, 1n, 0n]);
+      expect([...lhs.eq(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
     });
   });
 
@@ -258,9 +258,9 @@ describe('Series binaryops (Int16)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.ne(0n)].map(BigInt)).toEqual([0n, 1n, 1n]);
-      expect([...lhs.ne(1n)].map(BigInt)).toEqual([1n, 0n, 1n]);
-      expect([...lhs.ne(2n)].map(BigInt)).toEqual([1n, 1n, 0n]);
+      expect([...lhs.ne(0n)].map(toBigInt)).toEqual([0n, 1n, 1n]);
+      expect([...lhs.ne(1n)].map(toBigInt)).toEqual([1n, 0n, 1n]);
+      expect([...lhs.ne(2n)].map(toBigInt)).toEqual([1n, 1n, 0n]);
     });
   });
 
@@ -283,10 +283,10 @@ describe('Series binaryops (Int16)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.lt(3n)].map(BigInt)).toEqual([1n, 1n, 1n]);
-      expect([...lhs.lt(2n)].map(BigInt)).toEqual([1n, 1n, 0n]);
-      expect([...lhs.lt(1n)].map(BigInt)).toEqual([1n, 0n, 0n]);
-      expect([...lhs.lt(0n)].map(BigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.lt(3n)].map(toBigInt)).toEqual([1n, 1n, 1n]);
+      expect([...lhs.lt(2n)].map(toBigInt)).toEqual([1n, 1n, 0n]);
+      expect([...lhs.lt(1n)].map(toBigInt)).toEqual([1n, 0n, 0n]);
+      expect([...lhs.lt(0n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
     });
   });
 
@@ -308,9 +308,9 @@ describe('Series binaryops (Int16)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.le(2n)].map(BigInt)).toEqual([1n, 1n, 1n]);
-      expect([...lhs.le(1n)].map(BigInt)).toEqual([1n, 1n, 0n]);
-      expect([...lhs.le(0n)].map(BigInt)).toEqual([1n, 0n, 0n]);
+      expect([...lhs.le(2n)].map(toBigInt)).toEqual([1n, 1n, 1n]);
+      expect([...lhs.le(1n)].map(toBigInt)).toEqual([1n, 1n, 0n]);
+      expect([...lhs.le(0n)].map(toBigInt)).toEqual([1n, 0n, 0n]);
     });
   });
 
@@ -333,10 +333,10 @@ describe('Series binaryops (Int16)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.gt(2n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.gt(1n)].map(BigInt)).toEqual([0n, 0n, 1n]);
-      expect([...lhs.gt(0n)].map(BigInt)).toEqual([0n, 1n, 1n]);
-      expect([...lhs.gt(-1n)].map(BigInt)).toEqual([1n, 1n, 1n]);
+      expect([...lhs.gt(2n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.gt(1n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.gt(0n)].map(toBigInt)).toEqual([0n, 1n, 1n]);
+      expect([...lhs.gt(-1n)].map(toBigInt)).toEqual([1n, 1n, 1n]);
     });
   });
 
@@ -357,228 +357,228 @@ describe('Series binaryops (Int16)', () => {
     });
     test('compares against bigints', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.ge(3n)].map(BigInt)).toEqual([0n, 0n, 0n]);
-      expect([...lhs.ge(2n)].map(BigInt)).toEqual([0n, 0n, 1n]);
-      expect([...lhs.ge(1n)].map(BigInt)).toEqual([0n, 1n, 1n]);
-      expect([...lhs.ge(0n)].map(BigInt)).toEqual([1n, 1n, 1n]);
+      expect([...lhs.ge(3n)].map(toBigInt)).toEqual([0n, 0n, 0n]);
+      expect([...lhs.ge(2n)].map(toBigInt)).toEqual([0n, 0n, 1n]);
+      expect([...lhs.ge(1n)].map(toBigInt)).toEqual([0n, 1n, 1n]);
+      expect([...lhs.ge(0n)].map(toBigInt)).toEqual([1n, 1n, 1n]);
     });
   });
 
-  describe('Series.bitwise_and', () => {
-    test('bitwise_and with a Series', () => {
+  describe('Series.bitwiseAnd', () => {
+    test('bitwiseAnd with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs ** lhs == [0 & 0, 1 & 1, 2 & 2])
-      expect([...lhs.bitwise_and(lhs)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.bitwiseAnd(lhs)].map(Number)).toEqual([0, 1, 2]);
       // lhs ** rhs == [0 & 1, 1 & 2, 2 & 3])
-      expect([...lhs.bitwise_and(rhs)].map(Number)).toEqual([0, 0, 2]);
+      expect([...lhs.bitwiseAnd(rhs)].map(Number)).toEqual([0, 0, 2]);
     });
-    test('bitwise_and with a scalar', () => {
+    test('bitwiseAnd with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.bitwise_and(-1)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.bitwise_and(0)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.bitwise_and(1)].map(Number)).toEqual([0, 1, 0]);
-      expect([...lhs.bitwise_and(2)].map(Number)).toEqual([0, 0, 2]);
+      expect([...lhs.bitwiseAnd(-1)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.bitwiseAnd(0)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.bitwiseAnd(1)].map(Number)).toEqual([0, 1, 0]);
+      expect([...lhs.bitwiseAnd(2)].map(Number)).toEqual([0, 0, 2]);
     });
-    test('bitwise_and with a bigint', () => {
+    test('bitwiseAnd with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.bitwise_and(-1n)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.bitwise_and(0n)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.bitwise_and(1n)].map(Number)).toEqual([0, 1, 0]);
-      expect([...lhs.bitwise_and(2n)].map(Number)).toEqual([0, 0, 2]);
+      expect([...lhs.bitwiseAnd(-1n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.bitwiseAnd(0n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.bitwiseAnd(1n)].map(Number)).toEqual([0, 1, 0]);
+      expect([...lhs.bitwiseAnd(2n)].map(Number)).toEqual([0, 0, 2]);
     });
   });
 
-  describe('Series.bitwise_or', () => {
-    test('bitwise_or with a Series', () => {
+  describe('Series.bitwiseOr', () => {
+    test('bitwiseOr with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs | lhs == [0 | 0, 1 | 1, 2 | 2])
-      expect([...lhs.bitwise_or(lhs)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.bitwiseOr(lhs)].map(Number)).toEqual([0, 1, 2]);
       // lhs | rhs == [0 | 1, 1 | 2, 2 | 3])
-      expect([...lhs.bitwise_or(rhs)].map(Number)).toEqual([1, 3, 3]);
+      expect([...lhs.bitwiseOr(rhs)].map(Number)).toEqual([1, 3, 3]);
     });
-    test('bitwise_or with a scalar', () => {
+    test('bitwiseOr with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.bitwise_or(-1)].map(Number)).toEqual([-1, -1, -1]);
-      expect([...lhs.bitwise_or(0)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.bitwise_or(1)].map(Number)).toEqual([1, 1, 3]);
-      expect([...lhs.bitwise_or(2)].map(Number)).toEqual([2, 3, 2]);
+      expect([...lhs.bitwiseOr(-1)].map(Number)).toEqual([-1, -1, -1]);
+      expect([...lhs.bitwiseOr(0)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.bitwiseOr(1)].map(Number)).toEqual([1, 1, 3]);
+      expect([...lhs.bitwiseOr(2)].map(Number)).toEqual([2, 3, 2]);
     });
-    test('bitwise_or with a bigint', () => {
+    test('bitwiseOr with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.bitwise_or(-1n)].map(Number)).toEqual([-1, -1, -1]);
-      expect([...lhs.bitwise_or(0n)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.bitwise_or(1n)].map(Number)).toEqual([1, 1, 3]);
-      expect([...lhs.bitwise_or(2n)].map(Number)).toEqual([2, 3, 2]);
+      expect([...lhs.bitwiseOr(-1n)].map(Number)).toEqual([-1, -1, -1]);
+      expect([...lhs.bitwiseOr(0n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.bitwiseOr(1n)].map(Number)).toEqual([1, 1, 3]);
+      expect([...lhs.bitwiseOr(2n)].map(Number)).toEqual([2, 3, 2]);
     });
   });
 
-  describe('Series.bitwise_xor', () => {
-    test('bitwise_xor with a Series', () => {
+  describe('Series.bitwiseXor', () => {
+    test('bitwiseXor with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs ^ lhs == [0 ^ 0, 1 ^ 1, 2 ^ 2])
-      expect([...lhs.bitwise_xor(lhs)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.bitwiseXor(lhs)].map(Number)).toEqual([0, 0, 0]);
       // lhs ^ rhs == [0 ^ 1, 1 ^ 2, 2 ^ 3])
-      expect([...lhs.bitwise_xor(rhs)].map(Number)).toEqual([1, 3, 1]);
+      expect([...lhs.bitwiseXor(rhs)].map(Number)).toEqual([1, 3, 1]);
     });
-    test('bitwise_xor with a scalar', () => {
+    test('bitwiseXor with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.bitwise_xor(-1)].map(Number)).toEqual([-1, -2, -3]);
-      expect([...lhs.bitwise_xor(0)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.bitwise_xor(1)].map(Number)).toEqual([1, 0, 3]);
-      expect([...lhs.bitwise_xor(2)].map(Number)).toEqual([2, 3, 0]);
+      expect([...lhs.bitwiseXor(-1)].map(Number)).toEqual([-1, -2, -3]);
+      expect([...lhs.bitwiseXor(0)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.bitwiseXor(1)].map(Number)).toEqual([1, 0, 3]);
+      expect([...lhs.bitwiseXor(2)].map(Number)).toEqual([2, 3, 0]);
     });
-    test('bitwise_xor with a bigint', () => {
+    test('bitwiseXor with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.bitwise_xor(-1n)].map(Number)).toEqual([-1, -2, -3]);
-      expect([...lhs.bitwise_xor(0n)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.bitwise_xor(1n)].map(Number)).toEqual([1, 0, 3]);
-      expect([...lhs.bitwise_xor(2n)].map(Number)).toEqual([2, 3, 0]);
+      expect([...lhs.bitwiseXor(-1n)].map(Number)).toEqual([-1, -2, -3]);
+      expect([...lhs.bitwiseXor(0n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.bitwiseXor(1n)].map(Number)).toEqual([1, 0, 3]);
+      expect([...lhs.bitwiseXor(2n)].map(Number)).toEqual([2, 3, 0]);
     });
   });
 
-  describe('Series.logical_and', () => {
-    test('logical_and with a Series', () => {
+  describe('Series.logicalAnd', () => {
+    test('logicalAnd with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs && lhs == [0 && 0, 1 && 1, 2 && 2])
-      expect([...lhs.logical_and(lhs)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logicalAnd(lhs)].map(Number)).toEqual([0, 1, 1]);
       // lhs && rhs == [0 && 1, 1 && 2, 2 && 3])
-      expect([...lhs.logical_and(rhs)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logicalAnd(rhs)].map(Number)).toEqual([0, 1, 1]);
     });
-    test('logical_and with a scalar', () => {
+    test('logicalAnd with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.logical_and(-1)].map(Number)).toEqual([0, 1, 1]);
-      expect([...lhs.logical_and(0)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.logical_and(1)].map(Number)).toEqual([0, 1, 1]);
-      expect([...lhs.logical_and(2)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logicalAnd(-1)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logicalAnd(0)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.logicalAnd(1)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logicalAnd(2)].map(Number)).toEqual([0, 1, 1]);
     });
-    test('logical_and with a bigint', () => {
+    test('logicalAnd with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.logical_and(-1n)].map(Number)).toEqual([0, 1, 1]);
-      expect([...lhs.logical_and(0n)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.logical_and(1n)].map(Number)).toEqual([0, 1, 1]);
-      expect([...lhs.logical_and(2n)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logicalAnd(-1n)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logicalAnd(0n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.logicalAnd(1n)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logicalAnd(2n)].map(Number)).toEqual([0, 1, 1]);
     });
   });
 
-  describe('Series.logical_or', () => {
-    test('logical_or with a Series', () => {
+  describe('Series.logicalOr', () => {
+    test('logicalOr with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs || lhs == [0 || 0, 1 || 1, 2 || 2])
-      expect([...lhs.logical_or(lhs)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logicalOr(lhs)].map(Number)).toEqual([0, 1, 1]);
       // lhs || rhs == [0 || 1, 1 || 2, 2 || 3])
-      expect([...lhs.logical_or(rhs)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.logicalOr(rhs)].map(Number)).toEqual([1, 1, 1]);
     });
-    test('logical_or with a scalar', () => {
+    test('logicalOr with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.logical_or(-1)].map(Number)).toEqual([1, 1, 1]);
-      expect([...lhs.logical_or(0)].map(Number)).toEqual([0, 1, 1]);
-      expect([...lhs.logical_or(1)].map(Number)).toEqual([1, 1, 1]);
-      expect([...lhs.logical_or(2)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.logicalOr(-1)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.logicalOr(0)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logicalOr(1)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.logicalOr(2)].map(Number)).toEqual([1, 1, 1]);
     });
-    test('logical_or with a bigint', () => {
+    test('logicalOr with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.logical_or(-1n)].map(Number)).toEqual([1, 1, 1]);
-      expect([...lhs.logical_or(0n)].map(Number)).toEqual([0, 1, 1]);
-      expect([...lhs.logical_or(1n)].map(Number)).toEqual([1, 1, 1]);
-      expect([...lhs.logical_or(2n)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.logicalOr(-1n)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.logicalOr(0n)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.logicalOr(1n)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.logicalOr(2n)].map(Number)).toEqual([1, 1, 1]);
     });
   });
 
-  describe('Series.shift_left', () => {
-    test('shift_left with a Series', () => {
+  describe('Series.shiftLeft', () => {
+    test('shiftLeft with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs || lhs == [0 || 0, 1 || 1, 2 || 2])
-      expect([...lhs.shift_left(lhs)].map(Number)).toEqual([0, 2, 8]);
+      expect([...lhs.shiftLeft(lhs)].map(Number)).toEqual([0, 2, 8]);
       // lhs || rhs == [0 || 1, 1 || 2, 2 || 3])
-      expect([...lhs.shift_left(rhs)].map(Number)).toEqual([0, 4, 16]);
+      expect([...lhs.shiftLeft(rhs)].map(Number)).toEqual([0, 4, 16]);
     });
-    test('shift_left with a scalar', () => {
+    test('shiftLeft with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.shift_left(-1)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.shift_left(0)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.shift_left(1)].map(Number)).toEqual([0, 2, 4]);
-      expect([...lhs.shift_left(2)].map(Number)).toEqual([0, 4, 8]);
+      expect([...lhs.shiftLeft(-1)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftLeft(0)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.shiftLeft(1)].map(Number)).toEqual([0, 2, 4]);
+      expect([...lhs.shiftLeft(2)].map(Number)).toEqual([0, 4, 8]);
     });
-    test('shift_left with a bigint', () => {
+    test('shiftLeft with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.shift_left(-1n)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.shift_left(0n)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.shift_left(1n)].map(Number)).toEqual([0, 2, 4]);
-      expect([...lhs.shift_left(2n)].map(Number)).toEqual([0, 4, 8]);
+      expect([...lhs.shiftLeft(-1n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftLeft(0n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.shiftLeft(1n)].map(Number)).toEqual([0, 2, 4]);
+      expect([...lhs.shiftLeft(2n)].map(Number)).toEqual([0, 4, 8]);
     });
   });
 
-  describe('Series.shift_right', () => {
-    test('shift_right with a Series', () => {
+  describe('Series.shiftRight', () => {
+    test('shiftRight with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs || lhs == [0 || 0, 1 || 1, 2 || 2])
-      expect([...lhs.shift_right(lhs)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRight(lhs)].map(Number)).toEqual([0, 0, 0]);
       // lhs || rhs == [0 || 1, 1 || 2, 2 || 3])
-      expect([...lhs.shift_right(rhs)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRight(rhs)].map(Number)).toEqual([0, 0, 0]);
     });
-    test('shift_right with a scalar', () => {
+    test('shiftRight with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.shift_right(-1)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.shift_right(0)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.shift_right(1)].map(Number)).toEqual([0, 0, 1]);
-      expect([...lhs.shift_right(2)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRight(-1)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRight(0)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.shiftRight(1)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.shiftRight(2)].map(Number)).toEqual([0, 0, 0]);
     });
-    test('shift_right with a bigint', () => {
+    test('shiftRight with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.shift_right(-1n)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.shift_right(0n)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.shift_right(1n)].map(Number)).toEqual([0, 0, 1]);
-      expect([...lhs.shift_right(2n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRight(-1n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRight(0n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.shiftRight(1n)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.shiftRight(2n)].map(Number)).toEqual([0, 0, 0]);
     });
   });
 
-  describe('Series.shift_right_unsigned', () => {
-    test('shift_right_unsigned with a Series', () => {
+  describe('Series.shiftRightUnsigned', () => {
+    test('shiftRightUnsigned with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs || lhs == [0 || 0, 1 || 1, 2 || 2])
-      expect([...lhs.shift_right_unsigned(lhs)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRightUnsigned(lhs)].map(Number)).toEqual([0, 0, 0]);
       // lhs || rhs == [0 || 1, 1 || 2, 2 || 3])
-      expect([...lhs.shift_right_unsigned(rhs)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRightUnsigned(rhs)].map(Number)).toEqual([0, 0, 0]);
     });
-    test('shift_right_unsigned with a scalar', () => {
+    test('shiftRightUnsigned with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.shift_right_unsigned(-1)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.shift_right_unsigned(0)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.shift_right_unsigned(1)].map(Number)).toEqual([0, 0, 1]);
-      expect([...lhs.shift_right_unsigned(2)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRightUnsigned(-1)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRightUnsigned(0)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.shiftRightUnsigned(1)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.shiftRightUnsigned(2)].map(Number)).toEqual([0, 0, 0]);
     });
-    test('shift_right_unsigned with a bigint', () => {
+    test('shiftRightUnsigned with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.shift_right_unsigned(-1n)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.shift_right_unsigned(0n)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.shift_right_unsigned(1n)].map(Number)).toEqual([0, 0, 1]);
-      expect([...lhs.shift_right_unsigned(2n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRightUnsigned(-1n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.shiftRightUnsigned(0n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.shiftRightUnsigned(1n)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.shiftRightUnsigned(2n)].map(Number)).toEqual([0, 0, 0]);
     });
   });
 
-  describe('Series.log_base', () => {
-    test('log_base with a Series', () => {
+  describe('Series.logBase', () => {
+    test('logBase with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs || lhs == [0 || 0, 1 || 1, 2 || 2])
-      expect([...lhs.log_base(lhs)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.logBase(lhs)].map(Number)).toEqual([0, 0, 1]);
       // lhs || rhs == [0 || 1, 1 || 2, 2 || 3])
-      expect([...lhs.log_base(rhs)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.logBase(rhs)].map(Number)).toEqual([0, 0, 0]);
     });
-    test('log_base with a scalar', () => {
+    test('logBase with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.log_base(-1)].map(Number)).toEqual([NaN, NaN, NaN]);
-      expect([...lhs.log_base(0)].map(Number)).toEqual([NaN, -0, -0]);
-      expect([...lhs.log_base(1)].map(Number)).toEqual([-Infinity, NaN, Infinity]);
-      expect([...lhs.log_base(2)].map(Number)).toEqual([-Infinity, 0, 1]);
+      expect([...lhs.logBase(-1)].map(Number)).toEqual([NaN, NaN, NaN]);
+      expect([...lhs.logBase(0)].map(Number)).toEqual([NaN, -0, -0]);
+      expect([...lhs.logBase(1)].map(Number)).toEqual([-Infinity, NaN, Infinity]);
+      expect([...lhs.logBase(2)].map(Number)).toEqual([-Infinity, 0, 1]);
     });
-    test('log_base with a bigint', () => {
+    test('logBase with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.log_base(-1n)].map(Number))
+      expect([...lhs.logBase(-1n)].map(Number))
         .toEqual([-9223372036854776000, -9223372036854776000, -9223372036854776000]);
-      expect([...lhs.log_base(0n)].map(Number)).toEqual([-9223372036854776000, 0, 0]);
-      expect([...lhs.log_base(1n)].map(Number))
+      expect([...lhs.logBase(0n)].map(Number)).toEqual([-9223372036854776000, 0, 0]);
+      expect([...lhs.logBase(1n)].map(Number))
         .toEqual([-9223372036854776000, -9223372036854776000, 9223372036854776000]);
-      expect([...lhs.log_base(2n)].map(Number)).toEqual([-9223372036854776000, 0, 1]);
+      expect([...lhs.logBase(2n)].map(Number)).toEqual([-9223372036854776000, 0, 1]);
     });
   });
 
@@ -607,75 +607,75 @@ describe('Series binaryops (Int16)', () => {
     });
   });
 
-  describe('Series.null_equals', () => {
-    test('null_equals with a Series', () => {
+  describe('Series.nullEquals', () => {
+    test('nullEquals with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs || lhs == [0 || 0, 1 || 1, 2 || 2])
-      expect([...lhs.null_equals(lhs)].map(Number)).toEqual([1, 1, 1]);
+      expect([...lhs.nullEquals(lhs)].map(Number)).toEqual([1, 1, 1]);
       // lhs || rhs == [0 || 1, 1 || 2, 2 || 3])
-      expect([...lhs.null_equals(rhs)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.nullEquals(rhs)].map(Number)).toEqual([0, 0, 0]);
     });
-    test('null_equals with a scalar', () => {
+    test('nullEquals with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.null_equals(-1)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.null_equals(0)].map(Number)).toEqual([1, 0, 0]);
-      expect([...lhs.null_equals(1)].map(Number)).toEqual([0, 1, 0]);
-      expect([...lhs.null_equals(2)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.nullEquals(-1)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.nullEquals(0)].map(Number)).toEqual([1, 0, 0]);
+      expect([...lhs.nullEquals(1)].map(Number)).toEqual([0, 1, 0]);
+      expect([...lhs.nullEquals(2)].map(Number)).toEqual([0, 0, 1]);
     });
-    test('null_equals with a bigint', () => {
+    test('nullEquals with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.null_equals(-1n)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.null_equals(0n)].map(Number)).toEqual([1, 0, 0]);
-      expect([...lhs.null_equals(1n)].map(Number)).toEqual([0, 1, 0]);
-      expect([...lhs.null_equals(2n)].map(Number)).toEqual([0, 0, 1]);
+      expect([...lhs.nullEquals(-1n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.nullEquals(0n)].map(Number)).toEqual([1, 0, 0]);
+      expect([...lhs.nullEquals(1n)].map(Number)).toEqual([0, 1, 0]);
+      expect([...lhs.nullEquals(2n)].map(Number)).toEqual([0, 0, 1]);
     });
   });
 
-  describe('Series.null_max', () => {
-    test('null_max with a Series', () => {
+  describe('Series.nullMax', () => {
+    test('nullMax with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs || lhs == [0 || 0, 1 || 1, 2 || 2])
-      expect([...lhs.null_max(lhs)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.nullMax(lhs)].map(Number)).toEqual([0, 1, 2]);
       // lhs || rhs == [0 || 1, 1 || 2, 2 || 3])
-      expect([...lhs.null_max(rhs)].map(Number)).toEqual([1, 2, 3]);
+      expect([...lhs.nullMax(rhs)].map(Number)).toEqual([1, 2, 3]);
     });
-    test('null_max with a scalar', () => {
+    test('nullMax with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.null_max(-1)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.null_max(0)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.null_max(1)].map(Number)).toEqual([1, 1, 2]);
-      expect([...lhs.null_max(2)].map(Number)).toEqual([2, 2, 2]);
+      expect([...lhs.nullMax(-1)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.nullMax(0)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.nullMax(1)].map(Number)).toEqual([1, 1, 2]);
+      expect([...lhs.nullMax(2)].map(Number)).toEqual([2, 2, 2]);
     });
-    test('null_max with a bigint', () => {
+    test('nullMax with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.null_max(-1n)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.null_max(0n)].map(Number)).toEqual([0, 1, 2]);
-      expect([...lhs.null_max(1n)].map(Number)).toEqual([1, 1, 2]);
-      expect([...lhs.null_max(2n)].map(Number)).toEqual([2, 2, 2]);
+      expect([...lhs.nullMax(-1n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.nullMax(0n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.nullMax(1n)].map(Number)).toEqual([1, 1, 2]);
+      expect([...lhs.nullMax(2n)].map(Number)).toEqual([2, 2, 2]);
     });
   });
 
-  describe('Series.null_min', () => {
-    test('null_min with a Series', () => {
+  describe('Series.nullMin', () => {
+    test('nullMin with a Series', () => {
       const {lhs, rhs} = makeTestData();
       // lhs || lhs == [0 || 0, 1 || 1, 2 || 2])
-      expect([...lhs.null_min(lhs)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.nullMin(lhs)].map(Number)).toEqual([0, 1, 2]);
       // lhs || rhs == [0 || 1, 1 || 2, 2 || 3])
-      expect([...lhs.null_min(rhs)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.nullMin(rhs)].map(Number)).toEqual([0, 1, 2]);
     });
-    test('null_min with a scalar', () => {
+    test('nullMin with a scalar', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.null_min(-1)].map(Number)).toEqual([-1, -1, -1]);
-      expect([...lhs.null_min(0)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.null_min(1)].map(Number)).toEqual([0, 1, 1]);
-      expect([...lhs.null_min(2)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.nullMin(-1)].map(Number)).toEqual([-1, -1, -1]);
+      expect([...lhs.nullMin(0)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.nullMin(1)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.nullMin(2)].map(Number)).toEqual([0, 1, 2]);
     });
-    test('null_min with a bigint', () => {
+    test('nullMin with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.null_min(-1n)].map(Number)).toEqual([-1, -1, -1]);
-      expect([...lhs.null_min(0n)].map(Number)).toEqual([0, 0, 0]);
-      expect([...lhs.null_min(1n)].map(Number)).toEqual([0, 1, 1]);
-      expect([...lhs.null_min(2n)].map(Number)).toEqual([0, 1, 2]);
+      expect([...lhs.nullMin(-1n)].map(Number)).toEqual([-1, -1, -1]);
+      expect([...lhs.nullMin(0n)].map(Number)).toEqual([0, 0, 0]);
+      expect([...lhs.nullMin(1n)].map(Number)).toEqual([0, 1, 1]);
+      expect([...lhs.nullMin(2n)].map(Number)).toEqual([0, 1, 2]);
     });
   });
 });

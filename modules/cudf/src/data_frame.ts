@@ -18,6 +18,7 @@ import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor';
+import {concat as concatDataFrames} from './dataframe/concat';
 import {Join, JoinResult} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {Scalar} from './scalar';
@@ -25,7 +26,7 @@ import {AbstractSeries, Series} from './series';
 import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {Bool8, DataType, Float32, Float64, IndexType, Numeric} from './types/dtypes';
+import {Bool8, DataType, Float32, Float64, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
@@ -172,6 +173,28 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   get names() { return this._accessor.names; }
+
+  /**
+   * A map of this DataFrame's Series names to their DataTypes
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2]),
+   *  b: Series.new(["foo", "bar"]),
+   *  c: Series.new([[1, 2], [3]]),
+   * })
+   *
+   * df.types
+   * // {
+   * //   a: [Object Float64],
+   * //   b: [Object Utf8String],
+   * //   c: [Object List]
+   * // }
+   * ```
+   */
+  get types() { return this._accessor.types; }
 
   /** @ignore */
   asTable() { return new Table({columns: this._accessor.columns}); }
@@ -347,6 +370,32 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Concat DataFrame(s) to the end of the caller, returning a new DataFrame.
+   *
+   * @param others The DataFrame(s) to concat to the end of the caller.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *   a: Series.new([1, 2, 3, 4]),
+   *   b: Series.new([1, 2, 3, 4]),
+   * });
+   *
+   * const df2 = new DataFrame({
+   *   a: Series.new([5, 6, 7, 8]),
+   * });
+   *
+   * df.concat(df2);
+   * // return {
+   * //    a: [1, 2, 3, 4, 5, 6, 7, 8],
+   * //    b: [1, 2, 3, 4, null, null, null, null],
+   * // }
+   * ```
+   */
+  concat<U extends DataFrame[]>(...others: U) { return concatDataFrames(this, ...others); }
+
+  /**
    * Generate an ordering that sorts DataFrame columns in a specified way
    *
    * @param options mapping of column names to sort order specifications
@@ -452,6 +501,68 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Returns the first n rows as a new DataFrame.
+   *
+   * @param n The number of rows to return.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *   a: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6]}),
+   *   b: Series.new([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+   * });
+   *
+   * a.head();
+   * // {a: [0, 1, 2, 3, 4], b: [0.0, 1.0, 2.0, 3.0, 4.0]}
+   *
+   * b.head(1);
+   * // {a: [0], b: [0.0]}
+   *
+   * a.head(-1);
+   * // throws index out of bounds error
+   * ```
+   */
+  head(n = 5): DataFrame<T> {
+    if (n < 0) { throw new Error('Index provided is out of bounds'); }
+    const selection =
+      Series.sequence({type: new Int32, size: n < this.numRows ? n : this.numRows, init: 0});
+    return this.gather(selection);
+  }
+
+  /**
+   * Returns the last n rows as a new DataFrame.
+   *
+   * @param n The number of rows to return.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *   a: Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6]}),
+   *   b: Series.new([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+   * });
+   *
+   * a.tail();
+   * // {a: [2, 3, 4, 5, 6], b: [2.0, 3.0, 4.0, 5.0, 6.0]}
+   *
+   * b.tail(1);
+   * // {a: [6], b: [6.0]}
+   *
+   * a.tail(-1);
+   * // throws index out of bounds error
+   * ```
+   */
+  tail(n = 5): DataFrame<T> {
+    if (n < 0) { throw new Error('Index provided is out of bounds'); }
+    const length    = n < this.numRows ? n : this.numRows;
+    const selection = Series.sequence({type: new Int32, size: length, init: this.numRows - length});
+    return this.gather(selection);
+  }
+
+  /**
    * Return a group-by on a single column.
    *
    * @param props configuration for the groupby
@@ -547,9 +658,8 @@ export class DataFrame<T extends TypeMap = any> {
     props: JoinProps<R, TOn, 'inner'|'outer'|'left'|'right', LSuffix, RSuffix>
   ): DataFrame<{
     [P in keyof JoinResult<T, R, TOn, LSuffix, RSuffix>]:
-      R[P] extends Numeric ? P extends TOn //
-        ? CommonType<T[P], Numeric & R[P]> //
-        : JoinResult<T, R, TOn, LSuffix, RSuffix>[P] //
+      P extends TOn
+        ? CommonType<T[P], R[P]>
         : JoinResult<T, R, TOn, LSuffix, RSuffix>[P]
   }>;
   // clang-format on
@@ -647,7 +757,7 @@ export class DataFrame<T extends TypeMap = any> {
     });
 
     const table_result = new Table({columns: this._accessor.columns});
-    const result       = table_result.drop_nulls(column_indices, thresh);
+    const result       = table_result.dropNulls(column_indices, thresh);
     return new DataFrame(
       allNames.reduce((map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
                       {} as SeriesMap<T>));
@@ -671,7 +781,7 @@ export class DataFrame<T extends TypeMap = any> {
       }
     });
     const table_result = new Table({columns: this._accessor.columns});
-    const result       = table_result.drop_nans(column_indices, thresh);
+    const result       = table_result.dropNans(column_indices, thresh);
     return new DataFrame(
       allNames.reduce((map, name, i) => ({...map, [name]: Series.new(result.getColumnByIndex(i))}),
                       {} as SeriesMap<T>));
@@ -703,7 +813,7 @@ export class DataFrame<T extends TypeMap = any> {
     this.names.forEach(col => {
       if ([new Float32, new Float64].some((t) => this.get(col).type.compareTo(t))) {
         const nanCount =
-          df.get(col)._col.nans_to_nulls(memoryResource).nullCount - this.get(col).nullCount;
+          df.get(col)._col.nansToNulls(memoryResource).nullCount - this.get(col).nullCount;
 
         const no_threshold_valid_count = (df.get(col).length - nanCount) < thresh;
         if (!no_threshold_valid_count) { column_names.push(col); }
@@ -1459,7 +1569,7 @@ export class DataFrame<T extends TypeMap = any> {
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach((name, index) => {
       if ([new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))) {
-        series_map[name] = Series.new(temp.getColumnByIndex(index).nans_to_nulls(memoryResource));
+        series_map[name] = Series.new(temp.getColumnByIndex(index).nansToNulls(memoryResource));
       } else {
         series_map[name] = Series.new(temp.getColumnByIndex(index));
       }
@@ -1698,7 +1808,7 @@ export class DataFrame<T extends TypeMap = any> {
   dropDuplicates(keep: keyof typeof DuplicateKeepOption,
                  nullsEqual: boolean,
                  nullsFirst: boolean,
-                 subset: (string&keyof T)[] = this.names,
+                 subset = this.names,
                  memoryResource?: MemoryResource) {
     const column_indices: number[] = [];
     const allNames                 = this.names;

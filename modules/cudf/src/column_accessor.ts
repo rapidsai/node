@@ -17,6 +17,9 @@ import {ColumnsMap, TypeMap} from './types/mappings';
 
 export class ColumnAccessor<T extends TypeMap = any> {
   private _data: ColumnsMap<T>;
+  private _types!: T;
+  private _names!: ReadonlyArray<(string & keyof T)>;
+  private _columns!: ReadonlyArray<Column<T[keyof T]>>;
   private _labels_to_indices: Map<keyof T, number> = new Map();
 
   constructor(data: ColumnsMap<T>) {
@@ -31,9 +34,21 @@ export class ColumnAccessor<T extends TypeMap = any> {
     this.names.forEach((val, index) => this._labels_to_indices.set(val, index));
   }
 
-  get names() { return Object.keys(this._data) as (string & keyof T)[]; }
+  get names() {
+    return this._names ||
+           (this._names = Object.freeze(Object.keys(this._data) as (string & keyof T)[]));
+  }
 
-  get columns(): Column<T[keyof T]>[] { return Object.values(this._data); }
+  get types() {
+    return this._types || (this._types = Object.freeze(this.names.reduce((types, name) => {
+             types[name] = this.get(name).type;
+             return types;
+           }, {} as T)));
+  }
+
+  get columns() {
+    return this._columns || (this._columns = Object.freeze(Object.values(this._data)));
+  }
 
   get length() { return this._labels_to_indices.size; }
 

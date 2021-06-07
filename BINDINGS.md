@@ -55,7 +55,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `gt`                 |          ✅           |
 | `hash_encode`        |                       |
 | `hash_values`        |                       |
-| `head`               |                       |
+| `head`               |          ✅           |
 | `interleave_columns` |                       |
 | `isin`               |                       |
 | `isna`               |     ✅ (`isNull`)     |
@@ -97,7 +97,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `repeat`             |                       |
 | `replace`            |                       |
 | `reset_index`        |                       |
-| `reverse`            |                       |
+| `reverse`            |          ✅           |
 | `rfloordiv`          |                       |
 | `rmod`               |                       |
 | `rmul`               |                       |
@@ -121,7 +121,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `std`                |          ✅           |
 | `sub`                |          ✅           |
 | `sum`                |          ✅           |
-| `tail`               |                       |
+| `tail`               |          ✅           |
 | `take`               |     ✅ (`gather`)     |
 | `tan`                |          ✅           |
 | `tile`               |                       |
@@ -172,7 +172,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `groupby`            |                       |                       |                       |
 | `hash_encode`        |                       |                       |                       |
 | `hash_values`        |                       |                       |                       |
-| `head`               |                       |                       |                       |
+| `head`               |          ✅           |          ✅           |          ✅           |
 | `interleave_columns` |                       |                       |                       |
 | `isin`               |                       |                       |                       |
 | `isna`               |     ✅ (`isNull`)     |     ✅ (`isNull`)     |     ✅ (`isNull`)     |
@@ -197,7 +197,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `repeat`             |                       |                       |                       |
 | `replace`            |                       |                       |                       |
 | `reset_index`        |                       |                       |                       |
-| `reverse`            |                       |                       |                       |
+| `reverse`            |          ✅           |          ✅           |          ✅           |
 | `rolling`            |                       |                       |                       |
 | `sample`             |                       |                       |                       |
 | `scatter_by_map`     |                       |                       |                       |
@@ -208,7 +208,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `skew`               |                       |                       |                       |
 | `sort_index`         |                       |                       |                       |
 | `sort_values`        |                       |                       |                       |
-| `tail`               |                       |                       |                       |
+| `tail`               |          ✅           |          ✅           |          ✅           |
 | `take`               |     ✅ (`gather`)     |     ✅ (`gather`)     |     ✅ (`gather`)     |
 | `tile`               |                       |                       |                       |
 | `to_array`           |                       |                       |                       |
@@ -235,7 +235,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `agg`                |                       |
 | `all`                |                       |
 | `any`                |                       |
-| `append`             |                       |
+| `append`             |     ✅ (`concat`)     |
 | `apply_chunks`       |                       |
 | `apply_rows`         |                       |
 | `argsort`            |                       |
@@ -268,7 +268,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `from_pandas`        |                       |
 | `from_records`       |                       |
 | `hash_columns`       |                       |
-| `head`               |                       |
+| `head`               |          ✅           |
 | `info`               |                       |
 | `insert`             |                       |
 | `interleave_columns` |                       |
@@ -338,7 +338,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `std`                |                       |
 | `sub`                |                       |
 | `sum`                |                       |
-| `tail`               |                       |
+| `tail`               |          ✅           |
 | `take`               |     ✅ (`gather`)     |
 | `tan`                |          ✅           |
 | `tile`               |                       |

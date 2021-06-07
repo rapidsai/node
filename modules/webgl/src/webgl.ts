@@ -144,10 +144,10 @@ function getShaderInfoLog(this: WebGL2RenderingContext, shader: WebGLShader): st
       let errIndex, numIndex, errMatch, numMatch, type, num;
       ({index: errIndex, [0]: errMatch, [1]: type} =
          // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-       (lines[0] || '').match(/\s?(warning|error) (\w+|\d+):/) || {...['', '']});
+       (lines[0] || '').match(/\s?(warning|error) (\w+|\d+):/) || {index: undefined, 0: '', 1: ''});
       ({index: numIndex, [0]: numMatch, [1]: num} =
          // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-       (line.match(/0\((\d+)\) :/) || {...['', '']}));
+       (line.match(/0\((\d+)\) :/) || {index: undefined, 0: '', 1: ''}));
       if (errIndex !== undefined && numIndex !== undefined && errMatch && type && numMatch && num) {
         return `${type.toUpperCase()}:${line.slice(errIndex + errMatch.length)}:${num}${
           line.slice(numIndex + numMatch.length)}`;

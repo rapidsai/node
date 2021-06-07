@@ -606,6 +606,26 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * Returns a new series with reversed elements.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * // Float64Series
+   * Series.new([1, 2, 3]).reverse() // [3, 2, 1]
+   * // StringSeries
+   * Series.new(["foo", "bar"]).reverse() // ["bar", "foo"]
+   * // Bool8Series
+   * Series.new([false, true]).reverse() // [true, false]
+   * ```
+   */
+  reverse(): Series<T> {
+    return this.gather(
+      Series.sequence({type: new Int32, size: this.length, step: -1, init: this.length - 1}));
+  }
+
+  /**
    * Return a sub-selection of this Series using the specified integral indices.
    *
    * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
@@ -625,6 +645,55 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   gather<R extends IndexType>(selection: Series<R>): Series<T> {
+    return this.__construct(this._col.gather(selection._col));
+  }
+
+  /**
+   * Returns the first n rows.
+   *
+   * @param n The number of rows to return.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([4, 6, 8, 10, 12, 1, 2]);
+   * const b = Series.new(["foo", "bar", "test"]);
+   *
+   * a.head(); // [4, 6, 8, 10, 12]
+   * b.head(1); // ["foo"]
+   * a.head(-1); // throws index out of bounds error
+   * ```
+   */
+  head(n = 5): Series<T> {
+    if (n < 0) { throw new Error('Index provided is out of bounds'); }
+    const selection = Series.sequence(
+      {type: new Int32, size: n < this._col.length ? n : this._col.length, init: 0});
+    return this.__construct(this._col.gather(selection._col));
+  }
+
+  /**
+   * Returns the last n rows.
+   *
+   * @param n The number of rows to return.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([4, 6, 8, 10, 12, 1, 2]);
+   * const b = Series.new(["foo", "bar", "test"]);
+   *
+   * a.tail(); // [8, 10, 12, 1, 2]
+   * b.tail(1); // ["test"]
+   * a.tail(-1); // throws index out of bounds error
+   * ```
+   */
+  tail(n = 5): Series<T> {
+    if (n < 0) { throw new Error('Index provided is out of bounds'); }
+    const length = n < this._col.length ? n : this._col.length;
+    const selection =
+      Series.sequence({type: new Int32, size: length, init: this._col.length - length});
     return this.__construct(this._col.gather(selection._col));
   }
 
@@ -937,7 +1006,7 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   dropNulls(memoryResource?: MemoryResource): Series<T> {
-    return this.__construct(this._col.drop_nulls(memoryResource));
+    return this.__construct(this._col.dropNulls(memoryResource));
   }
 
   /**
@@ -951,7 +1020,7 @@ export class AbstractSeries<T extends DataType = any> {
    * in the original series.
    * @returns object with keys "value" and "count"
    */
-  value_counts(): {count: Int32Series, value: Series<T>} {
+  valueCounts(): {count: Int32Series, value: Series<T>} {
     const df = new DataFrame<{count: T, value: T}>({
       'count': this,
       'value': this,

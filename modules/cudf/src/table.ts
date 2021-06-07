@@ -46,6 +46,14 @@ interface TableConstructor {
     {names: (keyof T)[], table: Table};
 
   /**
+   * Returns tables concatenated to each other.
+   *
+   * @param tables The tables to concatenate
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  concat(tables: Table[], memoryResource?: MemoryResource): Table;
+
+  /**
    * Returns a pair of row index vectors corresponding to a full (outer) join between the specified
    * tables.
    *
@@ -182,8 +190,8 @@ export interface Table {
    */
   writeCSV(options: TableWriteCSVOptions): void;
 
-  drop_nans(keys: number[], threshold: number): Table;
-  drop_nulls(keys: number[], threshold: number): Table;
+  dropNans(keys: number[], threshold: number): Table;
+  dropNulls(keys: number[], threshold: number): Table;
   dropDuplicates(keys: number[],
                  keep: DuplicateKeepOption,
                  nullsEqual: boolean,
