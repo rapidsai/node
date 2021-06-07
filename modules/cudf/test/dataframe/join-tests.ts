@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {DataFrame, Int32, Series} from '@rapidsai/cudf';
+import {DataFrame, Float32, Float64, Int32, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
@@ -36,19 +36,19 @@ const right_conflict = new DataFrame({
 const left_double = new DataFrame({
   a: Series.new({type: new Int32, data: [0, 1, 1]}),
   b: Series.new({type: new Int32, data: [10, 20, 10]}),
-  c: Series.new({type: new Int32, data: [1., 2., 3.]})
+  c: Series.new({type: new Float64, data: [1., 2., 3.]})
 });
 
 const right_double = new DataFrame({
   a: Series.new({type: new Int32, data: [0, 0, 1]}),
   b: Series.new({type: new Int32, data: [10, 20, 20]}),
-  d: Series.new({type: new Int32, data: [10., 20., 30.]})
+  d: Series.new({type: new Float64, data: [10., 20., 30.]})
 });
 
 const right_double_conflict = new DataFrame({
   a: Series.new({type: new Int32, data: [0, 0, 1]}),
   b: Series.new({type: new Int32, data: [10, 20, 20]}),
-  c: Series.new({type: new Int32, data: [10., 20., 30.]})
+  c: Series.new({type: new Float64, data: [10., 20., 30.]})
 });
 
 describe('DataFrame.join({how="inner"}) ', () => {
@@ -156,7 +156,7 @@ describe('DataFrame.join({how="inner"}) ', () => {
     const left_double_float = new DataFrame({
       a: Series.new([0, 1, 1]),
       b: Series.new([10, 20, 10]),
-      c: Series.new({type: new Int32, data: [1., 2., 3.]})
+      c: Series.new({type: new Float32, data: [1., 2., 3.]})
     });
 
     const result = left_double_float.join({other: right_double, on: ['a', 'b'], how: 'inner'});
@@ -259,10 +259,10 @@ describe('DataFrame.join({how="left"}) ', () => {
   });
 
   test('can find common type for single-index join', () => {
-    const left_float =
+    const left_double =
       new DataFrame({a: Series.new([1, 2, 3, 4, 5]), b: Series.new([0, 0, 1, 1, 2])});
 
-    const result = left_float.join({other: right, on: ['b'], how: 'left'});
+    const result = left_double.join({other: right, on: ['b'], how: 'left'});
     expect(result.numColumns).toEqual(3);
     expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
     expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2]);
@@ -274,7 +274,7 @@ describe('DataFrame.join({how="left"}) ', () => {
     const left_double_float = new DataFrame({
       a: Series.new([0, 1, 1]),
       b: Series.new([10, 20, 10]),
-      c: Series.new({type: new Int32, data: [1., 2., 3.]})
+      c: Series.new({type: new Float32, data: [1., 2., 3.]})
     });
 
     const result = left_double_float.join({other: right_double, on: ['a', 'b'], how: 'left'});
@@ -376,10 +376,10 @@ describe('DataFrame.join({how="outer"}) ', () => {
   });
 
   test('can find common type for single-index join', () => {
-    const left_float =
+    const left_double =
       new DataFrame({a: Series.new([1, 2, 3, 4, 5]), b: Series.new([0, 0, 1, 1, 2])});
 
-    const result = left_float.join({other: right, on: ['b'], how: 'outer'});
+    const result = left_double.join({other: right, on: ['b'], how: 'outer'});
     expect(result.numColumns).toEqual(3);
     expect(result.names).toEqual(expect.arrayContaining(['a', 'b', 'c']));
     expect([...result.get('b')]).toEqual([0, 0, 1, 1, 2, 3]);
@@ -391,7 +391,7 @@ describe('DataFrame.join({how="outer"}) ', () => {
     const left_double_float = new DataFrame({
       a: Series.new([0, 1, 1]),
       b: Series.new([10, 20, 10]),
-      c: Series.new({type: new Int32, data: [1., 2., 3.]})
+      c: Series.new({type: new Float32, data: [1., 2., 3.]})
     });
 
     const result = left_double_float.join({other: right_double, on: ['a', 'b'], how: 'outer'});
@@ -500,7 +500,7 @@ describe('DataFrame.join({how="right"}) ', () => {
     const left_double_float = new DataFrame({
       a: Series.new([0, 1, 1]),
       b: Series.new([10, 20, 10]),
-      c: Series.new({type: new Int32, data: [1., 2., 3.]})
+      c: Series.new({type: new Float32, data: [1., 2., 3.]})
     });
 
     const result = left_double_float.join({other: right_double, on: ['a', 'b'], how: 'right'});

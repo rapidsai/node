@@ -116,14 +116,28 @@ export function setDefaultAllocator(allocate?: null|((byteLength: number) => Mem
 /**
  * @summary A base class for typed arrays of values in owned or managed by CUDA.
  */
-export abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements
-  ArrayBufferView {
-  public static readonly BYTES_PER_ELEMENT: number;
-
+export interface MemoryView<T extends TypedArray|BigIntArray = any> extends ArrayBufferView {
   /**
    * @summary The size in bytes of each element in the MemoryView.
    */
-  public readonly BYTES_PER_ELEMENT!: number;
+  readonly BYTES_PER_ELEMENT: number;
+  /**
+   * @summary The constructor of the MemoryView's corresponding JS TypedArray.
+   */
+  readonly TypedArray: TypedArrayConstructor<T>;
+  /**
+   * @ignore
+   * @summary The constructor function for the MemoryView type.
+   */
+  readonly[Symbol.species]: MemoryViewConstructor<T>;
+}
+
+/**
+ * @summary A base class for typed arrays of values in owned or managed by CUDA.
+ */
+export abstract class MemoryView<T extends TypedArray|BigIntArray = any> implements
+  ArrayBufferView {
+  public static readonly BYTES_PER_ELEMENT: number;
 
   /**
    * @summary The {@link Memory `Memory`} instance referenced by the MemoryView.
@@ -146,17 +160,6 @@ export abstract class MemoryView<T extends TypedArray|BigIntArray = any> impleme
   public readonly length!: number;
 
   [index: number]: T[0];
-
-  /**
-   * @summary The constructor of the MemoryView's corresponding JS TypedArray.
-   */
-  public readonly TypedArray!: TypedArrayConstructor<T>;
-
-  /**
-   * @ignore
-   * @summary The constructor function for the MemoryView type.
-   */
-  public readonly[Symbol.species]!: MemoryViewConstructor<T>;
 
   constructor(length?: number);
   constructor(arrayOrArrayBuffer: Iterable<T[0]>|ArrayLike<T[0]>|MemoryData);
@@ -266,7 +269,7 @@ export abstract class MemoryView<T extends TypedArray|BigIntArray = any> impleme
    */
   public fill(value: T[0], start?: number, end?: number) {
     [start, end] = clampRange(this.length, start, end);
-    this.set(new this.TypedArray(end - start).fill(<never>value), start);
+    this.set((new this.TypedArray(end - start)).fill(<never>value), start);
     return this;
   }
 
@@ -377,47 +380,58 @@ Object.setPrototypeOf(MemoryView.prototype, new Proxy({}, {
 
 /** @summary A typed array of twos-complement 8-bit signed integers in CUDA memory. */
 export class Int8Buffer extends MemoryView<Int8Array> {
-  public static readonly TypedArray: TypedArrayConstructor<Int8Array> = Int8Array;
+  public static readonly TypedArray        = Int8Array;
+  public static readonly BYTES_PER_ELEMENT = Int8Array.BYTES_PER_ELEMENT;
 }
 /** @summary A typed array of twos-complement 16-bit signed integers in CUDA memory. */
 export class Int16Buffer extends MemoryView<Int16Array> {
-  public static readonly TypedArray: TypedArrayConstructor<Int16Array> = Int16Array;
+  public static readonly TypedArray        = Int16Array;
+  public static readonly BYTES_PER_ELEMENT = Int16Array.BYTES_PER_ELEMENT;
 }
 /** @summary A typed array of twos-complement 32-bit signed integers in CUDA memory. */
 export class Int32Buffer extends MemoryView<Int32Array> {
-  public static readonly TypedArray: TypedArrayConstructor<Int32Array> = Int32Array;
+  public static readonly TypedArray        = Int32Array;
+  public static readonly BYTES_PER_ELEMENT = Int32Array.BYTES_PER_ELEMENT;
 }
 /** @summary A typed array of 8-bit unsigned integers in CUDA memory. */
 export class Uint8Buffer extends MemoryView<Uint8Array> {
-  public static readonly TypedArray: TypedArrayConstructor<Uint8Array> = Uint8Array;
+  public static readonly TypedArray        = Uint8Array;
+  public static readonly BYTES_PER_ELEMENT = Uint8Array.BYTES_PER_ELEMENT;
 }
 /** @summary A typed array of 8-bit unsigned integers clamped to 0-255 in CUDA memory. */
 export class Uint8ClampedBuffer extends MemoryView<Uint8ClampedArray> {
-  public static readonly TypedArray: TypedArrayConstructor<Uint8ClampedArray> = Uint8ClampedArray;
+  public static readonly TypedArray        = Uint8ClampedArray;
+  public static readonly BYTES_PER_ELEMENT = Uint8ClampedArray.BYTES_PER_ELEMENT;
 }
 /** @summary A typed array of 16-bit unsigned integers in CUDA memory. */
 export class Uint16Buffer extends MemoryView<Uint16Array> {
-  public static readonly TypedArray: TypedArrayConstructor<Uint16Array> = Uint16Array;
+  public static readonly TypedArray        = Uint16Array;
+  public static readonly BYTES_PER_ELEMENT = Uint16Array.BYTES_PER_ELEMENT;
 }
 /** @summary A typed array of 32-bit unsigned integers in CUDA memory. */
 export class Uint32Buffer extends MemoryView<Uint32Array> {
-  public static readonly TypedArray: TypedArrayConstructor<Uint32Array> = Uint32Array;
+  public static readonly TypedArray        = Uint32Array;
+  public static readonly BYTES_PER_ELEMENT = Uint32Array.BYTES_PER_ELEMENT;
 }
 /** @summary A typed array of 32-bit floating point numbers in CUDA memory. */
 export class Float32Buffer extends MemoryView<Float32Array> {
-  public static readonly TypedArray: TypedArrayConstructor<Float32Array> = Float32Array;
+  public static readonly TypedArray        = Float32Array;
+  public static readonly BYTES_PER_ELEMENT = Float32Array.BYTES_PER_ELEMENT;
 }
 /** @summary A typed array of 64-bit floating point numbers values in CUDA memory. */
 export class Float64Buffer extends MemoryView<Float64Array> {
-  public static readonly TypedArray: TypedArrayConstructor<Float64Array> = Float64Array;
+  public static readonly TypedArray        = Float64Array;
+  public static readonly BYTES_PER_ELEMENT = Float64Array.BYTES_PER_ELEMENT;
 }
 /** @summary A typed array of 64-bit signed integers in CUDA memory. */
 export class Int64Buffer extends MemoryView<BigInt64Array> {
-  public static readonly TypedArray: TypedArrayConstructor<BigInt64Array> = BigInt64Array;
+  public static readonly TypedArray        = BigInt64Array;
+  public static readonly BYTES_PER_ELEMENT = BigInt64Array.BYTES_PER_ELEMENT;
 }
 /** @summary A typed array of 64-bit unsigned integers in CUDA memory. */
 export class Uint64Buffer extends MemoryView<BigUint64Array> {
-  public static readonly TypedArray: TypedArrayConstructor<BigUint64Array> = BigUint64Array;
+  public static readonly TypedArray        = BigUint64Array;
+  public static readonly BYTES_PER_ELEMENT = BigUint64Array.BYTES_PER_ELEMENT;
 }
 
 [{0: Int8Buffer, 1: Int8Array},
