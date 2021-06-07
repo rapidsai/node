@@ -18,13 +18,14 @@ import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor';
+import {concat as concatDataFrames} from './dataframe/concat';
 import {Join, JoinResult} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {AbstractSeries, Series} from './series';
 import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {Bool8, DataType, Float32, Float64, IndexType, Int32, Numeric} from './types/dtypes';
+import {Bool8, DataType, Float32, Float64, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, findCommonType, TypeMap} from './types/mappings';
 
@@ -171,6 +172,28 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   get names() { return this._accessor.names; }
+
+  /**
+   * A map of this DataFrame's Series names to their DataTypes
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2]),
+   *  b: Series.new(["foo", "bar"]),
+   *  c: Series.new([[1, 2], [3]]),
+   * })
+   *
+   * df.types
+   * // {
+   * //   a: [Object Float64],
+   * //   b: [Object Utf8String],
+   * //   c: [Object List]
+   * // }
+   * ```
+   */
+  get types() { return this._accessor.types; }
 
   /** @ignore */
   asTable() { return new Table({columns: this._accessor.columns}); }
@@ -344,6 +367,32 @@ export class DataFrame<T extends TypeMap = any> {
       (columns, name) => ({...columns, [name]: this.get(name).cast(dataType, memoryResource)}),
       {} as SeriesMap<{[P in keyof T]: R}>));
   }
+
+  /**
+   * Concat DataFrame(s) to the end of the caller, returning a new DataFrame.
+   *
+   * @param others The DataFrame(s) to concat to the end of the caller.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *   a: Series.new([1, 2, 3, 4]),
+   *   b: Series.new([1, 2, 3, 4]),
+   * });
+   *
+   * const df2 = new DataFrame({
+   *   a: Series.new([5, 6, 7, 8]),
+   * });
+   *
+   * df.concat(df2);
+   * // return {
+   * //    a: [1, 2, 3, 4, 5, 6, 7, 8],
+   * //    b: [1, 2, 3, 4, null, null, null, null],
+   * // }
+   * ```
+   */
+  concat<U extends DataFrame[]>(...others: U) { return concatDataFrames(this, ...others); }
 
   /**
    * Generate an ordering that sorts DataFrame columns in a specified way
@@ -608,9 +657,8 @@ export class DataFrame<T extends TypeMap = any> {
     props: JoinProps<R, TOn, 'inner'|'outer'|'left'|'right', LSuffix, RSuffix>
   ): DataFrame<{
     [P in keyof JoinResult<T, R, TOn, LSuffix, RSuffix>]:
-      R[P] extends Numeric ? P extends TOn //
-        ? CommonType<T[P], Numeric & R[P]> //
-        : JoinResult<T, R, TOn, LSuffix, RSuffix>[P] //
+      P extends TOn
+        ? CommonType<T[P], R[P]>
         : JoinResult<T, R, TOn, LSuffix, RSuffix>[P]
   }>;
   // clang-format on
@@ -1680,7 +1728,7 @@ export class DataFrame<T extends TypeMap = any> {
   dropDuplicates(keep: keyof typeof DuplicateKeepOption,
                  nullsEqual: boolean,
                  nullsFirst: boolean,
-                 subset: (string&keyof T)[] = this.names,
+                 subset = this.names,
                  memoryResource?: MemoryResource) {
     const column_indices: number[] = [];
     const allNames                 = this.names;

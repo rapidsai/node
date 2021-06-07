@@ -18,7 +18,6 @@ import {ColumnAccessor} from '../column_accessor';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
-import {Numeric} from '../types/dtypes';
 import {ColumnsMap, CommonType, findCommonType, TypeMap} from '../types/mappings';
 
 export type JoinKey<
@@ -208,7 +207,8 @@ function mergeResults<
 >(lhs: DataFrame<Lhs>, rhs: DataFrame<Rhs>, on: TOn[], lsuffix: LSuffix, rsuffix: RSuffix) {
   type TResult = JoinResult<Lhs, Rhs, TOn, LSuffix, RSuffix>;
   // clang-format on
-  function getColumns<T extends TypeMap>(lhs: DataFrame<T>, rhsNames: string[], suffix: string) {
+  function getColumns<T extends TypeMap>(
+    lhs: DataFrame<T>, rhsNames: readonly string[], suffix: string) {
     return lhs.names.reduce((cols, name) => {
       const newName = on.includes(name as TOn)  ? name
                       : rhsNames.includes(name) ? `${name}${suffix}`
@@ -217,10 +217,7 @@ function mergeResults<
       return cols;
     }, <any>{}) as ColumnsMap<{
              [P in keyof TResult]:  //
-               P extends TOn
-             ? Rhs[P] extends Numeric ? CommonType<Lhs[P], Numeric&Rhs[P]>  //
-                                      : TResult[P]
-             : TResult[P]
+               P extends TOn ? CommonType<Lhs[P], Rhs[P]>: TResult[P]
            }>;
   }
 

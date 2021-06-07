@@ -57,7 +57,7 @@ cudf::type_id get_common_type(cudf::data_type const& lhs, cudf::data_type const&
 Napi::Value find_common_type(CallbackArgs const& args) {
   try {
     return cudf_to_arrow_type(args.Env(), cudf::data_type{get_common_type(args[0], args[1])});
-  } catch (cudf::logic_error const& err) { NODE_CUDF_THROW(err.what()); }
+  } catch (cudf::logic_error const& err) { NODE_CUDF_THROW(err.what(), args.Env()); }
 }
 
 cudf::data_type arrow_to_cudf_type(Napi::Object const& type) {
