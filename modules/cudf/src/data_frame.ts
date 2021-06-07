@@ -1545,6 +1545,13 @@ export class DataFrame<T extends TypeMap = any> {
   /**
    * Compute the sum for all Series in the DataFrame.
    *
+   * @param subset List of columns to select (all columns are considered by
+   * default).
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param dtype The datatype to cast the result to.
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   *
    * @returns A Series containing the sum of all values for each Series
    * @example
    * ```typescript
