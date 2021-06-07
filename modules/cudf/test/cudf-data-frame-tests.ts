@@ -705,6 +705,11 @@ describe('dataframe.sum', () => {
     expect([...df.sum(undefined, true, new Int32)]).toEqual([7, 16]);
   });
 
+  test('skip na is false', () => {
+    const df = new DataFrame({'a': Series.new([NaN, 1.5, NaN]), 'b': Series.new([4.5, 5.5, 6.5])});
+    expect([...df.sum(undefined, false)]).toEqual([NaN, 16.5]);
+  });
+
   test('subset', () => {
     const df = new DataFrame({'a': Series.new([1, 2, 3]), 'b': Series.new([4.5, 5.5, 6.5])});
     expect([...df.sum(['a'])]).toEqual([6]);
