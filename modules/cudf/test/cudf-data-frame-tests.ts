@@ -697,7 +697,7 @@ describe('dataframe.sum', () => {
 
   test('empty dataframe', () => {
     const df = new DataFrame({'a': Series.new([]), 'b': Series.new([])});
-    expect([...df.sum()]).toEqual([0, 0]);
+    expect([...df.sum()]).toEqual([null, null]);
   });
 
   test('cast to int', () => {

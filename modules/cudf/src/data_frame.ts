@@ -1543,18 +1543,13 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   sum(subset?: (keyof T)[], dtype?: DataType, memoryResource?: MemoryResource) {
-    subset     = (subset == undefined) ? this.names as (keyof T)[] : subset;
-    const temp = new Table({columns: this.select(subset)._accessor.columns});
-
-    let common_dtype: DataType = temp.getColumnByIndex(0).type;
-    const sums: number[]       = new Array(temp.numColumns);
-    for (let i = 0; i < temp.numColumns; ++i) {
-      const col    = temp.getColumnByIndex(i);
-      common_dtype = findCommonType(common_dtype, col.type);
-      sums[i]      = Number(col.sum(memoryResource));
-    }
-
-    const result = Series.new({type: common_dtype, data: sums});
+    subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const commonDtype = subset.reduce(
+      (type: DataType|null, name) => findCommonType(type ?? this.types[name], this.types[name]),
+      null)!;
+    const sums   = subset.map((name) => this.get(name)._col.sum(memoryResource));
+    const result = Series.new({type: commonDtype, data: sums});
     return dtype ? result.cast(dtype, memoryResource) : result;
   }
 
