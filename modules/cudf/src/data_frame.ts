@@ -1720,8 +1720,8 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  replaceNulls(value: (DataType&keyof T)['scalarType'],
-               memoryResource?: MemoryResource): DataFrame<T>;
+  replaceNulls<R extends DataType>(value: R['scalarType'],
+                                   memoryResource?: MemoryResource): DataFrame<T>;
 
   /**
    * Replace null values with the corresponding elements from another Map of Series.
