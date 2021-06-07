@@ -1549,7 +1549,6 @@ export class DataFrame<T extends TypeMap = any> {
    * default).
    * @param skipna The optional skipna if true drops NA and null values before computing reduction,
    * else if skipna is false, reduction is computed directly.
-   * @param dtype The datatype to cast the result to.
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    *
    * @returns A Series containing the sum of all values for each Series
@@ -1571,22 +1570,21 @@ export class DataFrame<T extends TypeMap = any> {
    * df2.sum(); // throws error
    * ```
    */
-  sum(subset?: (keyof T)[], skipna = true, dtype?: DataType, memoryResource?: MemoryResource):
-    Series {
+  sum<P extends keyof T>(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource):
+    Series<T[P]> {
     subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const commonDtype = subset.reduce(
       (type: DataType|null, name) => findCommonType(type ?? this.types[name], this.types[name]),
       null)!;
-    const sums = subset.map((name) => {
+    const sums   = subset.map((name) => {
       if (!(this.get(name) instanceof NumericSeries)) {
         throw new Error('Unable to sum the results of non NumericSeries');
       }
       return Number(this.get(name)._col.sum(memoryResource));
     });
-    let result = Series.new({type: commonDtype, data: sums});
-    if (skipna) result = result.dropNulls();
-    return dtype ? result.cast(dtype) : result;
+    const result = Series.new({type: commonDtype, data: sums});
+    return (skipna ? result.dropNulls() : result) as CommonType<T[P], T[P]>;
   }
 
   /**
