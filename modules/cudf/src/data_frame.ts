@@ -1436,7 +1436,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([-1.2, 2.5, -3, 4.6, 5]);
+   *  a: Series.new([-1.2, 2.5, -3, 4.6, 5])
    * });
    * df.ceil();
    * // return {
@@ -1465,7 +1465,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([-1.2, 2.5, -3, 4.6, 5]);
+   *  a: Series.new([-1.2, 2.5, -3, 4.6, 5])
    * });
    * df.floor();
    * // return {
@@ -1494,7 +1494,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([-1, 2, -3, 4, 5]);
+   *  a: Series.new([-1, 2, -3, 4, 5])
    * });
    * df.abs();
    * // return {
@@ -1523,7 +1523,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([0, 1, 2, 3, 4]);
+   *  a: Series.new([0, 1, 2, 3, 4])
    * });
    * df.not();
    * // return {
@@ -1619,8 +1619,8 @@ export class DataFrame<T extends TypeMap = any> {
    * ```typescript
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    * const df = new DataFrame({
-   *  a: Series.new([0, null, 2]);
-   *  b: Series.new(['foo', 'bar', null]);
+   *  a: Series.new([0, null, 2]),
+   *  b: Series.new(['foo', 'bar', null])
    * });
    *
    * df.isNull()
@@ -1679,8 +1679,8 @@ export class DataFrame<T extends TypeMap = any> {
    * ```typescript
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    * const df = new DataFrame({
-   *  a: Series.new([0, null, 2]);
-   *  b: Series.new(['foo', 'bar', null]);
+   *  a: Series.new([0, null, 2]),
+   *  b: Series.new(['foo', 'bar', null])
    * });
    *
    * df.isNotNull()
