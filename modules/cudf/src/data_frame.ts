@@ -1764,7 +1764,7 @@ export class DataFrame<T extends TypeMap = any> {
         (map, name) => ({
           ...map,
           [name]: Series.new(this._accessor.get(name).replaceNulls(
-            new Scalar({type: this._accessor.get(name).type, value: value }), memoryResource))
+            new Scalar({type: this._accessor.get(name).type, value: value}), memoryResource))
         }),
         {} as SeriesMap<T>));
     }
