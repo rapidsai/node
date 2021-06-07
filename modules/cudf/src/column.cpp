@@ -97,6 +97,10 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::variance>("var"),
                        InstanceMethod<&Column::std>("std"),
                        InstanceMethod<&Column::quantile>("quantile"),
+                       InstanceMethod<&Column::cummax>("cummax"),
+                       InstanceMethod<&Column::cummin>("cummin"),
+                       InstanceMethod<&Column::cumprod>("cumprod"),
+                       InstanceMethod<&Column::cumsum>("cumsum"),
                        // column/strings/json.cpp
                        InstanceMethod<&Column::get_json_object>("getJSONObject"),
                        // column/replacement.cpp

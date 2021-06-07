@@ -79,6 +79,15 @@ Scalar::wrapper_t Column::reduce(std::unique_ptr<cudf::aggregation> const& agg,
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
+Column::wrapper_t Column::scan(std::unique_ptr<cudf::aggregation> const& agg,
+                               cudf::scan_type inclusive,
+                               cudf::null_policy null_handling,
+                               rmm::mr::device_memory_resource* mr) const {
+  try {
+    return Column::New(Env(), cudf::scan(*this, agg, inclusive, null_handling, mr));
+  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+}
+
 Scalar::wrapper_t Column::sum(rmm::mr::device_memory_resource* mr) const {
   return reduce(cudf::make_sum_aggregation(), _compute_dtype(this->type().id()), mr);
 }
@@ -180,6 +189,57 @@ Scalar::wrapper_t Column::quantile(double q,
 Napi::Value Column::quantile(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   return Napi::Value::From(info.Env(), quantile(args[0], args[1], args[2]));
+}
+
+Column::wrapper_t Column::cummax(rmm::mr::device_memory_resource* mr) const {
+  return scan(cudf::make_max_aggregation(),
+              // following cudf, scan type and null policy always use these values
+              cudf::scan_type::INCLUSIVE,
+              cudf::null_policy::EXCLUDE,
+              mr);
+}
+
+Napi::Value Column::cummax(Napi::CallbackInfo const& info) {
+  return Napi::Value::From(info.Env(),
+                           cummax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
+}
+
+Column::wrapper_t Column::cummin(rmm::mr::device_memory_resource* mr) const {
+  return scan(cudf::make_min_aggregation(),
+              // following cudf, scan type and null policy always use these values
+              cudf::scan_type::INCLUSIVE,
+              cudf::null_policy::EXCLUDE,
+              mr);
+}
+
+Napi::Value Column::cummin(Napi::CallbackInfo const& info) {
+  return cummin(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*())->Value();
+}
+
+Column::wrapper_t Column::cumprod(rmm::mr::device_memory_resource* mr) const {
+  return scan(cudf::make_product_aggregation(),
+              // following cudf, scan type and null policy always use these values
+              cudf::scan_type::INCLUSIVE,
+              cudf::null_policy::EXCLUDE,
+              mr);
+}
+
+Napi::Value Column::cumprod(Napi::CallbackInfo const& info) {
+  return Napi::Value::From(info.Env(),
+                           cumprod(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
+}
+
+Column::wrapper_t Column::cumsum(rmm::mr::device_memory_resource* mr) const {
+  return scan(cudf::make_sum_aggregation(),
+              // following cudf, scan type and null policy always use these values
+              cudf::scan_type::INCLUSIVE,
+              cudf::null_policy::EXCLUDE,
+              mr);
+}
+
+Napi::Value Column::cumsum(Napi::CallbackInfo const& info) {
+  return Napi::Value::From(info.Env(),
+                           cumsum(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
 }
 
 }  // namespace nv

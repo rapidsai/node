@@ -190,6 +190,98 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
   bitInvert(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.bitInvert(memoryResource));
   }
+  _prepare_scan_series(skipna: boolean) {
+    if (skipna) { return this; }
+
+    // TODO: skipna=false
+    return this;
+  }
+
+  /**
+   * Compute the cumulative max of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative max of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cummax() // {4, 4, 5, 5, 5}
+   * ```
+   */
+  cummax(skipna = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipna);
+    return Series.new(result_series._col.cummax(memoryResource));
+  }
+
+  /**
+   * Compute the cumulative min of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative min of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cummin() // {4, 2, 2, 1, 1}
+   * ```
+   */
+  cummin(skipna = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipna);
+    return Series.new(result_series._col.cummin(memoryResource));
+  }
+
+  /**
+   * Compute the cumulative product of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing
+   *   reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative product of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cumprod() // {4, 8, 40, 40, 40}
+   * ```
+   */
+  cumprod(skipna = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipna);
+    return Series.new(result_series._col.cumprod(memoryResource));
+  }
+
+  /**
+   * Compute the cumulative sum of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing
+   *   reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative sum of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cumsum() // {4, 6, 11, 12, 13}
+   * ```
+   */
+  cumsum(skipna = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipna);
+    return Series.new(result_series._col.cumsum(memoryResource));
+  }
 }
 
 /**
