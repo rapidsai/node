@@ -395,42 +395,43 @@ export class DataFrame<T extends TypeMap = any> {
   concat<U extends DataFrame[]>(...others: U) { return concatDataFrames(this, ...others); }
 
   /**
-   * Interleave columns of a DataFrame into a single column and return a Series.
+   * @summary Interleave columns of a DataFrame into a single Series.
+   *
+   * @param dataType The dtype of the result Series (required if the DataFrame has mixed dtypes).
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   *
+   * @returns Series representing a packed row-major matrix of all the source DataFrame's Series.
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series, Int32, NullOrder}  from '@rapidsai/cudf';
-   * import * as arrow from 'apache-arrow';
+   * import {DataFrame, Series }  from '@rapidsai/cudf';
    *
-   * const df = new DataFrame({a: Series.new([1, 2, 3]), b: Series.new([4, 5, 6])});
+   * new DataFrame({
+   *  a: Series.new([1, 2, 3]),
+   *  b: Series.new([4, 5, 6]),
+   * }).interleaveColumns()
+   * // Float64Series [
+   * //  1, 4, 2, 5, 3, 6
+   * // ]
    *
-   * df.interleaveColumns(); // Float64Series [1, 4, 2, 5, 3, 6]
-   *
-   * const arrow_vec_list = arrow.Vector.from({
-   *   values: [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
-   *   type: new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
-   * });
-   * const b = Series.new(arrow_vec_list) // ListSeries [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
-   *
-   * const arrow_vec_list1 = arrow.Vector.from({
-   *   values: [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
-   *   type: new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
-   * });
-   * const c = Series.new(arrow_vec_list1) // ListSeries [[10, 11, 12], [13, 14, 15], [16, 17, 18]]
-   *
-   * const df1 = new DataFrame({ b, c });
-   *
-   * df1.interleaveColumns()
+   * new DataFrame({
+   *  b: Series.new([ [0,  1,  2],  [3,  4,  5],  [6,  7,  8]]),
+   *  c: Series.new([[10, 11, 12], [13, 14, 15], [16, 17, 18]]),
+   * }).interleaveColumns()
    * // ListSeries [
-   * // [0, 1, 2], [10, 11, 12], [3, 4, 5],[13, 14, 15],
-   * // [6, 7, 8], [16, 17, 18]
+   * //   [0,  1,  2],
+   * //  [10, 11, 12],
+   * //   [3,  4,  5],
+   * //  [13, 14, 15],
+   * //   [6,  7,  8],
+   * //  [16, 17, 18],
    * // ]
    *
    */
-  interleaveColumns(memoryResource?: MemoryResource) {
-    const temp = new Table({columns: this._accessor.columns});
-    return Series.new(temp.interleaveColumns(memoryResource));
+  interleaveColumns<R extends T[keyof T] = T[keyof T]>(dataType?: R|null,
+                                                       memoryResource?: MemoryResource) {
+    return Series.new<R>(
+      (dataType ? this.castAll(dataType) : this).asTable().interleaveColumns(memoryResource));
   }
 
   /**
