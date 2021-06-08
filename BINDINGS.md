@@ -271,7 +271,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `head`               |          ✅           |
 | `info`               |                       |
 | `insert`             |                       |
-| `interleave_columns` |                       |
+| `interleave_columns` |          ✅           |
 | `isin`               |                       |
 | `isna`               |     ✅ (`isNaN`)      |
 | `isnull`             |          ✅           |

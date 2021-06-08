@@ -395,6 +395,46 @@ export class DataFrame<T extends TypeMap = any> {
   concat<U extends DataFrame[]>(...others: U) { return concatDataFrames(this, ...others); }
 
   /**
+   * @summary Interleave columns of a DataFrame into a single Series.
+   *
+   * @param dataType The dtype of the result Series (required if the DataFrame has mixed dtypes).
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   *
+   * @returns Series representing a packed row-major matrix of all the source DataFrame's Series.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series }  from '@rapidsai/cudf';
+   *
+   * new DataFrame({
+   *  a: Series.new([1, 2, 3]),
+   *  b: Series.new([4, 5, 6]),
+   * }).interleaveColumns()
+   * // Float64Series [
+   * //  1, 4, 2, 5, 3, 6
+   * // ]
+   *
+   * new DataFrame({
+   *  b: Series.new([ [0,  1,  2],  [3,  4,  5],  [6,  7,  8]]),
+   *  c: Series.new([[10, 11, 12], [13, 14, 15], [16, 17, 18]]),
+   * }).interleaveColumns()
+   * // ListSeries [
+   * //   [0,  1,  2],
+   * //  [10, 11, 12],
+   * //   [3,  4,  5],
+   * //  [13, 14, 15],
+   * //   [6,  7,  8],
+   * //  [16, 17, 18],
+   * // ]
+   *
+   */
+  interleaveColumns<R extends T[keyof T] = T[keyof T]>(dataType?: R|null,
+                                                       memoryResource?: MemoryResource) {
+    return Series.new<R>(
+      (dataType ? this.castAll(dataType) : this).asTable().interleaveColumns(memoryResource));
+  }
+
+  /**
    * Generate an ordering that sorts DataFrame columns in a specified way
    *
    * @param options mapping of column names to sort order specifications
