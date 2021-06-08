@@ -1570,21 +1570,19 @@ export class DataFrame<T extends TypeMap = any> {
    * df2.sum(); // throws error
    * ```
    */
-  sum<P extends keyof T>(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource):
-    Series<T[P]> {
+  sum<P extends keyof T>(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource) {
     subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const commonDtype = subset.reduce(
       (type: DataType|null, name) => findCommonType(type ?? this.types[name], this.types[name]),
       null)!;
-    const sums   = subset.map((name) => {
+    const sums = subset.map((name) => {
       if (!(this.get(name) instanceof NumericSeries)) {
         throw new Error('Unable to sum the results of non NumericSeries');
       }
-      return Number(this.get(name)._col.sum(memoryResource));
+      return Number((this.get(name) as any).sum(skipna, memoryResource));
     });
-    const result = Series.new({type: commonDtype, data: sums});
-    return (skipna ? result.dropNulls() : result) as CommonType<T[P], T[P]>;
+    return Series.new({type: commonDtype, data: sums}) as Series<CommonType<T[P], T[P]>>;
   }
 
   /**
