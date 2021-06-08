@@ -46,6 +46,8 @@ Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Table::drop_nans>("dropNans"),
                        InstanceMethod<&Table::drop_nulls>("dropNulls"),
                        InstanceMethod<&Table::drop_duplicates>("dropDuplicates"),
+                       InstanceMethod<&Table::interleave_columns>("interleaveColumns"),
+                       StaticMethod<&Table::concat>("concat"),
                        StaticMethod<&Table::full_join>("fullJoin"),
                        StaticMethod<&Table::inner_join>("innerJoin"),
                        StaticMethod<&Table::left_join>("leftJoin"),

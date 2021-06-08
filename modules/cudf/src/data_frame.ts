@@ -18,13 +18,14 @@ import {Readable} from 'stream';
 
 import {Column} from './column';
 import {ColumnAccessor} from './column_accessor';
+import {concat as concatDataFrames} from './dataframe/concat';
 import {Join, JoinResult} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {AbstractSeries, Series} from './series';
 import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {Bool8, DataType, Float32, Float64, IndexType, Int32, Numeric} from './types/dtypes';
+import {Bool8, DataType, Float32, Float64, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
@@ -171,6 +172,28 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   get names() { return this._accessor.names; }
+
+  /**
+   * A map of this DataFrame's Series names to their DataTypes
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2]),
+   *  b: Series.new(["foo", "bar"]),
+   *  c: Series.new([[1, 2], [3]]),
+   * })
+   *
+   * df.types
+   * // {
+   * //   a: [Object Float64],
+   * //   b: [Object Utf8String],
+   * //   c: [Object List]
+   * // }
+   * ```
+   */
+  get types() { return this._accessor.types; }
 
   /** @ignore */
   asTable() { return new Table({columns: this._accessor.columns}); }
@@ -343,6 +366,71 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this._accessor.names.reduce(
       (columns, name) => ({...columns, [name]: this.get(name).cast(dataType, memoryResource)}),
       {} as SeriesMap<{[P in keyof T]: R}>));
+  }
+
+  /**
+   * Concat DataFrame(s) to the end of the caller, returning a new DataFrame.
+   *
+   * @param others The DataFrame(s) to concat to the end of the caller.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *   a: Series.new([1, 2, 3, 4]),
+   *   b: Series.new([1, 2, 3, 4]),
+   * });
+   *
+   * const df2 = new DataFrame({
+   *   a: Series.new([5, 6, 7, 8]),
+   * });
+   *
+   * df.concat(df2);
+   * // return {
+   * //    a: [1, 2, 3, 4, 5, 6, 7, 8],
+   * //    b: [1, 2, 3, 4, null, null, null, null],
+   * // }
+   * ```
+   */
+  concat<U extends DataFrame[]>(...others: U) { return concatDataFrames(this, ...others); }
+
+  /**
+   * Interleave columns of a DataFrame into a single column and return a Series.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, NullOrder}  from '@rapidsai/cudf';
+   * import * as arrow from 'apache-arrow';
+   *
+   * const df = new DataFrame({a: Series.new([1, 2, 3]), b: Series.new([4, 5, 6])});
+   *
+   * df.interleaveColumns(); // Float64Series [1, 4, 2, 5, 3, 6]
+   *
+   * const arrow_vec_list = arrow.Vector.from({
+   *   values: [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+   *   type: new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
+   * });
+   * const b = Series.new(arrow_vec_list) // ListSeries [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
+   *
+   * const arrow_vec_list1 = arrow.Vector.from({
+   *   values: [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+   *   type: new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
+   * });
+   * const c = Series.new(arrow_vec_list1) // ListSeries [[10, 11, 12], [13, 14, 15], [16, 17, 18]]
+   *
+   * const df1 = new DataFrame({ b, c });
+   *
+   * df1.interleaveColumns()
+   * // ListSeries [
+   * // [0, 1, 2], [10, 11, 12], [3, 4, 5],[13, 14, 15],
+   * // [6, 7, 8], [16, 17, 18]
+   * // ]
+   *
+   */
+  interleaveColumns(memoryResource?: MemoryResource) {
+    const temp = new Table({columns: this._accessor.columns});
+    return Series.new(temp.interleaveColumns(memoryResource));
   }
 
   /**
@@ -608,9 +696,8 @@ export class DataFrame<T extends TypeMap = any> {
     props: JoinProps<R, TOn, 'inner'|'outer'|'left'|'right', LSuffix, RSuffix>
   ): DataFrame<{
     [P in keyof JoinResult<T, R, TOn, LSuffix, RSuffix>]:
-      R[P] extends Numeric ? P extends TOn //
-        ? CommonType<T[P], Numeric & R[P]> //
-        : JoinResult<T, R, TOn, LSuffix, RSuffix>[P] //
+      P extends TOn
+        ? CommonType<T[P], R[P]>
         : JoinResult<T, R, TOn, LSuffix, RSuffix>[P]
   }>;
   // clang-format on
@@ -1664,7 +1751,7 @@ export class DataFrame<T extends TypeMap = any> {
   dropDuplicates(keep: keyof typeof DuplicateKeepOption,
                  nullsEqual: boolean,
                  nullsFirst: boolean,
-                 subset: (string&keyof T)[] = this.names,
+                 subset = this.names,
                  memoryResource?: MemoryResource) {
     const column_indices: number[] = [];
     const allNames                 = this.names;

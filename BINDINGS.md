@@ -97,7 +97,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `repeat`             |                       |
 | `replace`            |                       |
 | `reset_index`        |                       |
-| `reverse`            |                       |
+| `reverse`            |          ✅           |
 | `rfloordiv`          |                       |
 | `rmod`               |                       |
 | `rmul`               |                       |
@@ -197,7 +197,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `repeat`             |                       |                       |                       |
 | `replace`            |                       |                       |                       |
 | `reset_index`        |                       |                       |                       |
-| `reverse`            |                       |                       |                       |
+| `reverse`            |          ✅           |          ✅           |          ✅           |
 | `rolling`            |                       |                       |                       |
 | `sample`             |                       |                       |                       |
 | `scatter_by_map`     |                       |                       |                       |
@@ -235,7 +235,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `agg`                |                       |
 | `all`                |                       |
 | `any`                |                       |
-| `append`             |                       |
+| `append`             |     ✅ (`concat`)     |
 | `apply_chunks`       |                       |
 | `apply_rows`         |                       |
 | `argsort`            |                       |
@@ -271,7 +271,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `head`               |          ✅           |
 | `info`               |                       |
 | `insert`             |                       |
-| `interleave_columns` |                       |
+| `interleave_columns` |          ✅           |
 | `isin`               |                       |
 | `isna`               |     ✅ (`isNaN`)      |
 | `isnull`             |          ✅           |

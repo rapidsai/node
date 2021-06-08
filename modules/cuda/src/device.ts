@@ -20,11 +20,11 @@ export class Device extends CUDADevice {
   /**
    * The number of compute-capable CUDA devices.
    */
-  static readonly numDevices: number;
+  public static get numDevices() { return CUDADevice.numDevices; }
   /**
    * The id of this thread's active CUDA device.
    */
-  static readonly activeDeviceId: number;
+  public static get activeDeviceId() { return CUDADevice.activeDeviceId; }
 
   /**
    * The human-readable name of this CUDA Device
@@ -45,8 +45,10 @@ export class Device extends CUDADevice {
 
   /** @ignore */
   public get[Symbol.toStringTag]() { return 'CUDADevice'; }
+
   /** @ignore */
   public[Symbol.for('nodejs.util.inspect.custom')]() { return this.toString(); }
+
   /** @ignore */
   public toString() {
     const {name, major, minor} = this.getProperties();

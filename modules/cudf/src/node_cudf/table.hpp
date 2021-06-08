@@ -122,6 +122,10 @@ struct Table : public EnvLocalObjectWrap<Table> {
     return *Column::Unwrap(columns_.Value().Get(i).ToObject());
   }
 
+  // table/reshape.cpp
+  Column::wrapper_t interleave_columns(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
   // table/stream_compaction.cpp
   Table::wrapper_t apply_boolean_mask(
     Column const& boolean_mask,
@@ -210,6 +214,8 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Napi::Value num_rows(Napi::CallbackInfo const& info);
   Napi::Value select(Napi::CallbackInfo const& info);
   Napi::Value get_column(Napi::CallbackInfo const& info);
+  // table/reshape.cpp
+  Napi::Value interleave_columns(Napi::CallbackInfo const& info);
   // table/stream_compaction.cpp
   Napi::Value drop_nulls(Napi::CallbackInfo const& info);
   Napi::Value drop_nans(Napi::CallbackInfo const& info);
@@ -218,6 +224,8 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Napi::Value gather(Napi::CallbackInfo const& info);
   Napi::Value scatter_scalar(Napi::CallbackInfo const& info);
   Napi::Value scatter_table(Napi::CallbackInfo const& info);
+  // table/concatenate.cpp
+  static Napi::Value concat(Napi::CallbackInfo const& info);
   // table/join.cpp
   static Napi::Value full_join(Napi::CallbackInfo const& info);
   static Napi::Value inner_join(Napi::CallbackInfo const& info);
