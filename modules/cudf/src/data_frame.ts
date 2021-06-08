@@ -395,6 +395,15 @@ export class DataFrame<T extends TypeMap = any> {
   concat<U extends DataFrame[]>(...others: U) { return concatDataFrames(this, ...others); }
 
   /**
+   * Interleave Series columns of a DataFrame into a single Series.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  interleaveSeries(memoryResource?: MemoryResource) {
+    const temp = new Table({columns: this._accessor.columns});
+    return Series.new(temp.interleaveColumns(memoryResource));
+  }
+
+  /**
    * Generate an ordering that sorts DataFrame columns in a specified way
    *
    * @param options mapping of column names to sort order specifications
