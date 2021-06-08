@@ -14,11 +14,9 @@
 
 #pragma once
 
+#include "raft/handle.hpp"
+
 #include <nv_node/utilities/args.hpp>
-#ifdef CUDA_TRY
-#undef CUDA_TRY
-#endif
-#include <raft/handle.hpp>
 
 #include <napi.h>
 

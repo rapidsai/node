@@ -17,13 +17,4 @@
 #ifdef CUDA_TRY
 #undef CUDA_TRY
 #endif
-#ifdef CHECK_CUDA
-#undef CHECK_CUDA
-#endif
-#include <cuml/manifold/umap.hpp>
-#ifdef CHECK_CUDA
-#undef CHECK_CUDA
-#endif
-#ifdef CUDA_TRY
-#undef CUDA_TRY
-#endif
+#include <raft/handle.hpp>

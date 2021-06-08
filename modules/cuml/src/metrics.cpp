@@ -14,12 +14,11 @@
 
 #include <node_cuda/utilities/error.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
-#include <node_cuml/metrics/metrics.hpp>
+#include <node_cuml/metrics.hpp>
 #include <node_rmm/device_buffer.hpp>
 
 #include <metrics/trustworthiness_c.h>
 #include <raft/linalg/distance_type.h>
-#include <raft/handle.hpp>
 
 #include <napi.h>
 

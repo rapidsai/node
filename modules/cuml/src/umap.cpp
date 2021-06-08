@@ -14,17 +14,9 @@
 
 #include <node_cuda/utilities/error.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
-#include <node_cuml/cuml/manifold/umap.hpp>
 #include <node_rmm/device_buffer.hpp>
 
-#include <cuml/manifold/umapparams.h>
-#include <cudf/filling.hpp>
-#include <cudf/reduction.hpp>
-#include <cudf/types.hpp>
-#include <cuml/common/device_buffer.hpp>
-
-#include <metrics/trustworthiness_c.h>
-#include <raft/linalg/distance_type.h>
+#include <node_cuml/umap.hpp>
 
 #include <napi.h>
 

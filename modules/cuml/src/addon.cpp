@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cuml/cuml/manifold/umap.hpp>
-#include <node_cuml/metrics/metrics.hpp>
+#include <node_cuml/metrics.hpp>
+#include <node_cuml/umap.hpp>
 #include <nv_node/addon.hpp>
 
 struct node_cuml : public nv::EnvLocalAddon, public Napi::Addon<node_cuml> {
