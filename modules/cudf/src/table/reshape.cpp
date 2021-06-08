@@ -19,16 +19,12 @@
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
 #include <cudf/reshape.hpp>
-#include <cudf/table/table_view.hpp>
-
-#include <memory>
-#include <vector>
 
 namespace nv {
 
 Column::wrapper_t Table::interleave_columns(rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::interleave_columns(cudf::table_view{{*this}}, mr));
+    return Column::New(Env(), cudf::interleave_columns(*this, mr));
   } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
