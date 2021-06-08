@@ -62,30 +62,30 @@ Napi::Function UMAP::Init(Napi::Env const& env, Napi::Object exports) {
 }
 
 ML::UMAPParams update_params(NapiToCPP::Object props) {
-  auto params                  = new ML::UMAPParams();
-  params->n_neighbors          = get_int(props.Get("nNeighbors"), 15);
-  params->n_components         = get_int(props.Get("nComponents"), 2);
-  params->n_epochs             = get_int(props.Get("nEpochs"), 0);
-  params->learning_rate        = get_float(props.Get("learningRate"), 1.0);
-  params->min_dist             = get_float(props.Get("minDist"), 0.1);
-  params->spread               = get_float(props.Get("spread"), 1.0);
-  params->set_op_mix_ratio     = get_float(props.Get("setOpMixRatio"), 1.0);
-  params->local_connectivity   = get_float(props.Get("localConnectivity"), 1.0);
-  params->repulsion_strength   = get_float(props.Get("repulsionStrength"), 1.0);
-  params->negative_sample_rate = get_int(props.Get("negativeSampleRate"), 5);
-  params->transform_queue_size = get_float(props.Get("transformQueueSize"), 4);
-  params->verbosity            = get_int(props.Get("verbosity"), 4);
-  params->a                    = get_float(props.Get("a"), -1.0);
-  params->b                    = get_float(props.Get("b"), -1.0);
-  params->initial_alpha        = get_float(props.Get("initialAlpha"), 1.0);
-  params->init                 = get_int(props.Get("init"), 1);
-  params->target_n_neighbors   = get_int(props.Get("targetNNeighbors"), 1);
-  params->target_metric        = (get_int(props.Get("targetMetric"), 0) == 0)
-                                   ? ML::UMAPParams::MetricType::CATEGORICAL
-                                   : ML::UMAPParams::MetricType::EUCLIDEAN;
-  params->target_weight        = get_float(props.Get("targetWeight"), 0.5);
-  params->random_state         = get_int(props.Get("randomState"), 0);
-  return *params;
+  ML::UMAPParams params{};
+  params.n_neighbors          = get_int(props.Get("nNeighbors"), 15);
+  params.n_components         = get_int(props.Get("nComponents"), 2);
+  params.n_epochs             = get_int(props.Get("nEpochs"), 0);
+  params.learning_rate        = get_float(props.Get("learningRate"), 1.0);
+  params.min_dist             = get_float(props.Get("minDist"), 0.1);
+  params.spread               = get_float(props.Get("spread"), 1.0);
+  params.set_op_mix_ratio     = get_float(props.Get("setOpMixRatio"), 1.0);
+  params.local_connectivity   = get_float(props.Get("localConnectivity"), 1.0);
+  params.repulsion_strength   = get_float(props.Get("repulsionStrength"), 1.0);
+  params.negative_sample_rate = get_int(props.Get("negativeSampleRate"), 5);
+  params.transform_queue_size = get_float(props.Get("transformQueueSize"), 4);
+  params.verbosity            = get_int(props.Get("verbosity"), 4);
+  params.a                    = get_float(props.Get("a"), -1.0);
+  params.b                    = get_float(props.Get("b"), -1.0);
+  params.initial_alpha        = get_float(props.Get("initialAlpha"), 1.0);
+  params.init                 = get_int(props.Get("init"), 1);
+  params.target_n_neighbors   = get_int(props.Get("targetNNeighbors"), 1);
+  params.target_metric        = (get_int(props.Get("targetMetric"), 0) == 0)
+                                  ? ML::UMAPParams::MetricType::CATEGORICAL
+                                  : ML::UMAPParams::MetricType::EUCLIDEAN;
+  params.target_weight        = get_float(props.Get("targetWeight"), 0.5);
+  params.random_state         = get_int(props.Get("randomState"), 0);
+  return params;
 }
 
 UMAP::wrapper_t UMAP::New(Napi::Env const& env) { return EnvLocalObjectWrap<UMAP>::New(env); }
@@ -146,27 +146,26 @@ void UMAP::transform(float* X,
 Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
 
-  auto X           = DeviceBuffer::wrapper_t(*DeviceBuffer::Unwrap(args[0]));
-  auto y           = DeviceBuffer::IsInstance(args[3])
-                       ? reinterpret_cast<float*>(DeviceBuffer::Unwrap(args[3])->data())
-                       : nullptr;
-  auto knn_indices = DeviceBuffer::IsInstance(args[4])
-                       ? reinterpret_cast<int64_t*>(DeviceBuffer::Unwrap(args[4])->data())
-                       : nullptr;
-  auto knn_dists   = DeviceBuffer::IsInstance(args[5])
-                       ? reinterpret_cast<float*>(DeviceBuffer::Unwrap(args[5])->data())
-                       : nullptr;
+  DeviceBuffer::wrapper_t X = args[0];
+  DeviceBuffer::wrapper_t y = DeviceBuffer::IsInstance(args[3]) ? DeviceBuffer::wrapper_t(args[3])
+                                                                : DeviceBuffer::New(args.Env());
+  DeviceBuffer::wrapper_t knn_indices = DeviceBuffer::IsInstance(args[4])
+                                          ? DeviceBuffer::wrapper_t(args[4])
+                                          : DeviceBuffer::New(args.Env());
+  DeviceBuffer::wrapper_t knn_dists   = DeviceBuffer::IsInstance(args[5])
+                                          ? DeviceBuffer::wrapper_t(args[5])
+                                          : DeviceBuffer::New(args.Env());
 
-  auto embeddings = DeviceBuffer::wrapper_t(*DeviceBuffer::Unwrap(args[7]));
+  DeviceBuffer::wrapper_t embeddings = args[7];
 
-  fit(reinterpret_cast<float*>(X->data()),
+  fit(static_cast<float*>(X->data()),
       args[1],
       args[2],
-      y,
-      knn_indices,
-      knn_dists,
+      static_cast<float*>(y->data()),
+      static_cast<int64_t*>(knn_indices->data()),
+      static_cast<float*>(knn_dists->data()),
       args[6],
-      reinterpret_cast<float*>(embeddings->data()));
+      static_cast<float*>(embeddings->data()));
 
   return embeddings;
 }
@@ -174,26 +173,26 @@ Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
 Napi::Value UMAP::transform(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
 
-  auto X           = DeviceBuffer::wrapper_t(*DeviceBuffer::Unwrap(args[0]));
-  auto knn_indices = DeviceBuffer::IsInstance(args[3])
-                       ? reinterpret_cast<int64_t*>(DeviceBuffer::Unwrap(args[3])->data())
-                       : nullptr;
-  auto knn_dists   = DeviceBuffer::IsInstance(args[4])
-                       ? reinterpret_cast<float*>(DeviceBuffer::Unwrap(args[4])->data())
-                       : nullptr;
-  auto embeddings  = DeviceBuffer::wrapper_t(*DeviceBuffer::Unwrap(args[6]));
-  auto transformed = DeviceBuffer::wrapper_t(*DeviceBuffer::Unwrap(args[7]));
+  DeviceBuffer::wrapper_t X           = args[0];
+  DeviceBuffer::wrapper_t knn_indices = DeviceBuffer::IsInstance(args[3])
+                                          ? DeviceBuffer::wrapper_t(args[3])
+                                          : DeviceBuffer::New(args.Env());
+  DeviceBuffer::wrapper_t knn_dists   = DeviceBuffer::IsInstance(args[4])
+                                          ? DeviceBuffer::wrapper_t(args[4])
+                                          : DeviceBuffer::New(args.Env());
+  DeviceBuffer::wrapper_t embeddings  = args[6];
+  DeviceBuffer::wrapper_t transformed = args[7];
 
-  transform(reinterpret_cast<float*>(X->data()),
+  transform(static_cast<float*>(X->data()),
             args[1],
             args[2],
-            knn_indices,
-            knn_dists,
-            reinterpret_cast<float*>(X->data()),
+            static_cast<int64_t*>(knn_indices->data()),
+            static_cast<float*>(knn_dists->data()),
+            static_cast<float*>(X->data()),
             args[1],
             args[5],
-            reinterpret_cast<float*>(embeddings->data()),
-            reinterpret_cast<float*>(transformed->data()));
+            static_cast<float*>(embeddings->data()),
+            static_cast<float*>(transformed->data()));
 
   return transformed;
 }
