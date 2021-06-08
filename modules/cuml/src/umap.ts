@@ -43,15 +43,31 @@ export class UMAP {
     return undefined;
   }
 
+  _process_embeddings(embeddings: DeviceBuffer,
+                      n_samples: number,
+                      returnType: 'dataframe'|'series'|'devicebuffer') {
+    if (returnType == 'dataframe') {
+      return series_to_dataframe(embeddings, n_samples, this.nComponents);
+    } else if (returnType == 'series') {
+      return Series.new({type: new Float32, data: embeddings});
+    } else {
+      return embeddings;
+    }
+  }
   fit_transform(X: Series<Numeric>|DataFrame<TypeMap>,
                 y: null|Series<Numeric>|DataFrame<TypeMap>,
-                convertDType: boolean): DataFrame {
+                convertDType: boolean,
+                returnType: 'dataframe'|'series'|'devicebuffer' = 'dataframe'): DataFrame
+    |Series<Float32>|DeviceBuffer {
     const n_samples = (X instanceof Series) ? X.length : X.numRows;
     this.fit(X, y, convertDType);
-    return series_to_dataframe(this.embeddings, n_samples, this.nComponents);
+    return this._process_embeddings(this._embeddings, n_samples, returnType);
   }
 
-  transform(X: Series<Numeric>|DataFrame<TypeMap>, convertDType: boolean): DataFrame {
+  transform(X: Series<Numeric>|DataFrame<TypeMap>,
+            convertDType: boolean,
+            returnType: 'dataframe'|'series'|'devicebuffer' = 'dataframe'): DataFrame
+    |Series<Float32>|DeviceBuffer {
     const n_samples  = (X instanceof Series) ? X.length : X.numRows;
     const n_features = (X instanceof Series) ? 1 : X.numColumns;
     const embeddings = transform_input_to_device_buffer(this._generate_embeddings(n_samples));
@@ -64,8 +80,7 @@ export class UMAP {
                                         convertDType,
                                         this._embeddings,
                                         embeddings);
-    return series_to_dataframe(
-      Series.new({type: new Float32, data: result}), n_samples, this.nComponents);
+    return this._process_embeddings(result, n_samples, returnType);
   }
 
   get embeddings(): Series<Numeric> {
