@@ -41,7 +41,7 @@ test('transform trustworthiness score', () => {
     targetMetric: MetricType.CATEGORICAL
   });
   umap.fit(X, y, true);
-  const t1    = umap.transform(X, y, true);
+  const t1    = umap.transform(X, true);
   const score = trustworthiness(X, t1, 10);
 
   expect(score).toBeGreaterThan(0.97);

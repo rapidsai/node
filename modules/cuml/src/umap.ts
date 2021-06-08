@@ -47,7 +47,8 @@ export class UMAP {
                       n_samples: number,
                       returnType: 'dataframe'|'series'|'devicebuffer') {
     if (returnType == 'dataframe') {
-      return series_to_dataframe(embeddings, n_samples, this.nComponents);
+      return series_to_dataframe(
+        Series.new({type: new Float32, data: embeddings}), n_samples, this.nComponents);
     } else if (returnType == 'series') {
       return Series.new({type: new Float32, data: embeddings});
     } else {
