@@ -190,7 +190,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
   bitInvert(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.bitInvert(memoryResource));
   }
-  _prepare_scan_series(skipna: boolean) {
+
+  protected _prepare_scan_series(skipna: boolean) {
     if (skipna) { return this; }
 
     // TODO: skipna=false

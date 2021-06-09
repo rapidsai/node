@@ -31,7 +31,7 @@ export class Bool8Series extends NumericSeries<Bool8> {
     return new Uint8ClampedBuffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
 
-  _prepare_scan_series(skipna: boolean) {
+protected _prepare_scan_series(skipna: boolean) {
     if (skipna) { return this; }
 
     // TODO: skipna=false

@@ -161,7 +161,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
     return this._col.any(memoryResource);
   }
 
-  _prepare_scan_series(skipna: boolean) {
+  protected _prepare_scan_series(skipna: boolean) {
     if (skipna) { return this.nansToNulls(); }
 
     // TODO: skipna=false
