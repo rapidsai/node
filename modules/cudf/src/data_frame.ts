@@ -1584,7 +1584,7 @@ export class DataFrame<T extends TypeMap = any> {
    * df2.sum(); // throws error
    * ```
    */
-  sum(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource) {
+  sum<P extends keyof T>(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource) {
     subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const containsFloatType = subset.some((name) => {
@@ -1601,11 +1601,11 @@ export class DataFrame<T extends TypeMap = any> {
     // containsFloatType XOR containsIntType
     if (!(containsFloatType ? !containsIntType : containsIntType)) {
       throw new Error(
-        'Dataframe contains Series types of both Float and Int. Unable to calculate sum without losing information.');
+        'Dataframe contains Series types of both Float and Int. Unable to calculate sum without information loss.');
     }
     const sums =
       subset.map((name) => { return (this.get(name) as any).sum(skipna, memoryResource); });
-    return Series.new(sums);
+    return Series.new(sums) as Series<T[P]>;
   }
 
   /**
