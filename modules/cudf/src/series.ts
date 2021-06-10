@@ -826,7 +826,9 @@ export class AbstractSeries<T extends DataType = any> {
    * @param nullCount The number of null values. If None, it is calculated
    * automatically.
    */
-  setNullMask(mask: DeviceBuffer, nullCount?: number) { this._col.setNullMask(mask, nullCount); }
+  setNullMask(mask: MemoryData|ArrayLike<number>|ArrayLike<bigint>, nullCount?: number) {
+    this._col.setNullMask(mask, nullCount);
+  }
 
   /**
    * Copy a Series to an Arrow vector in host memory
