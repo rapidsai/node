@@ -25,9 +25,23 @@ import {AbstractSeries, Series} from './series';
 import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {Bool8, DataType, Float32, Float64, IndexType, Int32} from './types/dtypes';
+import {
+  Bool8,
+  DataType,
+  Float32,
+  Float64,
+  IndexType,
+  Int16,
+  Int32,
+  Int64,
+  Int8,
+  Uint16,
+  Uint32,
+  Uint64,
+  Uint8
+} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
-import {ColumnsMap, CommonType, findCommonType, TypeMap} from './types/mappings';
+import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
 export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
@@ -1570,19 +1584,28 @@ export class DataFrame<T extends TypeMap = any> {
    * df2.sum(); // throws error
    * ```
    */
-  sum<P extends keyof T>(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource) {
+  sum(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource) {
     subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const commonDtype = subset.reduce(
-      (type: DataType|null, name) => findCommonType(type ?? this.types[name], this.types[name]),
-      null)!;
-    const sums = subset.map((name) => {
-      if (!(this.get(name) instanceof NumericSeries)) {
-        throw new Error('Unable to sum the results of non NumericSeries');
-      }
-      return Number((this.get(name) as any).sum(skipna, memoryResource));
+    const containsFloatType = subset.some((name) => {
+      return ([new Float32, new Float64].some(t => this.get(name).type.compareTo(t)));
     });
-    return Series.new({type: commonDtype, data: sums}) as Series<CommonType<T[P], T[P]>>;
+    const containsIntType   = subset.some((name) => {
+      return (
+        [new Int64, new Uint64, new Int8, new Int16, new Int32, new Uint8, new Uint16, new Uint32]
+          .some(t => this.get(name).type.compareTo(t)));
+    });
+    if (!containsFloatType && !containsIntType) {
+      throw new Error('Unable to calculate sum on Dataframe containing non-numeric Series types.');
+    }
+    // containsFloatType XOR containsIntType
+    if (!(containsFloatType ? !containsIntType : containsIntType)) {
+      throw new Error(
+        'Dataframe contains Series types of both Float and Int. Unable to calculate sum without losing information.');
+    }
+    const sums =
+      subset.map((name) => { return (this.get(name) as any).sum(skipna, memoryResource); });
+    return Series.new(sums);
   }
 
   /**
