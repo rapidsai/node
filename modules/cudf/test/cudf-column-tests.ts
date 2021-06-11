@@ -191,14 +191,20 @@ describe('Column.setNullMask', () => {
        () => { validateSetNullMask(makeTestColumn(4), 4, 0, null); });
 
   test('accepts Arrays of numbers', () => {
+    validateSetNullMask(makeTestColumn(4), 4, 0, [1, 1, 1, 1]);
+    validateSetNullMask(makeTestColumn(4), 4, 2, [1, 1, 0, 0]);
     validateSetNullMask(makeTestColumn(4), 4, 4, [0, 0, 0, 0]);
   });
 
   test('accepts Arrays of bigints', () => {
+    validateSetNullMask(makeTestColumn(4), 4, 0, [1n, 1n, 1n, 1n]);
+    validateSetNullMask(makeTestColumn(4), 4, 2, [1n, 1n, 0n, 0n]);
     validateSetNullMask(makeTestColumn(4), 4, 4, [0n, 0n, 0n, 0n]);
   });
 
   test('accepts Arrays of booleans', () => {
+    validateSetNullMask(makeTestColumn(4), 4, 0, [true, true, true, true]);
+    validateSetNullMask(makeTestColumn(4), 4, 2, [true, true, false, false]);
     validateSetNullMask(makeTestColumn(4), 4, 4, [false, false, false, false]);
   });
 
