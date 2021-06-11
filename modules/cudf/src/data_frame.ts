@@ -30,11 +30,13 @@ import {
   DataType,
   Float32,
   Float64,
+  FloatingPoint,
   IndexType,
   Int16,
   Int32,
   Int64,
   Int8,
+  Integral,
   Uint16,
   Uint32,
   Uint64,
@@ -1587,25 +1589,33 @@ export class DataFrame<T extends TypeMap = any> {
   sum<P extends keyof T>(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource) {
     subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const containsIntType   = subset.some((name) => {
+      return (
+        [new Int8, new Int16, new Int32, new Int64].some(t => this.get(name).type.compareTo(t)));
+    });
+    const containsUintType  = subset.some((name) => {
+      return ([new Uint8, new Uint16, new Uint32, new Uint64].some(
+        t => this.get(name).type.compareTo(t)));
+    });
     const containsFloatType = subset.some((name) => {
       return ([new Float32, new Float64].some(t => this.get(name).type.compareTo(t)));
     });
-    const containsIntType   = subset.some((name) => {
-      return (
-        [new Int64, new Uint64, new Int8, new Int16, new Int32, new Uint8, new Uint16, new Uint32]
-          .some(t => this.get(name).type.compareTo(t)));
-    });
-    if (!containsFloatType && !containsIntType) {
+    if (!containsIntType && !containsUintType && !containsFloatType) {
       throw new Error('Unable to calculate sum on Dataframe containing non-numeric Series types.');
     }
-    // containsFloatType XOR containsIntType
-    if (!(containsFloatType ? !containsIntType : containsIntType)) {
+    // (containsIntType || containsUintType) XOR containsFloatType
+    if (!((containsIntType || containsUintType) ? !containsFloatType : containsFloatType)) {
       throw new Error(
-        'Dataframe contains Series types of both Float and Int. Unable to calculate sum without information loss.');
+        'Dataframe contains Series types of both Float and Int/Uint. Unable to calculate sum without information loss.');
     }
     const sums =
       subset.map((name) => { return (this.get(name) as any).sum(skipna, memoryResource); });
-    return Series.new(sums) as Series<T[P]>;
+    return Series.new({
+      type: containsIntType    ? new Int64
+            : containsUintType ? new Uint64
+                               : new Float64,
+      data: sums
+    }) as Series < T[P] extends(Integral | FloatingPoint) ? T[P] : never > ;
   }
 
   /**
