@@ -103,7 +103,7 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([true, false, true])
    *
-   * a.cumprod() // {1n, 1n, 2n}
+   * a.cumprod() // {1n, 0n, 0n}
    * ```
    */
   cumprod(skipna = true, memoryResource?: MemoryResource) {
@@ -125,7 +125,7 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([true, false, true])
    *
-   * a.cumsum() // {1n, 0n, 0n}
+   * a.cumsum() // {1n, 1n, 2n}
    * ```
    */
   cumsum(skipna = true, memoryResource?: MemoryResource) {
