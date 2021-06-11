@@ -17,23 +17,23 @@
 #include <node_cudf/scalar.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 
-#include <cudf/stream_compaction.hpp>
-
 #include <node_rmm/device_buffer.hpp>
 
 #include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
-
-#include <napi.h>
 
 #include <cudf/aggregation.hpp>
 #include <cudf/binaryop.hpp>
 #include <cudf/column/column_view.hpp>
 #include <cudf/copying.hpp>
 #include <cudf/replace.hpp>
+#include <cudf/stream_compaction.hpp>
 #include <cudf/types.hpp>
 #include <cudf/unary.hpp>
+
 #include <rmm/device_buffer.hpp>
+
+#include <napi.h>
 
 namespace nv {
 
@@ -703,10 +703,8 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value gather(Napi::CallbackInfo const& info);
 
   Napi::Value get_child(Napi::CallbackInfo const& info);
-  // Napi::Value set_child(Napi::CallbackInfo const& info);
 
   Napi::Value get_value(Napi::CallbackInfo const& info);
-  // Napi::Value set_value(Napi::CallbackInfo const& info);
 
   void set_null_mask(Napi::CallbackInfo const& info);
   void set_null_count(Napi::CallbackInfo const& info);
