@@ -36,7 +36,7 @@ export type UMAPParams = {
   initialAlpha?: number,
   init?: number,
   targetNNeighbors?: number,
-  targetMetric?: MetricType,
+  targetMetric?: keyof typeof MetricType,
   targetWeight?: number,
   randomState?: number,
 };

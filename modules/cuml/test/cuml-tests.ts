@@ -1,5 +1,5 @@
 import {DataFrame} from '@rapidsai/cudf';
-import {MetricType, trustworthinessDF, UMAP} from '@rapidsai/cuml';
+import {trustworthinessDF, UMAP} from '@rapidsai/cuml';
 
 const df = DataFrame.readCSV({
   header: 0,
@@ -22,7 +22,7 @@ test('fit_transform trustworthiness score', () => {
     minDist: 0.01,
     randomState: 12,
     targetNNeighbors: -1,
-    targetMetric: MetricType.CATEGORICAL
+    targetMetric: 'CATEGORICAL'
   });
   const t1    = umap.fitTransformDF(X, y, true);
   const trust = trustworthinessDF(X, t1, 10);
@@ -38,7 +38,7 @@ test('transform trustworthiness score', () => {
     init: 0,
     randomState: 42,
     targetNNeighbors: -1,
-    targetMetric: MetricType.CATEGORICAL
+    targetMetric: 'CATEGORICAL'
   });
   umap.fitDF(X, y, true);
   const t1    = umap.transformDF(X, true, 'dataframe');
