@@ -793,11 +793,3 @@ test(`DataFrame.dropDuplicates("first", true, true, ['a'])`, () => {
   expect([...result.get('a')]).toEqual([null, 1, 3, 4]);
   expect([...result.get('b')]).toEqual([null, 5, 8, 2]);
 });
-
-test(`DataFrame.interleaveColumns`, () => {
-  const df       = new DataFrame({a: Series.new([1, 2, 3]), b: Series.new([4, 5, 6])});
-  const expected = [1, 4, 2, 5, 3, 6];
-  expect([...df.interleaveColumns()]).toEqual(expected);
-  const expectedType = new Float64;
-  expect(expectedType.compareTo(df.interleaveColumns().type)).toBe(true);
-});
