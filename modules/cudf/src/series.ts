@@ -477,7 +477,8 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([true, true, true]).fill(false, 1) // [true, false, false]
    * ```
    */
-  fill(value: T, begin = 0, end = this.length, memoryResource?: MemoryResource): Series<T> {
+  fill(value: T['scalarType'], begin = 0, end = this.length, memoryResource?: MemoryResource):
+    Series<T> {
     return Series.new(
       this._col.fill(new Scalar({type: this.type, value}), begin, end, memoryResource));
   }
@@ -501,7 +502,7 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([true, true, true]).fillInPlace(false, 1) // [true, false, false]
    * ```
    */
-  fillInPlace(value: T, begin = 0, end = this.length) {
+  fillInPlace(value: T['scalarType'], begin = 0, end = this.length) {
     this._col.fillInPlace(new Scalar({type: this.type, value}), begin, end);
     return this;
   }
