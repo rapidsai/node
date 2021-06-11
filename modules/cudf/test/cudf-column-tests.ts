@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
+import {
+  DeviceMemory,
+  Float32Buffer,
+  Int32Buffer,
+  setDefaultAllocator,
+  Uint8Buffer
+} from '@nvidia/cuda';
 import {Bool8, Column, Float32, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import {BoolVector} from 'apache-arrow';
@@ -142,4 +148,70 @@ test('Column.nansToNulls', () => {
 
   const expected = [1, 3, null, 4, 2, 0];
   expect([...Series.new(result)]).toEqual(expected);
+});
+
+describe('Column.setNullMask', () => {
+  const arange = (length: number) => Array.from({length}, (_, i) => i);
+  const makeTestColumn            = (length: number) =>
+    new Column({type: new Int32, length, data: arange(length)});
+
+  const validateSetNullMask = (col: Column, length: number, expectedNullCount: number, newNullMask: any, ...args: [any?]) => {
+    expect(col.length).toBe(length);
+    expect(col.nullCount).toBe(0);
+
+    col.setNullMask(newNullMask, ...args);
+
+    expect(col.length).toBe(length);
+    expect(col.nullCount).toBe(expectedNullCount);
+    expect(col.hasNulls).toBe(expectedNullCount > 0);
+    expect(col.nullable).toBe(newNullMask != null);
+    if (newNullMask == null) {
+      expect(col.mask.byteLength).toBe(0);
+    } else {
+      expect(col.mask.byteLength).toBe((((length >> 3) + 63) & ~63) || 64);
+    }
+  };
+
+  test('recomputes nullCount (all null)',
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(64)); });
+
+  test('recomputes nullCount (all valid)',
+       () => { validateSetNullMask(makeTestColumn(4), 4, 0, new Uint8Buffer(8).fill(255)); });
+
+  test('uses the new nullCount',
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(8), 4); });
+
+  test('clamps the new nullCount to length',
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(8), 8); });
+
+  test('resizes when mask is smaller than 64 bytes',
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(4)); });
+
+  test('Passing null resets to all valid',
+       () => { validateSetNullMask(makeTestColumn(4), 4, 0, null); });
+
+  test('accepts Arrays of numbers', () => {
+    validateSetNullMask(makeTestColumn(4), 4, 0, [1, 1, 1, 1]);
+    validateSetNullMask(makeTestColumn(4), 4, 2, [1, 1, 0, 0]);
+    validateSetNullMask(makeTestColumn(4), 4, 4, [0, 0, 0, 0]);
+  });
+
+  test('accepts Arrays of bigints', () => {
+    validateSetNullMask(makeTestColumn(4), 4, 0, [1n, 1n, 1n, 1n]);
+    validateSetNullMask(makeTestColumn(4), 4, 2, [1n, 1n, 0n, 0n]);
+    validateSetNullMask(makeTestColumn(4), 4, 4, [0n, 0n, 0n, 0n]);
+  });
+
+  test('accepts Arrays of booleans', () => {
+    validateSetNullMask(makeTestColumn(4), 4, 0, [true, true, true, true]);
+    validateSetNullMask(makeTestColumn(4), 4, 2, [true, true, false, false]);
+    validateSetNullMask(makeTestColumn(4), 4, 4, [false, false, false, false]);
+  });
+
+  test('accepts CUDA DeviceMemory',
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceMemory(8)); });
+
+  test(
+    'accepts CUDA MemoryView of DeviceMemory',
+    () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(new DeviceMemory(8))); });
 });

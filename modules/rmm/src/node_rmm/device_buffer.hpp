@@ -171,6 +171,8 @@ struct DeviceBuffer : public EnvLocalObjectWrap<DeviceBuffer> {
     return buffer_.get() != nullptr ? buffer_->stream() : rmm::cuda_stream_default;
   }
 
+  void resize(std::size_t new_size, rmm::cuda_stream_view stream = rmm::cuda_stream_view{});
+
   inline rmm::mr::device_memory_resource* get_mr() const { return *mr_.Value(); }
 
   // convert to void*

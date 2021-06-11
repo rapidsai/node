@@ -156,13 +156,18 @@ Napi::Value DeviceBuffer::ptr(Napi::CallbackInfo const& info) {
   return Napi::Number::New(info.Env(), reinterpret_cast<uintptr_t>(data()));
 }
 
+void DeviceBuffer::resize(std::size_t new_size, rmm::cuda_stream_view stream) {
+  if (buffer_.get() != nullptr) {
+    auto const prev = capacity();
+    buffer_->resize(std::max(new_size, 0uL), stream);
+    Napi::MemoryManagement::AdjustExternalMemory(Env(), capacity() - prev);
+  }
+}
+
 void DeviceBuffer::resize(Napi::CallbackInfo const& info) {
-  if (buffer_.get() != nullptr && info[0].IsNumber()) {
-    auto const prev   = capacity();
-    auto const size   = info[0].ToNumber().Int64Value();
-    auto const stream = info[1].ToNumber().Int64Value();
-    buffer_->resize(std::max(size, 0L), reinterpret_cast<cudaStream_t>(stream));
-    Napi::MemoryManagement::AdjustExternalMemory(info.Env(), capacity() - prev);
+  if (info[0].IsNumber()) {
+    resize(info[0].ToNumber().Int64Value(),
+           rmm::cuda_stream_view{reinterpret_cast<cudaStream_t>(info[1].ToNumber().Int64Value())});
   }
 }
 

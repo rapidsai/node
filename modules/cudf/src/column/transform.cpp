@@ -45,7 +45,8 @@ Napi::Value Column::nans_to_nulls(Napi::CallbackInfo const& info) {
     }(col->mutable_view());
 
     col->set_null_mask(DeviceBuffer::New(info.Env(), std::move(result.first)),
-                       null_count() + result.second);
+                       null_count() == cudf::UNKNOWN_NULL_COUNT ? cudf::UNKNOWN_NULL_COUNT
+                                                                : null_count() + result.second);
 
     return col;
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }

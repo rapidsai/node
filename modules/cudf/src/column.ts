@@ -155,7 +155,7 @@ export interface Column<T extends DataType = any> {
    * @param nullCount The number of null values. If None, it is calculated
    * automatically.
    */
-  setNullMask(mask: DeviceBuffer, nullCount?: number): void;
+  setNullMask(mask: MemoryData|ArrayLike<number>|ArrayLike<bigint>, nullCount?: number): void;
 
   /**
    * Fills a range of elements in a column out-of-place with a scalar value.
