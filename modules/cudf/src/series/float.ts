@@ -18,7 +18,7 @@ import {MemoryResource} from '@rapidsai/rmm';
 import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
-import {Float32, Float64, FloatingPoint} from '../types/dtypes';
+import {Bool8, Float32, Float64, FloatingPoint, Int32} from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
 
@@ -162,10 +162,23 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   }
 
   protected _prepare_scan_series(skipna: boolean) {
-    if (skipna) { return this.nansToNulls(); }
+    const data = this.nansToNulls();
 
-    // TODO: skipna=false
-    return this;
+    if (skipna) { return data; }
+
+    if (!data.hasNulls) { return data; }
+
+    const index = Series.sequence({type: new Int32, size: data.length, step: 1, init: 0});
+
+    const first = index.filter(data.isNull()).getValue(0)!;
+    const slice =
+      Series.sequence({type: new Int32, size: data.length - first, step: 1, init: first});
+
+    const copy = data.cast(data.type);
+    const mask = [...index.cast(new Bool8).fill(true).scatter(false, slice)];
+    copy.setNullMask(mask as any);
+
+    return copy;
   }
 
   /**

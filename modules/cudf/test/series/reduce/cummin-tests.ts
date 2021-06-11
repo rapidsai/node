@@ -58,7 +58,7 @@ function testBooleanAny<T extends Bool8>(type: T, data: (T['scalarType']|null)[]
   expect([...Series.new({type, data}).cummin(skipna)]).toEqual(expected);
 }
 
-describe.each([[true]])('Series.cumsum(skipna=%p)', (skipna) => {
+describe.each([[true], [false]])('Series.cummin(skipna=%p)', (skipna) => {
   test('Int8', () => { testNumberAny(new Int8, numbers, skipna); });
   test('Int16', () => { testNumberAny(new Int16, numbers, skipna); });
   test('Int32', () => { testNumberAny(new Int32, numbers, skipna); });
@@ -70,6 +70,6 @@ describe.each([[true]])('Series.cumsum(skipna=%p)', (skipna) => {
   test('Float32', () => { testNumberAny(new Float32, numbers, skipna); });
   test('Float64', () => { testNumberAny(new Float64, numbers, skipna); });
   test('Bool8', () => { testBooleanAny(new Bool8, bools, skipna); });
-  test('Float32', () => { testNumberAny(new Float32, float_with_NaN, skipna); });
-  test('Float64', () => { testNumberAny(new Float64, float_with_NaN, skipna); });
+  test('Float32-nan', () => { testNumberAny(new Float32, float_with_NaN, skipna); });
+  test('Float64-nan', () => { testNumberAny(new Float64, float_with_NaN, skipna); });
 });

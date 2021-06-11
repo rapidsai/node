@@ -28,6 +28,7 @@ import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
 import {
+  Bool8,
   Int16,
   Int32,
   Int64,
@@ -192,10 +193,19 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
   }
 
   protected _prepare_scan_series(skipna: boolean) {
-    if (skipna) { return this; }
+    if (skipna || !this.hasNulls) { return this; }
 
-    // TODO: skipna=false
-    return this;
+    const index = Series.sequence({type: new Int32, size: this.length, step: 1, init: 0});
+
+    const first = index.filter(this.isNull()).getValue(0)!;
+    const slice =
+      Series.sequence({type: new Int32, size: this.length - first, step: 1, init: first});
+
+    const copy = this.cast(this.type);
+    const mask = [...index.cast(new Bool8).fill(true).scatter(false, slice)];
+    copy.setNullMask(mask as any);
+
+    return copy;
   }
 
   /**
@@ -215,7 +225,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cummax(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna);
+    const result_series = this._prepare_scan_series(skipna) as any;
     return Series.new(result_series._col.cummax(memoryResource));
   }
 
@@ -236,7 +246,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cummin(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna);
+    const result_series = this._prepare_scan_series(skipna) as any;
     return Series.new(result_series._col.cummin(memoryResource));
   }
 
@@ -258,7 +268,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cumprod(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna);
+    const result_series = this._prepare_scan_series(skipna) as any;
     return Series.new(result_series._col.cumprod(memoryResource));
   }
 
@@ -280,7 +290,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cumsum(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna);
+    const result_series = this._prepare_scan_series(skipna) as any;
     return Series.new(result_series._col.cumsum(memoryResource));
   }
 }
