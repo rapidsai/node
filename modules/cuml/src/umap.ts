@@ -25,7 +25,7 @@ type returnType = 'dataframe'|'series'|'devicebuffer';
 export type returnTypeMap<T extends returnType, R extends Numeric> = {
   'dataframe': DataFrame<{[P in number]: R}>,
   'series': Series<R>,
-  'devicebuffer': MemoryData
+  'devicebuffer': MemoryData|DeviceBuffer
 }[T];
 
 export class UMAP {
