@@ -686,43 +686,6 @@ describe('dataframe unaryops', () => {
   });
 });
 
-describe('dataframe.sum', () => {
-  test('int sum', () => {
-    const a  = Series.new({type: new Int32, data: [1, 2, 3]});
-    const b  = Series.new({type: new Int32, data: [4, 5, 6]});
-    const df = new DataFrame({'a': a, 'b': b});
-
-    expect([...df.sum()]).toEqual([6n, 15n]);
-  });
-
-  test('empty dataframe', () => {
-    const df = new DataFrame({'a': Series.new([]), 'b': Series.new([])});
-    expect([...df.sum()]).toEqual([null, null]);
-  });
-
-  test('skip na is false', () => {
-    const df = new DataFrame({'a': Series.new([NaN, 1.5, NaN]), 'b': Series.new([4.5, 5.5, 6.5])});
-    expect([...df.sum(undefined, false)]).toEqual([NaN, 16.5]);
-  });
-
-  test('subset', () => {
-    const df = new DataFrame({'a': Series.new([1, 2, 3]), 'b': Series.new([4.5, 5.5, 6.5])});
-    expect([...df.sum(['a'])]).toEqual([6]);
-  });
-
-  test('throws if dataframe contains incompatiable types', () => {
-    const df = new DataFrame({'a': Series.new(['foo', 'bar']), 'b': Series.new([4.5, 5.5])});
-    expect(() => df.sum()).toThrow();
-  });
-
-  test('throws if dataframe contains float and int types', () => {
-    const a  = Series.new({type: new Int32, data: [1, 2]});
-    const b  = Series.new({type: new Float32, data: [1.5, 2.5]});
-    const df = new DataFrame({'a': a, 'b': b});
-    expect(() => df.sum()).toThrow();
-  });
-});
-
 test('dataframe.nansToNulls', () => {
   const a  = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]});
   const b  = Series.new({type: new Float32, data: new Float32Buffer([0, NaN, 3, 5, 5, 6])});
