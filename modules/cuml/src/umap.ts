@@ -118,12 +118,12 @@ export class UMAP {
     X: Series<T>,
     y: null|Series<Numeric>,
     convertDType: boolean,
-    ): returnTypeMap<'dataframe', T>;
+    ): returnTypeMap<'series', T>;
 
   fitTransformSeries(X: Series<Numeric>,
                      y: null|Series<Numeric>,
                      convertDType: boolean,
-                     returnType: returnType = 'dataframe') {
+                     returnType: returnType = 'series') {
     const n_samples = X.length;
     this.fitSeries(X, y, convertDType);
     return this._process_embeddings(this._embeddings, n_samples, returnType);
@@ -163,11 +163,11 @@ export class UMAP {
                                                            returnType: R): returnTypeMap<R, T>;
 
   transformSeries<T extends Numeric>(X: Series<T>,
-                                     convertDType: boolean): returnTypeMap<'dataframe', T>;
+                                     convertDType: boolean): returnTypeMap<'series', T>;
 
   transformSeries<T extends Numeric>(X: Series<T>,
                                      convertDType: boolean,
-                                     returnType: returnType = 'dataframe') {
+                                     returnType: returnType = 'series') {
     const n_samples  = X.length;
     const n_features = 1;
     const embeddings = this._generate_embeddings(n_samples);
