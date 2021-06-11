@@ -1,5 +1,5 @@
-const {UMAP, trustworthiness, MetricType, CUMLLogLevels} = require('@rapidsai/cuml');
-const {DataFrame}                                        = require('@rapidsai/cudf');
+import {DataFrame} from '@rapidsai/cudf';
+import {MetricType, trustworthinessDF, UMAP} from '@rapidsai/cuml';
 
 const df = DataFrame.readCSV({
   header: 0,
@@ -24,8 +24,8 @@ test('fit_transform trustworthiness score', () => {
     targetNNeighbors: -1,
     targetMetric: MetricType.CATEGORICAL
   });
-  const t1    = umap.fit_transform(X, y, true);
-  const trust = trustworthiness(X, t1, 10);
+  const t1    = umap.fitTransformDF(X, y, true);
+  const trust = trustworthinessDF(X, t1, 10);
 
   expect(trust).toBeGreaterThan(0.97);
 });
@@ -40,9 +40,9 @@ test('transform trustworthiness score', () => {
     targetNNeighbors: -1,
     targetMetric: MetricType.CATEGORICAL
   });
-  umap.fit(X, y, true);
-  const t1    = umap.transform(X, true);
-  const score = trustworthiness(X, t1, 10);
+  umap.fitDF(X, y, true);
+  const t1    = umap.transformDF(X, true, 'dataframe');
+  const score = trustworthinessDF(X, t1, 10);
 
   expect(score).toBeGreaterThan(0.97);
 });

@@ -1,4 +1,6 @@
+import {MemoryData} from '@nvidia/cuda';
 import {DeviceBuffer} from '@rapidsai/rmm';
+
 import {CUML} from './addon';
 import {CUMLLogLevels, MetricType} from './mappings';
 
@@ -51,23 +53,22 @@ export interface UMAPInterface {
   readonly targetWeight: number;
   readonly randomState: number;
 
-  fit(X: DeviceBuffer,
+  fit(X: MemoryData|DeviceBuffer,
       n_samples: number,
       n_features: number,
-      y: DeviceBuffer|null,
+      y: MemoryData|DeviceBuffer|null,
       knnIndices: DeviceBuffer|null,
       knnDists: DeviceBuffer|null,
       convertDType: boolean,
-      embeddings: DeviceBuffer): DeviceBuffer;
+      embeddings: MemoryData|DeviceBuffer): DeviceBuffer;
 
-  transform(X: DeviceBuffer,
+  transform(X: MemoryData|DeviceBuffer,
             n_samples: number,
             n_features: number,
-            knnIndices: DeviceBuffer|null,
-            knnDists: DeviceBuffer|null,
+            knnIndices: MemoryData|DeviceBuffer|null,
+            knnDists: MemoryData|DeviceBuffer|null,
             convertDType: boolean,
-            embeddings: DeviceBuffer,
-            transformed: DeviceBuffer): DeviceBuffer;
+            embeddings: MemoryData|DeviceBuffer,
+            transformed: MemoryData|DeviceBuffer): DeviceBuffer;
 }
-
 export const UMAPBase: UMAPConstructor = CUML.UMAP;
