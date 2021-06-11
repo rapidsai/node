@@ -31,7 +31,7 @@ export function trustworthinessSeries<T extends Numeric, R extends Numeric>(
   const n_samples  = X.length;
   const n_features = 1;
 
-  const n_components = (embedded instanceof Series) ? 1 : embedded.numColumns;
+  const n_components = 1;
 
   return CUML.trustworthiness(X.data.buffer,
                               embedded.data.buffer,
@@ -50,7 +50,7 @@ export function trustworthinessDF<T extends Numeric, R extends Numeric, K extend
   const n_samples  = X.numRows;
   const n_features = X.numColumns;
 
-  const n_components = (embedded instanceof Series) ? 1 : embedded.numColumns;
+  const n_components = embedded.numColumns;
 
   return CUML.trustworthiness(dataframe_to_series(X).data.buffer,
                               dataframe_to_series(embedded).data.buffer,
