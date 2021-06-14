@@ -63,7 +63,7 @@ export class UMAP {
    * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
    */
   fitSeries(X: Series<Numeric>, y: null|Series<Numeric>, convertDType: boolean, nFeatures = 1) {
-    const nSamples   = X.length;
+    const nSamples   = Math.floor(X.length / nFeatures);
     this._embeddings = this._generate_embeddings(nSamples);
     let options      = {
       X: X.data.buffer,
@@ -172,7 +172,7 @@ export class UMAP {
                      convertDType: boolean,
                      nFeatures              = 1,
                      returnType: returnType = 'series') {
-    const nSamples = X.length;
+    const nSamples = Math.floor(X.length / nFeatures);
     this.fitSeries(X, y, convertDType, nFeatures);
     return this._process_embeddings(this._embeddings, nSamples, returnType);
   }
