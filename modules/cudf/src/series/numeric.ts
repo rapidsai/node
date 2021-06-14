@@ -1408,6 +1408,82 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   }
 
   /**
+   * Return Fisher’s unbiased kurtosis of a sample.
+   * Kurtosis obtained using Fisher’s definition of kurtosis (kurtosis of normal == 0.0). Normalized
+   * by N-1.
+   *
+   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The unbiased kurtosis of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 2, 3, 4]);
+   *
+   * a.kurtosis() // -1.1999999999999904
+   * ```
+   */
+  kurtosis(skipna = true, memoryResource?: MemoryResource) {
+    if (this.length == 0 || (this.hasNulls && !skipna)) { return NaN; }
+
+    const data = this._process_reduction(skipna, memoryResource);
+
+    const n = data.length;
+    if (n < 4) { return NaN; }
+
+    const V = data.var(skipna, 1, memoryResource);  // ddof = 1
+    if (V == 0) { return 0; }
+
+    const mu = data.mean(skipna, memoryResource);
+
+    const m4 =
+      Number(data.sub(mu, memoryResource).pow(4, memoryResource).sum(skipna, memoryResource)) /
+      (V ** 2);
+
+    // This is modeled after the cudf kurtosis implementation, it would be
+    // nice to be able to point to a reference for this specific formula
+    const a = (n * (n + 1)) / ((n - 1) * (n - 2) * (n - 3)) * m4;
+    const b = ((n - 1) ** 2) / ((n - 2) * (n - 3));
+
+    return a - 3 * b;
+  }
+
+  /**
+   * Return unbiased Fisher-Pearson skew of a sample.
+   *
+   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The unbiased skew of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 2, 3, 4, 5, 6, 6]);
+   *
+   * a.skew() // -0.288195490292614
+   * ```
+   */
+  skew(skipna = true, memoryResource?: MemoryResource) {
+    if (this.length == 0 || (this.hasNulls && !skipna)) { return NaN; }
+
+    const data = this._process_reduction(skipna, memoryResource);
+
+    const n = data.length;
+    if (data.length < 3) { return NaN; }
+
+    const V = data.var(skipna, 0, memoryResource);  // ddof = 0
+    if (V == 0) { return 0; }
+
+    const mu = data.mean(skipna, memoryResource);
+
+    const m3 =
+      Number(data.sub(mu, memoryResource).pow(3, memoryResource).sum(skipna, memoryResource)) / n;
+
+    return ((n * (n - 1)) ** 0.5) / (n - 2) * m3 / (V ** (3 / 2));
+  }
+
+  /**
    * Return sample standard deviation of the Series.
    * Normalized by N-1 by default. This can be changed using the `ddof` argument
    *
@@ -1494,9 +1570,9 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * Return whether any elements are true in Series.
    *
    * @param skipna bool
-   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
-   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
-   * these are not equal to zero.
+   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result
+   * will be true, as for an empty row/column. If skipna is false, then NA are treated as true,
+   * because these are not equal to zero.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    *
