@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {MemoryData} from '@nvidia/cuda';
-import {DataFrame, Float32, Float64, Numeric, Series} from '@rapidsai/cudf';
+import {DataFrame, Float32, Numeric, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {CUMLLogLevels, MetricType} from './mappings';
@@ -123,14 +123,14 @@ export class UMAP {
 
     let options = {
       X: X,
-      XType: new Float64,
+      XType: new Float32,
       nSamples: nSamples,
       nFeatures: nFeatures,
       convertDType: convertDType,
       embeddings: this._embeddings
     };
     if (y !== null) {
-      options = {...options, ...{ y: y, yType: new Float64 }};
+      options = {...options, ...{ y: y, yType: new Float32 }};
     }
     this._embeddings = this._umap.fit(options);
   }
@@ -303,7 +303,9 @@ export class UMAP {
                                                    convertDType: boolean):
     returnTypeMap<'dataframe', T>;
 
-  transformDF(X: any, convertDType: boolean, returnType: returnType = 'dataframe') {
+  transformDF<T extends Numeric, K extends string>(X: DataFrame<{[P in K]: T}>,
+                                                   convertDType: boolean,
+                                                   returnType: returnType = 'dataframe') {
     const nSamples   = X.numRows;
     const nFeatures  = X.numColumns;
     const embeddings = this._generate_embeddings(nSamples);
@@ -338,7 +340,7 @@ export class UMAP {
 
     const result = this._umap.transform({
       X: X,
-      XType: new Float64,
+      XType: new Float32,
       nSamples: nSamples,
       nFeatures: nFeatures,
       convertDType: convertDType,

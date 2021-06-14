@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, Float64, Numeric, Series} from '@rapidsai/cudf';
+import {DataFrame, Float32, Numeric, Series} from '@rapidsai/cudf';
 
 import {CUML} from './addon';
 import {dataframeToSeries} from './utilities/array_utils';
@@ -22,16 +22,20 @@ import {dataframeToSeries} from './utilities/array_utils';
  * the range [0, 1].
  * @param X original high dimensional dataset
  * @param embedded low dimesional embedding
+ * @param nFeatures Number of features in X
+ * @param nComponents Number of features in embedded
  * @param nNeighbors Number of neighbors considered
  * @param batch_size It sets the number of samples that will be included in each batch
  * @returns Trustworthiness of the low-dimensional embedding
  */
 export function trustworthinessSeries<T extends Numeric, R extends Numeric>(
-  X: Series<T>, embedded: Series<R>, nNeighbors = 5, batch_size = 512): number {
-  const nSamples  = X.length;
-  const nFeatures = 1;
-
-  const nComponents = 1;
+  X: Series<T>,
+  embedded: Series<R>,
+  nFeatures: number,
+  nComponents = 2,
+  nNeighbors  = 5,
+  batch_size  = 512): number {
+  const nSamples = Math.floor(X.length / nFeatures);
 
   return CUML.trustworthiness(X.data.buffer,
                               X.type,
@@ -79,21 +83,23 @@ export function trustworthinessDF<T extends Numeric, R extends Numeric, K extend
  * the range [0, 1].
  * @param X original high dimensional dataset
  * @param embedded low dimesional embedding
+ * @param nFeatures Number of features in X
+ * @param nComponents Number of features in embedded
  * @param nNeighbors Number of neighbors considered
  * @param batch_size It sets the number of samples that will be included in each batch
  * @returns Trustworthiness of the low-dimensional embedding
  */
 export function trustworthiness(X: number[],
                                 embedded: number[],
-                                nSamples: number,
                                 nFeatures: number,
                                 nComponents = 2,
                                 nNeighbors  = 5,
                                 batch_size  = 512): number {
+  const nSamples = Math.floor(X.length / nFeatures);
   return CUML.trustworthiness(X,
-                              new Float64,
+                              new Float32,
                               embedded,
-                              new Float64,
+                              new Float32,
                               nSamples,
                               nFeatures,
                               nComponents,
