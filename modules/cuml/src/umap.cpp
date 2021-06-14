@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <node_cuda/utilities/error.hpp>
+#include <node_cudf/utilities/buffer.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
 #include <node_rmm/device_buffer.hpp>
 
@@ -94,8 +95,6 @@ UMAP::UMAP(CallbackArgs const& args) : EnvLocalObjectWrap<UMAP>(args) {
   auto env = args.Env();
   raft::handle_t handle;
   NODE_CUDA_EXPECT(args.IsConstructCall(), "UMAP constructor requires 'new'", env);
-  // NODE_CUDA_EXPECT(args[0].IsObject(), "UMAP constructor requires a properties Object",
-  // env);
   this->params_ = update_params(args[0]);
   ML::UMAP::find_ab(handle, &this->params_);
   this->embeddings_ = DeviceBuffer::wrapper_t();
@@ -145,52 +144,65 @@ void UMAP::transform(float* X,
 
 Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
+  NODE_CUDF_EXPECT(
+    args[0].IsObject(), "fit constructor expects an Object of properties", args.Env());
 
-  DeviceBuffer::wrapper_t X = args[0];
-  DeviceBuffer::wrapper_t y = DeviceBuffer::IsInstance(args[3]) ? DeviceBuffer::wrapper_t(args[3])
-                                                                : DeviceBuffer::New(args.Env());
-  DeviceBuffer::wrapper_t knn_indices = DeviceBuffer::IsInstance(args[4])
-                                          ? DeviceBuffer::wrapper_t(args[4])
-                                          : DeviceBuffer::New(args.Env());
-  DeviceBuffer::wrapper_t knn_dists   = DeviceBuffer::IsInstance(args[5])
-                                          ? DeviceBuffer::wrapper_t(args[5])
-                                          : DeviceBuffer::New(args.Env());
+  NapiToCPP::Object props = args[0];
 
-  DeviceBuffer::wrapper_t embeddings = args[7];
+  DeviceBuffer::wrapper_t X = data_to_devicebuffer(args.Env(), props.Get("X"), props.Get("XType"));
+  DeviceBuffer::wrapper_t y =
+    props.Has("y") ? data_to_devicebuffer(args.Env(), props.Get("y"), props.Get("XType"))
+                   : DeviceBuffer::New(args.Env());
+  DeviceBuffer::wrapper_t knn_indices =
+    props.Has("knnIndices")
+      ? data_to_devicebuffer(args.Env(), props.Get("knnIndices"), props.Get("knnIndicesType"))
+      : DeviceBuffer::New(args.Env());
+  DeviceBuffer::wrapper_t knn_dists =
+    props.Has("knnDists")
+      ? data_to_devicebuffer(args.Env(), props.Get("knnDists"), props.Get("knnDistsType"))
+      : DeviceBuffer::New(args.Env());
+
+  DeviceBuffer::wrapper_t embeddings = props.Get("embeddings");
 
   fit(static_cast<float*>(X->data()),
-      args[1],
-      args[2],
+      props.Get("nSamples"),
+      props.Get("nFeatures"),
       static_cast<float*>(y->data()),
       static_cast<int64_t*>(knn_indices->data()),
       static_cast<float*>(knn_dists->data()),
-      args[6],
+      props.Get("convertDType"),
       static_cast<float*>(embeddings->data()));
 
   return embeddings;
 }
 
-Napi::Value UMAP::transform(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
+Napi::Value UMAP::transform(Napi::CallbackInfo const& args) {
+  NODE_CUDF_EXPECT(
+    args[0].IsObject(), "transform constructor expects an Object of properties", args.Env());
 
-  DeviceBuffer::wrapper_t X           = args[0];
-  DeviceBuffer::wrapper_t knn_indices = DeviceBuffer::IsInstance(args[3])
-                                          ? DeviceBuffer::wrapper_t(args[3])
-                                          : DeviceBuffer::New(args.Env());
-  DeviceBuffer::wrapper_t knn_dists   = DeviceBuffer::IsInstance(args[4])
-                                          ? DeviceBuffer::wrapper_t(args[4])
-                                          : DeviceBuffer::New(args.Env());
-  DeviceBuffer::wrapper_t embeddings  = args[6];
-  DeviceBuffer::wrapper_t transformed = args[7];
+  NapiToCPP::Object props = args[0];
+
+  DeviceBuffer::wrapper_t X = data_to_devicebuffer(args.Env(), props.Get("X"), props.Get("XType"));
+  DeviceBuffer::wrapper_t knn_indices =
+    props.Has("knnIndices")
+      ? data_to_devicebuffer(args.Env(), props.Get("knnIndices"), props.Get("knnIndicesType"))
+      : DeviceBuffer::New(args.Env());
+  DeviceBuffer::wrapper_t knn_dists =
+    props.Has("knnDists")
+      ? data_to_devicebuffer(args.Env(), props.Get("knnDists"), props.Get("knnDistsType"))
+      : DeviceBuffer::New(args.Env());
+
+  DeviceBuffer::wrapper_t embeddings  = props.Get("embeddings");
+  DeviceBuffer::wrapper_t transformed = props.Get("transformed");
 
   transform(static_cast<float*>(X->data()),
-            args[1],
-            args[2],
+            props.Get("nSamples"),
+            props.Get("nFeatures"),
             static_cast<int64_t*>(knn_indices->data()),
             static_cast<float*>(knn_dists->data()),
             static_cast<float*>(X->data()),
-            args[1],
-            args[5],
+            props.Get("nSamples"),
+            props.Get("convertDType"),
             static_cast<float*>(embeddings->data()),
             static_cast<float*>(transformed->data()));
 

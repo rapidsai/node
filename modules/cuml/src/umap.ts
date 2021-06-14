@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import {MemoryData} from '@nvidia/cuda';
-import {DataFrame, Float32, Numeric, Series} from '@rapidsai/cudf';
+import {DataFrame, Float32, Float64, Numeric, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {CUMLLogLevels, MetricType} from './mappings';
 import {UMAPBase, UMAPInterface, UMAPParams} from './umap_base';
-import {dataframe_to_series, series_to_dataframe} from './utilities/array_utils';
+import {dataframeToSeries, seriesToDataframe} from './utilities/array_utils';
 
 type returnType = 'dataframe'|'series'|'devicebuffer';
 
@@ -37,16 +37,16 @@ export class UMAP {
     this._embeddings = new DeviceBuffer();
   }
 
-  protected _generate_embeddings(n_samples: number): MemoryData {
+  protected _generate_embeddings(nSamples: number): MemoryData {
     return Series
-      .sequence({type: new Float32, size: n_samples * this._umap.nComponents, init: 0, step: 0})
+      .sequence({type: new Float32, size: nSamples * this._umap.nComponents, init: 0, step: 0})
       .data.buffer;
   }
 
-  protected _process_embeddings(embeddings: MemoryData, n_samples: number, returnType: returnType) {
+  protected _process_embeddings(embeddings: MemoryData, nSamples: number, returnType: returnType) {
     if (returnType == 'dataframe') {
-      return series_to_dataframe(
-        Series.new({type: new Float32, data: embeddings}), n_samples, this.nComponents);
+      return seriesToDataframe(
+        Series.new({type: new Float32, data: embeddings}), nSamples, this.nComponents);
     } else if (returnType == 'series') {
       return Series.new({type: new Float32, data: embeddings});
     } else {
@@ -62,35 +62,61 @@ export class UMAP {
    *   float32
    */
   fitSeries(X: Series<Numeric>, y: null|Series<Numeric>, convertDType: boolean) {
-    const n_samples  = X.length;
-    const n_features = 1;
-    this._embeddings = this._generate_embeddings(n_samples);
-
-    this._embeddings = this._umap.fit(X.data.buffer,
-                                      n_samples,
-                                      n_features,
-                                      (y == null) ? null : y.data.buffer,
-                                      null,
-                                      null,
-                                      convertDType,
-                                      this._embeddings);
+    const nSamples   = X.length;
+    const nFeatures  = 1;
+    this._embeddings = this._generate_embeddings(nSamples);
+    let options      = {
+      X: X.data.buffer,
+      XType: X.type,
+      nSamples: nSamples,
+      nFeatures: nFeatures,
+      convertDType: convertDType,
+      embeddings: this._embeddings
+    };
+    if (y !== null) {
+      options = {...options, ...{ y: y.data.buffer, yType: y.type }};
+    }
+    this._embeddings = this._umap.fit(options);
   }
 
   fitDF<T extends Numeric, K extends string>(X: DataFrame<{[P in K]: T}>,
                                              y: null|Series<Numeric>,
                                              convertDType: boolean) {
-    const n_samples  = X.numRows;
-    const n_features = X.numColumns;
-    this._embeddings = this._generate_embeddings(n_samples);
+    const nSamples   = X.numRows;
+    const nFeatures  = X.numColumns;
+    this._embeddings = this._generate_embeddings(nSamples);
 
-    this._embeddings = this._umap.fit(dataframe_to_series(X).data.buffer,
-                                      n_samples,
-                                      n_features,
-                                      (y == null) ? null : y.data.buffer,
-                                      null,
-                                      null,
-                                      convertDType,
-                                      this._embeddings);
+    let options = {
+      X: dataframeToSeries(X).data.buffer,
+      XType: X.get(X.names[0]).type,
+      nSamples: nSamples,
+      nFeatures: nFeatures,
+      convertDType: convertDType,
+      embeddings: this._embeddings
+    };
+    if (y !== null) {
+      options = {...options, ...{ y: y.data.buffer, yType: y.type }};
+    }
+    this._embeddings = this._umap.fit(options);
+  }
+
+  fit(X: number[], y: number[]|null, convertDType: boolean) {
+    const nSamples   = X.length;
+    const nFeatures  = 1;
+    this._embeddings = this._generate_embeddings(nSamples);
+
+    let options = {
+      X: X,
+      XType: new Float64,
+      nSamples: nSamples,
+      nFeatures: nFeatures,
+      convertDType: convertDType,
+      embeddings: this._embeddings
+    };
+    if (y !== null) {
+      options = {...options, ...{ y: y, yType: new Float64 }};
+    }
+    this._embeddings = this._umap.fit(options);
   }
 
   /**
@@ -124,9 +150,9 @@ export class UMAP {
                      y: null|Series<Numeric>,
                      convertDType: boolean,
                      returnType: returnType = 'series') {
-    const n_samples = X.length;
+    const nSamples = X.length;
     this.fitSeries(X, y, convertDType);
-    return this._process_embeddings(this._embeddings, n_samples, returnType);
+    return this._process_embeddings(this._embeddings, nSamples, returnType);
   }
 
   fitTransformDF<T extends Numeric, K extends string, R extends returnType>(
@@ -142,9 +168,9 @@ export class UMAP {
                                                       y: null|Series<Numeric>,
                                                       convertDType: boolean,
                                                       returnType: returnType = 'dataframe') {
-    const n_samples = X.numRows;
+    const nSamples = X.numRows;
     this.fitDF(X, y, convertDType);
-    return this._process_embeddings(this._embeddings, n_samples, returnType);
+    return this._process_embeddings(this._embeddings, nSamples, returnType);
   }
 
   /**
@@ -168,13 +194,20 @@ export class UMAP {
   transformSeries<T extends Numeric>(X: Series<T>,
                                      convertDType: boolean,
                                      returnType: returnType = 'series') {
-    const n_samples  = X.length;
-    const n_features = 1;
-    const embeddings = this._generate_embeddings(n_samples);
+    const nSamples   = X.length;
+    const nFeatures  = 1;
+    const embeddings = this._generate_embeddings(nSamples);
 
-    const result = this._umap.transform(
-      X.data.buffer, n_samples, n_features, null, null, convertDType, this._embeddings, embeddings);
-    return this._process_embeddings(result, n_samples, returnType);
+    const result = this._umap.transform({
+      X: X.data.buffer,
+      XType: X.type,
+      nSamples: nSamples,
+      nFeatures: nFeatures,
+      convertDType: convertDType,
+      embeddings: this._embeddings,
+      transformed: embeddings
+    });
+    return this._process_embeddings(result, nSamples, returnType);
   }
 
   transformDF<T extends Numeric, K extends string, R extends returnType>(
@@ -185,19 +218,20 @@ export class UMAP {
     returnTypeMap<'dataframe', T>;
 
   transformDF(X: any, convertDType: boolean, returnType: returnType = 'dataframe') {
-    const n_samples  = X.numRows;
-    const n_features = X.numColumns;
-    const embeddings = this._generate_embeddings(n_samples);
+    const nSamples   = X.numRows;
+    const nFeatures  = X.numColumns;
+    const embeddings = this._generate_embeddings(nSamples);
 
-    const result = this._umap.transform(dataframe_to_series(X).data.buffer,
-                                        n_samples,
-                                        n_features,
-                                        null,
-                                        null,
-                                        convertDType,
-                                        this._embeddings,
-                                        embeddings);
-    return this._process_embeddings(result, n_samples, returnType);
+    const result = this._umap.transform({
+      X: dataframeToSeries(X).data.buffer,
+      XType: X.get(X.names[0]).type,
+      nSamples: nSamples,
+      nFeatures: nFeatures,
+      convertDType: convertDType,
+      embeddings: this._embeddings,
+      transformed: embeddings
+    });
+    return this._process_embeddings(result, nSamples, returnType);
   }
 
   get embeddings(): Series<Numeric> {

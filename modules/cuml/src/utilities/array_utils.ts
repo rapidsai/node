@@ -23,7 +23,7 @@ import {
  * convert a dataframe to a single series to replicate conversion to a matrix in an organized
  * for {x1,y1,x2,y2...} for df = {x:[x1,x2], y: [y1,y2]}
  */
-export function dataframe_to_series<T extends Numeric, K extends string>(
+export function dataframeToSeries<T extends Numeric, K extends string>(
   input: DataFrame<{[P in K]: T}>): Series<T> {
   return input.interleaveColumns();
 }
@@ -35,7 +35,7 @@ export function dataframe_to_series<T extends Numeric, K extends string>(
  * @param nComponents
  * @returns DataFrame
  */
-export function series_to_dataframe<T extends Numeric>(
+export function seriesToDataframe<T extends Numeric>(
   input: Series<T>, nSamples: number, nComponents: number): DataFrame<{[P in number]: T}> {
   let result = new DataFrame<{[P in number]: T}>({});
   for (let i = 0; i < nComponents; i++) {

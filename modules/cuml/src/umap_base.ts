@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {MemoryData} from '@nvidia/cuda';
+import {Numeric} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {CUML} from './addon';
@@ -41,6 +42,31 @@ export type UMAPParams = {
   randomState?: number,
 };
 
+export type fitProps<T extends Numeric = any, R extends Numeric = any> = {
+  X: MemoryData|DeviceBuffer|T['scalarType'][],
+  XType: T,
+  nSamples: number,
+  nFeatures: number,
+  convertDType: boolean,
+  embeddings: MemoryData|DeviceBuffer,
+  y?: MemoryData|DeviceBuffer|R['scalarType'][],
+  yType?: R,
+  knnIndices?: MemoryData|DeviceBuffer,
+  knnDists?: MemoryData|DeviceBuffer
+};
+
+export type transformProps<T extends Numeric = any> = {
+  X: MemoryData|DeviceBuffer|T['scalarType'][],
+  XType: T,
+  nSamples: number,
+  nFeatures: number,
+  convertDType: boolean,
+  embeddings: MemoryData|DeviceBuffer,
+  transformed: MemoryData|DeviceBuffer,
+  knnIndices?: MemoryData|DeviceBuffer,
+  knnDists?: MemoryData|DeviceBuffer,
+};
+
 interface UMAPConstructor {
   new(options?: UMAPParams): UMAPInterface;
 }
@@ -67,22 +93,8 @@ export interface UMAPInterface {
   readonly targetWeight: number;
   readonly randomState: number;
 
-  fit(X: MemoryData|DeviceBuffer,
-      n_samples: number,
-      n_features: number,
-      y: MemoryData|DeviceBuffer|null,
-      knnIndices: DeviceBuffer|null,
-      knnDists: DeviceBuffer|null,
-      convertDType: boolean,
-      embeddings: MemoryData|DeviceBuffer): DeviceBuffer;
+  fit<T extends Numeric, R extends Numeric>(options?: fitProps<T, R>): DeviceBuffer;
 
-  transform(X: MemoryData|DeviceBuffer,
-            n_samples: number,
-            n_features: number,
-            knnIndices: MemoryData|DeviceBuffer|null,
-            knnDists: MemoryData|DeviceBuffer|null,
-            convertDType: boolean,
-            embeddings: MemoryData|DeviceBuffer,
-            transformed: MemoryData|DeviceBuffer): DeviceBuffer;
+  transform<T extends Numeric>(options?: transformProps<T>): DeviceBuffer;
 }
 export const UMAPBase: UMAPConstructor = CUML.UMAP;
