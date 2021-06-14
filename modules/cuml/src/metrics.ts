@@ -44,6 +44,15 @@ export function trustworthinessSeries<T extends Numeric, R extends Numeric>(
                               batch_size);
 }
 
+/**
+ * Expresses to what extent the local structure is retained in embedding. The score is defined in
+ * the range [0, 1].
+ * @param X original high dimensional dataset
+ * @param embedded low dimesional embedding
+ * @param nNeighbors Number of neighbors considered
+ * @param batch_size It sets the number of samples that will be included in each batch
+ * @returns Trustworthiness of the low-dimensional embedding
+ */
 export function trustworthinessDF<T extends Numeric, R extends Numeric, K extends string>(
   X: DataFrame<{[P in K]: T}>,
   embedded: DataFrame<{[P in number]: R}>,
@@ -65,6 +74,15 @@ export function trustworthinessDF<T extends Numeric, R extends Numeric, K extend
                               batch_size);
 }
 
+/**
+ * Expresses to what extent the local structure is retained in embedding. The score is defined in
+ * the range [0, 1].
+ * @param X original high dimensional dataset
+ * @param embedded low dimesional embedding
+ * @param nNeighbors Number of neighbors considered
+ * @param batch_size It sets the number of samples that will be included in each batch
+ * @returns Trustworthiness of the low-dimensional embedding
+ */
 export function trustworthiness(X: number[],
                                 embedded: number[],
                                 nSamples: number,

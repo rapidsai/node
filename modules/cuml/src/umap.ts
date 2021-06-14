@@ -55,15 +55,15 @@ export class UMAP {
   }
   /**
    * Fit X into an embedded space
-   * @param X Dense or sparse matrix containing floats or doubles. Acceptable dense formats: cuDF
-   *   DataFrame/Series
+   * @param X cuDF Series containing floats or doubles in the format [x1, y1, z1, x2, y2, z2...] for
+   *   features x, y & z.
    * @param y cuDF Series containing target values
    * @param convertDType When set to True, the method will automatically convert the inputs to
    *   float32
+   * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
    */
-  fitSeries(X: Series<Numeric>, y: null|Series<Numeric>, convertDType: boolean) {
+  fitSeries(X: Series<Numeric>, y: null|Series<Numeric>, convertDType: boolean, nFeatures = 1) {
     const nSamples   = X.length;
-    const nFeatures  = 1;
     this._embeddings = this._generate_embeddings(nSamples);
     let options      = {
       X: X.data.buffer,
@@ -79,6 +79,14 @@ export class UMAP {
     this._embeddings = this._umap.fit(options);
   }
 
+  /**
+   * Fit X into an embedded space
+   * @param X Dense or sparse matrix containing floats or doubles. Acceptable dense formats: cuDF
+   *   DataFrame
+   * @param y cuDF Series containing target values
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   */
   fitDF<T extends Numeric, K extends string>(X: DataFrame<{[P in K]: T}>,
                                              y: null|Series<Numeric>,
                                              convertDType: boolean) {
@@ -100,9 +108,17 @@ export class UMAP {
     this._embeddings = this._umap.fit(options);
   }
 
-  fit(X: number[], y: number[]|null, convertDType: boolean) {
-    const nSamples   = X.length;
-    const nFeatures  = 1;
+  /**
+   * Fit X into an embedded space
+   * @param X array containing floats or doubles in the format [x1, y1, z1, x2, y2, z2...] for
+   *   features x, y & z.
+   * @param y array containing target values
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
+   */
+  fit(X: number[], y: number[]|null, convertDType: boolean, nFeatures = 1) {
+    const nSamples   = Math.floor(X.length / nFeatures);
     this._embeddings = this._generate_embeddings(nSamples);
 
     let options = {
@@ -128,10 +144,11 @@ export class UMAP {
    *
    *
    * @param X Dense or sparse matrix containing floats or doubles. Acceptable dense formats: cuDF
-   *   DataFrame/Series
+   *   Series
    * @param y cuDF Series containing target values
    * @param convertDType When set to True, the method will automatically convert the inputs to
    *   float32
+   * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
    * @param returnType Desired output type of results and attributes of the estimators
    *
    * @returns Embedding of the data in low-dimensional space
@@ -139,22 +156,44 @@ export class UMAP {
   fitTransformSeries<T extends Numeric, R extends returnType>(X: Series<T>,
                                                               y: null|Series<Numeric>,
                                                               convertDType: boolean,
+                                                              nFeatures: number,
                                                               returnType: R): returnTypeMap<R, T>;
-  fitTransformSeries<T extends Numeric>(
-    X: Series<T>,
-    y: null|Series<Numeric>,
-    convertDType: boolean,
-    ): returnTypeMap<'series', T>;
+  fitTransformSeries<T extends Numeric>(X: Series<T>,
+                                        y: null|Series<Numeric>,
+                                        convertDType: boolean,
+                                        nFeatures: number): returnTypeMap<'series', T>;
+
+  fitTransformSeries<T extends Numeric>(X: Series<T>,
+                                        y: null|Series<Numeric>,
+                                        convertDType: boolean): returnTypeMap<'series', T>;
 
   fitTransformSeries(X: Series<Numeric>,
                      y: null|Series<Numeric>,
                      convertDType: boolean,
+                     nFeatures              = 1,
                      returnType: returnType = 'series') {
     const nSamples = X.length;
-    this.fitSeries(X, y, convertDType);
+    this.fitSeries(X, y, convertDType, nFeatures);
     return this._process_embeddings(this._embeddings, nSamples, returnType);
   }
 
+  /**
+   * Fit X into an embedded space and return that transformed output.
+   *
+   *  There is a subtle difference between calling fit_transform(X) and calling fit().transform().
+   *  Calling fit_transform(X) will train the embeddings on X and return the embeddings. Calling
+   *  fit(X).transform(X) will train the embeddings on X and then run a second optimization.
+   *
+   *
+   * @param X Dense or sparse matrix containing floats or doubles. Acceptable dense formats: cuDF
+   *   DataFrame
+   * @param y cuDF Series containing target values
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   * @param returnType Desired output type of results and attributes of the estimators
+   *
+   * @returns Embedding of the data in low-dimensional space
+   */
   fitTransformDF<T extends Numeric, K extends string, R extends returnType>(
     X: DataFrame<{[P in K]: T}>, y: null|Series<Numeric>, convertDType: boolean, returnType: R):
     returnTypeMap<R, T>;
@@ -174,28 +213,64 @@ export class UMAP {
   }
 
   /**
+   * Fit X into an embedded space and return that transformed output.
+   *
+   *  There is a subtle difference between calling fit_transform(X) and calling fit().transform().
+   *  Calling fit_transform(X) will train the embeddings on X and return the embeddings. Calling
+   *  fit(X).transform(X) will train the embeddings on X and then run a second optimization.
+   *
+   *
+   * @param X array containing floats or doubles in the format [x1, y1, z1, x2, y2, z2...] for
+   *   features x, y & z.
+   * @param y array containing target values
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
+   * @param returnType Desired output type of results and attributes of the estimators
+   *
+   * @returns Embedding of the data in low-dimensional space
+   */
+  fitTransform(X: number[],
+               y: number[]|null,
+               convertDType: boolean,
+               nFeatures              = 1,
+               returnType: returnType = 'series') {
+    const nSamples = Math.floor(X.length / nFeatures);
+    this.fit(X, y, convertDType, nFeatures);
+    return this._process_embeddings(this._embeddings, nSamples, returnType);
+  }
+
+  /**
    * Transform X into the existing embedded space and return that transformed output.
    *
    * @param X Dense or sparse matrix containing floats or doubles. Acceptable dense formats: cuDF
-   *   DataFrame/Series
+   *   Series
    * @param convertDType When set to True, the method will automatically convert the inputs to
    *   float32
+   * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
    * @param returnType Desired output type of results and attributes of the estimators
    *
    * @returns Embedding of the data in low-dimensional space
    */
   transformSeries<T extends Numeric, R extends returnType>(X: Series<T>,
                                                            convertDType: boolean,
+                                                           nFeatures: number,
                                                            returnType: R): returnTypeMap<R, T>;
+
+  transformSeries<T extends Numeric>(
+    X: Series<T>,
+    convertDType: boolean,
+    nFeatures: number,
+    ): returnTypeMap<'series', T>;
 
   transformSeries<T extends Numeric>(X: Series<T>,
                                      convertDType: boolean): returnTypeMap<'series', T>;
 
   transformSeries<T extends Numeric>(X: Series<T>,
                                      convertDType: boolean,
+                                     nFeatures              = 1,
                                      returnType: returnType = 'series') {
-    const nSamples   = X.length;
-    const nFeatures  = 1;
+    const nSamples   = Math.floor(X.length / nFeatures);
     const embeddings = this._generate_embeddings(nSamples);
 
     const result = this._umap.transform({
@@ -210,6 +285,17 @@ export class UMAP {
     return this._process_embeddings(result, nSamples, returnType);
   }
 
+  /**
+   * Transform X into the existing embedded space and return that transformed output.
+   *
+   * @param X Dense or sparse matrix containing floats or doubles. Acceptable dense formats: cuDF
+   *   Series
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   * @param returnType Desired output type of results and attributes of the estimators
+   *
+   * @returns Embedding of the data in low-dimensional space
+   */
   transformDF<T extends Numeric, K extends string, R extends returnType>(
     X: DataFrame<{[P in K]: T}>, convertDType: boolean, returnType: R): returnTypeMap<R, T>;
 
@@ -225,6 +311,34 @@ export class UMAP {
     const result = this._umap.transform({
       X: dataframeToSeries(X).data.buffer,
       XType: X.get(X.names[0]).type,
+      nSamples: nSamples,
+      nFeatures: nFeatures,
+      convertDType: convertDType,
+      embeddings: this._embeddings,
+      transformed: embeddings
+    });
+    return this._process_embeddings(result, nSamples, returnType);
+  }
+
+  /**
+   * Transform X into the existing embedded space and return that transformed output.
+   *
+   * @param X array containing floats or doubles in the format [x1, y1, z1, x2, y2, z2...] for
+   *   features x, y & z.
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
+   * @param returnType Desired output type of results and attributes of the estimators
+   *
+   * @returns Embedding of the data in low-dimensional space
+   */
+  transform(X: number[], convertDType: boolean, nFeatures = 1, returnType: returnType = 'series') {
+    const nSamples   = Math.floor(X.length / nFeatures);
+    const embeddings = this._generate_embeddings(nSamples);
+
+    const result = this._umap.transform({
+      X: X,
+      XType: new Float64,
       nSamples: nSamples,
       nFeatures: nFeatures,
       convertDType: convertDType,
