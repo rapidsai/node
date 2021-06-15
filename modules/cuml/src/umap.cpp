@@ -110,9 +110,10 @@ void UMAP::fit(float* X,
                float* embeddings) {
   raft::handle_t handle;
   CUDA_CHECK(cudaStreamSynchronize(handle.get_stream()));
-
-  ML::UMAP::fit(
-    handle, X, y, n_samples, n_features, knn_indices, knn_dists, &this->params_, embeddings);
+  try {
+    ML::UMAP::fit(
+      handle, X, y, n_samples, n_features, knn_indices, knn_dists, &this->params_, embeddings);
+  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 void UMAP::transform(float* X,
@@ -127,19 +128,20 @@ void UMAP::transform(float* X,
                      float* transformed) {
   raft::handle_t handle;
   CUDA_CHECK(cudaStreamSynchronize(handle.get_stream()));
-
-  ML::UMAP::transform(handle,
-                      X,
-                      n_samples,
-                      n_features,
-                      knn_indices,
-                      knn_dists,
-                      orig_X,
-                      orig_n,
-                      embeddings,
-                      n_samples,
-                      &this->params_,
-                      transformed);
+  try {
+    ML::UMAP::transform(handle,
+                        X,
+                        n_samples,
+                        n_features,
+                        knn_indices,
+                        knn_dists,
+                        orig_X,
+                        orig_n,
+                        embeddings,
+                        n_samples,
+                        &this->params_,
+                        transformed);
+  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
