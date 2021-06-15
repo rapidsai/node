@@ -13,44 +13,55 @@
 // limitations under the License.
 
 import {MemoryData} from '@nvidia/cuda';
-import {DataFrame, Float32, Numeric, Series} from '@rapidsai/cudf';
+import {DataFrame, Float32, Float64, Int64, Integral, Numeric, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {CUMLLogLevels, MetricType} from './mappings';
 import {UMAPBase, UMAPInterface, UMAPParams} from './umap_base';
 import {dataframeToSeries, seriesToDataframe} from './utilities/array_utils';
 
-type returnType = 'dataframe'|'series'|'devicebuffer';
+export type outputType = 'dataframe'|'series'|'devicebuffer';
 
-export type returnTypeMap<T extends returnType, R extends Numeric> = {
+export type returnTypeMap<T extends outputType, R extends Numeric> = {
   'dataframe': DataFrame<{[P in number]: R}>,
   'series': Series<R>,
-  'devicebuffer': MemoryData|DeviceBuffer
+  'devicebuffer': DeviceBuffer
 }[T];
 
-export class UMAP {
+export class UMAP<O extends outputType = any> {
   public _umap: UMAPInterface;
   public _embeddings: MemoryData|DeviceBuffer;
+  public outputType: O;
 
-  constructor(input: UMAPParams) {
+  constructor(input: UMAPParams, outputType: O) {
     this._umap       = new UMAPBase(input);
     this._embeddings = new DeviceBuffer();
+    this.outputType  = outputType;
   }
 
-  protected _generate_embeddings(nSamples: number): MemoryData {
-    return Series
-      .sequence({type: new Float32, size: nSamples * this._umap.nComponents, init: 0, step: 0})
+  protected _generate_embeddings(nSamples: number, dtype: Numeric): MemoryData {
+    return Series.sequence({type: dtype, size: nSamples * this._umap.nComponents, init: 0, step: 0})
       .data.buffer;
   }
 
-  protected _process_embeddings(embeddings: MemoryData, nSamples: number, returnType: returnType) {
-    if (returnType == 'dataframe') {
+  // throw runtime error if type if float64
+  protected _check_type(X: Numeric) {
+    if (X.compareTo(new Float64)) {
+      throw new Error('Expected input to be of type in [Integral, Float32] but got Float64');
+    }
+  }
+
+  protected _process_embeddings<T extends Numeric>(embeddings: MemoryData,
+                                                   nSamples: number,
+                                                   dtype: T): returnTypeMap<O, T> {
+    if (this.outputType == 'dataframe') {
       return seriesToDataframe(
-        Series.new({type: new Float32, data: embeddings}), nSamples, this.nComponents);
-    } else if (returnType == 'series') {
-      return Series.new({type: new Float32, data: embeddings});
+               Series.new({type: dtype, data: embeddings}), nSamples, this.nComponents) as
+             returnTypeMap<O, T>;
+    } else if (this.outputType == 'series') {
+      return Series.new({type: dtype, data: embeddings}) as returnTypeMap<O, T>;
     } else {
-      return embeddings;
+      return embeddings as returnTypeMap<O, T>;
     }
   }
   /**
@@ -62,11 +73,15 @@ export class UMAP {
    *   float32
    * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
    */
-  fitSeries(X: Series<Numeric>, y: null|Series<Numeric>, convertDType: boolean, nFeatures = 1) {
+  fitSeries<T extends Series<Numeric>, R extends Series<Integral|Float32>, B extends boolean>(
+    X: B extends true? T: R, y: null|Series<Integral|Float32>, convertDType: B, nFeatures = 1) {
+    if (!convertDType) {
+      this._check_type(X.type);  // runtime type check
+    }
     const nSamples   = Math.floor(X.length / nFeatures);
-    this._embeddings = this._generate_embeddings(nSamples);
+    this._embeddings = this._generate_embeddings(nSamples, X.type);
     let options      = {
-      X: X.data.buffer,
+      X: X.data,
       XType: X.type,
       nSamples: nSamples,
       nFeatures: nFeatures,
@@ -74,7 +89,7 @@ export class UMAP {
       embeddings: this._embeddings
     };
     if (y !== null) {
-      options = {...options, ...{ y: y.data.buffer, yType: y.type }};
+      options = {...options, ...{ y: y.data, yType: y.type }};
     }
     this._embeddings = this._umap.fit(options);
   }
@@ -87,15 +102,19 @@ export class UMAP {
    * @param convertDType When set to True, the method will automatically convert the inputs to
    *   float32
    */
-  fitDF<T extends Numeric, K extends string>(X: DataFrame<{[P in K]: T}>,
-                                             y: null|Series<Numeric>,
-                                             convertDType: boolean) {
+  fitDF<T extends Numeric, R extends Integral|Float32, K extends string, B extends boolean>(
+    X: DataFrame<{[P in K]: B extends true ? T : R}>,
+    y: null|Series<Integral|Float32>,
+    convertDType: boolean) {
+    if (!convertDType) {
+      this._check_type(X.get(X.names[0]).type);  // runtime type check
+    }
     const nSamples   = X.numRows;
     const nFeatures  = X.numColumns;
-    this._embeddings = this._generate_embeddings(nSamples);
+    this._embeddings = this._generate_embeddings(nSamples, X.get(X.names[0]).type);
 
     let options = {
-      X: dataframeToSeries(X).data.buffer,
+      X: dataframeToSeries(X).data,
       XType: X.get(X.names[0]).type,
       nSamples: nSamples,
       nFeatures: nFeatures,
@@ -103,7 +122,7 @@ export class UMAP {
       embeddings: this._embeddings
     };
     if (y !== null) {
-      options = {...options, ...{ y: y.data.buffer, yType: y.type }};
+      options = {...options, ...{ y: y.data, yType: y.type }};
     }
     this._embeddings = this._umap.fit(options);
   }
@@ -117,20 +136,26 @@ export class UMAP {
    *   float32
    * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
    */
-  fit(X: number[], y: number[]|null, convertDType: boolean, nFeatures = 1) {
+  fit(X: (number|bigint|null|undefined)[],
+      y: (number|bigint|null|undefined)[]|null,
+      convertDType: boolean,
+      nFeatures = 1) {
     const nSamples   = Math.floor(X.length / nFeatures);
-    this._embeddings = this._generate_embeddings(nSamples);
-
-    let options = {
+    const XDType     = (typeof X[0] == 'bigint') ? new Int64 : new Float32;
+    this._embeddings = this._generate_embeddings(nSamples, XDType);
+    let options      = {
       X: X,
-      XType: new Float32,
+      XType: XDType,
       nSamples: nSamples,
       nFeatures: nFeatures,
       convertDType: convertDType,
       embeddings: this._embeddings
     };
     if (y !== null) {
-      options = {...options, ...{ y: y, yType: new Float32 }};
+      options = {
+        ...options,
+        ...{ y: y, yType: (typeof y[0] == 'bigint') ? new Int64 : new Float32 }
+      };
     }
     this._embeddings = this._umap.fit(options);
   }
@@ -153,28 +178,15 @@ export class UMAP {
    *
    * @returns Embedding of the data in low-dimensional space
    */
-  fitTransformSeries<T extends Numeric, R extends returnType>(X: Series<T>,
-                                                              y: null|Series<Numeric>,
-                                                              convertDType: boolean,
-                                                              nFeatures: number,
-                                                              returnType: R): returnTypeMap<R, T>;
-  fitTransformSeries<T extends Numeric>(X: Series<T>,
-                                        y: null|Series<Numeric>,
-                                        convertDType: boolean,
-                                        nFeatures: number): returnTypeMap<'series', T>;
-
-  fitTransformSeries<T extends Numeric>(X: Series<T>,
-                                        y: null|Series<Numeric>,
-                                        convertDType: boolean): returnTypeMap<'series', T>;
-
-  fitTransformSeries(X: Series<Numeric>,
-                     y: null|Series<Numeric>,
-                     convertDType: boolean,
-                     nFeatures              = 1,
-                     returnType: returnType = 'series') {
-    const nSamples = Math.floor(X.length / nFeatures);
+  fitTransformSeries<T extends Series<Numeric>, R extends Series<Integral|Float32>,
+                                                          B extends boolean>(
+    X: B extends true? T: R, y: null|Series<Integral|Float32>, convertDType: B, nFeatures = 1) {
     this.fitSeries(X, y, convertDType, nFeatures);
-    return this._process_embeddings(this._embeddings, nSamples, returnType);
+    const nSamples = Math.floor(X.length / nFeatures);
+    const dtype    = (convertDType) ? new Float32 : X.type as T['type'];
+
+    return this._process_embeddings(this._embeddings, nSamples, dtype) as
+           B extends true ? returnTypeMap<O, Float32>: returnTypeMap<O, T['type']>;
   }
 
   /**
@@ -194,22 +206,15 @@ export class UMAP {
    *
    * @returns Embedding of the data in low-dimensional space
    */
-  fitTransformDF<T extends Numeric, K extends string, R extends returnType>(
-    X: DataFrame<{[P in K]: T}>, y: null|Series<Numeric>, convertDType: boolean, returnType: R):
-    returnTypeMap<R, T>;
-
-  fitTransformDF<T extends Numeric, K extends string>(X: DataFrame<{[P in K]: T}>,
-                                                      y: null|Series<Numeric>,
-                                                      convertDType: boolean):
-    returnTypeMap<'dataframe', T>;
-
-  fitTransformDF<T extends Numeric, K extends string>(X: DataFrame<{[P in K]: T}>,
-                                                      y: null|Series<Numeric>,
-                                                      convertDType: boolean,
-                                                      returnType: returnType = 'dataframe') {
+  fitTransformDF<T extends Numeric, R extends Integral|Float32, K extends string, B extends
+                   boolean>(X: DataFrame<{[P in K]: B extends true ? T : R}>,
+                            y: null|Series<Integral|Float32>,
+                            convertDType: B) {
     const nSamples = X.numRows;
     this.fitDF(X, y, convertDType);
-    return this._process_embeddings(this._embeddings, nSamples, returnType);
+    const dtype = X.get(X.names[0]).type as T;
+    return this._process_embeddings(this._embeddings, nSamples, dtype) as
+           B extends true ? returnTypeMap<O, Float32>: returnTypeMap<O, T>;
   }
 
   /**
@@ -230,14 +235,21 @@ export class UMAP {
    *
    * @returns Embedding of the data in low-dimensional space
    */
-  fitTransform(X: number[],
-               y: number[]|null,
-               convertDType: boolean,
-               nFeatures              = 1,
-               returnType: returnType = 'series') {
-    const nSamples = Math.floor(X.length / nFeatures);
+  fitTransform<T extends number|bigint, R extends number|bigint, B extends boolean>(
+    X: ((B extends true ? T : number)|null|undefined)[],
+    y: ((B extends true ? R : number)|null|undefined)[]|null,
+    convertDType: B,
+    nFeatures = 1) {
     this.fit(X, y, convertDType, nFeatures);
-    return this._process_embeddings(this._embeddings, nSamples, returnType);
+
+    const nSamples = Math.floor(X.length / nFeatures);
+    const dtype    = (convertDType)              ? new Float32
+                     : (typeof X[0] == 'bigint') ? new Int64
+                                                 : new Float32;
+
+    return this._process_embeddings(this._embeddings, nSamples, dtype) as
+           B extends true ? returnTypeMap<O, Float32>: returnTypeMap < O,
+                     T extends number ? Float32 : Int64 > ;
   }
 
   /**
@@ -252,26 +264,10 @@ export class UMAP {
    *
    * @returns Embedding of the data in low-dimensional space
    */
-  transformSeries<T extends Numeric, R extends returnType>(X: Series<T>,
-                                                           convertDType: boolean,
-                                                           nFeatures: number,
-                                                           returnType: R): returnTypeMap<R, T>;
-
-  transformSeries<T extends Numeric>(
-    X: Series<T>,
-    convertDType: boolean,
-    nFeatures: number,
-    ): returnTypeMap<'series', T>;
-
-  transformSeries<T extends Numeric>(X: Series<T>,
-                                     convertDType: boolean): returnTypeMap<'series', T>;
-
-  transformSeries<T extends Numeric>(X: Series<T>,
-                                     convertDType: boolean,
-                                     nFeatures              = 1,
-                                     returnType: returnType = 'series') {
+  transformSeries<T extends Series<Numeric>, R extends Series<Integral|Float32>, B extends boolean>(
+    X: B extends true? R: T, convertDType: B, nFeatures = 1) {
     const nSamples   = Math.floor(X.length / nFeatures);
-    const embeddings = this._generate_embeddings(nSamples);
+    const embeddings = this._generate_embeddings(nSamples, X.type);
 
     const result = this._umap.transform({
       X: X.data.buffer,
@@ -282,7 +278,10 @@ export class UMAP {
       embeddings: this._embeddings,
       transformed: embeddings
     });
-    return this._process_embeddings(result, nSamples, returnType);
+
+    const dtype = (convertDType) ? new Float32 : X.type;
+    return this._process_embeddings(result, nSamples, dtype) as
+           B extends true ? returnTypeMap<O, Float32>: returnTypeMap<O, T['type']>;
   }
 
   /**
@@ -296,19 +295,11 @@ export class UMAP {
    *
    * @returns Embedding of the data in low-dimensional space
    */
-  transformDF<T extends Numeric, K extends string, R extends returnType>(
-    X: DataFrame<{[P in K]: T}>, convertDType: boolean, returnType: R): returnTypeMap<R, T>;
-
-  transformDF<T extends Numeric, K extends string>(X: DataFrame<{[P in K]: T}>,
-                                                   convertDType: boolean):
-    returnTypeMap<'dataframe', T>;
-
-  transformDF<T extends Numeric, K extends string>(X: DataFrame<{[P in K]: T}>,
-                                                   convertDType: boolean,
-                                                   returnType: returnType = 'dataframe') {
+  transformDF<T extends Numeric, R extends Integral|Float32, K extends string, B extends boolean>(
+    X: DataFrame<{[P in K]: B extends true ? T : R}>, convertDType: B) {
     const nSamples   = X.numRows;
     const nFeatures  = X.numColumns;
-    const embeddings = this._generate_embeddings(nSamples);
+    const embeddings = this._generate_embeddings(nSamples, X.get(X.names[0]).type);
 
     const result = this._umap.transform({
       X: dataframeToSeries(X).data.buffer,
@@ -319,7 +310,9 @@ export class UMAP {
       embeddings: this._embeddings,
       transformed: embeddings
     });
-    return this._process_embeddings(result, nSamples, returnType);
+    const dtype  = (convertDType) ? new Float32 : X.get(X.names[0]).type;
+    return this._process_embeddings(result, nSamples, dtype) as
+           B extends true ? returnTypeMap<O, Float32>: returnTypeMap<O, T>;
   }
 
   /**
@@ -334,23 +327,30 @@ export class UMAP {
    *
    * @returns Embedding of the data in low-dimensional space
    */
-  transform(X: number[], convertDType: boolean, nFeatures = 1, returnType: returnType = 'series') {
+  transform<T extends number|bigint, B extends boolean>(
+    X: ((B extends true ? T : number)|null|undefined)[], convertDType: B, nFeatures = 1) {
     const nSamples   = Math.floor(X.length / nFeatures);
-    const embeddings = this._generate_embeddings(nSamples);
+    const XDtype     = (convertDType)              ? new Float32
+                       : (typeof X[0] == 'bigint') ? new Int64
+                                                   : new Float32;
+    const embeddings = this._generate_embeddings(nSamples, XDtype);
 
     const result = this._umap.transform({
       X: X,
-      XType: new Float32,
+      XType: XDtype,
       nSamples: nSamples,
       nFeatures: nFeatures,
       convertDType: convertDType,
       embeddings: this._embeddings,
       transformed: embeddings
     });
-    return this._process_embeddings(result, nSamples, returnType);
+
+    return this._process_embeddings(result, nSamples, XDtype) as
+           B extends true ? returnTypeMap<O, Float32>: returnTypeMap < O,
+                     T extends number ? Float32 : Int64 > ;
   }
 
-  get embeddings(): Series<Numeric> {
+  get embeddings(): Series<Float32> {
     return Series.new({type: new Float32, data: this._embeddings});
   }
 

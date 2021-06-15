@@ -33,17 +33,19 @@ Napi::Value trustworthiness(Napi::CallbackInfo const& info) {
 
   raft::handle_t handle;
   CUDA_CHECK(cudaStreamSynchronize(handle.get_stream()));
+  try {
+    double result = ML::Metrics::trustworthiness_score<float, raft::distance::L2SqrtUnexpanded>(
+      handle,
+      static_cast<float*>(X->data()),
+      static_cast<float*>(embedded->data()),
+      args[4],
+      args[5],
+      args[6],
+      args[7],
+      args[8]);
 
-  double result = ML::Metrics::trustworthiness_score<float, raft::distance::L2SqrtUnexpanded>(
-    handle,
-    static_cast<float*>(X->data()),
-    static_cast<float*>(embedded->data()),
-    args[4],
-    args[5],
-    args[6],
-    args[7],
-    args[8]);
-  return Napi::Value::From(info.Env(), result);
+    return Napi::Value::From(info.Env(), result);
+  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
 }
 
 }  // namespace Metrics
