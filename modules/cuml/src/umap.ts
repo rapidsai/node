@@ -13,12 +13,14 @@
 // limitations under the License.
 
 import {MemoryData} from '@nvidia/cuda';
-import {DataFrame, Float32, Float64, Int64, Integral, Numeric, Series} from '@rapidsai/cudf';
+import {DataFrame, Float32, Float64, Int64, Integral, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {CUMLLogLevels, MetricType} from './mappings';
 import {UMAPBase, UMAPInterface, UMAPParams} from './umap_base';
 import {dataframeToSeries, seriesToDataframe} from './utilities/array_utils';
+
+export type Numeric = Integral|Float32;
 
 export type outputType = 'dataframe'|'series'|'devicebuffer';
 
@@ -73,11 +75,10 @@ export class UMAP<O extends outputType = any> {
    *   float32
    * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
    */
-  fitSeries<T extends Series<Numeric>, R extends Series<Integral|Float32>, B extends boolean>(
-    X: B extends true? T: R, y: null|Series<Integral|Float32>, convertDType: B, nFeatures = 1) {
-    if (!convertDType) {
-      this._check_type(X.type);  // runtime type check
-    }
+  fitSeries<T extends Series<Numeric>, R extends Series<Numeric>, B extends boolean>(
+    X: T, y: null|R, convertDType: B, nFeatures = 1) {
+    // runtime type check
+    this._check_type(X.type);
     const nSamples   = Math.floor(X.length / nFeatures);
     this._embeddings = this._generate_embeddings(nSamples, X.type);
     let options      = {
@@ -102,13 +103,11 @@ export class UMAP<O extends outputType = any> {
    * @param convertDType When set to True, the method will automatically convert the inputs to
    *   float32
    */
-  fitDF<T extends Numeric, R extends Integral|Float32, K extends string, B extends boolean>(
-    X: DataFrame<{[P in K]: B extends true ? T : R}>,
-    y: null|Series<Integral|Float32>,
-    convertDType: boolean) {
-    if (!convertDType) {
-      this._check_type(X.get(X.names[0]).type);  // runtime type check
-    }
+  fitDF<T extends Numeric, R extends Series<Numeric>, K extends string>(X: DataFrame<{[P in K]: T}>,
+                                                                        y: null|R,
+                                                                        convertDType: boolean) {
+    // runtime type check
+    this._check_type(X.get(X.names[0]).type);
     const nSamples   = X.numRows;
     const nFeatures  = X.numColumns;
     this._embeddings = this._generate_embeddings(nSamples, X.get(X.names[0]).type);
@@ -178,9 +177,8 @@ export class UMAP<O extends outputType = any> {
    *
    * @returns Embedding of the data in low-dimensional space
    */
-  fitTransformSeries<T extends Series<Numeric>, R extends Series<Integral|Float32>,
-                                                          B extends boolean>(
-    X: B extends true? T: R, y: null|Series<Integral|Float32>, convertDType: B, nFeatures = 1) {
+  fitTransformSeries<T extends Series<Numeric>, R extends Series<Numeric>, B extends boolean>(
+    X: T, y: null|R, convertDType: B, nFeatures = 1) {
     this.fitSeries(X, y, convertDType, nFeatures);
     const nSamples = Math.floor(X.length / nFeatures);
     const dtype    = (convertDType) ? new Float32 : X.type as T['type'];
@@ -206,10 +204,8 @@ export class UMAP<O extends outputType = any> {
    *
    * @returns Embedding of the data in low-dimensional space
    */
-  fitTransformDF<T extends Numeric, R extends Integral|Float32, K extends string, B extends
-                   boolean>(X: DataFrame<{[P in K]: B extends true ? T : R}>,
-                            y: null|Series<Integral|Float32>,
-                            convertDType: B) {
+  fitTransformDF<T extends Numeric, R extends Series<Numeric>, K extends string, B extends boolean>(
+    X: DataFrame<{[P in K]: T}>, y: null|R, convertDType: B) {
     const nSamples = X.numRows;
     this.fitDF(X, y, convertDType);
     const dtype = X.get(X.names[0]).type as T;
@@ -236,10 +232,7 @@ export class UMAP<O extends outputType = any> {
    * @returns Embedding of the data in low-dimensional space
    */
   fitTransform<T extends number|bigint, R extends number|bigint, B extends boolean>(
-    X: ((B extends true ? T : number)|null|undefined)[],
-    y: ((B extends true ? R : number)|null|undefined)[]|null,
-    convertDType: B,
-    nFeatures = 1) {
+    X: (T|null|undefined)[], y: (R|null|undefined)[]|null, convertDType: B, nFeatures = 1) {
     this.fit(X, y, convertDType, nFeatures);
 
     const nSamples = Math.floor(X.length / nFeatures);
@@ -264,8 +257,12 @@ export class UMAP<O extends outputType = any> {
    *
    * @returns Embedding of the data in low-dimensional space
    */
-  transformSeries<T extends Series<Numeric>, R extends Series<Integral|Float32>, B extends boolean>(
-    X: B extends true? R: T, convertDType: B, nFeatures = 1) {
+  transformSeries<T extends Series<Numeric>, B extends boolean>(X: T,
+                                                                convertDType: B,
+                                                                nFeatures = 1) {
+    // runtime type check
+    this._check_type(X.type);
+
     const nSamples   = Math.floor(X.length / nFeatures);
     const embeddings = this._generate_embeddings(nSamples, X.type);
 
@@ -295,8 +292,10 @@ export class UMAP<O extends outputType = any> {
    *
    * @returns Embedding of the data in low-dimensional space
    */
-  transformDF<T extends Numeric, R extends Integral|Float32, K extends string, B extends boolean>(
-    X: DataFrame<{[P in K]: B extends true ? T : R}>, convertDType: B) {
+  transformDF<T extends Numeric, K extends string, B extends boolean>(X: DataFrame<{[P in K]: T}>,
+                                                                      convertDType: B) {
+    // runtime type check
+    this._check_type(X.get(X.names[0]).type);
     const nSamples   = X.numRows;
     const nFeatures  = X.numColumns;
     const embeddings = this._generate_embeddings(nSamples, X.get(X.names[0]).type);
@@ -327,8 +326,9 @@ export class UMAP<O extends outputType = any> {
    *
    * @returns Embedding of the data in low-dimensional space
    */
-  transform<T extends number|bigint, B extends boolean>(
-    X: ((B extends true ? T : number)|null|undefined)[], convertDType: B, nFeatures = 1) {
+  transform<T extends number|bigint, B extends boolean>(X: (T|null|undefined)[],
+                                                        convertDType: B,
+                                                        nFeatures = 1) {
     const nSamples   = Math.floor(X.length / nFeatures);
     const XDtype     = (convertDType)              ? new Float32
                        : (typeof X[0] == 'bigint') ? new Int64
