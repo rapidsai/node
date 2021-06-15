@@ -17,7 +17,6 @@ import {
   Bool8,
   DataFrame,
   Float32,
-  Float64,
   GroupByMultiple,
   GroupBySingle,
   Int32,
