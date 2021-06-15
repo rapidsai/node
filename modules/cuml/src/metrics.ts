@@ -89,12 +89,12 @@ export function trustworthinessDF<T extends Numeric, R extends Numeric, K extend
  * @param batch_size It sets the number of samples that will be included in each batch
  * @returns Trustworthiness of the low-dimensional embedding
  */
-export function trustworthiness(X: number[],
-                                embedded: number[],
-                                nFeatures: number,
-                                nComponents = 2,
-                                nNeighbors  = 5,
-                                batch_size  = 512): number {
+export function trustworthiness<T extends number|bigint>(X: (T|null|undefined)[],
+                                                         embedded: (T|null|undefined)[],
+                                                         nFeatures: number,
+                                                         nComponents = 2,
+                                                         nNeighbors  = 5,
+                                                         batch_size  = 512): number {
   const nSamples = Math.floor(X.length / nFeatures);
   return CUML.trustworthiness(X,
                               new Float32,

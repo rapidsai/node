@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {MemoryData} from '@nvidia/cuda';
-import {Numeric} from '@rapidsai/cudf';
+import {DataType, Numeric} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {CUML} from './addon';
@@ -43,21 +43,21 @@ export type UMAPParams = {
 };
 
 export type fitProps<T extends Numeric = any, R extends Numeric = any> = {
-  X: MemoryData|DeviceBuffer|T['scalarType'][],
+  X: MemoryData|DeviceBuffer|(T['scalarType']|null|undefined)[],
   XType: T,
   nSamples: number,
   nFeatures: number,
   convertDType: boolean,
   embeddings: MemoryData|DeviceBuffer,
-  y?: MemoryData|DeviceBuffer|R['scalarType'][],
+  y?: MemoryData|DeviceBuffer|(R['scalarType']|null|undefined)[],
   yType?: R,
   knnIndices?: MemoryData|DeviceBuffer,
   knnDists?: MemoryData|DeviceBuffer
 };
 
 export type transformProps<T extends Numeric = any> = {
-  X: MemoryData|DeviceBuffer|T['scalarType'][],
-  XType: T,
+  X: MemoryData|DeviceBuffer|(T['scalarType']|null|undefined)[],
+  XType: DataType,
   nSamples: number,
   nFeatures: number,
   convertDType: boolean,
