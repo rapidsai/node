@@ -108,7 +108,7 @@ Napi::Value Scalar::get_value(Napi::CallbackInfo const& info) { return this->get
 
 void Scalar::set_value(Napi::CallbackInfo const& info, Napi::Value const& value) {
   if (value.IsNull() or value.IsUndefined()) {
-    this->set_valid(false);
+    this->set_valid_async(false);
   } else {
     cudf::type_dispatcher(this->type(), detail::set_scalar_value{value}, scalar_);
   }

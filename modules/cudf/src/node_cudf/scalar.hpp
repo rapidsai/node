@@ -102,8 +102,8 @@ struct Scalar : public EnvLocalObjectWrap<Scalar> {
    * @param is_valid true: set the value to valid. false: set it to null
    * @param stream CUDA stream used for device memory operations.
    */
-  inline void set_valid(bool is_valid, cudaStream_t stream = 0) {
-    scalar_->set_valid(is_valid, stream);
+  inline void set_valid_async(bool is_valid, cudaStream_t stream = 0) {
+    scalar_->set_valid_async(is_valid, stream);
   }
 
   /**

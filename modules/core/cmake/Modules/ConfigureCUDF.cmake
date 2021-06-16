@@ -38,8 +38,8 @@ function(find_and_configure_cudf VERSION)
         endif()
         CPMFindPackage(NAME     cudf
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
+            GIT_REPOSITORY      https://github.com/galipremsagar/cudf.git
+            GIT_TAG             7224
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
             SOURCE_SUBDIR       cpp
