@@ -18,9 +18,6 @@
 #include <node_cuml/metrics.hpp>
 #include <node_rmm/device_buffer.hpp>
 
-#include <metrics/trustworthiness_c.h>
-#include <raft/linalg/distance_type.h>
-
 #include <napi.h>
 
 namespace nv {

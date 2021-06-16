@@ -18,6 +18,9 @@
 
 #include <nv_node/utilities/args.hpp>
 
+#include <raft/linalg/distance_type.h>
+#include <cuml/metrics/metrics.hpp>
+
 #include <napi.h>
 
 namespace nv {
