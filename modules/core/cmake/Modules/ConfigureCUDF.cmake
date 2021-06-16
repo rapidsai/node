@@ -47,6 +47,7 @@ function(find_and_configure_cudf VERSION)
                                 "BUILD_BENCHMARKS OFF"
                                 "JITIFY_USE_CACHE ON"
                                 "CUDA_STATIC_RUNTIME ON"
+                                "CUDF_ENABLE_ARROW_S3 OFF"
                                 "CUDF_USE_ARROW_STATIC ON"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
