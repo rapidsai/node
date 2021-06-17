@@ -1588,34 +1588,31 @@ export class DataFrame<T extends TypeMap = any> {
    */
   sum<P extends keyof T>(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource) {
     subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const containsIntType   = subset.some((name) => {
-      return (
-        [new Int8, new Int16, new Int32, new Int64].some(t => this.get(name).type.compareTo(t)));
+
+    if (subset.length == 0) { throw new Error('Unable to calculate sum of empty DataFrame'); }
+
+    const floatTypes = [new Float32, new Float64];
+    const intTypes   = [new Int8, new Int16, new Int32, new Int64];
+    const UintTypes  = [new Uint8, new Uint16, new Uint32, new Uint64];
+
+    const firstSeriesDtype           = this.get(subset[0]).type;
+    const isFirstSeriesFloatingPoint = floatTypes.some(t => t.compareTo(firstSeriesDtype));
+
+    const sums = subset.map((name) => {
+      if (isFirstSeriesFloatingPoint) {
+        if (!floatTypes.some(t => this.get(name).type.compareTo(t))) {
+          throw new TypeError('Unable to calculate sum of DataFrame containing unsupport dtypes');
+        }
+      } else {
+        if (![...intTypes, ...UintTypes].some(t => this.get(name).type.compareTo(t))) {
+          throw new TypeError('Unable to calculate sum of DataFrame containing unsupport dtypes');
+        }
+      }
+      return (this.get(name) as any).sum(skipna, memoryResource);
     });
-    const containsUintType  = subset.some((name) => {
-      return ([new Uint8, new Uint16, new Uint32, new Uint64].some(
-        t => this.get(name).type.compareTo(t)));
-    });
-    const containsFloatType = subset.some((name) => {
-      return ([new Float32, new Float64].some(t => this.get(name).type.compareTo(t)));
-    });
-    if (!containsIntType && !containsUintType && !containsFloatType) {
-      throw new Error('Unable to calculate sum on Dataframe containing non-numeric Series types.');
-    }
-    // (containsIntType || containsUintType) XOR containsFloatType
-    if (!((containsIntType || containsUintType) ? !containsFloatType : containsFloatType)) {
-      throw new Error(
-        'Dataframe contains Series types of both Float and Int/Uint. Unable to calculate sum without information loss.');
-    }
-    const sums =
-      subset.map((name) => { return (this.get(name) as any).sum(skipna, memoryResource); });
-    return Series.new({
-      type: containsIntType    ? new Int64
-            : containsUintType ? new Uint64
-                               : new Float64,
-      data: sums
-    }) as Series < T[P] extends(Integral | FloatingPoint) ? T[P] : never > ;
+    return Series.new(sums) as any as Series < T[P] extends Integral
+      ? T[P] extends FloatingPoint ? never : Integral
+      : T[P] extends FloatingPoint ? FloatingPoint : never > ;
   }
 
   /**
