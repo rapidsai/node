@@ -14,17 +14,4 @@
 
 #pragma once
 
-#include "cuml/metrics/metrics.hpp"
-#include "raft/handle.hpp"
-#include "raft/linalg/distance_type.h"
-
-#include <nv_node/utilities/args.hpp>
-
-#include <napi.h>
-
-namespace nv {
-
-namespace Metrics {
-Napi::Value trustworthiness(Napi::CallbackInfo const& info);
-}  // namespace Metrics
-}  // namespace nv
+#include <cuml/metrics/metrics.hpp>
