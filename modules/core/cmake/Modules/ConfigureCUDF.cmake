@@ -38,8 +38,8 @@ function(find_and_configure_cudf VERSION)
         endif()
         CPMFindPackage(NAME     cudf
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/galipremsagar/cudf.git
-            GIT_TAG             7224
+            GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
+            GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
             SOURCE_SUBDIR       cpp
@@ -47,7 +47,6 @@ function(find_and_configure_cudf VERSION)
                                 "BUILD_BENCHMARKS OFF"
                                 "JITIFY_USE_CACHE ON"
                                 "CUDA_STATIC_RUNTIME ON"
-                                "CUDF_ENABLE_ARROW_S3 OFF"
                                 "CUDF_USE_ARROW_STATIC ON"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
