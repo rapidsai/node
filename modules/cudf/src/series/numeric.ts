@@ -1421,8 +1421,6 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * by N-1.
    *
    * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
-   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
-   *   memory.
    * @returns The unbiased kurtosis of all the values in this Series.
    * @example
    * ```typescript
@@ -1432,22 +1430,20 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * a.kurtosis() // -1.1999999999999904
    * ```
    */
-  kurtosis(skipna = true, memoryResource?: MemoryResource) {
+  kurtosis(skipna = true) {
     if (this.length == 0 || (this.hasNulls && !skipna)) { return NaN; }
 
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
 
     const n = data.length;
     if (n < 4) { return NaN; }
 
-    const V = data.var(skipna, 1, memoryResource);  // ddof = 1
+    const V = data.var(skipna, 1);  // ddof = 1
     if (V == 0) { return 0; }
 
-    const mu = data.mean(skipna, memoryResource);
+    const mu = data.mean(skipna);
 
-    const m4 =
-      Number(data.sub(mu, memoryResource).pow(4, memoryResource).sum(skipna, memoryResource)) /
-      (V ** 2);
+    const m4 = (data.sub(mu).pow(4).sum(skipna) as number) / (V ** 2);
 
     // This is modeled after the cudf kurtosis implementation, it would be
     // nice to be able to point to a reference for this specific formula
@@ -1461,8 +1457,6 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * Return unbiased Fisher-Pearson skew of a sample.
    *
    * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
-   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
-   *   memory.
    * @returns The unbiased skew of all the values in this Series.
    * @example
    * ```typescript
@@ -1472,21 +1466,20 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * a.skew() // -0.288195490292614
    * ```
    */
-  skew(skipna = true, memoryResource?: MemoryResource) {
+  skew(skipna = true) {
     if (this.length == 0 || (this.hasNulls && !skipna)) { return NaN; }
 
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
 
     const n = data.length;
     if (data.length < 3) { return NaN; }
 
-    const V = data.var(skipna, 0, memoryResource);  // ddof = 0
+    const V = data.var(skipna, 0);  // ddof = 0
     if (V == 0) { return 0; }
 
-    const mu = data.mean(skipna, memoryResource);
+    const mu = data.mean(skipna);
 
-    const m3 =
-      Number(data.sub(mu, memoryResource).pow(3, memoryResource).sum(skipna, memoryResource)) / n;
+    const m3 = (data.sub(mu).pow(3).sum(skipna) as number) / n;
 
     return ((n * (n - 1)) ** 0.5) / (n - 2) * m3 / (V ** (3 / 2));
   }
