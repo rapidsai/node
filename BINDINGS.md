@@ -116,7 +116,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `sin`                |          ✅           |
 | `skew`               |          ✅           |
 | `sort_index`         |                       |
-| `sort_values`        |                       |
+| `sort_values`        |   ✅ (`sortValues`)   |
 | `sqrt`               |          ✅           |
 | `std`                |          ✅           |
 | `sub`                |          ✅           |
@@ -207,7 +207,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `shift`              |                       |                       |                       |
 | `skew`               |                       |                       |                       |
 | `sort_index`         |                       |                       |                       |
-| `sort_values`        |                       |                       |                       |
+| `sort_values`        |   ✅ (`sortValues`)   |   ✅ (`sortValues`)   |   ✅ (`sortValues`)   |
 | `tail`               |          ✅           |          ✅           |          ✅           |
 | `take`               |     ✅ (`gather`)     |     ✅ (`gather`)     |     ✅ (`gather`)     |
 | `tile`               |                       |                       |                       |
