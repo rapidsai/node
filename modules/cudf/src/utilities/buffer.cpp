@@ -207,7 +207,7 @@ DeviceBuffer::wrapper_t mask_to_null_bitmask(Napi::Env const& env,
     // Return a full bitmask indicating either all-valid or all-null
     auto mask = cudf::create_null_mask(
       size, value.ToBoolean() ? cudf::mask_state::ALL_VALID : cudf::mask_state::ALL_NULL);
-    return DeviceBuffer::New(value.Env(), std::make_unique<rmm::device_buffer>(mask));
+    return DeviceBuffer::New(value.Env(), std::make_unique<rmm::device_buffer>(std::move(mask)));
   }
   if (value.IsArray()) {
     return bool_array_to_null_bitmask(env, value.As<Napi::Array>(), size, mr, stream);
