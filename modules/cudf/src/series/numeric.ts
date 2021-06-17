@@ -1220,7 +1220,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * a.min() // [1]
    */
   min(skipna = true, memoryResource?: MemoryResource) {
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
     return data._col.min(memoryResource);
   }
 
@@ -1239,7 +1239,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * a.max() // 5
    */
   max(skipna = true, memoryResource?: MemoryResource) {
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
     return data._col.max(memoryResource);
   }
 
@@ -1258,7 +1258,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * a.minmax() // [1,5]
    */
   minmax(skipna = true, memoryResource?: MemoryResource) {
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
     return data._col.minmax(memoryResource);
   }
 
@@ -1278,7 +1278,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   sum(skipna = true, memoryResource?: MemoryResource) {
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
     return data._col.sum(memoryResource);
   }
 
@@ -1299,7 +1299,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   product(skipna = true, memoryResource?: MemoryResource) {
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
     return data._col.product(memoryResource);
   }
 
@@ -1320,7 +1320,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   sumOfSquares(skipna = true, memoryResource?: MemoryResource) {
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
     return data._col.sumOfSquares(memoryResource);
   }
 
@@ -1342,7 +1342,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   mean(skipna = true, memoryResource?: MemoryResource) {
     if (!skipna && this.nullCount > 0) { return NaN; }
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
     return data._col.mean(memoryResource);
   }
 
@@ -1364,7 +1364,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   median(skipna = true, memoryResource?: MemoryResource) {
     if (!skipna && this.nullCount > 0) { return NaN; }
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
     return data._col.median(memoryResource);
   }
 
@@ -1411,7 +1411,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   var(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
     return data._col.var(ddof, memoryResource);
   }
 
@@ -1507,7 +1507,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   std(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
-    const data = skipna ? this.nansToNulls(memoryResource).dropNulls(memoryResource) : this;
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
     return data._col.std(ddof, memoryResource);
   }
 
@@ -1537,7 +1537,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   quantile(q                                         = 0.5,
            interpolation: keyof typeof Interpolation = 'linear',
            memoryResource?: MemoryResource) {
-    const data = this.nansToNulls(memoryResource).dropNulls(memoryResource) as Series<T>;
+    const data = this.nansToNulls().dropNulls() as Series<T>;
     return data._col.quantile(q, Interpolation[interpolation], memoryResource);
   }
 
