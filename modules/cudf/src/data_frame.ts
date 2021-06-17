@@ -1748,9 +1748,10 @@ export class DataFrame<T extends TypeMap = any> {
    */
   replaceNulls(value: SeriesMap<T>, memoryResource?: MemoryResource): DataFrame<T>;
 
-  replaceNulls(value: any, memoryResource?: MemoryResource): DataFrame<T> {
+  replaceNulls<R extends DataType>(value: SeriesMap<T>|R['scalarType'],
+                                   memoryResource?: MemoryResource): DataFrame<T> {
     if (value instanceof Object) {
-      const columns = new ColumnAccessor(_seriesToColumns(value as SeriesMap<T>));
+      const columns = new ColumnAccessor(_seriesToColumns(value));
       return new DataFrame(this.names.reduce(
         (map, name) => ({
           ...map,
