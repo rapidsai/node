@@ -1537,8 +1537,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   quantile(q                                         = 0.5,
            interpolation: keyof typeof Interpolation = 'linear',
            memoryResource?: MemoryResource) {
-    const data = this.nansToNulls().dropNulls() as Series<T>;
-    return data._col.quantile(q, Interpolation[interpolation], memoryResource);
+    return this.nansToNulls().dropNulls()._col.quantile(
+      q, Interpolation[interpolation], memoryResource);
   }
 
   /**
