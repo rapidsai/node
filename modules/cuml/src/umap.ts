@@ -35,10 +35,23 @@ export class UMAP<O extends outputType = any> {
   public _embeddings: MemoryData|DeviceBuffer;
   public outputType: O;
 
-  constructor(input: UMAPParams, outputType: O) {
+  /**
+   * Initialize a UMAP object
+   * @param input: UMAPParams
+   * @param outputType: 'dataframe'|'series'|'devicebuffer'
+   *
+   * @example:
+   * ```typescript
+   * import {UMAP} from 'rapidsai/cuml';
+   *
+   * const umap = new UMAP({nComponents:2}, 'dataframe');
+   * ```
+   */
+  constructor(input: UMAPParams, outputType: O);
+  constructor(input: UMAPParams, outputType = 'dataframe') {
     this._umap       = new UMAPBase(input);
     this._embeddings = new DeviceBuffer();
-    this.outputType  = outputType;
+    this.outputType  = outputType as O;
   }
 
   protected _generate_embeddings(nSamples: number, dtype: Numeric): MemoryData {
@@ -175,7 +188,14 @@ export class UMAP<O extends outputType = any> {
    * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
    * @param returnType Desired output type of results and attributes of the estimators
    *
-   * @returns Embedding of the data in low-dimensional space
+   * @returns Embedding of the data in low-dimensional space as per the outputType parameter while
+   *   initializing UMAP.
+   * if outputType = 'dataframe':
+   *    embedding: DataFrame{
+   *                 [0]: Series<Numeric>, [1]: Series<Numeric>,...[nComponents-1]:Series<Numeric>
+   *                }
+   * if outputType = 'series':  embeddings: Series<Numeric>
+   * if outputType = 'devicebuffer': embeddings: DeviceBuffer
    */
   fitTransformSeries<T extends Series<Numeric>, R extends Series<Numeric>, B extends boolean>(
     X: T, y: null|R, convertDType: B, nFeatures = 1) {
@@ -202,7 +222,14 @@ export class UMAP<O extends outputType = any> {
    *   float32
    * @param returnType Desired output type of results and attributes of the estimators
    *
-   * @returns Embedding of the data in low-dimensional space
+   * @returns Embedding of the data in low-dimensional space as per the outputType parameter while
+   *   initializing UMAP.
+   * if outputType = 'dataframe':
+   *    embedding: DataFrame{
+   *                 [0]: Series<Numeric>, [1]: Series<Numeric>,...[nComponents-1]:Series<Numeric>
+   *                }
+   * if outputType = 'series':  embeddings: Series<Numeric>
+   * if outputType = 'devicebuffer': embeddings: DeviceBuffer
    */
   fitTransformDF<T extends Numeric, R extends Series<Numeric>, K extends string, B extends boolean>(
     X: DataFrame<{[P in K]: T}>, y: null|R, convertDType: B) {
@@ -229,7 +256,14 @@ export class UMAP<O extends outputType = any> {
    * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
    * @param returnType Desired output type of results and attributes of the estimators
    *
-   * @returns Embedding of the data in low-dimensional space
+   * @returns Embedding of the data in low-dimensional space as per the outputType parameter while
+   *   initializing UMAP.
+   * if outputType = 'dataframe':
+   *    embedding: DataFrame{
+   *                 [0]: Series<Numeric>, [1]: Series<Numeric>,...[nComponents-1]:Series<Numeric>
+   *                }
+   * if outputType = 'series':  embeddings: Series<Numeric>
+   * if outputType = 'devicebuffer': embeddings: DeviceBuffer
    */
   fitTransform<T extends number|bigint, R extends number|bigint, B extends boolean>(
     X: (T|null|undefined)[], y: (R|null|undefined)[]|null, convertDType: B, nFeatures = 1) {
@@ -255,7 +289,14 @@ export class UMAP<O extends outputType = any> {
    * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
    * @param returnType Desired output type of results and attributes of the estimators
    *
-   * @returns Embedding of the data in low-dimensional space
+   * @returns Embedding of the data in low-dimensional space as per the outputType parameter while
+   *   initializing UMAP.
+   * if outputType = 'dataframe':
+   *    embedding: DataFrame{
+   *                 [0]: Series<Numeric>, [1]: Series<Numeric>,...[nComponents-1]:Series<Numeric>
+   *                }
+   * if outputType = 'series':  embeddings: Series<Numeric>
+   * if outputType = 'devicebuffer': embeddings: DeviceBuffer
    */
   transformSeries<T extends Series<Numeric>, B extends boolean>(X: T,
                                                                 convertDType: B,
@@ -290,7 +331,14 @@ export class UMAP<O extends outputType = any> {
    *   float32
    * @param returnType Desired output type of results and attributes of the estimators
    *
-   * @returns Embedding of the data in low-dimensional space
+   * @returns Embedding of the data in low-dimensional space as per the outputType parameter while
+   *   initializing UMAP.
+   * if outputType = 'dataframe':
+   *    embedding: DataFrame{
+   *                 [0]: Series<Numeric>, [1]: Series<Numeric>,...[nComponents-1]:Series<Numeric>
+   *                }
+   * if outputType = 'series':  embeddings: Series<Numeric>
+   * if outputType = 'devicebuffer': embeddings: DeviceBuffer
    */
   transformDF<T extends Numeric, K extends string, B extends boolean>(X: DataFrame<{[P in K]: T}>,
                                                                       convertDType: B) {
@@ -324,7 +372,14 @@ export class UMAP<O extends outputType = any> {
    * @param nFeatures number of features in the input X, if X is of the format [x1,y1,x2,y2...]
    * @param returnType Desired output type of results and attributes of the estimators
    *
-   * @returns Embedding of the data in low-dimensional space
+   * @returns Embedding of the data in low-dimensional space as per the outputType parameter while
+   *   initializing UMAP.
+   * if outputType = 'dataframe':
+   *    embedding: DataFrame{
+   *                 [0]: Series<Numeric>, [1]: Series<Numeric>,...[nComponents-1]:Series<Numeric>
+   *                }
+   * if outputType = 'series':  embeddings: Series<Numeric>
+   * if outputType = 'devicebuffer': embeddings: DeviceBuffer
    */
   transform<T extends number|bigint, B extends boolean>(X: (T|null|undefined)[],
                                                         convertDType: B,

@@ -62,14 +62,6 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
            bool convert_dtype,
            float* embeddings);
 
-  // void fit_sparse(float* X,
-  //                 cudf::size_type n_samples,
-  //                 cudf::size_type n_features,
-  //                 float* y,
-  //                 int64_t* knn_indices,
-  //                 float* knn_dists,
-  //                 bool convert_dtype = true);
-
   void transform(float* X,
                  cudf::size_type n_samples,
                  cudf::size_type n_features,
@@ -80,14 +72,6 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
                  bool convert_dtype,
                  float* embeddings,
                  float* transformed);
-
-  // void transform_sparse(float* X,
-  //                       cudf::size_type n_samples,
-  //                       cudf::size_type n_features,
-  //                       float* y,
-  //                       int64_t* knn_indices,
-  //                       float* knn_dists,
-  //                       bool convert_dtype = true);
 
  private:
   ML::UMAPParams params_{};

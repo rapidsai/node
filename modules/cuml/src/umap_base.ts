@@ -19,6 +19,9 @@ import {DeviceBuffer} from '@rapidsai/rmm';
 import {CUML} from './addon';
 import {CUMLLogLevels, MetricType} from './mappings';
 
+/**
+ * UMAPParams parameters from https://docs.rapids.ai/api/cuml/stable/api.html#cuml.UMAP
+ */
 export type UMAPParams = {
   nNeighbors?: number,
   nComponents?: number,
