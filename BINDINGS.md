@@ -262,7 +262,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `dropna`             |   ✅ (`dropNulls`)    |
 | `equals`             |                       |
 | `exp`                |          ✅           |
-| `fillna`             |                       |
+| `fillna`             |  ✅ (`replaceNulls`)  |
 | `floordiv`           |                       |
 | `from_arrow`         |                       |
 | `from_pandas`        |                       |
