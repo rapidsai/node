@@ -1,0 +1,43 @@
+{
+  "private": true,
+  "name": "umap-demo",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.0",
+    "@babel/preset-react": "^7.4.0",
+    "@babel/register": "^7.4.0",
+    "@deck.gl/core": "8.4.9",
+    "@deck.gl/react": "8.4.9",
+    "@luma.gl/core": "8.4.4",
+    "@nvidia/cuda": "0.0.1",
+    "@rapidsai/cudf": "0.0.1",
+    "@rapidsai/cuml": "0.0.1",
+    "@rapidsai/deck.gl": "0.0.1",
+    "@nvidia/glfw": "0.0.1",
+    "ix": "^4.3.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "scripts": {
+    "start": "node -r esm index.js",
+    "watch": "find -type f | entr -dr node -r esm index.js"
+  },
+  "esm": {
+    "cjs": true,
+    "force": true,
+    "mode": "auto",
+    "cache": false,
+    "sourceMap": true,
+    "mainFields": [
+      "esnext",
+      "module",
+      "main"
+    ]
+  }
+}
