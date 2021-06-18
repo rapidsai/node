@@ -19,11 +19,11 @@
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@deck.gl/core": "8.4.9",
-    "@deck.gl/layers": "8.4.9",
-    "@luma.gl/core": "8.4.4",
-    "@luma.gl/engine": "8.4.4",
-    "@luma.gl/webgl": "8.4.4",
+    "@deck.gl/core": "8.4.17",
+    "@deck.gl/layers": "8.4.17",
+    "@luma.gl/core": "8.4.5",
+    "@luma.gl/engine": "8.4.5",
+    "@luma.gl/webgl": "8.4.5",
     "@nvidia/cuda": "0.0.1",
     "@rapidsai/core": "0.0.1"
   },

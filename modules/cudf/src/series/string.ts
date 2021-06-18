@@ -14,8 +14,9 @@
 
 import {MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
-import {Column} from '../column';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
+import {Column} from '../column';
 import {Series} from '../series';
 import {Bool8, Categorical, DataType, Int32, Uint8, Utf8String} from '../types/dtypes';
 
@@ -32,7 +33,7 @@ export class StringSeries extends Series<Utf8String> {
    * @returns Series of same size as the current Series containing result of the `cast` operation.
    */
   cast<R extends DataType>(type: R, memoryResource?: MemoryResource): Series<R> {
-    if (this.type.compareTo(type)) { return Series.new<R>(this._col as Column<R>); }
+    if (compareTypes(this.type, type)) { return Series.new<R>(this._col as Column<R>); }
     if (arrow.DataType.isDictionary(type)) {
       const vals = this.cast(type.dictionary).unique(true, memoryResource);
       const keys = this.encodeLabels(vals, undefined, undefined, memoryResource);
