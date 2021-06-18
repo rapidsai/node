@@ -151,9 +151,10 @@ Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
 
   NapiToCPP::Object props = args[0];
 
-  DeviceBuffer::wrapper_t X = data_to_devicebuffer(args.Env(), props.Get("X"), props.Get("XType"));
+  DeviceBuffer::wrapper_t X =
+    data_to_devicebuffer(args.Env(), props.Get("features"), props.Get("featuresType"));
   DeviceBuffer::wrapper_t y =
-    props.Has("y") ? data_to_devicebuffer(args.Env(), props.Get("y"), props.Get("XType"))
+    props.Has("y") ? data_to_devicebuffer(args.Env(), props.Get("target"), props.Get("targetType"))
                    : DeviceBuffer::New(args.Env());
   DeviceBuffer::wrapper_t knn_indices =
     props.Has("knnIndices")
@@ -184,7 +185,8 @@ Napi::Value UMAP::transform(Napi::CallbackInfo const& args) {
 
   NapiToCPP::Object props = args[0];
 
-  DeviceBuffer::wrapper_t X = data_to_devicebuffer(args.Env(), props.Get("X"), props.Get("XType"));
+  DeviceBuffer::wrapper_t X =
+    data_to_devicebuffer(args.Env(), props.Get("features"), props.Get("featuresType"));
   DeviceBuffer::wrapper_t knn_indices =
     props.Has("knnIndices")
       ? data_to_devicebuffer(args.Env(), props.Get("knnIndices"), props.Get("knnIndicesType"))

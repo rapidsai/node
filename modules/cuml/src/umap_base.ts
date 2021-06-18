@@ -45,22 +45,22 @@ export type UMAPParams = {
   randomState?: number,
 };
 
-export type fitProps<T extends Numeric = any, R extends Numeric = any> = {
-  X: MemoryData|DeviceBuffer|(T['scalarType']|null|undefined)[],
-  XType: T,
+export type FitProps<T extends Numeric = any, R extends Numeric = any> = {
+  features: MemoryData|DeviceBuffer|(T['scalarType']|null|undefined)[],
+  featuresType: T,
   nSamples: number,
   nFeatures: number,
   convertDType: boolean,
   embeddings: MemoryData|DeviceBuffer,
-  y?: MemoryData|DeviceBuffer|(R['scalarType']|null|undefined)[],
-  yType?: R,
+  target?: MemoryData|DeviceBuffer|(R['scalarType']|null|undefined)[],
+  targetType?: R,
   knnIndices?: MemoryData|DeviceBuffer,
   knnDists?: MemoryData|DeviceBuffer
 };
 
 export type transformProps<T extends Numeric = any> = {
-  X: MemoryData|DeviceBuffer|(T['scalarType']|null|undefined)[],
-  XType: DataType,
+  features: MemoryData|DeviceBuffer|(T['scalarType']|null|undefined)[],
+  featuresType: DataType,
   nSamples: number,
   nFeatures: number,
   convertDType: boolean,
@@ -96,7 +96,7 @@ export interface UMAPInterface {
   readonly targetWeight: number;
   readonly randomState: number;
 
-  fit<T extends Numeric, R extends Numeric>(options?: fitProps<T, R>): DeviceBuffer;
+  fit<T extends Numeric, R extends Numeric>(options?: FitProps<T, R>): DeviceBuffer;
 
   transform<T extends Numeric>(options?: transformProps<T>): DeviceBuffer;
 }

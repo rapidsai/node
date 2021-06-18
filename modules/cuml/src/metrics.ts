@@ -20,25 +20,25 @@ import {dataframeToSeries} from './utilities/array_utils';
 /**
  * Expresses to what extent the local structure is retained in embedding. The score is defined in
  * the range [0, 1].
- * @param X original high dimensional dataset
+ * @param features original high dimensional dataset
  * @param embedded low dimesional embedding
- * @param nFeatures Number of features in X
+ * @param nFeatures Number of features in features
  * @param nComponents Number of features in embedded
  * @param nNeighbors Number of neighbors considered
  * @param batch_size It sets the number of samples that will be included in each batch
  * @returns Trustworthiness of the low-dimensional embedding
  */
 export function trustworthinessSeries<T extends Numeric, R extends Numeric>(
-  X: Series<T>,
+  features: Series<T>,
   embedded: Series<R>,
   nFeatures: number,
   nComponents = 2,
   nNeighbors  = 5,
   batch_size  = 512): number {
-  const nSamples = Math.floor(X.length / nFeatures);
+  const nSamples = Math.floor(features.length / nFeatures);
 
-  return CUML.trustworthiness(X.data.buffer,
-                              X.type,
+  return CUML.trustworthiness(features.data.buffer,
+                              features.type,
                               embedded.data.buffer,
                               embedded.type,
                               nSamples,
@@ -51,24 +51,24 @@ export function trustworthinessSeries<T extends Numeric, R extends Numeric>(
 /**
  * Expresses to what extent the local structure is retained in embedding. The score is defined in
  * the range [0, 1].
- * @param X original high dimensional dataset
+ * @param features original high dimensional dataset
  * @param embedded low dimesional embedding
  * @param nNeighbors Number of neighbors considered
  * @param batch_size It sets the number of samples that will be included in each batch
  * @returns Trustworthiness of the low-dimensional embedding
  */
-export function trustworthinessDF<T extends Numeric, R extends Numeric, K extends string>(
-  X: DataFrame<{[P in K]: T}>,
+export function trustworthinessDataFrame<T extends Numeric, R extends Numeric, K extends string>(
+  features: DataFrame<{[P in K]: T}>,
   embedded: DataFrame<{[P in number]: R}>,
   nNeighbors = 5,
   batch_size = 512): number {
-  const nSamples  = X.numRows;
-  const nFeatures = X.numColumns;
+  const nSamples  = features.numRows;
+  const nFeatures = features.numColumns;
 
   const nComponents = embedded.numColumns;
 
-  return CUML.trustworthiness(dataframeToSeries(X).data.buffer,
-                              X.get(X.names[0]).type,
+  return CUML.trustworthiness(dataframeToSeries(features).data.buffer,
+                              features.get(features.names[0]).type,
                               dataframeToSeries(embedded).data.buffer,
                               embedded.get(embedded.names[0]).type,
                               nSamples,
@@ -81,22 +81,22 @@ export function trustworthinessDF<T extends Numeric, R extends Numeric, K extend
 /**
  * Expresses to what extent the local structure is retained in embedding. The score is defined in
  * the range [0, 1].
- * @param X original high dimensional dataset
+ * @param features original high dimensional dataset
  * @param embedded low dimesional embedding
- * @param nFeatures Number of features in X
+ * @param nFeatures Number of features in features
  * @param nComponents Number of features in embedded
  * @param nNeighbors Number of neighbors considered
  * @param batch_size It sets the number of samples that will be included in each batch
  * @returns Trustworthiness of the low-dimensional embedding
  */
-export function trustworthiness<T extends number|bigint>(X: (T|null|undefined)[],
+export function trustworthiness<T extends number|bigint>(features: (T|null|undefined)[],
                                                          embedded: (T|null|undefined)[],
                                                          nFeatures: number,
                                                          nComponents = 2,
                                                          nNeighbors  = 5,
                                                          batch_size  = 512): number {
-  const nSamples = Math.floor(X.length / nFeatures);
-  return CUML.trustworthiness(X,
+  const nSamples = Math.floor(features.length / nFeatures);
+  return CUML.trustworthiness(features,
                               new Float32,
                               embedded,
                               new Float32,

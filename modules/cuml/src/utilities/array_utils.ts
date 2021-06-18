@@ -24,7 +24,7 @@ import {
  * for {x1,y1,x2,y2...} for df = {x:[x1,x2], y: [y1,y2]}
  */
 export function dataframeToSeries<T extends Numeric, K extends string>(
-  input: DataFrame<{[P in K]: T}>): Series<T> {
+  input: DataFrame<{[P in K]: T}>) {
   return input.interleaveColumns();
 }
 
