@@ -36,8 +36,11 @@ interface CallComputeEdgePositionsProps {
   edgeTargetPositions: EdgeComponentBuffer;
 }
 
+export interface ComputeEdgePositionsTransform {
+  gl: WebGLRenderingContext;
+}
+
 export class ComputeEdgePositionsTransform extends Transform {
-  public gl: WebGLRenderingContext;
   constructor(gl: WebGL2RenderingContext) {
     super(gl, <any>{
       elementCount: 0,

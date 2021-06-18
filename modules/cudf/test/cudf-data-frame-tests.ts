@@ -685,6 +685,46 @@ describe('dataframe unaryops', () => {
   });
 });
 
+describe('dataframe.replaceNulls', () => {
+  test('replace with scalar', () => {
+    const a      = Series.new([1, 2, 3, null]);
+    const b      = Series.new([null, null, 7, null]);
+    const c      = Series.new([null, null, null, null]);
+    const df     = new DataFrame({'a': a, 'b': b, 'c': c});
+    const result = df.replaceNulls(4);
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4]);
+    expect([...result.get('b')]).toEqual([4, 4, 7, 4]);
+    expect([...result.get('c')]).toEqual([4, 4, 4, 4]);
+
+    // compare with series.replaceNulls result
+    expect([...result.get('a')]).toEqual([...a.replaceNulls(4)]);
+    expect([...result.get('b')]).toEqual([...b.replaceNulls(4)]);
+    expect([...result.get('c')]).toEqual([...c.replaceNulls(4)]);
+  });
+
+  test('replace with seriesmap', () => {
+    const a      = Series.new([1, 2, 3, null]);
+    const b      = Series.new(['foo', 'bar', null, null]);
+    const c      = Series.new([null, false, null, true]);
+    const df     = new DataFrame({'a': a, 'b': b, 'c': c});
+    const result = df.replaceNulls({
+      'a': Series.new([1, 2, 3, 4]),
+      'b': Series.new(['foo', 'bar', 'foo', 'bar']),
+      'c': Series.new([false, false, true, true])
+    });
+    expect([...result.get('a')]).toEqual([1, 2, 3, 4]);
+    expect([...result.get('b')]).toEqual(['foo', 'bar', 'foo', 'bar']);
+    expect([...result.get('c')]).toEqual([false, false, true, true]);
+
+    // compare with series.replaceNulls result
+    expect([...result.get('a')]).toEqual([...a.replaceNulls(Series.new([1, 2, 3, 4]))]);
+    expect([...result.get('b')]).toEqual([...b.replaceNulls(
+      Series.new(['foo', 'bar', 'foo', 'bar']))]);
+    expect([...result.get('c')]).toEqual([...c.replaceNulls(
+      Series.new([false, false, true, true]))]);
+  });
+});
+
 test('dataframe.nansToNulls', () => {
   const a  = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]});
   const b  = Series.new({type: new Float32, data: new Float32Buffer([0, NaN, 3, 5, 5, 6])});

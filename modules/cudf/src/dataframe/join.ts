@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {MemoryResource} from '@rapidsai/rmm';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {ColumnAccessor} from '../column_accessor';
 import {DataFrame, SeriesMap} from '../data_frame';
@@ -89,10 +90,10 @@ export class Join<
     this.on.forEach((name) => {
       const lhs_col = this.lhs.get(name);
       const rhs_col = this.rhs.get(name);
-      if (!lhs_col.type.compareTo(rhs_col.type)) {
+      if (!compareTypes(lhs_col.type, rhs_col.type)) {
         const type = findCommonType(lhs_col.type, rhs_col.type);
-        this.lhs   = this.lhs.assign({[name]: lhs_col.cast(type)});
-        this.rhs   = this.rhs.assign({[name]: rhs_col.cast(type)});
+        this.lhs   = this.lhs.assign({[name]: lhs_col.cast(type)}) as DataFrame<Lhs>;
+        this.rhs   = this.rhs.assign({[name]: rhs_col.cast(type)}) as DataFrame<Rhs>;
       }
     });
   }
