@@ -649,9 +649,24 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * perform nLargest or nSmallest operation
+   * @ignore
+   */
+  _nLargestOrSmallest(ascending: boolean, n: number, keep: DuplicateKeepOption) {
+    if (keep == DuplicateKeepOption.first) {
+      return this.sortValues(!ascending).head(n < 0 ? 0 : n);
+    } else if (keep == DuplicateKeepOption.last) {
+      return n <= 0 ? Series.new({type: this.type, data: new Array(0)})
+                    : this.sortValues(ascending).tail(n).reverse();
+    } else {
+      throw new TypeError('keep must be either "first" or "last"');
+    }
+  }
+
+  /**
    * Returns the n largest element(s).
    *
-   * @param n The number of descending sorted values.
+   * @param n The number of values to retrieve.
    * @param keep Determines whether to keep the first or last of any duplicate values.
    *
    * @example
@@ -667,14 +682,29 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   nLargest(n = 5, keep: DuplicateKeepOption = DuplicateKeepOption.first) {
-    if (keep == DuplicateKeepOption.first) {
-      return this.sortValues(false).head(n < 0 ? 0 : n);
-    } else if (keep == DuplicateKeepOption.last) {
-      return n <= 0 ? Series.new({type: this.type, data: new Array(0)})
-                    : this.sortValues(true).tail(n).reverse();
-    } else {
-      throw new TypeError('keep must be either "first" or "last"');
-    }
+    return this._nLargestOrSmallest(true, n, keep);
+  }
+
+  /**
+   * Returns the n smallest element(s).
+   *
+   * @param n The number of values to retrieve.
+   * @param keep Determines whether to keep the first or last of any duplicate values.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([4, 6, 8, 10, 12, 1, 2]);
+   * const b = Series.new(["foo", "bar", "test"]);
+   *
+   * a.nSmallest(); // [1, 2, 4, 6, 8]
+   * b.nSmallest(1); // ["bar"]
+   * a.nSmallest(-1); // []
+   * ```
+   */
+  nSmallest(n = 5, keep: DuplicateKeepOption = DuplicateKeepOption.first) {
+    return this._nLargestOrSmallest(false, n, keep);
   }
 
   /**

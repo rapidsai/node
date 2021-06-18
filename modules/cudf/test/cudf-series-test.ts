@@ -254,6 +254,32 @@ describe('Series.nLargest', () => {
        () => { expect(() => col.nLargest(25, DuplicateKeepOption.none)).toThrow(); });
 });
 
+describe('Series.nSmallest', () => {
+  const col =
+    Series.new({type: new Int32, data: new Int32Buffer([9, 5, 0, 2, 1, 3, 4, 7, 6, 8, 0])});
+
+  test('default n', () => { expect([...col.nSmallest()]).toEqual([0, 0, 1, 2, 3]); });
+
+  test('negative n', () => { expect([...col.nSmallest(-1)]).toEqual([]); });
+
+  test('providing n', () => { expect([...col.nSmallest(8)]).toEqual([0, 0, 1, 2, 3, 4, 5, 6]); });
+
+  test('n longer than length of series', () => {
+    expect([...col.nSmallest(25)]).toEqual([0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+
+  test('keep last duplicate option', () => {
+    expect([
+      ...col.nSmallest(25, DuplicateKeepOption.last)
+    ]).toEqual([0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    expect([...col.nSmallest(-5, DuplicateKeepOption.last)]).toEqual([]);
+  });
+
+  test('keep none duplicate option throws',
+       () => { expect(() => col.nSmallest(25, DuplicateKeepOption.none)).toThrow(); });
+});
+
 test('Series.scatter (series)', () => {
   const col     = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]});
   const values  = Series.new({type: new Int32, data: [200, 400, 500, 800]});
