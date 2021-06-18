@@ -649,6 +649,35 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * Returns the n largest element(s).
+   *
+   * @param n The number of descending sorted values.
+   * @param keep Determines whether to keep the first or last of any duplicate values.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([4, 6, 8, 10, 12, 1, 2]);
+   * const b = Series.new(["foo", "bar", "test"]);
+   *
+   * a.nLargest(); // [12, 10, 8, 6, 4]
+   * b.nLargest(1); // ["test"]
+   * a.nLargest(-1); // []
+   * ```
+   */
+  nLargest(n = 5, keep: DuplicateKeepOption = DuplicateKeepOption.first) {
+    if (keep == DuplicateKeepOption.first) {
+      return this.sortValues(false).head(n < 0 ? 0 : n);
+    } else if (keep == DuplicateKeepOption.last) {
+      return n <= 0 ? Series.new({type: this.type, data: new Array(0)})
+                    : this.sortValues(true).tail(n).reverse();
+    } else {
+      throw new Error('keep must be either "first" or "last"');
+    }
+  }
+
+  /**
    * Returns the first n rows.
    *
    * @param n The number of rows to return.

@@ -79,7 +79,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `mul`                |          ✅           |
 | `nans_to_nulls`      |  ✅ (`nansToNulls`)   |
 | `ne`                 |          ✅           |
-| `nlargest`           |                       |
+| `nlargest`           |    ✅ (`nLargest`)    |
 | `notna`              |   ✅ (`isNotNull`)    |
 | `notnull`            |   ✅ (`isNotNull`)    |
 | `nsmallest`          |                       |

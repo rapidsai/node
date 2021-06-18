@@ -22,6 +22,7 @@ import {
 import {
   Bool8,
   Column,
+  DuplicateKeepOption,
   Float32,
   Float64,
   Int32,
@@ -225,6 +226,32 @@ describe('Series.tail', () => {
   test('n longer than length of series', () => {
     expect([...col.tail(25)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
+});
+
+describe('Series.nLargest', () => {
+  const col =
+    Series.new({type: new Int32, data: new Int32Buffer([9, 5, 0, 2, 1, 3, 4, 7, 6, 8, 0])});
+
+  test('default n', () => { expect([...col.nLargest()]).toEqual([9, 8, 7, 6, 5]); });
+
+  test('negative n', () => { expect([...col.nLargest(-1)]).toEqual([]); });
+
+  test('providing n', () => { expect([...col.nLargest(8)]).toEqual([9, 8, 7, 6, 5, 4, 3, 2]); });
+
+  test('n longer than length of series', () => {
+    expect([...col.nLargest(25)]).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0]);
+  });
+
+  test('keep last duplicate option', () => {
+    expect([
+      ...col.nLargest(25, DuplicateKeepOption.last)
+    ]).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0]);
+
+    expect([...col.nLargest(-5, DuplicateKeepOption.last)]).toEqual([]);
+  });
+
+  test('keep none duplicate option throws',
+       () => { expect(() => col.nLargest(25, DuplicateKeepOption.none)).toThrow(); });
 });
 
 test('Series.scatter (series)', () => {
