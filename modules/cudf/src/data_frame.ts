@@ -14,6 +14,7 @@
 
 import {MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 import {Readable} from 'stream';
 
 import {Column} from './column';
@@ -810,7 +811,7 @@ export class DataFrame<T extends TypeMap = any> {
     const allNames                 = this.names;
     subset.forEach((col) => {
       if (allNames.includes(col) &&
-          [new Float32, new Float64].some((t) => this.get(col).type.compareTo(t))) {
+          [new Float32, new Float64].some((t) => compareTypes(this.get(col).type, t))) {
         column_indices.push(allNames.indexOf(col));
       } else if (!allNames.includes(col)) {
         throw new Error(`Unknown column name: ${col.toString()}`);
@@ -850,7 +851,7 @@ export class DataFrame<T extends TypeMap = any> {
     const df                        = (subset !== undefined) ? this.gather(subset) : this;
 
     this.names.forEach(col => {
-      if ([new Float32, new Float64].some((t) => this.get(col).type.compareTo(t))) {
+      if ([new Float32, new Float64].some((t) => compareTypes(this.get(col).type, t))) {
         const nanCount =
           df.get(col)._col.nansToNulls(memoryResource).nullCount - this.get(col).nullCount;
 
@@ -1607,7 +1608,7 @@ export class DataFrame<T extends TypeMap = any> {
     const temp       = new Table({columns: this.select(subset)._accessor.columns});
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach((name, index) => {
-      if ([new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))) {
+      if ([new Float32, new Float64].some((t) => compareTypes(this.get(name).type, t))) {
         series_map[name] = Series.new(temp.getColumnByIndex(index).nansToNulls(memoryResource));
       } else {
         series_map[name] = Series.new(temp.getColumnByIndex(index));
@@ -1642,7 +1643,7 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this.names.reduce(
       (map, name) => ({
         ...map,
-        [name]: [new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))
+        [name]: [new Float32, new Float64].some((t) => compareTypes(this.get(name).type, t))
                   ? Series.new(this._accessor.get(name).isNaN(memoryResource))
                   : Series.new(this._accessor.get(name))
       }),
@@ -1702,7 +1703,7 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this.names.reduce(
       (map, name) => ({
         ...map,
-        [name]: [new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))
+        [name]: [new Float32, new Float64].some((t) => compareTypes(this.get(name).type, t))
                   ? Series.new(this._accessor.get(name).isNotNaN())
                   : Series.new(this._accessor.get(name))
       }),

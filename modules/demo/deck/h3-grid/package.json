@@ -13,10 +13,10 @@
     "build": "webpack -p --output-path dist"
   },
   "dependencies": {
-    "@deck.gl/react": "8.4.9",
-    "@deck.gl/core": "8.4.9",
-    "@deck.gl/layers": "8.4.9",
-    "@deck.gl/geo-layers": "8.4.9",
+    "@deck.gl/react": "8.4.17",
+    "@deck.gl/core": "8.4.17",
+    "@deck.gl/layers": "8.4.17",
+    "@deck.gl/geo-layers": "8.4.17",
     "@nvidia/glfw": "0.0.1",
     "react": "^16.3.0",
     "react-dom": "^16.3.0",

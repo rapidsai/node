@@ -14,6 +14,8 @@
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
+
 import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
@@ -91,7 +93,7 @@ export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(firs
       const commonDtype = commonDtypes[colIdx];
       if (column === null) {  // 1.
         return makeEmptyColumn(commonDtype);
-      } else if (!column.type.compareTo(commonDtype)) {  // 2.
+      } else if (!compareTypes(column.type, commonDtype)) {  // 2.
         return column.cast(commonDtype);
       }
       return column;

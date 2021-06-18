@@ -30,7 +30,7 @@
   "dependencies": {
     "@nvidia/cuda": "0.0.1",
     "@rapidsai/rmm": "0.0.1",
-    "apache-arrow": "^2.0.0"
+    "apache-arrow": "4.0.0"
   },
   "devDependencies": {
     "ix": "^4.3.0"

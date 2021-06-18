@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {MemoryResource} from '@rapidsai/rmm';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {Column} from '../column';
 import {Scalar} from '../scalar';
@@ -94,9 +95,9 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     type U     = typeof type;
     const type = findCommonType(this.type, other.type);
     const lhs =
-      <Column<U>>(type.compareTo(this.type) ? this._col : this._col.cast(type, memoryResource));
-    const rhs =
-      <Column<U>>(type.compareTo(other.type) ? other._col : other._col.cast(type, memoryResource));
+      <Column<U>>(compareTypes(type, this.type) ? this._col : this._col.cast(type, memoryResource));
+    const rhs = <Column<U>>(compareTypes(type, other.type) ? other._col
+                                                           : other._col.cast(type, memoryResource));
     return Series.new(lhs.concat(rhs, memoryResource));
   }
 

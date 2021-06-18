@@ -16,6 +16,7 @@ import {MemoryData} from '@nvidia/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {Column, ColumnProps} from './column';
 import {fromArrow} from './column/from_arrow';
@@ -1186,7 +1187,7 @@ function inferType(value: any[]): DataType {
     return new TimestampMillisecond;
   } else if (arraysCount + nullsCount === value.length) {
     const childType = inferType(value[value.findIndex((ary) => ary != null)]);
-    if (value.every((ary) => ary == null || childType.compareTo(inferType(ary)))) {
+    if (value.every((ary) => ary == null || compareTypes(childType, inferType(ary)))) {
       return new List(new arrow.Field('', childType));
     }
   } else if (objectsCount + nullsCount === value.length) {
