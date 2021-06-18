@@ -82,7 +82,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `nlargest`           |    ✅ (`nLargest`)    |
 | `notna`              |   ✅ (`isNotNull`)    |
 | `notnull`            |   ✅ (`isNotNull`)    |
-| `nsmallest`          |                       |
+| `nsmallest`          |   ✅ (`nSmallest`)    |
 | `nunique`            |          ✅           |
 | `one_hot_encoding`   |                       |
 | `pipe`               |                       |
