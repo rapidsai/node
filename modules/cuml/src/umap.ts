@@ -15,6 +15,7 @@
 import {MemoryData} from '@nvidia/cuda';
 import {DataFrame, Float32, Float64, Int64, Integral, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {CUMLLogLevels, MetricType} from './mappings';
 import {UMAPBase, UMAPInterface, UMAPParams} from './umap_base';
@@ -61,7 +62,7 @@ export class UMAP<O extends outputType = any> {
 
   // throw runtime error if type if float64
   protected _check_type(X: Numeric) {
-    if (X.compareTo(new Float64)) {
+    if (compareTypes(X, new Float64)) {
       throw new Error('Expected input to be of type in [Integral, Float32] but got Float64');
     }
   }
