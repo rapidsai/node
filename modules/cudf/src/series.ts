@@ -673,7 +673,7 @@ export class AbstractSeries<T extends DataType = any> {
       return n <= 0 ? Series.new({type: this.type, data: new Array(0)})
                     : this.sortValues(true).tail(n).reverse();
     } else {
-      throw new Error('keep must be either "first" or "last"');
+      throw new TypeError('keep must be either "first" or "last"');
     }
   }
 
