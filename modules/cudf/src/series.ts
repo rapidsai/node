@@ -681,8 +681,15 @@ export class AbstractSeries<T extends DataType = any> {
    * a.nLargest(-1); // []
    * ```
    */
-  nLargest(n = 5, keep: DuplicateKeepOption = DuplicateKeepOption.first) {
-    return this._nLargestOrSmallest(true, n, keep);
+  nLargest(n = 5, keep: keyof typeof DuplicateKeepOption = 'first') {
+    if (keep == 'first') {
+      return this.sortValues(false).head(n < 0 ? 0 : n);
+    } else if (keep == 'last') {
+      return n <= 0 ? Series.new({type: this.type, data: new Array(0)})
+                    : this.sortValues(true).tail(n).reverse();
+    } else {
+      throw new TypeError('keep must be either "first" or "last"');
+    }
   }
 
   /**
@@ -703,8 +710,15 @@ export class AbstractSeries<T extends DataType = any> {
    * a.nSmallest(-1); // []
    * ```
    */
-  nSmallest(n = 5, keep: DuplicateKeepOption = DuplicateKeepOption.first) {
-    return this._nLargestOrSmallest(false, n, keep);
+  nSmallest(n = 5, keep: keyof typeof DuplicateKeepOption = 'first') {
+    if (keep == 'first') {
+      return this.sortValues(true).head(n < 0 ? 0 : n);
+    } else if (keep == 'last') {
+      return n <= 0 ? Series.new({type: this.type, data: new Array(0)})
+                    : this.sortValues(false).tail(n).reverse();
+    } else {
+      throw new TypeError('keep must be either "first" or "last"');
+    }
   }
 
   /**

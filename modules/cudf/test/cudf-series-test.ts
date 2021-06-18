@@ -22,7 +22,6 @@ import {
 import {
   Bool8,
   Column,
-  DuplicateKeepOption,
   Float32,
   Float64,
   Int32,
@@ -243,15 +242,13 @@ describe('Series.nLargest', () => {
   });
 
   test('keep last duplicate option', () => {
-    expect([
-      ...col.nLargest(25, DuplicateKeepOption.last)
-    ]).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0]);
+    expect([...col.nLargest(25, 'last')]).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0]);
 
-    expect([...col.nLargest(-5, DuplicateKeepOption.last)]).toEqual([]);
+    expect([...col.nLargest(-5, 'last')]).toEqual([]);
   });
 
   test('keep none duplicate option throws',
-       () => { expect(() => col.nLargest(25, DuplicateKeepOption.none)).toThrow(); });
+       () => { expect(() => col.nLargest(25, 'none')).toThrow(); });
 });
 
 describe('Series.nSmallest', () => {
@@ -269,15 +266,13 @@ describe('Series.nSmallest', () => {
   });
 
   test('keep last duplicate option', () => {
-    expect([
-      ...col.nSmallest(25, DuplicateKeepOption.last)
-    ]).toEqual([0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect([...col.nSmallest(25, 'last')]).toEqual([0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-    expect([...col.nSmallest(-5, DuplicateKeepOption.last)]).toEqual([]);
+    expect([...col.nSmallest(-5, 'last')]).toEqual([]);
   });
 
   test('keep none duplicate option throws',
-       () => { expect(() => col.nSmallest(25, DuplicateKeepOption.none)).toThrow(); });
+       () => { expect(() => col.nSmallest(25, 'none')).toThrow(); });
 });
 
 test('Series.scatter (series)', () => {
