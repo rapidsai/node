@@ -192,10 +192,10 @@ export class UMAP<T extends Series<Numeric> = any> {
    *
    * @returns UMAP object with update embeddings
    */
-  fit(features: (number|bigint|null|undefined)[],
-      target: (number|bigint|null|undefined)[]|null,
-      convertDType: boolean,
-      nFeatures = 1) {
+  fitArray(features: (number|bigint|null|undefined)[],
+           target: (number|bigint|null|undefined)[]|null,
+           convertDType: boolean,
+           nFeatures = 1) {
     return this.fitSeries(
       Series.new({type: this._resolveType(convertDType, features[0]), data: features}) as T,
       (target == null)
@@ -317,7 +317,7 @@ export class UMAP<T extends Series<Numeric> = any> {
    *  embeddings.asDeviceBuffer(); //returns rmm.DeviceBuffer
    *  ```
    */
-  fitTransform<D extends number|bigint, R extends number|bigint, B extends boolean>(
+  fitTransformArray<D extends number|bigint, R extends number|bigint, B extends boolean>(
     features: (D|null|undefined)[],
     target: (R|null|undefined)[]|null,
     convertDType: B,
