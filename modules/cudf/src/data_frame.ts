@@ -80,8 +80,6 @@ function _invokeIfNumericSeries<P extends keyof T, T extends TypeMap, R extends 
   return Series.new(series._col as Column<R>);
 }
 
-declare function assert(value: unknown): asserts value;
-
 /**
  * A GPU Dataframe object.
  */
