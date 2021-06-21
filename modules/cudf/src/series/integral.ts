@@ -221,12 +221,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
    *
-   * a.cummax() // {4, 4, 5, 5, 5}
+   * a.cumulativeMax() // {4, 4, 5, 5, 5}
    * ```
    */
-  cummax(skipna = true, memoryResource?: MemoryResource) {
+  cumulativeMax(skipna = true, memoryResource?: MemoryResource) {
     const result_series = this._prepare_scan_series(skipna) as any;
-    return Series.new(result_series._col.cummax(memoryResource));
+    return Series.new(result_series._col.cumulativeMax(memoryResource));
   }
 
   /**
@@ -242,12 +242,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
    *
-   * a.cummin() // {4, 2, 2, 1, 1}
+   * a.cumulativeMin() // {4, 2, 2, 1, 1}
    * ```
    */
-  cummin(skipna = true, memoryResource?: MemoryResource) {
+  cumulativeMin(skipna = true, memoryResource?: MemoryResource) {
     const result_series = this._prepare_scan_series(skipna) as any;
-    return Series.new(result_series._col.cummin(memoryResource));
+    return Series.new(result_series._col.cumulativeMin(memoryResource));
   }
 
   /**
@@ -264,12 +264,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
    *
-   * a.cumprod() // {4, 8, 40, 40, 40}
+   * a.cumulativeProduct() // {4, 8, 40, 40, 40}
    * ```
    */
-  cumprod(skipna = true, memoryResource?: MemoryResource) {
+  cumulativeProduct(skipna = true, memoryResource?: MemoryResource) {
     const result_series = this._prepare_scan_series(skipna) as any;
-    return Series.new(result_series._col.cumprod(memoryResource));
+    return Series.new(result_series._col.cumulativeProduct(memoryResource));
   }
 
   /**
@@ -286,12 +286,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
    *
-   * a.cumsum() // {4, 6, 11, 12, 13}
+   * a.cumulativeSum() // {4, 6, 11, 12, 13}
    * ```
    */
-  cumsum(skipna = true, memoryResource?: MemoryResource) {
+  cumulativeSum(skipna = true, memoryResource?: MemoryResource) {
     const result_series = this._prepare_scan_series(skipna) as any;
-    return Series.new(result_series._col.cumsum(memoryResource));
+    return Series.new(result_series._col.cumulativeSum(memoryResource));
   }
 }
 

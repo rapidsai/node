@@ -60,12 +60,12 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([true, false, true])
    *
-   * a.cummax() // {true, true, true}
+   * a.cumulativeMax() // {true, true, true}
    * ```
    */
-  cummax(skipna = true, memoryResource?: MemoryResource) {
+  cumulativeMax(skipna = true, memoryResource?: MemoryResource) {
     const result_series = this._prepare_scan_series(skipna);
-    return Series.new(result_series._col.cummax(memoryResource));
+    return Series.new(result_series._col.cumulativeMax(memoryResource));
   }
 
   /**
@@ -81,12 +81,12 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([true, false, true])
    *
-   * a.cummin() // {true, false, false}
+   * a.cumulativeMin() // {true, false, false}
    * ```
    */
-  cummin(skipna = true, memoryResource?: MemoryResource) {
+  cumulativeMin(skipna = true, memoryResource?: MemoryResource) {
     const result_series = this._prepare_scan_series(skipna);
-    return Series.new(result_series._col.cummin(memoryResource));
+    return Series.new(result_series._col.cumulativeMin(memoryResource));
   }
 
   /**
@@ -103,12 +103,12 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([true, false, true])
    *
-   * a.cumprod() // {1n, 0n, 0n}
+   * a.cumulativeProduct() // {1n, 0n, 0n}
    * ```
    */
-  cumprod(skipna = true, memoryResource?: MemoryResource) {
+  cumulativeProduct(skipna = true, memoryResource?: MemoryResource) {
     const result_series = this._prepare_scan_series(skipna).cast(new Int64, memoryResource);
-    return Series.new(result_series._col.cumprod(memoryResource));
+    return Series.new(result_series._col.cumulativeProduct(memoryResource));
   }
 
   /**
@@ -125,11 +125,11 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([true, false, true])
    *
-   * a.cumsum() // {1n, 1n, 2n}
+   * a.cumulativeSum() // {1n, 1n, 2n}
    * ```
    */
-  cumsum(skipna = true, memoryResource?: MemoryResource) {
+  cumulativeSum(skipna = true, memoryResource?: MemoryResource) {
     const result_series = this._prepare_scan_series(skipna).cast(new Int64, memoryResource);
-    return Series.new(result_series._col.cumsum(memoryResource));
+    return Series.new(result_series._col.cumulativeSum(memoryResource));
   }
 }

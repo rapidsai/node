@@ -191,7 +191,7 @@ Napi::Value Column::quantile(Napi::CallbackInfo const& info) {
   return Napi::Value::From(info.Env(), quantile(args[0], args[1], args[2]));
 }
 
-Column::wrapper_t Column::cummax(rmm::mr::device_memory_resource* mr) const {
+Column::wrapper_t Column::cumulative_max(rmm::mr::device_memory_resource* mr) const {
   return scan(cudf::make_max_aggregation(),
               // following cudf, scan type and null policy always use these values
               cudf::scan_type::INCLUSIVE,
@@ -199,12 +199,12 @@ Column::wrapper_t Column::cummax(rmm::mr::device_memory_resource* mr) const {
               mr);
 }
 
-Napi::Value Column::cummax(Napi::CallbackInfo const& info) {
-  return Napi::Value::From(info.Env(),
-                           cummax(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
+Napi::Value Column::cumulative_max(Napi::CallbackInfo const& info) {
+  return Napi::Value::From(
+    info.Env(), cumulative_max(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
 }
 
-Column::wrapper_t Column::cummin(rmm::mr::device_memory_resource* mr) const {
+Column::wrapper_t Column::cumulative_min(rmm::mr::device_memory_resource* mr) const {
   return scan(cudf::make_min_aggregation(),
               // following cudf, scan type and null policy always use these values
               cudf::scan_type::INCLUSIVE,
@@ -212,11 +212,11 @@ Column::wrapper_t Column::cummin(rmm::mr::device_memory_resource* mr) const {
               mr);
 }
 
-Napi::Value Column::cummin(Napi::CallbackInfo const& info) {
-  return cummin(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*())->Value();
+Napi::Value Column::cumulative_min(Napi::CallbackInfo const& info) {
+  return cumulative_min(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*())->Value();
 }
 
-Column::wrapper_t Column::cumprod(rmm::mr::device_memory_resource* mr) const {
+Column::wrapper_t Column::cumulative_product(rmm::mr::device_memory_resource* mr) const {
   return scan(cudf::make_product_aggregation(),
               // following cudf, scan type and null policy always use these values
               cudf::scan_type::INCLUSIVE,
@@ -224,12 +224,12 @@ Column::wrapper_t Column::cumprod(rmm::mr::device_memory_resource* mr) const {
               mr);
 }
 
-Napi::Value Column::cumprod(Napi::CallbackInfo const& info) {
-  return Napi::Value::From(info.Env(),
-                           cumprod(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
+Napi::Value Column::cumulative_product(Napi::CallbackInfo const& info) {
+  return Napi::Value::From(
+    info.Env(), cumulative_product(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
 }
 
-Column::wrapper_t Column::cumsum(rmm::mr::device_memory_resource* mr) const {
+Column::wrapper_t Column::cumulative_sum(rmm::mr::device_memory_resource* mr) const {
   return scan(cudf::make_sum_aggregation(),
               // following cudf, scan type and null policy always use these values
               cudf::scan_type::INCLUSIVE,
@@ -237,9 +237,9 @@ Column::wrapper_t Column::cumsum(rmm::mr::device_memory_resource* mr) const {
               mr);
 }
 
-Napi::Value Column::cumsum(Napi::CallbackInfo const& info) {
-  return Napi::Value::From(info.Env(),
-                           cumsum(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
+Napi::Value Column::cumulative_sum(Napi::CallbackInfo const& info) {
+  return Napi::Value::From(
+    info.Env(), cumulative_sum(NapiToCPP(info[0]).operator rmm::mr::device_memory_resource*()));
 }
 
 }  // namespace nv

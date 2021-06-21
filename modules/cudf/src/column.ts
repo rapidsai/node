@@ -1037,7 +1037,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The cumulative max of all the values in this Column.
    */
-  cummax(memoryResource?: MemoryResource): Column<T>;
+  cumulativeMax(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Compute the cumulative min of all values in this Column.
@@ -1046,7 +1046,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The cumulative min of all the values in this Column.
    */
-  cummin(memoryResource?: MemoryResource): Column<T>;
+  cumulativeMin(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Compute the cumulative product of all values in this Column.
@@ -1055,7 +1055,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The cumulative product of all the values in this Column.
    */
-  cumprod(memoryResource?: MemoryResource): Column<T>;
+  cumulativeProduct(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Compute the cumulative sum of all values in this Column.
@@ -1064,7 +1064,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The cumulative sum of all the values in this Column.
    */
-  cumsum(memoryResource?: MemoryResource): Column<T>;
+  cumulativeSum(memoryResource?: MemoryResource): Column<T>;
 
   /**
    * drop NA values from the column if column is of floating-type

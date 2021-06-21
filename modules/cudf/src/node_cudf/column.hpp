@@ -337,7 +337,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
    *
    * @return Scalar
    */
-  Column::wrapper_t cummax(
+  Column::wrapper_t cumulative_max(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
@@ -345,7 +345,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
    *
    * @return Scalar
    */
-  Column::wrapper_t cummin(
+  Column::wrapper_t cumulative_min(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
@@ -353,7 +353,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
    *
    * @return Scalar
    */
-  Column::wrapper_t cumprod(
+  Column::wrapper_t cumulative_product(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
@@ -361,7 +361,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
    *
    * @return Scalar
    */
-  Column::wrapper_t cumsum(
+  Column::wrapper_t cumulative_sum(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/binaryop.cpp
@@ -817,10 +817,10 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value variance(Napi::CallbackInfo const& info);
   Napi::Value std(Napi::CallbackInfo const& info);
   Napi::Value quantile(Napi::CallbackInfo const& info);
-  Napi::Value cummax(Napi::CallbackInfo const& info);
-  Napi::Value cummin(Napi::CallbackInfo const& info);
-  Napi::Value cumprod(Napi::CallbackInfo const& info);
-  Napi::Value cumsum(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_max(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_min(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_product(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_sum(Napi::CallbackInfo const& info);
 
   // column/strings/json.cpp
   Napi::Value get_json_object(Napi::CallbackInfo const& info);

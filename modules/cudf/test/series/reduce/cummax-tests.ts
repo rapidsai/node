@@ -42,24 +42,24 @@ function testNumberAny<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32|Float32|Fl
   type: T, data: (T['scalarType']|null)[], skipna = true) {
   const expected = skipna ? [4, 4, null, 5, 5, 5]  //
                           : [4, 4, null, null, null, null];
-  expect([...Series.new({type, data}).cummax(skipna)]).toEqual(expected);
+  expect([...Series.new({type, data}).cumulativeMax(skipna)]).toEqual(expected);
 }
 
 function testBigIntAny<T extends Int64|Uint64>(
   type: T, data: (T['scalarType']|null)[], skipna = true) {
   const expected = skipna ? [4n, 4n, null, 5n, 5n, 5n]  //
                           : [4n, 4n, null, null, null, null];
-  expect([...Series.new({type, data}).cummax(skipna)]).toEqual(expected);
+  expect([...Series.new({type, data}).cumulativeMax(skipna)]).toEqual(expected);
 }
 
 function testBooleanAny<T extends Bool8>(type: T, data: (T['scalarType']|null)[], skipna = true) {
   const expected = skipna ? [true, true, null, true, true]  //
                           : [true, true, null, null, null];
 
-  expect([...Series.new({type, data}).cummax(skipna)]).toEqual(expected);
+  expect([...Series.new({type, data}).cumulativeMax(skipna)]).toEqual(expected);
 }
 
-describe.each([[true], [false]])('Series.cummax(skipna=%p)', (skipna) => {
+describe.each([[true], [false]])('Series.cumulativeMax(skipna=%p)', (skipna) => {
   test('Int8', () => { testNumberAny(new Int8, numbers, skipna); });
   test('Int16', () => { testNumberAny(new Int16, numbers, skipna); });
   test('Int32', () => { testNumberAny(new Int32, numbers, skipna); });
