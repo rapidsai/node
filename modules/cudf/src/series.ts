@@ -649,21 +649,6 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
-   * perform nLargest or nSmallest operation
-   * @ignore
-   */
-  _nLargestOrSmallest(ascending: boolean, n: number, keep: DuplicateKeepOption) {
-    if (keep == DuplicateKeepOption.first) {
-      return this.sortValues(!ascending).head(n < 0 ? 0 : n);
-    } else if (keep == DuplicateKeepOption.last) {
-      return n <= 0 ? Series.new({type: this.type, data: new Array(0)})
-                    : this.sortValues(ascending).tail(n).reverse();
-    } else {
-      throw new TypeError('keep must be either "first" or "last"');
-    }
-  }
-
-  /**
    * Returns the n largest element(s).
    *
    * @param n The number of values to retrieve.
@@ -681,15 +666,8 @@ export class AbstractSeries<T extends DataType = any> {
    * a.nLargest(-1); // []
    * ```
    */
-  nLargest(n = 5, keep: keyof typeof DuplicateKeepOption = 'first') {
-    if (keep == 'first') {
-      return this.sortValues(false).head(n < 0 ? 0 : n);
-    } else if (keep == 'last') {
-      return n <= 0 ? Series.new({type: this.type, data: new Array(0)})
-                    : this.sortValues(true).tail(n).reverse();
-    } else {
-      throw new TypeError('keep must be either "first" or "last"');
-    }
+  nLargest(n = 5, keep: keyof typeof DuplicateKeepOption = 'first'): Series<T> {
+    return _nLargestOrSmallest(this as Series, true, n, keep);
   }
 
   /**
@@ -710,15 +688,8 @@ export class AbstractSeries<T extends DataType = any> {
    * a.nSmallest(-1); // []
    * ```
    */
-  nSmallest(n = 5, keep: keyof typeof DuplicateKeepOption = 'first') {
-    if (keep == 'first') {
-      return this.sortValues(true).head(n < 0 ? 0 : n);
-    } else if (keep == 'last') {
-      return n <= 0 ? Series.new({type: this.type, data: new Array(0)})
-                    : this.sortValues(false).tail(n).reverse();
-    } else {
-      throw new TypeError('keep must be either "first" or "last"');
-    }
+  nSmallest(n = 5, keep: keyof typeof DuplicateKeepOption = 'first'): Series<T> {
+    return _nLargestOrSmallest(this as Series, false, n, keep);
   }
 
   /**
@@ -1386,3 +1357,16 @@ const columnToSeries = (() => {
     return visitor.visit(column);
   };
 })();
+
+function _nLargestOrSmallest<T extends DataType>(
+  series: Series<T>, ascending: boolean, n: number, keep: keyof typeof DuplicateKeepOption):
+  Series {
+  if (keep == 'first') {
+    return series.sortValues(!ascending).head(n < 0 ? 0 : n);
+  } else if (keep == 'last') {
+    return n <= 0 ? Series.new({type: series.type, data: new Array(0)})
+                  : series.sortValues(ascending).tail(n).reverse();
+  } else {
+    throw new TypeError('keep must be either "first" or "last"');
+  }
+}
