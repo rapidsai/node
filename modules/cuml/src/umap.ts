@@ -121,15 +121,16 @@ export class UMAP {
                                                                   convertDType = true) {
     // runtime type check
     this._check_type(features.type);
-    const nSamples   = Math.floor(features.length / nFeatures);
-    this._embeddings = this._generate_embeddings(nSamples, features.type);
-    let options      = {
+    const nSamples = Math.floor(features.length / nFeatures);
+    let options    = {
       features: features._col.data,
       featuresType: features.type,
       nSamples: nSamples,
       nFeatures: nFeatures,
       convertDType: convertDType,
-      embeddings: this._embeddings
+      embeddings: (this._embeddings.byteLength == 0)
+                       ? this._generate_embeddings(nSamples, features.type)
+                       : this._embeddings
     };
     if (target !== null) {
       options = {...options, ...{ target: target._col.data, targetType: target.type }};
