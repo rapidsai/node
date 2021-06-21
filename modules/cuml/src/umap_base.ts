@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryData} from '@nvidia/cuda';
 import {DataType, Numeric} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
@@ -46,28 +45,28 @@ export type UMAPParams = {
 };
 
 export type FitProps<T extends Numeric = any, R extends Numeric = any> = {
-  features: MemoryData|DeviceBuffer|(T['scalarType']|null|undefined)[],
+  features: DeviceBuffer|(T['scalarType']|null|undefined)[],
   featuresType: T,
   nSamples: number,
   nFeatures: number,
   convertDType: boolean,
-  embeddings: MemoryData|DeviceBuffer,
-  target?: MemoryData|DeviceBuffer|(R['scalarType']|null|undefined)[],
+  embeddings: DeviceBuffer,
+  target?: DeviceBuffer|(R['scalarType']|null|undefined)[],
   targetType?: R,
-  knnIndices?: MemoryData|DeviceBuffer,
-  knnDists?: MemoryData|DeviceBuffer
+  knnIndices?: DeviceBuffer,
+  knnDists?: DeviceBuffer
 };
 
 export type transformProps<T extends Numeric = any> = {
-  features: MemoryData|DeviceBuffer|(T['scalarType']|null|undefined)[],
+  features: DeviceBuffer|(T['scalarType']|null|undefined)[],
   featuresType: DataType,
   nSamples: number,
   nFeatures: number,
   convertDType: boolean,
-  embeddings: MemoryData|DeviceBuffer,
-  transformed: MemoryData|DeviceBuffer,
-  knnIndices?: MemoryData|DeviceBuffer,
-  knnDists?: MemoryData|DeviceBuffer,
+  embeddings: DeviceBuffer,
+  transformed: DeviceBuffer,
+  knnIndices?: DeviceBuffer,
+  knnDists?: DeviceBuffer,
 };
 
 interface UMAPConstructor {

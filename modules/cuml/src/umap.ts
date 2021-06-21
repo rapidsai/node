@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryData} from '@nvidia/cuda';
 import {
   Bool8,
   DataFrame,
@@ -53,12 +52,12 @@ const allowedTypes = [
 export type outputType = 'dataframe'|'series'|'devicebuffer';
 
 class Embeddings<T extends Numeric> {
-  private _embeddings: MemoryData|DeviceBuffer;
+  private _embeddings: DeviceBuffer;
   private _dType: T;
   public nSamples: number;
   public nFeatures: number;
 
-  constructor(_embeddings: MemoryData|DeviceBuffer, nSamples: number, nFeatures: number, dType: T) {
+  constructor(_embeddings: DeviceBuffer, nSamples: number, nFeatures: number, dType: T) {
     this._embeddings = _embeddings;
     this.nSamples    = nSamples;
     this.nFeatures   = nFeatures;
@@ -71,7 +70,7 @@ class Embeddings<T extends Numeric> {
 
 export class UMAP<T extends Series<Numeric> = any> {
   private _umap: UMAPInterface;
-  private _embeddings: MemoryData|DeviceBuffer;
+  private _embeddings: DeviceBuffer;
   private _features: T;
   private _nFeatures: number;
   /**
@@ -98,7 +97,7 @@ export class UMAP<T extends Series<Numeric> = any> {
 
   protected _generate_embeddings<D extends Numeric>(nSamples: number, dtype: D) {
     return Series.sequence({type: dtype, size: nSamples * this._umap.nComponents, init: 0, step: 0})
-      .data.buffer;
+      ._col.data;
   }
 
   // throw runtime error if type if float64
@@ -134,7 +133,7 @@ export class UMAP<T extends Series<Numeric> = any> {
     const nSamples   = Math.floor(features.length / nFeatures);
     this._embeddings = this._generate_embeddings(nSamples, features.type);
     let options      = {
-      features: features.data,
+      features: features._col.data,
       featuresType: features.type,
       nSamples: nSamples,
       nFeatures: nFeatures,
@@ -142,7 +141,7 @@ export class UMAP<T extends Series<Numeric> = any> {
       embeddings: this._embeddings
     };
     if (target !== null) {
-      options = {...options, ...{ target: target.data, targetType: target.type }};
+      options = {...options, ...{ target: target._col.data, targetType: target.type }};
     }
     return new UMAP(this.getUMAPParams(), this._umap.fit(options), features, nFeatures);
   }
@@ -357,7 +356,7 @@ export class UMAP<T extends Series<Numeric> = any> {
                          : transformedEmbeddings;
 
     const result = this._umap.transform({
-      features: this._features.data,
+      features: this._features._col.data,
       featuresType: this._features.type,
       nSamples: nSamples,
       nFeatures: this._nFeatures,
