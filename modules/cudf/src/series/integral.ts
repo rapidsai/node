@@ -219,7 +219,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
-   * const a = Series.new([4, 2, 5, 1, 1])
+   * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
    *
    * a.cummax() // {4, 4, 5, 5, 5}
    * ```
@@ -240,7 +240,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
-   * const a = Series.new([4, 2, 5, 1, 1])
+   * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
    *
    * a.cummin() // {4, 2, 2, 1, 1}
    * ```
@@ -262,7 +262,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
-   * const a = Series.new([4, 2, 5, 1, 1])
+   * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
    *
    * a.cumprod() // {4, 8, 40, 40, 40}
    * ```
@@ -284,7 +284,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
-   * const a = Series.new([4, 2, 5, 1, 1])
+   * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
    *
    * a.cumsum() // {4, 6, 11, 12, 13}
    * ```
