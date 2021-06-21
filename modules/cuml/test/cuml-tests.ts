@@ -31,48 +31,48 @@ const options = {
 
 test('fit_transform trustworthiness score (series)', () => {
   const umap   = new UMAP(options);
-  const t1     = umap.fitTransformSeries(XSeries, y, false, 4).asSeries();
-  const trust1 = trustworthinessSeries(XSeries, t1, 4);
+  const t1     = umap.fitSeries(XSeries, y, 4).embeddings;
+  const trust1 = trustworthinessSeries(XSeries, t1.asSeries(), 4);
 
   expect(trust1).toBeGreaterThan(0.97);
 });
 
 test('fit_transform trustworthiness score (dataframe)', () => {
   const umap   = new UMAP(options);
-  const t1     = umap.fitTransformDataFrame(X, y, true).asSeries();
-  const trust1 = trustworthinessSeries(XSeries, t1, 4);
+  const t1     = umap.fitDataFrame(X, y).embeddings;
+  const trust1 = trustworthinessDataFrame(X, t1.asDataFrame());
 
   expect(trust1).toBeGreaterThan(0.97);
 });
 
 test('fit_transform trustworthiness score (array)', () => {
   const umap   = new UMAP(options);
-  const t1     = umap.fitTransformArray([...XSeries], [...y], true, 4).asSeries();
-  const trust1 = trustworthiness([...XSeries], [...t1], 4);
+  const t1     = umap.fitArray([...XSeries], [...y], 4).embeddings;
+  const trust1 = trustworthiness([...XSeries], [...t1.asSeries()], 4);
 
   expect(trust1).toBeGreaterThan(0.97);
 });
 
 test('transform trustworthiness score (series)', () => {
   const umap  = new UMAP(options);
-  const t1    = umap.fitSeries(XSeries, y, true, 4).transform(true).asSeries();
-  const score = trustworthinessSeries(XSeries, t1, 4);
+  const t1    = umap.fitSeries(XSeries, y, 4).transformSeries(XSeries, 4);
+  const score = trustworthinessSeries(XSeries, t1.asSeries(), 4);
 
   expect(score).toBeGreaterThan(0.95);
 });
 
 test('transform trustworthiness score (dataframe)', () => {
   const umap  = new UMAP(options);
-  const t1    = umap.fitDataFrame(X, y, true).transform(true).asDataFrame();
-  const score = trustworthinessDataFrame(X, t1);
+  const t1    = umap.fitDataFrame(X, y).transformDataFrame(X);
+  const score = trustworthinessDataFrame(X, t1.asDataFrame());
 
   expect(score).toBeGreaterThan(0.95);
 });
 
 test('transform trustworthiness score (array)', () => {
   const umap  = new UMAP(options);
-  const t1    = umap.fitArray([...XSeries], [...y], true, 4).transform(true).asSeries();
-  const score = trustworthiness([...XSeries], [...t1], 4);
+  const t1    = umap.fitArray([...XSeries], [...y], 4).transformArray([...XSeries], 4);
+  const score = trustworthiness([...XSeries], [...t1.asSeries()], 4);
 
   expect(score).toBeGreaterThan(0.95);
 });

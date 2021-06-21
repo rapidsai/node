@@ -36,8 +36,9 @@ export function dataframeToSeries<T extends Numeric, K extends string>(
  * @returns DataFrame
  */
 export function seriesToDataframe<T extends Numeric>(
-  input: Series<T>, nSamples: number, nComponents: number): DataFrame<{[P in number]: T}> {
-  let result = new DataFrame<{[P in number]: T}>({});
+  input: Series<T>, nComponents: number): DataFrame<{[P in number]: T}> {
+  const nSamples = Math.floor(input.length / nComponents);
+  let result     = new DataFrame<{[P in number]: T}>({});
   for (let i = 0; i < nComponents; i++) {
     result = result.assign({
       [i]:

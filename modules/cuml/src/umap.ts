@@ -52,27 +52,25 @@ const allowedTypes = [
 export type outputType = 'dataframe'|'series'|'devicebuffer';
 
 class Embeddings<T extends Numeric> {
-  private _embeddings: DeviceBuffer;
-  private _dType: T;
-  public nSamples: number;
-  public nFeatures: number;
+  protected _embeddings: DeviceBuffer;
+  protected _dType: T;
+  protected nFeatures: number;
 
-  constructor(_embeddings: DeviceBuffer, nSamples: number, nFeatures: number, dType: T) {
+  constructor(_embeddings: DeviceBuffer, nFeatures: number, dType: T) {
     this._embeddings = _embeddings;
-    this.nSamples    = nSamples;
     this.nFeatures   = nFeatures;
     this._dType      = dType;
   }
+
   public asSeries() { return Series.new({type: this._dType, data: this._embeddings}); }
-  public asDataFrame() { return seriesToDataframe(this.asSeries(), this.nSamples, this.nFeatures); }
+  public asDataFrame() { return seriesToDataframe(this.asSeries(), this.nFeatures); }
   public asDeviceBuffer() { return this._embeddings; }
 }
 
-export class UMAP<T extends Series<Numeric> = any> {
-  private _umap: UMAPInterface;
-  private _embeddings: DeviceBuffer;
-  private _features: T;
-  private _nFeatures: number;
+export class UMAP {
+  protected _umap: UMAPInterface;
+  protected _embeddings = new DeviceBuffer();
+
   /**
    * Initialize a UMAP object
    * @param input: UMAPParams
@@ -85,15 +83,7 @@ export class UMAP<T extends Series<Numeric> = any> {
    * const umap = new UMAP({nComponents:2}, 'dataframe');
    * ```
    */
-  constructor(input: UMAPParams,
-              embeddings  = new DeviceBuffer(),
-              features: T = Series.new({type: new Float32, data: []}) as T,
-              nFeatures   = 1) {
-    this._umap       = new UMAPBase(input);
-    this._embeddings = embeddings;
-    this._features   = features;
-    this._nFeatures  = nFeatures;
-  }
+  constructor(input: UMAPParams = {}) { this._umap = new UMAPBase(input); }
 
   protected _generate_embeddings<D extends Numeric>(nSamples: number, dtype: D) {
     return Series.sequence({type: dtype, size: nSamples * this._umap.nComponents, init: 0, step: 0})
@@ -107,9 +97,10 @@ export class UMAP<T extends Series<Numeric> = any> {
     }
   }
 
-  private _resolveType(convertDType: boolean, value: number|bigint|null|undefined) {
+  protected _resolveType(convertDType: boolean, value: number|bigint|null|undefined) {
     return (convertDType) ? new Float32 : (typeof value == 'bigint') ? new Int64 : new Float32;
   }
+
   /**
    * Fit features into an embedded space
    *
@@ -122,12 +113,12 @@ export class UMAP<T extends Series<Numeric> = any> {
    *
    * @param nFeatures number of properties in the input features, if features is of the format
    *   [x1,y1,x2,y2...]
-   * @returns UMAP object with update embeddings
+   * @returns FittedUMAP object with updated embeddings
    */
-  fitSeries<R extends Series<Numeric>, B extends boolean>(features: T,
-                                                          target: null|R,
-                                                          convertDType: B,
-                                                          nFeatures = 1) {
+  fitSeries<T extends Series<Numeric>, R extends Series<Numeric>>(features: T,
+                                                                  target: null|R,
+                                                                  nFeatures    = 1,
+                                                                  convertDType = true) {
     // runtime type check
     this._check_type(features.type);
     const nSamples   = Math.floor(features.length / nFeatures);
@@ -143,7 +134,7 @@ export class UMAP<T extends Series<Numeric> = any> {
     if (target !== null) {
       options = {...options, ...{ target: target._col.data, targetType: target.type }};
     }
-    return new UMAP(this.getUMAPParams(), this._umap.fit(options), features, nFeatures);
+    return new FittedUMAP(this.getUMAPParams(), this._umap.fit(options));
   }
 
   /**
@@ -154,15 +145,15 @@ export class UMAP<T extends Series<Numeric> = any> {
    * @param target cuDF Series containing target values
    * @param convertDType When set to True, the method will automatically convert the inputs to
    *   float32
-   * @returns UMAP object with update embeddings
+   * @returns FittedUMAP object with updated embeddings
    */
-  fitDataFrame<K extends string, R extends Series<Numeric>,>(features: DataFrame<{[P in K]: T['type']}>,
+  fitDataFrame<T extends Numeric, K extends string, R extends Series<Numeric>,>(features: DataFrame<{[P in K]: T}>,
                                                     target: null|R,
-                                                    convertDType: boolean) {
+                                                    convertDType = true) {
     // runtime type check
     this._check_type(features.get(features.names[0]).type);
     return this.fitSeries(
-      dataframeToSeries(features) as T, target, convertDType, features.numColumns);
+      dataframeToSeries(features) as Series<T>, target, features.numColumns, convertDType);
   }
 
   /**
@@ -189,184 +180,19 @@ export class UMAP<T extends Series<Numeric> = any> {
    * @param nFeatures number of properties in the input features, if features is of the format
    *   [x1,y1,x2,y2...]
    *
-   * @returns UMAP object with update embeddings
+   * @returns FittedUMAP object with updated embeddings
    */
-  fitArray(features: (number|bigint|null|undefined)[],
-           target: (number|bigint|null|undefined)[]|null,
-           convertDType: boolean,
-           nFeatures = 1) {
+  fitArray<T extends Series<Numeric>>(features: (number|bigint|null|undefined)[],
+                                      target: (number|bigint|null|undefined)[]|null,
+                                      nFeatures    = 1,
+                                      convertDType = true) {
     return this.fitSeries(
       Series.new({type: this._resolveType(convertDType, features[0]), data: features}) as T,
       (target == null)
         ? null
         : Series.new({type: this._resolveType(convertDType, target[0]), data: target}),
-      convertDType,
-      nFeatures);
-  }
-
-  /**
-   * Fit features into an embedded space and return that transformed output.
-   *
-   *  There is a subtle difference between calling fit_transform(features) and calling
-   * fit().transform(). Calling fit_transform(features) will train the embeddings on features and
-   * return the embeddings. Calling fit(features).transform(features) will train the embeddings on
-   * features and then run a second optimization.
-   *
-   *
-   * @param features Dense or sparse matrix containing floats or doubles. Acceptable dense formats:
-   *   cuDF Series
-   * @param target cuDF Series containing target values
-   * @param convertDType When set to True, the method will automatically convert the inputs to
-   *   float32
-   * @param nFeatures number of properties in the input features, if features is of the format
-   *   [x1,y1,x2,y2...]
-   * @param returnType Desired output type of results and attributes of the estimators
-   *
-   *  @returns Embedding of the data in low-dimensional space as per the outputType parameter while
-   *   initializing UMAP, which can be converted to any of the following types: DataFrame, Series,
-   * DeviceBuffer.
-   *  ```typescript
-   *  embeddings.asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
-   *  embeddings.asSeries(); // returns Series<Numeric>
-   *  embeddings.asDeviceBuffer(); //returns rmm.DeviceBuffer
-   *  ```
-   */
-  fitTransformSeries<R extends Series<Numeric>, B extends boolean>(features: T,
-                                                                   target: null|R,
-                                                                   convertDType: B,
-                                                                   nFeatures = 1) {
-    const nSamples = Math.floor(features.length / nFeatures);
-    const dtype    = (convertDType) ? new Float32 : features.type as T['type'];
-
-    return new Embeddings(this.fitSeries(features, target, convertDType, nFeatures)._embeddings,
-                          nSamples,
-                          this.nComponents,
-                          dtype);
-  }
-
-  /**
-   * Fit features into an embedded space and return that transformed output.
-   *
-   *  There is a subtle difference between calling fit_transform(features) and calling
-   * fit().transform(). Calling fit_transform(features) will train the embeddings on features and
-   * return the embeddings. Calling fit(features).transform(features) will train the embeddings on
-   * features and then run a second optimization.
-   *
-   *
-   * @param features Dense or sparse matrix containing floats or doubles. Acceptable dense formats:
-   *   cuDF DataFrame
-   * @param target cuDF Series containing target values
-   * @param convertDType When set to True, the method will automatically convert the inputs to
-   *   float32
-   * @param returnType Desired output type of results and attributes of the estimators
-   *
-   *  @returns Embedding of the data in low-dimensional space as per the outputType parameter while
-   *   initializing UMAP, which can be converted to any of the following types: DataFrame, Series,
-   * DeviceBuffer.
-   *  ```typescript
-   *  embeddings.asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
-   *  embeddings.asSeries(); // returns Series<Numeric>
-   *  embeddings.asDeviceBuffer(); //returns rmm.DeviceBuffer
-   *  ```
-   */
-  fitTransformDataFrame<K extends string, R extends Series<Numeric>, B extends boolean>(
-    features: DataFrame<{[P in K]: T['type']}>, target: null|R, convertDType: B) {
-    return this.fitTransformSeries(
-      dataframeToSeries(features) as T, target, convertDType, features.numColumns);
-  }
-
-  /**
-   * Fit features into an embedded space and return that transformed output.
-   *
-   *  There is a subtle difference between calling fit_transform(features) and calling
-   * fit().transform(). Calling fit_transform(features) will train the embeddings on features and
-   * return the embeddings. Calling fit(features).transform(features) will train the embeddings on
-   * features and then run a second optimization.
-   *
-   *
-   * @param features array containing floats or doubles in the format [x1, y1, z1, x2, y2, z2...]
-   *   for features x, y & z.
-   *
-   * ```typescript
-   * // For a sample dataset of colors, with properties r,g and b:
-   * features = [
-   *   ...Object.values({ r: xx1, g: xx2, b: xx3 }),
-   *   ...Object.values({ r: xx4, g: xx5, b: xx6 }),
-   * ] // [xx1, xx2, xx3, xx4, xx5, xx6]
-   * ```
-   *
-   * @param target array containing target values
-   * ```typescript
-   * // For a sample dataset of colors, with properties r,g and b:
-   * target = [color1, color2] // len(target) = len(features)
-   * ```
-
-   * @param convertDType When set to True, the method will automatically convert the inputs to
-   *   float32
-   * @param nFeatures number of properties in the input features, if features is of the format
-   *   [x1,y1,x2,y2...]
-   * @param returnType Desired output type of results and attributes of the estimators
-   *
-   *  @returns Embedding of the data in low-dimensional space as per the outputType parameter while
-   *   initializing UMAP, which can be converted to any of the following types: DataFrame, Series,
-   * DeviceBuffer.
-   *  ```typescript
-   *  embeddings.asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
-   *  embeddings.asSeries(); // returns Series<Numeric>
-   *  embeddings.asDeviceBuffer(); //returns rmm.DeviceBuffer
-   *  ```
-   */
-  fitTransformArray<D extends number|bigint, R extends number|bigint, B extends boolean>(
-    features: (D|null|undefined)[],
-    target: (R|null|undefined)[]|null,
-    convertDType: B,
-    nFeatures = 1) {
-    return this.fitTransformSeries(
-      Series.new({type: this._resolveType(convertDType, features[0]), data: features}) as T,
-      (target == null)
-        ? null
-        : Series.new({type: this._resolveType(convertDType, target[0]), data: target}),
-      convertDType,
-      nFeatures);
-  }
-
-  /**
-   * Transform features into the existing embedded space and return that transformed output.
-   *
-   * @param convertDType When set to True, the method will automatically convert the inputs to
-   *   float32
-   * @param nFeatures number of properties in the input features, if features is of the format
-   *   [x1,y1,x2,y2...]
-   *  @returns Embedding of the data in low-dimensional space as per the outputType parameter while
-   *   initializing UMAP, which can be converted to any of the following types: DataFrame, Series,
-   * DeviceBuffer.
-   *  ```typescript
-   *  embeddings.asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
-   *  embeddings.asSeries(); // returns Series<Numeric>
-   *  embeddings.asDeviceBuffer(); //returns rmm.DeviceBuffer
-   *  ```
-   */
-  transform(convertDType: boolean, transformedEmbeddings: DeviceBuffer|null = null) {
-    // runtime type check
-    this._check_type(this._features.type);
-
-    const nSamples   = Math.floor(this._features.length / this._nFeatures);
-    const embeddings = (transformedEmbeddings == null)
-                         ? this._generate_embeddings(nSamples, this._features.type)
-                         : transformedEmbeddings;
-
-    const result = this._umap.transform({
-      features: this._features._col.data,
-      featuresType: this._features.type,
-      nSamples: nSamples,
-      nFeatures: this._nFeatures,
-      convertDType: convertDType,
-      embeddings: this._embeddings,
-      transformed: embeddings
-    });
-
-    const dtype = (convertDType) ? new Float32 : this._features.type;
-    return new Embeddings(result, nSamples, this.nComponents, dtype);
+      nFeatures,
+      convertDType);
   }
 
   setUMAPParams(input: UMAPParams) { this._umap = new UMAPBase(input); }
@@ -396,6 +222,31 @@ export class UMAP<T extends Series<Numeric> = any> {
     } as UMAPParams;
   }
 
+  /**
+   * @param dtype Numeric cudf DataType
+   * @returns Embeddings in low-dimensional space in dtype format, which can be converted to any
+   * of the following types: DataFrame, Series, DeviceBuffer.
+   *  ```typescript
+   *  getEmbeddings(new Float64).asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
+   *  getEmbeddings(new Int32).asSeries(); // returns Series<Numeric>
+   *  getEmbeddings(new UInt32).asDeviceBuffer(); //returns rmm.DeviceBuffer
+   *  ```
+   */
+  getEmbeddings<T extends Numeric>(dtype: T) {
+    return new Embeddings(this._embeddings, this.nComponents, dtype);
+  }
+
+  /**
+   *  @returns Embeddings in low-dimensional space in float32 format, which can be converted to any
+   * of the following types: DataFrame, Series, DeviceBuffer.
+   *  ```typescript
+   *  embeddings.asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
+   *  embeddings.asSeries(); // returns Series<Numeric>
+   *  embeddings.asDeviceBuffer(); //returns rmm.DeviceBuffer
+   *  ```
+   */
+  get embeddings() { return new Embeddings(this._embeddings, this.nComponents, new Float32); }
+
   get nNeighbors(): number { return this._umap.nNeighbors; }
   get nComponents(): number { return this._umap.nComponents; }
   get nEpochs(): number { return this._umap.nEpochs; }
@@ -416,4 +267,104 @@ export class UMAP<T extends Series<Numeric> = any> {
   get randomState(): number { return this._umap.randomState; }
   get targetMetric(): string { return MetricType[this._umap.targetMetric]; }
   get verbosity(): string { return CUMLLogLevels[this._umap.verbosity]; }
+}
+
+export class FittedUMAP extends UMAP {
+  /**
+   * Initialize a UMAP object
+   * @param input: UMAPParams
+   * @param outputType: 'dataframe'|'series'|'devicebuffer'
+   *
+   * @example:
+   * ```typescript
+   * import {UMAP} from 'rapidsai/cuml';
+   *
+   * const umap = new UMAP({nComponents:2}, 'dataframe');
+   * ```
+   */
+  constructor(input: UMAPParams, embeddings: DeviceBuffer) {
+    super(input);
+    this._embeddings = embeddings;
+  }
+
+  /**
+   * Transform features into the existing embedded space and return that transformed output.
+   *
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   * @param nFeatures number of properties in the input features, if features is of the format
+   *   [x1,y1,x2,y2...]
+   *  @returns Transformed `features` into the existing embedded space and return which can be
+   * converted to any of the following types: DataFrame, Series, DeviceBuffer.
+   *  ```typescript
+   *  transformSeries(...).asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
+   *  transformSeries(...).asSeries(); // returns Series<Numeric>
+   *  transformSeries(...).asDeviceBuffer(); //returns rmm.DeviceBuffer
+   *  ```
+   */
+  transformSeries<T extends Series<Numeric>>(features: T, nFeatures = 1, convertDType = true) {
+    // runtime type check
+    this._check_type(features.type);
+
+    const nSamples   = Math.floor(features.length / nFeatures);
+    const embeddings = this._generate_embeddings(nSamples, features.type);
+
+    const result = this._umap.transform({
+      features: features._col.data,
+      featuresType: features.type,
+      nSamples: nSamples,
+      nFeatures: nFeatures,
+      convertDType: convertDType,
+      embeddings: this._embeddings,
+      transformed: embeddings
+    });
+
+    const dtype = (convertDType) ? new Float32 : features.type;
+    return new Embeddings(result, this.nComponents, dtype);
+  }
+
+  /**
+   * Transform features into the existing embedded space and return that transformed output.
+   *
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   * @param nFeatures number of properties in the input features, if features is of the format
+   *   [x1,y1,x2,y2...]
+   *  @returns Transformed `features` into the existing embedded space and return which can be
+   * converted to any of the following types: DataFrame, Series, DeviceBuffer
+   *  ```typescript
+   *  transformDataFrame(...).asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
+   *  transformDataFrame(...).asSeries(); // returns Series<Numeric>
+   *  transformDataFrame(...).asDeviceBuffer(); //returns rmm.DeviceBuffer
+   *  ```
+   */
+  transformDataFrame<T extends Numeric, K extends string>(features: DataFrame<{[P in K]: T}>,
+                                                          convertDType = true) {
+    return this.transformSeries(
+      dataframeToSeries(features) as Series<T>, features.numColumns, convertDType);
+  }
+
+  /**
+   * Transform features into the existing embedded space and return that transformed output.
+   *
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   * @param nFeatures number of properties in the input features, if features is of the format
+   *   [x1,y1,x2,y2...]
+   *  @returns Transformed `features` into the existing embedded space and return which can be
+   * converted to any of the following types: DataFrame, Series, DeviceBuffer.
+   *  ```typescript
+   *  transformArray(...).asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
+   *  transformArray(...).asSeries(); // returns Series<Numeric>
+   *  transformArray(...).asDeviceBuffer(); //returns rmm.DeviceBuffer
+   *  ```
+   */
+  transformArray<T extends Series<Numeric>>(features: (number|bigint|null|undefined)[],
+                                            nFeatures    = 1,
+                                            convertDType = true) {
+    return this.transformSeries(
+      Series.new({type: this._resolveType(convertDType, features[0]), data: features}) as T,
+      nFeatures,
+      convertDType);
+  }
 }
