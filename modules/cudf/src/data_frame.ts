@@ -1576,7 +1576,7 @@ export class DataFrame<T extends TypeMap = any> {
    *  b: Series.new([3, 4])
    * });
    *
-   * df2.sum(); // throws error
+   * df2.sum(); // returns `never`
    * ```
    */
   sum<P extends keyof T>(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource) {
