@@ -122,15 +122,14 @@ export class UMAP {
     // runtime type check
     this._check_type(features.type);
     const nSamples = Math.floor(features.length / nFeatures);
-    let options    = {
+
+    let options = {
       features: features._col.data,
       featuresType: features.type,
       nSamples: nSamples,
       nFeatures: nFeatures,
       convertDType: convertDType,
-      embeddings: (this._embeddings.byteLength == 0)
-                       ? this._generate_embeddings(nSamples, features.type)
-                       : this._embeddings
+      embeddings: this._generate_embeddings(nSamples, features.type)
     };
     if (target !== null) {
       options = {...options, ...{ target: target._col.data, targetType: target.type }};
@@ -307,8 +306,7 @@ export class FittedUMAP extends UMAP {
     // runtime type check
     this._check_type(features.type);
 
-    const nSamples   = Math.floor(features.length / nFeatures);
-    const embeddings = this._generate_embeddings(nSamples, features.type);
+    const nSamples = Math.floor(features.length / nFeatures);
 
     const result = this._umap.transform({
       features: features._col.data,
@@ -317,7 +315,7 @@ export class FittedUMAP extends UMAP {
       nFeatures: nFeatures,
       convertDType: convertDType,
       embeddings: this._embeddings,
-      transformed: embeddings
+      transformed: this._generate_embeddings(nSamples, features.type)
     });
 
     const dtype = (convertDType) ? new Float32 : features.type;
