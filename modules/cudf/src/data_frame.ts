@@ -32,15 +32,8 @@ import {
   Float64,
   FloatingPoint,
   IndexType,
-  Int16,
   Int32,
-  Int64,
-  Int8,
   Integral,
-  Uint16,
-  Uint32,
-  Uint64,
-  Uint8
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
@@ -86,6 +79,8 @@ function _invokeIfNumericSeries<P extends keyof T, T extends TypeMap, R extends 
   if (series instanceof NumericSeries) { return func(); }
   return Series.new(series._col as Column<R>);
 }
+
+declare function assert(value: unknown): asserts value;
 
 /**
  * A GPU Dataframe object.
@@ -1588,28 +1583,8 @@ export class DataFrame<T extends TypeMap = any> {
    */
   sum<P extends keyof T>(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource) {
     subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
-
-    if (subset.length == 0) { throw new Error('Unable to calculate sum of empty DataFrame'); }
-
-    const floatTypes = [new Float32, new Float64];
-    const intTypes   = [new Int8, new Int16, new Int32, new Int64];
-    const UintTypes  = [new Uint8, new Uint16, new Uint32, new Uint64];
-
-    const firstSeriesDtype           = this.get(subset[0]).type;
-    const isFirstSeriesFloatingPoint = floatTypes.some(t => t.compareTo(firstSeriesDtype));
-
-    const sums = subset.map((name) => {
-      if (isFirstSeriesFloatingPoint) {
-        if (!floatTypes.some(t => this.get(name).type.compareTo(t))) {
-          throw new TypeError('Unable to calculate sum of DataFrame containing unsupport dtypes');
-        }
-      } else {
-        if (![...intTypes, ...UintTypes].some(t => this.get(name).type.compareTo(t))) {
-          throw new TypeError('Unable to calculate sum of DataFrame containing unsupport dtypes');
-        }
-      }
-      return (this.get(name) as any).sum(skipna, memoryResource);
-    });
+    const sums =
+      subset.map((name) => { return (this.get(name) as any).sum(skipna, memoryResource); });
     return Series.new(sums) as any as Series < T[P] extends Integral
       ? T[P] extends FloatingPoint ? never : Integral
       : T[P] extends FloatingPoint ? FloatingPoint : never > ;

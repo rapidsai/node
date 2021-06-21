@@ -37,7 +37,10 @@ describe('dataframe.sum', () => {
   });
 
   test('empty dataframe', () => {
-    const df = new DataFrame({'a': Series.new([]), 'b': Series.new([])});
+    const df = new DataFrame({
+      'a': Series.new({type: new Float32, data: []}),
+      'b': Series.new({type: new Float32, data: []})
+    });
     expect([...df.sum()]).toEqual([null, null]);
   });
 
@@ -66,21 +69,38 @@ describe('dataframe.sum', () => {
     const b  = Series.new({type: new Float32, data: [3, 4.5]});
     const c  = Series.new({type: new Int32, data: [1, 2]});
     const df = new DataFrame({'a': a, 'b': b, 'c': c});
-    expect(() => df.sum(['b', 'c'])).toThrow();
+    expect(() => {
+      const result = df.sum(['b', 'c']);
+      verifySumResultType(result);
+    }).toThrow();
   });
 
   test('throws if dataframe contains incompatiable types', () => {
     const df = new DataFrame({'a': Series.new(['foo', 'bar']), 'b': Series.new([4.5, 5.5])});
-    expect(() => df.sum()).toThrow();
+    expect(() => {
+      const result = df.sum();
+      verifySumResultType(result);
+    }).toThrow();
 
     const df2 = new DataFrame({'a': Series.new([false, true])});
-    expect(() => df2.sum()).toThrow();
+    expect(() => {
+      const result = df2.sum();
+      verifySumResultType(result);
+    }).toThrow();
   });
 
   test('throws if dataframe contains float and int types', () => {
     const a  = Series.new({type: new Int32, data: [1, 2]});
     const b  = Series.new({type: new Float32, data: [1.5, 2.5]});
     const df = new DataFrame({'a': a, 'b': b});
-    expect(() => df.sum()).toThrow();
+    expect(() => {
+      const result = df.sum();
+      verifySumResultType(result);
+    }).toThrow();
   });
+
+  // Typescript does not allow us to throw a compile-time error if
+  // the return type of `sum()` is `never`.
+  // Instead, let's just verify the result is `never` and throw accordingly.
+  function verifySumResultType(_: never) { throw new Error(_); }
 });
