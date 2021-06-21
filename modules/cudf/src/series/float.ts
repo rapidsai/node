@@ -18,7 +18,7 @@ import {MemoryResource} from '@rapidsai/rmm';
 import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
-import {Float32, Float64, FloatingPoint} from '../types/dtypes';
+import {Bool8, Float32, Float64, FloatingPoint, Int32} from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
 
@@ -161,10 +161,119 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
     return this._col.any(memoryResource);
   }
 
+  protected _prepare_scan_series(skipna: boolean) {
+    const data = this.nansToNulls();
+
+    if (skipna) { return data; }
+
+    if (!data.hasNulls) { return data; }
+
+    const index = Series.sequence({type: new Int32, size: data.length, step: 1, init: 0});
+
+    const first = index.filter(data.isNull()).getValue(0)!;
+    const slice =
+      Series.sequence({type: new Int32, size: data.length - first, step: 1, init: first});
+
+    const copy = data.cast(data.type);
+    const mask = [...index.cast(new Bool8).fill(true).scatter(false, slice)];
+    copy.setNullMask(mask as any);
+
+    return copy;
+  }
+
+  /**
+   * Compute the cumulative max of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing
+   *   reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative max of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cumulativeMax() // {4, 4, 5, 5, 5}
+   * ```
+   */
+  cumulativeMax(skipna = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipna);
+    return Series.new(result_series._col.cumulativeMax(memoryResource) as Column<T>);
+  }
+
+  /**
+   * Compute the cumulative min of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing
+   *   reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative min of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cumulativeMin() // {4, 2, 2, 1, 1}
+   * ```
+   */
+  cumulativeMin(skipna = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipna);
+    return Series.new(result_series._col.cumulativeMin(memoryResource) as Column<T>);
+  }
+
+  /**
+   * Compute the cumulative product of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing
+   *   reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative product of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cumulativeProduct() // {4, 8, 40, 40, 40}
+   * ```
+   */
+  cumulativeProduct(skipna = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipna);
+    return Series.new(result_series._col.cumulativeProduct(memoryResource) as Column<T>);
+  }
+
+  /**
+   * Compute the cumulative sum of all values in this Series.
+   *
+   * @param skipna The optional skipna if true drops NA and null values before computing
+   *   reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative sum of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cumulativeSum() // {4, 6, 11, 12, 13}
+   * ```
+   */
+  cumulativeSum(skipna = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipna);
+    return Series.new(result_series._col.cumulativeSum(memoryResource) as Column<T>);
+  }
+
   /**
    * Compute the mean of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * @param skipna The optional skipna if true drops NA and null values before computing
+   *   reduction,
    * else if skipna is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
@@ -178,7 +287,8 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   /**
    * Compute the median of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * @param skipna The optional skipna if true drops NA and null values before computing
+   *   reduction,
    * else if skipna is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
@@ -193,8 +303,8 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * Compute the nunique of all values in this Series.
    *
    * @param dropna
-   * If true, NA/null values will not contribute to the count of unique values. If false, they will
-   * be included in the count.
+   * If true, NA/null values will not contribute to the count of unique values. If false, they
+   * will be included in the count.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The number of unqiue values in this Series.

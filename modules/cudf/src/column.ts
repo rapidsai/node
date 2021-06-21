@@ -1031,6 +1031,42 @@ export interface Column<T extends DataType = any> {
   quantile(q?: number, interpolation?: Interpolation, memoryResource?: MemoryResource): number;
 
   /**
+   * Compute the cumulative max of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The cumulative max of all the values in this Column.
+   */
+  cumulativeMax(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the cumulative min of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The cumulative min of all the values in this Column.
+   */
+  cumulativeMin(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the cumulative product of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The cumulative product of all the values in this Column.
+   */
+  cumulativeProduct(memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Compute the cumulative sum of all values in this Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns The cumulative sum of all the values in this Column.
+   */
+  cumulativeSum(memoryResource?: MemoryResource): Column<T>;
+
+  /**
    * drop NA values from the column if column is of floating-type
    * values and contains NA values
    * @param memoryResource The optional MemoryResource used to allocate the result column's device
