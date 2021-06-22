@@ -27,7 +27,7 @@ import {AbstractSeries, Series} from './series';
 import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {Bool8, DataType, Float32, Float64, IndexType, Int32} from './types/dtypes';
+import {Bool8, DataType, Float32, Float64, IndexType, Int32, Numeric} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
@@ -1582,6 +1582,50 @@ export class DataFrame<T extends TypeMap = any> {
           () => { return Series.new(this._accessor.get(name).not(memoryResource)); })
       }),
       {} as SeriesMap<{[P in keyof T]: Bool8}>));
+  }
+
+  /**
+   * Return a Series containing the unbiased kurtosis result for each Series in the
+   * DataFrame.
+   *
+   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @returns A Series containing the unbiased kurtosis result for all Series in the DataFrame
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2, 3, 4]),
+   *  b: Series.new([7, 8, 9, 10])
+   * });
+   * df.kurtosis(); // {-1.1999999999999904, -1.2000000000000686}
+   * ```
+   */
+  kurtosis<P extends keyof T>(skipna = true) {
+    const sums = this.names.map((name) => { return (this.get(name) as any).kurtosis(skipna); });
+    return Series.new(sums) as any as Series < T[P] extends Numeric ? Numeric : never > ;
+  }
+
+  /**
+   * Return a Series containing the unbiased skew result for each Series in the
+   * DataFrame.
+   *
+   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @returns A Series containing the unbiased skew result for all Series in the DataFrame
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2, 3, 4, 5, 6, 6]),
+   *  b: Series.new([7, 8, 9, 10, 11, 12, 12])
+   * });
+   * df.skew(); // {-0.288195490292614, -0.2881954902926153}
+   * ```
+   */
+  skew<P extends keyof T>(skipna = true) {
+    const sums = this.names.map((name) => { return (this.get(name) as any).skew(skipna); });
+    return Series.new(sums) as any as Series < T[P] extends Numeric ? Numeric : never > ;
   }
 
   /**

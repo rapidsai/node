@@ -725,6 +725,30 @@ describe('dataframe.replaceNulls', () => {
   });
 });
 
+test('dataframe.kurtosis', () => {
+  const a  = Series.new([1, 2, 3, 4]);
+  const b  = Series.new([7, 8, 9, 10]);
+  const df = new DataFrame({'a': a, 'b': b});
+
+  expect([...df.kurtosis()]).toEqual([-1.1999999999999904, -1.2000000000000686]);
+
+  const c        = Series.new(['foo', 'bar', 'foo', 'bar']);
+  const never_df = new DataFrame({'a': a, 'b': b, 'c': c});
+  _verifySeriesIsNever(never_df.kurtosis());
+});
+
+test('dataframe.skew', () => {
+  const a  = Series.new([1, 2, 3, 4, 5, 6, 6]);
+  const b  = Series.new([7, 8, 9, 10, 11, 12, 12]);
+  const df = new DataFrame({'a': a, 'b': b});
+
+  expect([...df.skew()]).toEqual([-0.288195490292614, -0.2881954902926153]);
+
+  const c        = Series.new(['foo', 'bar', 'foo', 'bar', 'foo', 'bar', 'foo']);
+  const never_df = new DataFrame({'a': a, 'b': b, 'c': c});
+  _verifySeriesIsNever(never_df.skew());
+});
+
 test('dataframe.nansToNulls', () => {
   const a  = Series.new({type: new Int32, data: [0, 1, 2, 3, 4, 4]});
   const b  = Series.new({type: new Float32, data: new Float32Buffer([0, NaN, 3, 5, 5, 6])});
@@ -832,3 +856,8 @@ test(`DataFrame.dropDuplicates("first", true, true, ['a'])`, () => {
   expect([...result.get('a')]).toEqual([null, 1, 3, 4]);
   expect([...result.get('b')]).toEqual([null, 5, 8, 2]);
 });
+
+// Typescript does not allow us to throw a compile-time error if
+// the result of a method is `never`. Instead, let's just verify
+// the result is `never`.
+function _verifySeriesIsNever(_: never) { return _; }
