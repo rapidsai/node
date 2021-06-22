@@ -30,10 +30,10 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `cos`                |          ✅           |
 | `count`              | ✅ (`countNonNulls`)  |
 | `cov`                |                       |
-| `cummax`             |                       |
-| `cummin`             |                       |
-| `cumprod`            |                       |
-| `cumsum`             |                       |
+| `cummax`             | ✅ (`cumulativeMax`)  |
+| `cummin`             | ✅ (`cumulativeMin`)  |
+| `cumprod`            | ✅ (`cumulativeProduct`) |
+| `cumsum`             | ✅ (`cumulativeSum`)  |
 | `describe`           |                       |
 | `diff`               |                       |
 | `digitize`           |                       |
