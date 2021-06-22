@@ -27,7 +27,7 @@ import {AbstractSeries, Series} from './series';
 import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {Bool8, DataType, Float32, Float64, IndexType, Int32} from './types/dtypes';
+import {Bool8, DataType, Float32, Float64, IndexType, Int32, Numeric} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
@@ -1051,16 +1051,12 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  cos(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).cos(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  cos<P extends keyof T>(memoryResource?: MemoryResource) {
+    const mapper =
+      (map: SeriesMap<T[P] extends Numeric ? T : never>,
+       name: string) => { return {...map, [name]: (this.get(name) as any).cos(memoryResource)}; };
+    return new DataFrame(
+      this.names.reduce(mapper, {} as SeriesMap < T[P] extends Numeric ? T : never >));
   }
 
   /**
