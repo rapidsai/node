@@ -16,15 +16,6 @@
 
 function(find_and_configure_rmm VERSION)
 
-    if(EXISTS "${CPM_BINARY_CACHE}/spdlog-build/CMakeFiles/Export/lib/cmake/spdlog/spdlogConfigTargets.cmake")
-        if(NOT EXISTS "${CPM_BINARY_CACHE}/spdlog-build/spdlogConfigTargets.cmake")
-            file(COPY
-                  "${CPM_BINARY_CACHE}/spdlog-build/CMakeFiles/Export/lib/cmake/spdlog/spdlogConfigTargets.cmake"
-                 DESTINATION
-                  "${CPM_BINARY_CACHE}/spdlog-build")
-        endif()
-    endif()
-
     include(get_cpm)
 
     _set_package_dir_if_exists(rmm rmm)
