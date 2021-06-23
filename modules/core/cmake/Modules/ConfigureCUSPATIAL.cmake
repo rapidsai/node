@@ -43,7 +43,7 @@ function(find_and_configure_cuspatial VERSION)
                                 "BUILD_BENCHMARKS OFF"
                                 "JITIFY_USE_CACHE ON"
                                 "CUDA_STATIC_RUNTIME ON"
-                                "CUDF_USE_ARROW_STATIC ON"
+                                "CUDF_USE_ARROW_STATIC OFF"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
     endif()
