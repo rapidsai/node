@@ -732,9 +732,10 @@ test('dataframe.kurtosis', () => {
 
   expect([...df.kurtosis()]).toEqual([-1.1999999999999904, -1.2000000000000686]);
 
-  const c        = Series.new(['foo', 'bar', 'foo', 'bar']);
-  const never_df = new DataFrame({'a': a, 'b': b, 'c': c});
-  _verifySeriesIsNever(never_df.kurtosis());
+  const c                   = Series.new(['foo', 'bar', 'foo', 'bar']);
+  const invalid_kurtosis_df = new DataFrame({'a': a, 'b': b, 'c': c});
+  const never_series        = invalid_kurtosis_df.kurtosis();
+  _verifySeriesIsNever(never_series);
 });
 
 test('dataframe.skew', () => {
@@ -744,9 +745,10 @@ test('dataframe.skew', () => {
 
   expect([...df.skew()]).toEqual([-0.288195490292614, -0.2881954902926153]);
 
-  const c        = Series.new(['foo', 'bar', 'foo', 'bar', 'foo', 'bar', 'foo']);
-  const never_df = new DataFrame({'a': a, 'b': b, 'c': c});
-  _verifySeriesIsNever(never_df.skew());
+  const c               = Series.new(['foo', 'bar', 'foo', 'bar', 'foo', 'bar', 'foo']);
+  const invalid_skew_df = new DataFrame({'a': a, 'b': b, 'c': c});
+  const never_series    = invalid_skew_df.skew();
+  _verifySeriesIsNever(never_series);
 });
 
 test('dataframe.nansToNulls', () => {

@@ -1625,7 +1625,7 @@ export class DataFrame<T extends TypeMap = any> {
    */
   skew<P extends keyof T>(skipna = true) {
     const result = this.names.map((name) => { return (this.get(name) as any).skew(skipna); });
-    return Series.new(result) as any as Series < T[P] extends Numeric ? Numeric : never > ;
+    return Series.new(result) as any as T[P] extends Numeric ? Series<Numeric>: never;
   }
 
   /**
