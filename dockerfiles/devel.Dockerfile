@@ -34,6 +34,11 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
 deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
 "' > /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list \
+ && bash -c "echo -e '\
+deb http://archive.ubuntu.com/ubuntu/ xenial universe\n\
+deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe\
+'" >> /etc/apt/sources.list.d/xenial.list \
+ \
  && apt update -y \
  && apt install --no-install-recommends -y \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} \
@@ -55,9 +60,10 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     # cuSpatial dependencies
     libgdal-dev \
     # blazingSQL dependencies
-    maven openjdk-8-jdk \
- && apt autoremove -y \
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    maven openjdk-8-jdk libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
+    # UCX build and runtime dependencies
+    libtool libhwloc-dev libibcm-dev libibverbs-dev librdmacm-dev libnuma-dev \
+ \
  # Remove any existing gcc and g++ alternatives
  && update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
  && update-alternatives --remove-all c++ >/dev/null 2>&1 || true \
@@ -89,7 +95,24 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     --install /usr/bin/lldb lldb /usr/bin/lldb-${LLDB_VERSION} 100 \
     --slave /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-${LLDB_VERSION} \
  # Set lldb-${LLDB_VERSION} as the default lldb, llvm-config-${LLDB_VERSION} as default llvm-config
- && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION}
+ && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION} \
+ \
+ # Install UCX
+ && git clone --depth 1 --branch v1.9.x https://github.com/openucx/ucx.git /tmp/ucx \
+ && curl -o /tmp/cuda-alloc-rcache.patch \
+         -L https://raw.githubusercontent.com/rapidsai/ucx-split-feedstock/11ad7a3c1f25514df8064930f69c310be4fd55dc/recipe/cuda-alloc-rcache.patch \
+ && cd /tmp/ucx && git apply /tmp/cuda-alloc-rcache.patch && rm /tmp/cuda-alloc-rcache.patch \
+ && /tmp/ucx/autogen.sh && mkdir /tmp/ucx/build && cd /tmp/ucx/build \
+ && ../contrib/configure-release \
+    --prefix=/usr \
+    --without-java \
+    --with-cuda=/usr/local/cuda \
+    --enable-mt CPPFLAGS=-I/usr/local/cuda/include \
+ && make -C /tmp/ucx/build -j install && cd / \
+ \
+ && rm /etc/apt/sources.list.d/xenial.list \
+ && apt autoremove -y \
+ && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG PARALLEL_LEVEL=4
 ARG CMAKE_VERSION=3.20.2
