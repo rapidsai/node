@@ -1052,11 +1052,9 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   cos<P extends keyof T>(memoryResource?: MemoryResource) {
-    const mapper =
-      (map: SeriesMap<T[P] extends Numeric ? T : never>,
-       name: string) => { return {...map, [name]: (this.get(name) as any).cos(memoryResource)}; };
-    return new DataFrame(
-      this.names.reduce(mapper, {} as SeriesMap < T[P] extends Numeric ? T : never >));
+    return new DataFrame(this.names.reduce(
+             (map, name) => ({...map, [name]: (this.get(name) as any).cos(memoryResource)}),
+             {} as SeriesMap<T>)) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
