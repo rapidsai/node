@@ -535,7 +535,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([0, 0, 0]);
     expect([...result.get('c')]).toEqual([...c.sin()]);
 
-    _verifyIsNever(non_numeric_df.sin());
+    expect(() => _verifyIsNever(non_numeric_df.sin())).toThrow();
   });
 
   test('dataframe.cos', () => {
@@ -544,7 +544,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([0, 1, 0]);
     expect([...result.get('c')]).toEqual([...c.cos()]);
 
-    _verifyIsNever(non_numeric_df.cos());
+    expect(() => _verifyIsNever(non_numeric_df.cos())).toThrow();
   });
 
   test('dataframe.tan', () => {
@@ -553,7 +553,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([0, 0, 0]);
     expect([...result.get('c')]).toEqual([...c.tan()]);
 
-    _verifyIsNever(non_numeric_df.tan());
+    expect(() => _verifyIsNever(non_numeric_df.tan())).toThrow();
   });
 
   test('dataframe.asin', () => {
@@ -562,7 +562,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([0, 0, 0]);
     expect([...result.get('c')]).toEqual([...c.asin()]);
 
-    _verifyIsNever(non_numeric_df.asin());
+    expect(() => _verifyIsNever(non_numeric_df.asin())).toThrow();
   });
 
   test('dataframe.acos', () => {
@@ -571,7 +571,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([0, 1, 0]);
     expect([...result.get('c')]).toEqual([...c.acos()]);
 
-    _verifyIsNever(non_numeric_df.acos());
+    expect(() => _verifyIsNever(non_numeric_df.acos())).toThrow();
   });
 
   test('dataframe.atan', () => {
@@ -580,7 +580,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([-1, 0, 1]);
     expect([...result.get('c')]).toEqual([...c.atan()]);
 
-    _verifyIsNever(non_numeric_df.atan());
+    expect(() => _verifyIsNever(non_numeric_df.atan())).toThrow();
   });
 
   test('dataframe.sinh', () => {
@@ -589,7 +589,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([-10, 0, 10]);
     expect([...result.get('c')]).toEqual([...c.sinh()]);
 
-    _verifyIsNever(non_numeric_df.sinh());
+    expect(() => _verifyIsNever(non_numeric_df.sinh())).toThrow();
   });
 
   test('dataframe.cosh', () => {
@@ -598,7 +598,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([10, 1, 10]);
     expect([...result.get('c')]).toEqual([...c.cosh()]);
 
-    _verifyIsNever(non_numeric_df.cosh());
+    expect(() => _verifyIsNever(non_numeric_df.cosh())).toThrow();
   });
 
   test('dataframe.tanh', () => {
@@ -607,7 +607,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([0, 0, 0]);
     expect([...result.get('c')]).toEqual([...c.tanh()]);
 
-    _verifyIsNever(non_numeric_df.tanh());
+    expect(() => _verifyIsNever(non_numeric_df.tanh())).toThrow();
   });
 
   test('dataframe.asinh', () => {
@@ -616,7 +616,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([-1, 0, 1]);
     expect([...result.get('c')]).toEqual([...c.asinh()]);
 
-    _verifyIsNever(non_numeric_df.asinh());
+    expect(() => _verifyIsNever(non_numeric_df.asinh())).toThrow();
   });
 
   test('dataframe.acosh', () => {
@@ -625,7 +625,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([0, 0, 1]);
     expect([...result.get('c')]).toEqual([...c.acosh()]);
 
-    _verifyIsNever(non_numeric_df.acosh());
+    expect(() => _verifyIsNever(non_numeric_df.acosh())).toThrow();
   });
 
   test('dataframe.atanh', () => {
@@ -634,7 +634,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([0, 0, 0]);
     expect([...result.get('c')]).toEqual([...c.atanh()]);
 
-    _verifyIsNever(non_numeric_df.atanh());
+    expect(() => _verifyIsNever(non_numeric_df.atanh())).toThrow();
   });
 
   test('dataframe.exp', () => {
@@ -643,7 +643,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([0, 1, 20]);
     expect([...result.get('c')]).toEqual([...c.exp()]);
 
-    _verifyIsNever(non_numeric_df.exp());
+    expect(() => _verifyIsNever(non_numeric_df.exp())).toThrow();
   });
 
   test('dataframe.log', () => {
@@ -652,7 +652,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([0, 0, 1]);
     expect([...result.get('c')]).toEqual([...c.log()]);
 
-    _verifyIsNever(non_numeric_df.log());
+    expect(() => _verifyIsNever(non_numeric_df.log())).toThrow();
   });
 
   test('dataframe.sqrt', () => {
@@ -661,7 +661,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([0, 0, 1]);
     expect([...result.get('c')]).toEqual([...c.sqrt()]);
 
-    _verifyIsNever(non_numeric_df.sqrt());
+    expect(() => _verifyIsNever(non_numeric_df.sqrt())).toThrow();
   });
 
   test('dataframe.cbrt', () => {
@@ -670,7 +670,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([-1, 0, 1]);
     expect([...result.get('c')]).toEqual([...c.cbrt()]);
 
-    _verifyIsNever(non_numeric_df.cbrt());
+    expect(() => _verifyIsNever(non_numeric_df.cbrt())).toThrow();
   });
 
   test('dataframe.ceil', () => {
@@ -679,7 +679,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([-3, 0, 3]);
     expect([...result.get('c')]).toEqual([...c.ceil()]);
 
-    _verifyIsNever(non_numeric_df.ceil());
+    expect(() => _verifyIsNever(non_numeric_df.ceil())).toThrow();
   });
 
   test('dataframe.floor', () => {
@@ -688,7 +688,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([-3, 0, 3]);
     expect([...result.get('c')]).toEqual([...c.floor()]);
 
-    _verifyIsNever(non_numeric_df.floor());
+    expect(() => _verifyIsNever(non_numeric_df.floor())).toThrow();
   });
 
   test('dataframe.abs', () => {
@@ -697,7 +697,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([3, 0, 3]);
     expect([...result.get('c')]).toEqual([...c.abs()]);
 
-    _verifyIsNever(non_numeric_df.abs());
+    expect(() => _verifyIsNever(non_numeric_df.abs())).toThrow();
   });
 
   test('dataframe.not', () => {
@@ -706,7 +706,7 @@ describe('dataframe unaryops', () => {
     expect([...result.get('b')]).toEqual([-3, 0, 3].map((x) => !x));
     expect([...result.get('c')]).toEqual([...c.not()]);
 
-    _verifyIsNever(non_numeric_df.not());
+    expect(() => _verifyIsNever(non_numeric_df.not())).toThrow();
   });
 });
 
@@ -759,8 +759,7 @@ test('dataframe.kurtosis', () => {
 
   const c                   = Series.new(['foo', 'bar', 'foo', 'bar']);
   const invalid_kurtosis_df = new DataFrame({'a': a, 'b': b, 'c': c});
-  const never_series        = invalid_kurtosis_df.kurtosis();
-  _verifyIsNever(never_series);
+  expect(() => _verifyIsNever(invalid_kurtosis_df.kurtosis())).toThrow();
 });
 
 test('dataframe.skew', () => {
@@ -772,8 +771,7 @@ test('dataframe.skew', () => {
 
   const c               = Series.new(['foo', 'bar', 'foo', 'bar', 'foo', 'bar', 'foo']);
   const invalid_skew_df = new DataFrame({'a': a, 'b': b, 'c': c});
-  const never_series    = invalid_skew_df.skew();
-  _verifyIsNever(never_series);
+  expect(() => _verifyIsNever(invalid_skew_df.skew())).toThrow();
 });
 
 test('dataframe.nansToNulls', () => {
@@ -886,5 +884,5 @@ test(`DataFrame.dropDuplicates("first", true, true, ['a'])`, () => {
 
 // Typescript does not allow us to throw a compile-time error if
 // the result of a method is `never`. Instead, let's just verify
-// the result is `never`.
-function _verifyIsNever(_: never) { return _; }
+// the result is `never` by checking the parameter type, and throwing accordingly.
+function _verifyIsNever(_: never) { throw new Error(_); }
