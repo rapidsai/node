@@ -46,6 +46,7 @@ function(find_and_configure_rmm VERSION)
     _fix_cmake_global_defaults(rmm::rmm)
     _fix_cmake_global_defaults(rmm::Thrust)
     _fix_cmake_global_defaults(rmm::spdlog_header_only)
+
 endfunction()
 
 find_and_configure_rmm(${RMM_VERSION})

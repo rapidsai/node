@@ -278,8 +278,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `iteritems`          |                       |
 | `join`               |                       |
 | `keys`               |                       |
-| `kurt`               |                       |
-| `kurtosis`           |                       |
+| `kurt`               |    ✅ (`kurtosis`)    |
+| `kurtosis`           |          ✅           |
 | `label_encoding`     |                       |
 | `log`                |          ✅           |
 | `mask`               |                       |
@@ -330,7 +330,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `set_index`          |                       |
 | `shift`              |                       |
 | `sin`                |          ✅           |
-| `skew`               |                       |
+| `skew`               |          ✅           |
 | `sort_index`         |                       |
 | `sort_values`        |   ✅ (`sortValues`)   |
 | `sqrt`               |          ✅           |

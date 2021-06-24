@@ -1459,6 +1459,50 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Return a Series containing the unbiased kurtosis result for each Series in the
+   * DataFrame.
+   *
+   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @returns A Series containing the unbiased kurtosis result for all Series in the DataFrame
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2, 3, 4]),
+   *  b: Series.new([7, 8, 9, 10])
+   * });
+   * df.kurtosis(); // {-1.1999999999999904, -1.2000000000000686}
+   * ```
+   */
+  kurtosis<P extends keyof T>(skipna = true) {
+    const result = this.names.map((name) => { return (this.get(name) as any).kurtosis(skipna); });
+    return Series.new(result) as any as Series < T[P] extends Numeric ? Numeric : never > ;
+  }
+
+  /**
+   * Return a Series containing the unbiased skew result for each Series in the
+   * DataFrame.
+   *
+   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @returns A Series containing the unbiased skew result for all Series in the DataFrame
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2, 3, 4, 5, 6, 6]),
+   *  b: Series.new([7, 8, 9, 10, 11, 12, 12])
+   * });
+   * df.skew(); // {-0.288195490292614, -0.2881954902926153}
+   * ```
+   */
+  skew<P extends keyof T>(skipna = true) {
+    const result = this.names.map((name) => { return (this.get(name) as any).skew(skipna); });
+    return Series.new(result) as any as Series < T[P] extends Numeric ? Numeric : never > ;
+  }
+
+  /**
    * Convert NaNs (if any) to nulls.
    *
    * @param subset List of float columns to consider to replace NaNs with nulls.

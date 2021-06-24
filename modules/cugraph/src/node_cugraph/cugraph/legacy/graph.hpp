@@ -20,7 +20,7 @@
 #ifdef CHECK_CUDA
 #undef CHECK_CUDA
 #endif
-#include <cugraph/graph.hpp>
+#include <cugraph/legacy/graph.hpp>
 #ifdef CHECK_CUDA
 #undef CHECK_CUDA
 #endif
