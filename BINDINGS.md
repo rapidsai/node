@@ -30,10 +30,10 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `cos`                |          ✅           |
 | `count`              | ✅ (`countNonNulls`)  |
 | `cov`                |                       |
-| `cummax`             |                       |
-| `cummin`             |                       |
-| `cumprod`            |                       |
-| `cumsum`             |                       |
+| `cummax`             | ✅ (`cumulativeMax`)  |
+| `cummin`             | ✅ (`cumulativeMin`)  |
+| `cumprod`            | ✅ (`cumulativeProduct`) |
+| `cumsum`             | ✅ (`cumulativeSum`)  |
 | `describe`           |                       |
 | `diff`               |                       |
 | `digitize`           |                       |
@@ -61,8 +61,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `isna`               |     ✅ (`isNull`)     |
 | `isnull`             |          ✅           |
 | `keys`               |                       |
-| `kurt`               |                       |
-| `kurtosis`           |                       |
+| `kurt`               |    ✅ (`kurtosis`)    |
+| `kurtosis`           |          ✅           |
 | `label_encoding`     |                       |
 | `le`                 |          ✅           |
 | `log`                |          ✅           |
@@ -79,10 +79,10 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `mul`                |          ✅           |
 | `nans_to_nulls`      |  ✅ (`nansToNulls`)   |
 | `ne`                 |          ✅           |
-| `nlargest`           |                       |
+| `nlargest`           |    ✅ (`nLargest`)    |
 | `notna`              |   ✅ (`isNotNull`)    |
 | `notnull`            |   ✅ (`isNotNull`)    |
-| `nsmallest`          |                       |
+| `nsmallest`          |   ✅ (`nSmallest`)    |
 | `nunique`            |          ✅           |
 | `one_hot_encoding`   |                       |
 | `pipe`               |                       |
@@ -114,9 +114,9 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `set_mask`           |                       |
 | `shift`              |                       |
 | `sin`                |          ✅           |
-| `skew`               |                       |
+| `skew`               |          ✅           |
 | `sort_index`         |                       |
-| `sort_values`        |                       |
+| `sort_values`        |   ✅ (`sortValues`)   |
 | `sqrt`               |          ✅           |
 | `std`                |          ✅           |
 | `sub`                |          ✅           |
@@ -178,8 +178,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `isna`               |     ✅ (`isNull`)     |     ✅ (`isNull`)     |     ✅ (`isNull`)     |
 | `isnull`             |          ✅           |          ✅           |          ✅           |
 | `keys`               |                       |                       |                       |
-| `kurt`               |                       |                       |                       |
-| `kurtosis`           |                       |                       |                       |
+| `kurt`               |    ✅ (`kurtosis`)    |    ✅ (`kurtosis`)    |    ✅ (`kurtosis`)    |
+| `kurtosis`           |          ✅           |          ✅           |          ✅           |
 | `label_encoding`     |                       |                       |                       |
 | `map`                |                       |                       |                       |
 | `mask`               |                       |                       |                       |
@@ -205,9 +205,9 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `set_index`          |                       |                       |                       |
 | `set_mask`           |                       |                       |                       |
 | `shift`              |                       |                       |                       |
-| `skew`               |                       |                       |                       |
+| `skew`               |          ✅           |          ✅           |          ✅           |
 | `sort_index`         |                       |                       |                       |
-| `sort_values`        |                       |                       |                       |
+| `sort_values`        |   ✅ (`sortValues`)   |   ✅ (`sortValues`)   |   ✅ (`sortValues`)   |
 | `tail`               |          ✅           |          ✅           |          ✅           |
 | `take`               |     ✅ (`gather`)     |     ✅ (`gather`)     |     ✅ (`gather`)     |
 | `tile`               |                       |                       |                       |
@@ -262,7 +262,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `dropna`             |   ✅ (`dropNulls`)    |
 | `equals`             |                       |
 | `exp`                |          ✅           |
-| `fillna`             |                       |
+| `fillna`             |  ✅ (`replaceNulls`)  |
 | `floordiv`           |                       |
 | `from_arrow`         |                       |
 | `from_pandas`        |                       |
@@ -271,15 +271,15 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `head`               |          ✅           |
 | `info`               |                       |
 | `insert`             |                       |
-| `interleave_columns` |                       |
+| `interleave_columns` |          ✅           |
 | `isin`               |                       |
 | `isna`               |     ✅ (`isNaN`)      |
 | `isnull`             |          ✅           |
 | `iteritems`          |                       |
 | `join`               |                       |
 | `keys`               |                       |
-| `kurt`               |                       |
-| `kurtosis`           |                       |
+| `kurt`               |    ✅ (`kurtosis`)    |
+| `kurtosis`           |          ✅           |
 | `label_encoding`     |                       |
 | `log`                |          ✅           |
 | `mask`               |                       |
@@ -330,7 +330,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `set_index`          |                       |
 | `shift`              |                       |
 | `sin`                |          ✅           |
-| `skew`               |                       |
+| `skew`               |          ✅           |
 | `sort_index`         |                       |
 | `sort_values`        |   ✅ (`sortValues`)   |
 | `sqrt`               |          ✅           |

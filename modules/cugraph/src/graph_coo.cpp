@@ -86,14 +86,14 @@ size_t GraphCOO::num_edges() {
   return edge_count_;
 }
 
-cugraph::GraphCOOView<int32_t, int32_t, float> GraphCOO::view() {
+cugraph::legacy::GraphCOOView<int32_t, int32_t, float> GraphCOO::view() {
   auto src = src_.Value()->mutable_view();
   auto dst = dst_.Value()->mutable_view();
-  return cugraph::GraphCOOView<int32_t, int32_t, float>(src.begin<int32_t>(),
-                                                        dst.begin<int32_t>(),
-                                                        nullptr,  // edge_weights
-                                                        num_nodes(),
-                                                        num_edges());
+  return cugraph::legacy::GraphCOOView<int32_t, int32_t, float>(src.begin<int32_t>(),
+                                                                dst.begin<int32_t>(),
+                                                                nullptr,  // edge_weights
+                                                                num_nodes(),
+                                                                num_edges());
 }
 
 Napi::Value GraphCOO::num_nodes(Napi::CallbackInfo const& info) {

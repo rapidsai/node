@@ -14,6 +14,7 @@
 
 import {MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 import {Readable} from 'stream';
 
 import {Column} from './column';
@@ -21,6 +22,7 @@ import {ColumnAccessor} from './column_accessor';
 import {concat as concatDataFrames} from './dataframe/concat';
 import {Join, JoinResult} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
+import {Scalar} from './scalar';
 import {AbstractSeries, Series} from './series';
 import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
@@ -34,6 +36,7 @@ import {
   IndexType,
   Int32,
   Integral,
+  Numeric
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
@@ -235,11 +238,11 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame} from '@rapidsai/cudf';
+   * import {DataFrame, Series} from '@rapidsai/cudf';
    *
    * const df = new DataFrame({a: [1, 2, 3]});
    *
-   * df.assign({b: ["foo", "bar", "bar"]})
+   * df.assign({b: Series.new(["foo", "bar", "bar"])})
    * // returns df {a: [1, 2, 3], b: ["foo", "bar", "bar"]}
    * ```
    */
@@ -402,6 +405,46 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   concat<U extends DataFrame[]>(...others: U) { return concatDataFrames(this, ...others); }
+
+  /**
+   * @summary Interleave columns of a DataFrame into a single Series.
+   *
+   * @param dataType The dtype of the result Series (required if the DataFrame has mixed dtypes).
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   *
+   * @returns Series representing a packed row-major matrix of all the source DataFrame's Series.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series }  from '@rapidsai/cudf';
+   *
+   * new DataFrame({
+   *  a: Series.new([1, 2, 3]),
+   *  b: Series.new([4, 5, 6]),
+   * }).interleaveColumns()
+   * // Float64Series [
+   * //  1, 4, 2, 5, 3, 6
+   * // ]
+   *
+   * new DataFrame({
+   *  b: Series.new([ [0,  1,  2],  [3,  4,  5],  [6,  7,  8]]),
+   *  c: Series.new([[10, 11, 12], [13, 14, 15], [16, 17, 18]]),
+   * }).interleaveColumns()
+   * // ListSeries [
+   * //   [0,  1,  2],
+   * //  [10, 11, 12],
+   * //   [3,  4,  5],
+   * //  [13, 14, 15],
+   * //   [6,  7,  8],
+   * //  [16, 17, 18],
+   * // ]
+   *
+   */
+  interleaveColumns<R extends T[keyof T] = T[keyof T]>(dataType?: R|null,
+                                                       memoryResource?: MemoryResource) {
+    return Series.new<R>(
+      (dataType ? this.castAll(dataType) : this).asTable().interleaveColumns(memoryResource));
+  }
 
   /**
    * Generate an ordering that sorts DataFrame columns in a specified way
@@ -779,7 +822,7 @@ export class DataFrame<T extends TypeMap = any> {
     const allNames                 = this.names;
     subset.forEach((col) => {
       if (allNames.includes(col) &&
-          [new Float32, new Float64].some((t) => this.get(col).type.compareTo(t))) {
+          [new Float32, new Float64].some((t) => compareTypes(this.get(col).type, t))) {
         column_indices.push(allNames.indexOf(col));
       } else if (!allNames.includes(col)) {
         throw new Error(`Unknown column name: ${col.toString()}`);
@@ -819,7 +862,7 @@ export class DataFrame<T extends TypeMap = any> {
     const df                        = (subset !== undefined) ? this.gather(subset) : this;
 
     this.names.forEach(col => {
-      if ([new Float32, new Float64].some((t) => this.get(col).type.compareTo(t))) {
+      if ([new Float32, new Float64].some((t) => compareTypes(this.get(col).type, t))) {
         const nanCount =
           df.get(col)._col.nansToNulls(memoryResource).nullCount - this.get(col).nullCount;
 
@@ -981,7 +1024,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.sin();
    * // return {
@@ -1010,7 +1053,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.cos();
    * // return {
@@ -1039,7 +1082,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.tan();
    * // return {
@@ -1068,7 +1111,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.asin();
    * // return {
@@ -1097,7 +1140,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.acos();
    * // return {
@@ -1126,7 +1169,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.atan();
    * // return {
@@ -1155,7 +1198,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.sinh();
    * // return {
@@ -1184,7 +1227,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.cosh();
    * // return {
@@ -1213,7 +1256,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.tanh();
    * // return {
@@ -1242,7 +1285,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.asinh();
    * // return {
@@ -1271,7 +1314,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.acosh();
    * // return {
@@ -1300,7 +1343,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series, Int8}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new({type: new Int8, data: [-3, 0, 3]});
+   *  a: Series.new({type: new Int8, data: [-3, 0, 3]})
    * });
    * df.atanh();
    * // return {
@@ -1329,7 +1372,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([-1.2, 2.5]);
+   *  a: Series.new([-1.2, 2.5])
    * });
    * df.exp();
    * // return {
@@ -1358,7 +1401,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([-1.2, 2.5, 4]);
+   *  a: Series.new([-1.2, 2.5, 4])
    * });
    * df.log();
    * // return {
@@ -1387,7 +1430,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([-1.2, 2.5, 4]);
+   *  a: Series.new([-1.2, 2.5, 4])
    * });
    * df.sqrt();
    * // return {
@@ -1416,7 +1459,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([-1.2, 2.5]);
+   *  a: Series.new([-1.2, 2.5])
    * });
    * df.cbrt();
    * // return {
@@ -1445,7 +1488,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([-1.2, 2.5, -3, 4.6, 5]);
+   *  a: Series.new([-1.2, 2.5, -3, 4.6, 5])
    * });
    * df.ceil();
    * // return {
@@ -1474,7 +1517,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([-1.2, 2.5, -3, 4.6, 5]);
+   *  a: Series.new([-1.2, 2.5, -3, 4.6, 5])
    * });
    * df.floor();
    * // return {
@@ -1503,7 +1546,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([-1, 2, -3, 4, 5]);
+   *  a: Series.new([-1, 2, -3, 4, 5])
    * });
    * df.abs();
    * // return {
@@ -1532,7 +1575,7 @@ export class DataFrame<T extends TypeMap = any> {
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * const df = new DataFrame({
-   *  a: Series.new([0, 1, 2, 3, 4]);
+   *  a: Series.new([0, 1, 2, 3, 4])
    * });
    * df.not();
    * // return {
@@ -1549,6 +1592,50 @@ export class DataFrame<T extends TypeMap = any> {
           () => { return Series.new(this._accessor.get(name).not(memoryResource)); })
       }),
       {} as SeriesMap<{[P in keyof T]: Bool8}>));
+  }
+
+  /**
+   * Return a Series containing the unbiased kurtosis result for each Series in the
+   * DataFrame.
+   *
+   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @returns A Series containing the unbiased kurtosis result for all Series in the DataFrame
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2, 3, 4]),
+   *  b: Series.new([7, 8, 9, 10])
+   * });
+   * df.kurtosis(); // {-1.1999999999999904, -1.2000000000000686}
+   * ```
+   */
+  kurtosis<P extends keyof T>(skipna = true) {
+    const result = this.names.map((name) => { return (this.get(name) as any).kurtosis(skipna); });
+    return Series.new(result) as any as Series < T[P] extends Numeric ? Numeric : never > ;
+  }
+
+  /**
+   * Return a Series containing the unbiased skew result for each Series in the
+   * DataFrame.
+   *
+   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @returns A Series containing the unbiased skew result for all Series in the DataFrame
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2, 3, 4, 5, 6, 6]),
+   *  b: Series.new([7, 8, 9, 10, 11, 12, 12])
+   * });
+   * df.skew(); // {-0.288195490292614, -0.2881954902926153}
+   * ```
+   */
+  skew<P extends keyof T>(skipna = true) {
+    const result = this.names.map((name) => { return (this.get(name) as any).skew(skipna); });
+    return Series.new(result) as any as Series < T[P] extends Numeric ? Numeric : never > ;
   }
 
   /**
@@ -1613,7 +1700,7 @@ export class DataFrame<T extends TypeMap = any> {
     const temp       = new Table({columns: this.select(subset)._accessor.columns});
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach((name, index) => {
-      if ([new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))) {
+      if ([new Float32, new Float64].some((t) => compareTypes(this.get(name).type, t))) {
         series_map[name] = Series.new(temp.getColumnByIndex(index).nansToNulls(memoryResource));
       } else {
         series_map[name] = Series.new(temp.getColumnByIndex(index));
@@ -1648,7 +1735,7 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this.names.reduce(
       (map, name) => ({
         ...map,
-        [name]: [new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))
+        [name]: [new Float32, new Float64].some((t) => compareTypes(this.get(name).type, t))
                   ? Series.new(this._accessor.get(name).isNaN(memoryResource))
                   : Series.new(this._accessor.get(name))
       }),
@@ -1665,8 +1752,8 @@ export class DataFrame<T extends TypeMap = any> {
    * ```typescript
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    * const df = new DataFrame({
-   *  a: Series.new([0, null, 2]);
-   *  b: Series.new(['foo', 'bar', null]);
+   *  a: Series.new([0, null, 2]),
+   *  b: Series.new(['foo', 'bar', null])
    * });
    *
    * df.isNull()
@@ -1708,7 +1795,7 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(this.names.reduce(
       (map, name) => ({
         ...map,
-        [name]: [new Float32, new Float64].some((t) => this.get(name).type.compareTo(t))
+        [name]: [new Float32, new Float64].some((t) => compareTypes(this.get(name).type, t))
                   ? Series.new(this._accessor.get(name).isNotNaN())
                   : Series.new(this._accessor.get(name))
       }),
@@ -1725,8 +1812,8 @@ export class DataFrame<T extends TypeMap = any> {
    * ```typescript
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    * const df = new DataFrame({
-   *  a: Series.new([0, null, 2]);
-   *  b: Series.new(['foo', 'bar', null]);
+   *  a: Series.new([0, null, 2]),
+   *  b: Series.new(['foo', 'bar', null])
    * });
    *
    * df.isNotNull()
@@ -1740,6 +1827,80 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(
       this.names.reduce((cols, name) => ({...cols, [name]: this.get(name).isNotNull()}),
                         {} as SeriesMap<{[P in keyof T]: Bool8}>));
+  }
+
+  /**
+   * Replace null values with a value.
+   *
+   * @param value The scalar value to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([0, null, 2]);
+   *  b: Series.new([null, null, null]);
+   * });
+   *
+   * df.replaceNulls(1);
+   * // return {
+   * //    a: [0, 1, 2],
+   * //    b: [1, 1, 1],
+   * // }
+   * ```
+   */
+  replaceNulls<R extends DataType>(value: R['scalarType'],
+                                   memoryResource?: MemoryResource): DataFrame<T>;
+
+  /**
+   * Replace null values with the corresponding elements from another Map of Series.
+   *
+   * @param value The map of Series to use in place of nulls.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series} from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([0, null, 2]);
+   *  b: Series.new([null, null, null]);
+   * });
+   *
+   * df.replaceNulls({'a': Series.new([0, 1, 2]), 'b': Series.new([1, 1, 1])});
+   * // return {
+   * //    a: [0, 1, 2],
+   * //    b: [1, 1, 1],
+   * // }
+   * ```
+   */
+  replaceNulls(value: SeriesMap<T>, memoryResource?: MemoryResource): DataFrame<T>;
+
+  replaceNulls<R extends DataType>(value: SeriesMap<T>|R['scalarType'],
+                                   memoryResource?: MemoryResource): DataFrame<T> {
+    if (value instanceof Object) {
+      const columns = new ColumnAccessor(_seriesToColumns(value));
+      return new DataFrame(this.names.reduce(
+        (map, name) => ({
+          ...map,
+          [name]: columns.names.includes(name) ? Series.new(this._accessor.get(name).replaceNulls(
+                                                   columns.get(name), memoryResource))
+                                               : Series.new(this._accessor.get(name))
+        }),
+        {} as SeriesMap<T>));
+    } else {
+      return new DataFrame(this.names.reduce(
+        (map, name) => ({
+          ...map,
+          [name]: Series.new(this._accessor.get(name).replaceNulls(
+            new Scalar({type: this._accessor.get(name).type, value: value}), memoryResource))
+        }),
+        {} as SeriesMap<T>));
+    }
   }
 
   /**

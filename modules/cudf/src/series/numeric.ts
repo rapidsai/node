@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {MemoryResource} from '@rapidsai/rmm';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {Column} from '../column';
 import {Scalar} from '../scalar';
@@ -46,6 +47,9 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   cast<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Series<R> {
     return Series.new(this._col.cast(dataType, memoryResource));
   }
+
+  /** @ignore */
+  nansToNulls(_memoryResource?: MemoryResource): Series<T> { return this.__construct(this._col); }
 
   /**
    * View the data underlying this Series as a new dtype (similar to `reinterpret_cast` in C++).
@@ -94,9 +98,9 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     type U     = typeof type;
     const type = findCommonType(this.type, other.type);
     const lhs =
-      <Column<U>>(type.compareTo(this.type) ? this._col : this._col.cast(type, memoryResource));
-    const rhs =
-      <Column<U>>(type.compareTo(other.type) ? other._col : other._col.cast(type, memoryResource));
+      <Column<U>>(compareTypes(type, this.type) ? this._col : this._col.cast(type, memoryResource));
+    const rhs = <Column<U>>(compareTypes(type, other.type) ? other._col
+                                                           : other._col.cast(type, memoryResource));
     return Series.new(lhs.concat(rhs, memoryResource));
   }
 
@@ -1202,10 +1206,6 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     return Series.new(this._col.not(memoryResource));
   }
 
-  _process_reduction(skipna = true, memoryResource?: MemoryResource): Series<T> {
-    return skipna ? this.dropNulls(memoryResource) : this.__construct(this._col);
-  }
-
   /**
    * Compute the min of all values in this Column.
    * @param skipna The optional skipna if true drops NA and null values before computing reduction,
@@ -1221,7 +1221,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * a.min() // [1]
    */
   min(skipna = true, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna, memoryResource)._col.min(memoryResource);
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+    return data._col.min(memoryResource);
   }
 
   /**
@@ -1239,7 +1240,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * a.max() // 5
    */
   max(skipna = true, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna, memoryResource)._col.max(memoryResource);
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+    return data._col.max(memoryResource);
   }
 
   /**
@@ -1257,7 +1259,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * a.minmax() // [1,5]
    */
   minmax(skipna = true, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna, memoryResource)._col.minmax(memoryResource);
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+    return data._col.minmax(memoryResource);
   }
 
   /**
@@ -1276,7 +1279,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   sum(skipna = true, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna, memoryResource)._col.sum(memoryResource);
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+    return data._col.sum(memoryResource);
   }
 
   /**
@@ -1296,7 +1300,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   product(skipna = true, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna, memoryResource)._col.product(memoryResource);
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+    return data._col.product(memoryResource);
   }
 
   /**
@@ -1316,7 +1321,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   sumOfSquares(skipna = true, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna, memoryResource)._col.sumOfSquares(memoryResource);
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+    return data._col.sumOfSquares(memoryResource);
   }
 
   /**
@@ -1337,7 +1343,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   mean(skipna = true, memoryResource?: MemoryResource) {
     if (!skipna && this.nullCount > 0) { return NaN; }
-    return this._process_reduction(skipna, memoryResource)._col.mean(memoryResource);
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+    return data._col.mean(memoryResource);
   }
 
   /**
@@ -1358,7 +1365,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   median(skipna = true, memoryResource?: MemoryResource) {
     if (!skipna && this.nullCount > 0) { return NaN; }
-    return this._process_reduction(skipna, memoryResource)._col.median(memoryResource);
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+    return data._col.median(memoryResource);
   }
 
   /**
@@ -1404,7 +1412,77 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   var(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna, memoryResource)._col.var(ddof, memoryResource);
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+    return data._col.var(ddof, memoryResource);
+  }
+
+  /**
+   * Return Fisher’s unbiased kurtosis of a sample.
+   * Kurtosis obtained using Fisher’s definition of kurtosis (kurtosis of normal == 0.0). Normalized
+   * by N-1.
+   *
+   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @returns The unbiased kurtosis of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 2, 3, 4]);
+   *
+   * a.kurtosis() // -1.1999999999999904
+   * ```
+   */
+  kurtosis(skipna = true) {
+    if (this.length == 0 || (this.hasNulls && !skipna)) { return NaN; }
+
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+
+    const n = data.length;
+    if (n < 4) { return NaN; }
+
+    const V = data.var(skipna, 1);  // ddof = 1
+    if (V == 0) { return 0; }
+
+    const mu = data.mean(skipna);
+
+    const m4 = (data.sub(mu).pow(4).sum(skipna) as number) / (V ** 2);
+
+    // This is modeled after the cudf kurtosis implementation, it would be
+    // nice to be able to point to a reference for this specific formula
+    const a = (n * (n + 1)) / ((n - 1) * (n - 2) * (n - 3)) * m4;
+    const b = ((n - 1) ** 2) / ((n - 2) * (n - 3));
+
+    return a - 3 * b;
+  }
+
+  /**
+   * Return unbiased Fisher-Pearson skew of a sample.
+   *
+   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @returns The unbiased skew of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([1, 2, 3, 4, 5, 6, 6]);
+   *
+   * a.skew() // -0.288195490292614
+   * ```
+   */
+  skew(skipna = true) {
+    if (this.length == 0 || (this.hasNulls && !skipna)) { return NaN; }
+
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+
+    const n = data.length;
+    if (data.length < 3) { return NaN; }
+
+    const V = data.var(skipna, 0);  // ddof = 0
+    if (V == 0) { return 0; }
+
+    const mu = data.mean(skipna);
+
+    const m3 = (data.sub(mu).pow(3).sum(skipna) as number) / n;
+
+    return ((n * (n - 1)) ** 0.5) / (n - 2) * m3 / (V ** (3 / 2));
   }
 
   /**
@@ -1430,7 +1508,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   std(skipna = true, ddof = 1, memoryResource?: MemoryResource) {
-    return this._process_reduction(skipna, memoryResource)._col.std(ddof, memoryResource);
+    const data = skipna ? this.nansToNulls().dropNulls() : this;
+    return data._col.std(ddof, memoryResource);
   }
 
   /**
@@ -1459,7 +1538,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   quantile(q                                         = 0.5,
            interpolation: keyof typeof Interpolation = 'linear',
            memoryResource?: MemoryResource) {
-    return this._process_reduction(true)._col.quantile(
+    return this.nansToNulls().dropNulls()._col.quantile(
       q, Interpolation[interpolation], memoryResource);
   }
 
@@ -1494,9 +1573,9 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * Return whether any elements are true in Series.
    *
    * @param skipna bool
-   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
-   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
-   * these are not equal to zero.
+   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result
+   * will be true, as for an empty row/column. If skipna is false, then NA are treated as true,
+   * because these are not equal to zero.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    *

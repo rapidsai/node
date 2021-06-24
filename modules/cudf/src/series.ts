@@ -16,6 +16,7 @@ import {MemoryData} from '@nvidia/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {Column, ColumnProps} from './column';
 import {fromArrow} from './column/from_arrow';
@@ -477,7 +478,8 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([true, true, true]).fill(false, 1) // [true, false, false]
    * ```
    */
-  fill(value: T, begin = 0, end = this.length, memoryResource?: MemoryResource): Series<T> {
+  fill(value: T['scalarType'], begin = 0, end = this.length, memoryResource?: MemoryResource):
+    Series<T> {
     return Series.new(
       this._col.fill(new Scalar({type: this.type, value}), begin, end, memoryResource));
   }
@@ -501,7 +503,7 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([true, true, true]).fillInPlace(false, 1) // [true, false, false]
    * ```
    */
-  fillInPlace(value: T, begin = 0, end = this.length) {
+  fillInPlace(value: T['scalarType'], begin = 0, end = this.length) {
     this._col.fillInPlace(new Scalar({type: this.type, value}), begin, end);
     return this;
   }
@@ -646,6 +648,50 @@ export class AbstractSeries<T extends DataType = any> {
    */
   gather<R extends IndexType>(selection: Series<R>): Series<T> {
     return this.__construct(this._col.gather(selection._col));
+  }
+
+  /**
+   * Returns the n largest element(s).
+   *
+   * @param n The number of values to retrieve.
+   * @param keep Determines whether to keep the first or last of any duplicate values.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([4, 6, 8, 10, 12, 1, 2]);
+   * const b = Series.new(["foo", "bar", "test"]);
+   *
+   * a.nLargest(); // [12, 10, 8, 6, 4]
+   * b.nLargest(1); // ["test"]
+   * a.nLargest(-1); // []
+   * ```
+   */
+  nLargest(n = 5, keep: keyof typeof DuplicateKeepOption = 'first'): Series<T> {
+    return _nLargestOrSmallest(this as Series, true, n, keep);
+  }
+
+  /**
+   * Returns the n smallest element(s).
+   *
+   * @param n The number of values to retrieve.
+   * @param keep Determines whether to keep the first or last of any duplicate values.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new([4, 6, 8, 10, 12, 1, 2]);
+   * const b = Series.new(["foo", "bar", "test"]);
+   *
+   * a.nSmallest(); // [1, 2, 4, 6, 8]
+   * b.nSmallest(1); // ["bar"]
+   * a.nSmallest(-1); // []
+   * ```
+   */
+  nSmallest(n = 5, keep: keyof typeof DuplicateKeepOption = 'first'): Series<T> {
+    return _nLargestOrSmallest(this as Series, false, n, keep);
   }
 
   /**
@@ -826,7 +872,9 @@ export class AbstractSeries<T extends DataType = any> {
    * @param nullCount The number of null values. If None, it is calculated
    * automatically.
    */
-  setNullMask(mask: DeviceBuffer, nullCount?: number) { this._col.setNullMask(mask, nullCount); }
+  setNullMask(mask: MemoryData|ArrayLike<number>|ArrayLike<bigint>, nullCount?: number) {
+    this._col.setNullMask(mask, nullCount);
+  }
 
   /**
    * Copy a Series to an Arrow vector in host memory
@@ -1184,7 +1232,7 @@ function inferType(value: any[]): DataType {
     return new TimestampMillisecond;
   } else if (arraysCount + nullsCount === value.length) {
     const childType = inferType(value[value.findIndex((ary) => ary != null)]);
-    if (value.every((ary) => ary == null || childType.compareTo(inferType(ary)))) {
+    if (value.every((ary) => ary == null || compareTypes(childType, inferType(ary)))) {
       return new List(new arrow.Field('', childType));
     }
   } else if (objectsCount + nullsCount === value.length) {
@@ -1311,3 +1359,16 @@ const columnToSeries = (() => {
     return visitor.visit(column);
   };
 })();
+
+function _nLargestOrSmallest<T extends DataType>(
+  series: Series<T>, ascending: boolean, n: number, keep: keyof typeof DuplicateKeepOption):
+  Series {
+  if (keep == 'first') {
+    return series.sortValues(!ascending).head(n < 0 ? 0 : n);
+  } else if (keep == 'last') {
+    return n <= 0 ? Series.new({type: series.type, data: new Array(0)})
+                  : series.sortValues(ascending).tail(n).reverse();
+  } else {
+    throw new TypeError('keep must be either "first" or "last"');
+  }
+}

@@ -46,6 +46,7 @@ function(find_and_configure_cuml VERSION)
         set(BUILD_CUML_EXAMPLES OFF)
         set(BUILD_CUML_C_LIBRARY OFF)
         set(BUILD_CUML_CPP_LIBRARY ON)
+        set(BUILD_CUML_PRIMS_BENCH OFF)
 
         if(${VERSION} MATCHES [=[([0-9]+)\.([0-9]+)\.([0-9]+)]=])
             set(MAJOR_AND_MINOR "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
@@ -76,6 +77,7 @@ function(find_and_configure_cuml VERSION)
                                 "BUILD_CUML_EXAMPLES OFF"
                                 "BUILD_CUML_C_LIBRARY OFF"
                                 "BUILD_CUML_CPP_LIBRARY ON"
+                                "BUILD_CUML_PRIMS_BENCH OFF"
         )
 
         # Make sure consumers of our libs can see cuml::cuml++

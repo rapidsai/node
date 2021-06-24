@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import * as arrow from 'apache-arrow';
-import CUDF from '../addon';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
+import CUDF from '../addon';
 import {Column} from '../column';
 
 import {
@@ -110,7 +111,7 @@ export type CommonTypes<T extends TypeMap, R extends TypeMap> =
 
 export function findCommonType<T extends DataType, R extends DataType>(lhs: T,
                                                                        rhs: R): CommonType<T, R> {
-  if (lhs.compareTo(rhs)) { return arrowToCUDFType(lhs) as CommonType<T, R>; }
+  if (compareTypes(lhs, rhs)) { return arrowToCUDFType(lhs) as CommonType<T, R>; }
   return arrowToCUDFType(CUDF.findCommonType(lhs, rhs)) as CommonType<T, R>;
 }
 

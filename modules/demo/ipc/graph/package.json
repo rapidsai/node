@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@deck.gl/core": "8.4.9",
-    "@deck.gl/react": "8.4.9",
-    "@luma.gl/core": "8.4.4",
+    "@deck.gl/core": "8.4.17",
+    "@deck.gl/react": "8.4.17",
+    "@luma.gl/core": "8.4.5",
     "@nvidia/cuda": "0.0.1",
     "@rapidsai/cudf": "0.0.1",
     "@rapidsai/cugraph": "0.0.1",
