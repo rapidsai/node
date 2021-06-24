@@ -21,7 +21,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
-option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" ON)
+option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
 option(NODE_WEBGL_STATIC_LINK "Statically link GLEW and GLFW libraries" OFF)
 
 # Set OpenGL_GL_PREFERENCE to "GLVND"

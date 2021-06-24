@@ -56,8 +56,10 @@ function(find_and_configure_cuml VERSION)
 
         CPMFindPackage(NAME     cuml
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
+            # GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
+            # GIT_TAG             branch-${MAJOR_AND_MINOR}
+            GIT_REPOSITORY      https://github.com/trxcllnt/cuml.git
+            GIT_TAG             fix/raft-knn-changes
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
             SOURCE_SUBDIR       cpp
