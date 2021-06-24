@@ -520,168 +520,153 @@ test('dataframe.castAll', () => {
 describe('dataframe unaryops', () => {
   const a  = Series.new({type: new Int32, data: [-3, 0, 3]});
   const b  = Series.new({type: new Int8, data: [-3, 0, 3]});
-  const c  = Series.new(['foo', null, 'bar']);
-  const d  = Series.new({type: new Float32, data: [-2.7, 0, 3.1]});
-  const df = new DataFrame({'a': a, 'b': b, 'c': c, 'd': d});
+  const c  = Series.new({type: new Float32, data: [-2.7, 0, 3.1]});
+  const df = new DataFrame({'a': a, 'b': b, 'c': c});
+
+  const d = Series.new(['foo', 'bar', 'foo']);
+  // If a unary op is performed on this df, the result will be `never`
+  // due to the df containing a string series.
+  // (unary ops only support numeric series)
+  const non_numeric_df = new DataFrame({'a': a, 'b': b, 'c': c, 'd': d});
 
   test('dataframe.sin', () => {
     const result = df.sin();
     expect([...result.get('a')]).toEqual([0, 0, 0]);
     expect([...result.get('b')]).toEqual([0, 0, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.sin()]);
+    expect([...result.get('c')]).toEqual([...c.sin()]);
   });
 
   test('dataframe.cos', () => {
     const result = df.cos();
     expect([...result.get('a')]).toEqual([0, 1, 0]);
     expect([...result.get('b')]).toEqual([0, 1, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.cos()]);
+    expect([...result.get('c')]).toEqual([...c.cos()]);
   });
 
   test('dataframe.tan', () => {
     const result = df.tan();
     expect([...result.get('a')]).toEqual([0, 0, 0]);
     expect([...result.get('b')]).toEqual([0, 0, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.tan()]);
+    expect([...result.get('c')]).toEqual([...c.tan()]);
   });
 
   test('dataframe.asin', () => {
     const result = df.asin();
     expect([...result.get('a')]).toEqual([-2147483648, 0, -2147483648]);
     expect([...result.get('b')]).toEqual([0, 0, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.asin()]);
+    expect([...result.get('c')]).toEqual([...c.asin()]);
   });
 
   test('dataframe.acos', () => {
     const result = df.acos();
     expect([...result.get('a')]).toEqual([-2147483648, 1, -2147483648]);
     expect([...result.get('b')]).toEqual([0, 1, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.acos()]);
+    expect([...result.get('c')]).toEqual([...c.acos()]);
   });
 
   test('dataframe.atan', () => {
     const result = df.atan();
     expect([...result.get('a')]).toEqual([-1, 0, 1]);
     expect([...result.get('b')]).toEqual([-1, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.atan()]);
+    expect([...result.get('c')]).toEqual([...c.atan()]);
   });
 
   test('dataframe.sinh', () => {
     const result = df.sinh();
     expect([...result.get('a')]).toEqual([-10, 0, 10]);
     expect([...result.get('b')]).toEqual([-10, 0, 10]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.sinh()]);
+    expect([...result.get('c')]).toEqual([...c.sinh()]);
   });
 
   test('dataframe.cosh', () => {
     const result = df.cosh();
     expect([...result.get('a')]).toEqual([10, 1, 10]);
     expect([...result.get('b')]).toEqual([10, 1, 10]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.cosh()]);
+    expect([...result.get('c')]).toEqual([...c.cosh()]);
   });
 
   test('dataframe.tanh', () => {
     const result = df.tanh();
     expect([...result.get('a')]).toEqual([0, 0, 0]);
     expect([...result.get('b')]).toEqual([0, 0, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.tanh()]);
+    expect([...result.get('c')]).toEqual([...c.tanh()]);
   });
 
   test('dataframe.asinh', () => {
     const result = df.asinh();
     expect([...result.get('a')]).toEqual([-1, 0, 1]);
     expect([...result.get('b')]).toEqual([-1, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.asinh()]);
+    expect([...result.get('c')]).toEqual([...c.asinh()]);
   });
 
   test('dataframe.acosh', () => {
     const result = df.acosh();
     expect([...result.get('a')]).toEqual([-2147483648, -2147483648, 1]);
     expect([...result.get('b')]).toEqual([0, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.acosh()]);
+    expect([...result.get('c')]).toEqual([...c.acosh()]);
   });
 
   test('dataframe.atanh', () => {
     const result = df.atanh();
     expect([...result.get('a')]).toEqual([-2147483648, 0, -2147483648]);
     expect([...result.get('b')]).toEqual([0, 0, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.atanh()]);
+    expect([...result.get('c')]).toEqual([...c.atanh()]);
   });
 
   test('dataframe.exp', () => {
     const result = df.exp();
     expect([...result.get('a')]).toEqual([0, 1, 20]);
     expect([...result.get('b')]).toEqual([0, 1, 20]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.exp()]);
+    expect([...result.get('c')]).toEqual([...c.exp()]);
   });
 
   test('dataframe.log', () => {
     const result = df.log();
     expect([...result.get('a')]).toEqual([-2147483648, -2147483648, 1]);
     expect([...result.get('b')]).toEqual([0, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.log()]);
+    expect([...result.get('c')]).toEqual([...c.log()]);
   });
 
   test('dataframe.sqrt', () => {
     const result = df.sqrt();
     expect([...result.get('a')]).toEqual([-2147483648, 0, 1]);
     expect([...result.get('b')]).toEqual([0, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.sqrt()]);
+    expect([...result.get('c')]).toEqual([...c.sqrt()]);
   });
 
   test('dataframe.cbrt', () => {
     const result = df.cbrt();
     expect([...result.get('a')]).toEqual([-1, 0, 1]);
     expect([...result.get('b')]).toEqual([-1, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.cbrt()]);
+    expect([...result.get('c')]).toEqual([...c.cbrt()]);
   });
 
   test('dataframe.ceil', () => {
     const result = df.ceil();
     expect([...result.get('a')]).toEqual([-3, 0, 3]);
     expect([...result.get('b')]).toEqual([-3, 0, 3]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.ceil()]);
+    expect([...result.get('c')]).toEqual([...c.ceil()]);
   });
 
   test('dataframe.floor', () => {
     const result = df.floor();
     expect([...result.get('a')]).toEqual([-3, 0, 3]);
     expect([...result.get('b')]).toEqual([-3, 0, 3]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.floor()]);
+    expect([...result.get('c')]).toEqual([...c.floor()]);
   });
 
   test('dataframe.abs', () => {
     const result = df.abs();
     expect([...result.get('a')]).toEqual([3, 0, 3]);
     expect([...result.get('b')]).toEqual([3, 0, 3]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.abs()]);
+    expect([...result.get('c')]).toEqual([...c.abs()]);
   });
 
   test('dataframe.not', () => {
     const result = df.not();
     expect([...result.get('a')]).toEqual([-3, 0, 3].map((x) => !x));
     expect([...result.get('b')]).toEqual([-3, 0, 3].map((x) => !x));
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.not()]);
+    expect([...result.get('c')]).toEqual([...c.not()]);
   });
 });
 
