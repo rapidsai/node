@@ -42,8 +42,8 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     libtinfo5 libncursesw5 \
     # Install gdb, lldb (for llnode), and clangd for C++ intellisense and debugging in the container
     gdb lldb-${LLDB_VERSION} clangd-${CLANGD_VERSION} clang-format-${CLANG_FORMAT_VERSION} \
-    # ccache dependencies
-    unzip automake autoconf libb2-dev libzstd-dev \
+    # sccache dependencies
+    cargo \
     # CMake dependencies
     curl libssl-dev libcurl4-openssl-dev zlib1g-dev \
     # X11 dependencies
@@ -101,22 +101,6 @@ RUN cd /tmp \
     --parallel=$PARALLEL_LEVEL \
  && make install -j$PARALLEL_LEVEL \
  && cd /tmp && rm -rf /tmp/cmake-$CMAKE_VERSION*
-
-ARG CCACHE_VERSION=4.1
-
- # Install ccache
-RUN cd /tmp \
- && curl -fsSLO --compressed https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz -o /tmp/ccache-$CCACHE_VERSION.tar.gz \
- && tar -xvzf /tmp/ccache-$CCACHE_VERSION.tar.gz && cd /tmp/ccache-$CCACHE_VERSION \
- && mkdir -p /tmp/ccache-$CCACHE_VERSION/build \
- && cd /tmp/ccache-$CCACHE_VERSION/build \
- && cmake \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DZSTD_FROM_INTERNET=ON \
-    -DENABLE_TESTING=OFF \
-    /tmp/ccache-$CCACHE_VERSION \
- && make install -j$PARALLEL_LEVEL \
- && cd /tmp && rm -rf /tmp/ccache-$CCACHE_VERSION*
 
 ARG NODE_VERSION
 ENV NODE_VERSION=$NODE_VERSION
@@ -188,5 +172,9 @@ SHELL ["/bin/bash", "-c"]
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 USER node
+
+RUN cargo install sccache
+
+ENV PATH="$PATH:/home/node/.cargo/bin"
 
 CMD ["/bin/bash", "-l"]
