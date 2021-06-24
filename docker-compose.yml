@@ -61,7 +61,6 @@ services:
         BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.2.2}-devel-${LINUX_VERSION:-ubuntu20.04}
     environment:
       <<: *common_environment_variables
-      DOCKER_WORKDIR: "/opt/node-rapids"
     volumes:
       - *workdir
       - *etc_fonts
@@ -88,7 +87,6 @@ services:
         BASE_IMAGE: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-11.2.2}-devel-${LINUX_VERSION:-ubuntu20.04}-amd64
     environment:
       <<: *common_environment_variables
-      DOCKER_WORKDIR: "/opt/node-rapids"
       QT_AUTO_SCREEN_SCALE_FACTOR: 0
       XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR:-/run/user/$UID}"
       DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$UID/bus}"
@@ -149,7 +147,6 @@ services:
       - *usr_share_icons
     environment:
       <<: *common_environment_variables
-      DOCKER_WORKDIR: "/opt/node-rapids"
       # Build SASS and PTX for CUDA architecture sm_72
       CUDAARCHS: "${CUDAARCHS:-72-real}"
       PARALLEL_LEVEL: "${PARALLEL_LEVEL:-2}"
