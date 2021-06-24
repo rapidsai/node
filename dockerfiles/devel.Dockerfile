@@ -145,7 +145,7 @@ export HISTCONTROL=ignoreboth;\n\
 # Change the file location because certain bash sessions truncate .bash_history file upon close.\n\
 # http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login\n\
 export HISTFILE=/opt/node-rapids/modules/.cache/.eternal_bash_history;\n\
-touch $HISTFILE;\n\
+touch \$HISTFILE;\n\
 # flush commands to .bash_history immediately\n\
 export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 "' >> /home/node/.bashrc \
