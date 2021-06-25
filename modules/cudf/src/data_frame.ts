@@ -27,7 +27,17 @@ import {AbstractSeries, Series} from './series';
 import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
-import {Bool8, DataType, Float32, Float64, IndexType, Int32, Numeric} from './types/dtypes';
+import {
+  Bool8,
+  DataType,
+  Float32,
+  Float64,
+  FloatingPoint,
+  IndexType,
+  Int32,
+  Integral,
+  Numeric
+} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 
@@ -1626,6 +1636,43 @@ export class DataFrame<T extends TypeMap = any> {
   skew<P extends keyof T>(skipna = true) {
     const result = this.names.map((name) => { return (this.get(name) as any).skew(skipna); });
     return Series.new(result) as any as Series < T[P] extends Numeric ? Numeric : never > ;
+  }
+
+  /**
+   * Compute the sum for all Series in the DataFrame.
+   *
+   * @param subset List of columns to select (all columns are considered by
+   * default).
+   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
+   * else if skipna is false, reduction is computed directly.
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   *
+   * @returns A Series containing the sum of all values for each Series
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2]),
+   *  b: Series.new([3.5, 4])
+   * });
+   * df.sum(); // [3, 7.5]
+   *
+   * const df2 = new DataFrame({
+   *  a: Series.new(['foo', 'bar']),
+   *  b: Series.new([3, 4])
+   * });
+   *
+   * df2.sum(); // returns `never`
+   * ```
+   */
+  sum<P extends keyof T>(subset?: (keyof T)[], skipna = true, memoryResource?: MemoryResource) {
+    subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
+    const sums =
+      subset.map((name) => { return (this.get(name) as any).sum(skipna, memoryResource); });
+    return Series.new(sums) as any as Series < T[P] extends Integral
+      ? T[P] extends FloatingPoint ? never : Integral
+      : T[P] extends FloatingPoint ? FloatingPoint : never > ;
   }
 
   /**
