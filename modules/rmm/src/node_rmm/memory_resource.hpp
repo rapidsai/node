@@ -125,6 +125,14 @@ struct MemoryResource : public EnvLocalObjectWrap<MemoryResource> {
    */
   MemoryResource(CallbackArgs const& args);
 
+  /**
+   * @brief Destructor called when the JavaScript VM garbage collects this MemoryResource
+   * instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env env) override;
+
   inline rmm::cuda_device_id device() const noexcept { return device_id_; }
 
   inline operator rmm::mr::device_memory_resource*() const { return mr_.get(); }
