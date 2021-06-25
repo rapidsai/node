@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <node_blazingsql/context.hpp>
+
 #include <nv_node/addon.hpp>
 
 struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazingsql> {
-  node_blazingsql(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
+  node_blazingsql(Napi::Env env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
     DefineAddon(exports,
                 {
                   InstanceMethod("init", &node_blazingsql::InitAddon),
                   InstanceValue("_cpp_exports", _cpp_exports.Value()),
+                  InstanceValue("Context", InitClass<nv::Context>(env, exports)),
                 });
   }
 };
