@@ -39,37 +39,37 @@ const bools          = [null, false, true, true, null, true, false, true, false,
 const float_with_NaN = [NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN];
 
 function testNumberAny<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32|Float32|Float64>(
-  type: T, data: (T['scalarType']|null)[], skipna = true) {
-  const expected = skipna ? data.some((x) => x === null || x !== 0)  //
+  type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+  const expected = skipNulls ? data.some((x) => x === null || x !== 0)  //
                           : data.some((x) => x !== null);
-  expect(Series.new({type, data}).any(skipna)).toEqual(expected);
+  expect(Series.new({type, data}).any(skipNulls)).toEqual(expected);
 }
 
 function testBigIntAny<T extends Int64|Uint64>(
-  type: T, data: (T['scalarType']|null)[], skipna = true) {
-  const expected = skipna ? data.some((x) => x === null || x !== 0n)  //
+  type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+  const expected = skipNulls ? data.some((x) => x === null || x !== 0n)  //
                           : data.some((x) => x !== null);
-  expect(Boolean(Series.new({type, data}).any(skipna))).toEqual(expected);
+  expect(Boolean(Series.new({type, data}).any(skipNulls))).toEqual(expected);
 }
 
-function testBooleanAny<T extends Bool8>(type: T, data: (T['scalarType']|null)[], skipna = true) {
-  const expected = skipna ? data.some((x) => x === null || x !== false)  //
+function testBooleanAny<T extends Bool8>(type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+  const expected = skipNulls ? data.some((x) => x === null || x !== false)  //
                           : data.some((x) => x !== null);
-  expect(Series.new({type, data}).any(skipna)).toEqual(expected);
+  expect(Series.new({type, data}).any(skipNulls)).toEqual(expected);
 }
 
-describe.each([[true], [false]])('Series.any(skipna=%p)', (skipna) => {
-  test('Int8', () => { testNumberAny(new Int8, numbers, skipna); });
-  test('Int16', () => { testNumberAny(new Int16, numbers, skipna); });
-  test('Int32', () => { testNumberAny(new Int32, numbers, skipna); });
-  test('Int64', () => { testBigIntAny(new Int64, bigints, skipna); });
-  test('Uint8', () => { testNumberAny(new Uint8, numbers, skipna); });
-  test('Uint16', () => { testNumberAny(new Uint16, numbers, skipna); });
-  test('Uint32', () => { testNumberAny(new Uint32, numbers, skipna); });
-  test('Uint64', () => { testBigIntAny(new Uint64, bigints, skipna); });
-  test('Float32', () => { testNumberAny(new Float32, numbers, skipna); });
-  test('Float64', () => { testNumberAny(new Float64, numbers, skipna); });
-  test('Bool8', () => { testBooleanAny(new Bool8, bools, skipna); });
-  test('Float32', () => { testNumberAny(new Float32, float_with_NaN, skipna); });
-  test('Float64', () => { testNumberAny(new Float64, float_with_NaN, skipna); });
+describe.each([[true], [false]])('Series.any(skipNulls=%p)', (skipNulls) => {
+  test('Int8', () => { testNumberAny(new Int8, numbers, skipNulls); });
+  test('Int16', () => { testNumberAny(new Int16, numbers, skipNulls); });
+  test('Int32', () => { testNumberAny(new Int32, numbers, skipNulls); });
+  test('Int64', () => { testBigIntAny(new Int64, bigints, skipNulls); });
+  test('Uint8', () => { testNumberAny(new Uint8, numbers, skipNulls); });
+  test('Uint16', () => { testNumberAny(new Uint16, numbers, skipNulls); });
+  test('Uint32', () => { testNumberAny(new Uint32, numbers, skipNulls); });
+  test('Uint64', () => { testBigIntAny(new Uint64, bigints, skipNulls); });
+  test('Float32', () => { testNumberAny(new Float32, numbers, skipNulls); });
+  test('Float64', () => { testNumberAny(new Float64, numbers, skipNulls); });
+  test('Bool8', () => { testBooleanAny(new Bool8, bools, skipNulls); });
+  test('Float32', () => { testNumberAny(new Float32, float_with_NaN, skipNulls); });
+  test('Float64', () => { testNumberAny(new Float64, float_with_NaN, skipNulls); });
 });

@@ -47,50 +47,50 @@ function jsMedian(values: any) {
 }
 
 function testNumberMedian<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32|Float32|Float64>(
-  type: T, data: (T['scalarType']|null)[], skipna = true) {
-  if (skipna) {
+  type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+  if (skipNulls) {
     const expected = jsMedian(data.filter((x) => x !== null && !isNaN(x)));
-    expect(Series.new({type, data}).median(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).median(skipNulls)).toEqual(expected);
   } else {
     const expected = data.some((x) => x === null || isNaN(x)) ? NaN : jsMedian(data);
-    expect(Series.new({type, data}).median(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).median(skipNulls)).toEqual(expected);
   }
 }
 
 function testBigIntMedian<T extends Int64|Uint64>(
-  type: T, data: (T['scalarType']|null)[], skipna = true) {
-  if (skipna) {
+  type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+  if (skipNulls) {
     const expected = jsMedian(data.filter((x) => x !== null));
-    expect(Series.new({type, data}).median(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).median(skipNulls)).toEqual(expected);
   } else {
     const expected = data.some((x) => x === null) ? NaN : jsMedian(data);
-    expect(Series.new({type, data}).median(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).median(skipNulls)).toEqual(expected);
   }
 }
 
 function testBooleanMedian<T extends Bool8>(
-  type: T, data: (T['scalarType']|null)[], skipna = true) {
-  if (skipna) {
+  type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+  if (skipNulls) {
     const expected = jsMedian(data.filter((x) => x !== null));
-    expect(Series.new({type, data}).median(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).median(skipNulls)).toEqual(expected);
   } else {
     const expected = data.some((x) => x === null) ? NaN : jsMedian(data);
-    expect(Series.new({type, data}).median(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).median(skipNulls)).toEqual(expected);
   }
 }
 
-describe.each([[true], [false]])('Series.any(skipna=%p)', (skipna) => {
-  test('Int8', () => { testNumberMedian(new Int8, numbers, skipna); });
-  test('Int16', () => { testNumberMedian(new Int16, numbers, skipna); });
-  test('Int32', () => { testNumberMedian(new Int32, numbers, skipna); });
-  test('Int64', () => { testBigIntMedian(new Int64, bigints, skipna); });
-  test('Uint8', () => { testNumberMedian(new Uint8, numbers, skipna); });
-  test('Uint16', () => { testNumberMedian(new Uint16, numbers, skipna); });
-  test('Uint32', () => { testNumberMedian(new Uint32, numbers, skipna); });
-  test('Uint64', () => { testBigIntMedian(new Uint64, bigints, skipna); });
-  test('Float32', () => { testNumberMedian(new Float32, numbers, skipna); });
-  test('Float64', () => { testNumberMedian(new Float64, numbers, skipna); });
-  test('Bool8', () => { testBooleanMedian(new Bool8, bools, skipna); });
-  test('Float32', () => { testNumberMedian(new Float32, float_with_NaN, skipna); });
-  test('Float64', () => { testNumberMedian(new Float64, float_with_NaN, skipna); });
+describe.each([[true], [false]])('Series.any(skipNulls=%p)', (skipNulls) => {
+  test('Int8', () => { testNumberMedian(new Int8, numbers, skipNulls); });
+  test('Int16', () => { testNumberMedian(new Int16, numbers, skipNulls); });
+  test('Int32', () => { testNumberMedian(new Int32, numbers, skipNulls); });
+  test('Int64', () => { testBigIntMedian(new Int64, bigints, skipNulls); });
+  test('Uint8', () => { testNumberMedian(new Uint8, numbers, skipNulls); });
+  test('Uint16', () => { testNumberMedian(new Uint16, numbers, skipNulls); });
+  test('Uint32', () => { testNumberMedian(new Uint32, numbers, skipNulls); });
+  test('Uint64', () => { testBigIntMedian(new Uint64, bigints, skipNulls); });
+  test('Float32', () => { testNumberMedian(new Float32, numbers, skipNulls); });
+  test('Float64', () => { testNumberMedian(new Float64, numbers, skipNulls); });
+  test('Bool8', () => { testBooleanMedian(new Bool8, bools, skipNulls); });
+  test('Float32', () => { testNumberMedian(new Float32, float_with_NaN, skipNulls); });
+  test('Float64', () => { testNumberMedian(new Float64, float_with_NaN, skipNulls); });
 });

@@ -56,49 +56,49 @@ function jsMeanBoolean(values: boolean[]) {
 }
 
 function testNumberMean<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32|Float32|Float64>(
-  type: T, data: (T['scalarType']|null)[], skipna = true) {
-  if (skipna) {
+  type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+  if (skipNulls) {
     const expected = jsMean(data.filter((x) => x !== null && !isNaN(x)) as number[]);
-    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).mean(skipNulls)).toEqual(expected);
   } else {
     const expected = data.some((x) => x === null || isNaN(x)) ? NaN : jsMean(data as number[]);
-    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).mean(skipNulls)).toEqual(expected);
   }
 }
 
 function testBigIntMean<T extends Int64|Uint64>(
-  type: T, data: (T['scalarType']|null)[], skipna = true) {
-  if (skipna) {
+  type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+  if (skipNulls) {
     const expected = jsMeanBigInt(data.filter((x) => x !== null) as bigint[]);
-    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).mean(skipNulls)).toEqual(expected);
   } else {
     const expected = data.some((x) => x === null) ? NaN : jsMeanBigInt(data as bigint[]);
-    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).mean(skipNulls)).toEqual(expected);
   }
 }
 
-function testBooleanMean<T extends Bool8>(type: T, data: (T['scalarType']|null)[], skipna = true) {
-  if (skipna) {
+function testBooleanMean<T extends Bool8>(type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+  if (skipNulls) {
     const expected = jsMeanBoolean(data.filter((x) => x !== null) as boolean[]);
-    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).mean(skipNulls)).toEqual(expected);
   } else {
     const expected = data.some((x) => x === null) ? NaN : jsMeanBoolean(data as boolean[]);
-    expect(Series.new({type, data}).mean(skipna)).toEqual(expected);
+    expect(Series.new({type, data}).mean(skipNulls)).toEqual(expected);
   }
 }
 
-describe.each([[true], [false]])('Series.mean(skipna=%p)', (skipna) => {
-  test('Int8', () => { testNumberMean(new Int8, numbers, skipna); });
-  test('Int16', () => { testNumberMean(new Int16, numbers, skipna); });
-  test('Int32', () => { testNumberMean(new Int32, numbers, skipna); });
-  test('Int64', () => { testBigIntMean(new Int64, bigints, skipna); });
-  test('Uint8', () => { testNumberMean(new Uint8, numbers, skipna); });
-  test('Uint16', () => { testNumberMean(new Uint16, numbers, skipna); });
-  test('Uint32', () => { testNumberMean(new Uint32, numbers, skipna); });
-  test('Uint64', () => { testBigIntMean(new Uint64, bigints, skipna); });
-  test('Float32', () => { testNumberMean(new Float32, numbers, skipna); });
-  test('Float64', () => { testNumberMean(new Float64, numbers, skipna); });
-  test('Bool8', () => { testBooleanMean(new Bool8, bools, skipna); });
-  test('Float32', () => { testNumberMean(new Float32, float_with_NaN, skipna); });
-  test('Float64', () => { testNumberMean(new Float64, float_with_NaN, skipna); });
+describe.each([[true], [false]])('Series.mean(skipNulls=%p)', (skipNulls) => {
+  test('Int8', () => { testNumberMean(new Int8, numbers, skipNulls); });
+  test('Int16', () => { testNumberMean(new Int16, numbers, skipNulls); });
+  test('Int32', () => { testNumberMean(new Int32, numbers, skipNulls); });
+  test('Int64', () => { testBigIntMean(new Int64, bigints, skipNulls); });
+  test('Uint8', () => { testNumberMean(new Uint8, numbers, skipNulls); });
+  test('Uint16', () => { testNumberMean(new Uint16, numbers, skipNulls); });
+  test('Uint32', () => { testNumberMean(new Uint32, numbers, skipNulls); });
+  test('Uint64', () => { testBigIntMean(new Uint64, bigints, skipNulls); });
+  test('Float32', () => { testNumberMean(new Float32, numbers, skipNulls); });
+  test('Float64', () => { testNumberMean(new Float64, numbers, skipNulls); });
+  test('Bool8', () => { testBooleanMean(new Bool8, bools, skipNulls); });
+  test('Float32', () => { testNumberMean(new Float32, float_with_NaN, skipNulls); });
+  test('Float64', () => { testNumberMean(new Float64, float_with_NaN, skipNulls); });
 });

@@ -44,83 +44,83 @@ const var_number_results = new Map([[1, 9.166666666666668], [3, 11.7857142857142
 const var_bool_results = new Map([[1, 0.2777777777777778], [3, 0.35714285714285715], [5, 0.5]]);
 
 function testNumberVar<T extends Numeric, R extends TypedArray|BigIntArray>(
-  skipna: boolean, ddof: number, type: T, data: R) {
-  expect(Series.new({type, data}).var(skipna, ddof))
-    .toEqual((data.includes(<never>NaN) && skipna == false) ? NaN : var_number_results.get(ddof));
+  skipNulls: boolean, ddof: number, type: T, data: R) {
+  expect(Series.new({type, data}).var(skipNulls, ddof))
+    .toEqual((data.includes(<never>NaN) && skipNulls == false) ? NaN : var_number_results.get(ddof));
 }
 
 function testBooleanVar<T extends Numeric, R extends TypedArray|BigIntArray>(
-  skipna: boolean, ddof: number, type: T, data: R) {
-  expect(Series.new({type, data}).var(skipna, ddof))
-    .toEqual((data.includes(<never>NaN) && skipna == false) ? NaN : var_bool_results.get(ddof));
+  skipNulls: boolean, ddof: number, type: T, data: R) {
+  expect(Series.new({type, data}).var(skipNulls, ddof))
+    .toEqual((data.includes(<never>NaN) && skipNulls == false) ? NaN : var_bool_results.get(ddof));
 }
 
 param_ddof.forEach(ddof => {
-  describe('Series.var (skipna=True)', () => {
-    const skipna = true;
-    test('Int8', () => { testNumberVar(skipna, ddof, new Int8, new Int8Array(makeNumbers())); });
-    test('Int16', () => { testNumberVar(skipna, ddof, new Int16, new Int16Array(makeNumbers())); });
-    test('Int32', () => { testNumberVar(skipna, ddof, new Int32, new Int32Array(makeNumbers())); });
+  describe('Series.var (skipNulls=True)', () => {
+    const skipNulls = true;
+    test('Int8', () => { testNumberVar(skipNulls, ddof, new Int8, new Int8Array(makeNumbers())); });
+    test('Int16', () => { testNumberVar(skipNulls, ddof, new Int16, new Int16Array(makeNumbers())); });
+    test('Int32', () => { testNumberVar(skipNulls, ddof, new Int32, new Int32Array(makeNumbers())); });
     test('Int64',
-         () => { testNumberVar(skipna, ddof, new Int64, new BigInt64Array(makeBigInts())); });
-    test('Uint8', () => { testNumberVar(skipna, ddof, new Uint8, new Uint8Array(makeNumbers())); });
+         () => { testNumberVar(skipNulls, ddof, new Int64, new BigInt64Array(makeBigInts())); });
+    test('Uint8', () => { testNumberVar(skipNulls, ddof, new Uint8, new Uint8Array(makeNumbers())); });
     test('Uint16',
-         () => { testNumberVar(skipna, ddof, new Uint16, new Uint16Array(makeNumbers())); });
+         () => { testNumberVar(skipNulls, ddof, new Uint16, new Uint16Array(makeNumbers())); });
     test('Uint32',
-         () => { testNumberVar(skipna, ddof, new Uint32, new Uint32Array(makeNumbers())); });
+         () => { testNumberVar(skipNulls, ddof, new Uint32, new Uint32Array(makeNumbers())); });
     test('Uint64',
-         () => { testNumberVar(skipna, ddof, new Uint64, new BigUint64Array(makeBigInts())); });
+         () => { testNumberVar(skipNulls, ddof, new Uint64, new BigUint64Array(makeBigInts())); });
     test('Float32',
-         () => { testNumberVar(skipna, ddof, new Float32, new Float32Array(makeNumbers())); });
+         () => { testNumberVar(skipNulls, ddof, new Float32, new Float32Array(makeNumbers())); });
     test('Float64',
-         () => { testNumberVar(skipna, ddof, new Float64, new Float64Array(makeNumbers())); });
+         () => { testNumberVar(skipNulls, ddof, new Float64, new Float64Array(makeNumbers())); });
     test('Bool8',
-         () => { testBooleanVar(skipna, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
+         () => { testBooleanVar(skipNulls, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
   });
 
-  describe('Float type Series with NaN => Series.var (skipna=True)', () => {
-    const skipna = true;
+  describe('Float type Series with NaN => Series.var (skipNulls=True)', () => {
+    const skipNulls = true;
     test('Float32', () => {
       testNumberVar(
-        skipna, ddof, new Float32, new Float32Array([NaN].concat(makeNumbers().concat([NaN]))));
+        skipNulls, ddof, new Float32, new Float32Array([NaN].concat(makeNumbers().concat([NaN]))));
     });
     test('Float64', () => {
       testNumberVar(
-        skipna, ddof, new Float64, new Float64Array([NaN].concat(makeNumbers().concat([NaN]))));
+        skipNulls, ddof, new Float64, new Float64Array([NaN].concat(makeNumbers().concat([NaN]))));
     });
   });
 
-  describe('Series.var (skipna=false)', () => {
-    const skipna = false;
-    test('Int8', () => { testNumberVar(skipna, ddof, new Int8, new Int8Array(makeNumbers())); });
-    test('Int16', () => { testNumberVar(skipna, ddof, new Int16, new Int16Array(makeNumbers())); });
-    test('Int32', () => { testNumberVar(skipna, ddof, new Int32, new Int32Array(makeNumbers())); });
+  describe('Series.var (skipNulls=false)', () => {
+    const skipNulls = false;
+    test('Int8', () => { testNumberVar(skipNulls, ddof, new Int8, new Int8Array(makeNumbers())); });
+    test('Int16', () => { testNumberVar(skipNulls, ddof, new Int16, new Int16Array(makeNumbers())); });
+    test('Int32', () => { testNumberVar(skipNulls, ddof, new Int32, new Int32Array(makeNumbers())); });
     test('Int64',
-         () => { testNumberVar(skipna, ddof, new Int64, new BigInt64Array(makeBigInts())); });
-    test('Uint8', () => { testNumberVar(skipna, ddof, new Uint8, new Uint8Array(makeNumbers())); });
+         () => { testNumberVar(skipNulls, ddof, new Int64, new BigInt64Array(makeBigInts())); });
+    test('Uint8', () => { testNumberVar(skipNulls, ddof, new Uint8, new Uint8Array(makeNumbers())); });
     test('Uint16',
-         () => { testNumberVar(skipna, ddof, new Uint16, new Uint16Array(makeNumbers())); });
+         () => { testNumberVar(skipNulls, ddof, new Uint16, new Uint16Array(makeNumbers())); });
     test('Uint32',
-         () => { testNumberVar(skipna, ddof, new Uint32, new Uint32Array(makeNumbers())); });
+         () => { testNumberVar(skipNulls, ddof, new Uint32, new Uint32Array(makeNumbers())); });
     test('Uint64',
-         () => { testNumberVar(skipna, ddof, new Uint64, new BigUint64Array(makeBigInts())); });
+         () => { testNumberVar(skipNulls, ddof, new Uint64, new BigUint64Array(makeBigInts())); });
     test('Float32',
-         () => { testNumberVar(skipna, ddof, new Float32, new Float32Array(makeNumbers())); });
+         () => { testNumberVar(skipNulls, ddof, new Float32, new Float32Array(makeNumbers())); });
     test('Float64',
-         () => { testNumberVar(skipna, ddof, new Float64, new Float64Array(makeNumbers())); });
+         () => { testNumberVar(skipNulls, ddof, new Float64, new Float64Array(makeNumbers())); });
     test('Bool8',
-         () => { testBooleanVar(skipna, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
+         () => { testBooleanVar(skipNulls, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
   });
 
-  describe('Float type Series with NaN => Series.var (skipna=false)', () => {
-    const skipna = false;
+  describe('Float type Series with NaN => Series.var (skipNulls=false)', () => {
+    const skipNulls = false;
     test('Float32', () => {
       testNumberVar(
-        skipna, ddof, new Float32, new Float32Array([NaN].concat(makeNumbers().concat([NaN]))));
+        skipNulls, ddof, new Float32, new Float32Array([NaN].concat(makeNumbers().concat([NaN]))));
     });
     test('Float64', () => {
       testNumberVar(
-        skipna, ddof, new Float64, new Float64Array([NaN].concat(makeNumbers().concat([NaN]))));
+        skipNulls, ddof, new Float64, new Float64Array([NaN].concat(makeNumbers().concat([NaN]))));
     });
   });
 });
