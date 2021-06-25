@@ -54,7 +54,7 @@ module.exports = {
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@nvidia\/blazingsql(.*)": "<rootDir>/src/$1",
+    "^@rapidsai\/blazingsql(.*)": "<rootDir>/src/$1",
     "^\.\.\/(Debug|Release)\/(node_blazingsql.node)$": "<rootDir>/build/$1/$2",
   }
 };
