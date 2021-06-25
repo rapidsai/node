@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "node_blazingsql/context.hpp"
+#include "context.hpp"
+#include "cache.hpp"
 
-#include <blazingdb/engine/initialize.h>
+#include <nv_node/utilities/args.hpp>
+
+#include <engine/engine.h>
+#include <engine/initialize.h>
 
 namespace nv {
 
@@ -22,7 +26,7 @@ Napi::Function Context::Init(Napi::Env env, Napi::Object exports) {
   return DefineClass(env, "Context", {});
 }
 
-Context::Context(CallbackArgs const& info) : EnvLocalObjectWrap<Context>(info) {
+Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(info) {
   auto env = info.Env();
 
   NapiToCPP::Object props                       = info[0];
@@ -52,20 +56,21 @@ Context::Context(CallbackArgs const& info) : EnvLocalObjectWrap<Context>(info) {
     return config;
   }();
 
-  auto init_result = initialize(ralId,
-                                worker_id,
-                                network_iface_name,
-                                ralCommunicationPort,
-                                workers_ucp_info,
-                                singleNode,
-                                config_options,
-                                allocation_mode,
-                                initial_pool_size,
-                                maximum_pool_size,
-                                enable_logging);
-
-  std::tie(_transport_out, _transport_in) = init_result.first;
-  _port                                   = init_result.second;
+  auto init_result = ::initialize(ralId,
+                                  worker_id,
+                                  network_iface_name,
+                                  ralCommunicationPort,
+                                  workers_ucp_info,
+                                  singleNode,
+                                  config_options,
+                                  allocation_mode,
+                                  initial_pool_size,
+                                  maximum_pool_size,
+                                  enable_logging);
+  auto& caches     = init_result.first;
+  _port            = init_result.second;
+  _transport_out   = Napi::Persistent(CacheMachine::New(env, caches.first));
+  _transport_in    = Napi::Persistent(CacheMachine::New(env, caches.second));
 }
 
 }  // namespace nv

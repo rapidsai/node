@@ -63,15 +63,52 @@ include(ConfigureCUDA)
 include(ConfigureNapi)
 include(ConfigureBlazingSQL)
 
-# Remove -Werror from flags because blazingsql headers are messy
-list(REMOVE_ITEM NODE_RAPIDS_CMAKE_C_FLAGS -Werror)
-list(REMOVE_ITEM NODE_RAPIDS_CMAKE_CXX_FLAGS -Werror)
-list(REMOVE_ITEM NODE_RAPIDS_CMAKE_CUDA_FLAGS -Werror)
+###################################################################################################
+# - blazingsql_wrapper target ------------------------------------------------------------------------------
+
+set(BLAZINGSQL_WRAPPER_CMAKE_C_FLAGS ${NODE_RAPIDS_CMAKE_C_FLAGS})
+set(BLAZINGSQL_WRAPPER_CMAKE_CXX_FLAGS ${NODE_RAPIDS_CMAKE_CXX_FLAGS})
+set(BLAZINGSQL_WRAPPER_CMAKE_CUDA_FLAGS ${NODE_RAPIDS_CMAKE_CUDA_FLAGS})
 
 # Silence warnings
-list(APPEND NODE_RAPIDS_CMAKE_C_FLAGS -w)
-list(APPEND NODE_RAPIDS_CMAKE_CXX_FLAGS -w)
-list(APPEND NODE_RAPIDS_CMAKE_CUDA_FLAGS -w)
+list(APPEND BLAZINGSQL_WRAPPER_CMAKE_C_FLAGS -w)
+list(APPEND BLAZINGSQL_WRAPPER_CMAKE_CXX_FLAGS -w)
+list(APPEND BLAZINGSQL_WRAPPER_CMAKE_CUDA_FLAGS -w)
+
+# Remove -Werror from flags because blazingsql headers are messy
+list(REMOVE_ITEM BLAZINGSQL_WRAPPER_CMAKE_C_FLAGS -Werror)
+list(REMOVE_ITEM BLAZINGSQL_WRAPPER_CMAKE_CXX_FLAGS -Werror)
+list(REMOVE_ITEM BLAZINGSQL_WRAPPER_CMAKE_CUDA_FLAGS -Werror)
+
+add_library(blazingsql_wrapper SHARED "${CMAKE_CURRENT_SOURCE_DIR}/src/blazingsql/engine.cpp")
+
+set_target_properties(blazingsql_wrapper
+    PROPERTIES PREFIX                              ""
+               SUFFIX                              ".so"
+               BUILD_RPATH                         "\$ORIGIN"
+               INSTALL_RPATH                       "\$ORIGIN"
+               CXX_STANDARD                        17
+               CXX_STANDARD_REQUIRED               ON
+               CUDA_STANDARD                       17
+               CUDA_STANDARD_REQUIRED              ON
+               NO_SYSTEM_FROM_IMPORTED             ON
+               POSITION_INDEPENDENT_CODE           ON
+               INTERFACE_POSITION_INDEPENDENT_CODE ON
+)
+
+target_compile_options(blazingsql_wrapper
+            PRIVATE "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:C>:${BLAZINGSQL_WRAPPER_CMAKE_C_FLAGS}>>"
+                    "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CXX>:${BLAZINGSQL_WRAPPER_CMAKE_CXX_FLAGS}>>"
+                    "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${BLAZINGSQL_WRAPPER_CMAKE_CUDA_FLAGS}>>"
+)
+
+target_include_directories(blazingsql_wrapper
+    PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+           "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
+           "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
+)
+
+target_link_libraries(blazingsql_wrapper PRIVATE blazingdb::blazingsql-engine)
 
 ###################################################################################################
 # - node_blazingsql target ------------------------------------------------------------------------------
@@ -115,7 +152,7 @@ target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       rmm::rmm
                       cudf::cudf
-                      blazingdb::blazingsql-engine
+                      blazingsql_wrapper
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
