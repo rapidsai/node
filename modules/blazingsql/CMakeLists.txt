@@ -63,6 +63,16 @@ include(ConfigureCUDA)
 include(ConfigureNapi)
 include(ConfigureBlazingSQL)
 
+# Remove -Werror from flags because blazingsql headers are messy
+list(REMOVE_ITEM NODE_RAPIDS_CMAKE_C_FLAGS -Werror)
+list(REMOVE_ITEM NODE_RAPIDS_CMAKE_CXX_FLAGS -Werror)
+list(REMOVE_ITEM NODE_RAPIDS_CMAKE_CUDA_FLAGS -Werror)
+
+# Silence warnings
+list(APPEND NODE_RAPIDS_CMAKE_C_FLAGS -w)
+list(APPEND NODE_RAPIDS_CMAKE_CXX_FLAGS -w)
+list(APPEND NODE_RAPIDS_CMAKE_CUDA_FLAGS -w)
+
 ###################################################################################################
 # - node_blazingsql target ------------------------------------------------------------------------------
 
