@@ -61,8 +61,10 @@ deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe\
     libgdal-dev \
     # blazingSQL dependencies
     maven openjdk-8-jdk libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
-    # UCX build and runtime dependencies
-    libtool libhwloc-dev libibcm-dev libibverbs-dev librdmacm-dev libnuma-dev \
+    # UCX build dependencies
+    libtool libhwloc-dev \
+    # UCX runtime dependencies
+    libibcm-dev libibverbs-dev librdmacm-dev libnuma-dev \
  \
  # Remove any existing gcc and g++ alternatives
  && update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
@@ -104,9 +106,8 @@ deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe\
  && cd /tmp/ucx && git apply /tmp/cuda-alloc-rcache.patch && rm /tmp/cuda-alloc-rcache.patch \
  && /tmp/ucx/autogen.sh && mkdir /tmp/ucx/build && cd /tmp/ucx/build \
  && ../contrib/configure-release \
-    --prefix=/usr \
-    --without-java \
-    --with-cuda=/usr/local/cuda \
+    --prefix=/usr/local \
+    --without-java --with-cuda=/usr/local/cuda \
     --enable-mt CPPFLAGS=-I/usr/local/cuda/include \
  && make -C /tmp/ucx/build -j install && cd / \
  \
@@ -189,6 +190,7 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda"
+ENV LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib:/usr/local/lib:/usr/local/cuda/lib:/usr/local/cuda/lib64"
 
 SHELL ["/bin/bash", "-c"]
 
