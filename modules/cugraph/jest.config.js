@@ -54,7 +54,7 @@ module.exports = {
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@nvidia\/cugraph(.*)": "<rootDir>/src/$1",
+    "^@rapidsai\/cugraph(.*)": "<rootDir>/src/$1",
     "^\.\.\/(Debug|Release)\/(node_cugraph.node)$": "<rootDir>/build/$1/$2",
   }
 };
