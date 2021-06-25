@@ -19,6 +19,7 @@ function(find_and_configure_cugraph VERSION)
     include(get_cpm)
 
     include(ConfigureCUDF)
+    include(ConfigureRAFT)
 
     _clean_build_dirs_if_not_fully_built(cugraph libcugraph.so)
 
@@ -42,8 +43,10 @@ function(find_and_configure_cugraph VERSION)
 
         CPMFindPackage(NAME     cugraph
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
+            # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
+            # GIT_TAG             branch-${MAJOR_AND_MINOR}
+            GIT_REPOSITORY      https://github.com/trxcllnt/cugraph.git
+            GIT_TAG             fix/debug-builds
             GIT_SHALLOW         TRUE
             UPDATE_DISCONNECTED FALSE
             SOURCE_SUBDIR       cpp
