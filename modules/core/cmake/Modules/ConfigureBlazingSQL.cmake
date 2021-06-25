@@ -14,15 +14,6 @@
 # limitations under the License.
 #=============================================================================
 
-macro(_fix_rapids_cmake_dir)
-    if(EXISTS "${CPM_BINARY_CACHE}/rapids-cmake-src/rapids-cmake")
-        list(APPEND CMAKE_MODULE_PATH "${CPM_BINARY_CACHE}/rapids-cmake-src/rapids-cmake")
-        set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
-        set(rapids-cmake-dir "${CPM_BINARY_CACHE}/rapids-cmake-src/rapids-cmake" CACHE STRING "" FORCE)
-        set(rapids-cmake-dir "${rapids-cmake-dir}" PARENT_SCOPE)
-    endif()
-endmacro()
-
 function(find_and_configure_blazingsql VERSION)
 
     include(get_cpm)
