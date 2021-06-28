@@ -60,7 +60,7 @@ function testNumberSum<T extends Numeric, R extends TypedArray>(type: T, data: R
   test_values(Series.new({type, data}).sum(), result, type);
 }
 
-function testNumberSumSkipNA<T extends Numeric, R extends TypedArray>(
+function testNumberSumskipNulls<T extends Numeric, R extends TypedArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
   if (!data.includes(NaN)) {
@@ -68,10 +68,10 @@ function testNumberSumSkipNA<T extends Numeric, R extends TypedArray>(
       if (mask_array[i] == 1) { return x + y; }
       return x;
     });
-    // skipna=false
+    // skipNulls=false
     test_values(Series.new({type, data, nullMask: mask}).sum(false), result, type);
   } else {
-    // skipna=false
+    // skipNulls=false
     expect(Series.new({type, data, nullMask: mask}).sum(false)).toEqual(NaN);
   }
 }
@@ -80,10 +80,10 @@ function testBigIntSum<T extends Numeric, R extends BigIntArray>(type: T, data: 
   expect(Series.new({type, data}).sum()).toEqual([...data].reduce((x, y) => x + y));
 }
 
-function testBigIntSumSkipNA<T extends Numeric, R extends BigIntArray>(
+function testBigIntSumskipNulls<T extends Numeric, R extends BigIntArray>(
   type: T, data: R, mask_array: Array<number>) {
   const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
-  // skipna=false
+  // skipNulls=false
   expect(Series.new({type, data, nullMask: mask}).sum(false)).toEqual([
     ...data
   ].reduce((x, y, i) => {
@@ -92,7 +92,7 @@ function testBigIntSumSkipNA<T extends Numeric, R extends BigIntArray>(
   }));
 }
 
-describe('Series.sum(skipna=true)', () => {
+describe('Series.sum(skipNulls=true)', () => {
   test('Int8', () => { testNumberSum(new Int8, new Int8Array(makeNumbers())); });
   test('Int16', () => { testNumberSum(new Int16, new Int16Array(makeNumbers())); });
   test('Int32', () => { testNumberSum(new Int32, new Int32Array(makeNumbers())); });
@@ -106,45 +106,45 @@ describe('Series.sum(skipna=true)', () => {
   test('Bool8', () => { testNumberSum(new Bool8, new Uint8ClampedArray(makeBooleans())); });
 });
 
-describe('Series.sum(skipna=false)', () => {
+describe('Series.sum(skipNulls=false)', () => {
   test('Int8',
-       () => { testNumberSumSkipNA(new Int8, new Int8Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberSumskipNulls(new Int8, new Int8Array(makeNumbers()), makeBooleans()); });
   test('Int16',
-       () => { testNumberSumSkipNA(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberSumskipNulls(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });
   test('Int32',
-       () => { testNumberSumSkipNA(new Int32, new Int32Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberSumskipNulls(new Int32, new Int32Array(makeNumbers()), makeBooleans()); });
   test('Int64',
-       () => { testBigIntSumSkipNA(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
+       () => { testBigIntSumskipNulls(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
   test('Uint8',
-       () => { testNumberSumSkipNA(new Uint8, new Uint8Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberSumskipNulls(new Uint8, new Uint8Array(makeNumbers()), makeBooleans()); });
   test('Uint16',
-       () => { testNumberSumSkipNA(new Uint16, new Uint16Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberSumskipNulls(new Uint16, new Uint16Array(makeNumbers()), makeBooleans()); });
   test('Uint32',
-       () => { testNumberSumSkipNA(new Uint32, new Uint32Array(makeNumbers()), makeBooleans()); });
+       () => { testNumberSumskipNulls(new Uint32, new Uint32Array(makeNumbers()), makeBooleans()); });
   test(
     'Uint64',
-    () => { testBigIntSumSkipNA(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans()); });
+    () => { testBigIntSumskipNulls(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans()); });
   test(
     'Float32',
-    () => { testNumberSumSkipNA(new Float32, new Float32Array(makeNumbers()), makeBooleans()); });
+    () => { testNumberSumskipNulls(new Float32, new Float32Array(makeNumbers()), makeBooleans()); });
   test(
     'Float64',
-    () => { testNumberSumSkipNA(new Float64, new Float64Array(makeNumbers()), makeBooleans()); });
+    () => { testNumberSumskipNulls(new Float64, new Float64Array(makeNumbers()), makeBooleans()); });
   test('Bool8', () => {
-    testNumberSumSkipNA(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
+    testNumberSumskipNulls(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
   });
 });
 
-describe('Float type Series with NaN => Series.sum(skipna=true)', () => {
+describe('Float type Series with NaN => Series.sum(skipNulls=true)', () => {
   test('Float32', () => { testNumberSum(new Float32, new Float32Array(float_with_NaN)); });
   test('Float64', () => { testNumberSum(new Float64, new Float64Array(float_with_NaN)); });
 });
 
-describe('Float type Series with NaN => Series.sum(skipna=false)', () => {
+describe('Float type Series with NaN => Series.sum(skipNulls=false)', () => {
   test(
     'Float32',
-    () => { testNumberSumSkipNA(new Float32, new Float32Array(float_with_NaN), makeBooleans()); });
+    () => { testNumberSumskipNulls(new Float32, new Float32Array(float_with_NaN), makeBooleans()); });
   test(
     'Float64',
-    () => { testNumberSumSkipNA(new Float64, new Float64Array(float_with_NaN), makeBooleans()); });
+    () => { testNumberSumskipNulls(new Float64, new Float64Array(float_with_NaN), makeBooleans()); });
 });

@@ -33,7 +33,7 @@ describe.each(memoryResourceTestConfigs)(`%s`, (_, {createMemoryResource}) => {
       expect(getCurrentDeviceResource()).toBe(mr);
       new DeviceBuffer(sizes['2_MiB'], mr);
     } finally {
-      if (prev !== null) { setCurrentDeviceResource(prev); }
+      if (prev != null) { setCurrentDeviceResource(prev); }
     }
   });
 });

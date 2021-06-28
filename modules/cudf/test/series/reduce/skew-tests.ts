@@ -39,24 +39,24 @@ const float_with_NaN = [1.0, NaN, 2.0, 3.0, 4.0, 5.0, NaN, 10.0];
 const result = 1.439590274527955;
 
 function testNumberSkew<T extends Int8|Int16|Int32|Int64|Uint8|Uint16|Uint32|Uint64|Float32|
-                        Float64>(type: T, data: (T['scalarType']|null)[], skipna = true) {
-  const expected = skipna ? result : NaN;
-  expect(Series.new({type, data}).skew(skipna)).toEqual(expected);
+                        Float64>(type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+  const expected = skipNulls ? result : NaN;
+  expect(Series.new({type, data}).skew(skipNulls)).toEqual(expected);
 }
 
-describe.each([[true], [false]])('Series.kurtosis(skipna=%p)', (skipna) => {
-  test('Int8', () => { testNumberSkew(new Int8, numbers, skipna); });
-  test('Int16', () => { testNumberSkew(new Int16, numbers, skipna); });
-  test('Int32', () => { testNumberSkew(new Int32, numbers, skipna); });
-  test('Int64', () => { testNumberSkew(new Int64, bigints, skipna); });
-  test('Uint8', () => { testNumberSkew(new Uint8, numbers, skipna); });
-  test('Uint16', () => { testNumberSkew(new Uint16, numbers, skipna); });
-  test('Uint32', () => { testNumberSkew(new Uint32, numbers, skipna); });
-  test('Uint64', () => { testNumberSkew(new Uint64, bigints, skipna); });
-  test('Float32', () => { testNumberSkew(new Float32, numbers, skipna); });
-  test('Float64', () => { testNumberSkew(new Float64, numbers, skipna); });
-  test('Float32-nan', () => { testNumberSkew(new Float32, float_with_NaN, skipna); });
-  test('Float64-nan', () => { testNumberSkew(new Float64, float_with_NaN, skipna); });
+describe.each([[true], [false]])('Series.kurtosis(skipNulls=%p)', (skipNulls) => {
+  test('Int8', () => { testNumberSkew(new Int8, numbers, skipNulls); });
+  test('Int16', () => { testNumberSkew(new Int16, numbers, skipNulls); });
+  test('Int32', () => { testNumberSkew(new Int32, numbers, skipNulls); });
+  test('Int64', () => { testNumberSkew(new Int64, bigints, skipNulls); });
+  test('Uint8', () => { testNumberSkew(new Uint8, numbers, skipNulls); });
+  test('Uint16', () => { testNumberSkew(new Uint16, numbers, skipNulls); });
+  test('Uint32', () => { testNumberSkew(new Uint32, numbers, skipNulls); });
+  test('Uint64', () => { testNumberSkew(new Uint64, bigints, skipNulls); });
+  test('Float32', () => { testNumberSkew(new Float32, numbers, skipNulls); });
+  test('Float64', () => { testNumberSkew(new Float64, numbers, skipNulls); });
+  test('Float32-nan', () => { testNumberSkew(new Float32, float_with_NaN, skipNulls); });
+  test('Float64-nan', () => { testNumberSkew(new Float64, float_with_NaN, skipNulls); });
 });
 
 describe.each([[[]], [[2]], [[2, 3]]])('Too short (data=%p)', (data) => {
