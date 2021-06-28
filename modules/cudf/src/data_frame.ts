@@ -110,10 +110,10 @@ export class DataFrame<T extends TypeMap = any> {
    * @param memory A buffer holding Arrow table
    * @return The Arrow data as a DataFrame
    */
-  public static fromArrow(memory: Memory|DeviceBuffer) {
+  public static fromArrow<T extends TypeMap>(memory: Memory|DeviceBuffer): DataFrame<T> {
     const {names, table} = Table.fromArrow(memory);
-    return new DataFrame(new ColumnAccessor(
-      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {})));
+    return new DataFrame(new ColumnAccessor(names.reduce(
+      (map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {} as ColumnsMap<T>)));
   }
 
   private _accessor: ColumnAccessor<T>;
