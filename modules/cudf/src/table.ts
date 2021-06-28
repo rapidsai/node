@@ -48,7 +48,7 @@ interface TableConstructor {
     {names: (keyof T)[], table: Table};
 
   /**
-   * Reads a an arrow IPC table into a set of columns.
+   * Adapts an arrow Table in IPC format into a set of columns.
    *
    * @param memory A buffer holding Arrow table
    * @return The Arrow data as a Table and a list of column names.

@@ -105,7 +105,7 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
-   * Reads a an arrow IPC table into a DataFrame.
+   * Adapts an Arrow Table in IPC format into a DataFrame.
    *
    * @param memory A buffer holding Arrow table
    * @return The Arrow data as a DataFrame
