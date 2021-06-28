@@ -16,8 +16,7 @@
 
 #include <nv_node/utilities/args.hpp>
 
-#include <engine/engine.h>
-#include <engine/initialize.h>
+#include <cache_machine/CacheMachine.h>
 
 namespace nv {
 

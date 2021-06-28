@@ -16,8 +16,7 @@
 
 #include <nv_node/utilities/args.hpp>
 
-#include <engine/engine.h>
-#include <engine/initialize.h>
+#include <execution_graph/graph.h>
 
 namespace nv {
 

@@ -16,9 +16,13 @@
 
 #include <nv_node/objectwrap.hpp>
 
-#include <execution_graph/graph.h>
-
 #include <napi.h>
+
+namespace ral {
+namespace cache {
+struct graph;
+}
+}  // namespace ral
 
 namespace nv {
 

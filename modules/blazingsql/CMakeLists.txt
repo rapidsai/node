@@ -80,7 +80,11 @@ list(REMOVE_ITEM BLAZINGSQL_WRAPPER_CMAKE_C_FLAGS -Werror)
 list(REMOVE_ITEM BLAZINGSQL_WRAPPER_CMAKE_CXX_FLAGS -Werror)
 list(REMOVE_ITEM BLAZINGSQL_WRAPPER_CMAKE_CUDA_FLAGS -Werror)
 
-add_library(blazingsql_wrapper SHARED "${CMAKE_CURRENT_SOURCE_DIR}/src/blazingsql/engine.cpp")
+add_library(blazingsql_wrapper SHARED
+    "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/cache.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/context.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/graph.cpp"
+)
 
 set_target_properties(blazingsql_wrapper
     PROPERTIES PREFIX                              ""
@@ -139,6 +143,7 @@ target_compile_options(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+           "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/wrapper>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_RMM_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDF_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDA_MODULE_PATH}/src>"

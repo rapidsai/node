@@ -15,33 +15,41 @@
 #pragma once
 
 #include <nv_node/objectwrap.hpp>
-#include <nv_node/utilities/args.hpp>
-
-#include <blazingdb/engine/cache_machine/CacheMachine.h>
 
 #include <napi.h>
 
+namespace ral {
+namespace cache {
+struct CacheMachine;
+}
+}  // namespace ral
+
 namespace nv {
 
-struct Context : public EnvLocalObjectWrap<Context> {
+struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
   /**
-   * @brief Initialize and export the Context JavaScript constructor and prototype.
+   * @brief Initialize and export the CacheMachine JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Function The Context constructor function.
+   * @return Napi::Function The CacheMachine constructor function.
    */
   static Napi::Function Init(Napi::Env env, Napi::Object exports);
-
   /**
-   * @brief Construct a new Context instance from JavaScript.
+   * @brief Construct a new CacheMachine instance from a ral::cache::CacheMachine.
+   *
+   * @param cache The shared pointer to the CacheMachine.
    */
-  Context(CallbackArgs const& args);
+  static wrapper_t New(Napi::Env const& env, std::shared_ptr<ral::cache::CacheMachine> cache);
+  /**
+   * @brief Construct a new CacheMachine instance from JavaScript.
+   */
+  CacheMachine(Napi::CallbackInfo const& info);
+
+  inline operator std::shared_ptr<ral::cache::CacheMachine>() { return _cache; }
 
  private:
-  int32_t _port{};
-  std::shared_ptr<ral::cache::CacheMachine> _transport_out;
-  std::shared_ptr<ral::cache::CacheMachine> _transport_in;
+  std::shared_ptr<ral::cache::CacheMachine> _cache;
 };
 
 }  // namespace nv

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_blazingsql/context.hpp>
+#include <blazingsql/context.hpp>
 
 #include <nv_node/addon.hpp>
 
