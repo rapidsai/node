@@ -31,11 +31,19 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
    * @return Napi::Function The ExecutionGraph constructor function.
    */
   static Napi::Function Init(Napi::Env env, Napi::Object exports);
+  /**
+   * @brief Construct a new ExecutionGraph instance from a ral::cache::graph.
+   *
+   * @param cache The shared pointer to the ExecutionGraph.
+   */
+  static wrapper_t New(Napi::Env const& env, std::shared_ptr<ral::cache::graph> graph);
 
   /**
    * @brief Construct a new ExecutionGraph instance from JavaScript.
    */
   ExecutionGraph(Napi::CallbackInfo const& info);
+
+  inline operator std::shared_ptr<ral::cache::graph>() { return _graph; }
 
  private:
   std::shared_ptr<ral::cache::graph> _graph;

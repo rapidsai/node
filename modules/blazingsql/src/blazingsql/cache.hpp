@@ -43,6 +43,8 @@ struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
    */
   CacheMachine(Napi::CallbackInfo const& info);
 
+  inline operator std::shared_ptr<ral::cache::CacheMachine>() { return _cache; }
+
  private:
   std::shared_ptr<ral::cache::CacheMachine> _cache;
 };
