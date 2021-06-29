@@ -91,6 +91,19 @@ const NumericTypes = [
   new Uint64,
 ];
 
+const IntegralTypes = [
+  new Int8,
+  new Int16,
+  new Int32,
+  new Int64,
+  new Uint8,
+  new Uint16,
+  new Uint32,
+  new Uint64,
+];
+
+const FloatTypes = [new Float32, new Float64];
+
 function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   const columns = {} as any;
   for (const [name, series] of Object.entries(data)) { columns[name] = series._col; }
@@ -1659,6 +1672,14 @@ export class DataFrame<T extends TypeMap = any> {
    */
   sum<P extends keyof T>(subset?: (keyof T)[], skipNulls = true, memoryResource?: MemoryResource) {
     subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
+    const containsAllFloatingPoint =
+      subset.every((name) => FloatTypes.some((t) => compareTypes(t, this.get(name).type)));
+    const containsAllIntegral =
+      subset.every((name) => IntegralTypes.some((t) => compareTypes(t, this.get(name).type)));
+    if (!(containsAllFloatingPoint !== containsAllIntegral)) {
+      throw new TypeError(
+        `sum operation requires dataframe to be entirely of dtype FloatingPoint OR Integral.`);
+    }
     const sums =
       subset.map((name) => { return (this.get(name) as any).sum(skipNulls, memoryResource); });
     return Series.new(sums) as any as Series < T[P] extends Integral
