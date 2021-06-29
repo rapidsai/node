@@ -10,34 +10,46 @@ ARG LLDB_VERSION=12
 ARG CLANGD_VERSION=12
 ARG CLANG_FORMAT_VERSION=12
 
+ARG PARALLEL_LEVEL=4
+ARG CMAKE_VERSION=3.20.2
+ARG SCCACHE_VERSION=0.2.15
+
 # Install dev dependencies and tools
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update -y \
- && apt install --no-install-recommends -y wget software-properties-common \
+ && apt install --no-install-recommends -y gpg wget software-properties-common \
  && add-apt-repository --no-update -y ppa:git-core/ppa \
  && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
+ # Install kitware CMake apt sources
+ && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
+  | gpg --dearmor - \
+  | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
+ && bash -c 'echo -e "\
+deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main\n\
+" | tee /etc/apt/sources.list.d/kitware.list >/dev/null' \
  # Install LLVM apt sources
  && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
  && bash -c 'echo -e "\
 deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main\n\
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main\n\
-"' > /etc/apt/sources.list.d/llvm-dev.list \
+" | tee /etc/apt/sources.list.d/llvm-dev.list >/dev/null' \
  && bash -c 'echo -e "\
 deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
-"' > /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list \
+" | tee /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list >/dev/null' \
  && bash -c 'echo -e "\
 deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANGD_VERSION} main\n\
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANGD_VERSION} main\n\
-"' > /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list \
+" | tee /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list >/dev/null' \
  && bash -c 'echo -e "\
 deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
-"' > /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list \
+" | tee /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list >/dev/null' \
+ # Add xenial universe apt repo so we can install librdmacm-dev
  && bash -c "echo -e '\
 deb http://archive.ubuntu.com/ubuntu/ xenial universe\n\
-deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe\
-'" >> /etc/apt/sources.list.d/xenial.list \
+deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe\n\
+' | tee /etc/apt/sources.list.d/xenial.list" \
  \
  && apt update -y \
  && apt install --no-install-recommends -y \
@@ -47,10 +59,10 @@ deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe\
     libtinfo5 libncursesw5 \
     # Install gdb, lldb (for llnode), and clangd for C++ intellisense and debugging in the container
     gdb lldb-${LLDB_VERSION} clangd-${CLANGD_VERSION} clang-format-${CLANG_FORMAT_VERSION} \
-    # sccache dependencies
-    cargo \
-    # CMake dependencies
+    # CMake
     curl libssl-dev libcurl4-openssl-dev zlib1g-dev \
+    cmake=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
+    cmake-data=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
     # X11 dependencies
     libxrandr-dev libxinerama-dev libxcursor-dev \
     # node-canvas dependencies
@@ -99,6 +111,14 @@ deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe\
  # Set lldb-${LLDB_VERSION} as the default lldb, llvm-config-${LLDB_VERSION} as default llvm-config
  && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION} \
  \
+ # Install sccache
+ && curl -o /tmp/sccache.tar.gz \
+         -L "https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl.tar.gz" \
+ && tar -C /tmp -xvf /tmp/sccache.tar.gz \
+ && mv "/tmp/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl/sccache" /bin/sccache \
+ && chmod +x /bin/sccache \
+ && cd / \
+ \
  # Install UCX
  && git clone --depth 1 --branch v1.9.x https://github.com/openucx/ucx.git /tmp/ucx \
  && curl -o /tmp/cuda-alloc-rcache.patch \
@@ -110,23 +130,10 @@ deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe\
     --without-java --with-cuda=/usr/local/cuda \
     --enable-mt CPPFLAGS=-I/usr/local/cuda/include \
  && make -C /tmp/ucx/build -j install && cd / \
- \
+ # Clean up
  && rm /etc/apt/sources.list.d/xenial.list \
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-ARG PARALLEL_LEVEL=4
-ARG CMAKE_VERSION=3.20.2
-
-# Install CMake
-RUN cd /tmp \
- && curl -fsSLO --compressed "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
- && tar -xvzf /tmp/cmake-$CMAKE_VERSION.tar.gz && cd /tmp/cmake-$CMAKE_VERSION \
- && /tmp/cmake-$CMAKE_VERSION/bootstrap \
-    --system-curl \
-    --parallel=$PARALLEL_LEVEL \
- && make install -j$PARALLEL_LEVEL \
- && cd /tmp && rm -rf /tmp/cmake-$CMAKE_VERSION*
 
 ARG NODE_VERSION
 ENV NODE_VERSION=$NODE_VERSION
@@ -197,9 +204,5 @@ SHELL ["/bin/bash", "-c"]
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 USER node
-
-RUN cargo install sccache
-
-ENV PATH="$PATH:/home/node/.cargo/bin"
 
 CMD ["/bin/bash", "-l"]

@@ -107,7 +107,13 @@ export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(firs
 
   type TResultTypeMap = ConcatTypeMap<TFirst, TRest>;
 
-  return new DataFrame(names.reduce(
-    (map, name, index) => ({...map, [name]: Series.new(concatenatedTable.getColumnByIndex(index))}),
-    {} as SeriesMap<{[P in keyof TResultTypeMap]: TResultTypeMap[P]}>));
+  // clang-format off
+  return new DataFrame(
+    names.reduce((map, name, index) =>
+    ({...map, [name]: Series.new(concatenatedTable.getColumnByIndex(index))}),
+    {} as SeriesMap<{[P in keyof TResultTypeMap]: TResultTypeMap[P]}>)
+  ) as TResultTypeMap[keyof TResultTypeMap] extends never
+    ? never
+    : DataFrame<{[P in keyof TResultTypeMap]: TResultTypeMap[P]}>;
+  // clang-format on
 }

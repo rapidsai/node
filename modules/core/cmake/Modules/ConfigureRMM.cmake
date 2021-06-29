@@ -25,19 +25,14 @@ function(find_and_configure_rmm VERSION)
     _set_package_dir_if_exists(Thrust thrust)
 
     if(NOT TARGET rmm::rmm)
-
-        if(${VERSION} MATCHES [=[([0-9]+)\.([0-9]+)\.([0-9]+)]=])
-            set(MAJOR_AND_MINOR "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
-        else()
-            set(MAJOR_AND_MINOR "${VERSION}")
-        endif()
-
+        _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
+        _get_update_disconnected_state(rmm ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     rmm
             VERSION             ${VERSION}
             GIT_REPOSITORY      https://github.com/rapidsai/rmm.git
             GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
-            UPDATE_DISCONNECTED FALSE
+            ${UPDATE_DISCONNECTED}
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
                                 "CUDA_STATIC_RUNTIME ON"
