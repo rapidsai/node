@@ -53,7 +53,7 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     libtinfo5 libncursesw5 \
     # Install gdb, lldb (for llnode), and clangd for C++ intellisense and debugging in the container
     gdb lldb-${LLDB_VERSION} clangd-${CLANGD_VERSION} clang-format-${CLANG_FORMAT_VERSION} \
-    # CMake
+    # CMake dependencies
     curl libssl-dev libcurl4-openssl-dev zlib1g-dev \
     cmake=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
     cmake-data=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
@@ -103,6 +103,15 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  && tar -C /tmp -xvf /tmp/sccache.tar.gz \
  && mv "/tmp/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl/sccache" /bin/sccache \
  && chmod +x /bin/sccache \
+ && cd / \
+ # Install CMake
+ && cd /tmp \
+ && curl -fsSLO --compressed "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
+ && tar -xvzf /tmp/cmake-$CMAKE_VERSION.tar.gz && cd /tmp/cmake-$CMAKE_VERSION \
+ && /tmp/cmake-$CMAKE_VERSION/bootstrap \
+    --system-curl \
+    --parallel=$PARALLEL_LEVEL \
+ && make install -j$PARALLEL_LEVEL \
  && cd / \
  # Clean up
  && apt autoremove -y \
