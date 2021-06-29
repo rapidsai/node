@@ -15,24 +15,15 @@
 #=============================================================================
 
 function(find_and_configure_thrust VERSION)
-    # We only want to set `UPDATE_DISCONNECTED` while
-    # the GIT tag hasn't moved from the last time we cloned
-    set(cpm_thrust_disconnect_update "UPDATE_DISCONNECTED TRUE")
-    set(CPM_THRUST_CURRENT_VERSION ${VERSION} CACHE STRING "version of thrust we checked out")
-    if(NOT VERSION VERSION_EQUAL CPM_THRUST_CURRENT_VERSION)
-        set(CPM_THRUST_CURRENT_VERSION ${VERSION} CACHE STRING "version of thrust we checked out" FORCE)
-        set(cpm_thrust_disconnect_update "")
-    endif()
-
+    _get_update_disconnected_state(Thrust ${VERSION} UPDATE_DISCONNECTED)
     CPMAddPackage(NAME  Thrust
         VERSION         ${VERSION}
         GIT_REPOSITORY  https://github.com/NVIDIA/thrust.git
         GIT_TAG         ${VERSION}
         GIT_SHALLOW     TRUE
-        ${cpm_thrust_disconnect_update}
+        ${UPDATE_DISCONNECTED}
         PATCH_COMMAND   patch --reject-file=- -p1 -N < ${CMAKE_CURRENT_LIST_DIR}/thrust.patch || true
     )
-
 endfunction()
 
 find_and_configure_thrust(1.12.0)
