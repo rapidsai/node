@@ -48,7 +48,8 @@ const std_bool_results =
 function testNumberStd<T extends Numeric, R extends TypedArray|BigIntArray>(
   skipNulls: boolean, ddof: number, type: T, data: R) {
   expect(Series.new({type, data}).std(skipNulls, ddof))
-    .toEqual((data.includes(<never>NaN) && skipNulls == false) ? NaN : std_number_results.get(ddof));
+    .toEqual((data.includes(<never>NaN) && skipNulls == false) ? NaN
+                                                               : std_number_results.get(ddof));
 }
 
 function testBooleanStd<T extends Numeric, R extends TypedArray|BigIntArray>(
@@ -61,11 +62,14 @@ param_ddof.forEach(ddof => {
   describe('Series.std (skipNulls=True)', () => {
     const skipNulls = true;
     test('Int8', () => { testNumberStd(skipNulls, ddof, new Int8, new Int8Array(makeNumbers())); });
-    test('Int16', () => { testNumberStd(skipNulls, ddof, new Int16, new Int16Array(makeNumbers())); });
-    test('Int32', () => { testNumberStd(skipNulls, ddof, new Int32, new Int32Array(makeNumbers())); });
+    test('Int16',
+         () => { testNumberStd(skipNulls, ddof, new Int16, new Int16Array(makeNumbers())); });
+    test('Int32',
+         () => { testNumberStd(skipNulls, ddof, new Int32, new Int32Array(makeNumbers())); });
     test('Int64',
          () => { testNumberStd(skipNulls, ddof, new Int64, new BigInt64Array(makeBigInts())); });
-    test('Uint8', () => { testNumberStd(skipNulls, ddof, new Uint8, new Uint8Array(makeNumbers())); });
+    test('Uint8',
+         () => { testNumberStd(skipNulls, ddof, new Uint8, new Uint8Array(makeNumbers())); });
     test('Uint16',
          () => { testNumberStd(skipNulls, ddof, new Uint16, new Uint16Array(makeNumbers())); });
     test('Uint32',
@@ -76,8 +80,9 @@ param_ddof.forEach(ddof => {
          () => { testNumberStd(skipNulls, ddof, new Float32, new Float32Array(makeNumbers())); });
     test('Float64',
          () => { testNumberStd(skipNulls, ddof, new Float64, new Float64Array(makeNumbers())); });
-    test('Bool8',
-         () => { testBooleanStd(skipNulls, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
+    test(
+      'Bool8',
+      () => { testBooleanStd(skipNulls, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
   });
 
   describe('Float type Series with NaN => Series.std (skipNulls=True)', () => {
@@ -95,11 +100,14 @@ param_ddof.forEach(ddof => {
   describe('Series.std (skipNulls=false)', () => {
     const skipNulls = false;
     test('Int8', () => { testNumberStd(skipNulls, ddof, new Int8, new Int8Array(makeNumbers())); });
-    test('Int16', () => { testNumberStd(skipNulls, ddof, new Int16, new Int16Array(makeNumbers())); });
-    test('Int32', () => { testNumberStd(skipNulls, ddof, new Int32, new Int32Array(makeNumbers())); });
+    test('Int16',
+         () => { testNumberStd(skipNulls, ddof, new Int16, new Int16Array(makeNumbers())); });
+    test('Int32',
+         () => { testNumberStd(skipNulls, ddof, new Int32, new Int32Array(makeNumbers())); });
     test('Int64',
          () => { testNumberStd(skipNulls, ddof, new Int64, new BigInt64Array(makeBigInts())); });
-    test('Uint8', () => { testNumberStd(skipNulls, ddof, new Uint8, new Uint8Array(makeNumbers())); });
+    test('Uint8',
+         () => { testNumberStd(skipNulls, ddof, new Uint8, new Uint8Array(makeNumbers())); });
     test('Uint16',
          () => { testNumberStd(skipNulls, ddof, new Uint16, new Uint16Array(makeNumbers())); });
     test('Uint32',
@@ -110,8 +118,9 @@ param_ddof.forEach(ddof => {
          () => { testNumberStd(skipNulls, ddof, new Float32, new Float32Array(makeNumbers())); });
     test('Float64',
          () => { testNumberStd(skipNulls, ddof, new Float64, new Float64Array(makeNumbers())); });
-    test('Bool8',
-         () => { testBooleanStd(skipNulls, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
+    test(
+      'Bool8',
+      () => { testBooleanStd(skipNulls, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
   });
 
   describe('Float type Series with NaN => Series.std (skipNulls=false)', () => {

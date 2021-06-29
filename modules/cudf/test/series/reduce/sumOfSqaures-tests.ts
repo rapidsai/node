@@ -139,7 +139,8 @@ describe('Series.sumOfSquares(skipNulls=false)', () => {
     testNumberSumOfSquaresskipNulls(new Float64, new Float64Array(makeNumbers()), makeBooleans());
   });
   test('Bool8', () => {
-    testNumberSumOfSquaresskipNulls(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
+    testNumberSumOfSquaresskipNulls(
+      new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
   });
 });
 

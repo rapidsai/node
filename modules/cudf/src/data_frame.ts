@@ -25,7 +25,6 @@ import {Join, JoinResult} from './dataframe/join';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {Scalar} from './scalar';
 import {AbstractSeries, Series} from './series';
-import {NumericSeries} from './series/numeric';
 import {Table, ToArrowMetadata} from './table';
 import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {
@@ -35,9 +34,16 @@ import {
   Float64,
   FloatingPoint,
   IndexType,
+  Int16,
   Int32,
+  Int64,
+  Int8,
   Integral,
-  Numeric
+  Numeric,
+  Uint16,
+  Uint32,
+  Uint64,
+  Uint8,
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
@@ -72,16 +78,43 @@ type JoinProps<
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
   GroupBySingleProps<T, R>|Partial<GroupByMultipleProps<T, R, IndexKey>>;
 
+const NumericTypes = [
+  new Bool8,
+  new Float32,
+  new Float64,
+  new Int8,
+  new Int16,
+  new Int32,
+  new Int64,
+  new Uint8,
+  new Uint16,
+  new Uint32,
+  new Uint64,
+];
+
+const IntegralTypes = [
+  new Int8,
+  new Int16,
+  new Int32,
+  new Int64,
+  new Uint8,
+  new Uint16,
+  new Uint32,
+  new Uint64,
+];
+
+const FloatTypes = [new Float32, new Float64];
+
 function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   const columns = {} as any;
   for (const [name, series] of Object.entries(data)) { columns[name] = series._col; }
   return <ColumnsMap<T>>columns;
 }
 
-function _invokeIfNumericSeries<P extends keyof T, T extends TypeMap, R extends DataType>(
-  series: Series<T[P]>, func: () => Series<R>) {
-  if (series instanceof NumericSeries) { return func(); }
-  return Series.new(series._col as Column<R>);
+function _throwIfNonNumeric(type: DataType, operationName: string) {
+  if (!NumericTypes.some((t) => compareTypes(t, type))) {
+    throw new TypeError(`dtype ${type.toString()} cannot perform the operation: ${operationName}`);
+  }
 }
 
 /**
@@ -1045,16 +1078,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  sin(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).sin(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  sin<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `sin`);
+      series_map[name] = (ser as any).sin(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1074,16 +1105,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  cos(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).cos(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  cos<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `cos`);
+      series_map[name] = (ser as any).cos(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1103,16 +1132,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  tan(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).tan(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  tan<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `tan`);
+      series_map[name] = (ser as any).tan(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1132,16 +1159,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  asin(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).asin(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  asin<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `asin`);
+      series_map[name] = (ser as any).asin(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1161,16 +1186,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  acos(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).acos(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  acos<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `acos`);
+      series_map[name] = (ser as any).acos(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1190,16 +1213,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  atan(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).atan(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  atan<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `atan`);
+      series_map[name] = (ser as any).atan(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1219,16 +1240,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  sinh(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).sinh(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  sinh<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `sinh`);
+      series_map[name] = (ser as any).sinh(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1248,16 +1267,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  cosh(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).cosh(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  cosh<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `cosh`);
+      series_map[name] = (ser as any).cosh(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1277,16 +1294,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  tanh(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).tanh(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  tanh<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `tanh`);
+      series_map[name] = (ser as any).tanh(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1306,16 +1321,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  asinh(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).asinh(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  asinh<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `asinh`);
+      series_map[name] = (ser as any).asinh(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1335,16 +1348,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  acosh(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).acosh(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  acosh<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `acosh`);
+      series_map[name] = (ser as any).acosh(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1364,16 +1375,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  atanh(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).atanh(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  atanh<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `atanh`);
+      series_map[name] = (ser as any).atanh(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1393,16 +1402,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  exp(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).exp(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  exp<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `exp`);
+      series_map[name] = (ser as any).exp(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1422,16 +1429,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  log(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).log(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  log<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `log`);
+      series_map[name] = (ser as any).log(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1451,16 +1456,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  sqrt(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).sqrt(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  sqrt<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `sqrt`);
+      series_map[name] = (ser as any).sqrt(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1480,16 +1483,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  cbrt(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).cbrt(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  cbrt<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `cbrt`);
+      series_map[name] = (ser as any).cbrt(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1509,16 +1510,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  ceil(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).ceil(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  ceil<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `ceil`);
+      series_map[name] = (ser as any).ceil(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1538,16 +1537,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  floor(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).floor(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  floor<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `floor`);
+      series_map[name] = (ser as any).floor(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1567,16 +1564,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  abs(memoryResource?: MemoryResource): DataFrame<T> {
-    const mapper = (map: SeriesMap<T>, name: string) => {
-      return {
-        ...map,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).abs(memoryResource)); })
-      };
-    };
-    return new DataFrame(this.names.reduce(mapper, {} as SeriesMap<T>));
+  abs<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `abs`);
+      series_map[name] = (ser as any).abs(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1596,15 +1591,14 @@ export class DataFrame<T extends TypeMap = any> {
    * // }
    * ```
    */
-  not(memoryResource?: MemoryResource): DataFrame<{[P in keyof T]: Bool8}> {
-    return new DataFrame(this.names.reduce(
-      (cols, name) => ({
-        ...cols,
-        [name]: _invokeIfNumericSeries(
-          this.get(name),
-          () => { return Series.new(this._accessor.get(name).not(memoryResource)); })
-      }),
-      {} as SeriesMap<{[P in keyof T]: Bool8}>));
+  not<P extends keyof T>(memoryResource?: MemoryResource) {
+    const series_map = {} as SeriesMap<T>;
+    this._accessor.names.forEach((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `not`);
+      series_map[name] = (ser as any).not(memoryResource);
+    });
+    return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
   }
 
   /**
@@ -1625,7 +1619,11 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   kurtosis<P extends keyof T>(skipNulls = true) {
-    const result = this.names.map((name) => { return (this.get(name) as any).kurtosis(skipNulls); });
+    const result = this.names.map((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `kurtosis`);
+      return (this.get(name) as any).kurtosis(skipNulls);
+    });
     return Series.new(result) as any as Series < T[P] extends Numeric ? Numeric : never > ;
   }
 
@@ -1647,7 +1645,11 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   skew<P extends keyof T>(skipNulls = true) {
-    const result = this.names.map((name) => { return (this.get(name) as any).skew(skipNulls); });
+    const result = this.names.map((name) => {
+      const ser = this.get(name);
+      _throwIfNonNumeric(ser.type, `skew`);
+      return (this.get(name) as any).skew(skipNulls);
+    });
     return Series.new(result) as any as Series < T[P] extends Numeric ? Numeric : never > ;
   }
 
@@ -1656,7 +1658,8 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @param subset List of columns to select (all columns are considered by
    * default).
-   * @param skipNulls The optional skipNulls if true drops NA and null values before computing reduction,
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
    * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    *
@@ -1681,6 +1684,14 @@ export class DataFrame<T extends TypeMap = any> {
    */
   sum<P extends keyof T>(subset?: (keyof T)[], skipNulls = true, memoryResource?: MemoryResource) {
     subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
+    const containsAllFloatingPoint =
+      subset.every((name) => FloatTypes.some((t) => compareTypes(t, this.get(name).type)));
+    const containsAllIntegral =
+      subset.every((name) => IntegralTypes.some((t) => compareTypes(t, this.get(name).type)));
+    if (!(containsAllFloatingPoint !== containsAllIntegral)) {
+      throw new TypeError(
+        `sum operation requires dataframe to be entirely of dtype FloatingPoint OR Integral.`);
+    }
     const sums =
       subset.map((name) => { return (this.get(name) as any).sum(skipNulls, memoryResource); });
     return Series.new(sums) as any as Series < T[P] extends Integral
@@ -1921,7 +1932,8 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @param keep Determines whether to keep the first, last, or none of the duplicate items.
    * @param nullsEqual Determines whether nulls are handled as equal values.
-   * @param nullsFirst Determines whether null values are inserted before or after non-null values.
+   * @param nullsFirst Determines whether null values are inserted before or after non-null
+   *   values.
    * @param subset List of columns to consider when dropping rows (all columns are considered by
    * default).
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
