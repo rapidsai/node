@@ -28,6 +28,7 @@ function(find_and_configure_raft VERSION)
     _set_package_dir_if_exists(libcudacxx libcudacxx)
 
     if(NOT TARGET raft::raft)
+        _fix_rapids_cmake_dir()
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(raft ${VERSION} UPDATE_DISCONNECTED)
         CPMAddPackage(NAME raft
@@ -39,10 +40,10 @@ function(find_and_configure_raft VERSION)
             SOURCE_SUBDIR  cpp
             OPTIONS        "BUILD_TESTS OFF"
         )
-
-        # Make sure consumers of our libs can see raft::raft
-        _fix_cmake_global_defaults(raft::raft)
+        _fix_rapids_cmake_dir()
     endif()
+    # Make sure consumers of our libs can see raft::raft
+    _fix_cmake_global_defaults(raft::raft)
 
 endfunction()
 

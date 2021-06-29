@@ -35,6 +35,7 @@ function(find_and_configure_cudf VERSION)
     _set_package_dir_if_exists(arrow_cuda_shared arrow)
 
     if(NOT TARGET cudf::cudf)
+        _fix_rapids_cmake_dir()
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cudf ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cudf
@@ -52,6 +53,7 @@ function(find_and_configure_cudf VERSION)
                                 "CUDF_USE_ARROW_STATIC OFF"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
+        _fix_rapids_cmake_dir()
     endif()
 
     # Make sure consumers of our libs can see cudf::cudf

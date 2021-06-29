@@ -25,6 +25,7 @@ function(find_and_configure_cuspatial VERSION)
     _set_package_dir_if_exists(cuspatial cuspatial)
 
     if(NOT TARGET cuspatial::cuspatial)
+        _fix_rapids_cmake_dir()
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cuspatial ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cuspatial
@@ -41,6 +42,7 @@ function(find_and_configure_cuspatial VERSION)
                                 "CUDF_USE_ARROW_STATIC OFF"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
+        _fix_rapids_cmake_dir()
     endif()
 
     # Make sure consumers of our libs can see cuspatial::cuspatial
