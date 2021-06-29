@@ -31,8 +31,8 @@ export class Bool8Series extends NumericSeries<Bool8> {
     return new Uint8ClampedBuffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
 
-  protected _prepare_scan_series(skipna: boolean) {
-    if (skipna || !this.hasNulls) { return this; }
+  protected _prepare_scan_series(skipNulls: boolean) {
+    if (skipNulls || !this.hasNulls) { return this; }
 
     const index = Series.sequence({type: new Int32, size: this.length, step: 1, init: 0});
 
@@ -50,8 +50,9 @@ export class Bool8Series extends NumericSeries<Bool8> {
   /**
    * Compute the cumulative max of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
-   * else if skipna is false, reduction is computed directly.
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The cumulative max of all the values in this Series.
@@ -63,16 +64,17 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * a.cumulativeMax() // {true, true, true}
    * ```
    */
-  cumulativeMax(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna);
+  cumulativeMax(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls);
     return Series.new(result_series._col.cumulativeMax(memoryResource));
   }
 
   /**
    * Compute the cumulative min of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
-   * else if skipna is false, reduction is computed directly.
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The cumulative min of all the values in this Series.
@@ -84,17 +86,17 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * a.cumulativeMin() // {true, false, false}
    * ```
    */
-  cumulativeMin(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna);
+  cumulativeMin(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls);
     return Series.new(result_series._col.cumulativeMin(memoryResource));
   }
 
   /**
    * Compute the cumulative product of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
    *   reduction,
-   * else if skipna is false, reduction is computed directly.
+   * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The cumulative product of all the values in this Series.
@@ -106,17 +108,17 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * a.cumulativeProduct() // {1n, 0n, 0n}
    * ```
    */
-  cumulativeProduct(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna).cast(new Int64, memoryResource);
+  cumulativeProduct(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls).cast(new Int64, memoryResource);
     return Series.new(result_series._col.cumulativeProduct(memoryResource));
   }
 
   /**
    * Compute the cumulative sum of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
    *   reduction,
-   * else if skipna is false, reduction is computed directly.
+   * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The cumulative sum of all the values in this Series.
@@ -128,8 +130,8 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * a.cumulativeSum() // {1n, 1n, 2n}
    * ```
    */
-  cumulativeSum(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna).cast(new Int64, memoryResource);
+  cumulativeSum(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls).cast(new Int64, memoryResource);
     return Series.new(result_series._col.cumulativeSum(memoryResource));
   }
 }

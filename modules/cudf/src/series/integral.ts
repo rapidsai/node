@@ -192,8 +192,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
     return Series.new(this._col.bitInvert(memoryResource));
   }
 
-  protected _prepare_scan_series(skipna: boolean) {
-    if (skipna || !this.hasNulls) { return this; }
+  protected _prepare_scan_series(skipNulls: boolean) {
+    if (skipNulls || !this.hasNulls) { return this; }
 
     const index = Series.sequence({type: new Int32, size: this.length, step: 1, init: 0});
 
@@ -211,8 +211,9 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
   /**
    * Compute the cumulative max of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
-   * else if skipna is false, reduction is computed directly.
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The cumulative max of all the values in this Series.
@@ -224,16 +225,17 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * a.cumulativeMax() // {4, 4, 5, 5, 5}
    * ```
    */
-  cumulativeMax(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna) as any;
+  cumulativeMax(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls) as any;
     return Series.new(result_series._col.cumulativeMax(memoryResource));
   }
 
   /**
    * Compute the cumulative min of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
-   * else if skipna is false, reduction is computed directly.
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The cumulative min of all the values in this Series.
@@ -245,17 +247,17 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * a.cumulativeMin() // {4, 2, 2, 1, 1}
    * ```
    */
-  cumulativeMin(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna) as any;
+  cumulativeMin(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls) as any;
     return Series.new(result_series._col.cumulativeMin(memoryResource));
   }
 
   /**
    * Compute the cumulative product of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
    *   reduction,
-   * else if skipna is false, reduction is computed directly.
+   * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The cumulative product of all the values in this Series.
@@ -267,17 +269,17 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * a.cumulativeProduct() // {4, 8, 40, 40, 40}
    * ```
    */
-  cumulativeProduct(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna) as any;
+  cumulativeProduct(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls) as any;
     return Series.new(result_series._col.cumulativeProduct(memoryResource));
   }
 
   /**
    * Compute the cumulative sum of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
    *   reduction,
-   * else if skipna is false, reduction is computed directly.
+   * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The cumulative sum of all the values in this Series.
@@ -289,8 +291,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * a.cumulativeSum() // {4, 6, 11, 12, 13}
    * ```
    */
-  cumulativeSum(skipna = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipna) as any;
+  cumulativeSum(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls) as any;
     return Series.new(result_series._col.cumulativeSum(memoryResource));
   }
 }

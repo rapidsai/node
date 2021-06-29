@@ -54,7 +54,7 @@ module.exports = {
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@nvidia\/cuspatial(.*)": "<rootDir>/src/$1",
+    "^@rapidsai\/cuspatial(.*)": "<rootDir>/src/$1",
     "^\.\.\/(Debug|Release)\/(node_cuspatial.node)$": "<rootDir>/build/$1/$2",
   }
 };

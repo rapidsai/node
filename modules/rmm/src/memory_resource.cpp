@@ -15,6 +15,8 @@
 #include "node_rmm/memory_resource.hpp"
 #include "node_rmm/utilities/napi_to_cpp.hpp"
 
+#include <node_cuda/device.hpp>
+
 #include <thrust/optional.h>
 
 namespace nv {
@@ -137,6 +139,12 @@ MemoryResource::MemoryResource(CallbackArgs const& args)
     }
   }
 };
+
+void MemoryResource::Finalize(Napi::Env env) {
+  if (mr_ != nullptr) {
+    Device::call_in_context(env, device().value(), [&] { mr_ = nullptr; });
+  }
+}
 
 std::string MemoryResource::file_path() const { return log_file_path_; };
 

@@ -31,16 +31,18 @@ import {
   DataType,
   Float32,
   Float64,
+  FloatingPoint,
   IndexType,
   Int16,
   Int32,
   Int64,
   Int8,
+  Integral,
   Numeric,
   Uint16,
   Uint32,
   Uint64,
-  Uint8
+  Uint8,
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
@@ -1578,7 +1580,7 @@ export class DataFrame<T extends TypeMap = any> {
    * Return a Series containing the unbiased kurtosis result for each Series in the
    * DataFrame.
    *
-   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @param skipNulls Exclude NA/null values. If an entire row/column is NA, the result will be NA.
    * @returns A Series containing the unbiased kurtosis result for all Series in the DataFrame
    * @example
    * ```typescript
@@ -1591,11 +1593,11 @@ export class DataFrame<T extends TypeMap = any> {
    * df.kurtosis(); // {-1.1999999999999904, -1.2000000000000686}
    * ```
    */
-  kurtosis<P extends keyof T>(skipna = true) {
+  kurtosis<P extends keyof T>(skipNulls = true) {
     const result = this.names.map((name) => {
       const ser = this.get(name);
       _throwIfNonNumeric(ser.type, `kurtosis`);
-      return (this.get(name) as any).kurtosis(skipna);
+      return (this.get(name) as any).kurtosis(skipNulls);
     });
     return Series.new(result) as any as Series < T[P] extends Numeric ? Numeric : never > ;
   }
@@ -1604,7 +1606,7 @@ export class DataFrame<T extends TypeMap = any> {
    * Return a Series containing the unbiased skew result for each Series in the
    * DataFrame.
    *
-   * @param skipna Exclude NA/null values. If an entire row/column is NA, the result will be NA.
+   * @param skipNulls Exclude NA/null values. If an entire row/column is NA, the result will be NA.
    * @returns A Series containing the unbiased skew result for all Series in the DataFrame
    * @example
    * ```typescript
@@ -1617,13 +1619,51 @@ export class DataFrame<T extends TypeMap = any> {
    * df.skew(); // {-0.288195490292614, -0.2881954902926153}
    * ```
    */
-  skew<P extends keyof T>(skipna = true) {
+  skew<P extends keyof T>(skipNulls = true) {
     const result = this.names.map((name) => {
       const ser = this.get(name);
       _throwIfNonNumeric(ser.type, `skew`);
-      return (this.get(name) as any).skew(skipna);
+      return (this.get(name) as any).skew(skipNulls);
     });
     return Series.new(result) as any as Series < T[P] extends Numeric ? Numeric : never > ;
+  }
+
+  /**
+   * Compute the sum for all Series in the DataFrame.
+   *
+   * @param subset List of columns to select (all columns are considered by
+   * default).
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
+   * @param memoryResource Memory resource used to allocate the result Column's device memory.
+   *
+   * @returns A Series containing the sum of all values for each Series
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   *
+   * const df = new DataFrame({
+   *  a: Series.new([1, 2]),
+   *  b: Series.new([3.5, 4])
+   * });
+   * df.sum(); // [3, 7.5]
+   *
+   * const df2 = new DataFrame({
+   *  a: Series.new(['foo', 'bar']),
+   *  b: Series.new([3, 4])
+   * });
+   *
+   * df2.sum(); // returns `never`
+   * ```
+   */
+  sum<P extends keyof T>(subset?: (keyof T)[], skipNulls = true, memoryResource?: MemoryResource) {
+    subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
+    const sums =
+      subset.map((name) => { return (this.get(name) as any).sum(skipNulls, memoryResource); });
+    return Series.new(sums) as any as Series < T[P] extends Integral
+      ? T[P] extends FloatingPoint ? never : Integral
+      : T[P] extends FloatingPoint ? FloatingPoint : never > ;
   }
 
   /**
