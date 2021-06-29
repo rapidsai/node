@@ -1069,8 +1069,7 @@ export class DataFrame<T extends TypeMap = any> {
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach((name) => {
       const ser = this.get(name);
-      _throwIfNonNumeric(ser.type,
-                         `dtype ${ser.type.toString()} cannot perform the sin operation.`);
+      _throwIfNonNumeric(ser.type, `sin`);
       series_map[name] = (ser as any).sin(memoryResource);
     });
     return new DataFrame(series_map) as T[P] extends Numeric ? DataFrame<T>: never;
