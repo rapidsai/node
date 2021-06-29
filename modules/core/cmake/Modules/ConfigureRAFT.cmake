@@ -27,42 +27,22 @@ function(find_and_configure_raft VERSION)
     _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(libcudacxx libcudacxx)
 
-    _fix_rapids_cmake_dir()
-
     if(NOT TARGET raft::raft)
-
-        # We only want to set `UPDATE_DISCONNECTED` while
-        # the GIT tag hasn't moved from the last time we cloned
-        set(cpm_raft_disconnect_update "UPDATE_DISCONNECTED TRUE")
-        set(CPM_RAFT_CURRENT_VERSION ${VERSION} CACHE STRING "version of raft we checked out")
-        if(NOT VERSION VERSION_EQUAL CPM_RAFT_CURRENT_VERSION)
-            set(CPM_RAFT_CURRENT_VERSION ${VERSION} CACHE STRING "version of raft we checked out" FORCE)
-            set(cpm_raft_disconnect_update "")
-        endif()
-
-        if(${VERSION} MATCHES [=[([0-9]+)\.([0-9]+)\.([0-9]+)]=])
-            set(MAJOR_AND_MINOR "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
-        else()
-            set(MAJOR_AND_MINOR "${VERSION}")
-        endif()
-
+        _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
+        _get_update_disconnected_state(raft ${VERSION} UPDATE_DISCONNECTED)
         CPMAddPackage(NAME raft
             VERSION        ${VERSION}
-            # GIT_REPOSITORY https://github.com/rapidsai/raft.git
-            # GIT_TAG        branch-${MAJOR_AND_MINOR}
-            GIT_REPOSITORY https://github.com/cjnolet/raft.git
-            GIT_TAG        bug-sparse_bfknn_const_handle
+            GIT_REPOSITORY https://github.com/rapidsai/raft.git
+            GIT_TAG        branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW    TRUE
+            ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR  cpp
-            ${cpm_raft_disconnect_update}
             OPTIONS        "BUILD_TESTS OFF"
         )
 
         # Make sure consumers of our libs can see raft::raft
         _fix_cmake_global_defaults(raft::raft)
     endif()
-
-    _fix_rapids_cmake_dir()
 
 endfunction()
 
