@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryResource} from '@rapidsai/rmm';
+import {Memory} from '@nvidia/cuda';
+import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 import {Readable} from 'stream';
@@ -111,6 +112,18 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(new ColumnAccessor(
       names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}),
                    {} as ColumnsMap<{[P in keyof T]: CSVToCUDFType<T[P]>}>)));
+  }
+
+  /**
+   * Adapts an Arrow Table in IPC format into a DataFrame.
+   *
+   * @param memory A buffer holding Arrow table
+   * @return The Arrow data as a DataFrame
+   */
+  public static fromArrow<T extends TypeMap>(memory: Memory|DeviceBuffer): DataFrame<T> {
+    const {names, table} = Table.fromArrow(memory);
+    return new DataFrame(new ColumnAccessor(names.reduce(
+      (map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {} as ColumnsMap<T>)));
   }
 
   private _accessor: ColumnAccessor<T>;
