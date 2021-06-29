@@ -20,19 +20,12 @@ function(find_and_configure_blazingsql VERSION)
 
     include(ConfigureCUDF)
 
-    if(${VERSION} MATCHES [=[([0-9]+)\.([0-9]+)\.([0-9]+)]=])
-        set(MAJOR_AND_MINOR "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
-    else()
-        set(MAJOR_AND_MINOR "${VERSION}")
-    endif()
-
     _clean_build_dirs_if_not_fully_built(blazingsql-io libblazingsql-io.so)
 
     _set_package_dir_if_exists(blazingsql-io blazingsql-io)
 
-    _fix_rapids_cmake_dir()
-
     if(NOT TARGET blazingdb::blazingsql-io)
+        # _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         CPMFindPackage(NAME     blazingsql-io
             VERSION             ${VERSION}
             # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
@@ -55,9 +48,8 @@ function(find_and_configure_blazingsql VERSION)
 
     _set_package_dir_if_exists(blazingsql-engine blazingsql-engine)
 
-    _fix_rapids_cmake_dir()
-
     if(NOT TARGET blazingdb::blazingsql-engine)
+        # _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         CPMFindPackage(NAME     blazingsql-engine
             VERSION             ${VERSION}
             # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
@@ -82,8 +74,6 @@ function(find_and_configure_blazingsql VERSION)
         # Make sure consumers of our libs can see blazingdb::blazingsql-engine
         _fix_cmake_global_defaults(blazingdb::blazingsql-engine)
     endif()
-
-    _fix_rapids_cmake_dir()
 
     if (blazingsql-engine_ADDED)
         execute_process(COMMAND mvn clean install --quiet -f pom.xml -Dmaven.test.skip=true
