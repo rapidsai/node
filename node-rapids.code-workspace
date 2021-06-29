@@ -33,6 +33,10 @@
             "path": "modules/cuspatial"
         },
         {
+            "name": "blazingsql",
+            "path": "modules/blazingsql"
+        },
+        {
             "name": "deck.gl",
             "path": "modules/deck.gl"
         },

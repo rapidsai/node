@@ -437,3 +437,25 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `trajectory_bounding_boxes`          |                                                |
 | `trajectory_distances_and_speeds`    |                                                |
 | `read_polygon_shapefile`             |                                                |
+
+## BlazingSQL
+
+| BlazingSQL                     | node-rapids |
+| ------------------------------ | :---------: |
+| `runGeneratePhysicalGraph`     |             |
+| `runGenerateGraph`             |             |
+| `startExecuteGraph`            |             |
+| `getExecuteGraphResult`        |             |
+| `getTableScanInfo`             |             |
+| `runSkipData`                  |             |
+| `initialize`                   |             |
+| `finalize`                     |             |
+| `getFreeMemory`                |             |
+| `resetMaxMemoryUsed`           |             |
+| `getMaxMemoryUsed`             |             |
+| `getProductDetails`            |             |
+| `runQuery_C`                   |             |
+| `getTableScanInfo_C`           |             |
+| `runSkipData_C`                |             |
+| `initialize_C`                 |             |
+| `finalize_C`                   |             |
