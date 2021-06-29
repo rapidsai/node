@@ -884,5 +884,5 @@ test(`DataFrame.dropDuplicates("first", true, true, ['a'])`, () => {
 
 // Typescript does not allow us to throw a compile-time error if
 // the result of a method is `never`. Instead, let's just verify
-// the result is `never` by checking the parameter type, and throwing accordingly.
-function _verifyIsNever(_: never) { throw new Error(_); }
+// the result is `never` by checking the parameter type.
+function _verifyIsNever(_: never) { return _; }
