@@ -29,6 +29,7 @@ function(find_and_configure_cugraph VERSION)
     _set_package_dir_if_exists(cuhornet cuhornet)
 
     if(NOT TARGET cugraph::cugraph)
+        _fix_rapids_cmake_dir()
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cugraph ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cugraph
@@ -41,10 +42,10 @@ function(find_and_configure_cugraph VERSION)
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
         )
-
-        # Make sure consumers of our libs can see cugraph::cugraph
-        _fix_cmake_global_defaults(cugraph::cugraph)
+        _fix_rapids_cmake_dir()
     endif()
+    # Make sure consumers of our libs can see cugraph::cugraph
+    _fix_cmake_global_defaults(cugraph::cugraph)
 endfunction()
 
 find_and_configure_cugraph(${CUGRAPH_VERSION})

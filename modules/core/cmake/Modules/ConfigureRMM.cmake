@@ -25,6 +25,7 @@ function(find_and_configure_rmm VERSION)
     _set_package_dir_if_exists(Thrust thrust)
 
     if(NOT TARGET rmm::rmm)
+        _fix_rapids_cmake_dir()
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(rmm ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     rmm
@@ -37,6 +38,7 @@ function(find_and_configure_rmm VERSION)
                                 "BUILD_BENCHMARKS OFF"
                                 "CUDA_STATIC_RUNTIME ON"
                                 "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
+        _fix_rapids_cmake_dir()
     endif()
 
     # Make sure consumers of our libs can see rmm::rmm
