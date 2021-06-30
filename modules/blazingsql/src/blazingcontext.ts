@@ -12,11 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {addon as CUDA} from '@nvidia/cuda';
-import {loadNativeModule} from '@rapidsai/core';
-import {addon as CUDF} from '@rapidsai/cudf';
-import {addon as RMM} from '@rapidsai/rmm';
+import {Context} from './context';
 
-export const BLAZINGSQL =
-  loadNativeModule(module, 'node_blazingsql', init => init(CUDA, RMM, CUDF));
-export default BLAZINGSQL;
+export class BlazingContext {
+  public context: Context;  // TODO fix this
+
+  constructor() {
+    this.context = new Context({
+      ralId: 0,
+      workderId: '',
+      network_iface_name: '',
+      ralCommunicationPort: 0,
+      workersUcpInfo: new Array(0),  // TODO: Fix.
+      singleNode: false,
+      allocationMode: 'default',
+      initialPoolSize: null,
+      maximumPoolSize: null,
+      enableLogging: false,
+    });
+  }
+}
