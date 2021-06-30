@@ -307,7 +307,7 @@ cudf::column_view Column::view() const {
     child_views.emplace_back(*Column::Unwrap(child));
   }
 
-  return cudf::column_view{type, size_, *data, *mask, null_count_, offset_, child_views};
+  return cudf::column_view(type, size_, *data, *mask, null_count_, offset_, child_views);
 }
 
 cudf::mutable_column_view Column::mutable_view() {

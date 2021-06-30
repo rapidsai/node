@@ -113,23 +113,26 @@ describe('Series.sum(skipNulls=false)', () => {
        () => { testNumberSumskipNulls(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });
   test('Int32',
        () => { testNumberSumskipNulls(new Int32, new Int32Array(makeNumbers()), makeBooleans()); });
-  test('Int64',
-       () => { testBigIntSumskipNulls(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
+  test(
+    'Int64',
+    () => { testBigIntSumskipNulls(new Int64, new BigInt64Array(makeBigInts()), makeBooleans()); });
   test('Uint8',
        () => { testNumberSumskipNulls(new Uint8, new Uint8Array(makeNumbers()), makeBooleans()); });
-  test('Uint16',
-       () => { testNumberSumskipNulls(new Uint16, new Uint16Array(makeNumbers()), makeBooleans()); });
-  test('Uint32',
-       () => { testNumberSumskipNulls(new Uint32, new Uint32Array(makeNumbers()), makeBooleans()); });
   test(
-    'Uint64',
-    () => { testBigIntSumskipNulls(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans()); });
+    'Uint16',
+    () => { testNumberSumskipNulls(new Uint16, new Uint16Array(makeNumbers()), makeBooleans()); });
   test(
-    'Float32',
-    () => { testNumberSumskipNulls(new Float32, new Float32Array(makeNumbers()), makeBooleans()); });
-  test(
-    'Float64',
-    () => { testNumberSumskipNulls(new Float64, new Float64Array(makeNumbers()), makeBooleans()); });
+    'Uint32',
+    () => { testNumberSumskipNulls(new Uint32, new Uint32Array(makeNumbers()), makeBooleans()); });
+  test('Uint64', () => {
+    testBigIntSumskipNulls(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans());
+  });
+  test('Float32', () => {
+    testNumberSumskipNulls(new Float32, new Float32Array(makeNumbers()), makeBooleans());
+  });
+  test('Float64', () => {
+    testNumberSumskipNulls(new Float64, new Float64Array(makeNumbers()), makeBooleans());
+  });
   test('Bool8', () => {
     testNumberSumskipNulls(new Bool8, new Uint8ClampedArray(makeBooleans()), makeBooleans());
   });
@@ -141,10 +144,10 @@ describe('Float type Series with NaN => Series.sum(skipNulls=true)', () => {
 });
 
 describe('Float type Series with NaN => Series.sum(skipNulls=false)', () => {
-  test(
-    'Float32',
-    () => { testNumberSumskipNulls(new Float32, new Float32Array(float_with_NaN), makeBooleans()); });
-  test(
-    'Float64',
-    () => { testNumberSumskipNulls(new Float64, new Float64Array(float_with_NaN), makeBooleans()); });
+  test('Float32', () => {
+    testNumberSumskipNulls(new Float32, new Float32Array(float_with_NaN), makeBooleans());
+  });
+  test('Float64', () => {
+    testNumberSumskipNulls(new Float64, new Float64Array(float_with_NaN), makeBooleans());
+  });
 });

@@ -41,20 +41,21 @@ const bigints        = [4n, 2n, null, 5n, 1n, 1n];
 function testNumberAny<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32|Float32|Float64>(
   type: T, data: (T['scalarType']|null)[], skipNulls = true) {
   const expected = skipNulls ? [4, 2, null, 2, 1, 1]  //
-                          : [4, 2, null, null, null, null];
+                             : [4, 2, null, null, null, null];
   expect([...Series.new({type, data}).cumulativeMin(skipNulls)]).toEqual(expected);
 }
 
 function testBigIntAny<T extends Int64|Uint64>(
   type: T, data: (T['scalarType']|null)[], skipNulls = true) {
   const expected = skipNulls ? [4n, 2n, null, 2n, 1n, 1n]  //
-                          : [4n, 2n, null, null, null, null];
+                             : [4n, 2n, null, null, null, null];
   expect([...Series.new({type, data}).cumulativeMin(skipNulls)]).toEqual(expected);
 }
 
-function testBooleanAny<T extends Bool8>(type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+function testBooleanAny<T extends Bool8>(
+  type: T, data: (T['scalarType']|null)[], skipNulls = true) {
   const expected = skipNulls ? [true, false, null, false, false]  //
-                          : [true, false, null, null, null];
+                             : [true, false, null, null, null];
   expect([...Series.new({type, data}).cumulativeMin(skipNulls)]).toEqual(expected);
 }
 

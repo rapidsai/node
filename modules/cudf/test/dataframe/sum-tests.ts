@@ -101,6 +101,6 @@ describe('dataframe.sum', () => {
 
   // Typescript does not allow us to throw a compile-time error if
   // the return type of `sum()` is `never`.
-  // Instead, let's just verify the result is `never` and throw accordingly.
-  function verifySumResultType(_: never) { throw new Error(_); }
+  // Instead, let's just verify the result is `never`.
+  function verifySumResultType(_: never) { return _; }
 });

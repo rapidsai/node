@@ -211,7 +211,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
   /**
    * Compute the cumulative max of all values in this Series.
    *
-   * @param skipNulls The optional skipNulls if true drops NA and null values before computing reduction,
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
    * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
@@ -232,7 +233,8 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
   /**
    * Compute the cumulative min of all values in this Series.
    *
-   * @param skipNulls The optional skipNulls if true drops NA and null values before computing reduction,
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
    * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.

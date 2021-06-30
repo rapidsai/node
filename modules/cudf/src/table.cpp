@@ -43,6 +43,7 @@ Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Table::order_by>("orderBy"),
                        StaticMethod<&Table::read_csv>("readCSV"),
                        InstanceMethod<&Table::write_csv>("writeCSV"),
+                       StaticMethod<&Table::from_arrow>("fromArrow"),
                        InstanceMethod<&Table::drop_nans>("dropNans"),
                        InstanceMethod<&Table::drop_nulls>("dropNulls"),
                        InstanceMethod<&Table::drop_duplicates>("dropDuplicates"),
