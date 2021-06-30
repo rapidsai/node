@@ -30,23 +30,14 @@ import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './type
 import {
   Bool8,
   DataType,
-  Float32,
-  Float64,
   FloatingPoint,
   FloatTypes,
   IndexType,
-  Int16,
   Int32,
-  Int64,
-  Int8,
   Integral,
   IntegralTypes,
   Numeric,
   NumericTypes,
-  Uint16,
-  Uint32,
-  Uint64,
-  Uint8,
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
