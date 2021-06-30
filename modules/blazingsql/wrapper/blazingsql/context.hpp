@@ -33,6 +33,13 @@ struct Context : public EnvLocalObjectWrap<Context> {
   static Napi::Function Init(Napi::Env env, Napi::Object exports);
 
   /**
+   * @brief Construct a new Context instance from existing device memory.
+   *
+   * @return wrapper_t The new Context instance
+   */
+  static wrapper_t New(Napi::Env const& env);
+
+  /**
    * @brief Construct a new Context instance from JavaScript.
    */
   Context(Napi::CallbackInfo const& info);

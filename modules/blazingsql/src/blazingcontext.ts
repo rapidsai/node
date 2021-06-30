@@ -12,21 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Context} from './context';
+import {Context, ContextProps, default_config} from './context';
 
 export class BlazingContext {
   constructor() {
-    new Context({
+    const props: ContextProps = {
       ralId: 0,
-      workderId: '',
-      network_iface_name: '',
+      workerId: 'self',
+      network_iface_name: 'lo',
       ralCommunicationPort: 0,
-      workersUcpInfo: new Array(0),  // TODO: Fix.
-      singleNode: false,
-      allocationMode: 'default',
-      initialPoolSize: null,
+      workersUcpInfo: [],  // TODO: Fix.
+      singleNode: true,
+      configOptions: default_config,
+      allocationMode: 'cuda_memory_resource',
+      initialPoolSize: 0,
       maximumPoolSize: null,
       enableLogging: false,
-    });
+    };
+    const test = new Context(props);
+    console.log(test);
   }
 }

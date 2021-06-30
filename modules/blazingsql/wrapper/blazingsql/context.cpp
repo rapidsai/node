@@ -26,6 +26,10 @@ Napi::Function Context::Init(Napi::Env env, Napi::Object exports) {
   return DefineClass(env, "Context", {});
 }
 
+Context::wrapper_t Context::New(Napi::Env const& env) {
+  return EnvLocalObjectWrap<Context>::New(env);
+}
+
 Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(info) {
   auto env = info.Env();
 
