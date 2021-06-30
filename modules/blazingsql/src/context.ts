@@ -15,9 +15,8 @@ interface ContextConstructor {
   new(props: ContextProps): Context;
 }
 
-export interface Context {
-  readonly ralId: number;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Context {}
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Context: ContextConstructor = BLAZINGSQL.Context;

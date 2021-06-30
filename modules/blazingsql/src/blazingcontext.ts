@@ -15,10 +15,8 @@
 import {Context} from './context';
 
 export class BlazingContext {
-  public context: Context;  // TODO fix this
-
   constructor() {
-    this.context = new Context({
+    new Context({
       ralId: 0,
       workderId: '',
       network_iface_name: '',
