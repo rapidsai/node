@@ -31,11 +31,13 @@
     "@rapidsai/core": "0.0.1"
   },
   "files": [
-    "src",
-    "build",
     "LICENSE",
+    "README.md",
     "index.js",
     "package.json",
-    "CMakeLists.txt"
+    "CMakeLists.txt",
+    "src/node_cuda",
+    "build/js",
+    "build/Release/node_cuda.node"
   ]
 }

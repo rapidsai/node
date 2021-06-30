@@ -29,17 +29,17 @@ if(DEFINED CPM_SOURCE_CACHE AND
   endif()
 endif()
 
-execute_process(COMMAND node -p
-                "require('@rapidsai/core').cpm_source_cache_path"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-set(CPM_SOURCE_CACHE "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
-set(ENV{CPM_SOURCE_CACHE} "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
-message(STATUS "get_cpm: Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
-
 if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+    execute_process(COMMAND node -p
+                    "require('@rapidsai/core').cpm_source_cache_path"
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    set(CPM_SOURCE_CACHE "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
+    set(ENV{CPM_SOURCE_CACHE} "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
+    message(STATUS "get_cpm: Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
+
     execute_process(COMMAND node -p
                     "require('@rapidsai/core').cpm_binary_cache_path"
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -132,12 +132,14 @@ function(_get_update_disconnected_state target version out_var)
 endfunction()
 
 function(_fix_rapids_cmake_dir)
-    if(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-        if(EXISTS "${CPM_BINARY_CACHE}/rapids-cmake-src/rapids-cmake")
-            list(APPEND CMAKE_MODULE_PATH "${CPM_BINARY_CACHE}/rapids-cmake-src/rapids-cmake")
-            set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
-            set(rapids-cmake-dir "${CPM_BINARY_CACHE}/rapids-cmake-src/rapids-cmake" CACHE STRING "" FORCE)
-            set(rapids-cmake-dir "${rapids-cmake-dir}" PARENT_SCOPE)
-        endif()
+    set(_BIN_DIR "${CPM_BINARY_CACHE}")
+    if(DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+        set(_BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps")
+    endif()
+    if(EXISTS "${_BIN_DIR}/rapids-cmake-src/rapids-cmake")
+        list(APPEND CMAKE_MODULE_PATH "${_BIN_DIR}/rapids-cmake-src/rapids-cmake")
+        set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
+        set(rapids-cmake-dir "${_BIN_DIR}/rapids-cmake-src/rapids-cmake" CACHE STRING "" FORCE)
+        set(rapids-cmake-dir "${rapids-cmake-dir}" PARENT_SCOPE)
     endif()
 endfunction()

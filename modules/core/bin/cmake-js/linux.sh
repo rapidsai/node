@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+if [ ! $(npm explain cmake-js 2>&1>/dev/null) ]; then exit 0; fi;
+
 set -Eeo pipefail
 
 args=""

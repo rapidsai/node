@@ -21,7 +21,6 @@ x-common-service-settings: &common_service_settings
     XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
     NVIDIA_DRIVER_CAPABILITIES: "all"
     LIBCUDF_KERNEL_CACHE_PATH: "/opt/node-rapids/modules/.cache/jit"
-    CCACHE_CONFIGPATH: "/opt/node-rapids/modules/.cache/ccache/ccache.conf"
   deploy:
     resources:
       reservations:
@@ -38,7 +37,17 @@ services:
       dockerfile: dockerfiles/runtime.Dockerfile
       args:
         <<: *common_build_args
+        SCCACHE_REGION: "${SCCACHE_REGION:-us-west-2}"
+        SCCACHE_BUCKET: "${SCCACHE_BUCKET:-node-rapids-sccache}"
+        SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-32768}"
+        AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
+        AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
+        DISPLAY: "${DISPLAY:-}"
+        CUDAARCHS: "${CUDAARCHS:-ALL}"
+        CMAKE_CUDA_ARCHITECTURES: "${CMAKE_CUDA_ARCHITECTURES:-NATIVE}"
+        NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS: "${NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS:-YES}"
         BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.2.2}-runtime-${LINUX_VERSION:-ubuntu20.04}
+        BUILD_IMAGE: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-11.2.2}-devel-${LINUX_VERSION:-ubuntu20.04}-amd64
     volumes:
       - &workdir "${PWD}:/opt/node-rapids:rw"
       - &etc_fonts "/etc/fonts:/etc/fonts:ro"

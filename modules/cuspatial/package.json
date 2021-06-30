@@ -31,12 +31,14 @@
     "@rapidsai/cudf": "0.0.1"
   },
   "files": [
-    "src",
-    "build",
     "LICENSE",
-    "index.js",
     "README.md",
+    "index.js",
     "package.json",
-    "CMakeLists.txt"
+    "CMakeLists.txt",
+    "src/node_cuspatial",
+    "build/js",
+    "build/Release/node_cuspatial.node",
+    "build/Release/_deps/cuspatial-build/libcuspatial.so"
   ]
 }

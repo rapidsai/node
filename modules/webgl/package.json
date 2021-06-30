@@ -31,12 +31,13 @@
     "@rapidsai/core": "0.0.1"
   },
   "files": [
-    "src",
-    "build",
     "LICENSE",
-    "index.js",
     "README.md",
+    "index.js",
     "package.json",
-    "CMakeLists.txt"
+    "CMakeLists.txt",
+    "build/js",
+    "build/Release/node_webgl.node",
+    "build/Release/lib/libglew.so"
   ]
 }

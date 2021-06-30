@@ -31,12 +31,16 @@
     "@rapidsai/cudf": "0.0.1"
   },
   "files": [
-    "src",
-    "build",
     "LICENSE",
-    "index.js",
     "README.md",
+    "index.js",
     "package.json",
-    "CMakeLists.txt"
+    "CMakeLists.txt",
+    "src/node_cuml",
+    "build/js",
+    "build/Release/node_cuml.node",
+    "build/Release/_deps/cuml-build/libcuml++.so",
+    "build/Release/_deps/treelite-build/libtreelite.so",
+    "build/Release/_deps/treelite-build/libtreelite_runtime.so"
   ]
 }

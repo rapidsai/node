@@ -38,8 +38,6 @@ function(find_and_configure_cuspatial VERSION)
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
                                 "JITIFY_USE_CACHE ON"
-                                "CUDA_STATIC_RUNTIME ON"
-                                "CUDF_USE_ARROW_STATIC ON"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
         _fix_rapids_cmake_dir()

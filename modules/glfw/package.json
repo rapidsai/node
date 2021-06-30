@@ -54,12 +54,13 @@
     "react-dom": ">=16.0"
   },
   "files": [
-    "src",
-    "build",
     "LICENSE",
-    "index.js",
     "README.md",
+    "index.js",
     "package.json",
-    "CMakeLists.txt"
+    "CMakeLists.txt",
+    "build/js",
+    "build/Release/node_glfw.node",
+    "build/Release/lib/libglew.so"
   ]
 }

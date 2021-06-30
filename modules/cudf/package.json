@@ -37,10 +37,13 @@
   },
   "files": [
     "LICENSE",
-    "src",
-    "build",
+    "README.md",
     "index.js",
     "package.json",
-    "CMakeLists.txt"
+    "CMakeLists.txt",
+    "src/node_cudf",
+    "build/js",
+    "build/Release/node_cudf.node",
+    "build/Release/_deps/cudf-build/libcudf.so"
   ]
 }

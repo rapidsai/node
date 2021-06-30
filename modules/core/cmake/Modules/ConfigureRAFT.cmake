@@ -18,6 +18,8 @@ function(find_and_configure_raft VERSION)
 
     include(get_cpm)
 
+    include(ConfigureRMM)
+
     _set_package_dir_if_exists(rmm rmm)
     _set_package_dir_if_exists(ucx ucx)
     _set_package_dir_if_exists(raft raft)
