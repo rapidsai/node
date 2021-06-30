@@ -1,6 +1,7 @@
 **/z-*
 **/*.log
 **/doc
+**/bin
 **/lib
 **/build
 **/.cache
@@ -12,12 +13,6 @@
 
 .env
 .cmake-js
-modules/*/include/rmm
-modules/*/include/cudf
-modules/*/include/cuml
-modules/*/include/cugraph
-modules/*/include/cuspatial
-modules/*/include/thrust
 modules/*/include/napi.h
 modules/*/include/napi-inl.h
 modules/*/include/napi-inl.deprecated.h

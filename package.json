@@ -34,6 +34,7 @@
     "docker:run:nteract": "touch .env && docker-compose run --rm nteract",
     "tsc:build": "scripts/exec.js run tsc:build",
     "tsc:watch": "scripts/exec.js run tsc:watch --parallel",
+    "dev:copy:libs": "scripts/exec.js run dev:copy:libs",
     "dev:relink-bin-dirs": "scripts/exec.js relink-bin-dirs",
     "dev:install-cpp-dependencies": "modules/core/bin/exec_install_deps.js",
     "nuke:from:orbit": "yarn cache clean && yarn clean && yarn && yarn rebuild",

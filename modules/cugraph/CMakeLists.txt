@@ -98,18 +98,33 @@ target_compile_options(${PROJECT_NAME}
                     "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>>"
 )
 
+if(TARGET cudf::cudf)
+    set(LIBCUDF_LIBRARY cudf::cudf)
+    set(LIBCUDF_INCLUDE_DIRS "")
+elseif(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+    set(LIBCUDF_LIBRARY "${CPM_BINARY_CACHE}/cudf-build/libcudf.so")
+    list(APPEND LIBCUDF_INCLUDE_DIRS "${CPM_BINARY_CACHE}/cudf-build/include")
+    list(APPEND LIBCUDF_INCLUDE_DIRS "${CPM_BINARY_CACHE}/cudf-src/cpp/include")
+else()
+    set(LIBCUDF_LIBRARY "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-build/libcudf.so")
+    list(APPEND LIBCUDF_INCLUDE_DIRS "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-build/include")
+    list(APPEND LIBCUDF_INCLUDE_DIRS "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-src/cpp/include")
+endif()
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDF_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_RMM_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDA_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
+           "$<BUILD_INTERFACE:${LIBCUDF_INCLUDE_DIRS}>"
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
 )
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       cugraph::cugraph
+                      "${LIBCUDF_LIBRARY}"
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")

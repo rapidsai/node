@@ -38,6 +38,6 @@
     "CMakeLists.txt",
     "src/node_cuda",
     "build/js",
-    "build/Release/node_cuda.node"
+    "build/Release/*.node"
   ]
 }

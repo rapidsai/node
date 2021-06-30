@@ -38,6 +38,6 @@
     "CMakeLists.txt",
     "src/node_rmm",
     "build/js",
-    "build/Release/node_rmm.node"
+    "build/Release/*.node"
   ]
 }

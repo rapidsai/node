@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ ! $(npm explain cmake-js 2>&1>/dev/null) ]; then exit 0; fi;
+if [[ "$(yarn why cmake-js >/dev/null 2>&1)" || $? != 0 ]]; then exit 0; fi;
 
 set -Eeo pipefail
 

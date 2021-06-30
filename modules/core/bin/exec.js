@@ -8,7 +8,7 @@ module.exports = function (cmd, args, env = {}) {
   var env_ = Object.assign({}, process.env, env);
   var binp = Path.join(__dirname, '../', 'node_modules', '.bin');
   var opts = {
-    shell: true,
+    // shell: true,
     stdio: 'inherit',
     cwd: process.cwd(),
     env: Object.assign({}, env_, {

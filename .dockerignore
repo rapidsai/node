@@ -1,10 +1,14 @@
 **/*.csv
 **/*.git
 **/*.zip
+**/*.*.o
 **/*.arrow
 **/*.geojson
 **/*.parquet
 **/*.tar.gz
+**/lerna-debug.log
+**/docker-compose.yml
+**/compile_commands.json
 
 **/z-*
 **/.cache
@@ -15,10 +19,7 @@
 **/modules/**/lib
 **/modules/**/data
 **/modules/**/build
-**/lerna-debug.log
-**/compile_commands.json
 
-**/modules/*/include/thrust
 **/modules/*/include/napi.h
 **/modules/*/include/napi-inl.h
 **/modules/*/include/napi-inl.deprecated.h
