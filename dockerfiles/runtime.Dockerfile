@@ -6,7 +6,7 @@ FROM node:$NODE_VERSION-stretch-slim as node
 
 FROM ${BUILD_IMAGE} as build
 
-COPY --chown=node:node bin/*.tgz /home/node/
+COPY --chown=node:node build/*.tgz /home/node/
 
 RUN cd /home/node && npm install --no-audit --no-fund /home/node/*.tgz
 
