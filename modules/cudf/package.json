@@ -26,7 +26,7 @@
     "cpp:rebuild:debug": "nvidia-cmake-js -g rebuild -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
-    "dev:copy:libs": "nvidia-cmake-copy-libs build/Release/node_cudf.node build/Release/**/*/libarrow*.so && rimraf build/Release/libarrow*.so build/Release/libarrow*.so.400 && shx mv build/Release/libarrow.so.400.1.0 build/Release/libarrow.so.400 && shx mv build/Release/libarrow_cuda.so.400.1.0 build/Release/libarrow_cuda.so.400 && shx mv build/Release/libarrow_dataset.so.400.1.0 build/Release/libarrow_dataset.so.400"
+    "dev:copy:libs": "nvidia-cmake-copy-libs build/Release/node_cudf.node **/libarrow*.so && rimraf build/Release/libarrow*.so build/Release/libarrow*.so.400 && shx mv build/Release/libarrow.so.400.1.0 build/Release/libarrow.so.400 && shx mv build/Release/libarrow_cuda.so.400.1.0 build/Release/libarrow_cuda.so.400 && shx mv build/Release/libarrow_dataset.so.400.1.0 build/Release/libarrow_dataset.so.400"
   },
   "dependencies": {
     "@nvidia/cuda": "0.0.1",
