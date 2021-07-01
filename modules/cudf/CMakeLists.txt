@@ -96,8 +96,6 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC CUDA_API_PER_THREAD_DEFAULT_ST
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       cudf::cudf
-                      arrow_shared
-                      arrow_cuda_shared
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
 

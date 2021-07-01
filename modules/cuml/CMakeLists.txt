@@ -98,13 +98,13 @@ target_compile_options(${PROJECT_NAME}
                     "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>>"
 )
 
+if(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+    include(ConfigureCUDF)
+endif()
+
 if(TARGET cudf::cudf)
     set(LIBCUDF_LIBRARY cudf::cudf)
     set(LIBCUDF_INCLUDE_DIRS "")
-elseif(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-    set(LIBCUDF_LIBRARY "${CPM_BINARY_CACHE}/cudf-build/libcudf.so")
-    list(APPEND LIBCUDF_INCLUDE_DIRS "${CPM_BINARY_CACHE}/cudf-build/include")
-    list(APPEND LIBCUDF_INCLUDE_DIRS "${CPM_BINARY_CACHE}/cudf-src/cpp/include")
 else()
     set(LIBCUDF_LIBRARY "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-build/libcudf.so")
     list(APPEND LIBCUDF_INCLUDE_DIRS "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-build/include")

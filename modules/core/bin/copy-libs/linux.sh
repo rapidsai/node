@@ -25,16 +25,23 @@ copy_libs() {
     fi
 }
 
+dir=""
+libs=""
+
 for lib in ${@}; do
-    if [[ -e "$PWD/$lib" ]]; then
-        lib="$PWD/$lib";
-    elif [[ -e "/opt/node-rapids/modules/.cache/$lib" ]]; then
-        lib="/opt/node-rapids/modules/.cache/$lib";
-    fi
     if [[ "${lib##*.}" == "node" ]]; then
+        lib="$PWD/$lib"
         dir="$(dirname $(realpath -m "$lib"))"
         mkdir -p "$dir"
+    elif [[ -e "/opt/node-rapids/modules/.cache" ]]; then
+        lib="/opt/node-rapids/modules/.cache/$lib"
+    else
+        lib="$PWD/$lib"
     fi
+    libs="${libs:+$libs }$(echo $lib)"
+done
+
+for lib in ${libs}; do
     echo "copying lib $lib";
     copy_libs "$lib" "$dir";
 done;
