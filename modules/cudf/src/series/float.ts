@@ -124,9 +124,9 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * Return whether all elements are true in Series.
    *
    * @param skipNulls bool
-   * Exclude NA/null values. If the entire row/column is NA and skipNulls is true, then the result will
-   * be true, as for an empty row/column. If skipNulls is false, then NA are treated as true, because
-   * these are not equal to zero.
+   * Exclude NA/null values. If the entire row/column is NA and skipNulls is true, then the result
+   * will be true, as for an empty row/column. If skipNulls is false, then NA are treated as true,
+   * because these are not equal to zero.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    *
@@ -144,9 +144,9 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * Return whether any elements are true in Series.
    *
    * @param skipNulls bool
-   * Exclude NA/null values. If the entire row/column is NA and skipNulls is true, then the result will
-   * be true, as for an empty row/column. If skipNulls is false, then NA are treated as true, because
-   * these are not equal to zero.
+   * Exclude NA/null values. If the entire row/column is NA and skipNulls is true, then the result
+   * will be true, as for an empty row/column. If skipNulls is false, then NA are treated as true,
+   * because these are not equal to zero.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    *

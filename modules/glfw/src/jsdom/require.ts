@@ -16,7 +16,7 @@ export interface Options extends jsdom.ConstructorOptions {
   /** An object containing any browser specific require hooks to be used in this module. */
   extensions?: TContextRequire.Hooks;
   /** A function called with the window, and the module, before parsing html. */
-  beforeParse?(window: Window, context?: jsdom.JSDOM): void;
+  beforeParse?(window: jsdom.DOMWindow, context?: jsdom.JSDOM): void;
 }
 
 export interface JSDOMModule extends jsdom.JSDOM {

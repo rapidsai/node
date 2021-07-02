@@ -1,7 +1,7 @@
 {
   "version": "0.0.0",
   "private": true,
-  "name":  "luma.gl-lessons-09",
+  "name": "@rapidsai/demo-luma.gl-lessons-09",
   "scripts": {
     "start": "webpack-dev-server --progress --hot --open -d",
     "start-local": "webpack-dev-server --env.local --progress --hot --open -d"
@@ -10,7 +10,7 @@
     "@luma.gl/constants": "8.4.5",
     "@luma.gl/core": "8.4.5",
     "@luma.gl/experimental": "8.4.5",
-    "math.gl": "^3.1.2"
+    "math.gl": "3.4.3"
   },
   "esm": {
     "cjs": true,

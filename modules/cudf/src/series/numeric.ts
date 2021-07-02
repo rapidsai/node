@@ -1208,7 +1208,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
 
   /**
    * Compute the min of all values in this Column.
-   * @param skipNulls The optional skipNulls if true drops NA and null values before computing reduction,
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
    * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
@@ -1227,7 +1228,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
 
   /**
    * Compute the max of all values in this Column.
-   * @param skipNulls The optional skipNulls if true drops NA and null values before computing reduction,
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
    * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
@@ -1246,7 +1248,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
 
   /**
    * Compute a pair of [min,max] of all values in this Column.
-   * @param skipNulls The optional skipNulls if true drops NA and null values before computing reduction,
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
    * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
@@ -1265,7 +1268,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
 
   /**
    * Compute the sum of all values in this Series.
-   * @param skipNulls The optional skipNulls if true drops NA and null values before computing reduction,
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
    * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
@@ -1286,7 +1290,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   /**
    * Compute the product of all values in this Series.
    *
-   * @param skipNulls The optional skipNulls if true drops NA and null values before computing reduction,
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
    * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
@@ -1307,7 +1312,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   /**
    * Compute the sumOfSquares of all values in this Series.
    *
-   * @param skipNulls The optional skipNulls if true drops NA and null values before computing reduction,
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
    * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
@@ -1328,7 +1334,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   /**
    * Compute the mean of all values in this Series.
    *
-   * @param skipNulls The optional skipNulls if true drops NA and null values before computing reduction,
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
    * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
@@ -1350,7 +1357,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   /**
    * Compute the median of all values in this Series.
    *
-   * @param skipNulls The optional skipNulls if true drops NA and null values before computing reduction,
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
    * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
@@ -1547,8 +1555,8 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *
    * @param skipNulls bool
    * Exclude null values. If the entire row/column is NA and skipNulls is true, then the result will
-   * be true, as for an empty row/column. If skipNulls is false, then NA are treated as true, because
-   * these are not equal to zero.
+   * be true, as for an empty row/column. If skipNulls is false, then NA are treated as true,
+   * because these are not equal to zero.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    *

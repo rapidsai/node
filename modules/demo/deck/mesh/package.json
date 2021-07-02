@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name":  "mesh-layer-example",
+  "name": "@rapidsai/demo-deck-mesh-layer-example",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
@@ -8,22 +8,32 @@
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
   "scripts": {
-    "start": "webpack-dev-server --progress --hot --open",
-    "start-local": "webpack-dev-server --env.local --progress --hot --open"
+    "start": "node -r esm index.js",
+    "watch": "find -type f | entr -c -d -r node -r esm index.js"
   },
   "dependencies": {
-    "@loaders.gl/obj": "^2.1.1",
-    "deck.gl": "^8.1.0",
-    "react": "^16.3.0",
-    "react-dom": "^16.3.0",
-    "math.gl": "^3.0.0"
+    "@babel/core": "7.14.6",
+    "@babel/preset-env": "7.14.7",
+    "@babel/preset-react": "7.14.5",
+    "@babel/register": "7.14.5",
+    "esm": "3.2.25",
+    "@deck.gl/react": "8.4.17",
+    "@deck.gl/core": "8.4.17",
+    "@deck.gl/layers": "8.4.17",
+    "@deck.gl/mesh-layers": "8.4.17",
+    "@loaders.gl/obj": "2.3.13",
+    "@loaders.gl/core": "2.3.13",
+    "@nvidia/glfw": "0.0.1",
+    "math.gl": "3.4.3",
+    "react": "16.14.0",
+    "react-dom": "16.14.0",
+    "segfault-handler": "1.3.0"
   },
-  "devDependencies": {
-    "@babel/core": "^7.4.0",
-    "@babel/preset-env": "^7.4.0",
-    "@babel/preset-react": "^7.4.0",
-    "@babel/register": "^7.4.0"
-  },
+  "files": [
+    "app.js",
+    "index.js",
+    "package.json"
+  ],
   "esm": {
     "cjs": true,
     "force": true,

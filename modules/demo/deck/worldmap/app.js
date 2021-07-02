@@ -1,10 +1,9 @@
-import React, {Component} from 'react';
-import {render} from 'react-dom';
-import {StaticMap} from 'react-map-gl';
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
-import {GeoJsonLayer, PolygonLayer} from '@deck.gl/layers';
-import {LightingEffect, AmbientLight, _SunLight as SunLight} from '@deck.gl/core';
-import {scaleThreshold} from 'd3-scale';
+import { GeoJsonLayer, PolygonLayer } from '@deck.gl/layers';
+import { LightingEffect, AmbientLight, _SunLight as SunLight } from '@deck.gl/core';
 
 // Set your mapbox token here
 const MAPBOX_TOKEN = 'pk.eyJ1Ijoid21qcGlsbG93IiwiYSI6ImNrN2JldzdpbDA2Ym0zZXFzZ3oydXN2ajIifQ.qPOZDsyYgMMUhxEKrvHzRA'; // eslint-disable-line
@@ -45,17 +44,17 @@ export default class App extends Component {
     this._onHover = this._onHover.bind(this);
     this._renderTooltip = this._renderTooltip.bind(this);
 
-    const lightingEffect = new LightingEffect({ambientLight, dirLight});
+    const lightingEffect = new LightingEffect({ ambientLight, dirLight });
     lightingEffect.shadowColor = [0, 0, 0, 1];
     this._effects = [lightingEffect];
   }
 
-  _onHover({x, y, object}) {
-    this.setState({x, y, hoveredObject: object});
+  _onHover({ x, y, object }) {
+    this.setState({ x, y, hoveredObject: object });
   }
 
   _renderLayers() {
-    const {data = DATA_URL} = this.props;
+    const { data = DATA_URL } = this.props;
 
     return [
       // console.log(data),
@@ -80,15 +79,15 @@ export default class App extends Component {
         getLineColor: [65, 182, 196],
         pickable: true,
         onHover: this._onHover
-      }),  
+      }),
     ];
   }
 
   _renderTooltip() {
-    const {x, y, hoveredObject} = this.state;
+    const { x, y, hoveredObject } = this.state;
     return (
       hoveredObject && (
-        <div className="tooltip" style={{top: y, left: x}}>
+        <div className="tooltip" style={{ top: y, left: x }}>
           <div>
             <b>Country</b>
           </div>
@@ -103,7 +102,7 @@ export default class App extends Component {
   }
 
   render() {
-    const {mapStyle = 'mapbox://styles/mapbox/light-v9'} = this.props;
+    const { mapStyle = 'mapbox://styles/mapbox/light-v9' } = this.props;
 
     return (
       <DeckGL

@@ -46,7 +46,8 @@ const var_bool_results = new Map([[1, 0.2777777777777778], [3, 0.357142857142857
 function testNumberVar<T extends Numeric, R extends TypedArray|BigIntArray>(
   skipNulls: boolean, ddof: number, type: T, data: R) {
   expect(Series.new({type, data}).var(skipNulls, ddof))
-    .toEqual((data.includes(<never>NaN) && skipNulls == false) ? NaN : var_number_results.get(ddof));
+    .toEqual((data.includes(<never>NaN) && skipNulls == false) ? NaN
+                                                               : var_number_results.get(ddof));
 }
 
 function testBooleanVar<T extends Numeric, R extends TypedArray|BigIntArray>(
@@ -59,11 +60,14 @@ param_ddof.forEach(ddof => {
   describe('Series.var (skipNulls=True)', () => {
     const skipNulls = true;
     test('Int8', () => { testNumberVar(skipNulls, ddof, new Int8, new Int8Array(makeNumbers())); });
-    test('Int16', () => { testNumberVar(skipNulls, ddof, new Int16, new Int16Array(makeNumbers())); });
-    test('Int32', () => { testNumberVar(skipNulls, ddof, new Int32, new Int32Array(makeNumbers())); });
+    test('Int16',
+         () => { testNumberVar(skipNulls, ddof, new Int16, new Int16Array(makeNumbers())); });
+    test('Int32',
+         () => { testNumberVar(skipNulls, ddof, new Int32, new Int32Array(makeNumbers())); });
     test('Int64',
          () => { testNumberVar(skipNulls, ddof, new Int64, new BigInt64Array(makeBigInts())); });
-    test('Uint8', () => { testNumberVar(skipNulls, ddof, new Uint8, new Uint8Array(makeNumbers())); });
+    test('Uint8',
+         () => { testNumberVar(skipNulls, ddof, new Uint8, new Uint8Array(makeNumbers())); });
     test('Uint16',
          () => { testNumberVar(skipNulls, ddof, new Uint16, new Uint16Array(makeNumbers())); });
     test('Uint32',
@@ -74,8 +78,9 @@ param_ddof.forEach(ddof => {
          () => { testNumberVar(skipNulls, ddof, new Float32, new Float32Array(makeNumbers())); });
     test('Float64',
          () => { testNumberVar(skipNulls, ddof, new Float64, new Float64Array(makeNumbers())); });
-    test('Bool8',
-         () => { testBooleanVar(skipNulls, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
+    test(
+      'Bool8',
+      () => { testBooleanVar(skipNulls, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
   });
 
   describe('Float type Series with NaN => Series.var (skipNulls=True)', () => {
@@ -93,11 +98,14 @@ param_ddof.forEach(ddof => {
   describe('Series.var (skipNulls=false)', () => {
     const skipNulls = false;
     test('Int8', () => { testNumberVar(skipNulls, ddof, new Int8, new Int8Array(makeNumbers())); });
-    test('Int16', () => { testNumberVar(skipNulls, ddof, new Int16, new Int16Array(makeNumbers())); });
-    test('Int32', () => { testNumberVar(skipNulls, ddof, new Int32, new Int32Array(makeNumbers())); });
+    test('Int16',
+         () => { testNumberVar(skipNulls, ddof, new Int16, new Int16Array(makeNumbers())); });
+    test('Int32',
+         () => { testNumberVar(skipNulls, ddof, new Int32, new Int32Array(makeNumbers())); });
     test('Int64',
          () => { testNumberVar(skipNulls, ddof, new Int64, new BigInt64Array(makeBigInts())); });
-    test('Uint8', () => { testNumberVar(skipNulls, ddof, new Uint8, new Uint8Array(makeNumbers())); });
+    test('Uint8',
+         () => { testNumberVar(skipNulls, ddof, new Uint8, new Uint8Array(makeNumbers())); });
     test('Uint16',
          () => { testNumberVar(skipNulls, ddof, new Uint16, new Uint16Array(makeNumbers())); });
     test('Uint32',
@@ -108,8 +116,9 @@ param_ddof.forEach(ddof => {
          () => { testNumberVar(skipNulls, ddof, new Float32, new Float32Array(makeNumbers())); });
     test('Float64',
          () => { testNumberVar(skipNulls, ddof, new Float64, new Float64Array(makeNumbers())); });
-    test('Bool8',
-         () => { testBooleanVar(skipNulls, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
+    test(
+      'Bool8',
+      () => { testBooleanVar(skipNulls, ddof, new Bool8, new Uint8ClampedArray(makeBooleans())); });
   });
 
   describe('Float type Series with NaN => Series.var (skipNulls=false)', () => {

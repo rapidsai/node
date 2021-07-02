@@ -4,7 +4,6 @@ x-common-service-settings: &common_service_settings
   env_file: .env
   tty: true
   network_mode: "host"
-  working_dir: "/opt/node-rapids"
   build: &common_build_settings
     context: .
     args: &common_build_args
@@ -21,7 +20,6 @@ x-common-service-settings: &common_service_settings
     XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
     NVIDIA_DRIVER_CAPABILITIES: "all"
     LIBCUDF_KERNEL_CACHE_PATH: "/opt/node-rapids/modules/.cache/jit"
-    CCACHE_CONFIGPATH: "/opt/node-rapids/modules/.cache/ccache/ccache.conf"
   deploy:
     resources:
       reservations:
@@ -41,7 +39,6 @@ services:
         BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.2.2}-runtime-${LINUX_VERSION:-ubuntu20.04}
         DEVEL_IMAGE: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-11.2.2}-devel-${LINUX_VERSION:-ubuntu20.04}-amd64
     volumes:
-      - &workdir "${PWD}:/opt/node-rapids:rw"
       - &etc_fonts "/etc/fonts:/etc/fonts:ro"
       - &x11_socket "/tmp/.X11-unix:/tmp/.X11-unix:rw"
       - &usr_share_fonts "/usr/share/fonts:/usr/share/fonts:ro"
@@ -60,10 +57,8 @@ services:
         CMAKE_VERSION: "${CMAKE_VERSION:-3.20.2}"
         CCACHE_VERSION: "${CCACHE_VERSION:-4.1}"
         BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.2.2}-devel-${LINUX_VERSION:-ubuntu20.04}
-    environment:
-      <<: *common_environment_variables
     volumes:
-      - *workdir
+      - &workdir "${PWD}:/opt/node-rapids:rw"
       - *etc_fonts
       - *x11_socket
       - *usr_share_fonts
@@ -77,6 +72,7 @@ services:
       - SYS_PTRACE
     security_opt:
       - apparmor=unconfined
+    working_dir: "/opt/node-rapids"
 
   nteract:
     <<: *common_service_settings
@@ -107,6 +103,7 @@ services:
     security_opt:
       - apparmor=unconfined
     command: nteract
+    working_dir: "/opt/node-rapids"
 
   # Services for Jetson Xavier AGX
 
@@ -155,3 +152,4 @@ services:
     cap_add:
       - SYS_ADMIN
       - SYS_PTRACE
+    working_dir: "/opt/node-rapids"

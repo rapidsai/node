@@ -41,20 +41,21 @@ const float_with_NaN = [NaN, 1, 2, 3, 4, 3, 7, 7, 2, NaN];
 function testNumberAny<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32|Float32|Float64>(
   type: T, data: (T['scalarType']|null)[], skipNulls = true) {
   const expected = skipNulls ? data.some((x) => x === null || x !== 0)  //
-                          : data.some((x) => x !== null);
+                             : data.some((x) => x !== null);
   expect(Series.new({type, data}).any(skipNulls)).toEqual(expected);
 }
 
 function testBigIntAny<T extends Int64|Uint64>(
   type: T, data: (T['scalarType']|null)[], skipNulls = true) {
   const expected = skipNulls ? data.some((x) => x === null || x !== 0n)  //
-                          : data.some((x) => x !== null);
+                             : data.some((x) => x !== null);
   expect(Boolean(Series.new({type, data}).any(skipNulls))).toEqual(expected);
 }
 
-function testBooleanAny<T extends Bool8>(type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+function testBooleanAny<T extends Bool8>(
+  type: T, data: (T['scalarType']|null)[], skipNulls = true) {
   const expected = skipNulls ? data.some((x) => x === null || x !== false)  //
-                          : data.some((x) => x !== null);
+                             : data.some((x) => x !== null);
   expect(Series.new({type, data}).any(skipNulls)).toEqual(expected);
 }
 

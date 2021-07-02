@@ -18,25 +18,28 @@
     "compile:debug": "yarn tsc:build && yarn cpp:compile:debug",
     "rebuild": "yarn tsc:build && yarn cpp:rebuild",
     "rebuild:debug": "yarn tsc:build && yarn cpp:rebuild:debug",
-    "cpp:build": "nvidia-cmake-js -g build",
+    "cpp:build": "nvidia-cmake-js -g build && yarn dev:copy:libs",
     "cpp:build:debug": "nvidia-cmake-js -g build -D",
-    "cpp:compile": "nvidia-cmake-js -g compile",
+    "cpp:compile": "nvidia-cmake-js -g compile && yarn dev:copy:libs",
     "cpp:compile:debug": "nvidia-cmake-js -g compile -D",
-    "cpp:rebuild": "nvidia-cmake-js -g rebuild",
+    "cpp:rebuild": "nvidia-cmake-js -g rebuild && yarn dev:copy:libs",
     "cpp:rebuild:debug": "nvidia-cmake-js -g rebuild -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
-    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
+    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
+    "dev:copy:libs": "nvidia-cmake-copy-libs build/Release/node_cuml.node **/libcuml++.so"
   },
   "dependencies": {
     "@rapidsai/cudf": "0.0.1"
   },
   "files": [
-    "src",
-    "build",
     "LICENSE",
-    "index.js",
     "README.md",
+    "index.js",
     "package.json",
-    "CMakeLists.txt"
+    "CMakeLists.txt",
+    "src/node_cuml",
+    "build/js",
+    "build/Release/*.so*",
+    "build/Release/*.node"
   ]
 }

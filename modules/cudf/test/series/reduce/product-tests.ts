@@ -107,26 +107,27 @@ describe('Series.product(skipNulls=true)', () => {
 });
 
 describe('Series.product(skipNulls=false)', () => {
-  test('Int8',
-       () => { testNumberProductskipNulls(new Int8, new Int8Array(makeNumbers()), makeBooleans()); });
   test(
-    'Int16',
-    () => { testNumberProductskipNulls(new Int16, new Int16Array(makeNumbers()), makeBooleans()); });
-  test(
-    'Int32',
-    () => { testNumberProductskipNulls(new Int32, new Int32Array(makeNumbers()), makeBooleans()); });
+    'Int8',
+    () => { testNumberProductskipNulls(new Int8, new Int8Array(makeNumbers()), makeBooleans()); });
+  test('Int16', () => {
+    testNumberProductskipNulls(new Int16, new Int16Array(makeNumbers()), makeBooleans());
+  });
+  test('Int32', () => {
+    testNumberProductskipNulls(new Int32, new Int32Array(makeNumbers()), makeBooleans());
+  });
   test('Int64', () => {
     testBigIntProductskipNulls(new Int64, new BigInt64Array(makeBigInts()), makeBooleans());
   });
-  test(
-    'Uint8',
-    () => { testNumberProductskipNulls(new Uint8, new Uint8Array(makeNumbers()), makeBooleans()); });
-  test(
-    'Uint16',
-    () => { testNumberProductskipNulls(new Uint16, new Uint16Array(makeNumbers()), makeBooleans()); });
-  test(
-    'Uint32',
-    () => { testNumberProductskipNulls(new Uint32, new Uint32Array(makeNumbers()), makeBooleans()); });
+  test('Uint8', () => {
+    testNumberProductskipNulls(new Uint8, new Uint8Array(makeNumbers()), makeBooleans());
+  });
+  test('Uint16', () => {
+    testNumberProductskipNulls(new Uint16, new Uint16Array(makeNumbers()), makeBooleans());
+  });
+  test('Uint32', () => {
+    testNumberProductskipNulls(new Uint32, new Uint32Array(makeNumbers()), makeBooleans());
+  });
   test('Uint64', () => {
     testBigIntProductskipNulls(new Uint64, new BigUint64Array(makeBigInts()), makeBooleans());
   });
