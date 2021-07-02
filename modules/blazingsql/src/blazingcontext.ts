@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Context, ContextProps, default_config} from './context';
+import {Context, default_config} from './context';
 
 export class BlazingContext {
+  private context: Context;
+
   constructor() {
-    const props: ContextProps = {
+    this.context = new Context({
       ralId: 0,
       workerId: 'self',
       network_iface_name: 'lo',
@@ -28,7 +30,8 @@ export class BlazingContext {
       initialPoolSize: 0,
       maximumPoolSize: null,
       enableLogging: false,
-    };
-    new Context(props);
+    });
   }
+
+  getContext(): Context { return this.context; }
 }
