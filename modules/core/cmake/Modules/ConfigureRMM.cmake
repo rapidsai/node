@@ -36,7 +36,6 @@ function(find_and_configure_rmm VERSION)
             ${UPDATE_DISCONNECTED}
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
-                                "CUDA_STATIC_RUNTIME ON"
                                 "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
         _fix_rapids_cmake_dir()
     endif()

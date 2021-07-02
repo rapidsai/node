@@ -1,5 +1,5 @@
 {
-  "name": "node-cudf-server",
+  "name": "@rapidsai/demo-client-server",
   "version": "0.0.0",
   "private": true,
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
@@ -12,26 +12,35 @@
     "start": "next build && next start"
   },
   "dependencies": {
-    "@rapidsai/cudf": "^0.0.1",
-    "@deck.gl/core": "8.4.11",
-    "@deck.gl/layers": "8.4.11",
-    "@deck.gl/react": "8.4.11",
-    "@deck.gl/carto": "8.4.11",
-    "@deck.gl/geo-layers": "8.4.11",
-    "@deck.gl/mesh-layers": "8.4.11",
-    "@fortawesome/fontawesome-svg-core": "^1.2.35",
-    "@fortawesome/free-solid-svg-icons": "^5.15.3",
+    "@deck.gl/core": "8.4.17",
+    "@deck.gl/layers": "8.4.17",
+    "@deck.gl/react": "8.4.17",
+    "@deck.gl/carto": "8.4.17",
+    "@deck.gl/geo-layers": "8.4.17",
+    "@deck.gl/mesh-layers": "8.4.17",
+    "@fortawesome/fontawesome-svg-core": "1.2.35",
+    "@fortawesome/free-solid-svg-icons": "5.15.3",
     "@fortawesome/react-fontawesome": "0.1.14",
+    "@rapidsai/cudf": "0.0.1",
     "apache-arrow": "4.0.0",
-    "bootstrap": "^4.6.0",
+    "bootstrap": "4.6.0",
     "d3": "6.6.2",
     "d3-legend": "1.0.0",
     "echarts": "5.0.2",
     "echarts-for-react": "3.0.1",
-    "next": "^10.0.0",
-    "react": "17.0.1",
+    "next": "10.2.3",
+    "react": "16.14.0",
     "react-bootstrap": "1.5.2",
-    "react-dom": "17.0.1",
-    "react-map-gl": "5.*.*"
-  }
+    "react-dom": "16.14.0",
+    "react-map-gl": "5.3.16"
+  },
+  "files": [
+    "pages",
+    "styles",
+    "public/images",
+    "public/data/SOURCES.md",
+    "components",
+    "next.config.js",
+    "package.json"
+  ]
 }

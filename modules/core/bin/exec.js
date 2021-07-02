@@ -2,13 +2,13 @@
 
 module.exports = function (cmd, args, env = {}) {
 
-  require('dotenv').config();
+  try { require('dotenv').config(); } catch (e) { };
 
   var Path = require('path');
   var env_ = Object.assign({}, process.env, env);
   var binp = Path.join(__dirname, '../', 'node_modules', '.bin');
   var opts = {
-    shell: true,
+    // shell: true,
     stdio: 'inherit',
     cwd: process.cwd(),
     env: Object.assign({}, env_, {

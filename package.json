@@ -26,14 +26,16 @@
     "cpp:build:debug": "scripts/exec.js run cpp:build:debug --concurrency 1",
     "cpp:compile:debug": "scripts/exec.js run cpp:compile:debug --concurrency 1",
     "cpp:rebuild:debug": "scripts/exec.js run cpp:rebuild:debug --concurrency 1",
-    "docker:build:devel": "touch .env && docker-compose build devel",
-    "docker:build:runtime": "touch .env && docker-compose build runtime",
-    "docker:build:nteract": "touch .env && docker-compose build nteract",
+    "docker:build:devel": "touch .env && docker-compose build --force-rm devel",
+    "docker:build:runtime": "touch .env && docker-compose build --force-rm runtime",
+    "docker:build:nteract": "touch .env && docker-compose build --force-rm nteract",
     "docker:run:devel": "touch .env && docker-compose run --rm devel",
     "docker:run:runtime": "touch .env && docker-compose run --rm runtime",
     "docker:run:nteract": "touch .env && docker-compose run --rm nteract",
     "tsc:build": "scripts/exec.js run tsc:build",
     "tsc:watch": "scripts/exec.js run tsc:watch --parallel",
+    "dev:npm:pack": "scripts/exec.js npm-pack",
+    "dev:copy:libs": "scripts/exec.js run dev:copy:libs",
     "dev:relink-bin-dirs": "scripts/exec.js relink-bin-dirs",
     "dev:install-cpp-dependencies": "modules/core/bin/exec_install_deps.js",
     "nuke:from:orbit": "yarn cache clean && yarn clean && yarn && yarn rebuild",
@@ -60,8 +62,9 @@
     "lint-staged": "10.5.1",
     "node-addon-api": "^3.1.0",
     "pre-git": "3.17.1",
+    "shx": "0.3.3",
     "rimraf": "3.0.0",
-    "typedoc": "0.20.32"
+    "typedoc": "0.21.2"
   },
   "config": {
     "pre-git": {
@@ -81,7 +84,7 @@
     ]
   },
   "resolutions": {
-    "**/jsdom": "^16.2.2",
+    "**/jsdom": "16.6.0",
     "**/deck.gl": "8.4.17",
     "**/react-map-gl": "5.3.16",
     "**/apache-arrow": "4.0.0",

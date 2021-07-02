@@ -73,7 +73,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       CUDA::nvrtc
-                      CUDA::cudart_static)
+                      CUDA::cudart)
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

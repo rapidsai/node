@@ -1,7 +1,7 @@
 {
   "version": "0.0.0",
   "private": true,
-  "name":  "luma.gl-lessons-15",
+  "name": "@rapidsai/demo-luma.gl-lessons-15",
   "description": "The classic WebGL Lesson 15 ported to luma.gl.",
   "contributors": [
     "Xintong Xia <xintong@uber.com>"
@@ -13,7 +13,7 @@
   "dependencies": {
     "@luma.gl/constants": "8.4.5",
     "@luma.gl/core": "8.4.5",
-    "math.gl": "^3.1.2"
+    "math.gl": "3.4.3"
   },
   "esm": {
     "cjs": true,
