@@ -23,7 +23,11 @@
 namespace nv {
 
 Napi::Function Context::Init(Napi::Env env, Napi::Object exports) {
-  return DefineClass(env, "Context", {});
+  return DefineClass(env,
+                     "Context",
+                     {
+                       InstanceAccessor<&Context::port>("port"),
+                     });
 }
 
 Context::wrapper_t Context::New(Napi::Env const& env) {

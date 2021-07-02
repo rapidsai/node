@@ -29,7 +29,6 @@ export class BlazingContext {
       maximumPoolSize: null,
       enableLogging: false,
     };
-    const test = new Context(props);
-    console.log(test);
+    new Context(props);
   }
 }

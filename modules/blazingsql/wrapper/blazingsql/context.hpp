@@ -44,10 +44,17 @@ struct Context : public EnvLocalObjectWrap<Context> {
    */
   Context(Napi::CallbackInfo const& info);
 
+  /**
+   * @brief Returns the number of columns in the table
+   */
+  int32_t port() const noexcept { return _port; }
+
  private:
   int32_t _port{};
   Napi::Reference<Wrapper<CacheMachine>> _transport_out;
   Napi::Reference<Wrapper<CacheMachine>> _transport_in;
+
+  Napi::Value port(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv
