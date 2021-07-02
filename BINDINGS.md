@@ -1,4 +1,4 @@
-# RAPID Bindings
+# RAPIDS Bindings
 
 The tables below show the bindings that have been implemented in `node-rapids`:
 
@@ -379,6 +379,8 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `rolling`       |             |
 | `size`          |             |
 
+
+
 ## cuGraph
 
 | cuGraph                      |   node-rapids   |
@@ -423,6 +425,8 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `view_adj_list`              |                 |
 | `view_edge_list`             |                 |
 | `view_transposed_adj_list`   |                 |
+
+
 
 ## cuSpatial
 
