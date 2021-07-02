@@ -1,6 +1,12 @@
-# Bindings
+# RAPID Bindings
 
-The tables below show the bindings that have been implemented in `node-rapids`.
+The tables below show the bindings that have been implemented in `node-rapids`:
+
+- [cuDF](#cuDF)
+- [cuGraph](#cuGraph)
+- [cuSpatial](#cuSpatial)
+- [cuML](#cuML)
+
 
 ## cuDF
 
@@ -437,3 +443,58 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `trajectory_bounding_boxes`          |                                                |
 | `trajectory_distances_and_speeds`    |                                                |
 | `read_polygon_shapefile`             |                                                |
+
+
+## cuML
+
+#### Clustering
+| cuML                                 |                  node-rapids                   |
+| ------------------------------------ | :--------------------------------------------: |
+| `AC`                                 |                                                |
+| `DBSCAN`                             |                                                |
+| `K-Means`                            |                                                |
+
+
+#### Dimensionality Reduction and Manifold Learning
+| cuML                                 |                  node-rapids                   |
+| ------------------------------------ | :--------------------------------------------: |
+| `K-Means`                            |                                                |
+| `PCA`                                |                                                |
+| `Random Projection`                  |                                                |
+| `tSVD`                               |                                                |
+| `TSNE`                               |                                                |
+| `UMAP`                               |                                                |
+
+
+#### Linear / Nonlinear Models for Regression or Classification
+| cuML                                 |                  node-rapids                   |
+| ------------------------------------ | :--------------------------------------------: |
+| `ElasticNet Regression`              |                                                |
+| `KNN`                                |                                                |
+| `LARS Regression`                    |                                                |
+| `Linear Regression (OLS)`            |                                                |
+| `Linear Regression Lasso`            |                                                |
+| `Linear Regression Ridge`            |                                                |
+| `Logistic Regression`                |                                                |
+| `Naive Bayes`                        |                                                |
+| `SGD`                                |                                                |
+| `CD`                                 |                                                |
+| `QN`                                 |                                                |
+| `Random Forest`                      |                                                |
+| `SVC`                                |                                                |
+| `SVR`                                |                                                |
+
+
+#### Misc
+| cuML                                       |                  node-rapids                   |
+| ------------------------------------------ | :--------------------------------------------: |
+| `Preprocessing Misc`                       |                                                |
+| `Holt-Winters Exponential Smoothing`       |                                                |
+| `Auto-regressive Integrated Moving Average`|                                                |
+| `SHAP Kernel Explainer`                    |                                                |
+| `SHAP Permutation Explainer`               |                                                |
+
+
+
+
+#### EOF
