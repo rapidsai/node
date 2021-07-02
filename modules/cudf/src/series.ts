@@ -651,6 +651,25 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * Return a copy of this Series.
+   *
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const a = Series.new(["foo", "bar", "test"]);
+   *
+   * a.copy() // StringSeries ["foo", "bar", "test"]
+   * ```
+   */
+  copy(memoryResource?: MemoryResource): Series<T> {
+    // const lhs = <Column>(this._col);
+    return Series.new(this._col.copy(memoryResource));
+  }
+  // this.__construct(this._col.copy()); }
+
+  /**
    * Returns the n largest element(s).
    *
    * @param n The number of values to retrieve.
@@ -749,8 +768,8 @@ export class AbstractSeries<T extends DataType = any> {
    * @param value A column of values to be scattered in to this Series
    * @param indices A column of integral indices that indicate the rows in the this Series to be
    *   replaced by `value`.
-   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
-   *   of its values are out of bounds (default: false).
+   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if
+   *   any of its values are out of bounds (default: false).
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @example
@@ -775,8 +794,8 @@ export class AbstractSeries<T extends DataType = any> {
    * @param value A value to be scattered in to this Series
    * @param indices A column of integral indices that indicate the rows in the this Series to be
    *   replaced by `value`.
-   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if any
-   *   of its values are out of bounds (default: false).
+   * @param check_bounds Optionally perform bounds checking on the indices and throw an error if
+   *   any of its values are out of bounds (default: false).
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @example
@@ -1105,7 +1124,8 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @param keep Determines whether or not to keep the duplicate items.
    * @param nullsEqual Determines whether nulls are handled as equal values.
-   * @param nullsFirst Determines whether null values are inserted before or after non-null values.
+   * @param nullsFirst Determines whether null values are inserted before or after non-null
+   *   values.
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns series without duplicate values
    *

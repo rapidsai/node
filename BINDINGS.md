@@ -25,7 +25,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `atan`               |          ✅           |
 | `ceil`               |          ✅           |
 | `clip`               |                       |
-| `copy`               |                       |
+| `copy`               |          ✅           |
 | `corr`               |                       |
 | `cos`                |          ✅           |
 | `count`              | ✅ (`countNonNulls`)  |
@@ -155,7 +155,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `as_mask`            |                       |                       |                       |
 | `astype`             |      ✅ (`cast`)      |      ✅ (`cast`)      |      ✅ (`cast`)      |
 | `clip`               |                       |                       |                       |
-| `copy`               |                       |                       |                       |
+| `copy`               |          ✅           |          ✅           |          ✅           |
 | `count`              | ✅ (`countNonNulls`)  | ✅ (`countNonNulls`)  | ✅ (`countNonNulls`)  |
 | `describe`           |                       |                       |                       |
 | `diff`               |                       |                       |                       |

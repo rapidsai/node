@@ -41,6 +41,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::set_null_count>("setNullCount"),
                        // column/copying.cpp
                        InstanceMethod<&Column::gather>("gather"),
+                       InstanceMethod<&Column::copy>("copy"),
                        // column/filling.cpp
                        InstanceMethod<&Column::fill>("fill"),
                        InstanceMethod<&Column::fill_in_place>("fillInPlace"),

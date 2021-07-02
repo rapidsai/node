@@ -43,6 +43,16 @@ describe('StringSeries', () => {
   });
 });
 
+describe('StringSeries', () => {
+  test('Can copy', () => {
+    const col = StringSeries.new(['foo', 'bar']);
+
+    const result = col.copy();
+
+    expect([...result]).toEqual([...col]);
+  });
+});
+
 describe.each([['foo'], [/foo/], [/foo/ig]])('Series regex search (pattern=%p)', (pattern) => {
   test('containsRe', () => {
     const expected = [true, true, true, true, true, false, false, true, true];

@@ -189,6 +189,22 @@ test('NumericSeries.concat up-casts to common dtype', () => {
   expect([...result]).toEqual([...col, ...colToConcat]);
 });
 
+test('Series.copy fixed width', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([1, 2, 3, 4, 5])});
+
+  const result = col.copy();
+
+  expect([...result]).toEqual([...col]);
+});
+
+test('Series.copy String', () => {
+  const col = Series.new(['foo', 'bar', 'test', null]);
+
+  const result = col.copy();
+
+  expect([...result]).toEqual([...col]);
+});
+
 test('Series.gather', () => {
   const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
 

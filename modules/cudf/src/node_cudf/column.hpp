@@ -653,6 +653,10 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::out_of_bounds_policy bounds_policy = cudf::out_of_bounds_policy::DONT_CHECK,
     rmm::mr::device_memory_resource* mr      = rmm::mr::get_current_device_resource()) const;
 
+  // NOT IMPLEMENTED
+  Column::wrapper_t copy(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
   // column/filling.cpp
   Column::wrapper_t fill(
     cudf::size_type begin,
@@ -747,6 +751,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value num_children(Napi::CallbackInfo const& info);
 
   Napi::Value gather(Napi::CallbackInfo const& info);
+  Napi::Value copy(Napi::CallbackInfo const& info);
 
   Napi::Value get_child(Napi::CallbackInfo const& info);
 
