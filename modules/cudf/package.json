@@ -34,7 +34,7 @@
     "apache-arrow": "4.0.0"
   },
   "devDependencies": {
-    "ix": "^4.3.0"
+    "ix": "4.4.0"
   },
   "files": [
     "LICENSE",

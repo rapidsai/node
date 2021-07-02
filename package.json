@@ -84,7 +84,7 @@
     ]
   },
   "resolutions": {
-    "**/jsdom": "^16.2.2",
+    "**/jsdom": "16.6.0",
     "**/deck.gl": "8.4.17",
     "**/react-map-gl": "5.3.16",
     "**/apache-arrow": "4.0.0",

@@ -6,6 +6,7 @@
 **/*.geojson
 **/*.parquet
 **/*.tar.gz
+**/yarn.lock
 **/lerna-debug.log
 **/docker-compose.yml
 **/compile_commands.json
@@ -25,5 +26,7 @@
 **/modules/*/include/napi-inl.deprecated.h
 **/modules/*/include/node_api.h
 
-setup
-thirdparty
+doc
+scripts
+dockerfiles
+.dockerignore

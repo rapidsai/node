@@ -58,8 +58,6 @@ function(find_and_configure_cuml VERSION)
                                 "BUILD_CUML_PRIMS_BENCH OFF"
         )
         _fix_rapids_cmake_dir()
-        get_target_property(treelite_BINARY_DIR treelite BINARY_DIR)
-        target_include_directories(cuml++ PUBLIC "$<BUILD_INTERFACE:${treelite_BINARY_DIR}/include>")
     endif()
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
