@@ -45,7 +45,7 @@ struct Context : public EnvLocalObjectWrap<Context> {
   Context(Napi::CallbackInfo const& info);
 
   /**
-   * @brief Returns the number of columns in the table
+   * @brief Returns the port the context is operating on
    */
   int32_t port() const noexcept { return _port; }
 
