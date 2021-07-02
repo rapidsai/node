@@ -153,3 +153,18 @@ export class Categorical<T extends DataType = any> extends arrow.Dictionary<T, I
     super(dictionary, new Int32, id, isOrdered);
   }
 }
+
+export const FloatTypes = [new Float32, new Float64];
+
+export const IntegralTypes = [
+  new Int8,
+  new Int16,
+  new Int32,
+  new Int64,
+  new Uint8,
+  new Uint16,
+  new Uint32,
+  new Uint64,
+];
+
+export const NumericTypes = [new Bool8, ...FloatTypes, ...IntegralTypes];

@@ -30,20 +30,14 @@ import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './type
 import {
   Bool8,
   DataType,
-  Float32,
-  Float64,
   FloatingPoint,
+  FloatTypes,
   IndexType,
-  Int16,
   Int32,
-  Int64,
-  Int8,
   Integral,
+  IntegralTypes,
   Numeric,
-  Uint16,
-  Uint32,
-  Uint64,
-  Uint8,
+  NumericTypes,
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
@@ -77,33 +71,6 @@ type JoinProps<
 
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
   GroupBySingleProps<T, R>|Partial<GroupByMultipleProps<T, R, IndexKey>>;
-
-const NumericTypes = [
-  new Bool8,
-  new Float32,
-  new Float64,
-  new Int8,
-  new Int16,
-  new Int32,
-  new Int64,
-  new Uint8,
-  new Uint16,
-  new Uint32,
-  new Uint64,
-];
-
-const IntegralTypes = [
-  new Int8,
-  new Int16,
-  new Int32,
-  new Int64,
-  new Uint8,
-  new Uint16,
-  new Uint32,
-  new Uint64,
-];
-
-const FloatTypes = [new Float32, new Float64];
 
 function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
   const columns = {} as any;
@@ -867,8 +834,7 @@ export class DataFrame<T extends TypeMap = any> {
     const column_indices: number[] = [];
     const allNames                 = this.names;
     subset.forEach((col) => {
-      if (allNames.includes(col) &&
-          [new Float32, new Float64].some((t) => compareTypes(this.get(col).type, t))) {
+      if (allNames.includes(col) && FloatTypes.some((t) => compareTypes(this.get(col).type, t))) {
         column_indices.push(allNames.indexOf(col));
       } else if (!allNames.includes(col)) {
         throw new Error(`Unknown column name: ${col.toString()}`);
@@ -908,7 +874,7 @@ export class DataFrame<T extends TypeMap = any> {
     const df                        = (subset !== undefined) ? this.gather(subset) : this;
 
     this.names.forEach(col => {
-      if ([new Float32, new Float64].some((t) => compareTypes(this.get(col).type, t))) {
+      if (FloatTypes.some((t) => compareTypes(this.get(col).type, t))) {
         const nanCount =
           df.get(col)._col.nansToNulls(memoryResource).nullCount - this.get(col).nullCount;
 
@@ -1724,7 +1690,7 @@ export class DataFrame<T extends TypeMap = any> {
     const temp       = new Table({columns: this.select(subset)._accessor.columns});
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach((name, index) => {
-      if ([new Float32, new Float64].some((t) => compareTypes(this.get(name).type, t))) {
+      if (FloatTypes.some((t) => compareTypes(this.get(name).type, t))) {
         series_map[name] = Series.new(temp.getColumnByIndex(index).nansToNulls(memoryResource));
       } else {
         series_map[name] = Series.new(temp.getColumnByIndex(index));
@@ -1756,14 +1722,14 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   isNaN(memoryResource?: MemoryResource): DataFrame<T> {
-    return new DataFrame(this.names.reduce(
-      (map, name) => ({
-        ...map,
-        [name]: [new Float32, new Float64].some((t) => compareTypes(this.get(name).type, t))
-                  ? Series.new(this._accessor.get(name).isNaN(memoryResource))
-                  : Series.new(this._accessor.get(name))
-      }),
-      {} as SeriesMap<T>));
+    return new DataFrame(
+      this.names.reduce((map, name) => ({
+                          ...map,
+                          [name]: FloatTypes.some((t) => compareTypes(this.get(name).type, t))
+                                    ? Series.new(this._accessor.get(name).isNaN(memoryResource))
+                                    : Series.new(this._accessor.get(name))
+                        }),
+                        {} as SeriesMap<T>));
   }
 
   /**
@@ -1816,14 +1782,14 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   isNotNaN(): DataFrame<T> {
-    return new DataFrame(this.names.reduce(
-      (map, name) => ({
-        ...map,
-        [name]: [new Float32, new Float64].some((t) => compareTypes(this.get(name).type, t))
-                  ? Series.new(this._accessor.get(name).isNotNaN())
-                  : Series.new(this._accessor.get(name))
-      }),
-      {} as SeriesMap<T>));
+    return new DataFrame(
+      this.names.reduce((map, name) => ({
+                          ...map,
+                          [name]: FloatTypes.some((t) => compareTypes(this.get(name).type, t))
+                                    ? Series.new(this._accessor.get(name).isNotNaN())
+                                    : Series.new(this._accessor.get(name))
+                        }),
+                        {} as SeriesMap<T>));
   }
 
   /**
