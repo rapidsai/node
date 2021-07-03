@@ -17,7 +17,6 @@
     "@babel/preset-env": "7.14.7",
     "@babel/preset-react": "7.14.5",
     "@babel/register": "7.14.5",
-    "esm": "3.2.25",
     "@deck.gl/geo-layers": "8.4.17",
     "@deck.gl/react": "8.4.17",
     "@loaders.gl/core": "2.3.13",
