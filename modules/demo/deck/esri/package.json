@@ -1,10 +1,16 @@
 {
   "name": "@rapidsai/demo-deck-pure-js-esri-arcgis",
   "version": "0.0.0",
-  "license": "MIT",
+  "main": "index.js",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "bin": "index.js",
   "scripts": {
-    "start": "node -r esm index.js",
-    "watch": "find -type f | entr -c -d -r node -r esm index.js"
+    "start": "node index.js",
+    "watch": "find -type f | entr -c -d -r node index.js"
   },
   "dependencies": {
     "@babel/core": "7.14.6",
