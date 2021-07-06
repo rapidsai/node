@@ -55,8 +55,8 @@ if [[ "$DEMO" =~ "modules/demo/luma" ]]; then ARGS="${@:-01}";
 elif [[ "$DEMO" =~ "modules/demo/ipc/umap" ]]; then ARGS="${@:-tcp://0.0.0.0:6000}";
 fi
 
-if [[ "$DEMO" =~ "modules/demo/client-server" ]]; then 
+if [[ "$DEMO" =~ "modules/demo/client-server" ]]; then
     NODE_ENV=production exec npm --prefix="$DEMO" $ARGS start
 else
-    NODE_ENV=production exec node -r esm --trace-uncaught "$DEMO" $ARGS
+    NODE_ENV=production exec node --trace-uncaught "$DEMO" $ARGS
 fi

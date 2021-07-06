@@ -126,8 +126,6 @@ USER node
 
 COPY --from=build --chown=node:node /home/node/node_modules /home/node/node_modules
 
-ENV NODE_PATH=/home/node/node_modules
-
 WORKDIR /home/node
 
-CMD ["node", "-r", "esm"]
+CMD ["node"]

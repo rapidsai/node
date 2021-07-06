@@ -1,6 +1,12 @@
-# Bindings
+# RAPIDS Bindings
 
-The tables below show the bindings that have been implemented in `node-rapids`.
+The tables below show the bindings that have been implemented in `node-rapids`:
+
+- [cuDF](#cuDF)
+- [cuGraph](#cuGraph)
+- [cuSpatial](#cuSpatial)
+- [cuML](#cuML)
+
 
 ## cuDF
 
@@ -373,6 +379,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `rolling`       |             |
 | `size`          |             |
 
+
+
 ## cuGraph
 
 | cuGraph                      |   node-rapids   |
@@ -418,6 +426,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `view_edge_list`             |                 |
 | `view_transposed_adj_list`   |                 |
 
+
+
 ## cuSpatial
 
 | cuSpatial                            |                  node-rapids                   |
@@ -459,3 +469,57 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `runSkipData_C`                |             |
 | `initialize_C`                 |             |
 | `finalize_C`                   |             |
+
+## cuML
+
+#### Clustering
+| cuML                                 |                  node-rapids                   |
+| ------------------------------------ | :--------------------------------------------: |
+| `AC`                                 |                                                |
+| `DBSCAN`                             |                                                |
+| `K-Means`                            |                                                |
+
+
+#### Dimensionality Reduction and Manifold Learning
+| cuML                                 |                  node-rapids                   |
+| ------------------------------------ | :--------------------------------------------: |
+| `K-Means`                            |                                                |
+| `PCA`                                |                                                |
+| `Random Projection`                  |                                                |
+| `tSVD`                               |                                                |
+| `TSNE`                               |                                                |
+| `UMAP`                               |                                                |
+
+
+#### Linear / Nonlinear Models for Regression or Classification
+| cuML                                 |                  node-rapids                   |
+| ------------------------------------ | :--------------------------------------------: |
+| `ElasticNet Regression`              |                                                |
+| `KNN`                                |                                                |
+| `LARS Regression`                    |                                                |
+| `Linear Regression (OLS)`            |                                                |
+| `Linear Regression Lasso`            |                                                |
+| `Linear Regression Ridge`            |                                                |
+| `Logistic Regression`                |                                                |
+| `Naive Bayes`                        |                                                |
+| `SGD`                                |                                                |
+| `CD`                                 |                                                |
+| `QN`                                 |                                                |
+| `Random Forest`                      |                                                |
+| `SVC`                                |                                                |
+| `SVR`                                |                                                |
+
+
+#### Misc
+| cuML                                       |                  node-rapids                   |
+| ------------------------------------------ | :--------------------------------------------: |
+| `Preprocessing Misc`                       |                                                |
+| `Holt-Winters Exponential Smoothing`       |                                                |
+| `Auto-regressive Integrated Moving Average`|                                                |
+| `SHAP Kernel Explainer`                    |                                                |
+| `SHAP Permutation Explainer`               |                                                |
+
+
+
+
+#### EOF
