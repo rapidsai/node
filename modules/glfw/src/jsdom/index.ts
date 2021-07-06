@@ -78,14 +78,14 @@ function createJSDOMContext(dir = process.cwd(), runInThisContext = false, code 
     });
     NODE_GLOBAL_KEYS.forEach((key) => {
       try {
-        (context.window)[key] = global[key];
+        (context.window)[key] = (global as any)[key];
       } catch (e) { /**/
       }
     });
   } else {
     context = createJSDOMContextRequire(<any>{dir, html: scriptToHTML(code), ...jsdomOptions});
-    Object.assign(context, {...global, global: context, Buffer: global.Buffer});
-    Object.assign(context.window, {...global, global: context, Buffer: global.Buffer});
+    Object.assign(context, {...global, global: context, Buffer: (global as any).Buffer});
+    Object.assign(context.window, {...global, global: context, Buffer: (global as any).Buffer});
     JSDOM_KEYS.forEach((key) => {
       try {
         (context)[key] = context.window[key];
@@ -94,7 +94,7 @@ function createJSDOMContext(dir = process.cwd(), runInThisContext = false, code 
     });
     NODE_GLOBAL_KEYS.forEach((key) => {
       try {
-        (context.window)[key] = global[key];
+        (context.window)[key] = (global as any)[key];
       } catch (e) { /**/
       }
     });
