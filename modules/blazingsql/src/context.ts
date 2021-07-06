@@ -1,3 +1,4 @@
+import {Table} from '@rapidsai/cudf';
 import {BLAZINGSQL} from './addon';
 
 // TODO: Move this somewhere else...

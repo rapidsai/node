@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {DataFrame, TypeMap} from '@rapidsai/cudf';
+import {ArrayList} from './algebra';
 import {Context, default_config} from './context';
 
 export class BlazingContext {
   private context: Context;
+  private db: any;
 
   constructor() {
+    this.db      = ArrayList;
     this.context = new Context({
       ralId: 0,
       workerId: 'self',
@@ -31,7 +35,15 @@ export class BlazingContext {
       maximumPoolSize: null,
       enableLogging: false,
     });
+    console.log(this.context);
+    console.log(this.db);
   }
 
-  getContext(): Context { return this.context; }
+  createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): DataFrame {
+    tableName = 'test';
+    if (tableName == 'test') { return input; }
+    return input;
+  }
+
+  sql(query: string) { return query; }
 }
