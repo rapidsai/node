@@ -13,7 +13,15 @@
 // limitations under the License.
 
 import {DataFrame, TypeMap} from '@rapidsai/cudf';
-import {ArrayList} from './algebra';
+import {callMethodSync} from 'java';
+
+import {
+  ArrayList,
+  CatalogColumnDataType,
+  CatalogColumnImpl,
+  CatalogDatabaseImpl,
+  CatalogTableImpl
+} from './algebra';
 import {Context, default_config} from './context';
 
 export class BlazingContext {
@@ -21,7 +29,7 @@ export class BlazingContext {
   private db: any;
 
   constructor() {
-    this.db      = ArrayList;
+    this.db      = CatalogDatabaseImpl('main');
     this.context = new Context({
       ralId: 0,
       workerId: 'self',
@@ -39,10 +47,18 @@ export class BlazingContext {
     console.log(this.db);
   }
 
-  createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): DataFrame {
-    tableName = 'test';
-    if (tableName == 'test') { return input; }
-    return input;
+  createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
+    callMethodSync(this.db, 'removeTable', tableName);
+
+    const arr = ArrayList();
+    input.names.forEach((name, index) => {
+      const columnDataType = CatalogColumnDataType();
+      const dataType       = callMethodSync(columnDataType, 'fromTypeId', input.get(name).type);
+      const column         = CatalogColumnImpl([name, dataType, index]);
+      callMethodSync(arr, 'add', column);
+    });
+    const tableJava = CatalogTableImpl([tableName, this.db, arr]);
+    callMethodSync(this.db, 'addTable', tableJava);
   }
 
   sql(query: string) { return query; }

@@ -22,7 +22,7 @@ const NODE_DEBUG = ((<any>process.env).NODE_DEBUG || (<any>process.env).NODE_ENV
 let moduleBasePath = Path.dirname(module.id);
 if (Path.basename(moduleBasePath) == 'src') {
   moduleBasePath = Path.dirname(moduleBasePath);
-  moduleBasePath = Path.join(moduleBasePath, 'build', 'js');
+  moduleBasePath = Path.join(moduleBasePath, 'build');
 }
 
 if (NODE_DEBUG && Fs.existsSync(Path.join(moduleBasePath, 'Debug'))) {
@@ -33,30 +33,34 @@ if (NODE_DEBUG && Fs.existsSync(Path.join(moduleBasePath, 'Debug'))) {
   java.classpath.push(Path.join(moduleBasePath, 'Release', 'blazingsql-algebra-core.jar'));
 }
 
-export const ArrayList = java.import('java.util.ArrayList');
+export function ArrayList() { return java.import('java.util.ArrayList'); }
 
-export const CatalogColumnDataType =
-  java.import('com.blazingdb.calcite.catalog.domain.CatalogColumnDataType');
+export function CatalogColumnDataType() {
+  return java.import('com.blazingdb.calcite.catalog.domain.CatalogColumnDataType');
+}
 
-export const CatalogColumnImpl =
-  java.import('com.blazingdb.calcite.catalog.domain.CatalogColumnImpl');
+export function CatalogColumnImpl(args: any[]) {
+  return java.import('com.blazingdb.calcite.catalog.domain.CatalogColumnImpl', args);
+}
 
-export const CatalogTableImpl =
-  java.import('com.blazingdb.calcite.catalog.domain.CatalogTableImpl');
+export function CatalogTableImpl(args: any[]) {
+  return java.import('com.blazingdb.calcite.catalog.domain.CatalogTableImpl', args);
+}
 
-export const CatalogDatabaseImpl =
-  java.import('com.blazingdb.calcite.catalog.domain.CatalogDatabaseImpl');
+export function CatalogDatabaseImpl(name: string) {
+  return java.import('com.blazingdb.calcite.catalog.domain.CatalogDatabaseImpl', name);
+}
 
-export const BlazingSchema = java.import('com.blazingdb.calcite.schema.BlazingSchema');
+// export const BlazingSchema = java.import('com.blazingdb.calcite.schema.BlazingSchema');
 
-export const RelConversionException =
-  java.import('org.apache.calcite.tools.RelConversionException');
+// export const RelConversionException =
+//   java.import('org.apache.calcite.tools.RelConversionException');
 
-export const RelationalAlgebraGenerator =
-  java.import('com.blazingdb.calcite.application.RelationalAlgebraGenerator');
+// export const RelationalAlgebraGenerator =
+//   java.import('com.blazingdb.calcite.application.RelationalAlgebraGenerator');
 
-export const SqlValidationException =
-  java.import('com.blazingdb.calcite.application.SqlValidationException');
+// export const SqlValidationException =
+//   java.import('com.blazingdb.calcite.application.SqlValidationException');
 
-export const SqlSyntaxException =
-  java.import('com.blazingdb.calcite.application.SqlSyntaxException');
+// export const SqlSyntaxException =
+//   java.import('com.blazingdb.calcite.application.SqlSyntaxException');
