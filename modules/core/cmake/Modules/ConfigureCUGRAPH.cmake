@@ -18,7 +18,6 @@ function(find_and_configure_cugraph VERSION)
 
     include(get_cpm)
 
-    include(ConfigureCUDF)
     include(ConfigureRAFT)
 
     _clean_build_dirs_if_not_fully_built(cugraph libcugraph.so)

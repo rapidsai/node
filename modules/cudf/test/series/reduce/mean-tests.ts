@@ -77,7 +77,8 @@ function testBigIntMean<T extends Int64|Uint64>(
   }
 }
 
-function testBooleanMean<T extends Bool8>(type: T, data: (T['scalarType']|null)[], skipNulls = true) {
+function testBooleanMean<T extends Bool8>(
+  type: T, data: (T['scalarType']|null)[], skipNulls = true) {
   if (skipNulls) {
     const expected = jsMeanBoolean(data.filter((x) => x !== null) as boolean[]);
     expect(Series.new({type, data}).mean(skipNulls)).toEqual(expected);

@@ -6,6 +6,21 @@ FROM node:$NODE_VERSION-stretch-slim as node
 
 FROM ${DEVEL_IMAGE} as devel
 
+COPY --chown=node:node build/*.tgz /home/node/
+
+SHELL ["/bin/bash", "-c"]
+
+RUN cd /home/node \
+ && npm install \
+    --no-fund --no-audit \
+    --production --save-exact \
+    --omit dev --omit peer --omit optional \
+    /home/node/*.tgz \
+ && npm dedupe \
+    --no-fund --no-audit \
+    --production --save-exact \
+    --omit dev --omit peer --omit optional
+
 FROM ${BASE_IMAGE}
 
 # Install UCX
@@ -43,8 +58,19 @@ RUN cd /usr/local/lib \
 deb http://archive.ubuntu.com/ubuntu/ xenial universe\n\
 deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe\
 '" > /etc/apt/sources.list.d/xenial.list \
+
+FROM ${BASE_IMAGE}
+
+# Install dependencies
+RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update -y \
  && apt install --no-install-recommends -y \
+    # X11 dependencies
+    libxrandr-dev libxinerama-dev libxcursor-dev \
+    # GLEW dependencies
+    libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
+    # node-canvas dependencies
+    libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
     # cuSpatial dependencies
     libgdal-dev \
     # UCX runtime dependencies
@@ -98,4 +124,10 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 USER node
 
-CMD ["node"]
+COPY --from=build --chown=node:node /home/node/node_modules /home/node/node_modules
+
+ENV NODE_PATH=/home/node/node_modules
+
+WORKDIR /home/node
+
+CMD ["node", "-r", "esm"]

@@ -29,10 +29,10 @@ function(find_and_configure_cudf VERSION)
     _set_package_dir_if_exists(libcudacxx libcudacxx)
     _set_package_dir_if_exists(Arrow arrow)
     _set_package_dir_if_exists(ArrowCUDA arrow)
-    _set_package_dir_if_exists(arrow_static arrow)
     _set_package_dir_if_exists(arrow_shared arrow)
-    _set_package_dir_if_exists(arrow_cuda_static arrow)
+    _set_package_dir_if_exists(arrow_static arrow)
     _set_package_dir_if_exists(arrow_cuda_shared arrow)
+    _set_package_dir_if_exists(arrow_cuda_static arrow)
 
     if(NOT TARGET cudf::cudf)
         _fix_rapids_cmake_dir()
@@ -48,9 +48,7 @@ function(find_and_configure_cudf VERSION)
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
                                 "JITIFY_USE_CACHE ON"
-                                "CUDA_STATIC_RUNTIME ON"
                                 "CUDF_ENABLE_ARROW_S3 OFF"
-                                "CUDF_USE_ARROW_STATIC OFF"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
         _fix_rapids_cmake_dir()

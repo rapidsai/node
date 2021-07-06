@@ -15,17 +15,18 @@
 require('segfault-handler').registerHandler('./crash.log');
 
 require('@babel/register')({
-    cache: false,
-    babelrc: false,
-    presets: [
-        ["@babel/preset-env", { "targets": { "node": "current" }}],
-        ['@babel/preset-react', { "useBuiltIns": true }]
-    ]
+  cache: false,
+  babelrc: false,
+  cwd: __dirname,
+  presets: [
+    ['@babel/preset-env', { 'targets': { 'node': 'current' } }],
+    ['@babel/preset-react', { 'useBuiltIns': true }]
+  ]
 });
 
 const { createReactWindow } = require('@nvidia/glfw');
 module.exports = createReactWindow(`${__dirname}/src/app.js`, true);
 
 if (require.main === module) {
-    module.exports.open({ transparent: false });
+  module.exports.open({ transparent: false });
 }

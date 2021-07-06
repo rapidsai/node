@@ -23,7 +23,7 @@
  */
 
 import * as tf from '@tensorflow/tfjs';
-import * as tfvis from '@tensorflow/tfjs-vis';
+// import * as tfvis from '@tensorflow/tfjs-vis';
 
 class CharacterTable {
   /**
@@ -170,7 +170,7 @@ function convertDataToTensors(data, charTable, digits) {
 }
 
 function createAndCompileModel(
-    layers, hiddenSize, rnnType, digits, vocabularySize) {
+  layers, hiddenSize, rnnType, digits, vocabularySize) {
   const maxLen = digits + 1 + digits;
 
   const model = tf.sequential();
@@ -199,7 +199,7 @@ function createAndCompileModel(
     default:
       throw new Error(`Unsupported RNN type: '${rnnType}'`);
   }
-  model.add(tf.layers.repeatVector({n: digits + 1}));
+  model.add(tf.layers.repeatVector({ n: digits + 1 }));
   switch (rnnType) {
     case 'SimpleRNN':
       model.add(tf.layers.simpleRNN({
@@ -226,8 +226,8 @@ function createAndCompileModel(
       throw new Error(`Unsupported RNN type: '${rnnType}'`);
   }
   model.add(tf.layers.timeDistributed(
-      {layer: tf.layers.dense({units: vocabularySize})}));
-  model.add(tf.layers.activation({activation: 'softmax'}));
+    { layer: tf.layers.dense({ units: vocabularySize }) }));
+  model.add(tf.layers.activation({ activation: 'softmax' }));
   model.compile({
     loss: 'categoricalCrossentropy',
     optimizer: 'adam',
@@ -247,11 +247,11 @@ class AdditionRNNDemo {
     this.trainData = data.slice(0, split);
     this.testData = data.slice(split);
     [this.trainXs, this.trainYs] =
-        convertDataToTensors(this.trainData, this.charTable, digits);
+      convertDataToTensors(this.trainData, this.charTable, digits);
     [this.testXs, this.testYs] =
-        convertDataToTensors(this.testData, this.charTable, digits);
+      convertDataToTensors(this.testData, this.charTable, digits);
     this.model = createAndCompileModel(
-        layers, hiddenSize, rnnType, digits, chars.length);
+      layers, hiddenSize, rnnType, digits, chars.length);
   }
 
   async train(iterations, batchSize, numTestExamples) {
@@ -274,43 +274,43 @@ class AdditionRNNDemo {
       const valLoss = history.history['val_loss'][0];
       const valAccuracy = history.history['val_acc'][0];
 
-      lossValues[0].push({'x': i, 'y': trainLoss});
-      lossValues[1].push({'x': i, 'y': valLoss});
+      lossValues[0].push({ 'x': i, 'y': trainLoss });
+      lossValues[1].push({ 'x': i, 'y': valLoss });
 
-      accuracyValues[0].push({'x': i, 'y': trainAccuracy});
-      accuracyValues[1].push({'x': i, 'y': valAccuracy});
+      accuracyValues[0].push({ 'x': i, 'y': trainAccuracy });
+      accuracyValues[1].push({ 'x': i, 'y': valAccuracy });
 
       document.getElementById('trainStatus').textContent =
-          `Iteration ${i + 1} of ${iterations}: ` +
-          `Time per iteration: ${modelFitTime.toFixed(3)} (seconds)`;
-      const lossContainer = document.getElementById('lossChart');
-      tfvis.render.linechart(
-          lossContainer, {values: lossValues, series: ['train', 'validation']},
-          {
-            width: 420,
-            height: 300,
-            xLabel: 'epoch',
-            yLabel: 'loss',
-          });
+        `Iteration ${i + 1} of ${iterations}: ` +
+        `Time per iteration: ${modelFitTime.toFixed(3)} (seconds)`;
+      // const lossContainer = document.getElementById('lossChart');
+      // tfvis.render.linechart(
+      //     lossContainer, {values: lossValues, series: ['train', 'validation']},
+      //     {
+      //       width: 420,
+      //       height: 300,
+      //       xLabel: 'epoch',
+      //       yLabel: 'loss',
+      //     });
 
-      const accuracyContainer = document.getElementById('accuracyChart');
-      tfvis.render.linechart(
-          accuracyContainer,
-          {values: accuracyValues, series: ['train', 'validation']}, {
-            width: 420,
-            height: 300,
-            xLabel: 'epoch',
-            yLabel: 'accuracy',
-          });
+      // const accuracyContainer = document.getElementById('accuracyChart');
+      // tfvis.render.linechart(
+      //     accuracyContainer,
+      //     {values: accuracyValues, series: ['train', 'validation']}, {
+      //       width: 420,
+      //       height: 300,
+      //       xLabel: 'epoch',
+      //       yLabel: 'accuracy',
+      //     });
 
       if (this.testXsForDisplay == null ||
-          this.testXsForDisplay.shape[0] !== numTestExamples) {
+        this.testXsForDisplay.shape[0] !== numTestExamples) {
         if (this.textXsForDisplay) {
           this.textXsForDisplay.dispose();
         }
         this.testXsForDisplay = this.testXs.slice(
-            [0, 0, 0],
-            [numTestExamples, this.testXs.shape[1], this.testXs.shape[2]]);
+          [0, 0, 0],
+          [numTestExamples, this.testXs.shape[1], this.testXs.shape[2]]);
       }
 
       const examples = [];
@@ -319,10 +319,10 @@ class AdditionRNNDemo {
         const predictOut = this.model.predict(this.testXsForDisplay);
         for (let k = 0; k < numTestExamples; ++k) {
           const scores =
-              predictOut
-                  .slice(
-                      [k, 0, 0], [1, predictOut.shape[1], predictOut.shape[2]])
-                  .as2D(predictOut.shape[1], predictOut.shape[2]);
+            predictOut
+              .slice(
+                [k, 0, 0], [1, predictOut.shape[1], predictOut.shape[2]])
+              .as2D(predictOut.shape[1], predictOut.shape[2]);
           const decoded = this.charTable.decode(scores);
           examples.push(this.testData[k][0] + ' = ' + decoded);
           isCorrect.push(this.testData[k][1].trim() === decoded.trim());
@@ -331,11 +331,10 @@ class AdditionRNNDemo {
 
       const examplesDiv = document.getElementById('testExamples');
       const examplesContent = examples.map(
-          (example, i) =>
-              `<div class="${
-                  isCorrect[i] ? 'answer-correct' : 'answer-wrong'}">` +
-              `${example}` +
-              `</div>`);
+        (example, i) =>
+          `<div class="${isCorrect[i] ? 'answer-correct' : 'answer-wrong'}">` +
+          `${example}` +
+          `</div>`);
 
       examplesDiv.innerHTML = examplesContent.join('\n');
     }
@@ -348,8 +347,8 @@ async function runAdditionRNNDemo() {
     const trainingSize = +(document.getElementById('trainingSize')).value;
     const rnnTypeSelect = document.getElementById('rnnType');
     const rnnType =
-        rnnTypeSelect.options[rnnTypeSelect.selectedIndex].getAttribute(
-            'value');
+      rnnTypeSelect.options[rnnTypeSelect.selectedIndex].getAttribute(
+        'value');
     const layers = +(document.getElementById('rnnLayers')).value;
     const hiddenSize = +(document.getElementById('rnnLayerSize')).value;
     const batchSize = +(document.getElementById('batchSize')).value;
@@ -365,13 +364,13 @@ async function runAdditionRNNDemo() {
     const trainingSizeLimit = Math.pow(Math.pow(10, digits), 2);
     if (trainingSize > trainingSizeLimit) {
       status.textContent =
-          `With digits = ${digits}, you cannot have more than ` +
-          `${trainingSizeLimit} examples`;
+        `With digits = ${digits}, you cannot have more than ` +
+        `${trainingSizeLimit} examples`;
       return;
     }
 
     const demo =
-        new AdditionRNNDemo(digits, trainingSize, rnnType, layers, hiddenSize);
+      new AdditionRNNDemo(digits, trainingSize, rnnType, layers, hiddenSize);
     await demo.train(trainIterations, batchSize, numTestExamples);
   });
 }

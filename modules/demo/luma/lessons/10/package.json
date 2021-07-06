@@ -1,7 +1,7 @@
 {
   "version": "0.0.0",
   "private": true,
-  "name":  "luma.gl-lessons-10",
+  "name": "@rapidsai/demo-luma.gl-lessons-10",
   "description": "The classic WebGL Lesson 10 ported to luma.gl.",
   "contributors": [
     "Jian Huang <jianh@uber.com>"
@@ -14,8 +14,8 @@
     "@luma.gl/constants": "8.4.5",
     "@luma.gl/core": "8.4.5",
     "@luma.gl/experimental": "8.4.5",
-    "math.gl": "^3.1.2",
-    "mjolnir.js": "^2.1.2"
+    "math.gl": "3.4.3",
+    "mjolnir.js": "2.5.2"
   },
   "esm": {
     "cjs": true,

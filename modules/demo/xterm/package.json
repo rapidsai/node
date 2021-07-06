@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name":  "xterm-demo",
+  "name":  "@rapidsai/demo-xterm",
   "main": "index.js",
   "version": "0.0.0",
   "license": "Apache-2.0",
@@ -8,11 +8,21 @@
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
+  "scripts": {
+    "start": "node -r esm index.js",
+    "watch": "find -type f | entr -c -d -r node -r esm index.js"
+  },
   "dependencies": {
     "@nvidia/glfw": "0.0.1",
+    "esm": "3.2.25",
+    "segfault-handler": "1.3.0",
     "xterm": "4.3.0",
     "xterm-addon-webgl": "0.4.1"
   },
+  "files": [
+    "index.js",
+    "package.json"
+  ],
   "esm": {
     "cjs": true,
     "force": true,

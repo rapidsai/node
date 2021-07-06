@@ -1,6 +1,5 @@
 /* global fetch */
 import React, { Component } from 'react';
-import { render } from 'react-dom';
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
 import { GeoJsonLayer, ArcLayer } from '@deck.gl/layers';
