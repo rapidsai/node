@@ -83,9 +83,6 @@ function loadFile(i) {
 
       let body = new Uint8Array(res.headers['content-length'] | 0);
 
-      console.log('content-encoding:', encoding);
-      console.log('content-length:', body.byteLength);
-
       if (encoding.includes('gzip')) {
         res = res.pipe(require('zlib').createGunzip());
       } else if (encoding.includes('deflate')) {
