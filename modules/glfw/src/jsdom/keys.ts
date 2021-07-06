@@ -264,4 +264,4 @@ export const NODE_GLOBAL_KEYS = [
   'unescape',
   'gc',
   'v8debug',
-] as (keyof NodeJS.Global)[];
+] as (keyof typeof global)[];

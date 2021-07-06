@@ -13,15 +13,9 @@
 // limitations under the License.
 
 import {DataFrame, TypeMap} from '@rapidsai/cudf';
-import {callMethodSync} from 'java';
+import {callMethodSync, callStaticMethodSync} from 'java';
 
-import {
-  ArrayList,
-  CatalogColumnDataType,
-  CatalogColumnImpl,
-  CatalogDatabaseImpl,
-  CatalogTableImpl
-} from './algebra';
+import {ArrayList, CatalogColumnImpl, CatalogDatabaseImpl, CatalogTableImpl} from './algebra';
 import {Context, default_config} from './context';
 
 export class BlazingContext {
@@ -51,10 +45,12 @@ export class BlazingContext {
     callMethodSync(this.db, 'removeTable', tableName);
 
     const arr = ArrayList();
-    input.names.forEach((name, index) => {
-      const columnDataType = CatalogColumnDataType();
-      const dataType       = callMethodSync(columnDataType, 'fromTypeId', input.get(name).type);
-      const column         = CatalogColumnImpl([name, dataType, index]);
+    input.names.forEach((name: string, index: number) => {
+      const dataType =
+        callStaticMethodSync('com.blazingdb.calcite.catalog.domain.CatalogColumnDataType',
+                             'fromTypeId',
+                             input.get(name).type.typeId);
+      const column = CatalogColumnImpl([name, dataType, index]);
       callMethodSync(arr, 'add', column);
     });
     const tableJava = CatalogTableImpl([tableName, this.db, arr]);

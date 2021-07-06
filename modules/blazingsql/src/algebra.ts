@@ -33,22 +33,17 @@ if (NODE_DEBUG && Fs.existsSync(Path.join(moduleBasePath, 'Debug'))) {
   java.classpath.push(Path.join(moduleBasePath, 'Release', 'blazingsql-algebra-core.jar'));
 }
 
-export function ArrayList() { return java.import('java.util.ArrayList'); }
+export function ArrayList() { return java.newInstanceSync('java.util.ArrayList'); }
 
-export function CatalogColumnDataType() {
-  return java.import('com.blazingdb.calcite.catalog.domain.CatalogColumnDataType');
-}
-
-export function CatalogColumnImpl(args: any[]) {
-  return java.import('com.blazingdb.calcite.catalog.domain.CatalogColumnImpl', args);
-}
+export const CatalogColumnDataType =
+  java.import('com.blazingdb.calcite.catalog.domain.CatalogColumnDataType');
 
 export function CatalogTableImpl(args: any[]) {
-  return java.import('com.blazingdb.calcite.catalog.domain.CatalogTableImpl', args);
+  return java.newInstanceSync('com.blazingdb.calcite.catalog.domain.CatalogTableImpl', args);
 }
 
 export function CatalogDatabaseImpl(name: string) {
-  return java.import('com.blazingdb.calcite.catalog.domain.CatalogDatabaseImpl', name);
+  return java.newInstanceSync('com.blazingdb.calcite.catalog.domain.CatalogDatabaseImpl', name);
 }
 
 // export const BlazingSchema = java.import('com.blazingdb.calcite.schema.BlazingSchema');
