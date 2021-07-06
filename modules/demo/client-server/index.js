@@ -14,24 +14,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-require('segfault-handler').registerHandler('./crash.log');
+const Path = require('path');
 
-require('@babel/register')({
-  cache: false,
-  babelrc: false,
-  cwd: __dirname,
-  presets: [
-    ["@babel/preset-env", { "targets": { "node": "current" } }],
-    ['@babel/preset-react', { "useBuiltIns": true }]
-  ]
-});
+require('segfault-handler').registerHandler('./crash.log');
 
 // Change cwd to the example dir so relative file paths are resolved
 process.chdir(__dirname);
 
-const { createReactWindow } = require('@nvidia/glfw');
-module.exports = createReactWindow(`${__dirname}/app.js`, true);
+const next = require.resolve('next/dist/bin/next');
 
-if (require.main === module) {
-  module.exports.open({ transparent: false });
-}
+require('fs').stat(Path.join(__dirname, '.next'), (err, stats) => {
+
+  const { spawnSync } = require('child_process');
+
+  const env = {
+    NEXT_TELEMETRY_DISABLED: 1, // disable https://nextjs.org/telemetry
+    ...process.env,
+  };
+
+  if (err || !stats || !stats.isDirectory()) {
+    spawnSync(
+      process.execPath, [next, 'build'],
+      { env, cwd: __dirname, stdio: 'inherit' });
+  }
+
+  spawnSync(
+    process.execPath, [next, 'start'],
+    { env, cwd: __dirname, stdio: 'inherit' });
+});
