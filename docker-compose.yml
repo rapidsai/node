@@ -37,7 +37,7 @@ services:
       args:
         <<: *common_build_args
         BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.2.2}-runtime-${LINUX_VERSION:-ubuntu20.04}
-        BUILD_IMAGE: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-11.2.2}-devel-${LINUX_VERSION:-ubuntu20.04}-amd64
+        DEVEL_IMAGE: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-11.2.2}-devel-${LINUX_VERSION:-ubuntu20.04}-amd64
     volumes:
       - &etc_fonts "/etc/fonts:/etc/fonts:ro"
       - &x11_socket "/tmp/.X11-unix:/tmp/.X11-unix:rw"
@@ -117,6 +117,7 @@ services:
         <<: *common_build_args
         ADDITIONAL_GROUPS: "--groups video"
         BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.4
+        DEVEL_IMAGE: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda10.2-devel-ubuntu18.04-arm64v8
     volumes:
       - *workdir
       - *etc_fonts
