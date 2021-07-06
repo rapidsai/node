@@ -653,7 +653,6 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * Return a copy of this Series.
    *
-   *
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
@@ -664,10 +663,8 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   copy(memoryResource?: MemoryResource): Series<T> {
-    // const lhs = <Column>(this._col);
     return Series.new(this._col.copy(memoryResource));
   }
-  // this.__construct(this._col.copy()); }
 
   /**
    * Returns the n largest element(s).
