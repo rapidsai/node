@@ -36,7 +36,7 @@ class ImageLoader extends jsdom.ResourceLoader {
     // url.endsWith('/') && (url = url.slice(0, -1));
     const isDataURI  = url && url.startsWith('data:');
     const isFilePath = !isDataURI && !parseURL(url).protocol;
-    return super.fetch(isFilePath ? `file://${url}` : url, options);
+    return super.fetch(isFilePath ? `file://${process.cwd()}/${url}` : url, options);
   }
 }
 
