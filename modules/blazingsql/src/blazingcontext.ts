@@ -15,16 +15,29 @@
 import {DataFrame, TypeMap} from '@rapidsai/cudf';
 import {callMethodSync, callStaticMethodSync} from 'java';
 
-import {ArrayList, CatalogColumnImpl, CatalogDatabaseImpl, CatalogTableImpl} from './algebra';
+import {
+  ArrayList,
+  BlazingSchema,
+  CatalogColumnImpl,
+  CatalogDatabaseImpl,
+  CatalogTableImpl,
+  RelationalAlgebraGenerator
+} from './algebra';
 import {Context, default_config} from './context';
 
 export class BlazingContext {
   private context: Context;
   private db: any;
+  private schema: any;
+  private generator: any;
+  private tables: Record<string, DataFrame>;
 
   constructor() {
-    this.db      = CatalogDatabaseImpl('main');
-    this.context = new Context({
+    this.db        = CatalogDatabaseImpl('main');
+    this.schema    = BlazingSchema(this.db);
+    this.generator = RelationalAlgebraGenerator(this.schema);
+    this.tables    = {};
+    this.context   = new Context({
       ralId: 0,
       workerId: 'self',
       network_iface_name: 'lo',
@@ -37,12 +50,12 @@ export class BlazingContext {
       maximumPoolSize: null,
       enableLogging: false,
     });
-    console.log(this.context);
-    console.log(this.db);
   }
 
+  // TOOD: Handle other cases as well.
   createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
     callMethodSync(this.db, 'removeTable', tableName);
+    this.tables[tableName] = input;
 
     const arr = ArrayList();
     input.names.forEach((name: string, index: number) => {
@@ -55,7 +68,14 @@ export class BlazingContext {
     });
     const tableJava = CatalogTableImpl([tableName, this.db, arr]);
     callMethodSync(this.db, 'addTable', tableJava);
+    this.schema    = BlazingSchema(this.db);
+    this.generator = RelationalAlgebraGenerator(this.schema);
   }
 
   sql(query: string) { return query; }
+
+  ignoreerrors(): void {
+    console.log(this.context);
+    console.log(this.generator);
+  }
 }

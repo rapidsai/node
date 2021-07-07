@@ -38,15 +38,26 @@ export function ArrayList() { return java.newInstanceSync('java.util.ArrayList')
 export const CatalogColumnDataType =
   java.import('com.blazingdb.calcite.catalog.domain.CatalogColumnDataType');
 
+export function CatalogColumnImpl(args: any[]) {
+  return java.newInstanceSync('com.blazingdb.calcite.catalog.domain.CatalogColumnImpl', ...args);
+}
+
 export function CatalogTableImpl(args: any[]) {
-  return java.newInstanceSync('com.blazingdb.calcite.catalog.domain.CatalogTableImpl', args);
+  return java.newInstanceSync('com.blazingdb.calcite.catalog.domain.CatalogTableImpl', ...args);
 }
 
 export function CatalogDatabaseImpl(name: string) {
   return java.newInstanceSync('com.blazingdb.calcite.catalog.domain.CatalogDatabaseImpl', name);
 }
 
-// export const BlazingSchema = java.import('com.blazingdb.calcite.schema.BlazingSchema');
+export function BlazingSchema(db: any) {
+  return java.newInstanceSync('com.blazingdb.calcite.schema.BlazingSchema', db);
+}
+
+export function RelationalAlgebraGenerator(schema: any) {
+  return java.newInstanceSync('com.blazingdb.calcite.application.RelationalAlgebraGenerator',
+                              schema);
+}
 
 // export const RelConversionException =
 //   java.import('org.apache.calcite.tools.RelConversionException');
