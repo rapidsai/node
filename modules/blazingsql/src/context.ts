@@ -52,6 +52,22 @@ interface ContextConstructor {
 
 export interface Context {
   readonly port: number;
+
+  sql(masterIndex: number,
+      workerIds: string[],
+      tableNames: string[],
+      tableScans: any[],
+      tableSchema: any[],
+      tableSchemaKeys: any[],
+      tableSchemaValues: any[],
+      filesAll: any[],
+      fileTypes: any[],
+      ctxToken: number,
+      query: string,
+      uriValuesAll: any[],
+      configOptions: Record<string, unknown>,
+      sql: string,
+      currentTimestamp: string): void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

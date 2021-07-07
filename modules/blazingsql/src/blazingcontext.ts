@@ -27,12 +27,17 @@ import {Context, default_config} from './context';
 
 export class BlazingContext {
   private context: Context;
+  private nodes: any[] = [];
   private db: any;
   private schema: any;
   private generator: any;
   private tables: Record<string, DataFrame>;
 
   constructor() {
+    const node: Record<string, unknown> = {};
+    node['worker']                      = '';
+    this.nodes.push(node);
+
     this.db        = CatalogDatabaseImpl('main');
     this.schema    = BlazingSchema(this.db);
     this.generator = RelationalAlgebraGenerator(this.schema);
@@ -72,7 +77,92 @@ export class BlazingContext {
     this.generator = RelationalAlgebraGenerator(this.schema);
   }
 
-  sql(query: string) { return query; }
+  sql(query: string,
+      algebra: string|null                   = null,
+      configOptions: Record<string, unknown> = default_config,
+      returnToken                            = false) {
+    const masterIndex          = 0;
+    const nodeTableList: any[] = this.nodes.map(() => []);
+    const fileTypes: any[]     = [];
+
+    if (algebra == null) { algebra = this.explain(query); }
+
+    if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
+      return new DataFrame({});
+    }
+
+    if (algebra.includes(') OVER (')) {
+      console.log(
+        'WARNING: Window Functions are currently an experimental feature and not fully supported or tested');
+    }
+
+    // TODO: Make the calls into c++ to get the result of these.
+    const tableScans: any[] = [];
+
+    // TODO: This might need to be encoded to utf-8 similar to str.encode() in python
+    const d                 = new Date();
+    const current_timestamp = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
+      d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}`;
+
+    // TODO: Range is from 0 => max of int32
+    const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
+
+    algebra = this.getJsonPlan(algebra);
+
+    // io.pyx calculations
+    const tables                   = nodeTableList[0];
+    const tableNames: any[]        = [];
+    const tableSchema: any[]       = [];
+    const tableSchemaKeys: any[]   = [];
+    const tableSchemaValues: any[] = [];
+    const filesAll: any[]          = [];
+    const uriValuesAll: any[]      = [];
+
+    this.context.sql(
+      masterIndex,
+      ['self'],
+      tableNames,         // still need to calculate, should end up empty
+      tableScans,         // still need to calculate
+      tableSchema,        // still need to calculate
+      tableSchemaKeys,    // still need to calculate
+      tableSchemaValues,  // still need to calculate
+      filesAll,           // still need to calculate
+      fileTypes,          // still need to calculate
+      ctxToken,
+      algebra,       // potentially need to encode
+      uriValuesAll,  // still need to calculate
+      configOptions,
+      query,  // potentially need to encode
+      current_timestamp,
+    );
+
+    if (returnToken) {
+      console.log(query);
+      console.log(algebra);
+      console.log(configOptions);
+      console.log(returnToken);
+      console.log(masterIndex);
+      console.log(nodeTableList);
+      console.log(ctxToken);
+      console.log(fileTypes);
+      console.log(tables);
+    }
+
+    return new DataFrame({});
+  }
+
+  private explain(sql: string, detail = false): string {
+    const algebra = callMethodSync(this.generator, 'getRelationalAlgebraString', sql);
+
+    if (detail == true) {
+      // TODO: Handle the true case.
+    }
+
+    return String(algebra);
+  }
+
+  // TODO: Implement getJsonPlan
+  private getJsonPlan(algebra: string): string { return algebra; }
 
   ignoreerrors(): void {
     console.log(this.context);

@@ -14,6 +14,7 @@
 
 #include "context.hpp"
 #include "cache.hpp"
+#include "graph.hpp"
 
 #include <nv_node/utilities/args.hpp>
 
@@ -26,6 +27,7 @@ Napi::Function Context::Init(Napi::Env env, Napi::Object exports) {
   return DefineClass(env,
                      "Context",
                      {
+                       InstanceMethod<&Context::sql>("sql"),
                        InstanceAccessor<&Context::port>("port"),
                      });
 }
@@ -79,6 +81,72 @@ Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(i
   _port            = init_result.second;
   _transport_out   = Napi::Persistent(CacheMachine::New(env, caches.first));
   _transport_in    = Napi::Persistent(CacheMachine::New(env, caches.second));
+}
+
+// TODO: These could be moved into their own methods, for now let's just chain call them.
+void Context::sql(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+
+  uint32_t masterIndex                 = args[0];
+  std::vector<std::string> worker_ids  = args[1];
+  std::vector<std::string> table_names = args[2];
+  std::vector<std::string> table_scans = args[3];
+  // std::vector<TableSchema> table_schemas                                   = args[4];
+  std::vector<std::vector<std::string>> table_schema_keys   = args[5];
+  std::vector<std::vector<std::string>> table_schema_values = args[6];
+  std::vector<std::vector<std::string>> files_all           = args[7];
+  std::vector<int> file_types                               = args[8];
+  int32_t ctx_token                                         = args[9];
+  std::string query                                         = args[10];
+  // std::vector<std::vector<std::map<std::string, std::string>>> uri_values = args[11];
+  std::string sql               = args[13];
+  std::string current_timestamp = args[14];
+
+  auto config_options = [&] {
+    std::map<std::string, std::string> config{};
+    auto prop = args[12];
+    if (prop.IsObject() and not prop.IsNull()) {
+      auto opts = prop.As<Napi::Object>();
+      auto keys = opts.GetPropertyNames();
+      for (auto i = 0u; i < keys.Length(); ++i) {
+        auto name    = keys.Get(i).ToString();
+        config[name] = opts.Get(name).ToString();
+      }
+    }
+    return config;
+  }();
+
+  std::cout << masterIndex << std::endl;
+  std::cout << worker_ids.size() << std::endl;
+  std::cout << table_names.size() << std::endl;
+  std::cout << table_scans.size() << std::endl;
+  std::cout << table_schema_keys.size() << std::endl;
+  std::cout << table_schema_values.size() << std::endl;
+  std::cout << files_all.size() << std::endl;
+  std::cout << file_types.size() << std::endl;
+  std::cout << ctx_token << std::endl;
+  std::cout << query << std::endl;
+  std::cout << sql << std::endl;
+  std::cout << current_timestamp << std::endl;
+
+  auto result = ::runGenerateGraph(masterIndex,
+                                   worker_ids,
+                                   table_names,
+                                   table_scans,
+                                   {},
+                                   table_schema_keys,
+                                   table_schema_values,
+                                   files_all,
+                                   file_types,
+                                   ctx_token,
+                                   query,
+                                   {},
+                                   config_options,
+                                   sql,
+                                   current_timestamp);
+
+  // ::startExecuteGraph(result, ctx_token);
+  // auto finalResult = ::getExecuteGraphResult(result, ctxToken);
 }
 
 }  // namespace nv
