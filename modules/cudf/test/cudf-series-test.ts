@@ -25,6 +25,7 @@ import {
   Float32,
   Float64,
   Int32,
+  Int32Series,
   Int64,
   Series,
   TimestampDay,
@@ -42,6 +43,30 @@ import {BoolVector} from 'apache-arrow';
 const mr = new CudaMemoryResource();
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
+
+test('Series initialization from Int32Array', () => {
+  const length = 3;
+  const s      = Series.new(new Int32Array([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int32Series);
+  expect(s.type).toBeInstanceOf(Int32);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Int32Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Int32Buffer([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int32Series);
+  expect(s.type).toBeInstanceOf(Int32);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
 
 test('Series initialization with properties (non-null)', () => {
   const length = 100;

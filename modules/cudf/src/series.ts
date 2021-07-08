@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryData} from '@nvidia/cuda';
+import {
+  Int32Buffer,
+  MemoryData,
+  TypedArray,
+} from '@nvidia/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';
@@ -202,6 +206,10 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>): Series<T>;
+
+  static new<T extends DataType>(input: Int32Array): Series<T>;
+
+  static new<T extends DataType>(input: Int32Buffer): Series<T>;
   /**
    * Create a new cudf.StringSeries
    *
@@ -238,6 +246,7 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   static new(input: (bigint|null|undefined)[]): Series<Int64>;
+
   /**
    * Create a new cudf.Bool8Series
    *
@@ -334,11 +343,12 @@ export class AbstractSeries<T extends DataType = any> {
   static new(input: (Date|null|undefined)[][]): Series<List<TimestampMillisecond>>;
 
   static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>|arrow.Vector<T>|
-                                 (string|null|undefined)[]|(number|null|undefined)[]|
-                                 (bigint|null|undefined)[]|(boolean|null|undefined)[]|
-                                 (Date|null|undefined)[]|(string|null|undefined)[][]|
-                                 (number|null|undefined)[][]|(bigint|null|undefined)[][]|
-                                 (boolean|null|undefined)[][]|(Date|null|undefined)[][]) {
+                                 (string|null|undefined)[]|Int32Array|Int32Buffer|
+                                 (number|null|undefined)[]|(bigint|null|undefined)[]|
+                                 (boolean|null|undefined)[]|(Date|null|undefined)[]|
+                                 (string|null|undefined)[][]|(number|null|undefined)[][]|
+                                 (bigint|null|undefined)[][]|(boolean|null|undefined)[][]|
+                                 (Date|null|undefined)[][]) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
   }
 
@@ -1207,7 +1217,7 @@ export {
   StructSeries,
 };
 
-function inferType(value: any[]): DataType {
+function inferType(value: any[]|TypedArray): DataType {
   if (value.length === 0) { return new Float64; }
   let nullsCount    = 0;
   let arraysCount   = 0;
@@ -1272,6 +1282,7 @@ function inferType(value: any[]): DataType {
 function asColumn<T extends DataType>(
   value: AbstractSeries<T>|SeriesProps<T>|Column<T>|arrow.Vector<T>  //
   |(string | null | undefined)[]                                     //
+  |Int32Array|Int32Buffer                                            //
   |(number | null | undefined)[]                                     //
   |(bigint | null | undefined)[]                                     //
   |(boolean | null | undefined)[]                                    //
@@ -1286,6 +1297,15 @@ function asColumn<T extends DataType>(
   if (Array.isArray(value)) {
     return fromArrow(arrow.Vector.from(
              {type: inferType(value), values: value as any, highWaterMark: Infinity})) as any;
+  }
+  if (value instanceof Int32Array) {
+    return fromArrow(arrow.Vector.from(
+             {type: new Int32, values: value as any, highWaterMark: Infinity})) as any;
+  }
+  if (value instanceof Int32Buffer) {
+    const value_arr = new value.TypedArray(value);
+    return fromArrow(arrow.Vector.from(
+             {type: new Int32, values: value_arr as any, highWaterMark: Infinity})) as any;
   }
   if (value instanceof arrow.Vector) { return fromArrow(value) as any; }
   if (!value.type && Array.isArray(value.data)) {
