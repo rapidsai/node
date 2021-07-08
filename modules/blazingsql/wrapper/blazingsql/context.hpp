@@ -18,10 +18,10 @@
 
 #include <nv_node/objectwrap.hpp>
 
-#include <io/io.h>
-
 #include <napi.h>
 #include <map>
+
+struct TableSchema;
 
 namespace nv {
 
