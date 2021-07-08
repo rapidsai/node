@@ -84,19 +84,31 @@ function(find_and_configure_blazingsql VERSION)
     if (blazingsql-engine_ADDED)
         execute_process(COMMAND mvn clean install --quiet -f pom.xml -Dmaven.test.skip=true
                                 -Dmaven.repo.local=${blazingsql-engine_BINARY_DIR}/blazing-protocol-mvn/
-                        WORKING_DIRECTORY "${blazingsql-engine_SOURCE_DIR}/algebra"
-                        OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
-                        OUTPUT_STRIP_TRAILING_WHITESPACE)
+                        WORKING_DIRECTORY "${blazingsql-engine_SOURCE_DIR}/algebra")
+    configure_file("${blazingsql-engine_SOURCE_DIR}/algebra/blazingdb-calcite-application/target/BlazingCalcite.jar"
+                   "${blazingsql-engine_BINARY_DIR}/blazingsql-algebra.jar"
+                   COPYONLY)
 
-        configure_file("${blazingsql-engine_SOURCE_DIR}/algebra/blazingdb-calcite-application/target/BlazingCalcite.jar"
-                       "${CMAKE_CURRENT_BINARY_DIR}/blazingsql-algebra.jar"
-                       COPYONLY)
-
-        configure_file("${blazingsql-engine_SOURCE_DIR}/algebra/blazingdb-calcite-core/target/blazingdb-calcite-core.jar"
-                       "${CMAKE_CURRENT_BINARY_DIR}/blazingsql-algebra-core.jar"
-                       COPYONLY)
+    configure_file("${blazingsql-engine_SOURCE_DIR}/algebra/blazingdb-calcite-core/target/blazingdb-calcite-core.jar"
+                   "${blazingsql-engine_BINARY_DIR}/blazingsql-algebra-core.jar"
+                   COPYONLY)
 
     endif()
+
+    if(NOT blazingsql-engine_BINARY_DIR)
+        set(blazingsql-engine_BINARY_DIR "${CPM_BINARY_CACHE}/blazingsql-engine-build")
+        if(DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+            set(blazingsql-engine_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/blazingsql-engine-build")
+        endif()
+    endif()
+
+    configure_file("${blazingsql-engine_BINARY_DIR}/blazingsql-algebra.jar"
+                   "${CMAKE_CURRENT_BINARY_DIR}/blazingsql-algebra.jar"
+                   COPYONLY)
+
+    configure_file("${blazingsql-engine_BINARY_DIR}/blazingsql-algebra-core.jar"
+                   "${CMAKE_CURRENT_BINARY_DIR}/blazingsql-algebra-core.jar"
+                   COPYONLY)
 
 endfunction()
 
