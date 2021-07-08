@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Memory} from '@nvidia/cuda';
-import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
+import {MemoryData} from '@nvidia/cuda';
+import {MemoryResource} from '@rapidsai/rmm';
 
 import CUDF from './addon';
 import {Column} from './column';
@@ -53,7 +53,7 @@ interface TableConstructor {
    * @param memory A buffer holding Arrow table
    * @return The Arrow data as a Table and a list of column names.
    */
-  fromArrow(memory: Memory|DeviceBuffer): {names: string[], table: Table};
+  fromArrow(memory: MemoryData): {names: string[], table: Table};
 
   /**
    * Returns tables concatenated to each other.
