@@ -30,6 +30,7 @@ Napi::Function Context::Init(Napi::Env env, Napi::Object exports) {
                      "Context",
                      {
                        InstanceMethod<&Context::sql>("sql"),
+                       InstanceMethod<&Context::get_table_scan_info>("getTableScanInfo"),
                        InstanceAccessor<&Context::port>("port"),
                      });
 }
@@ -89,34 +90,29 @@ Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(i
 void Context::sql(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
 
-  uint32_t masterIndex                                      = args[0];
-  std::vector<std::string> worker_ids                       = args[1];
-  std::vector<std::string> table_names                      = args[2];
-  std::vector<std::string> table_scans                      = args[3];
-  std::vector<Napi::Object> dataframes                      = args[4];
-  std::vector<std::vector<std::string>> table_schema_keys   = args[5];
-  std::vector<std::vector<std::string>> table_schema_values = args[6];
-  std::vector<std::vector<std::string>> files_all           = args[7];
-  std::vector<int> file_types                               = args[8];
-  int32_t ctx_token                                         = args[9];
-  std::string query                                         = args[10];
-  // std::vector<std::vector<std::map<std::string, std::string>>> uri_values = args[11];
-  std::string sql               = args[13];
-  std::string current_timestamp = args[14];
+  uint32_t masterIndex                  = args[0];
+  std::vector<std::string> worker_ids   = args[1];
+  std::vector<Napi::Object> data_frames = args[2];
+  std::vector<std::string> table_names  = args[3];
+  std::vector<std::string> table_scans  = args[4];
+  int32_t ctx_token                     = args[5];
+  std::string query                     = args[6];
+  std::string sql                       = args[8];
+  std::string current_timestamp         = args[9];
 
   std::vector<TableSchema> schemas{{}};
-  for (int i = 0; i < dataframes.size(); ++i) {
+  for (int i = 0; i < data_frames.size(); ++i) {
     std::vector<std::string> names;
-    auto dfNames = dataframes[i].Get("names").As<Napi::Array>();
+    auto dfNames = data_frames[i].Get("names").As<Napi::Array>();
     for (size_t j = 0; j < dfNames.Length(); ++i) { names[j] = dfNames.Get(i).ToString(); }
 
-    Table::wrapper_t table = dataframes[i].Get("asTable").As<Napi::Function>().Call({}).ToObject();
+    Table::wrapper_t table = data_frames[i].Get("asTable").As<Napi::Function>().Call({}).ToObject();
     schemas[0].blazingTableViews.push_back({table->view(), names});
   }
 
   auto config_options = [&] {
     std::map<std::string, std::string> config{};
-    auto prop = args[12];
+    auto prop = args[7];
     if (prop.IsObject() and not prop.IsNull()) {
       auto opts = prop.As<Napi::Object>();
       auto keys = opts.GetPropertyNames();
@@ -128,37 +124,47 @@ void Context::sql(Napi::CallbackInfo const& info) {
     return config;
   }();
 
-  std::cout << masterIndex << std::endl;
-  std::cout << worker_ids.size() << std::endl;
-  std::cout << table_names.size() << std::endl;
-  std::cout << table_scans.size() << std::endl;
-  std::cout << table_schema_keys.size() << std::endl;
-  std::cout << table_schema_values.size() << std::endl;
-  std::cout << files_all.size() << std::endl;
-  std::cout << file_types.size() << std::endl;
-  std::cout << ctx_token << std::endl;
-  std::cout << query << std::endl;
-  std::cout << sql << std::endl;
-  std::cout << current_timestamp << std::endl;
-
-  // auto result = ::runGenerateGraph(masterIndex,
-  //                                  worker_ids,
-  //                                  table_names,
-  //                                  table_scans,
-  //                                  {},
-  //                                  table_schema_keys,
-  //                                  table_schema_values,
-  //                                  files_all,
-  //                                  file_types,
-  //                                  ctx_token,
-  //                                  query,
-  //                                  {},
-  //                                  config_options,
-  //                                  sql,
-  //                                  current_timestamp);
+  auto result = ::runGenerateGraph(masterIndex,
+                                   worker_ids,
+                                   table_names,
+                                   table_scans,
+                                   {},
+                                   {},
+                                   {},
+                                   {},
+                                   {},
+                                   ctx_token,
+                                   query,
+                                   {},
+                                   config_options,
+                                   sql,
+                                   current_timestamp);
 
   // // ::startExecuteGraph(result, ctx_token);
   // // auto finalResult = ::getExecuteGraphResult(result, ctxToken);
+}
+
+Napi::Value Context::get_table_scan_info(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+
+  auto table_scan_info    = ::getTableScanInfo(args[0]);
+  Napi::Array table_names = Napi::Array::New(info.Env(), table_scan_info.table_names.size());
+  Napi::Array table_scans =
+    Napi::Array::New(info.Env(), table_scan_info.relational_algebra_steps.size());
+
+  for (int i = 0; i < table_scan_info.table_names.size(); ++i) {
+    table_names[i] = Napi::String::New(info.Env(), table_scan_info.table_names[i]);
+  }
+
+  for (int i = 0; i < table_scan_info.relational_algebra_steps.size(); ++i) {
+    table_scans[i] = Napi::String::New(info.Env(), table_scan_info.relational_algebra_steps[i]);
+  }
+
+  auto result = Napi::Array::New(info.Env(), 2);
+  result.Set(0u, table_names);
+  result.Set(1u, table_scans);
+
+  return result;
 }
 
 }  // namespace nv

@@ -55,19 +55,16 @@ export interface Context {
 
   sql(masterIndex: number,
       workerIds: string[],
+      dataframes: any,
       tableNames: string[],
-      tableScans: any[],
-      tableSchema: any[],
-      tableSchemaKeys: any[],
-      tableSchemaValues: any[],
-      filesAll: any[],
-      fileTypes: any[],
+      tableScans: string[],
       ctxToken: number,
       query: string,
-      uriValuesAll: any[],
       configOptions: Record<string, unknown>,
       sql: string,
       currentTimestamp: string): void;
+
+  getTableScanInfo(logicalPlan: string): [string[], string[]];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

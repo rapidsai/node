@@ -96,8 +96,9 @@ export class BlazingContext {
         'WARNING: Window Functions are currently an experimental feature and not fully supported or tested');
     }
 
-    // TODO: Make the calls into c++ to get the result of these.
-    const tableScans: any[] = [];
+    const tableScanInfo = this.context.getTableScanInfo(algebra);
+    const tableNames    = tableScanInfo[0];
+    const tableScans    = tableScanInfo[1];
 
     // TODO: This might need to be encoded to utf-8 similar to str.encode() in python
     const d                 = new Date();
@@ -108,31 +109,24 @@ export class BlazingContext {
     const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
 
     // io.pyx calculations
-    const tables                   = nodeTableList[0];
-    const tableNames: any[]        = [];
-    const tableSchema: any[]       = [];
-    const tableSchemaKeys: any[]   = [];
-    const tableSchemaValues: any[] = [];
-    const filesAll: any[]          = [];
-    const uriValuesAll: any[]      = [];
+    const tables = nodeTableList[0];
+    // const tableSchema: any[]       = [];
+    // const tableSchemaKeys: any[]   = [];
+    // const tableSchemaValues: any[] = [];
+    // const filesAll: any[]          = [];
+    // const uriValuesAll: any[]      = [];
 
     this.context.sql(
       masterIndex,
       ['self'],
-      tableNames,         // still need to calculate, should end up empty
-      tableScans,         // still need to calculate
-      tableSchema,        // still need to calculate
-      tableSchemaKeys,    // still need to calculate
-      tableSchemaValues,  // still need to calculate
-      filesAll,           // still need to calculate
-      fileTypes,          // still need to calculate
+      this.tables[tableNames[0]],  // TODO: we should handle this better instead of hardcoding
+      tableNames,
+      tableScans,
       ctxToken,
-      algebra,       // potentially need to encode
-      uriValuesAll,  // still need to calculate
-      configOptions,
-      query,  // potentially need to encode
-      current_timestamp,
-    );
+      algebra,
+      default_config,
+      query,
+      current_timestamp);
 
     if (returnToken) {
       console.log(query);
@@ -142,8 +136,11 @@ export class BlazingContext {
       console.log(masterIndex);
       console.log(nodeTableList);
       console.log(ctxToken);
+      console.log(current_timestamp);
+      console.log(tableScans);
       console.log(fileTypes);
       console.log(tables);
+      console.log(tableNames);
     }
 
     return new DataFrame({});
