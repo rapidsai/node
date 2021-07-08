@@ -115,10 +115,14 @@ target_include_directories(blazingsql_wrapper
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
 )
 
-target_link_libraries(blazingsql_wrapper PRIVATE blazingdb::blazingsql-engine
-                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
-                      "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
-                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
+target_link_libraries(blazingsql_wrapper
+    PUBLIC  rmm::rmm
+            cudf::cudf
+            "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
+            "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
+            "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node"
+    PRIVATE blazingdb::blazingsql-engine
+)
 
 ###################################################################################################
 # - node_blazingsql target ------------------------------------------------------------------------------
