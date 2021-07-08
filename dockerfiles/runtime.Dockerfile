@@ -54,16 +54,7 @@ RUN cd /usr/local/lib \
  \
  # Install dependencies
  && export DEBIAN_FRONTEND=noninteractive \
- && bash -c "echo -e '\
-deb http://archive.ubuntu.com/ubuntu/ xenial universe\n\
-deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe\
-'" > /etc/apt/sources.list.d/xenial.list \
-
-FROM ${BASE_IMAGE}
-
-# Install dependencies
-RUN export DEBIAN_FRONTEND=noninteractive \
- && apt update -y \
+ && apt update --fix-missing \
  && apt install --no-install-recommends -y \
     # X11 dependencies
     libxrandr-dev libxinerama-dev libxcursor-dev \
@@ -74,14 +65,12 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     # cuSpatial dependencies
     libgdal-dev \
     # UCX runtime dependencies
-    libibcm-dev libibverbs-dev librdmacm-dev libnuma-dev \
+    libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
     # blazingSQL dependencies
     openjdk-8-jre libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
  \
- # clean up
- && rm /etc/apt/sources.list.d/xenial.list \
- && apt autoremove -y \
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ # Clean up
+ && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG NODE_VERSION
 ENV NODE_VERSION=$NODE_VERSION
