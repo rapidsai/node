@@ -27,7 +27,7 @@ if (require.main === module) {
 
 async function loadSpatialDataset() {
 
-  const points = (await loadFiles()).reduce((points, file) => {
+  const points = (await loadFiles(1)).reduce((points, file) => {
     return points ? points.concat(reshape(file)) : reshape(file);
   }, null).castAll(new Float32);
 
@@ -53,7 +53,7 @@ async function loadFiles(numConcurrentRequests = 4) {
   return files;
 }
 
-function reshape({ buffer: file }) {
+function reshape(file) {
   const size = file.byteLength / 16;
   const shape = { type: new Int32, step: 4, size };
   const data = Series.new({ type: new Int32, data: file });
@@ -67,7 +67,7 @@ function loadFile(i) {
 
   const options = {
     method: `GET`,
-    path: `/spatial/2009${i < 10 ? '0' : ''}${i}.cny`,
+    path: `/spatial/2009${i < 10 ? '0' : ''}${i}.cny.gz`,
     hostname: `node-rapids-data.s3.us-west-2.amazonaws.com`,
     headers: {
       [`Accept`]: `application/octet-stream`,
@@ -93,10 +93,18 @@ function loadFile(i) {
 
       finished(
         res.on('data', (part) => {
+          if (body.buffer.byteLength < body.byteOffset + part.byteLength) {
+            const both = new Uint8Array(Math.max(
+              body.buffer.byteLength * 2,
+              body.buffer.byteLength + part.byteLength
+            ));
+            both.set(new Uint8Array(body.buffer, 0, body.byteOffset));
+            body = both.subarray(body.byteOffset);
+          }
           body.set(part);
           body = body.subarray(part.byteLength);
         })
-      ).then(() => resolve(body)).catch(reject);
+      ).then(() => resolve(new Uint8Array(body.buffer, 0, body.byteOffset))).catch(reject);
     });
 
     req.end();

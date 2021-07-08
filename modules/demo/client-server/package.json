@@ -6,6 +6,7 @@
   "maintainers": [
     "Ajay Thorve(athorve@nvidia.com)"
   ],
+  "bin": "index.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

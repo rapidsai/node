@@ -747,6 +747,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value num_children(Napi::CallbackInfo const& info);
 
   Napi::Value gather(Napi::CallbackInfo const& info);
+  Napi::Value copy(Napi::CallbackInfo const& info);
 
   Napi::Value get_child(Napi::CallbackInfo const& info);
 

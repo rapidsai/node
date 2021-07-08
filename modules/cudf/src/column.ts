@@ -123,6 +123,12 @@ export interface Column<T extends DataType = any> {
   gather(selection: Column<IndexType|Bool8>): Column<T>;
 
   /**
+   * Return a copy of a Column
+   *
+   */
+  copy(memoryResource?: MemoryResource): Column<T>;
+
+  /**
    * Return a child at the specified index to host memory
    *
    * @param index

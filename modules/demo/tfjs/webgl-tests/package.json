@@ -8,12 +8,16 @@
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
+  "bin": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "watch": "find -type f | entr -c -d -r node index.js"
+  },
   "dependencies": {
     "@babel/core": "7.14.6",
     "@babel/preset-env": "7.14.7",
     "@babel/preset-react": "7.14.5",
     "@babel/register": "7.14.5",
-    "esm": "3.2.25",
     "@nvidia/glfw": "0.0.1",
     "@tensorflow/tfjs": "2.8.6",
     "jasmine": "3.1.0",
