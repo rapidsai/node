@@ -102,12 +102,10 @@ export class BlazingContext {
     // TODO: This might need to be encoded to utf-8 similar to str.encode() in python
     const d                 = new Date();
     const current_timestamp = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
-      d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}`;
+      d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
 
     // TODO: Range is from 0 => max of int32
     const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
-
-    algebra = this.getJsonPlan(algebra);
 
     // io.pyx calculations
     const tables                   = nodeTableList[0];
@@ -160,9 +158,6 @@ export class BlazingContext {
 
     return String(algebra);
   }
-
-  // TODO: Implement getJsonPlan
-  private getJsonPlan(algebra: string): string { return algebra; }
 
   ignoreerrors(): void {
     console.log(this.context);

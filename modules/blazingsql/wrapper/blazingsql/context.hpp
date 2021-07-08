@@ -14,17 +14,18 @@
 
 #pragma once
 
-#include <map>
-#include <nv_node/objectwrap.hpp>
 #include "graph.hpp"
 
+#include <nv_node/objectwrap.hpp>
+
+#include <io/io.h>
+
 #include <napi.h>
+#include <map>
 
 namespace nv {
 
 struct CacheMachine;
-
-struct TableSchema;
 
 struct Context : public EnvLocalObjectWrap<Context> {
   /**

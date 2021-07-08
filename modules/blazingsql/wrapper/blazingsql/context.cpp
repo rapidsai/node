@@ -16,10 +16,12 @@
 #include "cache.hpp"
 #include "graph.hpp"
 
+#include <node_cudf/table.hpp>
 #include <nv_node/utilities/args.hpp>
 
 #include <engine/engine.h>
 #include <engine/initialize.h>
+#include <io/io.h>
 
 namespace nv {
 
@@ -87,11 +89,11 @@ Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(i
 void Context::sql(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
 
-  uint32_t masterIndex                 = args[0];
-  std::vector<std::string> worker_ids  = args[1];
-  std::vector<std::string> table_names = args[2];
-  std::vector<std::string> table_scans = args[3];
-  // std::vector<TableSchema> table_schemas                                   = args[4];
+  uint32_t masterIndex                                      = args[0];
+  std::vector<std::string> worker_ids                       = args[1];
+  std::vector<std::string> table_names                      = args[2];
+  std::vector<std::string> table_scans                      = args[3];
+  std::vector<Napi::Object> dataframes                      = args[4];
   std::vector<std::vector<std::string>> table_schema_keys   = args[5];
   std::vector<std::vector<std::string>> table_schema_values = args[6];
   std::vector<std::vector<std::string>> files_all           = args[7];
@@ -101,6 +103,16 @@ void Context::sql(Napi::CallbackInfo const& info) {
   // std::vector<std::vector<std::map<std::string, std::string>>> uri_values = args[11];
   std::string sql               = args[13];
   std::string current_timestamp = args[14];
+
+  std::vector<TableSchema> schemas{{}};
+  for (int i = 0; i < dataframes.size(); ++i) {
+    std::vector<std::string> names;
+    auto dfNames = dataframes[i].Get("names").As<Napi::Array>();
+    for (size_t j = 0; j < dfNames.Length(); ++i) { names[j] = dfNames.Get(i).ToString(); }
+
+    Table::wrapper_t table = dataframes[i].Get("asTable").As<Napi::Function>().Call({}).ToObject();
+    schemas[0].blazingTableViews.push_back({table->view(), names});
+  }
 
   auto config_options = [&] {
     std::map<std::string, std::string> config{};
@@ -129,24 +141,24 @@ void Context::sql(Napi::CallbackInfo const& info) {
   std::cout << sql << std::endl;
   std::cout << current_timestamp << std::endl;
 
-  auto result = ::runGenerateGraph(masterIndex,
-                                   worker_ids,
-                                   table_names,
-                                   table_scans,
-                                   {},
-                                   table_schema_keys,
-                                   table_schema_values,
-                                   files_all,
-                                   file_types,
-                                   ctx_token,
-                                   query,
-                                   {},
-                                   config_options,
-                                   sql,
-                                   current_timestamp);
+  // auto result = ::runGenerateGraph(masterIndex,
+  //                                  worker_ids,
+  //                                  table_names,
+  //                                  table_scans,
+  //                                  {},
+  //                                  table_schema_keys,
+  //                                  table_schema_values,
+  //                                  files_all,
+  //                                  file_types,
+  //                                  ctx_token,
+  //                                  query,
+  //                                  {},
+  //                                  config_options,
+  //                                  sql,
+  //                                  current_timestamp);
 
-  // ::startExecuteGraph(result, ctx_token);
-  // auto finalResult = ::getExecuteGraphResult(result, ctxToken);
+  // // ::startExecuteGraph(result, ctx_token);
+  // // auto finalResult = ::getExecuteGraphResult(result, ctxToken);
 }
 
 }  // namespace nv
