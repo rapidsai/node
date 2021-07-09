@@ -104,8 +104,10 @@ Napi::Value Table::from_arrow(Napi::CallbackInfo const& info) {
   try {
     auto table = cudf::from_arrow(*arrow_table);
     output.Set("table", Table::New(env, std::move(table)));
+  } catch (std::exception const& e) { 
     delete buffer_reader;
-  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(env, e.what())); }
+    NAPI_THROW(Napi::Error::New(env, e.what())); 
+  }
 
   delete buffer_reader;
   return output;
