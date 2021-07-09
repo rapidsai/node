@@ -121,6 +121,22 @@ describe('ListSeries', () => {
     const result = col.concat(colToConcat);
     expect([...result]).toEqual([...col, ...colToConcat]);
   });
+
+  test('Can copy Lists', () => {
+    const vec = listsOfInt32s([[1, 2, 3], [4, 5, 6]]);
+    const col = Series.new(vec);
+
+    const result = col.copy();
+    expect([...result]).toEqual([...col]);
+  });
+
+  test('Can copy List of Lists', () => {
+    const vec = listsOfListsOfInt32s([[[0, 1, 2]], [[3, 4, 5], [7, 8, 9]]]);
+    const col = Series.new(vec);
+
+    const result = col.copy();
+    expect([...result]).toEqual([...col]);
+  });
 });
 
 type ListOfInt32 = arrow.List<arrow.Int32>;

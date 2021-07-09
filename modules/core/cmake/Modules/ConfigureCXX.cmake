@@ -21,39 +21,26 @@ if(UNIX AND NOT APPLE)
     set(LINUX TRUE)
 endif()
 
-if(NODE_RAPIDS_USE_CCACHE)
-    find_program(CCACHE_PROGRAM_PATH ccache)
-    if(CCACHE_PROGRAM_PATH)
-        message(STATUS "Using ccache: ${CCACHE_PROGRAM_PATH}")
-        set(CCACHE_COMMAND CACHE STRING "${CCACHE_PROGRAM_PATH}")
-        if(DEFINED ENV{CCACHE_DIR})
-            message(STATUS "Using ccache directory: $ENV{CCACHE_DIR}")
-            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM_PATH}")
+if(NODE_RAPIDS_USE_SCCACHE)
+    find_program(SCCACHE_PROGRAM_PATH sccache)
+    if(SCCACHE_PROGRAM_PATH)
+        message(STATUS "Using sccache: ${SCCACHE_PROGRAM_PATH}")
+        set(CCACHE_COMMAND CACHE STRING "${SCCACHE_PROGRAM_PATH}")
+        if(DEFINED ENV{SCCACHE_DIR})
+            message(STATUS "Using sccache directory: $ENV{SCCACHE_DIR}")
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${SCCACHE_PROGRAM_PATH}")
         else()
             execute_process(COMMAND node -p
-                            "require('@rapidsai/core').project_root_dir_path"
+                            "require('@rapidsai/core').sccache_path"
                             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                            OUTPUT_VARIABLE NODE_RAPIDS_BASE_DIR
+                            OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_SCCACHE_DIR
                             OUTPUT_STRIP_TRAILING_WHITESPACE)
-            execute_process(COMMAND node -p
-                            "require('@rapidsai/core').cmake_modules_path"
-                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                            OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
-                            OUTPUT_STRIP_TRAILING_WHITESPACE)
-            execute_process(COMMAND node -p
-                            "require('@rapidsai/core').ccache_path"
-                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                            OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_CCACHE_DIR
-                            OUTPUT_STRIP_TRAILING_WHITESPACE)
-            message(STATUS "Using ccache directory: ${NODE_RAPIDS_CMAKE_CCACHE_DIR}")
-            # Write or update the ccache configuration file
-            configure_file("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ccache.conf.in" "${NODE_RAPIDS_CMAKE_CCACHE_DIR}/ccache.conf")
-            set(ENV{CCACHE_CONFIGPATH} "${NODE_RAPIDS_CMAKE_CCACHE_DIR}/ccache.conf")
+            message(STATUS "Using sccache directory: ${NODE_RAPIDS_CMAKE_SCCACHE_DIR}")
             set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE
-                "CCACHE_CONFIGPATH=${NODE_RAPIDS_CMAKE_CCACHE_DIR}/ccache.conf ${CCACHE_PROGRAM_PATH}")
-        endif(DEFINED ENV{CCACHE_DIR})
-    endif(CCACHE_PROGRAM_PATH)
-endif(NODE_RAPIDS_USE_CCACHE)
+                "SCCACHE_DIR=${NODE_RAPIDS_CMAKE_SCCACHE_DIR} ${SCCACHE_PROGRAM_PATH}")
+        endif(DEFINED ENV{SCCACHE_DIR})
+    endif(SCCACHE_PROGRAM_PATH)
+endif(NODE_RAPIDS_USE_SCCACHE)
 
 execute_process(COMMAND node -p
                 "require('@rapidsai/core').cpp_core_include_path"

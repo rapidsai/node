@@ -54,7 +54,7 @@ module.exports = {
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@nvidia\/cudf(.*)": "<rootDir>/src/$1",
+    "^@rapidsai\/cudf(.*)": "<rootDir>/src/$1",
     "^\.\.\/(Debug|Release)\/(node_cudf.node)$": "<rootDir>/build/$1/$2",
   }
 };

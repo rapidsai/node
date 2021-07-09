@@ -1,15 +1,38 @@
 ARG BASE_IMAGE
+ARG BUILD_IMAGE
 ARG NODE_VERSION=15.14.0
 
 FROM node:$NODE_VERSION-stretch-slim as node
 
+FROM ${BUILD_IMAGE} as build
+
+COPY --chown=node:node build/*.tgz /home/node/
+
+SHELL ["/bin/bash", "-c"]
+
+RUN cd /home/node \
+ && npm install \
+    --no-fund --no-audit \
+    --production --save-exact \
+    --omit dev --omit peer --omit optional \
+    /home/node/*.tgz \
+ && npm dedupe \
+    --no-fund --no-audit \
+    --production --save-exact \
+    --omit dev --omit peer --omit optional
+
 FROM ${BASE_IMAGE}
 
-ENV DEBIAN_FRONTEND=noninteractive
-
 # Install dependencies
-RUN apt update -y \
+RUN export DEBIAN_FRONTEND=noninteractive \
+ && apt update -y \
  && apt install --no-install-recommends -y \
+    # X11 dependencies
+    libxrandr-dev libxinerama-dev libxcursor-dev \
+    # GLEW dependencies
+    libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
+    # node-canvas dependencies
+    libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
     # cuSpatial dependencies
     libgdal-dev \
  && apt autoremove -y \
@@ -54,5 +77,9 @@ SHELL ["/bin/bash", "-l"]
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 USER node
+
+COPY --from=build --chown=node:node /home/node/node_modules /home/node/node_modules
+
+WORKDIR /home/node
 
 CMD ["node"]

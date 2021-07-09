@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Copyright (c) 2020, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,64 +14,66 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+require('segfault-handler').registerHandler('./crash.log');
+
 const { createWindow } = require('@nvidia/glfw');
 module.exports = createWindow(createXTermJS, true);
 
 if (require.main === module) {
-    module.exports.open({ transparent: false });
+  module.exports.open({ transparent: false });
 }
 
 function createXTermJS(props = {}) {
 
-    const { Terminal } = require('xterm');
-    const { WebglAddon } = require('xterm-addon-webgl');
+  const { Terminal } = require('xterm');
+  const { WebglAddon } = require('xterm-addon-webgl');
 
-    // Create xterm.js terminal
-    const terminal = new Terminal();
-    terminal.open(document.body);
-    // Hack to override font size measurement
-    hackFontMeasurement(terminal);
-    // load xterm.js WebGL renderer
-    terminal.loadAddon(new WebglAddon());
-    // handle keyboard input
-    terminal.onKey(handleKeyInput);
-    // print initial startup message
-    printStartupMessage(terminal);
+  // Create xterm.js terminal
+  const terminal = new Terminal();
+  terminal.open(document.body);
+  // Hack to override font size measurement
+  hackFontMeasurement(terminal);
+  // load xterm.js WebGL renderer
+  terminal.loadAddon(new WebglAddon());
+  // handle keyboard input
+  terminal.onKey(handleKeyInput);
+  // print initial startup message
+  printStartupMessage(terminal);
 
-    function hackFontMeasurement(terminal) {
-        Object.defineProperty(
-            terminal._core._charSizeService._measureStrategy._measureElement,
-            'getBoundingClientRect', { value() { return { width: 9, height: 14 } } });
-            terminal._core._charSizeService.measure();
+  function hackFontMeasurement(terminal) {
+    Object.defineProperty(
+      terminal._core._charSizeService._measureStrategy._measureElement,
+      'getBoundingClientRect', { value() { return { width: 9, height: 14 } } });
+    terminal._core._charSizeService.measure();
 
-        window._inputEventTarget = terminal.textarea;
-        window.requestAnimationFrame(function af() { window.requestAnimationFrame(af); });
+    window._inputEventTarget = terminal.textarea;
+    window.requestAnimationFrame(function af() { window.requestAnimationFrame(af); });
 
-        return terminal;
+    return terminal;
+  }
+
+  function handleKeyInput(e) {
+    const ev = e.domEvent;
+    const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
+    if (ev.keyCode === 13) {
+      terminal.prompt();
+    } else if (ev.keyCode === 8) {
+      // Do not delete the prompt
+      if (terminal._core.buffer.x > 2) {
+        terminal.write('\b \b');
+      }
+    } else if (printable) {
+      terminal.write(e.key);
     }
+  }
 
-    function handleKeyInput(e) {
-        const ev = e.domEvent;
-        const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
-        if (ev.keyCode === 13) {
-            terminal.prompt();
-        } else if (ev.keyCode === 8) {
-            // Do not delete the prompt
-            if (terminal._core.buffer.x > 2) {
-                terminal.write('\b \b');
-            }
-        } else if (printable) {
-            terminal.write(e.key);
-        }
-    }
-
-    function printStartupMessage(terminal) {
-        terminal.prompt = () => { terminal.write('\r\n$ '); };
-        terminal.writeln('Welcome to xterm.js');
-        terminal.writeln('This is a local terminal emulation, without a real terminal in the back-end.');
-        terminal.writeln('Type some keys and commands to play around.');
-        terminal.writeln('');
-        terminal.prompt();
-        return terminal;
-    }
+  function printStartupMessage(terminal) {
+    terminal.prompt = () => { terminal.write('\r\n$ '); };
+    terminal.writeln('Welcome to xterm.js');
+    terminal.writeln('This is a local terminal emulation, without a real terminal in the back-end.');
+    terminal.writeln('Type some keys and commands to play around.');
+    terminal.writeln('');
+    terminal.prompt();
+    return terminal;
+  }
 }

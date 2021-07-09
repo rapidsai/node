@@ -25,7 +25,7 @@ struct node_rmm : public nv::EnvLocalAddon, public Napi::Addon<node_rmm> {
   node_rmm(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
     auto const num_devices = nv::Device::get_num_devices();
     _per_device_resources  = Napi::Persistent(Napi::Array::New(env, num_devices));
-    _after_init = Napi::Persistent(Napi::Function::New(env, [&](Napi::CallbackInfo const& info) {
+    _after_init = Napi::Persistent(Napi::Function::New(env, [=](Napi::CallbackInfo const& info) {
       auto pdmr = _per_device_resources.Value();
       for (int32_t id = 0; id < num_devices; ++id) {
         pdmr.Set(id, nv::MemoryResource::Device(info.Env(), rmm::cuda_device_id{id}));

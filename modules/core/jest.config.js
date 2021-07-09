@@ -54,6 +54,6 @@ module.exports = {
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@nvidia\/rapids-core(.*)": "<rootDir>/src/$1",
+    "^@rapidsai\/rapids-core(.*)": "<rootDir>/src/$1",
   }
 };

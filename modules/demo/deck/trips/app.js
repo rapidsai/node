@@ -1,11 +1,11 @@
 /* global window */
-import React, {Component} from 'react';
-import {render} from 'react-dom';
-import {StaticMap} from 'react-map-gl';
-import {AmbientLight, PointLight, LightingEffect} from '@deck.gl/core';
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+import { StaticMap } from 'react-map-gl';
+import { AmbientLight, PointLight, LightingEffect } from '@deck.gl/core';
 import DeckGL from '@deck.gl/react';
-import {PolygonLayer} from '@deck.gl/layers';
-import {TripsLayer} from '@deck.gl/geo-layers';
+import { PolygonLayer } from '@deck.gl/layers';
+import { TripsLayer } from '@deck.gl/geo-layers';
 
 // Set your mapbox token here
 const MAPBOX_TOKEN = 'pk.eyJ1Ijoid21qcGlsbG93IiwiYSI6ImNrN2JldzdpbDA2Ym0zZXFzZ3oydXN2ajIifQ.qPOZDsyYgMMUhxEKrvHzRA'; // eslint-disable-line
@@ -29,7 +29,7 @@ const pointLight = new PointLight({
   position: [-74.05, 40.7, 8000]
 });
 
-const lightingEffect = new LightingEffect({ambientLight, pointLight});
+const lightingEffect = new LightingEffect({ ambientLight, pointLight });
 
 const material = {
   ambient: 0.1,

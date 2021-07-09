@@ -520,168 +520,193 @@ test('dataframe.castAll', () => {
 describe('dataframe unaryops', () => {
   const a  = Series.new({type: new Int32, data: [-3, 0, 3]});
   const b  = Series.new({type: new Int8, data: [-3, 0, 3]});
-  const c  = Series.new(['foo', null, 'bar']);
-  const d  = Series.new({type: new Float32, data: [-2.7, 0, 3.1]});
-  const df = new DataFrame({'a': a, 'b': b, 'c': c, 'd': d});
+  const c  = Series.new({type: new Float32, data: [-2.7, 0, 3.1]});
+  const df = new DataFrame({'a': a, 'b': b, 'c': c});
+
+  const d = Series.new(['foo', 'bar', 'foo']);
+  // If a unary op is performed on this df, the result will be `never`
+  // due to the df containing a string series.
+  // (unary ops only support numeric series)
+  const non_numeric_df = new DataFrame({'a': a, 'b': b, 'c': c, 'd': d});
 
   test('dataframe.sin', () => {
     const result = df.sin();
     expect([...result.get('a')]).toEqual([0, 0, 0]);
     expect([...result.get('b')]).toEqual([0, 0, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.sin()]);
+    expect([...result.get('c')]).toEqual([...c.sin()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.sin())).toThrow();
   });
 
   test('dataframe.cos', () => {
     const result = df.cos();
     expect([...result.get('a')]).toEqual([0, 1, 0]);
     expect([...result.get('b')]).toEqual([0, 1, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.cos()]);
+    expect([...result.get('c')]).toEqual([...c.cos()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.cos())).toThrow();
   });
 
   test('dataframe.tan', () => {
     const result = df.tan();
     expect([...result.get('a')]).toEqual([0, 0, 0]);
     expect([...result.get('b')]).toEqual([0, 0, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.tan()]);
+    expect([...result.get('c')]).toEqual([...c.tan()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.tan())).toThrow();
   });
 
   test('dataframe.asin', () => {
     const result = df.asin();
     expect([...result.get('a')]).toEqual([-2147483648, 0, -2147483648]);
     expect([...result.get('b')]).toEqual([0, 0, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.asin()]);
+    expect([...result.get('c')]).toEqual([...c.asin()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.asin())).toThrow();
   });
 
   test('dataframe.acos', () => {
     const result = df.acos();
     expect([...result.get('a')]).toEqual([-2147483648, 1, -2147483648]);
     expect([...result.get('b')]).toEqual([0, 1, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.acos()]);
+    expect([...result.get('c')]).toEqual([...c.acos()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.acos())).toThrow();
   });
 
   test('dataframe.atan', () => {
     const result = df.atan();
     expect([...result.get('a')]).toEqual([-1, 0, 1]);
     expect([...result.get('b')]).toEqual([-1, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.atan()]);
+    expect([...result.get('c')]).toEqual([...c.atan()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.atan())).toThrow();
   });
 
   test('dataframe.sinh', () => {
     const result = df.sinh();
     expect([...result.get('a')]).toEqual([-10, 0, 10]);
     expect([...result.get('b')]).toEqual([-10, 0, 10]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.sinh()]);
+    expect([...result.get('c')]).toEqual([...c.sinh()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.sinh())).toThrow();
   });
 
   test('dataframe.cosh', () => {
     const result = df.cosh();
     expect([...result.get('a')]).toEqual([10, 1, 10]);
     expect([...result.get('b')]).toEqual([10, 1, 10]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.cosh()]);
+    expect([...result.get('c')]).toEqual([...c.cosh()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.cosh())).toThrow();
   });
 
   test('dataframe.tanh', () => {
     const result = df.tanh();
     expect([...result.get('a')]).toEqual([0, 0, 0]);
     expect([...result.get('b')]).toEqual([0, 0, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.tanh()]);
+    expect([...result.get('c')]).toEqual([...c.tanh()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.tanh())).toThrow();
   });
 
   test('dataframe.asinh', () => {
     const result = df.asinh();
     expect([...result.get('a')]).toEqual([-1, 0, 1]);
     expect([...result.get('b')]).toEqual([-1, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.asinh()]);
+    expect([...result.get('c')]).toEqual([...c.asinh()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.asinh())).toThrow();
   });
 
   test('dataframe.acosh', () => {
     const result = df.acosh();
     expect([...result.get('a')]).toEqual([-2147483648, -2147483648, 1]);
     expect([...result.get('b')]).toEqual([0, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.acosh()]);
+    expect([...result.get('c')]).toEqual([...c.acosh()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.acosh())).toThrow();
   });
 
   test('dataframe.atanh', () => {
     const result = df.atanh();
     expect([...result.get('a')]).toEqual([-2147483648, 0, -2147483648]);
     expect([...result.get('b')]).toEqual([0, 0, 0]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.atanh()]);
+    expect([...result.get('c')]).toEqual([...c.atanh()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.atanh())).toThrow();
   });
 
   test('dataframe.exp', () => {
     const result = df.exp();
     expect([...result.get('a')]).toEqual([0, 1, 20]);
     expect([...result.get('b')]).toEqual([0, 1, 20]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.exp()]);
+    expect([...result.get('c')]).toEqual([...c.exp()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.exp())).toThrow();
   });
 
   test('dataframe.log', () => {
     const result = df.log();
     expect([...result.get('a')]).toEqual([-2147483648, -2147483648, 1]);
     expect([...result.get('b')]).toEqual([0, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.log()]);
+    expect([...result.get('c')]).toEqual([...c.log()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.log())).toThrow();
   });
 
   test('dataframe.sqrt', () => {
     const result = df.sqrt();
     expect([...result.get('a')]).toEqual([-2147483648, 0, 1]);
     expect([...result.get('b')]).toEqual([0, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.sqrt()]);
+    expect([...result.get('c')]).toEqual([...c.sqrt()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.sqrt())).toThrow();
   });
 
   test('dataframe.cbrt', () => {
     const result = df.cbrt();
     expect([...result.get('a')]).toEqual([-1, 0, 1]);
     expect([...result.get('b')]).toEqual([-1, 0, 1]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.cbrt()]);
+    expect([...result.get('c')]).toEqual([...c.cbrt()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.cbrt())).toThrow();
   });
 
   test('dataframe.ceil', () => {
     const result = df.ceil();
     expect([...result.get('a')]).toEqual([-3, 0, 3]);
     expect([...result.get('b')]).toEqual([-3, 0, 3]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.ceil()]);
+    expect([...result.get('c')]).toEqual([...c.ceil()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.ceil())).toThrow();
   });
 
   test('dataframe.floor', () => {
     const result = df.floor();
     expect([...result.get('a')]).toEqual([-3, 0, 3]);
     expect([...result.get('b')]).toEqual([-3, 0, 3]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.floor()]);
+    expect([...result.get('c')]).toEqual([...c.floor()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.floor())).toThrow();
   });
 
   test('dataframe.abs', () => {
     const result = df.abs();
     expect([...result.get('a')]).toEqual([3, 0, 3]);
     expect([...result.get('b')]).toEqual([3, 0, 3]);
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.abs()]);
+    expect([...result.get('c')]).toEqual([...c.abs()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.abs())).toThrow();
   });
 
   test('dataframe.not', () => {
     const result = df.not();
     expect([...result.get('a')]).toEqual([-3, 0, 3].map((x) => !x));
     expect([...result.get('b')]).toEqual([-3, 0, 3].map((x) => !x));
-    expect([...result.get('c')]).toEqual([...c]);
-    expect([...result.get('d')]).toEqual([...d.not()]);
+    expect([...result.get('c')]).toEqual([...c.not()]);
+
+    expect(() => _verifyIsNever(non_numeric_df.not())).toThrow();
   });
 });
 
@@ -723,6 +748,30 @@ describe('dataframe.replaceNulls', () => {
     expect([...result.get('c')]).toEqual([...c.replaceNulls(
       Series.new([false, false, true, true]))]);
   });
+});
+
+test('dataframe.kurtosis', () => {
+  const a  = Series.new([1, 2, 3, 4]);
+  const b  = Series.new([7, 8, 9, 10]);
+  const df = new DataFrame({'a': a, 'b': b});
+
+  expect([...df.kurtosis()]).toEqual([-1.1999999999999904, -1.2000000000000686]);
+
+  const c                   = Series.new(['foo', 'bar', 'foo', 'bar']);
+  const invalid_kurtosis_df = new DataFrame({'a': a, 'b': b, 'c': c});
+  expect(() => _verifyIsNever(invalid_kurtosis_df.kurtosis())).toThrow();
+});
+
+test('dataframe.skew', () => {
+  const a  = Series.new([1, 2, 3, 4, 5, 6, 6]);
+  const b  = Series.new([7, 8, 9, 10, 11, 12, 12]);
+  const df = new DataFrame({'a': a, 'b': b});
+
+  expect([...df.skew()]).toEqual([-0.288195490292614, -0.2881954902926153]);
+
+  const c               = Series.new(['foo', 'bar', 'foo', 'bar', 'foo', 'bar', 'foo']);
+  const invalid_skew_df = new DataFrame({'a': a, 'b': b, 'c': c});
+  expect(() => _verifyIsNever(invalid_skew_df.skew())).toThrow();
 });
 
 test('dataframe.nansToNulls', () => {
@@ -832,3 +881,8 @@ test(`DataFrame.dropDuplicates("first", true, true, ['a'])`, () => {
   expect([...result.get('a')]).toEqual([null, 1, 3, 4]);
   expect([...result.get('b')]).toEqual([null, 5, 8, 2]);
 });
+
+// Typescript does not allow us to throw a compile-time error if
+// the result of a method is `never`. Instead, let's just verify
+// the result is `never` by checking the parameter type.
+function _verifyIsNever(_: never) { return _; }

@@ -21,7 +21,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
-option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" ON)
+option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
 set(RMM_VERSION "21.08.00")
@@ -100,11 +100,9 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
-                      rmm::rmm
-                      cudf::cudf
                       cuspatial::cuspatial
-                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
+                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin

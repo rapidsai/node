@@ -19,6 +19,7 @@
 #include <arrow/ipc/writer.h>
 
 #include <cudf/interop.hpp>
+#include <cudf/ipc.hpp>
 
 namespace nv {
 
@@ -57,4 +58,41 @@ Napi::Value Table::to_arrow(Napi::CallbackInfo const& info) {
 
   return Napi::Uint8Array::New(env, buffer.ByteLength(), buffer, 0);
 }
+
+Napi::Value Table::from_arrow(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  auto env = info.Env();
+
+  auto device_manager = arrow::cuda::CudaDeviceManager::Instance().ValueOrDie();
+  auto context        = device_manager->GetContext(Device::active_device_id()).ValueOrDie();
+
+  Span<uint8_t> span = args[0];
+  auto buffer        = std::make_shared<arrow::cuda::CudaBuffer>(
+    span.data(), span.size(), context, false, IpcMemory::IsInstance(args[0]));
+
+  auto buffer_reader  = new arrow::cuda::CudaBufferReader(buffer);
+  auto message_reader = CudaMessageReader::Open(buffer_reader, nullptr);
+  auto stream_reader =
+    arrow::ipc::RecordBatchStreamReader::Open(std::move(message_reader)).ValueOrDie();
+
+  std::shared_ptr<arrow::Table> arrow_table{};
+  auto status = stream_reader->ReadAll(&arrow_table);
+
+  if (!status.ok()) { NAPI_THROW(Napi::Error::New(env, status.message())); }
+
+  auto output = Napi::Object::New(env);
+
+  auto fields = stream_reader->schema()->fields();
+  auto names  = Napi::Array::New(env, fields.size());
+  for (std::size_t i = 0; i < fields.size(); ++i) { names.Set(i, fields[i]->name()); }
+  output.Set("names", names);
+
+  try {
+    auto table = cudf::from_arrow(*arrow_table);
+    output.Set("table", Table::New(env, std::move(table)));
+  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(env, e.what())); }
+
+  return output;
+}
+
 }  // namespace nv
