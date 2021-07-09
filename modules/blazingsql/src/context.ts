@@ -1,4 +1,4 @@
-import {DataFrame, Table} from '@rapidsai/cudf';
+import {DataFrame} from '@rapidsai/cudf';
 
 import {BLAZINGSQL} from './addon';
 
@@ -58,7 +58,6 @@ export interface Context {
   sql(masterIndex: number,
       workerIds: any[],
       dataframes: DataFrame[],
-      tables: Table[],
       tableNames: string[],
       tableScans: string[],
       ctxToken: number,

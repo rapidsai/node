@@ -90,25 +90,29 @@ Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(i
 void Context::sql(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
 
-  uint32_t masterIndex                  = args[0];
-  std::vector<std::string> worker_ids   = args[1];
-  std::vector<Napi::Object> data_frames = args[2];
-  std::vector<Napi::Object> tables      = args[3];
-  std::vector<std::string> table_names  = args[4];
-  std::vector<std::string> table_scans  = args[5];
-  int32_t ctx_token                     = args[6];
-  std::string query                     = args[8];
-  std::string sql                       = args[9];
-  std::string current_timestamp         = args[10];
+  uint32_t masterIndex                 = args[0];
+  std::vector<std::string> worker_ids  = args[1];
+  Napi::Array data_frames              = args[2];
+  std::vector<std::string> table_names = args[3];
+  std::vector<std::string> table_scans = args[4];
+  int32_t ctx_token                    = args[5];
+  std::string query                    = args[6];
+  std::string sql                      = args[8];
+  std::string current_timestamp        = args[9];
 
-  std::vector<TableSchema> schemas{{}};
-  for (int i = 0; i < data_frames.size(); ++i) {
-    auto dfNames                   = data_frames[i].Get("names").As<Napi::Array>();
-    std::vector<std::string> names = std::vector<std::string>(dfNames.Length());
-    for (size_t j = 0; j < dfNames.Length(); ++j) { names[j] = dfNames.Get(i).ToString(); }
+  std::vector<TableSchema> schemas;
+  schemas.reserve(data_frames.Length());
 
-    Table::wrapper_t table = tables[i];
-    schemas[0].blazingTableViews.push_back({table->view(), names});
+  for (std::size_t i = 0; i < data_frames.Length(); ++i) {
+    NapiToCPP::Object df           = data_frames.Get(i);
+    std::vector<std::string> names = df.Get("names");
+    Napi::Function asTable         = df.Get("asTable");
+    Table::wrapper_t table         = asTable.Call(df.val, {}).ToObject();
+
+    std::vector<cudf::type_id> type_ids;
+    for (auto const& col : table->view()) { type_ids.push_back(col.type().id()); }
+
+    schemas.push_back({{{table->view(), names}}, type_ids});
   }
 
   auto config_options = [&] {

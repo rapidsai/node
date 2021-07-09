@@ -22,15 +22,15 @@ const NODE_DEBUG = ((<any>process.env).NODE_DEBUG || (<any>process.env).NODE_ENV
 let moduleBasePath = Path.dirname(module.id);
 if (Path.basename(moduleBasePath) == 'src') {
   moduleBasePath = Path.dirname(moduleBasePath);
-  moduleBasePath = Path.join(moduleBasePath, 'build');
+  moduleBasePath = Path.join(moduleBasePath, 'build', 'js');
 }
 
-if (NODE_DEBUG && Fs.existsSync(Path.join(moduleBasePath, 'Debug'))) {
-  java.classpath.push(Path.join(moduleBasePath, 'Debug', 'blazingsql-algebra.jar'));
-  java.classpath.push(Path.join(moduleBasePath, 'Debug', 'blazingsql-algebra-core.jar'));
+if (NODE_DEBUG && Fs.existsSync(Path.join(moduleBasePath, '..', 'Debug'))) {
+  java.classpath.push(Path.join(moduleBasePath, '..', 'Debug', 'blazingsql-algebra.jar'));
+  java.classpath.push(Path.join(moduleBasePath, '..', 'Debug', 'blazingsql-algebra-core.jar'));
 } else {
-  java.classpath.push(Path.join(moduleBasePath, 'Release', 'blazingsql-algebra.jar'));
-  java.classpath.push(Path.join(moduleBasePath, 'Release', 'blazingsql-algebra-core.jar'));
+  java.classpath.push(Path.join(moduleBasePath, '..', 'Release', 'blazingsql-algebra.jar'));
+  java.classpath.push(Path.join(moduleBasePath, '..', 'Release', 'blazingsql-algebra-core.jar'));
 }
 
 export function ArrayList() { return java.newInstanceSync('java.util.ArrayList'); }
