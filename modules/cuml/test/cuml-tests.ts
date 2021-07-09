@@ -9,7 +9,7 @@ import {
 const df = DataFrame.readCSV({
   header: 0,
   sourceType: 'files',
-  sources: [__dirname + './iris.csv'],
+  sources: [`${__dirname}/iris.csv`],
   dataTypes: {
     sepal_length: 'float32',
     sepal_width: 'float32',
@@ -29,7 +29,7 @@ const options = {
   targetNNeighbors: -1
 };
 
-test('fit trustworthiness score (series)', () => {
+test('fit_transform trustworthiness score (series)', () => {
   const umap   = new UMAP(options);
   const t1     = umap.fitSeries(XSeries, y, 4).embeddings;
   const trust1 = trustworthinessSeries(XSeries, t1.asSeries(), 4);
@@ -37,7 +37,7 @@ test('fit trustworthiness score (series)', () => {
   expect(trust1).toBeGreaterThan(0.97);
 });
 
-test('fit trustworthiness score (dataframe)', () => {
+test('fit_transform trustworthiness score (dataframe)', () => {
   const umap   = new UMAP(options);
   const t1     = umap.fitDataFrame(X, y).embeddings;
   const trust1 = trustworthinessDataFrame(X, t1.asDataFrame());
@@ -45,7 +45,7 @@ test('fit trustworthiness score (dataframe)', () => {
   expect(trust1).toBeGreaterThan(0.97);
 });
 
-test('fit trustworthiness score (array)', () => {
+test('fit_transform trustworthiness score (array)', () => {
   const umap   = new UMAP(options);
   const t1     = umap.fitArray([...XSeries], [...y], 4).embeddings;
   const trust1 = trustworthiness([...XSeries], [...t1.asSeries()], 4);
