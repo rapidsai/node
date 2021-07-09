@@ -108,25 +108,19 @@ export class BlazingContext {
     // TODO: Range is from 0 => max of int32
     const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
 
-    // io.pyx calculations
-    const tables = nodeTableList[0];
-    // const tableSchema: any[]       = [];
-    // const tableSchemaKeys: any[]   = [];
-    // const tableSchemaValues: any[] = [];
-    // const filesAll: any[]          = [];
-    // const uriValuesAll: any[]      = [];
+    const dataframe: DataFrame = this.tables[tableNames[0]];
 
-    this.context.sql(
-      masterIndex,
-      ['self'],
-      this.tables[tableNames[0]],  // TODO: we should handle this better instead of hardcoding
-      tableNames,
-      tableScans,
-      ctxToken,
-      algebra,
-      default_config,
-      query,
-      current_timestamp);
+    this.context.sql(masterIndex,
+                     ['self'],
+                     [dataframe],
+                     [dataframe.asTable()],
+                     tableNames,
+                     tableScans,
+                     ctxToken,
+                     algebra,
+                     default_config,
+                     query,
+                     current_timestamp);
 
     if (returnToken) {
       console.log(query);
@@ -139,7 +133,6 @@ export class BlazingContext {
       console.log(current_timestamp);
       console.log(tableScans);
       console.log(fileTypes);
-      console.log(tables);
       console.log(tableNames);
     }
 

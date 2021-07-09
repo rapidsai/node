@@ -93,20 +93,21 @@ void Context::sql(Napi::CallbackInfo const& info) {
   uint32_t masterIndex                  = args[0];
   std::vector<std::string> worker_ids   = args[1];
   std::vector<Napi::Object> data_frames = args[2];
-  std::vector<std::string> table_names  = args[3];
-  std::vector<std::string> table_scans  = args[4];
-  int32_t ctx_token                     = args[5];
-  std::string query                     = args[6];
-  std::string sql                       = args[8];
-  std::string current_timestamp         = args[9];
+  std::vector<Napi::Object> tables      = args[3];
+  std::vector<std::string> table_names  = args[4];
+  std::vector<std::string> table_scans  = args[5];
+  int32_t ctx_token                     = args[6];
+  std::string query                     = args[8];
+  std::string sql                       = args[9];
+  std::string current_timestamp         = args[10];
 
   std::vector<TableSchema> schemas{{}};
   for (int i = 0; i < data_frames.size(); ++i) {
-    std::vector<std::string> names;
-    auto dfNames = data_frames[i].Get("names").As<Napi::Array>();
-    for (size_t j = 0; j < dfNames.Length(); ++i) { names[j] = dfNames.Get(i).ToString(); }
+    auto dfNames                   = data_frames[i].Get("names").As<Napi::Array>();
+    std::vector<std::string> names = std::vector<std::string>(dfNames.Length());
+    for (size_t j = 0; j < dfNames.Length(); ++j) { names[j] = dfNames.Get(i).ToString(); }
 
-    Table::wrapper_t table = data_frames[i].Get("asTable").As<Napi::Function>().Call({}).ToObject();
+    Table::wrapper_t table = tables[i];
     schemas[0].blazingTableViews.push_back({table->view(), names});
   }
 
@@ -124,22 +125,21 @@ void Context::sql(Napi::CallbackInfo const& info) {
     return config;
   }();
 
-  auto result = ::runGenerateGraph(masterIndex,
-                                   worker_ids,
-                                   table_names,
-                                   table_scans,
-                                   {},
-                                   {},
-                                   {},
-                                   {},
-                                   {},
-                                   ctx_token,
-                                   query,
-                                   {},
-                                   config_options,
-                                   sql,
-                                   current_timestamp);
-
+  // auto result = ::runGenerateGraph(masterIndex,
+  //                                  worker_ids,
+  //                                  table_names,
+  //                                  table_scans,
+  //                                  {},
+  //                                  {},
+  //                                  {},
+  //                                  {},
+  //                                  {},
+  //                                  ctx_token,
+  //                                  query,
+  //                                  {},
+  //                                  config_options,
+  //                                  sql,
+  //                                  current_timestamp);
   // // ::startExecuteGraph(result, ctx_token);
   // // auto finalResult = ::getExecuteGraphResult(result, ctxToken);
 }
