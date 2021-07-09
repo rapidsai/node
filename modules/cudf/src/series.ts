@@ -207,9 +207,9 @@ export class AbstractSeries<T extends DataType = any> {
    */
   static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>): Series<T>;
 
-  static new<T extends DataType>(input: Int32Array): Series<T>;
+  static new(input: Int32Array): Series<Int32>;
 
-  static new<T extends DataType>(input: Int32Buffer): Series<T>;
+  static new(input: Int32Buffer): Series<Int32>;
   /**
    * Create a new cudf.StringSeries
    *
@@ -1299,13 +1299,10 @@ function asColumn<T extends DataType>(
              {type: inferType(value), values: value as any, highWaterMark: Infinity})) as any;
   }
   if (value instanceof Int32Array) {
-    return fromArrow(arrow.Vector.from(
-             {type: new Int32, values: value as any, highWaterMark: Infinity})) as any;
+    return new Column({ type: new Int32, data: value, length: value.length });
   }
   if (value instanceof Int32Buffer) {
-    const value_arr = new value.TypedArray(value);
-    return fromArrow(arrow.Vector.from(
-             {type: new Int32, values: value_arr as any, highWaterMark: Infinity})) as any;
+    return new Column({ type: new Int32, data: value, length: value.length });
   }
   if (value instanceof arrow.Vector) { return fromArrow(value) as any; }
   if (!value.type && Array.isArray(value.data)) {
