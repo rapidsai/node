@@ -67,11 +67,25 @@ Napi::Value Table::from_arrow(Napi::CallbackInfo const& info) {
   auto context        = device_manager->GetContext(Device::active_device_id()).ValueOrDie();
 
   Span<uint8_t> span = args[0];
-  auto buffer        = std::make_shared<arrow::cuda::CudaBuffer>(
-    span.data(), span.size(), context, false, IpcMemory::IsInstance(args[0]));
+  arrow::io::InputStream* buffer_reader{nullptr};
 
-  auto buffer_reader  = new arrow::cuda::CudaBufferReader(buffer);
-  auto message_reader = CudaMessageReader::Open(buffer_reader, nullptr);
+  auto message_reader = [&] {
+    uint32_t memory_type  = CU_MEMORYTYPE_HOST;
+    CUresult const status = cuPointerGetAttribute(
+      &memory_type, CU_POINTER_ATTRIBUTE_MEMORY_TYPE, reinterpret_cast<CUdeviceptr>(span.data()));
+
+    // If the memory was not allocated via Cuda at all, this error is returned -- assume host
+    if (status == CUDA_ERROR_INVALID_VALUE or memory_type == CU_MEMORYTYPE_HOST) {
+      buffer_reader =
+        new arrow::io::BufferReader(std::make_shared<arrow::Buffer>(span.data(), span.size()));
+      return arrow::ipc::MessageReader::Open(buffer_reader);
+    }
+    buffer_reader = new arrow::cuda::CudaBufferReader(std::make_shared<arrow::cuda::CudaBuffer>(
+      span.data(), span.size(), context, false, IpcMemory::IsInstance(args[0])));
+    return CudaMessageReader::Open(static_cast<arrow::cuda::CudaBufferReader*>(buffer_reader),
+                                   nullptr);
+  }();
+
   auto stream_reader =
     arrow::ipc::RecordBatchStreamReader::Open(std::move(message_reader)).ValueOrDie();
 
@@ -90,8 +104,12 @@ Napi::Value Table::from_arrow(Napi::CallbackInfo const& info) {
   try {
     auto table = cudf::from_arrow(*arrow_table);
     output.Set("table", Table::New(env, std::move(table)));
-  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(env, e.what())); }
+  } catch (std::exception const& e) { 
+    delete buffer_reader;
+    NAPI_THROW(Napi::Error::New(env, e.what())); 
+  }
 
+  delete buffer_reader;
   return output;
 }
 
