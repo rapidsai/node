@@ -18,6 +18,6 @@ import {loadNativeModule} from '@rapidsai/core';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
 
-export const BLAZINGSQL =
+export const BLAZINGSQL: any =
   loadNativeModule(module, 'node_blazingsql', init => init(CUDA, RMM, CUDF));
 export default BLAZINGSQL;
