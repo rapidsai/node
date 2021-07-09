@@ -92,55 +92,57 @@ ML::UMAPParams update_params(NapiToCPP::Object props) {
 UMAP::wrapper_t UMAP::New(Napi::Env const& env) { return EnvLocalObjectWrap<UMAP>::New(env); }
 
 UMAP::UMAP(CallbackArgs const& args) : EnvLocalObjectWrap<UMAP>(args) {
-  auto env = args.Env();
   raft::handle_t handle;
-  NODE_CUDA_EXPECT(args.IsConstructCall(), "UMAP constructor requires 'new'", env);
   this->params_ = update_params(args[0]);
   ML::UMAP::find_ab(handle, &this->params_);
-  this->embeddings_ = DeviceBuffer::wrapper_t();
 }
 
-void UMAP::fit(float* X,
+void UMAP::fit(DeviceBuffer::wrapper_t const& X,
                cudf::size_type n_samples,
                cudf::size_type n_features,
-               float* y,
-               int64_t* knn_indices,
-               float* knn_dists,
+               DeviceBuffer::wrapper_t const& y,
+               DeviceBuffer::wrapper_t const& knn_indices,
+               DeviceBuffer::wrapper_t const& knn_dists,
                bool convert_dtype,
-               float* embeddings) {
+               DeviceBuffer::wrapper_t const& embeddings) {
   raft::handle_t handle;
-  CUDA_CHECK(cudaStreamSynchronize(handle.get_stream()));
   try {
-    ML::UMAP::fit(
-      handle, X, y, n_samples, n_features, knn_indices, knn_dists, &this->params_, embeddings);
+    ML::UMAP::fit(handle,
+                  static_cast<float*>(X->data()),
+                  static_cast<float*>(y->data()),
+                  n_samples,
+                  n_features,
+                  static_cast<int64_t*>(knn_indices->data()),
+                  static_cast<float*>(knn_dists->data()),
+                  &this->params_,
+                  static_cast<float*>(embeddings->data()));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
-void UMAP::transform(float* X,
+void UMAP::transform(DeviceBuffer::wrapper_t const& X,
                      cudf::size_type n_samples,
                      cudf::size_type n_features,
-                     int64_t* knn_indices,
-                     float* knn_dists,
-                     float* orig_X,
+                     DeviceBuffer::wrapper_t const& knn_indices,
+                     DeviceBuffer::wrapper_t const& knn_dists,
+                     DeviceBuffer::wrapper_t const& orig_X,
                      int orig_n,
                      bool convert_dtype,
-                     float* embeddings,
-                     float* transformed) {
+                     DeviceBuffer::wrapper_t const& embeddings,
+                     DeviceBuffer::wrapper_t const& transformed) {
   raft::handle_t handle;
-  CUDA_CHECK(cudaStreamSynchronize(handle.get_stream()));
   try {
     ML::UMAP::transform(handle,
-                        X,
+                        static_cast<float*>(X->data()),
                         n_samples,
                         n_features,
-                        knn_indices,
-                        knn_dists,
-                        orig_X,
+                        static_cast<int64_t*>(knn_indices->data()),
+                        static_cast<float*>(knn_dists->data()),
+                        static_cast<float*>(orig_X->data()),
                         orig_n,
-                        embeddings,
+                        static_cast<float*>(embeddings->data()),
                         n_samples,
                         &this->params_,
-                        transformed);
+                        static_cast<float*>(transformed->data()));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
@@ -167,14 +169,14 @@ Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
 
   DeviceBuffer::wrapper_t embeddings = props.Get("embeddings");
 
-  fit(static_cast<float*>(X->data()),
+  fit(X,
       props.Get("nSamples"),
       props.Get("nFeatures"),
-      static_cast<float*>(y->data()),
-      static_cast<int64_t*>(knn_indices->data()),
-      static_cast<float*>(knn_dists->data()),
+      y,
+      knn_indices,
+      knn_dists,
       props.Get("convertDType"),
-      static_cast<float*>(embeddings->data()));
+      embeddings);
 
   return embeddings;
 }
@@ -199,16 +201,16 @@ Napi::Value UMAP::transform(Napi::CallbackInfo const& args) {
   DeviceBuffer::wrapper_t embeddings  = props.Get("embeddings");
   DeviceBuffer::wrapper_t transformed = props.Get("transformed");
 
-  transform(static_cast<float*>(X->data()),
+  transform(X,
             props.Get("nSamples"),
             props.Get("nFeatures"),
-            static_cast<int64_t*>(knn_indices->data()),
-            static_cast<float*>(knn_dists->data()),
-            static_cast<float*>(X->data()),
+            knn_indices,
+            knn_dists,
+            X,
             props.Get("nSamples"),
             props.Get("convertDType"),
-            static_cast<float*>(embeddings->data()),
-            static_cast<float*>(transformed->data()));
+            embeddings,
+            transformed);
 
   return transformed;
 }

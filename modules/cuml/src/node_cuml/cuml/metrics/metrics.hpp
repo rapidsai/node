@@ -14,4 +14,16 @@
 
 #pragma once
 
+#ifdef CUDA_TRY
+#undef CUDA_TRY
+#endif
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif
 #include <cuml/metrics/metrics.hpp>
+#ifdef CUDA_TRY
+#undef CUDA_TRY
+#endif
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif

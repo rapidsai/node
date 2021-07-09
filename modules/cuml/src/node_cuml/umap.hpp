@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #pragma once
+
 #include "cuml/manifold/umap.hpp"
 #include "cuml/manifold/umapparams.hpp"
 #include "raft/handle.hpp"
@@ -53,29 +54,28 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
    */
   UMAP(CallbackArgs const& args);
 
-  void fit(float* X,
+  void fit(DeviceBuffer::wrapper_t const& X,
            cudf::size_type n_samples,
            cudf::size_type n_features,
-           float* y,
-           int64_t* knn_indices,
-           float* knn_dists,
+           DeviceBuffer::wrapper_t const& y,
+           DeviceBuffer::wrapper_t const& knn_indices,
+           DeviceBuffer::wrapper_t const& knn_dists,
            bool convert_dtype,
-           float* embeddings);
+           DeviceBuffer::wrapper_t const& embeddings);
 
-  void transform(float* X,
+  void transform(DeviceBuffer::wrapper_t const& X,
                  cudf::size_type n_samples,
                  cudf::size_type n_features,
-                 int64_t* knn_indices,
-                 float* knn_dists,
-                 float* orig_X,
+                 DeviceBuffer::wrapper_t const& knn_indices,
+                 DeviceBuffer::wrapper_t const& knn_dists,
+                 DeviceBuffer::wrapper_t const& orig_X,
                  int orig_n,
                  bool convert_dtype,
-                 float* embeddings,
-                 float* transformed);
+                 DeviceBuffer::wrapper_t const& embeddings,
+                 DeviceBuffer::wrapper_t const& transformed);
 
  private:
   ML::UMAPParams params_{};
-  DeviceBuffer::wrapper_t embeddings_;
   Napi::Value get_embeddings(Napi::CallbackInfo const& info);
   Napi::Value fit(Napi::CallbackInfo const& info);
   Napi::Value fit_sparse(Napi::CallbackInfo const& info);
