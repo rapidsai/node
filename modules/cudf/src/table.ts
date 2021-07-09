@@ -53,7 +53,7 @@ interface TableConstructor {
    * @param memory A buffer holding Arrow table
    * @return The Arrow data as a Table and a list of column names.
    */
-  fromArrow(memory: MemoryData): {names: string[], table: Table};
+  fromArrow(memory: DeviceBuffer|MemoryData): {names: string[], table: Table};
 
   /**
    * Returns tables concatenated to each other.
