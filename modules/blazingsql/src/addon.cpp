@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <blazingsql/cache.hpp>
 #include <blazingsql/context.hpp>
+#include <blazingsql/graph.hpp>
 
 #include <nv_node/addon.hpp>
 
@@ -23,6 +25,8 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
                   InstanceMethod("init", &node_blazingsql::InitAddon),
                   InstanceValue("_cpp_exports", _cpp_exports.Value()),
                   InstanceValue("Context", InitClass<nv::Context>(env, exports)),
+                  InstanceValue("CacheMachine", InitClass<nv::CacheMachine>(env, exports)),
+                  InstanceValue("ExecutionGraph", InitClass<nv::ExecutionGraph>(env, exports)),
                 });
   }
 };

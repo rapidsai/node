@@ -29,7 +29,8 @@
   },
   "dependencies": {
     "@rapidsai/cudf": "0.0.1",
-    "java": "0.12.1"
+    "java": "0.12.1",
+    "@types/java": "0.9.1"
   },
   "files": [
     "src",

@@ -50,7 +50,7 @@ if __name__ == \"__main__\":\n\
  && curl \
        -L https://github.com/nteract/nteract/releases/download/v${NTERACT_VERSION}/nteract_${NTERACT_VERSION}_amd64.deb \
        -o /tmp/nteract_${NTERACT_VERSION}_amd64.deb \
- && apt update -y \
+ && apt update --fix-missing \
  && apt install -y --no-install-recommends \
     libasound2 jupyter-notebook \
     /tmp/nteract_${NTERACT_VERSION}_amd64.deb \

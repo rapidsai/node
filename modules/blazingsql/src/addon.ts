@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// TODO: Refactor to use method Paul suggested
 import {addon as CUDA} from '@nvidia/cuda';
 import {loadNativeModule} from '@rapidsai/core';
 import {addon as CUDF} from '@rapidsai/cudf';
@@ -19,3 +20,4 @@ import {addon as RMM} from '@rapidsai/rmm';
 
 export const BLAZINGSQL =
   loadNativeModule(module, 'node_blazingsql', init => init(CUDA, RMM, CUDF));
+export default BLAZINGSQL;
