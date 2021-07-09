@@ -63,7 +63,7 @@ export class BlazingContext {
     this.tables[tableName] = input;
 
     const arr = ArrayList();
-    [dataframe.asTable()], input.names.forEach((name: string, index: number) => {
+    input.names.forEach((name: string, index: number) => {
       const dataType =
         callStaticMethodSync('com.blazingdb.calcite.catalog.domain.CatalogColumnDataType',
                              'fromTypeId',
