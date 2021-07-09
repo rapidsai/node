@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {MemoryData} from '@nvidia/cuda';
-import {MemoryResource} from '@rapidsai/rmm';
+import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 
 import CUDF from './addon';
 import {Column} from './column';
