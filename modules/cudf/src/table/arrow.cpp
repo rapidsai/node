@@ -107,6 +107,7 @@ Napi::Value Table::from_arrow(Napi::CallbackInfo const& info) {
     delete buffer_reader;
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(env, e.what())); }
 
+  delete buffer_reader;
   return output;
 }
 
