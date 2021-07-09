@@ -16,7 +16,7 @@ ARG SCCACHE_VERSION=0.2.15
 
 # Install dev dependencies and tools
 RUN export DEBIAN_FRONTEND=noninteractive \
- && apt update -y \
+ && apt update --fix-missing \
  && apt install --no-install-recommends -y gpg wget software-properties-common \
  && add-apt-repository --no-update -y ppa:git-core/ppa \
  && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
@@ -45,7 +45,8 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
 deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
 " | tee /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list >/dev/null' \
- && apt update -y \
+ \
+ && apt update --fix-missing \
  && apt install --no-install-recommends -y \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} \
     jq git entr nano sudo ninja-build bash-completion \
@@ -65,6 +66,13 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     build-essential libxmu-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # cuSpatial dependencies
     libgdal-dev \
+    # blazingSQL dependencies
+    maven openjdk-8-jdk libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
+    # UCX build dependencies
+    libtool \
+    # UCX runtime dependencies
+    libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
+ \
  # Remove any existing gcc and g++ alternatives
  && update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
  && update-alternatives --remove-all c++ >/dev/null 2>&1 || true \
@@ -97,6 +105,7 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     --slave /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-${LLDB_VERSION} \
  # Set lldb-${LLDB_VERSION} as the default lldb, llvm-config-${LLDB_VERSION} as default llvm-config
  && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION} \
+ \
  # Install sccache
  && curl -o /tmp/sccache.tar.gz \
          -L "https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl.tar.gz" \
@@ -104,9 +113,23 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  && mv "/tmp/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl/sccache" /bin/sccache \
  && chmod +x /bin/sccache \
  && cd / \
+ \
+ # Install UCX
+ && git clone --depth 1 --branch v1.9.x https://github.com/openucx/ucx.git /tmp/ucx \
+ && curl -o /tmp/cuda-alloc-rcache.patch \
+         -L https://raw.githubusercontent.com/rapidsai/ucx-split-feedstock/11ad7a3c1f25514df8064930f69c310be4fd55dc/recipe/cuda-alloc-rcache.patch \
+ && cd /tmp/ucx && git apply /tmp/cuda-alloc-rcache.patch && rm /tmp/cuda-alloc-rcache.patch \
+ && sed -i 's/io_demo_LDADD =/io_demo_LDADD = $(CUDA_LDFLAGS)/' /tmp/ucx/test/apps/iodemo/Makefile.am \
+ && /tmp/ucx/autogen.sh && mkdir /tmp/ucx/build && cd /tmp/ucx/build \
+ && ../contrib/configure-release \
+    --prefix=/usr/local \
+    --without-java --with-cuda=/usr/local/cuda \
+    --enable-mt CPPFLAGS=-I/usr/local/cuda/include \
+ && make -C /tmp/ucx/build -j install \
+ && cd / \
+ \
  # Clean up
- && apt autoremove -y \
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG NODE_VERSION
 ENV NODE_VERSION=$NODE_VERSION
@@ -170,6 +193,7 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda"
+ENV LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib:/usr/local/lib:/usr/local/cuda/lib:/usr/local/cuda/lib64"
 
 SHELL ["/bin/bash", "-c"]
 

@@ -498,7 +498,26 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `SHAP Kernel Explainer`                    |                                                |
 | `SHAP Permutation Explainer`               |                                                |
 
+## BlazingSQL
 
-
+| BlazingSQL                     | node-rapids |
+| ------------------------------ | :---------: |
+| `runGeneratePhysicalGraph`     |             |
+| `runGenerateGraph`             |             |
+| `startExecuteGraph`            |             |
+| `getExecuteGraphResult`        |             |
+| `getTableScanInfo`             |             |
+| `runSkipData`                  |             |
+| `initialize`                   |             |
+| `finalize`                     |             |
+| `getFreeMemory`                |             |
+| `resetMaxMemoryUsed`           |             |
+| `getMaxMemoryUsed`             |             |
+| `getProductDetails`            |             |
+| `runQuery_C`                   |             |
+| `getTableScanInfo_C`           |             |
+| `runSkipData_C`                |             |
+| `initialize_C`                 |             |
+| `finalize_C`                   |             |
 
 #### EOF
