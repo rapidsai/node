@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "luma.gl-lessons",
+  "name": "@rapidsai/demo-luma.gl-lessons",
   "main": "index.js",
   "version": "0.0.0",
   "license": "Apache-2.0",
@@ -8,9 +8,24 @@
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
-  "dependencies": {
-    "@nvidia/glfw": "0.0.1"
+  "bin": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "watch": "find -type f | entr -c -d -r node index.js"
   },
+  "dependencies": {
+    "@babel/core": "7.14.6",
+    "@babel/preset-env": "7.14.7",
+    "@babel/preset-react": "7.14.5",
+    "@babel/register": "7.14.5",
+    "@nvidia/glfw": "0.0.1",
+    "segfault-handler": "1.3.0"
+  },
+  "files": [
+    "lessons",
+    "index.js",
+    "package.json"
+  ],
   "esm": {
     "cjs": true,
     "force": true,

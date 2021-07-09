@@ -32,6 +32,7 @@
 #include <cudf/unary.hpp>
 
 #include <rmm/device_buffer.hpp>
+#include "cudf/reduction.hpp"
 
 #include <napi.h>
 
@@ -227,6 +228,19 @@ struct Column : public EnvLocalObjectWrap<Column> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
+   * @copydoc cudf::scan(cudf::column_view const &col, std::unique_ptr<aggregation> const &agg,
+   * cudf::scan_type inclusive, cudf::null_policy null_handling, rmm::mr::device_memory_resource*
+   * mr)
+   *
+   * @return Column
+   */
+  Column::wrapper_t scan(
+    std::unique_ptr<cudf::aggregation> const& agg,
+    cudf::scan_type inclusive,
+    cudf::null_policy null_handling     = cudf::null_policy::EXCLUDE,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
    * @copydoc cudf::sum(rmm::mr::device_memory_resource* mr)
    *
    * @return Scalar
@@ -316,6 +330,38 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Scalar::wrapper_t quantile(
     double q                            = 0.5,
     cudf::interpolation i               = cudf::interpolation::LINEAR,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Return the cumulative max
+   *
+   * @return Scalar
+   */
+  Column::wrapper_t cumulative_max(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Return the cumulative minimum
+   *
+   * @return Scalar
+   */
+  Column::wrapper_t cumulative_min(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Return the cumulative product
+   *
+   * @return Scalar
+   */
+  Column::wrapper_t cumulative_product(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Return the cumulative sum
+   *
+   * @return Scalar
+   */
+  Column::wrapper_t cumulative_sum(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/binaryop.cpp
@@ -701,6 +747,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value num_children(Napi::CallbackInfo const& info);
 
   Napi::Value gather(Napi::CallbackInfo const& info);
+  Napi::Value copy(Napi::CallbackInfo const& info);
 
   Napi::Value get_child(Napi::CallbackInfo const& info);
 
@@ -771,6 +818,10 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value variance(Napi::CallbackInfo const& info);
   Napi::Value std(Napi::CallbackInfo const& info);
   Napi::Value quantile(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_max(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_min(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_product(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_sum(Napi::CallbackInfo const& info);
 
   // column/strings/json.cpp
   Napi::Value get_json_object(Napi::CallbackInfo const& info);

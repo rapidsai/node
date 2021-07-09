@@ -29,17 +29,17 @@ if(DEFINED CPM_SOURCE_CACHE AND
   endif()
 endif()
 
-execute_process(COMMAND node -p
-                "require('@rapidsai/core').cpm_source_cache_path"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-set(CPM_SOURCE_CACHE "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
-set(ENV{CPM_SOURCE_CACHE} "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
-message(STATUS "get_cpm: Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
-
 if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+    execute_process(COMMAND node -p
+                    "require('@rapidsai/core').cpm_source_cache_path"
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    set(CPM_SOURCE_CACHE "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
+    set(ENV{CPM_SOURCE_CACHE} "${NODE_RAPIDS_CPM_SOURCE_CACHE}")
+    message(STATUS "get_cpm: Using CPM source cache: $ENV{CPM_SOURCE_CACHE}")
+
     execute_process(COMMAND node -p
                     "require('@rapidsai/core').cpm_binary_cache_path"
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -108,5 +108,38 @@ function(_fix_cmake_global_defaults target)
         if(_is_imported AND NOT _already_global)
             set_target_properties(${target} PROPERTIES IMPORTED_GLOBAL TRUE)
         endif()
+    endif()
+endfunction()
+
+function(_get_major_minor_version version out_var)
+    if(${version} MATCHES [=[([0-9]+)\.([0-9]+)\.([0-9]+)]=])
+        set(${out_var} "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}" PARENT_SCOPE)
+    else()
+        set(${out_var} "${version}" PARENT_SCOPE)
+    endif()
+endfunction()
+
+function(_get_update_disconnected_state target version out_var)
+    # We only want to set `UPDATE_DISCONNECTED` while
+    # the GIT tag hasn't moved from the last time we cloned
+    set(cpm_${target}_disconnect_update "UPDATE_DISCONNECTED TRUE")
+    set(cpm_${target}_CURRENT_VERSION ${version} CACHE STRING "version of ${target} we checked out" PARENT_SCOPE)
+    if(NOT VERSION VERSION_EQUAL cpm_${target}_CURRENT_VERSION)
+        set(cpm_${target}_CURRENT_VERSION ${version} CACHE STRING "version of ${target} we checked out" FORCE PARENT_SCOPE)
+        set(cpm_${target}_disconnect_update "")
+    endif()
+    set(${out_var} cpm_${target}_disconnect_update PARENT_SCOPE)
+endfunction()
+
+function(_fix_rapids_cmake_dir)
+    set(_BIN_DIR "${CPM_BINARY_CACHE}")
+    if(DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+        set(_BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps")
+    endif()
+    if(EXISTS "${_BIN_DIR}/rapids-cmake-src/rapids-cmake")
+        list(APPEND CMAKE_MODULE_PATH "${_BIN_DIR}/rapids-cmake-src/rapids-cmake")
+        set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
+        set(rapids-cmake-dir "${_BIN_DIR}/rapids-cmake-src/rapids-cmake" CACHE STRING "" FORCE)
+        set(rapids-cmake-dir "${rapids-cmake-dir}" PARENT_SCOPE)
     endif()
 endfunction()

@@ -173,19 +173,19 @@ describe('Column.setNullMask', () => {
   };
 
   test('recomputes nullCount (all null)',
-       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(64)); });
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(64).buffer); });
 
   test('recomputes nullCount (all valid)',
        () => { validateSetNullMask(makeTestColumn(4), 4, 0, new Uint8Buffer(8).fill(255)); });
 
   test('uses the new nullCount',
-       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(8), 4); });
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(8).buffer, 4); });
 
   test('clamps the new nullCount to length',
-       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(8), 8); });
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(8).buffer, 8); });
 
   test('resizes when mask is smaller than 64 bytes',
-       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(4)); });
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(4).buffer); });
 
   test('Passing null resets to all valid',
        () => { validateSetNullMask(makeTestColumn(4), 4, 0, null); });
@@ -208,10 +208,12 @@ describe('Column.setNullMask', () => {
     validateSetNullMask(makeTestColumn(4), 4, 4, [false, false, false, false]);
   });
 
-  test('accepts CUDA DeviceMemory',
-       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceMemory(8)); });
+  test('accepts CUDA DeviceMemory', () => {
+    validateSetNullMask(
+      makeTestColumn(4), 4, 4, new Uint8Buffer(new DeviceMemory(8)).fill(0).buffer);
+  });
 
-  test(
-    'accepts CUDA MemoryView of DeviceMemory',
-    () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(new DeviceMemory(8))); });
+  test('accepts CUDA MemoryView of DeviceMemory', () => {
+    validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(new DeviceMemory(8)).fill(0));
+  });
 });

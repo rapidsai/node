@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include <node_cugraph/cugraph/graph.hpp>
+#include <node_cugraph/cugraph/legacy/graph.hpp>
 
 #include <node_cudf/column.hpp>
 
@@ -69,13 +69,13 @@ struct GraphCOO : public EnvLocalObjectWrap<GraphCOO> {
    * @brief Conversion operator to get a non-owning view of the GraphCOO
    *
    */
-  inline operator cugraph::GraphCOOView<int32_t, int32_t, float>() { return view(); }
+  inline operator cugraph::legacy::GraphCOOView<int32_t, int32_t, float>() { return view(); }
 
   /**
    * @brief Get a non-owning view of the Graph
    *
    */
-  cugraph::GraphCOOView<int32_t, int32_t, float> view();
+  cugraph::legacy::GraphCOOView<int32_t, int32_t, float> view();
 
  private:
   Napi::Value num_edges(Napi::CallbackInfo const& info);

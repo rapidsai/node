@@ -98,6 +98,17 @@ describe('StructSeries', () => {
     const result = vec.concat(vecToConcat);
     expect([...result]).toEqual([...vec, ...vecToConcat]);
   });
+
+  test('Can copy', () => {
+    const vec = structsOfStructsOfInt32s([
+      {point: {x: 0, y: 3}},
+      {point: {x: 1, y: 4}},
+      {point: {x: 2, y: 5}},
+    ]);
+
+    const result = vec.concat();
+    expect([...result]).toEqual([...vec]);
+  });
 });
 
 type StructOfInt32   = arrow.Struct<{x: arrow.Int32, y: arrow.Int32}>;

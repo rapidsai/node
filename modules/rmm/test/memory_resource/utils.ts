@@ -91,7 +91,7 @@ export const memoryResourceTestConfigs = [
       supportsStreams: true,
       supportsGetMemInfo: false,
       createMemoryResource: () => new BinningMemoryResource(
-        new CudaMemoryResource(), Math.log2(sizes['1_MiB']), Math.log2(sizes['4_MiB'])),
+        new CudaMemoryResource(), Math.log2(sizes['1_MiB']), Math.log2(sizes['1_MiB'])),
     }
   ],
   [

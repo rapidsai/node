@@ -1,9 +1,0 @@
-max_size=0
-hash_dir=false
-# let ccache preserve C++ comments, because some of them may be meaningful to the compiler
-keep_comments_cpp=true
-base_dir=@NODE_RAPIDS_BASE_DIR@
-cache_dir=@NODE_RAPIDS_CMAKE_CCACHE_DIR@
-compiler_check=%compiler% --version
-# Uncomment to debug ccache preprocessor errors/cache misses
-# log_file=@NODE_RAPIDS_CMAKE_CCACHE_DIR@/ccache.log

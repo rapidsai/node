@@ -1,11 +1,9 @@
-import React, {Component, Fragment} from 'react';
-import {render} from 'react-dom';
-import AutoSizer from 'react-virtualized-auto-sizer';
-import {StaticMap} from 'react-map-gl';
+import React, { Component, Fragment } from 'react';
+import { StaticMap } from 'react-map-gl';
 import DeckWithMaps from './deck-with-maps';
 
-import {FlyToInterpolator} from '@deck.gl/core';
-import {JSONConverter, JSONConfiguration, _shallowEqualObjects} from '@deck.gl/json';
+import { FlyToInterpolator } from '@deck.gl/core';
+import { JSONConverter, JSONConfiguration, _shallowEqualObjects } from '@deck.gl/json';
 import JSON_CONVERTER_CONFIGURATION from './configuration';
 
 import AceEditor from 'react-ace';
@@ -38,7 +36,7 @@ export default class App extends Component {
 
     // Configure and create the JSON converter instance
     const configuration = new JSONConfiguration(JSON_CONVERTER_CONFIGURATION);
-    this.jsonConverter = new JSONConverter({configuration});
+    this.jsonConverter = new JSONConverter({ configuration });
   }
 
   componentDidMount() {
@@ -59,7 +57,7 @@ export default class App extends Component {
   _setJSON(json) {
     const jsonProps = this.jsonConverter.convert(json);
     this._updateViewState(jsonProps);
-    this.setState({jsonProps});
+    this.setState({ jsonProps });
   }
 
   // Handle `json.initialViewState`
@@ -127,35 +125,9 @@ export default class App extends Component {
   }
 
   render() {
-    const {jsonProps, initialViewState} = this.state;
+    const { jsonProps, initialViewState } = this.state;
     return (
       <Fragment>
-        {/* Left Pane: Ace Editor and Template Selector */}
-        {/* <div id="left-pane">
-          {this._renderJsonSelector()}
-
-          <div id="editor">
-            <AutoSizer>
-              {({width, height}) => (
-                <AceEditor
-                  width={`${width}px`}
-                  height={`${height}px`}
-                  mode="json"
-                  theme="github"
-                  onChange={this._onEditorChange}
-                  name="AceEditorDiv"
-                  editorProps={{$blockScrolling: true}}
-                  ref={instance => {
-                    this.ace = instance;
-                  }}
-                  value={this.state.text}
-                />
-              )}
-            </AutoSizer>
-          </div>
-        </div> */}
-
-        {/* Right Pane: DeckGL */}
         <div id="right-pane">
           <DeckWithMaps
             id="json-deck"
@@ -169,7 +141,3 @@ export default class App extends Component {
     );
   }
 }
-
-// export function renderToDOM(container) {
-//   render(<App />, container);
-// }

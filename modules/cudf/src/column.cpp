@@ -41,6 +41,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::set_null_count>("setNullCount"),
                        // column/copying.cpp
                        InstanceMethod<&Column::gather>("gather"),
+                       InstanceMethod<&Column::copy>("copy"),
                        // column/filling.cpp
                        InstanceMethod<&Column::fill>("fill"),
                        InstanceMethod<&Column::fill_in_place>("fillInPlace"),
@@ -97,6 +98,10 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::variance>("var"),
                        InstanceMethod<&Column::std>("std"),
                        InstanceMethod<&Column::quantile>("quantile"),
+                       InstanceMethod<&Column::cumulative_max>("cumulativeMax"),
+                       InstanceMethod<&Column::cumulative_min>("cumulativeMin"),
+                       InstanceMethod<&Column::cumulative_product>("cumulativeProduct"),
+                       InstanceMethod<&Column::cumulative_sum>("cumulativeSum"),
                        // column/strings/json.cpp
                        InstanceMethod<&Column::get_json_object>("getJSONObject"),
                        // column/replacement.cpp
@@ -303,7 +308,7 @@ cudf::column_view Column::view() const {
     child_views.emplace_back(*Column::Unwrap(child));
   }
 
-  return cudf::column_view{type, size_, *data, *mask, null_count_, offset_, child_views};
+  return cudf::column_view(type, size_, *data, *mask, null_count_, offset_, child_views);
 }
 
 cudf::mutable_column_view Column::mutable_view() {

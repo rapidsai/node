@@ -18,48 +18,44 @@
     "compile:debug": "yarn tsc:build && yarn cpp:compile:debug",
     "rebuild": "yarn tsc:build && yarn cpp:rebuild",
     "rebuild:debug": "yarn tsc:build && yarn cpp:rebuild:debug",
-    "cpp:build": "nvidia-cmake-js -g build",
+    "cpp:build": "nvidia-cmake-js -g build && yarn dev:copy:libs",
     "cpp:build:debug": "nvidia-cmake-js -g build -D",
-    "cpp:compile": "nvidia-cmake-js -g compile",
+    "cpp:compile": "nvidia-cmake-js -g compile && yarn dev:copy:libs",
     "cpp:compile:debug": "nvidia-cmake-js -g compile -D",
-    "cpp:rebuild": "nvidia-cmake-js -g rebuild",
+    "cpp:rebuild": "nvidia-cmake-js -g rebuild && yarn dev:copy:libs",
     "cpp:rebuild:debug": "nvidia-cmake-js -g rebuild -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
-    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
+    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
+    "dev:copy:libs": "nvidia-cmake-copy-libs build/Release/node_glfw.node build/Release/lib/libglew.so && rimraf build/Release/libglfw.so.3 && shx mv build/Release/libglfw.so.3.3 build/Release/libglfw.so.3"
   },
   "dependencies": {
-    "@rapidsai/core": "0.0.1",
     "@nvidia/webgl": "0.0.1",
-    "@types/jsdom": "^12.2.4",
-    "@types/react": "^16.0.0",
-    "builtins": "^3.0.1",
-    "canvas": "^2.6.1",
-    "cross-fetch": "^3.0.4",
-    "fetch-readablestream": "^0.2.0",
-    "jsdom": "^16.2.2",
-    "jsdom-global": "^3.0.2",
-    "lasso-resolve-from": "^1.2.0",
+    "@rapidsai/core": "0.0.1",
+    "@types/jsdom": "16.2.12",
+    "builtins": "3.0.1",
+    "canvas": "2.8.0",
+    "cross-fetch": "3.1.4",
+    "fetch-readablestream": "0.2.0",
+    "hammerjs": "2.0.8",
+    "jsdom-global": "3.0.2",
+    "jsdom": "16.6.0",
+    "lasso-resolve-from": "1.2.0",
     "message-port-polyfill": "0.2.0",
+    "mjolnir.js": "2.5.2",
+    "react": "16.14.0",
+    "react-dom": "16.14.0",
+    "rxjs": "6.6.7",
     "usertiming": "0.1.8",
-    "rxjs": "^6.5.4",
-    "web-streams-polyfill": "^2.0.3"
-  },
-  "devDependencies": {
-    "@tensorflow/tfjs": "2.8.6"
-  },
-  "peerDependencies": {
-    "hammerjs": "^2.0.8",
-    "mjolnir.js": "^2.1.2",
-    "react": ">=16.0",
-    "react-dom": ">=16.0"
+    "web-streams-polyfill": "2.1.1"
   },
   "files": [
-    "src",
-    "build",
     "LICENSE",
-    "index.js",
     "README.md",
+    "index.js",
     "package.json",
-    "CMakeLists.txt"
+    "CMakeLists.txt",
+    "build/js",
+    "build/Release/*.so*",
+    "build/Release/*.node"
   ]
 }

@@ -1,6 +1,12 @@
-# Bindings
+# RAPIDS Bindings
 
-The tables below show the bindings that have been implemented in `node-rapids`.
+The tables below show the bindings that have been implemented in `node-rapids`:
+
+- [cuDF](#cuDF)
+- [cuGraph](#cuGraph)
+- [cuSpatial](#cuSpatial)
+- [cuML](#cuML)
+
 
 ## cuDF
 
@@ -25,15 +31,15 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `atan`               |          ✅           |
 | `ceil`               |          ✅           |
 | `clip`               |                       |
-| `copy`               |                       |
+| `copy`               |          ✅           |
 | `corr`               |                       |
 | `cos`                |          ✅           |
 | `count`              | ✅ (`countNonNulls`)  |
 | `cov`                |                       |
-| `cummax`             |                       |
-| `cummin`             |                       |
-| `cumprod`            |                       |
-| `cumsum`             |                       |
+| `cummax`             | ✅ (`cumulativeMax`)  |
+| `cummin`             | ✅ (`cumulativeMin`)  |
+| `cumprod`            | ✅ (`cumulativeProduct`) |
+| `cumsum`             | ✅ (`cumulativeSum`)  |
 | `describe`           |                       |
 | `diff`               |                       |
 | `digitize`           |                       |
@@ -46,7 +52,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `fillna`             |  ✅ (`replaceNulls`)  |
 | `floor`              |          ✅           |
 | `floordiv`           |          ✅           |
-| `from_arrow`         |                       |
+| `from_arrow`         |          ✅           |
 | `from_categorical`   |                       |
 | `from_masked_array`  |                       |
 | `from_pandas`        |                       |
@@ -79,10 +85,10 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `mul`                |          ✅           |
 | `nans_to_nulls`      |  ✅ (`nansToNulls`)   |
 | `ne`                 |          ✅           |
-| `nlargest`           |                       |
+| `nlargest`           |    ✅ (`nLargest`)    |
 | `notna`              |   ✅ (`isNotNull`)    |
 | `notnull`            |   ✅ (`isNotNull`)    |
-| `nsmallest`          |                       |
+| `nsmallest`          |   ✅ (`nSmallest`)    |
 | `nunique`            |          ✅           |
 | `one_hot_encoding`   |                       |
 | `pipe`               |                       |
@@ -155,7 +161,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `as_mask`            |                       |                       |                       |
 | `astype`             |      ✅ (`cast`)      |      ✅ (`cast`)      |      ✅ (`cast`)      |
 | `clip`               |                       |                       |                       |
-| `copy`               |                       |                       |                       |
+| `copy`               |          ✅           |          ✅           |          ✅           |
 | `count`              | ✅ (`countNonNulls`)  | ✅ (`countNonNulls`)  | ✅ (`countNonNulls`)  |
 | `describe`           |                       |                       |                       |
 | `diff`               |                       |                       |                       |
@@ -178,8 +184,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `isna`               |     ✅ (`isNull`)     |     ✅ (`isNull`)     |     ✅ (`isNull`)     |
 | `isnull`             |          ✅           |          ✅           |          ✅           |
 | `keys`               |                       |                       |                       |
-| `kurt`               |                       |                       |                       |
-| `kurtosis`           |                       |                       |                       |
+| `kurt`               |    ✅ (`kurtosis`)    |    ✅ (`kurtosis`)    |    ✅ (`kurtosis`)    |
+| `kurtosis`           |          ✅           |          ✅           |          ✅           |
 | `label_encoding`     |                       |                       |                       |
 | `map`                |                       |                       |                       |
 | `mask`               |                       |                       |                       |
@@ -205,7 +211,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `set_index`          |                       |                       |                       |
 | `set_mask`           |                       |                       |                       |
 | `shift`              |                       |                       |                       |
-| `skew`               |                       |                       |                       |
+| `skew`               |          ✅           |          ✅           |          ✅           |
 | `sort_index`         |                       |                       |                       |
 | `sort_values`        |   ✅ (`sortValues`)   |   ✅ (`sortValues`)   |   ✅ (`sortValues`)   |
 | `tail`               |          ✅           |          ✅           |          ✅           |
@@ -278,8 +284,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `iteritems`          |                       |
 | `join`               |                       |
 | `keys`               |                       |
-| `kurt`               |                       |
-| `kurtosis`           |                       |
+| `kurt`               |    ✅ (`kurtosis`)    |
+| `kurtosis`           |          ✅           |
 | `label_encoding`     |                       |
 | `log`                |          ✅           |
 | `mask`               |                       |
@@ -330,7 +336,7 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `set_index`          |                       |
 | `shift`              |                       |
 | `sin`                |          ✅           |
-| `skew`               |                       |
+| `skew`               |          ✅           |
 | `sort_index`         |                       |
 | `sort_values`        |   ✅ (`sortValues`)   |
 | `sqrt`               |          ✅           |
@@ -372,6 +378,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `pipe`          |             |
 | `rolling`       |             |
 | `size`          |             |
+
+
 
 ## cuGraph
 
@@ -418,6 +426,8 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `view_edge_list`             |                 |
 | `view_transposed_adj_list`   |                 |
 
+
+
 ## cuSpatial
 
 | cuSpatial                            |                  node-rapids                   |
@@ -437,3 +447,77 @@ The tables below show the bindings that have been implemented in `node-rapids`.
 | `trajectory_bounding_boxes`          |                                                |
 | `trajectory_distances_and_speeds`    |                                                |
 | `read_polygon_shapefile`             |                                                |
+
+
+## cuML
+
+#### Clustering
+| cuML                                 |                  node-rapids                   |
+| ------------------------------------ | :--------------------------------------------: |
+| `AC`                                 |                                                |
+| `DBSCAN`                             |                                                |
+| `K-Means`                            |                                                |
+
+
+#### Dimensionality Reduction and Manifold Learning
+| cuML                                 |                  node-rapids                   |
+| ------------------------------------ | :--------------------------------------------: |
+| `K-Means`                            |                                                |
+| `PCA`                                |                                                |
+| `Random Projection`                  |                                                |
+| `tSVD`                               |                                                |
+| `TSNE`                               |                                                |
+| `UMAP`                               |                                                |
+
+
+#### Linear / Nonlinear Models for Regression or Classification
+| cuML                                 |                  node-rapids                   |
+| ------------------------------------ | :--------------------------------------------: |
+| `ElasticNet Regression`              |                                                |
+| `KNN`                                |                                                |
+| `LARS Regression`                    |                                                |
+| `Linear Regression (OLS)`            |                                                |
+| `Linear Regression Lasso`            |                                                |
+| `Linear Regression Ridge`            |                                                |
+| `Logistic Regression`                |                                                |
+| `Naive Bayes`                        |                                                |
+| `SGD`                                |                                                |
+| `CD`                                 |                                                |
+| `QN`                                 |                                                |
+| `Random Forest`                      |                                                |
+| `SVC`                                |                                                |
+| `SVR`                                |                                                |
+
+
+#### Misc
+| cuML                                       |                  node-rapids                   |
+| ------------------------------------------ | :--------------------------------------------: |
+| `Preprocessing Misc`                       |                                                |
+| `Holt-Winters Exponential Smoothing`       |                                                |
+| `Auto-regressive Integrated Moving Average`|                                                |
+| `SHAP Kernel Explainer`                    |                                                |
+| `SHAP Permutation Explainer`               |                                                |
+
+## BlazingSQL
+
+| BlazingSQL                     | node-rapids |
+| ------------------------------ | :---------: |
+| `runGeneratePhysicalGraph`     |             |
+| `runGenerateGraph`             |             |
+| `startExecuteGraph`            |             |
+| `getExecuteGraphResult`        |             |
+| `getTableScanInfo`             |             |
+| `runSkipData`                  |             |
+| `initialize`                   |             |
+| `finalize`                     |             |
+| `getFreeMemory`                |             |
+| `resetMaxMemoryUsed`           |             |
+| `getMaxMemoryUsed`             |             |
+| `getProductDetails`            |             |
+| `runQuery_C`                   |             |
+| `getTableScanInfo_C`           |             |
+| `runSkipData_C`                |             |
+| `initialize_C`                 |             |
+| `finalize_C`                   |             |
+
+#### EOF

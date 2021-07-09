@@ -27,30 +27,31 @@ function(find_and_configure_cudf VERSION)
     _set_package_dir_if_exists(jitify jitify)
     _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(libcudacxx libcudacxx)
+    _set_package_dir_if_exists(Arrow arrow)
+    _set_package_dir_if_exists(ArrowCUDA arrow)
+    _set_package_dir_if_exists(arrow_shared arrow)
     _set_package_dir_if_exists(arrow_static arrow)
+    _set_package_dir_if_exists(arrow_cuda_shared arrow)
     _set_package_dir_if_exists(arrow_cuda_static arrow)
 
     if(NOT TARGET cudf::cudf)
-        if(${VERSION} MATCHES [=[([0-9]+)\.([0-9]+)\.([0-9]+)]=])
-            set(MAJOR_AND_MINOR "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
-        else()
-            set(MAJOR_AND_MINOR "${VERSION}")
-        endif()
+        _fix_rapids_cmake_dir()
+        _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
+        _get_update_disconnected_state(cudf ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cudf
             VERSION             ${VERSION}
             GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
             GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
-            UPDATE_DISCONNECTED FALSE
+            ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
                                 "JITIFY_USE_CACHE ON"
-                                "CUDA_STATIC_RUNTIME ON"
                                 "CUDF_ENABLE_ARROW_S3 OFF"
-                                "CUDF_USE_ARROW_STATIC ON"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
+        _fix_rapids_cmake_dir()
     endif()
 
     # Make sure consumers of our libs can see cudf::cudf

@@ -20,7 +20,7 @@ export const modules_path = Path.resolve(__dirname, '..', '..', '..');
 
 export const project_root_dir_path = Path.resolve(modules_path, '..');
 
-export const ccache_path = Path.resolve(modules_path, '.cache', 'ccache');
+export const sccache_path = Path.resolve(modules_path, '.cache', 'sccache');
 
 export const cpm_source_cache_path = Path.resolve(modules_path, '.cache', 'cpm');
 

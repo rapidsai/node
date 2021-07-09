@@ -10,31 +10,43 @@ ARG LLDB_VERSION=12
 ARG CLANGD_VERSION=12
 ARG CLANG_FORMAT_VERSION=12
 
+ARG PARALLEL_LEVEL=4
+ARG CMAKE_VERSION=3.20.2
+ARG SCCACHE_VERSION=0.2.15
+
 # Install dev dependencies and tools
 RUN export DEBIAN_FRONTEND=noninteractive \
- && apt update -y \
- && apt install --no-install-recommends -y wget software-properties-common \
+ && apt update --fix-missing \
+ && apt install --no-install-recommends -y gpg wget software-properties-common \
  && add-apt-repository --no-update -y ppa:git-core/ppa \
  && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
+ # Install kitware CMake apt sources
+ && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
+  | gpg --dearmor - \
+  | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
+ && bash -c 'echo -e "\
+deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main\n\
+" | tee /etc/apt/sources.list.d/kitware.list >/dev/null' \
  # Install LLVM apt sources
  && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
  && bash -c 'echo -e "\
 deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main\n\
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main\n\
-"' > /etc/apt/sources.list.d/llvm-dev.list \
+" | tee /etc/apt/sources.list.d/llvm-dev.list >/dev/null' \
  && bash -c 'echo -e "\
 deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
-"' > /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list \
+" | tee /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list >/dev/null' \
  && bash -c 'echo -e "\
 deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANGD_VERSION} main\n\
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANGD_VERSION} main\n\
-"' > /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list \
+" | tee /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list >/dev/null' \
  && bash -c 'echo -e "\
 deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
-"' > /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list \
- && apt update -y \
+" | tee /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list >/dev/null' \
+ \
+ && apt update --fix-missing \
  && apt install --no-install-recommends -y \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} \
     jq git entr nano sudo ninja-build bash-completion \
@@ -42,10 +54,10 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     libtinfo5 libncursesw5 \
     # Install gdb, lldb (for llnode), and clangd for C++ intellisense and debugging in the container
     gdb lldb-${LLDB_VERSION} clangd-${CLANGD_VERSION} clang-format-${CLANG_FORMAT_VERSION} \
-    # ccache dependencies
-    unzip automake autoconf libb2-dev libzstd-dev \
-    # CMake dependencies
+    # CMake
     curl libssl-dev libcurl4-openssl-dev zlib1g-dev \
+    cmake=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
+    cmake-data=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
     # X11 dependencies
     libxrandr-dev libxinerama-dev libxcursor-dev \
     # node-canvas dependencies
@@ -54,8 +66,13 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     build-essential libxmu-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # cuSpatial dependencies
     libgdal-dev \
- && apt autoremove -y \
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    # blazingSQL dependencies
+    maven openjdk-8-jdk libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
+    # UCX build dependencies
+    libtool \
+    # UCX runtime dependencies
+    libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
+ \
  # Remove any existing gcc and g++ alternatives
  && update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
  && update-alternatives --remove-all c++ >/dev/null 2>&1 || true \
@@ -87,36 +104,32 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     --install /usr/bin/lldb lldb /usr/bin/lldb-${LLDB_VERSION} 100 \
     --slave /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-${LLDB_VERSION} \
  # Set lldb-${LLDB_VERSION} as the default lldb, llvm-config-${LLDB_VERSION} as default llvm-config
- && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION}
-
-ARG PARALLEL_LEVEL=4
-ARG CMAKE_VERSION=3.20.2
-
-# Install CMake
-RUN cd /tmp \
- && curl -fsSLO --compressed "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
- && tar -xvzf /tmp/cmake-$CMAKE_VERSION.tar.gz && cd /tmp/cmake-$CMAKE_VERSION \
- && /tmp/cmake-$CMAKE_VERSION/bootstrap \
-    --system-curl \
-    --parallel=$PARALLEL_LEVEL \
- && make install -j$PARALLEL_LEVEL \
- && cd /tmp && rm -rf /tmp/cmake-$CMAKE_VERSION*
-
-ARG CCACHE_VERSION=4.1
-
- # Install ccache
-RUN cd /tmp \
- && curl -fsSLO --compressed https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz -o /tmp/ccache-$CCACHE_VERSION.tar.gz \
- && tar -xvzf /tmp/ccache-$CCACHE_VERSION.tar.gz && cd /tmp/ccache-$CCACHE_VERSION \
- && mkdir -p /tmp/ccache-$CCACHE_VERSION/build \
- && cd /tmp/ccache-$CCACHE_VERSION/build \
- && cmake \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DZSTD_FROM_INTERNET=ON \
-    -DENABLE_TESTING=OFF \
-    /tmp/ccache-$CCACHE_VERSION \
- && make install -j$PARALLEL_LEVEL \
- && cd /tmp && rm -rf /tmp/ccache-$CCACHE_VERSION*
+ && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION} \
+ \
+ # Install sccache
+ && curl -o /tmp/sccache.tar.gz \
+         -L "https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl.tar.gz" \
+ && tar -C /tmp -xvf /tmp/sccache.tar.gz \
+ && mv "/tmp/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl/sccache" /bin/sccache \
+ && chmod +x /bin/sccache \
+ && cd / \
+ \
+ # Install UCX
+ && git clone --depth 1 --branch v1.9.x https://github.com/openucx/ucx.git /tmp/ucx \
+ && curl -o /tmp/cuda-alloc-rcache.patch \
+         -L https://raw.githubusercontent.com/rapidsai/ucx-split-feedstock/11ad7a3c1f25514df8064930f69c310be4fd55dc/recipe/cuda-alloc-rcache.patch \
+ && cd /tmp/ucx && git apply /tmp/cuda-alloc-rcache.patch && rm /tmp/cuda-alloc-rcache.patch \
+ && sed -i 's/io_demo_LDADD =/io_demo_LDADD = $(CUDA_LDFLAGS)/' /tmp/ucx/test/apps/iodemo/Makefile.am \
+ && /tmp/ucx/autogen.sh && mkdir /tmp/ucx/build && cd /tmp/ucx/build \
+ && ../contrib/configure-release \
+    --prefix=/usr/local \
+    --without-java --with-cuda=/usr/local/cuda \
+    --enable-mt CPPFLAGS=-I/usr/local/cuda/include \
+ && make -C /tmp/ucx/build -j install \
+ && cd / \
+ \
+ # Clean up
+ && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG NODE_VERSION
 ENV NODE_VERSION=$NODE_VERSION
@@ -158,16 +171,14 @@ RUN useradd --uid $UID --user-group ${ADDITIONAL_GROUPS} --shell /bin/bash --cre
 export HISTSIZE=-1;\n\
 export HISTFILESIZE=-1;\n\
 export HISTCONTROL=ignoreboth;\n\
-# flush commands to .bash_history immediately\n\
-export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 # Change the file location because certain bash sessions truncate .bash_history file upon close.\n\
 # http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login\n\
-if [ -n \"\${DOCKER_WORKDIR}\" ]; then\n\
-    export HISTFILE=\"\${DOCKER_WORKDIR}/modules/.cache/.eternal_bash_history\";\n\
-fi\n\
+export HISTFILE=/opt/node-rapids/modules/.cache/.eternal_bash_history;\n\
+mkdir -p \$(dirname \$HISTFILE);\n\
+touch \$HISTFILE;\n\
+# flush commands to .bash_history immediately\n\
+export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 "' >> /home/node/.bashrc \
- # Modify the entrypoint script to export the entrypoint as a DOCKER_WORKDIR env var
- && sed -ri 's/exec "\$@"/export DOCKER_WORKDIR="\$(pwd)";\nexec "\$@"/g' /usr/local/bin/docker-entrypoint.sh \
  && mkdir -p /etc/bash_completion.d \
  # add npm completions
  && npm completion > /etc/bash_completion.d/npm \
@@ -182,6 +193,7 @@ fi\n\
 
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda"
+ENV LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib:/usr/local/lib:/usr/local/cuda/lib:/usr/local/cuda/lib64"
 
 SHELL ["/bin/bash", "-c"]
 

@@ -25,27 +25,22 @@ function(find_and_configure_cuspatial VERSION)
     _set_package_dir_if_exists(cuspatial cuspatial)
 
     if(NOT TARGET cuspatial::cuspatial)
-
-        if(${VERSION} MATCHES [=[([0-9]+)\.([0-9]+)\.([0-9]+)]=])
-            set(MAJOR_AND_MINOR "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
-        else()
-            set(MAJOR_AND_MINOR "${VERSION}")
-        endif()
-
+        _fix_rapids_cmake_dir()
+        _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
+        _get_update_disconnected_state(cuspatial ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cuspatial
             VERSION             ${VERSION}
             GIT_REPOSITORY      https://github.com/rapidsai/cuspatial.git
             GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
-            UPDATE_DISCONNECTED FALSE
+            ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
                                 "JITIFY_USE_CACHE ON"
-                                "CUDA_STATIC_RUNTIME ON"
-                                "CUDF_USE_ARROW_STATIC ON"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
+        _fix_rapids_cmake_dir()
     endif()
 
     # Make sure consumers of our libs can see cuspatial::cuspatial
