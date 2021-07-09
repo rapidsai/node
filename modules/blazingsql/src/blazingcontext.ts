@@ -113,7 +113,6 @@ export class BlazingContext {
     this.context.sql(masterIndex,
                      ['self'],
                      [dataframe],
-                     [dataframe.asTable()],
                      tableNames,
                      tableScans,
                      ctxToken,
