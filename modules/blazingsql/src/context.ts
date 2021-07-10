@@ -1,4 +1,4 @@
-import {DataFrame} from '@rapidsai/cudf';
+import {DataFrame, Table} from '@rapidsai/cudf';
 
 import {BLAZINGSQL} from './addon';
 
@@ -64,7 +64,7 @@ export interface Context {
       query: string,
       configOptions: Record<string, unknown>,
       sql: string,
-      currentTimestamp: string): void;
+      currentTimestamp: string): {names: string[], tables: Table[]};
 
   getTableScanInfo(logicalPlan: string): [string[], string[]];
 }

@@ -102,12 +102,13 @@ Napi::Value Context::sql(Napi::CallbackInfo const& info) {
   std::string current_timestamp        = args[9];
 
   std::vector<TableSchema> table_schemas;
-
   std::vector<std::vector<std::string>> table_schema_cpp_arg_keys;
   std::vector<std::vector<std::string>> table_schema_cpp_arg_values;
   std::vector<std::vector<std::string>> files_all;
   std::vector<int> file_types;
   std::vector<std::vector<std::map<std::string, std::string>>> uri_values;
+
+  auto cudf_tables = Napi::Array::New(env, data_frames.Length());
 
   table_schemas.reserve(data_frames.Length());
   table_schema_cpp_arg_keys.reserve(data_frames.Length());
@@ -122,15 +123,29 @@ Napi::Value Context::sql(Napi::CallbackInfo const& info) {
     Napi::Function asTable         = df.Get("asTable");
     Table::wrapper_t table         = asTable.Call(df.val, {}).ToObject();
 
+    cudf_tables.Set(i, table);
+
     std::vector<cudf::type_id> type_ids;
     for (auto const& col : table->view()) { type_ids.push_back(col.type().id()); }
 
-    table_schemas.push_back({{{table->view(), names}}, type_ids});
+    table_schemas.push_back({
+      {{table->view(), names}},  // std::vector<ral::frame::BlazingTableView> blazingTableViews
+      type_ids,                  // std::vector<cudf::type_id> types
+      {},                        // std::vector<std::string> files
+      {},                        // std::vector<std::string> datasource
+      {table_names[i]},          // std::vector<std::string> names
+      {},                        // std::vector<size_t> calcite_to_file_indices
+      {},                        // std::vector<bool> in_file
+      ral::io::DataType::CUDF,   // int data_type
+      false,                     // bool has_header_csv = false
+      {cudf::table_view{}, {}},  // ral::frame::BlazingTableView metadata
+      {{0}},                     // std::vector<std::vector<int>> row_groups_ids
+      nullptr                    // std::shared_ptr<arrow::Table> arrow_tabl
+    });
     table_schema_cpp_arg_keys.push_back({});
     table_schema_cpp_arg_values.push_back({});
     files_all.push_back({});
-    // pyblazing/pyblazing/apiv2/__init__.py#L12
-    file_types.push_back(/*DataType.CUDF*/ 4);
+    file_types.push_back(ral::io::DataType::CUDF);
     uri_values.push_back({});
   }
 
@@ -166,21 +181,23 @@ Napi::Value Context::sql(Napi::CallbackInfo const& info) {
 
   ::startExecuteGraph(runGenerateGraphResult, ctx_token);
 
-  auto executeGraphResult = ::getExecuteGraphResult(runGenerateGraphResult, ctx_token);
+  auto bsql_result  = std::move(::getExecuteGraphResult(runGenerateGraphResult, ctx_token));
+  auto& bsql_names  = bsql_result->names;
+  auto& bsql_tables = bsql_result->cudfTables;
 
-  auto names       = Napi::Array::New(env, executeGraphResult->names.size());
-  auto names_index = 0u;
-  for (auto& name : executeGraphResult->names) { names.Set(names_index++, name); }
+  auto result_names = Napi::Array::New(env, bsql_names.size());
+  for (size_t i = 0; i < bsql_names.size(); ++i) {
+    result_names.Set(i, Napi::String::New(env, bsql_names[i]));
+  }
 
-  auto tables      = Napi::Array::New(env, executeGraphResult->cudfTables.size());
-  auto table_index = 0u;
-  for (auto& table : executeGraphResult->cudfTables) {
-    tables.Set(table_index++, Table::New(env, std::move(table)));
+  auto result_tables = Napi::Array::New(env, bsql_tables.size());
+  for (size_t i = 0; i < bsql_tables.size(); ++i) {
+    result_tables.Set(i, Table::New(env, std::move(bsql_tables[i])));
   }
 
   auto result = Napi::Object::New(env);
-  result.Set("names", names);
-  result.Set("tables", tables);
+  result.Set("names", result_names);
+  result.Set("tables", result_tables);
   return result;
 }
 
