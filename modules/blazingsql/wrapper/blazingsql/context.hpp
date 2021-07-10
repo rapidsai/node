@@ -61,7 +61,7 @@ struct Context : public EnvLocalObjectWrap<Context> {
   Napi::Reference<Wrapper<CacheMachine>> _transport_in;
 
   Napi::Value port(Napi::CallbackInfo const& info);
-  void sql(Napi::CallbackInfo const& info);
+  Napi::Value sql(Napi::CallbackInfo const& info);
   Napi::Value get_table_scan_info(Napi::CallbackInfo const& info);
 };
 

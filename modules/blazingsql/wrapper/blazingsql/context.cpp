@@ -87,7 +87,8 @@ Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(i
 }
 
 // TODO: These could be moved into their own methods, for now let's just chain call them.
-void Context::sql(Napi::CallbackInfo const& info) {
+Napi::Value Context::sql(Napi::CallbackInfo const& info) {
+  auto env = info.Env();
   CallbackArgs args{info};
 
   uint32_t masterIndex                 = args[0];
@@ -100,8 +101,20 @@ void Context::sql(Napi::CallbackInfo const& info) {
   std::string sql                      = args[8];
   std::string current_timestamp        = args[9];
 
-  std::vector<TableSchema> schemas;
-  schemas.reserve(data_frames.Length());
+  std::vector<TableSchema> table_schemas;
+
+  std::vector<std::vector<std::string>> table_schema_cpp_arg_keys;
+  std::vector<std::vector<std::string>> table_schema_cpp_arg_values;
+  std::vector<std::vector<std::string>> files_all;
+  std::vector<int> file_types;
+  std::vector<std::vector<std::map<std::string, std::string>>> uri_values;
+
+  table_schemas.reserve(data_frames.Length());
+  table_schema_cpp_arg_keys.reserve(data_frames.Length());
+  table_schema_cpp_arg_values.reserve(data_frames.Length());
+  files_all.reserve(data_frames.Length());
+  file_types.reserve(data_frames.Length());
+  uri_values.reserve(data_frames.Length());
 
   for (std::size_t i = 0; i < data_frames.Length(); ++i) {
     NapiToCPP::Object df           = data_frames.Get(i);
@@ -112,7 +125,13 @@ void Context::sql(Napi::CallbackInfo const& info) {
     std::vector<cudf::type_id> type_ids;
     for (auto const& col : table->view()) { type_ids.push_back(col.type().id()); }
 
-    schemas.push_back({{{table->view(), names}}, type_ids});
+    table_schemas.push_back({{{table->view(), names}}, type_ids});
+    table_schema_cpp_arg_keys.push_back({});
+    table_schema_cpp_arg_values.push_back({});
+    files_all.push_back({});
+    // pyblazing/pyblazing/apiv2/__init__.py#L12
+    file_types.push_back(/*DataType.CUDF*/ 4);
+    uri_values.push_back({});
   }
 
   auto config_options = [&] {
@@ -129,23 +148,40 @@ void Context::sql(Napi::CallbackInfo const& info) {
     return config;
   }();
 
-  // auto result = ::runGenerateGraph(masterIndex,
-  //                                  worker_ids,
-  //                                  table_names,
-  //                                  table_scans,
-  //                                  {},
-  //                                  {},
-  //                                  {},
-  //                                  {},
-  //                                  {},
-  //                                  ctx_token,
-  //                                  query,
-  //                                  {},
-  //                                  config_options,
-  //                                  sql,
-  //                                  current_timestamp);
-  // // ::startExecuteGraph(result, ctx_token);
-  // // auto finalResult = ::getExecuteGraphResult(result, ctxToken);
+  auto runGenerateGraphResult = ::runGenerateGraph(masterIndex,
+                                                   worker_ids,
+                                                   table_names,
+                                                   table_scans,
+                                                   table_schemas,
+                                                   table_schema_cpp_arg_keys,
+                                                   table_schema_cpp_arg_values,
+                                                   files_all,
+                                                   file_types,
+                                                   ctx_token,
+                                                   query,
+                                                   uri_values,
+                                                   config_options,
+                                                   sql,
+                                                   current_timestamp);
+
+  ::startExecuteGraph(runGenerateGraphResult, ctx_token);
+
+  auto executeGraphResult = ::getExecuteGraphResult(runGenerateGraphResult, ctx_token);
+
+  auto names       = Napi::Array::New(env, executeGraphResult->names.size());
+  auto names_index = 0u;
+  for (auto& name : executeGraphResult->names) { names.Set(names_index++, name); }
+
+  auto tables      = Napi::Array::New(env, executeGraphResult->cudfTables.size());
+  auto table_index = 0u;
+  for (auto& table : executeGraphResult->cudfTables) {
+    tables.Set(table_index++, Table::New(env, std::move(table)));
+  }
+
+  auto result = Napi::Object::New(env);
+  result.Set("names", names);
+  result.Set("tables", tables);
+  return result;
 }
 
 Napi::Value Context::get_table_scan_info(Napi::CallbackInfo const& info) {
