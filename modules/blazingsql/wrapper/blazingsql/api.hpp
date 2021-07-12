@@ -14,31 +14,52 @@
 
 #pragma once
 
-// #include "cachemachine.hpp"
+#include "../src/context.hpp"
+#include "graph.hpp"
 
-// #include <engine/initialize.h>
+#include <map>
 
-// namespace nv {
-// namespace blazingsql {
+struct NodeMetaDataUCP;
+struct TableSchema;
 
-// // in engine/initialize.h
-// std::tuple<CacheMachine::wrapper_t, CacheMachine::wrapper_t, int32_t> initialize(
-//   uint16_t ralId,
-//   std::string worker_id,
-//   std::string network_iface_name,
-//   int ralCommunicationPort,
-//   std::vector<NodeMetaDataUCP> workers_ucp_info,
-//   bool singleNode,
-//   std::map<std::string, std::string> config_options,
-//   std::string allocation_mode,
-//   std::size_t initial_pool_size,
-//   std::size_t maximum_pool_size,
-//   bool enable_logging);
+namespace nv {
 
-// // in engine/engine.h
-// void runGenerateGraph();
-// void startExecuteGraph();
-// void getExecuteGraphResult();
+Context::wrapper_t initialize(
+  Napi::Env const& env,
+  uint16_t ral_id,
+  std::string worker_id,
+  std::string network_iface_name,
+  int ral_communication_port,
+  std::vector<NodeMetaDataUCP>
+    workers_ucp_info,  // this Array has Objects that describe NodeMetaDataUCP fields
+  bool single_node,
+  std::map<std::string, std::string> config_options,
+  std::string allocation_mode,
+  std::size_t initial_pool_size,
+  std::size_t maximum_pool_size,
+  bool enable_logging);
 
-// }  // namespace blazingsql
-// }  // namespace nv
+ExecutionGraph::wrapper_t run_generate_graph(
+  Napi::Env const& env,
+  uint32_t master_index,
+  std::vector<std::string> worker_ids,
+  std::vector<std::string> table_names,
+  std::vector<std::string> table_scans,
+  std::vector<TableSchema> table_schemas,
+  std::vector<std::vector<std::string>> table_schema_keys,
+  std::vector<std::vector<std::string>> table_schema_values,
+  std::vector<std::vector<std::string>> files_all,
+  std::vector<int> file_types,
+  int32_t ctx_token,
+  std::string query,
+  std::vector<std::vector<std::map<std::string, std::string>>> uri_values,
+  std::map<std::string, std::string> config_options,
+  std::string sql,
+  std::string current_timestamp);
+
+void start_execute_graph(ExecutionGraph::wrapper_t graph, int32_t ctx_token);
+ExecutionGraph::wrapper_t get_execute_graph_result(Napi::Env const& env,
+                                                   ExecutionGraph::wrapper_t graph,
+                                                   int32_t ctx_token);
+
+}  // namespace nv

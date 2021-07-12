@@ -14,18 +14,9 @@
 
 #pragma once
 
-#include "graph.hpp"
-
 #include <nv_node/objectwrap.hpp>
 
-#include <napi.h>
-#include <map>
-
-struct TableSchema;
-
 namespace nv {
-
-struct CacheMachine;
 
 struct Context : public EnvLocalObjectWrap<Context> {
   /**
@@ -49,20 +40,8 @@ struct Context : public EnvLocalObjectWrap<Context> {
    */
   Context(Napi::CallbackInfo const& info);
 
-  /**
-   * @brief Returns the port the context is operating on
-   */
-  // TODO: Remove this export.
-  int32_t port() const noexcept { return _port; }
-
  private:
-  int32_t _port{};
-  Napi::Reference<Wrapper<CacheMachine>> _transport_out;
-  Napi::Reference<Wrapper<CacheMachine>> _transport_in;
-
-  Napi::Value port(Napi::CallbackInfo const& info);
-  Napi::Value sql(Napi::CallbackInfo const& info);
-  Napi::Value get_table_scan_info(Napi::CallbackInfo const& info);
+  wrapper_t context;
 };
 
 }  // namespace nv

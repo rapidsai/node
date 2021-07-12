@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include <blazingsql/cache.hpp>
-#include <blazingsql/context.hpp>
 #include <blazingsql/graph.hpp>
+#include "context.hpp"
 
 #include <nv_node/addon.hpp>
 
