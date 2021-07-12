@@ -22,6 +22,7 @@ function(find_and_configure_blazingsql VERSION)
 
     _clean_build_dirs_if_not_fully_built(blazingsql-io libblazingsql-io.so)
 
+    _set_package_dir_if_exists(absl absl)
     _set_package_dir_if_exists(blazingsql-io blazingsql-io)
 
     if(NOT TARGET blazingdb::blazingsql-io)

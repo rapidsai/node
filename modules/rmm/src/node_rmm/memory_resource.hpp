@@ -73,7 +73,8 @@ struct MemoryResource : public EnvLocalObjectWrap<MemoryResource> {
                    mr)) {
         return mr_type::logging;
       }
-      throw Napi::Error::New(env, "Unknown MemoryResource type");
+      return mr_type::cuda;
+      // throw Napi::Error::New(env, "Unknown MemoryResource type");
     }(resource->operator rmm::mr::device_memory_resource*());
 
     return resource;
