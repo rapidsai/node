@@ -14,6 +14,7 @@
 
 import {DataFrame, Series, TypeMap} from '@rapidsai/cudf';
 import {callMethodSync, callStaticMethodSync} from 'java';
+import {Context} from './addon';
 import {
   ArrayList,
   BlazingSchema,
@@ -23,7 +24,6 @@ import {
   RelationalAlgebraGenerator
 } from './algebra';
 import {defaultConfigValues} from './config';
-import {Context} from './context';
 import {json_plan_py} from './json_plan';
 
 export class BlazingContext {
