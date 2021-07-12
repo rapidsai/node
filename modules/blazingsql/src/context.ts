@@ -1,3 +1,5 @@
+import {DataFrame, Table} from '@rapidsai/cudf';
+
 import {BLAZINGSQL} from './addon';
 
 // TODO: Move this somewhere else...
@@ -54,15 +56,15 @@ export interface Context {
   readonly port: number;
 
   sql(masterIndex: number,
-      workerIds: string[],
-      dataframes: any,
+      workerIds: any[],
+      dataframes: DataFrame[],
       tableNames: string[],
       tableScans: string[],
       ctxToken: number,
       query: string,
       configOptions: Record<string, unknown>,
       sql: string,
-      currentTimestamp: string): void;
+      currentTimestamp: string): {names: string[], tables: Table[]};
 
   getTableScanInfo(logicalPlan: string): [string[], string[]];
 }
