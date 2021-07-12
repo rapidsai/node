@@ -33,45 +33,9 @@ Context::wrapper_t Context::New(Napi::Env const& env) {
 Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(info) {
   auto env = info.Env();
 
-  NapiToCPP::Object props                       = info[0];
-  uint16_t ralId                                = props.Get("ralId");
-  std::string worker_id                         = props.Get("workerId");
-  std::string network_iface_name                = props.Get("network_iface_name");
-  int32_t ralCommunicationPort                  = props.Get("ralCommunicationPort");
-  std::vector<NodeMetaDataUCP> workers_ucp_info = props.Get("workersUcpInfo");
-  bool singleNode                               = props.Get("singleNode");
-  std::string allocation_mode                   = props.Get("allocationMode");
-  std::size_t initial_pool_size                 = props.Get("initialPoolSize");
-  std::size_t maximum_pool_size                 = props.Get("maximumPoolSize");
-  bool enable_logging                           = props.Get("enableLogging");
+  NapiToCPP::Object props = info[0];
 
-  auto config_options = [&] {
-    std::map<std::string, std::string> config{};
-    auto prop = props.Get("configOptions");
-    if (prop.IsObject() and not prop.IsNull()) {
-      auto opts = prop.As<Napi::Object>();
-      auto keys = opts.GetPropertyNames();
-      for (auto i = 0u; i < keys.Length(); ++i) {
-        Napi::HandleScope scope(env);
-        auto name    = keys.Get(i).ToString();
-        config[name] = opts.Get(name).ToString();
-      }
-    }
-    return config;
-  }();
-
-  auto result_context = nv::initialize(env,
-                                       ralId,
-                                       worker_id,
-                                       network_iface_name,
-                                       ralCommunicationPort,
-                                       workers_ucp_info,
-                                       singleNode,
-                                       config_options,
-                                       allocation_mode,
-                                       initial_pool_size,
-                                       maximum_pool_size,
-                                       enable_logging);
+  auto result_context = nv::initialize(env, props);
   // TODO: Set internal private accessor.
   std::cout << result_context->context << std::endl;
 }

@@ -18,26 +18,14 @@
 #include "graph.hpp"
 
 #include <map>
+#include <nv_node/utilities/args.hpp>
 
 struct NodeMetaDataUCP;
 struct TableSchema;
 
 namespace nv {
 
-Context::wrapper_t initialize(
-  Napi::Env const& env,
-  uint16_t ral_id,
-  std::string worker_id,
-  std::string network_iface_name,
-  int ral_communication_port,
-  std::vector<NodeMetaDataUCP>
-    workers_ucp_info,  // this Array has Objects that describe NodeMetaDataUCP fields
-  bool single_node,
-  std::map<std::string, std::string> config_options,
-  std::string allocation_mode,
-  std::size_t initial_pool_size,
-  std::size_t maximum_pool_size,
-  bool enable_logging);
+Context::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props);
 
 ExecutionGraph::wrapper_t run_generate_graph(
   Napi::Env const& env,

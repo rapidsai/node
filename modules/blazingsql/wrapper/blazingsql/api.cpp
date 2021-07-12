@@ -23,20 +23,33 @@
 
 namespace nv {
 
-Context::wrapper_t initialize(
-  Napi::Env const& env,
-  uint16_t ral_id,
-  std::string worker_id,
-  std::string network_iface_name,
-  int ral_communication_port,
-  std::vector<NodeMetaDataUCP>
-    workers_ucp_info,  // this Array has Objects that describe NodeMetaDataUCP fields
-  bool single_node,
-  std::map<std::string, std::string> config_options,
-  std::string allocation_mode,
-  std::size_t initial_pool_size,
-  std::size_t maximum_pool_size,
-  bool enable_logging) {
+Context::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props) {
+  uint16_t ral_id                               = props.Get("ralId");
+  std::string worker_id                         = props.Get("workerId");
+  std::string network_iface_name                = props.Get("network_iface_name");
+  int32_t ral_communication_port                = props.Get("ralCommunicationPort");
+  std::vector<NodeMetaDataUCP> workers_ucp_info = props.Get("workersUcpInfo");
+  bool single_node                              = props.Get("singleNode");
+  std::string allocation_mode                   = props.Get("allocationMode");
+  std::size_t initial_pool_size                 = props.Get("initialPoolSize");
+  std::size_t maximum_pool_size                 = props.Get("maximumPoolSize");
+  bool enable_logging                           = props.Get("enableLogging");
+
+  auto config_options = [&] {
+    std::map<std::string, std::string> config{};
+    auto prop = props.Get("configOptions");
+    if (prop.IsObject() and not prop.IsNull()) {
+      auto opts = prop.As<Napi::Object>();
+      auto keys = opts.GetPropertyNames();
+      for (auto i = 0u; i < keys.Length(); ++i) {
+        Napi::HandleScope scope(env);
+        auto name    = keys.Get(i).ToString();
+        config[name] = opts.Get(name).ToString();
+      }
+    }
+    return config;
+  }();
+
   auto init_result = ::initialize(ral_id,
                                   worker_id,
                                   network_iface_name,
