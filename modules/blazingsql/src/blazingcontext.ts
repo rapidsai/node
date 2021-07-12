@@ -58,7 +58,6 @@ export class BlazingContext {
     });
   }
 
-  // TOOD: Handle other cases as well.
   createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
     callMethodSync(this.db, 'removeTable', tableName);
     this.tables[tableName] = input;
@@ -95,33 +94,19 @@ export class BlazingContext {
         'WARNING: Window Functions are currently an experimental feature and not fully supported or tested');
     }
 
-    const tableScanInfo = this.context.getTableScanInfo(algebra);
-    const tableNames    = tableScanInfo[0];
-    const tableScans    = tableScanInfo[1];
+    if (returnToken) {
+      // TODO: Handle return_token true case.
+    }
 
-    // TODO: This might need to be encoded to utf-8 similar to str.encode() in python
+    const tableScanInfo     = this.context.getTableScanInfo(algebra);
+    const tableNames        = tableScanInfo[0];
+    const tableScans        = tableScanInfo[1];
     const d                 = new Date();
     const current_timestamp = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
       d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
-
-    // TODO: Range is from 0 => max of int32
     const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
 
     const dataframe: DataFrame = this.tables[tableNames[0]];
-
-    if (returnToken) {
-      console.log({
-        masterIndex,
-        dataframe,
-        tableNames,
-        tableScans,
-        ctxToken,
-        algebra,
-        configOptions,
-        query,
-        current_timestamp
-      });
-    }
 
     const {names, tables: [table]} = this.context.sql(masterIndex,
                                                       ['self'],
@@ -146,10 +131,5 @@ export class BlazingContext {
     }
 
     return String(algebra);
-  }
-
-  ignoreerrors(): void {
-    console.log(this.context);
-    console.log(this.generator);
   }
 }
