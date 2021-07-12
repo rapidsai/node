@@ -14,7 +14,6 @@
 
 import {DataFrame, Series, TypeMap} from '@rapidsai/cudf';
 import {callMethodSync, callStaticMethodSync} from 'java';
-
 import {
   ArrayList,
   BlazingSchema,
@@ -23,7 +22,8 @@ import {
   CatalogTableImpl,
   RelationalAlgebraGenerator
 } from './algebra';
-import {Context, default_config} from './context';
+import {defaultConfigValues} from './config';
+import {Context} from './context';
 import {json_plan_py} from './json_plan';
 
 export class BlazingContext {
@@ -50,7 +50,7 @@ export class BlazingContext {
       ralCommunicationPort: 0,
       workersUcpInfo: [],  // TODO: Fix.
       singleNode: true,
-      configOptions: default_config,
+      configOptions: defaultConfigValues,
       allocationMode: 'cuda_memory_resource',
       initialPoolSize: 0,
       maximumPoolSize: null,
@@ -79,7 +79,7 @@ export class BlazingContext {
 
   sql(query: string,
       algebra: string|null                   = null,
-      configOptions: Record<string, unknown> = default_config,
+      configOptions: Record<string, unknown> = defaultConfigValues,
       returnToken                            = false) {
     if (algebra == null) { algebra = this.explain(query); }
 
