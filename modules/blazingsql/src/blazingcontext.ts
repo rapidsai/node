@@ -81,8 +81,6 @@ export class BlazingContext {
       algebra: string|null                   = null,
       configOptions: Record<string, unknown> = default_config,
       returnToken                            = false) {
-    const masterIndex = 0;
-
     if (algebra == null) { algebra = this.explain(query); }
 
     if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
@@ -98,6 +96,7 @@ export class BlazingContext {
       // TODO: Handle return_token true case.
     }
 
+    const masterIndex       = 0;
     const tableScanInfo     = this.context.getTableScanInfo(algebra);
     const tableNames        = tableScanInfo[0];
     const tableScans        = tableScanInfo[1];
@@ -106,8 +105,7 @@ export class BlazingContext {
       d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
     const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
 
-    const dataframe: DataFrame = this.tables[tableNames[0]];
-
+    const dataframe: DataFrame     = this.tables[tableNames[0]];
     const {names, tables: [table]} = this.context.sql(masterIndex,
                                                       ['self'],
                                                       [dataframe],
