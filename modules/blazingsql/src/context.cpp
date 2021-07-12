@@ -14,9 +14,9 @@
 
 #include "context.hpp"
 
-#include "../wrapper/blazingsql/api.hpp"
-#include "../wrapper/blazingsql/cache.hpp"
-#include "../wrapper/blazingsql/graph.hpp"
+#include <blazingsql/api.hpp>
+#include <blazingsql/cache.hpp>
+#include <blazingsql/graph.hpp>
 
 #include <nv_node/utilities/args.hpp>
 
