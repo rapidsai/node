@@ -170,6 +170,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
 
     const index = Series.sequence({type: new Int32, size: data.length, step: 1, init: 0});
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const first = index.filter(data.isNull()).getValue(0)!;
     const slice =
       Series.sequence({type: new Int32, size: data.length - first, step: 1, init: first});
