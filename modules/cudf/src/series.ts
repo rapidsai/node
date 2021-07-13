@@ -101,6 +101,34 @@ export type SequenceOptions<U extends Numeric = any> = {
   memoryResource?: MemoryResource
 };
 
+// clang-format off
+/* eslint-disable @typescript-eslint/no-unused-vars */
+class CastVisitor<T extends DataType> extends arrow.Visitor {
+  constructor(private series: AbstractSeries<T>, private memoryResource?: MemoryResource) { super(); }
+
+  public visitBool                 <T extends Bool8>(_dtype: T) { return this.series._castAsBool8(this.memoryResource); }
+  public visitInt8                 <T extends Int8>(_dtype: T) { return this.series._castAsInt8(this.memoryResource); }
+  public visitInt16                <T extends Int16>(_dtype: T) { return this.series._castAsInt16(this.memoryResource); }
+  public visitInt32                <T extends Int32>(_dtype: T) { return this.series._castAsInt32(this.memoryResource); }
+  public visitInt64                <T extends Int64>(_dtype: T) { return this.series._castAsInt64(this.memoryResource); }
+  public visitUint8                <T extends Uint8>(_dtype: T) { return this.series._castAsUint8(this.memoryResource); }
+  public visitUint16               <T extends Uint16>(_dtype: T) { return this.series._castAsUint16(this.memoryResource); }
+  public visitUint32               <T extends Uint32>(_dtype: T) { return this.series._castAsUint32(this.memoryResource); }
+  public visitUint64               <T extends Uint64>(_dtype: T) { return this.series._castAsUint64(this.memoryResource); }
+  public visitFloat32              <T extends Float32>(_dtype: T) { return this.series._castAsFloat32(this.memoryResource); }
+  public visitFloat64              <T extends Float64>(_dtype: T) { return this.series._castAsFloat64(this.memoryResource); }
+  public visitUtf8                 <T extends Utf8String>(_dtype: T) { return this.series._castAsString(this.memoryResource); }
+  public visitDateDay              <T extends TimestampDay>(_dtype: T) { return this.series._castAsTimeStampDay(this.memoryResource); }
+  public visitDateMillisecond      <T extends TimestampMillisecond>(_dtype: T) { return this.series._castAsTimeStampMillisecond(this.memoryResource); }
+  public visitTimestampSecond      <T extends TimestampSecond>(_dtype: T) { return this.series._castAsTimeStampSecond(this.memoryResource); }
+  public visitTimestampMillisecond <T extends TimestampMillisecond>(_dtype: T) { return this.series._castAsTimeStampMillisecond(this.memoryResource); }
+  public visitTimestampMicrosecond <T extends TimestampMicrosecond>(_dtype: T) { return this.series._castAsTimeStampMicrosecond(this.memoryResource); }
+  public visitTimestampNanosecond  <T extends TimestampNanosecond>(_dtype: T) { return this.series._castAsTimeStampNanosecond(this.memoryResource); }
+  public visitDictionary           <T extends Categorical>(dtype: T) { return this.series._castAsCategorical(dtype, this.memoryResource); }
+}
+/* eslint-enable @typescript-eslint/no-unused-vars */
+// clang-format on
+
 export type Series<T extends arrow.DataType = any> = {
   [arrow.Type.NONE]: never,  // TODO
   [arrow.Type.Null]: never,  // TODO
@@ -152,6 +180,29 @@ export type Series<T extends arrow.DataType = any> = {
  * One-dimensional GPU array
  */
 export class AbstractSeries<T extends DataType = any> {
+  // clang-format off
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  _castAsBool8(_memoryResource?: MemoryResource): Series<Bool8> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Bool8 unimplemented`); }
+  _castAsInt8(_memoryResource?: MemoryResource): Series<Int8> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int8 unimplemented`); }
+  _castAsInt16(_memoryResource?: MemoryResource): Series<Int16> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int16 unimplemented`); }
+  _castAsInt32(_memoryResource?: MemoryResource): Series<Int32> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int32 unimplemented`); }
+  _castAsInt64(_memoryResource?: MemoryResource): Series<Int64> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int64 unimplemented`); }
+  _castAsUint8(_memoryResource?: MemoryResource): Series<Uint8> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint8 unimplemented`); }
+  _castAsUint16(_memoryResource?: MemoryResource): Series<Uint16> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint16 unimplemented`); }
+  _castAsUint32(_memoryResource?: MemoryResource): Series<Uint32> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint32 unimplemented`); }
+  _castAsUint64(_memoryResource?: MemoryResource): Series<Uint64> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint64 unimplemented`); }
+  _castAsFloat32(_memoryResource?: MemoryResource): Series<Float32> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Float32 unimplemented`); }
+  _castAsFloat64(_memoryResource?: MemoryResource): Series<Float64> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Float64 unimplemented`); }
+  _castAsString(_memoryResource?: MemoryResource): StringSeries { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to String unimplemented`); }
+  _castAsTimeStampDay(_memoryResource?: MemoryResource): Series<TimestampDay> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampDay unimplemented`); }
+  _castAsTimeStampSecond(_memoryResource?: MemoryResource): Series<TimestampSecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampSecond unimplemented`); }
+  _castAsTimeStampMillisecond(_memoryResource?: MemoryResource): Series<TimestampMillisecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampMillisecond unimplemented`); }
+  _castAsTimeStampMicrosecond(_memoryResource?: MemoryResource): Series<TimestampMicrosecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampMicrosecond unimplemented`); }
+  _castAsTimeStampNanosecond(_memoryResource?: MemoryResource): Series<TimestampNanosecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampNanosecond unimplemented`); }
+  _castAsCategorical<R extends DataType>(_dtype: R, _memoryResource?: MemoryResource): Series<R> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Categorical unimplemented`); }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+  // clang-format on
+
   /**
    * Create a new cudf.Series from an apache arrow vector
    *
@@ -257,8 +308,8 @@ export class AbstractSeries<T extends DataType = any> {
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
-   * // TimestampMillisecondSeries [2021-05-13T00:00:00.000Z, null, 2021-05-13T00:00:00.000Z, null]
-   * const a = Series.new([new Date(), undefined, new Date(), undefined]);
+   * // TimestampMillisecondSeries [2021-05-13T00:00:00.000Z, null, 2021-05-13T00:00:00.000Z,
+   * null] const a = Series.new([new Date(), undefined, new Date(), undefined]);
    * ```
    */
   static new(input: (Date|null|undefined)[]): Series<TimestampMillisecond>;
@@ -342,6 +393,26 @@ export class AbstractSeries<T extends DataType = any> {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
   }
 
+  /**
+   * Casts the values to a new dtype (similar to `static_cast` in C++).
+   *
+   * @param dataType The new dtype.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns Series of same size as the current Series containing result of the `cast` operation.
+   * @example
+   * ```typescript
+   * import {Series, Bool8, Int32} from '@rapidsai/cudf';
+   *
+   * const a = Series.new({type:new Int32, data: [1,0,1,0]});
+   *
+   * a.cast(new Bool8); // Bool8Series [true, false, true, false];
+   * ```
+   */
+  cast<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Series<R> {
+    return new CastVisitor(this, memoryResource).visit(dataType);
+  }
+
   /** @ignore */
   public _col: Column<T>;
 
@@ -408,36 +479,38 @@ export class AbstractSeries<T extends DataType = any> {
    * Encode the Series values into integer labels.
    *
    *
-   * @param categories The optional Series of values to encode into integers. Defaults to the unique
-   *   elements in this Series.
-   * @param type The optional integer DataType to use for the returned Series. Defaults to Int32.
+   * @param categories The optional Series of values to encode into integers. Defaults to the
+   *   unique elements in this Series.
+   * @param type The optional integer DataType to use for the returned Series. Defaults to
+   *   Int32.
    * @param nullSentinel The optional value used to indicate missing category. Defaults to -1.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
-   * @returns A sequence of encoded integer labels with values between `0` and `n-1` categories, and
-   *   `nullSentinel` for any null values
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's
+   *   device memory.
+   * @returns A sequence of encoded integer labels with values between `0` and `n-1`
+   *   categories, and `nullSentinel` for any null values
    */
   encodeLabels<R extends Integral = Int32>(categories: Series<T>         = this.unique(true),
                                            type: R                       = new Int32 as R,
                                            nullSentinel: R['scalarType'] = -1,
                                            memoryResource?: MemoryResource): Series<R> {
     try {
-      // If there is a failure casting to the current dtype, catch the exception and return encoded
-      // labels with all values set to `nullSentinel`, since this means the Column cannot contain
-      // any of the encoded categories.
+      // If there is a failure casting to the current dtype, catch the exception and return
+      // encoded labels with all values set to `nullSentinel`, since this means the Column
+      // cannot contain any of the encoded categories.
       categories = categories.cast(this.type);
     } catch {
       return Series.sequence(
         {type, init: nullSentinel, step: 0, memoryResource, size: this.length});
     }
     //
-    // 1. Join this Series' values with the `categories` Series to determine the index positions
+    // 1. Join this Series' values with the `categories` Series to determine the index
+    // positions
     //    (i.e. `codes`) of the values to keep.
     // 2. Sort the codes by the original value's position in this Series.
     // 3. Replace missing codes with `nullSentinel`.
     //
-    // Note: Written as a single expression so the intermediate memory allocated for the `join` and
-    // `sortValues` calls are GC'd as soon as possible.
+    // Note: Written as a single expression so the intermediate memory allocated for the
+    // `join` and `sortValues` calls are GC'd as soon as possible.
     //
     return new DataFrame(new ColumnAccessor({
              value: this._col,
@@ -461,10 +534,12 @@ export class AbstractSeries<T extends DataType = any> {
    * Fills a range of elements in a column out-of-place with a scalar value.
    *
    * @param begin The starting index of the fill range (inclusive).
-   * @param end The index of the last element in the fill range (exclusive), default this.length .
+   * @param end The index of the last element in the fill range (exclusive), default
+   *   this.length
+   *   .
    * @param value The scalar value to fill.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's
+   *   device memory.
    *
    * @example
    * ```typescript
@@ -512,8 +587,8 @@ export class AbstractSeries<T extends DataType = any> {
    * Replace null values with a scalar value.
    *
    * @param value The scalar value to use in place of nulls.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's
+   *   device memory.
    *
    * @example
    * ```typescript
@@ -533,8 +608,8 @@ export class AbstractSeries<T extends DataType = any> {
    * Replace null values with the corresponding elements from another Series.
    *
    * @param value The Series to use in place of nulls.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's
+   *   device memory.
    *
    * @example
    * ```typescript
@@ -564,8 +639,8 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * Replace null values with the non-null value following the null value in the same series.
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's
+   *   device memory.
    *
    * @example
    * ```typescript
@@ -587,8 +662,8 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * Replace null values with the non-null value preceding the null value in the same series.
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's
+   *   device memory.
    *
    * @example
    * ```typescript
@@ -832,8 +907,8 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * Return a sub-selection of this Series using the specified boolean mask.
    *
-   * @param mask A Series of boolean values for whose corresponding element in this Series will be
-   *   selected or ignored.
+   * @param mask A Series of boolean values for whose corresponding element in this Series
+   *   will be selected or ignored.
    *
    * @example
    * ```typescript
@@ -982,10 +1057,9 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new(["a", "b", "c", "d", "e"]).sortValues(true) // ["a", "b", "c", "d", "e"]
    *
    * // Bool8Series
-   * Series.new([true, false, true, true, false]).sortValues(true) // [false, false, true, true,
-   * true]
-   * Series.new([true, false, true, true, false]).sortValues(false) // [true, true, true,
-   * false, false]
+   * Series.new([true, false, true, true, false]).sortValues(true) // [false, false, true,
+   * true, true] Series.new([true, false, true, true, false]).sortValues(false) // [true,
+   * true, true, false, false]
    *
    * // NullOrder usage
    * Series.new([50, 40, 30, 20, 10, null]).sortValues(false, 'before') // [50, 40, 30, 20,
@@ -1021,8 +1095,8 @@ export class AbstractSeries<T extends DataType = any> {
   isNull(memoryResource?: MemoryResource) { return Series.new(this._col.isNull(memoryResource)); }
 
   /**
-   * Creates a Series of `BOOL8` elements where `true` indicates the value is valid and `false`
-   * indicates the value is null.
+   * Creates a Series of `BOOL8` elements where `true` indicates the value is valid and
+   * `false` indicates the value is null.
    *
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns A non-nullable Series of `BOOL8` elements with `false` representing `null`

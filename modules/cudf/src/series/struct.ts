@@ -25,20 +25,6 @@ import {TypeMap} from '../types/mappings';
  */
 export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
   /**
-   * Casts the values to a new dtype (similar to `static_cast` in C++).
-   *
-   * @param dataType The new dtype.
-   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
-   *   memory.
-   * @returns Series of same size as the current Series containing result of the `cast` operation.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  cast<R extends DataType>(dataType: R, _memoryResource?: MemoryResource): Series<R> {
-    throw new Error(`Cast from ${arrow.Type[this.type.typeId]} to ${
-      arrow.Type[dataType.typeId]} not implemented`);
-  }
-
-  /**
    * Return a child series by name.
    *
    * @param name Name of the Series to return.

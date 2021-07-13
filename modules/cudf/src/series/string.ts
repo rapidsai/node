@@ -13,8 +13,6 @@
 // limitations under the License.
 
 import {MemoryResource} from '@rapidsai/rmm';
-import * as arrow from 'apache-arrow';
-import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {Column} from '../column';
 import {Series} from '../series';
@@ -24,28 +22,21 @@ import {Bool8, Categorical, DataType, Int32, Uint8, Utf8String} from '../types/d
  * A Series of utf8-string values in GPU memory.
  */
 export class StringSeries extends Series<Utf8String> {
-  /**
-   * Casts the values to a new dtype (similar to `static_cast` in C++).
-   *
-   * @param type The new dtype.
-   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
-   *   memory.
-   * @returns Series of same size as the current Series containing result of the `cast` operation.
-   */
-  cast<R extends DataType>(type: R, memoryResource?: MemoryResource): Series<R> {
-    if (compareTypes(this.type, type)) { return Series.new<R>(this._col as Column<R>); }
-    if (arrow.DataType.isDictionary(type)) {
-      const vals = this.cast(type.dictionary).unique(true, memoryResource);
-      const keys = this.encodeLabels(vals, undefined, undefined, memoryResource);
-      return Series.new<R>(new Column({
-        type: new Categorical(type.dictionary) as R,
-        length: keys.length,
-        nullMask: this.mask,
-        children: [keys._col, vals._col]
-      }));
-    }
-    throw new Error(
-      `Cast from ${arrow.Type[this.type.typeId]} to ${arrow.Type[type.typeId]} not implemented`);
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  _castAsString(_memoryResource?: MemoryResource): StringSeries {
+    return StringSeries.new(this._col);
+  }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+
+  _castAsCategorical<R extends DataType>(dtype: R, memoryResource?: MemoryResource): Series<R> {
+    const vals = this.cast((dtype as Categorical).dictionary).unique(true, memoryResource);
+    const keys = this.encodeLabels(vals, undefined, undefined, memoryResource);
+    return Series.new<R>(new Column({
+      type: new Categorical((dtype as Categorical).dictionary) as R,
+      length: keys.length,
+      nullMask: this.mask,
+      children: [keys._col, vals._col]
+    }));
   }
 
   /**

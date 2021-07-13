@@ -18,7 +18,20 @@ import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
-import {Bool8, DataType, Numeric} from '../types/dtypes';
+import {
+  Bool8,
+  Float32,
+  Float64,
+  Int16,
+  Int32,
+  Int64,
+  Int8,
+  Numeric,
+  Uint16,
+  Uint32,
+  Uint64,
+  Uint8
+} from '../types/dtypes';
 import {CommonType, findCommonType, Interpolation} from '../types/mappings';
 
 import {Float64Series} from './float';
@@ -28,28 +41,44 @@ import {Int64Series} from './integral';
  * A base class for Series of fixed-width numeric values.
  */
 export abstract class NumericSeries<T extends Numeric> extends Series<T> {
-  /**
-   * Casts the values to a new dtype (similar to `static_cast` in C++).
-   *
-   * @param dataType The new dtype.
-   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
-   *   memory.
-   * @returns Series of same size as the current Series containing result of the `cast` operation.
-   * @example
-   * ```typescript
-   * import {Series, Bool8, Int32} from '@rapidsai/cudf';
-   *
-   * const a = Series.new({type:new Int32, data: [1,0,1,0]});
-   *
-   * a.cast(new Bool8); // Bool8Series [true, false, true, false];
-   * ```
-   */
-  cast<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Series<R> {
-    return Series.new(this._col.cast(dataType, memoryResource));
+  _castAsBool8(memoryResource?: MemoryResource): Series<Bool8> {
+    return Series.new(this._col.cast(new Bool8, memoryResource));
+  }
+  _castAsInt8(memoryResource?: MemoryResource): Series<Int8> {
+    return Series.new(this._col.cast(new Int8, memoryResource));
+  }
+  _castAsInt16(memoryResource?: MemoryResource): Series<Int16> {
+    return Series.new(this._col.cast(new Int16, memoryResource));
+  }
+  _castAsInt32(memoryResource?: MemoryResource): Series<Int32> {
+    return Series.new(this._col.cast(new Int32, memoryResource));
+  }
+  _castAsInt64(memoryResource?: MemoryResource): Series<Int64> {
+    return Series.new(this._col.cast(new Int64, memoryResource));
+  }
+  _castAsUint8(memoryResource?: MemoryResource): Series<Uint8> {
+    return Series.new(this._col.cast(new Uint8, memoryResource));
+  }
+  _castAsUint16(memoryResource?: MemoryResource): Series<Uint16> {
+    return Series.new(this._col.cast(new Uint16, memoryResource));
+  }
+  _castAsUint32(memoryResource?: MemoryResource): Series<Uint32> {
+    return Series.new(this._col.cast(new Uint32, memoryResource));
+  }
+  _castAsUint64(memoryResource?: MemoryResource): Series<Uint64> {
+    return Series.new(this._col.cast(new Uint64, memoryResource));
+  }
+  _castAsFloat32(memoryResource?: MemoryResource): Series<Float32> {
+    return Series.new(this._col.cast(new Float32, memoryResource));
+  }
+  _castAsFloat64(memoryResource?: MemoryResource): Series<Float64> {
+    return Series.new(this._col.cast(new Float64, memoryResource));
   }
 
   /** @ignore */
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   nansToNulls(_memoryResource?: MemoryResource): Series<T> { return this.__construct(this._col); }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   /**
    * View the data underlying this Series as a new dtype (similar to `reinterpret_cast` in C++).
