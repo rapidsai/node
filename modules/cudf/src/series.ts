@@ -13,9 +13,19 @@
 // limitations under the License.
 
 import {
+  Float32Buffer,
+  Float64Buffer,
+  Int16Buffer,
   Int32Buffer,
+  Int64Buffer,
+  Int8Buffer,
   MemoryData,
   TypedArray,
+  Uint16Buffer,
+  Uint32Buffer,
+  Uint64Buffer,
+  Uint8Buffer,
+  Uint8ClampedBuffer,
 } from '@nvidia/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
@@ -207,9 +217,22 @@ export class AbstractSeries<T extends DataType = any> {
    */
   static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>): Series<T>;
 
-  static new(input: Int32Array): Series<Int32>;
+  static new(input: Int8Array|Int8Buffer): Series<Int8>;
 
-  static new(input: Int32Buffer): Series<Int32>;
+  static new(input: Int16Array|Int16Buffer): Series<Int16>;
+
+  static new(input: Int32Array|Int32Buffer): Series<Int32>;
+
+  static new(input: Uint8Array|Uint8Buffer|Uint8ClampedArray|Uint8ClampedBuffer): Series<Uint8>;
+
+  static new(input: Uint16Array|Uint16Buffer): Series<Uint16>;
+
+  static new(input: Uint32Array|Uint32Buffer): Series<Uint32>;
+
+  static new(input: BigUint64Array|Uint64Buffer): Series<Uint64>;
+
+  static new(input: Float32Array|Float32Buffer): Series<Float32>;
+
   /**
    * Create a new cudf.StringSeries
    *
@@ -233,7 +256,7 @@ export class AbstractSeries<T extends DataType = any> {
    * const a = Series.new([1, 2, 3, undefined, 4]);
    * ```
    */
-  static new(input: (number|null|undefined)[]): Series<Float64>;
+  static new(input: (number|null|undefined)[]|Float64Array|Float64Buffer): Series<Float64>;
   /**
    * Create a new cudf.Int64Series
    *
@@ -245,7 +268,8 @@ export class AbstractSeries<T extends DataType = any> {
    * const a = Series.new([1n, 2n, 3n, undefined, 4n]);
    * ```
    */
-  static new(input: (bigint|null|undefined)[]): Series<Int64>;
+  static new(input: (bigint|null|undefined)[]|BigInt64Array|Int64Buffer): Series<Int64>;
+  // static new(input: Float64Array|Float64Buffer): Series<Float64>;
 
   /**
    * Create a new cudf.Bool8Series
@@ -343,12 +367,13 @@ export class AbstractSeries<T extends DataType = any> {
   static new(input: (Date|null|undefined)[][]): Series<List<TimestampMillisecond>>;
 
   static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>|arrow.Vector<T>|
-                                 (string|null|undefined)[]|Int32Array|Int32Buffer|
-                                 (number|null|undefined)[]|(bigint|null|undefined)[]|
-                                 (boolean|null|undefined)[]|(Date|null|undefined)[]|
-                                 (string|null|undefined)[][]|(number|null|undefined)[][]|
-                                 (bigint|null|undefined)[][]|(boolean|null|undefined)[][]|
-                                 (Date|null|undefined)[][]) {
+                                 (string|null|undefined)[]|(number|null|undefined)[]|
+                                 (bigint|null|undefined)[]|(boolean|null|undefined)[]|
+                                 (Date|null|undefined)[]|(string|null|undefined)[][]|
+                                 (number|null|undefined)[][]|(bigint|null|undefined)[][]|
+                                 (boolean|null|undefined)[][]|(Date|null|undefined)[][]): Series<T>;
+
+  static new<T extends DataType>(input: any) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
   }
 
@@ -1279,46 +1304,87 @@ function inferType(value: any[]|TypedArray): DataType {
     'Unable to infer Series type from input values, explicit type declaration expected');
 }
 
-function asColumn<T extends DataType>(
-  value: AbstractSeries<T>|SeriesProps<T>|Column<T>|arrow.Vector<T>  //
-  |(string | null | undefined)[]                                     //
-  |Int32Array|Int32Buffer                                            //
-  |(number | null | undefined)[]                                     //
-  |(bigint | null | undefined)[]                                     //
-  |(boolean | null | undefined)[]                                    //
-  |(Date | null | undefined)[]                                       //
-  |(string | null | undefined)[][]                                   //
-  |(number | null | undefined)[][]                                   //
-  |(bigint | null | undefined)[][]                                   //
-  |(boolean | null | undefined)[][]                                  //
-  |(Date | null | undefined)[][]                                     //
-  ): Column<T> {
+// function typeofTypedArray(v: TypedArray) {
+//   switch (v.constructor) {
+//     case Int8Array: return new Int8;
+//     case Int16Array: return new Int16;
+//     case Int32Array: return new Int32;
+//     case BigInt64Array: return new Int64;
+//     case Uint8Array: return new Uint8;
+//     case Uint16Array: return new Uint16;
+//     case Uint32Array: return new Uint32;
+//     case BigUint64Array: return new Uint64;
+//     case Float32Array: return new Float32;
+//     case Float64Array: return new Float64;
+//     default: break;
+//   }
+// }
+
+function asColumn(value: Int8Array|Int8Buffer): Column<Int8>;
+function asColumn(value: Int16Array|Int16Buffer): Column<Int16>;
+function asColumn(value: Int32Array|Int32Buffer): Column<Int32>;
+function asColumn(value: BigInt64Array|Int64Buffer): Column<Int64>;
+function asColumn(value: Uint8Array|Uint8Buffer): Column<Uint8>;
+function asColumn(value: Uint8ClampedArray|Uint8ClampedBuffer): Column<Uint8>;
+function asColumn(value: Uint16Array|Uint16Buffer): Column<Uint16>;
+function asColumn(value: Uint32Array|Uint32Buffer): Column<Uint32>;
+function asColumn(value: BigUint64Array|Uint64Buffer): Column<Uint64>;
+function asColumn(value: Float32Array|Float32Buffer): Column<Float32>;
+function asColumn(value: Float64Array|Float64Buffer): Column<Float64>;
+
+function asColumn<T extends DataType>(value: AbstractSeries<T>|SeriesProps<T>  //
+                                      |Column<T>|arrow.Vector<T>               //
+                                      |(string | null | undefined)[]           //
+                                      |(number | null | undefined)[]           //
+                                      |(bigint | null | undefined)[]           //
+                                      |(boolean | null | undefined)[]          //
+                                      |(Date | null | undefined)[]             //
+                                      |(string | null | undefined)[][]         //
+                                      |(number | null | undefined)[][]         //
+                                      |(bigint | null | undefined)[][]         //
+                                      |(boolean | null | undefined)[][]        //
+                                      |(Date | null | undefined)[][]): Column<T>;
+
+function asColumn<T extends DataType>(value: any) {
   if (value instanceof AbstractSeries) { return value._col; }
   if (Array.isArray(value)) {
     return fromArrow(arrow.Vector.from(
              {type: inferType(value), values: value as any, highWaterMark: Infinity})) as any;
   }
-  if (value instanceof Int32Array) {
-    return new Column({ type: new Int32, data: value, length: value.length });
+
+  if (value instanceof Int8Array || value instanceof Int8Buffer) {
+    return new Column({type: new Int8, data: value, length: value.length});
+  } else if (value instanceof Int16Array || value instanceof Int16Buffer) {
+    return new Column({type: new Int16, data: value, length: value.length});
+  } else if (value instanceof Int32Array || value instanceof Int32Buffer) {
+    return new Column({type: new Int32, data: value, length: value.length});
+  } else if (value instanceof BigInt64Array || value instanceof Int64Buffer) {
+    return new Column({type: new Int64, data: value, length: value.length});
+  } else if (value instanceof Uint8Array || value instanceof Uint8Buffer) {
+    return new Column({type: new Uint8, data: value, length: value.length});
+  } else if (value instanceof Uint8ClampedArray || value instanceof Uint8ClampedBuffer) {
+    return new Column({type: new Uint8, data: value, length: value.length});
+  } else if (value instanceof Uint16Array || value instanceof Uint16Buffer) {
+    return new Column({type: new Uint16, data: value, length: value.length});
+  } else if (value instanceof Uint32Array || value instanceof Uint32Buffer) {
+    return new Column({type: new Uint32, data: value, length: value.length});
+  } else if (value instanceof BigUint64Array || value instanceof Uint64Buffer) {
+    return new Column({type: new Uint64, data: value, length: value.length});
+  } else if (value instanceof Float32Array || value instanceof Float32Buffer) {
+    return new Column({type: new Float32, data: value, length: value.length});
+  } else if (value instanceof Float64Array || value instanceof Float64Buffer) {
+    return new Column({type: new Float64, data: value, length: value.length});
   }
-  if (value instanceof Int32Buffer) {
-    return new Column({ type: new Int32, data: value, length: value.length });
-  }
+
   if (value instanceof arrow.Vector) { return fromArrow(value) as any; }
   if (!value.type && Array.isArray(value.data)) {
-    return fromArrow(arrow.Vector.from({
-             type: inferType((value as any).data),
-             values: (value as any).data,
-             highWaterMark: Infinity
-           })) as any;
+    return fromArrow(arrow.Vector.from(
+             {type: inferType(value.data), values: value.data, highWaterMark: Infinity})) as any;
   }
-  if (!(value.type instanceof arrow.DataType)) {
-    (value as any).type = arrowToCUDFType<T>(value.type);
-  }
+  if (!(value.type instanceof arrow.DataType)) { value.type = arrowToCUDFType<T>(value.type); }
   if (Array.isArray(value.data)) {
     return fromArrow(arrow.Vector.from(
-             {type: (value as any).type, values: (value as any).data, highWaterMark: Infinity})) as
-           any;
+             {type: value.type, values: value.data, highWaterMark: Infinity})) as any;
   }
   if (value instanceof Column) {
     return value;

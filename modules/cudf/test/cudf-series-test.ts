@@ -14,8 +14,10 @@
 
 import {
   Float32Buffer,
+  Int16Buffer,
   Int32Buffer,
   Int64Buffer,
+  Int8Buffer,
   setDefaultAllocator,
   Uint8Buffer
 } from '@nvidia/cuda';
@@ -24,9 +26,13 @@ import {
   Column,
   Float32,
   Float64,
+  Int16,
+  Int16Series,
   Int32,
   Int32Series,
   Int64,
+  Int8,
+  Int8Series,
   Series,
   TimestampDay,
   TimestampMicrosecond,
@@ -43,6 +49,53 @@ import {BoolVector} from 'apache-arrow';
 const mr = new CudaMemoryResource();
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
+
+test('Series initialization from Int8Array', () => {
+  const length = 3;
+  const s      = Series.new(new Int8Array([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int8Series);
+  expect(s.type).toBeInstanceOf(Int8);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Int8Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Int8Buffer([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int8Series);
+  expect(s.type).toBeInstanceOf(Int8);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+test('Series initialization from Int16Array', () => {
+  const length = 3;
+  const s      = Series.new(new Int16Array([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int16Series);
+  expect(s.type).toBeInstanceOf(Int16);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Int16Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Int16Buffer([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int16Series);
+  expect(s.type).toBeInstanceOf(Int16);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
 
 test('Series initialization from Int32Array', () => {
   const length = 3;
