@@ -24,7 +24,7 @@
 
 namespace nv {
 
-Context::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props) {
+ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props) {
   uint16_t ral_id                               = props.Get("ralId");
   std::string worker_id                         = props.Get("workerId");
   std::string network_iface_name                = props.Get("network_iface_name");
@@ -62,13 +62,7 @@ Context::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& pro
                                   initial_pool_size,
                                   maximum_pool_size,
                                   enable_logging);
-  auto& caches     = init_result.first;
-
-  auto opts = Napi::Object::New(env);
-  opts.Set("port", init_result.second);
-  opts.Set("transportOut", CacheMachine::New(env, caches.first));
-  opts.Set("transportIn", CacheMachine::New(env, caches.second));
-  return EnvLocalObjectWrap<Context>::New(env);
+  return ContextWrapper::New(env, init_result);
 }
 
 ExecutionGraph::wrapper_t run_generate_graph(

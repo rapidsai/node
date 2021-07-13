@@ -84,6 +84,7 @@ add_library(blazingsql_wrapper SHARED
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/api.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/cache.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/graph.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/contextwrapper.cpp"
 )
 
 set_target_properties(blazingsql_wrapper

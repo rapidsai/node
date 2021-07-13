@@ -12,31 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "context.hpp"
-
-#include <blazingsql/api.hpp>
-#include <blazingsql/cache.hpp>
-#include <blazingsql/graph.hpp>
+#include "contextwrapper.hpp"
+#include "cache.hpp"
 
 #include <nv_node/utilities/args.hpp>
 
 namespace nv {
 
-Napi::Function Context::Init(Napi::Env env, Napi::Object exports) {
-  return DefineClass(env, "Context", {});
+Napi::Function ContextWrapper::Init(Napi::Env env, Napi::Object exports) {
+  return DefineClass(env, "ContextWrapper", {});
 }
 
-Context::wrapper_t Context::New(Napi::Env const& env) {
-  return EnvLocalObjectWrap<Context>::New(env);
+ContextWrapper::wrapper_t ContextWrapper::New(
+  Napi::Env const& env,
+  std::pair<
+    std::pair<std::shared_ptr<ral::cache::CacheMachine>, std::shared_ptr<ral::cache::CacheMachine>>,
+    int> args) {
+  auto inst    = EnvLocalObjectWrap<ContextWrapper>::New(env, {});
+  auto& caches = args.first;
+  inst->_port  = args.second;
+  return inst;
 }
 
-Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(info) {
-  auto env = info.Env();
-
-  NapiToCPP::Object props = info[0];
-
-  auto result_context = nv::initialize(env, props);
-  this->context       = Napi::Persistent(result_context);
-}
+ContextWrapper::ContextWrapper(Napi::CallbackInfo const& info)
+  : EnvLocalObjectWrap<ContextWrapper>(info) {}
 
 }  // namespace nv

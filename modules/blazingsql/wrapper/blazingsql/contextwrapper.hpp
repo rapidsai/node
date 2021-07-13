@@ -14,35 +14,47 @@
 
 #pragma once
 
-#include <blazingsql/contextwrapper.hpp>
+#include "cache.hpp"
+#include "graph.hpp"
+
 #include <nv_node/objectwrap.hpp>
+
+#include <napi.h>
+#include <map>
 
 namespace nv {
 
-struct Context : public EnvLocalObjectWrap<Context> {
+struct CacheMachine;
+
+struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
   /**
-   * @brief Initialize and export the Context JavaScript constructor and prototype.
+   * @brief Initialize and export the ContextWrapper JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Function The Context constructor function.
+   * @return Napi::Function The ContextWrapper constructor function.
    */
   static Napi::Function Init(Napi::Env env, Napi::Object exports);
 
   /**
-   * @brief Construct a new Context instance from existing device memory.
+   * @brief Construct a new ContextWrapper instance from existing device memory.
    *
-   * @return wrapper_t The new Context instance
+   * @return wrapper_t The new ContextWrapper instance
    */
-  static wrapper_t New(Napi::Env const& env);
+  static wrapper_t New(Napi::Env const& env,
+                       std::pair<std::pair<std::shared_ptr<ral::cache::CacheMachine>,
+                                           std::shared_ptr<ral::cache::CacheMachine>>,
+                                 int> args);
 
   /**
    * @brief Construct a new Context instance from JavaScript.
    */
-  Context(Napi::CallbackInfo const& info);
+  ContextWrapper(Napi::CallbackInfo const& info);
 
  private:
-  Napi::Reference<Wrapper<ContextWrapper>> context;
+  int32_t _port{};
+  Napi::Reference<Wrapper<CacheMachine>> _transport_out;
+  Napi::Reference<Wrapper<CacheMachine>> _transport_in;
 };
 
 }  // namespace nv

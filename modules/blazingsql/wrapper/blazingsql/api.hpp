@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "../src/context.hpp"
+#include "contextwrapper.hpp"
 #include "graph.hpp"
 
 #include <map>
@@ -25,7 +25,7 @@ struct TableSchema;
 
 namespace nv {
 
-Context::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props);
+ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props);
 
 ExecutionGraph::wrapper_t run_generate_graph(
   Napi::Env const& env,
