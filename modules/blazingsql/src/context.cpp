@@ -27,7 +27,8 @@ Napi::Function Context::Init(Napi::Env env, Napi::Object exports) {
 }
 
 Context::wrapper_t Context::New(Napi::Env const& env) {
-  return EnvLocalObjectWrap<Context>::New(env);
+  auto inst = EnvLocalObjectWrap<Context>::New(env, {});
+  return inst;
 }
 
 Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(info) {
@@ -36,8 +37,7 @@ Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(i
   NapiToCPP::Object props = info[0];
 
   auto result_context = nv::initialize(env, props);
-  // TODO: Set internal private accessor.
-  std::cout << result_context->context << std::endl;
+  std::cout << result_context.IsArray() << std::endl;
 }
 
 }  // namespace nv

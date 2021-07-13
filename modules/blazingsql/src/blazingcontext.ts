@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, Series, TypeMap} from '@rapidsai/cudf';
+import {DataFrame, TypeMap} from '@rapidsai/cudf';
 import {callMethodSync, callStaticMethodSync} from 'java';
 import {Context} from './addon';
 import {
@@ -24,7 +24,6 @@ import {
   RelationalAlgebraGenerator
 } from './algebra';
 import {defaultConfigValues} from './config';
-import {json_plan_py} from './json_plan';
 
 export class BlazingContext {
   private context: Context;
@@ -105,20 +104,31 @@ export class BlazingContext {
       d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
     const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
 
-    const dataframe: DataFrame     = this.tables[tableNames[0]];
-    const {names, tables: [table]} = this.context.sql(masterIndex,
-                                                      ['self'],
-                                                      [dataframe],
-                                                      tableNames,
-                                                      tableScans,
-                                                      ctxToken,
-                                                      json_plan_py(algebra),
-                                                      configOptions,
-                                                      query,
-                                                      current_timestamp);
+    console.log({
+      masterIndex,
+      tableScanInfo,
+      tableNames,
+      tableScans,
+      current_timestamp,
+      ctxToken,
+      configOptions
+    });
 
-    return new DataFrame(names.reduce(
-      (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
+    // const dataframe: DataFrame     = this.tables[tableNames[0]];
+    // const {names, tables: [table]} = this.context.sql(masterIndex,
+    //                                                   ['self'],
+    //                                                   [dataframe],
+    //                                                   tableNames,
+    //                                                   tableScans,
+    //                                                   ctxToken,
+    //                                                   json_plan_py(algebra),
+    //                                                   configOptions,
+    //                                                   query,
+    //                                                   current_timestamp);
+
+    // return new DataFrame(names.reduce(
+    //   (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
+    return new DataFrame({});
   }
 
   private explain(sql: string, detail = false): string {

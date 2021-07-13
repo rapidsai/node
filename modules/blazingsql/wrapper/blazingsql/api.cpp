@@ -15,6 +15,7 @@
 #pragma once
 
 #include "api.hpp"
+#include "cache.hpp"
 
 #include <engine/common.h>
 #include <engine/engine.h>
@@ -61,12 +62,13 @@ Context::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& pro
                                   initial_pool_size,
                                   maximum_pool_size,
                                   enable_logging);
-
-  auto& caches = init_result.first;
+  auto& caches     = init_result.first;
 
   auto opts = Napi::Object::New(env);
-  // TODO: Set the results of caches, etc here before returning.
-  return EnvLocalObjectWrap<Context>::New(env, {opts});
+  opts.Set("port", init_result.second);
+  opts.Set("transportOut", CacheMachine::New(env, caches.first));
+  opts.Set("transportIn", CacheMachine::New(env, caches.second));
+  return EnvLocalObjectWrap<Context>::New(env);
 }
 
 ExecutionGraph::wrapper_t run_generate_graph(

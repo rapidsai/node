@@ -41,7 +41,7 @@ struct Context : public EnvLocalObjectWrap<Context> {
   Context(Napi::CallbackInfo const& info);
 
  private:
-  wrapper_t context;
+  Context::wrapper_t context;
 };
 
 }  // namespace nv
