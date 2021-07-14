@@ -141,11 +141,11 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::matches_re>("matchesRe"),
                        // column/convert.cpp
                        InstanceMethod<&Column::is_float>("isFloat"),
-                       InstanceMethod<&Column::from_floats>("fromFloats"),
-                       InstanceMethod<&Column::to_floats>("toFloats"),
+                       InstanceMethod<&Column::from_floats>("stringsFromFloats"),
+                       InstanceMethod<&Column::to_floats>("stringsToFloats"),
                        InstanceMethod<&Column::is_integer>("isInteger"),
-                       InstanceMethod<&Column::from_integers>("fromIntegers"),
-                       InstanceMethod<&Column::to_integers>("toIntegers"),
+                       InstanceMethod<&Column::from_integers>("stringsFromIntegers"),
+                       InstanceMethod<&Column::to_integers>("stringsToIntegers"),
                      });
 }
 

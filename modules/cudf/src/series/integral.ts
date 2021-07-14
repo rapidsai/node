@@ -48,7 +48,7 @@ import {StringSeries} from './string';
  */
 abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
   _castAsString(memoryResource?: MemoryResource): StringSeries {
-    return StringSeries.new(this._col.fromIntegers(memoryResource));
+    return StringSeries.new(this._col.stringsFromIntegers(memoryResource));
   }
 
   /**

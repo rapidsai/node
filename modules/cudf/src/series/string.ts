@@ -55,34 +55,34 @@ export class StringSeries extends Series<Utf8String> {
   }
 
   _castAsInt8(memoryResource?: MemoryResource): Series<Int8> {
-    return Series.new(this._col.toIntegers(new Int8, memoryResource));
+    return Series.new(this._col.stringsToIntegers(new Int8, memoryResource));
   }
   _castAsInt16(memoryResource?: MemoryResource): Series<Int16> {
-    return Series.new(this._col.toIntegers(new Int16, memoryResource));
+    return Series.new(this._col.stringsToIntegers(new Int16, memoryResource));
   }
   _castAsInt32(memoryResource?: MemoryResource): Series<Int32> {
-    return Series.new(this._col.toIntegers(new Int32, memoryResource));
+    return Series.new(this._col.stringsToIntegers(new Int32, memoryResource));
   }
   _castAsInt64(memoryResource?: MemoryResource): Series<Int64> {
-    return Series.new(this._col.toIntegers(new Int64, memoryResource));
+    return Series.new(this._col.stringsToIntegers(new Int64, memoryResource));
   }
   _castAsUint8(memoryResource?: MemoryResource): Series<Uint8> {
-    return Series.new(this._col.toIntegers(new Uint8, memoryResource));
+    return Series.new(this._col.stringsToIntegers(new Uint8, memoryResource));
   }
   _castAsUint16(memoryResource?: MemoryResource): Series<Uint16> {
-    return Series.new(this._col.toIntegers(new Uint16, memoryResource));
+    return Series.new(this._col.stringsToIntegers(new Uint16, memoryResource));
   }
   _castAsUint32(memoryResource?: MemoryResource): Series<Uint32> {
-    return Series.new(this._col.toIntegers(new Uint32, memoryResource));
+    return Series.new(this._col.stringsToIntegers(new Uint32, memoryResource));
   }
   _castAsUint64(memoryResource?: MemoryResource): Series<Uint64> {
-    return Series.new(this._col.toIntegers(new Uint64, memoryResource));
+    return Series.new(this._col.stringsToIntegers(new Uint64, memoryResource));
   }
   _castAsFloat32(memoryResource?: MemoryResource): Series<Float32> {
-    return Series.new(this._col.toFloats(new Float32, memoryResource));
+    return Series.new(this._col.stringsToFloats(new Float32, memoryResource));
   }
   _castAsFloat64(memoryResource?: MemoryResource): Series<Float64> {
-    return Series.new(this._col.toFloats(new Float64, memoryResource));
+    return Series.new(this._col.stringsToFloats(new Float64, memoryResource));
   }
 
   /**

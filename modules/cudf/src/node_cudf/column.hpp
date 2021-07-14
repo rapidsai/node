@@ -723,7 +723,6 @@ struct Column : public EnvLocalObjectWrap<Column> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/convert.cpp
-
   Column::wrapper_t is_float(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 

@@ -28,7 +28,7 @@ import {StringSeries} from './string';
  */
 abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   _castAsString(memoryResource?: MemoryResource): StringSeries {
-    return StringSeries.new(this._col.fromFloats(memoryResource));
+    return StringSeries.new(this._col.stringsFromFloats(memoryResource));
   }
 
   /**

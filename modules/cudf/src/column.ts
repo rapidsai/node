@@ -726,7 +726,7 @@ export interface Column<T extends DataType = any> {
    *
    *  @returns A string Column with floats as strings.
    */
-  fromFloats(memoryResource?: MemoryResource): Column<Utf8String>;
+  stringsFromFloats(memoryResource?: MemoryResource): Column<Utf8String>;
 
   /**
    * Returns a new floating point numeric column parsing float values from the provided
@@ -743,7 +743,7 @@ export interface Column<T extends DataType = any> {
    *
    *  @returns A Column of a the specified float type with the results of the conversion.
    */
-  toFloats<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
+  stringsToFloats<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
 
   /**
    * Creates a column of `BOOL8` elements indicating strings in which all characters are valid for
@@ -770,7 +770,7 @@ export interface Column<T extends DataType = any> {
    *
    *  @returns A string Column with integers as strings.
    */
-  fromIntegers(memoryResource?: MemoryResource): Column<Utf8String>;
+  stringsFromIntegers(memoryResource?: MemoryResource): Column<Utf8String>;
 
   /**
    * Returns a new integer numeric column parsing integer values from the provided strings column.
@@ -791,7 +791,7 @@ export interface Column<T extends DataType = any> {
    *
    *  @returns A Column of a the specified integral type with the results of the conversion.
    */
-  toIntegers<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
+  stringsToIntegers<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
 
   /**
    * Compute the trigonometric sine for each value in this Column.
