@@ -276,14 +276,6 @@ Column::wrapper_t Column::logical_or(Scalar const& other,
   return auto_binary_operation(*this, other, cudf::binary_operator::LOGICAL_OR, mr);
 }
 
-Column::wrapper_t Column::coalesce(Column const& other, rmm::mr::device_memory_resource* mr) const {
-  return auto_binary_operation(*this, other, cudf::binary_operator::COALESCE, mr);
-}
-
-Column::wrapper_t Column::coalesce(Scalar const& other, rmm::mr::device_memory_resource* mr) const {
-  return auto_binary_operation(*this, other, cudf::binary_operator::COALESCE, mr);
-}
-
 Column::wrapper_t Column::operator<<(Column const& other) const { return shift_left(other); }
 Column::wrapper_t Column::operator<<(Scalar const& other) const { return shift_left(other); }
 
@@ -573,17 +565,6 @@ Napi::Value Column::logical_or(Napi::CallbackInfo const& info) {
   if (rhs.IsNumber()) { return logical_or(Scalar::New(info.Env(), rhs.As<Napi::Number>()), mr); }
   NAPI_THROW(
     Napi::Error::New(info.Env(), "Column.logical_or expects a Column, Scalar, bigint, or number."));
-}
-
-Napi::Value Column::coalesce(Napi::CallbackInfo const& info) {
-  auto rhs = info[0];
-  rmm::mr::device_memory_resource* mr{NapiToCPP(info[1])};
-  if (Column::IsInstance(rhs)) { return coalesce(*Column::Unwrap(rhs.ToObject()), mr); }
-  if (Scalar::IsInstance(rhs)) { return coalesce(*Scalar::Unwrap(rhs.ToObject()), mr); }
-  if (rhs.IsBigInt()) { return coalesce(Scalar::New(info.Env(), rhs.As<Napi::BigInt>()), mr); }
-  if (rhs.IsNumber()) { return coalesce(Scalar::New(info.Env(), rhs.As<Napi::Number>()), mr); }
-  NAPI_THROW(
-    Napi::Error::New(info.Env(), "Column.coalesce expects a Column, Scalar, bigint, or number."));
 }
 
 Napi::Value Column::shift_left(Napi::CallbackInfo const& info) {

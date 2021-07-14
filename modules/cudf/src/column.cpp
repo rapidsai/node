@@ -65,7 +65,6 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::bitwise_xor>("bitwiseXor"),
                        InstanceMethod<&Column::logical_and>("logicalAnd"),
                        InstanceMethod<&Column::logical_or>("logicalOr"),
-                       InstanceMethod<&Column::coalesce>("coalesce"),
                        InstanceMethod<&Column::shift_left>("shiftLeft"),
                        InstanceMethod<&Column::shift_right>("shiftRight"),
                        InstanceMethod<&Column::shift_right_unsigned>("shiftRightUnsigned"),
