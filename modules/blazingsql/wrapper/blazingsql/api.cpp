@@ -16,7 +16,6 @@
 
 #include <engine/engine.h>
 #include <engine/initialize.h>
-#include <node_cudf/table.hpp>
 
 namespace nv {
 
@@ -188,31 +187,16 @@ void start_execute_graph(Napi::CallbackInfo const& info) {
   ::startExecuteGraph(execution_graph->graph(), ctx_token);
 }
 
-Napi::Value get_execute_graph_result(Napi::CallbackInfo const& info) {
+std::tuple<std::vector<std::string>, std::vector<std::unique_ptr<cudf::table>>>
+get_execute_graph_result(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
 
   ExecutionGraph::wrapper_t execution_graph = args[0];
   int32_t ctx_token                         = args[1];
 
-  auto bsql_result  = std::move(::getExecuteGraphResult(execution_graph->graph(), ctx_token));
-  auto& bsql_names  = bsql_result->names;
-  auto& bsql_tables = bsql_result->cudfTables;
-
-  auto result_names = Napi::Array::New(env, bsql_names.size());
-  for (size_t i = 0; i < bsql_names.size(); ++i) {
-    result_names.Set(i, Napi::String::New(env, bsql_names[i]));
-  }
-
-  auto result_tables = Napi::Array::New(env, bsql_tables.size());
-  for (size_t i = 0; i < bsql_tables.size(); ++i) {
-    result_tables.Set(i, Table::New(env, std::move(bsql_tables[i])));
-  }
-
-  auto result = Napi::Object::New(env);
-  result.Set("names", result_names);
-  result.Set("tables", result_tables);
-  return result;
+  auto bsql_result = std::move(::getExecuteGraphResult(execution_graph->graph(), ctx_token));
+  return {std::move(bsql_result->names), std::move(bsql_result->cudfTables)};
 }
 
 }  // namespace nv

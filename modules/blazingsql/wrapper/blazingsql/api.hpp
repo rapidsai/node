@@ -17,6 +17,7 @@
 #include "contextwrapper.hpp"
 #include "graph.hpp"
 
+#include <node_cudf/table.hpp>
 #include <nv_node/utilities/args.hpp>
 
 struct NodeMetaDataUCP;
@@ -32,6 +33,7 @@ ExecutionGraph::wrapper_t run_generate_graph(Napi::CallbackInfo const& info);
 
 void start_execute_graph(Napi::CallbackInfo const& info);
 
-Napi::Value get_execute_graph_result(Napi::CallbackInfo const& info);
+std::tuple<std::vector<std::string>, std::vector<std::unique_ptr<cudf::table>>>
+get_execute_graph_result(Napi::CallbackInfo const& info);
 
 }  // namespace nv

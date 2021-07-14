@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "context.hpp"
+
 #include <blazingsql/api.hpp>
 #include <blazingsql/cache.hpp>
 #include <blazingsql/graph.hpp>
-#include "context.hpp"
+#include <node_cudf/table.hpp>
 
 struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazingsql> {
   node_blazingsql(Napi::Env env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
@@ -45,7 +47,23 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
   void start_execute_graph(Napi::CallbackInfo const& info) { nv::start_execute_graph(info); }
 
   Napi::Value get_execute_graph_result(Napi::CallbackInfo const& info) {
-    return nv::get_execute_graph_result(info);
+    auto env                       = info.Env();
+    auto [bsql_names, bsql_tables] = nv::get_execute_graph_result(info);
+
+    auto result_names = Napi::Array::New(env, bsql_names.size());
+    for (size_t i = 0; i < bsql_names.size(); ++i) {
+      result_names.Set(i, Napi::String::New(env, bsql_names[i]));
+    }
+
+    auto result_tables = Napi::Array::New(env, bsql_tables.size());
+    for (size_t i = 0; i < bsql_tables.size(); ++i) {
+      result_tables.Set(i, nv::Table::New(env, std::move(bsql_tables[i])));
+    }
+
+    auto result = Napi::Object::New(env);
+    result.Set("names", result_names);
+    result.Set("tables", result_tables);
+    return result;
   }
 };
 
