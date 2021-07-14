@@ -20,7 +20,6 @@ import {
   Int64Buffer,
   Int8Buffer,
   MemoryData,
-  TypedArray,
   Uint16Buffer,
   Uint32Buffer,
   Uint64Buffer,
@@ -217,20 +216,150 @@ export class AbstractSeries<T extends DataType = any> {
    */
   static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>): Series<T>;
 
+  /**
+   * Create a new cudf.Int8Series
+   *
+   * @example
+   * ```typescript
+   * import {
+   *  Series,
+   *  Int8Series,
+   *  Int8
+   * } from '@rapidsai/cudf';
+   *
+   * // Int8Series [1, 2, 3]
+   * const a = Series.new(new Int8Array([1, 2, 3]));
+   * const b = Series.new(new Int8Buffer([1, 2, 3]));
+   * ```
+   */
   static new(input: Int8Array|Int8Buffer): Series<Int8>;
 
+  /**
+   * Create a new cudf.Int16Series
+   *
+   * @example
+   * ```typescript
+   * import {
+   *  Series,
+   *  Int16Series,
+   *  Int16
+   * } from '@rapidsai/cudf';
+   *
+   * // Int16Series [1, 2, 3]
+   * const a = Series.new(new Int16Array([1, 2, 3]));
+   * const b = Series.new(new Int16Buffer([1, 2, 3]));
+   * ```
+   */
   static new(input: Int16Array|Int16Buffer): Series<Int16>;
 
+  /**
+   * Create a new cudf.Int32Series
+   *
+   * @example
+   * ```typescript
+   * import {
+   *  Series,
+   *  Int32Series,
+   *  Int32
+   * } from '@rapidsai/cudf';
+   *
+   * // Int32Series [1, 2, 3]
+   * const a = Series.new(new Int32Array([1, 2, 3]));
+   * const b = Series.new(new Int32Buffer([1, 2, 3]));
+   * ```
+   */
   static new(input: Int32Array|Int32Buffer): Series<Int32>;
 
+  /**
+   * Create a new cudf.Uint8Series
+   *
+   * @example
+   * ```typescript
+   * import {
+   *  Series,
+   *  Uint8Series,
+   *  Uint8
+   * } from '@rapidsai/cudf';
+   *
+   * // Uint8Series [1, 2, 3]
+   * const a = Series.new(new Uint8Array([1, 2, 3]));
+   * const b = Series.new(new Uint8Buffer([1, 2, 3]));
+   * const c = Series.new(new Uint8ClampedArray([1, 2, 3]));
+   * const d = Series.new(new Uint8ClampedBuffer([1, 2, 3]));
+   * ```
+   */
   static new(input: Uint8Array|Uint8Buffer|Uint8ClampedArray|Uint8ClampedBuffer): Series<Uint8>;
 
+  /**
+   * Create a new cudf.Uint16Series
+   *
+   * @example
+   * ```typescript
+   * import {
+   *  Series,
+   *  Uint16Series,
+   *  Uint16
+   * } from '@rapidsai/cudf';
+   *
+   * // Uint16Series [1, 2, 3]
+   * const a = Series.new(new Uint16Array([1, 2, 3]));
+   * const b = Series.new(new Uint16Buffer([1, 2, 3]));
+   * ```
+   */
   static new(input: Uint16Array|Uint16Buffer): Series<Uint16>;
 
+  /**
+   * Create a new cudf.Uint32Series
+   *
+   * @example
+   * ```typescript
+   * import {
+   *  Series,
+   *  Uint32Series,
+   *  Uint32
+   * } from '@rapidsai/cudf';
+   *
+   * // Uint32Series [1, 2, 3]
+   * const a = Series.new(new Uint32Array([1, 2, 3]));
+   * const b = Series.new(new Uint32Buffer([1, 2, 3]));
+   * ```
+   */
   static new(input: Uint32Array|Uint32Buffer): Series<Uint32>;
 
+  /**
+   * Create a new cudf.Uint64Series
+   *
+   * @example
+   * ```typescript
+   * import {
+   *  Series,
+   *  Uint64Series,
+   *  Uint64
+   * } from '@rapidsai/cudf';
+   *
+   * // Uint64Series [1n, 2n, 3n]
+   * const a = Series.new(new BigUint64Array([1n, 2n, 3n]));
+   * const b = Series.new(new Uint64Buffer([1n, 2n, 3n]));
+   * ```
+   */
   static new(input: BigUint64Array|Uint64Buffer): Series<Uint64>;
 
+  /**
+   * Create a new cudf.Float32Series
+   *
+   * @example
+   * ```typescript
+   * import {
+   *  Series,
+   *  Float32Series,
+   *  Float32
+   * } from '@rapidsai/cudf';
+   *
+   * // Float32Series [1, 2, 3]
+   * const a = Series.new(new Float32Array([1, 2, 3]));
+   * const b = Series.new(new Float32Buffer([1, 2, 3]));
+   * ```
+   */
   static new(input: Float32Array|Float32Buffer): Series<Float32>;
 
   /**
@@ -269,7 +398,6 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   static new(input: (bigint|null|undefined)[]|BigInt64Array|Int64Buffer): Series<Int64>;
-  // static new(input: Float64Array|Float64Buffer): Series<Float64>;
 
   /**
    * Create a new cudf.Bool8Series
@@ -1242,7 +1370,7 @@ export {
   StructSeries,
 };
 
-function inferType(value: any[]|TypedArray): DataType {
+function inferType(value: any[]): DataType {
   if (value.length === 0) { return new Float64; }
   let nullsCount    = 0;
   let arraysCount   = 0;
@@ -1303,22 +1431,6 @@ function inferType(value: any[]|TypedArray): DataType {
   throw new TypeError(
     'Unable to infer Series type from input values, explicit type declaration expected');
 }
-
-// function typeofTypedArray(v: TypedArray) {
-//   switch (v.constructor) {
-//     case Int8Array: return new Int8;
-//     case Int16Array: return new Int16;
-//     case Int32Array: return new Int32;
-//     case BigInt64Array: return new Int64;
-//     case Uint8Array: return new Uint8;
-//     case Uint16Array: return new Uint16;
-//     case Uint32Array: return new Uint32;
-//     case BigUint64Array: return new Uint64;
-//     case Float32Array: return new Float32;
-//     case Float64Array: return new Float64;
-//     default: break;
-//   }
-// }
 
 function asColumn(value: Int8Array|Int8Buffer): Column<Int8>;
 function asColumn(value: Int16Array|Int16Buffer): Column<Int16>;
