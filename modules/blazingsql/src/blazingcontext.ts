@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, TypeMap} from '@rapidsai/cudf';
+import {DataFrame, Series, TypeMap} from '@rapidsai/cudf';
 import {callMethodSync, callStaticMethodSync} from 'java';
-import {Context, getTableScanInfo, runGenerateGraph} from './addon';
+
+import {
+  Context,
+  getExecuteGraphResult,
+  getTableScanInfo,
+  runGenerateGraph,
+  startExecuteGraph
+} from './addon';
 import {
   ArrayList,
   BlazingSchema,
@@ -28,6 +35,7 @@ import {json_plan_py} from './json_plan';
 
 export class BlazingContext {
   private context: Context;
+
   private nodes: any[] = [];
   private db: any;
   private schema: any;
@@ -116,14 +124,11 @@ export class BlazingContext {
                                                   configOptions,
                                                   query,
                                                   currentTimestamp);
+    startExecuteGraph(executionGraphResult, ctxToken);
 
-    console.log(executionGraphResult);
-
-    console.log(this.context);
-
-    // return new DataFrame(names.reduce(
-    //   (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
-    return new DataFrame({});
+    const {names, tables: [table]} = getExecuteGraphResult(executionGraphResult, ctxToken);
+    return new DataFrame(names.reduce(
+      (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }
 
   private explain(sql: string, detail = false): string {
@@ -131,6 +136,7 @@ export class BlazingContext {
 
     if (detail == true) {
       // TODO: Handle the true case.
+      console.log(this.context);
     }
 
     return String(algebra);

@@ -24,12 +24,16 @@ export const {
   runGenerateGraph,
   ExecutionGraph,
   getTableScanInfo,
+  startExecuteGraph,
+  getExecuteGraphResult,
 } =
   loadNativeModule<typeof import('./node_blazingsql')>(
     module, 'node_blazingsql', init => init(CUDA, RMM, CUDF));
 
-export type runGenerateGraph = typeof import('./node_blazingsql').runGenerateGraph;
-export type getTableScanInfo = typeof import('./node_blazingsql').getTableScanInfo;
+export type runGenerateGraph      = typeof import('./node_blazingsql').runGenerateGraph;
+export type getTableScanInfo      = typeof import('./node_blazingsql').getTableScanInfo;
+export type startExecuteGraph     = typeof import('./node_blazingsql').startExecuteGraph;
+export type getExecuteGraphResult = typeof import('./node_blazingsql').getExecuteGraphResult;
 
 export type Context        = import('./node_blazingsql').Context;
 export type ExecutionGraph = import('./node_blazingsql').ExecutionGraph;

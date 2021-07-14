@@ -183,19 +183,40 @@ ExecutionGraph::wrapper_t run_generate_graph(Napi::CallbackInfo const& info) {
   return ExecutionGraph::New(env, result);
 }
 
-void start_execute_graph(ExecutionGraph::wrapper_t graph, int32_t ctx_token) {
-  // TODO: Figure out how to get _graph from graph.
-  // ::startExecuteGraph(, ctx_token);
+void start_execute_graph(Napi::CallbackInfo const& info) {
+  auto env = info.Env();
+  CallbackArgs args{info};
+
+  ExecutionGraph::wrapper_t execution_graph = args[0];
+  int32_t ctx_token                         = args[1];
+
+  ::startExecuteGraph(execution_graph->graph(), ctx_token);
 }
 
-ExecutionGraph::wrapper_t get_execute_graph_result(Napi::Env const& env,
-                                                   ExecutionGraph::wrapper_t graph,
-                                                   int32_t ctx_token) {
-  // TODO: Figure out how to get _graph from graph.
-  // auto result = ::getExecuteGraphResult(graph, ctx_token);
+Napi::Value get_execute_graph_result(Napi::CallbackInfo const& info) {
+  auto env = info.Env();
+  CallbackArgs args{info};
 
-  auto opts = Napi::Object::New(env);
-  return EnvLocalObjectWrap<ExecutionGraph>::New(env, {opts});
+  ExecutionGraph::wrapper_t execution_graph = args[0];
+  int32_t ctx_token                         = args[1];
+
+  auto bsql_result  = std::move(::getExecuteGraphResult(execution_graph->graph(), ctx_token));
+  auto& bsql_names  = bsql_result->names;
+  auto& bsql_tables = bsql_result->cudfTables;
+
+  auto result_names = Napi::Array::New(env, bsql_names.size());
+  for (size_t i = 0; i < bsql_names.size(); ++i) {
+    result_names.Set(i, Napi::String::New(env, bsql_names[i]));
+  }
+
+  auto result_tables = Napi::Array::New(env, bsql_tables.size());
+  for (size_t i = 0; i < bsql_tables.size(); ++i) {
+    result_tables.Set(i, Table::New(env, std::move(bsql_tables[i])));
+  }
+
+  auto result = Napi::Object::New(env);
+  result.Set("names", result_names);
+  result.Set("tables", result_tables);
+  return result;
 }
-
 }  // namespace nv

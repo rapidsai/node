@@ -8,6 +8,6 @@ test('base case', () => {
 
   const bc = new BlazingContext();
   bc.createTable('test_table', df);
-  bc.sql('SELECT a FROM test_table');
-  // expect(bc.sql('SELECT a FROM test_table')).toStrictEqual(new DataFrame({a}));
+
+  expect(bc.sql('SELECT a FROM test_table')).toStrictEqual(new DataFrame({a}));
 });

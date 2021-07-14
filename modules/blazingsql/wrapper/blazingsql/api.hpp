@@ -31,9 +31,8 @@ Napi::Value get_table_scan_info(Napi::CallbackInfo const& info);
 
 ExecutionGraph::wrapper_t run_generate_graph(Napi::CallbackInfo const& info);
 
-void start_execute_graph(ExecutionGraph::wrapper_t graph, int32_t ctx_token);
-ExecutionGraph::wrapper_t get_execute_graph_result(Napi::Env const& env,
-                                                   ExecutionGraph::wrapper_t graph,
-                                                   int32_t ctx_token);
+void start_execute_graph(Napi::CallbackInfo const& info);
+
+Napi::Value get_execute_graph_result(Napi::CallbackInfo const& info);
 
 }  // namespace nv

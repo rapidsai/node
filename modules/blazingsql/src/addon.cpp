@@ -20,15 +20,18 @@
 
 struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazingsql> {
   node_blazingsql(Napi::Env env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
-    DefineAddon(exports,
-                {InstanceMethod("init", &node_blazingsql::InitAddon),
-                 InstanceMethod<&node_blazingsql::run_generate_graph>("runGenerateGraph"),
-                 InstanceMethod<&node_blazingsql::get_table_scan_info>("getTableScanInfo"),
-                 InstanceValue("_cpp_exports", _cpp_exports.Value()),
-                 InstanceValue("Context", InitClass<nv::Context>(env, exports)),
-                 InstanceValue("CacheMachine", InitClass<nv::CacheMachine>(env, exports)),
-                 InstanceValue("ExecutionGraph", InitClass<nv::ExecutionGraph>(env, exports)),
-                 InstanceValue("ContextWrapper", InitClass<nv::ContextWrapper>(env, exports))});
+    DefineAddon(
+      exports,
+      {InstanceMethod("init", &node_blazingsql::InitAddon),
+       InstanceMethod<&node_blazingsql::run_generate_graph>("runGenerateGraph"),
+       InstanceMethod<&node_blazingsql::get_table_scan_info>("getTableScanInfo"),
+       InstanceMethod<&node_blazingsql::start_execute_graph>("startExecuteGraph"),
+       InstanceMethod<&node_blazingsql::get_execute_graph_result>("getExecuteGraphResult"),
+       InstanceValue("_cpp_exports", _cpp_exports.Value()),
+       InstanceValue("Context", InitClass<nv::Context>(env, exports)),
+       InstanceValue("CacheMachine", InitClass<nv::CacheMachine>(env, exports)),
+       InstanceValue("ExecutionGraph", InitClass<nv::ExecutionGraph>(env, exports)),
+       InstanceValue("ContextWrapper", InitClass<nv::ContextWrapper>(env, exports))});
   }
 
  private:
@@ -38,6 +41,12 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
 
   Napi::Value get_table_scan_info(Napi::CallbackInfo const& info) {
     return nv::get_table_scan_info(info);
+  }
+
+  void start_execute_graph(Napi::CallbackInfo const& info) { nv::start_execute_graph(info); }
+
+  Napi::Value get_execute_graph_result(Napi::CallbackInfo const& info) {
+    return nv::get_execute_graph_result(info);
   }
 };
 
