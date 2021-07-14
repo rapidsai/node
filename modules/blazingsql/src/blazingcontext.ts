@@ -14,7 +14,7 @@
 
 import {DataFrame, TypeMap} from '@rapidsai/cudf';
 import {callMethodSync, callStaticMethodSync} from 'java';
-import {Context} from './addon';
+import {Context, getTableScanInfo, runGenerateGraph} from './addon';
 import {
   ArrayList,
   BlazingSchema,
@@ -24,6 +24,7 @@ import {
   RelationalAlgebraGenerator
 } from './algebra';
 import {defaultConfigValues} from './config';
+import {json_plan_py} from './json_plan';
 
 export class BlazingContext {
   private context: Context;
@@ -95,36 +96,30 @@ export class BlazingContext {
       // TODO: Handle return_token true case.
     }
 
-    const masterIndex       = 0;
-    const tableScanInfo     = this.context.getTableScanInfo(algebra);
-    const tableNames        = tableScanInfo[0];
-    const tableScans        = tableScanInfo[1];
-    const d                 = new Date();
-    const current_timestamp = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
+    const masterIndex          = 0;
+    const tableScanInfo        = getTableScanInfo(algebra);
+    const tableNames           = tableScanInfo[0];
+    const tableScans           = tableScanInfo[1];
+    const d                    = new Date();
+    const currentTimestamp     = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
       d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
     const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
+    const dataframe: DataFrame = this.tables[tableNames[0]];
 
-    console.log({
-      masterIndex,
-      tableScanInfo,
-      tableNames,
-      tableScans,
-      current_timestamp,
-      ctxToken,
-      configOptions
-    });
+    const executionGraphResult = runGenerateGraph(masterIndex,
+                                                  ['self'],
+                                                  [dataframe],
+                                                  tableScans,
+                                                  tableScans,
+                                                  ctxToken,
+                                                  json_plan_py(algebra),
+                                                  configOptions,
+                                                  query,
+                                                  currentTimestamp);
 
-    // const dataframe: DataFrame     = this.tables[tableNames[0]];
-    // const {names, tables: [table]} = this.context.sql(masterIndex,
-    //                                                   ['self'],
-    //                                                   [dataframe],
-    //                                                   tableNames,
-    //                                                   tableScans,
-    //                                                   ctxToken,
-    //                                                   json_plan_py(algebra),
-    //                                                   configOptions,
-    //                                                   query,
-    //                                                   current_timestamp);
+    console.log(executionGraphResult);
+
+    console.log(this.context);
 
     // return new DataFrame(names.reduce(
     //   (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));

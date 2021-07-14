@@ -31,12 +31,10 @@ Context::wrapper_t Context::New(Napi::Env const& env) {
 }
 
 Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(info) {
-  auto env = info.Env();
-
+  auto env                = info.Env();
   NapiToCPP::Object props = info[0];
-
-  auto result_context = nv::initialize(env, props);
-  this->context       = Napi::Persistent(result_context);
+  auto result_context     = nv::initialize(env, props);
+  this->context           = Napi::Persistent(result_context);
 }
 
 }  // namespace nv

@@ -58,15 +58,3 @@ export function RelationalAlgebraGenerator(schema: any) {
   return java.newInstanceSync('com.blazingdb.calcite.application.RelationalAlgebraGenerator',
                               schema);
 }
-
-// export const RelConversionException =
-//   java.import('org.apache.calcite.tools.RelConversionException');
-
-// export const RelationalAlgebraGenerator =
-//   java.import('com.blazingdb.calcite.application.RelationalAlgebraGenerator');
-
-// export const SqlValidationException =
-//   java.import('com.blazingdb.calcite.application.SqlValidationException');
-
-// export const SqlSyntaxException =
-//   java.import('com.blazingdb.calcite.application.SqlSyntaxException');

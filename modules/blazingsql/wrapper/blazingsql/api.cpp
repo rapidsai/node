@@ -21,6 +21,7 @@
 #include <engine/engine.h>
 #include <engine/initialize.h>
 #include <io/io.h>
+#include <node_cudf/table.hpp>
 
 namespace nv {
 
@@ -65,30 +66,112 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
   return ContextWrapper::New(env, init_result);
 }
 
-ExecutionGraph::wrapper_t run_generate_graph(
-  Napi::Env const& env,
-  uint32_t master_index,
-  std::vector<std::string> worker_ids,
-  std::vector<std::string> table_names,
-  std::vector<std::string> table_scans,
-  std::vector<TableSchema> table_schemas,
-  std::vector<std::vector<std::string>> table_schema_keys,
-  std::vector<std::vector<std::string>> table_schema_values,
-  std::vector<std::vector<std::string>> files_all,
-  std::vector<int> file_types,
-  int32_t ctx_token,
-  std::string query,
-  std::vector<std::vector<std::map<std::string, std::string>>> uri_values,
-  std::map<std::string, std::string> config_options,
-  std::string sql,
-  std::string current_timestamp) {
-  auto result = ::runGenerateGraph(master_index,
+Napi::Value get_table_scan_info(Napi::CallbackInfo const& info) {
+  auto env = info.Env();
+  CallbackArgs args{info};
+
+  std::string logical_plan = args[0];
+  auto table_scan_info     = ::getTableScanInfo(logical_plan);
+  Napi::Array table_names  = Napi::Array::New(env, table_scan_info.table_names.size());
+  Napi::Array table_scans  = Napi::Array::New(env, table_scan_info.relational_algebra_steps.size());
+
+  for (int i = 0; i < table_scan_info.table_names.size(); ++i) {
+    table_names[i] = Napi::String::New(env, table_scan_info.table_names[i]);
+  }
+
+  for (int i = 0; i < table_scan_info.relational_algebra_steps.size(); ++i) {
+    table_scans[i] = Napi::String::New(env, table_scan_info.relational_algebra_steps[i]);
+  }
+
+  auto result = Napi::Array::New(env, 2);
+  result.Set(0u, table_names);
+  result.Set(1u, table_scans);
+
+  return result;
+}
+
+ExecutionGraph::wrapper_t run_generate_graph(Napi::CallbackInfo const& info) {
+  auto env = info.Env();
+  CallbackArgs args{info};
+
+  uint32_t masterIndex                 = args[0];
+  std::vector<std::string> worker_ids  = args[1];
+  Napi::Array data_frames              = args[2];
+  std::vector<std::string> table_names = args[3];
+  std::vector<std::string> table_scans = args[4];
+  int32_t ctx_token                    = args[5];
+  std::string query                    = args[6];
+  std::string sql                      = args[8];
+  std::string current_timestamp        = args[9];
+  auto config_options                  = [&] {
+    std::map<std::string, std::string> config{};
+    auto prop = args[7];
+    if (prop.IsObject() and not prop.IsNull()) {
+      auto opts = prop.As<Napi::Object>();
+      auto keys = opts.GetPropertyNames();
+      for (auto i = 0u; i < keys.Length(); ++i) {
+        auto name    = keys.Get(i).ToString();
+        config[name] = opts.Get(name).ToString();
+      }
+    }
+    return config;
+  }();
+
+  std::vector<TableSchema> table_schemas;
+  std::vector<std::vector<std::string>> table_schema_cpp_arg_keys;
+  std::vector<std::vector<std::string>> table_schema_cpp_arg_values;
+  std::vector<std::vector<std::string>> files_all;
+  std::vector<int> file_types;
+  std::vector<std::vector<std::map<std::string, std::string>>> uri_values;
+
+  auto cudf_tables = Napi::Array::New(env, data_frames.Length());
+
+  table_schemas.reserve(data_frames.Length());
+  table_schema_cpp_arg_keys.reserve(data_frames.Length());
+  table_schema_cpp_arg_values.reserve(data_frames.Length());
+  files_all.reserve(data_frames.Length());
+  file_types.reserve(data_frames.Length());
+  uri_values.reserve(data_frames.Length());
+
+  for (std::size_t i = 0; i < data_frames.Length(); ++i) {
+    NapiToCPP::Object df           = data_frames.Get(i);
+    std::vector<std::string> names = df.Get("names");
+    Napi::Function asTable         = df.Get("asTable");
+    Table::wrapper_t table         = asTable.Call(df.val, {}).ToObject();
+
+    cudf_tables.Set(i, table);
+
+    std::vector<cudf::type_id> type_ids;
+    for (auto const& col : table->view()) { type_ids.push_back(col.type().id()); }
+
+    table_schemas.push_back({
+      {{table->view(), names}},  // std::vector<ral::frame::BlazingTableView> blazingTableViews
+      type_ids,                  // std::vector<cudf::type_id> types
+      {},                        // std::vector<std::string> files
+      {},                        // std::vector<std::string> datasource
+      {table_names[i]},          // std::vector<std::string> names
+      {},                        // std::vector<size_t> calcite_to_file_indices
+      {},                        // std::vector<bool> in_file
+      ral::io::DataType::CUDF,   // int data_type
+      false,                     // bool has_header_csv = false
+      {cudf::table_view{}, {}},  // ral::frame::BlazingTableView metadata
+      {{0}},                     // std::vector<std::vector<int>> row_groups_ids
+      nullptr                    // std::shared_ptr<arrow::Table> arrow_tabl
+    });
+    table_schema_cpp_arg_keys.push_back({});
+    table_schema_cpp_arg_values.push_back({});
+    files_all.push_back({});
+    file_types.push_back(ral::io::DataType::CUDF);
+    uri_values.push_back({});
+  }
+
+  auto result = ::runGenerateGraph(masterIndex,
                                    worker_ids,
                                    table_names,
                                    table_scans,
                                    table_schemas,
-                                   table_schema_keys,
-                                   table_schema_values,
+                                   table_schema_cpp_arg_keys,
+                                   table_schema_cpp_arg_values,
                                    files_all,
                                    file_types,
                                    ctx_token,
@@ -97,9 +180,7 @@ ExecutionGraph::wrapper_t run_generate_graph(
                                    config_options,
                                    sql,
                                    current_timestamp);
-  auto opts   = Napi::Object::New(env);
-  // TODO: Set the results of caches, etc here before returning.
-  return EnvLocalObjectWrap<ExecutionGraph>::New(env, {opts});
+  return ExecutionGraph::New(env, result);
 }
 
 void start_execute_graph(ExecutionGraph::wrapper_t graph, int32_t ctx_token) {

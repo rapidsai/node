@@ -27,23 +27,9 @@ namespace nv {
 
 ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props);
 
-ExecutionGraph::wrapper_t run_generate_graph(
-  Napi::Env const& env,
-  uint32_t master_index,
-  std::vector<std::string> worker_ids,
-  std::vector<std::string> table_names,
-  std::vector<std::string> table_scans,
-  std::vector<TableSchema> table_schemas,
-  std::vector<std::vector<std::string>> table_schema_keys,
-  std::vector<std::vector<std::string>> table_schema_values,
-  std::vector<std::vector<std::string>> files_all,
-  std::vector<int> file_types,
-  int32_t ctx_token,
-  std::string query,
-  std::vector<std::vector<std::map<std::string, std::string>>> uri_values,
-  std::map<std::string, std::string> config_options,
-  std::string sql,
-  std::string current_timestamp);
+Napi::Value get_table_scan_info(Napi::CallbackInfo const& info);
+
+ExecutionGraph::wrapper_t run_generate_graph(Napi::CallbackInfo const& info);
 
 void start_execute_graph(ExecutionGraph::wrapper_t graph, int32_t ctx_token);
 ExecutionGraph::wrapper_t get_execute_graph_result(Napi::Env const& env,

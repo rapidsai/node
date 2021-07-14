@@ -1,4 +1,17 @@
-import {DataFrame, Table} from '@rapidsai/cudf';
+import {DataFrame} from '@rapidsai/cudf';
+
+export declare function getTableScanInfo(logicalPlan: string): [string[], string[]];
+
+export declare function runGenerateGraph(masterIndex: number,
+                                         workerIds: any[],
+                                         dataframes: DataFrame[],
+                                         tableNames: string[],
+                                         tableScans: string[],
+                                         ctxToken: number,
+                                         query: string,
+                                         configOptions: Record<string, unknown>,
+                                         sql: string,
+                                         currentTimestamp: string): void;
 
 export type ContextProps = {
   ralId: number; workerId: string; network_iface_name: string; ralCommunicationPort: number;
@@ -13,18 +26,8 @@ export type ContextProps = {
 
 export declare class Context {
   constructor(props: ContextProps);
-  readonly port: number;
+}
 
-  sql(masterIndex: number,
-      workerIds: string[],
-      dataframes: DataFrame[],
-      tableNames: string[],
-      tableScans: string[],
-      ctxToken: number,
-      query: string,
-      configOptions: Record<string, unknown>,
-      sql: string,
-      currentTimestamp: string): {names: string[], tables: Table[]};
-
-  getTableScanInfo(logicalPlan: string): [string[], string[]];
+export declare class ExecutionGraph {
+  constructor();
 }
