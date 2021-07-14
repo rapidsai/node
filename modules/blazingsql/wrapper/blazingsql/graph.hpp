@@ -49,11 +49,6 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
 
   inline operator std::shared_ptr<ral::cache::graph>() { return _graph; }
 
-  /**
-   * @brief Returns a ptr to the graph
-   */
-  std::shared_ptr<ral::cache::graph> graph() const noexcept { return _graph; }
-
  private:
   std::shared_ptr<ral::cache::graph> _graph;
 };

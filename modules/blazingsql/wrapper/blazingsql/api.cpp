@@ -1,16 +1,16 @@
-// // Copyright (c) 2021, NVIDIA CORPORATION.
-// //
-// // Licensed under the Apache License, Version 2.0 (the "License");
-// // you may not use this file except in compliance with the License.
-// // You may obtain a copy of the License at
-// //
-// //     http://www.apache.org/licenses/LICENSE-2.0
-// //
-// // Unless required by applicable law or agreed to in writing, software
-// // distributed under the License is distributed on an "AS IS" BASIS,
-// // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// // See the License for the specific language governing permissions and
-// // limitations under the License.
+// Copyright (c) 2021, NVIDIA CORPORATION.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "api.hpp"
 
@@ -60,57 +60,25 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
   return ContextWrapper::New(env, init_result);
 }
 
-Napi::Value get_table_scan_info(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  CallbackArgs args{info};
-
-  std::string logical_plan = args[0];
-  auto table_scan_info     = ::getTableScanInfo(logical_plan);
-
-  Napi::Array table_names = Napi::Array::New(env, table_scan_info.table_names.size());
-  Napi::Array table_scans = Napi::Array::New(env, table_scan_info.relational_algebra_steps.size());
-  for (int i = 0; i < table_scan_info.table_names.size(); ++i) {
-    table_names[i] = Napi::String::New(env, table_scan_info.table_names[i]);
-  }
-
-  for (int i = 0; i < table_scan_info.relational_algebra_steps.size(); ++i) {
-    table_scans[i] = Napi::String::New(env, table_scan_info.relational_algebra_steps[i]);
-  }
-
-  auto result = Napi::Array::New(env, 2);
-  result.Set(0u, table_names);
-  result.Set(1u, table_scans);
-
-  return result;
+std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_info(
+  std::string const& logical_plan) {
+  auto table_scan_info = ::getTableScanInfo(logical_plan);
+  return std::make_tuple(std::move(table_scan_info.table_names),
+                         std::move(table_scan_info.relational_algebra_steps));
 }
 
-ExecutionGraph::wrapper_t run_generate_graph(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  CallbackArgs args{info};
-
-  uint32_t masterIndex                 = args[0];
-  std::vector<std::string> worker_ids  = args[1];
-  Napi::Array data_frames              = args[2];
-  std::vector<std::string> table_names = args[3];
-  std::vector<std::string> table_scans = args[4];
-  int32_t ctx_token                    = args[5];
-  std::string query                    = args[6];
-  std::string sql                      = args[8];
-  std::string current_timestamp        = args[9];
-  auto config_options                  = [&] {
-    std::map<std::string, std::string> config{};
-    auto prop = args[7];
-    if (prop.IsObject() and not prop.IsNull()) {
-      auto opts = prop.As<Napi::Object>();
-      auto keys = opts.GetPropertyNames();
-      for (auto i = 0u; i < keys.Length(); ++i) {
-        auto name    = keys.Get(i).ToString();
-        config[name] = opts.Get(name).ToString();
-      }
-    }
-    return config;
-  }();
-
+ExecutionGraph::wrapper_t run_generate_graph(Napi::Env env,
+                                             uint32_t masterIndex,
+                                             std::vector<std::string> worker_ids,
+                                             std::vector<cudf::table_view> table_views,
+                                             std::vector<std::vector<std::string>> column_names,
+                                             std::vector<std::string> table_names,
+                                             std::vector<std::string> table_scans,
+                                             int32_t ctx_token,
+                                             std::string query,
+                                             std::string sql,
+                                             std::string current_timestamp,
+                                             std::map<std::string, std::string> config_options) {
   std::vector<TableSchema> table_schemas;
   std::vector<std::vector<std::string>> table_schema_cpp_arg_keys;
   std::vector<std::vector<std::string>> table_schema_cpp_arg_values;
@@ -118,28 +86,23 @@ ExecutionGraph::wrapper_t run_generate_graph(Napi::CallbackInfo const& info) {
   std::vector<int> file_types;
   std::vector<std::vector<std::map<std::string, std::string>>> uri_values;
 
-  auto cudf_tables = Napi::Array::New(env, data_frames.Length());
+  table_schemas.reserve(table_views.size());
+  table_schema_cpp_arg_keys.reserve(table_views.size());
+  table_schema_cpp_arg_values.reserve(table_views.size());
+  files_all.reserve(table_views.size());
+  file_types.reserve(table_views.size());
+  uri_values.reserve(table_views.size());
 
-  table_schemas.reserve(data_frames.Length());
-  table_schema_cpp_arg_keys.reserve(data_frames.Length());
-  table_schema_cpp_arg_values.reserve(data_frames.Length());
-  files_all.reserve(data_frames.Length());
-  file_types.reserve(data_frames.Length());
-  uri_values.reserve(data_frames.Length());
-
-  for (std::size_t i = 0; i < data_frames.Length(); ++i) {
-    NapiToCPP::Object df           = data_frames.Get(i);
-    std::vector<std::string> names = df.Get("names");
-    Napi::Function asTable         = df.Get("asTable");
-    Table::wrapper_t table         = asTable.Call(df.val, {}).ToObject();
-
-    cudf_tables.Set(i, table);
+  for (std::size_t i = 0; i < table_views.size(); ++i) {
+    auto table = table_views[i];
+    auto names = column_names[i];
 
     std::vector<cudf::type_id> type_ids;
-    for (auto const& col : table->view()) { type_ids.push_back(col.type().id()); }
+    type_ids.reserve(table.num_columns());
+    for (auto const& col : table) { type_ids.push_back(col.type().id()); }
 
     table_schemas.push_back({
-      {{table->view(), names}},  // std::vector<ral::frame::BlazingTableView> blazingTableViews
+      {{table, names}},          // std::vector<ral::frame::BlazingTableView> blazingTableViews
       type_ids,                  // std::vector<cudf::type_id> types
       {},                        // std::vector<std::string> files
       {},                        // std::vector<std::string> datasource
@@ -174,28 +137,19 @@ ExecutionGraph::wrapper_t run_generate_graph(Napi::CallbackInfo const& info) {
                                    config_options,
                                    sql,
                                    current_timestamp);
+
   return ExecutionGraph::New(env, result);
 }
 
-void start_execute_graph(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  CallbackArgs args{info};
-
-  ExecutionGraph::wrapper_t execution_graph = args[0];
-  int32_t ctx_token                         = args[1];
-
-  ::startExecuteGraph(execution_graph->graph(), ctx_token);
+void start_execute_graph(ExecutionGraph::wrapper_t const& execution_graph,
+                         int32_t const ctx_token) {
+  ::startExecuteGraph(*execution_graph, ctx_token);
 }
 
 std::tuple<std::vector<std::string>, std::vector<std::unique_ptr<cudf::table>>>
-get_execute_graph_result(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  CallbackArgs args{info};
-
-  ExecutionGraph::wrapper_t execution_graph = args[0];
-  int32_t ctx_token                         = args[1];
-
-  auto bsql_result = std::move(::getExecuteGraphResult(execution_graph->graph(), ctx_token));
+get_execute_graph_result(ExecutionGraph::wrapper_t const& execution_graph,
+                         int32_t const ctx_token) {
+  auto bsql_result = std::move(::getExecuteGraphResult(*execution_graph, ctx_token));
   return {std::move(bsql_result->names), std::move(bsql_result->cudfTables)};
 }
 
