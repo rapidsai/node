@@ -157,16 +157,16 @@ test('Column.isFloat', () => {
   expect([...Series.new(result)]).toEqual(expected);
 });
 
-test('Column.fromFloats', () => {
+test('Column.stringsFromFloats', () => {
   const col      = Series.new([1.2, 12, -2.3, -5, null, 2e+17, 0])._col;
-  const result   = col.fromFloats();
+  const result   = col.stringsFromFloats();
   const expected = ['1.2', '12.0', '-2.3', '-5.0', null, '2.0e+17', '0.0'];
   expect([...Series.new(result)]).toEqual(expected);
 });
 
-test('Column.toFloats', () => {
+test('Column.stringsToFloats', () => {
   const col      = Series.new(['1.2', '12', '-2.3', '-5', null, '2e+17', '0'])._col;
-  const result   = col.toFloats(new Float64);
+  const result   = col.stringsToFloats(new Float64);
   const expected = [1.2, 12.0, -2.3, -5.0, null, 2.0e+17, 0.0];
   expect([...Series.new(result)]).toEqual(expected);
 });
@@ -178,16 +178,16 @@ test('Column.isInteger', () => {
   expect([...Series.new(result)]).toEqual(expected);
 });
 
-test('Column.fromIntegers', () => {
+test('Column.stringsFromIntegers', () => {
   const col      = Series.new({type: new Int32, data: [12, -5, null, 0]})._col;
-  const result   = col.fromIntegers();
+  const result   = col.stringsFromIntegers();
   const expected = ['12', '-5', null, '0'];
   expect([...Series.new(result)]).toEqual(expected);
 });
 
-test('Column.toIntegers', () => {
+test('Column.stringsToIntegers', () => {
   const col      = Series.new(['12', '-5', null, '0'])._col;
-  const result   = col.toIntegers(new Int32);
+  const result   = col.stringsToIntegers(new Int32);
   const expected = [12, -5, null, 0];
   expect([...Series.new(result)]).toEqual(expected);
 });
