@@ -106,7 +106,7 @@ ExecutionGraph::wrapper_t run_generate_graph(Napi::Env env,
       type_ids,                  // std::vector<cudf::type_id> types
       {},                        // std::vector<std::string> files
       {},                        // std::vector<std::string> datasource
-      {table_names[i]},          // std::vector<std::string> names
+      names,                     // std::vector<std::string> names
       {},                        // std::vector<size_t> calcite_to_file_indices
       {},                        // std::vector<bool> in_file
       ral::io::DataType::CUDF,   // int data_type

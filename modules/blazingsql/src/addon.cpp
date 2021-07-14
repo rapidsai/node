@@ -102,7 +102,7 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
 
       tables.Set(i, table);
       table_views.push_back(*table);
-      column_names.push_back(std::move(names));
+      column_names.push_back(names);
     }
 
     return nv::run_generate_graph(info.Env(),
