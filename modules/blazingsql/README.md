@@ -1,4 +1,4 @@
-# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids BlazingSQL - GPU accelerated SQL engine
+# node-rapids BlazingSQL - GPU accelerated SQL engine
 
 The js bindings for [BlazingSQL](https://github.com/BlazingDB/blazingsql) provides an API that allows for GPU accelerated SQL queries on [cuDF](https://github.com/rapidsai/cudf) DataFrames.
 
