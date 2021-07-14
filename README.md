@@ -6,6 +6,7 @@
 * [`@rapidsai/cudf`](https://github.com/rapidsai/node-rapids/tree/main/modules/cudf) - Bindings to the [RAPIDS GPU DataFrame](https://github.com/rapidsai/cudf)
 * [`@rapidsai/cugraph`](https://github.com/rapidsai/node-rapids/tree/main/modules/cugraph) - Bindings to the [RAPIDS Graph Analytics Library](https://github.com/rapidsai/cugraph)
 * [`@rapidsai/cuspatial`](https://github.com/rapidsai/node-rapids/tree/main/modules/cuspatial) - Bindings to the [RAPIDS Accelerated GIS Library](https://github.com/rapidsai/cuspatial)
+* [`@rapidsai/blazingsql`](https://github.com/rapidsai/node-rapids/tree/main/modules/blazingsql) - Bindings to the [BlazingSQL engine](https://github.com/BlazingDB/blazingsql)
 
 Additionally, `node-rapids` includes _limited_ bindings to:
 
