@@ -19,12 +19,22 @@
 namespace nv {
 
 enum class mr_type : uint8_t {
-  cuda,
-  managed,
-  pool,
-  fixedsize,
+  aligned_adaptor,
+  arena,
   binning,
-  logging,
+  cuda_async,
+  cuda,
+  device,
+  fixed_size,
+  limiting_adaptor,
+  logging_adaptor,
+  managed,
+  polymorphic_allocator,
+  pool,
+  statistics_adaptor,
+  thread_safe_adaptor,
+  thrust_allocator_adaptor,
+  tracking_adaptor,
 };
 
 }
