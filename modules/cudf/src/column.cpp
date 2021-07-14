@@ -139,6 +139,13 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::contains_re>("containsRe"),
                        InstanceMethod<&Column::count_re>("countRe"),
                        InstanceMethod<&Column::matches_re>("matchesRe"),
+                       // column/convert.cpp
+                       InstanceMethod<&Column::is_float>("isFloat"),
+                       InstanceMethod<&Column::from_floats>("fromFloats"),
+                       InstanceMethod<&Column::to_floats>("toFloats"),
+                       InstanceMethod<&Column::is_integer>("isInteger"),
+                       InstanceMethod<&Column::from_integers>("fromIntegers"),
+                       InstanceMethod<&Column::to_integers>("toIntegers"),
                      });
 }
 

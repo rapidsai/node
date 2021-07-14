@@ -26,6 +26,7 @@ import {
   Int64,
   Integral,
   Numeric,
+  Utf8String,
 } from './types/dtypes';
 import {CommonType, Interpolation} from './types/mappings';
 
@@ -699,6 +700,98 @@ export interface Column<T extends DataType = any> {
    *   values
    */
   isNotNaN(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Creates a column of `BOOL8` elements indicating strings in which all characters are valid for
+   * conversion to floats.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `BOOL8` elements with `true` representing convertible
+   *   values
+   */
+  isFloat(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Returns a new strings column converting the float values from the provided column into strings.
+   *
+   * Any null entries will result in corresponding null entries in the output column.
+   *
+   * For each float, a string is created in base-10 decimal. Negative numbers will include a '-'
+   * prefix. Numbers producing more than 10 significant digits will produce a string that includes
+   * scientific notation (e.g. "-1.78e+15").
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   *  @returns A string Column with floats as strings.
+   */
+  fromFloats(memoryResource?: MemoryResource): Column<Utf8String>;
+
+  /**
+   * Returns a new floating point numeric column parsing float values from the provided
+   * strings column.
+   *
+   * Any null entries will result in corresponding null entries in the output column.
+   *
+   * Only characters [0-9] plus a prefix '-' and '+' and decimal '.' are recognized. Additionally,
+   * scientific notation is also supported (e.g. "-1.78e+5").
+   *
+   * @param dataType Type of floating numeric column to return.
+   * @param memoryResource  The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   *  @returns A Column of a the specified float type with the results of the conversion.
+   */
+  toFloats<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
+
+  /**
+   * Creates a column of `BOOL8` elements indicating strings in which all characters are valid for
+   * conversion to floats.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `BOOL8` elements with `true` representing convertible
+   *   values
+   */
+  isInteger(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Returns a new strings column converting the integer values from the provided column into
+   * strings.
+   *
+   * Any null entries will result in corresponding null entries in the output column.
+   *
+   * For each integer, a string is created in base-10 decimal. Negative numbers will include a '-'
+   * prefix.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   *  @returns A string Column with integers as strings.
+   */
+  fromIntegers(memoryResource?: MemoryResource): Column<Utf8String>;
+
+  /**
+   * Returns a new integer numeric column parsing integer values from the provided strings column.
+   *
+   * Any null entries will result in corresponding null entries in the output column.
+   *
+   * Only characters [0-9] plus a prefix '-' and '+' are recognized. When any other character is
+   * encountered, the parsing ends for that string and the current digits are converted into an
+   * integer.
+   *
+   * Overflow of the resulting integer type is not checked. Each string is converted using an int64
+   * type and then cast to the target integer type before storing it into the output column. If the
+   * resulting integer type is too small to hold the value, the stored value will be undefined.
+   *
+   * @param dataType Type of integer numeric column to return.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   *  @returns A Column of a the specified integral type with the results of the conversion.
+   */
+  toIntegers<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
 
   /**
    * Compute the trigonometric sine for each value in this Column.
