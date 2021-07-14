@@ -15,7 +15,7 @@
 import '../../jest-extensions';
 
 import {BigIntArray, setDefaultAllocator, TypedArray, TypedArrayConstructor} from '@nvidia/cuda';
-import {Numeric} from '@rapidsai/cudf';
+import {Numeric, Utf8String} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
@@ -72,6 +72,10 @@ describe('Series unaryops (Int64)', () => {
   test('Series.bitInvert', () => {
     const actual = makeTestData([null, 0n, 3n, 6n]).bitInvert();
     expect([...actual].map(toBigInt)).toEqual([null, ~0n, ~3n, ~6n].map(toBigInt));
+  });
+  test('Series.cast Utf8String', () => {
+    const actual = makeTestData([null, 0n, 3n, 6n]);
+    expect([...actual.cast(new Utf8String)]).toEqual([null, '0', '3', '6']);
   });
   const clampValuesLikeUnaryCast = clampIntValuesLikeUnaryCast(new Int32Array([0]));
   testForEachNumericType(

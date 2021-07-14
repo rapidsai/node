@@ -41,11 +41,16 @@ import {
 } from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
+import {StringSeries} from './string';
 
 /**
  * A base class for Series of 8, 16, 32, or 64-bit integral values in GPU memory.
  */
 abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
+  _castAsString(memoryResource?: MemoryResource): StringSeries {
+    return StringSeries.new(this._col.fromIntegers(memoryResource));
+  }
+
   /**
    * Perform a binary `&` operation between this Series and another Series or scalar value.
    *

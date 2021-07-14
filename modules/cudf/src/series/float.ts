@@ -21,11 +21,16 @@ import {Series} from '../series';
 import {Bool8, Float32, Float64, FloatingPoint, Int32} from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
+import {StringSeries} from './string';
 
 /**
  * A base class for Series of 32 or 64-bit floating-point values in GPU memory.
  */
 abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
+  _castAsString(memoryResource?: MemoryResource): StringSeries {
+    return StringSeries.new(this._col.fromFloats(memoryResource));
+  }
+
   /**
    * Creates a Series of `BOOL8` elements where `true` indicates the value is `NaN` and `false`
    * indicates the value is valid.

@@ -16,7 +16,22 @@ import {MemoryResource} from '@rapidsai/rmm';
 
 import {Column} from '../column';
 import {Series} from '../series';
-import {Bool8, Categorical, DataType, Int32, Uint8, Utf8String} from '../types/dtypes';
+import {
+  Bool8,
+  Categorical,
+  DataType,
+  Float32,
+  Float64,
+  Int16,
+  Int32,
+  Int64,
+  Int8,
+  Uint16,
+  Uint32,
+  Uint64,
+  Uint8,
+  Utf8String
+} from '../types/dtypes';
 
 /**
  * A Series of utf8-string values in GPU memory.
@@ -37,6 +52,37 @@ export class StringSeries extends Series<Utf8String> {
       nullMask: this.mask,
       children: [keys._col, vals._col]
     }));
+  }
+
+  _castAsInt8(memoryResource?: MemoryResource): Series<Int8> {
+    return Series.new(this._col.toIntegers(new Int8, memoryResource));
+  }
+  _castAsInt16(memoryResource?: MemoryResource): Series<Int16> {
+    return Series.new(this._col.toIntegers(new Int16, memoryResource));
+  }
+  _castAsInt32(memoryResource?: MemoryResource): Series<Int32> {
+    return Series.new(this._col.toIntegers(new Int32, memoryResource));
+  }
+  _castAsInt64(memoryResource?: MemoryResource): Series<Int64> {
+    return Series.new(this._col.toIntegers(new Int64, memoryResource));
+  }
+  _castAsUint8(memoryResource?: MemoryResource): Series<Uint8> {
+    return Series.new(this._col.toIntegers(new Uint8, memoryResource));
+  }
+  _castAsUint16(memoryResource?: MemoryResource): Series<Uint16> {
+    return Series.new(this._col.toIntegers(new Uint16, memoryResource));
+  }
+  _castAsUint32(memoryResource?: MemoryResource): Series<Uint32> {
+    return Series.new(this._col.toIntegers(new Uint32, memoryResource));
+  }
+  _castAsUint64(memoryResource?: MemoryResource): Series<Uint64> {
+    return Series.new(this._col.toIntegers(new Uint64, memoryResource));
+  }
+  _castAsFloat32(memoryResource?: MemoryResource): Series<Float32> {
+    return Series.new(this._col.toFloats(new Float32, memoryResource));
+  }
+  _castAsFloat64(memoryResource?: MemoryResource): Series<Float64> {
+    return Series.new(this._col.toFloats(new Float64, memoryResource));
   }
 
   /**
