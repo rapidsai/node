@@ -473,21 +473,6 @@ export interface Column<T extends DataType = any> {
                                memoryResource?: MemoryResource): Column<CommonType<T, R>>;
 
   /**
-   * Perform a binary `coalesce` operation between this Column and another Column or scalar value.
-   *
-   * @param rhs The other Column or scalar to use.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
-   * @returns A Column of a common numeric type with the results of the binary operation.
-   */
-  coalesce(rhs: bigint, memoryResource?: MemoryResource): Column<Int64>;
-  coalesce(rhs: number, memoryResource?: MemoryResource): Column<Float64>;
-  coalesce<R extends Numeric>(rhs: Scalar<R>,
-                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-  coalesce<R extends Numeric>(rhs: Column<R>,
-                              memoryResource?: MemoryResource): Column<CommonType<T, R>>;
-
-  /**
    * Perform a binary `<<` operation between this Column and another Column or scalar value.
    *
    * @param rhs The other Column or scalar to use.

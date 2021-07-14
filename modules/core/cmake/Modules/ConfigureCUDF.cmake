@@ -34,6 +34,12 @@ function(find_and_configure_cudf VERSION)
     _set_package_dir_if_exists(arrow_cuda_shared arrow)
     _set_package_dir_if_exists(arrow_cuda_static arrow)
 
+    # Set this so Arrow doesn't add `-Werror` to
+    # CMAKE_CXX_FLAGS when CMAKE_BUILD_TYPE=Debug
+    set(BUILD_WARNING_LEVEL "PRODUCTION")
+    set(BUILD_WARNING_LEVEL "PRODUCTION" PARENT_SCOPE)
+    set(BUILD_WARNING_LEVEL "PRODUCTION" CACHE STRING "" FORCE)
+
     if(NOT TARGET cudf::cudf)
         _fix_rapids_cmake_dir()
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)

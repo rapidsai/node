@@ -661,32 +661,6 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   }
 
   /**
-   * Perform a binary `coalesce` operation between this Series and another Series or scalar value.
-   *
-   * @param rhs The other Series or scalar to use.
-   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
-   *   memory.
-   * @returns A Series of a common numeric type with the results of the binary operation.
-   */
-  coalesce(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
-  coalesce(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  coalesce<R extends Numeric>(rhs: Scalar<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  coalesce<R extends Numeric>(rhs: NumericSeries<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  coalesce<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                              memoryResource?: MemoryResource) {
-    switch (typeof rhs) {
-      case 'bigint': return Series.new(this._col.coalesce(rhs, memoryResource));
-      case 'number': return Series.new(this._col.coalesce(rhs, memoryResource));
-      default: break;
-    }
-    return rhs instanceof Scalar
-             ? Series.new(this._col.coalesce(rhs, memoryResource))
-             : Series.new(this._col.coalesce(rhs._col as Column<R>, memoryResource));
-  }
-
-  /**
    * Perform a binary `logBase` operation between this Series and another Series or scalar value.
    *
    * @param rhs The other Series or scalar to use.
