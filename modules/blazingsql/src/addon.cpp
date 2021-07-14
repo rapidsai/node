@@ -14,7 +14,6 @@
 
 #include <blazingsql/api.hpp>
 #include <blazingsql/cache.hpp>
-#include <blazingsql/contextwrapper.hpp>
 #include <blazingsql/graph.hpp>
 #include "context.hpp"
 
@@ -23,8 +22,8 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
     DefineAddon(
       exports,
       {InstanceMethod("init", &node_blazingsql::InitAddon),
-       InstanceMethod<&node_blazingsql::run_generate_graph>("runGenerateGraph"),
        InstanceMethod<&node_blazingsql::get_table_scan_info>("getTableScanInfo"),
+       InstanceMethod<&node_blazingsql::run_generate_graph>("runGenerateGraph"),
        InstanceMethod<&node_blazingsql::start_execute_graph>("startExecuteGraph"),
        InstanceMethod<&node_blazingsql::get_execute_graph_result>("getExecuteGraphResult"),
        InstanceValue("_cpp_exports", _cpp_exports.Value()),
@@ -35,12 +34,12 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
   }
 
  private:
-  Napi::Value run_generate_graph(Napi::CallbackInfo const& info) {
-    return nv::run_generate_graph(info);
-  }
-
   Napi::Value get_table_scan_info(Napi::CallbackInfo const& info) {
     return nv::get_table_scan_info(info);
+  }
+
+  Napi::Value run_generate_graph(Napi::CallbackInfo const& info) {
+    return nv::run_generate_graph(info);
   }
 
   void start_execute_graph(Napi::CallbackInfo const& info) { nv::start_execute_graph(info); }

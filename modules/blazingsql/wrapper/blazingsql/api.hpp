@@ -17,7 +17,6 @@
 #include "contextwrapper.hpp"
 #include "graph.hpp"
 
-#include <map>
 #include <nv_node/utilities/args.hpp>
 
 struct NodeMetaDataUCP;

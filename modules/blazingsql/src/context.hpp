@@ -15,7 +15,6 @@
 #pragma once
 
 #include <blazingsql/contextwrapper.hpp>
-#include <nv_node/objectwrap.hpp>
 
 namespace nv {
 

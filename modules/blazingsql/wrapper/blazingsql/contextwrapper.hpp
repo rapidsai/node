@@ -15,12 +15,6 @@
 #pragma once
 
 #include "cache.hpp"
-#include "graph.hpp"
-
-#include <nv_node/objectwrap.hpp>
-
-#include <napi.h>
-#include <map>
 
 namespace nv {
 
@@ -47,7 +41,7 @@ struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
                                  int> args);
 
   /**
-   * @brief Construct a new Context instance from JavaScript.
+   * @brief Construct a new ContextWrapper instance from JavaScript.
    */
   ContextWrapper(Napi::CallbackInfo const& info);
 

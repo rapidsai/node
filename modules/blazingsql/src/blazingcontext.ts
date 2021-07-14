@@ -34,9 +34,9 @@ import {defaultConfigValues} from './config';
 import {json_plan_py} from './json_plan';
 
 export class BlazingContext {
+  // @ts-ignore
   private context: Context;
-
-  private nodes: any[] = [];
+  private nodes: Record<string, unknown>[] = [];
   private db: any;
   private schema: any;
   private generator: any;
@@ -56,7 +56,7 @@ export class BlazingContext {
       workerId: 'self',
       network_iface_name: 'lo',
       ralCommunicationPort: 0,
-      workersUcpInfo: [],  // TODO: Fix.
+      workersUcpInfo: [],
       singleNode: true,
       configOptions: defaultConfigValues,
       allocationMode: 'cuda_memory_resource',
@@ -136,7 +136,6 @@ export class BlazingContext {
 
     if (detail == true) {
       // TODO: Handle the true case.
-      console.log(this.context);
     }
 
     return String(algebra);

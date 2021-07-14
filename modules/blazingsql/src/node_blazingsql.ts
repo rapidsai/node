@@ -2,11 +2,6 @@ import {DataFrame, Table} from '@rapidsai/cudf';
 
 export declare function getTableScanInfo(logicalPlan: string): [string[], string[]];
 
-export declare function startExecuteGraph(executionGraph: ExecutionGraph, ctxToken: number): void;
-
-export declare function getExecuteGraphResult(executionGraph: ExecutionGraph,
-                                              ctxToken: number): {names: string[], tables: Table[]};
-
 export declare function runGenerateGraph(masterIndex: number,
                                          workerIds: any[],
                                          dataframes: DataFrame[],
@@ -17,6 +12,11 @@ export declare function runGenerateGraph(masterIndex: number,
                                          configOptions: Record<string, unknown>,
                                          sql: string,
                                          currentTimestamp: string): ExecutionGraph;
+
+export declare function startExecuteGraph(executionGraph: ExecutionGraph, ctxToken: number): void;
+
+export declare function getExecuteGraphResult(executionGraph: ExecutionGraph,
+                                              ctxToken: number): {names: string[], tables: Table[]};
 
 export type ContextProps = {
   ralId: number; workerId: string; network_iface_name: string; ralCommunicationPort: number;

@@ -12,15 +12,10 @@
 // // See the License for the specific language governing permissions and
 // // limitations under the License.
 
-#pragma once
-
 #include "api.hpp"
-#include "cache.hpp"
 
-#include <engine/common.h>
 #include <engine/engine.h>
 #include <engine/initialize.h>
-#include <io/io.h>
 #include <node_cudf/table.hpp>
 
 namespace nv {
@@ -72,9 +67,9 @@ Napi::Value get_table_scan_info(Napi::CallbackInfo const& info) {
 
   std::string logical_plan = args[0];
   auto table_scan_info     = ::getTableScanInfo(logical_plan);
-  Napi::Array table_names  = Napi::Array::New(env, table_scan_info.table_names.size());
-  Napi::Array table_scans  = Napi::Array::New(env, table_scan_info.relational_algebra_steps.size());
 
+  Napi::Array table_names = Napi::Array::New(env, table_scan_info.table_names.size());
+  Napi::Array table_scans = Napi::Array::New(env, table_scan_info.relational_algebra_steps.size());
   for (int i = 0; i < table_scan_info.table_names.size(); ++i) {
     table_names[i] = Napi::String::New(env, table_scan_info.table_names[i]);
   }
@@ -219,4 +214,5 @@ Napi::Value get_execute_graph_result(Napi::CallbackInfo const& info) {
   result.Set("tables", result_tables);
   return result;
 }
+
 }  // namespace nv
