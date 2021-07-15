@@ -20,10 +20,10 @@
 #ifdef CHECK_CUDA
 #undef CHECK_CUDA
 #endif
-#include <umap/runner.cuh>
-#ifdef CHECK_CUDA
-#undef CHECK_CUDA
-#endif
+#include <raft/linalg/distance_type.h>
 #ifdef CUDA_TRY
 #undef CUDA_TRY
+#endif
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
 #endif

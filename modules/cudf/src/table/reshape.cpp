@@ -15,7 +15,6 @@
 #include <node_cudf/column.hpp>
 #include <node_cudf/table.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
-
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
