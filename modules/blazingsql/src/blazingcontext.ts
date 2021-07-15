@@ -85,6 +85,37 @@ export class BlazingContext {
     this.generator = RelationalAlgebraGenerator(this.schema);
   }
 
+  /**
+   * Drop a BlazingSQL table from BlazingContext memory.
+   *
+   * @param tableName Name of the table to drop
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
+   * const df = new DataFrame({'a': a, 'b': b});
+   *
+   * const bc = new BlazingContext();
+   * bc.createTable('test_table', df);
+   * bc.sql('SELECT a FROM test_table');
+   * bc.dropTable('test_table', df);
+   * ```
+   */
+  dropTable(tableName: string): void {
+    if (!this.tables[tableName]) {
+      throw new Error('Unable to find table to drop from BlazingContext memory');
+    }
+
+    callMethodSync(this.db, 'removeTable', tableName);
+    this.schema    = BlazingSchema(this.db);
+    this.generator = RelationalAlgebraGenerator(this.schema);
+    delete this.tables[tableName];
+  }
+
   sql(query: string,
       algebra: string|null                   = null,
       configOptions: Record<string, unknown> = defaultConfigValues,
