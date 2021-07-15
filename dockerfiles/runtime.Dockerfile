@@ -6,20 +6,35 @@ FROM node:$NODE_VERSION-stretch-slim as node
 
 FROM ${DEVEL_IMAGE} as devel
 
-COPY --chown=node:node build/*.tgz /home/node/
-
 SHELL ["/bin/bash", "-c"]
 
-RUN cd /home/node \
- && npm install \
-    --no-fund --no-audit \
-    --production --save-exact \
-    --omit dev --omit peer --omit optional \
-    /home/node/*.tgz \
- && npm dedupe \
-    --no-fund --no-audit \
-    --production --save-exact \
-    --omit dev --omit peer --omit optional
+COPY --chown=node:node . /opt/node-rapids
+
+WORKDIR /opt/node-rapids
+
+ARG DISPLAY
+ARG PARALLEL_LEVEL
+ARG RAPIDS_VERSION
+ARG SCCACHE_REGION
+ARG SCCACHE_BUCKET
+ARG SCCACHE_CACHE_SIZE
+ARG SCCACHE_IDLE_TIMEOUT
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+
+RUN echo -e "build env:\n$(env)" \
+ && echo -e "build context:\n$(find .)" \
+ && export DISPLAY="$DISPLAY" \
+ && export PARALLEL_LEVEL="$PARALLEL_LEVEL" \
+ && export RAPIDS_VERSION="$RAPIDS_VERSION" \
+ && export SCCACHE_REGION="$SCCACHE_REGION" \
+ && export SCCACHE_BUCKET="$SCCACHE_BUCKET" \
+ && export SCCACHE_CACHE_SIZE="$SCCACHE_CACHE_SIZE" \
+ && export SCCACHE_IDLE_TIMEOUT="$SCCACHE_IDLE_TIMEOUT" \
+ && export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
+ && export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
+ && export CUDAARCHS=ALL \
+ && yarn nuke:from:orbit && yarn dev:npm:pack
 
 FROM ${BASE_IMAGE}
 
@@ -113,8 +128,13 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 USER node
 
-COPY --from=build --chown=node:node /home/node/node_modules /home/node/node_modules
-
 WORKDIR /home/node
+
+COPY --from=devel --chown=node:node /opt/node-rapids/.npmrc /home/node/
+COPY --from=devel --chown=node:node /opt/node-rapids/build/*.tgz /home/node/
+
+RUN npm install --production --omit dev --omit peer --omit optional /home/node/*.tgz \
+ && npm dedupe  --production --omit dev --omit peer --omit optional \
+ && rm /home/node/*.tgz
 
 CMD ["node"]

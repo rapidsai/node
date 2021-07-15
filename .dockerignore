@@ -20,6 +20,7 @@
 **/modules/**/lib
 **/modules/**/data
 **/modules/**/build
+**/modules/demo/client-server/.next
 
 **/modules/*/include/napi.h
 **/modules/*/include/napi-inl.h
@@ -27,6 +28,7 @@
 **/modules/*/include/node_api.h
 
 doc
-scripts
+.env
+build
 dockerfiles
 .dockerignore

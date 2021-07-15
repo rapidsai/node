@@ -36,6 +36,15 @@ services:
       dockerfile: dockerfiles/runtime.Dockerfile
       args:
         <<: *common_build_args
+        DISPLAY: "${DISPLAY:-}"
+        PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
+        RAPIDS_VERSION: "${RAPIDS_VERSION:-}"
+        SCCACHE_REGION: "${SCCACHE_REGION:-}"
+        SCCACHE_BUCKET: "${SCCACHE_BUCKET:-}"
+        SCCACHE_CACHE_SIZE: "${SCCACHE_CACHE_SIZE:-}"
+        SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-}"
+        AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
+        AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
         BASE_IMAGE: nvidia/cudagl:${CUDA_VERSION:-11.2.2}-runtime-${LINUX_VERSION:-ubuntu20.04}
         DEVEL_IMAGE: rapidsai/js:${RAPIDS_VERSION:-latest}-cuda${CUDA_VERSION:-11.2.2}-devel-${LINUX_VERSION:-ubuntu20.04}-amd64
     volumes:
