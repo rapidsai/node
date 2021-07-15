@@ -6178,9 +6178,9 @@ echarts@5.0.2:
     zrender "5.0.4"
 
 electron-to-chromium@^1.3.723:
-  version "1.3.775"
-  resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.775.tgz#046517d1f2cea753e06fff549995b9dc45e20082"
-  integrity sha512-EGuiJW4yBPOTj2NtWGZcX93ZE8IGj33HJAx4d3ouE2zOfW2trbWU+t1e0yzLr1qQIw81++txbM3BH52QwSRE6Q==
+  version "1.3.776"
+  resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.776.tgz#33f6e2423b61f1bdaa8d2a103aae78a09764a75f"
+  integrity sha512-V0w7eFSBoFPpdw4xexjVPZ770UDZIevSwkkj4W97XbE3IsCsTRFpa7/yXGZ88EOQAUEA09JMMsWK0xsw0kRAYw==
 
 elliptic@^6.5.3:
   version "6.5.4"

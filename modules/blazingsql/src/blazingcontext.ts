@@ -66,6 +66,25 @@ export class BlazingContext {
     });
   }
 
+  /**
+   * Create a BlazingSQL table to be used for future queries.
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param input Data source for the table
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
+   * const df = new DataFrame({'a': a, 'b': b});
+   *
+   * const bc = new BlazingContext();
+   * bc.createTable('test_table', df);
+   * ```
+   */
   createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
     callMethodSync(this.db, 'removeTable', tableName);
     this.tables[tableName] = input;
@@ -85,6 +104,30 @@ export class BlazingContext {
     this.generator = RelationalAlgebraGenerator(this.schema);
   }
 
+  /**
+   * Query a BlazingSQL table and return the result as a DataFrame.
+   *
+   * @param query SQL query string
+   * @param algebra SQL algebra plan string, use this to run on a relational algebra query instead
+   *   of a query string
+   * @param configOptions Set a specific set of configOptions for this query instead of the
+   *   defaults
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
+   * const df = new DataFrame({'a': a, 'b': b});
+   *
+   * const bc = new BlazingContext();
+   * bc.createTable('test_table', df);
+   *
+   * bc.sql('SELECT a FROM test_table'); // [1, 2, 3]
+   * ```
+   */
   sql(query: string,
       algebra: string|null                   = null,
       configOptions: Record<string, unknown> = defaultConfigValues,
@@ -104,19 +147,20 @@ export class BlazingContext {
       // TODO: Handle return_token true case.
     }
 
-    const masterIndex          = 0;
-    const tableScanInfo        = getTableScanInfo(algebra);
-    const tableNames           = tableScanInfo[0];
-    const tableScans           = tableScanInfo[1];
-    const d                    = new Date();
-    const currentTimestamp     = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
+    const masterIndex      = 0;
+    const tableScanInfo    = getTableScanInfo(algebra);
+    const tableNames       = tableScanInfo[0];
+    const tableScans       = tableScanInfo[1];
+    const d                = new Date();
+    const currentTimestamp = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
       d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
     const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
-    const dataframe: DataFrame = this.tables[tableNames[0]];
+    const selectedDataFrames: DataFrame[] =
+      tableNames.map((name: string) => { return this.tables[name]; });
 
     const executionGraphResult = runGenerateGraph(masterIndex,
                                                   ['self'],
-                                                  [dataframe],
+                                                  selectedDataFrames,
                                                   tableScans,
                                                   tableScans,
                                                   ctxToken,
