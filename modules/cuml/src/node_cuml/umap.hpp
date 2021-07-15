@@ -16,14 +16,13 @@
 
 #include "cuml/manifold/umap.hpp"
 #include "cuml/manifold/umapparams.hpp"
-#include "raft/handle.hpp"
 
 #include <node_cudf/column.hpp>
-
 #include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
 
 #include <cuml/common/device_buffer.hpp>
+#include <raft/handle.hpp>
 
 #include <napi.h>
 

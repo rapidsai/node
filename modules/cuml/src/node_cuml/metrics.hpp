@@ -15,10 +15,11 @@
 #pragma once
 
 #include "cuml/metrics/metrics.hpp"
-#include "raft/handle.hpp"
 #include "raft/linalg/distance_type.h"
 
 #include <nv_node/utilities/args.hpp>
+
+#include <raft/handle.hpp>
 
 #include <napi.h>
 
