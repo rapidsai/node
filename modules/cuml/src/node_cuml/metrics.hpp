@@ -14,6 +14,8 @@
 
 #pragma once
 
+// todo: including the below headers with undef guards is the only way cuml builds with raft
+// locally
 #include "cuml/metrics/metrics.hpp"
 #include "raft/linalg/distance_type.h"
 

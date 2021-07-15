@@ -14,6 +14,8 @@
 
 #pragma once
 
+// todo: including the below headers with undef guards is the only way cuml builds with raft
+// locally
 #include "cuml/manifold/umap.hpp"
 #include "cuml/manifold/umapparams.hpp"
 
