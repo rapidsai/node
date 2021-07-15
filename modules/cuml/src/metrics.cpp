@@ -29,7 +29,6 @@ Napi::Value trustworthiness(Napi::CallbackInfo const& info) {
   DeviceBuffer::wrapper_t embedded = data_to_devicebuffer(args.Env(), args[2], args[3]);
 
   raft::handle_t handle;
-  CUDA_CHECK(cudaStreamSynchronize(handle.get_stream()));
   try {
     double result = ML::Metrics::trustworthiness_score<float, raft::distance::L2SqrtUnexpanded>(
       handle,
