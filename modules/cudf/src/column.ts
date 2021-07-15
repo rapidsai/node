@@ -20,6 +20,7 @@ import {Scalar} from './scalar';
 import {
   Bool8,
   DataType,
+  Float32,
   Float64,
   IndexType,
   Int32,
@@ -710,7 +711,7 @@ export interface Column<T extends DataType = any> {
    * @returns A non-nullable column of `BOOL8` elements with `true` representing convertible
    *   values
    */
-  isFloat(memoryResource?: MemoryResource): Column<Bool8>;
+  stringIsFloat(memoryResource?: MemoryResource): Column<Bool8>;
 
   /**
    * Returns a new strings column converting the float values from the provided column into strings.
@@ -743,7 +744,8 @@ export interface Column<T extends DataType = any> {
    *
    *  @returns A Column of a the specified float type with the results of the conversion.
    */
-  stringsToFloats<R extends Float32 | Float64>(dataType: R, memoryResource?: MemoryResource): Column<R>;
+  stringsToFloats<R extends Float32|Float64>(dataType: R,
+                                             memoryResource?: MemoryResource): Column<R>;
 
   /**
    * Creates a column of `BOOL8` elements indicating strings in which all characters are valid for
@@ -754,7 +756,7 @@ export interface Column<T extends DataType = any> {
    * @returns A non-nullable column of `BOOL8` elements with `true` representing convertible
    *   values
    */
-  isInteger(memoryResource?: MemoryResource): Column<Bool8>;
+  stringIsInteger(memoryResource?: MemoryResource): Column<Bool8>;
 
   /**
    * Returns a new strings column converting the integer values from the provided column into

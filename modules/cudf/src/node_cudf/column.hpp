@@ -723,23 +723,23 @@ struct Column : public EnvLocalObjectWrap<Column> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/convert.cpp
-  Column::wrapper_t is_float(
+  Column::wrapper_t string_is_float(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  Column::wrapper_t from_floats(
+  Column::wrapper_t strings_from_floats(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  Column::wrapper_t to_floats(
+  Column::wrapper_t strings_to_floats(
     cudf::data_type out_type,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  Column::wrapper_t is_integer(
+  Column::wrapper_t string_is_integer(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  Column::wrapper_t from_integers(
+  Column::wrapper_t strings_from_integers(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  Column::wrapper_t to_integers(
+  Column::wrapper_t strings_to_integers(
     cudf::data_type out_type,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
@@ -887,12 +887,12 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value matches_re(Napi::CallbackInfo const& info);
 
   // column/convert.hpp
-  Napi::Value is_float(Napi::CallbackInfo const& info);
-  Napi::Value from_floats(Napi::CallbackInfo const& info);
-  Napi::Value to_floats(Napi::CallbackInfo const& info);
-  Napi::Value is_integer(Napi::CallbackInfo const& info);
-  Napi::Value from_integers(Napi::CallbackInfo const& info);
-  Napi::Value to_integers(Napi::CallbackInfo const& info);
+  Napi::Value string_is_float(Napi::CallbackInfo const& info);
+  Napi::Value strings_from_floats(Napi::CallbackInfo const& info);
+  Napi::Value strings_to_floats(Napi::CallbackInfo const& info);
+  Napi::Value string_is_integer(Napi::CallbackInfo const& info);
+  Napi::Value strings_from_integers(Napi::CallbackInfo const& info);
+  Napi::Value strings_to_integers(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

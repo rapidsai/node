@@ -150,9 +150,9 @@ test('Column.nansToNulls', () => {
   expect([...Series.new(result)]).toEqual(expected);
 });
 
-test('Column.isFloat', () => {
+test('Column.stringIsFloat', () => {
   const col      = Series.new(['1.2', '12', 'abc', '-2.3', '-5', null, '2e+17', '0'])._col;
-  const result   = col.isFloat();
+  const result   = col.stringIsFloat();
   const expected = [true, true, false, true, true, null, true, true];
   expect([...Series.new(result)]).toEqual(expected);
 });
@@ -171,9 +171,9 @@ test('Column.stringsToFloats', () => {
   expect([...Series.new(result)]).toEqual(expected);
 });
 
-test('Column.isInteger', () => {
+test('Column.stringIsInteger', () => {
   const col      = Series.new(['1.2', '12', 'abc', '-2.3', '-5', null, '2e+17', '0'])._col;
-  const result   = col.isInteger();
+  const result   = col.stringIsInteger();
   const expected = [false, true, false, false, true, null, false, true];
   expect([...Series.new(result)]).toEqual(expected);
 });
