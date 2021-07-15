@@ -500,24 +500,34 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 
 ## BlazingSQL
 
-| BlazingSQL                     | node-rapids |
-| ------------------------------ | :---------: |
-| `runGeneratePhysicalGraph`     |             |
-| `runGenerateGraph`             |     ✅      |
-| `startExecuteGraph`            |     ✅      |
-| `getExecuteGraphResult`        |     ✅      |
-| `getTableScanInfo`             |     ✅      |
-| `runSkipData`                  |             |
-| `initialize`                   |     ✅      |
-| `finalize`                     |             |
-| `getFreeMemory`                |             |
-| `resetMaxMemoryUsed`           |             |
-| `getMaxMemoryUsed`             |             |
-| `getProductDetails`            |             |
-| `runQuery_C`                   |             |
-| `getTableScanInfo_C`           |             |
-| `runSkipData_C`                |             |
-| `initialize_C`                 |             |
-| `finalize_C`                   |             |
+| BlazingSQL                     |        node-rapids         |
+| ------------------------------ | :------------------------: |
+| `BlazingContext`               |              ✅            |
+| `create_table`                 |     ✅ (`createTable`)     |
+| `drop_table`                   |      ✅ (`dropTable`)      |
+| `describe_table`               |                            |
+| `list_tables`                  |     ✅ (`listTables`)      |
+| `partition`                    |                            |
+| `add_remove_table`             |                            |
+| `sql`                          |              ✅            |
+| `explain`                      |                            |
+| `fetch`                        |                            |
+| `status`                       |                            |
+| `do_progress_bar`              |                            |
+| `get_free_memory`              |                            |
+| `get_max_memory_used`          |                            |
+| `reset_max_memory_used`        |                            |
+| `gs`                           |                            |
+| `hdfs`                         |                            |
+| `localfs`                      |                            |
+| `s3`                           |                            |
+| `create_table (hive)`          |                            |
+| `create_table (ORC)`           |                            |
+| `create_table (parquet)`       |                            |
+| `create_table (pandas df)`     |                            |
+| `create_table (cudf df)`       |              ✅            |
+| `create_table (dask_cudf df)`  |                            |
+| `create_table (plain text)`    |                            |
+
 
 #### EOF

@@ -7,15 +7,21 @@ test('create and drop table', () => {
 
   const bc = new BlazingContext();
   bc.createTable('test_table', df);
-  bc.sql('SELECT * FROM test_table');
+  expect(bc.listTables().length).toEqual(1);
 
   bc.dropTable('test_table');
-  expect(() => bc.sql('SELECT * FROM test_table')).toThrow();
+  expect(bc.listTables().length).toEqual(0);
 });
 
-test('drop table that was not previously created', () => {
+test('list tables', () => {
+  const a  = Series.new([1, 2, 3]);
+  const df = new DataFrame({'a': a});
+
   const bc = new BlazingContext();
-  expect(() => bc.dropTable('test_table')).toThrow();
+  bc.createTable('test_table', df);
+  bc.createTable('test_table2', df);
+
+  expect(bc.listTables()).toEqual(['test_table', 'test_table2']);
 });
 
 test('base case', () => {

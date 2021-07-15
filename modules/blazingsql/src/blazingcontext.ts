@@ -116,6 +116,8 @@ export class BlazingContext {
     delete this.tables[tableName];
   }
 
+  listTables(): string[] { return Object.keys(this.tables); }
+
   sql(query: string,
       algebra: string|null                   = null,
       configOptions: Record<string, unknown> = defaultConfigValues,
