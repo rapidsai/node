@@ -12,8 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * as addon from './addon';
+#pragma once
 
-export * from './umap';
-export * from './metrics';
-export * from './mappings';
+#ifdef CUDA_TRY
+#undef CUDA_TRY
+#endif
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif
+#include <cuml/metrics/metrics.hpp>
+#ifdef CUDA_TRY
+#undef CUDA_TRY
+#endif
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif
