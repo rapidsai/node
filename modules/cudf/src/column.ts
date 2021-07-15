@@ -743,7 +743,7 @@ export interface Column<T extends DataType = any> {
    *
    *  @returns A Column of a the specified float type with the results of the conversion.
    */
-  stringsToFloats<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
+  stringsToFloats<R extends Float32 | Float64>(dataType: R, memoryResource?: MemoryResource): Column<R>;
 
   /**
    * Creates a column of `BOOL8` elements indicating strings in which all characters are valid for
