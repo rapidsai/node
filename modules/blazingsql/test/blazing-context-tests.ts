@@ -7,7 +7,10 @@ test('create and drop table', () => {
 
   const bc = new BlazingContext();
   bc.createTable('test_table', df);
+  bc.sql('SELECT * FROM test_table');
+
   bc.dropTable('test_table');
+  expect(() => bc.sql('SELECT * FROM test_table')).toThrow();
 });
 
 test('drop table that was not previously created', () => {
