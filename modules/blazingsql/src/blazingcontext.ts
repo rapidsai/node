@@ -116,6 +116,22 @@ export class BlazingContext {
     delete this.tables[tableName];
   }
 
+  /**
+   * Returns an array with the names of all created tables.
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const df = new DataFrame({'a': a});
+   *
+   * const bc = new BlazingContext();
+   * bc.createTable('test_table', df);
+   * bc.listTables(); // ['test_table']
+   * ```
+   */
   listTables(): string[] { return Object.keys(this.tables); }
 
   sql(query: string,
