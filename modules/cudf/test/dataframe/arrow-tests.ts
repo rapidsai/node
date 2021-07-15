@@ -12,10 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {DataFrame} from '@rapidsai/cudf';
+import {FloatVector, IntVector, Table} from 'apache-arrow';
 import {ChildProcessByStdio, spawn} from 'child_process';
 import {Readable, Writable} from 'stream';
 
 jest.setTimeout(60 * 1000);
+
+test(`fromArrow works from host memory`, () => {
+  const table = Table.new(
+    [
+      FloatVector.from(new Float64Array([1.1, 2.2, 0, -3.3, -4.4])),
+      IntVector.from(new Int32Array([1, 2, 0, -3, -4]))
+    ],
+    ['floats', 'ints']);
+  const serialized_table = table.serialize();  // Uint8Array
+  const df               = DataFrame.fromArrow(serialized_table);
+
+  expect([...df.names]).toStrictEqual(['floats', 'ints']);
+  expect([...df.get('floats')]).toStrictEqual([1.1, 2.2, 0, -3.3, -4.4]);
+  expect([...df.get('ints')]).toStrictEqual([1, 2, 0, -3, -4]);
+});
 
 test(`fromArrow works between subprocesses`, async () => {
   let src: ChildProcessByStdio<Writable, Readable, null>|undefined;

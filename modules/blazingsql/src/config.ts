@@ -1,7 +1,4 @@
-import {BLAZINGSQL} from './addon';
-
-// TODO: Move this somewhere else...
-export const default_config: Record<string, unknown> = {
+export const defaultConfigValues: Record<string, unknown> = {
   JOIN_PARTITION_SIZE_THRESHOLD: 400000000,
   CONCATENATING_CACHE_NUM_BYTES_TIMEOUT: 100,
   MAX_JOIN_SCATTER_MEM_OVERHEAD: 500000000,
@@ -33,39 +30,3 @@ export const default_config: Record<string, unknown> = {
   PROTOCOL: 'AUTO',
   REQUIRE_ACKNOWLEDGE: false,
 };
-
-export type ContextProps = {
-  ralId: number; workerId: string; network_iface_name: string; ralCommunicationPort: number;
-  workersUcpInfo: [];
-  singleNode: boolean;
-  configOptions: Record<string, unknown>;
-  allocationMode: string;
-  initialPoolSize: number | null;
-  maximumPoolSize: number | null;
-  enableLogging: boolean;
-};
-
-interface ContextConstructor {
-  readonly prototype: Context;
-  new(props: ContextProps): Context;
-}
-
-export interface Context {
-  readonly port: number;
-
-  sql(masterIndex: number,
-      workerIds: string[],
-      dataframes: any,
-      tableNames: string[],
-      tableScans: string[],
-      ctxToken: number,
-      query: string,
-      configOptions: Record<string, unknown>,
-      sql: string,
-      currentTimestamp: string): void;
-
-  getTableScanInfo(logicalPlan: string): [string[], string[]];
-}
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const Context: ContextConstructor = BLAZINGSQL.Context;

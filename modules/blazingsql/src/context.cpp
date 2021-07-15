@@ -12,29 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#include "context.hpp"
 
-#include <cstdint>
+#include <blazingsql/api.hpp>
 
 namespace nv {
 
-enum class mr_type : uint8_t {
-  aligned_adaptor,
-  arena,
-  binning,
-  cuda_async,
-  cuda,
-  device,
-  fixed_size,
-  limiting_adaptor,
-  logging_adaptor,
-  managed,
-  polymorphic_allocator,
-  pool,
-  statistics_adaptor,
-  thread_safe_adaptor,
-  thrust_allocator_adaptor,
-  tracking_adaptor,
-};
-
+Napi::Function Context::Init(Napi::Env env, Napi::Object exports) {
+  return DefineClass(env, "Context", {});
 }
+
+Context::wrapper_t Context::New(Napi::Env const& env) {
+  return EnvLocalObjectWrap<Context>::New(env);
+}
+
+Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(info) {
+  auto env                = info.Env();
+  NapiToCPP::Object props = info[0];
+  auto result_context     = nv::initialize(env, props);
+  this->context           = Napi::Persistent(result_context);
+}
+
+}  // namespace nv

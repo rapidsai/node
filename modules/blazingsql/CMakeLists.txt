@@ -82,8 +82,9 @@ list(REMOVE_ITEM BLAZINGSQL_WRAPPER_CMAKE_CUDA_FLAGS -Werror)
 
 add_library(blazingsql_wrapper SHARED
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/cache.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/context.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/graph.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/api.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/contextwrapper.cpp"
 )
 
 set_target_properties(blazingsql_wrapper
@@ -108,8 +109,8 @@ target_compile_options(blazingsql_wrapper
 
 target_include_directories(blazingsql_wrapper
     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
-           "$<BUILD_INTERFACE:${NODE_RAPIDS_RMM_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDF_MODULE_PATH}/src>"
+           "$<BUILD_INTERFACE:${NODE_RAPIDS_RMM_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDA_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
@@ -118,10 +119,10 @@ target_include_directories(blazingsql_wrapper
 target_link_libraries(blazingsql_wrapper
     PUBLIC  rmm::rmm
             cudf::cudf
-            "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
-            "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
-            "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node"
     PRIVATE blazingdb::blazingsql-engine
+    PUBLIC  "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
+            "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
+            "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node"
 )
 
 ###################################################################################################
@@ -154,8 +155,8 @@ target_compile_options(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/wrapper>"
-           "$<BUILD_INTERFACE:${NODE_RAPIDS_RMM_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDF_MODULE_PATH}/src>"
+           "$<BUILD_INTERFACE:${NODE_RAPIDS_RMM_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDA_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
@@ -168,8 +169,8 @@ target_link_libraries(${PROJECT_NAME}
                       rmm::rmm
                       cudf::cudf
                       blazingsql_wrapper
-                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
+                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin

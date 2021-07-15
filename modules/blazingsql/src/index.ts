@@ -12,6 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {BLAZINGSQL as addon} from './addon';
-
-export * from './blazingcontext';
+export {BlazingContext} from './blazingcontext';

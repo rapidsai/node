@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
 #include <node_cudf/column.hpp>
 #include <node_cudf/table.hpp>
 
@@ -60,20 +61,36 @@ Napi::Value Table::to_arrow(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value Table::from_arrow(Napi::CallbackInfo const& info) {
+  using namespace arrow::cuda;
+  using namespace arrow::io;
+  using namespace arrow::ipc;
+
   CallbackArgs args{info};
   auto env = info.Env();
 
-  auto device_manager = arrow::cuda::CudaDeviceManager::Instance().ValueOrDie();
+  auto device_manager = CudaDeviceManager::Instance().ValueOrDie();
   auto context        = device_manager->GetContext(Device::active_device_id()).ValueOrDie();
 
   Span<uint8_t> span = args[0];
-  auto buffer        = std::make_shared<arrow::cuda::CudaBuffer>(
-    span.data(), span.size(), context, false, IpcMemory::IsInstance(args[0]));
+  auto buffer_reader = std::unique_ptr<InputStream>(nullptr);
 
-  auto buffer_reader  = new arrow::cuda::CudaBufferReader(buffer);
-  auto message_reader = CudaMessageReader::Open(buffer_reader, nullptr);
-  auto stream_reader =
-    arrow::ipc::RecordBatchStreamReader::Open(std::move(message_reader)).ValueOrDie();
+  auto message_reader = [&] {
+    uint32_t memory_type  = CU_MEMORYTYPE_HOST;
+    CUresult const status = cuPointerGetAttribute(
+      &memory_type, CU_POINTER_ATTRIBUTE_MEMORY_TYPE, reinterpret_cast<CUdeviceptr>(span.data()));
+
+    // If the memory was not allocated via Cuda at all, this error is returned -- assume host
+    if (status == CUDA_ERROR_INVALID_VALUE or memory_type == CU_MEMORYTYPE_HOST) {
+      buffer_reader.reset(
+        new BufferReader(std::make_shared<arrow::Buffer>(span.data(), span.size())));
+      return MessageReader::Open(buffer_reader.get());
+    }
+    buffer_reader.reset(new CudaBufferReader(std::make_shared<CudaBuffer>(
+      span.data(), span.size(), context, false, IpcMemory::IsInstance(args[0]))));
+    return CudaMessageReader::Open(static_cast<CudaBufferReader*>(buffer_reader.get()), nullptr);
+  }();
+
+  auto stream_reader = RecordBatchStreamReader::Open(std::move(message_reader)).ValueOrDie();
 
   std::shared_ptr<arrow::Table> arrow_table{};
   auto status = stream_reader->ReadAll(&arrow_table);

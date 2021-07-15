@@ -531,13 +531,6 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Column::wrapper_t logical_or(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  // cudf::binary_operator::COALESCE
-  Column::wrapper_t coalesce(
-    Column const& other,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  Column::wrapper_t coalesce(
-    Scalar const& other,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::SHIFT_LEFT
   Column::wrapper_t operator<<(Column const& other) const;
   Column::wrapper_t operator<<(Scalar const& other) const;
@@ -776,7 +769,6 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value bitwise_xor(Napi::CallbackInfo const& info);
   Napi::Value logical_and(Napi::CallbackInfo const& info);
   Napi::Value logical_or(Napi::CallbackInfo const& info);
-  Napi::Value coalesce(Napi::CallbackInfo const& info);
   Napi::Value shift_left(Napi::CallbackInfo const& info);
   Napi::Value shift_right(Napi::CallbackInfo const& info);
   Napi::Value shift_right_unsigned(Napi::CallbackInfo const& info);
