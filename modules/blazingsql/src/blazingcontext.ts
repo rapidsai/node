@@ -20,6 +20,7 @@ import {
   getExecuteGraphResult,
   getTableScanInfo,
   runGenerateGraph,
+  runGeneratePhysicalGraph,
   startExecuteGraph
 } from './addon';
 import {
@@ -253,12 +254,40 @@ export class BlazingContext {
       (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }
 
-  private explain(sql: string, detail = false): string {
-    const algebra = callMethodSync(this.generator, 'getRelationalAlgebraString', sql);
+  /**
+   * Returns a break down of a given query's logical relational algebra plan.
+   *
+   * @param sql SQL query
+   * @param detail if a physical plan should be returned instead
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame from '@rapidsai/cudf';
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new([1, 2, 3]);
+   * const df = new DataFrame({'a': a});
+   *
+   * const bc = new BlazingContext();
+   * bc.createTable('test_table', df);
+   *
+   * bc.explain('SELECT a FROM test_table'); // BindableTableScan(table=[[main, test_table]],
+   * aliases=[[a]])
+   * ```
+   */
+  explain(sql: string, detail = false): string {
+    let algebra = '';
 
-    if (detail == true) {
-      // TODO: Handle the true case.
-    }
+    try {
+      algebra = callMethodSync(this.generator, 'getRelationalAlgebraString', sql);
+
+      if (detail == true) {
+        const masterIndex = 0;
+        const ctxToken    = Math.random() * Number.MAX_SAFE_INTEGER;
+        algebra           = json_plan_py(
+          runGeneratePhysicalGraph(masterIndex, ['self'], ctxToken, json_plan_py(algebra)), 'True');
+      }
+    } catch (ex) { throw new Error(ex.cause.getMessageSync()); }
 
     return String(algebra);
   }

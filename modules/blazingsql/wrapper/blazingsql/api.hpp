@@ -44,6 +44,11 @@ ExecutionGraph::wrapper_t run_generate_graph(Napi::Env env,
                                              std::string current_timestamp,
                                              std::map<std::string, std::string> config_options);
 
+std::string run_generate_physical_graph(uint32_t masterIndex,
+                                        std::vector<std::string> worker_ids,
+                                        int32_t ctx_token,
+                                        std::string query);
+
 void start_execute_graph(ExecutionGraph::wrapper_t const& execution_graph, int32_t const ctx_token);
 
 std::tuple<std::vector<std::string>, std::vector<std::unique_ptr<cudf::table>>>
