@@ -9,25 +9,36 @@ FROM nvidia/cuda:10.2-devel-ubuntu18.04 as cuda102
 
 FROM ${DEVEL_IMAGE} as devel
 
+ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},video
+
 SHELL ["/bin/bash", "-c"]
 
-RUN apt update --fix-missing \
- # Install unzip, ssh client and gcc-8
- && apt install -y --no-install-recommends unzip openssh-client gcc-8 g++-8 \
+USER root
+
+RUN echo -e "\
+deb http://dk.archive.ubuntu.com/ubuntu/ xenial main\n\
+deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe\n\
+" | tee /etc/apt/sources.list.d/xenial.list >/dev/null \
+ && apt update --fix-missing \
+ # Install unzip, ssh client and gcc-5
+ && apt install -y --no-install-recommends unzip openssh-client gcc-5 g++-5 \
  # Download public key for github.com
  && mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts \
  # Clean up
  && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Clone the private node-nvidia-stream-sdk
-RUN --mount=type=ssh git clone git@github.com:trxcllnt/node-nvidia-stream-sdk.git /opt/node-nvidia-stream-sdk
+RUN --mount=type=ssh git clone git@github.com:trxcllnt/node-nvidia-stream-sdk.git /opt/node-nvidia-stream-sdk \
+ && chown -R node:node /opt/node-nvidia-stream-sdk
 
-# Copy in StreamSDK build
-COPY --chown=node:node ./StreamSDK_Full.zip /opt/node-nvidia-stream-sdk/StreamSDK_Full.zip
-# Copy in CUDA 10.2 headers
-COPY --from=cuda102 --chown=node:node /usr/local/cuda/include /opt/node-nvidia-stream-sdk/lib/cuda-10.2/include
+USER node
 
 WORKDIR /opt/node-nvidia-stream-sdk
+
+# Copy in StreamSDK build
+COPY --chown=node:node StreamSDK_Full /opt/node-nvidia-stream-sdk/StreamSDK_Full.zip
+# Copy in CUDA 10.2 headers
+COPY --from=cuda102 --chown=node:node /usr/local/cuda/include /opt/node-nvidia-stream-sdk/lib/cuda-10.2/include
 
 ARG PARALLEL_LEVEL
 ARG RAPIDS_VERSION
@@ -51,15 +62,26 @@ RUN echo -e "build env:\n$(env)" \
  && unzip StreamSDK_Full.zip "bin/linux/**/*" "include/**/*" -d lib/streamsdk \
  && yarn \
  && yarn cpp:rebuild \
- && mkdir -p /opt/node-nvidia-stream-sdk/build \
- && npm pack --pack-destination /opt/node-nvidia-stream-sdk/build .
+ && npm pack --pack-destination /home/node .
+
+WORKDIR /home/node
+
+RUN npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz \
+ && npm dedupe  --production --omit dev --omit peer --omit optional --legacy-peer-deps --force \
+ && rm *.tgz
 
 FROM ${BASE_IMAGE}
 
-COPY --from=devel --chown=node:node /opt/node-nvidia-stream-sdk/build/*.tgz /home/node/
+ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},video
 
-RUN npm install --production --omit dev --omit peer --omit optional /home/node/*.tgz \
- && npm dedupe  --production --omit dev --omit peer --omit optional \
- && rm /home/node/*.tgz
+SHELL ["/bin/bash", "-c"]
+
+WORKDIR /home/node
+
+COPY --from=devel --chown=node:node \
+    /home/node/node_modules/node-nvidia-stream-sdk \
+    /home/node/node_modules/node-nvidia-stream-sdk
+
+SHELL ["/bin/bash", "-l"]
 
 CMD ["node"]

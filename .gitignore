@@ -22,3 +22,5 @@ modules/demo/**/*/data
 modules/**/.eslintrc.js
 
 modules/**/notebooks/data
+
+StreamSDK_Full

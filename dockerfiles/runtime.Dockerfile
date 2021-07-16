@@ -24,6 +24,7 @@ ARG AWS_SECRET_ACCESS_KEY
 
 RUN echo -e "build env:\n$(env)" \
  && echo -e "build context:\n$(find .)" \
+ && export CUDAARCHS=ALL \
  && export DISPLAY="$DISPLAY" \
  && export PARALLEL_LEVEL="$PARALLEL_LEVEL" \
  && export RAPIDS_VERSION="$RAPIDS_VERSION" \
@@ -33,10 +34,16 @@ RUN echo -e "build env:\n$(env)" \
  && export SCCACHE_IDLE_TIMEOUT="$SCCACHE_IDLE_TIMEOUT" \
  && export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
  && export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
- && export CUDAARCHS=ALL \
  && yarn nuke:from:orbit && yarn dev:npm:pack
 
+RUN cp .npmrc ~/ && cp .npmrc build/*.tgz /home/node/ && cd /home/node/ \
+ && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz \
+ && npm dedupe  --production --omit dev --omit peer --omit optional --legacy-peer-deps --force \
+ && rm *.tgz
+
 FROM ${BASE_IMAGE}
+
+SHELL ["/bin/bash", "-c"]
 
 # Install UCX
 COPY --from=devel /usr/local/bin/ucx_info         /usr/local/bin/
@@ -122,19 +129,15 @@ RUN useradd --uid $UID --user-group ${ADDITIONAL_GROUPS} --shell /bin/bash --cre
 ENV CUDA_HOME="/usr/local/cuda"
 ENV LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib:/usr/local/lib:/usr/local/cuda/lib:/usr/local/cuda/lib64"
 
-SHELL ["/bin/bash", "-l"]
-
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 USER node
 
 WORKDIR /home/node
 
-COPY --from=devel --chown=node:node /opt/node-rapids/.npmrc /home/node/
-COPY --from=devel --chown=node:node /opt/node-rapids/build/*.tgz /home/node/
+COPY --from=devel --chown=node:node /home/node/.npmrc /home/node/.npmrc
+COPY --from=devel --chown=node:node /home/node/node_modules /home/node/node_modules
 
-RUN npm install --production --omit dev --omit peer --omit optional /home/node/*.tgz \
- && npm dedupe  --production --omit dev --omit peer --omit optional \
- && rm /home/node/*.tgz
+SHELL ["/bin/bash", "-l"]
 
 CMD ["node"]
