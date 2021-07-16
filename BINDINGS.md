@@ -503,7 +503,6 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | BlazingSQL                     |        node-rapids         |
 | ------------------------------ | :------------------------: |
 | `BlazingContext`               |              ✅            |
-| `create_table`                 |     ✅ (`createTable`)     |
 | `drop_table`                   |      ✅ (`dropTable`)      |
 | `describe_table`               |   ✅ (`describeTable`)     |
 | `list_tables`                  |     ✅ (`listTables`)      |
