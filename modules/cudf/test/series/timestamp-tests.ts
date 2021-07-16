@@ -44,12 +44,84 @@ describe('TimestampNanosecond', () => {
       4690009810050,
     ]);
   });
+  test('cast Second', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampSecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810000,  // millis truncated
+    ]);
+  });
+  test('cast MilliSecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampMillisecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810049,
+    ]);
+  });
+  test('cast Microsecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampMicrosecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810049.999,
+    ]);
+  });
+  test('cast NanoSecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampNanosecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810050,
+    ]);
+  });
 });
 
 describe('TimestampMicrosecond', () => {
   test('can create', () => {
     const col = Series.new({type: new TimestampMicrosecond, data: data});
     expect([...col]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810050,
+    ]);
+  });
+  test('cast Second', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampSecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810000,  // millis truncated
+    ]);
+  });
+  test('cast MilliSecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampMillisecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810049,
+    ]);
+  });
+  test('cast Microsecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampMicrosecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810049.999,
+    ]);
+  });
+  test('cast NanoSecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampNanosecond)]).toEqual([
       1629028800000,
       1534336200000,
       4690009810000,
@@ -80,6 +152,42 @@ describe('TimestampSecond', () => {
       4690009810000,  // millis truncated
     ]);
   });
+  test('cast Second', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampSecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810000,  // millis truncated
+    ]);
+  });
+  test('cast MilliSecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampMillisecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810049,
+    ]);
+  });
+  test('cast Microsecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampMicrosecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810049.999,
+    ]);
+  });
+  test('cast NanoSecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampNanosecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810050,
+    ]);
+  });
 });
 
 describe('TimestampDay', () => {
@@ -90,6 +198,42 @@ describe('TimestampDay', () => {
       new Date('2018-08-15T00:00:00.000Z'),
       new Date('2118-08-15T00:00:00.000Z'),
       new Date('2118-08-15T00:00:00.000Z'),
+    ]);
+  });
+  test('cast Second', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampSecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810000,  // millis truncated
+    ]);
+  });
+  test('cast MilliSecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampMillisecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810049,
+    ]);
+  });
+  test('cast Microsecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampMicrosecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810049.999,
+    ]);
+  });
+  test('cast NanoSecond', () => {
+    const col = Series.new({type: new TimestampNanosecond, data: data});
+    expect([...col.cast(new TimestampNanosecond)]).toEqual([
+      1629028800000,
+      1534336200000,
+      4690009810000,
+      4690009810050,
     ]);
   });
 });
