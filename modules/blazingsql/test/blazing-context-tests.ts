@@ -31,12 +31,13 @@ test('describe table', () => {
 
   const bc = new BlazingContext();
 
-  expect(() => bc.describeTable('nonexisting_table')).toThrow();
+  // Empty map since table doesn't exist
+  expect(bc.describeTable('nonexisting_table').size).toEqual(0);
 
   bc.createTable('test_table', df);
   const tableDescription = bc.describeTable('test_table');
-  expect(Object.keys(tableDescription)).toEqual(['a', 'b']);
-  expect(Object.values(tableDescription)).toEqual([new Float64, new Utf8String]);
+  expect([...tableDescription.keys()]).toEqual(['a', 'b']);
+  expect([...tableDescription.values()]).toEqual([new Float64, new Utf8String]);
 });
 
 test('select a single column', () => {

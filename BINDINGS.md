@@ -505,10 +505,9 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `BlazingContext`               |              ✅            |
 | `create_table`                 |     ✅ (`createTable`)     |
 | `drop_table`                   |      ✅ (`dropTable`)      |
-| `describe_table`               |                            |
+| `describe_table`               |   ✅ (`describeTable`)     |
 | `list_tables`                  |     ✅ (`listTables`)      |
-| `partition`                    |                            |
-| `add_remove_table`             |                            |
+| `add_remove_table`             |              ✅            |
 | `sql`                          |              ✅            |
 | `explain`                      |                            |
 | `fetch`                        |                            |
