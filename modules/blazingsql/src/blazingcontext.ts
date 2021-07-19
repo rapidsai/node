@@ -205,8 +205,7 @@ export class BlazingContext {
    */
   sql(query: string,
       algebra: string|null                   = null,
-      configOptions: Record<string, unknown> = defaultConfigValues,
-      returnToken                            = false) {
+      configOptions: Record<string, unknown> = defaultConfigValues) {
     if (algebra == null) { algebra = this.explain(query); }
 
     if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
@@ -216,10 +215,6 @@ export class BlazingContext {
     if (algebra.includes(') OVER (')) {
       console.log(
         'WARNING: Window Functions are currently an experimental feature and not fully supported or tested');
-    }
-
-    if (returnToken) {
-      // TODO: Handle return_token true case.
     }
 
     const masterIndex      = 0;
