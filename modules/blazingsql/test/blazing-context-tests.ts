@@ -1,5 +1,44 @@
 import {BlazingContext} from '@rapidsai/blazingsql';
-import {DataFrame, Series} from '@rapidsai/cudf';
+import {DataFrame, Float64, Series, Utf8String} from '@rapidsai/cudf';
+
+test('create and drop table', () => {
+  const a  = Series.new([1, 2, 3]);
+  const df = new DataFrame({'a': a});
+
+  const bc = new BlazingContext();
+  bc.createTable('test_table', df);
+  expect(bc.listTables().length).toEqual(1);
+
+  bc.dropTable('test_table');
+  expect(bc.listTables().length).toEqual(0);
+});
+
+test('list tables', () => {
+  const a  = Series.new([1, 2, 3]);
+  const df = new DataFrame({'a': a});
+
+  const bc = new BlazingContext();
+  bc.createTable('test_table', df);
+  bc.createTable('test_table2', df);
+
+  expect(bc.listTables()).toEqual(['test_table', 'test_table2']);
+});
+
+test('describe table', () => {
+  const a  = Series.new([1, 2, 3]);
+  const b  = Series.new(['foo', 'bar', 'foo']);
+  const df = new DataFrame({'a': a, 'b': b});
+
+  const bc = new BlazingContext();
+
+  // Empty map since table doesn't exist
+  expect(bc.describeTable('nonexisting_table').size).toEqual(0);
+
+  bc.createTable('test_table', df);
+  const tableDescription = bc.describeTable('test_table');
+  expect([...tableDescription.keys()]).toEqual(['a', 'b']);
+  expect([...tableDescription.values()]).toEqual([new Float64, new Utf8String]);
+});
 
 test('select a single column', () => {
   const a  = Series.new([6, 9, 1, 6, 2]);
