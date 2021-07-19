@@ -16,7 +16,6 @@ import {Int32Buffer, Int64Buffer} from '@nvidia/cuda';
 import {MemoryResource} from '@rapidsai/rmm';
 import {Series} from '../series';
 import {
-  DataType,
   Timestamp,
   TimestampDay,
   TimestampMicrosecond,
@@ -26,16 +25,20 @@ import {
 } from '../types/dtypes';
 
 export abstract class TimestampSeries<T extends Timestamp> extends Series<T> {
-  /**
-   * Casts the values to a new dtype (similar to `static_cast` in C++).
-   *
-   * @param dataType The new dtype.
-   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
-   *   memory.
-   * @returns Series of same size as the current Series containing result of the `cast` operation.
-   */
-  cast<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Series<R> {
-    return Series.new(this._col.cast(dataType, memoryResource));
+  _castAsTimeStampDay(memoryResource?: MemoryResource): Series<TimestampDay> {
+    return Series.new(this._col.cast(new TimestampDay, memoryResource));
+  }
+  _castAsTimeStampSecond(memoryResource?: MemoryResource): Series<TimestampSecond> {
+    return Series.new(this._col.cast(new TimestampSecond, memoryResource));
+  }
+  _castAsTimeStampMillisecond(memoryResource?: MemoryResource): Series<TimestampMillisecond> {
+    return Series.new(this._col.cast(new TimestampMillisecond, memoryResource));
+  }
+  _castAsTimeStampMicrosecond(memoryResource?: MemoryResource): Series<TimestampMicrosecond> {
+    return Series.new(this._col.cast(new TimestampMicrosecond, memoryResource));
+  }
+  _castAsTimeStampNanosecond(memoryResource?: MemoryResource): Series<TimestampNanosecond> {
+    return Series.new(this._col.cast(new TimestampNanosecond, memoryResource));
   }
 }
 

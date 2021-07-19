@@ -41,11 +41,16 @@ import {
 } from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
+import {StringSeries} from './string';
 
 /**
  * A base class for Series of 8, 16, 32, or 64-bit integral values in GPU memory.
  */
 abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
+  _castAsString(memoryResource?: MemoryResource): StringSeries {
+    return StringSeries.new(this._col.stringsFromIntegers(memoryResource));
+  }
+
   /**
    * Perform a binary `&` operation between this Series and another Series or scalar value.
    *
@@ -197,6 +202,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
 
     const index = Series.sequence({type: new Int32, size: this.length, step: 1, init: 0});
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const first = index.filter(this.isNull()).getValue(0)!;
     const slice =
       Series.sequence({type: new Int32, size: this.length - first, step: 1, init: first});

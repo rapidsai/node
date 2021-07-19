@@ -19,7 +19,7 @@ import {
   setDefaultAllocator,
   Uint8Buffer
 } from '@nvidia/cuda';
-import {Bool8, Column, Float32, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
+import {Bool8, Column, Float32, Float64, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import {BoolVector} from 'apache-arrow';
 
@@ -147,6 +147,48 @@ test('Column.nansToNulls', () => {
   const result = col.nansToNulls();
 
   const expected = [1, 3, null, 4, 2, 0];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringIsFloat', () => {
+  const col      = Series.new(['1.2', '12', 'abc', '-2.3', '-5', null, '2e+17', '0'])._col;
+  const result   = col.stringIsFloat();
+  const expected = [true, true, false, true, true, null, true, true];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringsFromFloats', () => {
+  const col      = Series.new([1.2, 12, -2.3, -5, null, 2e+17, 0])._col;
+  const result   = col.stringsFromFloats();
+  const expected = ['1.2', '12.0', '-2.3', '-5.0', null, '2.0e+17', '0.0'];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringsToFloats', () => {
+  const col      = Series.new(['1.2', '12', '-2.3', '-5', null, '2e+17', '0'])._col;
+  const result   = col.stringsToFloats(new Float64);
+  const expected = [1.2, 12.0, -2.3, -5.0, null, 2.0e+17, 0.0];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringIsInteger', () => {
+  const col      = Series.new(['1.2', '12', 'abc', '-2.3', '-5', null, '2e+17', '0'])._col;
+  const result   = col.stringIsInteger();
+  const expected = [false, true, false, false, true, null, false, true];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringsFromIntegers', () => {
+  const col      = Series.new({type: new Int32, data: [12, -5, null, 0]})._col;
+  const result   = col.stringsFromIntegers();
+  const expected = ['12', '-5', null, '0'];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringsToIntegers', () => {
+  const col      = Series.new(['12', '-5', null, '0'])._col;
+  const result   = col.stringsToIntegers(new Int32);
+  const expected = [12, -5, null, 0];
   expect([...Series.new(result)]).toEqual(expected);
 });
 

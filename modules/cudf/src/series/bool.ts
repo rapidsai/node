@@ -36,6 +36,7 @@ export class Bool8Series extends NumericSeries<Bool8> {
 
     const index = Series.sequence({type: new Int32, size: this.length, step: 1, init: 0});
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const first = index.filter(this.isNull()).getValue(0)!;
     const slice =
       Series.sequence({type: new Int32, size: this.length - first, step: 1, init: first});
