@@ -235,7 +235,7 @@ export class BlazingContext {
     const executionGraphResult = runGenerateGraph(masterIndex,
                                                   ['self'],
                                                   selectedDataFrames,
-                                                  tableScans,
+                                                  tableNames,
                                                   tableScans,
                                                   ctxToken,
                                                   json_plan_py(algebra),
