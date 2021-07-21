@@ -46,16 +46,21 @@ const run = require('./server');
 
 setTimeout(() => {
 
-  // const logEvents = (source, subjects) => {
-  //   const inspect = (x) => Array.isArray(x) ? x.map(inspect) : require('util').inspect(x, false, null);
-  //   Object.keys(subjects).forEach((type) => {
-  //     subjects[type].subscribe((event) => console.log({ source, type, ...event }));
-  //   });
-  // }
+  const logEvents = (source, subjects) => {
+    Object.keys(subjects).forEach((type) => {
+      subjects[type].subscribe((event) => {
+        console.log({
+          source,
+          type,
+          ...JSON.parse(JSON.stringify(event))
+        })
+      });
+    });
+  }
 
-  // logEvents('video', videoEvents);
-  // logEvents('input', inputEvents);
-  // logEvents('server', serverEvents);
+  logEvents('video', videoEvents);
+  logEvents('input', inputEvents);
+  logEvents('server', serverEvents);
 
   run({
     server,

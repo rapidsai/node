@@ -92,7 +92,6 @@ module.exports = ({ server, video, input, videoEvents, inputEvents, inputToDOMEv
       },
       dispatchEvent(event) {
         if (event && window && !window.closed) {
-          console.log(event);
           window.dispatchEvent(event);
         }
       },
