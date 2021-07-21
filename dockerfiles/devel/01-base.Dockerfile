@@ -1,23 +1,33 @@
-ARG BASE_IMAGE
+ARG FROM_IMAGE
+ARG FROM_IMAGE_DEFAULT
 ARG NODE_VERSION=15.14.0
 
 FROM node:$NODE_VERSION-stretch-slim as node
 
-FROM ${BASE_IMAGE}
+FROM ${FROM_IMAGE:-$FROM_IMAGE_DEFAULT}
+
+SHELL ["/bin/bash", "-c"]
+
+ENV CUDA_HOME="/usr/local/cuda"
+ENV LD_LIBRARY_PATH="\
+${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}\
+${CUDA_HOME}/lib:\
+${CUDA_HOME}/lib64:\
+/usr/local/lib:\
+/usr/lib"
 
 ARG GCC_VERSION=9
 ARG LLDB_VERSION=12
 ARG CLANGD_VERSION=12
-ARG CLANG_FORMAT_VERSION=12
-
-ARG PARALLEL_LEVEL=4
 ARG CMAKE_VERSION=3.20.2
 ARG SCCACHE_VERSION=0.2.15
+ARG CLANG_FORMAT_VERSION=12
 
 # Install dev dependencies and tools
 RUN export DEBIAN_FRONTEND=noninteractive \
- && apt update --fix-missing \
- && apt install --no-install-recommends -y gpg wget software-properties-common \
+ && apt update \
+ && apt install --no-install-recommends -y \
+    gpg wget software-properties-common \
  && add-apt-repository --no-update -y ppa:git-core/ppa \
  && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
  # Install kitware CMake apt sources
@@ -29,10 +39,6 @@ deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitw
 " | tee /etc/apt/sources.list.d/kitware.list >/dev/null' \
  # Install LLVM apt sources
  && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
- && bash -c 'echo -e "\
-deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main\n\
-deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main\n\
-" | tee /etc/apt/sources.list.d/llvm-dev.list >/dev/null' \
  && bash -c 'echo -e "\
 deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${LLDB_VERSION} main\n\
@@ -46,32 +52,16 @@ deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${
 deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-${CLANG_FORMAT_VERSION} main\n\
 " | tee /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list >/dev/null' \
  \
- && apt update --fix-missing \
+ && apt update \
  && apt install --no-install-recommends -y \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} \
     jq git entr nano sudo ninja-build bash-completion \
-    # needed by cuda-gdb
-    libtinfo5 libncursesw5 \
     # Install gdb, lldb (for llnode), and clangd for C++ intellisense and debugging in the container
     gdb lldb-${LLDB_VERSION} clangd-${CLANGD_VERSION} clang-format-${CLANG_FORMAT_VERSION} \
     # CMake
     curl libssl-dev libcurl4-openssl-dev zlib1g-dev \
     cmake=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
     cmake-data=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
-    # X11 dependencies
-    libxrandr-dev libxinerama-dev libxcursor-dev \
-    # node-canvas dependencies
-    libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
-    # GLEW dependencies
-    build-essential libxmu-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
-    # cuSpatial dependencies
-    libgdal-dev \
-    # blazingSQL dependencies
-    maven openjdk-8-jdk libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
-    # UCX build dependencies
-    libtool \
-    # UCX runtime dependencies
-    libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
  \
  # Remove any existing gcc and g++ alternatives
  && update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
@@ -110,52 +100,43 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  && curl -o /tmp/sccache.tar.gz \
          -L "https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl.tar.gz" \
  && tar -C /tmp -xvf /tmp/sccache.tar.gz \
- && mv "/tmp/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl/sccache" /bin/sccache \
- && chmod +x /bin/sccache \
- && cd / \
- \
- # Install UCX
- && git clone --depth 1 --branch v1.9.x https://github.com/openucx/ucx.git /tmp/ucx \
- && curl -o /tmp/cuda-alloc-rcache.patch \
-         -L https://raw.githubusercontent.com/rapidsai/ucx-split-feedstock/11ad7a3c1f25514df8064930f69c310be4fd55dc/recipe/cuda-alloc-rcache.patch \
- && cd /tmp/ucx && git apply /tmp/cuda-alloc-rcache.patch && rm /tmp/cuda-alloc-rcache.patch \
- && sed -i 's/io_demo_LDADD =/io_demo_LDADD = $(CUDA_LDFLAGS)/' /tmp/ucx/test/apps/iodemo/Makefile.am \
- && /tmp/ucx/autogen.sh && mkdir /tmp/ucx/build && cd /tmp/ucx/build \
- && ../contrib/configure-release \
-    --prefix=/usr/local \
-    --without-java --with-cuda=/usr/local/cuda \
-    --enable-mt CPPFLAGS=-I/usr/local/cuda/include \
- && make -C /tmp/ucx/build -j install \
+ && mv "/tmp/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl/sccache" /usr/bin/sccache \
+ && chmod +x /usr/bin/sccache \
  && cd / \
  \
  # Clean up
- && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ && apt autoremove -y && apt clean \
+ && rm -rf \
+    /tmp/* \
+    /var/tmp/* \
+    /var/lib/apt/lists/* \
+    /etc/apt/sources.list.d/kitware.list \
+    /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list \
+    /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list \
+    /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list
 
 ARG NODE_VERSION
 ENV NODE_VERSION=$NODE_VERSION
-
-ARG YARN_VERSION=1.22.5
-ENV YARN_VERSION=$YARN_VERSION
 
 # Install node
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY --from=node /usr/local/include/node /usr/local/include/node
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 # Install yarn
-COPY --from=node /opt/yarn-v$YARN_VERSION/bin/yarn /usr/local/bin/yarn
-COPY --from=node /opt/yarn-v$YARN_VERSION/bin/yarn.js /usr/local/bin/yarn.js
-COPY --from=node /opt/yarn-v$YARN_VERSION/bin/yarn.cmd /usr/local/bin/yarn.cmd
-COPY --from=node /opt/yarn-v$YARN_VERSION/bin/yarnpkg /usr/local/bin/yarnpkg
-COPY --from=node /opt/yarn-v$YARN_VERSION/bin/yarnpkg.cmd /usr/local/bin/yarnpkg.cmd
-COPY --from=node /opt/yarn-v$YARN_VERSION/lib/cli.js /usr/local/lib/cli.js
-COPY --from=node /opt/yarn-v$YARN_VERSION/lib/v8-compile-cache.js /usr/local/lib/v8-compile-cache.js
+COPY --from=node /opt/yarn-v*/bin/* /usr/local/bin/
+COPY --from=node /opt/yarn-v*/lib/* /usr/local/lib/
 # Copy entrypoint
 COPY --from=node /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 ARG UID=1000
 ARG ADDITIONAL_GROUPS=
 
-RUN useradd --uid $UID --user-group ${ADDITIONAL_GROUPS} --shell /bin/bash --create-home node \
+RUN useradd \
+    --uid $UID \
+    --user-group ${ADDITIONAL_GROUPS} \
+    --shell /bin/bash --create-home node \
+ && mkdir -p /opt/node-rapids/modules/.cache \
+ && chown -R node:node /opt/node-rapids \
  && echo node:node | chpasswd \
  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
  && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
@@ -174,8 +155,7 @@ export HISTCONTROL=ignoreboth;\n\
 # Change the file location because certain bash sessions truncate .bash_history file upon close.\n\
 # http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login\n\
 export HISTFILE=/opt/node-rapids/modules/.cache/.eternal_bash_history;\n\
-mkdir -p \$(dirname \$HISTFILE);\n\
-touch \$HISTFILE;\n\
+mkdir -p \$(dirname \$HISTFILE) && touch \$HISTFILE;\n\
 # flush commands to .bash_history immediately\n\
 export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 "' >> /home/node/.bashrc \
@@ -191,14 +171,8 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
  && npm install --global --unsafe-perm --no-audit --no-fund /usr/local/lib/llnode \
  && which -a llnode
 
-# avoid "OSError: library nvvm not found" error
-ENV CUDA_HOME="/usr/local/cuda"
-ENV LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib:/usr/local/lib:/usr/local/cuda/lib:/usr/local/cuda/lib64"
-
-SHELL ["/bin/bash", "-c"]
-
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-USER node
+WORKDIR /opt/node-rapids
 
 CMD ["/bin/bash", "-l"]
