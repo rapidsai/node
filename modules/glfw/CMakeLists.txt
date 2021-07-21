@@ -30,6 +30,15 @@ cmake_policy(SET CMP0072 NEW)
 set(GLEW_VERSION "2.1.0")
 set(GLFW_VERSION "3.3.2")
 
+# set(GLFW_GIT_BRANCH "3.3.2")
+set(GLFW_GIT_BRANCH "fea/headless-egl")
+
+# set(GLFW_USE_EGLHEADLESS OFF)
+set(GLFW_USE_EGLHEADLESS ON)
+
+# set(GLFW_GIT_REPOSITORY "https://github.com/glfw/glfw.git")
+set(GLFW_GIT_REPOSITORY "https://github.com/trxcllnt/glfw.git")
+
 set(GLEW_USE_SHARED_LIBS OFF)
 set(GLFW_USE_SHARED_LIBS OFF)
 set(GLEW_USE_STATIC_LIBS ${NODE_GLFW_STATIC_LINK})
