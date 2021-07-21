@@ -60,6 +60,7 @@
     "modules/demo/graph",
     "modules/demo/luma",
     "modules/demo/spatial",
+    "modules/demo/ssr",
     "modules/demo/xterm",
     "modules/demo/ipc/*",
     "modules/demo/deck/*",
@@ -76,8 +77,8 @@
     "lint-staged": "10.5.1",
     "node-addon-api": "^3.1.0",
     "pre-git": "3.17.1",
-    "shx": "0.3.3",
     "rimraf": "3.0.0",
+    "shx": "0.3.3",
     "typedoc": "0.21.2"
   },
   "config": {
