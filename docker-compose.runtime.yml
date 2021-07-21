@@ -57,7 +57,7 @@ services:
       dockerfile: dockerfiles/runtime/02-nvstream.Dockerfile
       args:
         FROM_IMAGE: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-base-${ARCH:-amd64}
-        DEVEL_IMAGE: rapidsai/node:${RAPIDS_VERSION:-latest}-devel-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-main-${ARCH:-amd64}
+        DEVEL_IMAGE: rapidsai/node:${RAPIDS_VERSION:-latest}-devel-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-nvstream-${ARCH:-amd64}
 
   build:
     <<: *base_service_settings
