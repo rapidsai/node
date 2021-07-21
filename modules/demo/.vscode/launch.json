@@ -19,7 +19,6 @@
             "name": "Debug Demo (TS only)",
             "program": "${workspaceFolder}/${input:DEMO_NAME}",
             "stopOnEntry": false,
-            "runtimeArgs": ["-r", "esm"],
             "args": ["${input:DEMO_ARGS}"],
             "cwd": "${workspaceFolder}/${input:DEMO_NAME}",
             "console": "integratedTerminal",
@@ -56,7 +55,6 @@
                 { "name": "READABLE_STREAM", "value": "disable" },
             ],
             "args": [
-                "-r", "esm",
                 "--inspect=9229",
                 "--expose-internals",
                 "${workspaceFolder}/${input:DEMO_NAME}",
