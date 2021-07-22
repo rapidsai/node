@@ -14,6 +14,7 @@
 
 import * as gl from '@nvidia/webgl';
 import * as jsdom from 'jsdom';
+import * as Path from 'path';
 import {parse as parseURL} from 'url';
 
 import {installObjectURL} from './object-url';
@@ -199,13 +200,15 @@ Object.defineProperties(window.SVGElement.prototype, {
 
 try {
   const hammerjs = require('hammerjs');
-  for (const x of ['es5', 'es6', 'esm']) {
+  for (const x of ['src', 'dist/es5', 'dist/es6', 'dist/esm']) {
     try {
-      const b = 'mjolnir.js/dist/' + x;
-      const o = require(b + '/utils/hammer-overrides');
-      o.enhancePointerEventInput(hammerjs.PointerEventInput);
-      o.enhanceMouseInput(hammerjs.MouseInput);
-      const mjolnirHammer   = require(b + '/utils/hammer');
+      const b                                             = Path.join('mjolnir.js', x);
+      const utilsHammer                                   = Path.join(b, 'utils/hammer');
+      const utilsHammerOverrides                          = `${utilsHammer}-overrides`;
+      const {enhancePointerEventInput, enhanceMouseInput} = require(utilsHammerOverrides);
+      enhancePointerEventInput(hammerjs.PointerEventInput);
+      enhanceMouseInput(hammerjs.MouseInput);
+      const mjolnirHammer   = require(utilsHammer);
       mjolnirHammer.Manager = hammerjs.Manager;
       mjolnirHammer.default = hammerjs;
     } catch (e) { /**/

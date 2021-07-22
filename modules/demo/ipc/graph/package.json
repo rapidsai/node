@@ -10,8 +10,8 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "start": "node ./index.js",
-    "watch": "find -type f | entr -c -d -r node index.js"
+    "start": "node -r esm index.js",
+    "watch": "find -type f | entr -c -d -r node -r esm index.js"
   },
   "dependencies": {
     "@babel/core": "7.14.6",
@@ -26,7 +26,7 @@
     "@rapidsai/cudf": "0.0.1",
     "@rapidsai/cugraph": "0.0.1",
     "@rapidsai/deck.gl": "0.0.1",
-    "ix": "4.4.0",
+    "ix": "4.4.1",
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "segfault-handler": "1.3.0",
