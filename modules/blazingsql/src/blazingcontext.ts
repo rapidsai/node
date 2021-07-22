@@ -60,9 +60,7 @@ export class BlazingContext {
         {
           workerId: 'test',
           ip: 'test',
-          epHandle: 0,
-          workerHandle: 0,
-          port: 0,
+          port: 8000,
         },
       ],
       singleNode: true,

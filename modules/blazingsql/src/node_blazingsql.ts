@@ -21,8 +21,6 @@ export declare function getExecuteGraphResult(executionGraph: ExecutionGraph,
 export type WorkerUcpInfo = {
   workerId: string,
   ip: string,
-  epHandle: number,
-  workerHandle: number,
   port: number,
 }
 

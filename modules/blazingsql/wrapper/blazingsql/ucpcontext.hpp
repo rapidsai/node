@@ -42,10 +42,8 @@ struct UcpContext : public EnvLocalObjectWrap<UcpContext> {
    */
   UcpContext(Napi::CallbackInfo const& info);
 
-  inline operator ucp_context_h() { return _context; }
-
  private:
-  ucp_context_h _context;
+  ucp_context_h _ucp_context_h;
 };
 
 }  // namespace nv

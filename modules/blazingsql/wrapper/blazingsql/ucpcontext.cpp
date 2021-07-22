@@ -28,7 +28,7 @@ UcpContext::wrapper_t UcpContext::New(Napi::Env const& env) {
 }
 
 UcpContext::UcpContext(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<UcpContext>(info) {
-  _context = ral::communication::CreateUcpContext();
+  _ucp_context_h = ral::communication::CreateUcpContext();
 }
 
 }  // namespace nv
