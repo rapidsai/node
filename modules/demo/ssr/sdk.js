@@ -168,8 +168,8 @@ function mouseToDOMEvent(window, { type, flags, xPos, yPos, data1, data2, vWheel
       return event;
     case MouseEventType.MOUSE_WHEEL:
       event.type = 'wheel';
-      event.deltaY = data1 || vWheel;
-      event.deltaX = data2 || hWheel;
+      event.deltaY = -vWheel / 10;
+      event.deltaX = -hWheel / 10;
       return event;
     default: break;
   }

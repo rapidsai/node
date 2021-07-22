@@ -20,7 +20,7 @@ const { Texture2D, Framebuffer, readPixelsToBuffer } = require('@luma.gl/webgl')
 module.exports = ({ server, video, input, videoEvents, inputEvents, inputToDOMEvent }) => {
 
   const { zip, merge, race, interval } = require('rxjs');
-  const { filter, finalize, ignoreElements, mergeMap, switchMap, take, takeWhile, takeUntil, tap, } = require('rxjs/operators');
+  const { filter, finalize, ignoreElements, mergeMap, switchMap, take, takeUntil, tap, } = require('rxjs/operators');
 
   // When both these streams yield client connections
   return zip(videoEvents.onStreamConnected, inputEvents.onStreamConnected)
@@ -33,11 +33,10 @@ module.exports = ({ server, video, input, videoEvents, inputEvents, inputToDOMEv
       const videoDisconnected = videoEvents.onStreamDisconnected.pipe(isThisVideo);
       const clientInputEvents = inputEvents.onClientInputReceived.pipe(isThisInput);
 
-      const { width, height, targetStreamingFps } = video.config.mode;
+      const { width, height, targetStreamingFps, actualStreamingFps } = video.config.mode;
+      const fps = targetStreamingFps || actualStreamingFps;
       const { JSDOM, ...graph } = visualize(...capture({
-        width, height, layoutParams: {
-          autoCenter: true
-        }
+        width, height, layoutParams: { autoCenter: true }
       }));
 
       const disconnect = race(inputDisconnected, videoDisconnected);
@@ -46,7 +45,7 @@ module.exports = ({ server, video, input, videoEvents, inputEvents, inputToDOMEv
         .pipe(mergeMap(({ event }) => Array.isArray(event) ? event : [event]))
         .pipe(tap((event) => graph.dispatchEvent(inputToDOMEvent(window, event))));
 
-      const renderLoop = interval(targetStreamingFps / 1000)
+      const renderLoop = interval(fps / 1000)
         .pipe(switchMap(() => graph.render().pipe(
           tap(({ width, height, pitch, alpha, pixelbuffer }) => {
             // Map the GL buffer as a CUDA buffer for reading
@@ -121,6 +120,8 @@ module.exports = ({ server, video, input, videoEvents, inputEvents, inputToDOMEv
         onWebGLInitialized(gl) {
           pixelbuffer = new DeckBuffer(gl, 0);
           framebuffer = new Framebuffer(gl, {
+            width: props.width,
+            height: props.height,
             color: new Texture2D(gl, {
               mipmaps: false,
               parameters: {
