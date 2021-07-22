@@ -21,16 +21,15 @@
 namespace nv {
 
 ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props) {
-  uint16_t ral_id                               = props.Get("ralId");
-  std::string worker_id                         = props.Get("workerId");
-  std::string network_iface_name                = props.Get("network_iface_name");
-  int32_t ral_communication_port                = props.Get("ralCommunicationPort");
-  std::vector<NodeMetaDataUCP> workers_ucp_info = {};
-  bool single_node                              = props.Get("singleNode");
-  std::string allocation_mode                   = props.Get("allocationMode");
-  std::size_t initial_pool_size                 = props.Get("initialPoolSize");
-  std::size_t maximum_pool_size                 = props.Get("maximumPoolSize");
-  bool enable_logging                           = props.Get("enableLogging");
+  uint16_t ral_id                = props.Get("ralId");
+  std::string worker_id          = props.Get("workerId");
+  std::string network_iface_name = props.Get("network_iface_name");
+  int32_t ral_communication_port = props.Get("ralCommunicationPort");
+  bool single_node               = props.Get("singleNode");
+  std::string allocation_mode    = props.Get("allocationMode");
+  std::size_t initial_pool_size  = props.Get("initialPoolSize");
+  std::size_t maximum_pool_size  = props.Get("maximumPoolSize");
+  bool enable_logging            = props.Get("enableLogging");
 
   auto config_options = [&] {
     std::map<std::string, std::string> config{};
@@ -50,15 +49,15 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
   // WIP, refactor with std operators, handle any potential null fields.
   UcpContext::wrapper_t ucp_context = props.Get("ucpContext").ToObject();
   Napi::Array objects               = props.Get("workersUcpInfo");
-  std::vector<NodeMetaDataUCP> workers_ucp_info_temp;
-  workers_ucp_info_temp.reserve(objects.Length());
+  std::vector<NodeMetaDataUCP> workers_ucp_info;
+  workers_ucp_info.reserve(objects.Length());
   for (int i = 0; i < objects.Length(); ++i) {
     Napi::Object worker_info = objects.Get(i).As<Napi::Object>();
     std::string id           = worker_info.Get("workerId").ToString();
     std::string ip           = worker_info.Get("ip").ToString();
     std::int32_t port        = worker_info.Get("port").ToNumber();
 
-    workers_ucp_info_temp.push_back({
+    workers_ucp_info.push_back({
       id,            // std::string worker_id;
       ip,            // std::string ip;
       0,             // std::uintptr_t ep_handle;
