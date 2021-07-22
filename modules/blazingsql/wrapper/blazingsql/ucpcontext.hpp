@@ -35,7 +35,7 @@ struct UcpContext : public EnvLocalObjectWrap<UcpContext> {
    *
    * @param cache The shared pointer to the UcpContext.
    */
-  static wrapper_t New(Napi::Env const& env, ucp_context_h const& context);
+  static wrapper_t New(Napi::Env const& env);
 
   /**
    * @brief Construct a new UcpContext instance from JavaScript.

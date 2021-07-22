@@ -23,10 +23,8 @@ Napi::Function UcpContext::Init(Napi::Env env, Napi::Object exports) {
   return DefineClass(env, "UcpContext", {});
 }
 
-UcpContext::wrapper_t UcpContext::New(Napi::Env const& env, ucp_context_h const& context) {
-  auto inst      = EnvLocalObjectWrap<UcpContext>::New(env, {});
-  inst->_context = context;
-  return inst;
+UcpContext::wrapper_t UcpContext::New(Napi::Env const& env) {
+  return EnvLocalObjectWrap<UcpContext>::New(env, {});
 }
 
 UcpContext::UcpContext(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<UcpContext>(info) {
