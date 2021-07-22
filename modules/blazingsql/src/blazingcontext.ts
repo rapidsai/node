@@ -20,7 +20,8 @@ import {
   getExecuteGraphResult,
   getTableScanInfo,
   runGenerateGraph,
-  startExecuteGraph
+  startExecuteGraph,
+  UcpContext
 } from './addon';
 import {
   ArrayList,
@@ -51,7 +52,9 @@ export class BlazingContext {
     this.schema    = BlazingSchema(this.db);
     this.generator = RelationalAlgebraGenerator(this.schema);
     this.tables    = new Map<string, DataFrame>();
-    this.context   = new Context({
+
+    const ucpContext = new UcpContext();
+    this.context     = new Context({
       ralId: 0,
       workerId: 'self',
       network_iface_name: 'lo',
@@ -61,6 +64,7 @@ export class BlazingContext {
           workerId: 'test',
           ip: 'test',
           port: 8000,
+          context: ucpContext,
         },
       ],
       singleNode: true,

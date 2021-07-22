@@ -26,6 +26,7 @@ export const {
   getExecuteGraphResult,
   Context,
   ExecutionGraph,
+  UcpContext,
 } =
   loadNativeModule<typeof import('./node_blazingsql')>(
     module, 'node_blazingsql', init => init(CUDA, RMM, CUDF));
@@ -37,3 +38,4 @@ export type getExecuteGraphResult = typeof import('./node_blazingsql').getExecut
 
 export type Context        = import('./node_blazingsql').Context;
 export type ExecutionGraph = import('./node_blazingsql').ExecutionGraph;
+export type UcpContext     = import('./node_blazingsql').UcpContext;

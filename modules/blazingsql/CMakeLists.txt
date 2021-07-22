@@ -83,6 +83,7 @@ list(REMOVE_ITEM BLAZINGSQL_WRAPPER_CMAKE_CUDA_FLAGS -Werror)
 add_library(blazingsql_wrapper SHARED
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/cache.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/graph.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/ucpcontext.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/api.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/contextwrapper.cpp"
 )

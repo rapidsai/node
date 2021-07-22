@@ -53,11 +53,10 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
   std::vector<NodeMetaDataUCP> workers_ucp_info_temp;
   workers_ucp_info_temp.reserve(objects.Length());
   for (int i = 0; i < objects.Length(); ++i) {
-    Napi::Object worker_info      = objects.Get(i).As<Napi::Object>();
-    std::string id                = worker_info.Get("workerId").ToString();
-    std::string ip                = worker_info.Get("ip").ToString();
-    std::int32_t port             = worker_info.Get("port").ToNumber();
-    UcpContext::wrapper_t context = UcpContext::New(env);
+    Napi::Object worker_info = objects.Get(i).As<Napi::Object>();
+    std::string id           = worker_info.Get("workerId").ToString();
+    std::string ip           = worker_info.Get("ip").ToString();
+    std::int32_t port        = worker_info.Get("port").ToNumber();
 
     // TODO: Pass in the context handle.
     NodeMetaDataUCP data = {

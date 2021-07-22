@@ -22,6 +22,7 @@ export type WorkerUcpInfo = {
   workerId: string,
   ip: string,
   port: number,
+  context: UcpContext,
 }
 
 export type ContextProps = {
@@ -40,5 +41,9 @@ export declare class Context {
 }
 
 export declare class ExecutionGraph {
+  constructor();
+}
+
+export declare class UcpContext {
   constructor();
 }

@@ -35,6 +35,7 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
        InstanceValue("Context", InitClass<nv::Context>(env, exports)),
        InstanceValue("CacheMachine", InitClass<nv::CacheMachine>(env, exports)),
        InstanceValue("ExecutionGraph", InitClass<nv::ExecutionGraph>(env, exports)),
+       InstanceValue("UcpContext", InitClass<nv::UcpContext>(env, exports)),
        InstanceValue("ContextWrapper", InitClass<nv::ContextWrapper>(env, exports))});
   }
 
