@@ -24,12 +24,13 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
   std::string worker_id                         = props.Get("workerId");
   std::string network_iface_name                = props.Get("network_iface_name");
   int32_t ral_communication_port                = props.Get("ralCommunicationPort");
-  std::vector<NodeMetaDataUCP> workers_ucp_info = props.Get("workersUcpInfo");
-  bool single_node                              = props.Get("singleNode");
-  std::string allocation_mode                   = props.Get("allocationMode");
-  std::size_t initial_pool_size                 = props.Get("initialPoolSize");
-  std::size_t maximum_pool_size                 = props.Get("maximumPoolSize");
-  bool enable_logging                           = props.Get("enableLogging");
+  std::vector<NodeMetaDataUCP> workers_ucp_info = {};
+  // std::vector<NodeMetaDataUCP> workers_ucp_info = props.Get("workersUcpInfo");
+  bool single_node              = props.Get("singleNode");
+  std::string allocation_mode   = props.Get("allocationMode");
+  std::size_t initial_pool_size = props.Get("initialPoolSize");
+  std::size_t maximum_pool_size = props.Get("maximumPoolSize");
+  bool enable_logging           = props.Get("enableLogging");
 
   auto config_options = [&] {
     std::map<std::string, std::string> config{};
@@ -45,6 +46,11 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
     }
     return config;
   }();
+
+  // WIP, refactor with std operators
+  std::vector<Napi::Object> objects = props.Get("workersUcpInfo");
+  std::vector<NodeMetaDataUCP> workers;
+  workers.reserve(objects.size());
 
   auto init_result = ::initialize(ral_id,
                                   worker_id,

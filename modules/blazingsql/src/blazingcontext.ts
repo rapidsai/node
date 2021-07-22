@@ -56,7 +56,15 @@ export class BlazingContext {
       workerId: 'self',
       network_iface_name: 'lo',
       ralCommunicationPort: 0,
-      workersUcpInfo: [],
+      workersUcpInfo: [
+        {
+          workerId: 'test',
+          ip: 'test',
+          epHandle: 0,
+          workerHandle: 0,
+          port: 0,
+        },
+      ],
       singleNode: true,
       configOptions: defaultConfigValues,
       allocationMode: 'cuda_memory_resource',

@@ -18,9 +18,17 @@ export declare function startExecuteGraph(executionGraph: ExecutionGraph, ctxTok
 export declare function getExecuteGraphResult(executionGraph: ExecutionGraph,
                                               ctxToken: number): {names: string[], tables: Table[]};
 
+export type WorkerUcpInfo = {
+  workerId: string,
+  ip: string,
+  epHandle: number,
+  workerHandle: number,
+  port: number,
+}
+
 export type ContextProps = {
   ralId: number; workerId: string; network_iface_name: string; ralCommunicationPort: number;
-  workersUcpInfo: [];
+  workersUcpInfo: WorkerUcpInfo[];
   singleNode: boolean;
   configOptions: Record<string, unknown>;
   allocationMode: string;
