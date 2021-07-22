@@ -198,10 +198,27 @@ Napi::Object column_to_arrow_type(Napi::Env const& env, cudf::column_view const&
       break;
     }
     // case cudf::type_id::TIMESTAMP_DAYS: // TODO
-    // case cudf::type_id::TIMESTAMP_SECONDS: // TODO
-    // case cudf::type_id::TIMESTAMP_MILLISECONDS: // TODO
-    // case cudf::type_id::TIMESTAMP_MICROSECONDS: // TODO
-    // case cudf::type_id::TIMESTAMP_NANOSECONDS: // TODO
+    case cudf::type_id::TIMESTAMP_SECONDS: {
+      arrow_type.Set("typeId", 10);
+      arrow_type.Set("unit", 0);
+      break;
+    }
+    case cudf::type_id::TIMESTAMP_MILLISECONDS: {
+      arrow_type.Set("typeId", 10);
+      arrow_type.Set("unit", 1);
+      break;
+    }
+    case cudf::type_id::TIMESTAMP_MICROSECONDS: {
+      arrow_type.Set("typeId", 10);
+      arrow_type.Set("unit", 2);
+      break;
+    }
+    case cudf::type_id::TIMESTAMP_NANOSECONDS: {
+      arrow_type.Set("typeId", 10);
+      arrow_type.Set("unit", 3);
+      break;
+    }
+
     // case cudf::type_id::DURATION_DAYS: // TODO
     // case cudf::type_id::DURATION_SECONDS: // TODO
     // case cudf::type_id::DURATION_MILLISECONDS: // TODO

@@ -6,13 +6,13 @@
 * [`@rapidsai/cudf`](https://github.com/rapidsai/node-rapids/tree/main/modules/cudf) - Bindings to the [RAPIDS GPU DataFrame](https://github.com/rapidsai/cudf)
 * [`@rapidsai/cugraph`](https://github.com/rapidsai/node-rapids/tree/main/modules/cugraph) - Bindings to the [RAPIDS Graph Analytics Library](https://github.com/rapidsai/cugraph)
 * [`@rapidsai/cuspatial`](https://github.com/rapidsai/node-rapids/tree/main/modules/cuspatial) - Bindings to the [RAPIDS Accelerated GIS Library](https://github.com/rapidsai/cuspatial)
-* [`@rapidsai/blazingsql`](https://github.com/rapidsai/node-rapids/tree/main/modules/blazingsql) - Bindings to the [BlazingSQL engine](https://github.com/BlazingDB/blazingsql)
 
 Additionally, `node-rapids` includes _limited_ bindings to:
 
 * [`@nvidia/cuda`](https://github.com/rapidsai/node-rapids/tree/main/modules/cuda) - Interact with GPUs via the [CUDA Runtime APIs](https://developer.nvidia.com/cuda-toolkit)
 * [`@nvidia/glfw`](https://github.com/rapidsai/node-rapids/tree/main/modules/glfw) - Create platform-agnostic native windows with OpenGL contexts via [GLFW](https://github.com/glfw/glfw)
 * [`@nvidia/webgl`](https://github.com/rapidsai/node-rapids/tree/main/modules/webgl) - Provides a [`WebGL2RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext) via [OpenGL ES](https://www.khronos.org/opengles)
+* [`@rapidsai/blazingsql`](https://github.com/rapidsai/node-rapids/tree/main/modules/blazingsql) - Bindings to the [BlazingSQL engine](https://github.com/BlazingDB/blazingsql)
 
 See the [API docs](https://rapidsai.github.io/node-rapids/) for detailed information about each module.
 

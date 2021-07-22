@@ -58,5 +58,5 @@ fi
 if [[ "$DEMO" =~ "modules/demo/client-server" ]]; then
     NODE_ENV=production exec npm --prefix="$DEMO" $ARGS start
 else
-    NODE_ENV=production exec node --trace-uncaught "$DEMO" $ARGS
+    NODE_ENV=production exec node --trace-uncaught -r esm "$DEMO" $ARGS
 fi

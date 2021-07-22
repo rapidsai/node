@@ -18,7 +18,21 @@ import {Column} from '../column';
 import {ColumnAccessor} from '../column_accessor';
 import {DataFrame} from '../data_frame';
 import {Series} from '../series';
-import {Categorical, DataType, Int32} from '../types/dtypes';
+import {
+  Categorical,
+  DataType,
+  Int16,
+  Int32,
+  Int64,
+  Int8,
+  Uint16,
+  Uint32,
+  Uint64,
+  Uint8,
+  Utf8String
+} from '../types/dtypes';
+
+import {StringSeries} from './string';
 
 /**
  * A Series of dictionary-encoded values in GPU memory.
@@ -70,39 +84,55 @@ export class CategoricalSeries<T extends DataType> extends Series<Categorical<T>
     this._col = this.scatter(value, [index])._col;
   }
 
-  /**
-   * @summary Casts the values to a new dtype (similar to `static_cast` in C++).
-   *
-   * @param type The new dtype.
-   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
-   *   memory.
-   * @returns Series of same size as the current Series containing result of the `cast` operation.
-   */
-  public cast<R extends DataType>(type: R, memoryResource?: MemoryResource): Series<R> {
-    if (type instanceof Categorical) {
-      return this.castCategories(type.dictionary, memoryResource);
-    }
+  _castNumeric<R extends DataType>(type: R, memoryResource?: MemoryResource): Series<R> {
     const result = this.categories.gather(this.codes).cast(type, memoryResource);
     result.setNullMask(this.mask);
     return result;
   }
 
-  /**
-   * @summary Casts the categories to a new dtype (similar to `static_cast` in C++), keeping the
-   * current codes.
-   *
-   * @param type The new categories dtype.
-   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
-   *   memory.
-   * @returns Series of same size as the current Series containing result of the `cast` operation.
-   */
-  public castCategories<R extends DataType>(type: R, memoryResource?: MemoryResource): Series<R> {
+  _castCategories<R extends DataType>(type: R, memoryResource?: MemoryResource): Series<R> {
     return Series.new(new Column({
       type,
       length: this.length,
       nullMask: this.mask,
       children: [this.codes._col, this.categories.cast(type, memoryResource)._col]
     }));
+  }
+
+  _castAsInt8(memoryResource?: MemoryResource): Series<Int8> {
+    return this._castNumeric(new Int8, memoryResource);
+  }
+  _castAsInt16(memoryResource?: MemoryResource): Series<Int16> {
+    return this._castNumeric(new Int16, memoryResource);
+  }
+  _castAsInt32(memoryResource?: MemoryResource): Series<Int32> {
+    return this._castNumeric(new Int32, memoryResource);
+  }
+  _castAsInt64(memoryResource?: MemoryResource): Series<Int64> {
+    return this._castNumeric(new Int64, memoryResource);
+  }
+
+  _castAsUint8(memoryResource?: MemoryResource): Series<Uint8> {
+    return this._castNumeric(new Uint8, memoryResource);
+  }
+  _castAsUint16(memoryResource?: MemoryResource): Series<Uint16> {
+    return this._castNumeric(new Uint16, memoryResource);
+  }
+  _castAsUint32(memoryResource?: MemoryResource): Series<Uint32> {
+    return this._castNumeric(new Uint32, memoryResource);
+  }
+  _castAsUint64(memoryResource?: MemoryResource): Series<Uint64> {
+    return this._castNumeric(new Uint64, memoryResource);
+  }
+
+  _castAsCategorical<R extends DataType>(dtype: R, memoryResource?: MemoryResource): Series<R> {
+    return this._castCategories((dtype as Categorical).dictionary, memoryResource);
+  }
+
+  _castAsString(memoryResource?: MemoryResource): StringSeries {
+    const result = this.categories.gather(this.codes).cast(new Utf8String, memoryResource);
+    result.setNullMask(this.mask);
+    return result;
   }
 
   /**

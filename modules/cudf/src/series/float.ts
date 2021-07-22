@@ -21,11 +21,16 @@ import {Series} from '../series';
 import {Bool8, Float32, Float64, FloatingPoint, Int32} from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
+import {StringSeries} from './string';
 
 /**
  * A base class for Series of 32 or 64-bit floating-point values in GPU memory.
  */
 abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
+  _castAsString(memoryResource?: MemoryResource): StringSeries {
+    return StringSeries.new(this._col.stringsFromFloats(memoryResource));
+  }
+
   /**
    * Creates a Series of `BOOL8` elements where `true` indicates the value is `NaN` and `false`
    * indicates the value is valid.
@@ -170,6 +175,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
 
     const index = Series.sequence({type: new Int32, size: data.length, step: 1, init: 0});
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const first = index.filter(data.isNull()).getValue(0)!;
     const slice =
       Series.sequence({type: new Int32, size: data.length - first, step: 1, init: first});

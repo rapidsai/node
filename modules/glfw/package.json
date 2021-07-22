@@ -41,7 +41,6 @@
     "jsdom": "16.6.0",
     "lasso-resolve-from": "1.2.0",
     "message-port-polyfill": "0.2.0",
-    "mjolnir.js": "2.5.2",
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "rxjs": "6.6.7",

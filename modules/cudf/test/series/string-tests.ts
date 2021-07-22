@@ -13,7 +13,20 @@
 // limitations under the License.
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {Series, StringSeries} from '@rapidsai/cudf';
+import {
+  Float32,
+  Float64,
+  Int16,
+  Int32,
+  Int64,
+  Int8,
+  Series,
+  StringSeries,
+  Uint16,
+  Uint32,
+  Uint64,
+  Uint8
+} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 
 const mr = new CudaMemoryResource();
@@ -87,4 +100,35 @@ test('getJSONObject', () => {
   const b = Series.new(['']);
   expect([...b.getJSONObject('$')]).toStrictEqual([null]);
   expect([...b.getJSONObject('')]).toStrictEqual([]);
+});
+
+function testIntegralCast<T extends Int8|Int16|Int32|Uint8|Uint16|Uint32>(type: T) {
+  const a = Series.new(['0', '1', '2', null]);
+  expect([...a.cast(type)]).toStrictEqual([0, 1, 2, null]);
+}
+
+function testBigIntegralCast<T extends Uint64|Int64>(type: T) {
+  const a = Series.new(['0', '1', '2', null]);
+  expect([...a.cast(type)]).toStrictEqual([0n, 1n, 2n, null]);
+}
+
+describe('Series.cast Integral', () => {
+  test('Int8', () => { testIntegralCast(new Int8); });
+  test('Int16', () => { testIntegralCast(new Int16); });
+  test('Int32', () => { testIntegralCast(new Int32); });
+  test('Int64', () => { testBigIntegralCast(new Int64); });
+  test('Uint8', () => { testIntegralCast(new Uint8); });
+  test('Uint16', () => { testIntegralCast(new Uint16); });
+  test('Uint32', () => { testIntegralCast(new Uint32); });
+  test('Uint64', () => { testBigIntegralCast(new Uint64); });
+});
+
+test('Series.cast Float32', () => {
+  const a = Series.new(['0', '2.5', '-2', '10.2', null, '2.48e+2']);
+  expect([...a.cast(new Float32)]).toStrictEqual([0, 2.5, -2, 10.199999809265137, null, 248.0]);
+});
+
+test('Series.cast Float64', () => {
+  const a = Series.new(['0', '2.5', '-2', '10.2', null, '2.48e+2']);
+  expect([...a.cast(new Float64)]).toStrictEqual([0, 2.5, -2, 10.2, null, 248.0]);
 });

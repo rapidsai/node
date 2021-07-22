@@ -15,7 +15,7 @@
 import '../../jest-extensions';
 
 import {BigIntArray, setDefaultAllocator, TypedArray, TypedArrayConstructor} from '@nvidia/cuda';
-import {Numeric} from '@rapidsai/cudf';
+import {Numeric, Utf8String} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 
@@ -70,6 +70,10 @@ describe('Series unaryops (Float64)', () => {
   test('Series.rint', () => {
     const actual = makeTestData([NaN, 2.5, 5]).rint();
     expect([...actual]).toEqual([NaN, 2, 5]);
+  });
+  test('Series.cast Utf8String', () => {
+    const actual = makeTestData([NaN, 2, 2.5]);
+    expect([...actual.cast(new Utf8String)]).toEqual(['NaN', '2.0', '2.5']);
   });
   testForEachNumericType(
     'Series.cast %p',

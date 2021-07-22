@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, Series, TypeMap} from '@rapidsai/cudf';
+import {DataFrame, DataType, Series, TypeMap} from '@rapidsai/cudf';
 import {callMethodSync, callStaticMethodSync} from 'java';
 
 import {
@@ -40,7 +40,7 @@ export class BlazingContext {
   private db: any;
   private schema: any;
   private generator: any;
-  private tables: Record<string, DataFrame>;
+  private tables: Map<string, DataFrame>;
 
   constructor() {
     const node: Record<string, unknown> = {};
@@ -50,7 +50,7 @@ export class BlazingContext {
     this.db        = CatalogDatabaseImpl('main');
     this.schema    = BlazingSchema(this.db);
     this.generator = RelationalAlgebraGenerator(this.schema);
-    this.tables    = {};
+    this.tables    = new Map<string, DataFrame>();
     this.context   = new Context({
       ralId: 0,
       workerId: 'self',
@@ -66,9 +66,28 @@ export class BlazingContext {
     });
   }
 
+  /**
+   * Create a BlazingSQL table to be used for future queries.
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param input Data source for the table
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
+   * const df = new DataFrame({'a': a, 'b': b});
+   *
+   * const bc = new BlazingContext();
+   * bc.createTable('test_table', df);
+   * ```
+   */
   createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
     callMethodSync(this.db, 'removeTable', tableName);
-    this.tables[tableName] = input;
+    this.tables.set(tableName, input);
 
     const arr = ArrayList();
     input.names.forEach((name: string, index: number) => {
@@ -85,6 +104,104 @@ export class BlazingContext {
     this.generator = RelationalAlgebraGenerator(this.schema);
   }
 
+  /**
+   * Drop a BlazingSQL table from BlazingContext memory.
+   *
+   * @param tableName Name of the table to drop
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
+   * const df = new DataFrame({'a': a, 'b': b});
+   *
+   * const bc = new BlazingContext();
+   * bc.createTable('test_table', df);
+   * bc.sql('SELECT a FROM test_table');
+   * bc.dropTable('test_table', df);
+   * ```
+   */
+  dropTable(tableName: string): void {
+    if (!this.tables.has(tableName)) {
+      throw new Error(
+        `Unable to find table with name ${tableName} to drop from BlazingContext memory`);
+    }
+
+    callMethodSync(this.db, 'removeTable', tableName);
+    this.schema    = BlazingSchema(this.db);
+    this.generator = RelationalAlgebraGenerator(this.schema);
+    this.tables.delete(tableName);
+  }
+
+  /**
+   * Returns an array with the names of all created tables.
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const df = new DataFrame({'a': a});
+   *
+   * const bc = new BlazingContext();
+   * bc.createTable('test_table', df);
+   * bc.listTables(); // ['test_table']
+   * ```
+   */
+  listTables(): string[] { return [...this.tables.keys()]; }
+
+  /**
+   * Returns a map with column names as keys and the column data type as values.
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const df = new DataFrame({'a': a});
+   *
+   * const bc = new BlazingContext();
+   * bc.createTable('test_table', df);
+   * bc.describeTable('test_table'); // {'a': Int32}
+   * ```
+   */
+  describeTable(tableName: string): Map<string, DataType> {
+    const table = this.tables.get(tableName);
+    return table?.names.reduce(
+             (m: Map<string, DataType>, name: string) => m.set(name, table.get(name).type),
+             new Map()) ??
+           new Map();
+  }
+
+  /**
+   * Query a BlazingSQL table and return the result as a DataFrame.
+   *
+   * @param query SQL query string
+   * @param algebra SQL algebra plan string, use this to run on a relational algebra query instead
+   *   of a query string
+   * @param configOptions Set a specific set of configOptions for this query instead of the
+   *   defaults
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
+   * const df = new DataFrame({'a': a, 'b': b});
+   *
+   * const bc = new BlazingContext();
+   * bc.createTable('test_table', df);
+   *
+   * bc.sql('SELECT a FROM test_table'); // [1, 2, 3]
+   * ```
+   */
   sql(query: string,
       algebra: string|null                   = null,
       configOptions: Record<string, unknown> = defaultConfigValues,
@@ -104,19 +221,24 @@ export class BlazingContext {
       // TODO: Handle return_token true case.
     }
 
-    const masterIndex          = 0;
-    const tableScanInfo        = getTableScanInfo(algebra);
-    const tableNames           = tableScanInfo[0];
-    const tableScans           = tableScanInfo[1];
-    const d                    = new Date();
-    const currentTimestamp     = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
+    const masterIndex      = 0;
+    const tableScanInfo    = getTableScanInfo(algebra);
+    const tableNames       = tableScanInfo[0];
+    const tableScans       = tableScanInfo[1];
+    const d                = new Date();
+    const currentTimestamp = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
       d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
     const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
-    const dataframe: DataFrame = this.tables[tableNames[0]];
+    const selectedDataFrames: DataFrame[] =
+      tableNames.reduce((result: DataFrame[], tableName: string) => {
+        const table = this.tables.get(tableName);
+        if (table !== undefined) { result.push(table); }
+        return result;
+      }, []);
 
     const executionGraphResult = runGenerateGraph(masterIndex,
                                                   ['self'],
-                                                  [dataframe],
+                                                  selectedDataFrames,
                                                   tableScans,
                                                   tableScans,
                                                   ctxToken,
