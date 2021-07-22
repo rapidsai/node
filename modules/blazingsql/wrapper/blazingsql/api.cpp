@@ -48,31 +48,26 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
     return config;
   }();
 
-  // WIP, refactor with std operators
+  // WIP, refactor with std operators, handle any potential null fields.
   Napi::Array objects = props.Get("workersUcpInfo");
   std::vector<NodeMetaDataUCP> workers_ucp_info_temp;
   workers_ucp_info_temp.reserve(objects.Length());
   for (int i = 0; i < objects.Length(); ++i) {
-    Napi::Object worker_info = objects.Get(i).As<Napi::Object>();
-    std::string id           = worker_info.Get("workerId").ToString();
-    std::string ip           = worker_info.Get("ip").ToString();
-    std::int32_t port        = worker_info.Get("port").ToNumber();
+    Napi::Object worker_info          = objects.Get(i).As<Napi::Object>();
+    std::string id                    = worker_info.Get("workerId").ToString();
+    std::string ip                    = worker_info.Get("ip").ToString();
+    std::int32_t port                 = worker_info.Get("port").ToNumber();
+    UcpContext::wrapper_t ucp_context = worker_info.Get("ucpContext").ToObject();
 
-    // TODO: Pass in the context handle.
-    NodeMetaDataUCP data = {
-      id,    // std::string worker_id;
-      ip,    // std::string ip;
-      0,     // std::uintptr_t ep_handle;
-      0,     // std::uintptr_t worker_handle;
-      0,     // std::uintptr_t context_handle;
-      port,  // std::int32_t port;
-    };
-    workers_ucp_info_temp.push_back(data);
+    workers_ucp_info_temp.push_back({
+      id,            // std::string worker_id;
+      ip,            // std::string ip;
+      0,             // std::uintptr_t ep_handle;
+      0,             // std::uintptr_t worker_handle;
+      *ucp_context,  // std::uintptr_t context_handle;
+      port,          // std::int32_t port;
+    });
   }
-
-  // TODO: Store all ucpcontext inside of context.cpp
-
-  throw std::runtime_error("exiting");
 
   auto init_result = ::initialize(ral_id,
                                   worker_id,

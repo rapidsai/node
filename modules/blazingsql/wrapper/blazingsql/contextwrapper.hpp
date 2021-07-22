@@ -50,7 +50,6 @@ struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
   int32_t _port{};
   Napi::Reference<Wrapper<CacheMachine>> _transport_out;
   Napi::Reference<Wrapper<CacheMachine>> _transport_in;
-  Napi::Reference<Wrapper<std::vector<UcpContext>>> ucp_contexts;
 };
 
 }  // namespace nv

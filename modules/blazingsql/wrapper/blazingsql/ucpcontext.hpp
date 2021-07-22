@@ -42,8 +42,10 @@ struct UcpContext : public EnvLocalObjectWrap<UcpContext> {
    */
   UcpContext(Napi::CallbackInfo const& info);
 
+  inline operator std::uintptr_t() { return reinterpret_cast<std::uintptr_t>(_ucp_context.get()); }
+
  private:
-  ucp_context_h _ucp_context_h;
+  std::unique_ptr<ucp_context_h> _ucp_context;
 };
 
 }  // namespace nv
