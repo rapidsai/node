@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+const React = require('react');
+const ReactDOM = require('react-dom');
+const { App } = require(`${__dirname}/app`);
+
+
 const { Subject } = require('rxjs');
 const { CUDA, devices } = require('@nvidia/cuda');
 const { Buffer: DeckBuffer } = require('@rapidsai/deck.gl');
@@ -35,7 +40,7 @@ module.exports = ({ server, video, input, videoEvents, inputEvents, inputToDOMEv
 
       const { width, height, targetStreamingFps, actualStreamingFps } = video.config.mode;
       const fps = targetStreamingFps || actualStreamingFps;
-      const { JSDOM, ...graph } = visualize(...capture({
+      const graph = visualize(...capture({
         width, height, layoutParams: { autoCenter: true }
       }));
 
@@ -70,18 +75,25 @@ module.exports = ({ server, video, input, videoEvents, inputEvents, inputToDOMEv
 
   function visualize(frames, props = {}) {
 
-    const JSDOM = require('@rapidsai/demo-graph');
+    window.outerWidth = props.width;
+    window.outerHeight = props.height;
 
-    const { requestAnimationFrame: raf } = JSDOM.window;
+    const { requestAnimationFrame: raf } = window;
 
     let a = new Map(), b = new Map(), callbacks = a;
-    JSDOM.window.requestAnimationFrame = (cb) => { callbacks.set(cb); };
-    JSDOM.window.cancelAnimationFrame = (cb) => { callbacks.delete(cb); };
+    window.requestAnimationFrame = (cb) => { callbacks.set(cb); };
+    window.cancelAnimationFrame = (cb) => { callbacks.delete(cb); };
 
-    JSDOM.open({ ...props, visible: false });
+    ReactDOM.render(
+      React.createElement(App, {
+        ...props,
+        ref(e) {
+          window._inputEventTarget = ReactDOM.findDOMNode(e);
+        }
+      }),
+      document.body.appendChild(document.createElement('div')));
 
     return {
-      JSDOM,
       frames: frames.pipe(take(1)),
       render() {
         (callbacks = callbacks === a ? b : a);
@@ -150,7 +162,7 @@ module.exports = ({ server, video, input, videoEvents, inputEvents, inputToDOMEv
             });
           }
           // DtoD copy from framebuffer into our pixelbuffer
-          readPixelsToBuffer(framebuffer, { target: pixelbuffer });
+          readPixelsToBuffer(framebuffer, { sourceType: gl.UNSIGNED_BYTE, sourceFormat: gl.BGRA, target: pixelbuffer });
           // console.log({ width, height, pitch, alpha: true, pixelbuffer: pixelbuffer.byteLength });
           frames.next({ width, height, pitch, alpha: true, pixelbuffer });
         }

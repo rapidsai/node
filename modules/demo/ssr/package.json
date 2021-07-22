@@ -29,6 +29,7 @@
     "segfault-handler": "1.3.0"
   },
   "files": [
+    "app.js",
     "sdk.js",
     "index.js",
     "server.js",

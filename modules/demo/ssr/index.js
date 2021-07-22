@@ -27,47 +27,58 @@ require('@babel/register')({
 // Change cwd to the example dir so relative file paths are resolved
 process.chdir(__dirname);
 
-const { streamSDKServer, videoStream, inputStream, inputToDOMEvent } = require('./sdk');
-
-const { stream: video, ...videoEvents } = videoStream({ id: 'ssr-video', title: 'Video' });
-const { stream: input, ...inputEvents } = inputStream({ id: 'ssr-input', title: 'Input' });
-const { server, ...serverEvents } = streamSDKServer({
-  useIPv6: false,
-  mediaPort: 47998,
-  rtspPort: 49100,
-  useTcpSignaling: false,
-  streams: [video, input],
-  createNvstLogger: process.argv.slice(2).includes('--logger'),
+require('@nvidia/glfw').createWindow(start, true).open({
+  __dirname,
+  width: 1280,
+  height: 720,
+  visible: false,
+  transparent: false,
 });
 
-server.start();
+function start(props = {}) {
 
-const run = require('./server');
+  const { __dirname } = props;
+  const { streamSDKServer, videoStream, inputStream, inputToDOMEvent } = require(`${__dirname}/sdk`);
 
-setTimeout(() => {
-
-  const logEvents = (source, subjects) => {
-    Object.keys(subjects).forEach((type) => {
-      subjects[type].subscribe((event) => {
-        console.log({
-          source,
-          type,
-          ...JSON.parse(JSON.stringify(event))
-        })
-      });
-    });
-  }
-
-  logEvents('video', videoEvents);
-  logEvents('input', inputEvents);
-  logEvents('server', serverEvents);
-
-  run({
-    server,
-    video,
-    input,
-    videoEvents,
-    inputEvents,
-    inputToDOMEvent
+  const { stream: video, ...videoEvents } = videoStream({ id: 'ssr-video', title: 'Video' });
+  const { stream: input, ...inputEvents } = inputStream({ id: 'ssr-input', title: 'Input' });
+  const { server, ...serverEvents } = streamSDKServer({
+    useIPv6: false,
+    mediaPort: 47998,
+    rtspPort: 49100,
+    useTcpSignaling: false,
+    streams: [video, input],
+    createNvstLogger: process.argv.slice(2).includes('--logger'),
   });
-}, 100);
+
+  server.start();
+
+  setTimeout(() => {
+
+    // const logEvents = (source, subjects) => {
+    //   Object.keys(subjects).forEach((type) => {
+    //     subjects[type].subscribe((event) => {
+    //       console.log({
+    //         source,
+    //         type,
+    //         ...JSON.parse(JSON.stringify(event))
+    //       })
+    //     });
+    //   });
+    // }
+
+    // logEvents('video', videoEvents);
+    // logEvents('input', inputEvents);
+    // logEvents('server', serverEvents);
+
+    require(`${__dirname}/server`)({
+      server,
+      video,
+      input,
+      videoEvents,
+      inputEvents,
+      inputToDOMEvent,
+      ...props
+    });
+  }, 100);
+}

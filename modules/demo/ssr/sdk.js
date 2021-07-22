@@ -157,14 +157,22 @@ function mouseToDOMEvent(window, { type, flags, xPos, yPos, data1, data2, vWheel
       // if (data1 === /* MouseButton.RIGHT */ 3) event.button = 2;
       // ^ is the same as `data1 - 1`
       event.button = data1 - 1;
-      event.x = window.mouseX + xPos;
-      event.y = window.mouseY + yPos;
+      event.x = xPos;
+      event.y = yPos;
+      if (!(flags & ModifierFlags.ABSCOORDS)) {
+        event.x += window.mouseX;
+        event.y += window.mouseY;
+      }
       event.type = data2 === KeyState.DOWN ? 'mousedown' : 'mouseup';
       return event;
     case MouseEventType.MOUSE_MOVE:
       event.type = 'mousemove';
-      event.x = window.mouseX + xPos;
-      event.y = window.mouseY + yPos;
+      event.x = xPos;
+      event.y = yPos;
+      if (!(flags & ModifierFlags.ABSCOORDS)) {
+        event.x += window.mouseX;
+        event.y += window.mouseY;
+      }
       return event;
     case MouseEventType.MOUSE_WHEEL:
       event.type = 'wheel';
