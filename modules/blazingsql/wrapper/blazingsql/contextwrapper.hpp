@@ -39,7 +39,8 @@ struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
   static wrapper_t New(Napi::Env const& env,
                        std::pair<std::pair<std::shared_ptr<ral::cache::CacheMachine>,
                                            std::shared_ptr<ral::cache::CacheMachine>>,
-                                 int> args);
+                                 int> pair,
+                       Napi::Object const& ucp_context);
 
   /**
    * @brief Construct a new ContextWrapper instance from JavaScript.
@@ -50,6 +51,7 @@ struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
   int32_t _port{};
   Napi::Reference<Wrapper<CacheMachine>> _transport_out;
   Napi::Reference<Wrapper<CacheMachine>> _transport_in;
+  Napi::ObjectReference _ucp_context;
 };
 
 }  // namespace nv

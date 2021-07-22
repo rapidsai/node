@@ -24,10 +24,12 @@ ContextWrapper::wrapper_t ContextWrapper::New(
   Napi::Env const& env,
   std::pair<
     std::pair<std::shared_ptr<ral::cache::CacheMachine>, std::shared_ptr<ral::cache::CacheMachine>>,
-    int> args) {
-  auto inst    = EnvLocalObjectWrap<ContextWrapper>::New(env, {});
-  auto& caches = args.first;
-  inst->_port  = args.second;
+    int> pair,
+  Napi::Object const& ucp_context) {
+  auto inst          = EnvLocalObjectWrap<ContextWrapper>::New(env, {});
+  auto& caches       = pair.first;
+  inst->_port        = pair.second;
+  inst->_ucp_context = Napi::Persistent(ucp_context);
   return inst;
 }
 
