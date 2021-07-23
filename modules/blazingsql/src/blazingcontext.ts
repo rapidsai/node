@@ -21,7 +21,7 @@ import {
   getTableScanInfo,
   runGenerateGraph,
   startExecuteGraph,
-  UcpContext
+  WorkerUcpInfo,
 } from './addon';
 import {
   ArrayList,
@@ -43,7 +43,7 @@ export class BlazingContext {
   private generator: any;
   private tables: Map<string, DataFrame>;
 
-  constructor() {
+  constructor(workers: WorkerUcpInfo[] = []) {
     const node: Record<string, unknown> = {};
     node['worker']                      = '';
     this.nodes.push(node);
@@ -52,22 +52,13 @@ export class BlazingContext {
     this.schema    = BlazingSchema(this.db);
     this.generator = RelationalAlgebraGenerator(this.schema);
     this.tables    = new Map<string, DataFrame>();
-
-    const ucpContext = new UcpContext();
-    this.context     = new Context({
+    this.context   = new Context({
       ralId: 0,
       workerId: 'self',
       network_iface_name: 'lo',
       ralCommunicationPort: 0,
-      workersUcpInfo: [
-        {
-          workerId: 'test',
-          ip: 'test',
-          port: 8000,
-        },
-      ],
-      ucpContext: ucpContext,
-      singleNode: true,
+      workersUcpInfo: workers,
+      singleNode: false,
       configOptions: defaultConfigValues,
       allocationMode: 'cuda_memory_resource',
       initialPoolSize: 0,

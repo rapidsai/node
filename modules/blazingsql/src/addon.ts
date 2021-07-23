@@ -39,3 +39,4 @@ export type getExecuteGraphResult = typeof import('./node_blazingsql').getExecut
 export type Context        = import('./node_blazingsql').Context;
 export type ExecutionGraph = import('./node_blazingsql').ExecutionGraph;
 export type UcpContext     = import('./node_blazingsql').UcpContext;
+export type WorkerUcpInfo  = import('./node_blazingsql').WorkerUcpInfo;

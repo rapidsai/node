@@ -22,12 +22,12 @@ export type WorkerUcpInfo = {
   workerId: string,
   ip: string,
   port: number,
+  ucpContext: UcpContext,
 }
 
 export type ContextProps = {
   ralId: number; workerId: string; network_iface_name: string; ralCommunicationPort: number;
   workersUcpInfo: WorkerUcpInfo[];
-  ucpContext: UcpContext;
   singleNode: boolean;
   configOptions: Record<string, unknown>;
   allocationMode: string;

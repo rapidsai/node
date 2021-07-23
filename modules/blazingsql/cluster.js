@@ -1,4 +1,5 @@
 const cluster = require('cluster');
+const { BlazingContext, UcpContext } = require('@rapidsai/blazingsql')
 
 const createTable = 'createTable';
 const runQuery = 'runQuery';
@@ -11,6 +12,16 @@ if (cluster.isMaster) {
   for (let i = 0; i < numberOfWorkers; ++i) {
     workers[i] = cluster.fork();
   }
+
+  const ucp_context = new UcpContext();
+  const bc = new BlazingContext(Object.keys(cluster.workers).map((id) => {
+    return {
+      workerId: id,
+      ip: 'localhost',
+      port: 8000,
+      ucpContext: ucp_context,
+    };
+  }));
 
   workers.forEach((w) => {
     w.send({ operation: createTable, tableName: 'test_table' });
