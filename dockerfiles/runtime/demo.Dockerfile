@@ -17,6 +17,7 @@ RUN cp                                               \
     /opt/node-rapids/build/rapidsai-cuml-*.tgz       \
     /opt/node-rapids/build/rapidsai-cugraph-*.tgz    \
     /opt/node-rapids/build/rapidsai-cuspatial-*.tgz  \
+    /opt/node-rapids/build/rapidsai-deck.gl-*.tgz    \
     /opt/node-rapids/build/rapidsai-demo-*.tgz       \
     . \
  && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz \

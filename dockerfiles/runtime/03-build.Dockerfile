@@ -4,7 +4,16 @@ FROM ${FROM_IMAGE}
 
 ENV NVIDIA_DRIVER_CAPABILITIES all
 
-COPY --chown=node:node . .
+COPY --chown=node:node scripts       scripts
+COPY --chown=node:node modules       modules
+COPY --chown=node:node .eslintrc.js  .eslintrc.js
+COPY --chown=node:node .yarnrc       .yarnrc
+COPY --chown=node:node LICENSE       LICENSE
+COPY --chown=node:node lerna.json    lerna.json
+COPY --chown=node:node .npmrc        .npmrc
+COPY --chown=node:node tsconfig.json tsconfig.json
+COPY --chown=node:node typedoc.js    typedoc.js
+COPY --chown=node:node package.json  package.json
 
 ARG DISPLAY
 ARG CUDAARCHS=ALL
@@ -17,7 +26,7 @@ ARG SCCACHE_IDLE_TIMEOUT
 
 RUN echo -e "build env:\n$(env)" \
  && echo -e "build context:\n$(find .)" \
- && yarn
+ && touch .env && yarn
 
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_SECRET_ACCESS_KEY
