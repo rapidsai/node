@@ -22,10 +22,8 @@ x-main-service-settings: &main_service_settings
   build: &main_build_settings
     <<: *base_build_settings
     args: &main_build_args
-      ARCH: "${ARCH:-amd64}"
-      CUDA_VERSION: "${CUDA_VERSION-11.2.2}"
-      LINUX_VERSION: "${LINUX_VERSION-ubuntu20.04}"
-      FROM_IMAGE: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-nvstream-${ARCH:-amd64}
+      FROM_IMAGE: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-base-${ARCH:-amd64}
+      # FROM_IMAGE: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-nvstream-${ARCH:-amd64}
       DEVEL_IMAGE: rapidsai/node:${RAPIDS_VERSION:-latest}-devel-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-build-${ARCH:-amd64}
   environment: &main_environment_variables
     <<: *base_environment_settings
@@ -79,56 +77,56 @@ services:
 
   main:
     <<: *main_service_settings
-    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-${ARCH:-amd64}-main
+    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-main-${ARCH:-amd64}
     build:
       <<: *main_build_settings
       dockerfile: dockerfiles/runtime/main.Dockerfile
 
   demo:
     <<: *main_service_settings
-    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-${ARCH:-amd64}-demo-main
+    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-demo-main-${ARCH:-amd64}
     build:
       <<: *main_build_settings
       dockerfile: dockerfiles/runtime/demo.Dockerfile
 
   glfw:
     <<: *main_service_settings
-    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-${ARCH:-amd64}-glfw-main
+    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-glfw-main-${ARCH:-amd64}
     build:
       <<: *main_build_settings
       dockerfile: dockerfiles/runtime/glfw.Dockerfile
 
   cudf:
     <<: *main_service_settings
-    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-${ARCH:-amd64}-cudf-main
+    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-cudf-main-${ARCH:-amd64}
     build:
       <<: *main_build_settings
       dockerfile: dockerfiles/runtime/cudf.Dockerfile
 
   blazingsql:
     <<: *main_service_settings
-    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-${ARCH:-amd64}-blazingsql-main
+    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-blazingsql-main-${ARCH:-amd64}
     build:
       <<: *main_build_settings
       dockerfile: dockerfiles/runtime/blazingsql.Dockerfile
 
   cuml:
     <<: *main_service_settings
-    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-${ARCH:-amd64}-cuml-main
+    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-cuml-main-${ARCH:-amd64}
     build:
       <<: *main_build_settings
       dockerfile: dockerfiles/runtime/cuml.Dockerfile
 
   cugraph:
     <<: *main_service_settings
-    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-${ARCH:-amd64}-cugraph-main
+    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-cugraph-main-${ARCH:-amd64}
     build:
       <<: *main_build_settings
       dockerfile: dockerfiles/runtime/cugraph.Dockerfile
 
   cuspatial:
     <<: *main_service_settings
-    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-${ARCH:-amd64}-cuspatial-main
+    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-15.14.0}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-cuspatial-main-${ARCH:-amd64}
     build:
       <<: *main_build_settings
       dockerfile: dockerfiles/runtime/cuspatial.Dockerfile

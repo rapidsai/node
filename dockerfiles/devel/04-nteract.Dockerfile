@@ -28,15 +28,32 @@ if __name__ == \"__main__\":\n\
     \"{connection_file}\",\n\
     \"--protocol=5.0\"\n\
   ],\n\
-  \"display_name\": \"Javascript (Node.js)\",\n\
-  \"language\": \"javascript\"\n\
+  \"name\": \"javascript\",\n\
+  \"language\": \"javascript\",\n\
+  \"display_name\": \"Javascript (Node.js)\"\n\
 }' > /home/node/.local/share/jupyter/kernels/javascript/kernel.json" \
  && cat /home/node/.local/share/jupyter/kernels/javascript/kernel.json \
  # Add nteract settings
  && bash -c "echo -e '{\n\
   \"theme\": \"dark\",\n\
-  \"editorType\": \"monaco\",\n\
-  \"defaultKernel\": \"javascript\"\n\
+  \"editorType\": \"codemirror\",\n\
+  \"defaultKernel\": \"javascript\",\n\
+  \"codeMirror\": {\n\
+    \"mode\": \"text/javascript\",\n\
+    \"theme\": \"monokai\",\n\
+    \"tabSize\": 2,\n\
+    \"matchTags\": true,\n\
+    \"undoDepth\": 999999,\n\
+    \"inputStyle\": \"contenteditable\",\n\
+    \"lineNumbers\": true,\n\
+    \"matchBrackets\": true,\n\
+    \"indentWithTabs\": false,\n\
+    \"cursorBlinkRate\": 500,\n\
+    \"lineWiseCopyCut\": false,\n\
+    \"autoCloseBrackets\": 4,\n\
+    \"selectionsMayTouch\": true,\n\
+    \"showCursorWhenSelecting\": true\n\
+  }\n\
 }' > /home/node/.jupyter/nteract.json" \
  && cat /home/node/.jupyter/nteract.json \
  && chown -R node:node /home/node \
@@ -56,8 +73,15 @@ if __name__ == \"__main__\":\n\
     /tmp/nteract_${NTERACT_VERSION}_amd64.deb \
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+ # Remove python3 kernelspec
+ && jupyter kernelspec remove -f python3 \
  # Install ijavascript
  && npm install --global --unsafe-perm --no-audit --no-fund ijavascript \
  && ijsinstall --install=global --spec-path=full
 
+
+WORKDIR /opt/node-rapids
+
 USER node
+
+ENV NTERACT_DESKTOP_DISABLE_AUTO_UPDATE=1

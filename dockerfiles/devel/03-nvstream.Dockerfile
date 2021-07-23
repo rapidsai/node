@@ -5,6 +5,8 @@ FROM ${CUDA_10_2_IMAGE:-nvidia/cuda:10.2-devel-ubuntu18.04} as cuda_10_2
 
 FROM ${FROM_IMAGE}
 
+USER root
+
 RUN echo -e "\
 deb http://dk.archive.ubuntu.com/ubuntu/ xenial main\n\
 deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe\n\

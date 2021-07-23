@@ -39,3 +39,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     /tmp/* \
     /var/tmp/* \
     /var/lib/apt/lists/*
+
+WORKDIR /opt/node-rapids
+
+USER node
