@@ -20,7 +20,7 @@
     "@babel/register": "7.14.5",
     "@nvidia/glfw": "0.0.1",
     "@tensorflow/tfjs": "2.8.6",
-    "chalk": "4.1.0",
+    "chalk": "^4.1.1",
     "segfault-handler": "1.3.0"
   },
   "files": [

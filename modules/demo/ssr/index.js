@@ -1,3 +1,5 @@
+#!/usr/bin/env -S node -r esm
+
 // Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
