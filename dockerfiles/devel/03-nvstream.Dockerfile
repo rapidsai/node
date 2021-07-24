@@ -38,6 +38,6 @@ RUN cd /opt/node-nvidia-stream-sdk \
  && npm pack --pack-destination /home/node . \
  && chown -R node:node /home/node
 
-WORKDIR /opt/node-rapids
+WORKDIR /opt/rapids/node
 
 USER node

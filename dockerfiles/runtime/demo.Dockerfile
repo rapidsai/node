@@ -6,19 +6,19 @@ FROM ${DEVEL_IMAGE} as devel
 WORKDIR /home/node
 
 RUN cp                                               \
-    /opt/node-rapids/.npmrc                          \
-    /opt/node-rapids/build/rapidsai-core-*.tgz       \
-    /opt/node-rapids/build/nvidia-cuda-*.tgz         \
-    /opt/node-rapids/build/nvidia-glfw-*.tgz         \
-    /opt/node-rapids/build/nvidia-webgl-*.tgz        \
-    /opt/node-rapids/build/rapidsai-rmm-*.tgz        \
-    /opt/node-rapids/build/rapidsai-cudf-*.tgz       \
-    /opt/node-rapids/build/rapidsai-blazingsql-*.tgz \
-    /opt/node-rapids/build/rapidsai-cuml-*.tgz       \
-    /opt/node-rapids/build/rapidsai-cugraph-*.tgz    \
-    /opt/node-rapids/build/rapidsai-cuspatial-*.tgz  \
-    /opt/node-rapids/build/rapidsai-deck.gl-*.tgz    \
-    /opt/node-rapids/build/rapidsai-demo-*.tgz       \
+    /opt/rapids/node/.npmrc                          \
+    /opt/rapids/node/build/rapidsai-core-*.tgz       \
+    /opt/rapids/node/build/nvidia-cuda-*.tgz         \
+    /opt/rapids/node/build/nvidia-glfw-*.tgz         \
+    /opt/rapids/node/build/nvidia-webgl-*.tgz        \
+    /opt/rapids/node/build/rapidsai-rmm-*.tgz        \
+    /opt/rapids/node/build/rapidsai-cudf-*.tgz       \
+    /opt/rapids/node/build/rapidsai-blazingsql-*.tgz \
+    /opt/rapids/node/build/rapidsai-cuml-*.tgz       \
+    /opt/rapids/node/build/rapidsai-cugraph-*.tgz    \
+    /opt/rapids/node/build/rapidsai-cuspatial-*.tgz  \
+    /opt/rapids/node/build/rapidsai-deck.gl-*.tgz    \
+    /opt/rapids/node/build/rapidsai-demo-*.tgz       \
     . \
  && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz \
  && npm dedupe  --production --omit dev --omit peer --omit optional --legacy-peer-deps --force

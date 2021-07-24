@@ -21,7 +21,7 @@ x-main-service-settings: &main_service_settings
   <<: *base_service_settings
   network_mode: "host"
   volumes:
-    - "${PWD}:/opt/node-rapids:rw"
+    - "${PWD}:/opt/rapids/node:rw"
     - "/etc/fonts:/etc/fonts:ro"
     - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
     - "/usr/share/fonts:/usr/share/fonts:ro"
@@ -30,7 +30,7 @@ x-main-service-settings: &main_service_settings
     - "/etc/localtime:/etc/localtime"
     - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
     - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
-  working_dir: /opt/node-rapids
+  working_dir: /opt/rapids/node
   environment: &main_environment_settings
     <<: *base_environment_settings
     # Use the host's X11 display

@@ -135,8 +135,8 @@ RUN useradd \
     --uid $UID \
     --user-group ${ADDITIONAL_GROUPS} \
     --shell /bin/bash --create-home node \
- && mkdir -p /opt/node-rapids/modules/.cache \
- && chown -R node:node /opt/node-rapids \
+ && mkdir -p /opt/rapids/node/modules/.cache \
+ && chown -R node:node /opt/rapids/node \
  && echo node:node | chpasswd \
  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
  && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
@@ -154,7 +154,7 @@ export HISTFILESIZE=-1;\n\
 export HISTCONTROL=ignoreboth;\n\
 # Change the file location because certain bash sessions truncate .bash_history file upon close.\n\
 # http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login\n\
-export HISTFILE=/opt/node-rapids/modules/.cache/.eternal_bash_history;\n\
+export HISTFILE=/opt/rapids/node/modules/.cache/.eternal_bash_history;\n\
 mkdir -p \$(dirname \$HISTFILE) && touch \$HISTFILE;\n\
 # flush commands to .bash_history immediately\n\
 export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
@@ -173,6 +173,6 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-WORKDIR /opt/node-rapids
+WORKDIR /opt/rapids/node
 
 CMD ["/bin/bash", "-l"]

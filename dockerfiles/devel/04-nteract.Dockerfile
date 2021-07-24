@@ -80,7 +80,7 @@ if __name__ == \"__main__\":\n\
  && ijsinstall --install=global --spec-path=full
 
 
-WORKDIR /opt/node-rapids
+WORKDIR /opt/rapids/node
 
 USER node
 

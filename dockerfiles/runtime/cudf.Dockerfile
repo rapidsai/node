@@ -6,11 +6,11 @@ FROM ${DEVEL_IMAGE} as devel
 WORKDIR /home/node
 
 RUN cp                                               \
-    /opt/node-rapids/.npmrc                          \
-    /opt/node-rapids/build/rapidsai-core-*.tgz       \
-    /opt/node-rapids/build/nvidia-cuda-*.tgz         \
-    /opt/node-rapids/build/rapidsai-rmm-*.tgz        \
-    /opt/node-rapids/build/rapidsai-cudf-*.tgz       \
+    /opt/rapids/node/.npmrc                          \
+    /opt/rapids/node/build/rapidsai-core-*.tgz       \
+    /opt/rapids/node/build/nvidia-cuda-*.tgz         \
+    /opt/rapids/node/build/rapidsai-rmm-*.tgz        \
+    /opt/rapids/node/build/rapidsai-cudf-*.tgz       \
     . \
  && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz \
  && npm dedupe  --production --omit dev --omit peer --omit optional --legacy-peer-deps --force
