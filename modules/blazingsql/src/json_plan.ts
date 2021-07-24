@@ -1,6 +1,6 @@
 import {spawnSync} from 'child_process';
 
-export const json_plan_py = (algebra: string) => {
+export const json_plan_py = (algebra: string, shouldFormat: 'True'|'False' = 'False') => {
   const {stderr, stdout} =
     spawnSync('python3', [
       '-c',
@@ -158,7 +158,10 @@ def _lines_to_list_steps(lines):
 
     return list_step
 
-print(get_json_plan("""${algebra}"""))
+if ${shouldFormat}:
+    print(format_json_plan("""${algebra}"""))
+else:
+    print(get_json_plan("""${algebra}"""))
 `
     ]);
 
