@@ -26,9 +26,9 @@ deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe\n\
 # Copy in CUDA 10.2 headers
 COPY --from=cuda_10_2 --chown=node:node /usr/local/cuda/include /opt/node-nvidia-stream-sdk/lib/cuda-10.2/include
 # Copy in StreamSDK build
-COPY --chown=node:node StreamSDK_Full /opt/node-nvidia-stream-sdk/StreamSDK_Full.zip
+COPY --chown=node:node internal/StreamSDK_Full /opt/node-nvidia-stream-sdk/StreamSDK_Full.zip
 # Copy in node-nvidia-stream-sdk
-COPY --chown=node:node node-nvidia-stream-sdk /opt/node-nvidia-stream-sdk
+COPY --chown=node:node internal/node-nvidia-stream-sdk /opt/node-nvidia-stream-sdk
 
 RUN chown -R node:node /opt/node-nvidia-stream-sdk
 
