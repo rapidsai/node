@@ -32,7 +32,7 @@ import {
   CatalogTableImpl,
   RelationalAlgebraGenerator
 } from './algebra';
-import {defaultConfigValues} from './config';
+import {defaultConfigValues, replaceConfigValues} from './config';
 import {json_plan_py} from './json_plan';
 
 export class BlazingContext {
@@ -43,8 +43,9 @@ export class BlazingContext {
   private schema: any;
   private generator: any;
   private tables: Map<string, DataFrame>;
+  private config: Record<string, unknown>;
 
-  constructor(workers: WorkerUcpInfo[] = []) {
+  constructor(workers: WorkerUcpInfo[] = [], config: Record<string, unknown> = {}) {
     const node: Record<string, unknown> = {};
     node['worker']                      = '';
     this.nodes.push(node);
@@ -53,14 +54,18 @@ export class BlazingContext {
     this.schema    = BlazingSchema(this.db);
     this.generator = RelationalAlgebraGenerator(this.schema);
     this.tables    = new Map<string, DataFrame>();
-    this.context   = new Context({
+    this.config    = replaceConfigValues(defaultConfigValues, config);
+
+    console.log(this.config);
+
+    this.context = new Context({
       ralId: 0,
       workerId: 'self',
       network_iface_name: 'lo',
       ralCommunicationPort: 0,
       workersUcpInfo: workers,
       singleNode: false,
-      configOptions: defaultConfigValues,
+      configOptions: this.config,
       allocationMode: 'cuda_memory_resource',
       initialPoolSize: 0,
       maximumPoolSize: null,
@@ -186,8 +191,8 @@ export class BlazingContext {
    * @param query SQL query string
    * @param algebra SQL algebra plan string, use this to run on a relational algebra query instead
    *   of a query string
-   * @param configOptions Set a specific set of configOptions for this query instead of the
-   *   defaults
+   * @param configOptions Set configOptions for this query instead of using the
+   *   config the BlazingContext was initialized with
    *
    * @example
    * ```typescript
@@ -204,9 +209,7 @@ export class BlazingContext {
    * bc.sql('SELECT a FROM test_table'); // [1, 2, 3]
    * ```
    */
-  sql(query: string,
-      algebra: string|null                   = null,
-      configOptions: Record<string, unknown> = defaultConfigValues) {
+  sql(query: string, algebra: string|null = null, configOptions: Record<string, unknown> = {}) {
     if (algebra == null) { algebra = this.explain(query); }
 
     if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
@@ -240,7 +243,7 @@ export class BlazingContext {
                                                   tableScans,
                                                   ctxToken,
                                                   json_plan_py(algebra),
-                                                  configOptions,
+                                                  replaceConfigValues(this.config, configOptions),
                                                   query,
                                                   currentTimestamp);
     startExecuteGraph(executionGraphResult, ctxToken);

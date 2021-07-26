@@ -30,3 +30,11 @@ export const defaultConfigValues: Record<string, unknown> = {
   PROTOCOL: 'AUTO',
   REQUIRE_ACKNOWLEDGE: false,
 };
+
+export function replaceConfigValues(config: Record<string, unknown>,
+                                    replacementConfig: Record<string, unknown>) {
+  Object.keys(replacementConfig).forEach(function(key) {
+    if (config[key] !== null) { config[key] = replacementConfig[key]; }
+  });
+  return config;
+}
