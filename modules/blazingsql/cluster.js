@@ -28,12 +28,15 @@ if (cluster.isMaster) {
     };
   }));
 
-  const a = Series.new([1, 2, 3]);
-  const b = Series.new([1, 2, 3]);
-  const df = new DataFrame({ 'a': a, 'b': b });
-
-  workers.forEach((w) => {
-    w.send({ operation: createTable, tableName: 'test_table', dataframe: df.toArrow().serialize() });
+  const df = createLargeDataFrame();
+  const len = Math.ceil(df.numRows / workers.length);
+  const table = df.toArrow();
+  workers.forEach((w, i) => {
+    w.send({
+      operation: createTable,
+      tableName: 'test_table',
+      dataframe: table.slice(i * len, (i + 1) * len).serialize()
+    });
   });
 
   let ctxToken = 0;
@@ -51,7 +54,7 @@ if (cluster.isMaster) {
   Promise.all(queryPromises).then(function (results) {
     console.log('Finished running all queries.');
     results.forEach((result) => {
-      console.log(DataFrame.fromArrow(result.df));
+      console.log(DataFrame.fromArrow(result.dataframe));
     });
     workers.forEach((w) => w.kill());
   });
@@ -76,7 +79,12 @@ if (cluster.isMaster) {
     if (args.operation === runQuery) {
       console.log(`Token: ${args.ctxToken}`);
       const result = bc.sql(args.query, args.ctxToken);
-      process.send({ operation: queryRan, ctxToken: args.ctxToken, df: result.toArrow().serialize() });
+      process.send({ operation: queryRan, ctxToken: args.ctxToken, dataframe: result.toArrow().serialize() });
     }
   });
+}
+
+function createLargeDataFrame() {
+  const a = Series.new(Array.from(Array(300).keys()));
+  return new DataFrame({ 'a': a, 'b': a });
 }
