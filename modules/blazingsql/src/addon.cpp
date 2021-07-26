@@ -29,6 +29,7 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
       {InstanceMethod("init", &node_blazingsql::InitAddon),
        InstanceMethod<&node_blazingsql::get_table_scan_info>("getTableScanInfo"),
        InstanceMethod<&node_blazingsql::run_generate_graph>("runGenerateGraph"),
+       InstanceMethod<&node_blazingsql::run_generate_physical_graph>("runGeneratePhysicalGraph"),
        InstanceMethod<&node_blazingsql::start_execute_graph>("startExecuteGraph"),
        InstanceMethod<&node_blazingsql::get_execute_graph_result>("getExecuteGraphResult"),
        InstanceValue("_cpp_exports", _cpp_exports.Value()),
@@ -64,7 +65,7 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
     auto env = info.Env();
     nv::CallbackArgs args{info};
 
-    uint32_t masterIndex                 = args[0];
+    uint32_t master_index                = args[0];
     std::vector<std::string> worker_ids  = args[1];
     Napi::Array data_frames              = args[2];
     std::vector<std::string> table_names = args[3];
@@ -106,8 +107,8 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
       column_names.push_back(names);
     }
 
-    return nv::run_generate_graph(info.Env(),
-                                  masterIndex,
+    return nv::run_generate_graph(env,
+                                  master_index,
                                   worker_ids,
                                   table_views,
                                   column_names,
@@ -118,6 +119,19 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
                                   sql,
                                   current_timestamp,
                                   config_options);
+  }
+
+  Napi::Value run_generate_physical_graph(Napi::CallbackInfo const& info) {
+    auto env = info.Env();
+    nv::CallbackArgs args{info};
+
+    uint32_t masterIndex                = args[0];
+    std::vector<std::string> worker_ids = args[1];
+    int32_t ctx_token                   = args[2];
+    std::string query                   = args[3];
+
+    return Napi::String::New(
+      env, nv::run_generate_physical_graph(masterIndex, worker_ids, ctx_token, query));
   }
 
   void start_execute_graph(Napi::CallbackInfo const& info) {

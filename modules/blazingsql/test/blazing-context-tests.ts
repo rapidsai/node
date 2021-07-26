@@ -40,6 +40,30 @@ test('describe table', () => {
   expect([...tableDescription.values()]).toEqual([new Float64, new Utf8String]);
 });
 
+test('explain', () => {
+  const key = Series.new(['a', 'b', 'c', 'd', 'e']);
+  const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
+  const df  = new DataFrame({'key': key, 'val': val});
+
+  const bc = new BlazingContext();
+  bc.createTable('test_table', df);
+
+  const query = 'SELECT * FROM test_table WHERE val > 4';
+
+  // Result strings copied from BlazingSQL
+  expect(bc.explain(query))
+    .toEqual(
+      `LogicalProject(key=[$0], val=[$1])
+  BindableTableScan(table=[[main, test_table]], filters=[[>($1, 4)]])
+`);
+  expect(bc.explain(query, true))
+    .toEqual(
+      `LogicalProject(key=[$0], val=[$1])
+  BindableTableScan(table=[[main, test_table]], filters=[[>($1, 4)]])
+
+`);
+});
+
 test('select a single column', () => {
   const a  = Series.new([6, 9, 1, 6, 2]);
   const b  = Series.new([7, 2, 7, 1, 2]);

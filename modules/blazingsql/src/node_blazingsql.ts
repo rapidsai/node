@@ -3,7 +3,7 @@ import {DataFrame, Table} from '@rapidsai/cudf';
 export declare function getTableScanInfo(logicalPlan: string): [string[], string[]];
 
 export declare function runGenerateGraph(masterIndex: number,
-                                         workerIds: any[],
+                                         workerIds: string[],
                                          dataframes: DataFrame[],
                                          tableNames: string[],
                                          tableScans: string[],
@@ -12,6 +12,9 @@ export declare function runGenerateGraph(masterIndex: number,
                                          configOptions: Record<string, unknown>,
                                          sql: string,
                                          currentTimestamp: string): ExecutionGraph;
+
+export declare function runGeneratePhysicalGraph(
+  masterIdex: number, workerIds: string[], ctxToken: number, query: string): string;
 
 export declare function startExecuteGraph(executionGraph: ExecutionGraph, ctxToken: number): void;
 

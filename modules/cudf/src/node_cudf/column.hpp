@@ -715,6 +715,27 @@ struct Column : public EnvLocalObjectWrap<Column> {
     std::string const& pattern,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // column/convert.cpp
+  Column::wrapper_t string_is_float(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t strings_from_floats(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t strings_to_floats(
+    cudf::data_type out_type,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t string_is_integer(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t strings_from_integers(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t strings_to_integers(
+    cudf::data_type out_type,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
  private:
   cudf::size_type size_{};                         ///< The number of elements in the column
   cudf::size_type offset_{};                       ///< The offset of elements in the data
@@ -856,6 +877,14 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value count_re(Napi::CallbackInfo const& info);
   // Napi::Value findall_re(Napi::CallbackInfo const& info);
   Napi::Value matches_re(Napi::CallbackInfo const& info);
+
+  // column/convert.hpp
+  Napi::Value string_is_float(Napi::CallbackInfo const& info);
+  Napi::Value strings_from_floats(Napi::CallbackInfo const& info);
+  Napi::Value strings_to_floats(Napi::CallbackInfo const& info);
+  Napi::Value string_is_integer(Napi::CallbackInfo const& info);
+  Napi::Value strings_from_integers(Napi::CallbackInfo const& info);
+  Napi::Value strings_to_integers(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv
