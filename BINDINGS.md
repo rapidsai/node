@@ -508,7 +508,7 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `list_tables`                  |     ✅ (`listTables`)      |
 | `add_remove_table`             |              ✅            |
 | `sql`                          |              ✅            |
-| `explain`                      |                            |
+| `explain`                      |              ✅            |
 | `fetch`                        |                            |
 | `status`                       |                            |
 | `do_progress_bar`              |                            |
