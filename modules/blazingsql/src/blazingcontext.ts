@@ -207,7 +207,11 @@ export class BlazingContext {
    * bc.sql('SELECT a FROM test_table'); // [1, 2, 3]
    * ```
    */
-  sql(query: string, algebra: string|null = null, configOptions: Record<string, unknown> = {}) {
+  // TODO: Update doc strings for ctxToken if we decide to keep it in.
+  sql(query: string,
+      ctxToken: number|null                  = null,
+      algebra: string|null                   = null,
+      configOptions: Record<string, unknown> = {}) {
     if (algebra == null) { algebra = this.explain(query); }
 
     if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
@@ -226,7 +230,7 @@ export class BlazingContext {
     const d                = new Date();
     const currentTimestamp = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
       d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
-    const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
+    ctxToken = ctxToken ?? Math.random() * Number.MAX_SAFE_INTEGER;
     const selectedDataFrames: DataFrame[] =
       tableNames.reduce((result: DataFrame[], tableName: string) => {
         const table = this.tables.get(tableName);

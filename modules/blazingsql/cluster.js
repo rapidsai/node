@@ -9,6 +9,7 @@ const queryRan = 'queryRan';
 const numberOfWorkers = 2;
 
 const ucp_context = new UcpContext();
+const queryToRun = 'SELECT a FROM test_table';
 
 if (cluster.isMaster) {
   cluster.setupMaster({ serialization: 'advanced' });
@@ -39,7 +40,7 @@ if (cluster.isMaster) {
   let queryPromises = [];
   workers.forEach((w) => {
     queryPromises.push(new Promise(function (resolve) {
-      w.send({ operation: runQuery, ctxToken: ctxToken++ });
+      w.send({ operation: runQuery, ctxToken: ctxToken++, query: queryToRun });
       w.on('message', (args) => {
         console.log(`Finished query on token: ${args.ctxToken}`);
         resolve(args);
@@ -47,8 +48,11 @@ if (cluster.isMaster) {
     }));
   });
 
-  Promise.all(queryPromises).then(function (result) {
+  Promise.all(queryPromises).then(function (results) {
     console.log('Finished running all queries.');
+    results.forEach((result) => {
+      console.log(DataFrame.fromArrow(result.df));
+    });
     workers.forEach((w) => w.kill());
   });
 
@@ -71,7 +75,8 @@ if (cluster.isMaster) {
 
     if (args.operation === runQuery) {
       console.log(`Token: ${args.ctxToken}`);
-      process.send({ operation: queryRan, ctxToken: args.ctxToken });
+      const result = bc.sql(args.query, args.ctxToken);
+      process.send({ operation: queryRan, ctxToken: args.ctxToken, df: result.toArrow().serialize() });
     }
   });
 }
