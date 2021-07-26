@@ -90,7 +90,7 @@ export class FixedSizeMemoryResource extends MemoryResource {
   constructor(upstreamMemoryResource: MemoryResource,
               blockSize?: number,
               blocksToPreallocate?: number) {
-    super(MemoryResourceType.FIXEDSIZE, upstreamMemoryResource, blockSize, blocksToPreallocate);
+    super(MemoryResourceType.FIXED_SIZE, upstreamMemoryResource, blockSize, blocksToPreallocate);
   }
 }
 

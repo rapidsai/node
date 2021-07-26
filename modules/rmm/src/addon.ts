@@ -35,10 +35,20 @@ export type setPerDeviceResource = typeof import('./node_rmm').setPerDeviceResou
 
 export const enum MemoryResourceType
 {
-  CUDA      = 0,
-  MANAGED   = 1,
-  POOL      = 2,
-  FIXEDSIZE = 3,
-  BINNING   = 4,
-  LOGGING   = 5,
+  /* ALIGNED_ADAPTOR          = 0, */
+  /* ARENA                    = 1, */
+  BINNING = 2,
+  /* CUDA_ASYNC               = 3, */
+  CUDA = 4,
+  /* DEVICE                   = 5, */
+  FIXED_SIZE = 6,
+  /* LIMITING_ADAPTOR         = 7, */
+  LOGGING = 8,
+  MANAGED = 9,
+  /* POLYMORPHIC_ALLOCATOR    = 10, */
+  POOL = 11,
+  /* STATISTICS_ADAPTOR       = 12, */
+  /* THREAD_SAFE_ADAPTOR      = 13, */
+  /* THRUST_ALLOCATOR_ADAPTOR = 14, */
+  /* TRACKING_ADAPTOR         = 15, */
 }
