@@ -56,8 +56,6 @@ export class BlazingContext {
     this.tables    = new Map<string, DataFrame>();
     this.config    = replaceConfigValues(defaultConfigValues, config);
 
-    console.log(this.config);
-
     this.context = new Context({
       ralId: 0,
       workerId: 'self',
