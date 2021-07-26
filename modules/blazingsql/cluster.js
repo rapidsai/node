@@ -11,6 +11,8 @@ const numberOfWorkers = 2;
 const ucp_context = new UcpContext();
 
 if (cluster.isMaster) {
+  cluster.setupMaster({ serialization: 'advanced' });
+
   const workers = Array(numberOfWorkers);
   for (let i = 0; i < numberOfWorkers; ++i) {
     workers[i] = cluster.fork();
@@ -30,7 +32,7 @@ if (cluster.isMaster) {
   const df = new DataFrame({ 'a': a, 'b': b });
 
   workers.forEach((w) => {
-    w.send({ operation: createTable, tableName: 'test_table', dataframe: df });
+    w.send({ operation: createTable, tableName: 'test_table', dataframe: df.toArrow().serialize() });
   });
 
   let ctxToken = 0;
@@ -64,7 +66,7 @@ if (cluster.isMaster) {
   process.on('message', (args) => {
     if (args.operation === createTable) {
       console.log(`Creating table: ${args.tableName}`);
-      bc.createTable(args.tableName, args.dataframe);
+      bc.createTable(args.tableName, DataFrame.fromArrow(args.dataframe));
     }
 
     if (args.operation === runQuery) {
