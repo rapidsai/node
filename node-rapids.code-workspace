@@ -49,6 +49,10 @@
             "path": "modules/glfw"
         },
         {
+            "name": "jsdom",
+            "path": "modules/jsdom"
+        },
+        {
             "name": "webgl",
             "path": "modules/webgl"
         }

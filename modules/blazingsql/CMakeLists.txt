@@ -100,6 +100,7 @@ set_target_properties(blazingsql_wrapper
                NO_SYSTEM_FROM_IMPORTED             ON
                POSITION_INDEPENDENT_CODE           ON
                INTERFACE_POSITION_INDEPENDENT_CODE ON
+               LIBRARY_OUTPUT_DIRECTORY            lib
 )
 
 target_compile_options(blazingsql_wrapper

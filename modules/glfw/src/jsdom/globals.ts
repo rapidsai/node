@@ -198,19 +198,35 @@ Object.defineProperties(window.SVGElement.prototype, {
   height: {get() { return {baseVal: {value: window.innerHeight}}; }},
 });
 
+// @ts-ignore
+import * as hammerjs from 'hammerjs';
+// @ts-ignore
+import * as mjolnirSrcHammer from 'mjolnir.js/src/utils/hammer';
+// @ts-ignore
+import * as mjolnirSrcHammerOverrides from 'mjolnir.js/src/utils/hammer-overrides';
+
 try {
-  const hammerjs = require('hammerjs');
-  for (const x of ['src', 'dist/es5', 'dist/es6', 'dist/esm']) {
+  mjolnirSrcHammerOverrides.enhancePointerEventInput(hammerjs.PointerEventInput);
+  mjolnirSrcHammerOverrides.enhanceMouseInput(hammerjs.MouseInput);
+  Object.defineProperty(
+    mjolnirSrcHammer,
+    'Manager',
+    {...Object.getOwnPropertyDescriptor(mjolnirSrcHammer, 'Manager'), value: hammerjs.Manager});
+  Object.defineProperty(
+    mjolnirSrcHammer,
+    'default',
+    {...Object.getOwnPropertyDescriptor(mjolnirSrcHammer, 'default'), value: hammerjs});
+  for (const x of ['src', 'dist/es5', 'dist/esm']) {
     try {
-      const b                                             = Path.join('mjolnir.js', x);
-      const utilsHammer                                   = Path.join(b, 'utils/hammer');
-      const utilsHammerOverrides                          = `${utilsHammer}-overrides`;
-      const {enhancePointerEventInput, enhanceMouseInput} = require(utilsHammerOverrides);
-      enhancePointerEventInput(hammerjs.PointerEventInput);
-      enhanceMouseInput(hammerjs.MouseInput);
-      const mjolnirHammer   = require(utilsHammer);
-      mjolnirHammer.Manager = hammerjs.Manager;
-      mjolnirHammer.default = hammerjs;
+      const mjolnirHammer = require(Path.join('mjolnir.js', x, 'utils/hammer'));
+      Object.defineProperty(
+        mjolnirHammer,
+        'Manager',
+        {...Object.getOwnPropertyDescriptor(mjolnirHammer, 'Manager'), value: hammerjs.Manager});
+      Object.defineProperty(
+        mjolnirHammer,
+        'default',
+        {...Object.getOwnPropertyDescriptor(mjolnirHammer, 'default'), value: hammerjs});
     } catch (e) { /**/
     }
   }

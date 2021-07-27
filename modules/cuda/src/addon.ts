@@ -20,6 +20,7 @@ export const {
   VERSION,
   IPC_HANDLE_SIZE,
   getDriverVersion,
+  rgbaMirror,
 
   Math,
   driver,
@@ -41,6 +42,7 @@ export const {
 } = loadNativeModule<typeof import('./node_cuda')>(module, 'node_cuda', init => init());
 
 export type getDriverVersion = typeof import('./node_cuda').getDriverVersion;
+export type rgbaMirror       = typeof import('./node_cuda').rgbaMirror;
 
 export type Math    = typeof import('./node_cuda').Math;
 export type driver  = typeof import('./node_cuda').driver;

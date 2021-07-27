@@ -130,7 +130,7 @@ export declare class MemoryResource {
               upstreamMemoryResource: MemoryResource,
               initialPoolSize?: number,
               maximumPoolSize?: number);
-  constructor(type: MemoryResourceType.FIXEDSIZE,
+  constructor(type: MemoryResourceType.FIXED_SIZE,
               upstreamMemoryResource: MemoryResource,
               blockSize?: number,
               blocksToPreallocate?: number);

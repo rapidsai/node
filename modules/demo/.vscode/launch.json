@@ -19,8 +19,8 @@
             "name": "Debug Demo (TS only)",
             "program": "${workspaceFolder}/${input:DEMO_NAME}",
             "stopOnEntry": false,
-            "runtimeArgs": ["-r", "esm"],
             "args": ["${input:DEMO_ARGS}"],
+            "runtimeArgs": ["-r", "esm"],
             "cwd": "${workspaceFolder}/${input:DEMO_NAME}",
             "console": "integratedTerminal",
             "env": {
@@ -101,7 +101,7 @@
             "command": "shellCommand.execute",
             "args": {
                 "description": "Select a demo to debug",
-                "command": "echo client-server luma graph spatial xterm $(find modules/demo/deck modules/demo/tfjs modules/demo/ipc -maxdepth 2 -type f -name 'package.json' -print0 | grep -z -v node_modules | tr -d '\\0' | sed -r 's@modules/demo/@@g' | sed -r 's@/package.json@ @g') | sort -Vr | sed -r 's@\\s@\\n@g'",
+                "command": "echo client-server luma graph spatial ssr xterm $(find modules/demo/deck modules/demo/tfjs modules/demo/ipc -maxdepth 2 -type f -name 'package.json' -print0 | grep -z -v node_modules | tr -d '\\0' | sed -r 's@modules/demo/@@g' | sed -r 's@/package.json@ @g') | sort -Vr | sed -r 's@\\s@\\n@g'",
             }
         },
     ]
