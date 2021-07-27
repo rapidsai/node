@@ -13,15 +13,7 @@
 // limitations under the License.
 
 import {RapidsJSDOM} from '@rapidsai/jsdom';
-import * as jsdom from 'jsdom';
-
-function evalAsync<T>(window: jsdom.DOMWindow, fn: string|((...args: any[]) => T)) {
-  return new Promise<T>((resolve, reject) => {
-    try {
-      resolve(window.eval(`(${fn.toString()})();`));
-    } catch (e) { reject(e); }
-  });
-}
+import {evalAsync} from './utils';
 
 test('fails to require a non-existent file', async () => {
   const {window} = new RapidsJSDOM();
