@@ -25,7 +25,7 @@ export const isCapsLock = (modifiers: number) => (modifiers & GLFWModifierKey.MO
 
 export class GLFWEvent {
   public target: any;
-  public bubbles    = false;
+  public bubbles    = true;
   public composed   = false;
   public cancelable = true;
   public readonly type: string;

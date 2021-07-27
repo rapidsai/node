@@ -23,6 +23,8 @@
 #include <nv_node/macros.hpp>
 #include <nv_node/utilities/args.hpp>
 
+#include <nppi.h>
+
 struct node_cuda : public nv::EnvLocalAddon, public Napi::Addon<node_cuda> {
   node_cuda(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
     _driver     = Napi::Persistent(Napi::Object::New(env));
@@ -50,6 +52,7 @@ struct node_cuda : public nv::EnvLocalAddon, public Napi::Addon<node_cuda> {
                   InstanceValue("IPC_HANDLE_SIZE", Napi::Number::New(env, CU_IPC_HANDLE_SIZE)),
 
                   InstanceMethod<&node_cuda::get_driver_version>("getDriverVersion"),
+                  InstanceMethod<&node_cuda::rgba_mirror>("rgbaMirror"),
 
                   InstanceValue("Device", InitClass<nv::Device>(env, exports)),
                   InstanceValue("PinnedMemory", InitClass<nv::PinnedMemory>(env, exports)),
@@ -72,6 +75,23 @@ struct node_cuda : public nv::EnvLocalAddon, public Napi::Addon<node_cuda> {
     auto env = info.Env();
     NODE_CU_TRY(cuDriverGetVersion(&driverVersion), env);
     return Napi::Number::New(env, driverVersion);
+  }
+
+  Napi::Value rgba_mirror(Napi::CallbackInfo const& info) {
+    nv::CallbackArgs args{info};
+    int32_t width         = args[0];
+    int32_t height        = args[1];
+    NppiAxis flip         = static_cast<NppiAxis>(args[2].operator uint32_t());
+    nv::Span<uint8_t> src = args[3];
+    NppiSize roi          = {width, height};
+    if (info.Length() == 4) {
+      nppiMirror_8u_C4IR(src.data(), width * 4, roi, flip);
+    } else if (info.Length() == 5) {
+      nv::Span<uint8_t> dst = args[4];
+      nppiMirror_8u_C4R(src.data(), width * 4, dst.data(), width * 4, roi, flip);
+    }
+
+    return info.Env().Undefined();
   }
 };
 

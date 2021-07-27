@@ -19,8 +19,8 @@ copy_libs() {
                 done
             fi
             deps=$(ldd "$lib" \
-                | grep --color=never -iE '*.so(.*?) => /opt/node-rapids' \
-                | sed -r 's@^.*?(/opt/node-rapids/.*\.so*[^\s\(]*?).*?$@\1@' \
+                | grep --color=never -iE '*.so(.*?) => /opt/rapids/node' \
+                | sed -r 's@^.*?(/opt/rapids/node/.*\.so*[^\s\(]*?).*?$@\1@' \
                 | tr -d ' ' || echo "")
             for dep in ${deps}; do copy_libs "$dep" "$dir"; done;
         fi
@@ -35,8 +35,8 @@ for lib in ${@}; do
         lib="$PWD/$lib"
         dir="$(dirname $(realpath -m "$lib"))"
         mkdir -p "$dir"
-    elif [[ -e "/opt/node-rapids/modules/.cache/build" ]]; then
-        lib="$(shopt -s globstar; cd /opt/node-rapids/modules/.cache && realpath -m $lib)"
+    elif [[ -e "/opt/rapids/node/modules/.cache/build" ]]; then
+        lib="$(shopt -s globstar; cd /opt/rapids/node/modules/.cache && realpath -m $lib)"
     else
         lib="$(shopt -s globstar; realpath -m $lib)"
     fi

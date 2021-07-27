@@ -18,16 +18,11 @@ include(get_cpm)
 
 _set_package_dir_if_exists(glfw glfw)
 
-function(find_and_configure_glfw VERSION)
-    if(GLFW_VERSION VERSION_EQUAL 3.3)
-        set(GLFW_GIT_BRANCH_NAME "3.3-stable")
-    else()
-        set(GLFW_GIT_BRANCH_NAME "${VERSION}")
-    endif()
+function(find_and_configure_glfw VERSION REPO TAG)
     CPMFindPackage(NAME glfw
         VERSION         ${VERSION}
-        GIT_REPOSITORY  https://github.com/glfw/glfw.git
-        GIT_TAG         ${GLFW_GIT_BRANCH_NAME}
+        GIT_REPOSITORY  ${REPO}
+        GIT_TAG         ${TAG}
         GIT_SHALLOW     TRUE
         GIT_CONFIG      "advice.detachedhead=false"
         OPTIONS         "GLFW_INSTALL OFF"
@@ -35,7 +30,8 @@ function(find_and_configure_glfw VERSION)
                         "GLFW_BUILD_TESTS OFF"
                         "GLFW_BUILD_EXAMPLES OFF"
                         "BUILD_SHARED_LIBS ${GLFW_USE_SHARED_LIBS}"
+                        "GLFW_USE_EGLHEADLESS ${GLFW_USE_EGLHEADLESS}"
     )
 endfunction()
 
-find_and_configure_glfw(${GLFW_VERSION})
+find_and_configure_glfw(${GLFW_VERSION} ${GLFW_GIT_REPOSITORY} ${GLFW_GIT_BRANCH})

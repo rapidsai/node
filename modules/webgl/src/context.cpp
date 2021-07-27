@@ -710,6 +710,8 @@ Napi::Function WebGL2RenderingContext::Init(Napi::Env const& env, Napi::Object e
       INST_ENUM("ALPHA", GL_ALPHA),
       INST_ENUM("RGB", GL_RGB),
       INST_ENUM("RGBA", GL_RGBA),
+      INST_ENUM("BGR", GL_BGR),
+      INST_ENUM("BGRA", GL_BGRA),
       INST_ENUM("LUMINANCE", GL_LUMINANCE),
       INST_ENUM("LUMINANCE_ALPHA", GL_LUMINANCE_ALPHA),
       INST_ENUM("UNSIGNED_SHORT_4_4_4_4", GL_UNSIGNED_SHORT_4_4_4_4),

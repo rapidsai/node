@@ -414,8 +414,8 @@ export abstract class GLFWDOMWindow {
   }
 
   public dispatchEvent(event: any) {
-    const {x, y} = event || {};
-    const button = (() => {
+    const {x, y, width, height, deltaX, deltaY} = event || {};
+    const button                                = (() => {
       switch (event && event.button) {
         case 0: return GLFWMouseButton.MOUSE_BUTTON_LEFT;
         case 1: return GLFWMouseButton.MOUSE_BUTTON_MIDDLE;
@@ -424,16 +424,36 @@ export abstract class GLFWDOMWindow {
       }
     })();
     switch (event && event.type) {
-      case 'blur': onGLFWWindowEvent.call(this, GLFWWindowEvent.fromFocus(this, false)); break;
       case 'close': onGLFWWindowEvent.call(this, event); break;
+      case 'move': onGLFWWindowEvent.call(this, GLFWWindowEvent.fromMove(this, x, y)); break;
+      case 'blur': onGLFWWindowEvent.call(this, GLFWWindowEvent.fromFocus(this, false)); break;
       case 'focus': onGLFWWindowEvent.call(this, GLFWWindowEvent.fromFocus(this, true)); break;
-      case 'wheel':
-        onGLFWWheelEvent.call(this,
-                              GLFWWheelEvent.create(this, -event.deltaX / 10, -event.deltaY / 10));
+      case 'resize':
+        onGLFWWindowEvent.call(this, GLFWWindowEvent.fromResize(this, width, height));
         break;
-      case 'keyup': onGLFWKeyboardEvent.call(this, event); break;
-      case 'keydown': onGLFWKeyboardEvent.call(this, event); break;
-      case 'keypress': onGLFWKeyboardEvent.call(this, event); break;
+      case 'maximize':
+        onGLFWWindowEvent.call(this, GLFWWindowEvent.fromMaximize(this, true));
+        break;
+      case 'minimize': onGLFWWindowEvent.call(this, GLFWWindowEvent.fromIconify(this, true)); break;
+      case 'restore': onGLFWWindowEvent.call(this, GLFWWindowEvent.fromIconify(this, false)); break;
+      case 'wheel':
+        onGLFWWheelEvent.call(this, GLFWWheelEvent.create(this, -deltaX / 10, -deltaY / 10));
+        break;
+      case 'keyup':
+        onGLFWKeyboardEvent.call(this,
+                                 GLFWKeyboardEvent.fromKeyEvent(
+                                   this, event.key, event.scancode, glfw.RELEASE, event.modifiers));
+        break;
+      case 'keydown':
+        onGLFWKeyboardEvent.call(this,
+                                 GLFWKeyboardEvent.fromKeyEvent(
+                                   this, event.key, event.scancode, glfw.PRESS, event.modifiers));
+        break;
+      case 'keypress':
+        onGLFWKeyboardEvent.call(this,
+                                 GLFWKeyboardEvent.fromKeyEvent(
+                                   this, event.key, event.scancode, glfw.PRESS, event.modifiers));
+        break;
       case 'mousemove':
         onGLFWMouseEvent.call(this, GLFWMouseEvent.fromMouseMove(this, x, y));
         break;

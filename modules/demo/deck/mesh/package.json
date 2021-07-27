@@ -24,7 +24,6 @@
     "@loaders.gl/obj": "2.3.13",
     "@loaders.gl/core": "2.3.13",
     "@nvidia/glfw": "0.0.1",
-    "math.gl": "3.4.3",
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "segfault-handler": "1.3.0"

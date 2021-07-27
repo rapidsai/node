@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S node -r esm
 
 // Copyright (c) 2020, NVIDIA CORPORATION.
 //
