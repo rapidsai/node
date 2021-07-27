@@ -21,8 +21,7 @@ import {
   getTableScanInfo,
   runGenerateGraph,
   runGeneratePhysicalGraph,
-  startExecuteGraph,
-  WorkerUcpInfo
+  startExecuteGraph
 } from './addon';
 import {
   ArrayList,
@@ -34,6 +33,7 @@ import {
 } from './algebra';
 import {defaultConfigValues} from './config';
 import {json_plan_py} from './json_plan';
+import {ContextProps} from './node_blazingsql';
 
 export class BlazingContext {
   // @ts-ignore
@@ -61,20 +61,20 @@ export class BlazingContext {
       initialPoolSize      = null,
       maximumPoolSize      = null,
       enableLogging        = false,
-    } = options;
+    }: ContextProps = options as any;
 
     this.context = new Context({
-      ralId: ralId as number,
-      workerId: workerId as string,
-      networkIfaceName: networkIfaceName as string,
-      ralCommunicationPort: ralCommunicationPort as number,
-      workersUcpInfo: workersUcpInfo as WorkerUcpInfo[],
-      singleNode: singleNode as boolean,
-      configOptions: configOptions as Record<string, unknown>,
-      allocationMode: allocationMode as string,
-      initialPoolSize: initialPoolSize as number,
-      maximumPoolSize: maximumPoolSize as number,
-      enableLogging: enableLogging as boolean,
+      ralId,
+      workerId,
+      networkIfaceName,
+      ralCommunicationPort,
+      workersUcpInfo,
+      singleNode,
+      configOptions,
+      allocationMode,
+      initialPoolSize,
+      maximumPoolSize,
+      enableLogging,
     });
   }
 
@@ -242,7 +242,6 @@ export class BlazingContext {
         if (table !== undefined) { result.push(table); }
         return result;
       }, []);
-
     const {config = defaultConfigValues} = options;
 
     const executionGraphResult = runGenerateGraph(masterIndex,

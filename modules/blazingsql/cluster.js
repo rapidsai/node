@@ -34,7 +34,7 @@ if (cluster.isPrimary) {
   });
 
   workers.forEach((w, idx) => {
-    w.send({ operation: createBlazingContext, idx: idx, workerId: w.workerId, ucpMetadata: ucpMetadata })
+    w.send({ operation: createBlazingContext, idx: idx + 1, workerId: w.workerId, ucpMetadata: ucpMetadata })
   });
 
   const df = createLargeDataFrame();
