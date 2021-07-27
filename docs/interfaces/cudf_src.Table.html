@@ -1,0 +1,665 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Table | RAPIDS</title>
+	<meta name="description" content="Documentation for RAPIDS">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">RAPIDS</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">RAPIDS</a>
+				</li>
+				<li>
+					<a href="../modules/cudf_src.html">cudf/src</a>
+				</li>
+				<li>
+					<a href="cudf_src.Table.html">Table</a>
+				</li>
+			</ul>
+			<h1>Interface Table</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A low-level wrapper for libcudf Table objects</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">Table</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cudf_src.Table.html#numColumns" class="tsd-kind-icon">num<wbr>Columns</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cudf_src.Table.html#numRows" class="tsd-kind-icon">num<wbr>Rows</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.Table.html#dropDuplicates" class="tsd-kind-icon">drop<wbr>Duplicates</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.Table.html#dropNans" class="tsd-kind-icon">drop<wbr>Nans</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.Table.html#dropNulls" class="tsd-kind-icon">drop<wbr>Nulls</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.Table.html#gather" class="tsd-kind-icon">gather</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter"><a href="cudf_src.Table.html#getColumnByIndex" class="tsd-kind-icon">get<wbr>Column<wbr>ByIndex</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.Table.html#interleaveColumns" class="tsd-kind-icon">interleave<wbr>Columns</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.Table.html#orderBy" class="tsd-kind-icon">order<wbr>By</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter"><a href="cudf_src.Table.html#scatterScalar" class="tsd-kind-icon">scatter<wbr>Scalar</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.Table.html#scatterTable" class="tsd-kind-icon">scatter<wbr>Table</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.Table.html#toArrow" class="tsd-kind-icon">to<wbr>Arrow</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.Table.html#writeCSV" class="tsd-kind-icon">writeCSV</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="numColumns" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> num<wbr>Columns</h3>
+					<div class="tsd-signature tsd-kind-icon">num<wbr>Columns<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L131">modules/cudf/src/table.ts:131</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Number of columns in the table.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="numRows" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> num<wbr>Rows</h3>
+					<div class="tsd-signature tsd-kind-icon">num<wbr>Rows<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L136">modules/cudf/src/table.ts:136</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Number of rows in each column of the table.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="dropDuplicates" class="tsd-anchor"></a>
+					<h3>drop<wbr>Duplicates</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">drop<wbr>Duplicates<span class="tsd-signature-symbol">(</span>keys<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span>, keep<span class="tsd-signature-symbol">: </span><a href="../enums/cudf_src.DuplicateKeepOption.html" class="tsd-signature-type" data-tsd-kind="Enumeration">DuplicateKeepOption</a>, nullsEqual<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, nullsFirst<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">MemoryResource</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L205">modules/cudf/src/table.ts:205</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>keys: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>keep: <a href="../enums/cudf_src.DuplicateKeepOption.html" class="tsd-signature-type" data-tsd-kind="Enumeration">DuplicateKeepOption</a></h5>
+								</li>
+								<li>
+									<h5>nullsEqual: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+								<li>
+									<h5>nullsFirst: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <span class="tsd-signature-type">MemoryResource</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="dropNans" class="tsd-anchor"></a>
+					<h3>drop<wbr>Nans</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">drop<wbr>Nans<span class="tsd-signature-symbol">(</span>keys<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span>, threshold<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L203">modules/cudf/src/table.ts:203</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>keys: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>threshold: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="dropNulls" class="tsd-anchor"></a>
+					<h3>drop<wbr>Nulls</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">drop<wbr>Nulls<span class="tsd-signature-symbol">(</span>keys<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span>, threshold<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L204">modules/cudf/src/table.ts:204</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>keys: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>threshold: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="gather" class="tsd-anchor"></a>
+					<h3>gather</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">gather<span class="tsd-signature-symbol">(</span>selection<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/cudf_src.html#IndexType" class="tsd-signature-type" data-tsd-kind="Type alias">IndexType</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cudf_src.Bool8.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8</a><span class="tsd-signature-symbol">&gt;</span>, nullify_out_of_bounds<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L143">modules/cudf/src/table.ts:143</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Return sub-selection from a Table</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>selection: <a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../modules/cudf_src.html#IndexType" class="tsd-signature-type" data-tsd-kind="Type alias">IndexType</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cudf_src.Bool8.html" class="tsd-signature-type" data-tsd-kind="Class">Bool8</a><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> nullify_out_of_bounds: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+					<a name="getColumnByIndex" class="tsd-anchor"></a>
+					<h3>get<wbr>Column<wbr>ByIndex</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Column<wbr>ByIndex&lt;T&gt;<span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L182">modules/cudf/src/table.ts:182</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get the Column at a specified index</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>reurns</dt>
+									<dd><p>The Column located at <code>index</code></p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#DataType" class="tsd-signature-type" data-tsd-kind="Type alias">DataType</a> = <span class="tsd-signature-type">any</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>index: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The index position of the column to return</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="interleaveColumns" class="tsd-anchor"></a>
+					<h3>interleave<wbr>Columns</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">interleave<wbr>Columns<span class="tsd-signature-symbol">(</span>memoryResource<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">MemoryResource</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L215">modules/cudf/src/table.ts:215</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Interleave Series columns of a table into a single column.
+									Converts the column major table <code>cols</code> into a row major column.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <span class="tsd-signature-type">MemoryResource</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>An optional MemoryResource used to allocate the result&#39;s device memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="orderBy" class="tsd-anchor"></a>
+					<h3>order<wbr>By</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">order<wbr>By<span class="tsd-signature-symbol">(</span>column_orders<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">[]</span>, null_orders<span class="tsd-signature-symbol">: </span><a href="../enums/cudf_src.NullOrder.html" class="tsd-signature-type" data-tsd-kind="Enumeration">NullOrder</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.Int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L194">modules/cudf/src/table.ts:194</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Generate an ordering that sorts Table columns in a specified way</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>column_orders: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The desired sort order for each column. Size must
+										be equal to <code>numColumns</code>.</p>
+									</div>
+								</li>
+								<li>
+									<h5>null_orders: <a href="../enums/cudf_src.NullOrder.html" class="tsd-signature-type" data-tsd-kind="Enumeration">NullOrder</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Indicates how null values compare against all
+										other values in a column</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.Int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>Column of permutation indices for the desired sort order</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+					<a name="scatterScalar" class="tsd-anchor"></a>
+					<h3>scatter<wbr>Scalar</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">scatter<wbr>Scalar&lt;T&gt;<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Scalar</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span>, indices<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.Int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span>, check_bounds<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">MemoryResource</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L155">modules/cudf/src/table.ts:155</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Scatters row of values into this Table according to provided indices.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#TypeMap" class="tsd-signature-type" data-tsd-kind="Type alias">TypeMap</a> = <span class="tsd-signature-type">any</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>source: <span class="tsd-signature-type">Scalar</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A column of values to be scattered in to this Series</p>
+									</div>
+								</li>
+								<li>
+									<h5>indices: <a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.Int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A column of integral indices that indicate the rows in the this Series to be
+										replaced by <code>value</code>.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> check_bounds: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optionally perform bounds checking on the indices and throw an error if any
+										of its values are out of bounds (default: false).</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <span class="tsd-signature-type">MemoryResource</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>An optional MemoryResource used to allocate the result&#39;s device memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="scatterTable" class="tsd-anchor"></a>
+					<h3>scatter<wbr>Table</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">scatter<wbr>Table<span class="tsd-signature-symbol">(</span>source<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a>, indices<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.Int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span>, check_bounds<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span>, memoryResource<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">MemoryResource</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L170">modules/cudf/src/table.ts:170</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Scatters a Table of values into this Table according to provided indices.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>source: <a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h5>
+								</li>
+								<li>
+									<h5>indices: <a href="../modules/cudf_src.html#Column-1" class="tsd-signature-type" data-tsd-kind="Variable">Column</a><span class="tsd-signature-symbol">&lt;</span><a href="../classes/cudf_src.Int32.html" class="tsd-signature-type" data-tsd-kind="Class">Int32</a><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A column of integral indices that indicate the rows in the this Series to be
+										replaced by <code>value</code>.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> check_bounds: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optionally perform bounds checking on the indices and throw an error if any
+										of its values are out of bounds (default: false).</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <span class="tsd-signature-type">MemoryResource</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>An optional MemoryResource used to allocate the result&#39;s device memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../modules/cudf_src.html#Table-1" class="tsd-signature-type" data-tsd-kind="Variable">Table</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="toArrow" class="tsd-anchor"></a>
+					<h3>to<wbr>Arrow</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">to<wbr>Arrow<span class="tsd-signature-symbol">(</span>names<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#ToArrowMetadata" class="tsd-signature-type" data-tsd-kind="Type alias">ToArrowMetadata</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L195">modules/cudf/src/table.ts:195</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>names: <a href="../modules/cudf_src.html#ToArrowMetadata" class="tsd-signature-type" data-tsd-kind="Type alias">ToArrowMetadata</a><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Uint8Array</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="writeCSV" class="tsd-anchor"></a>
+					<h3>writeCSV</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">writeCSV<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">TableWriteCSVOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node-rapids/blob/1d32e00/modules/cudf/src/table.ts#L201">modules/cudf/src/table.ts:201</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Write this Table to CSV file format.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>options: <span class="tsd-signature-type">TableWriteCSVOptions</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Settings for controlling writing behavior.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/blazingsql_src.html">blazingsql/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/cuda_src.html">cuda/src</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/cudf_src.html">cudf/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/cugraph_src.html">cugraph/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/cuspatial_src.html">cuspatial/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/deck_gl_src.html">deck.gl/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/glfw_src.html">glfw/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/rmm_src.html">rmm/src</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/webgl_src.html">webgl/src</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="cudf_src.Table.html" class="tsd-kind-icon">Table</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="cudf_src.Table.html#numColumns" class="tsd-kind-icon">num<wbr>Columns</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="cudf_src.Table.html#numRows" class="tsd-kind-icon">num<wbr>Rows</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.Table.html#dropDuplicates" class="tsd-kind-icon">drop<wbr>Duplicates</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.Table.html#dropNans" class="tsd-kind-icon">drop<wbr>Nans</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.Table.html#dropNulls" class="tsd-kind-icon">drop<wbr>Nulls</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.Table.html#gather" class="tsd-kind-icon">gather</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+								<a href="cudf_src.Table.html#getColumnByIndex" class="tsd-kind-icon">get<wbr>Column<wbr>ByIndex</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.Table.html#interleaveColumns" class="tsd-kind-icon">interleave<wbr>Columns</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.Table.html#orderBy" class="tsd-kind-icon">order<wbr>By</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-has-type-parameter">
+								<a href="cudf_src.Table.html#scatterScalar" class="tsd-kind-icon">scatter<wbr>Scalar</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.Table.html#scatterTable" class="tsd-kind-icon">scatter<wbr>Table</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.Table.html#toArrow" class="tsd-kind-icon">to<wbr>Arrow</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.Table.html#writeCSV" class="tsd-kind-icon">writeCSV</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer>
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
