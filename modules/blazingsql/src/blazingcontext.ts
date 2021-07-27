@@ -56,12 +56,14 @@ export class BlazingContext {
       ralCommunicationPort = 0,
       workersUcpInfo       = [],
       singleNode           = true,
-      configOptions        = defaultConfigValues,
+      configOptions        = {},
       allocationMode       = 'cuda_memory_resource',
       initialPoolSize      = null,
       maximumPoolSize      = null,
       enableLogging        = false,
     }: ContextProps = options as any;
+    Object.keys(defaultConfigValues)
+      .forEach((key) => { configOptions[key] = configOptions[key] ?? defaultConfigValues[key]; });
 
     this.context = new Context({
       ralId,
