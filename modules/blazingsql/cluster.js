@@ -11,7 +11,7 @@ const numberOfWorkers = 2;
 const ucp_context = new UcpContext();
 const queryToRun = 'SELECT a FROM test_table';
 
-if (cluster.isMaster) {
+if (cluster.isPrimary) {
   cluster.setupMaster({ serialization: 'advanced' });
 
   const workers = Array(numberOfWorkers);
