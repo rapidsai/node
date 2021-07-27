@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-
-
 // Need to bring these over as well
 // new class -> rapidsjsdom
 //    extend the base jsdom class, provide a function that automatically creates the localhost URL
@@ -28,11 +25,43 @@
 // imageloader class needs to be moved over
 //
 
-
-//import { JSDOM, ResourceLoader } from 'jsdom';
 import * as jsdom from 'jsdom';
+import * as Path from 'path';
+import * as Url from 'url';
 
+import {installGetContext, installImageData} from './polyfills/canvas';
+import {createObjectUrlAndTmpDir} from './polyfills/object-url';
+import {installRequire} from './polyfills/require';
 
-export class RapidsJSDOM extends jsdom.JSDOM{
+export class RapidsJSDOM extends jsdom.JSDOM {
+  constructor(html?: string, options: jsdom.ConstructorOptions = {}) {
+    const {installObjectURL, tmpdir} = createObjectUrlAndTmpDir();
+    const url                        = `http://${Path.basename(tmpdir)}/`.toLowerCase();
+    super(html, {
+      ...options,
+      url,
+      pretendToBeVisual: true,
+      runScripts: 'outside-only',
+      resources: new ImageLoader(url),
+      beforeParse(window) {  //
+        installRequire(window);
+        installObjectURL(window);
+        installImageData(window);
+        installGetContext(window);
+      }
+    });
+  }
+}
 
+class ImageLoader extends jsdom.ResourceLoader {
+  constructor(private _url: string) { super(); }
+  fetch(url: string, options: jsdom.FetchOptions) {
+    // Hack since JSDOM 16.2.2: If loading a relative file
+    // from our dummy localhost URI, translate to a file:// URI.
+    if (url.startsWith(this._url)) { url = url.slice(this._url.length); }
+    // url.endsWith('/') && (url = url.slice(0, -1));
+    const isDataURI  = url && url.startsWith('data:');
+    const isFilePath = !isDataURI && !Url.parse(url).protocol;
+    return super.fetch(isFilePath ? `file://${process.cwd()}/${url}` : url, options);
+  }
 }

@@ -13,30 +13,34 @@
 // limitations under the License.
 
 import {RapidsJSDOM} from '@rapidsai/jsdom';
+import * as jsdom from 'jsdom';
 
-test('nothing', () => {
-  // stub test to make sure the debugger works
-  debugger;
+function evalAsync<T>(window: jsdom.DOMWindow, fn: string|((...args: any[]) => T)) {
+  return new Promise<T>((resolve, reject) => {
+    try {
+      resolve(window.eval(`(${fn.toString()})();`));
+    } catch (e) { reject(e); }
+  });
+}
+
+test('fails to require a non-existent file', async () => {
+  const {window} = new RapidsJSDOM();
+  await expect(evalAsync(window, () => {  //
+    return typeof require(`./files/nonexistent_file`) === 'object';
+  })).rejects.toThrow();
 });
 
-test('can require file inside customized JSDOM', () => {
-  const {window} = (new RapidsJSDOM()).window;
-  const success  = window.eval((function() {
-    try {
-      var f = require('./local_file');
-      if (f) { return true; }
-    } catch (e) {}
-    return false;
-  })().toString());
+test('successfully requires a local CommonJS module', async () => {
+  const {window} = new RapidsJSDOM();
+  await expect(evalAsync(window, () => {  //
+    return typeof require(`./files/test-cjs-module`) === 'object';
+  })).resolves.toBe(true);
+});
 
-  const failure  = window.eval((function() {
-    try {
-      var f = require('./nonexistent_file');
-      if (f) { return true; }
-    } catch (e) {}
-    return false;
-  })().toString());
-
-  expect(success).toBeTruthy();
-  expect(failure).toBeFalsy();
+test('successfully requires a local ESModule module', async () => {
+  const {window} = new RapidsJSDOM();
+  const result   = evalAsync(window, () => {  //
+    return typeof require(`./files/test-esm-module`).default === 'object';
+  });
+  await expect(result).resolves.toBe(true);
 });
