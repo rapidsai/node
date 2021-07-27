@@ -29,7 +29,7 @@ export type WorkerUcpInfo = {
 }
 
 export type ContextProps = {
-  ralId: number; workerId: string; network_iface_name: string; ralCommunicationPort: number;
+  ralId: number; workerId: string; networkIfaceName: string; ralCommunicationPort: number;
   workersUcpInfo: WorkerUcpInfo[];
   singleNode: boolean;
   configOptions: Record<string, unknown>;

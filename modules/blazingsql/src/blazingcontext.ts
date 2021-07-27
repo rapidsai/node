@@ -32,42 +32,49 @@ import {
   CatalogTableImpl,
   RelationalAlgebraGenerator
 } from './algebra';
-import {defaultConfigValues, replaceConfigValues} from './config';
+import {defaultConfigValues} from './config';
 import {json_plan_py} from './json_plan';
 
 export class BlazingContext {
   // @ts-ignore
   private context: Context;
-  private nodes: Record<string, unknown>[] = [];
   private db: any;
   private schema: any;
   private generator: any;
   private tables: Map<string, DataFrame>;
-  private config: Record<string, unknown>;
 
-  constructor(workers: WorkerUcpInfo[] = [], config: Record<string, unknown> = {}) {
-    const node: Record<string, unknown> = {};
-    node['worker']                      = '';
-    this.nodes.push(node);
-
+  constructor(options: Record<string, unknown> = {}) {
     this.db        = CatalogDatabaseImpl('main');
     this.schema    = BlazingSchema(this.db);
     this.generator = RelationalAlgebraGenerator(this.schema);
     this.tables    = new Map<string, DataFrame>();
-    this.config    = replaceConfigValues(defaultConfigValues, config);
+
+    const {
+      ralId                = 0,
+      workerId             = 'self',
+      networkIfaceName     = 'lo',
+      ralCommunicationPort = 0,
+      workersUcpInfo       = [],
+      singleNode           = true,
+      configOptions        = defaultConfigValues,
+      allocationMode       = 'cuda_memory_resource',
+      initialPoolSize      = null,
+      maximumPoolSize      = null,
+      enableLogging        = false,
+    } = options;
 
     this.context = new Context({
-      ralId: 0,
-      workerId: 'self',
-      network_iface_name: 'lo',
-      ralCommunicationPort: 0,
-      workersUcpInfo: workers,
-      singleNode: false,
-      configOptions: this.config,
-      allocationMode: 'cuda_memory_resource',
-      initialPoolSize: 0,
-      maximumPoolSize: null,
-      enableLogging: false,
+      ralId: ralId as number,
+      workerId: workerId as string,
+      networkIfaceName: networkIfaceName as string,
+      ralCommunicationPort: ralCommunicationPort as number,
+      workersUcpInfo: workersUcpInfo as WorkerUcpInfo[],
+      singleNode: singleNode as boolean,
+      configOptions: configOptions as Record<string, unknown>,
+      allocationMode: allocationMode as string,
+      initialPoolSize: initialPoolSize as number,
+      maximumPoolSize: maximumPoolSize as number,
+      enableLogging: enableLogging as boolean,
     });
   }
 
@@ -189,8 +196,7 @@ export class BlazingContext {
    * @param query SQL query string
    * @param algebra SQL algebra plan string, use this to run on a relational algebra query instead
    *   of a query string
-   * @param configOptions Set configOptions for this query instead of using the
-   *   config the BlazingContext was initialized with
+   * @param options Set options for this query instead of using the default config options
    *
    * @example
    * ```typescript
@@ -207,11 +213,10 @@ export class BlazingContext {
    * bc.sql('SELECT a FROM test_table'); // [1, 2, 3]
    * ```
    */
-  // TODO: Update doc strings for ctxToken if we decide to keep it in.
   sql(query: string,
-      ctxToken: number|null                  = null,
-      algebra: string|null                   = null,
-      configOptions: Record<string, unknown> = {}) {
+      ctxToken: number|null            = null,
+      algebra: string|null             = null,
+      options: Record<string, unknown> = {}) {
     if (algebra == null) { algebra = this.explain(query); }
 
     if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
@@ -238,6 +243,8 @@ export class BlazingContext {
         return result;
       }, []);
 
+    const {config = defaultConfigValues} = options;
+
     const executionGraphResult = runGenerateGraph(masterIndex,
                                                   ['self'],
                                                   selectedDataFrames,
@@ -245,7 +252,7 @@ export class BlazingContext {
                                                   tableScans,
                                                   ctxToken,
                                                   json_plan_py(algebra),
-                                                  replaceConfigValues(this.config, configOptions),
+                                                  config as Record<string, unknown>,
                                                   query,
                                                   currentTimestamp);
     startExecuteGraph(executionGraphResult, ctxToken);
