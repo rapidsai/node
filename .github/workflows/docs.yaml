@@ -31,7 +31,7 @@ jobs:
           path: gh-pages
       - name: Build Docs
         working-directory: main
-        run: set -x && yarn --no-node-version-check --ignore-optional --ignore-engines --ignore-platform --no-lockfile --force --verbose && yarn tsc:build && yarn doc
+        run: set -x && yarn -v && yarn --verbose --disable-pnp --pure-lockfile --ignore-optional --ignore-engines --non-interactive && yarn tsc:build && yarn doc
       - name: Copy Docs to gh-pages
         run: |
           rm -rf gh-pages/docs
