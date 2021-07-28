@@ -302,9 +302,11 @@ export class BlazingContext {
   }
 
   addToCache<T extends TypeMap>(messageId: string, input: DataFrame<T>): void {
-    const result = this.context.addToCache(messageId, input);
-    console.log(result);
+    this.context.addToCache(messageId, input);
   }
 
-  pullFromCache(messageId: string): void { this.context.pullFromCache(messageId); }
+  pullFromCache(messageId: string): void {
+    const result = this.context.pullFromCache(messageId);
+    console.log(result);
+  }
 }

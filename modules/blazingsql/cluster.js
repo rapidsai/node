@@ -65,7 +65,6 @@ if (cluster.isPrimary) {
     console.log('Finished running all queries.');
     results.forEach((result) => {
       bc.pullFromCache(result.messageId);
-      console.log(DataFrame.fromArrow(result.dataframe));
     });
     workers.forEach((w) => w.kill());
   });
@@ -89,7 +88,7 @@ if (cluster.isPrimary) {
       console.log(`Token: ${args.ctxToken}`);
       const result = bc.sql(args.query, args.ctxToken);
       bc.addToCache(args.messageId, result);
-      process.send({ operation: queryRan, ctxToken: args.ctxToken, messageId: args.messageId, dataframe: result.toArrow().serialize() });
+      process.send({ operation: queryRan, ctxToken: args.ctxToken, messageId: args.messageId });
     }
   });
 }
