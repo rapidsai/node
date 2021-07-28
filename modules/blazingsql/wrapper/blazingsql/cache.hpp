@@ -18,6 +18,9 @@
 
 #include <napi.h>
 
+namespace cudf {
+class table_view;
+}
 namespace ral {
 namespace cache {
 struct CacheMachine;
@@ -47,6 +50,10 @@ struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
   CacheMachine(Napi::CallbackInfo const& info);
 
   inline operator std::shared_ptr<ral::cache::CacheMachine>() { return _cache; }
+
+  void add_to_cache(std::string const& message_id,
+                    std::vector<std::string> const& table_names,
+                    cudf::table_view const& table_view);
 
  private:
   std::shared_ptr<ral::cache::CacheMachine> _cache;

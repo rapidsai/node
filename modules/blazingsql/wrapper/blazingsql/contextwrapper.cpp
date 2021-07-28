@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "contextwrapper.hpp"
+#include <node_cudf/table.hpp>
 
 namespace nv {
 
@@ -37,5 +38,11 @@ ContextWrapper::wrapper_t ContextWrapper::New(
 
 ContextWrapper::ContextWrapper(Napi::CallbackInfo const& info)
   : EnvLocalObjectWrap<ContextWrapper>(info) {}
+
+void ContextWrapper::add_to_cache(std::string const& message_id,
+                                  std::vector<std::string> const& table_names,
+                                  cudf::table_view const& table_view) {
+  this->_transport_in.Value()->add_to_cache(message_id, table_names, table_view);
+}
 
 }  // namespace nv

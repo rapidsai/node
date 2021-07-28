@@ -15,6 +15,7 @@
 #include "context.hpp"
 
 #include <blazingsql/api.hpp>
+#include <node_cudf/table.hpp>
 
 namespace nv {
 
@@ -36,7 +37,18 @@ Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(i
   this->context           = Napi::Persistent(result_context);
 }
 
-void Context::add_to_cache(Napi::CallbackInfo const& info) {}
+void Context::add_to_cache(Napi::CallbackInfo const& info) {
+  nv::CallbackArgs args{info};
+
+  std::string message_id = args[0];
+
+  nv::NapiToCPP::Object df       = args[1];
+  std::vector<std::string> names = df.Get("names");
+  Napi::Function asTable         = df.Get("asTable");
+  nv::Table::wrapper_t table     = asTable.Call(df.val, {}).ToObject();
+
+  this->context.Value()->add_to_cache(message_id, names, table->view());
+}
 
 void Context::pull_from_cache(Napi::CallbackInfo const& info) {}
 

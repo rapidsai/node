@@ -17,6 +17,7 @@
 #include <nv_node/utilities/args.hpp>
 
 #include <cache_machine/CacheMachine.h>
+#include <node_cudf/table.hpp>
 
 namespace nv {
 
@@ -29,6 +30,15 @@ CacheMachine::wrapper_t CacheMachine::New(Napi::Env const& env,
   auto inst    = EnvLocalObjectWrap<CacheMachine>::New(env, {});
   inst->_cache = cache;
   return inst;
+}
+
+void CacheMachine::add_to_cache(std::string const& message_id,
+                                std::vector<std::string> const& table_names,
+                                cudf::table_view const& table_view) {
+  std::unique_ptr<ral::frame::BlazingTable> table =
+    std::make_unique<ral::frame::BlazingTable>(table_view, table_names);
+
+  this->_cache->addToCache(std::move(table), "", true, {}, true);
 }
 
 CacheMachine::CacheMachine(Napi::CallbackInfo const& info)
