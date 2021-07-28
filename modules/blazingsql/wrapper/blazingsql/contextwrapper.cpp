@@ -45,4 +45,9 @@ void ContextWrapper::add_to_cache(std::string const& message_id,
   this->_transport_in.Value()->add_to_cache(message_id, table_names, table_view);
 }
 
+std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> ContextWrapper::pull_from_cache(
+  std::string const& message_id) {
+  return this->_transport_out.Value()->pull_from_cache(message_id);
+}
+
 }  // namespace nv

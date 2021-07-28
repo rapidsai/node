@@ -50,6 +50,23 @@ void Context::add_to_cache(Napi::CallbackInfo const& info) {
   this->context.Value()->add_to_cache(message_id, names, table->view());
 }
 
-void Context::pull_from_cache(Napi::CallbackInfo const& info) {}
+Napi::Value Context::pull_from_cache(Napi::CallbackInfo const& info) {
+  auto env = info.Env();
+  nv::CallbackArgs args{info};
+
+  std::string message_id = args[0];
+
+  auto [bsql_names, bsql_table] = this->context.Value()->pull_from_cache(message_id);
+
+  auto result_names = Napi::Array::New(env, bsql_names.size());
+  for (size_t i = 0; i < bsql_names.size(); ++i) {
+    result_names.Set(i, Napi::String::New(env, bsql_names[i]));
+  }
+
+  auto result = Napi::Object::New(env);
+  result.Set("names", result_names);
+  result.Set("table", nv::Table::New(env, std::move(bsql_table)));
+  return result;
+}
 
 }  // namespace nv

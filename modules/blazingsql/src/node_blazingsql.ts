@@ -43,7 +43,7 @@ export declare class Context {
   constructor(props: ContextProps);
 
   addToCache<T extends TypeMap>(messageId: string, input: DataFrame<T>): void;
-  pullFromCache(messageId: string): void;
+  pullFromCache(messageId: string): {names: string[], table: Table};
 }
 
 export declare class ExecutionGraph {

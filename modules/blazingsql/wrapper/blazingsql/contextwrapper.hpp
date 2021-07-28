@@ -51,6 +51,9 @@ struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
                     std::vector<std::string> const& table_names,
                     cudf::table_view const& table_view);
 
+  std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> pull_from_cache(
+    std::string const& message_id);
+
  private:
   int32_t _port{};
   Napi::Reference<Wrapper<CacheMachine>> _transport_out;

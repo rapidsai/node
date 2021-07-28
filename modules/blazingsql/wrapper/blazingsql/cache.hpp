@@ -17,10 +17,8 @@
 #include <nv_node/objectwrap.hpp>
 
 #include <napi.h>
+#include <node_cudf/table.hpp>
 
-namespace cudf {
-class table_view;
-}
 namespace ral {
 namespace cache {
 struct CacheMachine;
@@ -54,6 +52,9 @@ struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
   void add_to_cache(std::string const& message_id,
                     std::vector<std::string> const& table_names,
                     cudf::table_view const& table_view);
+
+  std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> pull_from_cache(
+    std::string const& message_id);
 
  private:
   std::shared_ptr<ral::cache::CacheMachine> _cache;
