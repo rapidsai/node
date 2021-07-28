@@ -63,6 +63,7 @@ if (cluster.isPrimary) {
   Promise.all(queryPromises).then(function (results) {
     console.log('Finished running all queries.');
     results.forEach((result) => {
+      bc.pullFromCache('test');
       console.log(DataFrame.fromArrow(result.dataframe));
     });
     workers.forEach((w) => w.kill());
@@ -86,6 +87,7 @@ if (cluster.isPrimary) {
     if (args.operation === runQuery) {
       console.log(`Token: ${args.ctxToken}`);
       const result = bc.sql(args.query, args.ctxToken);
+      bc.addToCache('test', result);
       process.send({ operation: queryRan, ctxToken: args.ctxToken, dataframe: result.toArrow().serialize() });
     }
   });

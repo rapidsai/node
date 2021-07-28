@@ -300,4 +300,10 @@ export class BlazingContext {
 
     return String(algebra);
   }
+
+  addToCache<T extends TypeMap>(messageId: string, input: DataFrame<T>): void {
+    this.context.addToCache(messageId, input);
+  }
+
+  pullFromCache(messageId: string): void { this.context.pullFromCache(messageId); }
 }

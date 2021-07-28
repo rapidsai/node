@@ -42,6 +42,8 @@ struct Context : public EnvLocalObjectWrap<Context> {
 
  private:
   Napi::Reference<Wrapper<ContextWrapper>> context;
+  void add_to_cache(Napi::CallbackInfo const& info);
+  void pull_from_cache(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

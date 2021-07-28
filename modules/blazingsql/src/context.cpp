@@ -19,7 +19,10 @@
 namespace nv {
 
 Napi::Function Context::Init(Napi::Env env, Napi::Object exports) {
-  return DefineClass(env, "Context", {});
+  return DefineClass(env,
+                     "Context",
+                     {InstanceMethod<&Context::add_to_cache>("addToCache"),
+                      InstanceMethod<&Context::pull_from_cache>("pullFromCache")});
 }
 
 Context::wrapper_t Context::New(Napi::Env const& env) {
@@ -32,5 +35,9 @@ Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(i
   auto result_context     = nv::initialize(env, props);
   this->context           = Napi::Persistent(result_context);
 }
+
+void Context::add_to_cache(Napi::CallbackInfo const& info) {}
+
+void Context::pull_from_cache(Napi::CallbackInfo const& info) {}
 
 }  // namespace nv
