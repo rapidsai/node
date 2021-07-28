@@ -52,7 +52,8 @@ if (cluster.isPrimary) {
   let queryPromises = [];
   workers.forEach((w) => {
     queryPromises.push(new Promise(function (resolve) {
-      w.send({ operation: runQuery, ctxToken: ctxToken++, query: 'SELECT a FROM test_table' });
+      ctxToken = ctxToken + 1;
+      w.send({ operation: runQuery, ctxToken: ctxToken, messageId: `message_${ctxToken.toString()}`, query: 'SELECT a FROM test_table' });
       w.on('message', (args) => {
         console.log(`Finished query on token: ${args.ctxToken}`);
         resolve(args);
@@ -63,7 +64,7 @@ if (cluster.isPrimary) {
   Promise.all(queryPromises).then(function (results) {
     console.log('Finished running all queries.');
     results.forEach((result) => {
-      bc.pullFromCache('test');
+      bc.pullFromCache(result.messageId);
       console.log(DataFrame.fromArrow(result.dataframe));
     });
     workers.forEach((w) => w.kill());
@@ -87,8 +88,8 @@ if (cluster.isPrimary) {
     if (args.operation === runQuery) {
       console.log(`Token: ${args.ctxToken}`);
       const result = bc.sql(args.query, args.ctxToken);
-      bc.addToCache('test', result);
-      process.send({ operation: queryRan, ctxToken: args.ctxToken, dataframe: result.toArrow().serialize() });
+      bc.addToCache(args.messageId, result);
+      process.send({ operation: queryRan, ctxToken: args.ctxToken, messageId: args.messageId, dataframe: result.toArrow().serialize() });
     }
   });
 }
