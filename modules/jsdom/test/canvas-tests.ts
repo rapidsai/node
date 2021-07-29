@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as gl from '@nvidia/webgl';
 import {RapidsJSDOM} from '@rapidsai/jsdom';
 import {evalAsync} from './utils';
 
@@ -25,7 +24,7 @@ describe('HTMLCanvasElement', () => {
   test(`getContext('webgl2') returns our OpenGL context`, async () => {
     const {window} = new RapidsJSDOM();
     await expect(evalAsync(window, () => {  //
-      debugger;
+      const gl         = require('@nvidia/webgl');
       const {document} = window;
       const canvas     = document.body.appendChild(document.createElement('canvas'));
       return canvas.getContext('webgl2') instanceof gl.WebGL2RenderingContext;

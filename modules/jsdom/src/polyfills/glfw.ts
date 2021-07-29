@@ -28,17 +28,10 @@ import {
   isShiftKey
 } from '@nvidia/glfw/src/events/event';
 import {Monitor} from '@nvidia/glfw/src/monitor';
-import * as gl from '@nvidia/webgl';
 import * as jsdom from 'jsdom';
 import {Subscription} from 'rxjs';
 
 import GLFW, {GLFWParentWindow, GLFWStandardCursor, GLFWwindow} from '../../../glfw/src/glfw';
-
-// export type GLFWAttatchOptions = {
-//   width?: number;
-//   height?: number;
-//   title?: string;
-// };
 
 export type GLFWDOMWindowOptions = {
   x?: number;
@@ -459,8 +452,8 @@ export class GLFWDOMWindow {
 }
 
 export function installGLFWWindow(window: jsdom.DOMWindow) {
-  window.gl      = gl;
-  window._glfw   = new GLFWDOMWindow();
+  window._glfw = new GLFWDOMWindow();
+
   window._glfwid = window._glfw.id;
 
   return window;
