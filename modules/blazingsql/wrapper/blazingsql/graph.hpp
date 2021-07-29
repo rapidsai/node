@@ -18,6 +18,10 @@
 
 #include <napi.h>
 
+class Context;
+namespace cudf {
+class table;
+}
 namespace ral {
 namespace cache {
 struct graph;
@@ -51,6 +55,16 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
 
  private:
   std::shared_ptr<ral::cache::graph> _graph;
+
+  bool _started{false};
+  bool _results{false};
+  Napi::Reference<Wrapper<Context>> _context;
+  std::vector<std::string> _names{};
+  std::vector<std::unique_ptr<cudf::table>> _tables{};
+
+  Napi::Value start(Napi::CallbackInfo const& info);
+  Napi::Value result(Napi::CallbackInfo const& info);
+  Napi::Value send_to(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv
