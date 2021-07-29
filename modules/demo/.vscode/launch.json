@@ -25,7 +25,7 @@
             "console": "integratedTerminal",
             "env": {
                 "NODE_NO_WARNINGS": "1",
-                "NODE_ENV": "development",
+                "NODE_ENV": "production",
                 "READABLE_STREAM": "disable",
             }
         },
