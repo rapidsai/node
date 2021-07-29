@@ -24,13 +24,20 @@ import {GLFWDOMWindow, GLFWDOMWindowOptions} from './window';
 // Polyfill ImageData
 (<any>window).ImageData = global.ImageData = require('canvas').ImageData;
 
-// Polyfill MessagePort
-(<any>window).MessagePort = global.MessagePort =
-  require('message-port-polyfill').MessagePortPolyfill;
+// TODO (ptaylor):
+// These MessagePort polyfills break React v17. Not having them breaks
+// mapbox-gl. React v17 is more critical to our demos at the moment,
+// so they're commented out.
+//
+// Eventually need to figure out a polyfill that's compatible with both.
 
-// Polyfill MessageChannel
-(<any>window).MessageChannel = global.MessageChannel =
-  require('message-port-polyfill').MessageChannelPolyfill;
+// // Polyfill MessagePort
+// (<any>window).MessagePort = global.MessagePort =
+//   require('message-port-polyfill').MessagePortPolyfill;
+
+// // Polyfill MessageChannel
+// (<any>window).MessageChannel = global.MessageChannel =
+//   require('message-port-polyfill').MessageChannelPolyfill;
 
 // Use node's perf_hooks for native performance.now
 const {performance}       = require('perf_hooks');

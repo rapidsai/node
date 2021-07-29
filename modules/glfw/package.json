@@ -41,8 +41,8 @@
     "jsdom": "16.6.0",
     "lasso-resolve-from": "1.2.0",
     "message-port-polyfill": "0.2.0",
-    "react": "16.14.0",
-    "react-dom": "16.14.0",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
     "rxjs": "6.6.7",
     "usertiming": "0.1.8",
     "web-streams-polyfill": "2.1.1"

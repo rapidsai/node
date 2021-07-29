@@ -48,7 +48,7 @@ export class App extends React.Component {
   render() {
     const { onAfterRender, ...props } = this.props;
     const { params = {}, selectedParameter, labels } = this.state;
-    const [viewport] = (this._deck?.current?.viewports || []);
+    const [viewport] = (this._deck?.current?.deck?.getViewports() || []);
 
     if (this.state.autoCenter && this.state.bbox) {
       const viewState = centerOnBbox(this.state.bbox);
@@ -89,7 +89,8 @@ export class App extends React.Component {
             opacity={0.9}
             maxWidth={2000}
             pickable={false}
-            backgroundColor={[46, 46, 46]}
+            background={true}
+            getBackgroundColor={() => [46, 46, 46]}
             getTextAnchor='start'
             getAlignmentBaseline='top'
             getSize={(d) => d.size}
