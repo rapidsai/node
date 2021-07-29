@@ -33,7 +33,7 @@ import {
 } from './algebra';
 import {defaultConfigValues} from './config';
 import {json_plan_py} from './json_plan';
-import {ContextProps} from './node_blazingsql';
+import {ContextProps, WorkerUcpInfo} from './node_blazingsql';
 
 export class BlazingContext {
   // @ts-ignore
@@ -42,6 +42,7 @@ export class BlazingContext {
   private schema: any;
   private generator: any;
   private tables: Map<string, DataFrame>;
+  private workers: WorkerUcpInfo[];
 
   constructor(options: Record<string, unknown> = {}) {
     this.db        = CatalogDatabaseImpl('main');
@@ -65,6 +66,7 @@ export class BlazingContext {
     Object.keys(defaultConfigValues)
       .forEach((key) => { configOptions[key] = configOptions[key] ?? defaultConfigValues[key]; });
 
+    this.workers = workersUcpInfo;
     this.context = new Context({
       ralId,
       workerId,
@@ -246,16 +248,17 @@ export class BlazingContext {
       }, []);
     const {config = defaultConfigValues} = options;
 
-    const executionGraphResult = runGenerateGraph(masterIndex,
-                                                  ['self'],
-                                                  selectedDataFrames,
-                                                  tableNames,
-                                                  tableScans,
-                                                  ctxToken,
-                                                  json_plan_py(algebra),
-                                                  config as Record<string, unknown>,
-                                                  query,
-                                                  currentTimestamp);
+    const executionGraphResult =
+      runGenerateGraph(masterIndex,
+                       this.workers.length == 0 ? ['self'] : this.workers.map((w) => w.workerId),
+                       selectedDataFrames,
+                       tableNames,
+                       tableScans,
+                       ctxToken,
+                       json_plan_py(algebra),
+                       config as Record<string, unknown>,
+                       query,
+                       currentTimestamp);
     startExecuteGraph(executionGraphResult, ctxToken);
 
     const {names, tables: [table]} = getExecuteGraphResult(executionGraphResult, ctxToken);

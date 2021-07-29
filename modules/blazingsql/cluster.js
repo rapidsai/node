@@ -30,7 +30,7 @@ if (cluster.isPrimary) {
   bc = new BlazingContext({
     ralId: 0,
     workerId: "primary",
-    ucpMetadata: ucpMetadata.map((xs) => ({ ...xs, ucpContext }))
+    workersUcpInfo: ucpMetadata.map((xs) => ({ ...xs, ucpContext }))
   });
 
   workers.forEach((w, idx) => {
@@ -75,7 +75,7 @@ if (cluster.isPrimary) {
       bc = new BlazingContext({
         ralId: args.idx,
         workerId: args.workerId,
-        ucpMetadata: args.ucpMetadata.map((xs) => ({ ...xs, ucpContext })),
+        workersUcpInfo: args.ucpMetadata.map((xs) => ({ ...xs, ucpContext })),
       });
     }
 
