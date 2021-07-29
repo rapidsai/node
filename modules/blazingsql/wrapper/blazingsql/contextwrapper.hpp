@@ -48,7 +48,7 @@ struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
   ContextWrapper(Napi::CallbackInfo const& info);
 
   void add_to_cache(std::string const& message_id,
-                    std::vector<std::string> const& table_names,
+                    std::vector<std::string> const& column_names,
                     cudf::table_view const& table_view);
 
   std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> pull_from_cache(
