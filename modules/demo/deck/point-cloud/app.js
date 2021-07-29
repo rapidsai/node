@@ -1,18 +1,18 @@
 /* eslint-disable no-unused-vars */
-import React, {PureComponent} from 'react';
-import {render} from 'react-dom';
+import React, { PureComponent } from 'react';
+import { render } from 'react-dom';
 import DeckGL from '@deck.gl/react';
-import {COORDINATE_SYSTEM, OrbitView, LinearInterpolator} from '@deck.gl/core';
-import {PointCloudLayer} from '@deck.gl/layers';
+import { COORDINATE_SYSTEM, OrbitView, LinearInterpolator } from '@deck.gl/core';
+import { PointCloudLayer } from '@deck.gl/layers';
 
-import {LASWorkerLoader} from '@loaders.gl/las';
-// import {PLYWorkerLoader} from '@loaders.gl/ply';
-import {load, registerLoaders} from '@loaders.gl/core';
+import { LASLoader } from '@loaders.gl/las';
+import { PLYLoader } from '@loaders.gl/ply';
+import { load, registerLoaders } from '@loaders.gl/core';
 
 // Additional format support can be added here, see
 // https://github.com/uber-web/loaders.gl/blob/master/docs/api-reference/core/register-loaders.md
-registerLoaders(LASWorkerLoader);
-// registerLoaders(PLYWorkerLoader);
+registerLoaders(LASLoader);
+registerLoaders(PLYLoader);
 
 // Data source: kaarta.com
 const LAZ_SAMPLE =
@@ -47,12 +47,12 @@ export default class App extends PureComponent {
     this._rotateCamera = this._rotateCamera.bind(this);
   }
 
-  _onViewStateChange({viewState}) {
-    this.setState({viewState});
+  _onViewStateChange({ viewState }) {
+    this.setState({ viewState });
   }
 
   _rotateCamera() {
-    const {viewState} = this.state;
+    const { viewState } = this.state;
     this.setState({
       viewState: {
         ...viewState,
@@ -64,9 +64,9 @@ export default class App extends PureComponent {
     });
   }
 
-  _onLoad({header, loaderData, progress}) {
+  _onLoad({ header, loaderData, progress }) {
     // metadata from LAZ file header
-    const {mins, maxs} = loaderData.header;
+    const { mins, maxs } = loaderData.header;
 
     if (mins && maxs) {
       // File contains bounding box info
@@ -84,12 +84,12 @@ export default class App extends PureComponent {
     }
 
     if (this.props.onLoad) {
-      this.props.onLoad({count: header.vertexCount, progress: 1});
+      this.props.onLoad({ count: header.vertexCount, progress: 1 });
     }
   }
 
   render() {
-    const {viewState} = this.state;
+    const { viewState } = this.state;
 
     const layers = [
       new PointCloudLayer({
