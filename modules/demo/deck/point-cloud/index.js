@@ -29,45 +29,6 @@ require('@babel/register')({
 const { createReactWindow } = require('@nvidia/glfw');
 module.exports = createReactWindow(`${__dirname}/app.js`, true);
 
-process.on('beforeExit', (code) => {
-  debugger;
-  process.stderr.write(`beforeExit (code: ${code})\n`);
-});
-
-process.on('exit', (code) => {
-  debugger;
-  process.stderr.write(`exit (code: ${code})\n`);
-});
-
-process.on('uncaughtException', (err, origin) => {
-  debugger;
-  process.stderr.write(`Uncaught Exception\n` + (origin ? `Origin: ${origin}\n` : '') +
-    `Exception: ${err && err.stack || err}\n`);
-});
-
-process.on('uncaughtExceptionMonitor', (err, origin) => {
-  debugger;
-  process.stderr.write(`Uncaught Exception Monitor\n` + (origin ? `Origin: ${origin}\n` : '') +
-    `Exception: ${err && err.stack || err}\n`);
-});
-
-process.on('rejectionHandled', (promise) => {
-  debugger;
-  process.stderr.write(`Handled Promise Rejection` + (promise ? `Promise: ${promise}\n` : '\n'));
-});
-
-process.on('unhandledRejection', (err, promise) => {
-  debugger;
-  process.stderr.write(`Unhandled Promise Rejection\n` + (promise ? `Promise: ${promise}\n` : '') +
-    `Exception: ${err && err.stack || err}\n`);
-});
-
-const originalExit = process.exit;
-process.exit = function () {
-  debugger;
-  originalExit.apply(this, arguments);
-}
-
 if (require.main === module) {
   module.exports.open({ transparent: false });
 }
