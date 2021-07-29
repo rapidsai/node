@@ -37,7 +37,7 @@ void CacheMachine::add_to_cache(std::string const& message_id,
   std::unique_ptr<ral::frame::BlazingTable> table =
     std::make_unique<ral::frame::BlazingTable>(table_view, table_names);
 
-  this->_cache->addToCache(std::move(table), "", true, {}, true);
+  this->_cache->addToCache(std::move(table), message_id, true, {}, true);
 }
 
 std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> CacheMachine::pull_from_cache(
