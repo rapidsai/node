@@ -40,10 +40,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/devel/01-base.Dockerfile
-          build-args:
-            - UID: ${{ env.UID }}
-              NODE_VERSION: ${{ env.NODE_VERSION }}
-              FROM_IMAGE: nvidia/cudagl:${{ matrix.CUDA_VERSION }}-devel-${{ matrix.LINUX_VERSION }}
+          build-args: |
+            "UID=${{ env.UID }}"
+            "NODE_VERSION=${{ env.NODE_VERSION }}"
+            "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA_VERSION }}-devel-${{ matrix.LINUX_VERSION }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
       - name: Build devel main
         uses: docker/build-push-action@v2
@@ -54,8 +54,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/devel/02-main.Dockerfile
-          build-args:
-            - FROM_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+          build-args: |
+            "FROM_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-main-${{ env.ARCH }}
       - name: Build devel build
         uses: docker/build-push-action@v2
@@ -66,17 +66,17 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/runtime/03-build.Dockerfile
-          build-args:
-            - DISPLAY: :0.0
-              PARALLEL_LEVEL: 4
-              SCCACHE_CACHE_SIZE: 100G
-              SCCACHE_IDLE_TIMEOUT: 32768
-              SCCACHE_REGION: us-west-2
-              SCCACHE_BUCKET: node-rapids-sccache
-              RAPIDS_VERSION: ${{ env.RAPIDS_VERSION }}
-              AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-              AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-              FROM_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-main-${{ env.ARCH }}
+          build-args: |
+            "DISPLAY=:0.0"
+            "PARALLEL_LEVEL=4"
+            "SCCACHE_CACHE_SIZE=100G"
+            "SCCACHE_IDLE_TIMEOUT=32768"
+            "SCCACHE_REGION=us-west-2"
+            "SCCACHE_BUCKET=node-rapids-sccache"
+            "RAPIDS_VERSION=${{ env.RAPIDS_VERSION }}"
+            "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}"
+            "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+            "FROM_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-main-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-build-${{ env.ARCH }}
       - name: Build runtime cuda-base
         uses: docker/build-push-action@v2
@@ -87,10 +87,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/runtime/01-base.Dockerfile
-          build-args:
-            - UID: ${{ env.UID }}
-              FROM_IMAGE: nvidia/cuda:${{ matrix.CUDA_VERSION }}-runtime-${{ matrix.LINUX_VERSION }}
-              DEVEL_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+          build-args: |
+            "UID=${{ env.UID }}"
+            "FROM_IMAGE=nvidia/cuda:${{ matrix.CUDA_VERSION }}-runtime-${{ matrix.LINUX_VERSION }}"
+            "DEVEL_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
       - name: Build runtime cudagl-base
         uses: docker/build-push-action@v2
@@ -101,10 +101,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/runtime/01-base.Dockerfile
-          build-args:
-            - UID: ${{ env.UID }}
-              FROM_IMAGE: nvidia/cudagl:${{ matrix.CUDA_VERSION }}-runtime-${{ matrix.LINUX_VERSION }}
-              DEVEL_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+          build-args: |
+            "UID=${{ env.UID }}"
+            "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA_VERSION }}-runtime-${{ matrix.LINUX_VERSION }}"
+            "DEVEL_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
       - name: Build runtime main
         uses: docker/build-push-action@v2
@@ -115,8 +115,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/runtime/main.Dockerfile
-          build-args:
-            - FROM_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+          build-args: |
+            "FROM_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-main-${{ env.ARCH }}
       - name: Build runtime demo
         uses: docker/build-push-action@v2
@@ -127,8 +127,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/runtime/demo.Dockerfile
-          build-args:
-            - FROM_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+          build-args: |
+            "FROM_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-demo-${{ env.ARCH }}
       - name: Build runtime glfw
         uses: docker/build-push-action@v2
@@ -139,8 +139,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/runtime/glfw.Dockerfile
-          build-args:
-            - FROM_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+          build-args: |
+            "FROM_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-glfw-${{ env.ARCH }}
       - name: Build runtime cudf
         uses: docker/build-push-action@v2
@@ -151,8 +151,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/runtime/cudf.Dockerfile
-          build-args:
-            - FROM_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+          build-args: |
+            "FROM_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-cudf-${{ env.ARCH }}
       - name: Build runtime blazingsql
         uses: docker/build-push-action@v2
@@ -163,8 +163,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/runtime/blazingsql.Dockerfile
-          build-args:
-            - FROM_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+          build-args: |
+            "FROM_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-blazingsql-${{ env.ARCH }}
       - name: Build runtime cuml
         uses: docker/build-push-action@v2
@@ -175,8 +175,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/runtime/cuml.Dockerfile
-          build-args:
-            - FROM_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+          build-args: |
+            "FROM_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-cuml-${{ env.ARCH }}
       - name: Build runtime cugraph
         uses: docker/build-push-action@v2
@@ -187,8 +187,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/runtime/cugraph.Dockerfile
-          build-args:
-            - FROM_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+          build-args: |
+            "FROM_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-cugraph-${{ env.ARCH }}
       - name: Build runtime cuspatial
         uses: docker/build-push-action@v2
@@ -199,6 +199,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: dockerfiles/runtime/cuspatial.Dockerfile
-          build-args:
-            - FROM_IMAGE: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+          build-args: |
+            "FROM_IMAGE=rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-runtime-node-${{ env.NODE_VERSION }}-cuda${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-cuspatial-${{ env.ARCH }}
