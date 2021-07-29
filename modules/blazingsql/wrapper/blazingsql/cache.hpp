@@ -50,6 +50,7 @@ struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
   inline operator std::shared_ptr<ral::cache::CacheMachine>() { return _cache; }
 
   void add_to_cache(std::string const& message_id,
+                    uint16_t const& ral_id,
                     std::vector<std::string> const& column_names,
                     cudf::table_view const& table_view);
 

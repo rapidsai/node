@@ -42,7 +42,7 @@ export type ContextProps = {
 export declare class Context {
   constructor(props: ContextProps);
 
-  addToCache<T extends TypeMap>(messageId: string, input: DataFrame<T>): void;
+  addToCache<T extends TypeMap>(messageId: string, ralId: number, input: DataFrame<T>): void;
   pullFromCache(messageId: string): {names: string[], table: Table};
 }
 

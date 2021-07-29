@@ -41,13 +41,14 @@ void Context::add_to_cache(Napi::CallbackInfo const& info) {
   nv::CallbackArgs args{info};
 
   std::string message_id = args[0];
+  uint16_t ral_id        = args[1];
 
-  nv::NapiToCPP::Object df       = args[1];
+  nv::NapiToCPP::Object df       = args[2];
   std::vector<std::string> names = df.Get("names");
   Napi::Function asTable         = df.Get("asTable");
   nv::Table::wrapper_t table     = asTable.Call(df.val, {}).ToObject();
 
-  this->context.Value()->add_to_cache(message_id, names, table->view());
+  this->context.Value()->add_to_cache(message_id, ral_id, names, table->view());
 }
 
 Napi::Value Context::pull_from_cache(Napi::CallbackInfo const& info) {
