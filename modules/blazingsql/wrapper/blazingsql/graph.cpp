@@ -23,7 +23,7 @@
 namespace nv {
 
 Napi::Function ExecutionGraph::Init(Napi::Env env, Napi::Object exports) {
-  return DefineClass(env, "ExecutionGraph", {});
+  return DefineClass(env, "ExecutionGraph", {InstanceMethod<&ExecutionGraph::start>("start"),InstanceMethod<&ExecutionGraph::result>("result")});
 }
 
 ExecutionGraph::wrapper_t ExecutionGraph::New(Napi::Env const& env,
@@ -36,20 +36,33 @@ ExecutionGraph::wrapper_t ExecutionGraph::New(Napi::Env const& env,
 ExecutionGraph::ExecutionGraph(Napi::CallbackInfo const& info)
   : EnvLocalObjectWrap<ExecutionGraph>(info) {}
 
-Napi::Value ExecutionGraph::start(Napi::CallbackInfo const& info) {
+void ExecutionGraph::start(Napi::CallbackInfo const& info) {
   if (!_started) { start_execute_graph(*this, _graph->get_context_token()); }
-  return this->Value();
 }
 
 Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
+  Napi::Env env = info.Env();
   start(info);
   if (!_results) {
     auto [names, tables] = nv::get_execute_graph_result(*this, _graph->get_context_token());
     _names               = std::move(names);
     _tables              = std::move(tables);
   }
-  // return make_df_from_names_and_tables;
-  return Napi::Object();  // TODO: Make a df from names and tables.
+
+    auto result_names = Napi::Array::New(env, _names.size());
+    for (size_t i = 0; i < _names.size(); ++i) {
+      result_names.Set(i, Napi::String::New(env, _names[i]));
+    }
+
+    auto result_tables = Napi::Array::New(env, _tables.size());
+    for (size_t i = 0; i < _tables.size(); ++i) {
+      result_tables.Set(i, nv::Table::New(env, std::move(_tables[i])));
+    }
+
+    auto result = Napi::Object::New(env);
+    result.Set("names", result_names);
+    result.Set("tables", result_tables);
+    return result;
 }
 
 Napi::Value ExecutionGraph::send_to(Napi::CallbackInfo const& info) {

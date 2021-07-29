@@ -48,6 +48,9 @@ export declare class Context {
 
 export declare class ExecutionGraph {
   constructor();
+
+  start(): void;
+  result(): {names: string[], tables: Table[]};
 }
 
 export declare class UcpContext {

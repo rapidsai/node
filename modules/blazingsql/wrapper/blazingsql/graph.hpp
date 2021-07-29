@@ -62,7 +62,7 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
   std::vector<std::string> _names{};
   std::vector<std::unique_ptr<cudf::table>> _tables{};
 
-  Napi::Value start(Napi::CallbackInfo const& info);
+  void start(Napi::CallbackInfo const& info);
   Napi::Value result(Napi::CallbackInfo const& info);
   Napi::Value send_to(Napi::CallbackInfo const& info);
 };
