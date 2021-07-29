@@ -16,6 +16,7 @@ import {RapidsJSDOM} from '@rapidsai/jsdom';
 import {evalAsync} from './utils';
 
 test('fails to require a non-existent file', async () => {
+  debugger;
   const {window} = new RapidsJSDOM();
   await expect(evalAsync(window, () => {  //
     return typeof require(`./files/nonexistent_file`) === 'object';

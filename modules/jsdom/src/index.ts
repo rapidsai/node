@@ -30,6 +30,7 @@ import * as Path from 'path';
 import * as Url from 'url';
 
 import {installGetContext, installImageData} from './polyfills/canvas';
+import {installGLFWWindow} from './polyfills/glfw';
 import {createObjectUrlAndTmpDir} from './polyfills/object-url';
 import {installRequire} from './polyfills/require';
 
@@ -47,6 +48,7 @@ export class RapidsJSDOM extends jsdom.JSDOM {
         installRequire(window);
         installObjectURL(window);
         installImageData(window);
+        installGLFWWindow(window);
         installGetContext(window);
       }
     });

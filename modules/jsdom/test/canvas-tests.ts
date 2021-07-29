@@ -25,6 +25,7 @@ describe('HTMLCanvasElement', () => {
   test(`getContext('webgl2') returns our OpenGL context`, async () => {
     const {window} = new RapidsJSDOM();
     await expect(evalAsync(window, () => {  //
+      debugger;
       const {document} = window;
       const canvas     = document.body.appendChild(document.createElement('canvas'));
       return canvas.getContext('webgl2') instanceof gl.WebGL2RenderingContext;
