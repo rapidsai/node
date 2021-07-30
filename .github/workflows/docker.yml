@@ -33,6 +33,15 @@ jobs:
       #   with:
       #     username: ${{ secrets.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Free up disk space on the job runner
+        run: |
+          sudo rm -rf /usr/share/dotnet
+      - name: Print disk usage and image cache
+        if: always()
+        run: |
+          df -h
+          docker buildx du --verbose
+          docker images
       - name: Build devel base
         uses: docker/build-push-action@v2
         with:
@@ -47,6 +56,12 @@ jobs:
             "NODE_VERSION=${{ env.NODE_VERSION }}"
             "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA_VERSION }}-devel-${{ matrix.LINUX_VERSION }}"
           tags: docker.io/rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
+      - name: Print disk usage and image cache
+        if: always()
+        run: |
+          df -h
+          docker buildx du --verbose
+          docker images
       - name: Build devel main
         uses: docker/build-push-action@v2
         with:
