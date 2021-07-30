@@ -83,10 +83,6 @@ jobs:
             "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
             "FROM_IMAGE=${{ steps.build_devel_main.outputs.digest }}"
           tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-build-${{ env.ARCH }}
-      - name: Load devel build
-        run: |
-          docker load < /tmp/devel-build.tar
-          rm -rf /tmp/devel-build.tar
       - name: Build runtime cuda-base
         id: build_runtime_cuda_base
         uses: docker/build-push-action@v2
