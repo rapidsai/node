@@ -37,7 +37,6 @@ jobs:
       #     password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Free up disk space
         run: |
-          docker rmi -f $(docker images -aq)
           sudo rm -rf /usr/share/dotnet $CONDA
       - name: Print disk usage and image cache
         if: always()
