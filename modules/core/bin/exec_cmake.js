@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-require('./exec')('cmake-js', process.argv.slice(2));
+process.exitCode = require('./exec')('cmake-js', process.argv.slice(2)).status;
