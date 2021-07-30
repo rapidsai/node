@@ -44,12 +44,12 @@ jobs:
           build-args: |
             "UID=${{ env.UID }}"
             "NODE_VERSION=${{ env.NODE_VERSION }}"
+            "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA_VERSION }}-devel-${{ matrix.LINUX_VERSION }}"
+          tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
       - name: Load devel base
         run: |
           docker load < /tmp/devel-base.tar
           rm -rf /tmp/devel-base.tar
-            "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA_VERSION }}-devel-${{ matrix.LINUX_VERSION }}"
-          tags: rapidsai/node:${{ env.RAPIDS_VERSION }}-devel-node${{ env.NODE_VERSION }}-cudagl${{ matrix.CUDA_VERSION }}-${{ matrix.LINUX_VERSION }}-base-${{ env.ARCH }}
       - name: Build devel main
         uses: docker/build-push-action@v2
         with:
