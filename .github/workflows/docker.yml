@@ -64,12 +64,6 @@ jobs:
             "NODE_VERSION=${{ env.NODE }}"
             "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
-      - name: Print disk usage and image cache
-        if: always()
-        run: |
-          df -h
-          docker images
-          docker image inspect ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
       - name: Build devel main
         uses: docker/build-push-action@v2
         with:
