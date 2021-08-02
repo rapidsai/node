@@ -19,7 +19,7 @@ describe('Window', () => {
   test('has a `_glfw` property for the GLFW window', async () => {
     const {window} = new RapidsJSDOM();
     await expect(evalAsync(window, () => {  //
-      return typeof window._glfwid === 'number';
+      return typeof window._glfw === 'number';
     })).resolves.toBe(true);
   });
 });
