@@ -44,11 +44,21 @@ jobs:
       #     username: ${{ secrets.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Free up disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet $CONDA
-      - name: Print disk usage and image cache
         if: always()
         run: |
+          df -h
+          docker images
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /home/linuxbrew/.linuxbrew
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$CONDA"
+          docker rmi $(docker image ls -aq)
           df -h
           docker images
       - name: Build devel base
