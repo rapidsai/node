@@ -58,7 +58,7 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf "$CONDA"
-          docker rmi $(docker image ls -aq)
+          docker rmi $(docker image ls -aq) || true
           df -h
           docker images
       - name: Build devel base
