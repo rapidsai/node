@@ -18,8 +18,8 @@ jobs:
         ports:
           - 5000:5000
     strategy:
+      fail-fast: false
       matrix:
-        fail-fast: false
         CUDA: [11.0.3, 11.2.2, 11.4.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     env:
