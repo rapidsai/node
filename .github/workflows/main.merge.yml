@@ -1,22 +1,14 @@
-name: docker
+name: Build and push docker images
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  build-docker-images:
-    name: Build docker images
+  build-and-push-images:
+    name: Build and push docker images
     runs-on: ubuntu-20.04
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
     strategy:
       fail-fast: false
       matrix:
@@ -26,7 +18,7 @@ jobs:
       ARCH: amd64
       NODE: 16.5.0
       RAPIDS: 21.08.00
-      REPOSITORY: localhost:5000/rapidsai/node
+      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -34,15 +26,17 @@ jobs:
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-        id: builder
-        with:
-          buildkitd-flags: --debug
-          driver-opts: network=host
       # - name: Login to DockerHub
       #   uses: docker/login-action@v1
       #   with:
       #     username: ${{ secrets.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Free up disk space
         if: always()
         run: |
@@ -66,7 +60,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/devel/01-base.Dockerfile
           build-args: |
             "UID=1000"
@@ -78,7 +71,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/devel/02-main.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -88,7 +80,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/runtime/03-build.Dockerfile
           build-args: |
             "DISPLAY=:0.0"
@@ -107,7 +98,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/runtime/01-base.Dockerfile
           build-args: |
             "UID=1000"
@@ -119,7 +109,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/runtime/01-base.Dockerfile
           build-args: |
             "UID=1000"
@@ -131,7 +120,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/runtime/main.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -142,7 +130,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/runtime/demo.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -153,7 +140,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/runtime/glfw.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -164,7 +150,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/runtime/cudf.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -175,7 +160,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/runtime/blazingsql.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -186,7 +170,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/runtime/cuml.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -197,7 +180,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/runtime/cugraph.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -208,7 +190,6 @@ jobs:
         with:
           context: .
           push: true
-          builder: ${{ steps.builder.outputs.name }}
           file: dockerfiles/runtime/cuspatial.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
