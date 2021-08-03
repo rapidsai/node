@@ -32,6 +32,7 @@ std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_in
   std::string const& logical_plan);
 
 ExecutionGraph::wrapper_t run_generate_graph(Napi::Env env,
+                                             nv::Wrapper<nv::ContextWrapper> context,
                                              uint32_t masterIndex,
                                              std::vector<std::string> worker_ids,
                                              std::vector<cudf::table_view> table_views,

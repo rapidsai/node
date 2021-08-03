@@ -92,6 +92,7 @@ std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_in
 }
 
 ExecutionGraph::wrapper_t run_generate_graph(Napi::Env env,
+                                             nv::Wrapper<nv::ContextWrapper> context,
                                              uint32_t masterIndex,
                                              std::vector<std::string> worker_ids,
                                              std::vector<cudf::table_view> table_views,
@@ -162,7 +163,7 @@ ExecutionGraph::wrapper_t run_generate_graph(Napi::Env env,
                                    sql,
                                    current_timestamp);
 
-  return ExecutionGraph::New(env, result);
+  return ExecutionGraph::New(env, result, context);
 }
 
 std::string run_generate_physical_graph(uint32_t masterIndex,

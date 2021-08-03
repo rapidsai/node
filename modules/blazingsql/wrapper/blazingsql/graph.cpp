@@ -23,16 +23,19 @@
 namespace nv {
 
 Napi::Function ExecutionGraph::Init(Napi::Env env, Napi::Object exports) {
-  return DefineClass(env, "ExecutionGraph", 
-  {InstanceMethod<&ExecutionGraph::start>("start"),
-  InstanceMethod<&ExecutionGraph::result>("result"),
-  InstanceMethod<&ExecutionGraph::send_to>("sendTo")});
+  return DefineClass(env,
+                     "ExecutionGraph",
+                     {InstanceMethod<&ExecutionGraph::start>("start"),
+                      InstanceMethod<&ExecutionGraph::result>("result"),
+                      InstanceMethod<&ExecutionGraph::send_to>("sendTo")});
 }
 
 ExecutionGraph::wrapper_t ExecutionGraph::New(Napi::Env const& env,
-                                              std::shared_ptr<ral::cache::graph> graph) {
-  auto inst    = EnvLocalObjectWrap<ExecutionGraph>::New(env, {});
-  inst->_graph = graph;
+                                              std::shared_ptr<ral::cache::graph> graph,
+                                              nv::Wrapper<nv::ContextWrapper> context) {
+  auto inst      = EnvLocalObjectWrap<ExecutionGraph>::New(env, {});
+  inst->_graph   = graph;
+  inst->_context = Napi::Persistent(context);
   return inst;
 }
 
@@ -40,8 +43,8 @@ ExecutionGraph::ExecutionGraph(Napi::CallbackInfo const& info)
   : EnvLocalObjectWrap<ExecutionGraph>(info) {}
 
 void ExecutionGraph::start(Napi::CallbackInfo const& info) {
-  if (!_started) { 
-    start_execute_graph(*this, _graph->get_context_token()); 
+  if (!_started) {
+    start_execute_graph(*this, _graph->get_context_token());
     _started = true;
   }
 }
@@ -54,7 +57,7 @@ Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
     auto [names, tables] = nv::get_execute_graph_result(*this, _graph->get_context_token());
     _names               = std::move(names);
     _tables              = std::move(tables);
-    _results = true;
+    _results             = true;
   }
 
   auto result_names = Napi::Array::New(env, _names.size());

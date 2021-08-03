@@ -18,7 +18,6 @@ import {callMethodSync, callStaticMethodSync} from 'java';
 import {
   Context,
   getTableScanInfo,
-  runGenerateGraph,
   runGeneratePhysicalGraph,
 } from './addon';
 import {
@@ -38,7 +37,6 @@ import {
 } from './node_blazingsql';  // TODO: These should be imported through ./addon
 
 export class BlazingContext {
-  // @ts-ignore
   private context: Context;
   private db: any;
   private schema: any;
@@ -252,17 +250,17 @@ export class BlazingContext {
       }, []);
     const {config = defaultConfigValues} = options;
 
-    return new ExecutionGraphWrapper(
-      runGenerateGraph(masterIndex,
-                       this.workers.length == 0 ? ['self'] : this.workers.map((w) => w.workerId),
-                       selectedDataFrames,
-                       tableNames,
-                       tableScans,
-                       ctxToken,
-                       json_plan_py(algebra),
-                       config as Record<string, unknown>,
-                       query,
-                       currentTimestamp));
+    return new ExecutionGraphWrapper(this.context.runGenerateGraph(
+      masterIndex,
+      this.workers.length == 0 ? ['self'] : this.workers.map((w) => w.workerId),
+      selectedDataFrames,
+      tableNames,
+      tableScans,
+      ctxToken,
+      json_plan_py(algebra),
+      config as Record<string, unknown>,
+      query,
+      currentTimestamp));
   }
 
   /**

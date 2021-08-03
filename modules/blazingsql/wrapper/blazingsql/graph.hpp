@@ -14,11 +14,12 @@
 
 #pragma once
 
+#include "contextwrapper.hpp"
+
 #include <nv_node/objectwrap.hpp>
 
 #include <napi.h>
 
-class Context;
 namespace cudf {
 class table;
 }
@@ -44,7 +45,9 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
    *
    * @param cache The shared pointer to the ExecutionGraph.
    */
-  static wrapper_t New(Napi::Env const& env, std::shared_ptr<ral::cache::graph> graph);
+  static wrapper_t New(Napi::Env const& env,
+                       std::shared_ptr<ral::cache::graph> graph,
+                       nv::Wrapper<nv::ContextWrapper> context);
 
   /**
    * @brief Construct a new ExecutionGraph instance from JavaScript.
@@ -58,7 +61,7 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
 
   bool _started{false};
   bool _results{false};
-  Napi::Reference<Wrapper<Context>> _context;
+  Napi::Reference<Wrapper<ContextWrapper>> _context;
   std::vector<std::string> _names{};
   std::vector<std::unique_ptr<cudf::table>> _tables{};
 
