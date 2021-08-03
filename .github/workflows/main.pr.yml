@@ -58,6 +58,7 @@ jobs:
           docker run --rm \
             -v "$(pwd):/opt/rapids/node:rw" \
             -e "DISPLAY=:0.0" \
+            -e "CUDAARCHS=ALL" \
             -e "PARALLEL_LEVEL=1" \
             -e "SCCACHE_CACHE_SIZE=100G" \
             -e "SCCACHE_IDLE_TIMEOUT=32768" \
