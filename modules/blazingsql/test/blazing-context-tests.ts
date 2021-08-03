@@ -13,6 +13,8 @@ test('wip test case', () => {
 
   const result = graph.result();
   console.log(result.names);
+
+  graph.sendTo(0, 'test');
 });
 
 // test('create and drop table', () => {
