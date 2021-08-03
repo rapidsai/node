@@ -44,9 +44,8 @@ jobs:
         with:
           key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache
           path: |
-            .cache/cpm
-            .cache/build
             node_modules
+            modules/.cache
       - name: Build devel images and packages
         run: |
           echo "UID=$(id -u)" >> .env
