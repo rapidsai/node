@@ -23,7 +23,10 @@
 namespace nv {
 
 Napi::Function ExecutionGraph::Init(Napi::Env env, Napi::Object exports) {
-  return DefineClass(env, "ExecutionGraph", {InstanceMethod<&ExecutionGraph::start>("start"),InstanceMethod<&ExecutionGraph::result>("result")});
+  return DefineClass(env, "ExecutionGraph", 
+  {InstanceMethod<&ExecutionGraph::start>("start"),
+  InstanceMethod<&ExecutionGraph::result>("result"),
+  InstanceMethod<&ExecutionGraph::send_to>("sendTo")});
 }
 
 ExecutionGraph::wrapper_t ExecutionGraph::New(Napi::Env const& env,
@@ -37,43 +40,45 @@ ExecutionGraph::ExecutionGraph(Napi::CallbackInfo const& info)
   : EnvLocalObjectWrap<ExecutionGraph>(info) {}
 
 void ExecutionGraph::start(Napi::CallbackInfo const& info) {
-  if (!_started) { start_execute_graph(*this, _graph->get_context_token()); }
+  if (!_started) { 
+    start_execute_graph(*this, _graph->get_context_token()); 
+    _started = true;
+  }
 }
 
 Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
   Napi::Env env = info.Env();
   start(info);
+
   if (!_results) {
     auto [names, tables] = nv::get_execute_graph_result(*this, _graph->get_context_token());
     _names               = std::move(names);
     _tables              = std::move(tables);
+    _results = true;
   }
 
-    auto result_names = Napi::Array::New(env, _names.size());
-    for (size_t i = 0; i < _names.size(); ++i) {
-      result_names.Set(i, Napi::String::New(env, _names[i]));
-    }
+  auto result_names = Napi::Array::New(env, _names.size());
+  for (size_t i = 0; i < _names.size(); ++i) {
+    result_names.Set(i, Napi::String::New(env, _names[i]));
+  }
 
-    auto result_tables = Napi::Array::New(env, _tables.size());
-    for (size_t i = 0; i < _tables.size(); ++i) {
-      result_tables.Set(i, nv::Table::New(env, std::move(_tables[i])));
-    }
+  auto result_tables = Napi::Array::New(env, _tables.size());
+  for (size_t i = 0; i < _tables.size(); ++i) {
+    result_tables.Set(i, nv::Table::New(env, std::move(_tables[i])));
+  }
 
-    auto result = Napi::Object::New(env);
-    result.Set("names", result_names);
-    result.Set("tables", result_tables);
-    return result;
+  auto result = Napi::Object::New(env);
+  result.Set("names", result_names);
+  result.Set("tables", result_tables);
+  return result;
 }
 
-Napi::Value ExecutionGraph::send_to(Napi::CallbackInfo const& info) {
+void ExecutionGraph::send_to(Napi::CallbackInfo const& info) {
   auto df                = result(info);
-  int target_ral_id      = info[0].ToNumber();  // TODO uint16_t
+  int target_ral_id      = info[0].ToNumber();  // TODO Can this be a uint16_t?
   std::string message_id = info[1].ToString();
 
   auto query_context = _graph->get_last_kernel()->output_cache()->get_context();
-
-  // todo: add to cache
-  return this->Value();
 }
 
 }  // namespace nv

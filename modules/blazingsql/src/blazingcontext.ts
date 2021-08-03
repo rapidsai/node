@@ -17,7 +17,6 @@ import {callMethodSync, callStaticMethodSync} from 'java';
 
 import {
   Context,
-  ExecutionGraph,
   getTableScanInfo,
   runGenerateGraph,
   runGeneratePhysicalGraph,
@@ -32,7 +31,11 @@ import {
 } from './algebra';
 import {defaultConfigValues} from './config';
 import {json_plan_py} from './json_plan';
-import {ContextProps, WorkerUcpInfo} from './node_blazingsql';
+import {
+  ContextProps,
+  ExecutionGraphWrapper,
+  WorkerUcpInfo
+} from './node_blazingsql';  // TODO: These should be imported through ./addon
 
 export class BlazingContext {
   // @ts-ignore
@@ -221,7 +224,7 @@ export class BlazingContext {
   sql(query: string,
       ctxToken: number|null            = null,
       algebra: string|null             = null,
-      options: Record<string, unknown> = {}): ExecutionGraph {
+      options: Record<string, unknown> = {}): ExecutionGraphWrapper {
     if (algebra == null) { algebra = this.explain(query); }
 
     if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
@@ -249,17 +252,17 @@ export class BlazingContext {
       }, []);
     const {config = defaultConfigValues} = options;
 
-    return runGenerateGraph(
-      masterIndex,
-      this.workers.length == 0 ? ['self'] : this.workers.map((w) => w.workerId),
-      selectedDataFrames,
-      tableNames,
-      tableScans,
-      ctxToken,
-      json_plan_py(algebra),
-      config as Record<string, unknown>,
-      query,
-      currentTimestamp);
+    return new ExecutionGraphWrapper(
+      runGenerateGraph(masterIndex,
+                       this.workers.length == 0 ? ['self'] : this.workers.map((w) => w.workerId),
+                       selectedDataFrames,
+                       tableNames,
+                       tableScans,
+                       ctxToken,
+                       json_plan_py(algebra),
+                       config as Record<string, unknown>,
+                       query,
+                       currentTimestamp));
   }
 
   /**

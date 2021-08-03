@@ -3,7 +3,7 @@ import {DataFrame, Series} from '@rapidsai/cudf';
 
 test('wip test case', () => {
   const a  = Series.new([1, 2, 3]);
-  const df = new DataFrame({'a': a, 'b': b});
+  const df = new DataFrame({'a': a, 'b': a});
 
   const bc = new BlazingContext();
   bc.createTable('test_table', df);
@@ -11,7 +11,7 @@ test('wip test case', () => {
   const graph = bc.sql('SELECT a FROM test_table');
   graph.start();
 
-  graph.result();
+  const result = graph.result();
 });
 
 // test('create and drop table', () => {

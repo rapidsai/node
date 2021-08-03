@@ -1,4 +1,4 @@
-import {DataFrame, Table, TypeMap} from '@rapidsai/cudf';
+import {DataFrame, Series, Table, TypeMap} from '@rapidsai/cudf';
 
 export declare function getTableScanInfo(logicalPlan: string): [string[], string[]];
 
@@ -46,11 +46,28 @@ export declare class Context {
   pullFromCache(messageId: string): {names: string[], table: Table};
 }
 
-export declare class ExecutionGraph {
+declare class ExecutionGraph {
   constructor();
 
   start(): void;
   result(): {names: string[], tables: Table[]};
+  sendTo(ralId: number, messageId: string): void;
+}
+
+export class ExecutionGraphWrapper {
+  private executionGraph: ExecutionGraph;
+
+  constructor(executionGraph: ExecutionGraph) { this.executionGraph = executionGraph; }
+
+  start(): void { this.executionGraph.start(); }
+
+  result() {
+    const {names, tables: [table]} = this.executionGraph.result();
+    return new DataFrame(names.reduce(
+      (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
+  }
+
+  sendTo(ralId: number, messageId: string): void { this.executionGraph.sendTo(ralId, messageId); }
 }
 
 export declare class UcpContext {
