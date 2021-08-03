@@ -56,7 +56,7 @@ jobs:
           echo "RAPIDS_VERSION=${{ env.RAPIDS }}" >> .env
           echo "LINUX_VERSION=${{ matrix.LINUX }}" >> .env
           yarn docker:build:devel
-          docker run --rm -it \
+          docker run --rm \
             -v "$(pwd):/opt/rapids/node:rw" \
             -e "DISPLAY=:0.0" \
             -e "PARALLEL_LEVEL=1" \
