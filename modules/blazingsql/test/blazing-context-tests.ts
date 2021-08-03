@@ -12,6 +12,7 @@ test('wip test case', () => {
   graph.start();
 
   const result = graph.result();
+  console.log(result.names);
 });
 
 // test('create and drop table', () => {

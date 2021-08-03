@@ -56,8 +56,11 @@ Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
   if (!_results) {
     auto [names, tables] = nv::get_execute_graph_result(*this, _graph->get_context_token());
     _names               = std::move(names);
-    _tables              = std::move(tables);
-    _results             = true;
+    _tables              = Napi::Persistent(Napi::Array::New(env, tables.size()));
+    for (size_t i = 0; i < tables.size(); ++i) {
+      _tables.Value().Set(i, nv::Table::New(env, std::move(tables[i])));
+    }
+    _results = true;
   }
 
   auto result_names = Napi::Array::New(env, _names.size());
@@ -65,9 +68,9 @@ Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
     result_names.Set(i, Napi::String::New(env, _names[i]));
   }
 
-  auto result_tables = Napi::Array::New(env, _tables.size());
-  for (size_t i = 0; i < _tables.size(); ++i) {
-    result_tables.Set(i, nv::Table::New(env, std::move(_tables[i])));
+  auto result_tables = Napi::Array::New(env, _tables.Value().Length());
+  for (size_t i = 0; i < _tables.Value().Length(); ++i) {
+    result_tables.Set(i, _tables.Value().Get(i));
   }
 
   auto result = Napi::Object::New(env);
