@@ -31,7 +31,14 @@ jobs:
           path: gh-pages
       - name: Build Docs
         working-directory: main
-        run: set -x && yarn && yarn tsc:build && yarn doc
+        run: |
+          set -x
+          export DEBIAN_FRONTEND=noninteractive
+          apt update --fix-missing
+          apt install -y --no-install-recommends openjdk-11-jdk
+          yarn --verbose --ignore-optional --ignore-engines --non-interactive
+          yarn tsc:build
+          yarn doc
       - name: Copy Docs to gh-pages
         run: |
           rm -rf gh-pages/docs

@@ -38,9 +38,9 @@ function filterByValue(df, column, value) { return df.get(column).eq(value); }
  */
 function filterByRange(df, column, minMaxArray) {
   const [min, max] = minMaxArray;
-  const boolmask_gt_eq = (df.get(column).gt(min)).logical_or(df.get(column).eq(min))
-  const boolmask_lt_eq = (df.get(column).lt(max)).logical_or(df.get(column).eq(max))
-  return boolmask_gt_eq.logical_and(boolmask_lt_eq)
+  const boolmask_gt_eq = (df.get(column).gt(min)).logicalOr(df.get(column).eq(min))
+  const boolmask_lt_eq = (df.get(column).lt(max)).logicalOr(df.get(column).eq(max))
+  return boolmask_gt_eq.logicalAnd(boolmask_lt_eq)
 }
 
 /**
@@ -63,11 +63,11 @@ function parseQuery(df, query_dict, ignore = null) {
     .forEach(key => {
       //check if query is range of values
       if (Array.isArray(query_dict[key]) && query_dict[key].length == 2) {
-        boolmask = boolmask ? boolmask.logical_and(filterByRange(df, key, query_dict[key])) : filterByRange(df, key, query_dict[key]);
+        boolmask = boolmask ? boolmask.logicalAnd(filterByRange(df, key, query_dict[key])) : filterByRange(df, key, query_dict[key]);
       }
       //check if query is a number
       else if (typeof (query_dict[key]) == "number") {
-        boolmask = boolmask ? boolmask.logical_and(filterByValue(df, key, query_dict[key])) : filterByValue(df, key, query_dict[key]);
+        boolmask = boolmask ? boolmask.logicalAnd(filterByValue(df, key, query_dict[key])) : filterByValue(df, key, query_dict[key]);
       }
     })
 

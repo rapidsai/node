@@ -18,6 +18,8 @@ bc.createTable('test_table', df);
 bc.sql('SELECT a FROM test_table'); // [1, 2, 3]
 ```
 
+For detailed BlazingSQL API, [follow our API Documentation](https://rapidsai.github.io/node/modules/blazingsql_src.html).
+
 ### Installation
 
 `npm install @rapidsai/blazingsql`

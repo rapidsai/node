@@ -4,6 +4,7 @@ x-base-settings: &base_service_settings
   tty: true
   user: node
   env_file: .env
+  network_mode: host
   build: &base_build_settings
     context: .
   environment: &base_environment_settings
@@ -19,7 +20,6 @@ x-base-settings: &base_service_settings
 
 x-main-service-settings: &main_service_settings
   <<: *base_service_settings
-  network_mode: "host"
   volumes:
     - "${PWD}:/opt/rapids/node:rw"
     - "/etc/fonts:/etc/fonts:ro"
