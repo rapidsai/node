@@ -92,7 +92,9 @@ Napi::Value ExecutionGraph::send_to(Napi::CallbackInfo const& info) {
   Napi::Array tables = dfs.Get("tables").As<Napi::Array>();
   auto first_table   = Table::Unwrap(tables.Get("0").ToObject());
 
-  _context.Value()->add_to_cache(message_id, ral_id, column_names, first_table->view());
+  auto query_context = _graph->get_last_kernel()->output_cache()->get_context();
+  _context.Value()->add_to_cache(
+    query_context, message_id, ral_id, column_names, first_table->view());
 
   return this->Value();
 }

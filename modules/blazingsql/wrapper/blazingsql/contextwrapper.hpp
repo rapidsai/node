@@ -17,6 +17,12 @@
 #include "cache.hpp"
 #include "ucpcontext.hpp"
 
+namespace blazingdb {
+namespace manager {
+class Context;
+}
+}  // namespace blazingdb
+
 namespace nv {
 
 struct CacheMachine;
@@ -47,7 +53,8 @@ struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
    */
   ContextWrapper(Napi::CallbackInfo const& info);
 
-  void add_to_cache(std::string const& message_id,
+  void add_to_cache(blazingdb::manager::Context* context,
+                    std::string const& message_id,
                     uint16_t const& ral_id,
                     std::vector<std::string> const& column_names,
                     cudf::table_view const& table_view);

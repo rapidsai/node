@@ -13,7 +13,9 @@
 // limitations under the License.
 
 #include "contextwrapper.hpp"
+#include <execution_graph/Context.h>
 #include <node_cudf/table.hpp>
+#include "cache.hpp"
 
 namespace nv {
 
@@ -39,11 +41,12 @@ ContextWrapper::wrapper_t ContextWrapper::New(
 ContextWrapper::ContextWrapper(Napi::CallbackInfo const& info)
   : EnvLocalObjectWrap<ContextWrapper>(info) {}
 
-void ContextWrapper::add_to_cache(std::string const& message_id,
+void ContextWrapper::add_to_cache(blazingdb::manager::Context* context,
+                                  std::string const& message_id,
                                   uint16_t const& ral_id,
                                   std::vector<std::string> const& column_names,
                                   cudf::table_view const& table_view) {
-  this->_transport_out.Value()->add_to_cache(message_id, ral_id, column_names, table_view);
+  this->_transport_out.Value()->add_to_cache(context, message_id, ral_id, column_names, table_view);
 }
 
 std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> ContextWrapper::pull_from_cache(

@@ -31,14 +31,13 @@ CacheMachine::wrapper_t CacheMachine::New(Napi::Env const& env,
   return inst;
 }
 
-void CacheMachine::add_to_cache(std::string const& message_id,
+void CacheMachine::add_to_cache(blazingdb::manager::Context* context,
+                                std::string const& message_id,
                                 uint16_t const& ral_id,
                                 std::vector<std::string> const& column_names,
                                 cudf::table_view const& table_view) {
   std::unique_ptr<ral::frame::BlazingTable> table =
     std::make_unique<ral::frame::BlazingTable>(table_view, column_names);
-
-  // auto context =
 
   // ral::cache::MetadataDictionary metadata;
 
@@ -52,13 +51,9 @@ void CacheMachine::add_to_cache(std::string const& message_id,
   // metadata.add_value(ral::cache::CACHE_ID_METADATA_LABEL, 0);  // unused
   // metadata.add_value(ral::cache::SENDER_WORKER_ID_METADATA_LABEL, ral_id);
 
-  // metadata.add_value(ral::cache::WORKER_IDS_METADATA_LABEL, worker_ids_metadata);  // is
-  // generated with the function below for explanation of how it can be used but you probably will
-  // just set it to 0 (or whatever the id of your coordinating node is)
-
   // metadata.add_value(ral::cache::UNIQUE_MESSAGE_ID, message_id);
 
-  this->_cache->addToCache(std::move(table), message_id, true, {}, true);
+  // this->_cache->addToCache(std::move(table), message_id, true, metadata, true);
 }
 
 std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> CacheMachine::pull_from_cache(
