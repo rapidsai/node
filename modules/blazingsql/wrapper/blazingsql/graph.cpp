@@ -80,6 +80,7 @@ Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
 }
 
 void ExecutionGraph::send_to(Napi::CallbackInfo const& info) {
+  Napi::Env env          = info.Env();
   auto df                = result(info).ToObject();
   int target_ral_id      = info[0].ToNumber();  // TODO Can this be a uint16_t?
   std::string message_id = info[1].ToString();
@@ -88,7 +89,10 @@ void ExecutionGraph::send_to(Napi::CallbackInfo const& info) {
   std::vector<std::string> column_names(names.Length());
   for (size_t i = 0; i < names.Length(); ++i) { column_names[i] = names.Get(i).ToString(); }
 
-  _context.Value()->add_to_cache(message_id, target_ral_id, column_names, {});
+  Napi::Array tables = df.Get("tables").As<Napi::Array>();
+  auto first_table   = Table::Unwrap(tables.Get("0").ToObject());
+
+  _context.Value()->add_to_cache(message_id, target_ral_id, column_names, first_table->view());
 }
 
 }  // namespace nv

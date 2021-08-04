@@ -12,8 +12,6 @@ test('wip test case', () => {
   graph.start();
 
   const result = graph.result();
-  console.log(result.names);
-
   graph.sendTo(0, 'test');
 });
 
@@ -102,18 +100,18 @@ test('wip test case', () => {
 //   expect(bc.sql('SELECT * FROM test_table')).toStrictEqual(new DataFrame({'a': a, 'b': b}));
 // });
 
-// test('union columns from two tables', () => {
-//   const a   = Series.new([1, 2, 3]);
-//   const df1 = new DataFrame({'a': a});
-//   const df2 = new DataFrame({'a': a});
+test('union columns from two tables', () => {
+  const a   = Series.new([1, 2, 3]);
+  const df1 = new DataFrame({'a': a});
+  const df2 = new DataFrame({'a': a});
 
-//   const bc = new BlazingContext();
-//   bc.createTable('t1', df1);
-//   bc.createTable('t2', df2);
+  const bc = new BlazingContext();
+  bc.createTable('t1', df1);
+  bc.createTable('t2', df2);
 
-//   const result = new DataFrame({'a': Series.new([...a, ...a])});
-//   expect(bc.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2')).toStrictEqual(result);
-// });
+  const result = new DataFrame({'a': Series.new([...a, ...a])});
+  expect(bc.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2').result()).toStrictEqual(result);
+});
 
 // test('find all columns within a table that meet condition', () => {
 //   const key = Series.new(['a', 'b', 'c', 'd', 'e']);
