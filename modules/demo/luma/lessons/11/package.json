@@ -11,9 +11,9 @@
     "start-local": "webpack-dev-server --env.local --progress --hot --open -d"
   },
   "dependencies": {
-    "@luma.gl/constants": "8.4.5",
-    "@luma.gl/core": "8.4.5",
-    "math.gl": "3.4.3",
+    "@luma.gl/constants": "8.5.4",
+    "@luma.gl/core": "8.5.4",
+    "math.gl": "3.5.3",
     "mjolnir.js": "2.5.2"
   },
   "esm": {
