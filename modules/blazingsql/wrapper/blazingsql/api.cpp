@@ -60,12 +60,13 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
       ucp_context              = worker_info.Get("ucpContext").ToObject();
 
       workers_ucp_info.push_back({
-        id,            // std::string worker_id;
-        ip,            // std::string ip;
-        0,             // std::uintptr_t ep_handle;
-        0,             // std::uintptr_t worker_handle;
-        *ucp_context,  // std::uintptr_t context_handle;
-        port,          // std::int32_t port;
+        id,  // std::string worker_id;
+        ip,  // std::string ip;
+        0,   // std::uintptr_t ep_handle;
+        0,   // std::uintptr_t worker_handle;
+        reinterpret_cast<std::uintptr_t>(
+          ucp_context->operator ucp_context_h*()),  // std::uintptr_t context_handle;
+        port,                                       // std::int32_t port;
       });
     }
   }
@@ -81,7 +82,7 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
                                   initial_pool_size,
                                   maximum_pool_size,
                                   enable_logging);
-  return ContextWrapper::New(env, init_result, ucp_context);
+  return ContextWrapper::New(env, ral_id, init_result, ucp_context);
 }
 
 std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_info(

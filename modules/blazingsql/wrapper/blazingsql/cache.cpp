@@ -31,9 +31,11 @@ CacheMachine::wrapper_t CacheMachine::New(Napi::Env const& env,
   return inst;
 }
 
-void CacheMachine::add_to_cache(blazingdb::manager::Context* context,
+void CacheMachine::add_to_cache(int32_t const& node_id,
+                                int32_t const& src_ral_id,
+                                int32_t const& dst_ral_id,
+                                std::string const& ctx_token,
                                 std::string const& message_id,
-                                uint16_t const& ral_id,
                                 std::vector<std::string> const& column_names,
                                 cudf::table_view const& table_view) {
   std::unique_ptr<ral::frame::BlazingTable> table =
@@ -41,16 +43,13 @@ void CacheMachine::add_to_cache(blazingdb::manager::Context* context,
 
   ral::cache::MetadataDictionary metadata;
 
-  metadata.add_value(
-    ral::cache::RAL_ID_METADATA_LABEL,
-    context->getNodeIndex(ral::communication::CommunicationData::getInstance().getSelfNode()));
+  metadata.add_value(ral::cache::RAL_ID_METADATA_LABEL, node_id);
   metadata.add_value(ral::cache::KERNEL_ID_METADATA_LABEL, std::to_string(0));  // unused
-  metadata.add_value(ral::cache::QUERY_ID_METADATA_LABEL,
-                     std::to_string(context->getContextToken()));
+  metadata.add_value(ral::cache::QUERY_ID_METADATA_LABEL, ctx_token);
   metadata.add_value(ral::cache::ADD_TO_SPECIFIC_CACHE_METADATA_LABEL, "false");
   metadata.add_value(ral::cache::CACHE_ID_METADATA_LABEL, 0);  // unused, potentially unset
-  metadata.add_value(ral::cache::SENDER_WORKER_ID_METADATA_LABEL, ral_id);
-  metadata.add_value(ral::cache::WORKER_IDS_METADATA_LABEL, ral_id);
+  metadata.add_value(ral::cache::SENDER_WORKER_ID_METADATA_LABEL, std::to_string(src_ral_id));
+  metadata.add_value(ral::cache::WORKER_IDS_METADATA_LABEL, std::to_string(dst_ral_id));
   metadata.add_value(ral::cache::UNIQUE_MESSAGE_ID, message_id);
 
   this->_cache->addToCache(std::move(table), message_id, true, metadata, true);

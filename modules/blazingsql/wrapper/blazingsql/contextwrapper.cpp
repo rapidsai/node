@@ -25,6 +25,7 @@ Napi::Function ContextWrapper::Init(Napi::Env env, Napi::Object exports) {
 
 ContextWrapper::wrapper_t ContextWrapper::New(
   Napi::Env const& env,
+  int32_t ral_id,
   std::pair<
     std::pair<std::shared_ptr<ral::cache::CacheMachine>, std::shared_ptr<ral::cache::CacheMachine>>,
     int> pair,
@@ -32,6 +33,7 @@ ContextWrapper::wrapper_t ContextWrapper::New(
   auto inst            = EnvLocalObjectWrap<ContextWrapper>::New(env, {});
   auto& caches         = pair.first;
   inst->_port          = pair.second;
+  inst->_ral_id        = ral_id;
   inst->_transport_in  = Napi::Persistent(CacheMachine::New(env, caches.first));
   inst->_transport_out = Napi::Persistent(CacheMachine::New(env, caches.second));
   inst->_ucp_context   = Napi::Persistent(ucp_context);
@@ -41,12 +43,15 @@ ContextWrapper::wrapper_t ContextWrapper::New(
 ContextWrapper::ContextWrapper(Napi::CallbackInfo const& info)
   : EnvLocalObjectWrap<ContextWrapper>(info) {}
 
-void ContextWrapper::add_to_cache(blazingdb::manager::Context* context,
+void ContextWrapper::add_to_cache(int32_t const& node_id,
+                                  int32_t const& src_ral_id,
+                                  int32_t const& dst_ral_id,
+                                  std::string const& ctx_token,
                                   std::string const& message_id,
-                                  uint16_t const& ral_id,
                                   std::vector<std::string> const& column_names,
                                   cudf::table_view const& table_view) {
-  this->_transport_out.Value()->add_to_cache(context, message_id, ral_id, column_names, table_view);
+  this->_transport_out.Value()->add_to_cache(
+    node_id, src_ral_id, dst_ral_id, ctx_token, message_id, column_names, table_view);
 }
 
 std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> ContextWrapper::pull_from_cache(

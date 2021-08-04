@@ -82,7 +82,7 @@ Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
 Napi::Value ExecutionGraph::send_to(Napi::CallbackInfo const& info) {
   Napi::Env env          = info.Env();
   Napi::Object dfs       = result(info).ToObject();
-  int ral_id             = info[0].ToNumber();  // TODO Can this be a uint16_t?
+  int32_t dst_ral_id     = info[0].ToNumber();
   std::string message_id = info[1].ToString();
 
   Napi::Array names = dfs.Get("names").As<Napi::Array>();
@@ -92,9 +92,17 @@ Napi::Value ExecutionGraph::send_to(Napi::CallbackInfo const& info) {
   Napi::Array tables = dfs.Get("tables").As<Napi::Array>();
   auto first_table   = Table::Unwrap(tables.Get("0").ToObject());
 
-  auto query_context = _graph->get_last_kernel()->output_cache()->get_context();
+  auto last_kernel   = _graph->get_last_kernel();
+  auto input_cache   = last_kernel->input_cache();
+  auto query_context = input_cache->get_context();
+
+  auto src_ral_id = _context.Value()->get_ral_id();
+  int32_t node_id =
+    query_context->getNodeIndex(ral::communication::CommunicationData::getInstance().getSelfNode());
+  std::string ctx_token = std::to_string(query_context->getContextToken());
+
   _context.Value()->add_to_cache(
-    query_context, message_id, ral_id, column_names, first_table->view());
+    node_id, src_ral_id, dst_ral_id, ctx_token, message_id, column_names, first_table->view());
 
   return this->Value();
 }

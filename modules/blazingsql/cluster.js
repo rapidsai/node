@@ -20,7 +20,7 @@ if (cluster.isPrimary) {
     workers[i] = cluster.fork();
   }
 
-  const ucpMetadata = ["primary", ...Object.keys(cluster.workers)].map((key, idx) => ({
+  const ucpMetadata = ['0', ...Object.keys(cluster.workers)].map((key, idx) => ({
     ralId: idx,
     workerId: key,
     ip: '0.0.0.0',
@@ -29,12 +29,15 @@ if (cluster.isPrimary) {
 
   bc = new BlazingContext({
     ralId: 0,
-    workerId: "primary",
+    workerId: '0',
+    enableLogging: true,
+    // networkIfaceName: 'eno1',
     workersUcpInfo: ucpMetadata.map((xs) => ({ ...xs, ucpContext }))
   });
 
   workers.forEach((w, idx) => {
-    w.send({ operation: createBlazingContext, idx: idx + 1, workerId: w.workerId, ucpMetadata: ucpMetadata })
+    console.log({ workerId: w.id });
+    w.send({ operation: createBlazingContext, idx: idx + 1, workerId: w.id, ucpMetadata: ucpMetadata })
   });
 
   const df = createLargeDataFrame();
@@ -55,7 +58,7 @@ if (cluster.isPrimary) {
       ctxToken = ctxToken + 1;
       w.send({ operation: runQuery, ctxToken: ctxToken, messageId: `message_${ctxToken.toString()}`, query: 'SELECT a FROM test_table' });
       w.on('message', (args) => {
-        console.log(`Finished query on token: ${args.ctxToken}`);
+        console.log(`Finished query on token: ${ctxToken}`);
         resolve(args);
       });
     }));
@@ -64,6 +67,7 @@ if (cluster.isPrimary) {
   Promise.all(queryPromises).then(function (results) {
     console.log('Finished running all queries.');
     results.forEach((result) => {
+      console.log(`pulling result with messageId=${result.messageId}`);
       bc.pullFromCache(result.messageId);
     });
     workers.forEach((w) => w.kill());
@@ -71,24 +75,31 @@ if (cluster.isPrimary) {
 
 } else if (cluster.isWorker) {
   process.on('message', (args) => {
-    if (args.operation === createBlazingContext) {
+    const { operation, ...rest } = args;
+    const {
+      ctxToken, dataframe, idx, messageId, query, tableName, ucpMetadata, workerId
+    } = rest;
+    console.log(`message "${operation}":`, rest);
+    if (operation === createBlazingContext) {
       bc = new BlazingContext({
-        ralId: args.idx,
-        workerId: args.workerId,
-        workersUcpInfo: args.ucpMetadata.map((xs) => ({ ...xs, ucpContext })),
+        ralId: idx,
+        workerId: workerId,
+        enableLogging: true,
+        // networkIfaceName: 'eno1',
+        workersUcpInfo: ucpMetadata.map((xs) => ({ ...xs, ucpContext })),
       });
     }
 
-    if (args.operation === createTable) {
-      console.log(`Creating table: ${args.tableName}`);
-      bc.createTable(args.tableName, DataFrame.fromArrow(args.dataframe));
+    if (operation === createTable) {
+      console.log(`Creating table: ${tableName}`);
+      bc.createTable(tableName, DataFrame.fromArrow(dataframe));
     }
 
-    if (args.operation === runQuery) {
-      console.log(`Token: ${args.ctxToken}`);
-      const result = bc.sql(args.query, args.ctxToken);
-      result.sendTo(args.ctxToken, args.messageId);
-      process.send({ operation: queryRan, ctxToken: args.ctxToken, messageId: args.messageId });
+    if (operation === runQuery) {
+      console.log(`Token: ${ctxToken}`);
+      const result = bc.sql(query, ctxToken);
+      result.sendTo(0, messageId);
+      process.send({ operation: queryRan, ctxToken: ctxToken, messageId: messageId });
     }
   });
 }

@@ -44,7 +44,7 @@ export class BlazingContext {
   private tables: Map<string, DataFrame>;
   private workers: WorkerUcpInfo[];
 
-  constructor(options: Record<string, unknown> = {}) {
+  constructor(options: Partial<ContextProps> = {}) {
     this.db        = CatalogDatabaseImpl('main');
     this.schema    = BlazingSchema(this.db);
     this.generator = RelationalAlgebraGenerator(this.schema);
@@ -56,13 +56,15 @@ export class BlazingContext {
       networkIfaceName     = 'lo',
       ralCommunicationPort = 0,
       workersUcpInfo       = [],
-      singleNode           = true,
       configOptions        = {},
       allocationMode       = 'cuda_memory_resource',
       initialPoolSize      = null,
       maximumPoolSize      = null,
       enableLogging        = false,
-    }: ContextProps = options as any;
+    } = options;
+
+    const {singleNode = workersUcpInfo.length > 1} = options;
+
     Object.keys(defaultConfigValues)
       .forEach((key) => { configOptions[key] = configOptions[key] ?? defaultConfigValues[key]; });
 
@@ -218,7 +220,7 @@ export class BlazingContext {
    * ```
    */
   sql(query: string,
-      ctxToken: number|null            = null,
+      ctxToken: number                 = Math.random() * Number.MAX_SAFE_INTEGER,
       algebra: string|null             = null,
       options: Record<string, unknown> = {}): ExecutionGraphWrapper {
     if (algebra == null) { algebra = this.explain(query); }
@@ -239,7 +241,7 @@ export class BlazingContext {
     const d                = new Date();
     const currentTimestamp = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
       d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
-    ctxToken = ctxToken ?? Math.random() * Number.MAX_SAFE_INTEGER;
+
     const selectedDataFrames: DataFrame[] =
       tableNames.reduce((result: DataFrame[], tableName: string) => {
         const table = this.tables.get(tableName);

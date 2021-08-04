@@ -14,16 +14,11 @@
 
 #pragma once
 
+#include <node_cudf/table.hpp>
+
 #include <nv_node/objectwrap.hpp>
 
 #include <napi.h>
-#include <node_cudf/table.hpp>
-
-namespace blazingdb {
-namespace manager {
-class Context;
-}
-}  // namespace blazingdb
 
 namespace ral {
 namespace cache {
@@ -55,9 +50,11 @@ struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
 
   inline operator std::shared_ptr<ral::cache::CacheMachine>() { return _cache; }
 
-  void add_to_cache(blazingdb::manager::Context* context,
+  void add_to_cache(int32_t const& node_id,
+                    int32_t const& src_ral_id,
+                    int32_t const& dst_ral_id,
+                    std::string const& ctx_token,
                     std::string const& message_id,
-                    uint16_t const& ral_id,
                     std::vector<std::string> const& column_names,
                     cudf::table_view const& table_view);
 
