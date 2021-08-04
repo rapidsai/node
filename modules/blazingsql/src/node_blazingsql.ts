@@ -50,7 +50,7 @@ declare class ExecutionGraph {
 
   start(): void;
   result(): {names: string[], tables: Table[]};
-  sendTo(ralId: number, messageId: string): void;
+  sendTo(ralId: number, messageId: string): ExecutionGraph;
 }
 
 export class ExecutionGraphWrapper {
@@ -66,7 +66,9 @@ export class ExecutionGraphWrapper {
       (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }
 
-  sendTo(ralId: number, messageId: string): void { this.executionGraph.sendTo(ralId, messageId); }
+  sendTo(ralId: number, messageId: string): ExecutionGraphWrapper {
+    return new ExecutionGraphWrapper(this.executionGraph.sendTo(ralId, messageId));
+  }
 }
 
 export declare class UcpContext {

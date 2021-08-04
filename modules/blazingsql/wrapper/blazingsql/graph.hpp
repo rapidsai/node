@@ -67,7 +67,7 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
 
   void start(Napi::CallbackInfo const& info);
   Napi::Value result(Napi::CallbackInfo const& info);
-  void send_to(Napi::CallbackInfo const& info);
+  Napi::Value send_to(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

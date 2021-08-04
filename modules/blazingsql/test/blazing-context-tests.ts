@@ -11,7 +11,6 @@ test('wip test case', () => {
   const graph = bc.sql('SELECT a FROM test_table');
   graph.start();
 
-  const result = graph.result();
   graph.sendTo(0, 'test');
 });
 
