@@ -39,13 +39,22 @@ jobs:
           docker rmi $(docker image ls -aq) || true
           df -h
           docker images
-      - name: Cache dependencies
+      - name: Cache C++ dependencies
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-${{ hashFiles('**/CMakeLists.txt', 'modules/core/cmake/Modules/*') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-
+          path: |
+            modules/.cache
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-${{ hashFiles('yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-
           path: |
             node_modules
-            modules/.cache
       - name: Build devel images and packages
         run: |
           echo "UID=$(id -u)" >> .env
