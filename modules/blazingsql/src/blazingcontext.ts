@@ -43,7 +43,6 @@ export class BlazingContext {
   private generator: any;
   private tables: Map<string, DataFrame>;
   private workers: WorkerUcpInfo[];
-  private ralId: number;
 
   constructor(options: Record<string, unknown> = {}) {
     this.db        = CatalogDatabaseImpl('main');
@@ -68,7 +67,6 @@ export class BlazingContext {
       .forEach((key) => { configOptions[key] = configOptions[key] ?? defaultConfigValues[key]; });
 
     this.workers = workersUcpInfo;
-    this.ralId   = ralId;
     this.context = new Context({
       ralId,
       workerId,
@@ -299,10 +297,6 @@ export class BlazingContext {
     } catch (ex) { throw new Error(ex.cause.getMessageSync()); }
 
     return String(algebra);
-  }
-
-  addToCache<T extends TypeMap>(messageId: string, input: DataFrame<T>): void {
-    this.context.addToCache(messageId, this.ralId, input);
   }
 
   pullFromCache(messageId: string): void {

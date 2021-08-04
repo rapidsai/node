@@ -87,7 +87,7 @@ if (cluster.isPrimary) {
     if (args.operation === runQuery) {
       console.log(`Token: ${args.ctxToken}`);
       const result = bc.sql(args.query, args.ctxToken);
-      bc.addToCache(args.messageId, result);
+      result.sendTo(args.ctxToken, args.messageId);
       process.send({ operation: queryRan, ctxToken: args.ctxToken, messageId: args.messageId });
     }
   });
