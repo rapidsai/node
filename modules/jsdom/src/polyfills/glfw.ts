@@ -23,30 +23,34 @@ import {
 import * as jsdom from 'jsdom';
 import {Subscription} from 'rxjs';
 
-import GLFW from '../../../glfw/src/glfw';
+import {
+  isAltKey,
+  isCapsLock,
+  isCtrlKey,
+  isMetaKey,
+  isShiftKey
+} from '../../../glfw/src/events/event';
+import GLFW, {GLFWStandardCursor} from '../../../glfw/src/glfw';
+import {GLFWDOMWindow} from '../../../glfw/src/jsdom/window';
 
-export type GLFWDOMWindowOptions = {
-  x?: number;
-  y?: number;
-  debug?: boolean;
-  width?: number;
-  height?: number;
-  visible?: boolean;
-  decorated?: boolean;
-  resizable?: boolean;
-  transparent?: boolean;
-  devicePixelRatio?: number;
-  openGLMajorVersion?: number;
-  openGLMinorVersion?: number;
-  openGLForwardCompat?: boolean;
-  openGLProfile?: GLFWOpenGLProfile;
-  openGLClientAPI?: GLFWClientAPI;
-  openGLContextCreationAPI?: GLFWContextCreationAPI;
-};
-
-export interface GLFWDOMWindow extends jsdom.DOMWindow {
-  _inputEventTarget: any;
-}
+// export type GLFWDOMWindowOptions = {
+//   x?: number;
+//   y?: number;
+//   debug?: boolean;
+//   width?: number;
+//   height?: number;
+//   visible?: boolean;
+//   decorated?: boolean;
+//   resizable?: boolean;
+//   transparent?: boolean;
+//   devicePixelRatio?: number;
+//   openGLMajorVersion?: number;
+//   openGLMinorVersion?: number;
+//   openGLForwardCompat?: boolean;
+//   openGLProfile?: GLFWOpenGLProfile;
+//   openGLClientAPI?: GLFWClientAPI;
+//   openGLContextCreationAPI?: GLFWContextCreationAPI;
+// };
 
 // let rootWindow: GLFWDOMWindow|undefined = undefined;
 
@@ -445,152 +449,246 @@ export interface GLFWDOMWindow extends jsdom.DOMWindow {
 // }
 
 export function installGLFWWindow(window: jsdom.DOMWindow) {
-  // window._glfw = new GLFWDOMWindow();
+  const rootWindow: GLFWDOMWindow|undefined = undefined;
 
-  // window._glfwid = window._glfw.id;
+  // Attatching properties
 
   Object.defineProperties(window, {
-    width: {
-      get() { return this._width; },
-      set(_) { this._width = _; },
+    id: {
+      writable: true,
     },
-    height: {get() { return this._height; }, set(_: number) { this._height = _; }},
+    width: {
+      value: 800,
+      writable: true,
+    },
+    height: {
+      value: 600,
+      writable: true,
+    },
     title: {
-      get() { return this._title; },
-      set(_: string) { this._title = _; },
+      value: 'Untitled',
+      writable: true,
+    },
+    x: {
+      value: 0,
+      writable: true,
+    },
+    y: {
+      value: 0,
+      writable: true,
     },
     xscale: {
-
+      value: 1,
     },
     yscale: {
-
+      value: 1,
     },
     mouseX: {
-
+      value: 0,
     },
     mouseY: {
-
+      value: 0,
     },
     scrollX: {
-
+      value: 0,
+      writable: true,
     },
     scrollY: {
-
+      value: 0,
+      writable: true,
     },
     buttons: {
-
+      value: 0,
     },
     focused: {
-
+      value: false,
     },
     minimized: {
-
+      value: false,
     },
     maximized: {
-
+      value: false,
     },
-    swapInterval: {
+    devicePixelRatio: {
+      value: 1,
+      writable: true,
+    },
+    event: {
+      value: undefined,
+    },
 
+    swapInterval: {
+      get() { return this._swapInterval; },
+      set(_: number) {
+        if (this.swapInterval !== _) {
+          if (this._id > 0 && typeof _ === 'number') { glfw.swapInterval(this._swapInterval = _); }
+        }
+      },
     },
 
     modifiers: {
-
+      value: 0,
     },
 
-    altKey: {
-
-    },
-    ctrlKey: {
-
-    },
-    metaKey: {
-
-    },
-    shiftKey: {
-
-    },
-    capsLock: {
-
-    },
+    altKey: {get: () => { return isAltKey(window.modifiers); }},
+    ctrlKey: {get: () => { return isCtrlKey(window.modifiers); }},
+    metaKey: {get: () => { return isMetaKey(window.modifiers); }},
+    shiftKey: {get: () => { return isShiftKey(window.modifiers); }},
+    capsLock: {get: () => { return isCapsLock(window.modifiers); }},
 
     visable: {
-
+      get() { return this._visible; },
+      set(_: boolean) {
+        if (this._visible !== _) { ((this._visible = _)) ? this.show() : this.hide(); }
+      },
     },
 
     decorated: {
-
+      get() { return this._decorated; },
+      set(_: boolean) {
+        if (this._decorated !== _) {
+          this._decorated = _;
+          if (this._id > 0) { glfw.setWindowAttrib(this._id, GLFWWindowAttribute.DECORATED, _); }
+        }
+      }
     },
 
     transparent: {
-
+      get() { return this._transparent; },
+      set(_: boolean) {
+        if (this._transparent !== _) { this._transparent = _; }
+      }
     },
 
     resizable: {
+      get() { return this._resizable; },
+      set(_: boolean) {
+        if (this._resizable !== _) {
+          this._resizable = _;
+          if (this._id > 0) { glfw.setWindowAttrib(this._id, GLFWWindowAttribute.RESIZABLE, _); }
+        }
+      }
+    },
 
+    cursor: {
+      get() { return this._cursor; },
+      set(_: any) {
+        switch (_) {
+          case 'pointer': _ = GLFWStandardCursor.HAND; break;
+          case 'text': _ = GLFWStandardCursor.IBEAM; break;
+          case 'crosshair': _ = GLFWStandardCursor.CROSSHAIR; break;
+          case 'e-resize':
+          case 'w-resize':
+          case 'ew-resize': _ = GLFWStandardCursor.HRESIZE; break;
+          case 'n-resize':
+          case 's-resize':
+          case 'ns-resize': _ = GLFWStandardCursor.VRESIZE; break;
+          case 'auto':
+          case 'none':
+          case 'grab':
+          case 'grabbing':
+          case 'default':
+          default: _ = GLFWStandardCursor.ARROW; break;
+        }
+        if (this._cursor !== _) {
+          this._cursor = _;
+          if (this._id > 0) {
+            switch (_) {
+              case GLFWStandardCursor.ARROW:
+              case GLFWStandardCursor.IBEAM:
+              case GLFWStandardCursor.CROSSHAIR:
+              case GLFWStandardCursor.HAND:
+              case GLFWStandardCursor.HRESIZE:
+              case GLFWStandardCursor.VRESIZE: glfw.setCursor(this._id, _); break;
+              default: break;
+            }
+          }
+        }
+      }
     },
 
     style: {
-
+      get() {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
+        return {
+          get width() { return self.width; },
+          set width(_: number) { self.width = _; },
+          get height() { return self.height; },
+          set height(_: number) { self.height = _; },
+          get cursor() { return self.cursor; },
+          set cursor(_: any) { self.cursor = _; },
+        };
+      }
     },
 
     frameBufferWidth: {
-
+      get() { return this.width; },
     },
     frameBufferHeight: {
-
+      get() { return this.height; },
     },
 
-    //  setAttribute: {
-
-    //  },
-    //  getBoundingClientRect: {
-
-    //  },
-    //  show: {
-
-    //  },
-    //  hide: {
-
-    //  }
+    openGLClientAPI: {value: GLFWClientAPI.OPENGL},
+    openGLProfile: {value: GLFWOpenGLProfile.ANY},
+    openGLMajorVersion: {
+      value: 4,
+    },
+    openGLMinorVersion: {
+      value: 6,
+    },
+    openGLForwardCompat: {
+      value: true,
+    },
+    openGLContextCreationAPI: {
+      value: GLFWContextCreationAPI.EGL,
+    },
 
   });
 
-  window.width  = 800;
-  window.height = 600;
-  window.title  = 'Untitled';
+  // Attatching functions
 
-  window.setAttribute = (name: any, value: any) => {
-    if (name in window) { (window as any)[name] = value; }
+  window.setAttribute = function(name: any, value: any) {
+    if (name in this) { (this as any)[name] = value; }
   };
 
-  window.getBoundingClientRect = () => {
+  window.getBoundingClientRect = function() {
     return {
       x: 0,
       y: 0,
-      width: window.width,
-      height: window.height,
+      width: this.width,
+      height: this.height,
       left: 0,
       top: 0,
-      right: window.width,
-      bottom: window.height,
+      right: this.width,
+      bottom: this.height,
     };
   };
 
-  window.show = () => {
-    window.visible = true;
-    window._id || window._create();
-    glfw.showWindow(window._id);
-    return window;
+  window.show = function() {
+    this.visible = true;
+    this._id || this._create();
+    glfw.showWindow(this._id);
+    return this;
   };
 
-  window.hide = () => {
-    window.visible = false;
-    window._id || window._create();
-    glfw.hideWindow(window._id);
-    return window;
+  window.hide = function() {
+    this.visible = false;
+    this._id || this._create();
+    glfw.hideWindow(this._id);
+    return this;
   };
 
-  // eslint-disable-next-line no-useless-catch
+  window.destoryGLFWWindow = function() {
+    const id = this._id;
+    this._subscriptions.unsubscribe();
+    if (id) {
+      this._id = <any>undefined;
+      glfw.destroyWindow(id);
+      if (!this._forceNewWindow && rootWindow === this) { setImmediate(() => process.exit(0)); }
+    }
+  };
+
   try {
     // let root = null;
     // if (!window._forceNewWindow && rootWindow) { root = rootWindow.id; }
@@ -605,28 +703,28 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
     glfw.windowHint(GLFWWindowAttribute.RESIZABLE, window.resizable);
     glfw.windowHint(GLFWWindowAttribute.TRANSPARENT_FRAMEBUFFER, window.transparent);
 
-    glfw.windowHint(GLFWWindowAttribute.CLIENT_API, GLFWClientAPI.OPENGL);
+    glfw.windowHint(GLFWWindowAttribute.CLIENT_API, window.openGLClientAPI);
     glfw.windowHint(GLFWWindowAttribute.OPENGL_DEBUG_CONTEXT, window.debug);
     glfw.windowHint(GLFWWindowAttribute.OPENGL_PROFILE, window.openGLProfile);
-    glfw.windowHint(GLFWWindowAttribute.CONTEXT_VERSION_MAJOR, 4);
-    glfw.windowHint(GLFWWindowAttribute.CONTEXT_VERSION_MINOR, 6);
+    glfw.windowHint(GLFWWindowAttribute.CONTEXT_VERSION_MAJOR, window.openGLMajorVersion);
+    glfw.windowHint(GLFWWindowAttribute.CONTEXT_VERSION_MINOR, window.openGLMinorVersion);
     glfw.windowHint(GLFWWindowAttribute.OPENGL_FORWARD_COMPAT, window.openGLForwardCompat);
-    glfw.windowHint(GLFWWindowAttribute.CONTEXT_CREATION_API, GLFWContextCreationAPI.EGL);
+    glfw.windowHint(GLFWWindowAttribute.CONTEXT_CREATION_API, window.openGLContextCreationAPI);
 
     const id = glfw.createWindow(window.width, window.height, window.title, null, null);
-    // const id = glfw.createWindow(800, 600, 'Untitled', null, null);
 
-    window._glfw = id;
+    window._id = id;
 
-    // glfw.setInputMode(window._id, GLFWInputMode.LOCK_KEY_MODS, true);
+    glfw.setInputMode(window._id, GLFWInputMode.LOCK_KEY_MODS, true);
     glfw.setInputMode(id, GLFWInputMode.CURSOR, GLFW.CURSOR_NORMAL);
-    glfw.makeContextCurrent(id);  // The line that breaks
+    glfw.makeContextCurrent(id);
 
     ({x: window._x, y: window._y} = glfw.getWindowPos(id));
     ({width: window._width, height: window._height} = glfw.getWindowSize(id));
     ({xscale: window._xscale, yscale: window._yscale} = glfw.getWindowContentScale(id));
 
-    //! window._forceNewWindow && !rootWindow && (rootWindow = window);
+    // not sure how to handle root window atm
+    // !window._forceNewWindow && !rootWindow && (rootWindow = this);
     window._frameBufferWidth  = window._width * window._xscale;
     window._frameBufferHeight = window._height * window._yscale;
     window._subscriptions && window._subscriptions.unsubscribe();
@@ -636,13 +734,57 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
     glfw.swapInterval(window.swapInterval);
     glfw.swapBuffers(id);
 
+    // FUCK - Argument of type 'DOMWindow' is not assignable to parameter of type 'GLFWDOMWindow'.
     // [dndEvents(window).subscribe(onGLFWDndEvent.bind(window)),
     //  mouseEvents(window).subscribe(onGLFWMouseEvent.bind(window)),
     //  wheelEvents(window).subscribe(onGLFWWheelEvent.bind(window)),
     //  windowEvents(window).subscribe(onGLFWWindowEvent.bind(window)),
     //  keyboardEvents(window).subscribe(onGLFWKeyboardEvent.bind(window)),
     // ].forEach((subscription) => window._subscriptions.add(subscription));
-  } catch (e) { throw e; }
+  } catch (e) {
+    console.error('Error creating window:', e);
+    window.destroyGLFWWindow();
+    throw e;
+  }
 
   return window;
 }
+
+// function onGLFWMouseEvent(this: GLFWDOMWindow, event: GLFWMouseEvent) {
+//   this._mouseX  = event.x;
+//   this._mouseY  = event.y;
+//   this._buttons = event.buttons;
+//   let m         = this._modifiers;
+//   m             = event.altKey ? (m | GLFWModifierKey.MOD_ALT) : (m & ~GLFWModifierKey.MOD_ALT);
+//   m = event.ctrlKey ? (m | GLFWModifierKey.MOD_CONTROL) : (m & ~GLFWModifierKey.MOD_CONTROL);
+//   m = event.metaKey ? (m | GLFWModifierKey.MOD_SUPER) : (m & ~GLFWModifierKey.MOD_SUPER);
+//   m = event.shiftKey ? (m | GLFWModifierKey.MOD_SHIFT) : (m & ~GLFWModifierKey.MOD_SHIFT);
+//   m = event.capsLock ? (m | GLFWModifierKey.MOD_CAPS_LOCK) : (m &
+//   ~GLFWModifierKey.MOD_CAPS_LOCK); this._modifiers = m; dispatchGLFWEvent(this, event,
+//   this.MouseEvent);
+// }
+
+// function dispatchGLFWEvent(window: GLFWDOMWindow, glfwEvent: any, EventCtor: any) {
+//   const target = window._inputEventTarget || window.document;
+//   if (target && target.dispatchEvent) {
+//     target.dispatchEvent(asJSDOMEvent(EventCtor, glfwEvent, target));
+//   }
+// }
+
+// const {implSymbol} =
+//   ((global as any).idlUtils || require('jsdom/lib/jsdom/living/generated/utils'));
+
+// function asJSDOMEvent(EventCtor: any, glfwEvent: any, jsdomTarget: any) {
+//   glfwEvent.target     = jsdomTarget;
+//   const jsdomEvent     = new EventCtor(glfwEvent.type, glfwEvent);
+//   const jsdomEventImpl = jsdomEvent[implSymbol];
+//   for (const key in glfwEvent) {
+//     if (!key.startsWith('_')) {
+//       try {
+//         jsdomEventImpl[key] = glfwEvent[key];
+//       } catch (e) { /**/
+//       }
+//     }
+//   }
+//   return jsdomEvent;
+// }

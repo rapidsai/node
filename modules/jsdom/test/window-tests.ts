@@ -16,10 +16,10 @@ import {RapidsJSDOM} from '@rapidsai/jsdom';
 import {evalAsync} from './utils';
 
 describe('Window', () => {
-  test('has a `_glfw` property for the GLFW window', async () => {
+  test('has a `_id` property for the GLFW window', async () => {
     const {window} = new RapidsJSDOM();
     await expect(evalAsync(window, () => {  //
-      return typeof window._glfw === 'number';
+      return typeof window._id === 'number';
     })).resolves.toBe(true);
   });
 });
