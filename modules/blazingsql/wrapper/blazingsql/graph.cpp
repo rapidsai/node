@@ -93,9 +93,6 @@ Napi::Value ExecutionGraph::send_to(Napi::CallbackInfo const& info) {
   auto first_table   = Table::Unwrap(tables.Get("0").ToObject());
 
   auto query_context = _graph->get_last_kernel()->output_cache()->get_context();
-
-  std::cout << _graph->get_last_kernel()->output_cache() << std::endl;
-
   _context.Value()->add_to_cache(
     query_context, message_id, ral_id, column_names, first_table->view());
 
