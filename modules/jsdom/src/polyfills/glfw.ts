@@ -40,9 +40,9 @@ import {GLFWMouseEvent, mouseEvents} from './events/mouse';
 import {GLFWWheelEvent, wheelEvents} from './events/wheel';
 import {GLFWWindowEvent, windowEvents} from './events/window';
 
-export function installGLFWWindow(window: jsdom.DOMWindow) {
-  let rootWindow: DOMWindow|undefined = undefined;
+let rootWindow: DOMWindow|undefined = undefined;
 
+export function installGLFWWindow(window: jsdom.DOMWindow) {
   // Attatching properties
 
   Object.defineProperties(window, {
