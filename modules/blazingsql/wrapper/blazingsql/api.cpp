@@ -34,7 +34,7 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
   auto config_options = [&] {
     std::map<std::string, std::string> config{};
     auto prop = props.Get("configOptions");
-    if (prop.IsObject() and not prop.IsNull()) {
+    if (prop.IsObject() && !prop.IsNull()) {
       auto opts = prop.As<Napi::Object>();
       auto keys = opts.GetPropertyNames();
       for (auto i = 0u; i < keys.Length(); ++i) {
@@ -51,7 +51,6 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
     return config;
   }();
 
-  // WIP, refactor with std operators, handle any potential null fields.
   Napi::Array objects               = props.Get("workersUcpInfo");
   UcpContext::wrapper_t ucp_context = UcpContext::wrapper_t();
   std::vector<NodeMetaDataUCP> workers_ucp_info;
@@ -96,19 +95,20 @@ std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_in
                          std::move(table_scan_info.relational_algebra_steps));
 }
 
-ExecutionGraph::wrapper_t run_generate_graph(Napi::Env env,
-                                             nv::Wrapper<nv::ContextWrapper> context,
-                                             uint32_t masterIndex,
-                                             std::vector<std::string> worker_ids,
-                                             std::vector<cudf::table_view> table_views,
-                                             std::vector<std::vector<std::string>> column_names,
-                                             std::vector<std::string> table_names,
-                                             std::vector<std::string> table_scans,
-                                             int32_t ctx_token,
-                                             std::string query,
-                                             std::string sql,
-                                             std::string current_timestamp,
-                                             std::map<std::string, std::string> config_options) {
+ExecutionGraph::wrapper_t run_generate_graph(
+  Napi::Env const& env,
+  nv::Wrapper<nv::ContextWrapper> const& context,
+  uint32_t const& masterIndex,
+  std::vector<std::string> const& worker_ids,
+  std::vector<cudf::table_view> const& table_views,
+  std::vector<std::vector<std::string>> const& column_names,
+  std::vector<std::string> const& table_names,
+  std::vector<std::string> const& table_scans,
+  int32_t const& ctx_token,
+  std::string const& query,
+  std::string const& sql,
+  std::string const& current_timestamp,
+  std::map<std::string, std::string> const& config_options) {
   std::vector<TableSchema> table_schemas;
   std::vector<std::vector<std::string>> table_schema_cpp_arg_keys;
   std::vector<std::vector<std::string>> table_schema_cpp_arg_values;
@@ -171,21 +171,21 @@ ExecutionGraph::wrapper_t run_generate_graph(Napi::Env env,
   return ExecutionGraph::New(env, result, context);
 }
 
-std::string run_generate_physical_graph(uint32_t masterIndex,
-                                        std::vector<std::string> worker_ids,
-                                        int32_t ctx_token,
-                                        std::string query) {
+std::string run_generate_physical_graph(uint32_t const& masterIndex,
+                                        std::vector<std::string> const& worker_ids,
+                                        int32_t const& ctx_token,
+                                        std::string const& query) {
   return ::runGeneratePhysicalGraph(masterIndex, worker_ids, ctx_token, query);
 }
 
 void start_execute_graph(ExecutionGraph::wrapper_t const& execution_graph,
-                         int32_t const ctx_token) {
+                         int32_t const& ctx_token) {
   ::startExecuteGraph(*execution_graph, ctx_token);
 }
 
 std::tuple<std::vector<std::string>, std::vector<std::unique_ptr<cudf::table>>>
 get_execute_graph_result(ExecutionGraph::wrapper_t const& execution_graph,
-                         int32_t const ctx_token) {
+                         int32_t const& ctx_token) {
   auto bsql_result = std::move(::getExecuteGraphResult(*execution_graph, ctx_token));
   return {std::move(bsql_result->names), std::move(bsql_result->cudfTables)};
 }

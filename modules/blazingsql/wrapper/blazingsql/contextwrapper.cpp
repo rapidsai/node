@@ -25,10 +25,10 @@ Napi::Function ContextWrapper::Init(Napi::Env env, Napi::Object exports) {
 
 ContextWrapper::wrapper_t ContextWrapper::New(
   Napi::Env const& env,
-  int32_t ral_id,
+  int32_t const& ral_id,
   std::pair<
     std::pair<std::shared_ptr<ral::cache::CacheMachine>, std::shared_ptr<ral::cache::CacheMachine>>,
-    int> pair,
+    int> const& pair,
   Napi::Object const& ucp_context) {
   auto inst            = EnvLocalObjectWrap<ContextWrapper>::New(env, {});
   auto& caches         = pair.first;

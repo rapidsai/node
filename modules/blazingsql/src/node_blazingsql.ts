@@ -1,4 +1,4 @@
-import {DataFrame, Series, Table, TypeMap} from '@rapidsai/cudf';
+import {DataFrame, Series, Table} from '@rapidsai/cudf';
 
 export declare function getTableScanInfo(logicalPlan: string): [string[], string[]];
 
@@ -41,7 +41,6 @@ export declare class Context {
                    configOptions: Record<string, unknown>,
                    sql: string,
                    currentTimestamp: string): ExecutionGraph;
-  addToCache<T extends TypeMap>(messageId: string, ralId: number, input: DataFrame<T>): void;
   pullFromCache(messageId: string): {names: string[], table: Table};
 }
 

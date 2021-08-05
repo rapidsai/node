@@ -46,8 +46,8 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
    * @param cache The shared pointer to the ExecutionGraph.
    */
   static wrapper_t New(Napi::Env const& env,
-                       std::shared_ptr<ral::cache::graph> graph,
-                       nv::Wrapper<nv::ContextWrapper> context);
+                       std::shared_ptr<ral::cache::graph> const& graph,
+                       nv::Wrapper<nv::ContextWrapper> const& context);
 
   /**
    * @brief Construct a new ExecutionGraph instance from JavaScript.

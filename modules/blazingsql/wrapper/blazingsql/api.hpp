@@ -31,28 +31,31 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
 std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_info(
   std::string const& logical_plan);
 
-ExecutionGraph::wrapper_t run_generate_graph(Napi::Env env,
-                                             nv::Wrapper<nv::ContextWrapper> context,
-                                             uint32_t masterIndex,
-                                             std::vector<std::string> worker_ids,
-                                             std::vector<cudf::table_view> table_views,
-                                             std::vector<std::vector<std::string>> column_names,
-                                             std::vector<std::string> table_names,
-                                             std::vector<std::string> table_scans,
-                                             int32_t ctx_token,
-                                             std::string query,
-                                             std::string sql,
-                                             std::string current_timestamp,
-                                             std::map<std::string, std::string> config_options);
+ExecutionGraph::wrapper_t run_generate_graph(
+  Napi::Env const& env,
+  nv::Wrapper<nv::ContextWrapper> const& context,
+  uint32_t const& masterIndex,
+  std::vector<std::string> const& worker_ids,
+  std::vector<cudf::table_view> const& table_views,
+  std::vector<std::vector<std::string>> const& column_names,
+  std::vector<std::string> const& table_names,
+  std::vector<std::string> const& table_scans,
+  int32_t const& ctx_token,
+  std::string const& query,
+  std::string const& sql,
+  std::string const& current_timestamp,
+  std::map<std::string, std::string> const& config_options);
 
-std::string run_generate_physical_graph(uint32_t masterIndex,
-                                        std::vector<std::string> worker_ids,
-                                        int32_t ctx_token,
-                                        std::string query);
+std::string run_generate_physical_graph(uint32_t const& masterIndex,
+                                        std::vector<std::string> const& worker_ids,
+                                        int32_t const& ctx_token,
+                                        std::string const& query);
 
-void start_execute_graph(ExecutionGraph::wrapper_t const& execution_graph, int32_t const ctx_token);
+void start_execute_graph(ExecutionGraph::wrapper_t const& execution_graph,
+                         int32_t const& ctx_token);
 
 std::tuple<std::vector<std::string>, std::vector<std::unique_ptr<cudf::table>>>
-get_execute_graph_result(ExecutionGraph::wrapper_t const& execution_graph, int32_t const ctx_token);
+get_execute_graph_result(ExecutionGraph::wrapper_t const& execution_graph,
+                         int32_t const& ctx_token);
 
 }  // namespace nv

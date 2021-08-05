@@ -35,6 +35,5 @@ export type runGeneratePhysicalGraph = typeof import('./node_blazingsql').runGen
 export type startExecuteGraph        = typeof import('./node_blazingsql').startExecuteGraph;
 export type getExecuteGraphResult    = typeof import('./node_blazingsql').getExecuteGraphResult;
 
-export type Context       = import('./node_blazingsql').Context;
-export type UcpContext    = import('./node_blazingsql').UcpContext;
-export type WorkerUcpInfo = import('./node_blazingsql').WorkerUcpInfo;
+export type Context    = import('./node_blazingsql').Context;
+export type UcpContext = import('./node_blazingsql').UcpContext;

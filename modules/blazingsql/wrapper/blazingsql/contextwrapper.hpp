@@ -37,10 +37,10 @@ struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
    * @return wrapper_t The new ContextWrapper instance
    */
   static wrapper_t New(Napi::Env const& env,
-                       int32_t ral_id,
+                       int32_t const& ral_id,
                        std::pair<std::pair<std::shared_ptr<ral::cache::CacheMachine>,
                                            std::shared_ptr<ral::cache::CacheMachine>>,
-                                 int> pair,
+                                 int> const& pair,
                        Napi::Object const& ucp_context);
 
   /**

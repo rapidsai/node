@@ -23,7 +23,6 @@ Napi::Function Context::Init(Napi::Env env, Napi::Object exports) {
   return DefineClass(env,
                      "Context",
                      {InstanceMethod<&Context::run_generate_graph>("runGenerateGraph"),
-                      InstanceMethod<&Context::add_to_cache>("addToCache"),
                       InstanceMethod<&Context::pull_from_cache>("pullFromCache")});
 }
 
@@ -54,7 +53,7 @@ Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
   auto config_options                  = [&] {
     std::map<std::string, std::string> config{};
     auto prop = args[7];
-    if (prop.IsObject() and not prop.IsNull()) {
+    if (!prop.IsNull() && prop.IsObject()) {
       auto opts = prop.As<Napi::Object>();
       auto keys = opts.GetPropertyNames();
       for (auto i = 0u; i < keys.Length(); ++i) {
@@ -102,20 +101,6 @@ Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
                                 sql,
                                 current_timestamp,
                                 config_options);
-}
-
-void Context::add_to_cache(Napi::CallbackInfo const& info) {
-  // nv::CallbackArgs args{info};
-
-  // std::string message_id = args[0];
-  // uint16_t ral_id        = args[1];
-
-  // nv::NapiToCPP::Object df       = args[2];
-  // std::vector<std::string> names = df.Get("names");
-  // Napi::Function asTable         = df.Get("asTable");
-  // nv::Table::wrapper_t table     = asTable.Call(df.val, {}).ToObject();
-
-  // this->context.Value()->add_to_cache(message_id, ral_id, names, table->view());
 }
 
 Napi::Value Context::pull_from_cache(Napi::CallbackInfo const& info) {

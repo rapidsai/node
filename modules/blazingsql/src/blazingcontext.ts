@@ -198,9 +198,7 @@ export class BlazingContext {
    * Query a BlazingSQL table and return the result as a DataFrame.
    *
    * @param query SQL query string
-   * @param algebra SQL algebra plan string, use this to run on a relational algebra query instead
-   *   of a query string
-   * @param options Set options for this query instead of using the default config options
+   * @param ctxToken an optional content token used for communicating multiple nodes
    *
    * @example
    * ```typescript
@@ -214,13 +212,13 @@ export class BlazingContext {
    * const bc = new BlazingContext();
    * bc.createTable('test_table', df);
    *
-   * bc.sql('SELECT a FROM test_table'); // [1, 2, 3]
+   * bc.sql('SELECT a FROM test_table');
    * ```
    */
   sql(query: string, ctxToken: number = Math.random() * Number.MAX_SAFE_INTEGER | 0) {
     const algebra = this.explain(query);
     if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
-      throw new Error('Invalid query provided');  // TODO: Make this error message better
+      throw new Error('ERROR: Failed to parse query given');
     }
 
     if (algebra.includes(') OVER (')) {
@@ -294,6 +292,11 @@ export class BlazingContext {
     return String(algebra);
   }
 
+  /**
+   * Returns a DataFrame pulled from the Cache Machine caching system.
+   *
+   * @param messageId The message id given when sending over the results via UCX
+   */
   pullFromCache(messageId: string) {
     const {names, table} = this.context.pullFromCache(messageId);
     return new DataFrame(names.reduce(

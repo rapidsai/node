@@ -42,7 +42,8 @@ struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
    *
    * @param cache The shared pointer to the CacheMachine.
    */
-  static wrapper_t New(Napi::Env const& env, std::shared_ptr<ral::cache::CacheMachine> cache);
+  static wrapper_t New(Napi::Env const& env,
+                       std::shared_ptr<ral::cache::CacheMachine> const& cache);
   /**
    * @brief Construct a new CacheMachine instance from JavaScript.
    */

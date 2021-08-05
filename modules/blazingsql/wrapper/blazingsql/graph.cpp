@@ -31,8 +31,8 @@ Napi::Function ExecutionGraph::Init(Napi::Env env, Napi::Object exports) {
 }
 
 ExecutionGraph::wrapper_t ExecutionGraph::New(Napi::Env const& env,
-                                              std::shared_ptr<ral::cache::graph> graph,
-                                              nv::Wrapper<nv::ContextWrapper> context) {
+                                              std::shared_ptr<ral::cache::graph> const& graph,
+                                              nv::Wrapper<nv::ContextWrapper> const& context) {
   auto inst      = EnvLocalObjectWrap<ExecutionGraph>::New(env, {});
   inst->_graph   = graph;
   inst->_context = Napi::Persistent(context);
