@@ -30,5 +30,5 @@ module.exports = function (cmd, args, env = {}) {
 }
 
 if (require.main === module) {
-  module.exports(process.argv[2], process.argv.slice(3));
+  process.exitCode = module.exports(process.argv[2], process.argv.slice(3)).status;
 }
