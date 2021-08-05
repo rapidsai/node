@@ -42,7 +42,7 @@ jobs:
       - name: Cache C++ dependencies
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-${{ hashFiles('**/CMakeLists.txt', 'modules/core/cmake/Modules/*') }}
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
           restore-keys: |
             ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-
           path: |
@@ -50,7 +50,7 @@ jobs:
       - name: Cache node_modules
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-${{ hashFiles('yarn.lock', '**/package.json') }}
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           restore-keys: |
             ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-
           path: |
