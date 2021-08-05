@@ -16,6 +16,23 @@ ${CUDA_HOME}/lib64:\
 /usr/local/lib:\
 /usr/lib"
 
+# Install gcc-9 toolchain
+RUN export DEBIAN_FRONTEND=noninteractive \
+ && apt update \
+ && apt install --no-install-recommends -y \
+    software-properties-common \
+ && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
+ && apt update \
+ && apt install --no-install-recommends -y \
+    libstdc++6 \
+ # Clean up
+ && add-apt-repository --remove -y ppa:ubuntu-toolchain-r/test \
+ && apt autoremove -y && apt clean \
+ && rm -rf \
+    /tmp/* \
+    /var/tmp/* \
+    /var/lib/apt/lists/*
+
 # Install node
 COPY --from=devel /usr/local/bin/node                 /usr/local/bin/node
 COPY --from=devel /usr/local/include/node             /usr/local/include/node
