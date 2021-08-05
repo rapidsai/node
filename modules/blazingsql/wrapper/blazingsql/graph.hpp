@@ -20,9 +20,6 @@
 
 #include <napi.h>
 
-namespace cudf {
-class table;
-}
 namespace ral {
 namespace cache {
 struct graph;

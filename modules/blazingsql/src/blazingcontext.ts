@@ -216,7 +216,7 @@ export class BlazingContext {
   sql(query: string, ctxToken: number = Math.random() * Number.MAX_SAFE_INTEGER | 0) {
     const algebra = this.explain(query);
     if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
-      throw new Error('ERROR: Failed to parse query given');
+      throw new Error('ERROR: Failed to parse given query');
     }
 
     if (algebra.includes(') OVER (')) {
@@ -231,7 +231,6 @@ export class BlazingContext {
     const d                = new Date();
     const currentTimestamp = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
       d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
-
     const selectedDataFrames: DataFrame[] =
       tableNames.reduce((result: DataFrame[], tableName: string) => {
         const table = this.tables.get(tableName);
