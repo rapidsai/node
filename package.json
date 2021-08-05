@@ -18,7 +18,7 @@
     "build:debug": "scripts/exec.js run build:debug --concurrency 1",
     "compile": "scripts/exec.js run compile --concurrency 1",
     "compile:debug": "scripts/exec.js run compile:debug --concurrency 1",
-    "rebuild": "scripts/exec.js run rebuild --concurrency 1",
+    "rebuild": "exit 1 && scripts/exec.js run rebuild --concurrency 1",
     "rebuild:debug": "scripts/exec.js run rebuild:debug --concurrency 1",
     "cpp:build": "scripts/exec.js run cpp:build --concurrency 1",
     "cpp:compile": "scripts/exec.js run cpp:compile --concurrency 1",
