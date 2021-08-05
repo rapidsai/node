@@ -18,7 +18,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     # blazingSQL dependencies
     maven openjdk-8-jdk libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
     # UCX build dependencies
-    libtool \
+    automake autoconf libtool \
     # UCX runtime dependencies
     libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
  # Install UCX

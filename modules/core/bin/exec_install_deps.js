@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-require('./exec')('install-deps', process.argv.slice(2));
+process.exitCode = require('./exec')('install-deps', process.argv.slice(2)).status;
