@@ -1,14 +1,22 @@
-import {DataFrame, Series, Table} from '@rapidsai/cudf';
+// Copyright (c) 2021, NVIDIA CORPORATION.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
+import {DataFrame, Table} from '@rapidsai/cudf';
 export declare function getTableScanInfo(logicalPlan: string): [string[], string[]];
 
 export declare function runGeneratePhysicalGraph(
   masterIdex: number, workerIds: string[], ctxToken: number, query: string): string;
-
-export declare function startExecuteGraph(executionGraph: ExecutionGraph, ctxToken: number): void;
-
-export declare function getExecuteGraphResult(executionGraph: ExecutionGraph,
-                                              ctxToken: number): {names: string[], tables: Table[]};
 
 export type WorkerUcpInfo = {
   workerId: string,
@@ -40,34 +48,16 @@ export declare class Context {
                    query: string,
                    configOptions: Record<string, unknown>,
                    sql: string,
-                   currentTimestamp: string): ExecutionGraph;
+                   currentTimestamp: string): ExecutionGraphWrapper;
   pullFromCache(messageId: string): {names: string[], table: Table};
 }
 
-declare class ExecutionGraph {
+export declare class ExecutionGraphWrapper {
   constructor();
 
   start(): void;
   result(): {names: string[], tables: Table[]};
-  sendTo(ralId: number, messageId: string): ExecutionGraph;
-}
-
-export class ExecutionGraphWrapper {
-  private executionGraph: ExecutionGraph;
-
-  constructor(executionGraph: ExecutionGraph) { this.executionGraph = executionGraph; }
-
-  start(): void { this.executionGraph.start(); }
-
-  result() {
-    const {names, tables: [table]} = this.executionGraph.result();
-    return new DataFrame(names.reduce(
-      (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
-  }
-
-  sendTo(ralId: number, messageId: string): ExecutionGraphWrapper {
-    return new ExecutionGraphWrapper(this.executionGraph.sendTo(ralId, messageId));
-  }
+  sendTo(ralId: number, messageId: string): ExecutionGraphWrapper;
 }
 
 export declare class UcpContext {

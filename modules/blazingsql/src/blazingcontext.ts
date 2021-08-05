@@ -17,8 +17,10 @@ import {callMethodSync, callStaticMethodSync} from 'java';
 
 import {
   Context,
+  ContextProps,
   getTableScanInfo,
   runGeneratePhysicalGraph,
+  WorkerUcpInfo
 } from './addon';
 import {
   ArrayList,
@@ -29,12 +31,8 @@ import {
   RelationalAlgebraGenerator
 } from './algebra';
 import {defaultConfigValues} from './config';
+import {ExecutionGraph} from './execution_graph';
 import {json_plan_py} from './json_plan';
-import {
-  ContextProps,
-  ExecutionGraphWrapper,
-  WorkerUcpInfo
-} from './node_blazingsql';  // TODO: These should be imported through ./addon
 
 export class BlazingContext {
   private context: Context;
@@ -241,7 +239,7 @@ export class BlazingContext {
         return result;
       }, []);
 
-    return new ExecutionGraphWrapper(this.context.runGenerateGraph(
+    return new ExecutionGraph(this.context.runGenerateGraph(
       masterIndex,
       this.workers.length < 1 ? ['self'] : this.workers.map((w) => w.workerId),
       selectedDataFrames,

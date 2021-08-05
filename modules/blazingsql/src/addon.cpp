@@ -29,12 +29,10 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
       {InstanceMethod("init", &node_blazingsql::InitAddon),
        InstanceMethod<&node_blazingsql::get_table_scan_info>("getTableScanInfo"),
        InstanceMethod<&node_blazingsql::run_generate_physical_graph>("runGeneratePhysicalGraph"),
-       InstanceMethod<&node_blazingsql::start_execute_graph>("startExecuteGraph"),
-       InstanceMethod<&node_blazingsql::get_execute_graph_result>("getExecuteGraphResult"),
        InstanceValue("_cpp_exports", _cpp_exports.Value()),
        InstanceValue("Context", InitClass<nv::Context>(env, exports)),
        InstanceValue("CacheMachine", InitClass<nv::CacheMachine>(env, exports)),
-       InstanceValue("ExecutionGraph", InitClass<nv::ExecutionGraph>(env, exports)),
+       InstanceValue("ExecutionGraphWrapper", InitClass<nv::ExecutionGraph>(env, exports)),
        InstanceValue("UcpContext", InitClass<nv::UcpContext>(env, exports)),
        InstanceValue("ContextWrapper", InitClass<nv::ContextWrapper>(env, exports))});
   }
@@ -71,31 +69,6 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
 
     return Napi::String::New(
       env, nv::run_generate_physical_graph(masterIndex, worker_ids, ctx_token, query));
-  }
-
-  void start_execute_graph(Napi::CallbackInfo const& info) {
-    nv::start_execute_graph(info[0].ToObject(), info[1].ToNumber());
-  }
-
-  Napi::Value get_execute_graph_result(Napi::CallbackInfo const& info) {
-    auto env = info.Env();
-    auto [bsql_names, bsql_tables] =
-      nv::get_execute_graph_result(info[0].ToObject(), info[1].ToNumber());
-
-    auto result_names = Napi::Array::New(env, bsql_names.size());
-    for (size_t i = 0; i < bsql_names.size(); ++i) {
-      result_names.Set(i, Napi::String::New(env, bsql_names[i]));
-    }
-
-    auto result_tables = Napi::Array::New(env, bsql_tables.size());
-    for (size_t i = 0; i < bsql_tables.size(); ++i) {
-      result_tables.Set(i, nv::Table::New(env, std::move(bsql_tables[i])));
-    }
-
-    auto result = Napi::Object::New(env);
-    result.Set("names", result_names);
-    result.Set("tables", result_tables);
-    return result;
   }
 };
 
