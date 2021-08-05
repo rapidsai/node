@@ -55,6 +55,13 @@ jobs:
             ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-
           path: |
             node_modules
+      - name: Check if devel dockerfiles changed
+        id: devel_dockerfiles_changed
+        uses: tj-actions/changed-files@v9.1
+        with:
+          files: |
+            dockerfiles/devel/01-base.Dockerfile
+            dockerfiles/devel/02-main.Dockerfile
       - name: Build devel images and packages
         run: |
           echo "UID=$(id -u)" >> .env
@@ -63,7 +70,12 @@ jobs:
           echo "CUDA_VERSION=${{ matrix.CUDA }}" >> .env
           echo "RAPIDS_VERSION=${{ env.RAPIDS }}" >> .env
           echo "LINUX_VERSION=${{ matrix.LINUX }}" >> .env
-          yarn docker:build:devel
+          if [[ "${{ steps.devel_dockerfiles_changed.outputs.any_changed }}" == "true" ]]; then
+            yarn docker:build:devel
+            docker image tag \
+              rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
+              ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
+          fi
           docker run --rm \
             -v "$(pwd):/opt/rapids/node:rw" \
             -e "DISPLAY=:0.0" \
@@ -75,5 +87,5 @@ jobs:
             -e "SCCACHE_BUCKET=node-rapids-sccache" \
             -e "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -e "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
-            yarn && yarn rebuild
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
+            echo \$PATH && echo \$CUDA_HOME && which -a nvcc && nvcc --version && yarn && yarn rebuild
