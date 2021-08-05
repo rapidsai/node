@@ -17,6 +17,7 @@ import {evalAsync} from './utils';
 
 describe('Window', () => {
   test('has a `_id` property for the GLFW window', async () => {
+    debugger;
     const {window} = new RapidsJSDOM();
     await expect(evalAsync(window, () => {  //
       return typeof window._id === 'number';

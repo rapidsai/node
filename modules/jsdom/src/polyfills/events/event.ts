@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {GLFWModifierKey} from '@nvidia/glfw';
 import {DOMWindow} from 'jsdom';
 import {Observable, Observer} from 'rxjs';
-
-import {GLFWModifierKey} from '../glfw';
-import {GLFWDOMWindow} from '../jsdom/window';
 
 export const isAltKey = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_ALT) !== 0;
 export const isCtrlKey = (modifiers: number) => (modifiers & GLFWModifierKey.MOD_CONTROL) !== 0;
@@ -62,7 +60,7 @@ export function glfwCallbackAsObservable<C extends SetGLFWCallback>(setCallback:
 }
 
 export function windowCallbackAsObservable<C extends SetWindowCallback>(
-  setCallback: C, window: GLFWDOMWindow|DOMWindow) {
+  setCallback: C, window: DOMWindow|DOMWindow) {
   type Args = WindowCallbackArgs<C>;
   return new Observable<Args>((observer: Observer<Args>) => {
     const next = (..._: Args) => observer.next(_);

@@ -17,10 +17,12 @@ import {
   GLFWClientAPI,
   GLFWContextCreationAPI,
   GLFWInputMode,
+  GLFWModifierKey,
   GLFWOpenGLProfile,
   GLFWWindowAttribute,
 } from '@nvidia/glfw';
 import * as jsdom from 'jsdom';
+import {DOMWindow} from 'jsdom';
 import {Subscription} from 'rxjs';
 
 import {
@@ -30,8 +32,19 @@ import {
   isMetaKey,
   isShiftKey
 } from '../../../glfw/src/events/event';
+
 import GLFW, {GLFWStandardCursor} from '../../../glfw/src/glfw';
 import {GLFWDOMWindow} from '../../../glfw/src/jsdom/window';
+import {dndEvents, GLFWDndEvent} from './events/dnd';
+import {GLFWKeyboardEvent, keyboardEvents} from './events/keyboard';
+import {GLFWMouseEvent, mouseEvents} from './events/mouse';
+import {GLFWWheelEvent, wheelEvents} from './events/wheel';
+import {GLFWWindowEvent, windowEvents} from './events/window';
+// import {dndEvents, GLFWDndEvent} from './events/dnd';
+// import {GLFWKeyboardEvent, keyboardEvents} from './events/keyboard';
+// import {GLFWMouseEvent, mouseEvents} from './events/mouse';
+// import {GLFWWheelEvent, wheelEvents} from './events/wheel';
+// import {GLFWWindowEvent, windowEvents} from './events/window';
 
 // export type GLFWDOMWindowOptions = {
 //   x?: number;
@@ -454,9 +467,7 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
   // Attatching properties
 
   Object.defineProperties(window, {
-    id: {
-      writable: true,
-    },
+    id: {get() { return this._id; }, set(_) { this._id = _; }},
     width: {
       value: 800,
       writable: true,
@@ -644,6 +655,9 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
       value: GLFWContextCreationAPI.EGL,
     },
 
+    subscriptions: {
+      value: new Subscription(),
+    },
   });
 
   // Attatching functions
@@ -713,7 +727,7 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
 
     const id = glfw.createWindow(window.width, window.height, window.title, null, null);
 
-    window._id = id;
+    window.id = id;
 
     glfw.setInputMode(window._id, GLFWInputMode.LOCK_KEY_MODS, true);
     glfw.setInputMode(id, GLFWInputMode.CURSOR, GLFW.CURSOR_NORMAL);
@@ -735,12 +749,19 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
     glfw.swapBuffers(id);
 
     // FUCK - Argument of type 'DOMWindow' is not assignable to parameter of type 'GLFWDOMWindow'.
-    // [dndEvents(window).subscribe(onGLFWDndEvent.bind(window)),
-    //  mouseEvents(window).subscribe(onGLFWMouseEvent.bind(window)),
-    //  wheelEvents(window).subscribe(onGLFWWheelEvent.bind(window)),
-    //  windowEvents(window).subscribe(onGLFWWindowEvent.bind(window)),
-    //  keyboardEvents(window).subscribe(onGLFWKeyboardEvent.bind(window)),
-    // ].forEach((subscription) => window._subscriptions.add(subscription));
+    // replaced with new event code and getting seg faults.......
+
+    [dndEvents(window).subscribe(onGLFWDndEvent.bind(window)),
+     mouseEvents(window).subscribe(onGLFWMouseEvent.bind(window)),
+     wheelEvents(window).subscribe(onGLFWWheelEvent.bind(window)),
+     windowEvents(window).subscribe(onGLFWWindowEvent.bind(window)),
+     keyboardEvents(window).subscribe(onGLFWKeyboardEvent.bind(window)),
+    ].forEach((subscription) => window._subscriptions.add(subscription));
+    // const obser = dndEvents(window);
+    // const smth  = onGLFWDndEvent.bind(window);
+    // const sub   = obser.subscribe(smth);  // This line causes a segfault
+    // window.subscriptions.add(sub);
+    // window.subscriptions.add(dndEvents(window).subscribe(onGLFWDndEvent.bind(window)));
   } catch (e) {
     console.error('Error creating window:', e);
     window.destroyGLFWWindow();
@@ -750,41 +771,80 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
   return window;
 }
 
-// function onGLFWMouseEvent(this: GLFWDOMWindow, event: GLFWMouseEvent) {
-//   this._mouseX  = event.x;
-//   this._mouseY  = event.y;
-//   this._buttons = event.buttons;
-//   let m         = this._modifiers;
-//   m             = event.altKey ? (m | GLFWModifierKey.MOD_ALT) : (m & ~GLFWModifierKey.MOD_ALT);
-//   m = event.ctrlKey ? (m | GLFWModifierKey.MOD_CONTROL) : (m & ~GLFWModifierKey.MOD_CONTROL);
-//   m = event.metaKey ? (m | GLFWModifierKey.MOD_SUPER) : (m & ~GLFWModifierKey.MOD_SUPER);
-//   m = event.shiftKey ? (m | GLFWModifierKey.MOD_SHIFT) : (m & ~GLFWModifierKey.MOD_SHIFT);
-//   m = event.capsLock ? (m | GLFWModifierKey.MOD_CAPS_LOCK) : (m &
-//   ~GLFWModifierKey.MOD_CAPS_LOCK); this._modifiers = m; dispatchGLFWEvent(this, event,
-//   this.MouseEvent);
-// }
+function onGLFWDndEvent(this: DOMWindow, event: GLFWDndEvent) {
+  dispatchGLFWEvent(this, event, this.Event);
+}
 
-// function dispatchGLFWEvent(window: GLFWDOMWindow, glfwEvent: any, EventCtor: any) {
-//   const target = window._inputEventTarget || window.document;
-//   if (target && target.dispatchEvent) {
-//     target.dispatchEvent(asJSDOMEvent(EventCtor, glfwEvent, target));
-//   }
-// }
+function onGLFWMouseEvent(this: DOMWindow, event: GLFWMouseEvent) {
+  this.mouseX   = event.x;
+  this._mouseY  = event.y;
+  this._buttons = event.buttons;
+  let m         = this._modifiers;
+  m             = event.altKey ? (m | GLFWModifierKey.MOD_ALT) : (m & ~GLFWModifierKey.MOD_ALT);
+  m = event.ctrlKey ? (m | GLFWModifierKey.MOD_CONTROL) : (m & ~GLFWModifierKey.MOD_CONTROL);
+  m = event.metaKey ? (m | GLFWModifierKey.MOD_SUPER) : (m & ~GLFWModifierKey.MOD_SUPER);
+  m = event.shiftKey ? (m | GLFWModifierKey.MOD_SHIFT) : (m & ~GLFWModifierKey.MOD_SHIFT);
+  m = event.capsLock ? (m | GLFWModifierKey.MOD_CAPS_LOCK) : (m & ~GLFWModifierKey.MOD_CAPS_LOCK);
+  this._modifiers = m;
+  dispatchGLFWEvent(this, event, this.MouseEvent);
+}
 
-// const {implSymbol} =
-//   ((global as any).idlUtils || require('jsdom/lib/jsdom/living/generated/utils'));
+function onGLFWWheelEvent(this: DOMWindow, event: GLFWWheelEvent) {
+  this._scrollX += event.deltaX;
+  this._scrollY += event.deltaY;
+  dispatchGLFWEvent(this, event, this.WheelEvent);
+}
 
-// function asJSDOMEvent(EventCtor: any, glfwEvent: any, jsdomTarget: any) {
-//   glfwEvent.target     = jsdomTarget;
-//   const jsdomEvent     = new EventCtor(glfwEvent.type, glfwEvent);
-//   const jsdomEventImpl = jsdomEvent[implSymbol];
-//   for (const key in glfwEvent) {
-//     if (!key.startsWith('_')) {
-//       try {
-//         jsdomEventImpl[key] = glfwEvent[key];
-//       } catch (e) { /**/
-//       }
-//     }
-//   }
-//   return jsdomEvent;
-// }
+function onGLFWWindowEvent(this: DOMWindow, event: GLFWWindowEvent) {
+  this._x                 = event.x;
+  this._y                 = event.y;
+  this._width             = event.width;
+  this._height            = event.height;
+  this._xscale            = event.xscale;
+  this._yscale            = event.yscale;
+  this._focused           = event.focused;
+  this._minimized         = event.minimized;
+  this._maximized         = event.maximized;
+  this._frameBufferWidth  = event.frameBufferWidth;
+  this._frameBufferHeight = event.frameBufferHeight;
+  this._devicePixelRatio =
+    Math.min(this._frameBufferWidth / this._width, this._frameBufferHeight / this._height);
+  dispatchGLFWEvent(this, event, this.Event);
+  if (event.type === 'close') { this._destroyGLFWWindow(); }
+}
+
+function onGLFWKeyboardEvent(this: DOMWindow, event: GLFWKeyboardEvent) {
+  let m = this._modifiers;
+  m     = event.altKey ? (m | GLFWModifierKey.MOD_ALT) : (m & ~GLFWModifierKey.MOD_ALT);
+  m     = event.ctrlKey ? (m | GLFWModifierKey.MOD_CONTROL) : (m & ~GLFWModifierKey.MOD_CONTROL);
+  m     = event.metaKey ? (m | GLFWModifierKey.MOD_SUPER) : (m & ~GLFWModifierKey.MOD_SUPER);
+  m     = event.shiftKey ? (m | GLFWModifierKey.MOD_SHIFT) : (m & ~GLFWModifierKey.MOD_SHIFT);
+  m = event.capsLock ? (m | GLFWModifierKey.MOD_CAPS_LOCK) : (m & ~GLFWModifierKey.MOD_CAPS_LOCK);
+  this._modifiers = m;
+  dispatchGLFWEvent(this, event, this.KeyboardEvent);
+}
+
+function dispatchGLFWEvent(window: DOMWindow, glfwEvent: any, EventCtor: any) {
+  const target = window._inputEventTarget || window.document;
+  if (target && target.dispatchEvent) {
+    target.dispatchEvent(asJSDOMEvent(EventCtor, glfwEvent, target));
+  }
+}
+
+const {implSymbol} =
+  ((global as any).idlUtils || require('jsdom/lib/jsdom/living/generated/utils'));
+
+function asJSDOMEvent(EventCtor: any, glfwEvent: any, jsdomTarget: any) {
+  glfwEvent.target     = jsdomTarget;
+  const jsdomEvent     = new EventCtor(glfwEvent.type, glfwEvent);
+  const jsdomEventImpl = jsdomEvent[implSymbol];
+  for (const key in glfwEvent) {
+    if (!key.startsWith('_')) {
+      try {
+        jsdomEventImpl[key] = glfwEvent[key];
+      } catch (e) { /**/
+      }
+    }
+  }
+  return jsdomEvent;
+}
