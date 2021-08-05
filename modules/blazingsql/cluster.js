@@ -99,7 +99,6 @@ if (cluster.isPrimary) {
       console.log(`df for ${messageId}:`);
       console.log(df.toArrow().toArray());
       console.log(``);
-      debugger;
       result_df = result_df.concat(df);
     });
     console.log(``);
