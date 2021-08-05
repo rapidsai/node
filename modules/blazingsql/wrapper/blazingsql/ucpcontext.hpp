@@ -14,8 +14,9 @@
 
 #pragma once
 
-#include <napi.h>
 #include <nv_node/objectwrap.hpp>
+
+#include <napi.h>
 
 typedef struct ucp_context* ucp_context_h;
 
@@ -42,12 +43,10 @@ struct UcpContext : public EnvLocalObjectWrap<UcpContext> {
    */
   UcpContext(Napi::CallbackInfo const& info);
 
-  inline operator ucp_context_h*() { return _ucp_context.get(); }
-  // inline operator std::uintptr_t() { return reinterpret_cast<std::uintptr_t>(_ucp_context.get());
-  // }
+  inline operator std::uintptr_t() { return reinterpret_cast<std::uintptr_t>(_ucp_context); }
 
  private:
-  std::unique_ptr<ucp_context_h> _ucp_context;
+  ucp_context_h _ucp_context;
 };
 
 }  // namespace nv

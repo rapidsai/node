@@ -58,8 +58,13 @@ Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
       auto opts = prop.As<Napi::Object>();
       auto keys = opts.GetPropertyNames();
       for (auto i = 0u; i < keys.Length(); ++i) {
-        auto name    = keys.Get(i).ToString();
-        config[name] = opts.Get(name).ToString();
+        std::string name = keys.Get(i).ToString();
+        config[name]     = opts.Get(name).ToString();
+        if (config[name] == "true") {
+          config[name] = "True";
+        } else if (config[name] == "false") {
+          config[name] = "False";
+        }
       }
     }
     return config;

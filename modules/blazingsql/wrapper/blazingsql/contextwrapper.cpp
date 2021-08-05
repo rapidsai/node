@@ -34,8 +34,8 @@ ContextWrapper::wrapper_t ContextWrapper::New(
   auto& caches         = pair.first;
   inst->_port          = pair.second;
   inst->_ral_id        = ral_id;
-  inst->_transport_in  = Napi::Persistent(CacheMachine::New(env, caches.first));
-  inst->_transport_out = Napi::Persistent(CacheMachine::New(env, caches.second));
+  inst->_transport_in  = Napi::Persistent(CacheMachine::New(env, caches.second));
+  inst->_transport_out = Napi::Persistent(CacheMachine::New(env, caches.first));
   inst->_ucp_context   = Napi::Persistent(ucp_context);
   return inst;
 }
@@ -50,8 +50,13 @@ void ContextWrapper::add_to_cache(int32_t const& node_id,
                                   std::string const& message_id,
                                   std::vector<std::string> const& column_names,
                                   cudf::table_view const& table_view) {
-  this->_transport_out.Value()->add_to_cache(
-    node_id, src_ral_id, dst_ral_id, ctx_token, message_id, column_names, table_view);
+  if (src_ral_id == dst_ral_id) {
+    this->_transport_in.Value()->add_to_cache(
+      node_id, src_ral_id, dst_ral_id, ctx_token, message_id, column_names, table_view);
+  } else {
+    this->_transport_out.Value()->add_to_cache(
+      node_id, src_ral_id, dst_ral_id, ctx_token, message_id, column_names, table_view);
+  }
 }
 
 std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> ContextWrapper::pull_from_cache(

@@ -23,7 +23,7 @@ namespace nv {
 ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props) {
   uint16_t ral_id                = props.Get("ralId");
   std::string worker_id          = props.Get("workerId");
-  std::string network_iface_name = props.Get("network_iface_name");
+  std::string network_iface_name = props.Get("networkIfaceName");
   int32_t ral_communication_port = props.Get("ralCommunicationPort");
   bool single_node               = props.Get("singleNode");
   std::string allocation_mode    = props.Get("allocationMode");
@@ -39,8 +39,13 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
       auto keys = opts.GetPropertyNames();
       for (auto i = 0u; i < keys.Length(); ++i) {
         Napi::HandleScope scope(env);
-        auto name    = keys.Get(i).ToString();
-        config[name] = opts.Get(name).ToString();
+        std::string name = keys.Get(i).ToString();
+        config[name]     = opts.Get(name).ToString();
+        if (config[name] == "true") {
+          config[name] = "True";
+        } else if (config[name] == "false") {
+          config[name] = "False";
+        }
       }
     }
     return config;
@@ -60,13 +65,12 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
       ucp_context              = worker_info.Get("ucpContext").ToObject();
 
       workers_ucp_info.push_back({
-        id,  // std::string worker_id;
-        ip,  // std::string ip;
-        0,   // std::uintptr_t ep_handle;
-        0,   // std::uintptr_t worker_handle;
-        reinterpret_cast<std::uintptr_t>(
-          ucp_context->operator ucp_context_h*()),  // std::uintptr_t context_handle;
-        port,                                       // std::int32_t port;
+        id,            // std::string worker_id;
+        ip,            // std::string ip;
+        0,             // std::uintptr_t ep_handle;
+        0,             // std::uintptr_t worker_handle;
+        *ucp_context,  // std::uintptr_t context_handle;
+        port,          // std::int32_t port;
       });
     }
   }

@@ -8,11 +8,27 @@ const runQuery = 'runQuery';
 const queryRan = 'queryRan';
 
 const numberOfWorkers = 2;
+const configOptions = {
+  PROTOCOL: 'UCX',
+  ENABLE_TASK_LOGS: true,
+  ENABLE_COMMS_LOGS: true,
+  ENABLE_OTHER_ENGINE_LOGS: true,
+  ENABLE_GENERAL_ENGINE_LOGS: true,
+  LOGGING_FLUSH_LEVEL: 'trace',
+  BLAZING_CACHE_DIRECTORY: '/tmp',
+  BLAZING_LOGGING_DIRECTORY: `${__dirname}/z-log`,
+  BLAZING_LOCAL_LOGGING_DIRECTORY: `${__dirname}/z-log`,
+};
 
 const ucpContext = new UcpContext();
 let bc = null;
 
 if (cluster.isPrimary) {
+
+  const fs = require('fs');
+  fs.rmSync(`${__dirname}/z-log`, { force: true, recursive: true });
+  fs.mkdirSync(`${__dirname}/z-log`);
+
   cluster.setupMaster({ serialization: 'advanced' });
 
   const workers = Array(numberOfWorkers);
@@ -27,79 +43,93 @@ if (cluster.isPrimary) {
     port: 4000 + idx,
   }));
 
-  bc = new BlazingContext({
-    ralId: 0,
-    workerId: '0',
-    enableLogging: true,
-    // networkIfaceName: 'eno1',
-    workersUcpInfo: ucpMetadata.map((xs) => ({ ...xs, ucpContext }))
-  });
+  workers.forEach((w) => w.send({ operation: createBlazingContext, ucpMetadata }));
 
-  workers.forEach((w, idx) => {
-    console.log({ workerId: w.id });
-    w.send({ operation: createBlazingContext, idx: idx + 1, workerId: w.id, ucpMetadata: ucpMetadata })
-  });
+  bc = createContext(0, ucpMetadata);
 
   const df = createLargeDataFrame();
-  const len = Math.ceil(df.numRows / workers.length);
+  const len = Math.ceil(df.numRows / (workers.length + 1));
   const table = df.toArrow();
+
+  bc.createTable('test_table', DataFrame.fromArrow(table.slice(0, len).serialize()));
+
   workers.forEach((w, i) => {
     w.send({
       operation: createTable,
       tableName: 'test_table',
-      dataframe: table.slice(i * len, (i + 1) * len).serialize()
+      dataframe: table.slice((i + 1) * len, (i + 2) * len).serialize()
     });
   });
 
   let ctxToken = 0;
-  let queryPromises = [];
+  const queryPromises = [];
+  const query = 'SELECT a FROM test_table';
+
+  queryPromises.push(new Promise((resolve) => {
+    const token = ctxToken++;
+    const messageId = `message_${token}`;
+    setTimeout(() => {
+      const df = bc.sql(query, token).result();
+      console.log(`Finished query on token: ${token}`);
+      resolve({ ctxToken: token, messageId, df });
+    });
+  }));
+
   workers.forEach((w) => {
-    queryPromises.push(new Promise(function (resolve) {
-      ctxToken = ctxToken + 1;
-      w.send({ operation: runQuery, ctxToken: ctxToken, messageId: `message_${ctxToken.toString()}`, query: 'SELECT a FROM test_table' });
-      w.on('message', (args) => {
-        console.log(`Finished query on token: ${ctxToken}`);
-        resolve(args);
+    queryPromises.push(new Promise((resolve) => {
+      const token = ctxToken++;
+      const messageId = `message_${token}`;
+      w.send({ operation: runQuery, ctxToken: token, messageId, query });
+      w.on('message', ({ operation, ctxToken, messageId }) => {
+        if (operation === queryRan) {
+          console.log(`Finished query on token: ${ctxToken}`);
+          console.log(`pulling result with messageId='${messageId}'`);
+          resolve({ ctxToken, messageId, df: bc.pullFromCache(messageId) });
+        }
       });
     }));
   });
 
+  let result_df = new DataFrame({ a: Series.new([]) });
+
   Promise.all(queryPromises).then(function (results) {
     console.log('Finished running all queries.');
-    results.forEach((result) => {
-      console.log(`pulling result with messageId=${result.messageId}`);
-      bc.pullFromCache(result.messageId);
+    results.forEach(({ df, messageId }) => {
+      console.log(``);
+      console.log(`df for ${messageId}:`);
+      console.log(df.toArrow().toArray());
+      console.log(``);
+      debugger;
+      result_df = result_df.concat(df);
     });
+    console.log(``);
+    console.log('Final result df:');
+    console.log(result_df.toArrow().toArray());
+    console.log(``);
     workers.forEach((w) => w.kill());
   });
 
 } else if (cluster.isWorker) {
   process.on('message', (args) => {
+
     const { operation, ...rest } = args;
     const {
-      ctxToken, dataframe, idx, messageId, query, tableName, ucpMetadata, workerId
+      ctxToken, dataframe, messageId, query, tableName, ucpMetadata
     } = rest;
+
     console.log(`message "${operation}":`, rest);
+
     if (operation === createBlazingContext) {
-      bc = new BlazingContext({
-        ralId: idx,
-        workerId: workerId,
-        enableLogging: true,
-        // networkIfaceName: 'eno1',
-        workersUcpInfo: ucpMetadata.map((xs) => ({ ...xs, ucpContext })),
-      });
+      bc = createContext(cluster.worker.id, ucpMetadata);
     }
 
     if (operation === createTable) {
-      console.log(`Creating table: ${tableName}`);
       bc.createTable(tableName, DataFrame.fromArrow(dataframe));
     }
 
     if (operation === runQuery) {
-      console.log(`Token: ${ctxToken}`);
-      const result = bc.sql(query, ctxToken);
-      result.sendTo(0, messageId);
-      process.send({ operation: queryRan, ctxToken: ctxToken, messageId: messageId });
+      bc.sql(query, ctxToken).sendTo(0, messageId);
+      process.send({ operation: queryRan, ctxToken, messageId });
     }
   });
 }
@@ -107,4 +137,16 @@ if (cluster.isPrimary) {
 function createLargeDataFrame() {
   const a = Series.new(Array.from(Array(300).keys()));
   return new DataFrame({ 'a': a, 'b': a });
+}
+
+function createContext(id, ucpMetadata) {
+  return new BlazingContext({
+    ralId: id,
+    workerId: `${id}`,
+    enableLogging: true,
+    ralCommunicationPort: 4000 + id,
+    configOptions: { ...configOptions },
+    // networkIfaceName: 'eno1',
+    workersUcpInfo: ucpMetadata.map((xs) => ({ ...xs, ucpContext })),
+  });
 }

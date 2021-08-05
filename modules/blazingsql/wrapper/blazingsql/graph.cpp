@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include "graph.hpp"
+#include "api.hpp"
 
 #include <node_cudf/table.hpp>
 #include <nv_node/utilities/args.hpp>
-#include "api.hpp"
 
 #include <execution_graph/graph.h>
 
@@ -81,16 +81,10 @@ Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
 
 Napi::Value ExecutionGraph::send_to(Napi::CallbackInfo const& info) {
   Napi::Env env          = info.Env();
-  Napi::Object dfs       = result(info).ToObject();
   int32_t dst_ral_id     = info[0].ToNumber();
   std::string message_id = info[1].ToString();
-
-  Napi::Array names = dfs.Get("names").As<Napi::Array>();
-  std::vector<std::string> column_names(names.Length());
-  for (size_t i = 0; i < names.Length(); ++i) { column_names[i] = names.Get(i).ToString(); }
-
-  Napi::Array tables = dfs.Get("tables").As<Napi::Array>();
-  auto first_table   = Table::Unwrap(tables.Get("0").ToObject());
+  auto tables            = result(info).ToObject().Get("tables").As<Napi::Array>();
+  auto first_table       = Table::Unwrap(tables.Get(0u).ToObject());
 
   auto last_kernel   = _graph->get_last_kernel();
   auto input_cache   = last_kernel->input_cache();
@@ -102,7 +96,7 @@ Napi::Value ExecutionGraph::send_to(Napi::CallbackInfo const& info) {
   std::string ctx_token = std::to_string(query_context->getContextToken());
 
   _context.Value()->add_to_cache(
-    node_id, src_ral_id, dst_ral_id, ctx_token, message_id, column_names, first_table->view());
+    node_id, src_ral_id, dst_ral_id, ctx_token, message_id, _names, first_table->view());
 
   return this->Value();
 }

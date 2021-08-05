@@ -41,6 +41,8 @@ void CacheMachine::add_to_cache(int32_t const& node_id,
   std::unique_ptr<ral::frame::BlazingTable> table =
     std::make_unique<ral::frame::BlazingTable>(table_view, column_names);
 
+  table->ensureOwnership();
+
   ral::cache::MetadataDictionary metadata;
 
   metadata.add_value(ral::cache::RAL_ID_METADATA_LABEL, node_id);
@@ -50,15 +52,18 @@ void CacheMachine::add_to_cache(int32_t const& node_id,
   metadata.add_value(ral::cache::CACHE_ID_METADATA_LABEL, 0);  // unused, potentially unset
   metadata.add_value(ral::cache::SENDER_WORKER_ID_METADATA_LABEL, std::to_string(src_ral_id));
   metadata.add_value(ral::cache::WORKER_IDS_METADATA_LABEL, std::to_string(dst_ral_id));
-  metadata.add_value(ral::cache::UNIQUE_MESSAGE_ID, message_id);
+  metadata.add_value(ral::cache::MESSAGE_ID, message_id);
 
   this->_cache->addToCache(std::move(table), message_id, true, metadata, true);
 }
 
 std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> CacheMachine::pull_from_cache(
   std::string const& message_id) {
-  auto result = this->_cache->pullCacheData(message_id);
-  return {std::move(result->names()), std::move(result->decache()->releaseCudfTable())};
+  auto result   = this->_cache->pullCacheData(message_id);
+  auto names    = result->names();
+  auto decached = result->decache();
+  auto table    = decached->releaseCudfTable();
+  return {std::move(names), std::move(table)};
 }
 
 CacheMachine::CacheMachine(Napi::CallbackInfo const& info)

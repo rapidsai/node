@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, DataType, TypeMap} from '@rapidsai/cudf';
+import {DataFrame, DataType, Series, TypeMap} from '@rapidsai/cudf';
 import {callMethodSync, callStaticMethodSync} from 'java';
 
 import {
@@ -43,6 +43,7 @@ export class BlazingContext {
   private generator: any;
   private tables: Map<string, DataFrame>;
   private workers: WorkerUcpInfo[];
+  private configOptions: Record<string, unknown>;
 
   constructor(options: Partial<ContextProps> = {}) {
     this.db        = CatalogDatabaseImpl('main');
@@ -56,17 +57,14 @@ export class BlazingContext {
       networkIfaceName     = 'lo',
       ralCommunicationPort = 0,
       workersUcpInfo       = [],
-      configOptions        = {},
       allocationMode       = 'cuda_memory_resource',
       initialPoolSize      = null,
       maximumPoolSize      = null,
       enableLogging        = false,
     } = options;
 
-    const {singleNode = workersUcpInfo.length > 1} = options;
-
-    Object.keys(defaultConfigValues)
-      .forEach((key) => { configOptions[key] = configOptions[key] ?? defaultConfigValues[key]; });
+    const {singleNode = workersUcpInfo.length <= 1} = options;
+    this.configOptions = {...defaultConfigValues, ...options.configOptions};
 
     this.workers = workersUcpInfo;
     this.context = new Context({
@@ -76,7 +74,7 @@ export class BlazingContext {
       ralCommunicationPort,
       workersUcpInfo,
       singleNode,
-      configOptions,
+      configOptions: this.configOptions,
       allocationMode,
       initialPoolSize,
       maximumPoolSize,
@@ -219,12 +217,8 @@ export class BlazingContext {
    * bc.sql('SELECT a FROM test_table'); // [1, 2, 3]
    * ```
    */
-  sql(query: string,
-      ctxToken: number                 = Math.random() * Number.MAX_SAFE_INTEGER,
-      algebra: string|null             = null,
-      options: Record<string, unknown> = {}): ExecutionGraphWrapper {
-    if (algebra == null) { algebra = this.explain(query); }
-
+  sql(query: string, ctxToken: number = Math.random() * Number.MAX_SAFE_INTEGER | 0) {
+    const algebra = this.explain(query);
     if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
       throw new Error('Invalid query provided');  // TODO: Make this error message better
     }
@@ -248,17 +242,16 @@ export class BlazingContext {
         if (table !== undefined) { result.push(table); }
         return result;
       }, []);
-    const {config = defaultConfigValues} = options;
 
     return new ExecutionGraphWrapper(this.context.runGenerateGraph(
       masterIndex,
-      this.workers.length == 0 ? ['self'] : this.workers.map((w) => w.workerId),
+      this.workers.length < 1 ? ['self'] : this.workers.map((w) => w.workerId),
       selectedDataFrames,
       tableNames,
       tableScans,
       ctxToken,
       json_plan_py(algebra),
-      config as Record<string, unknown>,
+      this.configOptions,
       query,
       currentTimestamp));
   }
@@ -301,8 +294,9 @@ export class BlazingContext {
     return String(algebra);
   }
 
-  pullFromCache(messageId: string): void {
-    const result = this.context.pullFromCache(messageId);
-    console.log(result);
+  pullFromCache(messageId: string) {
+    const {names, table} = this.context.pullFromCache(messageId);
+    return new DataFrame(names.reduce(
+      (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }
 }
