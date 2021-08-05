@@ -38,7 +38,7 @@ PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}                    \
 CMAKE_BUILD_PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}        \
 CCACHE_CONFIGPATH="$RAPIDS_MODULES_PATH/.cache/ccache" \
 HOME="$RAPIDS_CORE_PATH"                               \
-    cmake-js ${args}
+    cmake-js ${args} | grep -v -P '^ptxas /tmp/tmpxft(.*?)$'
 
 if [[ "$debug" == "false" ]]; then
     if [[ $(basename $RAPIDS_MODULES_PATH) == "modules" ]]; then
