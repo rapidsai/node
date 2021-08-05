@@ -88,4 +88,4 @@ jobs:
             -e "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -e "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
-            echo \$PATH && echo \$CUDA_HOME && which -a nvcc && nvcc --version && yarn && yarn rebuild
+            bash -c 'set -x; echo $PATH; echo $CUDA_HOME; which -a nvcc; nvcc --version; yarn; yarn rebuild'
