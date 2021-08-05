@@ -39,7 +39,7 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
    * @param exports The exports object to decorate.
    * @return Napi::Function The ExecutionGraph constructor function.
    */
-  static Napi::Function Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
   /**
    * @brief Construct a new ExecutionGraph instance from a ral::cache::graph.
    *

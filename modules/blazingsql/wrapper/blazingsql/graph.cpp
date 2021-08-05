@@ -22,7 +22,7 @@
 
 namespace nv {
 
-Napi::Function ExecutionGraph::Init(Napi::Env env, Napi::Object exports) {
+Napi::Function ExecutionGraph::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(env,
                      "ExecutionGraph",
                      {InstanceMethod<&ExecutionGraph::start>("start"),

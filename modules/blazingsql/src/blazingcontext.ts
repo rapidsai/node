@@ -212,7 +212,7 @@ export class BlazingContext {
    * const bc = new BlazingContext();
    * bc.createTable('test_table', df);
    *
-   * bc.sql('SELECT a FROM test_table');
+   * bc.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
    * ```
    */
   sql(query: string, ctxToken: number = Math.random() * Number.MAX_SAFE_INTEGER | 0) {

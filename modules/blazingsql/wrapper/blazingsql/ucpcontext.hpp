@@ -30,7 +30,7 @@ struct UcpContext : public EnvLocalObjectWrap<UcpContext> {
    * @param exports The exports object to decorate.
    * @return Napi::Function The UcpContext constructor function.
    */
-  static Napi::Function Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
   /**
    * @brief Construct a new UcpContext instance from a ral::cache::graph.
    *

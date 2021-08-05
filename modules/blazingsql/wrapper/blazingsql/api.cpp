@@ -34,7 +34,7 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
   auto config_options = [&] {
     std::map<std::string, std::string> config{};
     auto prop = props.Get("configOptions");
-    if (prop.IsObject() && !prop.IsNull()) {
+    if (!prop.IsNull() && prop.IsObject()) {
       auto opts = prop.As<Napi::Object>();
       auto keys = opts.GetPropertyNames();
       for (auto i = 0u; i < keys.Length(); ++i) {

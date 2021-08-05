@@ -19,7 +19,7 @@
 
 namespace nv {
 
-Napi::Function UcpContext::Init(Napi::Env env, Napi::Object exports) {
+Napi::Function UcpContext::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(env, "UcpContext", {});
 }
 

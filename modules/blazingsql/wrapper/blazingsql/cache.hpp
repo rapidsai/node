@@ -36,7 +36,7 @@ struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
    * @param exports The exports object to decorate.
    * @return Napi::Function The CacheMachine constructor function.
    */
-  static Napi::Function Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
   /**
    * @brief Construct a new CacheMachine instance from a ral::cache::CacheMachine.
    *

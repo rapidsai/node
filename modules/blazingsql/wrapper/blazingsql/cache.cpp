@@ -20,7 +20,7 @@
 
 namespace nv {
 
-Napi::Function CacheMachine::Init(Napi::Env env, Napi::Object exports) {
+Napi::Function CacheMachine::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(env, "CacheMachine", {});
 }
 

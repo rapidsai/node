@@ -1,103 +1,91 @@
 import {BlazingContext} from '@rapidsai/blazingsql';
-import {DataFrame, Series} from '@rapidsai/cudf';
+import {DataFrame, Float64, Series, Utf8String} from '@rapidsai/cudf';
 
-test('wip test case', () => {
+test('create and drop table', () => {
   const a  = Series.new([1, 2, 3]);
-  const df = new DataFrame({'a': a, 'b': a});
+  const df = new DataFrame({'a': a});
+
+  const bc = new BlazingContext();
+  bc.createTable('test_table', df);
+  expect(bc.listTables().length).toEqual(1);
+
+  bc.dropTable('test_table');
+  expect(bc.listTables().length).toEqual(0);
+});
+
+test('list tables', () => {
+  const a  = Series.new([1, 2, 3]);
+  const df = new DataFrame({'a': a});
+
+  const bc = new BlazingContext();
+  bc.createTable('test_table', df);
+  bc.createTable('test_table2', df);
+
+  expect(bc.listTables()).toEqual(['test_table', 'test_table2']);
+});
+
+test('describe table', () => {
+  const a  = Series.new([1, 2, 3]);
+  const b  = Series.new(['foo', 'bar', 'foo']);
+  const df = new DataFrame({'a': a, 'b': b});
+
+  const bc = new BlazingContext();
+
+  // Empty map since table doesn't exist
+  expect(bc.describeTable('nonexisting_table').size).toEqual(0);
+
+  bc.createTable('test_table', df);
+  const tableDescription = bc.describeTable('test_table');
+  expect([...tableDescription.keys()]).toEqual(['a', 'b']);
+  expect([...tableDescription.values()]).toEqual([new Float64, new Utf8String]);
+});
+
+test('explain', () => {
+  const key = Series.new(['a', 'b', 'c', 'd', 'e']);
+  const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
+  const df  = new DataFrame({'key': key, 'val': val});
 
   const bc = new BlazingContext();
   bc.createTable('test_table', df);
 
-  const graph = bc.sql('SELECT a FROM test_table');
-  graph.start();
+  const query = 'SELECT * FROM test_table WHERE val > 4';
 
-  graph.sendTo(0, 'test');
+  // Result strings copied from BlazingSQL
+  expect(bc.explain(query))
+    .toEqual(
+      `LogicalProject(key=[$0], val=[$1])
+  BindableTableScan(table=[[main, test_table]], filters=[[>($1, 4)]])
+`);
+  expect(bc.explain(query, true))
+    .toEqual(
+      `LogicalProject(key=[$0], val=[$1])
+  BindableTableScan(table=[[main, test_table]], filters=[[>($1, 4)]])
+
+`);
 });
 
-// test('create and drop table', () => {
-//   const a  = Series.new([1, 2, 3]);
-//   const df = new DataFrame({'a': a});
+test('select a single column', () => {
+  const a  = Series.new([6, 9, 1, 6, 2]);
+  const b  = Series.new([7, 2, 7, 1, 2]);
+  const df = new DataFrame({'a': a, 'b': b});
 
-//   const bc = new BlazingContext();
-//   bc.createTable('test_table', df);
-//   expect(bc.listTables().length).toEqual(1);
+  const bc = new BlazingContext();
+  bc.createTable('test_table', df);
 
-//   bc.dropTable('test_table');
-//   expect(bc.listTables().length).toEqual(0);
-// });
+  expect(bc.sql('SELECT a FROM test_table').result()).toStrictEqual(new DataFrame({a}));
+});
 
-// test('list tables', () => {
-//   const a  = Series.new([1, 2, 3]);
-//   const df = new DataFrame({'a': a});
+test('select all columns', () => {
+  const a  = Series.new([6, 9, 1, 6, 2]);
+  const b  = Series.new([7, 2, 7, 1, 2]);
+  const df = new DataFrame({'a': a, 'b': b});
 
-//   const bc = new BlazingContext();
-//   bc.createTable('test_table', df);
-//   bc.createTable('test_table2', df);
+  const bc = new BlazingContext();
+  bc.createTable('test_table', df);
 
-//   expect(bc.listTables()).toEqual(['test_table', 'test_table2']);
-// });
-
-// test('describe table', () => {
-//   const a  = Series.new([1, 2, 3]);
-//   const b  = Series.new(['foo', 'bar', 'foo']);
-//   const df = new DataFrame({'a': a, 'b': b});
-
-//   const bc = new BlazingContext();
-
-//   // Empty map since table doesn't exist
-//   expect(bc.describeTable('nonexisting_table').size).toEqual(0);
-
-//   bc.createTable('test_table', df);
-//   const tableDescription = bc.describeTable('test_table');
-//   expect([...tableDescription.keys()]).toEqual(['a', 'b']);
-//   expect([...tableDescription.values()]).toEqual([new Float64, new Utf8String]);
-// });
-
-// test('explain', () => {
-//   const key = Series.new(['a', 'b', 'c', 'd', 'e']);
-//   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
-//   const df  = new DataFrame({'key': key, 'val': val});
-
-//   const bc = new BlazingContext();
-//   bc.createTable('test_table', df);
-
-//   const query = 'SELECT * FROM test_table WHERE val > 4';
-
-//   // Result strings copied from BlazingSQL
-//   expect(bc.explain(query))
-//     .toEqual(
-//       `LogicalProject(key=[$0], val=[$1])
-//   BindableTableScan(table=[[main, test_table]], filters=[[>($1, 4)]])
-// `);
-//   expect(bc.explain(query, true))
-//     .toEqual(
-//       `LogicalProject(key=[$0], val=[$1])
-//   BindableTableScan(table=[[main, test_table]], filters=[[>($1, 4)]])
-
-// `);
-// });
-
-// test('select a single column', () => {
-//   const a  = Series.new([6, 9, 1, 6, 2]);
-//   const b  = Series.new([7, 2, 7, 1, 2]);
-//   const df = new DataFrame({'a': a, 'b': b});
-
-//   const bc = new BlazingContext();
-//   bc.createTable('test_table', df);
-
-//   expect(bc.sql('SELECT a FROM test_table')).toStrictEqual(new DataFrame({a}));
-// });
-
-// test('select all columns', () => {
-//   const a  = Series.new([6, 9, 1, 6, 2]);
-//   const b  = Series.new([7, 2, 7, 1, 2]);
-//   const df = new DataFrame({'a': a, 'b': b});
-
-//   const bc = new BlazingContext();
-//   bc.createTable('test_table', df);
-
-//   expect(bc.sql('SELECT * FROM test_table')).toStrictEqual(new DataFrame({'a': a, 'b': b}));
-// });
+  expect(bc.sql('SELECT * FROM test_table').result())
+    .toStrictEqual(new DataFrame({'a': a, 'b': b}));
+});
 
 test('union columns from two tables', () => {
   const a   = Series.new([1, 2, 3]);
@@ -112,14 +100,14 @@ test('union columns from two tables', () => {
   expect(bc.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2').result()).toStrictEqual(result);
 });
 
-// test('find all columns within a table that meet condition', () => {
-//   const key = Series.new(['a', 'b', 'c', 'd', 'e']);
-//   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
-//   const df  = new DataFrame({'key': key, 'val': val});
+test('find all columns within a table that meet condition', () => {
+  const key = Series.new(['a', 'b', 'c', 'd', 'e']);
+  const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
+  const df  = new DataFrame({'key': key, 'val': val});
 
-//   const bc = new BlazingContext();
-//   bc.createTable('test_table', df);
+  const bc = new BlazingContext();
+  bc.createTable('test_table', df);
 
-//   const result = new DataFrame({'key': Series.new(['a', 'b']), 'val': Series.new([7.6, 7.1])});
-//   expect(bc.sql('SELECT * FROM test_table WHERE val > 4')).toStrictEqual(result);
-// });
+  const result = new DataFrame({'key': Series.new(['a', 'b']), 'val': Series.new([7.6, 7.1])});
+  expect(bc.sql('SELECT * FROM test_table WHERE val > 4').result()).toStrictEqual(result);
+});

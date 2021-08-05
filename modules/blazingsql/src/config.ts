@@ -20,7 +20,7 @@ export const defaultConfigValues: Record<string, unknown> = {
   MAX_SEND_MESSAGE_THREADS: 20,
   LOGGING_LEVEL: 'trace',
   LOGGING_FLUSH_LEVEL: 'warn',
-  ENABLE_GENERAL_ENGINE_LOGS: true,
+  ENABLE_GENERAL_ENGINE_LOGS: false,
   ENABLE_COMMS_LOGS: false,
   ENABLE_TASK_LOGS: false,
   ENABLE_OTHER_ENGINE_LOGS: false,
