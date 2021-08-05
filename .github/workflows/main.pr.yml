@@ -1,0 +1,79 @@
+name: Build pull request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-pull-request:
+    name: Build pull request
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+      matrix:
+        CUDA: [11.0.3, 11.2.2, 11.4.0]
+        LINUX: [ubuntu18.04, ubuntu20.04]
+    env:
+      ARCH: amd64
+      NODE: 16.5.0
+      RAPIDS: 21.08.00
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Free up disk space
+        if: always()
+        run: |
+          df -h
+          docker images
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /home/linuxbrew/.linuxbrew
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$CONDA"
+          docker rmi $(docker image ls -aq) || true
+          df -h
+          docker images
+      - name: Cache C++ dependencies
+        uses: actions/cache@v2
+        with:
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-${{ hashFiles('**/CMakeLists.txt', 'modules/core/cmake/Modules/*') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-
+          path: |
+            modules/.cache
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-${{ hashFiles('yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-
+          path: |
+            node_modules
+      - name: Build devel images and packages
+        run: |
+          echo "UID=$(id -u)" >> .env
+          echo "ARCH=${{ env.ARCH }}" >> .env
+          echo "NODE_VERSION=${{ env.NODE }}" >> .env
+          echo "CUDA_VERSION=${{ matrix.CUDA }}" >> .env
+          echo "RAPIDS_VERSION=${{ env.RAPIDS }}" >> .env
+          echo "LINUX_VERSION=${{ matrix.LINUX }}" >> .env
+          yarn docker:build:devel
+          docker run --rm \
+            -v "$(pwd):/opt/rapids/node:rw" \
+            -e "DISPLAY=:0.0" \
+            -e "CUDAARCHS=ALL" \
+            -e "PARALLEL_LEVEL=1" \
+            -e "SCCACHE_CACHE_SIZE=100G" \
+            -e "SCCACHE_IDLE_TIMEOUT=32768" \
+            -e "SCCACHE_REGION=us-west-2" \
+            -e "SCCACHE_BUCKET=node-rapids-sccache" \
+            -e "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            -e "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
+            yarn nuke:from:orbit
