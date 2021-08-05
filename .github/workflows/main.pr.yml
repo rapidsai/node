@@ -86,6 +86,7 @@ jobs:
           echo "SCCACHE_BUCKET=node-rapids-sccache" >> .env
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
-          docker run --rm --env-file .env -u "$(id -u):$(id -g)" -v "$(pwd):/opt/rapids/node:rw" \
+          mkdir -p /tmp/.cache
+          docker run --rm --env-file .env -u "$(id -u):$(id -g)" -v "$(pwd):/opt/rapids/node:rw" -v "/tmp/.cache:/.cache:rw" \
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
-            bash -c 'set -x; echo $PATH; echo $CUDA_HOME; which -a nvcc; nvcc --version; yarn; yarn rebuild'
+            bash -c 'set -ex; echo $PATH && echo $CUDA_HOME && which -a nvcc && nvcc --version && yarn && yarn rebuild'
