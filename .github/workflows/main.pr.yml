@@ -12,8 +12,11 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.0]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        include:
+          - CUDA: 11.0.3
+            LINUX: ubuntu18.04
+          - CUDA: 11.4.0
+            LINUX: ubuntu20.04
     env:
       ARCH: amd64
       NODE: 16.5.0
