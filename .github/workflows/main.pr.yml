@@ -55,25 +55,38 @@ jobs:
             ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-
           path: |
             node_modules
+      - name: Check if devel dockerfiles changed
+        id: devel_dockerfiles_changed
+        uses: tj-actions/changed-files@v9.1
+        with:
+          files: |
+            dockerfiles/devel/01-base.Dockerfile
+            dockerfiles/devel/02-main.Dockerfile
       - name: Build devel images and packages
         run: |
-          echo "UID=$(id -u)" >> .env
-          echo "ARCH=${{ env.ARCH }}" >> .env
-          echo "NODE_VERSION=${{ env.NODE }}" >> .env
-          echo "CUDA_VERSION=${{ matrix.CUDA }}" >> .env
-          echo "RAPIDS_VERSION=${{ env.RAPIDS }}" >> .env
-          echo "LINUX_VERSION=${{ matrix.LINUX }}" >> .env
-          yarn docker:build:devel
-          docker run --rm \
-            -v "$(pwd):/opt/rapids/node:rw" \
-            -e "DISPLAY=:0.0" \
-            -e "CUDAARCHS=ALL" \
-            -e "PARALLEL_LEVEL=1" \
-            -e "SCCACHE_CACHE_SIZE=100G" \
-            -e "SCCACHE_IDLE_TIMEOUT=32768" \
-            -e "SCCACHE_REGION=us-west-2" \
-            -e "SCCACHE_BUCKET=node-rapids-sccache" \
-            -e "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            -e "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
-            yarn nuke:from:orbit
+          echo "$(id -u):$(id -g)"
+          if [[ "${{ steps.devel_dockerfiles_changed.outputs.any_changed }}" == "true" ]]; then
+            echo "UID=$(id -u)" >> .env
+            echo "ARCH=${{ env.ARCH }}" >> .env
+            echo "NODE_VERSION=${{ env.NODE }}" >> .env
+            echo "CUDA_VERSION=${{ matrix.CUDA }}" >> .env
+            echo "RAPIDS_VERSION=${{ env.RAPIDS }}" >> .env
+            echo "LINUX_VERSION=${{ matrix.LINUX }}" >> .env
+            yarn docker:build:devel
+            docker image tag \
+              rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
+              ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
+          fi
+          echo "DISPLAY=:0.0" >> .env
+          echo "CUDAARCHS=ALL" >> .env
+          echo "PARALLEL_LEVEL=1" >> .env
+          echo "SCCACHE_CACHE_SIZE=100G" >> .env
+          echo "SCCACHE_IDLE_TIMEOUT=32768" >> .env
+          echo "SCCACHE_REGION=us-west-2" >> .env
+          echo "SCCACHE_BUCKET=node-rapids-sccache" >> .env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          mkdir -p /tmp/.yarn /tmp/.cache
+          docker run --rm --env-file .env -u "$(id -u):$(id -g)" -v "$(pwd):/opt/rapids/node:rw" -v "/tmp/.yarn:/.yarn:rw" -v "/tmp/.cache:/.cache:rw" \
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
+            bash -c 'set -ex; echo $PATH && echo $CUDA_HOME && which -a nvcc && nvcc --version && yarn && yarn rebuild'
