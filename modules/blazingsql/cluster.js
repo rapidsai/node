@@ -141,7 +141,6 @@ function createLargeDataFrame() {
 function createContext(id, ucpMetadata) {
   return new BlazingContext({
     ralId: id,
-    workerId: `${id}`,
     enableLogging: true,
     ralCommunicationPort: 4000 + id,
     configOptions: { ...configOptions },

@@ -51,7 +51,7 @@ export class BlazingContext {
 
     const {
       ralId                = 0,
-      workerId             = 'self',
+      workerId             = ralId.toString(),
       networkIfaceName     = 'lo',
       ralCommunicationPort = 0,
       workersUcpInfo       = [],
