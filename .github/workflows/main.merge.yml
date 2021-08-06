@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -59,7 +61,6 @@ jobs:
         id: changed_stateless_dockerfiles
         uses: tj-actions/changed-files@v9.1
         with:
-          fetch-depth: 2
           files: |
             dockerfiles/devel/01-base.Dockerfile
             dockerfiles/devel/02-main.Dockerfile
