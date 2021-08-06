@@ -12,8 +12,11 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.0]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        include:
+          - CUDA: 11.0.3
+            LINUX: ubuntu18.04
+          - CUDA: 11.4.0
+            LINUX: ubuntu20.04
     env:
       ARCH: amd64
       NODE: 16.5.0
@@ -42,17 +45,13 @@ jobs:
       - name: Cache C++ dependencies
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-${{ hashFiles('**/CMakeLists.txt', 'modules/core/cmake/Modules/*') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
           path: |
             modules/.cache
       - name: Cache node_modules
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-${{ hashFiles('yarn.lock', '**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           path: |
             node_modules
       - name: Check if devel dockerfiles changed
