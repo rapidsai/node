@@ -59,6 +59,7 @@ jobs:
         id: changed_stateless_dockerfiles
         uses: tj-actions/changed-files@v9.1
         with:
+          fetch-depth: 2
           files: |
             dockerfiles/devel/01-base.Dockerfile
             dockerfiles/devel/02-main.Dockerfile
