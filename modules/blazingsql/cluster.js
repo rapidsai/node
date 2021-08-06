@@ -37,7 +37,6 @@ if (cluster.isPrimary) {
   }
 
   const ucpMetadata = ['0', ...Object.keys(cluster.workers)].map((key, idx) => ({
-    ralId: idx,
     workerId: key,
     ip: '0.0.0.0',
     port: 4000 + idx,
