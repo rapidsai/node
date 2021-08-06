@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {UcpContext} from './addon';
-export {BlazingContext} from './blazingcontext';
-export {BlazingCluster} from './cluster/blazingcluster';
+process.on('message', msg => {
+  console.log('Message from parent:', msg);
+  process.kill(process.pid);
+});

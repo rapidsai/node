@@ -12,6 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {UcpContext} from './addon';
-export {BlazingContext} from './blazingcontext';
-export {BlazingCluster} from './cluster/blazingcluster';
+import {ChildProcess, fork} from 'child_process';
+
+export class BlazingCluster {
+  fork: ChildProcess;
+
+  constructor() {
+    this.fork = fork('src/cluster/cluster.ts');
+    this.fork.send({hello: 'world'});
+  }
+
+  wip() { console.log(this.fork); }
+}
