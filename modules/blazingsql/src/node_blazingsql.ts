@@ -22,6 +22,7 @@ export type WorkerUcpInfo = {
   workerId: string,
   ip: string,
   port: number,
+  ucpContext: UcpContext
 }
 
 export type ContextProps = {
