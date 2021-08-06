@@ -12,19 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Need to bring these over as well
-// new class -> rapidsjsdom
-//    extend the base jsdom class, provide a function that automatically creates the localhost URL
-//    add a before parse thing that will attatch everything to the window
-// First test:
-//    construct an instance of JSDOM
-//    can require file
-//
-//
-
-// imageloader class needs to be moved over
-//
-
 import * as jsdom from 'jsdom';
 import * as Path from 'path';
 import * as Url from 'url';

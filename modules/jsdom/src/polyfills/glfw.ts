@@ -25,16 +25,10 @@ import * as jsdom from 'jsdom';
 import {DOMWindow} from 'jsdom';
 import {Subscription} from 'rxjs';
 
-import {
-  isAltKey,
-  isCapsLock,
-  isCtrlKey,
-  isMetaKey,
-  isShiftKey
-} from '../../../glfw/src/events/event';
-
 import GLFW, {GLFWStandardCursor} from '../../../glfw/src/glfw';
+
 import {dndEvents, GLFWDndEvent} from './events/dnd';
+import {isAltKey, isCapsLock, isCtrlKey, isMetaKey, isShiftKey} from './events/event';
 import {GLFWKeyboardEvent, keyboardEvents} from './events/keyboard';
 import {GLFWMouseEvent, mouseEvents} from './events/mouse';
 import {GLFWWheelEvent, wheelEvents} from './events/wheel';
@@ -126,7 +120,7 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
     shiftKey: {get: () => { return isShiftKey(window.modifiers); }},
     capsLock: {get: () => { return isCapsLock(window.modifiers); }},
 
-    visable: {
+    visible: {
       get() { return this._visible; },
       set(_: boolean) {
         if (this._visible !== _) { ((this._visible = _)) ? this.show() : this.hide(); }
@@ -213,10 +207,10 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
     },
 
     frameBufferWidth: {
-      get() { return this.width; },
+      get() { return this._frameBufferWidth; },
     },
     frameBufferHeight: {
-      get() { return this.height; },
+      get() { return this._frameBufferHeight; },
     },
 
     openGLClientAPI: {value: GLFWClientAPI.OPENGL},
@@ -244,7 +238,7 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
     }
   });
 
-  // Attatching functions
+  // Attaching functions
 
   window.setAttribute = function(name: any, value: any) {
     if (name in this) { (this as any)[name] = value; }
@@ -265,19 +259,17 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
 
   window.show = function() {
     this.visible = true;
-    this._id || this._create();
     glfw.showWindow(this._id);
     return this;
   };
 
   window.hide = function() {
     this.visible = false;
-    this._id || this._create();
     glfw.hideWindow(this._id);
     return this;
   };
 
-  window.destoryGLFWWindow = function() {
+  window.destroyGLFWWindow = function() {
     const id = this._id;
     this._subscriptions.unsubscribe();
     if (id) {
@@ -385,7 +377,7 @@ function onGLFWWindowEvent(this: DOMWindow, event: GLFWWindowEvent) {
   this._devicePixelRatio =
     Math.min(this._frameBufferWidth / this._width, this._frameBufferHeight / this._height);
   dispatchGLFWEvent(this, event, this.Event);
-  if (event.type === 'close') { this._destroyGLFWWindow(); }
+  if (event.type === 'close') { this.destroyGLFWWindow(); }
 }
 
 function onGLFWKeyboardEvent(this: DOMWindow, event: GLFWKeyboardEvent) {
