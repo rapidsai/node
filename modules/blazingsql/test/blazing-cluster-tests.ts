@@ -7,7 +7,7 @@ test('create and drop table', async () => {
   const a  = Series.new([1, 2, 3]);
   const df = new DataFrame({'a': a});
 
-  const bc = new BlazingCluster();
+  const bc = new BlazingCluster({numWorkers: 2});
 
   await delay(2000);
 });

@@ -14,13 +14,31 @@
 
 import {ChildProcess, fork} from 'child_process';
 
-export class BlazingCluster {
-  fork: ChildProcess;
+const CREATE_BLAZING_CONTEXT = 'createBlazingContext';
 
-  constructor() {
-    this.fork = fork('src/cluster/cluster.ts');
-    this.fork.send({hello: 'world'});
+interface BlazingCusterProps {
+  numWorkers: number;
+}
+
+export class BlazingCluster {
+  workers: ChildProcess[];
+
+  constructor({numWorkers = 1}: BlazingCusterProps) {
+    this.workers =
+      Array(numWorkers).fill(fork('src/cluster/worker.js', {serialization: 'advanced'}));
+
+    // TODO: Consider a cleaner way to set this up.
+    const ucpMetadata = ['0', ...Object.keys(this.workers)].map((_, idx) => ({
+                                                                  workerId: idx.toString(),
+                                                                  ip: '0.0.0.0',
+                                                                  port: 4000 + idx,
+                                                                }));
+
+    this.workers.forEach((worker) => worker.send({operation: CREATE_BLAZING_CONTEXT, ucpMetadata}));
   }
 
-  wip() { console.log(this.fork); }
+  // addTable
+  // await sql
+
+  wip() { console.log(this.workers); }
 }

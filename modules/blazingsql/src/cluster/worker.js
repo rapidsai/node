@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-process.on('message', msg => {
-  console.log('Message from parent:', msg);
-  process.kill(process.pid);
+const CREATE_BLAZING_CONTEXT = 'createBlazingContext';
+
+process.on('message', (args) => {
+  const { operation, ...rest } = args;
+
+  if (operation == CREATE_BLAZING_CONTEXT) { console.log(rest); }
+
+  // const {ctxToken, dataframe, messageId, query, tableName, ucpMetadata} = rest;
 });
