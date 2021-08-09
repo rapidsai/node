@@ -162,9 +162,9 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
   EXPORT_FUNC(env, exports, "windowHint", nv::glfwWindowHint);
   EXPORT_FUNC(env, exports, "windowHintString", nv::glfwWindowHintString);
   EXPORT_FUNC(env, exports, "createWindow", nv::glfwCreateWindow);
-#ifdef __linux__
-  EXPORT_FUNC(env, exports, "reparentWindow", nv::glfwReparentWindow);
-#endif
+  // #ifdef __linux__
+  //   EXPORT_FUNC(env, exports, "reparentWindow", nv::glfwReparentWindow);
+  // #endif
   EXPORT_FUNC(env, exports, "destroyWindow", nv::glfwDestroyWindow);
   EXPORT_FUNC(env, exports, "windowShouldClose", nv::glfwWindowShouldClose);
   EXPORT_FUNC(env, exports, "setWindowShouldClose", nv::glfwSetWindowShouldClose);

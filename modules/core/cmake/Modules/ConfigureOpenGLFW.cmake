@@ -18,8 +18,8 @@ include(get_cpm)
 
 _set_package_dir_if_exists(glfw glfw)
 
-function(find_and_configure_glfw VERSION REPO TAG)
-    CPMFindPackage(NAME glfw
+function(find_and_configure_glfw LIB_NAME VERSION REPO TAG USE_SHARED_LIBS USE_WAYLAND USE_EGLHEADLESS)
+    CPMFindPackage(NAME ${LIB_NAME}
         VERSION         ${VERSION}
         GIT_REPOSITORY  ${REPO}
         GIT_TAG         ${TAG}
@@ -29,9 +29,8 @@ function(find_and_configure_glfw VERSION REPO TAG)
                         "GLFW_BUILD_DOCS OFF"
                         "GLFW_BUILD_TESTS OFF"
                         "GLFW_BUILD_EXAMPLES OFF"
-                        "BUILD_SHARED_LIBS ${GLFW_USE_SHARED_LIBS}"
-                        "GLFW_USE_EGLHEADLESS ${GLFW_USE_EGLHEADLESS}"
+                        "BUILD_SHARED_LIBS ${USE_SHARED_LIBS}"
+                        "GLFW_USE_WAYLAND ${USE_WAYLAND}"
+                        "GLFW_USE_EGLHEADLESS ${USE_EGLHEADLESS}"
     )
 endfunction()
-
-find_and_configure_glfw(${GLFW_VERSION} ${GLFW_GIT_REPOSITORY} ${GLFW_GIT_BRANCH})
