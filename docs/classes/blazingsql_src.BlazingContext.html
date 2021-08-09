@@ -92,6 +92,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#dropTable" class="tsd-kind-icon">drop<wbr>Table</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#explain" class="tsd-kind-icon">explain</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#listTables" class="tsd-kind-icon">list<wbr>Tables</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#pullFromCache" class="tsd-kind-icon">pull<wbr>From<wbr>Cache</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#sql" class="tsd-kind-icon">sql</a></li>
 							</ul>
 						</section>
@@ -104,15 +105,21 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Blazing<wbr>Context<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="blazingsql_src.BlazingContext.html" class="tsd-signature-type" data-tsd-kind="Class">BlazingContext</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Blazing<wbr>Context<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ContextProps</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="blazingsql_src.BlazingContext.html" class="tsd-signature-type" data-tsd-kind="Class">BlazingContext</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a8bfca1/modules/blazingsql/src/blazingcontext.ts#L46">modules/blazingsql/src/blazingcontext.ts:46</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/c9986b8/modules/blazingsql/src/blazingcontext.ts#L46">modules/blazingsql/src/blazingcontext.ts:46</a></li>
 								</ul>
 							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>options: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ContextProps</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = {}</span></h5>
+								</li>
+							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="blazingsql_src.BlazingContext.html" class="tsd-signature-type" data-tsd-kind="Class">BlazingContext</a></h4>
 						</li>
 					</ul>
@@ -130,7 +137,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a8bfca1/modules/blazingsql/src/blazingcontext.ts#L89">modules/blazingsql/src/blazingcontext.ts:89</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/c9986b8/modules/blazingsql/src/blazingcontext.ts#L102">modules/blazingsql/src/blazingcontext.ts:102</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -187,7 +194,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a8bfca1/modules/blazingsql/src/blazingcontext.ts#L174">modules/blazingsql/src/blazingcontext.ts:174</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/c9986b8/modules/blazingsql/src/blazingcontext.ts#L187">modules/blazingsql/src/blazingcontext.ts:187</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -229,7 +236,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a8bfca1/modules/blazingsql/src/blazingcontext.ts#L128">modules/blazingsql/src/blazingcontext.ts:128</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/c9986b8/modules/blazingsql/src/blazingcontext.ts#L141">modules/blazingsql/src/blazingcontext.ts:141</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -276,7 +283,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a8bfca1/modules/blazingsql/src/blazingcontext.ts#L273">modules/blazingsql/src/blazingcontext.ts:273</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/c9986b8/modules/blazingsql/src/blazingcontext.ts#L275">modules/blazingsql/src/blazingcontext.ts:275</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -329,7 +336,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a8bfca1/modules/blazingsql/src/blazingcontext.ts#L156">modules/blazingsql/src/blazingcontext.ts:156</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/c9986b8/modules/blazingsql/src/blazingcontext.ts#L169">modules/blazingsql/src/blazingcontext.ts:169</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -356,16 +363,47 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="sql" class="tsd-anchor"></a>
-					<h3>sql</h3>
+					<a name="pullFromCache" class="tsd-anchor"></a>
+					<h3>pull<wbr>From<wbr>Cache</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">sql<span class="tsd-signature-symbol">(</span>query<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, algebra<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span>, configOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">pull<wbr>From<wbr>Cache<span class="tsd-signature-symbol">(</span>messageId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a8bfca1/modules/blazingsql/src/blazingcontext.ts#L206">modules/blazingsql/src/blazingcontext.ts:206</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/c9986b8/modules/blazingsql/src/blazingcontext.ts#L297">modules/blazingsql/src/blazingcontext.ts:297</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a DataFrame pulled from the Cache Machine caching system.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>messageId: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The message id given when sending over the results via UCX</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="sql" class="tsd-anchor"></a>
+					<h3>sql</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">sql<span class="tsd-signature-symbol">(</span>query<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, ctxToken<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ExecutionGraph</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/c9986b8/modules/blazingsql/src/blazingcontext.ts#L216">modules/blazingsql/src/blazingcontext.ts:216</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -384,7 +422,7 @@
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bc</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">BlazingContext</span><span style="color: #000000">();</span>
 <span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
 
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">sql</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SELECT a FROM test_table&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// [1, 2, 3]</span>
+<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">sql</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SELECT a FROM test_table&#039;</span><span style="color: #000000">).</span><span style="color: #795E26">result</span><span style="color: #000000">(); </span><span style="color: #008000">// [1, 2, 3]</span>
 </code></pre>
 									</dd>
 								</dl>
@@ -398,21 +436,13 @@
 									</div>
 								</li>
 								<li>
-									<h5>algebra: <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = null</span></h5>
+									<h5>ctxToken: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = ...</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>SQL algebra plan string, use this to run on a relational algebra query instead
-										of a query string</p>
-									</div>
-								</li>
-								<li>
-									<h5>configOptions: <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Set a specific set of configOptions for this query instead of the
-										defaults</p>
+										<p>an optional content token used for communicating multiple nodes</p>
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ExecutionGraph</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -479,12 +509,21 @@
 								<a href="blazingsql_src.BlazingContext.html#listTables" class="tsd-kind-icon">list<wbr>Tables</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="blazingsql_src.BlazingContext.html#pullFromCache" class="tsd-kind-icon">pull<wbr>From<wbr>Cache</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="blazingsql_src.BlazingContext.html#sql" class="tsd-kind-icon">sql</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/blazingsql_src.html#UcpContext" class="tsd-kind-icon">Ucp<wbr>Context</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/blazingsql_src.html#UcpContext-1" class="tsd-kind-icon">Ucp<wbr>Context</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
