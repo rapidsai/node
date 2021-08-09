@@ -14,6 +14,7 @@
 
 export {GLFW} from './glfw';
 export {glfw} from './glfw';
+export {GLFWmonitor} from './glfw';
 export {GLFWKey} from './glfw';
 export {GLFWClientAPI} from './glfw';
 export {GLFWInputMode} from './glfw';
@@ -24,5 +25,6 @@ export {GLFWOpenGLProfile} from './glfw';
 export {GLFWWindowAttribute} from './glfw';
 export {GLFWContextCreationAPI} from './glfw';
 export {createModuleWindow, createReactWindow, createWindow} from './jsdom';
+export {Monitor} from './monitor';
 
 if (process) { (process as any).browser = true; }

@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {glfw, GLFW, GLFWmonitor, Monitor} from '@nvidia/glfw';
 import {map, publish, refCount} from 'rxjs/operators';
-
-import {glfw, GLFW, GLFWmonitor} from '../../../../glfw/src/glfw';
-import {Monitor} from '../../../../glfw/src/monitor';
 
 import {glfwCallbackAsObservable, GLFWEvent} from './event';
 
