@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {DataFrame, TypeMap} from '@rapidsai/cudf';
 import {ChildProcess, fork} from 'child_process';
+
 import {UcpContext} from './addon';
 import {BlazingContext} from './blazingcontext';
 
 export const CREATE_BLAZING_CONTEXT = 'createBlazingContext';
+export const CREATE_TABLE           = 'createTable';
+export const RUN_QUERY              = 'runQuery';
+export const QUERY_RAN              = 'ranQuery';
 export const CONFIG_OPTIONS         = {
   PROTOCOL: 'UCX',
 };
@@ -47,6 +52,60 @@ export class BlazingCluster {
       ralCommunicationPort: 4000,
       configOptions: {...CONFIG_OPTIONS},
       workersUcpInfo: ucpMetadata.map((xs) => ({...xs, ucpContext})),
+    });
+  }
+
+  createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
+    // TODO: Abstract the way we slice this array.
+    const len   = Math.ceil(input.numRows / (this.workers.length + 1));
+    const table = input.toArrow();
+
+    this.bc.createTable(tableName, DataFrame.fromArrow(table.slice(0, len).serialize()));
+    this.workers.forEach((worker, i) => {
+      worker.send({
+        operation: CREATE_TABLE,
+        tableName: tableName,
+        dataframe: table.slice((i + 1) * len, (i + 2) * len).serialize()
+      });
+    });
+  }
+
+  async sql(query: string) {
+    let ctxToken        = 0;
+    const queryPromises = [];
+
+    queryPromises.push(await new Promise((resolve) => {
+      const token     = ctxToken++;
+      const messageId = `message_${token}`;
+      setTimeout(() => {
+        const df = this.bc.sql(query, token).result();
+        console.log(`Finished query on token: ${token}`);
+        resolve({ctxToken: token, messageId, df});
+      });
+    }));
+
+    this.workers.forEach((worker) => {
+      queryPromises.push(new Promise((resolve) => {
+        const token     = ctxToken++;
+        const messageId = `message_${token}`;
+        worker.send({operation: RUN_QUERY, ctxToken: token, messageId, query});
+        worker.on('message', (msg: Record<string, unknown>) => {
+          const operation = msg['operation'] as string;
+          const ctxToken  = msg['ctxToken'] as number;
+          const messageId = msg['messageId'] as string;
+
+          if (operation === QUERY_RAN) {
+            console.log(`Finished query on token: ${ctxToken}`);
+            console.log(`pulling result with messageId='${messageId}'`);
+            resolve({ctxToken, messageId, df: this.bc.pullFromCache(messageId)});
+          }
+        });
+      }));
+    });
+
+    await Promise.all(queryPromises).then(function(results) {
+      console.log('Finished running all queries.');
+      results.forEach((result: any) => { console.log(result); });
     });
   }
 
