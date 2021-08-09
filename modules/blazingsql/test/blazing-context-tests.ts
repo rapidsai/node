@@ -72,7 +72,7 @@ test('select a single column', () => {
   const bc = new BlazingContext();
   bc.createTable('test_table', df);
 
-  expect(bc.sql('SELECT a FROM test_table')).toStrictEqual(new DataFrame({a}));
+  expect(bc.sql('SELECT a FROM test_table').result()).toStrictEqual(new DataFrame({a}));
 });
 
 test('select all columns', () => {
@@ -83,7 +83,8 @@ test('select all columns', () => {
   const bc = new BlazingContext();
   bc.createTable('test_table', df);
 
-  expect(bc.sql('SELECT * FROM test_table')).toStrictEqual(new DataFrame({'a': a, 'b': b}));
+  expect(bc.sql('SELECT * FROM test_table').result())
+    .toStrictEqual(new DataFrame({'a': a, 'b': b}));
 });
 
 test('union columns from two tables', () => {
@@ -96,7 +97,7 @@ test('union columns from two tables', () => {
   bc.createTable('t2', df2);
 
   const result = new DataFrame({'a': Series.new([...a, ...a])});
-  expect(bc.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2')).toStrictEqual(result);
+  expect(bc.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2').result()).toStrictEqual(result);
 });
 
 test('find all columns within a table that meet condition', () => {
@@ -108,5 +109,5 @@ test('find all columns within a table that meet condition', () => {
   bc.createTable('test_table', df);
 
   const result = new DataFrame({'key': Series.new(['a', 'b']), 'val': Series.new([7.6, 7.1])});
-  expect(bc.sql('SELECT * FROM test_table WHERE val > 4')).toStrictEqual(result);
+  expect(bc.sql('SELECT * FROM test_table WHERE val > 4').result()).toStrictEqual(result);
 });

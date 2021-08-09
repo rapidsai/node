@@ -12,5 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {UcpContext} from './addon';
-export {BlazingContext} from './blazingcontext';
+#include "ucpcontext.hpp"
+#include <communication/ucx_init.h>
+
+#include <nv_node/utilities/args.hpp>
+
+namespace nv {
+
+Napi::Function UcpContext::Init(Napi::Env const& env, Napi::Object exports) {
+  return DefineClass(env, "UcpContext", {});
+}
+
+UcpContext::wrapper_t UcpContext::New(Napi::Env const& env) {
+  return EnvLocalObjectWrap<UcpContext>::New(env, {});
+}
+
+UcpContext::UcpContext(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<UcpContext>(info) {
+  this->_ucp_context = ral::communication::CreateUcpContext();
+}
+
+}  // namespace nv

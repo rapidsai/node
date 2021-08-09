@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "contextwrapper.hpp"
+
 #include <nv_node/objectwrap.hpp>
 
 #include <napi.h>
@@ -34,13 +36,15 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
    * @param exports The exports object to decorate.
    * @return Napi::Function The ExecutionGraph constructor function.
    */
-  static Napi::Function Init(Napi::Env env, Napi::Object exports);
+  static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
   /**
    * @brief Construct a new ExecutionGraph instance from a ral::cache::graph.
    *
    * @param cache The shared pointer to the ExecutionGraph.
    */
-  static wrapper_t New(Napi::Env const& env, std::shared_ptr<ral::cache::graph> graph);
+  static wrapper_t New(Napi::Env const& env,
+                       std::shared_ptr<ral::cache::graph> const& graph,
+                       nv::Wrapper<nv::ContextWrapper> const& context);
 
   /**
    * @brief Construct a new ExecutionGraph instance from JavaScript.
@@ -51,6 +55,16 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
 
  private:
   std::shared_ptr<ral::cache::graph> _graph;
+
+  bool _started{false};
+  bool _results{false};
+  Napi::Reference<Wrapper<ContextWrapper>> _context;
+  std::vector<std::string> _names{};
+  Napi::Reference<Napi::Array> _tables{};
+
+  void start(Napi::CallbackInfo const& info);
+  Napi::Value result(Napi::CallbackInfo const& info);
+  Napi::Value send_to(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

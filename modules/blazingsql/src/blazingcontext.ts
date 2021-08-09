@@ -17,11 +17,10 @@ import {callMethodSync, callStaticMethodSync} from 'java';
 
 import {
   Context,
-  getExecuteGraphResult,
+  ContextProps,
   getTableScanInfo,
-  runGenerateGraph,
   runGeneratePhysicalGraph,
-  startExecuteGraph
+  WorkerUcpInfo
 } from './addon';
 import {
   ArrayList,
@@ -32,38 +31,52 @@ import {
   RelationalAlgebraGenerator
 } from './algebra';
 import {defaultConfigValues} from './config';
+import {ExecutionGraph} from './execution_graph';
 import {json_plan_py} from './json_plan';
 
 export class BlazingContext {
-  // @ts-ignore
   private context: Context;
-  private nodes: Record<string, unknown>[] = [];
   private db: any;
   private schema: any;
   private generator: any;
   private tables: Map<string, DataFrame>;
+  private workers: WorkerUcpInfo[];
+  private configOptions: Record<string, unknown>;
 
-  constructor() {
-    const node: Record<string, unknown> = {};
-    node['worker']                      = '';
-    this.nodes.push(node);
-
+  constructor(options: Partial<ContextProps> = {}) {
     this.db        = CatalogDatabaseImpl('main');
     this.schema    = BlazingSchema(this.db);
     this.generator = RelationalAlgebraGenerator(this.schema);
     this.tables    = new Map<string, DataFrame>();
-    this.context   = new Context({
-      ralId: 0,
-      workerId: 'self',
-      network_iface_name: 'lo',
-      ralCommunicationPort: 0,
-      workersUcpInfo: [],
-      singleNode: true,
-      configOptions: defaultConfigValues,
-      allocationMode: 'cuda_memory_resource',
-      initialPoolSize: 0,
-      maximumPoolSize: null,
-      enableLogging: false,
+
+    const {
+      ralId                = 0,
+      workerId             = ralId.toString(),
+      networkIfaceName     = 'lo',
+      ralCommunicationPort = 0,
+      workersUcpInfo       = [],
+      allocationMode       = 'cuda_memory_resource',
+      initialPoolSize      = null,
+      maximumPoolSize      = null,
+      enableLogging        = false,
+    } = options;
+
+    const {singleNode = workersUcpInfo.length <= 1} = options;
+    this.configOptions = {...defaultConfigValues, ...options.configOptions};
+
+    this.workers = workersUcpInfo;
+    this.context = new Context({
+      ralId,
+      workerId,
+      networkIfaceName,
+      ralCommunicationPort,
+      workersUcpInfo,
+      singleNode,
+      configOptions: this.configOptions,
+      allocationMode,
+      initialPoolSize,
+      maximumPoolSize,
+      enableLogging,
     });
   }
 
@@ -183,10 +196,7 @@ export class BlazingContext {
    * Query a BlazingSQL table and return the result as a DataFrame.
    *
    * @param query SQL query string
-   * @param algebra SQL algebra plan string, use this to run on a relational algebra query instead
-   *   of a query string
-   * @param configOptions Set a specific set of configOptions for this query instead of the
-   *   defaults
+   * @param ctxToken an optional content token used for communicating multiple nodes
    *
    * @example
    * ```typescript
@@ -200,16 +210,13 @@ export class BlazingContext {
    * const bc = new BlazingContext();
    * bc.createTable('test_table', df);
    *
-   * bc.sql('SELECT a FROM test_table'); // [1, 2, 3]
+   * bc.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
    * ```
    */
-  sql(query: string,
-      algebra: string|null                   = null,
-      configOptions: Record<string, unknown> = defaultConfigValues) {
-    if (algebra == null) { algebra = this.explain(query); }
-
+  sql(query: string, ctxToken: number = Math.random() * Number.MAX_SAFE_INTEGER | 0) {
+    const algebra = this.explain(query);
     if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
-      return new DataFrame({});
+      throw new Error('ERROR: Failed to parse given query');
     }
 
     if (algebra.includes(') OVER (')) {
@@ -224,7 +231,6 @@ export class BlazingContext {
     const d                = new Date();
     const currentTimestamp = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${
       d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
-    const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
     const selectedDataFrames: DataFrame[] =
       tableNames.reduce((result: DataFrame[], tableName: string) => {
         const table = this.tables.get(tableName);
@@ -232,21 +238,17 @@ export class BlazingContext {
         return result;
       }, []);
 
-    const executionGraphResult = runGenerateGraph(masterIndex,
-                                                  ['self'],
-                                                  selectedDataFrames,
-                                                  tableNames,
-                                                  tableScans,
-                                                  ctxToken,
-                                                  json_plan_py(algebra),
-                                                  configOptions,
-                                                  query,
-                                                  currentTimestamp);
-    startExecuteGraph(executionGraphResult, ctxToken);
-
-    const {names, tables: [table]} = getExecuteGraphResult(executionGraphResult, ctxToken);
-    return new DataFrame(names.reduce(
-      (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
+    return new ExecutionGraph(this.context.runGenerateGraph(
+      masterIndex,
+      this.workers.length < 1 ? ['self'] : this.workers.map((w) => w.workerId),
+      selectedDataFrames,
+      tableNames,
+      tableScans,
+      ctxToken,
+      json_plan_py(algebra),
+      this.configOptions,
+      query,
+      currentTimestamp));
   }
 
   /**
@@ -285,5 +287,16 @@ export class BlazingContext {
     } catch (ex) { throw new Error(ex.cause.getMessageSync()); }
 
     return String(algebra);
+  }
+
+  /**
+   * Returns a DataFrame pulled from the Cache Machine caching system.
+   *
+   * @param messageId The message id given when sending over the results via UCX
+   */
+  pullFromCache(messageId: string) {
+    const {names, table} = this.context.pullFromCache(messageId);
+    return new DataFrame(names.reduce(
+      (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }
 }
