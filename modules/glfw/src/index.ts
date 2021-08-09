@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export {GLFW} from './glfw';
 export {glfw} from './glfw';
 export {GLFWKey} from './glfw';
 export {GLFWClientAPI} from './glfw';
 export {GLFWInputMode} from './glfw';
+export {GLFWStandardCursor} from './glfw';
 export {GLFWModifierKey} from './glfw';
 export {GLFWMouseButton} from './glfw';
 export {GLFWOpenGLProfile} from './glfw';

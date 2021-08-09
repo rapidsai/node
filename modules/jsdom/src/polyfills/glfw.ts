@@ -14,18 +14,18 @@
 
 import {
   glfw,
+  GLFW,
   GLFWClientAPI,
   GLFWContextCreationAPI,
   GLFWInputMode,
   GLFWModifierKey,
   GLFWOpenGLProfile,
-  GLFWWindowAttribute,
+  GLFWStandardCursor,
+  GLFWWindowAttribute
 } from '@nvidia/glfw';
 import * as jsdom from 'jsdom';
 import {DOMWindow} from 'jsdom';
 import {Subscription} from 'rxjs';
-
-import GLFW, {GLFWStandardCursor} from '../../../glfw/src/glfw';
 
 import {dndEvents, GLFWDndEvent} from './events/dnd';
 import {isAltKey, isCapsLock, isCtrlKey, isMetaKey, isShiftKey} from './events/event';
