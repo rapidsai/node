@@ -10,7 +10,7 @@ jobs:
     name: Build and push docker images
     runs-on: ubuntu-20.04
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
@@ -28,6 +28,7 @@ jobs:
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+        id: buildx_builder
       # - name: Login to DockerHub
       #   uses: docker/login-action@v1
       #   with:
@@ -72,6 +73,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/devel/01-base.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "UID=1000"
             "NODE_VERSION=${{ env.NODE }}"
@@ -84,6 +86,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/devel/02-main.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
@@ -93,6 +96,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/runtime/03-build.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "DISPLAY=:0.0"
             "PARALLEL_LEVEL=1"
@@ -112,6 +116,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/runtime/01-base.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "UID=1000"
             "FROM_IMAGE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
@@ -124,6 +129,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/runtime/01-base.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "UID=1000"
             "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
@@ -135,6 +141,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/runtime/main.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
@@ -145,6 +152,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/runtime/demo.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
@@ -155,6 +163,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/runtime/glfw.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
@@ -165,6 +174,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/runtime/cudf.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
@@ -174,6 +184,7 @@ jobs:
         with:
           context: .
           push: true
+          builder: buildx_builder
           file: dockerfiles/runtime/blazingsql.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -185,6 +196,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/runtime/cuml.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
@@ -195,6 +207,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/runtime/cugraph.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
@@ -205,6 +218,7 @@ jobs:
           context: .
           push: true
           file: dockerfiles/runtime/cuspatial.Dockerfile
+          builder: ${{ steps.buildx_builder.outputs.name }}
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"

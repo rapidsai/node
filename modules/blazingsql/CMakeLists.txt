@@ -83,6 +83,7 @@ list(REMOVE_ITEM BLAZINGSQL_WRAPPER_CMAKE_CUDA_FLAGS -Werror)
 add_library(blazingsql_wrapper SHARED
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/cache.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/graph.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/ucpcontext.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/api.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/wrapper/blazingsql/contextwrapper.cpp"
 )
@@ -170,6 +171,7 @@ target_link_libraries(${PROJECT_NAME}
                       rmm::rmm
                       cudf::cudf
                       blazingsql_wrapper
+                      ucp
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
