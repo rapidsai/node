@@ -22,33 +22,9 @@ unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
 option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
-option(NODE_GLFW_STATIC_LINK "Statically link GLEW and GLFW libraries" OFF)
 
 # Set OpenGL_GL_PREFERENCE to "GLVND"
 cmake_policy(SET CMP0072 NEW)
-
-set(GLEW_VERSION "2.1.0")
-set(GLFW_VERSION "3.3.2")
-
-# set(GLFW_GIT_BRANCH "3.3.2")
-# set(GLFW_GIT_BRANCH "fea/headless-egl")
-set(GLFW_GIT_BRANCH "fea/headless-egl-with-fallback")
-
-set(GLFW_USE_EGLHEADLESS OFF)
-# set(GLFW_USE_EGLHEADLESS ON)
-
-# set(GLFW_GIT_REPOSITORY "https://github.com/glfw/glfw.git")
-set(GLFW_GIT_REPOSITORY "https://github.com/trxcllnt/glfw.git")
-
-set(GLEW_USE_SHARED_LIBS OFF)
-set(GLFW_USE_SHARED_LIBS OFF)
-set(GLEW_USE_STATIC_LIBS ${NODE_GLFW_STATIC_LINK})
-set(GLFW_USE_STATIC_LIBS ${NODE_GLFW_STATIC_LINK})
-
-if(NOT NODE_GLFW_STATIC_LINK)
-    set(GLEW_USE_SHARED_LIBS ON)
-    set(GLFW_USE_SHARED_LIBS ON)
-endif(NOT NODE_GLFW_STATIC_LINK)
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
@@ -69,10 +45,10 @@ include(ConfigureOpenGLFW)
 function(_find_glfw VARIANT USE_WAYLAND USE_EGLHEADLESS)
     find_and_configure_glfw(
         glfw_${VARIANT}
-        ${GLFW_VERSION}
-        ${GLFW_GIT_REPOSITORY}
-        ${GLFW_GIT_BRANCH}
-        ${GLFW_USE_SHARED_LIBS}
+        3.3.2                                   # version
+        https://github.com/trxcllnt/glfw.git    # git repo
+        fea/headless-egl-with-fallback          # git tag
+        OFF                                     # build + dynamically link libglfw.so
         ${USE_WAYLAND}
         ${USE_EGLHEADLESS}
     )
@@ -124,7 +100,6 @@ function(make_node_glfw_target VARIANT DEFINES)
 
     target_link_libraries(${PROJECT_NAME}_${VARIANT}
                         ${CMAKE_JS_LIB}
-                        ${GLEW_LIBRARY}
                         glfw::${VARIANT}
                         OpenGL::EGL
                         OpenGL::OpenGL)
