@@ -1,4 +1,4 @@
-name: Build and push docker images
+name: images
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-push-images:
-    name: Build and push docker images
+    name: Build images
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
@@ -71,6 +71,7 @@ jobs:
         if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/devel/01-base.Dockerfile')
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/devel/01-base.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
@@ -84,6 +85,7 @@ jobs:
         if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/devel/02-main.Dockerfile')
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/devel/02-main.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
@@ -94,6 +96,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/runtime/03-build.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
@@ -114,6 +117,7 @@ jobs:
         if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/runtime/01-base.Dockerfile')
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/runtime/01-base.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
@@ -127,6 +131,7 @@ jobs:
         if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/runtime/01-base.Dockerfile')
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/runtime/01-base.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
@@ -139,6 +144,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/runtime/main.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
@@ -150,6 +156,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/runtime/demo.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
@@ -161,6 +168,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/runtime/glfw.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
@@ -172,6 +180,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/runtime/cudf.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
@@ -183,6 +192,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          pull: true
           push: true
           builder: buildx_builder
           file: dockerfiles/runtime/blazingsql.Dockerfile
@@ -194,6 +204,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/runtime/cuml.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
@@ -205,6 +216,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/runtime/cugraph.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
@@ -216,6 +228,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          pull: true
           push: true
           file: dockerfiles/runtime/cuspatial.Dockerfile
           builder: ${{ steps.buildx_builder.outputs.name }}
