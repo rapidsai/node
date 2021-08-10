@@ -55,7 +55,7 @@ function(_find_glfw VARIANT USE_WAYLAND USE_EGLHEADLESS)
 endfunction()
 
 _find_glfw(x11 OFF OFF)
-_find_glfw(wayland ON OFF)
+# _find_glfw(wayland ON OFF)
 _find_glfw(eglheadless OFF ON)
 
 ###################################################################################################
@@ -106,7 +106,7 @@ function(make_node_glfw_target VARIANT DEFINES)
 endfunction()
 
 make_node_glfw_target(x11 "-DGLFW_EXPOSE_NATIVE_X11")
-make_node_glfw_target(wayland "-DGLFW_EXPOSE_NATIVE_WAYLAND")
+# make_node_glfw_target(wayland "-DGLFW_EXPOSE_NATIVE_WAYLAND")
 make_node_glfw_target(eglheadless "-DGLFW_EXPOSE_NATIVE_EGL_EXT -D_GLFW_EGL_LIBRARY=libEGL_nvidia.so.0")
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
