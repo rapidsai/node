@@ -16,6 +16,7 @@ import {DataFrame} from '@rapidsai/cudf';
 
 import {UcpContext} from './addon';
 import {
+  BLAZING_CONTEXT_CREATED,
   CONFIG_OPTIONS,
   CREATE_BLAZING_CONTEXT,
   CREATE_TABLE,
@@ -40,6 +41,8 @@ process.on('message', (args: Record<string, unknown>) => {
       configOptions: {...CONFIG_OPTIONS},
       workersUcpInfo: ucpMetaData.map((xs: any) => ({...xs, ucpContext}))
     });
+
+    (<any>process).send({operation: BLAZING_CONTEXT_CREATED});
   }
 
   if (operation == CREATE_TABLE) {

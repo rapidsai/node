@@ -6,9 +6,8 @@ runQuery();
 async function runQuery() {
   const df = createLargeDataFrame();
 
-  const bc = new BlazingCluster({ numWorkers: 2 });
+  const bc = await BlazingCluster.init({ numWorkers: 2 });
   bc.createTable('test_table', df);
-
   const result = await bc.sql('SELECT a FROM test_table');
   console.log(result.names);
 
