@@ -31,6 +31,7 @@ option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated 
 set(RMM_VERSION "21.08.00")
 set(CUDF_VERSION "21.08.00")
 set(CUML_VERSION "21.08.00")
+set(CPM_cuml_SOURCE "/opt/rapids/node/cpp/cuml/cpp")
 set(RAFT_VERSION "21.08.00")
 
 ###################################################################################################

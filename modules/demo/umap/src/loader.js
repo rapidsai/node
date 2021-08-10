@@ -38,10 +38,9 @@ const defaultLayoutParams = {
   },
   controlsVisible: { name: 'controls visible', val: true },
 };
-const df = DataFrame.readCSV({ header: 0, sourceType: 'files', sources: ['/home/ajay/new_dev/rapids-js/modules/demo/umap/data/data.csv'] }).castAll(new Float32);
+const df = DataFrame.readCSV({ header: 0, sourceType: 'files', sources: ['/opt/rapids/node/modules/demo/umap/data/data.csv'] }).castAll(new Float32);
 
 const layoutParamNames = Object.keys(defaultLayoutParams);
-
 
 
 export default async function* loadGraphData(props = {}) {

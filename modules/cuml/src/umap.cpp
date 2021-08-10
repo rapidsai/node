@@ -107,15 +107,15 @@ void UMAP::fit(DeviceBuffer::wrapper_t const& X,
                DeviceBuffer::wrapper_t const& embeddings) {
   raft::handle_t handle;
   try {
-    ML::UMAP::fit(handle,
-                  static_cast<float*>(X->data()),
-                  static_cast<float*>(y->data()),
-                  n_samples,
-                  n_features,
-                  static_cast<int64_t*>(knn_indices->data()),
-                  static_cast<float*>(knn_dists->data()),
-                  &this->params_,
-                  static_cast<float*>(embeddings->data()));
+    ML::UMAP::refine(handle,
+                     static_cast<float*>(X->data()),
+                     static_cast<float*>(y->data()),
+                     n_samples,
+                     n_features,
+                     static_cast<int64_t*>(knn_indices->data()),
+                     static_cast<float*>(knn_dists->data()),
+                     &this->params_,
+                     static_cast<float*>(embeddings->data()));
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
