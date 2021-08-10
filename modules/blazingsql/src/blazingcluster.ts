@@ -35,9 +35,11 @@ export class BlazingCluster {
   bc: BlazingContext;
 
   constructor({numWorkers = 1}: BlazingCusterProps) {
-    this.workers = Array(numWorkers).fill(fork(`${__dirname}/worker`, {serialization: 'advanced'}));
+    this.workers = Array(numWorkers);
+    for (let i = 0; i < numWorkers; ++i) {
+      this.workers[i] = fork(`${__dirname}/worker`, {serialization: 'advanced'});
+    }
 
-    // TODO: Consider a cleaner way to set this up.
     const ucpMetadata = ['0', ...Object.keys(this.workers)].map(
       (_, idx) => { return ({workerId: idx.toString(), ip: '0.0.0.0', port: 4000 + idx}); });
 
@@ -56,7 +58,6 @@ export class BlazingCluster {
   }
 
   createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
-    // TODO: Abstract the way we slice this array.
     const len   = Math.ceil(input.numRows / (this.workers.length + 1));
     const table = input.toArrow();
 
@@ -122,6 +123,5 @@ export class BlazingCluster {
     console.log(result_df);
   }
 
-  // addTable
-  // await sql
+  stop(): void { this.workers.forEach((worker) => worker.kill()); }
 }

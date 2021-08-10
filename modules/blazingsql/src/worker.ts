@@ -34,26 +34,22 @@ process.on('message', (args: Record<string, unknown>) => {
     const ucpMetaData: any[] = rest['ucpMetadata'] as Record<string, any>[];
     const ucpContext         = new UcpContext();
 
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    // @ts-ignore
     bc = new BlazingContext({
       ralId: ralId,
       ralCommunicationPort: 4000 + ralId,
       configOptions: {...CONFIG_OPTIONS},
       workersUcpInfo: ucpMetaData.map((xs: any) => ({...xs, ucpContext}))
     });
+  }
 
-    console.log(`created context: ${ralId}`);
-
-  } else if (operation == CREATE_TABLE) {
+  if (operation == CREATE_TABLE) {
     const tableName = rest['tableName'] as string;
     const dataframe = rest['dataframe'] as any;
 
     bc.createTable(tableName, DataFrame.fromArrow(dataframe));
+  }
 
-    console.log(`created table: ${tableName}`);
-    console.log(DataFrame.fromArrow(dataframe));
-  } else if (operation == RUN_QUERY) {
+  if (operation == RUN_QUERY) {
     const query     = rest['query'] as string;
     const ctxToken  = rest['ctxToken'] as number;
     const messageId = rest['messageId'] as string;

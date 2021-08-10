@@ -1,12 +1,18 @@
 const { BlazingCluster } = require('@rapidsai/blazingsql');
 const { Series, DataFrame } = require('@rapidsai/cudf');
 
-const df = createLargeDataFrame();
+runQuery();
 
-const bc = new BlazingCluster({ numWorkers: 1 });
-bc.createTable('test_table', df);
+async function runQuery() {
+  const df = createLargeDataFrame();
 
-bc.sql('SELECT a FROM test_table');
+  const bc = new BlazingCluster({ numWorkers: 2 });
+  bc.createTable('test_table', df);
+
+  await bc.sql('SELECT a FROM test_table');
+
+  bc.stop();
+}
 
 function createLargeDataFrame() {
   const a = Series.new(Array.from(Array(300).keys()));
