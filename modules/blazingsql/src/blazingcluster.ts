@@ -71,16 +71,15 @@ export class BlazingCluster {
     });
   }
 
-  async sql(query: string) {
+  async sql(query: string): Promise<DataFrame> {
     let ctxToken        = 0;
     const queryPromises = [];
 
-    queryPromises.push(await new Promise((resolve) => {
+    queryPromises.push(new Promise((resolve) => {
       const token     = ctxToken++;
       const messageId = `message_${token}`;
       setTimeout(() => {
         const df = this.bc.sql(query, token).result();
-        console.log(`Finished query on token: ${token}`);
         resolve({ctxToken: token, messageId, df});
       });
     }));
@@ -109,7 +108,7 @@ export class BlazingCluster {
     await Promise.all(queryPromises).then(function(results) {
       console.log('Finished running all queries.');
       results.forEach((result: any) => {
-        const df        = result['df'];
+        const df        = result['df'] as DataFrame;
         const messageId = result['messageId'] as string;
 
         console.log(``);
@@ -120,7 +119,7 @@ export class BlazingCluster {
       });
     });
 
-    console.log(result_df);
+    return result_df;
   }
 
   stop(): void { this.workers.forEach((worker) => worker.kill()); }

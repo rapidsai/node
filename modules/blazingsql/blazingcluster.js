@@ -9,7 +9,8 @@ async function runQuery() {
   const bc = new BlazingCluster({ numWorkers: 2 });
   bc.createTable('test_table', df);
 
-  await bc.sql('SELECT a FROM test_table');
+  const result = await bc.sql('SELECT a FROM test_table');
+  console.log(result.names);
 
   bc.stop();
 }
