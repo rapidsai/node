@@ -48,9 +48,8 @@ export class BlazingCluster {
       setupPromises.push(new Promise<void>((resolve) => {
         const ralId = idx + 1;  // start ralId at 1 since ralId 0 is reserved for main process
         worker.send({operation: CREATE_BLAZING_CONTEXT, ralId, ucpMetadata});
-        worker.on('message', (msg: Record<string, unknown>) => {
-          const operation = msg['operation'] as string;
-
+        worker.on('message', (msg: any) => {
+          const {operation}: {operation: string} = msg;
           if (operation === BLAZING_CONTEXT_CREATED) { resolve(); }
         });
       }));
@@ -111,14 +110,14 @@ export class BlazingCluster {
         const token     = ctxToken++;
         const messageId = `message_${token}`;
         worker.send({operation: RUN_QUERY, ctxToken: token, messageId, query});
-        worker.on('message', (msg: Record<string, unknown>) => {
-          const operation = msg['operation'] as string;
-          const ctxToken  = msg['ctxToken'] as number;
-          const messageId = msg['messageId'] as string;
+        worker.on('message', (msg: any) => {
+          const {operation, ctxToken, messageId}: {
+            operation: string,
+            ctxToken: number,
+            messageId: string,
+          } = msg;
 
           if (operation === QUERY_RAN) {
-            console.log(`Finished query on token: ${ctxToken}`);
-            console.log(`pulling result with messageId='${messageId}'`);
             resolve({ctxToken, messageId, df: this.blazingContext.pullFromCache(messageId)});
           }
         });
@@ -128,16 +127,9 @@ export class BlazingCluster {
     let result_df = new DataFrame({a: Series.new([])});
 
     await Promise.all(queryPromises).then(function(results) {
-      console.log('Finished running all queries.');
       results.forEach((result: any) => {
-        const df        = result['df'] as DataFrame;
-        const messageId = result['messageId'] as string;
-
-        console.log(``);
-        console.log(`df for ${messageId}:`);
-        console.log(df.toArrow().toArray());
-        console.log(``);
-        result_df = result_df.concat(df);
+        const {df}: {df: DataFrame} = result;
+        result_df                   = result_df.concat(df);
       });
     });
 

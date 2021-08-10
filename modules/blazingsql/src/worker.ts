@@ -27,7 +27,7 @@ import {BlazingContext} from './blazingcontext';
 
 let bc: BlazingContext;
 
-process.on('message', (args: Record<string, unknown>) => {
+process.on('message', (args: any) => {
   const {operation, ...rest} = args;
 
   if (operation == CREATE_BLAZING_CONTEXT) {
@@ -47,9 +47,9 @@ process.on('message', (args: Record<string, unknown>) => {
 
   if (operation == CREATE_TABLE) {
     const tableName = rest['tableName'] as string;
-    const dataframe = rest['dataframe'] as any;
+    const df        = rest['dataframe'];
 
-    bc.createTable(tableName, DataFrame.fromArrow(dataframe));
+    bc.createTable(tableName, DataFrame.fromArrow(df));
   }
 
   if (operation == RUN_QUERY) {
