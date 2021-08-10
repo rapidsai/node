@@ -14,6 +14,7 @@
 
 import * as gl from '@nvidia/webgl';
 import * as jsdom from 'jsdom';
+import * as Path from 'path';
 import {parse as parseURL} from 'url';
 
 import {installObjectURL} from './object-url';
@@ -23,13 +24,20 @@ import {GLFWDOMWindow, GLFWDOMWindowOptions} from './window';
 // Polyfill ImageData
 (<any>window).ImageData = global.ImageData = require('canvas').ImageData;
 
-// Polyfill MessagePort
-(<any>window).MessagePort = global.MessagePort =
-  require('message-port-polyfill').MessagePortPolyfill;
+// TODO (ptaylor):
+// These MessagePort polyfills break React v17. Not having them breaks
+// mapbox-gl. React v17 is more critical to our demos at the moment,
+// so they're commented out.
+//
+// Eventually need to figure out a polyfill that's compatible with both.
 
-// Polyfill MessageChannel
-(<any>window).MessageChannel = global.MessageChannel =
-  require('message-port-polyfill').MessageChannelPolyfill;
+// // Polyfill MessagePort
+// (<any>window).MessagePort = global.MessagePort =
+//   require('message-port-polyfill').MessagePortPolyfill;
+
+// // Polyfill MessageChannel
+// (<any>window).MessageChannel = global.MessageChannel =
+//   require('message-port-polyfill').MessageChannelPolyfill;
 
 // Use node's perf_hooks for native performance.now
 const {performance}       = require('perf_hooks');
@@ -197,17 +205,35 @@ Object.defineProperties(window.SVGElement.prototype, {
   height: {get() { return {baseVal: {value: window.innerHeight}}; }},
 });
 
+// @ts-ignore
+import * as hammerjs from 'hammerjs';
+// @ts-ignore
+import * as mjolnirSrcHammer from 'mjolnir.js/src/utils/hammer';
+// @ts-ignore
+import * as mjolnirSrcHammerOverrides from 'mjolnir.js/src/utils/hammer-overrides';
+
 try {
-  const hammerjs = require('hammerjs');
-  for (const x of ['es5', 'es6', 'esm']) {
+  mjolnirSrcHammerOverrides.enhancePointerEventInput(hammerjs.PointerEventInput);
+  mjolnirSrcHammerOverrides.enhanceMouseInput(hammerjs.MouseInput);
+  Object.defineProperty(
+    mjolnirSrcHammer,
+    'Manager',
+    {...Object.getOwnPropertyDescriptor(mjolnirSrcHammer, 'Manager'), value: hammerjs.Manager});
+  Object.defineProperty(
+    mjolnirSrcHammer,
+    'default',
+    {...Object.getOwnPropertyDescriptor(mjolnirSrcHammer, 'default'), value: hammerjs});
+  for (const x of ['src', 'dist/es5', 'dist/esm']) {
     try {
-      const b = 'mjolnir.js/dist/' + x;
-      const o = require(b + '/utils/hammer-overrides');
-      o.enhancePointerEventInput(hammerjs.PointerEventInput);
-      o.enhanceMouseInput(hammerjs.MouseInput);
-      const mjolnirHammer   = require(b + '/utils/hammer');
-      mjolnirHammer.Manager = hammerjs.Manager;
-      mjolnirHammer.default = hammerjs;
+      const mjolnirHammer = require(Path.join('mjolnir.js', x, 'utils/hammer'));
+      Object.defineProperty(
+        mjolnirHammer,
+        'Manager',
+        {...Object.getOwnPropertyDescriptor(mjolnirHammer, 'Manager'), value: hammerjs.Manager});
+      Object.defineProperty(
+        mjolnirHammer,
+        'default',
+        {...Object.getOwnPropertyDescriptor(mjolnirHammer, 'default'), value: hammerjs});
     } catch (e) { /**/
     }
   }

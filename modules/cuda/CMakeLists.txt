@@ -21,7 +21,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
-option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" ON)
+option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
@@ -73,7 +73,9 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       CUDA::nvrtc
-                      CUDA::cudart_static)
+                      CUDA::cudart
+                      CUDA::nppig
+                      CUDA::nppicc)
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

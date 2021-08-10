@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "npm",
+            "group": "build",
+            "label": "Recompile @rapidsai/deck.gl TS (fast)",
+            "script": "tsc:build",
+            "detail": "yarn tsc:build",
+            "problemMatcher": ["$tsc"],
+        },
+    ],
+}

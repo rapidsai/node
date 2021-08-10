@@ -1,7 +1,7 @@
 {
   "version": "0.0.0",
   "private": true,
-  "name":  "luma.gl-lessons-15",
+  "name": "@rapidsai/demo-luma.gl-lessons-15",
   "description": "The classic WebGL Lesson 15 ported to luma.gl.",
   "contributors": [
     "Xintong Xia <xintong@uber.com>"
@@ -11,9 +11,9 @@
     "start-local": "webpack-dev-server --env.local --progress --hot --open -d"
   },
   "dependencies": {
-    "@luma.gl/constants": "8.4.5",
-    "@luma.gl/core": "8.4.5",
-    "math.gl": "^3.1.2"
+    "@luma.gl/constants": "8.5.4",
+    "@luma.gl/core": "8.5.4",
+    "math.gl": "3.5.3"
   },
   "esm": {
     "cjs": true,

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-test('CUDA-GL interop', () => {
+test.skip('CUDA-GL interop', () => {
 
   require('@nvidia/glfw')
     .createWindow(testCUDAGLInterop, true)

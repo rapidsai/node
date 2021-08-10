@@ -126,14 +126,14 @@ export const Buffer = (() => {
         return this;
       }
       _mapResource(handle = this._handle) {
-        if (handle && !handle.cudaGraphicsResourceMapped) {
+        if (handle && handle.cudaGraphicsResource && !handle.cudaGraphicsResourceMapped) {
           CUDA.runtime.cudaGraphicsMapResources([handle.cudaGraphicsResource]);
           handle.cudaGraphicsResourceMapped = true;
         }
         return this;
       }
       _unmapResource(handle = this._handle) {
-        if (handle && handle.cudaGraphicsResourceMapped) {
+        if (handle && handle.cudaGraphicsResource && handle.cudaGraphicsResourceMapped) {
           CUDA.runtime.cudaGraphicsUnmapResources([handle.cudaGraphicsResource]);
           handle.cudaGraphicsResourceMapped = false;
         }

@@ -14,6 +14,7 @@
 
 import React from 'react';
 
+import * as Path from 'path';
 import { readFileSync } from 'fs';
 import { Table } from 'apache-arrow';
 
@@ -26,34 +27,15 @@ import { Quadtree } from '@rapidsai/cuspatial';
 
 import { ColorMapper } from './color';
 
+// Load cuDF kernels into device memory
+Series.new([0, 1, 2]).sum();
+
 const colorMap = new ColorMapper();
 
-const { tracts } = (() => {
-  const table = Table.from(readFileSync('data/263_tracts.arrow'));
-  console.time(`load geometry (${table.length.toLocaleString()} polys)`);
-  const tracts = new DataFrame({
-    id: Series.new(table.getChildAt(0)),
-    polygon: Series.new(table.getChildAt(1)),
-  });
-  console.timeEnd(`load geometry (${table.length.toLocaleString()} polys)`);
-  return { tracts };
-})();
+const { points, tracts, polyIds } = (() => {
 
-const { polyIds, points } = (() => {
-
-  const points = ((table) => {
-
-    console.time(`load points (${table.length.toLocaleString()} points)`);
-
-    const points = new DataFrame({
-      x: Series.new(table.slice(0, table.length / 10 | 0).getChildAt(0)),
-      y: Series.new(table.slice(0, table.length / 10 | 0).getChildAt(1)),
-    });
-
-    console.timeEnd(`load points (${table.length.toLocaleString()} points)`);
-
-    return points;
-  })(Table.from(readFileSync('data/168898952_points.arrow')));
+  const points = loadPoints();
+  const tracts = loadTracts();
 
   const [xMin, xMax] = points.get('x').minmax();
   const [yMin, yMax] = points.get('y').minmax();
@@ -83,7 +65,7 @@ const { polyIds, points } = (() => {
 
   console.timeEnd(`filter points (${points.numRows.toLocaleString()} points)`);
 
-  return { polyIds, points: filteredPoints };
+  return { points: filteredPoints, tracts, polyIds };
 })();
 
 const [xMin, xMax] = tracts.get('polygon').elements.elements.getChild('x').minmax();
@@ -193,7 +175,7 @@ function copyPolygonVerticesDtoH(tracts) {
 
 function copyPointsDtoH(polyIds, points) {
 
-  console.time(`compute positions + colors (${points.numRows.toLocaleString()} points)`);
+  console.time(`compute positions (${points.numRows.toLocaleString()} points)`);
 
   const positions = (() => {
     const size = points.numRows;
@@ -204,6 +186,10 @@ function copyPointsDtoH(polyIds, points) {
     return positions;
   })();
 
+  console.timeEnd(`compute positions (${points.numRows.toLocaleString()} points)`);
+
+  console.time(`compute colors (${points.numRows.toLocaleString()} points)`);
+
   const colors = (() => {
     let palette = Array.from({ length: polyIds.nunique() }, (_, i) => colorMap.get(i));
     palette = new Uint32Array(new Uint8Array([].concat.apply([], palette)).buffer);
@@ -211,7 +197,7 @@ function copyPointsDtoH(polyIds, points) {
     return palette.gather(polyIds);
   })();
 
-  console.timeEnd(`compute positions + colors (${points.numRows.toLocaleString()} points)`);
+  console.timeEnd(`compute colors (${points.numRows.toLocaleString()} points)`);
 
   return {
     length: points.numRows,
@@ -227,4 +213,48 @@ function copyPointsDtoH(polyIds, points) {
       },
     }
   };
+}
+
+function loadPoints() {
+
+  const table = loadPointsTable();
+
+  console.time(`load points (${table.length.toLocaleString()} points)`);
+
+  const points = new DataFrame({
+    x: Series.new(table.slice(0, table.length / 10 | 0).getChildAt(0)),
+    y: Series.new(table.slice(0, table.length / 10 | 0).getChildAt(1)),
+  });
+
+  console.timeEnd(`load points (${table.length.toLocaleString()} points)`);
+
+  return points;
+
+  function loadPointsTable() {
+    try {
+      return Table.from(readFileSync(Path.join(__dirname, 'data', '168898952_points.arrow')))
+    } catch (e) {
+      console.error(`
+  Point data not found! Run this to download the sample data from AWS S3 (1.3GiB):
+
+  node ${Path.join(__dirname, 'data.js')}
+  `);
+      process.exit(1);
+    }
+  }
+}
+
+function loadTracts() {
+  const table = Table.from(readFileSync(Path.join(__dirname, 'data', '263_tracts.arrow')));
+
+  console.time(`load geometry (${table.length.toLocaleString()} polys)`);
+
+  const tracts = new DataFrame({
+    id: Series.new(table.getChildAt(0)),
+    polygon: Series.new(table.getChildAt(1)),
+  });
+
+  console.timeEnd(`load geometry (${table.length.toLocaleString()} polys)`);
+
+  return tracts;
 }

@@ -52,7 +52,7 @@ struct Device : public EnvLocalObjectWrap<Device> {
    * @return int32_t The CUDA device id.
    */
   static int32_t active_device_id() {
-    int32_t device;
+    int32_t device{};
     NODE_CUDA_TRY(cudaGetDevice(&device));
     return device;
   }
@@ -63,7 +63,7 @@ struct Device : public EnvLocalObjectWrap<Device> {
    * @return int32_t The number of compute-capable CUDA devices.
    */
   static int32_t get_num_devices() {
-    int32_t count;
+    int32_t count{};
     NODE_CUDA_TRY(cudaGetDeviceCount(&count));
     return count;
   }

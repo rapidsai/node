@@ -19,7 +19,7 @@ import {
   setDefaultAllocator,
   Uint8Buffer
 } from '@nvidia/cuda';
-import {Bool8, Column, Float32, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
+import {Bool8, Column, Float32, Float64, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import {BoolVector} from 'apache-arrow';
 
@@ -150,6 +150,48 @@ test('Column.nansToNulls', () => {
   expect([...Series.new(result)]).toEqual(expected);
 });
 
+test('Column.stringIsFloat', () => {
+  const col      = Series.new(['1.2', '12', 'abc', '-2.3', '-5', null, '2e+17', '0'])._col;
+  const result   = col.stringIsFloat();
+  const expected = [true, true, false, true, true, null, true, true];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringsFromFloats', () => {
+  const col      = Series.new([1.2, 12, -2.3, -5, null, 2e+17, 0])._col;
+  const result   = col.stringsFromFloats();
+  const expected = ['1.2', '12.0', '-2.3', '-5.0', null, '2.0e+17', '0.0'];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringsToFloats', () => {
+  const col      = Series.new(['1.2', '12', '-2.3', '-5', null, '2e+17', '0'])._col;
+  const result   = col.stringsToFloats(new Float64);
+  const expected = [1.2, 12.0, -2.3, -5.0, null, 2.0e+17, 0.0];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringIsInteger', () => {
+  const col      = Series.new(['1.2', '12', 'abc', '-2.3', '-5', null, '2e+17', '0'])._col;
+  const result   = col.stringIsInteger();
+  const expected = [false, true, false, false, true, null, false, true];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringsFromIntegers', () => {
+  const col      = Series.new({type: new Int32, data: [12, -5, null, 0]})._col;
+  const result   = col.stringsFromIntegers();
+  const expected = ['12', '-5', null, '0'];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringsToIntegers', () => {
+  const col      = Series.new(['12', '-5', null, '0'])._col;
+  const result   = col.stringsToIntegers(new Int32);
+  const expected = [12, -5, null, 0];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
 describe('Column.setNullMask', () => {
   const arange = (length: number) => Array.from({length}, (_, i) => i);
   const makeTestColumn            = (length: number) =>
@@ -173,19 +215,19 @@ describe('Column.setNullMask', () => {
   };
 
   test('recomputes nullCount (all null)',
-       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(64)); });
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(64).buffer); });
 
   test('recomputes nullCount (all valid)',
        () => { validateSetNullMask(makeTestColumn(4), 4, 0, new Uint8Buffer(8).fill(255)); });
 
   test('uses the new nullCount',
-       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(8), 4); });
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(8).buffer, 4); });
 
   test('clamps the new nullCount to length',
-       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(8), 8); });
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(8).buffer, 8); });
 
   test('resizes when mask is smaller than 64 bytes',
-       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceBuffer(4)); });
+       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(4).buffer); });
 
   test('Passing null resets to all valid',
        () => { validateSetNullMask(makeTestColumn(4), 4, 0, null); });
@@ -208,10 +250,12 @@ describe('Column.setNullMask', () => {
     validateSetNullMask(makeTestColumn(4), 4, 4, [false, false, false, false]);
   });
 
-  test('accepts CUDA DeviceMemory',
-       () => { validateSetNullMask(makeTestColumn(4), 4, 4, new DeviceMemory(8)); });
+  test('accepts CUDA DeviceMemory', () => {
+    validateSetNullMask(
+      makeTestColumn(4), 4, 4, new Uint8Buffer(new DeviceMemory(8)).fill(0).buffer);
+  });
 
-  test(
-    'accepts CUDA MemoryView of DeviceMemory',
-    () => { validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(new DeviceMemory(8))); });
+  test('accepts CUDA MemoryView of DeviceMemory', () => {
+    validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(new DeviceMemory(8)).fill(0));
+  });
 });

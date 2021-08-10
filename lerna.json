@@ -9,6 +9,7 @@
     "modules/demo/umap",
     "modules/demo/luma",
     "modules/demo/spatial",
+    "modules/demo/ssr",
     "modules/demo/xterm",
     "modules/demo/deck/*",
     "modules/demo/ipc/*",

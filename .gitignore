@@ -12,12 +12,6 @@
 
 .env
 .cmake-js
-modules/*/include/rmm
-modules/*/include/cudf
-modules/*/include/cuml
-modules/*/include/cugraph
-modules/*/include/cuspatial
-modules/*/include/thrust
 modules/*/include/napi.h
 modules/*/include/napi-inl.h
 modules/*/include/napi-inl.deprecated.h
@@ -28,3 +22,5 @@ modules/demo/**/*/data
 modules/**/.eslintrc.js
 
 modules/**/notebooks/data
+
+internal/*

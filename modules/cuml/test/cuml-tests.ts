@@ -9,7 +9,7 @@ import {
 const df = DataFrame.readCSV({
   header: 0,
   sourceType: 'files',
-  sources: ['./debug/iris.csv'],
+  sources: [`${__dirname}/iris.csv`],
   dataTypes: {
     sepal_length: 'float32',
     sepal_width: 'float32',

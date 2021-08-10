@@ -18,14 +18,19 @@ import {MemoryResource} from '@rapidsai/rmm';
 import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
-import {Float32, Float64, FloatingPoint} from '../types/dtypes';
+import {Bool8, Float32, Float64, FloatingPoint, Int32} from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
+import {StringSeries} from './string';
 
 /**
  * A base class for Series of 32 or 64-bit floating-point values in GPU memory.
  */
 abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
+  _castAsString(memoryResource?: MemoryResource): StringSeries {
+    return StringSeries.new(this._col.stringsFromFloats(memoryResource));
+  }
+
   /**
    * Creates a Series of `BOOL8` elements where `true` indicates the value is `NaN` and `false`
    * indicates the value is valid.
@@ -65,8 +70,8 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
     return Series.new(this._col.rint(memoryResource));
   }
 
-  _process_reduction(skipna = true, memoryResource?: MemoryResource): Series<T> {
-    if (skipna == true) {
+  _process_reduction(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
+    if (skipNulls == true) {
       return this.__construct(this._col.nansToNulls(memoryResource).dropNulls());
     }
     return this.__construct(this._col);
@@ -123,17 +128,17 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   /**
    * Return whether all elements are true in Series.
    *
-   * @param skipna bool
-   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
-   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
-   * these are not equal to zero.
+   * @param skipNulls bool
+   * Exclude NA/null values. If the entire row/column is NA and skipNulls is true, then the result
+   * will be true, as for an empty row/column. If skipNulls is false, then NA are treated as true,
+   * because these are not equal to zero.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    *
    * @returns true if all elements are true in Series, else false.
    */
-  all(skipna = true, memoryResource?: MemoryResource) {
-    if (skipna) {
+  all(skipNulls = true, memoryResource?: MemoryResource) {
+    if (skipNulls) {
       const ser_result = this.nansToNulls(memoryResource);
       if (ser_result.length == ser_result.nullCount) { return true; }
     }
@@ -143,58 +148,169 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   /**
    * Return whether any elements are true in Series.
    *
-   * @param skipna bool
-   * Exclude NA/null values. If the entire row/column is NA and skipna is true, then the result will
-   * be true, as for an empty row/column. If skipna is false, then NA are treated as true, because
-   * these are not equal to zero.
+   * @param skipNulls bool
+   * Exclude NA/null values. If the entire row/column is NA and skipNulls is true, then the result
+   * will be true, as for an empty row/column. If skipNulls is false, then NA are treated as true,
+   * because these are not equal to zero.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
    *
    * @returns true if any elements are true in Series, else false.
    */
-  any(skipna = true, memoryResource?: MemoryResource) {
+  any(skipNulls = true, memoryResource?: MemoryResource) {
     if (this.length == 0) { return false; }
-    if (skipna) {
+    if (skipNulls) {
       const ser_result = this.nansToNulls(memoryResource);
       if (ser_result.length == ser_result.nullCount) { return false; }
     }
     return this._col.any(memoryResource);
   }
 
+  protected _prepare_scan_series(skipNulls: boolean) {
+    const data = this.nansToNulls();
+
+    if (skipNulls) { return data; }
+
+    if (!data.hasNulls) { return data; }
+
+    const index = Series.sequence({type: new Int32, size: data.length, step: 1, init: 0});
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const first = index.filter(data.isNull()).getValue(0)!;
+    const slice =
+      Series.sequence({type: new Int32, size: data.length - first, step: 1, init: first});
+
+    const copy = data.cast(data.type);
+    const mask = [...index.cast(new Bool8).fill(true).scatter(false, slice)];
+    copy.setNullMask(mask as any);
+
+    return copy;
+  }
+
+  /**
+   * Compute the cumulative max of all values in this Series.
+   *
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative max of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cumulativeMax() // {4, 4, 5, 5, 5}
+   * ```
+   */
+  cumulativeMax(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls);
+    return Series.new(result_series._col.cumulativeMax(memoryResource) as Column<T>);
+  }
+
+  /**
+   * Compute the cumulative min of all values in this Series.
+   *
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative min of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cumulativeMin() // {4, 2, 2, 1, 1}
+   * ```
+   */
+  cumulativeMin(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls);
+    return Series.new(result_series._col.cumulativeMin(memoryResource) as Column<T>);
+  }
+
+  /**
+   * Compute the cumulative product of all values in this Series.
+   *
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative product of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cumulativeProduct() // {4, 8, 40, 40, 40}
+   * ```
+   */
+  cumulativeProduct(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls);
+    return Series.new(result_series._col.cumulativeProduct(memoryResource) as Column<T>);
+  }
+
+  /**
+   * Compute the cumulative sum of all values in this Series.
+   *
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative sum of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1])
+   *
+   * a.cumulativeSum() // {4, 6, 11, 12, 13}
+   * ```
+   */
+  cumulativeSum(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls);
+    return Series.new(result_series._col.cumulativeSum(memoryResource) as Column<T>);
+  }
+
   /**
    * Compute the mean of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
-   * else if skipna is false, reduction is computed directly.
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The mean of all the values in this Series.
    */
-  mean(skipna = true, memoryResource?: MemoryResource) {
-    if (!skipna && this.nansToNulls().nullCount > 0) { return NaN; }
-    return this._process_reduction(skipna, memoryResource)._col.mean(memoryResource);
+  mean(skipNulls = true, memoryResource?: MemoryResource) {
+    if (!skipNulls && this.nansToNulls().nullCount > 0) { return NaN; }
+    return this._process_reduction(skipNulls, memoryResource)._col.mean(memoryResource);
   }
 
   /**
    * Compute the median of all values in this Series.
    *
-   * @param skipna The optional skipna if true drops NA and null values before computing reduction,
-   * else if skipna is false, reduction is computed directly.
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The median of all the values in this Series.
    */
-  median(skipna = true, memoryResource?: MemoryResource) {
-    if (!skipna && this.nansToNulls().nullCount > 0) { return NaN; }
-    return this._process_reduction(skipna, memoryResource)._col.median(memoryResource);
+  median(skipNulls = true, memoryResource?: MemoryResource) {
+    if (!skipNulls && this.nansToNulls().nullCount > 0) { return NaN; }
+    return this._process_reduction(skipNulls, memoryResource)._col.median(memoryResource);
   }
 
   /**
    * Compute the nunique of all values in this Series.
    *
    * @param dropna
-   * If true, NA/null values will not contribute to the count of unique values. If false, they will
-   * be included in the count.
+   * If true, NA/null values will not contribute to the count of unique values. If false, they
+   * will be included in the count.
    * @param memoryResource The optional MemoryResource used to allocate the result Series's device
    *   memory.
    * @returns The number of unqiue values in this Series.

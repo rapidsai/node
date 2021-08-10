@@ -15,6 +15,8 @@
 #include "node_rmm/memory_resource.hpp"
 #include "node_rmm/utilities/napi_to_cpp.hpp"
 
+#include <node_cuda/device.hpp>
+
 #include <thrust/optional.h>
 
 namespace nv {
@@ -75,7 +77,7 @@ MemoryResource::MemoryResource(CallbackArgs const& args)
       break;
     }
 
-    case mr_type::fixedsize: {
+    case mr_type::fixed_size: {
       NODE_CUDA_EXPECT(MemoryResource::IsInstance(arg1.val),
                        "FixedSizeMemoryResource constructor expects an upstream MemoryResource "
                        "from which to allocate blocks for the pool.",
@@ -106,7 +108,7 @@ MemoryResource::MemoryResource(CallbackArgs const& args)
       break;
     }
 
-    case mr_type::logging: {
+    case mr_type::logging_adaptor: {
       NODE_CUDA_EXPECT(MemoryResource::IsInstance(arg1.val),
                        "LoggingResourceAdapter constructor expects an upstream MemoryResource.",
                        env);
@@ -135,8 +137,18 @@ MemoryResource::MemoryResource(CallbackArgs const& args)
         mr, log_file_path, auto_flush);
       break;
     }
+    default:
+      throw Napi::Error::New(
+        env,
+        std::string{"Unknown MemoryResource type: "} + std::to_string(static_cast<uint8_t>(type_)));
   }
 };
+
+void MemoryResource::Finalize(Napi::Env env) {
+  if (mr_ != nullptr) {
+    Device::call_in_context(env, device().value(), [&] { mr_ = nullptr; });
+  }
+}
 
 std::string MemoryResource::file_path() const { return log_file_path_; };
 
@@ -159,7 +171,7 @@ bool MemoryResource::supports_get_mem_info(Napi::Env const& env) const {
 }
 
 void MemoryResource::flush() {
-  if (type_ == mr_type::logging) { get_log_mr()->flush(); }
+  if (type_ == mr_type::logging_adaptor) { get_log_mr()->flush(); }
 }
 
 void MemoryResource::add_bin(size_t allocation_size) {
@@ -174,7 +186,7 @@ void MemoryResource::add_bin(size_t allocation_size, Napi::Object const& bin_res
 }
 
 void MemoryResource::flush(Napi::CallbackInfo const& info) {
-  if (type_ == mr_type::logging) { flush(); }
+  if (type_ == mr_type::logging_adaptor) { flush(); }
 }
 
 void MemoryResource::add_bin(Napi::CallbackInfo const& info) {

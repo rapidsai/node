@@ -32,6 +32,7 @@
 #include <cudf/unary.hpp>
 
 #include <rmm/device_buffer.hpp>
+#include "cudf/reduction.hpp"
 
 #include <napi.h>
 
@@ -227,6 +228,19 @@ struct Column : public EnvLocalObjectWrap<Column> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   /**
+   * @copydoc cudf::scan(cudf::column_view const &col, std::unique_ptr<aggregation> const &agg,
+   * cudf::scan_type inclusive, cudf::null_policy null_handling, rmm::mr::device_memory_resource*
+   * mr)
+   *
+   * @return Column
+   */
+  Column::wrapper_t scan(
+    std::unique_ptr<cudf::aggregation> const& agg,
+    cudf::scan_type inclusive,
+    cudf::null_policy null_handling     = cudf::null_policy::EXCLUDE,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
    * @copydoc cudf::sum(rmm::mr::device_memory_resource* mr)
    *
    * @return Scalar
@@ -316,6 +330,38 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Scalar::wrapper_t quantile(
     double q                            = 0.5,
     cudf::interpolation i               = cudf::interpolation::LINEAR,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Return the cumulative max
+   *
+   * @return Scalar
+   */
+  Column::wrapper_t cumulative_max(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Return the cumulative minimum
+   *
+   * @return Scalar
+   */
+  Column::wrapper_t cumulative_min(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Return the cumulative product
+   *
+   * @return Scalar
+   */
+  Column::wrapper_t cumulative_product(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  /**
+   * @brief Return the cumulative sum
+   *
+   * @return Scalar
+   */
+  Column::wrapper_t cumulative_sum(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/binaryop.cpp
@@ -483,13 +529,6 @@ struct Column : public EnvLocalObjectWrap<Column> {
     Column const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   Column::wrapper_t logical_or(
-    Scalar const& other,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  // cudf::binary_operator::COALESCE
-  Column::wrapper_t coalesce(
-    Column const& other,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-  Column::wrapper_t coalesce(
     Scalar const& other,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
   // cudf::binary_operator::SHIFT_LEFT
@@ -676,6 +715,27 @@ struct Column : public EnvLocalObjectWrap<Column> {
     std::string const& pattern,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // column/convert.cpp
+  Column::wrapper_t string_is_float(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t strings_from_floats(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t strings_to_floats(
+    cudf::data_type out_type,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t string_is_integer(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t strings_from_integers(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t strings_to_integers(
+    cudf::data_type out_type,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
  private:
   cudf::size_type size_{};                         ///< The number of elements in the column
   cudf::size_type offset_{};                       ///< The offset of elements in the data
@@ -701,6 +761,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value num_children(Napi::CallbackInfo const& info);
 
   Napi::Value gather(Napi::CallbackInfo const& info);
+  Napi::Value copy(Napi::CallbackInfo const& info);
 
   Napi::Value get_child(Napi::CallbackInfo const& info);
 
@@ -729,7 +790,6 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value bitwise_xor(Napi::CallbackInfo const& info);
   Napi::Value logical_and(Napi::CallbackInfo const& info);
   Napi::Value logical_or(Napi::CallbackInfo const& info);
-  Napi::Value coalesce(Napi::CallbackInfo const& info);
   Napi::Value shift_left(Napi::CallbackInfo const& info);
   Napi::Value shift_right(Napi::CallbackInfo const& info);
   Napi::Value shift_right_unsigned(Napi::CallbackInfo const& info);
@@ -771,6 +831,10 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value variance(Napi::CallbackInfo const& info);
   Napi::Value std(Napi::CallbackInfo const& info);
   Napi::Value quantile(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_max(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_min(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_product(Napi::CallbackInfo const& info);
+  Napi::Value cumulative_sum(Napi::CallbackInfo const& info);
 
   // column/strings/json.cpp
   Napi::Value get_json_object(Napi::CallbackInfo const& info);
@@ -813,6 +877,14 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value count_re(Napi::CallbackInfo const& info);
   // Napi::Value findall_re(Napi::CallbackInfo const& info);
   Napi::Value matches_re(Napi::CallbackInfo const& info);
+
+  // column/convert.hpp
+  Napi::Value string_is_float(Napi::CallbackInfo const& info);
+  Napi::Value strings_from_floats(Napi::CallbackInfo const& info);
+  Napi::Value strings_to_floats(Napi::CallbackInfo const& info);
+  Napi::Value string_is_integer(Napi::CallbackInfo const& info);
+  Napi::Value strings_from_integers(Napi::CallbackInfo const& info);
+  Napi::Value strings_to_integers(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

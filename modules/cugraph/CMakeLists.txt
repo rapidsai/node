@@ -25,12 +25,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
-option(NODE_RAPIDS_USE_CCACHE "Enable caching compilation results with ccache" ON)
+option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
 option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
 
 set(RMM_VERSION "21.08.00")
 set(CUDF_VERSION "21.08.00")
 set(CUGRAPH_VERSION "21.08.00")
+set(RAFT_VERSION "21.08.00")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
@@ -97,23 +98,35 @@ target_compile_options(${PROJECT_NAME}
                     "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>>"
 )
 
+if(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+    include(ConfigureCUDF)
+endif()
+
+if(TARGET cudf::cudf)
+    set(LIBCUDF_LIBRARY cudf::cudf)
+    set(LIBCUDF_INCLUDE_DIRS "")
+else()
+    set(LIBCUDF_LIBRARY "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-build/libcudf.so")
+    list(APPEND LIBCUDF_INCLUDE_DIRS "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-build/include")
+    list(APPEND LIBCUDF_INCLUDE_DIRS "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/_deps/cudf-src/cpp/include")
+endif()
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDF_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_RMM_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${NODE_RAPIDS_CUDA_MODULE_PATH}/src>"
            "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
+           "$<BUILD_INTERFACE:${LIBCUDF_INCLUDE_DIRS}>"
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
 )
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
-                      rmm::rmm
-                      cudf::cudf
                       cugraph::cugraph
-                      CUDA::cudart_static
-                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
+                      "${LIBCUDF_LIBRARY}"
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
+                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin

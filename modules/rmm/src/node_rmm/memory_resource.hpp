@@ -23,14 +23,24 @@
 #include <nv_node/utilities/args.hpp>
 
 #include <rmm/cuda_stream_view.hpp>
+// #include <rmm/mr/device/aligned_resource_adaptor.hpp>
+#include <rmm/mr/device/arena_memory_resource.hpp>
 #include <rmm/mr/device/binning_memory_resource.hpp>
+#include <rmm/mr/device/cuda_async_memory_resource.hpp>
 #include <rmm/mr/device/cuda_memory_resource.hpp>
 #include <rmm/mr/device/device_memory_resource.hpp>
 #include <rmm/mr/device/fixed_size_memory_resource.hpp>
+#include <rmm/mr/device/limiting_resource_adaptor.hpp>
 #include <rmm/mr/device/logging_resource_adaptor.hpp>
 #include <rmm/mr/device/managed_memory_resource.hpp>
+#include <rmm/mr/device/owning_wrapper.hpp>
 #include <rmm/mr/device/per_device_resource.hpp>
+#include <rmm/mr/device/polymorphic_allocator.hpp>
 #include <rmm/mr/device/pool_memory_resource.hpp>
+#include <rmm/mr/device/statistics_resource_adaptor.hpp>
+#include <rmm/mr/device/thread_safe_resource_adaptor.hpp>
+#include <rmm/mr/device/thrust_allocator_adaptor.hpp>
+#include <rmm/mr/device/tracking_resource_adaptor.hpp>
 
 #include <napi.h>
 #include <memory>
@@ -52,29 +62,59 @@ struct MemoryResource : public EnvLocalObjectWrap<MemoryResource> {
   }
 
   inline static wrapper_t Device(Napi::Env const& env, rmm::cuda_device_id id) {
-    auto resource        = Cuda(env);
+    auto resource = Cuda(env);
+    auto mr       = rmm::mr::get_per_device_resource(id);
+    resource->mr_.reset(mr, [](auto* p) {});
     resource->device_id_ = rmm::cuda_device_id{id.value()};
-    resource->mr_.reset(rmm::mr::get_per_device_resource(id), [](auto* p) {});
-    resource->type_ = [&](rmm::mr::device_memory_resource* mr) {
-      if (dynamic_cast<rmm::mr::cuda_memory_resource*>(mr)) {
+    resource->type_      = [&](rmm::mr::device_memory_resource* mr) {
+      if (mr == nullptr) {
+        throw Napi::Error::New(env, "MemoryResource is null");
+        // } else if
+        // (dynamic_cast<rmm::mr::aligned_resource_adaptor<rmm::mr::device_memory_resource>*>(
+        //              mr)) {
+        //   return mr_type::aligned_adaptor;
+      } else if (dynamic_cast<rmm::mr::arena_memory_resource<rmm::mr::device_memory_resource>*>(
+                   mr)) {
+        return mr_type::arena;
+      } else if (dynamic_cast<rmm::mr::binning_memory_resource<rmm::mr::device_memory_resource>*>(
+                   mr)) {
+        return mr_type::binning;
+      } else if (dynamic_cast<rmm::mr::cuda_async_memory_resource*>(mr)) {
+        return mr_type::cuda_async;
+      } else if (dynamic_cast<rmm::mr::cuda_memory_resource*>(mr)) {
         return mr_type::cuda;
+      } else if (dynamic_cast<
+                   rmm::mr::fixed_size_memory_resource<rmm::mr::device_memory_resource>*>(mr)) {
+        return mr_type::fixed_size;
+      } else if (dynamic_cast<rmm::mr::limiting_resource_adaptor<rmm::mr::device_memory_resource>*>(
+                   mr)) {
+        return mr_type::limiting_adaptor;
+      } else if (dynamic_cast<rmm::mr::logging_resource_adaptor<rmm::mr::device_memory_resource>*>(
+                   mr)) {
+        return mr_type::logging_adaptor;
       } else if (dynamic_cast<rmm::mr::managed_memory_resource*>(mr)) {
         return mr_type::managed;
+      } else if (dynamic_cast<rmm::mr::polymorphic_allocator<rmm::mr::device_memory_resource>*>(
+                   mr)) {
+        return mr_type::polymorphic_allocator;
       } else if (dynamic_cast<rmm::mr::pool_memory_resource<rmm::mr::device_memory_resource>*>(
                    mr)) {
         return mr_type::pool;
       } else if (dynamic_cast<
-                   rmm::mr::fixed_size_memory_resource<rmm::mr::device_memory_resource>*>(mr)) {
-        return mr_type::fixedsize;
-      } else if (dynamic_cast<rmm::mr::binning_memory_resource<rmm::mr::device_memory_resource>*>(
+                   rmm::mr::statistics_resource_adaptor<rmm::mr::device_memory_resource>*>(mr)) {
+        return mr_type::statistics_adaptor;
+      } else if (dynamic_cast<
+                   rmm::mr::thread_safe_resource_adaptor<rmm::mr::device_memory_resource>*>(mr)) {
+        return mr_type::thread_safe_adaptor;
+      } else if (dynamic_cast<rmm::mr::tracking_resource_adaptor<rmm::mr::device_memory_resource>*>(
                    mr)) {
-        return mr_type::binning;
-      } else if (dynamic_cast<rmm::mr::logging_resource_adaptor<rmm::mr::device_memory_resource>*>(
-                   mr)) {
-        return mr_type::logging;
+        return mr_type::tracking_adaptor;
+      } else if (dynamic_cast<rmm::mr::device_memory_resource*>(mr)) {
+        return mr_type::device;
       }
-      throw Napi::Error::New(env, "Unknown MemoryResource type");
-    }(resource->operator rmm::mr::device_memory_resource*());
+
+      throw Napi::Error::New(env, std::string{"Unknown MemoryResource type: "} + typeid(mr).name());
+    }(mr);
 
     return resource;
   }
@@ -100,7 +140,7 @@ struct MemoryResource : public EnvLocalObjectWrap<MemoryResource> {
                                     std::size_t block_size            = 1 << 20,
                                     std::size_t blocks_to_preallocate = 128) {
     return EnvLocalObjectWrap<MemoryResource>::New(
-      env, mr_type::fixedsize, upstream_mr, block_size, blocks_to_preallocate);
+      env, mr_type::fixed_size, upstream_mr, block_size, blocks_to_preallocate);
   }
 
   inline static wrapper_t Binning(Napi::Env const& env,
@@ -116,7 +156,7 @@ struct MemoryResource : public EnvLocalObjectWrap<MemoryResource> {
                                   std::string const& log_file_path = "",
                                   bool auto_flush                  = false) {
     return EnvLocalObjectWrap<MemoryResource>::New(
-      env, mr_type::logging, upstream_mr, log_file_path, auto_flush);
+      env, mr_type::logging_adaptor, upstream_mr, log_file_path, auto_flush);
   }
 
   /**
@@ -124,6 +164,14 @@ struct MemoryResource : public EnvLocalObjectWrap<MemoryResource> {
    *
    */
   MemoryResource(CallbackArgs const& args);
+
+  /**
+   * @brief Destructor called when the JavaScript VM garbage collects this MemoryResource
+   * instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env env) override;
 
   inline rmm::cuda_device_id device() const noexcept { return device_id_; }
 

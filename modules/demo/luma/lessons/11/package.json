@@ -1,7 +1,7 @@
 {
   "version": "0.0.0",
   "private": true,
-  "name":  "luma.gl-lessons-11",
+  "name": "@rapidsai/demo-luma.gl-lessons-11",
   "description": "The classic WebGL Lesson 11 ported to luma.gl.",
   "contributors": [
     "Jian Huang <jianh@uber.com>"
@@ -11,10 +11,10 @@
     "start-local": "webpack-dev-server --env.local --progress --hot --open -d"
   },
   "dependencies": {
-    "@luma.gl/constants": "8.4.5",
-    "@luma.gl/core": "8.4.5",
-    "math.gl": "^3.1.2",
-    "mjolnir.js": "^2.1.2"
+    "@luma.gl/constants": "8.5.4",
+    "@luma.gl/core": "8.5.4",
+    "math.gl": "3.5.3",
+    "mjolnir.js": "2.5.2"
   },
   "esm": {
     "cjs": true,

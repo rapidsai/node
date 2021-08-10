@@ -33,6 +33,10 @@
             "path": "modules/cuspatial"
         },
         {
+            "name": "blazingsql",
+            "path": "modules/blazingsql"
+        },
+        {
             "name": "deck.gl",
             "path": "modules/deck.gl"
         },
@@ -43,6 +47,10 @@
         {
             "name": "glfw",
             "path": "modules/glfw"
+        },
+        {
+            "name": "jsdom",
+            "path": "modules/jsdom"
         },
         {
             "name": "webgl",
@@ -100,7 +108,8 @@
             "./node-rapids/modules/deck.gl",
             "./node-rapids/modules/demo",
             "./node-rapids/modules/glfw",
-            "./node-rapids/modules/webgl"
+            "./node-rapids/modules/webgl",
+            "./node-rapids/modules/blazingsql"
         ],
         "eslint.options": {
             "configFile": ".eslintrc.js"

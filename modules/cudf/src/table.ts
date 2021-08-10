@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryResource} from '@rapidsai/rmm';
+import {MemoryData} from '@nvidia/cuda';
+import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
+
 import CUDF from './addon';
 import {Column} from './column';
 import {Scalar} from './scalar';
@@ -44,6 +46,14 @@ interface TableConstructor {
    */
   readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>):
     {names: (keyof T)[], table: Table};
+
+  /**
+   * Adapts an arrow Table in IPC format into a set of columns.
+   *
+   * @param memory A buffer holding Arrow table
+   * @return The Arrow data as a Table and a list of column names.
+   */
+  fromArrow(memory: DeviceBuffer|MemoryData): {names: string[], table: Table};
 
   /**
    * Returns tables concatenated to each other.

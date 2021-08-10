@@ -90,10 +90,11 @@ export class UMAP {
       ._col.data;
   }
 
-  // throw runtime error if type if float64
+  // throw runtime error if type isn't Integral | Float32
   protected _check_type<D extends Numeric>(features: D) {
     if (!allowedTypes.some((type) => compareTypes(features, type))) {
-      throw new Error('Expected input to be of type in [Integral, Float32] but got Float64');
+      throw new Error(
+        `Expected input to be of type in [Integral, Float32] but got ${features.toString()}`);
     }
   }
 
@@ -173,12 +174,12 @@ export class UMAP {
    *
    * ```typescript
    * // For a sample dataset of colors, with properties r,g and b:
-   * target = [color1, color2] // len(target) = len(features)
+   * target = [color1, color2] // len(target) = nFeatures
    * ```
    * @param convertDType When set to True, the method will automatically convert the inputs to
    *   float32
    * @param nFeatures number of properties in the input features, if features is of the format
-   *   [x1,y1,x2,y2...]
+   *   [x1, y1, x2, y2...]
    *
    * @returns FittedUMAP object with updated embeddings
    */
@@ -294,8 +295,8 @@ export class FittedUMAP extends UMAP {
    *   float32
    * @param nFeatures number of properties in the input features, if features is of the format
    *   [x1,y1,x2,y2...]
-   *  @returns Transformed `features` into the existing embedded space and return which can be
-   * converted to any of the following types: DataFrame, Series, DeviceBuffer.
+   *  @returns Transformed `features` into the existing embedded space and return an `Embeddings`
+   * instancewhich can be converted to any of the following types: DataFrame, Series, DeviceBuffer.
    *  ```typescript
    *  transformSeries(...).asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
    *  transformSeries(...).asSeries(); // returns Series<Numeric>
@@ -329,8 +330,8 @@ export class FittedUMAP extends UMAP {
    *   float32
    * @param nFeatures number of properties in the input features, if features is of the format
    *   [x1,y1,x2,y2...]
-   *  @returns Transformed `features` into the existing embedded space and return which can be
-   * converted to any of the following types: DataFrame, Series, DeviceBuffer
+   *  @returns Transformed `features` into the existing embedded space and return an `Embeddings`
+   * instance which can be converted to any of the following types: DataFrame, Series, DeviceBuffer
    *  ```typescript
    *  transformDataFrame(...).asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
    *  transformDataFrame(...).asSeries(); // returns Series<Numeric>
@@ -350,8 +351,8 @@ export class FittedUMAP extends UMAP {
    *   float32
    * @param nFeatures number of properties in the input features, if features is of the format
    *   [x1,y1,x2,y2...]
-   *  @returns Transformed `features` into the existing embedded space and return which can be
-   * converted to any of the following types: DataFrame, Series, DeviceBuffer.
+   *  @returns Transformed `features` into the existing embedded space and return an `Embeddings`
+   * instance which can be converted to any of the following types: DataFrame, Series, DeviceBuffer.
    *  ```typescript
    *  transformArray(...).asDataFrame(); // returns DataFrame<{number: Series<Numeric>}>
    *  transformArray(...).asSeries(); // returns Series<Numeric>

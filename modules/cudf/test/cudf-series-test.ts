@@ -14,25 +14,44 @@
 
 import {
   Float32Buffer,
+  Int16Buffer,
   Int32Buffer,
   Int64Buffer,
+  Int8Buffer,
   setDefaultAllocator,
-  Uint8Buffer
+  Uint16Buffer,
+  Uint32Buffer,
+  Uint64Buffer,
+  Uint8Buffer,
+  Uint8ClampedBuffer
 } from '@nvidia/cuda';
 import {
   Bool8,
   Column,
   Float32,
+  Float32Series,
   Float64,
+  Int16,
+  Int16Series,
   Int32,
+  Int32Series,
   Int64,
+  Int8,
+  Int8Series,
   Series,
   TimestampDay,
   TimestampMicrosecond,
   TimestampMillisecond,
   TimestampNanosecond,
   TimestampSecond,
+  Uint16,
+  Uint16Series,
+  Uint32,
+  Uint32Series,
+  Uint64,
+  Uint64Series,
   Uint8,
+  Uint8Series,
   Utf8String
 } from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
@@ -42,6 +61,221 @@ import {BoolVector} from 'apache-arrow';
 const mr = new CudaMemoryResource();
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
+
+test('Series initialization from Int8Array', () => {
+  const length = 3;
+  const s      = Series.new(new Int8Array([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int8Series);
+  expect(s.type).toBeInstanceOf(Int8);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Int8Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Int8Buffer([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int8Series);
+  expect(s.type).toBeInstanceOf(Int8);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+test('Series initialization from Int16Array', () => {
+  const length = 3;
+  const s      = Series.new(new Int16Array([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int16Series);
+  expect(s.type).toBeInstanceOf(Int16);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Int16Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Int16Buffer([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int16Series);
+  expect(s.type).toBeInstanceOf(Int16);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Int32Array', () => {
+  const length = 3;
+  const s      = Series.new(new Int32Array([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int32Series);
+  expect(s.type).toBeInstanceOf(Int32);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Int32Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Int32Buffer([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Int32Series);
+  expect(s.type).toBeInstanceOf(Int32);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Uint8Series', () => {
+  const length = 3;
+  const s      = Series.new(new Uint8Array([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Uint8Series);
+  expect(s.type).toBeInstanceOf(Uint8);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Uint8Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Uint8Buffer([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Uint8Series);
+  expect(s.type).toBeInstanceOf(Uint8);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Uint8Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Uint8ClampedArray([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Uint8Series);
+  expect(s.type).toBeInstanceOf(Uint8);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Uint8Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Uint8ClampedBuffer([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Uint8Series);
+  expect(s.type).toBeInstanceOf(Uint8);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Uint16Array', () => {
+  const length = 3;
+  const s      = Series.new(new Uint16Array([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Uint16Series);
+  expect(s.type).toBeInstanceOf(Uint16);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Uint16Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Uint16Buffer([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Uint16Series);
+  expect(s.type).toBeInstanceOf(Uint16);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Uint32Array', () => {
+  const length = 3;
+  const s      = Series.new(new Uint32Array([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Uint32Series);
+  expect(s.type).toBeInstanceOf(Uint32);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Uint32Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Uint32Buffer([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Uint32Series);
+  expect(s.type).toBeInstanceOf(Uint32);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from BigUint64Array', () => {
+  const length = 3;
+  const s      = Series.new(new BigUint64Array([1n, 2n, 3n]));
+
+  expect(s).toBeInstanceOf(Uint64Series);
+  expect(s.type).toBeInstanceOf(Uint64);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Uint64Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Uint64Buffer([1n, 2n, 3n]));
+
+  expect(s).toBeInstanceOf(Uint64Series);
+  expect(s.type).toBeInstanceOf(Uint64);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Float32Array', () => {
+  const length = 3;
+  const s      = Series.new(new Float32Array([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Float32Series);
+  expect(s.type).toBeInstanceOf(Float32);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
+
+test('Series initialization from Float32Buffer', () => {
+  const length = 3;
+  const s      = Series.new(new Float32Buffer([1, 2, 3]));
+
+  expect(s).toBeInstanceOf(Float32Series);
+  expect(s.type).toBeInstanceOf(Float32);
+  expect(s.length).toBe(length);
+  expect(s.nullCount).toBe(0);
+  expect(s.hasNulls).toBe(false);
+  expect(s.nullable).toBe(false);
+});
 
 test('Series initialization with properties (non-null)', () => {
   const length = 100;
@@ -189,6 +423,22 @@ test('NumericSeries.concat up-casts to common dtype', () => {
   expect([...result]).toEqual([...col, ...colToConcat]);
 });
 
+test('Series.copy fixed width', () => {
+  const col = Series.new({type: new Int32, data: new Int32Buffer([1, 2, 3, 4, 5])});
+
+  const result = col.copy();
+
+  expect([...result]).toEqual([...col]);
+});
+
+test('Series.copy String', () => {
+  const col = Series.new(['foo', 'bar', 'test', null]);
+
+  const result = col.copy();
+
+  expect([...result]).toEqual([...col]);
+});
+
 test('Series.gather', () => {
   const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
 
@@ -225,6 +475,54 @@ describe('Series.tail', () => {
   test('n longer than length of series', () => {
     expect([...col.tail(25)]).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
+});
+
+describe('Series.nLargest', () => {
+  const col =
+    Series.new({type: new Int32, data: new Int32Buffer([9, 5, 0, 2, 1, 3, 4, 7, 6, 8, 0])});
+
+  test('default n', () => { expect([...col.nLargest()]).toEqual([9, 8, 7, 6, 5]); });
+
+  test('negative n', () => { expect([...col.nLargest(-1)]).toEqual([]); });
+
+  test('providing n', () => { expect([...col.nLargest(8)]).toEqual([9, 8, 7, 6, 5, 4, 3, 2]); });
+
+  test('n longer than length of series', () => {
+    expect([...col.nLargest(25)]).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0]);
+  });
+
+  test('keep last duplicate option', () => {
+    expect([...col.nLargest(25, 'last')]).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0]);
+
+    expect([...col.nLargest(-5, 'last')]).toEqual([]);
+  });
+
+  test('keep none duplicate option throws',
+       () => { expect(() => col.nLargest(25, 'none')).toThrow(); });
+});
+
+describe('Series.nSmallest', () => {
+  const col =
+    Series.new({type: new Int32, data: new Int32Buffer([9, 5, 0, 2, 1, 3, 4, 7, 6, 8, 0])});
+
+  test('default n', () => { expect([...col.nSmallest()]).toEqual([0, 0, 1, 2, 3]); });
+
+  test('negative n', () => { expect([...col.nSmallest(-1)]).toEqual([]); });
+
+  test('providing n', () => { expect([...col.nSmallest(8)]).toEqual([0, 0, 1, 2, 3, 4, 5, 6]); });
+
+  test('n longer than length of series', () => {
+    expect([...col.nSmallest(25)]).toEqual([0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+
+  test('keep last duplicate option', () => {
+    expect([...col.nSmallest(25, 'last')]).toEqual([0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    expect([...col.nSmallest(-5, 'last')]).toEqual([]);
+  });
+
+  test('keep none duplicate option throws',
+       () => { expect(() => col.nSmallest(25, 'none')).toThrow(); });
 });
 
 test('Series.scatter (series)', () => {

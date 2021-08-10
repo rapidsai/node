@@ -1,3 +1,5 @@
+#!/usr/bin/env -S node -r esm
+
 // Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,9 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+require('segfault-handler').registerHandler('./crash.log');
+
 require('@babel/register')({
   cache: false,
   babelrc: false,
+  cwd: __dirname,
   presets: [
     ['@babel/preset-env', { 'targets': { 'node': 'current' } }],
     ['@babel/preset-react', { 'useBuiltIns': true }]

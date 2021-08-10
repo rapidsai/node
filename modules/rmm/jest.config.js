@@ -54,7 +54,7 @@ module.exports = {
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@nvidia\/rmm(.*)": "<rootDir>/src/$1",
+    "^@rapidsai\/rmm(.*)": "<rootDir>/src/$1",
     "^\.\.\/(Debug|Release)\/(node_rmm.node)$": "<rootDir>/build/$1/$2",
   }
 };

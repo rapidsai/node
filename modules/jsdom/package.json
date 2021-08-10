@@ -1,0 +1,34 @@
+{
+  "name": "@rapidsai/jsdom",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "main": "index.js",
+  "types": "build/js",
+  "scripts": {
+    "clean": "rimraf build doc compile_commands.json",
+    "doc": "rimraf doc && typedoc --options typedoc.js",
+    "test": "node -r dotenv/config node_modules/.bin/jest -c jest.config.js",
+    "build": "yarn tsc:build",
+    "compile": "yarn tsc:build",
+    "rebuild": "yarn tsc:build",
+    "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
+    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
+  },
+  "dependencies": {
+    "@nvidia/glfw": "0.0.1",
+    "@rapidsai/core": "0.0.1",
+    "@types/jsdom": "16.2.13",
+    "jsdom": "16.6.0"
+  },
+  "files": [
+    "build",
+    "LICENSE",
+    "index.js",
+    "README.md",
+    "package.json"
+  ]
+}

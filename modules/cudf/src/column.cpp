@@ -41,6 +41,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::set_null_count>("setNullCount"),
                        // column/copying.cpp
                        InstanceMethod<&Column::gather>("gather"),
+                       InstanceMethod<&Column::copy>("copy"),
                        // column/filling.cpp
                        InstanceMethod<&Column::fill>("fill"),
                        InstanceMethod<&Column::fill_in_place>("fillInPlace"),
@@ -64,7 +65,6 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::bitwise_xor>("bitwiseXor"),
                        InstanceMethod<&Column::logical_and>("logicalAnd"),
                        InstanceMethod<&Column::logical_or>("logicalOr"),
-                       InstanceMethod<&Column::coalesce>("coalesce"),
                        InstanceMethod<&Column::shift_left>("shiftLeft"),
                        InstanceMethod<&Column::shift_right>("shiftRight"),
                        InstanceMethod<&Column::shift_right_unsigned>("shiftRightUnsigned"),
@@ -97,6 +97,10 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::variance>("var"),
                        InstanceMethod<&Column::std>("std"),
                        InstanceMethod<&Column::quantile>("quantile"),
+                       InstanceMethod<&Column::cumulative_max>("cumulativeMax"),
+                       InstanceMethod<&Column::cumulative_min>("cumulativeMin"),
+                       InstanceMethod<&Column::cumulative_product>("cumulativeProduct"),
+                       InstanceMethod<&Column::cumulative_sum>("cumulativeSum"),
                        // column/strings/json.cpp
                        InstanceMethod<&Column::get_json_object>("getJSONObject"),
                        // column/replacement.cpp
@@ -134,6 +138,13 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::contains_re>("containsRe"),
                        InstanceMethod<&Column::count_re>("countRe"),
                        InstanceMethod<&Column::matches_re>("matchesRe"),
+                       // column/convert.cpp
+                       InstanceMethod<&Column::string_is_float>("stringIsFloat"),
+                       InstanceMethod<&Column::strings_from_floats>("stringsFromFloats"),
+                       InstanceMethod<&Column::strings_to_floats>("stringsToFloats"),
+                       InstanceMethod<&Column::string_is_integer>("stringIsInteger"),
+                       InstanceMethod<&Column::strings_from_integers>("stringsFromIntegers"),
+                       InstanceMethod<&Column::strings_to_integers>("stringsToIntegers"),
                      });
 }
 
@@ -303,7 +314,7 @@ cudf::column_view Column::view() const {
     child_views.emplace_back(*Column::Unwrap(child));
   }
 
-  return cudf::column_view{type, size_, *data, *mask, null_count_, offset_, child_views};
+  return cudf::column_view(type, size_, *data, *mask, null_count_, offset_, child_views);
 }
 
 cudf::mutable_column_view Column::mutable_view() {

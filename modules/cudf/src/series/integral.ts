@@ -28,6 +28,7 @@ import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
 import {
+  Bool8,
   Int16,
   Int32,
   Int64,
@@ -40,11 +41,16 @@ import {
 } from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
+import {StringSeries} from './string';
 
 /**
  * A base class for Series of 8, 16, 32, or 64-bit integral values in GPU memory.
  */
 abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
+  _castAsString(memoryResource?: MemoryResource): StringSeries {
+    return StringSeries.new(this._col.stringsFromIntegers(memoryResource));
+  }
+
   /**
    * Perform a binary `&` operation between this Series and another Series or scalar value.
    *
@@ -189,6 +195,111 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    */
   bitInvert(memoryResource?: MemoryResource): Series<T> {
     return Series.new(this._col.bitInvert(memoryResource));
+  }
+
+  protected _prepare_scan_series(skipNulls: boolean) {
+    if (skipNulls || !this.hasNulls) { return this; }
+
+    const index = Series.sequence({type: new Int32, size: this.length, step: 1, init: 0});
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const first = index.filter(this.isNull()).getValue(0)!;
+    const slice =
+      Series.sequence({type: new Int32, size: this.length - first, step: 1, init: first});
+
+    const copy = this.cast(this.type);
+    const mask = [...index.cast(new Bool8).fill(true).scatter(false, slice)];
+    copy.setNullMask(mask as any);
+
+    return copy;
+  }
+
+  /**
+   * Compute the cumulative max of all values in this Series.
+   *
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative max of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
+   *
+   * a.cumulativeMax() // {4, 4, 5, 5, 5}
+   * ```
+   */
+  cumulativeMax(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls) as any;
+    return Series.new(result_series._col.cumulativeMax(memoryResource));
+  }
+
+  /**
+   * Compute the cumulative min of all values in this Series.
+   *
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative min of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
+   *
+   * a.cumulativeMin() // {4, 2, 2, 1, 1}
+   * ```
+   */
+  cumulativeMin(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls) as any;
+    return Series.new(result_series._col.cumulativeMin(memoryResource));
+  }
+
+  /**
+   * Compute the cumulative product of all values in this Series.
+   *
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative product of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
+   *
+   * a.cumulativeProduct() // {4, 8, 40, 40, 40}
+   * ```
+   */
+  cumulativeProduct(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls) as any;
+    return Series.new(result_series._col.cumulativeProduct(memoryResource));
+  }
+
+  /**
+   * Compute the cumulative sum of all values in this Series.
+   *
+   * @param skipNulls The optional skipNulls if true drops NA and null values before computing
+   *   reduction,
+   * else if skipNulls is false, reduction is computed directly.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns The cumulative sum of all the values in this Series.
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new([4, 2, 5, 1, 1]).cast(new Int32)
+   *
+   * a.cumulativeSum() // {4, 6, 11, 12, 13}
+   * ```
+   */
+  cumulativeSum(skipNulls = true, memoryResource?: MemoryResource) {
+    const result_series = this._prepare_scan_series(skipNulls) as any;
+    return Series.new(result_series._col.cumulativeSum(memoryResource));
   }
 }
 
