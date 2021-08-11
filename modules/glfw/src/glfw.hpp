@@ -29,7 +29,6 @@
 #define GLFW_EXPOSE_NATIVE_NSGL
 #elif __linux__
 #define GLFW_EXPOSE_NATIVE_EGL
-#define GLFW_EXPOSE_NATIVE_EGL_EXT
 #endif
 
 #include <GLFW/glfw3native.h>

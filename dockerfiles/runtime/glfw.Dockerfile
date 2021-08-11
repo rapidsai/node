@@ -28,6 +28,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt install -y --no-install-recommends \
     # X11 dependencies
     libxrandr-dev libxinerama-dev libxcursor-dev \
+    # Wayland dependencies
+    libwayland-dev wayland-protocols libxkbcommon-dev \
     # GLEW dependencies
     libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # node-canvas dependencies

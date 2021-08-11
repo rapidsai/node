@@ -53,7 +53,6 @@ list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
 
 include(ConfigureCXX)
 include(ConfigureNapi)
-include(ConfigureDisplayServer)
 include(ConfigureOpenGL)
 include(ConfigureOpenGLEW)
 
@@ -87,7 +86,6 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
            "$<BUILD_INTERFACE:${RAPIDS_CORE_INCLUDE_DIR}>"
            "$<BUILD_INTERFACE:${NAPI_INCLUDE_DIRS}>"
-           "$<BUILD_INTERFACE:${DISPLAY_SERVER_INCLUDE_DIRS}>"
 )
 
 target_link_libraries(${PROJECT_NAME}
