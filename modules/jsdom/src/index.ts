@@ -19,10 +19,20 @@ import * as Url from 'url';
 import {installGetContext, installImageData} from './polyfills/canvas';
 import {installGLFWWindow} from './polyfills/glfw';
 import {createObjectUrlAndTmpDir} from './polyfills/object-url';
+import {
+  AnimationFrameRequest,
+  AnimationFrameRequestedCallback,
+  installAnimationFrame
+} from './polyfills/raf';
 import {installRequire} from './polyfills/require';
 
+export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
+  frameRate?: number;
+  onAnimationFrameRequested?: AnimationFrameRequestedCallback;
+}
+
 export class RapidsJSDOM extends jsdom.JSDOM {
-  constructor(html?: string, options: jsdom.ConstructorOptions = {}) {
+  constructor(html?: string, options: RapidsJSDOMOptions = {}) {
     const {installObjectURL, tmpdir} = createObjectUrlAndTmpDir();
     const url                        = `http://${Path.basename(tmpdir)}/`.toLowerCase();
     super(html, {
@@ -37,6 +47,8 @@ export class RapidsJSDOM extends jsdom.JSDOM {
         installImageData(window);
         installGLFWWindow(window);
         installGetContext(window);
+        installAnimationFrame(window,
+                              options.onAnimationFrameRequested || defaultFrameScheduler(options));
       }
     });
   }
@@ -53,4 +65,12 @@ class ImageLoader extends jsdom.ResourceLoader {
     const isFilePath = !isDataURI && !Url.parse(url).protocol;
     return super.fetch(isFilePath ? `file://${process.cwd()}/${url}` : url, options);
   }
+}
+
+function defaultFrameScheduler({frameRate: fps = 60}: RapidsJSDOMOptions) {
+  let request: AnimationFrameRequest|null = null;
+  setInterval(() => {
+    if (request) { request.flush(() => request = null); }
+  }, 1000 / fps);
+  return (r: AnimationFrameRequest) => { request = r; };
 }
