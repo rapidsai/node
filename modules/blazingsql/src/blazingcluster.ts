@@ -38,7 +38,8 @@ export class BlazingCluster {
   blazingContext: BlazingContext;
 
   static async init(args: Partial<BlazingCusterProps>): Promise<BlazingCluster> {
-    const bc = new BlazingCluster(args);
+    const bc         = new BlazingCluster(args);
+    const ucpContext = new UcpContext();
 
     const ucpMetadata = ['0', ...Object.keys(bc.workers)].map(
       (_, idx) => { return ({workerId: idx.toString(), ip: '0.0.0.0', port: 4000 + idx}); });
@@ -55,7 +56,6 @@ export class BlazingCluster {
       }));
     });
 
-    const ucpContext  = new UcpContext();
     bc.blazingContext = new BlazingContext({
       ralId: 0,
       ralCommunicationPort: 4000,
@@ -136,5 +136,7 @@ export class BlazingCluster {
     return result_df;
   }
 
-  stop(): void { this.workers.forEach((worker) => worker.kill()); }
+  stop(): void {
+    this.workers.forEach((worker) => { worker.kill('SIGKILL'); });
+  }
 }

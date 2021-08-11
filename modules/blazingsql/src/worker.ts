@@ -26,6 +26,7 @@ import {
 import {BlazingContext} from './blazingcontext';
 
 let bc: BlazingContext;
+let ucpContext: UcpContext;
 
 process.on('message', (args: any) => {
   const {operation, ...rest} = args;
@@ -33,7 +34,7 @@ process.on('message', (args: any) => {
   if (operation == CREATE_BLAZING_CONTEXT) {
     const ralId              = rest['ralId'] as number;
     const ucpMetaData: any[] = rest['ucpMetadata'] as Record<string, any>[];
-    const ucpContext         = new UcpContext();
+    ucpContext               = new UcpContext();
 
     bc = new BlazingContext({
       ralId: ralId,
