@@ -74,53 +74,42 @@ jobs:
           echo "CUDA_VERSION=${{ matrix.CUDA }}" >> .env
           echo "RAPIDS_VERSION=${{ env.RAPIDS }}" >> .env
           echo "LINUX_VERSION=${{ matrix.LINUX }}" >> .env
-
           if [[ "${{ steps.devel_dockerfiles_changed.outputs.any_changed }}" == "true" ]]; then
             yarn docker:build:devel
-
             docker image tag \
               rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }} \
               ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
-
             docker image tag \
               rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
               ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
           else
             docker pull ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
             docker pull ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
-
             docker image tag \
                 ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }} \
                 rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
-
             docker image tag \
                 ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
                 rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
           fi
-
           if [[ "${{ steps.runtime_base_dockerfiles_changed.outputs.any_changed }}" == "true" ]]; then
             yarn docker:build:runtime:base
-
             docker image tag \
               rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }} \
               ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
-
             docker image tag \
               rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }} \
               ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
           else
             docker pull ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
             docker pull ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
-
             docker image tag \
                 ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }} \
                 rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
-
             docker image tag \
                 ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }} \
                 rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
           fi
-
           echo "CUDAARCHS=ALL" >> .env
           echo "PARALLEL_LEVEL=1" >> .env
           echo "SCCACHE_CACHE_SIZE=100G" >> .env
@@ -129,45 +118,34 @@ jobs:
           echo "SCCACHE_BUCKET=node-rapids-sccache" >> .env
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
-
           yarn docker:build:release
-
           docker image tag \
             rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }} \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}
-
           docker image tag \
             rapidsai/node:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
-
           docker image tag \
             rapidsai/node:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo-${{ env.ARCH }} \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo-${{ env.ARCH }}
-
           docker image tag \
             rapidsai/node:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw-${{ env.ARCH }} \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw-${{ env.ARCH }}
-
           docker image tag \
             rapidsai/node:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf-${{ env.ARCH }} \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf-${{ env.ARCH }}
-
           docker image tag \
             rapidsai/node:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-blazingsql-${{ env.ARCH }} \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-blazingsql-${{ env.ARCH }}
-
           docker image tag \
             rapidsai/node:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml-${{ env.ARCH }} \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml-${{ env.ARCH }}
-
           docker image tag \
             rapidsai/node:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph-${{ env.ARCH }} \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph-${{ env.ARCH }}
-
           docker image tag \
             rapidsai/node:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial-${{ env.ARCH }} \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial-${{ env.ARCH }}
-
           docker push ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}
           docker push ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
           docker push ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo-${{ env.ARCH }}
