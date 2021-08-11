@@ -58,14 +58,14 @@ jobs:
           docker rmi $(docker image ls -aq) || true
           df -h
           docker images
-      - name: Check if the stateless containers should be rebuilt
-        id: changed_stateless_dockerfiles
-        uses: tj-actions/changed-files@v9.1
-        with:
-          files: |
-            dockerfiles/devel/01-base.Dockerfile
-            dockerfiles/devel/02-main.Dockerfile
-            dockerfiles/runtime/01-base.Dockerfile
+#       - name: Check if the stateless containers should be rebuilt
+#         id: changed_stateless_dockerfiles
+#         uses: tj-actions/changed-files@v9.1
+#         with:
+#           files: |
+#             dockerfiles/devel/01-base.Dockerfile
+#             dockerfiles/devel/02-main.Dockerfile
+#             dockerfiles/runtime/01-base.Dockerfile
       - name: Build devel base
         uses: docker/build-push-action@v2
         if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/devel/01-base.Dockerfile')
@@ -80,6 +80,10 @@ jobs:
             "NODE_VERSION=${{ env.NODE }}"
             "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
+      - name: Free up disk space
+        if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/devel/01-base.Dockerfile')
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build devel main
         uses: docker/build-push-action@v2
         if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/devel/02-main.Dockerfile')
@@ -92,6 +96,10 @@ jobs:
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
+      - name: Free up disk space
+        if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/devel/02-main.Dockerfile')
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build devel build
         uses: docker/build-push-action@v2
         with:
@@ -112,6 +120,10 @@ jobs:
             "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}
+      - name: Free up disk space
+        if: always()
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build runtime cuda-base
         uses: docker/build-push-action@v2
         if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/runtime/01-base.Dockerfile')
@@ -126,6 +138,10 @@ jobs:
             "FROM_IMAGE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
+      - name: Free up disk space
+        if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/runtime/01-base.Dockerfile')
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build runtime cudagl-base
         uses: docker/build-push-action@v2
         if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/runtime/01-base.Dockerfile')
@@ -140,6 +156,10 @@ jobs:
             "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
+      - name: Free up disk space
+        if: contains(steps.changed_stateless_dockerfiles.outputs.modified_files, 'dockerfiles/runtime/01-base.Dockerfile')
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build runtime main
         uses: docker/build-push-action@v2
         with:
@@ -152,6 +172,10 @@ jobs:
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
+      - name: Free up disk space
+        if: always()
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build runtime demo
         uses: docker/build-push-action@v2
         with:
@@ -164,6 +188,10 @@ jobs:
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo-${{ env.ARCH }}
+      - name: Free up disk space
+        if: always()
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build runtime glfw
         uses: docker/build-push-action@v2
         with:
@@ -176,6 +204,10 @@ jobs:
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw-${{ env.ARCH }}
+      - name: Free up disk space
+        if: always()
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build runtime cudf
         uses: docker/build-push-action@v2
         with:
@@ -188,6 +220,10 @@ jobs:
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf-${{ env.ARCH }}
+      - name: Free up disk space
+        if: always()
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build runtime blazingsql
         uses: docker/build-push-action@v2
         with:
@@ -200,6 +236,10 @@ jobs:
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-blazingsql-${{ env.ARCH }}
+      - name: Free up disk space
+        if: always()
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build runtime cuml
         uses: docker/build-push-action@v2
         with:
@@ -212,6 +252,10 @@ jobs:
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml-${{ env.ARCH }}
+      - name: Free up disk space
+        if: always()
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build runtime cugraph
         uses: docker/build-push-action@v2
         with:
@@ -224,6 +268,10 @@ jobs:
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph-${{ env.ARCH }}
+      - name: Free up disk space
+        if: always()
+        run: |
+          df -h && docker images && docker rmi $(docker image ls -aq) || true && df -h && docker images
       - name: Build runtime cuspatial
         uses: docker/build-push-action@v2
         with:
