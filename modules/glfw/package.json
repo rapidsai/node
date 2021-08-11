@@ -26,7 +26,7 @@
     "cpp:rebuild:debug": "nvidia-cmake-js -g rebuild -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
-    "dev:copy:libs": "nvidia-cmake-copy-libs build/Release/node_glfw.node build/Release/lib/libglew.so && rimraf build/Release/libglfw.so.3 && shx mv build/Release/libglfw.so.3.3 build/Release/libglfw.so.3"
+    "dev:copy:libs": "nvidia-cmake-copy-libs build/Release/node_glfw_*.node"
   },
   "dependencies": {
     "@nvidia/webgl": "0.0.1",

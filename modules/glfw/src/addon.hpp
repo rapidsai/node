@@ -99,10 +99,10 @@ Napi::Value glfwWindowHintString(Napi::CallbackInfo const& info);
 // monitor, GLFWwindow* share);
 Napi::Value glfwCreateWindow(Napi::CallbackInfo const& info);
 
-#ifdef __linux__
-// void glfwReparentWindow(GLFWwindow* window);
-Napi::Value glfwReparentWindow(Napi::CallbackInfo const& info);
-#endif
+// #ifdef __linux__
+// // void glfwReparentWindow(GLFWwindow* window);
+// Napi::Value glfwReparentWindow(Napi::CallbackInfo const& info);
+// #endif
 
 // GLFWAPI void glfwDestroyWindow(GLFWwindow* window);
 Napi::Value glfwDestroyWindow(Napi::CallbackInfo const& info);

@@ -14,36 +14,39 @@
 
 #pragma once
 
-#include <blazingsql/contextwrapper.hpp>
+#include <nv_node/objectwrap.hpp>
+
+#include <napi.h>
+
+typedef struct ucp_context* ucp_context_h;
 
 namespace nv {
 
-struct Context : public EnvLocalObjectWrap<Context> {
+struct UcpContext : public EnvLocalObjectWrap<UcpContext> {
   /**
-   * @brief Initialize and export the Context JavaScript constructor and prototype.
+   * @brief Initialize and export the UcpContext JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
-   * @return Napi::Function The Context constructor function.
+   * @return Napi::Function The UcpContext constructor function.
    */
   static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
-
   /**
-   * @brief Construct a new Context instance from existing device memory.
+   * @brief Construct a new UcpContext instance from a ral::cache::graph.
    *
-   * @return wrapper_t The new Context instance
+   * @param cache The shared pointer to the UcpContext.
    */
   static wrapper_t New(Napi::Env const& env);
 
   /**
-   * @brief Construct a new Context instance from JavaScript.
+   * @brief Construct a new UcpContext instance from JavaScript.
    */
-  Context(Napi::CallbackInfo const& info);
+  UcpContext(Napi::CallbackInfo const& info);
+
+  inline operator std::uintptr_t() { return reinterpret_cast<std::uintptr_t>(_ucp_context); }
 
  private:
-  Napi::Reference<Wrapper<ContextWrapper>> context;
-  Napi::Value run_generate_graph(Napi::CallbackInfo const& info);
-  Napi::Value pull_from_cache(Napi::CallbackInfo const& info);
+  ucp_context_h _ucp_context;
 };
 
 }  // namespace nv

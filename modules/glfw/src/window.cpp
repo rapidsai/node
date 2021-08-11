@@ -64,23 +64,23 @@ Napi::Value glfwCreateWindow(Napi::CallbackInfo const& info) {
   return CPPToNapi(info)(window);
 }
 
-#ifdef __linux__
+// #ifdef __linux__
 
-// void glfwReparentWindow(GLFWwindow* window);
-void glfwReparentWindow(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  int32_t targetX = args[2];
-  int32_t targetY = args[3];
-  auto display    = glfwGetX11Display();
-  auto child      = glfwGetX11Window(args[0]);
-  Window parent   = args[1];
+// // void glfwReparentWindow(GLFWwindow* window);
+// void glfwReparentWindow(Napi::CallbackInfo const& info) {
+//   CallbackArgs args{info};
+//   int32_t targetX = args[2];
+//   int32_t targetY = args[3];
+//   auto display    = glfwGetX11Display();
+//   auto child      = glfwGetX11Window(args[0]);
+//   Window parent   = args[1];
 
-  XWindowAttributes attrs;
-  XGetWindowAttributes(display, parent, &attrs);
-  XReparentWindow(display, child, parent, targetX, targetY);
-  XResizeWindow(display, child, attrs.width - targetX, attrs.height - targetY);
-}
-#endif
+//   XWindowAttributes attrs;
+//   XGetWindowAttributes(display, parent, &attrs);
+//   XReparentWindow(display, child, parent, targetX, targetY);
+//   XResizeWindow(display, child, attrs.width - targetX, attrs.height - targetY);
+// }
+// #endif
 
 // GLFWAPI void glfwDestroyWindow(GLFWwindow* window);
 void glfwDestroyWindow(Napi::CallbackInfo const& info) {
