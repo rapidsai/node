@@ -21,7 +21,8 @@ import {
   CREATE_BLAZING_CONTEXT,
   CREATE_TABLE,
   QUERY_RAN,
-  RUN_QUERY
+  RUN_QUERY,
+  TABLE_CREATED
 } from './blazingcluster';
 import {BlazingContext} from './blazingcontext';
 
@@ -51,6 +52,7 @@ process.on('message', (args: any) => {
     const df        = rest['dataframe'];
 
     bc.createTable(tableName, DataFrame.fromArrow(df));
+    (<any>process).send({operation: TABLE_CREATED});
   }
 
   if (operation == RUN_QUERY) {

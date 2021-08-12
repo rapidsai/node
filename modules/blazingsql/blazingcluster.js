@@ -7,7 +7,7 @@ async function runQuery() {
   const df = createLargeDataFrame();
 
   const bc = await BlazingCluster.init({ numWorkers: 2 });
-  bc.createTable('test_table', df);
+  await bc.createTable('test_table', df);
   const result = await bc.sql('SELECT a FROM test_table');
 
   bc.stop();
