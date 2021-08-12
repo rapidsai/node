@@ -20,10 +20,14 @@ import {BlazingContext} from './blazingcontext';
 
 export const CREATE_BLAZING_CONTEXT  = 'createBlazingContext';
 export const BLAZING_CONTEXT_CREATED = 'blazingContextCreated';
-export const CREATE_TABLE            = 'createTable';
-export const RUN_QUERY               = 'runQuery';
-export const QUERY_RAN               = 'ranQuery';
-export const CONFIG_OPTIONS          = {
+
+export const CREATE_TABLE  = 'createTable';
+export const TABLE_CREATED = 'tableCreated';
+
+export const RUN_QUERY = 'runQuery';
+export const QUERY_RAN = 'ranQuery';
+
+export const CONFIG_OPTIONS = {
   PROTOCOL: 'UCX',
 };
 
@@ -32,10 +36,10 @@ interface BlazingCusterProps {
 }
 
 export class BlazingCluster {
-  workers: ChildProcess[];
+  private workers: ChildProcess[];
   // @ts-ignore
   // instantiated within init()
-  blazingContext: BlazingContext;
+  private blazingContext: BlazingContext;
 
   static async init(args: Partial<BlazingCusterProps>): Promise<BlazingCluster> {
     const bc         = new BlazingCluster(args);
@@ -44,9 +48,9 @@ export class BlazingCluster {
     const ucpMetadata = ['0', ...Object.keys(bc.workers)].map(
       (_, idx) => { return ({workerId: idx.toString(), ip: '0.0.0.0', port: 4000 + idx}); });
 
-    const setupPromises: Promise<void>[] = [];
+    const createContextPromises: Promise<void>[] = [];
     bc.workers.forEach((worker, idx) => {
-      setupPromises.push(new Promise<void>((resolve) => {
+      createContextPromises.push(new Promise<void>((resolve) => {
         const ralId = idx + 1;  // start ralId at 1 since ralId 0 is reserved for main process
         worker.send({operation: CREATE_BLAZING_CONTEXT, ralId, ucpMetadata});
         worker.on('message', (msg: any) => {
@@ -63,7 +67,7 @@ export class BlazingCluster {
       workersUcpInfo: ucpMetadata.map((xs) => ({...xs, ucpContext})),
     });
 
-    await Promise.all(setupPromises);
+    await Promise.all(createContextPromises);
 
     return bc;
   }
@@ -77,19 +81,29 @@ export class BlazingCluster {
     }
   }
 
-  createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
+  async createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): Promise<void> {
     const len   = Math.ceil(input.numRows / (this.workers.length + 1));
     const table = input.toArrow();
 
     this.blazingContext.createTable(tableName,
                                     DataFrame.fromArrow(table.slice(0, len).serialize()));
+
+    const createTablePromises: Promise<void>[] = [];
     this.workers.forEach((worker, i) => {
-      worker.send({
-        operation: CREATE_TABLE,
-        tableName: tableName,
-        dataframe: table.slice((i + 1) * len, (i + 2) * len).serialize()
-      });
+      createTablePromises.push(new Promise((resolve) => {
+        worker.send({
+          operation: CREATE_TABLE,
+          tableName: tableName,
+          dataframe: table.slice((i + 1) * len, (i + 2) * len).serialize()
+        });
+        worker.on('message', (msg: any) => {
+          const {operation}: {operation: string} = msg;
+          if (operation === TABLE_CREATED) { resolve(); }
+        });
+      }));
     });
+
+    await Promise.all(createTablePromises);
   }
 
   async sql(query: string): Promise<DataFrame> {
