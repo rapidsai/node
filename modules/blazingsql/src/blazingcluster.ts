@@ -85,9 +85,6 @@ export class BlazingCluster {
     const len   = Math.ceil(input.numRows / (this.workers.length + 1));
     const table = input.toArrow();
 
-    this.blazingContext.createTable(tableName,
-                                    DataFrame.fromArrow(table.slice(0, len).serialize()));
-
     const createTablePromises: Promise<void>[] = [];
     this.workers.forEach((worker, i) => {
       createTablePromises.push(new Promise((resolve) => {
@@ -102,6 +99,9 @@ export class BlazingCluster {
         });
       }));
     });
+
+    this.blazingContext.createTable(tableName,
+                                    DataFrame.fromArrow(table.slice(0, len).serialize()));
 
     await Promise.all(createTablePromises);
   }
