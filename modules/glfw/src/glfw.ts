@@ -14,7 +14,13 @@
 
 import {loadNativeModule} from '@rapidsai/core';
 
-export const GLFW = loadNativeModule<any>(module, 'node_glfw');
+export const GLFW = loadNativeModule<any>(module, (() => {
+                                            if (process.env.DISPLAY) { return 'node_glfw_x11'; }
+                                            if (process.env.WAYLAND_DISPLAY) {
+                                              return 'node_glfw_wayland';
+                                            }
+                                            return 'node_glfw_eglheadless';
+                                          })());
 export default GLFW;
 
 export type GLFWmonitor      = number;

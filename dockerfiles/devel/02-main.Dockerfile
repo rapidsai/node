@@ -11,6 +11,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev \
     # node-canvas dependencies
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
+    # GLFW Wayland dependencies
+    extra-cmake-modules libwayland-dev wayland-protocols libxkbcommon-dev \
     # GLEW dependencies
     build-essential libxmu-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # cuSpatial dependencies

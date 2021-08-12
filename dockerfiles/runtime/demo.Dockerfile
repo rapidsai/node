@@ -69,6 +69,8 @@ RUN cd /usr/local/lib \
     libgdal-dev \
     # X11 dependencies
     libxrandr-dev libxinerama-dev libxcursor-dev \
+    # Wayland dependencies
+    libwayland-dev wayland-protocols libxkbcommon-dev \
     # GLEW dependencies
     libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # UCX runtime dependencies

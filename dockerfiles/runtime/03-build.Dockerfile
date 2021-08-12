@@ -26,7 +26,6 @@ COPY --chown=node:node modules/jsdom      modules/jsdom
 COPY --chown=node:node modules/rmm        modules/rmm
 COPY --chown=node:node modules/webgl      modules/webgl
 
-ARG DISPLAY
 ARG CUDAARCHS=ALL
 ARG PARALLEL_LEVEL
 ARG RAPIDS_VERSION
@@ -42,8 +41,7 @@ RUN echo -e "build env:\n$(env)" \
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_SECRET_ACCESS_KEY
 
-RUN env DISPLAY="$DISPLAY" \
-        CUDAARCHS="$CUDAARCHS" \
+RUN env CUDAARCHS="$CUDAARCHS" \
         PARALLEL_LEVEL="$PARALLEL_LEVEL" \
         RAPIDS_VERSION="$RAPIDS_VERSION" \
         SCCACHE_REGION="$SCCACHE_REGION" \

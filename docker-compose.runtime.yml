@@ -76,7 +76,6 @@ services:
       <<: *base_build_settings
       dockerfile: dockerfiles/runtime/03-build.Dockerfile
       args:
-        DISPLAY: "${DISPLAY:-}"
         PARALLEL_LEVEL: "${PARALLEL_LEVEL:-}"
         RAPIDS_VERSION: "${RAPIDS_VERSION:-}"
         SCCACHE_REGION: "${SCCACHE_REGION:-}"
