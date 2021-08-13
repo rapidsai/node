@@ -12,32 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {RapidsJSDOM} from '@rapidsai/jsdom';
-import {evalAsync} from './utils';
+import {globalWindow} from './utils';
 
-test('window.ImageData is from the canvas module', () => {
-  const {window} = new RapidsJSDOM();
-  expect(window.ImageData).toBe(require('canvas').ImageData);
-});
+test('window.ImageData is from the canvas module',
+     () => { expect(globalWindow.ImageData).toBe(require('canvas').ImageData); });
 
 describe('HTMLCanvasElement', () => {
-  test(`getContext('webgl2') returns our OpenGL context`, async () => {
-    const {window} = new RapidsJSDOM();
-    await expect(evalAsync(window, () => {  //
-      debugger;
+  test(`getContext('webgl2') returns our OpenGL context`, () => {
+    expect(globalWindow.evalFn(() => {
       const gl         = require('@nvidia/webgl');
       const {document} = window;
       const canvas     = document.body.appendChild(document.createElement('canvas'));
       return canvas.getContext('webgl2') instanceof gl.WebGL2RenderingContext;
-    })).resolves.toBe(true);
+    }))
+      .toBe(true);
   });
 
-  test(`getContext('webgl2') only creates one OpenGL context`, async () => {
-    const {window} = new RapidsJSDOM();
-    await expect(evalAsync(window, () => {  //
+  test(`getContext('webgl2') only creates one OpenGL context`, () => {
+    expect(globalWindow.evalFn(() => {
       const {document} = window;
       const canvas     = document.body.appendChild(document.createElement('canvas'));
       return canvas.getContext('webgl2') === canvas.getContext('webgl2');
-    })).resolves.toBe(true);
+    }))
+      .toBe(true);
   });
 });

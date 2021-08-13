@@ -20,6 +20,7 @@
                 "NODE_ENV": "production",
                 "READABLE_STREAM": "disable",
             },
+            "runtimeArgs": ["-r", "esm"],
             "args": [
                 "--verbose",
                 "--runInBand",

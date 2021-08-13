@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {RapidsJSDOM} from '@rapidsai/jsdom';
 import * as jsdom from 'jsdom';
+import * as streams from 'web-streams-polyfill';
 
-export let globalWindow: jsdom.DOMWindow;
-
-beforeAll(() => { ({window: globalWindow} = new RapidsJSDOM()); });
-afterAll(() => {
-  if (globalWindow) {  //
-    globalWindow.dispatchEvent(new globalWindow.CloseEvent('close'));
-  }
-});
+export function installStreams(window: jsdom.DOMWindow) {
+  window.ReadableStream            = streams.ReadableStream;
+  window.WritableStream            = streams.WritableStream;
+  window.TransformStream           = streams.TransformStream;
+  window.CountQueuingStrategy      = streams.CountQueuingStrategy;
+  window.ByteLengthQueuingStrategy = streams.ByteLengthQueuingStrategy;
+  return window;
+}

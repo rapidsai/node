@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 
 import {glfw} from '@nvidia/glfw';
 import * as jsdom from 'jsdom';
-import {performance} from 'perf_hooks';
 
 export interface AnimationFrameRequest {
   active: boolean;
@@ -34,40 +33,44 @@ export function installAnimationFrame(window: jsdom.DOMWindow,
   let callbacks1 = new Map<(time: number) => any, any>();
 
   let callbacks   = callbacks0;
-  const startTime = performance.now();
-  const request   = {active: true, flush: flushAnimationFrame};
+  const startTime = window.performance.now();
+  const request   = {active: false, flush: flushAnimationFrame};
+
+  const refresh = () => requestAnimationFrame();
+  window.addEventListener('move', refresh);
+  window.addEventListener('resize', refresh);
+  window.addEventListener('refresh', refresh);
+  window.addEventListener('close', () => {
+    window.removeEventListener('move', refresh);
+    window.removeEventListener('resize', refresh);
+    window.removeEventListener('refresh', refresh);
+  }, {once: true});
 
   return Object.assign(window, {requestAnimationFrame, cancelAnimationFrame});
 
-  function cancelAnimationFrame(cb: (time: number) => any) {
-    if (typeof cb === 'function') {
-      callbacks.delete(cb);
-      request.active = callbacks.size > 0;
-    }
+  function cancelAnimationFrame(cb?: (time: number) => any) {
+    typeof cb === 'function' && callbacks.delete(cb);
+    request.active = callbacks.size > 0;
   }
 
-  function requestAnimationFrame(cb: (endTime: number) => any = () => {}) {
-    if (typeof cb === 'function') {
-      callbacks.set(cb, null);
-      if (!request.active) {
-        request.active = true;
-        onAnimationFrameRequested(request);
-      }
+  function requestAnimationFrame(cb?: (endTime: number) => any) {
+    typeof cb === 'function' && callbacks.set(cb, null);
+    if (!request.active) {  //
+      onAnimationFrameRequested(Object.assign(request, {active: true}));
     }
     return cb;
   }
 
   function flushAnimationFrame(onAnimationFrameFlushed?: AnimationFrameFlushedCallback) {
-    const flushTime = performance.now();
+    const flushTime = window.performance.now();
     if (request.active) {
       request.active     = false;
+      const id           = window.id;
       const initialState = window._clearMask || 0;
       // hack: reset the private `gl._clearMask` field so we know whether
       // to call swapBuffers() after all the listeners have been executed
       window._clearMask = 0;
-      if (window.id > 0 && glfw.getCurrentContext() !== window.id) {
-        glfw.makeContextCurrent(window.id);
-      }
+      if (id > 0 && glfw.getCurrentContext() !== id) { glfw.makeContextCurrent(id); }
       if (callbacks.size > 0) {
         if (callbacks === callbacks0) {
           callbacks = callbacks1;
@@ -80,15 +83,14 @@ export function installAnimationFrame(window: jsdom.DOMWindow,
         }
       }
       const resultState = window._clearMask || 0;
-      window._clearMask = 0;
       // Fix for MacOS: only swap buffers if gl.clear() was called
-      if (notMacOs || (initialState || resultState)) {
-        (window.id > 0) && glfw.swapBuffers(window.id);
-      }
-      glfw.pollEvents();
+      const shouldSwap  = notMacOs || (initialState || resultState);
+      window._clearMask = 0;
+      if (id > 0 && shouldSwap) { glfw.swapBuffers(id); }
     }
     if (typeof onAnimationFrameFlushed === 'function') {
-      onAnimationFrameFlushed(startTime, flushTime, performance.now() - flushTime);
+      onAnimationFrameFlushed(startTime, flushTime, window.performance.now() - flushTime);
     }
+    // glfw.pollEvents();
   }
 }

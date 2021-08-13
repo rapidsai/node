@@ -12,14 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {RapidsJSDOM} from '@rapidsai/jsdom';
-import * as jsdom from 'jsdom';
+import {globalWindow} from './utils';
 
-export let globalWindow: jsdom.DOMWindow;
+test('fails to require a non-existent file', () => {
+  expect(() => globalWindow.evalFn(() => typeof require(`./files/nonexistent_file`) === 'object'))
+    .toThrow();
+});
 
-beforeAll(() => { ({window: globalWindow} = new RapidsJSDOM()); });
-afterAll(() => {
-  if (globalWindow) {  //
-    globalWindow.dispatchEvent(new globalWindow.CloseEvent('close'));
-  }
+test('successfully requires a local CommonJS module', () => {
+  expect(globalWindow.evalFn(() => typeof require(`./files/test-cjs-module`) === 'object'))
+    .toBe(true);
+});
+
+test('successfully requires a local ESModule module', () => {
+  expect(globalWindow.evalFn(() => typeof require(`./files/test-esm-module`).default === 'object'))
+    .toBe(true);
 });

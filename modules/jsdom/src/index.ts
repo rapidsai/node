@@ -17,7 +17,10 @@ import * as Path from 'path';
 import * as Url from 'url';
 
 import {installGetContext, installImageData} from './polyfills/canvas';
+import {installFetch} from './polyfills/fetch';
 import {installGLFWWindow} from './polyfills/glfw';
+import {installJSDOMUtils} from './polyfills/jsdom';
+import {installMjolnirHammer} from './polyfills/mjolnir';
 import {createObjectUrlAndTmpDir} from './polyfills/object-url';
 import {
   AnimationFrameRequest,
@@ -25,6 +28,7 @@ import {
   installAnimationFrame
 } from './polyfills/raf';
 import {installRequire} from './polyfills/require';
+import {installStreams} from './polyfills/streams';
 
 export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
   frameRate?: number;
@@ -42,13 +46,18 @@ export class RapidsJSDOM extends jsdom.JSDOM {
       runScripts: 'outside-only',
       resources: new ImageLoader(url),
       beforeParse(window) {  //
-        installRequire(window);
+        installJSDOMUtils(window);
+        installRequire(window, require.main);
+        installFetch(window);
+        installStreams(window);
         installObjectURL(window);
         installImageData(window);
-        installGLFWWindow(window);
         installGetContext(window);
-        installAnimationFrame(window,
-                              options.onAnimationFrameRequested || defaultFrameScheduler(options));
+        installGLFWWindow(window);
+        // installUserTiming(window);
+        installAnimationFrame(
+          window, options.onAnimationFrameRequested || defaultFrameScheduler(window, options));
+        installMjolnirHammer(window);
       }
     });
   }
@@ -60,17 +69,23 @@ class ImageLoader extends jsdom.ResourceLoader {
     // Hack since JSDOM 16.2.2: If loading a relative file
     // from our dummy localhost URI, translate to a file:// URI.
     if (url.startsWith(this._url)) { url = url.slice(this._url.length); }
-    // url.endsWith('/') && (url = url.slice(0, -1));
     const isDataURI  = url && url.startsWith('data:');
     const isFilePath = !isDataURI && !Url.parse(url).protocol;
     return super.fetch(isFilePath ? `file://${process.cwd()}/${url}` : url, options);
   }
 }
 
-function defaultFrameScheduler({frameRate: fps = 60}: RapidsJSDOMOptions) {
+function defaultFrameScheduler(window: jsdom.DOMWindow, {frameRate: fps = 60}: RapidsJSDOMOptions) {
   let request: AnimationFrameRequest|null = null;
-  setInterval(() => {
-    if (request) { request.flush(() => request = null); }
+  let interval: any                       = setInterval(() => {
+    if (request) {
+      request.flush(() => { request = null; });
+    }
+    window.poll();
   }, 1000 / fps);
+  window.addEventListener('close', () => {
+    interval && clearInterval(interval);
+    request = interval = null;
+  }, {once: true});
   return (r: AnimationFrameRequest) => { request = r; };
 }

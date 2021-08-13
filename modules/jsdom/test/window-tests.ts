@@ -12,14 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {RapidsJSDOM} from '@rapidsai/jsdom';
-import {evalAsync} from './utils';
+import {globalWindow} from './utils';
 
 describe('Window', () => {
-  test('has a `_id` property for the GLFW window', async () => {
-    const {window} = new RapidsJSDOM();
-    await expect(evalAsync(window, () => {  //
-      return typeof window._id === 'number';
-    })).resolves.toBe(true);
-  });
+  test('has an `id` property for the GLFW window',
+       () => { expect(typeof globalWindow.id === 'number').toBeTruthy(); });
 });

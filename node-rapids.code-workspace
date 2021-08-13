@@ -83,6 +83,7 @@
         "C_Cpp.configurationWarnings": "Disabled",
         "C_Cpp.autoAddFileAssociations": false,
         "C_Cpp.vcpkg.enabled": false,
+        "debug.terminal.clearBeforeReusing": true,
         // Configure ESLint plugin
         "eslint.debug": true,
         "eslint.nodeEnv": "production",

@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {implForWrapper} = require('jsdom/lib/jsdom/living/generated/utils');
-
 import {mkdtempSync, unlinkSync, writeFileSync} from 'fs';
+import * as jsdom from 'jsdom';
 import * as os from 'os';
 import * as Path from 'path';
 
@@ -23,7 +22,7 @@ export function createObjectUrlAndTmpDir() {
 
   return {tmpdir, installObjectURL};
 
-  function installObjectURL(window: any) {
+  function installObjectURL(window: jsdom.DOMWindow) {
     let filesCount = 0;
     const map: any = {};
 
@@ -35,7 +34,7 @@ export function createObjectUrlAndTmpDir() {
 
     function createObjectURL(blob: Blob) {
       const path = Path.join(tmpdir, `${filesCount++}`);
-      writeFileSync(path, implForWrapper(blob)._buffer);
+      writeFileSync(path, window.jsdom.utils.implForWrapper(blob)._buffer);
       const url = `file://${path}`;
       map[url]  = path;
       return url;

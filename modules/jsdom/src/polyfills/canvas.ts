@@ -22,28 +22,46 @@ export function installImageData(window: jsdom.DOMWindow) {
   return window;
 }
 
-class GLFWRenderingContext extends gl.WebGL2RenderingContext {
-  constructor(canvas: HTMLCanvasElement,
-              window: jsdom.DOMWindow,
-              options?: WebGLContextAttributes) {
-    super(options);
-    this.canvas = canvas;
-    this.window = window;
-  }
-  private readonly window: jsdom.DOMWindow;
-  public readonly canvas: HTMLCanvasElement;
-  public get drawingBufferWidth() {  //
-    return this.window.frameBufferWidth ?? this.window.outerWidth;
-  }
-  public get drawingBufferHeight() {
-    return this.window.frameBufferHeight ?? this.window.outerHeight;
-  }
-}
-
 export function installGetContext(window: jsdom.DOMWindow) {
+  class GLFWRenderingContext extends gl.WebGL2RenderingContext {
+    constructor(canvas: HTMLCanvasElement,
+                window: jsdom.DOMWindow,
+                options?: WebGLContextAttributes) {
+      super(options);
+      this.canvas                   = canvas;
+      this.window                   = window;
+      this.window._inputEventTarget = canvas;
+    }
+    private readonly window: jsdom.DOMWindow;
+    public readonly canvas: HTMLCanvasElement;
+    public get drawingBufferWidth() {  //
+      return this.window.frameBufferWidth ?? this.window.outerWidth;
+    }
+    public get drawingBufferHeight() {
+      return this.window.frameBufferHeight ?? this.window.outerHeight;
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const JSDOM_getContext = window.HTMLCanvasElement.prototype.getContext;
 
+  window.WebGLActiveInfo            = gl.WebGLActiveInfo;
+  window.WebGLShaderPrecisionFormat = gl.WebGLShaderPrecisionFormat;
+  window.WebGLBuffer                = gl.WebGLBuffer;
+  window.WebGLContextEvent          = gl.WebGLContextEvent;
+  window.WebGLFramebuffer           = gl.WebGLFramebuffer;
+  window.WebGLProgram               = gl.WebGLProgram;
+  window.WebGLQuery                 = gl.WebGLQuery;
+  window.WebGLRenderbuffer          = gl.WebGLRenderbuffer;
+  window.WebGLSampler               = gl.WebGLSampler;
+  window.WebGLShader                = gl.WebGLShader;
+  window.WebGLSync                  = gl.WebGLSync;
+  window.WebGLTexture               = gl.WebGLTexture;
+  window.WebGLTransformFeedback     = gl.WebGLTransformFeedback;
+  window.WebGLUniformLocation       = gl.WebGLUniformLocation;
+  window.WebGLVertexArrayObject     = gl.WebGLVertexArrayObject;
+  window.WebGLRenderingContext      = GLFWRenderingContext;
+  window.WebGL2RenderingContext     = GLFWRenderingContext;
   // Override Canvas's `getContext` method with one that initializes our WebGL bindings
   window.HTMLCanvasElement.prototype.getContext = getContext;
 
@@ -64,16 +82,17 @@ export function installGetContext(window: jsdom.DOMWindow) {
   function getContext(contextId: 'webgl2',
                       options?: WebGLContextAttributes): WebGL2RenderingContext|null;
 
-  function getContext(this: HTMLCanvasElement, ...args: [OffscreenRenderingContextId, RenderingContextSettings?]): RenderingContext | null {
-    if ((this as any)['_webgl2_ctx']) { return (this as any)['_webgl2_ctx']; }
-    switch (args[0]) {
+  function getContext(this: any, ...args: [OffscreenRenderingContextId, RenderingContextSettings?]): RenderingContext | null {
+    const [type, settings = {}] = args;
+    switch (type) {
       case 'webgl':
-        return ((this as any)['_webgl2_ctx'] =
-                  new GLFWRenderingContext(this, window, args[1] || {}));
-      case 'webgl2':
-        return ((this as any)['_webgl2_ctx'] =
-                  new GLFWRenderingContext(this, window, args[1] || {}));
+      case 'webgl2': {
+        if (!this.gl) {  //
+          window._gl = this.gl = new GLFWRenderingContext(this, window, settings);
+        }
+        return this.gl;
+      }
+      default: return JSDOM_getContext.apply(this, <any>args);
     }
-    return JSDOM_getContext.apply(this, <any>args);
   }
 }

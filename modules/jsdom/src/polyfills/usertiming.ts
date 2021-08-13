@@ -12,14 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {RapidsJSDOM} from '@rapidsai/jsdom';
 import * as jsdom from 'jsdom';
+import {performance} from 'perf_hooks';
 
-export let globalWindow: jsdom.DOMWindow;
-
-beforeAll(() => { ({window: globalWindow} = new RapidsJSDOM()); });
-afterAll(() => {
-  if (globalWindow) {  //
-    globalWindow.dispatchEvent(new globalWindow.CloseEvent('close'));
-  }
-});
+export function installUserTiming(window: jsdom.DOMWindow) {
+  // Use node's perf_hooks for native performance.now
+  (<any>window).performance = Object.create(performance);
+  // Polyfill the rest of the UserTiming API
+  (<any>global).window      = window;
+  (<any>window).performance = require('usertiming');
+  delete (<any>global).window;
+  return window;
+}
