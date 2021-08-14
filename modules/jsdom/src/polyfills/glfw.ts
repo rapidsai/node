@@ -563,6 +563,14 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
     return dispatchEventIntoDOM(this, event, this.KeyboardEvent);
   }.bind(window);
 
+  defineLayoutProps(window, window.Document.prototype);
+  defineLayoutProps(window, window.HTMLElement.prototype);
+
+  Object.defineProperties(window.SVGElement.prototype, {
+    width: {get() { return {baseVal: {value: window.innerWidth}}; }},
+    height: {get() { return {baseVal: {value: window.innerHeight}}; }},
+  });
+
   return window.createGLFWWindow();
 }
 
@@ -633,4 +641,31 @@ function cssToNumber(window: jsdom.DOMWindow, prop: keyof jsdom.DOMWindow, value
     }
   }
   return ((value = +value) !== value) ? +window[prop] : value;
+}
+
+function defineLayoutProps(window: jsdom.DOMWindow, proto: any) {
+  ['width',
+   'height',
+   'screenY',
+   'screenX',
+   'screenTop',
+   'screenLeft',
+   'scrollTop',
+   'scrollLeft',
+   'pageXOffset',
+   'pageYOffset',
+   'clientWidth',
+   'clientHeight',
+   'innerWidth',
+   'innerHeight',
+   'offsetWidth',
+   'offsetHeight',
+  ].forEach((k) => Object.defineProperty(proto, k, {
+    get: () => window[k],
+    set: () => {},
+    enumerable: true,
+    configurable: true,
+  }));
+  proto.getBoundingClientRect = window.getBoundingClientRect.bind(window);
+  return proto;
 }

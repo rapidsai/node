@@ -46,6 +46,8 @@ export function installAnimationFrame(window: jsdom.DOMWindow,
     window.removeEventListener('refresh', refresh);
   }, {once: true});
 
+  Object.assign(window.jsdom.global, {requestAnimationFrame, cancelAnimationFrame});
+
   return Object.assign(window, {requestAnimationFrame, cancelAnimationFrame});
 
   function cancelAnimationFrame(cb?: (time: number) => any) {

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import * as jsdom from 'jsdom';
-import * as Path from 'path';
 import * as Url from 'url';
 
 import {installGetContext, installImageData} from './polyfills/canvas';
@@ -27,36 +26,50 @@ import {
   AnimationFrameRequestedCallback,
   installAnimationFrame
 } from './polyfills/raf';
-import {installRequire} from './polyfills/require';
 import {installStreams} from './polyfills/streams';
 
 export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
+  module?: NodeModule;
   frameRate?: number;
+  reportUnhandledExceptions?: boolean;
   onAnimationFrameRequested?: AnimationFrameRequestedCallback;
 }
 
+export const defaultOptions = {
+  reportUnhandledExceptions: true,
+  onAnimationFrameRequested: undefined
+};
+
 export class RapidsJSDOM extends jsdom.JSDOM {
-  constructor(html?: string, options: RapidsJSDOMOptions = {}) {
-    const {installObjectURL, tmpdir} = createObjectUrlAndTmpDir();
-    const url                        = `http://${Path.basename(tmpdir)}/`.toLowerCase();
-    super(html, {
-      ...options,
+  constructor(options: RapidsJSDOMOptions = {}) {
+    const opts = Object.assign({}, defaultOptions, options);
+    const {
+      url,
+      install: installObjectURL,
+    } = createObjectUrlAndTmpDir();
+    super(undefined, {
+      ...opts,
       url,
       pretendToBeVisual: true,
       runScripts: 'outside-only',
       resources: new ImageLoader(url),
-      beforeParse(window) {  //
-        installJSDOMUtils(window);
-        installRequire(window, require.main);
+      beforeParse(window) {
+        const {
+          module: mod,
+          reportUnhandledExceptions,
+          onAnimationFrameRequested = defaultFrameScheduler(window, opts),
+        } = opts;
+
+        if (reportUnhandledExceptions) { installUnhandledExceptionListeners(); }
+
+        installJSDOMUtils(window, mod);
         installFetch(window);
         installStreams(window);
         installObjectURL(window);
         installImageData(window);
         installGetContext(window);
         installGLFWWindow(window);
-        // installUserTiming(window);
-        installAnimationFrame(
-          window, options.onAnimationFrameRequested || defaultFrameScheduler(window, options));
+        installAnimationFrame(window, onAnimationFrameRequested);
         installMjolnirHammer(window);
       }
     });
@@ -79,7 +92,9 @@ function defaultFrameScheduler(window: jsdom.DOMWindow, {frameRate: fps = 60}: R
   let request: AnimationFrameRequest|null = null;
   let interval: any                       = setInterval(() => {
     if (request) {
-      request.flush(() => { request = null; });
+      const f = request.flush;
+      request = null;
+      f(() => {});
     }
     window.poll();
   }, 1000 / fps);
@@ -87,5 +102,20 @@ function defaultFrameScheduler(window: jsdom.DOMWindow, {frameRate: fps = 60}: R
     interval && clearInterval(interval);
     request = interval = null;
   }, {once: true});
-  return (r: AnimationFrameRequest) => { request = r; };
+  return (r_: AnimationFrameRequest) => { request = r_; };
+}
+
+function installUnhandledExceptionListeners() {
+  process.on(<any>'uncaughtException', (err: Error, origin: any) => {
+    /* eslint-disable @typescript-eslint/restrict-template-expressions */
+    process.stderr.write(`Uncaught Exception\n` + (origin ? `Origin: ${origin}\n` : '') +
+                         `Exception: ${err && err.stack || err}\n`);
+  });
+
+  process.on(<any>'unhandledRejection', (err: Error, promise: any) => {
+    /* eslint-disable @typescript-eslint/restrict-template-expressions */
+    process.stderr.write(`Unhandled Promise Rejection\n` +
+                         (promise ? `Promise: ${promise}\n` : '') +
+                         `Exception: ${err && err.stack || err}\n`);
+  });
 }

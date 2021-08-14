@@ -17,7 +17,7 @@ import * as jsdom from 'jsdom';
 
 export let globalWindow: jsdom.DOMWindow;
 
-beforeAll(() => { ({window: globalWindow} = new RapidsJSDOM()); });
+beforeAll(() => { ({window: globalWindow} = new RapidsJSDOM({module: require.main})); });
 afterAll(() => {
   if (globalWindow) {  //
     globalWindow.dispatchEvent(new globalWindow.CloseEvent('close'));

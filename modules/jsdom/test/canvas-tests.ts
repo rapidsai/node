@@ -14,10 +14,16 @@
 
 import {globalWindow} from './utils';
 
-test('window.ImageData is from the canvas module',
-     () => { expect(globalWindow.ImageData).toBe(require('canvas').ImageData); });
-
 describe('HTMLCanvasElement', () => {
+  test(`window.Image exists`, () => {
+    expect(globalWindow.evalFn(() => {
+      return (typeof Image !== 'undefined') &&             //
+             (typeof HTMLImageElement !== 'undefined') &&  //
+             (new Image()) instanceof HTMLImageElement;
+    }))
+      .toBe(true);
+  });
+
   test(`getContext('webgl2') returns our OpenGL context`, () => {
     expect(globalWindow.evalFn(() => {
       const gl         = require('@nvidia/webgl');

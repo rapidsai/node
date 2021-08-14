@@ -12,17 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as gl from '@nvidia/webgl';
 import * as jsdom from 'jsdom';
 
 const {ImageData} = require('canvas');
 
 export function installImageData(window: jsdom.DOMWindow) {
-  window.ImageData ??= ImageData;
+  window.jsdom.global.ImageData ??= ImageData;
   return window;
 }
 
 export function installGetContext(window: jsdom.DOMWindow) {
+  const gl = window.evalFn(() => require('@nvidia/webgl')) as typeof import('@nvidia/webgl');
+
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const JSDOM_getContext = window.HTMLCanvasElement.prototype.getContext;
+
+  // Override Canvas's `getContext` method with one that initializes our WebGL bindings
+  window.HTMLCanvasElement.prototype.getContext = getContext;
+
   class GLFWRenderingContext extends gl.WebGL2RenderingContext {
     constructor(canvas: HTMLCanvasElement,
                 window: jsdom.DOMWindow,
@@ -42,28 +49,23 @@ export function installGetContext(window: jsdom.DOMWindow) {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const JSDOM_getContext = window.HTMLCanvasElement.prototype.getContext;
-
-  window.WebGLActiveInfo            = gl.WebGLActiveInfo;
-  window.WebGLShaderPrecisionFormat = gl.WebGLShaderPrecisionFormat;
-  window.WebGLBuffer                = gl.WebGLBuffer;
-  window.WebGLContextEvent          = gl.WebGLContextEvent;
-  window.WebGLFramebuffer           = gl.WebGLFramebuffer;
-  window.WebGLProgram               = gl.WebGLProgram;
-  window.WebGLQuery                 = gl.WebGLQuery;
-  window.WebGLRenderbuffer          = gl.WebGLRenderbuffer;
-  window.WebGLSampler               = gl.WebGLSampler;
-  window.WebGLShader                = gl.WebGLShader;
-  window.WebGLSync                  = gl.WebGLSync;
-  window.WebGLTexture               = gl.WebGLTexture;
-  window.WebGLTransformFeedback     = gl.WebGLTransformFeedback;
-  window.WebGLUniformLocation       = gl.WebGLUniformLocation;
-  window.WebGLVertexArrayObject     = gl.WebGLVertexArrayObject;
-  window.WebGLRenderingContext      = GLFWRenderingContext;
-  window.WebGL2RenderingContext     = GLFWRenderingContext;
-  // Override Canvas's `getContext` method with one that initializes our WebGL bindings
-  window.HTMLCanvasElement.prototype.getContext = getContext;
+  window.jsdom.global.WebGLActiveInfo            = gl.WebGLActiveInfo;
+  window.jsdom.global.WebGLShaderPrecisionFormat = gl.WebGLShaderPrecisionFormat;
+  window.jsdom.global.WebGLBuffer                = gl.WebGLBuffer;
+  window.jsdom.global.WebGLContextEvent          = gl.WebGLContextEvent;
+  window.jsdom.global.WebGLFramebuffer           = gl.WebGLFramebuffer;
+  window.jsdom.global.WebGLProgram               = gl.WebGLProgram;
+  window.jsdom.global.WebGLQuery                 = gl.WebGLQuery;
+  window.jsdom.global.WebGLRenderbuffer          = gl.WebGLRenderbuffer;
+  window.jsdom.global.WebGLSampler               = gl.WebGLSampler;
+  window.jsdom.global.WebGLShader                = gl.WebGLShader;
+  window.jsdom.global.WebGLSync                  = gl.WebGLSync;
+  window.jsdom.global.WebGLTexture               = gl.WebGLTexture;
+  window.jsdom.global.WebGLTransformFeedback     = gl.WebGLTransformFeedback;
+  window.jsdom.global.WebGLUniformLocation       = gl.WebGLUniformLocation;
+  window.jsdom.global.WebGLVertexArrayObject     = gl.WebGLVertexArrayObject;
+  window.jsdom.global.WebGLRenderingContext      = GLFWRenderingContext;
+  window.jsdom.global.WebGL2RenderingContext     = GLFWRenderingContext;
 
   return window;
 
@@ -72,21 +74,18 @@ export function installGetContext(window: jsdom.DOMWindow) {
 
   function getContext(contextId: '2d',
                       options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D|null;
-
   function getContext(contextId: 'bitmaprenderer', options?: ImageBitmapRenderingContextSettings):
     ImageBitmapRenderingContext|null;
-
   function getContext(contextId: 'webgl', options?: WebGLContextAttributes): WebGLRenderingContext|
     null;
-
   function getContext(contextId: 'webgl2',
                       options?: WebGLContextAttributes): WebGL2RenderingContext|null;
-
-  function getContext(this: any, ...args: [OffscreenRenderingContextId, RenderingContextSettings?]): RenderingContext | null {
+  function getContext(this: any, ...args: [OffscreenRenderingContextId | 'experimental-webgl', RenderingContextSettings?]): RenderingContext | null {
     const [type, settings = {}] = args;
     switch (type) {
       case 'webgl':
-      case 'webgl2': {
+      case 'webgl2':
+      case 'experimental-webgl': {
         if (!this.gl) {  //
           window._gl = this.gl = new GLFWRenderingContext(this, window, settings);
         }

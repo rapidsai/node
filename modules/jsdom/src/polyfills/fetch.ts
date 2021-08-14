@@ -12,23 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as xfetch from 'cross-fetch';
 import * as jsdom from 'jsdom';
 import * as Url from 'url';
 
 export function installFetch(window: jsdom.DOMWindow) {
-  window.Headers  = xfetch.Headers;
-  window.Request  = xfetch.Request;
-  window.Response = xfetch.Response;
-  window.fetch    = function fileAwareFetch(url: string, options: jsdom.FetchOptions) {
+  const {fetch, Headers, Request, Response} = window.evalFn(() => require('cross-fetch'));
+  window.jsdom.global.Headers               = Headers;
+  window.jsdom.global.Request               = Request;
+  window.jsdom.global.Response              = Response;
+  window.jsdom.global.fetch = function fileAwareFetch(url: string, options: jsdom.FetchOptions) {
     const isDataURI  = url && url.startsWith('data:');
     const isFilePath = !isDataURI && !Url.parse(url).protocol;
-    return !isFilePath ? xfetch.fetch(url, options)
-                       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                          : new jsdom
-                           .ResourceLoader()                  //
-                           .fetch(`file://${url}`, options)!  //
-                           .then((x) => new Response(x, {status: 200}));
+    if (isFilePath) {
+      const loader  = new jsdom.ResourceLoader();
+      const fileUrl = `file://localhost/${process.cwd()}/${url}`;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return loader.fetch(fileUrl, options)!.then((x) => new Response(x, {status: 200}));
+    }
+    return fetch(url, options);
   };
   return window;
 }

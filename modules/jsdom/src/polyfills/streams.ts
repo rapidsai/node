@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import * as jsdom from 'jsdom';
-import * as streams from 'web-streams-polyfill';
 
 export function installStreams(window: jsdom.DOMWindow) {
-  window.ReadableStream            = streams.ReadableStream;
-  window.WritableStream            = streams.WritableStream;
-  window.TransformStream           = streams.TransformStream;
-  window.CountQueuingStrategy      = streams.CountQueuingStrategy;
-  window.ByteLengthQueuingStrategy = streams.ByteLengthQueuingStrategy;
+  const streams                            = window.evalFn(() => require('web-streams-polyfill'));
+  window.jsdom.global.ReadableStream       = streams.ReadableStream;
+  window.jsdom.global.WritableStream       = streams.WritableStream;
+  window.jsdom.global.TransformStream      = streams.TransformStream;
+  window.jsdom.global.CountQueuingStrategy = streams.CountQueuingStrategy;
+  window.jsdom.global.ByteLengthQueuingStrategy = streams.ByteLengthQueuingStrategy;
   return window;
 }

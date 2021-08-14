@@ -12,26 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as jsdom from 'jsdom';
 import * as Module from 'module';
 import * as path from 'path';
-import * as Path from 'path';
 import * as vm from 'vm';
-
-import {createDOMContext} from './jsdom';
-
-export function installRequire(window: jsdom.DOMWindow, main?: Module) {
-  if (main == null) { main = new Module(Path.join(process.cwd(), 'index.js')); }
-  const {path = Path.dirname(main.filename || main.id)} = main;
-  const {_extensions: extensions = Module_._extensions} = main.constructor as any;
-  window.require = createContextRequire({context: createDOMContext(window), extensions, dir: path});
-  return window;
-}
 
 /**
  * Creates a custom Module object which runs all required scripts in a provided vm context.
  */
-function createContextRequire(options: CreateContextRequireOptions) {
+export function createContextRequire(options: CreateContextRequireOptions) {
   return createRequire(new ContextModule(options));
 }
 
@@ -248,9 +236,9 @@ function createRequire(mod: Module): NodeJS.Require {
     return _resolveFilename(id, mod, false, options);
   }
   require.main       = main;
-  require.cache      = main?._cache;
+  require.cache      = main && main._cache;
   require.resolve    = resolve as NodeJS.RequireResolve;
-  require.extensions = main?._hooks || Module_._extensions;
+  require.extensions = main && main._hooks || Module_._extensions;
   return require;
 }
 

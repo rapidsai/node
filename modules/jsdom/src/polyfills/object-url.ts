@@ -19,16 +19,20 @@ import * as Path from 'path';
 
 export function createObjectUrlAndTmpDir() {
   const tmpdir = mkdtempSync(os.tmpdir() + Path.sep);
+  const url    = `http://${Path.basename(tmpdir)}/`.toLowerCase();
 
-  return {tmpdir, installObjectURL};
+  return {url, tmpdir, install: installObjectURL};
 
   function installObjectURL(window: jsdom.DOMWindow) {
     let filesCount = 0;
     const map: any = {};
 
-    window.URL || Object.defineProperty(window, 'URL', {});
+    if (!window.jsdom.global.URL) {  //
+      Object.defineProperty(window.jsdom.global, 'URL', {});
+    }
 
-    Object.assign(window.URL, {createObjectURL, revokeObjectURL});
+    window.jsdom.global.URL.createObjectURL = createObjectURL;
+    window.jsdom.global.URL.revokeObjectURL = revokeObjectURL;
 
     return window;
 

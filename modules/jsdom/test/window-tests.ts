@@ -15,6 +15,9 @@
 import {globalWindow} from './utils';
 
 describe('Window', () => {
+  test('window.ImageData is from the canvas module',
+       () => { expect(globalWindow.ImageData).toBe(require('canvas').ImageData); });
+
   test('has an `id` property for the GLFW window',
        () => { expect(typeof globalWindow.id === 'number').toBeTruthy(); });
 });
