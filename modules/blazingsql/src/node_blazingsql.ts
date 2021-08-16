@@ -34,7 +34,7 @@ export type ContextProps = {
   initialPoolSize: number | null;
   maximumPoolSize: number | null;
   enableLogging: boolean;
-  queryTable: DataFrame;
+  tempDataFrame: DataFrame;
 };
 
 export declare class Context {
