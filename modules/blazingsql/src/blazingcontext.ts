@@ -64,8 +64,9 @@ export class BlazingContext {
     const {singleNode = workersUcpInfo.length <= 1} = options;
     this.configOptions = {...defaultConfigValues, ...options.configOptions};
 
-    this.workers = workersUcpInfo;
-    this.context = new Context({
+    const queryTable = new DataFrame({'a': Series.new([1])});
+    this.workers     = workersUcpInfo;
+    this.context     = new Context({
       ralId,
       workerId,
       networkIfaceName,
@@ -77,6 +78,7 @@ export class BlazingContext {
       initialPoolSize,
       maximumPoolSize,
       enableLogging,
+      queryTable
     });
   }
 

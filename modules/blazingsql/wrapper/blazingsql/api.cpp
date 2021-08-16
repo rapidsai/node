@@ -30,6 +30,7 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
   std::size_t initial_pool_size  = props.Get("initialPoolSize");
   std::size_t maximum_pool_size  = props.Get("maximumPoolSize");
   bool enable_logging            = props.Get("enableLogging");
+  Napi::Object dataframe         = props.Get("queryTable");
 
   auto config_options = [&] {
     std::map<std::string, std::string> config{};
@@ -85,7 +86,33 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
                                   initial_pool_size,
                                   maximum_pool_size,
                                   enable_logging);
-  return ContextWrapper::New(env, ral_id, init_result, ucp_context);
+
+  auto context = ContextWrapper::New(env, ral_id, init_result, ucp_context);
+
+  if (!dataframe.IsNull()) {
+    nv::NapiToCPP::Object df       = dataframe;
+    std::vector<std::string> names = df.Get("names");
+    Napi::Function asTable         = df.Get("asTable");
+    nv::Table::wrapper_t table     = asTable.Call(df.val, {}).ToObject();
+
+    auto graph =
+      run_generate_graph(env,
+                         context,
+                         0,
+                         {"self"},
+                         {table->view()},
+                         {names},
+                         {"query_table"},
+                         {"BindableTableScan(table=[[main, query_table]], aliases=[[a]])"},
+                         0,
+                         "{\"expr\": \"BindableTableScan(table=[[main, query_table]], "
+                         "aliases=[[a]])\", \"children\": []}\n",
+                         "SELECT a FROM query_table",
+                         "",
+                         config_options);
+  }
+
+  return context;
 }
 
 std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_info(
