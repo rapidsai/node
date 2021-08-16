@@ -291,13 +291,18 @@ export class BlazingContext {
     return String(algebra);
   }
 
+  sendToCache(
+    ralId: number, ctxToken: number, messageId: string, df: DataFrame, useTransportIn = true) {
+    this.context.sendToCache(ralId, ctxToken, messageId, df, useTransportIn);
+  }
+
   /**
-   * Returns a DataFrame pulled from the Cache Machine caching system.
+   * Returns a DataFrame pulled from the cache machine.
    *
    * @param messageId The message id given when sending over the results via UCX
    */
-  pullFromCache(messageId: string) {
-    const {names, table} = this.context.pullFromCache(messageId);
+  pullFromCache(messageId: string, useTransportIn = true) {
+    const {names, table} = this.context.pullFromCache(messageId, useTransportIn);
     return new DataFrame(names.reduce(
       (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }

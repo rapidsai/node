@@ -19,25 +19,27 @@
 
 namespace nv {
 
-Napi::Function Context::Init(Napi::Env const& env, Napi::Object exports) {
+Napi::Function Context::Init(Napi::Env const &env, Napi::Object exports) {
   return DefineClass(env,
                      "Context",
                      {InstanceMethod<&Context::run_generate_graph>("runGenerateGraph"),
+                      InstanceMethod<&Context::send_to_cache>("sendToCache"),
                       InstanceMethod<&Context::pull_from_cache>("pullFromCache")});
 }
 
-Context::wrapper_t Context::New(Napi::Env const& env) {
+Context::wrapper_t Context::New(Napi::Env const &env) {
   return EnvLocalObjectWrap<Context>::New(env);
 }
 
-Context::Context(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<Context>(info) {
+Context::Context(Napi::CallbackInfo const &info) : EnvLocalObjectWrap<Context>(info) {
   auto env                = info.Env();
   NapiToCPP::Object props = info[0];
-  auto result_context     = nv::initialize(env, props);
-  this->context           = Napi::Persistent(result_context);
+  auto [context, node_id] = nv::initialize(env, props);
+  this->context           = Napi::Persistent(context);
+  this->node_id           = node_id;
 }
 
-Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
+Napi::Value Context::run_generate_graph(Napi::CallbackInfo const &info) {
   auto env = info.Env();
   nv::CallbackArgs args{info};
 
@@ -103,13 +105,39 @@ Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
                                 config_options);
 }
 
-Napi::Value Context::pull_from_cache(Napi::CallbackInfo const& info) {
+void Context::send_to_cache(Napi::CallbackInfo const &info) {
+  nv::CallbackArgs args{info};
+
+  int32_t dst_ral_id     = args[0].ToNumber();
+  int ctx_token          = args[1];
+  std::string message_id = args[2];
+  Napi::Object dataframe = args[3].ToObject();
+  bool use_transport_in  = args[4];
+
+  nv::NapiToCPP::Object df       = dataframe;
+  std::vector<std::string> names = df.Get("names");
+  Napi::Function asTable         = df.Get("asTable");
+  nv::Table::wrapper_t table     = asTable.Call(df.val, {}).ToObject();
+
+  this->context.Value()->add_to_cache(this->node_id,
+                                      this->context.Value()->get_ral_id(),
+                                      dst_ral_id,
+                                      std::to_string(ctx_token),
+                                      message_id,
+                                      names,
+                                      table->view(),
+                                      use_transport_in);
+}
+
+Napi::Value Context::pull_from_cache(Napi::CallbackInfo const &info) {
   auto env = info.Env();
   nv::CallbackArgs args{info};
 
   std::string message_id = args[0];
+  bool use_transport_in  = args[1];
 
-  auto [bsql_names, bsql_table] = this->context.Value()->pull_from_cache(message_id);
+  auto [bsql_names, bsql_table] =
+    this->context.Value()->pull_from_transport_out_cache(message_id, use_transport_in);
 
   auto result_names = Napi::Array::New(env, bsql_names.size());
   for (size_t i = 0; i < bsql_names.size(); ++i) {

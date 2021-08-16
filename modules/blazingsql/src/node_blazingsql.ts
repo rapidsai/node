@@ -50,7 +50,12 @@ export declare class Context {
                    configOptions: Record<string, unknown>,
                    sql: string,
                    currentTimestamp: string): ExecutionGraphWrapper;
-  pullFromCache(messageId: string): {names: string[], table: Table};
+  sendToCache(ralId: number,
+              ctxToken: number,
+              messageId: string,
+              df: DataFrame,
+              useTransportIn: boolean): void;
+  pullFromCache(messageId: string, useTransportIn: boolean): {names: string[], table: Table};
 }
 
 export declare class ExecutionGraphWrapper {

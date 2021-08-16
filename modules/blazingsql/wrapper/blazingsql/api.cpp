@@ -20,7 +20,8 @@
 
 namespace nv {
 
-ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props) {
+std::tuple<ContextWrapper::wrapper_t, int> initialize(Napi::Env const& env,
+                                                      NapiToCPP::Object const& props) {
   uint16_t ral_id                = props.Get("ralId");
   std::string worker_id          = props.Get("workerId");
   std::string network_iface_name = props.Get("networkIfaceName");
@@ -91,11 +92,11 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
 
   // Run a non-distributed SQL query to get an ExecutionGraph object. The ExecutionGraph object may
   // be used for generating the necessary metadata to communicate over UCX.
-  nv::NapiToCPP::Object df       = temp_df;
-  std::vector<std::string> names = df.Get("names");
-  Napi::Function asTable         = df.Get("asTable");
-  nv::Table::wrapper_t table     = asTable.Call(df.val, {}).ToObject();
-  auto graph                     = run_generate_graph(env,
+  nv::NapiToCPP::Object df                     = temp_df;
+  std::vector<std::string> names               = df.Get("names");
+  Napi::Function asTable                       = df.Get("asTable");
+  nv::Table::wrapper_t table                   = asTable.Call(df.val, {}).ToObject();
+  auto graph                                   = run_generate_graph(env,
                                   context,
                                   0,
                                   {"self"},
@@ -109,8 +110,11 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
                                   "SELECT a FROM query_table",
                                   "",
                                   config_options);
+  std::shared_ptr<ral::cache::graph> graph_ptr = (*graph->Value());
 
-  return context;
+  return {context,
+          graph_ptr->get_last_kernel()->input_cache()->get_context()->getNodeIndex(
+            ral::communication::CommunicationData::getInstance().getSelfNode())};
 }
 
 std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_info(

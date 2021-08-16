@@ -15,6 +15,7 @@
 #pragma once
 
 #include <blazingsql/contextwrapper.hpp>
+#include <blazingsql/graph.hpp>
 
 namespace nv {
 
@@ -42,7 +43,9 @@ struct Context : public EnvLocalObjectWrap<Context> {
 
  private:
   Napi::Reference<Wrapper<ContextWrapper>> context;
+  int node_id;
   Napi::Value run_generate_graph(Napi::CallbackInfo const& info);
+  void send_to_cache(Napi::CallbackInfo const& info);
   Napi::Value pull_from_cache(Napi::CallbackInfo const& info);
 };
 

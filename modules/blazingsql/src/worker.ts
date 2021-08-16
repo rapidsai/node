@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame} from '@rapidsai/cudf';
-
 import {UcpContext} from './addon';
 import {
   BLAZING_CONTEXT_CREATED,
@@ -49,9 +47,11 @@ process.on('message', (args: any) => {
 
   if (operation == CREATE_TABLE) {
     const tableName = rest['tableName'] as string;
-    const df        = rest['dataframe'];
+    const messageId = `message_${rest['ctxToken'] as number}`;
 
-    bc.createTable(tableName, DataFrame.fromArrow(df));
+    console.log(`recieved: ${messageId}`);
+
+    bc.createTable(tableName, bc.pullFromCache(messageId, false));
     (<any>process).send({operation: TABLE_CREATED});
   }
 
