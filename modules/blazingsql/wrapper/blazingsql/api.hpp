@@ -26,8 +26,7 @@ struct TableSchema;
 
 namespace nv {
 
-std::tuple<ContextWrapper::wrapper_t, int> initialize(Napi::Env const& env,
-                                                      NapiToCPP::Object const& props);
+ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props);
 
 std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_info(
   std::string const& logical_plan);

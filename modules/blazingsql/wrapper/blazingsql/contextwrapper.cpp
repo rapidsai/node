@@ -58,9 +58,8 @@ void ContextWrapper::add_to_cache(int32_t const& node_id,
         node_id, src_ral_id, dst_ral_id, ctx_token, message_id, column_names, table_view);
 }
 
-std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>>
-ContextWrapper::pull_from_transport_out_cache(std::string const& message_id,
-                                              bool const& use_transport_in) {
+std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> ContextWrapper::pull_from_cache(
+  std::string const& message_id, bool const& use_transport_in) {
   return use_transport_in ? this->_transport_in.Value()->pull_from_cache(message_id)
                           : this->_transport_out.Value()->pull_from_cache(message_id);
 }

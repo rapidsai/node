@@ -59,7 +59,7 @@ struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
                     cudf::table_view const& table_view,
                     bool const& use_transport_in);
 
-  std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> pull_from_transport_out_cache(
+  std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> pull_from_cache(
     std::string const& message_id, bool const& use_transport_in);
 
  private:

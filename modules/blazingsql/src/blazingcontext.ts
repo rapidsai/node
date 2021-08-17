@@ -64,9 +64,8 @@ export class BlazingContext {
     const {singleNode = workersUcpInfo.length <= 1} = options;
     this.configOptions = {...defaultConfigValues, ...options.configOptions};
 
-    const tempDataFrame = new DataFrame({'a': Series.new([1])});
-    this.workers        = workersUcpInfo;
-    this.context        = new Context({
+    this.workers = workersUcpInfo;
+    this.context = new Context({
       ralId,
       workerId,
       networkIfaceName,
@@ -77,8 +76,7 @@ export class BlazingContext {
       allocationMode,
       initialPoolSize,
       maximumPoolSize,
-      enableLogging,
-      tempDataFrame
+      enableLogging
     });
   }
 
@@ -291,9 +289,8 @@ export class BlazingContext {
     return String(algebra);
   }
 
-  sendToCache(
-    ralId: number, ctxToken: number, messageId: string, df: DataFrame, useTransportIn = true) {
-    this.context.sendToCache(ralId, ctxToken, messageId, df, useTransportIn);
+  sendToCache(ralId: number, ctxToken: number, messageId: string, df: DataFrame) {
+    this.context.sendToCache(ralId, ctxToken, messageId, df);
   }
 
   /**
@@ -301,8 +298,8 @@ export class BlazingContext {
    *
    * @param messageId The message id given when sending over the results via UCX
    */
-  pullFromCache(messageId: string, useTransportIn = true) {
-    const {names, table} = this.context.pullFromCache(messageId, useTransportIn);
+  pullFromCache(messageId: string) {
+    const {names, table} = this.context.pullFromCache(messageId);
     return new DataFrame(names.reduce(
       (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }

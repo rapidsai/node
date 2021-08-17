@@ -93,8 +93,7 @@ export class BlazingCluster {
           ralId,
           ralId,
           `message_${ralId}`,
-          DataFrame.fromArrow(table.slice((i + 1) * len, (i + 2) * len).serialize()),
-          false);
+          DataFrame.fromArrow(table.slice((i + 1) * len, (i + 2) * len).serialize()));
         worker.send({operation: CREATE_TABLE, tableName: tableName, ralId: ralId});
         worker.on('message', (msg: any) => {
           const {operation}: {operation: string} = msg;

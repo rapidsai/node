@@ -34,7 +34,6 @@ export type ContextProps = {
   initialPoolSize: number | null;
   maximumPoolSize: number | null;
   enableLogging: boolean;
-  tempDataFrame: DataFrame;
 };
 
 export declare class Context {
@@ -50,12 +49,8 @@ export declare class Context {
                    configOptions: Record<string, unknown>,
                    sql: string,
                    currentTimestamp: string): ExecutionGraphWrapper;
-  sendToCache(ralId: number,
-              ctxToken: number,
-              messageId: string,
-              df: DataFrame,
-              useTransportIn: boolean): void;
-  pullFromCache(messageId: string, useTransportIn: boolean): {names: string[], table: Table};
+  sendToCache(ralId: number, ctxToken: number, messageId: string, df: DataFrame): void;
+  pullFromCache(messageId: string): {names: string[], table: Table};
 }
 
 export declare class ExecutionGraphWrapper {

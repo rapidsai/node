@@ -34,9 +34,8 @@ Context::wrapper_t Context::New(Napi::Env const &env) {
 Context::Context(Napi::CallbackInfo const &info) : EnvLocalObjectWrap<Context>(info) {
   auto env                = info.Env();
   NapiToCPP::Object props = info[0];
-  auto [context, node_id] = nv::initialize(env, props);
-  this->context           = Napi::Persistent(context);
-  this->node_id           = node_id;
+  auto result_context     = nv::initialize(env, props);
+  this->context           = Napi::Persistent(result_context);
 }
 
 Napi::Value Context::run_generate_graph(Napi::CallbackInfo const &info) {
@@ -112,21 +111,20 @@ void Context::send_to_cache(Napi::CallbackInfo const &info) {
   int ctx_token          = args[1];
   std::string message_id = args[2];
   Napi::Object dataframe = args[3].ToObject();
-  bool use_transport_in  = args[4];
 
   nv::NapiToCPP::Object df       = dataframe;
   std::vector<std::string> names = df.Get("names");
   Napi::Function asTable         = df.Get("asTable");
   nv::Table::wrapper_t table     = asTable.Call(df.val, {}).ToObject();
 
-  this->context.Value()->add_to_cache(this->node_id,
+  this->context.Value()->add_to_cache(-1,
                                       this->context.Value()->get_ral_id(),
                                       dst_ral_id,
                                       std::to_string(ctx_token),
                                       message_id,
                                       names,
                                       table->view(),
-                                      use_transport_in);
+                                      false);
 }
 
 Napi::Value Context::pull_from_cache(Napi::CallbackInfo const &info) {
@@ -134,10 +132,8 @@ Napi::Value Context::pull_from_cache(Napi::CallbackInfo const &info) {
   nv::CallbackArgs args{info};
 
   std::string message_id = args[0];
-  bool use_transport_in  = args[1];
 
-  auto [bsql_names, bsql_table] =
-    this->context.Value()->pull_from_transport_out_cache(message_id, use_transport_in);
+  auto [bsql_names, bsql_table] = this->context.Value()->pull_from_cache(message_id, true);
 
   auto result_names = Napi::Array::New(env, bsql_names.size());
   for (size_t i = 0; i < bsql_names.size(); ++i) {
