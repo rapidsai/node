@@ -367,4 +367,97 @@ export class FittedUMAP extends UMAP {
       nFeatures,
       convertDType);
   }
+
+  /**
+   * Refine features into existing embedded space as base
+   *
+   * @param features cuDF Series containing floats or doubles in the format [x1, y1, z1, x2, y2,
+   *   z2...] for features x, y & z.
+   *
+   * @param target cuDF Series containing target values
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   *
+   * @param nFeatures number of properties in the input features, if features is of the format
+   *   [x1,y1,x2,y2...]
+   * @returns FittedUMAP object with updated embeddings
+   */
+  refineSeries<T extends Series<Numeric>, R extends Series<Numeric>>(features: T,
+                                                                     target: null|R,
+                                                                     nFeatures    = 1,
+                                                                     convertDType = true) {
+    // runtime type check
+    this._check_type(features.type);
+    const nSamples = Math.floor(features.length / nFeatures);
+
+    let options = {
+      features: features._col.data,
+      featuresType: features.type,
+      nSamples: nSamples,
+      nFeatures: nFeatures,
+      convertDType: convertDType,
+      embeddings: this._embeddings || this._generate_embeddings(nSamples, features.type)
+    };
+    if (target !== null) {
+      options = {...options, ...{ target: target._col.data, targetType: target.type }};
+    }
+    return new FittedUMAP(this.getUMAPParams(), this._umap.refine(options));
+  }
+
+  /**
+   * Refine features into existing embedded space as base
+   * @param features Dense or sparse matrix containing floats or doubles. Acceptable dense formats:
+   *   cuDF DataFrame
+   *
+   * @param target cuDF Series containing target values
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   * @returns FittedUMAP object with updated embeddings
+   */
+  refineDataFrame<T extends Numeric, K extends string, R extends Series<Numeric>,>(features: DataFrame<{[P in K]: T}>,
+target: null|R, convertDType = true) {
+    // runtime type check
+    this._check_type(features.get(features.names[0]).type);
+    return this.refineSeries(
+      dataframeToSeries(features) as Series<T>, target, features.numColumns, convertDType);
+  }
+
+  /**
+   * Refine features into existing embedded space as base
+   * @param features array containing floats or doubles in the format [x1, y1, z1, x2, y2, z2...]
+   *   for features x, y & z.
+   *
+   * ```typescript
+   * // For a sample dataset of colors, with properties r,g and b:
+   * features = [
+   *   ...Object.values({ r: xx1, g: xx2, b: xx3 }),
+   *   ...Object.values({ r: xx4, g: xx5, b: xx6 }),
+   * ] // [xx1, xx2, xx3, xx4, xx5, xx6]
+   * ```
+   *
+   * @param target array containing target values
+   *
+   * ```typescript
+   * // For a sample dataset of colors, with properties r,g and b:
+   * target = [color1, color2] // len(target) = nFeatures
+   * ```
+   * @param convertDType When set to True, the method will automatically convert the inputs to
+   *   float32
+   * @param nFeatures number of properties in the input features, if features is of the format
+   *   [x1, y1, x2, y2...]
+   *
+   * @returns FittedUMAP object with updated embeddings
+   */
+  refineArray<T extends Series<Numeric>>(features: (number|bigint|null|undefined)[],
+                                         target: (number|bigint|null|undefined)[]|null,
+                                         nFeatures    = 1,
+                                         convertDType = true) {
+    return this.refineSeries(
+      Series.new({type: this._resolveType(convertDType, features[0]), data: features}) as T,
+      (target == null)
+        ? null
+        : Series.new({type: this._resolveType(convertDType, target[0]), data: target}),
+      nFeatures,
+      convertDType);
+  }
 }

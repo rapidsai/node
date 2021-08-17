@@ -98,5 +98,7 @@ export interface UMAPInterface {
   fit<T extends Numeric, R extends Numeric>(options?: FitProps<T, R>): DeviceBuffer;
 
   transform<T extends Numeric>(options?: transformProps<T>): DeviceBuffer;
+
+  refine<T extends Numeric, R extends Numeric>(options?: FitProps<T, R>): DeviceBuffer;
 }
 export const UMAPBase: UMAPConstructor = CUML.UMAP;
