@@ -1,4 +1,4 @@
-import {BlazingCluster, BlazingContext} from '@rapidsai/blazingsql';
+import {BlazingContext} from '@rapidsai/blazingsql';
 import {DataFrame, Float64, Series, Utf8String} from '@rapidsai/cudf';
 
 test('create and drop table', () => {
@@ -11,8 +11,6 @@ test('create and drop table', () => {
 
   bc.dropTable('test_table');
   expect(bc.listTables().length).toEqual(0);
-
-  const test = BlazingCluster.init();
 });
 
 test('list tables', () => {
