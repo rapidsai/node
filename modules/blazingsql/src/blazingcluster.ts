@@ -31,19 +31,26 @@ export const CONFIG_OPTIONS = {
   PROTOCOL: 'UCX',
 };
 
-interface BlazingCusterProps {
-  numWorkers: number;
-}
-
 export class BlazingCluster {
   private workers: ChildProcess[];
   // @ts-ignore
   // instantiated within init()
   private blazingContext: BlazingContext;
 
-  static async init(args: Partial<BlazingCusterProps>): Promise<BlazingCluster> {
-    const bc         = new BlazingCluster(args);
-    const ucpContext = new UcpContext();
+  /**
+   * Initializes and returns an instance of BlazingCluster.
+   *
+   * @param numWorkers the number of child processes to spawn
+   *
+   * @example
+   * ```typescript
+   * import {BlazingCluster} from '@rapidsai/blazingsql';
+   *
+   * await BlazingContext.init();
+   * ```
+   */
+  static async init(numWorkers = 1): Promise<BlazingCluster> {
+    const bc = new BlazingCluster(numWorkers);
 
     const ucpMetadata = ['0', ...Object.keys(bc.workers)].map(
       (_, idx) => { return ({workerId: idx.toString(), ip: '0.0.0.0', port: 4000 + idx}); });
@@ -60,6 +67,7 @@ export class BlazingCluster {
       }));
     });
 
+    const ucpContext  = new UcpContext();
     bc.blazingContext = new BlazingContext({
       ralId: 0,
       ralCommunicationPort: 4000,
@@ -72,15 +80,32 @@ export class BlazingCluster {
     return bc;
   }
 
-  private constructor(args: Partial<BlazingCusterProps>) {
-    const {numWorkers = 1} = args;
-
+  private constructor(numWorkers: number) {
     this.workers = Array(numWorkers);
     for (let i = 0; i < numWorkers; ++i) {
       this.workers[i] = fork(`${__dirname}/worker`, {serialization: 'advanced'});
     }
   }
 
+  /**
+   * Create a BlazingSQL table to be used for future queries.
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param input Data source for the table
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingCluster} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
+   * const df = new DataFrame({'a': a, 'b': b});
+   *
+   * const bc = await BlazingCluster.init();
+   * await bc.createTable('test_table', df);
+   * ```
+   */
   async createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): Promise<void> {
     const len   = Math.ceil(input.numRows / (this.workers.length + 1));
     const table = input.toArrow();
@@ -108,6 +133,26 @@ export class BlazingCluster {
     await Promise.all(createTablePromises);
   }
 
+  /**
+   * Query a BlazingSQL table and return the result as a DataFrame.
+   *
+   * @param query SQL query string
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingCluster} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
+   * const df = new DataFrame({'a': a, 'b': b});
+   *
+   * const bc = await BlazingCluster.init();
+   * await bc.createTable('test_table', df);
+   *
+   * await bc.sql('SELECT a FROM test_table') // [1, 2, 3]
+   * ```
+   */
   async sql(query: string): Promise<DataFrame> {
     let ctxToken        = 0;
     const queryPromises = [];

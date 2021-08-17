@@ -259,7 +259,7 @@ export class BlazingContext {
    *
    * @example
    * ```typescript
-   * import {Series, DataFrame from '@rapidsai/cudf';
+   * import {Series, DataFrame} from '@rapidsai/cudf';
    * import {BlazingContext} from '@rapidsai/blazingsql';
    *
    * const a  = Series.new([1, 2, 3]);
@@ -289,6 +289,24 @@ export class BlazingContext {
     return String(algebra);
   }
 
+  /**
+   * Sends a DataFrame to the cache machine.
+   *
+   * @param messageId The message id which will later be used to pull the results from the cache
+   *   machine
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame from '@rapidsai/cudf';
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new([1, 2, 3]);
+   * const df = new DataFrame({'a': a});
+   *
+   * const bc = new BlazingContext();
+   * bc.sendToCache(0, 0, "message_1", df);
+   * ```
+   */
   sendToCache(ralId: number, ctxToken: number, messageId: string, df: DataFrame) {
     this.context.sendToCache(ralId, ctxToken, messageId, df);
   }
@@ -296,7 +314,15 @@ export class BlazingContext {
   /**
    * Returns a DataFrame pulled from the cache machine.
    *
-   * @param messageId The message id given when sending over the results via UCX
+   * @param messageId The message id given when initially sending the DataFrame to the cache
+   *
+   * @example
+   * ```typescript
+   * import {BlazingContext} from '@rapidsai/blazingsql';
+   *
+   * const bc = new BlazingContext();
+   * bc.pullFromCache("message_1");
+   * ```
    */
   pullFromCache(messageId: string) {
     const {names, table} = this.context.pullFromCache(messageId);
