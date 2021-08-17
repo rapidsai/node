@@ -12,19 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { clampRange as clamp, Float32Buffer } from '@nvidia/cuda';
+import { clampRange as clamp } from '@nvidia/cuda';
 import { DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String } from '@rapidsai/cudf';
-import { concat as concatAsync, zip as zipAsync } from 'ix/asynciterable';
+import { concat as concatAsync } from 'ix/asynciterable';
 import { flatMap as flatMapAsync } from 'ix/asynciterable/operators';
 const { UMAP } = require('@rapidsai/cuml');
-
 
 const defaultLayoutParams = {
   simulating: { name: 'simulating', val: true },
   autoCenter: { name: 'auto-center', val: false },
   nEpochs: {
     name: 'number of training iterations',
-    val: 10,
+    val: 100,
     min: 0,
     max: 10000,
     step: 50
@@ -120,6 +119,7 @@ export default async function* loadGraphData(props = {}) {
    * @type DataFrame<{name: Utf8String, id: Uint32, color: Uint32, size: Uint8, x: Float32, y: Float32}>
    */
   let nodes = null;
+  let embeddings = null;
   let graphDesc = {};
   let bbox = [0, 0, 0, 0];
   let onAfterRender = () => { };
@@ -147,13 +147,13 @@ export default async function* loadGraphData(props = {}) {
     if (newDFs) {
       if (newDFs !== nodes) {
         graphUpdated = true;
-        nodes = generateUMAP(newDFs, layoutParams.nEpochs.val);
+        [nodes, embeddings] = generateUMAP(newDFs, embeddings, layoutParams.nEpochs.val);
         nextFrames = dataframes.next();
       }
     }
 
     if (layoutParams.nEpochs.val != epochsRecent && !graphUpdated) {
-      nodes = generateUMAP(nodes, layoutParams.nEpochs.val);
+      [nodes, embeddings] = generateUMAP(nodes, embeddings, layoutParams.nEpochs.val);
       epochsRecent = layoutParams.nEpochs.val;
     }
 
@@ -230,16 +230,21 @@ function createGraphRenderProps(nodes) {
     },
   }
 }
-function generateUMAP(nodesDF, nEpochs = 10) {
-  const options = { nNeighbors: 5, init: 1, nEpochs: nEpochs, randomState: 42 };
-  const umap = new UMAP(options, 'dataframe');
-  const lowDimensionEmbedding = umap.fitDataFrame(df.drop(['target']), null).embeddings.asDataFrame();
-
-  return nodesDF.assign({
-    x: lowDimensionEmbedding.get(0),
-    y: lowDimensionEmbedding.get(1),
-    size: Series.sequence({ type: new Uint8, init: 0.1, step: 0, size: nodesDF.numRows })
-  });
+function generateUMAP(nodesDF, fittedUMAP = null, nEpochs = 1) {
+  if (fittedUMAP == null) {
+    const options = { nNeighbors: 5, init: 1, nEpochs: nEpochs, randomState: 42 };
+    fittedUMAP = (new UMAP(options)).fitDataFrame(df.drop(['target']), null);
+  } else {
+    console.log("calling refine");
+    fittedUMAP = fittedUMAP.refineDataFrame(df.drop(['target']), null);
+  }
+  const lowDimensionEmbeddingDF = fittedUMAP.embeddings.asDataFrame();
+  return [
+    nodesDF.assign({
+      x: lowDimensionEmbeddingDF.get(0),
+      y: lowDimensionEmbeddingDF.get(1),
+      size: Series.sequence({ type: new Uint8, init: 0.1, step: 0, size: nodesDF.numRows })
+    }), fittedUMAP];
 }
 
 function getDefaultNodes() {
@@ -250,7 +255,6 @@ function getDefaultNodes() {
     name: df.get('target')
   });
   const labelsUnique = [...nodesDF.get('name').unique()];
-  console.log(labelsUnique);
 
   let color = Series.sequence({ type: new Uint32, init: 0, step: 1, size: df.numRows });
   let data = Series.new({ type: new Utf8String, data: [...color] });
