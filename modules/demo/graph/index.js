@@ -14,50 +14,71 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-require('segfault-handler').registerHandler('./crash.log');
 
-require('@babel/register')({
-  cache: false,
-  babelrc: false,
-  cwd: __dirname,
-  presets: [
-    ['@babel/preset-env', { 'targets': { 'node': 'current' } }],
-    ['@babel/preset-react', { 'useBuiltIns': true }]
-  ]
-});
+module.exports = function () {
+  require('segfault-handler').registerHandler('./crash.log');
 
-// Change cwd to the example dir so relative file paths are resolved
-process.chdir(__dirname);
-
-let args = process.argv.slice(2);
-if (args.length === 1 && args[0].includes(' ')) { args = args[0].split(' '); }
-
-module.exports = require('@nvidia/glfw').createReactWindow(`${__dirname}/src/index.js`, true);
-
-if (require.main === module) {
-  const parseArg = (prefix, fallback = '') =>
-    (args.find((arg) => arg.includes(prefix)) || `${prefix}${fallback}`).slice(prefix.length);
-
-  const delay = Math.max(0, parseInt(parseArg('--delay=', 0)) | 0);
-
-  module.exports.open({
-    visible: true,
-    transparent: false,
-    _title: '',
-    nodes: inputs(delay, parseArg('--nodes=')),
-    edges: inputs(delay, parseArg('--edges=')),
-    width: parseInt(parseArg('--width=', 800)) | 0,
-    height: parseInt(parseArg('--height=', 600)) | 0,
-    layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
+  require('@babel/register')({
+    cache: false,
+    babelrc: false,
+    cwd: __dirname,
+    presets: [
+      ['@babel/preset-env', { 'targets': { 'node': 'current' } }],
+      ['@babel/preset-react', { 'useBuiltIns': true }]
+    ]
   });
 
-  async function* inputs(delay, paths) {
-    const sleep = (t) => new Promise((r) => setTimeout(r, t));
-    for (const path of paths.split(',')) {
-      if (path) {
-        yield path;
+  // Change cwd to the example dir so relative file paths are resolved
+  process.chdir(__dirname);
+
+  const { RapidsJSDOM } = require('@rapidsai/jsdom');
+  const { window } = new RapidsJSDOM();
+
+
+  window.evalFn(() => {
+    const { default: App } = require('./src/app.js');
+
+    let args = process.argv.slice(2);
+    if (args.length === 1 && args[0].includes(' ')) { args = args[0].split(' '); }
+
+    const parseArg = (prefix, fallback = '') =>
+      (args.find((arg) => arg.includes(prefix)) || `${prefix}${fallback}`).slice(prefix.length);
+
+    const delay = Math.max(0, parseInt(parseArg('--delay=', 0)) | 0);
+
+    props = {
+      visible: true,
+      transparent: false,
+      _title: '',
+      nodes: inputs(delay, parseArg('--nodes=')),
+      edges: inputs(delay, parseArg('--edges=')),
+      width: parseInt(parseArg('--width=', 800)) | 0,
+      height: parseInt(parseArg('--height=', 600)) | 0,
+      layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
+      ref(e) { window._inputEventTarget = FDN(e); },
+    };
+
+    var reactDOM = require('react-dom');
+    var createElement = require('react').createElement;
+    var render = reactDOM.render, FDN = reactDOM.findDOMNode;
+    render(
+      createElement(App, props),
+      document.body.appendChild(document.createElement('div'))
+    );
+
+    async function* inputs(delay, paths) {
+      const sleep = (t) => new Promise((r) => setTimeout(r, t));
+      for (const path of paths.split(',')) {
+        if (path) {
+          yield path;
+        }
+        await sleep(delay);
       }
-      await sleep(delay);
     }
-  }
+  });
+
+}
+
+if (require.main === module) {
+  module.exports();
 }
