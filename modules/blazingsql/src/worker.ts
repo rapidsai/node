@@ -47,11 +47,9 @@ process.on('message', (args: any) => {
 
   if (operation == CREATE_TABLE) {
     const tableName = rest['tableName'] as string;
-    const messageId = `message_${rest['ctxToken'] as number}`;
+    const messageId = `message_${rest['ralId'] as number}`;
 
-    console.log(`recieved: ${messageId}`);
-
-    bc.createTable(tableName, bc.pullFromCache(messageId, false));
+    bc.createTable(tableName, bc.pullFromCache(messageId));
     (<any>process).send({operation: TABLE_CREATED});
   }
 

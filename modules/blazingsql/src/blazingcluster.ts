@@ -89,14 +89,13 @@ export class BlazingCluster {
     this.workers.forEach((worker, i) => {
       const ralId = i + 1;  // start ralId at 1 since ralId 0 is reserved for main process
       createTablePromises.push(new Promise((resolve) => {
-        console.log(ralId);
         this.blazingContext.sendToCache(
           ralId,
           ralId,
           `message_${ralId}`,
           DataFrame.fromArrow(table.slice((i + 1) * len, (i + 2) * len).serialize()),
-          true);
-        worker.send({operation: CREATE_TABLE, tableName: tableName, ctxToken: ralId});
+          false);
+        worker.send({operation: CREATE_TABLE, tableName: tableName, ralId: ralId});
         worker.on('message', (msg: any) => {
           const {operation}: {operation: string} = msg;
           if (operation === TABLE_CREATED) { resolve(); }
