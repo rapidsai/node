@@ -12,24 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const { BlazingCluster } = require('@rapidsai/blazingsql');
-const { Series, DataFrame } = require('@rapidsai/cudf');
+const { BlazingClusterServer } = require('@rapidsai/blazingsql');
 
 async function main() {
-  const df = createLargeDataFrame();
-
-  const bc = await BlazingCluster.init(2);
-  await bc.createTable('test_table', df);
-  const result = await bc.sql('SELECT a FROM test_table');
-
-  bc.stop();
-
-  console.log([...result.get('a')]);
+  await BlazingClusterServer.init();
 }
 
 main();
-
-function createLargeDataFrame() {
-  const a = Series.new(Array.from(Array(300).keys()));
-  return new DataFrame({ 'a': a, 'b': a });
-}
