@@ -84,8 +84,6 @@ services:
       args:
         <<: *main_build_args
         FROM_IMAGE: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-16.6.2}-cudagl${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-base-${ARCH:-amd64}
-    volumes:
-      - "/home/ptaylor/Desktop/test-node-webrtc-nvenc-docker:/home/node/test-node-webrtc-nvenc-docker:rw"
 
   demo:
     <<: *main_service_settings
