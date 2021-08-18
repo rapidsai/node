@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build-and-push-images:
@@ -62,8 +59,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          load: ${{ github.event_name == 'pull_request' }}
+          push: true
           file: dockerfiles/devel/01-base.Dockerfile
           build-args: |
             "UID=1000"
@@ -74,8 +70,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          load: ${{ github.event_name == 'pull_request' }}
+          push: true
           file: dockerfiles/devel/02-main.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -84,8 +79,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          load: ${{ github.event_name == 'pull_request' }}
+          push: true
           file: dockerfiles/devel/03-wrtc.Dockerfile
           secret-files: |
             "aws_creds=/tmp/aws_creds"
@@ -102,8 +96,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          load: ${{ github.event_name == 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/01-base.Dockerfile
           build-args: |
             "UID=1000"
@@ -114,8 +107,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          load: ${{ github.event_name == 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/01-base.Dockerfile
           build-args: |
             "UID=1000"
@@ -126,8 +118,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          load: ${{ github.event_name == 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/02-wrtc.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -137,8 +128,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          load: ${{ github.event_name == 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/03-build.Dockerfile
           secret-files: |
             "aws_creds=/tmp/aws_creds"
@@ -155,7 +145,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/main.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-wrtc-${{ env.ARCH }}"
@@ -165,7 +155,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/demo.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-wrtc-${{ env.ARCH }}"
@@ -175,7 +165,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/glfw.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -185,7 +175,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/cudf.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -195,7 +185,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/blazingsql.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -205,7 +195,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/cuml.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -215,7 +205,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/cugraph.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
@@ -225,7 +215,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           file: dockerfiles/runtime/cuspatial.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
