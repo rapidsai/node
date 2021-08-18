@@ -21,10 +21,12 @@ async function main() {
   const bc = await BlazingCluster.init(2);
   await bc.createTable('test_table', df);
   const result = await bc.sql('SELECT a FROM test_table');
+  const result2 = await bc.sql('SELECT b FROM test_table');
 
   bc.stop();
 
   console.log([...result.get('a')]);
+  console.log([...result2.get('b')]);
 }
 
 main();

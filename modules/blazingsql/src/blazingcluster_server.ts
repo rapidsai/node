@@ -14,18 +14,16 @@
 
 import {DataFrame, Series} from '@rapidsai/cudf';
 import * as http from 'http';
+import * as url from 'url';
 
 import {BlazingCluster} from './blazingcluster';
 
 export class BlazingClusterServer {
-  // @ts-ignore
-  private server: http.Server;
-  // @ts-ignore
   private blazingCluster: BlazingCluster;
 
   static async init(port = 8888, numWorkers = 2): Promise<BlazingClusterServer> {
     const blazingCluster = await BlazingCluster.init(numWorkers);
-    await blazingCluster.createTable('test', createLargeDataFrame());
+    await blazingCluster.createTable('test_table', createLargeDataFrame());
 
     return new BlazingClusterServer(port, blazingCluster);
   }
@@ -34,29 +32,27 @@ export class BlazingClusterServer {
     this.blazingCluster = blazingCluster;
 
     /* eslint-disable @typescript-eslint/no-misused-promises */
-    this.server =
-      http
-        .createServer((request: http.IncomingMessage, response: http.ServerResponse) => {
-          const {url}       = request;
-          const body: any[] = [];
-          request.on('error', (err) => { console.error(err); })
-            .on('data', (chunk) => { body.push(chunk); })
-            .on('end', async () => {
-              response.writeHead(200);
-              const query = BlazingClusterServer.parseQuery(url);
-              if (query.length !== 0) {
-                const result = await blazingCluster.sql(BlazingClusterServer.parseQuery(url));
-                response.end([...result.get('a')].join());
-              } else {
-                response.end('Please enter a query');
-              }
-            });
-        })
-        .listen(port);
+    http
+      .createServer(async (request: http.IncomingMessage, response: http.ServerResponse) => {
+        const path  = url.parse(request.url ?? '', true);
+        const query = BlazingClusterServer.parseQueryRequest(path.query);
+        response.writeHead(200, 'OK', {'Context-Type': 'text/plain'});
+
+        if (query.length) {
+          const result = await this.blazingCluster.sql(query);
+          result.names.forEach(
+            (n: string) => { response.write(`${n}: ${[...result.get(n)].join()} \n`); });
+        }
+
+        response.end(
+          '\n\n SQL table "test_table" created. Query this table by adding the following route... \n "/?query="SELECT a FROM test_table"');
+      })
+      .listen(port);
   }
 
-  private static parseQuery(url: string|undefined) {
-    return url?.replace(/\W+/g, '').replaceAll('_', ' ') ?? '';
+  private static parseQueryRequest(request: any) {
+    const {query} = request;
+    return query !== undefined ? query.slice(1, -1) as string : '';
   }
 }
 
