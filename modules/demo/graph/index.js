@@ -30,51 +30,36 @@ module.exports = function () {
   // Change cwd to the example dir so relative file paths are resolved
   process.chdir(__dirname);
 
-  const { RapidsJSDOM } = require('@rapidsai/jsdom');
-  const { window } = new RapidsJSDOM();
+  let args = process.argv.slice(2);
+  if (args.length === 1 && args[0].includes(' ')) { args = args[0].split(' '); }
 
-  window.evalFn(() => {
-    const { default: App } = require('./src/app.js');
+  const parseArg = (prefix, fallback = '') =>
+    (args.find((arg) => arg.includes(prefix)) || `${prefix}${fallback}`).slice(prefix.length);
 
-    let args = process.argv.slice(2);
-    if (args.length === 1 && args[0].includes(' ')) { args = args[0].split(' '); }
+  const delay = Math.max(0, parseInt(parseArg('--delay=', 0)) | 0);
 
-    const parseArg = (prefix, fallback = '') =>
-      (args.find((arg) => arg.includes(prefix)) || `${prefix}${fallback}`).slice(prefix.length);
-
-    const delay = Math.max(0, parseInt(parseArg('--delay=', 0)) | 0);
-
-    const React = require('react');
-    const ReactDOM = require('react-dom');
-
-    const props = {
-      visible: true,
-      transparent: false,
-      _title: '',
-      nodes: inputs(delay, parseArg('--nodes=')),
-      edges: inputs(delay, parseArg('--edges=')),
-      width: parseInt(parseArg('--width=', 800)) | 0,
-      height: parseInt(parseArg('--height=', 600)) | 0,
-      layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
-    };
-
-    ReactDOM.render(
-      React.createElement(App, props),
-      document.body.appendChild(document.createElement('div'))
-    );
-
-    window.addEventListener('close', () => process.exit(0), { once: true });
-
-    async function* inputs(delay, paths) {
-      const sleep = (t) => new Promise((r) => setTimeout(r, t));
-      for (const path of paths.split(',')) {
-        if (path) {
-          yield path;
-        }
-        await sleep(delay);
+  async function* inputs(delay, paths) {
+    const sleep = (t) => new Promise((r) => setTimeout(r, t));
+    for (const path of paths.split(',')) {
+      if (path) {
+        yield path;
       }
+      await sleep(delay);
     }
-  });
+  }
+
+  const props = {
+    visible: true,
+    transparent: false,
+    _title: '',
+    nodes: inputs(delay, parseArg('--nodes=')),
+    edges: inputs(delay, parseArg('--edges=')),
+    width: parseInt(parseArg('--width=', 800)) | 0,
+    height: parseInt(parseArg('--height=', 600)) | 0,
+    layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
+  };
+
+  require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent({}, './src/app.js', props);
 
 }
 

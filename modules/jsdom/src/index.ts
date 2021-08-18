@@ -74,6 +74,18 @@ export class RapidsJSDOM extends jsdom.JSDOM {
       }
     });
   }
+
+  static fromReactComponent(jsdomOptions = {}, componentPath: string, reactProps = {}) {
+    const jsdom = new RapidsJSDOM(jsdomOptions);
+    jsdom.window.evalFn(() => {
+      const React     = require('react');
+      const ReactDOM  = require('react-dom');
+      const Component = require(componentPath);
+      ReactDOM.render(React.createElement(Component.default || Component, reactProps),
+                      document.body.appendChild(document.createElement('div')));
+    }, {componentPath, reactProps});
+    return jsdom;
+  }
 }
 
 class ImageLoader extends jsdom.ResourceLoader {
