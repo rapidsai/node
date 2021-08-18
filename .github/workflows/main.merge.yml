@@ -19,7 +19,7 @@ jobs:
         LINUX: [ubuntu18.04, ubuntu20.04]
     env:
       ARCH: amd64
-      NODE: 16.5.0
+      NODE: 16.6.2
       RAPIDS: 21.08.00
       REPOSITORY: ghcr.io/rapidsai/node
     steps:
