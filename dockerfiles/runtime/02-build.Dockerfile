@@ -43,11 +43,11 @@ RUN echo -e "build env:\n$(env)" \
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_SECRET_ACCESS_KEY
 
-RUN --mount=type=secret,id=aws_creds \
- [[ -f /run/secrets/aws_creds ]] && \
-    set -a && . /run/secrets/aws_creds && set +a \
-    || true \
- && yarn rebuild
+RUN --mount=type=secret,id=sccache_credentials \
+    if [ -f /run/secrets/sccache_credentials ]; then \
+        set -a; . /run/secrets/sccache_credentials; set +a; \
+    fi; \
+    yarn rebuild
 
 # Copy demos after building so changes to demos don't trigger a rebuild
 COPY --chown=node:node modules/demo modules/demo

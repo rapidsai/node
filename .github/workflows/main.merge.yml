@@ -53,8 +53,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Write local env
         run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/aws_creds
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/aws_creds
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
       - name: Build devel base
         uses: docker/build-push-action@v2
         with:
@@ -75,14 +75,14 @@ jobs:
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
-      - name: Build devel wrtc
+      - name: Build devel base
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          file: dockerfiles/devel/03-wrtc.Dockerfile
+          file: dockerfiles/devel/03-base.Dockerfile
           secret-files: |
-            "aws_creds=/tmp/aws_creds"
+            "sccache_credentials=/tmp/sccache_credentials"
           build-args: |
             "PARALLEL_LEVEL=1"
             "SCCACHE_CACHE_SIZE=100G"
@@ -91,7 +91,7 @@ jobs:
             "SCCACHE_BUCKET=node-rapids-sccache"
             "RAPIDS_VERSION=${{ env.RAPIDS }}"
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
-          tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-wrtc-${{ env.ARCH }}
+          tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
       - name: Build runtime cuda-base
         uses: docker/build-push-action@v2
         with:
@@ -114,24 +114,14 @@ jobs:
             "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
-      - name: Build runtime wrtc
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          file: dockerfiles/runtime/02-wrtc.Dockerfile
-          build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-wrtc-${{ env.ARCH }}"
-          tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-wrtc-${{ env.ARCH }}
       - name: Build packages
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          file: dockerfiles/runtime/03-build.Dockerfile
+          file: dockerfiles/runtime/02-build.Dockerfile
           secret-files: |
-            "aws_creds=/tmp/aws_creds"
+            "sccache_credentials=/tmp/sccache_credentials"
           build-args: |
             "PARALLEL_LEVEL=1"
             "SCCACHE_CACHE_SIZE=100G"
@@ -148,7 +138,7 @@ jobs:
           push: true
           file: dockerfiles/runtime/main.Dockerfile
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-wrtc-${{ env.ARCH }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
       - name: Build runtime demo
@@ -158,7 +148,7 @@ jobs:
           push: true
           file: dockerfiles/runtime/demo.Dockerfile
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-wrtc-${{ env.ARCH }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo-${{ env.ARCH }}
       - name: Build runtime glfw

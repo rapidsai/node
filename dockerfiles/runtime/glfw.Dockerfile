@@ -5,8 +5,8 @@ FROM ${DEVEL_IMAGE} as devel
 
 WORKDIR /home/node
 
-RUN cp \
-    /opt/rapids/node/.npmrc               \
+RUN cp                                          \
+    /opt/rapids/node/.npmrc                     \
     /opt/rapids/node/build/rapidsai-core-*.tgz  \
     /opt/rapids/node/build/nvidia-glfw-*.tgz    \
     /opt/rapids/node/build/nvidia-webgl-*.tgz   \
@@ -19,7 +19,7 @@ FROM ${FROM_IMAGE}
 
 SHELL ["/bin/bash", "-c"]
 
-ENV NVIDIA_DRIVER_CAPABILITIES compute,utility,graphics
+ENV NVIDIA_DRIVER_CAPABILITIES all
 
 USER root
 
