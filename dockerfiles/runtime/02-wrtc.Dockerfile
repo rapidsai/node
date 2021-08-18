@@ -24,11 +24,13 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt install -y --no-install-recommends \
     libxi-dev libxrandr-dev \
  # Clean up
- && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ && apt autoremove -y && apt clean \
+ && rm -rf \
+    /tmp/* \
+    /var/tmp/* \
+    /var/lib/apt/lists/*
 
-COPY --from=devel --chown=node:node \
-    /home/node/node_modules/node-nvidia-stream-sdk \
-    /home/node/node_modules/node-nvidia-stream-sdk
+COPY --from=devel --chown=node:node /home/node/node_modules /home/node/node_modules
 
 USER node
 

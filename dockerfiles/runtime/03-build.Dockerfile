@@ -1,3 +1,5 @@
+#syntax=docker/dockerfile:1.2
+
 ARG FROM_IMAGE
 
 FROM ${FROM_IMAGE}
@@ -41,16 +43,11 @@ RUN echo -e "build env:\n$(env)" \
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_SECRET_ACCESS_KEY
 
-RUN env CUDAARCHS="$CUDAARCHS" \
-        PARALLEL_LEVEL="$PARALLEL_LEVEL" \
-        RAPIDS_VERSION="$RAPIDS_VERSION" \
-        SCCACHE_REGION="$SCCACHE_REGION" \
-        SCCACHE_BUCKET="$SCCACHE_BUCKET" \
-        SCCACHE_CACHE_SIZE="$SCCACHE_CACHE_SIZE" \
-        SCCACHE_IDLE_TIMEOUT="$SCCACHE_IDLE_TIMEOUT" \
-        AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
-        AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
-    yarn rebuild
+RUN --mount=type=secret,id=aws_creds \
+ [[ -f /run/secrets/aws_creds ]] && \
+    set -a && . /run/secrets/aws_creds && set +a \
+    || true \
+ && yarn rebuild
 
 # Copy demos after building so changes to demos don't trigger a rebuild
 COPY --chown=node:node modules/demo modules/demo
