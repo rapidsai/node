@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 module.exports = function () {
   require('segfault-handler').registerHandler('./crash.log');
 
@@ -34,7 +33,6 @@ module.exports = function () {
   const { RapidsJSDOM } = require('@rapidsai/jsdom');
   const { window } = new RapidsJSDOM();
 
-
   window.evalFn(() => {
     const { default: App } = require('./src/app.js');
 
@@ -46,7 +44,10 @@ module.exports = function () {
 
     const delay = Math.max(0, parseInt(parseArg('--delay=', 0)) | 0);
 
-    props = {
+    const React = require('react');
+    const ReactDOM = require('react-dom');
+
+    const props = {
       visible: true,
       transparent: false,
       _title: '',
@@ -55,16 +56,14 @@ module.exports = function () {
       width: parseInt(parseArg('--width=', 800)) | 0,
       height: parseInt(parseArg('--height=', 600)) | 0,
       layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
-      ref(e) { window._inputEventTarget = FDN(e); },
     };
 
-    var reactDOM = require('react-dom');
-    var createElement = require('react').createElement;
-    var render = reactDOM.render, FDN = reactDOM.findDOMNode;
-    render(
-      createElement(App, props),
+    ReactDOM.render(
+      React.createElement(App, props),
       document.body.appendChild(document.createElement('div'))
     );
+
+    window.addEventListener('close', () => process.exit(0), { once: true });
 
     async function* inputs(delay, paths) {
       const sleep = (t) => new Promise((r) => setTimeout(r, t));

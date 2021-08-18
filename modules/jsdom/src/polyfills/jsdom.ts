@@ -28,42 +28,40 @@ declare module 'jsdom' {
   }
 }
 
+const clone = (obj: any) => Object.create(Object.getPrototypeOf(obj),  //
+                                          Object.getOwnPropertyDescriptors(obj));
+
 export function installJSDOMUtils(window: jsdom.DOMWindow, main?: NodeModule) {
-  const dir = main ? main.path || require('path').dirname(main.filename || main.id) : process.cwd();
-
-  window.evalFn = (f: () => any, globals: Record<string, any> = {}) => {
-    const script = new vm.Script(`(${f.toString()}).call(this)`);
-    return script.runInContext(createContext(window, globals));
-  };
-
   window.jsdom || (window.jsdom = {});
   window.jsdom.utils || (window.jsdom.utils = {});
   window.jsdom.utils.implSymbol     = implSymbol;
   window.jsdom.utils.implForWrapper = implForWrapper;
   window.jsdom.utils.wrapperForImpl = wrapperForImpl;
   window.jsdom.global               = window.jsdom.utils.implForWrapper(window)._globalObject;
+  window.jsdom.global.require       = createContextRequire({
+    context: createContext(window),
+    dir: main ? main.path || require('path').dirname(main.filename || main.id) : process.cwd(),
+  });
 
   if (window.jsdom.utils.implForWrapper(window.document)._origin === 'null') {
     window.jsdom.utils.implForWrapper(window.document)._origin = '';
   }
 
+  window.evalFn = (f: () => any, globals: Record<string, any> = {}) => {
+    const script = new vm.Script(`(${f.toString()}).call(this)`);
+    return script.runInContext(createContext(window, globals));
+  };
+
   return window;
 
   function createContext(window: jsdom.DOMWindow, globals: Record<string, any> = {}) {
-    const clone = (obj: any) => Object.create(Object.getPrototypeOf(obj),  //
-                                              Object.getOwnPropertyDescriptors(obj));
-    const window_            = Object.assign(clone(window.jsdom.global), globals);
-    const global_            = Object.create(window_, Object.getOwnPropertyDescriptors(global));
-    global_.global           = global_;
-    global_.process          = clone(process);
-    global_.process.browser  = true;
-    const context            = vm.createContext(Object.defineProperty(global_, 'window', {
-      value: global_,
-      writable: false,
-      enumerable: true,
-      configurable: true,
-    }));
-    context.require          = createContextRequire({context, dir});
+    const context = vm.createContext(Object.assign(  //
+      Object.create(window.jsdom.global, {
+        ...Object.getOwnPropertyDescriptors(global),
+        global: {get() { return context; }},
+        window: {value: window, writable: false, enumerable: true, configurable: true},
+      }),
+      {process: Object.assign(clone(process), {browser: true}), ...globals}));
     return context;
   }
 }
