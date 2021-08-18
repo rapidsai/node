@@ -35,9 +35,9 @@ export function installGetContext(window: jsdom.DOMWindow) {
                 window: jsdom.DOMWindow,
                 options?: WebGLContextAttributes) {
       super(options);
-      this.canvas                   = canvas;
-      this.window                   = window;
-      this.window._inputEventTarget = canvas;
+      this.canvas = canvas;
+      this.window = window;
+      if (!this.window._inputEventTarget) { this.window._inputEventTarget = canvas; }
     }
     private readonly window: jsdom.DOMWindow;
     public readonly canvas: HTMLCanvasElement;
