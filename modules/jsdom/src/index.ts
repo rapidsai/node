@@ -75,7 +75,7 @@ export class RapidsJSDOM extends jsdom.JSDOM {
     });
   }
 
-  static fromReactComponent(jsdomOptions = {}, componentPath: string, reactProps = {}) {
+  static fromReactComponent(componentPath: string, jsdomOptions = {}, reactProps = {}) {
     const jsdom = new RapidsJSDOM(jsdomOptions);
     jsdom.window.evalFn(() => {
       const React     = require('react');

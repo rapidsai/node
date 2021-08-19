@@ -59,7 +59,7 @@ module.exports = function () {
     layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
   };
 
-  require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent({}, './src/app.js', props);
+  require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./src/app.js', {}, props);
 
 }
 
