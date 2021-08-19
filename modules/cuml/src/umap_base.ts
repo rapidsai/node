@@ -57,6 +57,17 @@ export type FitProps<T extends Numeric = any, R extends Numeric = any> = {
   knnDists?: DeviceBuffer
 };
 
+export type RefineProps<T extends Numeric = any, R extends Numeric = any> = {
+  features: DeviceBuffer|(T['scalarType']|null|undefined)[],
+  featuresType: T,
+  nSamples: number,
+  nFeatures: number,
+  convertDType: boolean,
+  embeddings: DeviceBuffer,
+  target?: DeviceBuffer|(R['scalarType']|null|undefined)[],
+  targetType?: R, rows: DeviceBuffer, cols: DeviceBuffer, vals: DeviceBuffer
+};
+
 export type transformProps<T extends Numeric = any> = {
   features: DeviceBuffer|(T['scalarType']|null|undefined)[],
   featuresType: DataType,
@@ -99,6 +110,6 @@ export interface UMAPInterface {
 
   transform<T extends Numeric>(options?: transformProps<T>): DeviceBuffer;
 
-  refine<T extends Numeric, R extends Numeric>(options?: FitProps<T, R>): DeviceBuffer;
+  refine<T extends Numeric, R extends Numeric>(options?: RefineProps<T, R>): DeviceBuffer;
 }
 export const UMAPBase: UMAPConstructor = CUML.UMAP;

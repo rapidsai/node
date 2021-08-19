@@ -283,9 +283,15 @@ export class FittedUMAP extends UMAP {
    * const umap = new UMAP({nComponents:2}, 'dataframe');
    * ```
    */
+  _rows: DeviceBuffer;
+  _cols: DeviceBuffer;
+  _vals: DeviceBuffer;
   constructor(input: UMAPParams, embeddings: DeviceBuffer) {
     super(input);
     this._embeddings = embeddings;
+    this._rows       = new DeviceBuffer();
+    this._cols       = new DeviceBuffer();
+    this._vals       = new DeviceBuffer();
   }
 
   /**
@@ -396,12 +402,16 @@ export class FittedUMAP extends UMAP {
       nSamples: nSamples,
       nFeatures: nFeatures,
       convertDType: convertDType,
-      embeddings: this._embeddings || this._generate_embeddings(nSamples, features.type)
+      embeddings: this._embeddings || this._generate_embeddings(nSamples, features.type),
+      rows: this._rows,
+      cols: this._cols,
+      vals: this._vals
     };
     if (target !== null) {
       options = {...options, ...{ target: target._col.data, targetType: target.type }};
     }
-    return new FittedUMAP(this.getUMAPParams(), this._umap.refine(options));
+    // return new FittedUMAP(this.getUMAPParams(), this._umap.refine(options));
+    this._embeddings = this._umap.refine(options);
   }
 
   /**

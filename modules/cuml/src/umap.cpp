@@ -124,8 +124,9 @@ void UMAP::refine(DeviceBuffer::wrapper_t const& X,
                   cudf::size_type n_samples,
                   cudf::size_type n_features,
                   DeviceBuffer::wrapper_t const& y,
-                  DeviceBuffer::wrapper_t const& knn_indices,
-                  DeviceBuffer::wrapper_t const& knn_dists,
+                  DeviceBuffer::wrapper_t const& rows,
+                  DeviceBuffer::wrapper_t const& cols,
+                  DeviceBuffer::wrapper_t const& vals,
                   bool convert_dtype,
                   DeviceBuffer::wrapper_t const& embeddings) {
   try {
@@ -142,20 +143,19 @@ void UMAP::refine(DeviceBuffer::wrapper_t const& X,
                           n_features,
                           &cgraph_coo,
                           &this->params_);
-      this->rows = cgraph_coo.rows();
-      this->cols = cgraph_coo.cols();
-      this->vals = cgraph_coo.vals();
-      this->nnz  = cgraph_coo.nnz;
+      this->nnz = cgraph_coo.nnz;
+      raft::allocate(this->rows, this->nnz);
+      raft::allocate(this->cols, this->nnz);
+      raft::allocate(this->vals, this->nnz);
+      raft::update_device(this->rows, cgraph_coo.rows(), this->nnz, stream);
+      raft::update_device(this->cols, cgraph_coo.cols(), this->nnz, stream);
+      raft::update_device(this->vals, cgraph_coo.vals(), this->nnz, stream);
     } else {
+      cgraph_coo.allocate(this->nnz, true, stream);
       raft::update_device(cgraph_coo.rows(), this->rows, this->nnz, stream);
       raft::update_device(cgraph_coo.cols(), this->cols, this->nnz, stream);
       raft::update_device(cgraph_coo.vals(), this->vals, this->nnz, stream);
     }
-    NODE_CUDF_EXPECT(this->nnz != 0, "cgraph is null", Env());
-
-    // NODE_CUDF_EXPECT(cgraph_coo != nullptr, "cgraph is null", Env());
-    // // }
-    // NODE_CUDF_EXPECT(cgraph_coo->nnz != 0, "cgraph is null", Env());
     ML::UMAP::refine(handle,
                      static_cast<float*>(X->data()),
                      static_cast<float*>(y->data()),
@@ -165,11 +165,7 @@ void UMAP::refine(DeviceBuffer::wrapper_t const& X,
                      &this->params_,
                      static_cast<float*>(embeddings->data()));
 
-  }
-  // NODE_CUDF_EXPECT(this->cgraph_coo == nullptr, "cgraph is not null", Env());
-  catch (std::exception const& e) {
-    NAPI_THROW(Napi::Error::New(Env(), e.what()));
-  }
+  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
 void UMAP::transform(DeviceBuffer::wrapper_t const& X,
@@ -222,9 +218,6 @@ Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
 
   DeviceBuffer::wrapper_t embeddings = props.Get("embeddings");
 
-  // NODE_CUDF_EXPECT(this->cgraph_coo == nullptr, "cgraph is not null", args.Env());
-  // NODE_CUDF_EXPECT(this->cgraph_coo != nullptr, "cgraph is null", args.Env());
-
   fit(X,
       props.Get("nSamples"),
       props.Get("nFeatures"),
@@ -249,14 +242,14 @@ Napi::Value UMAP::refine(Napi::CallbackInfo const& info) {
   DeviceBuffer::wrapper_t y =
     props.Has("y") ? data_to_devicebuffer(args.Env(), props.Get("target"), props.Get("targetType"))
                    : DeviceBuffer::New(args.Env());
-  DeviceBuffer::wrapper_t knn_indices =
-    props.Has("knnIndices")
-      ? data_to_devicebuffer(args.Env(), props.Get("knnIndices"), props.Get("knnIndicesType"))
-      : DeviceBuffer::New(args.Env());
-  DeviceBuffer::wrapper_t knn_dists =
-    props.Has("knnDists")
-      ? data_to_devicebuffer(args.Env(), props.Get("knnDists"), props.Get("knnDistsType"))
-      : DeviceBuffer::New(args.Env());
+  // DeviceBuffer::wrapper_t knn_indices =
+  //   props.Has("rows")
+  //     ? data_to_devicebuffer(args.Env(), props.Get("knnIndices"), props.Get("knnIndicesType"))
+  //     : DeviceBuffer::New(args.Env());
+  // DeviceBuffer::wrapper_t knn_dists =
+  //   props.Has("cols")
+  //     ? data_to_devicebuffer(args.Env(), props.Get("knnDists"), props.Get("knnDistsType"))
+  //     : DeviceBuffer::New(args.Env());
 
   DeviceBuffer::wrapper_t embeddings = props.Get("embeddings");
 
@@ -264,11 +257,15 @@ Napi::Value UMAP::refine(Napi::CallbackInfo const& info) {
          props.Get("nSamples"),
          props.Get("nFeatures"),
          y,
-         knn_indices,
-         knn_dists,
+         props.Get("rows"),
+         props.Get("cols"),
+         props.Get("vals"),
          props.Get("convertDType"),
          embeddings);
 
+  // Napi::Array embeds = Napi::Array::New(args.Env(), 1);
+  // uint32_t i         = 0;
+  // embeds[i]          = embeddings;
   return embeddings;
 }
 
