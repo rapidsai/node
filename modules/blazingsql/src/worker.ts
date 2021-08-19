@@ -32,32 +32,41 @@ process.on('message', (args: any) => {
 
   console.log(`${operation as string}:`, rest);
 
-  if (operation == CREATE_BLAZING_CONTEXT) {
-    const ralId              = rest['ralId'] as number;
-    const ucpMetaData: any[] = rest['ucpMetadata'] as Record<string, any>[];
-    ucpContext               = new UcpContext();
+  switch (operation) {
+    case CREATE_BLAZING_CONTEXT: {
+      const ralId              = rest['ralId'] as number;
+      const ucpMetaData: any[] = rest['ucpMetadata'] as Record<string, any>[];
+      ucpContext               = new UcpContext();
 
-    bc = new BlazingContext({
-      ralId: ralId,
-      ralCommunicationPort: 4000 + ralId,
-      configOptions: {...CONFIG_OPTIONS},
-      workersUcpInfo: ucpMetaData.map((xs: any) => ({...xs, ucpContext}))
-    });
+      bc = new BlazingContext({
+        ralId: ralId,
+        ralCommunicationPort: 4000 + ralId,
+        configOptions: {...CONFIG_OPTIONS},
+        workersUcpInfo: ucpMetaData.map((xs: any) => ({...xs, ucpContext}))
+      });
 
-    (<any>process).send({operation: BLAZING_CONTEXT_CREATED});
-  } else if (operation == CREATE_TABLE) {
-    const tableName = rest['tableName'] as string;
-    const messageId = `message_${rest['ctxToken'] as number}`;
+      (<any>process).send({operation: BLAZING_CONTEXT_CREATED});
+      break;
+    }
 
-    bc.createTable(tableName, bc.pullFromCache(messageId));
-    (<any>process).send({operation: TABLE_CREATED});
-  } else if (operation == RUN_QUERY) {
-    const query     = rest['query'] as string;
-    const ctxToken  = rest['ctxToken'] as number;
-    const messageId = rest['messageId'] as string;
+    case CREATE_TABLE: {
+      const tableName = rest['tableName'] as string;
+      const messageId = rest['messageId'] as string;
 
-    bc.sql(query, ctxToken).sendTo(0, messageId);
-    console.log(`Sending query_ran ${messageId}`);
-    (<any>process).send({operation: QUERY_RAN, ctxToken, messageId});
+      bc.createTable(tableName, bc.pullFromCache(messageId));
+      (<any>process).send({operation: TABLE_CREATED});
+      break;
+    }
+
+    case RUN_QUERY: {
+      const query     = rest['query'] as string;
+      const ctxToken  = rest['ctxToken'] as number;
+      const messageId = rest['messageId'] as string;
+
+      bc.sql(query, ctxToken).sendTo(0, messageId);
+      console.log(`Sending query_ran ${messageId}`);
+      (<any>process).send({operation: QUERY_RAN, ctxToken, messageId});
+      break;
+    }
   }
 });

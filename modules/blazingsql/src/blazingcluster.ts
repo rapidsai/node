@@ -31,12 +31,13 @@ export const CONFIG_OPTIONS = {
   PROTOCOL: 'UCX',
 };
 
+let ctxToken = 0;
+
 export class BlazingCluster {
   private workers: ChildProcess[];
   // @ts-ignore
   // instantiated within init()
   private blazingContext: BlazingContext;
-  private ctxToken = 0;
 
   /**
    * Initializes and returns an instance of BlazingCluster.
@@ -114,14 +115,15 @@ export class BlazingCluster {
     const createTablePromises: Promise<void>[] = [];
     this.workers.forEach((worker, i) => {
       const ralId = i + 1;  // start ralId at 1 since ralId 0 is reserved for main process
-      const token = this.ctxToken++;
+      ctxToken++;
+      const messageId = this.generateMessage(ctxToken);
       createTablePromises.push(new Promise((resolve) => {
         this.blazingContext.sendToCache(
           ralId,
-          token,
-          `message_${token}`,
+          ctxToken,
+          messageId,
           DataFrame.fromArrow(table.slice((i + 1) * len, (i + 2) * len).serialize()));
-        worker.send({operation: CREATE_TABLE, tableName: tableName, ctxToken: token});
+        worker.send({operation: CREATE_TABLE, tableName: tableName, messageId: messageId});
         worker.once('message', (msg: any) => {
           const {operation}: {operation: string} = msg;
           if (operation === TABLE_CREATED) { resolve(); }
@@ -159,19 +161,19 @@ export class BlazingCluster {
     const queryPromises = [];
 
     queryPromises.push(new Promise((resolve) => {
-      const token     = this.ctxToken++;
-      const messageId = `message_${token}`;
+      ctxToken++;
+      const messageId = this.generateMessage(ctxToken);
       setTimeout(() => {
-        const df = this.blazingContext.sql(query, token).result();
-        resolve({ctxToken: token, messageId, df});
+        const df = this.blazingContext.sql(query, ctxToken).result();
+        resolve({ctxToken: ctxToken, messageId, df});
       });
     }));
 
     this.workers.forEach((worker) => {
       queryPromises.push(new Promise((resolve) => {
-        const token     = this.ctxToken++;
-        const messageId = `message_${token}`;
-        worker.send({operation: RUN_QUERY, ctxToken: token, messageId, query});
+        ctxToken++;
+        const messageId = this.generateMessage(ctxToken);
+        worker.send({operation: RUN_QUERY, ctxToken: ctxToken, messageId, query});
         worker.on('message', (msg: any) => {
           const {operation, ctxToken, messageId}: {
             operation: string,
@@ -203,4 +205,6 @@ export class BlazingCluster {
   stop(): void {
     this.workers.forEach((worker) => { worker.kill('SIGKILL'); });
   }
+
+  private generateMessage(ctxToken: number): string { return `message_${ctxToken}`; }
 }
