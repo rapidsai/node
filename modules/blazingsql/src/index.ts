@@ -14,5 +14,4 @@
 
 export {UcpContext} from './addon';
 export {BlazingCluster} from './blazingcluster';
-export {BlazingClusterServer} from './blazingcluster_server';
 export {BlazingContext} from './blazingcontext';

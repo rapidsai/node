@@ -30,8 +30,6 @@ let ucpContext: UcpContext;
 process.on('message', (args: any) => {
   const {operation, ...rest} = args;
 
-  console.log(`${operation as string}:`, rest);
-
   switch (operation) {
     case CREATE_BLAZING_CONTEXT: {
       const ralId              = rest['ralId'] as number;
@@ -64,8 +62,7 @@ process.on('message', (args: any) => {
       const messageId = rest['messageId'] as string;
 
       bc.sql(query, ctxToken).sendTo(0, messageId);
-      console.log(`Sending query_ran ${messageId}`);
-      (<any>process).send({operation: QUERY_RAN, ctxToken, messageId});
+      (<any>process).send({operation: QUERY_RAN, ctxToken: ctxToken, messageId: messageId});
       break;
     }
   }

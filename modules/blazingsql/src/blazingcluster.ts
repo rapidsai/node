@@ -84,9 +84,7 @@ export class BlazingCluster {
 
   private constructor(numWorkers: number) {
     this.workers = Array(numWorkers);
-    for (let i = 0; i < numWorkers; ++i) {
-      this.workers[i] = fork(`${__dirname}/worker`, {serialization: 'advanced'});
-    }
+    for (let i = 0; i < numWorkers; ++i) { this.workers[i] = fork(`${__dirname}/worker`); }
   }
 
   /**
@@ -174,7 +172,7 @@ export class BlazingCluster {
         ctxToken++;
         const messageId = this.generateMessageId(ctxToken);
         worker.send({operation: RUN_QUERY, ctxToken: ctxToken, messageId, query});
-        worker.on('message', (msg: any) => {
+        worker.once('message', (msg: any) => {
           const {operation, ctxToken, messageId}: {
             operation: string,
             ctxToken: number,
@@ -182,9 +180,7 @@ export class BlazingCluster {
           } = msg;
 
           if (operation === QUERY_RAN) {
-            console.log(`Query ran: ${messageId}`);
             resolve({ctxToken, messageId, df: this.blazingContext.pullFromCache(messageId)});
-            console.log(`Pulled from cache: ${messageId}`);
           }
         });
       }));

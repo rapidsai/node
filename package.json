@@ -68,6 +68,7 @@
     "cmake-js": "6.0.0",
     "dotenv": "8.2.0",
     "eslint": "7.27.0",
+    "fastify": "3.20.2",
     "lerna": "3.22.1",
     "lint-staged": "10.5.1",
     "node-addon-api": "^3.1.0",
