@@ -14,6 +14,7 @@
 
 import {DataFrame, Series, TypeMap} from '@rapidsai/cudf';
 import {ChildProcess, fork} from 'child_process';
+import * as fs from 'fs';
 
 import {UcpContext} from './addon';
 import {BlazingContext} from './blazingcontext';
@@ -29,6 +30,14 @@ export const QUERY_RAN = 'ranQuery';
 
 export const CONFIG_OPTIONS = {
   PROTOCOL: 'UCX',
+  ENABLE_TASK_LOGS: true,
+  ENABLE_COMMS_LOGS: true,
+  ENABLE_OTHER_ENGINE_LOGS: true,
+  ENABLE_GENERAL_ENGINE_LOGS: true,
+  LOGGING_FLUSH_LEVEL: 'trace',
+  BLAZING_CACHE_DIRECTORY: '/tmp',
+  BLAZING_LOGGING_DIRECTORY: `${__dirname}/z-log`,
+  BLAZING_LOCAL_LOGGING_DIRECTORY: `${__dirname}/z-log`,
 };
 
 export class BlazingCluster {
@@ -50,6 +59,9 @@ export class BlazingCluster {
    * ```
    */
   static async init(numWorkers = 1): Promise<BlazingCluster> {
+    fs.rmSync(`${__dirname}/z-log`, {force: true, recursive: true});
+    fs.mkdirSync(`${__dirname}/z-log`);
+
     const bc = new BlazingCluster(numWorkers);
 
     const ucpMetadata = ['0', ...Object.keys(bc.workers)].map(
@@ -171,7 +183,7 @@ export class BlazingCluster {
         const token     = ctxToken++;
         const messageId = `message_${token}`;
         worker.send({operation: RUN_QUERY, ctxToken: token, messageId, query});
-        worker.on('message', (msg: any) => {
+        worker.once('message', (msg: any) => {
           const {operation, ctxToken, messageId}: {
             operation: string,
             ctxToken: number,

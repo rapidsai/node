@@ -20,7 +20,7 @@ async function main() {
 
   const bc = await BlazingCluster.init(2);
   await bc.createTable('test_table', df);
-  const result = await bc.sql('SELECT a FROM test_table');
+  const result = await bc.sql('SELECT a FROM test_table');;
   const result2 = await bc.sql('SELECT b FROM test_table');
 
   bc.stop();
@@ -32,6 +32,7 @@ async function main() {
 main();
 
 function createLargeDataFrame() {
-  const a = Series.new(Array.from(Array(300).keys()));
-  return new DataFrame({ 'a': a, 'b': a });
+  const a = Series.new(Array.from({ length: 300 }, (_, i) => i + 1));
+  const b = Series.new(Array.from({ length: 300 }, (_, i) => i + 5));
+  return new DataFrame({ 'a': a, 'b': b });
 }
