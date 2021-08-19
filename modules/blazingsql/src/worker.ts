@@ -30,6 +30,8 @@ let ucpContext: UcpContext;
 process.on('message', (args: any) => {
   const {operation, ...rest} = args;
 
+  console.log(`${operation as string}:`, rest);
+
   if (operation == CREATE_BLAZING_CONTEXT) {
     const ralId              = rest['ralId'] as number;
     const ucpMetaData: any[] = rest['ucpMetadata'] as Record<string, any>[];
@@ -43,17 +45,13 @@ process.on('message', (args: any) => {
     });
 
     (<any>process).send({operation: BLAZING_CONTEXT_CREATED});
-  }
-
-  if (operation == CREATE_TABLE) {
+  } else if (operation == CREATE_TABLE) {
     const tableName = rest['tableName'] as string;
-    const messageId = `message_${rest['ralId'] as number}`;
+    const messageId = `message_${rest['ctxToken'] as number}`;
 
     bc.createTable(tableName, bc.pullFromCache(messageId));
     (<any>process).send({operation: TABLE_CREATED});
-  }
-
-  if (operation == RUN_QUERY) {
+  } else if (operation == RUN_QUERY) {
     const query     = rest['query'] as string;
     const ctxToken  = rest['ctxToken'] as number;
     const messageId = rest['messageId'] as string;

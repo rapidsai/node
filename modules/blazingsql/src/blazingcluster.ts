@@ -36,6 +36,7 @@ export class BlazingCluster {
   // @ts-ignore
   // instantiated within init()
   private blazingContext: BlazingContext;
+  private ctxToken = 0;
 
   /**
    * Initializes and returns an instance of BlazingCluster.
@@ -113,13 +114,14 @@ export class BlazingCluster {
     const createTablePromises: Promise<void>[] = [];
     this.workers.forEach((worker, i) => {
       const ralId = i + 1;  // start ralId at 1 since ralId 0 is reserved for main process
+      const token = this.ctxToken++;
       createTablePromises.push(new Promise((resolve) => {
         this.blazingContext.sendToCache(
           ralId,
-          ralId,
-          `message_${ralId}`,
+          token,
+          `message_${token}`,
           DataFrame.fromArrow(table.slice((i + 1) * len, (i + 2) * len).serialize()));
-        worker.send({operation: CREATE_TABLE, tableName: tableName, ralId: ralId});
+        worker.send({operation: CREATE_TABLE, tableName: tableName, ctxToken: token});
         worker.once('message', (msg: any) => {
           const {operation}: {operation: string} = msg;
           if (operation === TABLE_CREATED) { resolve(); }
@@ -154,11 +156,10 @@ export class BlazingCluster {
    * ```
    */
   async sql(query: string): Promise<DataFrame> {
-    let ctxToken        = 0;
     const queryPromises = [];
 
     queryPromises.push(new Promise((resolve) => {
-      const token     = ctxToken++;
+      const token     = this.ctxToken++;
       const messageId = `message_${token}`;
       setTimeout(() => {
         const df = this.blazingContext.sql(query, token).result();
@@ -168,7 +169,7 @@ export class BlazingCluster {
 
     this.workers.forEach((worker) => {
       queryPromises.push(new Promise((resolve) => {
-        const token     = ctxToken++;
+        const token     = this.ctxToken++;
         const messageId = `message_${token}`;
         worker.send({operation: RUN_QUERY, ctxToken: token, messageId, query});
         worker.on('message', (msg: any) => {
