@@ -18,9 +18,11 @@ import {
   CONFIG_OPTIONS,
   CREATE_BLAZING_CONTEXT,
   CREATE_TABLE,
+  DROP_TABLE,
   QUERY_RAN,
   RUN_QUERY,
-  TABLE_CREATED
+  TABLE_CREATED,
+  TABLE_DROPPED
 } from './blazingcluster';
 import {BlazingContext} from './blazingcontext';
 
@@ -47,6 +49,16 @@ process.on('message', (args: any) => {
       break;
     }
 
+    case RUN_QUERY: {
+      const query     = rest['query'] as string;
+      const ctxToken  = rest['ctxToken'] as number;
+      const messageId = rest['messageId'] as string;
+
+      bc.sql(query, ctxToken).sendTo(0, messageId);
+      (<any>process).send({operation: QUERY_RAN, ctxToken: ctxToken, messageId: messageId});
+      break;
+    }
+
     case CREATE_TABLE: {
       const tableName = rest['tableName'] as string;
       const messageId = rest['messageId'] as string;
@@ -56,13 +68,11 @@ process.on('message', (args: any) => {
       break;
     }
 
-    case RUN_QUERY: {
-      const query     = rest['query'] as string;
-      const ctxToken  = rest['ctxToken'] as number;
-      const messageId = rest['messageId'] as string;
+    case DROP_TABLE: {
+      const tableName = rest['tableName'] as string;
 
-      bc.sql(query, ctxToken).sendTo(0, messageId);
-      (<any>process).send({operation: QUERY_RAN, ctxToken: ctxToken, messageId: messageId});
+      bc.dropTable(tableName);
+      (<any>process).send({operation: TABLE_DROPPED});
       break;
     }
   }

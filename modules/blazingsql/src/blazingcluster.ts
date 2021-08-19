@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, Series, TypeMap} from '@rapidsai/cudf';
+import {DataFrame, DataType, Series, TypeMap} from '@rapidsai/cudf';
 import {ChildProcess, fork} from 'child_process';
 
 import {UcpContext} from './addon';
@@ -23,6 +23,9 @@ export const BLAZING_CONTEXT_CREATED = 'blazingContextCreated';
 
 export const CREATE_TABLE  = 'createTable';
 export const TABLE_CREATED = 'tableCreated';
+
+export const DROP_TABLE    = 'dropTable';
+export const TABLE_DROPPED = 'tableDropped';
 
 export const RUN_QUERY = 'runQuery';
 export const QUERY_RAN = 'ranQuery';
@@ -134,6 +137,103 @@ export class BlazingCluster {
 
     await Promise.all(createTablePromises);
   }
+
+  /**
+   * Drop a BlazingSQL table from BlazingContext memory.
+   *
+   * @param tableName Name of the table to drop
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingCluster} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
+   * const df = new DataFrame({'a': a, 'b': b});
+   *
+   * const bc = await BlazingCluster.init();
+   * await bc.createTable('test_table', df);
+   * await bc.dropTable('test_table);
+   * ```
+   */
+  async dropTable(tableName: string): Promise<void> {
+    const deleteTablePromises: Promise<void>[] = [];
+    this.workers.forEach((worker) => {
+      deleteTablePromises.push(new Promise((resolve) => {
+        worker.send({operation: DROP_TABLE, tableName: tableName});
+        worker.once('message', (msg: any) => {
+          const {operation}: {operation: string} = msg;
+          if (operation === TABLE_DROPPED) { resolve(); }
+        });
+      }));
+    });
+
+    this.blazingContext.dropTable(tableName);
+
+    await Promise.all(deleteTablePromises);
+  }
+
+  /**
+   * Returns an array with the names of all created tables.
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingCluster} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const df = new DataFrame({'a': a});
+   *
+   * const bc = await BlazingCluster.init();
+   * await bc.createTable('test_table', df);
+   * bc.listTables(); // ['test_table']
+   * ```
+   */
+  listTables(): string[] { return this.blazingContext.listTables(); }
+
+  /**
+   * Returns a map with column names as keys and the column data type as values.
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
+   * import {BlazingCluster} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
+   * const df = new DataFrame({'a': a});
+   *
+   * const bc = await BlazingCluster.init();
+   * await bc.createTable('test_table', df);
+   * bc.describeTable('test_table'); // {'a': Int32}
+   * ```
+   */
+  describeTable(tableName: string): Map<string, DataType> {
+    return this.blazingContext.describeTable(tableName);
+  }
+
+  /**
+   * Returns a break down of a given query's logical relational algebra plan.
+   *
+   * @param sql SQL query
+   * @param detail if a physical plan should be returned instead
+   *
+   * @example
+   * ```typescript
+   * import {Series, DataFrame} from '@rapidsai/cudf';
+   * import {BlazingCluster} from '@rapidsai/blazingsql';
+   *
+   * const a  = Series.new([1, 2, 3]);
+   * const df = new DataFrame({'a': a});
+   *
+   * const bc = await BlazingCluster.init();
+   * await bc.createTable('test_table', df);
+   *
+   * bc.explain('SELECT a FROM test_table'); // BindableTableScan(table=[[main, test_table]],
+   * aliases=[[a]])
+   * ```
+   */
+  explain(sql: string, detail = false): string { return this.blazingContext.explain(sql, detail); }
 
   /**
    * Query a BlazingSQL table and return the result as a DataFrame.
