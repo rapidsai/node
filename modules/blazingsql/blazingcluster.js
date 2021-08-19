@@ -18,9 +18,10 @@ const { Series, DataFrame } = require('@rapidsai/cudf');
 async function main() {
   const df = createLargeDataFrame();
 
-  const bc = await BlazingCluster.init(2);
+  const bc = await BlazingCluster.init(1);
   await bc.createTable('test_table', df);
-  const result = await bc.sql('SELECT a FROM test_table');;
+  const result = await bc.sql('SELECT a FROM test_table');
+  await bc.sql('SELECT b FROM test_table');
 
   bc.stop();
 

@@ -171,7 +171,7 @@ export class BlazingCluster {
         const token     = ctxToken++;
         const messageId = `message_${token}`;
         worker.send({operation: RUN_QUERY, ctxToken: token, messageId, query});
-        worker.once('message', (msg: any) => {
+        worker.on('message', (msg: any) => {
           const {operation, ctxToken, messageId}: {
             operation: string,
             ctxToken: number,
@@ -179,7 +179,9 @@ export class BlazingCluster {
           } = msg;
 
           if (operation === QUERY_RAN) {
+            console.log(`Query ran: ${messageId}`);
             resolve({ctxToken, messageId, df: this.blazingContext.pullFromCache(messageId)});
+            console.log(`Pulled from cache: ${messageId}`);
           }
         });
       }));

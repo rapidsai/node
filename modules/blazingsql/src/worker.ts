@@ -59,6 +59,7 @@ process.on('message', (args: any) => {
     const messageId = rest['messageId'] as string;
 
     bc.sql(query, ctxToken).sendTo(0, messageId);
+    console.log(`Sending query_ran ${messageId}`);
     (<any>process).send({operation: QUERY_RAN, ctxToken, messageId});
   }
 });
