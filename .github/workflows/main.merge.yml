@@ -72,26 +72,15 @@ jobs:
           context: .
           push: true
           file: dockerfiles/devel/02-main.Dockerfile
-          build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-          tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
-      - name: Build devel base
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          file: dockerfiles/devel/03-base.Dockerfile
           secret-files: |
             "sccache_credentials=/tmp/sccache_credentials"
           build-args: |
-            "PARALLEL_LEVEL=1"
             "SCCACHE_CACHE_SIZE=100G"
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
-            "RAPIDS_VERSION=${{ env.RAPIDS }}"
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
-          tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
+          tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
       - name: Build runtime cuda-base
         uses: docker/build-push-action@v2
         with:
