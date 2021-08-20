@@ -15,7 +15,6 @@
 import {UcpContext} from './addon';
 import {
   BLAZING_CONTEXT_CREATED,
-  CONFIG_OPTIONS,
   CREATE_BLAZING_CONTEXT,
   CREATE_TABLE,
   DROP_TABLE,
@@ -36,12 +35,14 @@ process.on('message', (args: any) => {
     case CREATE_BLAZING_CONTEXT: {
       const ralId              = rest['ralId'] as number;
       const ucpMetaData: any[] = rest['ucpMetadata'] as Record<string, any>[];
+      const configOptions      = rest['configOptions'] as Record<string, unknown>;
+      const port               = rest['port'] as number;
       ucpContext               = new UcpContext();
 
       bc = new BlazingContext({
         ralId: ralId,
-        ralCommunicationPort: 4000 + ralId,
-        configOptions: {...CONFIG_OPTIONS},
+        ralCommunicationPort: port + ralId,
+        configOptions: {...configOptions},
         workersUcpInfo: ucpMetaData.map((xs: any) => ({...xs, ucpContext}))
       });
 

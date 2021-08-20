@@ -17,6 +17,7 @@ import {ChildProcess, fork} from 'child_process';
 
 import {UcpContext} from './addon';
 import {BlazingContext} from './blazingcontext';
+import {defaultClusterConfigValues} from './config';
 
 export const CREATE_BLAZING_CONTEXT  = 'createBlazingContext';
 export const BLAZING_CONTEXT_CREATED = 'blazingContextCreated';
@@ -30,8 +31,10 @@ export const TABLE_DROPPED = 'tableDropped';
 export const RUN_QUERY = 'runQuery';
 export const QUERY_RAN = 'ranQuery';
 
-export const CONFIG_OPTIONS = {
-  PROTOCOL: 'UCX',
+export type ClusterProps = {
+  numWorkers: number,
+  ip: string,
+  port: number,
 };
 
 function _generateMessageId(ctxToken: number): string { return `message_${ctxToken}`; }
@@ -56,17 +59,27 @@ export class BlazingCluster {
    * await BlazingContext.init();
    * ```
    */
-  static async init(numWorkers = 1): Promise<BlazingCluster> {
-    const bc = new BlazingCluster(numWorkers);
+  static async init(clusterOptions: Partial<ClusterProps>         = {},
+                    contextConfigOptions: Record<string, unknown> = {}): Promise<BlazingCluster> {
+    const {numWorkers = 1, ip = '0.0.0.0', port = 4000} = clusterOptions;
+
+    const bc            = new BlazingCluster(numWorkers);
+    const configOptions = {...defaultClusterConfigValues, ...contextConfigOptions};
 
     const ucpMetadata = ['0', ...Object.keys(bc.workers)].map(
-      (_, idx) => { return ({workerId: idx.toString(), ip: '0.0.0.0', port: 4000 + idx}); });
+      (_, idx) => { return ({workerId: idx.toString(), ip: ip, port: port + idx}); });
 
     const createContextPromises: Promise<void>[] = [];
     bc.workers.forEach((worker, idx) => {
       createContextPromises.push(new Promise<void>((resolve) => {
         const ralId = idx + 1;  // start ralId at 1 since ralId 0 is reserved for main process
-        worker.send({operation: CREATE_BLAZING_CONTEXT, ralId, ucpMetadata});
+        worker.send({
+          operation: CREATE_BLAZING_CONTEXT,
+          ralId: ralId,
+          ucpMetadata: ucpMetadata,
+          configOptions: configOptions,
+          port: port,
+        });
         worker.once('message', (msg: any) => {
           const {operation}: {operation: string} = msg;
           if (operation === BLAZING_CONTEXT_CREATED) { resolve(); }
@@ -77,8 +90,8 @@ export class BlazingCluster {
     const ucpContext  = new UcpContext();
     bc.blazingContext = new BlazingContext({
       ralId: 0,
-      ralCommunicationPort: 4000,
-      configOptions: {...CONFIG_OPTIONS},
+      ralCommunicationPort: port,
+      configOptions: {...configOptions},
       workersUcpInfo: ucpMetadata.map((xs) => ({...xs, ucpContext})),
     });
 

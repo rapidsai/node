@@ -30,7 +30,7 @@ import {
   CatalogTableImpl,
   RelationalAlgebraGenerator
 } from './algebra';
-import {defaultConfigValues} from './config';
+import {defaultContextConfigValues} from './config';
 import {ExecutionGraph} from './execution_graph';
 import {json_plan_py} from './json_plan';
 
@@ -62,7 +62,7 @@ export class BlazingContext {
     } = options;
 
     const {singleNode = workersUcpInfo.length <= 1} = options;
-    this.configOptions = {...defaultConfigValues, ...options.configOptions};
+    this.configOptions = {...defaultContextConfigValues, ...options.configOptions};
 
     this.workers = workersUcpInfo;
     this.context = new Context({
