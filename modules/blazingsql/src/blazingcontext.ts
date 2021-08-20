@@ -186,10 +186,9 @@ export class BlazingContext {
    */
   describeTable(tableName: string): Map<string, DataType> {
     const table = this.tables.get(tableName);
-    return table?.names.reduce(
-             (m: Map<string, DataType>, name: string) => m.set(name, table.get(name).type),
-             new Map()) ??
-           new Map();
+    if (table === undefined) { return new Map(); }
+    return table.names.reduce(
+      (m: Map<string, DataType>, name: string) => m.set(name, table.get(name).type), new Map());
   }
 
   /**
