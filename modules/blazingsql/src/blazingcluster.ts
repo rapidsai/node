@@ -34,6 +34,8 @@ export const CONFIG_OPTIONS = {
   PROTOCOL: 'UCX',
 };
 
+function _generateMessageId(ctxToken: number): string { return `message_${ctxToken}`; }
+
 let ctxToken = 0;
 
 export class BlazingCluster {
@@ -117,7 +119,7 @@ export class BlazingCluster {
     this.workers.forEach((worker, i) => {
       const ralId = i + 1;  // start ralId at 1 since ralId 0 is reserved for main process
       ctxToken++;
-      const messageId = this.generateMessageId(ctxToken);
+      const messageId = _generateMessageId(ctxToken);
       createTablePromises.push(new Promise((resolve) => {
         this.blazingContext.sendToCache(
           ralId,
@@ -260,7 +262,7 @@ export class BlazingCluster {
 
     queryPromises.push(new Promise((resolve) => {
       ctxToken++;
-      const messageId = this.generateMessageId(ctxToken);
+      const messageId = _generateMessageId(ctxToken);
       setTimeout(() => {
         const df = this.blazingContext.sql(query, ctxToken).result();
         resolve({ctxToken: ctxToken, messageId, df});
@@ -270,7 +272,7 @@ export class BlazingCluster {
     this.workers.forEach((worker) => {
       queryPromises.push(new Promise((resolve) => {
         ctxToken++;
-        const messageId = this.generateMessageId(ctxToken);
+        const messageId = _generateMessageId(ctxToken);
         worker.send({operation: RUN_QUERY, ctxToken: ctxToken, messageId, query});
         worker.once('message', (msg: any) => {
           const {operation, ctxToken, messageId}: {
@@ -286,6 +288,7 @@ export class BlazingCluster {
       }));
     });
 
+    // https://github.com/rapidsai/node/issues/259
     let result_df = new DataFrame({a: Series.new([])});
 
     await Promise.all(queryPromises).then(function(results) {
@@ -301,6 +304,4 @@ export class BlazingCluster {
   stop(): void {
     this.workers.forEach((worker) => { worker.kill('SIGKILL'); });
   }
-
-  private generateMessageId(ctxToken: number): string { return `message_${ctxToken}`; }
 }
