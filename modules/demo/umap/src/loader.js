@@ -14,7 +14,8 @@
 
 import { clampRange as clamp } from '@nvidia/cuda';
 import { DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String } from '@rapidsai/cudf';
-import { concat as concatAsync } from 'ix/asynciterable';
+import * as Arrow from 'apache-arrow';
+import { concat as concatAsync, zip as zipAsync } from 'ix/asynciterable';
 import { flatMap as flatMapAsync } from 'ix/asynciterable/operators';
 const { UMAP } = require('@rapidsai/cuml');
 
@@ -22,18 +23,8 @@ const defaultLayoutParams = {
   simulating: { name: 'simulating', val: true },
   autoCenter: { name: 'auto-center', val: false },
   nEpochs: {
-    name: 'number of training iterations',
-    val: 100,
-    min: 0,
-    max: 10000,
-    step: 50
-  },
-  scalingRatio: {
-    name: 'scale ratio',
-    val: 1.0,
-    min: 0.0,
-    max: 100.0,
-    step: 0.1,
+    name: 'start iterative training',
+    val: false,
   },
   controlsVisible: { name: 'controls visible', val: true },
 };
@@ -115,6 +106,20 @@ export default async function* loadGraphData(props = {}) {
     data: 'str',
   });
 
+  let edgeDFs = getDataFrames(props.edges, getDefaultEdges, {
+    name: 'str',
+    src: 'uint32',
+    dst: 'uint32',
+    edge: 'uint64',
+    color: 'uint64',
+    bundle: 'uint64',
+    data: 'str',
+  });
+
+  function getDefaultEdges() {
+    return null;
+  }
+
   /**
    * @type DataFrame<{name: Utf8String, id: Uint32, color: Uint32, size: Uint8, x: Float32, y: Float32}>
    */
@@ -125,7 +130,8 @@ export default async function* loadGraphData(props = {}) {
   let onAfterRender = () => { };
   let rendered = new Promise(() => { });
 
-  let dataframes = concatAsync(nodeDFs, (async function* () {
+  console.log(nodeDFs);
+  let dataframes = concatAsync(zipAsync(nodeDFs, edgeDFs), (async function* () {
     datasourceCompleted = true;
     nextFrames = new Promise(() => { });
   })())[Symbol.asyncIterator]();
@@ -133,8 +139,7 @@ export default async function* loadGraphData(props = {}) {
   let nextFrames = dataframes.next();
   let datasourceCompleted = false;
   let graphUpdated = false;
-  let epochsRecent = null;
-
+  let training_finished = true;
   while (true) {
     graphUpdated = false;
     // Wait for a new set of source dataframes or for the
@@ -143,23 +148,30 @@ export default async function* loadGraphData(props = {}) {
       ? rendered
       : Promise.race([rendered, nextFrames.then(({ value } = {}) => value)]));
 
-    // If new nodes/edges, recreate the GraphCOO
     if (newDFs) {
-      if (newDFs !== nodes) {
+      console.log(newDFs);
+      if (newDFs[0] !== nodes) {
         graphUpdated = true;
-        [nodes, embeddings] = generateUMAP(newDFs, embeddings, layoutParams.nEpochs.val);
+        [nodes, embeddings] = generateUMAP(newDFs[0], embeddings, layoutParams.nEpochs.val);
         nextFrames = dataframes.next();
       }
     }
 
-    if (layoutParams.nEpochs.val != epochsRecent && !graphUpdated) {
-      [nodes, embeddings] = generateUMAP(nodes, embeddings, layoutParams.nEpochs.val);
-      epochsRecent = layoutParams.nEpochs.val;
+    if (layoutParams.nEpochs.val) {
+      training_finished = false;
+    } else {
+      training_finished = true;
+    }
+
+    if (!training_finished) {
+      [nodes, embeddings] = generateUMAP(nodes, embeddings);
+    } else {
+      training_finished = true;
     }
 
     if (!layoutParams.simulating.val && !graphUpdated) {
       // If user paused rendering, wait a bit and continue
-      rendered = new Promise((r) => (onAfterRender = () => setTimeout(r, 50)));
+      rendered = new Promise((r) => (onAfterRender = () => setTimeout(r, 0)));
     } else {
       // Compute the positions minimum bounding box [xMin, xMax, yMin, yMax]
       bbox = [...nodes.get('x').minmax(), ...nodes.get('y').minmax()];
@@ -230,13 +242,14 @@ function createGraphRenderProps(nodes) {
     },
   }
 }
+
 function generateUMAP(nodesDF, fittedUMAP = null, nEpochs = 1) {
   if (fittedUMAP == null) {
     const options = { nNeighbors: 5, init: 1, nEpochs: nEpochs, randomState: 42 };
     fittedUMAP = (new UMAP(options)).fitDataFrame(df.drop(['target']), null);
   } else {
     console.log("calling refine");
-    fittedUMAP = fittedUMAP.refineDataFrame(df.drop(['target']), null);
+    fittedUMAP.refineDataFrame(df.drop(['target']), null);
   }
   const lowDimensionEmbeddingDF = fittedUMAP.embeddings.asDataFrame();
   return [
@@ -248,6 +261,7 @@ function generateUMAP(nodesDF, fittedUMAP = null, nEpochs = 1) {
 }
 
 function getDefaultNodes() {
+  console.log("called getDefaultNodes");
   const colorData = ["-12451426", "-11583787", "-12358156", "-10375427", "-7610114", "-4194305", "-6752794", "-5972565", "-5914010", "-4356046"];
   const labelsData = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
   const nodesDF = new DataFrame({
