@@ -30,7 +30,7 @@ import {
 import {DeviceBuffer} from '@rapidsai/rmm';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
-import {COO} from './coo';
+import {COO, COOInterface} from './coo';
 import {CUMLLogLevels, MetricType} from './mappings';
 import {UMAPBase, UMAPInterface, UMAPParams} from './umap_base';
 import {dataframeToSeries, seriesToDataframe} from './utilities/array_utils';
@@ -284,12 +284,12 @@ export class FittedUMAP extends UMAP {
    * const umap = new UMAP({nComponents:2}, 'dataframe');
    * ```
    */
-  _coo         = new COO();
-  _graphLoaded = false;
+  _coo: COOInterface;
 
-  constructor(input: UMAPParams, embeddings: DeviceBuffer) {
+  constructor(input: UMAPParams, embeddings: DeviceBuffer, coo: COOInterface = new COO()) {
     super(input);
     this._embeddings = embeddings;
+    this._coo        = coo;
   }
 
   /**
@@ -414,8 +414,7 @@ export class FittedUMAP extends UMAP {
     if (target !== null) {
       options = {...options, ...{ target: target._col.data, targetType: target.type }};
     }
-    return new FittedUMAP(this.getUMAPParams(), this._umap.refine(options));
-    // this._embeddings = this._umap.refine(options);
+    this._embeddings = this._umap.refine(options);
   }
 
   /**
