@@ -1,10 +1,10 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import DeckGL from '@deck.gl/react';
-import {View} from '@deck.gl/core';
+import { View } from '@deck.gl/core';
 
-export default class DeckWithMaps extends Component {
+export default class DeckWithMapboxMaps extends Component {
   render() {
-    const {views = []} = this.props;
+    const { views = [] } = this.props;
 
     const maps = [];
     for (const view of views) {

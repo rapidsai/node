@@ -1,10 +1,11 @@
-import React, {PureComponent} from 'react';
-import {render} from 'react-dom';
+import React, { PureComponent } from 'react';
+import { render } from 'react-dom';
 
-import DeckGL, {OrthographicView, COORDINATE_SYSTEM} from 'deck.gl';
-import {TileLayer} from '@deck.gl/geo-layers';
-import {BitmapLayer} from '@deck.gl/layers';
-import {load} from '@loaders.gl/core';
+import { OrthographicView, COORDINATE_SYSTEM } from '@deck.gl/core';
+import DeckGL from '@deck.gl/react';
+import { TileLayer } from '@deck.gl/geo-layers';
+import { BitmapLayer } from '@deck.gl/layers';
+import { load } from '@loaders.gl/core';
 
 const INITIAL_VIEW_STATE = {
   target: [13000, 13000, 0],
@@ -29,30 +30,30 @@ export default class App extends PureComponent {
     this.fetchDataFromDZI(`${ROOT_URL}/moon.image.dzi`);
   }
 
-  _onHover({x, y, sourceLayer, tile}) {
-    this.setState({x, y, hoveredObject: {sourceLayer, tile}});
+  _onHover({ x, y, sourceLayer, tile }) {
+    this.setState({ x, y, hoveredObject: { sourceLayer, tile } });
   }
 
   _renderTooltip() {
-    const {x, y, hoveredObject} = this.state;
-    const {sourceLayer, tile} = hoveredObject || {};
+    const { x, y, hoveredObject } = this.state;
+    const { sourceLayer, tile } = hoveredObject || {};
     return (
       sourceLayer &&
       tile && (
-        <div className="tooltip" style={{left: x, top: y}}>
+        <div className="tooltip" style={{ left: x, top: y }}>
           tile: x: {tile.x}, y: {tile.y}, z: {tile.z}
         </div>
       )
     );
   }
 
-  inTileBounds({x, y, z}) {
+  inTileBounds({ x, y, z }) {
     const xInBounds = x < Math.ceil(this.state.width / (this.state.tileSize * 2 ** z)) && x >= 0;
     const yInBounds = y < Math.ceil(this.state.height / (this.state.tileSize * 2 ** z)) && y >= 0;
     return xInBounds && yInBounds;
   }
 
-  cutOffImageBounds({left, bottom, right, top}) {
+  cutOffImageBounds({ left, bottom, right, top }) {
     return {
       left: Math.max(0, left),
       bottom: Math.max(0, Math.min(this.state.height, bottom)),
@@ -82,8 +83,8 @@ export default class App extends PureComponent {
   }
 
   _renderLayers() {
-    const {autoHighlight = true, highlightColor = [60, 60, 60, 40]} = this.props;
-    const {tileSize} = this.state;
+    const { autoHighlight = true, highlightColor = [60, 60, 60, 40] } = this.props;
+    const { tileSize } = this.state;
     return [
       new TileLayer({
         pickable: true,
@@ -94,8 +95,8 @@ export default class App extends PureComponent {
         minZoom: -16,
         maxZoom: 0,
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        getTileData: ({x, y, z}) => {
-          if (this.inTileBounds({x, y, z: -z})) {
+        getTileData: ({ x, y, z }) => {
+          if (this.inTileBounds({ x, y, z: -z })) {
             return load(`${ROOT_URL}/moon.image_files/${15 + z}/${x}_${y}.jpeg`);
           }
           return null;
@@ -103,9 +104,9 @@ export default class App extends PureComponent {
 
         renderSubLayers: props => {
           const {
-            bbox: {left, bottom, right, top}
+            bbox: { left, bottom, right, top }
           } = props.tile;
-          const newBounds = this.cutOffImageBounds({left, bottom, right, top});
+          const newBounds = this.cutOffImageBounds({ left, bottom, right, top });
           return new BitmapLayer(props, {
             data: null,
             image: props.data,
@@ -119,7 +120,7 @@ export default class App extends PureComponent {
   render() {
     return (
       <DeckGL
-        views={[new OrthographicView({id: 'ortho'})]}
+        views={[new OrthographicView({ id: 'ortho' })]}
         layers={this.state.tileSize ? this._renderLayers() : []}
         initialViewState={INITIAL_VIEW_STATE}
         controller={true}

@@ -1,21 +1,40 @@
 import React, { Component, Fragment } from 'react';
 import { StaticMap } from 'react-map-gl';
-import DeckWithMaps from './deck-with-maps';
+import DeckWithMapboxMaps from './deck-with-mapbox-maps';
+import DeckWithGoogleMaps from './deck-with-google-maps';
 
 import { FlyToInterpolator } from '@deck.gl/core';
 import { JSONConverter, JSONConfiguration, _shallowEqualObjects } from '@deck.gl/json';
 import JSON_CONVERTER_CONFIGURATION from './configuration';
-
-import AceEditor from 'react-ace';
-import 'brace/mode/json';
-import 'brace/theme/github';
 
 import JSON_TEMPLATES from '../json-examples';
 
 const INITIAL_TEMPLATE = Object.keys(JSON_TEMPLATES)[0];
 
 // Set your mapbox token here
-const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
+const GOOGLE_MAPS_TOKEN = process.env.GoogleMapsAPIKey; // eslint-disable-line
+
+function isFunctionObject(value) {
+  return typeof value === 'object' && '@@function' in value;
+}
+
+function addUpdateTriggersForAccessors(json) {
+  if (!json || !json.layers) return;
+
+  for (const layer of json.layers) {
+    const updateTriggers = {};
+    for (const [key, value] of Object.entries(layer)) {
+      if ((key.startsWith('get') && typeof value === 'string') || isFunctionObject(value)) {
+        // it's an accessor and it's a string
+        // we add the value of the accesor to update trigger to refresh when it changes
+        updateTriggers[key] = value;
+      }
+    }
+    if (Object.keys(updateTriggers).length) {
+      layer.updateTriggers = updateTriggers;
+    }
+  }
+}
 
 export default class App extends Component {
   constructor(props) {
@@ -40,7 +59,15 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    this._setTemplate(INITIAL_TEMPLATE);
+    let found = INITIAL_TEMPLATE;
+    try {
+      const { template } = this.props;
+      if (template) {
+        const json = require(require('path').join('..', 'json-examples', template));
+        found = Object.keys(JSON_TEMPLATES).find((key) => JSON_TEMPLATES[key] === json);
+      }
+    } catch (e) { };
+    this._setTemplate(found || INITIAL_TEMPLATE);
   }
 
   // Updates deck.gl JSON props
@@ -55,6 +82,7 @@ export default class App extends Component {
   }
 
   _setJSON(json) {
+    addUpdateTriggersForAccessors(json);
     const jsonProps = this.jsonConverter.convert(json);
     this._updateViewState(jsonProps);
     this.setState({ jsonProps });
@@ -126,17 +154,59 @@ export default class App extends Component {
 
   render() {
     const { jsonProps, initialViewState } = this.state;
+
+    let deckMap;
+    if (jsonProps.google === true) {
+      deckMap = (
+        <DeckWithGoogleMaps
+          initialViewState={initialViewState}
+          id="json-deck"
+          {...jsonProps}
+          googleMapsToken={GOOGLE_MAPS_TOKEN}
+          ref={(e) => window._inputEventTarget = e && e.current}
+        />
+      );
+    } else {
+      deckMap = (
+        <DeckWithMapboxMaps
+          id="json-deck"
+          {...jsonProps}
+          Map={StaticMap}
+          initialViewState={initialViewState}
+          ref={(e) => window._inputEventTarget = e && e.current}
+        />
+      );
+    }
+
     return (
       <Fragment>
-        <div id="right-pane">
-          <DeckWithMaps
-            id="json-deck"
-            {...jsonProps}
-            initialViewState={initialViewState}
-            Map={StaticMap}
-            mapboxApiAccessToken={MAPBOX_TOKEN}
-          />
-        </div>
+        {/* Left Pane: Ace Editor and Template Selector */}
+        {/* <div id="left-pane">
+          {this._renderJsonSelector()}
+
+          <div id="editor">
+            <AutoSizer>
+              {({ width, height }) => (
+                <AceEditor
+                  width={`${width}px`}
+                  height={`${height}px`}
+                  mode="json"
+                  theme="github"
+                  onChange={this._onEditorChange}
+                  name="AceEditorDiv"
+                  editorProps={{ $blockScrolling: true }}
+                  ref={instance => {
+                    this.ace = instance;
+                  }}
+                  value={this.state.text}
+                />
+              )}
+            </AutoSizer>
+          </div>
+        </div> */}
+
+        {/* Right Pane: DeckGL */}
+        <div id="right-pane">{deckMap}</div>
       </Fragment>
     );
   }
