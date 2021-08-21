@@ -16,6 +16,7 @@ import {DataType, Numeric} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {CUML} from './addon';
+import {COOInterface} from './coo';
 import {CUMLLogLevels, MetricType} from './mappings';
 
 /**
@@ -65,7 +66,17 @@ export type RefineProps<T extends Numeric = any, R extends Numeric = any> = {
   convertDType: boolean,
   embeddings: DeviceBuffer,
   target?: DeviceBuffer|(R['scalarType']|null|undefined)[],
-  targetType?: R, rows: DeviceBuffer, cols: DeviceBuffer, vals: DeviceBuffer
+  targetType?: R, coo: COOInterface
+};
+
+export type GetGraphProps<T extends Numeric = any, R extends Numeric = any> = {
+  features: DeviceBuffer|(T['scalarType']|null|undefined)[],
+  featuresType: T,
+  nSamples: number,
+  nFeatures: number,
+  convertDType: boolean,
+  target?: DeviceBuffer|(R['scalarType']|null|undefined)[],
+  targetType?: R
 };
 
 export type transformProps<T extends Numeric = any> = {
@@ -111,5 +122,7 @@ export interface UMAPInterface {
   transform<T extends Numeric>(options?: transformProps<T>): DeviceBuffer;
 
   refine<T extends Numeric, R extends Numeric>(options?: RefineProps<T, R>): DeviceBuffer;
+
+  graph<T extends Numeric, R extends Numeric>(options?: GetGraphProps<T, R>): COOInterface;
 }
 export const UMAPBase: UMAPConstructor = CUML.UMAP;

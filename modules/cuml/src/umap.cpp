@@ -60,7 +60,8 @@ Napi::Function UMAP::Init(Napi::Env const& env, Napi::Object exports) {
                       InstanceAccessor<&UMAP::target_metric>("targetMetric"),
                       InstanceMethod<&UMAP::fit>("fit"),
                       InstanceMethod<&UMAP::transform>("transform"),
-                      InstanceMethod<&UMAP::refine>("refine")});
+                      InstanceMethod<&UMAP::refine>("refine"),
+                      InstanceMethod<&UMAP::get_graph>("graph")});
 }
 
 ML::UMAPParams update_params(NapiToCPP::Object props) {
@@ -120,48 +121,41 @@ void UMAP::fit(DeviceBuffer::wrapper_t const& X,
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
+COO::wrapper_t UMAP::get_graph(DeviceBuffer::wrapper_t const& X,
+                               cudf::size_type n_samples,
+                               cudf::size_type n_features,
+                               DeviceBuffer::wrapper_t const& y,
+                               bool convert_dtype) {
+  raft::handle_t handle;
+  auto d_alloc = handle.get_device_allocator();
+  auto stream  = handle.get_stream();
+  auto coo_    = std::make_shared<raft::sparse::COO<float>>(d_alloc, stream);
+  ML::UMAP::get_graph(handle,
+                      static_cast<float*>(X->data()),
+                      static_cast<float*>(y->data()),
+                      n_samples,
+                      n_features,
+                      coo_.get(),
+                      &this->params_);
+
+  return COO::New(this->Env(), coo_);
+}
+
 void UMAP::refine(DeviceBuffer::wrapper_t const& X,
                   cudf::size_type n_samples,
                   cudf::size_type n_features,
                   DeviceBuffer::wrapper_t const& y,
-                  DeviceBuffer::wrapper_t const& rows,
-                  DeviceBuffer::wrapper_t const& cols,
-                  DeviceBuffer::wrapper_t const& vals,
+                  COO::wrapper_t const& coo,
                   bool convert_dtype,
                   DeviceBuffer::wrapper_t const& embeddings) {
   try {
     raft::handle_t handle;
-    auto d_alloc = handle.get_device_allocator();
-    auto stream  = handle.get_stream();
-    raft::sparse::COO<float> cgraph_coo(d_alloc, stream);
-
-    if (this->nnz == 0) {
-      ML::UMAP::get_graph(handle,
-                          static_cast<float*>(X->data()),
-                          static_cast<float*>(y->data()),
-                          n_samples,
-                          n_features,
-                          &cgraph_coo,
-                          &this->params_);
-      this->nnz = cgraph_coo.nnz;
-      raft::allocate(this->rows, this->nnz);
-      raft::allocate(this->cols, this->nnz);
-      raft::allocate(this->vals, this->nnz);
-      raft::update_device(this->rows, cgraph_coo.rows(), this->nnz, stream);
-      raft::update_device(this->cols, cgraph_coo.cols(), this->nnz, stream);
-      raft::update_device(this->vals, cgraph_coo.vals(), this->nnz, stream);
-    } else {
-      cgraph_coo.allocate(this->nnz, true, stream);
-      raft::update_device(cgraph_coo.rows(), this->rows, this->nnz, stream);
-      raft::update_device(cgraph_coo.cols(), this->cols, this->nnz, stream);
-      raft::update_device(cgraph_coo.vals(), this->vals, this->nnz, stream);
-    }
     ML::UMAP::refine(handle,
                      static_cast<float*>(X->data()),
                      static_cast<float*>(y->data()),
                      n_samples,
                      n_features,
-                     &cgraph_coo,
+                     coo->get_coo(),
                      &this->params_,
                      static_cast<float*>(embeddings->data()));
 
@@ -230,7 +224,7 @@ Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
   return embeddings;
 }
 
-Napi::Value UMAP::refine(Napi::CallbackInfo const& info) {
+Napi::Value UMAP::get_graph(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
   NODE_CUDF_EXPECT(
     args[0].IsObject(), "refine constructor expects an Object of properties", args.Env());
@@ -242,14 +236,25 @@ Napi::Value UMAP::refine(Napi::CallbackInfo const& info) {
   DeviceBuffer::wrapper_t y =
     props.Has("y") ? data_to_devicebuffer(args.Env(), props.Get("target"), props.Get("targetType"))
                    : DeviceBuffer::New(args.Env());
-  // DeviceBuffer::wrapper_t knn_indices =
-  //   props.Has("rows")
-  //     ? data_to_devicebuffer(args.Env(), props.Get("knnIndices"), props.Get("knnIndicesType"))
-  //     : DeviceBuffer::New(args.Env());
-  // DeviceBuffer::wrapper_t knn_dists =
-  //   props.Has("cols")
-  //     ? data_to_devicebuffer(args.Env(), props.Get("knnDists"), props.Get("knnDistsType"))
-  //     : DeviceBuffer::New(args.Env());
+
+  auto cgraph_coo =
+    get_graph(X, props.Get("nSamples"), props.Get("nFeatures"), y, props.Get("convertDType"));
+
+  return cgraph_coo;
+}
+
+Napi::Value UMAP::refine(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  NODE_CUDF_EXPECT(
+    args[0].IsObject(), "get_graph constructor expects an Object of properties", args.Env());
+
+  NapiToCPP::Object props = args[0];
+
+  DeviceBuffer::wrapper_t X =
+    data_to_devicebuffer(args.Env(), props.Get("features"), props.Get("featuresType"));
+  DeviceBuffer::wrapper_t y =
+    props.Has("y") ? data_to_devicebuffer(args.Env(), props.Get("target"), props.Get("targetType"))
+                   : DeviceBuffer::New(args.Env());
 
   DeviceBuffer::wrapper_t embeddings = props.Get("embeddings");
 
@@ -257,9 +262,7 @@ Napi::Value UMAP::refine(Napi::CallbackInfo const& info) {
          props.Get("nSamples"),
          props.Get("nFeatures"),
          y,
-         props.Get("rows"),
-         props.Get("cols"),
-         props.Get("vals"),
+         props.Get("coo"),
          props.Get("convertDType"),
          embeddings);
 
