@@ -142,7 +142,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  constructor(data: ColumnAccessor<T>|SeriesMap<T>) {
+  constructor(data: ColumnAccessor<T>|SeriesMap<T> = {} as SeriesMap<T>) {
     this._accessor =
       (data instanceof ColumnAccessor) ? data : new ColumnAccessor(_seriesToColumns(data));
   }
@@ -162,7 +162,7 @@ export class DataFrame<T extends TypeMap = any> {
    * df.numRows // 2
    * ```
    */
-  get numRows() { return this._accessor.columns[0].length; }
+  get numRows() { return this._accessor.columns.length > 0 ? this._accessor.columns[0].length : 0; }
 
   /**
    * The number of columns in this DataFrame
