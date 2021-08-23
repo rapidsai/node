@@ -20,8 +20,7 @@ RUN cp                                               \
     /opt/rapids/node/build/rapidsai-deck.gl-*.tgz    \
     /opt/rapids/node/build/rapidsai-jsdom-*.tgz      \
     . \
- && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz \
- && npm dedupe  --production --omit dev --omit peer --omit optional --legacy-peer-deps --force
+ && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz
 
 
 FROM ${FROM_IMAGE}
