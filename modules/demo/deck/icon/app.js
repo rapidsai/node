@@ -1,9 +1,9 @@
-import React, {Component} from 'react';
-import {render} from 'react-dom';
-import {StaticMap} from 'react-map-gl';
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
-import {MapView} from '@deck.gl/core';
-import {IconLayer} from '@deck.gl/layers';
+import { MapView } from '@deck.gl/core';
+import { IconLayer } from '@deck.gl/layers';
 
 import IconClusterLayer from './icon-cluster-layer';
 
@@ -14,7 +14,7 @@ const MAPBOX_TOKEN = process.env.MapboxAccessToken; // eslint-disable-line
 const DATA_URL =
   'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/icon/meteorites.json'; // eslint-disable-line
 
-const MAP_VIEW = new MapView({repeat: true});
+const MAP_VIEW = new MapView({ repeat: true });
 const INITIAL_VIEW_STATE = {
   longitude: -35,
   latitude: 36.7,
@@ -46,16 +46,16 @@ export default class App extends Component {
       return;
     }
 
-    const {x, y, object} = info;
-    this.setState({x, y, hoveredObject: object});
+    const { x, y, object } = info;
+    this.setState({ x, y, hoveredObject: object });
   }
 
   _onClick(info) {
-    const {showCluster = true} = this.props;
-    const {x, y, objects, object} = info;
+    const { showCluster = true } = this.props;
+    const { x, y, objects, object } = info;
 
     if (object && showCluster) {
-      this.setState({x, y, expandedObjects: objects || [object]});
+      this.setState({ x, y, expandedObjects: objects || [object] });
     } else {
       this._closePopup();
     }
@@ -63,17 +63,17 @@ export default class App extends Component {
 
   _closePopup() {
     if (this.state.expandedObjects) {
-      this.setState({expandedObjects: null, hoveredObject: null});
+      this.setState({ expandedObjects: null, hoveredObject: null });
     }
   }
 
   _renderhoveredItems() {
-    const {x, y, hoveredObject, expandedObjects} = this.state;
+    const { x, y, hoveredObject, expandedObjects } = this.state;
 
     if (expandedObjects) {
       return (
-        <div className="tooltip interactive" style={{left: x, top: y}}>
-          {expandedObjects.map(({name, year, mass, class: meteorClass}) => {
+        <div className="tooltip interactive" style={{ left: x, top: y }}>
+          {expandedObjects.map(({ name, year, mass, class: meteorClass }) => {
             return (
               <div key={name}>
                 <h5>{name}</h5>
@@ -92,11 +92,11 @@ export default class App extends Component {
     }
 
     return hoveredObject.cluster ? (
-      <div className="tooltip" style={{left: x, top: y}}>
+      <div className="tooltip" style={{ left: x, top: y }}>
         <h5>{hoveredObject.point_count} records</h5>
       </div>
     ) : (
-      <div className="tooltip" style={{left: x, top: y}}>
+      <div className="tooltip" style={{ left: x, top: y }}>
         <h5>
           {hoveredObject.name} {hoveredObject.year ? `(${hoveredObject.year})` : ''}
         </h5>
@@ -122,28 +122,28 @@ export default class App extends Component {
     };
 
     const layer = showCluster
-      ? new IconClusterLayer({...layerProps, id: 'icon-cluster', sizeScale: 60})
+      ? new IconClusterLayer({ ...layerProps, id: 'icon-cluster', sizeScale: 60 })
       : new IconLayer({
-          ...layerProps,
-          id: 'icon',
-          getIcon: d => 'marker',
-          sizeUnits: 'meters',
-          sizeScale: 2000,
-          sizeMinPixels: 6
-        });
+        ...layerProps,
+        id: 'icon',
+        getIcon: d => 'marker',
+        sizeUnits: 'meters',
+        sizeScale: 2000,
+        sizeMinPixels: 6
+      });
 
     return [layer];
   }
 
   render() {
-    const {mapStyle = 'mapbox://styles/mapbox/dark-v9'} = this.props;
+    const { mapStyle = 'mapbox://styles/mapbox/dark-v9' } = this.props;
 
     return (
       <DeckGL
         layers={this._renderLayers()}
         views={MAP_VIEW}
         initialViewState={INITIAL_VIEW_STATE}
-        controller={{dragRotate: false}}
+        controller={{ dragRotate: false }}
         onViewStateChange={this._closePopup}
         onClick={this._onClick}
       >
