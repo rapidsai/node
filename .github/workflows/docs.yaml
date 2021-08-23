@@ -18,7 +18,7 @@ jobs:
   update:
     name: Update Docs
     runs-on: ubuntu-20.04
-    container: node:16.5.0-buster
+    container: node:16.6.2-buster
     steps:
       - name: Checkout main
         uses: actions/checkout@v2

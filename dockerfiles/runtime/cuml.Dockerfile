@@ -5,7 +5,8 @@ FROM ${DEVEL_IMAGE} as devel
 
 WORKDIR /home/node
 
-RUN cp                                         \
+RUN rm /home/node/wrtc-0.4.7-dev.tgz           \
+ && cp                                         \
     /opt/rapids/node/.npmrc                    \
     /opt/rapids/node/build/rapidsai-core-*.tgz \
     /opt/rapids/node/build/nvidia-cuda-*.tgz   \
