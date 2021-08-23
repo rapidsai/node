@@ -14,13 +14,6 @@
 
 import * as jsdom from 'jsdom';
 
-const {ImageData} = require('canvas');
-
-export function installImageData(window: jsdom.DOMWindow) {
-  window.jsdom.global.ImageData ??= ImageData;
-  return window;
-}
-
 export function installGetContext(window: jsdom.DOMWindow) {
   const gl = window.evalFn(() => require('@nvidia/webgl')) as typeof import('@nvidia/webgl');
 

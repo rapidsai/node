@@ -12,24 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {fetch, Headers, Request, Response} from 'cross-fetch';
 import * as jsdom from 'jsdom';
+import * as Path from 'path';
 import * as Url from 'url';
 
 export function installFetch(window: jsdom.DOMWindow) {
-  const {fetch, Headers, Request, Response} = window.evalFn(() => require('cross-fetch'));
-  window.jsdom.global.Headers               = Headers;
-  window.jsdom.global.Request               = Request;
-  window.jsdom.global.Response              = Response;
-  window.jsdom.global.fetch = function fileAwareFetch(url: string, options: jsdom.FetchOptions) {
+  window.jsdom.global.Headers  = Headers;
+  window.jsdom.global.Request  = Request;
+  window.jsdom.global.Response = Response;
+  window.jsdom.global.fetch    = function fileAwareFetch(url: string, options: RequestInit = {}) {
     const isDataURI  = url && url.startsWith('data:');
     const isFilePath = !isDataURI && !Url.parse(url).protocol;
     if (isFilePath) {
       const loader  = new jsdom.ResourceLoader();
       const fileUrl = `file://localhost/${process.cwd()}/${url}`;
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return loader.fetch(fileUrl, options)!.then((x) => new Response(x, {status: 200}));
+      return loader
+        .fetch(fileUrl, options)!  //
+        .then((x) => new Response(x, {
+                status: 200,
+                headers: {
+                  'Content-Type': contentTypeFromPath(url),
+                }
+              }));
     }
-    return fetch(url, options);
+    const headers = new Headers(options.headers || {});
+    if (!headers.has('User-Agent')) {  //
+      headers.append('User-Agent', window.navigator.userAgent);
+    }
+    return fetch(url, {...options, headers});
   };
   return window;
+}
+
+function contentTypeFromPath(url: string) {
+  switch (Path.parse(url).ext) {
+    case '.jpg': return 'image/jpeg';
+    case '.jpeg': return 'image/jpeg';
+    case '.gif': return 'image/gif';
+    case '.png': return 'image/png';
+    case '.txt': return 'text/plain';
+    case '.svg': return 'image/svg';
+    case '.json': return 'application/json';
+    case '.wasm': return 'application/wasm';
+    default: return 'application/octet-stream';
+  }
 }

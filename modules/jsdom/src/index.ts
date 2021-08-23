@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import * as jsdom from 'jsdom';
-import * as Url from 'url';
 
-import {installGetContext, installImageData} from './polyfills/canvas';
+import {installGetContext} from './polyfills/canvas';
 import {installFetch} from './polyfills/fetch';
 import {installGLFWWindow} from './polyfills/glfw';
+import {installImageData, installImageDecode} from './polyfills/image';
 import {installJSDOMUtils} from './polyfills/jsdom';
 import {installMjolnirHammer} from './polyfills/mjolnir';
 import {createObjectUrlAndTmpDir} from './polyfills/object-url';
@@ -27,6 +27,7 @@ import {
   installAnimationFrame
 } from './polyfills/raf';
 import {installStreams} from './polyfills/streams';
+import {ImageLoader} from './resourceloader';
 
 export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
   module?: NodeModule;
@@ -41,6 +42,20 @@ export const defaultOptions = {
 };
 
 export class RapidsJSDOM extends jsdom.JSDOM {
+  static fromReactComponent(componentPath: string,
+                            jsdomOptions: RapidsJSDOMOptions = {},
+                            reactProps                       = {}) {
+    const jsdom = new RapidsJSDOM(jsdomOptions);
+    jsdom.window.evalFn(() => {
+      const React     = require('react');
+      const ReactDOM  = require('react-dom');
+      const Component = require(componentPath);
+      ReactDOM.render(React.createElement(Component.default || Component, reactProps),
+                      document.body.appendChild(document.createElement('div')));
+    }, {componentPath, reactProps});
+    return jsdom;
+  }
+
   constructor(options: RapidsJSDOMOptions = {}) {
     const opts = Object.assign({}, defaultOptions, options);
     const {
@@ -67,36 +82,13 @@ export class RapidsJSDOM extends jsdom.JSDOM {
         installStreams(window);
         installObjectURL(window);
         installImageData(window);
+        installImageDecode(window);
         installGetContext(window);
         installGLFWWindow(window);
         installAnimationFrame(window, onAnimationFrameRequested);
         installMjolnirHammer(window);
       }
     });
-  }
-
-  static fromReactComponent(componentPath: string, jsdomOptions = {}, reactProps = {}) {
-    const jsdom = new RapidsJSDOM(jsdomOptions);
-    jsdom.window.evalFn(() => {
-      const React     = require('react');
-      const ReactDOM  = require('react-dom');
-      const Component = require(componentPath);
-      ReactDOM.render(React.createElement(Component.default || Component, reactProps),
-                      document.body.appendChild(document.createElement('div')));
-    }, {componentPath, reactProps});
-    return jsdom;
-  }
-}
-
-class ImageLoader extends jsdom.ResourceLoader {
-  constructor(private _url: string) { super(); }
-  fetch(url: string, options: jsdom.FetchOptions) {
-    // Hack since JSDOM 16.2.2: If loading a relative file
-    // from our dummy localhost URI, translate to a file:// URI.
-    if (url.startsWith(this._url)) { url = url.slice(this._url.length); }
-    const isDataURI  = url && url.startsWith('data:');
-    const isFilePath = !isDataURI && !Url.parse(url).protocol;
-    return super.fetch(isFilePath ? `file://${process.cwd()}/${url}` : url, options);
   }
 }
 

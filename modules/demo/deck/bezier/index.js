@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module.exports = function () {
+module.exports = (props = { transparent: false }) => {
 
   require('segfault-handler').registerHandler('./crash.log');
 
@@ -31,13 +31,9 @@ module.exports = function () {
   // Change cwd to the example dir so relative file paths are resolved
   process.chdir(__dirname);
 
-  const props = {
-    transparent: false
-  };
-
-  require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./src/app.js', {}, props);
+  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./src/app.js', props, props);
 }
 
 if (require.main === module) {
-  module.exports();
+  module.exports().window.addEventListener('close', () => process.exit(0), { once: true });
 }
