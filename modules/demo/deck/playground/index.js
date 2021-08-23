@@ -30,5 +30,5 @@ const { createReactWindow } = require('@nvidia/glfw');
 module.exports = createReactWindow(`${__dirname}/src/app.js`, true);
 
 if (require.main === module) {
-  module.exports.open({ transparent: false });
+  module.exports.open({ transparent: false, template: process.argv[2] });
 }

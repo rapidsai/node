@@ -100,6 +100,7 @@
     "**/@deck.gl/core": "8.5.0",
     "**/@deck.gl/extensions": "8.5.0",
     "**/@deck.gl/geo-layers": "8.5.0",
+    "**/@deck.gl/google-maps": "8.5.0",
     "**/@deck.gl/json": "8.5.0",
     "**/@deck.gl/layers": "8.5.0",
     "**/@deck.gl/react": "8.5.0",
@@ -108,6 +109,7 @@
     "**/@loaders.gl/csv": "3.0.7",
     "**/@loaders.gl/draco": "3.0.7",
     "**/@loaders.gl/gltf": "3.0.7",
+    "**/@loaders.gl/i3s": "3.0.7",
     "**/@loaders.gl/images": "3.0.7",
     "**/@loaders.gl/las": "3.0.7",
     "**/@loaders.gl/obj": "3.0.7",
@@ -121,9 +123,9 @@
     "**/@luma.gl/webgl": "8.5.4",
     "**/apache-arrow": "4.0.0",
     "**/deck.gl": "8.5.0",
-    "**/math.gl": "3.5.3",
     "**/gl-matrix": "3.3.0",
     "**/jsdom": "16.6.0",
+    "**/math.gl": "3.5.3",
     "**/react-map-gl": "5.3.16"
   },
   "release": {

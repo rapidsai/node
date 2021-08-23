@@ -45,7 +45,9 @@
     "react-dom": "17.0.2",
     "rxjs": "6.6.7",
     "usertiming": "0.1.8",
-    "web-streams-polyfill": "2.1.1"
+    "web-streams-polyfill": "2.1.1",
+    "svg2img": "0.9.3",
+    "btoa": "1.2.1"
   },
   "files": [
     "LICENSE",

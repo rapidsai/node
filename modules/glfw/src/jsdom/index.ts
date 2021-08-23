@@ -23,6 +23,8 @@ import {tmpdir} from './object-url';
 import createJSDOMContextRequire, {Types} from './require';
 import {GLFWDOMWindowOptions} from './window';
 
+const btoa           = require('btoa');
+const svg2img        = require('svg2img') as typeof import('svg2img').default;
 const jsdomGlobal    = require('jsdom-global');
 const browserResolve = require('lasso-resolve-from');
 const idlUtils       = require('jsdom/lib/jsdom/living/generated/utils');
@@ -33,10 +35,35 @@ class ImageLoader extends jsdom.ResourceLoader {
     // Hack since JSDOM 16.2.2: If loading a relative file
     // from our dummy localhost URI, translate to a file:// URI.
     if (url.startsWith(localhostUrl)) { url = url.slice(localhostUrl.length); }
-    // url.endsWith('/') && (url = url.slice(0, -1));
-    const isDataURI  = url && url.startsWith('data:');
-    const isFilePath = !isDataURI && !parseURL(url).protocol;
+    const isDataURL = url && url.startsWith('data:');
+    if (isDataURL) {
+      // eslint-disable-next-line prefer-const
+      let {mediaType, encoding, contents} = this._parseDataURLPrefix(url);
+      switch (mediaType) {
+        case 'image/svg+xml': {
+          switch (encoding) {
+            case 'base64': contents = btoa(contents); break;
+            default: contents = decodeURIComponent(contents); break;
+          }
+          return <any>new Promise((resolve, reject) => {
+            svg2img(contents.trim(), (err, data: Buffer) => {  //
+              (err == null) ? resolve(data) : reject(err);
+            });
+          });
+        }
+      }
+    }
+
+    const isFilePath = !isDataURL && !parseURL(url).protocol;
     return super.fetch(isFilePath ? `file://${process.cwd()}/${url}` : url, options);
+  }
+  _parseDataURLPrefix(url: string) {
+    const comma           = url.indexOf(',', 5);
+    const prefix          = url.slice(5, url.indexOf(',', 5));
+    let mediaType         = 'text/plain';
+    let encoding          = '';
+    [mediaType, encoding] = prefix.indexOf(';') ? prefix.split(';') : [prefix, ''];
+    return {mediaType, encoding, prefix, contents: url.slice(comma + 1)};
   }
 }
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, DataType, Series, TypeMap} from '@rapidsai/cudf';
+import {DataFrame, DataType, TypeMap} from '@rapidsai/cudf';
 import {ChildProcess, fork} from 'child_process';
 
 import {UcpContext} from './addon';
@@ -305,8 +305,7 @@ export class BlazingCluster {
       }));
     });
 
-    // https://github.com/rapidsai/node/issues/259
-    let result_df = new DataFrame({a: Series.new([])});
+    let result_df = new DataFrame();
 
     await Promise.all(queryPromises).then(function(results) {
       results.forEach((result: any) => {

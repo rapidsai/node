@@ -51,6 +51,7 @@ class GLFWRenderingContext extends gl.WebGL2RenderingContext {
     super(options);
     this.canvas = canvas;
     this.window = window;
+    if (!this.window._inputEventTarget) { this.window._inputEventTarget = canvas; }
   }
   private readonly window: GLFWDOMWindow;
   public readonly canvas: HTMLCanvasElement;
@@ -103,6 +104,27 @@ window.WebGLRenderingContext                  = <any>GLFWRenderingContext;
 window.WebGL2RenderingContext                 = <any>GLFWRenderingContext;
 window.HTMLCanvasElement.prototype.getContext = getContext;
 
+if (!window.HTMLImageElement.prototype.decode) {
+  ((window.HTMLImageElement.prototype as any).decode = function() {
+    return new Promise<void>((resolve, reject) => {
+      const cleanup = () => {
+        this.removeEventListener('load', onload);
+        this.removeEventListener('error', onerror);
+      };
+      const onload = () => {
+        resolve();
+        cleanup();
+      };
+      const onerror = () => {
+        reject();
+        cleanup();
+      };
+      this.addEventListener('load', onload);
+      this.addEventListener('error', onerror);
+    });
+  });
+}
+
 Object.defineProperties(installAnimationFrame(installObjectURL(global, window)),
                         Object.getOwnPropertyDescriptors(GLFWDOMWindow.prototype));
 
@@ -136,15 +158,41 @@ if (origin === 'null') { global_.idlUtils.implForWrapper(window.document)._origi
 
 if (typeof global_['fetch'] === 'undefined') {
   const xfetch    = require('cross-fetch');
-  const fileFetch = (url: string, options: jsdom.FetchOptions) => {
-    const isDataURI  = url && url.startsWith('data:');
-    const isFilePath = !isDataURI && !parseURL(url).protocol;
-    return !isFilePath ? xfetch.fetch(url, options)
-                       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                       : new jsdom
-                           .ResourceLoader()                  //
-                           .fetch(`file://${url}`, options)!  //
-                           .then((x) => new Response(x, {status: 200}));
+  const fileFetch = (url: string, options: RequestInit = {}) => {
+    const isDataURL  = url && url.startsWith('data:');
+    const parsedUrl  = !isDataURL && url && parseURL(url);
+    const isFilePath = !isDataURL && parsedUrl && !parsedUrl.protocol;
+    if (isFilePath) {
+      const loader  = new jsdom.ResourceLoader();
+      const fileUrl = `file://localhost/${process.cwd()}/${url}`;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return loader.fetch(fileUrl, options as any)!.then((x) => {  //
+        const opts: ResponseInit = {
+          status: 200,
+          headers: {
+            'Content-Type': (() => {
+              switch (Path.parse(url).ext) {
+                case '.jpg': return 'image/jpeg';
+                case '.jpeg': return 'image/jpeg';
+                case '.gif': return 'image/gif';
+                case '.png': return 'image/png';
+                case '.txt': return 'text/plain';
+                case '.svg': return 'image/svg';
+                case '.json': return 'application/json';
+                case '.wasm': return 'application/wasm';
+                default: return 'application/octet-stream';
+              }
+            })()
+          }
+        };
+        return new xfetch.Response(x, opts);
+      });
+    }
+    const headers: Headers = new xfetch.Headers(options.headers || {});
+    if (!headers.has('User-Agent')) {  //
+      headers.append('User-Agent', window.navigator.userAgent);
+    }
+    return xfetch.fetch(url, {...options, headers});
   };
   const xfetchDefs = {
     'fetch': {value: fileFetch, writable: true, configurable: true},

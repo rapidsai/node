@@ -26,6 +26,9 @@ require('@babel/register')({
   ]
 });
 
+// Change cwd to the example dir so relative file paths are resolved
+process.chdir(__dirname);
+
 const { createReactWindow } = require('@nvidia/glfw');
 module.exports = createReactWindow(`${__dirname}/app.js`, true);
 
