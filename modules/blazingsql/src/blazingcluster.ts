@@ -173,7 +173,7 @@ export class BlazingCluster {
    *
    * const bc = await BlazingCluster.init();
    * await bc.createTable('test_table', df);
-   * await bc.dropTable('test_table);
+   * await bc.dropTable('test_table');
    * ```
    */
   async dropTable(tableName: string): Promise<void> {
