@@ -51,12 +51,12 @@ test('DataFrame initialization', () => {
 test('Empty DataFrame initialization', () => {
   const table_0 = new DataFrame({});
   expect(table_0.numColumns).toBe(0);
-  expect(table_0.numColumns).toBe(0);
+  expect(table_0.numRows).toBe(0);
   expect(table_0.names).toStrictEqual([]);
 
   const table_1 = new DataFrame();
   expect(table_1.numColumns).toBe(0);
-  expect(table_1.numColumns).toBe(0);
+  expect(table_1.numRows).toBe(0);
   expect(table_1.names).toStrictEqual([]);
 });
 
