@@ -19,7 +19,7 @@ jobs:
             LINUX: ubuntu20.04
     env:
       ARCH: amd64
-      NODE: 16.5.0
+      NODE: 16.6.2
       RAPIDS: 21.08.00
     steps:
       - name: Checkout
@@ -64,26 +64,26 @@ jobs:
       - name: Build devel images and packages
         run: |
           echo "$(id -u):$(id -g)"
-          if [[ "${{ steps.devel_dockerfiles_changed.outputs.any_changed }}" == "true" ]]; then
-            echo "UID=$(id -u)" >> .env
-            echo "ARCH=${{ env.ARCH }}" >> .env
-            echo "NODE_VERSION=${{ env.NODE }}" >> .env
-            echo "CUDA_VERSION=${{ matrix.CUDA }}" >> .env
-            echo "RAPIDS_VERSION=${{ env.RAPIDS }}" >> .env
-            echo "LINUX_VERSION=${{ matrix.LINUX }}" >> .env
-            yarn docker:build:devel
-            docker image tag \
-              rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
-              ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
-          fi
+          echo "UID=$(id -u)" >> .env
+          echo "ARCH=${{ env.ARCH }}" >> .env
           echo "CUDAARCHS=ALL" >> .env
           echo "PARALLEL_LEVEL=1" >> .env
+          echo "NODE_VERSION=${{ env.NODE }}" >> .env
+          echo "CUDA_VERSION=${{ matrix.CUDA }}" >> .env
+          echo "RAPIDS_VERSION=${{ env.RAPIDS }}" >> .env
+          echo "LINUX_VERSION=${{ matrix.LINUX }}" >> .env
           echo "SCCACHE_CACHE_SIZE=100G" >> .env
           echo "SCCACHE_IDLE_TIMEOUT=32768" >> .env
           echo "SCCACHE_REGION=us-west-2" >> .env
           echo "SCCACHE_BUCKET=node-rapids-sccache" >> .env
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          if [[ "${{ steps.devel_dockerfiles_changed.outputs.any_changed }}" == "true" ]]; then
+            yarn docker:build:devel
+            docker image tag \
+              rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
+              ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
+          fi
           mkdir -p /tmp/.yarn /tmp/.cache
           docker run --rm --env-file .env -u "$(id -u):$(id -g)" -v "$(pwd):/opt/rapids/node:rw" -v "/tmp/.yarn:/.yarn:rw" -v "/tmp/.cache:/.cache:rw" \
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \

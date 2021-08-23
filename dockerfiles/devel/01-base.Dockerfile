@@ -1,6 +1,6 @@
 ARG FROM_IMAGE
 ARG FROM_IMAGE_DEFAULT
-ARG NODE_VERSION=16.5.0
+ARG NODE_VERSION=16.6.2
 
 FROM node:$NODE_VERSION-stretch-slim as node
 
@@ -56,19 +56,25 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  && apt install --no-install-recommends -y \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} \
     jq git entr nano sudo ninja-build bash-completion \
-    # Install gdb, lldb (for llnode), and clangd for C++ intellisense and debugging in the container
-    gdb lldb-${LLDB_VERSION} clangd-${CLANGD_VERSION} clang-format-${CLANG_FORMAT_VERSION} \
+    # Install gdb
+    gdb \
+    # lldb (for llnode)
+    lldb-${LLDB_VERSION} libllvm${LLDB_VERSION} \
+    # clangd for C++ intellisense and debugging
+    clangd-${CLANGD_VERSION} \
+    # clang-format for automatically formatting C++ and TS/JS
+    clang-format-${CLANG_FORMAT_VERSION} \
     # CMake
     curl libssl-dev libcurl4-openssl-dev zlib1g-dev \
     cmake=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
     cmake-data=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
  \
  # Remove any existing gcc and g++ alternatives
- && update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
- && update-alternatives --remove-all c++ >/dev/null 2>&1 || true \
- && update-alternatives --remove-all gcc >/dev/null 2>&1 || true \
- && update-alternatives --remove-all g++ >/dev/null 2>&1 || true \
- && update-alternatives --remove-all gcov >/dev/null 2>&1 || true \
+ && (update-alternatives --remove-all cc  >/dev/null 2>&1 || true) \
+ && (update-alternatives --remove-all c++ >/dev/null 2>&1 || true) \
+ && (update-alternatives --remove-all gcc >/dev/null 2>&1 || true) \
+ && (update-alternatives --remove-all g++ >/dev/null 2>&1 || true) \
+ && (update-alternatives --remove-all gcov >/dev/null 2>&1 || true) \
  && update-alternatives \
     --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_VERSION} 100 \
     --slave /usr/bin/cc cc /usr/bin/gcc-${GCC_VERSION} \
@@ -78,18 +84,18 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  # Set gcc-${GCC_VERSION} as the default gcc
  && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} \
  # Set alternatives for clangd
- && update-alternatives --remove-all clangd >/dev/null 2>&1 || true \
+ && (update-alternatives --remove-all clangd >/dev/null 2>&1 || true) \
  && update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-${CLANGD_VERSION} 100 \
  # Set clangd-${CLANGD_VERSION} as the default clangd
  && update-alternatives --set clangd /usr/bin/clangd-${CLANGD_VERSION} \
  # Set alternatives for clang-format
- && update-alternatives --remove-all clang-format >/dev/null 2>&1 || true \
+ && (update-alternatives --remove-all clang-format >/dev/null 2>&1 || true) \
  && update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-${CLANG_FORMAT_VERSION} 100 \
  # Set clang-format-${CLANG_FORMAT_VERSION} as the default clang-format
  && update-alternatives --set clang-format /usr/bin/clang-format-${CLANG_FORMAT_VERSION} \
  # Set alternatives for lldb and llvm-config so it's in the path for llnode
- && update-alternatives --remove-all lldb >/dev/null 2>&1 || true \
- && update-alternatives --remove-all llvm-config >/dev/null 2>&1 || true \
+ && (update-alternatives --remove-all lldb >/dev/null 2>&1 || true) \
+ && (update-alternatives --remove-all llvm-config >/dev/null 2>&1 || true) \
  && update-alternatives \
     --install /usr/bin/lldb lldb /usr/bin/lldb-${LLDB_VERSION} 100 \
     --slave /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-${LLDB_VERSION} \

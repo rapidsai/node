@@ -15,20 +15,20 @@
     {
       "@@type": "MapView",
       "id": "main",
-      "mapStyle": "mapbox://styles/mapbox/dark-v9",
+      "mapStyle": "https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json",
       "controller": true
     },
     {
       "@@type": "MapView",
       "id": "minimap",
-      "mapStyle": "mapbox://styles/mapbox/light-v9",
+      "mapStyle": "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
       "width": "40%",
       "height": "40%",
       "x": "55%",
       "y": "5%",
       "clear": true,
       "viewState": {
-        "id": "view-state",
+        "id": "main",
         "pitch": 0,
         "bearing": 0,
         "zoom": 4
@@ -39,19 +39,14 @@
     {
       "@@type": "HexagonLayer",
       "id": "heatmap",
-      "data": "https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/3d-heatmap/heatmap-data.csv",
-      "loadOptions": {
-        "header": false
-      },
-
+      "data": "https://raw.githubusercontent.com/visgl/deck.gl-data/master/examples/3d-heatmap/heatmap-data.csv",
       "coverage": 1,
       "elevationRange": [0, 3000],
       "elevationScale": 50,
       "extruded": true,
-      "getPosition": "@@=-",
+      "getPosition": "@@=[lng,lat]",
       "radius": 1000,
       "upperPercentile": 100,
-
       "colorRange": [
         [1, 152, 189],
         [73, 227, 206],
