@@ -1,4 +1,4 @@
-/* Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -10,21 +10,22 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License. */
+// limitations under the License.
 
-body {
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
-    background-color: #212121!important
-}
+import React from 'react';
+import { QueryBuilder } from './querybuilder';
 
-pre, div {
-    color: white;
-}
+export class QueryDashboard extends React.Component {
+  constructor(props) {
+    super(props);
 
-.navbar {
-    background-color: #7300ff!important;
-    font-weight: bold;
+  }
+
+  render() {
+    return (
+      <div>
+        <QueryBuilder />
+      </div>
+    )
+  }
 }

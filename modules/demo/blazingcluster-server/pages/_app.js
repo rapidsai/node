@@ -1,4 +1,3 @@
-
 // Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +15,25 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 
-import { Container, Navbar, Nav } from 'react-bootstrap';
+import { Container, Navbar, Nav, Row, Col } from 'react-bootstrap';
+import { QueryDashboard } from '../components/querydashboard';
 
 export default function Home() {
   return (
-    <Navbar bg="dark" variant="dark">
-      <Container>
-        <Navbar.Brand className={"navbar"}>node-rapids ┆ Blazing Cluster Server Demo</Navbar.Brand>
-        <Nav>
-          <Nav.Link href="https://github.com/rapidsai/node">node-rapids github</Nav.Link>
-        </Nav>
-      </Container>
-    </Navbar>
+    <div>
+      <Navbar bg="dark" variant="dark">
+        <Container>
+          <Navbar.Brand className={"navbar"}>node-rapids ┆ Blazing Cluster Server Demo</Navbar.Brand>
+          <Nav>
+            <Nav.Link href="https://github.com/rapidsai/node">node-rapids github</Nav.Link>
+          </Nav>
+        </Container>
+      </Navbar>
+      <Row className={"justify-content-center"}>
+        <Col className={"col-sm-12 col-md-10 col-lg-8"}>
+          <QueryDashboard />
+        </Col>
+      </Row>
+    </div>
   )
 }
