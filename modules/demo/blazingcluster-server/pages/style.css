@@ -1,6 +1,4 @@
-#!/usr/bin/env -S node -r esm
-
-// Copyright (c) 2021, NVIDIA CORPORATION.
+/* Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +10,17 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.
+// limitations under the License. */
 
-// Change cwd to the example dir so relative file paths are resolved
-process.chdir(__dirname);
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    background-color: #212121!important
+}
 
-const fastify = require('fastify')({});
-
-fastify
-  .register(require('fastify-nextjs'))
-  .after(() => {
-    fastify.next('/')
-  });
-
-fastify.listen(3000, err => {
-  if (err) throw err
-  console.log('Server listening on http://localhost:3000')
-});
+.navbar {
+    background-color: #7300ff!important;
+    font-weight: bold;
+}

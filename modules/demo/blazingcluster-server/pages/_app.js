@@ -1,4 +1,3 @@
-#!/usr/bin/env -S node -r esm
 
 // Copyright (c) 2021, NVIDIA CORPORATION.
 //
@@ -14,18 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Change cwd to the example dir so relative file paths are resolved
-process.chdir(__dirname);
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './style.css';
 
-const fastify = require('fastify')({});
+import { Container, Navbar, Nav } from 'react-bootstrap';
 
-fastify
-  .register(require('fastify-nextjs'))
-  .after(() => {
-    fastify.next('/')
-  });
-
-fastify.listen(3000, err => {
-  if (err) throw err
-  console.log('Server listening on http://localhost:3000')
-});
+export default function Home() {
+  return (
+    <Navbar bg="dark" variant="dark">
+      <Container>
+        <Navbar.Brand className={"navbar"}>node-rapids ┆ Blazing Cluster Server Demo</Navbar.Brand>
+        <Nav>
+          <Nav.Link href="https://github.com/rapidsai/node">node-rapids github</Nav.Link>
+        </Nav>
+      </Container>
+    </Navbar>
+  )
+}
