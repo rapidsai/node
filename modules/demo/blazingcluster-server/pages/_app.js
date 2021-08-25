@@ -40,25 +40,26 @@ class QueryDashboard extends React.Component {
   constructor() {
     super();
     this.state = {
-      query: ''
+      query: '',
+      queryResult: 'Please enter a query...',
+      queryButtonEnabled: false,
     };
 
     this.runQuery = this.runQuery.bind(this);
   }
 
   onQueryChange = (updatedQuery) => {
-    this.setState({ query: this._parseQuery(updatedQuery) });
+    this.setState({ query: updatedQuery, queryButtonEnabled: updatedQuery.length });
   }
 
   async runQuery() {
-    if (this.state.query.length) {
-      await fetch('http://localhost:3000/run_query').then(response => response.json()).then(data => { console.log(data) });
+    if (this.state.queryButtonEnabled) {
+      this.setState({ queryButtonEnabled: false });
+      await fetch(`http://localhost:3000/run_query?sql=${this.state.query}`).then(response => response.json()).then(data => {
+        this.setState({ queryResult: data['result'] })
+      });
+      this.setState({ queryButtonEnabled: true });
     }
-  }
-
-  _parseQuery(query) {
-    if (query === undefined || query.length == 0) return '';
-    return `SELECT ${JSON.parse(query)} FROM test_table`;
   }
 
   render() {
@@ -69,8 +70,8 @@ class QueryDashboard extends React.Component {
             <QueryBuilder onQueryChange={this.onQueryChange} />
           </Col>
           <Col className={"customCol"} lg md sm xs={12}>
-            <Button variant="contained" color="primary" className={"queryButton"} disabled={!this.state.query.length} onClick={this.runQuery}>Run Query</Button>
-            <FormControl style={{ marginTop: 20 }} rows="4" as="textarea" disabled={true} value={"Waiting for query result..."} aria-label="SQL result" />
+            <Button variant="contained" color="primary" className={"queryButton"} disabled={!this.state.queryButtonEnabled} onClick={this.runQuery}>Run Query</Button>
+            <FormControl style={{ marginTop: 20 }} rows="4" as="textarea" disabled={true} value={this.state.queryResult} aria-label="SQL result" />
           </Col>
         </Row>
       </Container>

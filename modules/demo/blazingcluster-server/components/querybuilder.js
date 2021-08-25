@@ -43,7 +43,6 @@ const config = {
   }
 };
 
-// You can load query value from your backend storage (for saving see `Query.onChange()`)
 const queryValue = {
   "id": "9a99988a-0123-4456-b89a-b1607f326fd8", "type": "group", "children1": {
     "a98ab9b9-cdef-4012-b456-71607f326fd9": {
@@ -60,11 +59,14 @@ const queryValue = {
 };
 
 export class QueryBuilder extends React.Component {
-  state = {
-    tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config),
-    config: config,
-    query: ''
-  };
+  constructor() {
+    super();
+    this.state = {
+      tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config),
+      config: config,
+      query: '',
+    };
+  }
 
   render = () => (
     <div>
@@ -74,7 +76,7 @@ export class QueryBuilder extends React.Component {
         onChange={this.onChange}
         renderBuilder={this.renderBuilder}
       />
-      {this.renderResult(this.state)}
+      {this.renderResult()}
     </div>
   )
 
@@ -86,26 +88,27 @@ export class QueryBuilder extends React.Component {
     </div>
   )
 
-  renderResult = ({ tree: immutableTree, config }) => {
+  renderResult = () => {
     return (
       <div style={{ marginTop: 27 }}>
         <InputGroup>
           <div className="input-group-prepend">
             <span className="input-group-text" id="">Query: </span>
           </div>
-          <FormControl type={"text"} defaultValue={""} value={JSON.stringify(QbUtils.sqlFormat(immutableTree, config))} />
+          <FormControl value={this.state.query} disabled={true} type={"text"} />
         </InputGroup>
       </div>
     )
   }
 
   onChange = (immutableTree, config) => {
-    // Tip: for better performance you can apply `throttle` - see `examples/demo`
-    this.setState({ tree: immutableTree, config: config, query: JSON.stringify(QbUtils.sqlFormat(immutableTree, config)) });
-    this.props.onQueryChange(JSON.stringify(QbUtils.sqlFormat(immutableTree, config)));
+    const query = this._parseQuery(JSON.stringify(QbUtils.sqlFormat(immutableTree, config)));
+    this.setState({ tree: immutableTree, config: config, query: query });
+    this.props.onQueryChange(query);
+  }
 
-    const jsonTree = QbUtils.getTree(immutableTree);
-    console.log(jsonTree);
-    // `jsonTree` can be saved to backend, and later loaded to `queryValue`
+  _parseQuery(query) {
+    if (query === undefined || query.length == 0) return '';
+    return `SELECT ${JSON.parse(query)} FROM test_table`;
   }
 }

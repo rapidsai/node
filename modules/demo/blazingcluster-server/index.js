@@ -32,8 +32,18 @@ fastify
   .register(require('fastify-nextjs'))
   .after(() => {
     fastify.next('/')
-    fastify.get('/run_query', function (request, reply) {
-      reply.send({ hello: 'world' })
+    fastify.get('/run_query', async function (request, reply) {
+      const { sql } = request.query;
+      if (sql) {
+        const df = await bc.sql(sql);
+        reply.send({
+          result: df.names.reduce((result, name) => {
+            result += `${name}: ${[...df.get(name)]} \n\n`;
+            return result;
+          }, '')
+        });
+      }
+      reply.send({ result: 'Failed to parse query.' })
     })
   });
 
