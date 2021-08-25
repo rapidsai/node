@@ -1181,6 +1181,24 @@ export interface Column<T extends DataType = any> {
   nansToNulls(memoryResource?: MemoryResource): Column<T>;
 
   getJSONObject(jsonPath?: string, memoryResource?: MemoryResource): Column<T>;
+
+  /**
+   * Returns the number of bytes of each string in the Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns  A column of `INT32` counts
+   */
+  countBytes(memoryResource?: MemoryResource): Column<Int32>;
+
+  /**
+   * Returns the number of characters of each string in the Column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns  A column of `INT32` counts
+   */
+  countCharacters(memoryResource?: MemoryResource): Column<Int32>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

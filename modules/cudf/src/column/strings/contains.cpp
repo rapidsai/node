@@ -17,8 +17,6 @@
 
 #include <node_rmm/memory_resource.hpp>
 
-#include <cudf/unary.hpp>
-
 #include <cudf/strings/contains.hpp>
 #include <rmm/mr/device/per_device_resource.hpp>
 

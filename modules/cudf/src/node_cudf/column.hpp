@@ -700,7 +700,14 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::unary_operator op,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
-  // column/re.cpp
+  // column/strings/attributes.cpp
+  Column::wrapper_t count_bytes(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t count_characters(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  // column/strings/contains.cpp
   Column::wrapper_t contains_re(
     std::string const& pattern,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
@@ -708,8 +715,6 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Column::wrapper_t count_re(
     std::string const& pattern,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-
-  // TODO: findall_re
 
   Column::wrapper_t matches_re(
     std::string const& pattern,
@@ -872,10 +877,13 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value bit_invert(Napi::CallbackInfo const& info);
   Napi::Value unary_not(Napi::CallbackInfo const& info);
 
+  // column/strings/attributes.cpp
+  Napi::Value count_bytes(Napi::CallbackInfo const& info);
+  Napi::Value count_characters(Napi::CallbackInfo const& info);
+
   // column/strings/contains.cpp
   Napi::Value contains_re(Napi::CallbackInfo const& info);
   Napi::Value count_re(Napi::CallbackInfo const& info);
-  // Napi::Value findall_re(Napi::CallbackInfo const& info);
   Napi::Value matches_re(Napi::CallbackInfo const& info);
 
   // column/convert.hpp

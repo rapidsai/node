@@ -195,6 +195,25 @@ export class StringSeries extends Series<Utf8String> {
   }
 
   /**
+   * Returns an Int32 series the number of bytes of each string in the Series.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(['Hello', 'Bye', 'Thanks 😊', null]);
+   *
+   * // count bytes in each string
+   * a.byteCount() // [5, 3, 11, null]
+   * ```
+   */
+  byteCount(memoryResource?: MemoryResource): Series<Int32> {
+    return Series.new(this._col.countBytes(memoryResource));
+  }
+
+  /**
    * Returns an Int32 series the number of times the given regex pattern matches
    * in each string.
    *
@@ -225,6 +244,25 @@ export class StringSeries extends Series<Utf8String> {
   countRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Int32> {
     const pat_string = pattern instanceof RegExp ? pattern.source : pattern;
     return Series.new(this._col.countRe(pat_string, memoryResource));
+  }
+
+  /**
+   * Returns an Int32 series the length of each string in the Series.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(['dog', '', '\n', null]);
+   *
+   * // count bytes in each string
+   * a.len() // [3, 0, 1 null]
+   * ```
+   */
+  len(memoryResource?: MemoryResource): Series<Int32> {
+    return Series.new(this._col.countCharacters(memoryResource));
   }
 
   /**

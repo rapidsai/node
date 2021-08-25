@@ -134,6 +134,9 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::rint>("rint"),
                        InstanceMethod<&Column::bit_invert>("bitInvert"),
                        InstanceMethod<&Column::unary_not>("not"),
+                       // column/strings/attributes.cpp
+                       InstanceMethod<&Column::count_bytes>("countBytes"),
+                       InstanceMethod<&Column::count_characters>("countCharacters"),
                        // column/strings/contains.cpp
                        InstanceMethod<&Column::contains_re>("containsRe"),
                        InstanceMethod<&Column::count_re>("countRe"),

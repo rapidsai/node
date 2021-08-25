@@ -132,3 +132,13 @@ test('Series.cast Float64', () => {
   const a = Series.new(['0', '2.5', '-2', '10.2', null, '2.48e+2']);
   expect([...a.cast(new Float64)]).toStrictEqual([0, 2.5, -2, 10.2, null, 248.0]);
 });
+
+test('Series.len', () => {
+  const a = Series.new(['dog', '', '\n', null]);
+  expect([...a.len()]).toStrictEqual([3, 0, 1, null]);
+});
+
+test('Series.byteCount', () => {
+  const a = Series.new(['Hello', 'Bye', 'Thanks 😊', null]);
+  expect([...a.byteCount()]).toStrictEqual([5, 3, 11, null]);
+});
