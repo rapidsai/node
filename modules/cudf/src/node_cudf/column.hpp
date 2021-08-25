@@ -872,7 +872,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value bit_invert(Napi::CallbackInfo const& info);
   Napi::Value unary_not(Napi::CallbackInfo const& info);
 
-  // column/re.cpp
+  // column/strings/contains.cpp
   Napi::Value contains_re(Napi::CallbackInfo const& info);
   Napi::Value count_re(Napi::CallbackInfo const& info);
   // Napi::Value findall_re(Napi::CallbackInfo const& info);
