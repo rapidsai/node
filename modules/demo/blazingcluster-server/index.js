@@ -32,7 +32,8 @@ fastify
   .register(require('fastify-nextjs'))
   .after(() => {
     fastify.next('/')
-    fastify.get('/run_query', async (request, reply) => {
+    fastify.get('/run_query', function (request, reply) {
+      reply.send({ hello: 'world' })
     })
   });
 

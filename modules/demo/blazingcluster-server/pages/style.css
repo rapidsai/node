@@ -53,3 +53,7 @@ pre, div {
     width: 100% !important;
     height: 51px !important;
 }
+
+.MuiButton-contained.Mui-disabled {
+    background-color: rgb(122, 122, 122) !important;
+}

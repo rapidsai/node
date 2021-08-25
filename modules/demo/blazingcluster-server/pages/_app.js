@@ -18,8 +18,9 @@ import './style.css';
 import { Container, Navbar, Nav, Row, Col, FormControl } from 'react-bootstrap';
 import { QueryBuilder } from '../components/querybuilder';
 import Button from '@material-ui/core/Button';
+import React from 'react';
 
-export default function Home() {
+export default function App() {
   return (
     <div>
       <Navbar bg="dark" variant="dark">
@@ -30,17 +31,49 @@ export default function Home() {
           </Nav>
         </Container>
       </Navbar>
+      <QueryDashboard />
+    </div >
+  )
+}
+
+class QueryDashboard extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      query: ''
+    };
+
+    this.runQuery = this.runQuery.bind(this);
+  }
+
+  onQueryChange = (updatedQuery) => {
+    this.setState({ query: this._parseQuery(updatedQuery) });
+  }
+
+  async runQuery() {
+    if (this.state.query.length) {
+      await fetch('http://localhost:3000/run_query').then(response => response.json()).then(data => { console.log(data) });
+    }
+  }
+
+  _parseQuery(query) {
+    if (query === undefined || query.length == 0) return '';
+    return `SELECT ${JSON.parse(query)} FROM test_table`;
+  }
+
+  render() {
+    return (
       <Container style={{ paddingTop: 10 }}>
         <Row className={"justify-content-center"}>
           <Col lg={8} md={8} sm={8} className={"customCol"}>
-            <QueryBuilder />
+            <QueryBuilder onQueryChange={this.onQueryChange} />
           </Col>
           <Col className={"customCol"} lg md sm xs={12}>
-            <Button variant="contained" className={"queryButton"}>Run Query</Button>
+            <Button variant="contained" color="primary" className={"queryButton"} disabled={!this.state.query.length} onClick={this.runQuery}>Run Query</Button>
             <FormControl style={{ marginTop: 20 }} rows="4" as="textarea" disabled={true} value={"Waiting for query result..."} aria-label="SQL result" />
           </Col>
         </Row>
       </Container>
-    </div >
-  )
+    )
+  }
 }

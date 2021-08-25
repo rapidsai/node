@@ -62,7 +62,8 @@ const queryValue = {
 export class QueryBuilder extends React.Component {
   state = {
     tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config),
-    config: config
+    config: config,
+    query: ''
   };
 
   render = () => (
@@ -85,20 +86,23 @@ export class QueryBuilder extends React.Component {
     </div>
   )
 
-  renderResult = ({ tree: immutableTree, config }) => (
-    <div style={{ marginTop: 27 }}>
-      <InputGroup>
-        <div class="input-group-prepend">
-          <span class="input-group-text" id="">Query: </span>
-        </div>
-        <FormControl type={"text"} value={JSON.stringify(QbUtils.sqlFormat(immutableTree, config))} />
-      </InputGroup>
-    </div>
-  )
+  renderResult = ({ tree: immutableTree, config }) => {
+    return (
+      <div style={{ marginTop: 27 }}>
+        <InputGroup>
+          <div className="input-group-prepend">
+            <span className="input-group-text" id="">Query: </span>
+          </div>
+          <FormControl type={"text"} defaultValue={""} value={JSON.stringify(QbUtils.sqlFormat(immutableTree, config))} />
+        </InputGroup>
+      </div>
+    )
+  }
 
   onChange = (immutableTree, config) => {
     // Tip: for better performance you can apply `throttle` - see `examples/demo`
-    this.setState({ tree: immutableTree, config: config });
+    this.setState({ tree: immutableTree, config: config, query: JSON.stringify(QbUtils.sqlFormat(immutableTree, config)) });
+    this.props.onQueryChange(JSON.stringify(QbUtils.sqlFormat(immutableTree, config)));
 
     const jsonTree = QbUtils.getTree(immutableTree);
     console.log(jsonTree);
