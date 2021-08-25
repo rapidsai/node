@@ -64,7 +64,6 @@ export class QueryBuilder extends React.Component {
     this.state = {
       tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config),
       config: config,
-      query: '',
     };
   }
 
@@ -76,7 +75,6 @@ export class QueryBuilder extends React.Component {
         onChange={this.onChange}
         renderBuilder={this.renderBuilder}
       />
-      {this.renderResult()}
     </div>
   )
 
@@ -88,23 +86,9 @@ export class QueryBuilder extends React.Component {
     </div>
   )
 
-  renderResult = () => {
-    return (
-      <div style={{ marginTop: 27 }}>
-        <InputGroup>
-          <div className="input-group-prepend">
-            <span className="input-group-text" id="">Query: </span>
-          </div>
-          <FormControl value={this.state.query} disabled={true} type={"text"} />
-        </InputGroup>
-      </div>
-    )
-  }
-
   onChange = (immutableTree, config) => {
-    const query = this._parseQuery(JSON.stringify(QbUtils.sqlFormat(immutableTree, config)));
-    this.setState({ tree: immutableTree, config: config, query: query });
-    this.props.onQueryChange(query);
+    this.setState({ tree: immutableTree, config: config });
+    this.props.onQueryChange(this._parseQuery(JSON.stringify(QbUtils.sqlFormat(immutableTree, config))));
   }
 
   _parseQuery(query) {

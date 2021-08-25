@@ -51,9 +51,13 @@ pre, div {
 /* Right Column */
 .queryButton {
     width: 100% !important;
-    height: 51px !important;
+    height: 50px !important;
 }
 
 .MuiButton-contained.Mui-disabled {
     background-color: rgb(122, 122, 122) !important;
 }
+
+.queryInput {
+    height: 50px !important;
+ }

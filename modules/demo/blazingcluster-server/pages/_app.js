@@ -15,7 +15,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 
-import { Container, Navbar, Nav, Row, Col, FormControl } from 'react-bootstrap';
+import { Container, Navbar, Nav, Row, Col, FormControl, InputGroup } from 'react-bootstrap';
 import { QueryBuilder } from '../components/querybuilder';
 import Button from '@material-ui/core/Button';
 import React from 'react';
@@ -41,7 +41,7 @@ class QueryDashboard extends React.Component {
     super();
     this.state = {
       query: '',
-      queryResult: 'Please enter a query...',
+      queryResult: 'Waiting for query...',
       queryButtonEnabled: false,
     };
 
@@ -64,17 +64,23 @@ class QueryDashboard extends React.Component {
 
   render() {
     return (
-      <Container style={{ paddingTop: 10 }}>
-        <Row className={"justify-content-center"}>
-          <Col lg={8} md={8} sm={8} className={"customCol"}>
-            <QueryBuilder onQueryChange={this.onQueryChange} />
+      <Container style={{ paddingTop: 20 }}>
+        <QueryBuilder onQueryChange={this.onQueryChange} />
+        <Row style={{ marginTop: 20 }}>
+          <Col lg={9} md sm xs>
+            <InputGroup className={"queryInput"}>
+              <div className="input-group-prepend">
+                <span className="input-group-text">Query: </span>
+              </div>
+              <FormControl className={"queryInput"} value={this.state.query} disabled={true} type={"text"} />
+            </InputGroup>
           </Col>
-          <Col className={"customCol"} lg md sm xs={12}>
+          <Col>
             <Button variant="contained" color="primary" className={"queryButton"} disabled={!this.state.queryButtonEnabled} onClick={this.runQuery}>Run Query</Button>
-            <FormControl style={{ marginTop: 20 }} rows="4" as="textarea" disabled={true} value={this.state.queryResult} aria-label="SQL result" />
           </Col>
         </Row>
-      </Container>
+        <FormControl style={{ marginTop: 20 }} rows="10" as="textarea" disabled={true} value={this.state.queryResult} aria-label="SQL result" />
+      </Container >
     )
   }
 }
