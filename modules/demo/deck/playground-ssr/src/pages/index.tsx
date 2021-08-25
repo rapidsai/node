@@ -13,10 +13,9 @@
 // limitations under the License.
 
 import type { NextPage, GetServerSidePropsContext } from 'next';
-
+import { newPeer } from '../render/broker';
 
 export async function getServerSideProps({ query }: GetServerSidePropsContext) {
-  const { newPeer } = require('../render/broker');
   const { rtcId = newPeer().id } = query;
   return {
     redirect: {

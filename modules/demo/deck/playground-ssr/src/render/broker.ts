@@ -17,7 +17,10 @@ import {nanoid} from 'nanoid';
 const wrtc       = require('wrtc');
 const SimplePeer = require('simple-peer');
 
-const peers: Record<string, any> = {};
+const symbol = Symbol.for('peers');
+(global as any)[symbol] || ((global as any)[symbol] = {});
+
+const peers: Record<string, any> = (global as any)[symbol];
 
 function delPeer(id: string) {
   console.log(`peer ${id} disconnected`);
@@ -25,10 +28,14 @@ function delPeer(id: string) {
   delete peers[id];
 }
 
-export function getPeer(id: string) { return peers[id]; }
+export function getPeer(id: string) {
+  // debugger;
+  return peers[id];
+}
 
 export function newPeer() {
   const id = nanoid();
+  // debugger;
   console.log(`peer ${id} created`);
   const peer = new SimplePeer({wrtc, sdpTransform})
                  .on('close', delPeer.bind(null, id))

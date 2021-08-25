@@ -86,13 +86,14 @@ if (isBrowser) {
         .forEach((wkr) => { wkr.off('message', onRender); });
 
       if (peer) {
+        peer.removeListener('connect', onConnect);
+        peer.removeListener('close', onClose);
+        peer.removeListener('error', onClose);
         peer.removeListener('data', onUpdate);
-        if (stream) {
-          peer.removeStream(stream);
-          source = null;
-          stream = null;
-        }
-        peer = null;
+        if (peer.connected && stream) { peer.removeStream(stream); }
+        source = null;
+        stream = null;
+        peer   = null;
       }
     }
 

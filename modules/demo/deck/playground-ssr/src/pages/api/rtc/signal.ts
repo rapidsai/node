@@ -19,7 +19,8 @@ export default ((req, response) => {
     const {rtcId} = req.body;
     const peer    = getPeer(rtcId);
     response.status(peer ? 200 : 403);
-    if (!peer) {  //
+    if (!peer) {
+      // debugger;
       console.log(`peer ${rtcId} not found`);
       response.send('Missing or invalid rtcId');
       resolve();

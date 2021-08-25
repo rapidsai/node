@@ -46,9 +46,9 @@ type Props = {
 };
 
 import renderRemoteOrVideo from '../../render/render';
+import { getPeer } from '../../render/broker';
 
 export async function getServerSideProps({ params = { rtcId: '' } }: GetServerSidePropsContext<{ rtcId: string }>) {
-  const { getPeer } = require('../../render/broker');
   if (getPeer(params.rtcId)) {
     return {
       props: {

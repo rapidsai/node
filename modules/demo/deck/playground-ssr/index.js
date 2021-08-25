@@ -40,7 +40,9 @@ require('fs').stat(Path.join(__dirname, '.next'), (err, stats) => {
       { env, cwd: __dirname, stdio: 'inherit' });
   }
 
-  spawnSync(
-    process.execPath, [next, 'start'],
-    { env, cwd: __dirname, stdio: 'inherit' });
+  process.exitCode = spawnSync(
+    process.execPath,
+    [next, process.env.NODE_ENV !== 'production' ? 'dev' : 'start'],
+    { env, cwd: __dirname, stdio: 'inherit' }
+  ).exitCode;
 });

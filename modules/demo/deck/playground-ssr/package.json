@@ -10,9 +10,9 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "dev": "next dev",
+    "dev": "rimraf .next && next dev",
     "build": "next build",
-    "start": "next build && node index.js"
+    "start": "next build && next start"
   },
   "dependencies": {
     "@nvidia/cuda": "0.0.1",
