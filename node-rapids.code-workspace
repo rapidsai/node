@@ -156,6 +156,12 @@
             "editor.formatOnSaveMode": "file",
             "editor.defaultFormatter": "xaver.clang-format"
         },
+        "[typescriptreact]": {
+            "editor.tabSize": 2,
+            "editor.formatOnSave": true,
+            "editor.formatOnSaveMode": "file",
+            // "editor.defaultFormatter": "xaver.clang-format"
+        },
         "clangd.path": "/usr/bin/clangd",
         "clangd.semanticHighlighting": false,
         "clangd.arguments": [

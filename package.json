@@ -53,7 +53,6 @@
     "modules/demo/graph",
     "modules/demo/luma",
     "modules/demo/spatial",
-    "modules/demo/ssr",
     "modules/demo/xterm",
     "modules/demo/ipc/*",
     "modules/demo/deck/*",

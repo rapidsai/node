@@ -24,3 +24,7 @@ modules/**/.eslintrc.js
 modules/**/notebooks/data
 
 internal/*
+
+# next.js
+**/.next/
+**/out/

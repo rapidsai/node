@@ -14,7 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module.exports = (props = { transparent: false, template: process.argv[2] }) => {
+const { RapidsJSDOM } = require('@rapidsai/jsdom');
+
+module.exports = RapidsJSDOM.fromReactComponent.bind(
+  RapidsJSDOM,
+  require('path').join(__dirname, 'src', 'app.js')
+);
+
+if (require.main === module) {
+
   require('segfault-handler').registerHandler('./crash.log');
 
   require('@babel/register')({
@@ -30,9 +38,6 @@ module.exports = (props = { transparent: false, template: process.argv[2] }) => 
   // Change cwd to the example dir so relative file paths are resolved
   process.chdir(__dirname);
 
-  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./src/app.js', props, props);
-};
-
-if (require.main === module) {
-  module.exports().window.addEventListener('close', () => process.exit(0), { once: true });
+  module.exports({}, { template: process.argv[2] }).window
+    .addEventListener('close', () => process.exit(0), { once: true });
 }

@@ -12,12 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {fetch, Headers, Request, Response} from 'cross-fetch';
 import * as jsdom from 'jsdom';
 import * as Path from 'path';
 import * as Url from 'url';
 
 export function installFetch(window: jsdom.DOMWindow) {
+  const {
+    Headers,
+    Request,
+    Response,
+    fetch,
+  } = window.evalFn(() => require('cross-fetch')) as typeof import('cross-fetch');
   window.jsdom.global.Headers  = Headers;
   window.jsdom.global.Request  = Request;
   window.jsdom.global.Response = Response;

@@ -29,7 +29,7 @@ fi
 
 if [[ "$DEMO" == "" ]]; then
     DEMOS="
-    $(echo modules/demo/{graph,luma,spatial,ssr,xterm,client-server}/package.json)
+    $(echo modules/demo/{graph,luma,spatial,xterm,client-server}/package.json)
     $(find modules/demo/{deck,tfjs,ipc} -maxdepth 2 -type f -name 'package.json')
     ";
     DEMOS="$(echo -e "$DEMOS" | grep -v node_modules | sort -Vr)";
@@ -56,7 +56,15 @@ elif [[ "$DEMO" =~ "modules/demo/ipc/umap" ]]; then ARGS="${@:-tcp://0.0.0.0:600
 fi
 
 if [[ "$DEMO" =~ "modules/demo/client-server" ]]; then
-    NODE_ENV=${NODE_ENV:-production} exec npm --prefix="$DEMO" $ARGS start
+    NODE_ENV=${NODE_ENV:-production} \
+    NODE_NO_WARNINGS=${NODE_NO_WARNINGS:-1} \
+    exec npm --prefix="$DEMO" ${ARGS} start
+elif [[ "$DEMO" =~ "modules/demo/deck/playground-ssr" ]]; then
+    NODE_ENV=${NODE_ENV:-production} \
+    NODE_NO_WARNINGS=${NODE_NO_WARNINGS:-1} \
+    exec npm --prefix="$DEMO" ${ARGS} start
 else
-    NODE_ENV=${NODE_ENV:-production} exec node --trace-uncaught -r esm "$DEMO" $ARGS
+    NODE_ENV=${NODE_ENV:-production} \
+    NODE_NO_WARNINGS=${NODE_NO_WARNINGS:-1} \
+    exec node --trace-uncaught -r esm "$DEMO" ${ARGS}
 fi
