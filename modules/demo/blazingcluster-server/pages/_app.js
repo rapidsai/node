@@ -15,8 +15,9 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 
-import { Container, Navbar, Nav, Row, Col } from 'react-bootstrap';
-import { QueryDashboard } from '../components/querydashboard';
+import { Container, Navbar, Nav, Row, Col, FormControl } from 'react-bootstrap';
+import { QueryBuilder } from '../components/querybuilder';
+import Button from '@material-ui/core/Button';
 
 export default function Home() {
   return (
@@ -29,11 +30,17 @@ export default function Home() {
           </Nav>
         </Container>
       </Navbar>
-      <Row className={"justify-content-center"}>
-        <Col className={"col-sm-12 col-md-10 col-lg-8"}>
-          <QueryDashboard />
-        </Col>
-      </Row>
-    </div>
+      <Container style={{ paddingTop: 10 }}>
+        <Row className={"justify-content-center"}>
+          <Col lg={8} md={8} sm={8} className={"customCol"}>
+            <QueryBuilder />
+          </Col>
+          <Col className={"customCol"} lg md sm xs={12}>
+            <Button variant="contained" className={"queryButton"}>Run Query</Button>
+            <FormControl style={{ marginTop: 20 }} rows="4" as="textarea" disabled={true} value={"Waiting for query result..."} aria-label="SQL result" />
+          </Col>
+        </Row>
+      </Container>
+    </div >
   )
 }

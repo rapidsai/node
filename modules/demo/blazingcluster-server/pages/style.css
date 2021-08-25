@@ -28,3 +28,28 @@ pre, div {
     background-color: #7300ff!important;
     font-weight: bold;
 }
+
+.customCol {
+    padding: 20px !important;
+    padding-bottom: 0px !important;
+}
+
+/* Query Builder Padding/Margin removal */
+.query-builder {
+    margin: 0px !important;
+}
+
+.group-or-rule-container {
+    padding-right: 0px !important;
+}
+
+.rule, .group-or-rule {
+    padding-right: 10px !important;
+}
+/*  */
+
+/* Right Column */
+.queryButton {
+    width: 100% !important;
+    height: 51px !important;
+}

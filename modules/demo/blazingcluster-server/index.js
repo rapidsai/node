@@ -14,18 +14,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+const { BlazingCluster } = require('@rapidsai/blazingsql');
+const { Series, DataFrame } = require('@rapidsai/cudf');
+const fastify = require('fastify')({});
+
+let bc;
+const init = async () => {
+  bc = await BlazingCluster.init(2);
+  await bc.createTable('test_table', createLargeDataFrame());
+}
+init();
+
 // Change cwd to the example dir so relative file paths are resolved
 process.chdir(__dirname);
-
-const fastify = require('fastify')({});
 
 fastify
   .register(require('fastify-nextjs'))
   .after(() => {
     fastify.next('/')
+    fastify.get('/run_query', async (request, reply) => {
+    })
   });
 
 fastify.listen(3000, err => {
   if (err) throw err
   console.log('Server listening on http://localhost:3000')
 });
+
+function createLargeDataFrame() {
+  const a = Series.new(Array.from({ length: 300 }, (_, i) => i + 1));
+  const b = Series.new(Array.from({ length: 300 }, (_, i) => i + 5));
+  return new DataFrame({ 'a': a, 'b': b });
+}
