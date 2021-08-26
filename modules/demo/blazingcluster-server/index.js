@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+const { performance } = require('perf_hooks');
 const { BlazingCluster } = require('@rapidsai/blazingsql');
 const { Series, DataFrame } = require('@rapidsai/cudf');
 const fastify = require('fastify')({});
@@ -35,12 +36,16 @@ fastify
     fastify.get('/run_query', async function (request, reply) {
       const { sql } = request.query;
       if (sql) {
+        const t0 = performance.now();
         const df = await bc.sql(sql);
+        const t1 = performance.now();
+        const queryTime = t1 - t0;
         reply.send({
           result: df.names.reduce((result, name) => {
             result += `${name}: ${[...df.get(name)]} \n\n`;
             return result;
-          }, '')
+          }, ''),
+          queryTime: queryTime
         });
       }
       reply.send({ result: 'Failed to parse query.' })
