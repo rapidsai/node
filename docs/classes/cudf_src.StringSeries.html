@@ -127,6 +127,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="cudf_src.StringSeries.html#_castAsUint32" class="tsd-kind-icon">_cast<wbr>AsUint32</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="cudf_src.StringSeries.html#_castAsUint64" class="tsd-kind-icon">_cast<wbr>AsUint64</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="cudf_src.StringSeries.html#_castAsUint8" class="tsd-kind-icon">_cast<wbr>AsUint8</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.StringSeries.html#byteCount" class="tsd-kind-icon">byte<wbr>Count</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited"><a href="cudf_src.StringSeries.html#cast" class="tsd-kind-icon">cast</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.StringSeries.html#concat" class="tsd-kind-icon">concat</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.StringSeries.html#containsRe" class="tsd-kind-icon">contains<wbr>Re</a></li>
@@ -145,10 +146,12 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#head" class="tsd-kind-icon">head</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#isNotNull" class="tsd-kind-icon">is<wbr>Not<wbr>Null</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#isNull" class="tsd-kind-icon">is<wbr>Null</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.StringSeries.html#len" class="tsd-kind-icon">len</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.StringSeries.html#matchesRe" class="tsd-kind-icon">matches<wbr>Re</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#nLargest" class="tsd-kind-icon">n<wbr>Largest</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#nSmallest" class="tsd-kind-icon">n<wbr>Smallest</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#orderBy" class="tsd-kind-icon">order<wbr>By</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.StringSeries.html#pad" class="tsd-kind-icon">pad</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#replaceNulls" class="tsd-kind-icon">replace<wbr>Nulls</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#replaceNullsFollowing" class="tsd-kind-icon">replace<wbr>Nulls<wbr>Following</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#replaceNullsPreceding" class="tsd-kind-icon">replace<wbr>Nulls<wbr>Preceding</a></li>
@@ -162,6 +165,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#toArrow" class="tsd-kind-icon">to<wbr>Arrow</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#unique" class="tsd-kind-icon">unique</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="cudf_src.StringSeries.html#valueCounts" class="tsd-kind-icon">value<wbr>Counts</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="cudf_src.StringSeries.html#zfill" class="tsd-kind-icon">zfill</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited tsd-is-static"><a href="cudf_src.StringSeries.html#new" class="tsd-kind-icon">new</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited tsd-is-static"><a href="cudf_src.StringSeries.html#sequence" class="tsd-kind-icon">sequence</a></li>
 							</ul>
@@ -181,7 +185,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L146">modules/cudf/src/series/string.ts:146</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L146">modules/cudf/src/series/string.ts:146</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -212,7 +216,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L614">modules/cudf/src/series.ts:614</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L614">modules/cudf/src/series.ts:614</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -234,7 +238,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L604">modules/cudf/src/series.ts:604</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L604">modules/cudf/src/series.ts:604</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -256,7 +260,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L594">modules/cudf/src/series.ts:594</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L594">modules/cudf/src/series.ts:594</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -278,7 +282,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L619">modules/cudf/src/series.ts:619</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L619">modules/cudf/src/series.ts:619</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -300,7 +304,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L609">modules/cudf/src/series.ts:609</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L609">modules/cudf/src/series.ts:609</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -322,7 +326,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L624">modules/cudf/src/series.ts:624</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L624">modules/cudf/src/series.ts:624</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -344,7 +348,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L599">modules/cudf/src/series.ts:599</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L599">modules/cudf/src/series.ts:599</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -366,7 +370,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L133">modules/cudf/src/series/string.ts:133</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L133">modules/cudf/src/series/string.ts:133</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -397,7 +401,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L589">modules/cudf/src/series.ts:589</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L589">modules/cudf/src/series.ts:589</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -423,7 +427,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.__@iterator@23</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1115">modules/cudf/src/series.ts:1115</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1115">modules/cudf/src/series.ts:1115</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -446,7 +450,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series._castAsBool8</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L198">modules/cudf/src/series.ts:198</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L198">modules/cudf/src/series.ts:198</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -470,7 +474,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsCategorical</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L46">modules/cudf/src/series/string.ts:46</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L46">modules/cudf/src/series/string.ts:46</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -503,7 +507,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsFloat32</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L81">modules/cudf/src/series/string.ts:81</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L81">modules/cudf/src/series/string.ts:81</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -527,7 +531,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsFloat64</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L84">modules/cudf/src/series/string.ts:84</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L84">modules/cudf/src/series/string.ts:84</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -551,7 +555,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsInt16</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L60">modules/cudf/src/series/string.ts:60</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L60">modules/cudf/src/series/string.ts:60</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -575,7 +579,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsInt32</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L63">modules/cudf/src/series/string.ts:63</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L63">modules/cudf/src/series/string.ts:63</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -599,7 +603,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsInt64</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L66">modules/cudf/src/series/string.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L66">modules/cudf/src/series/string.ts:66</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -623,7 +627,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsInt8</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L57">modules/cudf/src/series/string.ts:57</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L57">modules/cudf/src/series/string.ts:57</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -647,7 +651,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsString</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L41">modules/cudf/src/series/string.ts:41</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L41">modules/cudf/src/series/string.ts:41</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -671,7 +675,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series._castAsTimeStampDay</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L210">modules/cudf/src/series.ts:210</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L210">modules/cudf/src/series.ts:210</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -695,7 +699,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series._castAsTimeStampMicrosecond</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L213">modules/cudf/src/series.ts:213</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L213">modules/cudf/src/series.ts:213</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -719,7 +723,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series._castAsTimeStampMillisecond</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L212">modules/cudf/src/series.ts:212</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L212">modules/cudf/src/series.ts:212</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -743,7 +747,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series._castAsTimeStampNanosecond</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L214">modules/cudf/src/series.ts:214</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L214">modules/cudf/src/series.ts:214</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -767,7 +771,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series._castAsTimeStampSecond</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L211">modules/cudf/src/series.ts:211</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L211">modules/cudf/src/series.ts:211</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -791,7 +795,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsUint16</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L72">modules/cudf/src/series/string.ts:72</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L72">modules/cudf/src/series/string.ts:72</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -815,7 +819,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsUint32</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L75">modules/cudf/src/series/string.ts:75</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L75">modules/cudf/src/series/string.ts:75</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -839,7 +843,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsUint64</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L78">modules/cudf/src/series/string.ts:78</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L78">modules/cudf/src/series/string.ts:78</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -863,7 +867,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides Series._castAsUint8</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L69">modules/cudf/src/series/string.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L69">modules/cudf/src/series/string.ts:69</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -873,6 +877,47 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="cudf_src.Uint8Series.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Series</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="byteCount" class="tsd-anchor"></a>
+					<h3>byte<wbr>Count</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">byte<wbr>Count<span class="tsd-signature-symbol">(</span>memoryResource<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">MemoryResource</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.Int32Series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L211">modules/cudf/src/series/string.ts:211</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns an Int32 series the number of bytes of each string in the Series.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000"> = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #A31515">&#039;Hello&#039;</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;Bye&#039;</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;Thanks 😊&#039;</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">]);</span>
+
+<span style="color: #001080">a</span><span style="color: #000000">.</span><span style="color: #795E26">byteCount</span><span style="color: #000000">() </span><span style="color: #008000">// [5, 3, 11, null]</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <span class="tsd-signature-type">MemoryResource</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Series&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.Int32Series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -887,7 +932,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.cast</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L575">modules/cudf/src/series.ts:575</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L575">modules/cudf/src/series.ts:575</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -942,7 +987,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L160">modules/cudf/src/series/string.ts:160</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L160">modules/cudf/src/series/string.ts:160</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -984,7 +1029,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L192">modules/cudf/src/series/string.ts:192</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L192">modules/cudf/src/series/string.ts:192</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1042,7 +1087,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.copy</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L903">modules/cudf/src/series.ts:903</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L903">modules/cudf/src/series.ts:903</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1081,7 +1126,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.countNonNulls</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L639">modules/cudf/src/series.ts:639</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L639">modules/cudf/src/series.ts:639</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1113,7 +1158,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L225">modules/cudf/src/series/string.ts:225</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L243">modules/cudf/src/series/string.ts:243</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1171,7 +1216,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.dropDuplicates</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1384">modules/cudf/src/series.ts:1384</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1384">modules/cudf/src/series.ts:1384</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1242,7 +1287,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.dropNulls</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1309">modules/cudf/src/series.ts:1309</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1309">modules/cudf/src/series.ts:1309</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1296,7 +1341,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.encodeLabels</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L655">modules/cudf/src/series.ts:655</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L655">modules/cudf/src/series.ts:655</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1357,7 +1402,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.fill</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L719">modules/cudf/src/series.ts:719</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L719">modules/cudf/src/series.ts:719</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1423,7 +1468,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.fillInPlace</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L744">modules/cudf/src/series.ts:744</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L744">modules/cudf/src/series.ts:744</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1480,7 +1525,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.filter</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1089">modules/cudf/src/series.ts:1089</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1089">modules/cudf/src/series.ts:1089</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1527,7 +1572,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.gather</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L887">modules/cudf/src/series.ts:887</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L887">modules/cudf/src/series.ts:887</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1579,7 +1624,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L283">modules/cudf/src/series/string.ts:283</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L372">modules/cudf/src/series/string.ts:372</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1634,7 +1679,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L103">modules/cudf/src/series/string.ts:103</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L103">modules/cudf/src/series/string.ts:103</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1677,7 +1722,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.head</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L968">modules/cudf/src/series.ts:968</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L968">modules/cudf/src/series.ts:968</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1722,7 +1767,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.isNotNull</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1280">modules/cudf/src/series.ts:1280</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1280">modules/cudf/src/series.ts:1280</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1770,7 +1815,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.isNull</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1258">modules/cudf/src/series.ts:1258</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1258">modules/cudf/src/series.ts:1258</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1808,6 +1853,47 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="len" class="tsd-anchor"></a>
+					<h3>len</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">len<span class="tsd-signature-symbol">(</span>memoryResource<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">MemoryResource</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.Int32Series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L262">modules/cudf/src/series/string.ts:262</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns an Int32 series the length of each string in the Series.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000"> = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #A31515">&#039;dog&#039;</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;&#039;</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;</span><span style="color: #EE0000">\n</span><span style="color: #A31515">&#039;</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">]);</span>
+
+<span style="color: #001080">a</span><span style="color: #000000">.</span><span style="color: #795E26">len</span><span style="color: #000000">() </span><span style="color: #008000">// [3, 0, 1 null]</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <span class="tsd-signature-type">MemoryResource</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Series&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.Int32Series.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Series</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="matchesRe" class="tsd-anchor"></a>
 					<h3>matches<wbr>Re</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1817,7 +1903,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L255">modules/cudf/src/series/string.ts:255</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L291">modules/cudf/src/series/string.ts:291</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1872,7 +1958,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.nLargest</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L925">modules/cudf/src/series.ts:925</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L925">modules/cudf/src/series.ts:925</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1923,7 +2009,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.nSmallest</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L947">modules/cudf/src/series.ts:947</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L947">modules/cudf/src/series.ts:947</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1974,7 +2060,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.orderBy</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1195">modules/cudf/src/series.ts:1195</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1195">modules/cudf/src/series.ts:1195</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2024,6 +2110,68 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="pad" class="tsd-anchor"></a>
+					<h3>pad</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">pad<span class="tsd-signature-symbol">(</span>width<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, side<span class="tsd-signature-symbol">?: </span><a href="../modules/cudf_src.html#PadSideType" class="tsd-signature-type" data-tsd-kind="Type alias">PadSideType</a>, fill_char<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, memoryResource<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">MemoryResource</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.StringSeries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L318">modules/cudf/src/series/string.ts:318</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Add padding to each string using a provided character.</p>
+								</div>
+								<p>If the string is already width or more characters, no padding is performed. No strings are
+								truncated.</p>
+								<p>Null string entries result in null entries in the output column.</p>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000"> = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #A31515">&#039;aa&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;bbb&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;cccc&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;ddddd&#039;</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">]);</span>
+
+<span style="color: #001080">a</span><span style="color: #000000">.</span><span style="color: #795E26">pad</span><span style="color: #000000">(</span><span style="color: #098658">4</span><span style="color: #000000">) </span><span style="color: #008000">// [&#039;aa  &#039;,&#039;bbb &#039;,&#039;cccc&#039;,&#039;ddddd&#039;, null]</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>width: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The minimum number of characters for each string.</p>
+									</div>
+								</li>
+								<li>
+									<h5>side: <a href="../modules/cudf_src.html#PadSideType" class="tsd-signature-type" data-tsd-kind="Type alias">PadSideType</a><span class="tsd-signature-symbol"> = &#x27;right&#x27;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Where to place the padding characters. Default is pad right (left justify).</p>
+									</div>
+								</li>
+								<li>
+									<h5>fill_char: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &#x27; &#x27;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Single UTF-8 character to use for padding. Default is the space character.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <span class="tsd-signature-type">MemoryResource</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Column&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.StringSeries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="replaceNulls" class="tsd-anchor"></a>
 					<h3>replace<wbr>Nulls</h3>
@@ -2036,7 +2184,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.replaceNulls</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L768">modules/cudf/src/series.ts:768</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L768">modules/cudf/src/series.ts:768</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2079,7 +2227,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.replaceNulls</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L791">modules/cudf/src/series.ts:791</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L791">modules/cudf/src/series.ts:791</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2133,7 +2281,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.replaceNullsFollowing</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L821">modules/cudf/src/series.ts:821</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L821">modules/cudf/src/series.ts:821</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2180,7 +2328,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.replaceNullsPreceding</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L844">modules/cudf/src/series.ts:844</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L844">modules/cudf/src/series.ts:844</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2227,7 +2375,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.reverse</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L863">modules/cudf/src/series.ts:863</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L863">modules/cudf/src/series.ts:863</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2264,7 +2412,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.scatter</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1022">modules/cudf/src/series.ts:1022</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1022">modules/cudf/src/series.ts:1022</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2320,7 +2468,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.scatter</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1048">modules/cudf/src/series.ts:1048</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1048">modules/cudf/src/series.ts:1048</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2382,7 +2530,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.setNullMask</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1129">modules/cudf/src/series.ts:1129</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1129">modules/cudf/src/series.ts:1129</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2418,7 +2566,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series/string.ts#L120">modules/cudf/src/series/string.ts:120</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L120">modules/cudf/src/series/string.ts:120</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2466,7 +2614,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.setValues</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1108">modules/cudf/src/series.ts:1108</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1108">modules/cudf/src/series.ts:1108</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2516,7 +2664,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.sortValues</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1235">modules/cudf/src/series.ts:1235</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1235">modules/cudf/src/series.ts:1235</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2583,7 +2731,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.tail</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L992">modules/cudf/src/series.ts:992</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L992">modules/cudf/src/series.ts:992</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2628,7 +2776,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.toArrow</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1136">modules/cudf/src/series.ts:1136</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1136">modules/cudf/src/series.ts:1136</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2651,7 +2799,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.unique</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1352">modules/cudf/src/series.ts:1352</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1352">modules/cudf/src/series.ts:1352</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2700,7 +2848,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.valueCounts</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1324">modules/cudf/src/series.ts:1324</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1324">modules/cudf/src/series.ts:1324</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2720,6 +2868,57 @@
 									<h5>value<span class="tsd-signature-symbol">: </span><a href="cudf_src.StringSeries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></h5>
 								</li>
 							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="zfill" class="tsd-anchor"></a>
+					<h3>zfill</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">zfill<span class="tsd-signature-symbol">(</span>width<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, memoryResource<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">MemoryResource</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.StringSeries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series/string.ts#L345">modules/cudf/src/series/string.ts:345</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Add &#39;0&#39; as padding to the left of each string.</p>
+								</div>
+								<p>If the string is already width or more characters, no padding is performed. No strings are
+								truncated.</p>
+								<p>This equivalent to ‘pad(width,left,&#39;0’)` but is more optimized for this special case.</p>
+								<p>Null string entries result in null entries in the output column.</p>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000"> = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #A31515">&#039;1234&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;-9876&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;+0.34&#039;</span><span style="color: #000000">,</span><span style="color: #A31515">&#039;-342567&#039;</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">]);</span>
+
+<span style="color: #001080">a</span><span style="color: #000000">.</span><span style="color: #795E26">zfill</span><span style="color: #000000">(</span><span style="color: #098658">6</span><span style="color: #000000">) </span><span style="color: #008000">// [&#039;001234&#039;,&#039;0-9876&#039;,&#039;0+0.34&#039;,&#039;-342567&#039;, null]</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>width: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The minimum number of characters for each string.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> memoryResource: <span class="tsd-signature-type">MemoryResource</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The optional MemoryResource used to allocate the result Column&#39;s device
+										memory.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.StringSeries.html" class="tsd-signature-type" data-tsd-kind="Class">StringSeries</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -2754,7 +2953,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L253">modules/cudf/src/series.ts:253</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L253">modules/cudf/src/series.ts:253</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2812,7 +3011,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L268">modules/cudf/src/series.ts:268</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L268">modules/cudf/src/series.ts:268</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2850,7 +3049,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L286">modules/cudf/src/series.ts:286</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L286">modules/cudf/src/series.ts:286</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2884,7 +3083,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L304">modules/cudf/src/series.ts:304</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L304">modules/cudf/src/series.ts:304</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2918,7 +3117,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L322">modules/cudf/src/series.ts:322</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L322">modules/cudf/src/series.ts:322</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2952,7 +3151,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L342">modules/cudf/src/series.ts:342</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L342">modules/cudf/src/series.ts:342</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2988,7 +3187,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L360">modules/cudf/src/series.ts:360</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L360">modules/cudf/src/series.ts:360</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3022,7 +3221,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L378">modules/cudf/src/series.ts:378</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L378">modules/cudf/src/series.ts:378</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3056,7 +3255,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L396">modules/cudf/src/series.ts:396</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L396">modules/cudf/src/series.ts:396</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3090,7 +3289,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L414">modules/cudf/src/series.ts:414</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L414">modules/cudf/src/series.ts:414</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3124,7 +3323,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L427">modules/cudf/src/series.ts:427</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L427">modules/cudf/src/series.ts:427</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3153,7 +3352,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L439">modules/cudf/src/series.ts:439</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L439">modules/cudf/src/series.ts:439</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3182,7 +3381,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L451">modules/cudf/src/series.ts:451</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L451">modules/cudf/src/series.ts:451</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3211,7 +3410,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L464">modules/cudf/src/series.ts:464</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L464">modules/cudf/src/series.ts:464</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3240,7 +3439,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L476">modules/cudf/src/series.ts:476</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L476">modules/cudf/src/series.ts:476</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3269,7 +3468,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L490">modules/cudf/src/series.ts:490</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L490">modules/cudf/src/series.ts:490</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3300,7 +3499,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L504">modules/cudf/src/series.ts:504</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L504">modules/cudf/src/series.ts:504</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3331,7 +3530,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L518">modules/cudf/src/series.ts:518</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L518">modules/cudf/src/series.ts:518</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3362,7 +3561,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L532">modules/cudf/src/series.ts:532</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L532">modules/cudf/src/series.ts:532</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3393,7 +3592,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L546">modules/cudf/src/series.ts:546</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L546">modules/cudf/src/series.ts:546</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3424,7 +3623,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.new</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L548">modules/cudf/src/series.ts:548</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L548">modules/cudf/src/series.ts:548</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -3454,7 +3653,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from Series.sequence</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/d7aeaf4/modules/cudf/src/series.ts#L1157">modules/cudf/src/series.ts:1157</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/a7bf03f/modules/cudf/src/series.ts#L1157">modules/cudf/src/series.ts:1157</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3623,6 +3822,9 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="cudf_src.StringSeries.html#_castAsUint8" class="tsd-kind-icon">_cast<wbr>AsUint8</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.StringSeries.html#byteCount" class="tsd-kind-icon">byte<wbr>Count</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited">
 								<a href="cudf_src.StringSeries.html#cast" class="tsd-kind-icon">cast</a>
 							</li>
@@ -3678,6 +3880,9 @@
 								<a href="cudf_src.StringSeries.html#isNull" class="tsd-kind-icon">is<wbr>Null</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.StringSeries.html#len" class="tsd-kind-icon">len</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="cudf_src.StringSeries.html#matchesRe" class="tsd-kind-icon">matches<wbr>Re</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
@@ -3688,6 +3893,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="cudf_src.StringSeries.html#orderBy" class="tsd-kind-icon">order<wbr>By</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.StringSeries.html#pad" class="tsd-kind-icon">pad</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="cudf_src.StringSeries.html#replaceNulls" class="tsd-kind-icon">replace<wbr>Nulls</a>
@@ -3727,6 +3935,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="cudf_src.StringSeries.html#valueCounts" class="tsd-kind-icon">value<wbr>Counts</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="cudf_src.StringSeries.html#zfill" class="tsd-kind-icon">zfill</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited tsd-is-static">
 								<a href="cudf_src.StringSeries.html#new" class="tsd-kind-icon">new</a>

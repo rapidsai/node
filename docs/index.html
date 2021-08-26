@@ -95,7 +95,7 @@
 				</a>
 				<p>We&#39;ve included a container for launching <a href="https://nteract.io/desktop"><code>nteract/desktop</code></a> with access to locally built <code>node-rapids</code> modules:</p>
 				<pre><code class="language-shell"><span style="color: #008000"># Build the development and nteract containers (only necessary once)</span>
-<span style="color: #000000">yarn docker:build:devel &amp;&amp; yarn docker:build:nteract</span>
+<span style="color: #000000">yarn docker:build:devel &amp;&amp; yarn docker:build:devel:nteract</span>
 
 <span style="color: #008000"># Compile the TypeScript and C++ modules inside the development container</span>
 <span style="color: #000000">yarn docker:run:devel bash -c </span><span style="color: #A31515">&#039;yarn &amp;&amp; yarn build&#039;</span>
