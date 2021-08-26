@@ -28,6 +28,7 @@
 #include <cudf/copying.hpp>
 #include <cudf/replace.hpp>
 #include <cudf/stream_compaction.hpp>
+#include <cudf/strings/padding.hpp>
 #include <cudf/types.hpp>
 #include <cudf/unary.hpp>
 
@@ -720,6 +721,17 @@ struct Column : public EnvLocalObjectWrap<Column> {
     std::string const& pattern,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // column/strings/padding.cpp
+  Column::wrapper_t pad(
+    cudf::size_type width,
+    cudf::strings::pad_side pad_side,
+    std::string const& fill_char,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t zfill(
+    cudf::size_type width,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
   // column/convert.cpp
   Column::wrapper_t string_is_float(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
@@ -885,6 +897,10 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value contains_re(Napi::CallbackInfo const& info);
   Napi::Value count_re(Napi::CallbackInfo const& info);
   Napi::Value matches_re(Napi::CallbackInfo const& info);
+
+  // column/strings/padding.cpp
+  Napi::Value pad(Napi::CallbackInfo const& info);
+  Napi::Value zfill(Napi::CallbackInfo const& info);
 
   // column/convert.hpp
   Napi::Value string_is_float(Napi::CallbackInfo const& info);

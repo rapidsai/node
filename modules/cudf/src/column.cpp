@@ -141,6 +141,9 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::contains_re>("containsRe"),
                        InstanceMethod<&Column::count_re>("countRe"),
                        InstanceMethod<&Column::matches_re>("matchesRe"),
+                       // column/strings/padding.cpp
+                       InstanceMethod<&Column::pad>("pad"),
+                       InstanceMethod<&Column::zfill>("zfill"),
                        // column/convert.cpp
                        InstanceMethod<&Column::string_is_float>("stringIsFloat"),
                        InstanceMethod<&Column::strings_from_floats>("stringsFromFloats"),

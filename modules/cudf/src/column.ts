@@ -31,6 +31,8 @@ import {
 } from './types/dtypes';
 import {CommonType, Interpolation} from './types/mappings';
 
+export type PadSideType = 'left'|'right'|'both'
+
 export type ColumnProps<T extends DataType = any> = {
   /*
    * ColumnProps *with* a `nullMask` shouldn't allow `data` to be an Array with elements and
@@ -1187,7 +1189,7 @@ export interface Column<T extends DataType = any> {
    *
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
-   * @returns  A column of `INT32` counts
+   * @returns A column of `INT32` counts
    */
   countBytes(memoryResource?: MemoryResource): Column<Int32>;
 
@@ -1196,9 +1198,44 @@ export interface Column<T extends DataType = any> {
    *
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
    *   memory.
-   * @returns  A column of `INT32` counts
+   * @returns A column of `INT32` counts
    */
   countCharacters(memoryResource?: MemoryResource): Column<Int32>;
+
+  /**
+   * Add padding to each string using a provided character.
+   *
+   * If the string is already width or more characters, no padding is performed. No strings are
+   * truncated.
+   *
+   * Null string entries result in null entries in the output column.
+   *
+   * @param The minimum number of characters for each string.
+   * @param side Where to place the padding characters
+   * @param fill_char Single UTF-8 character to use for padding.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns New column with padded strings.
+   */
+  pad(width: number, side: PadSideType, fill_char: string, memoryResource?: MemoryResource):
+    Column<Utf8String>;
+
+  /**
+   * Add '0' as padding to the left of each string.
+   *
+   * If the string is already width or more characters, no padding is performed. No strings are
+   * truncated.
+   *
+   * This equivalent to ‘pad(width,left,'0’)` but is more optimized for this special case.
+   *
+   * Null string entries result in null entries in the output column.
+   *
+   * @param width The minimum number of characters for each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns New column of strings.
+   */
+  zfill(width: number, memoryResource?: MemoryResource): Column<Utf8String>
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

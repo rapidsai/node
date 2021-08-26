@@ -142,3 +142,33 @@ test('Series.byteCount', () => {
   const a = Series.new(['Hello', 'Bye', 'Thanks 😊', null]);
   expect([...a.byteCount()]).toStrictEqual([5, 3, 11, null]);
 });
+
+test('Series.pad (defaults)', () => {
+  const a = Series.new(['aa', 'bbb', 'cccc', 'ddddd', null]);
+  expect([...a.pad(4)]).toStrictEqual(['aa  ', 'bbb ', 'cccc', 'ddddd', null]);
+});
+
+test('Series.pad (left)', () => {
+  const a = Series.new(['aa', 'bbb', 'cccc', 'ddddd', null]);
+  expect([...a.pad(4, 'left')]).toStrictEqual(['  aa', ' bbb', 'cccc', 'ddddd', null]);
+});
+
+test('Series.pad (right)', () => {
+  const a = Series.new(['aa', 'bbb', 'cccc', 'ddddd', null]);
+  expect([...a.pad(4)]).toStrictEqual(['aa  ', 'bbb ', 'cccc', 'ddddd', null]);
+});
+
+test('Series.pad (both)', () => {
+  const a = Series.new(['aa', 'bbb', 'cccc', 'ddddd', null]);
+  expect([...a.pad(4, 'both')]).toStrictEqual([' aa ', 'bbb ', 'cccc', 'ddddd', null]);
+});
+
+test('Series.pad (right, fill)', () => {
+  const a = Series.new(['aa', 'bbb', 'cccc', 'ddddd', null]);
+  expect([...a.pad(4, 'right', '-')]).toStrictEqual(['aa--', 'bbb-', 'cccc', 'ddddd', null]);
+});
+
+test('Series.zfill', () => {
+  const a = Series.new(['1234', '-9876', '+0.34', '-342567', null]);
+  expect([...a.zfill(6)]).toStrictEqual(['001234', '0-9876', '0+0.34', '-342567', null]);
+});
