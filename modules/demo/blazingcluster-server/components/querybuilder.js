@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import { Query, Builder, Utils as QbUtils } from 'react-awesome-query-builder';
-import { InputGroup, FormControl } from 'react-bootstrap';
 import React from 'react';
 import MaterialConfig from 'react-awesome-query-builder/lib/config/material';
 

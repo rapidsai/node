@@ -15,9 +15,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 
-import { Container, Navbar, Nav, Row, Col, FormControl, InputGroup } from 'react-bootstrap';
-import { QueryBuilder } from '../components/querybuilder';
-import Button from '@material-ui/core/Button';
+import { Container, Navbar, Nav } from 'react-bootstrap';
+import { QueryDashboard } from '../components/querydashboard';
 import React from 'react';
 
 export default function App() {
@@ -34,53 +33,4 @@ export default function App() {
       <QueryDashboard />
     </div >
   )
-}
-
-class QueryDashboard extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      query: '',
-      queryResult: 'Waiting for query...',
-      queryButtonEnabled: false,
-    };
-
-    this.runQuery = this.runQuery.bind(this);
-  }
-
-  onQueryChange = (updatedQuery) => {
-    this.setState({ query: updatedQuery, queryButtonEnabled: updatedQuery.length });
-  }
-
-  async runQuery() {
-    if (this.state.queryButtonEnabled) {
-      this.setState({ queryButtonEnabled: false });
-      await fetch(`http://localhost:3000/run_query?sql=${this.state.query}`).then(response => response.json()).then(data => {
-        this.setState({ queryResult: data['result'] })
-      });
-      this.setState({ queryButtonEnabled: true });
-    }
-  }
-
-  render() {
-    return (
-      <Container style={{ paddingTop: 20 }}>
-        <QueryBuilder onQueryChange={this.onQueryChange} />
-        <Row style={{ marginTop: 20 }}>
-          <Col lg={9} md sm xs>
-            <InputGroup className={"queryInput"}>
-              <div className="input-group-prepend">
-                <span className="input-group-text">Query: </span>
-              </div>
-              <FormControl className={"queryInput"} value={this.state.query} disabled={true} type={"text"} />
-            </InputGroup>
-          </Col>
-          <Col>
-            <Button variant="contained" color="primary" className={"queryButton"} disabled={!this.state.queryButtonEnabled} onClick={this.runQuery}>Run Query</Button>
-          </Col>
-        </Row>
-        <FormControl style={{ marginTop: 20 }} rows="10" as="textarea" disabled={true} value={this.state.queryResult} aria-label="SQL result" />
-      </Container >
-    )
-  }
 }
