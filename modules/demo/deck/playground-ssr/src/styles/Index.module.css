@@ -1,4 +1,13 @@
-.container {
+.app {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+
+/* .container {
   min-height: 100vh;
   padding: 0 0.5rem;
   display: flex;
@@ -118,4 +127,4 @@
     width: 100%;
     flex-direction: column;
   }
-}
+} */

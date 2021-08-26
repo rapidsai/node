@@ -23,6 +23,7 @@ import {
   GLFWOpenGLProfile,
   GLFWStandardCursor,
   GLFWWindowAttribute,
+  isHeadless,
 } from '@nvidia/glfw';
 import * as jsdom from 'jsdom';
 import {Subscription} from 'rxjs';
@@ -60,7 +61,7 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
 
   const _debug     = false;
   let _focused     = false;
-  let _visible     = true;
+  let _visible     = !isHeadless;
   let _decorated   = true;
   let _maximized   = false;
   let _minimized   = false;
@@ -170,7 +171,7 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
     visible: {
       get(this: jsdom.DOMWindow) { return _visible; },
       set(this: jsdom.DOMWindow, _: boolean) {
-        if (_visible !== _) {
+        if (!isHeadless && _visible !== _) {
           _visible = _;
           _visible ? window.show() : window.hide();
         }
@@ -479,10 +480,11 @@ export function installGLFWWindow(window: jsdom.DOMWindow) {
       ({x: _x, y: _y} = glfw.getWindowPos(window.id));
       ({width: _width, height: _height} = glfw.getWindowSize(window.id));
       ({xscale: _xscale, yscale: _yscale} = glfw.getWindowContentScale(window.id));
+      ({width: _frameBufferWidth, height: _frameBufferHeight} = glfw.getFramebufferSize(window.id));
 
       // !_forceNewWindow && !rootWindow && (rootWindow = window);
-      _frameBufferWidth  = _width * _xscale;
-      _frameBufferHeight = _height * _yscale;
+      // _frameBufferWidth  = _width * _xscale;
+      // _frameBufferHeight = _height * _yscale;
       _subscriptions && _subscriptions.unsubscribe();
       _subscriptions = new Subscription();
       window.cursor  = _cursor;

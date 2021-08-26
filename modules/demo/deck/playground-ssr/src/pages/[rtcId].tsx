@@ -13,18 +13,34 @@
 // limitations under the License.
 
 import type { NextPage, GetServerSidePropsContext } from 'next';
-import { newPeer } from '../render/broker';
+import Head from 'next/head';
 
-export async function getServerSideProps({ query }: GetServerSidePropsContext) {
-  const { rtcId = newPeer().id } = query;
+import styles from '../styles/Index.module.css';
+import Playground from '../components/playground';
+
+type Props = {
+  rtcId: string;
+};
+
+export async function getServerSideProps({ params = { rtcId: '' } }: GetServerSidePropsContext<Props>) {
+  // Force server-side rendering to translate the rtcId from the URL into a React prop
   return {
-    redirect: {
-      permanent: false,
-      destination: `/playground/${rtcId}`,
+    props: {
+      rtcId: params.rtcId,
     }
   };
 }
 
-const Index = (() => <div />) as NextPage;
+const Index = ((props: Props) => {
+  return (
+    <div className={styles['app']}>
+      <Head>
+        <title>rtc session id: {props.rtcId}</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <Playground rtcId={props.rtcId} />
+    </div>
+  )
+}) as NextPage;
 
 export default Index;

@@ -14,35 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-console.log('__dirname=', __dirname);
+const Fastify = require('fastify');
 
-const Path = require('path');
+const dev = process.env.NODE_ENV !== 'production';
 
-require('segfault-handler').registerHandler('./crash.log');
+const fastify = Fastify()
+  .register(require('./plugins/webrtc'))
+  .register(require('fastify-nextjs'), { dev })
+  .after(() => {
+    fastify.next('/:rtcId', (next, req, reply) => {
+      const { rtcId } = req.params;
+      if (!rtcId || !fastify.getPeer(rtcId)) {
+        return reply.redirect(302, `/${fastify.newPeer().id}`);
+      }
+      next.render(req.raw, reply.raw, `/${rtcId}`, req.query);
+    });
+  });
 
-// Change cwd to the example dir so relative file paths are resolved
-process.chdir(__dirname);
-
-const next = require.resolve('next/dist/bin/next');
-
-require('fs').stat(Path.join(__dirname, '.next'), (err, stats) => {
-
-  const { spawnSync } = require('child_process');
-
-  const env = {
-    NEXT_TELEMETRY_DISABLED: 1, // disable https://nextjs.org/telemetry
-    ...process.env,
-  };
-
-  if (err || !stats || !stats.isDirectory()) {
-    spawnSync(
-      process.execPath, [next, 'build'],
-      { env, cwd: __dirname, stdio: 'inherit' });
-  }
-
-  process.exitCode = spawnSync(
-    process.execPath,
-    [next, process.env.NODE_ENV !== 'production' ? 'dev' : 'start'],
-    { env, cwd: __dirname, stdio: 'inherit' }
-  ).exitCode;
-});
+fastify.listen(8080)
+  .then(() => console.log('server ready'));

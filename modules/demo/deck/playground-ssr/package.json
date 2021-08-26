@@ -10,21 +10,26 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "dev": "rimraf .next && next dev",
+    "dev": "NODE_ENV=development node index.js",
     "build": "next build",
-    "start": "next build && next start"
+    "start": "next build && node index.js",
+    "clean": "rimraf _next"
   },
   "dependencies": {
     "@nvidia/cuda": "0.0.1",
-    "@rapidsai/jsdom": "0.0.1",
     "@rapidsai/demo-deck-playground": "0.0.0",
+    "@rapidsai/jsdom": "0.0.1",
     "brace": "0.11.1",
-    "react-ace": "9.4.3",
+    "fastify-nextjs": "6.0.0",
+    "fastify-plugin": "3.0.0",
+    "fastify": "3.20.2",
     "nanoid": "3.1.25",
     "next": "11.1.0",
-    "react": "17.0.2",
+    "react-ace": "6.6.0",
     "react-dom": "17.0.2",
+    "react-serialize": "0.2.0",
     "react-virtualized-auto-sizer": "1.0.6",
+    "react": "17.0.2",
     "simple-peer": "9.11.0"
   },
   "devDependencies": {

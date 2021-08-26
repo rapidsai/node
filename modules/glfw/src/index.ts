@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {GLFW} from './glfw';
+export {GLFW, isHeadless} from './glfw';
 export {glfw} from './glfw';
 export {GLFWmonitor} from './glfw';
 export {GLFWKey} from './glfw';

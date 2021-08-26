@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
-  reactStrictMode: true,
+  distDir: '_next',
   generateEtags: false,
+  reactStrictMode: true,
   poweredByHeader: false,
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Note: we provide webpack above so you should not `require` it
