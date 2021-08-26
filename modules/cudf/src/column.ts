@@ -1226,7 +1226,7 @@ export interface Column<T extends DataType = any> {
    * If the string is already width or more characters, no padding is performed. No strings are
    * truncated.
    *
-   * This equivalent to ‘pad(width,left,'0’)` but is more optimized for this special case.
+   * This equivalent to `pad(width, 'left', '0')` but is more optimized for this special case.
    *
    * Null string entries result in null entries in the output column.
    *

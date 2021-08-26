@@ -257,7 +257,6 @@ export class StringSeries extends Series<Utf8String> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new(['dog', '', '\n', null]);
    *
-   * // count bytes in each string
    * a.len() // [3, 0, 1 null]
    * ```
    */
@@ -314,7 +313,6 @@ export class StringSeries extends Series<Utf8String> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new(['aa','bbb','cccc','ddddd', null]);
    *
-   * // count bytes in each string
    * a.pad(4) // ['aa  ','bbb ','cccc','ddddd', null]
    * ```
    */
@@ -342,7 +340,6 @@ export class StringSeries extends Series<Utf8String> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new(['1234','-9876','+0.34','-342567', null]);
    *
-   * // count bytes in each string
    * a.zfill(6) // ['001234','0-9876','0+0.34','-342567', null]
    * ```
    */
