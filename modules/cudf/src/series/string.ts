@@ -14,7 +14,7 @@
 
 import {MemoryResource} from '@rapidsai/rmm';
 
-import {Column} from '../column';
+import {Column, PadSideType} from '../column';
 import {Series} from '../series';
 import {
   Bool8,
@@ -195,6 +195,24 @@ export class StringSeries extends Series<Utf8String> {
   }
 
   /**
+   * Returns an Int32 series the number of bytes of each string in the Series.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(['Hello', 'Bye', 'Thanks 😊', null]);
+   *
+   * a.byteCount() // [5, 3, 11, null]
+   * ```
+   */
+  byteCount(memoryResource?: MemoryResource): Series<Int32> {
+    return Series.new(this._col.countBytes(memoryResource));
+  }
+
+  /**
    * Returns an Int32 series the number of times the given regex pattern matches
    * in each string.
    *
@@ -228,6 +246,24 @@ export class StringSeries extends Series<Utf8String> {
   }
 
   /**
+   * Returns an Int32 series the length of each string in the Series.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(['dog', '', '\n', null]);
+   *
+   * a.len() // [3, 0, 1 null]
+   * ```
+   */
+  len(memoryResource?: MemoryResource): Series<Int32> {
+    return Series.new(this._col.countCharacters(memoryResource));
+  }
+
+  /**
    * Returns a boolean series identifying rows which match the given regex pattern
    * only at the beginning of the string
    *
@@ -255,6 +291,59 @@ export class StringSeries extends Series<Utf8String> {
   matchesRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Bool8> {
     const pat_string = pattern instanceof RegExp ? pattern.source : pattern;
     return Series.new(this._col.matchesRe(pat_string, memoryResource));
+  }
+
+  /**
+   * Add padding to each string using a provided character.
+   *
+   * If the string is already width or more characters, no padding is performed. No strings are
+   * truncated.
+   *
+   * Null string entries result in null entries in the output column.
+   *
+   * @param width The minimum number of characters for each string.
+   * @param side Where to place the padding characters. Default is pad right (left justify).
+   * @param fill_char Single UTF-8 character to use for padding. Default is the space character.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(['aa','bbb','cccc','ddddd', null]);
+   *
+   * a.pad(4) // ['aa  ','bbb ','cccc','ddddd', null]
+   * ```
+   */
+  pad(width: number, side: PadSideType = 'right', fill_char = ' ', memoryResource?: MemoryResource):
+    Series<Utf8String> {
+    return Series.new(this._col.pad(width, side, fill_char, memoryResource));
+  }
+
+  /**
+   * Add '0' as padding to the left of each string.
+   *
+   * If the string is already width or more characters, no padding is performed. No strings are
+   * truncated.
+   *
+   * This equivalent to ‘pad(width,left,'0’)` but is more optimized for this special case.
+   *
+   * Null string entries result in null entries in the output column.
+   *
+   * @param width The minimum number of characters for each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(['1234','-9876','+0.34','-342567', null]);
+   *
+   * a.zfill(6) // ['001234','0-9876','0+0.34','-342567', null]
+   * ```
+   */
+  zfill(width: number, memoryResource?: MemoryResource): Series<Utf8String> {
+    return Series.new(this._col.zfill(width, memoryResource));
   }
 
   /**
