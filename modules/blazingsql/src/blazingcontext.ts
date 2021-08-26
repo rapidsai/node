@@ -317,10 +317,15 @@ export class BlazingContext {
    *
    * @example
    * ```typescript
+   * import {Series, DataFrame from '@rapidsai/cudf';
    * import {BlazingContext} from '@rapidsai/blazingsql';
    *
+   * const a  = Series.new([1, 2, 3]);
+   * const df = new DataFrame({'a': a});
+   *
    * const bc = new BlazingContext();
-   * bc.pullFromCache("message_1");
+   * bc.sendToCache(0, 0, "message_1", df);
+   * bc.pullFromCache("message_1"); // [1, 2, 3]
    * ```
    */
   pullFromCache(messageId: string) {

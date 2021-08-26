@@ -5,6 +5,8 @@ This demo demonstrates the BlazingCluster module which allows for multi-GPU SQL 
 ## Main Dependencies
 
 1. @rapidsai/blazingsql
+2. fastify-nextjs
+3. react-awesome-query-builder
 
 ## Installation
 

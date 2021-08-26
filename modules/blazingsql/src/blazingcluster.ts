@@ -50,7 +50,8 @@ export class BlazingCluster {
   /**
    * Initializes and returns an instance of BlazingCluster.
    *
-   * @param numWorkers the number of child processes to spawn
+   * @param clusterOptions optional options for the BlazingCluster instance
+   * @param contextConfigOptions optional options for the BlazingContext instance(s)
    *
    * @example
    * ```typescript
@@ -315,9 +316,5 @@ export class BlazingCluster {
     });
 
     return result_df;
-  }
-
-  stop(): void {
-    this.workers.forEach((worker) => { worker.kill('SIGKILL'); });
   }
 }
