@@ -17,7 +17,9 @@
 const { performance } = require('perf_hooks');
 const { BlazingCluster } = require('@rapidsai/blazingsql');
 const { Series, DataFrame } = require('@rapidsai/cudf');
-const fastify = require('fastify')({});
+const fastify = require('fastify')({
+  pluginTimeout: 30000
+});
 
 let bc;
 const init = async () => {
