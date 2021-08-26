@@ -47,6 +47,7 @@ fastify
             result += `${name}: ${[...df.get(name)]} \n\n`;
             return result;
           }, ''),
+          resultsCount: df.numRows,
           queryTime: queryTime
         });
       }

@@ -92,6 +92,6 @@ export class QueryBuilder extends React.Component {
 
   _parseQuery(query) {
     if (query === undefined || query.length == 0) return '';
-    return `SELECT ${JSON.parse(query)} FROM test_table`;
+    return `SELECT a, b FROM test_table WHERE ${JSON.parse(query)}`;
   }
 }

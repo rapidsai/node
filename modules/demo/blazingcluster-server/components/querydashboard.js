@@ -38,7 +38,7 @@ export class QueryDashboard extends React.Component {
       this.setState({ queryButtonEnabled: false });
       await fetch(`http://localhost:3000/run_query?sql=${this.state.query}`).then(response => response.json()).then(data => {
         this.setState({
-          queryResult: `Query time: ${data['queryTime']}ms\n\n${data['result']}`
+          queryResult: `Query time: ${data['queryTime']}ms\nResults: ${data['resultsCount']}\n\n${data['result']}`
         })
       });
       this.setState({ queryButtonEnabled: true });
