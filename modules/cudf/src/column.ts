@@ -1210,7 +1210,7 @@ export interface Column<T extends DataType = any> {
    *
    * Null string entries result in null entries in the output column.
    *
-   * @param The minimum number of characters for each string.
+   * @param width The minimum number of characters for each string.
    * @param side Where to place the padding characters
    * @param fill_char Single UTF-8 character to use for padding.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device

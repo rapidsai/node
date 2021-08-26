@@ -205,7 +205,6 @@ export class StringSeries extends Series<Utf8String> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new(['Hello', 'Bye', 'Thanks 😊', null]);
    *
-   * // count bytes in each string
    * a.byteCount() // [5, 3, 11, null]
    * ```
    */
