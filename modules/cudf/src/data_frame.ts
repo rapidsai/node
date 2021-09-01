@@ -41,6 +41,7 @@ import {
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
+import {ReadParquetOptions} from './types/parquet';
 
 export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
@@ -112,6 +113,12 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(new ColumnAccessor(
       names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}),
                    {} as ColumnsMap<{[P in keyof T]: CSVToCUDFType<T[P]>}>)));
+  }
+
+  public static readParquet(options: ReadParquetOptions) {
+    const {names, table} = Table.readParquet(options);
+    return new DataFrame(new ColumnAccessor(
+      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {})));
   }
 
   /**
