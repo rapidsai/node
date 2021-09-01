@@ -51,8 +51,6 @@ cudf::io::parquet_reader_options make_reader_options(Napi::Object const& options
   return opts;
 }
 
-// TODO Mzegar: These functions are copied directly out of read_csv.cpp, consider some
-// consolidation.
 Napi::Array get_output_names(Napi::Env const& env, cudf::io::table_with_metadata const& result) {
   auto const& column_names = result.metadata.column_names;
   auto names               = Napi::Array::New(env, column_names.size());

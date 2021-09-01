@@ -16,7 +16,6 @@ export interface ReadParquetOptions {
   sources: string[];
   /** The list of columns to read */
   columns?: string[];
-  // TODO row_groups;
   /** The number of rows to skip from the start of the file */
   skipRows?: number;
   /** The total number of rows to read */

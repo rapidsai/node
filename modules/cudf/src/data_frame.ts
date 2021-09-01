@@ -115,6 +115,17 @@ export class DataFrame<T extends TypeMap = any> {
                    {} as ColumnsMap<{[P in keyof T]: CSVToCUDFType<T[P]>}>)));
   }
 
+  /**
+   * Read an Apache Parquet from disk and create a cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = DataFrame.readParquet({
+   *  sources: ['test'],
+   * })
+   * ```
+   */
   public static readParquet(options: ReadParquetOptions) {
     const {names, table} = Table.readParquet(options);
     return new DataFrame(new ColumnAccessor(

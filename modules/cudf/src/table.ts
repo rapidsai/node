@@ -48,6 +48,12 @@ interface TableConstructor {
   readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>):
     {names: (keyof T)[], table: Table};
 
+  /**
+   * Reads an Apache Parquet dataset into a set of columns.
+   *
+   * @param options Settings for controlling reading behavior.
+   * @return The CSV data as a Table and a list of column names.
+   */
   readParquet(options: ReadParquetOptions): {names: string[], table: Table};
 
   /**
