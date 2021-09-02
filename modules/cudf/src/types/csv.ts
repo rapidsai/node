@@ -129,6 +129,10 @@ export interface ReadCSVOptionsCommon<T extends CSVTypeMap = any> {
   datetimeColumns?: string[];
   /** Names of columns to read; empty/null is all columns */
   columnsToReturn?: string[];
+  /** The number of bytes to skip from source start */
+  byteOffset?: number;
+  /** The number of bytes to read */
+  byteRange?: number;
 }
 
 export interface ReadCSVFileOptions<T extends CSVTypeMap = any> extends ReadCSVOptionsCommon<T> {

@@ -39,6 +39,9 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
   auto long_opt = [&](std::string const& key) {
     return has_opt(key) ? options.Get(key).ToNumber().Int32Value() : -1;
   };
+  auto byte_opt = [&](std::string const& key) {
+    return has_opt(key) ? options.Get(key).ToNumber() : 0;
+  };
   auto bool_opt = [&](std::string const& key, bool default_val) {
     return has_opt(key) ? options.Get(key).ToBoolean() == true : default_val;
   };
@@ -99,8 +102,8 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
   std::tie(names, types) = names_and_types("dataTypes");
 
   auto opts = std::move(cudf::io::csv_reader_options::builder(source)
-                          .byte_range_offset(0)
-                          .byte_range_size(0)
+                          .byte_range_offset(byte_opt("byteOffset"))
+                          .byte_range_size(byte_opt("byteRange"))
                           .compression(compression_type("compression"))
                           .mangle_dupe_cols(bool_opt("renameDuplicateColumns", true))
                           .nrows(long_opt("numRows"))
