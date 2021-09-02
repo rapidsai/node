@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cudf/table.hpp>
-
 #include <cudf/io/parquet.hpp>
+#include <node_cudf/table.hpp>
+#include <node_cudf/utilities/metadata.hpp>
 
 namespace nv {
 
@@ -51,30 +51,14 @@ cudf::io::parquet_reader_options make_reader_options(Napi::Object const& options
   return opts;
 }
 
-Napi::Array get_output_names(Napi::Env const& env, cudf::io::table_with_metadata const& result) {
-  auto const& column_names = result.metadata.column_names;
-  auto names               = Napi::Array::New(env, column_names.size());
-  for (std::size_t i = 0; i < column_names.size(); ++i) { names.Set(i, column_names[i]); }
-  return names;
-}
-
-Napi::Array get_output_cols(Napi::Env const& env, cudf::io::table_with_metadata const& result) {
-  auto contents = result.tbl->release();
-  auto columns  = Napi::Array::New(env, contents.size());
-  for (std::size_t i = 0; i < contents.size(); ++i) {
-    columns.Set(i, Column::New(env, std::move(contents[i]))->Value());
-  }
-  return columns;
-}
-
 Napi::Value read_parquet_files(Napi::Object const& options,
                                std::vector<std::string> const& sources) {
   auto env = options.Env();
   auto result =
     cudf::io::read_parquet(make_reader_options(options, cudf::io::source_info{sources}));
   auto output = Napi::Object::New(env);
-  output.Set("names", get_output_names(env, result));
-  output.Set("table", Table::New(env, get_output_cols(env, result)));
+  output.Set("names", get_output_names_from_metadata(env, result));
+  output.Set("table", Table::New(env, get_output_cols_from_metadata(env, result)));
   return output;
 }
 
