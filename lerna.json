@@ -11,6 +11,7 @@
     "modules/demo/xterm",
     "modules/demo/deck/*",
     "modules/demo/ipc/*",
+    "modules/demo/ssr/*",
     "modules/demo/tfjs/*",
     "modules/demo/client-server"
   ]

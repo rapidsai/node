@@ -27,9 +27,10 @@ export default class DeckWithMapboxMaps extends Component<any> {
         maps.push(
           <View id={view.props.id} key={view.props.id}>
             <this.props.Map
-              reuseMap
+              reuseMap={true}
               mapStyle={view.props.mapStyle}
-              mapboxApiAccessToken={view.props.mapToken || this.props.mapboxApiAccessToken}
+              mapboxApiAccessToken={
+                view.props.mapToken || this.props.mapboxApiAccessToken}
             />
           </View>
         );
@@ -37,7 +38,7 @@ export default class DeckWithMapboxMaps extends Component<any> {
     }
 
     return (
-      <DeckGL id="json-deck" {...this.props}>
+      <DeckGL id='json-deck' {...this.props}>
         {maps}
       </DeckGL>
     );

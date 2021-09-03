@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node -r esm
+#!/usr/bin/env -S node --trace-uncaught
 
 // Copyright (c) 2021, NVIDIA CORPORATION.
 //
@@ -14,22 +14,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const Fastify = require('fastify');
+const Fastify        = require('fastify');
+const webrtcPlugin   = require('./webrtc/plugin');
+const {createStream} = require('./webrtc/server');
 
 const dev = process.env.NODE_ENV !== 'production';
+// const dev = true;
 
-const fastify = Fastify()
-  .register(require('./plugins/webrtc'))
-  .register(require('fastify-nextjs'), { dev })
-  .after(() => {
-    fastify.next('/:rtcId', (next, req, reply) => {
-      const { rtcId } = req.params;
-      if (!rtcId || !fastify.getPeer(rtcId)) {
-        return reply.redirect(302, `/${fastify.newPeer().id}`);
-      }
-      next.render(req.raw, reply.raw, `/${rtcId}`, req.query);
-    });
-  });
+const fastify = Fastify({logger: {prettyPrint: true, level: 'info'}});
 
-fastify.listen(8080)
-  .then(() => console.log('server ready'));
+fastify.register(webrtcPlugin, {onConnect: createStream});
+fastify.register(require('fastify-nextjs'), {dev});
+fastify.after().then(() => { fastify.next('/'); });
+// fastify.after(() => {  //
+//   fastify.next('/');
+// });
+// .get('/', (req, reply) => fastify.next('/', req.raw, reply.raw, req.query));
+
+fastify.listen(8080).then(() => console.log('server ready'));

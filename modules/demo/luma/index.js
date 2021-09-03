@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node -r esm
+#!/usr/bin/env -S node --trace-uncaught
 
 // Copyright (c) 2020, NVIDIA CORPORATION.
 //
@@ -14,28 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module.exports = function () {
-
-  require('segfault-handler').registerHandler('./crash.log');
-
+module.exports = () => {
   require('@babel/register')({
     cache: false,
     babelrc: false,
     cwd: __dirname,
     presets: [
-      ['@babel/preset-env', { 'targets': { 'node': 'current' } }],
-      ['@babel/preset-react', { 'useBuiltIns': true }]
+      ['@babel/preset-env', {'targets': {'node': 'current'}}],
+      ['@babel/preset-react', {'useBuiltIns': true}]
     ]
   });
 
-  // Change cwd to the example dir so relative file paths are resolved
-  process.chdir(require('path').join(__dirname, `lessons`, process.argv[2]));
+  const {RapidsJSDOM} = require('@rapidsai/jsdom');
+  const jsdom         = new RapidsJSDOM({
+    // Change cwd to the example dir so relative file paths are resolved
+    module: {path: require('path').join(__dirname, `lessons`, process.argv[2])}
+  });
 
-  const { RapidsJSDOM } = require('@rapidsai/jsdom');
-  const { window } = new RapidsJSDOM();
-  window.evalFn(() => require(`./app.js`));
-}
+  jsdom.window.evalFn(() => require(`./app.js`));
+
+  return jsdom;
+};
 
 if (require.main === module) {
-  module.exports();
+  require('segfault-handler').registerHandler('./crash.log');
+  module.exports().window.addEventListener('close', () => process.exit(0), {once: true});
 }

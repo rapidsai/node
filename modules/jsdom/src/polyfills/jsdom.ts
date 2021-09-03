@@ -28,20 +28,20 @@ declare module 'jsdom' {
   }
 }
 
+const nodeGlobals = Object.keys(Object.getOwnPropertyDescriptors(vm.runInNewContext('this')));
+
 const clone = (obj: any) => Object.create(Object.getPrototypeOf(obj),  //
                                           Object.getOwnPropertyDescriptors(obj));
 
-export function installJSDOMUtils(window: jsdom.DOMWindow, main?: NodeModule) {
+export function installJSDOMUtils(window: jsdom.DOMWindow, cwd: string) {
   window.jsdom || (window.jsdom = {});
   window.jsdom.utils || (window.jsdom.utils = {});
   window.jsdom.utils.implSymbol     = implSymbol;
   window.jsdom.utils.implForWrapper = implForWrapper;
   window.jsdom.utils.wrapperForImpl = wrapperForImpl;
   window.jsdom.global               = window.jsdom.utils.implForWrapper(window)._globalObject;
-  window.jsdom.global.require       = createContextRequire({
-    context: createContext(window),
-    dir: main ? main.path || require('path').dirname(main.filename || main.id) : process.cwd(),
-  });
+  window.jsdom.global.__cwd         = cwd;
+  window.jsdom.global.require = createContextRequire({context: createContext(window), dir: cwd});
 
   if (window.jsdom.utils.implForWrapper(window.document)._origin === 'null') {
     window.jsdom.utils.implForWrapper(window.document)._origin = '';
@@ -56,12 +56,46 @@ export function installJSDOMUtils(window: jsdom.DOMWindow, main?: NodeModule) {
 
   function createContext(window: jsdom.DOMWindow, globals: Record<string, any> = {}) {
     const context = vm.createContext(Object.assign(  //
-      Object.create(window.jsdom.global, {
-        ...Object.getOwnPropertyDescriptors(global),
-        global: {get() { return context; }},
-        window: {value: window, writable: false, enumerable: true, configurable: true},
-      }),
-      {process: Object.assign(clone(process), {browser: true}), ...globals}));
-    return context;
+      Object.create(                                 //
+        window.jsdom.global,                         //
+        {
+          ...Object.getOwnPropertyDescriptors(global),
+          window: {get() { return window; }, configurable: true, enumerable: true},
+          global: {get() { return context; }, configurable: true, enumerable: true},
+        }),
+      {
+        process: Object.assign(clone(process), {
+          __cwd: cwd,
+          browser: true,
+          cwd() { return this.__cwd; },
+          chdir(dir: string) { this.__cwd = dir; },
+        }),
+        ...globals
+      }));
+
+    return installSymbolHasInstanceImpls(context);
   }
+}
+
+const getPrototypeOf = Object.getPrototypeOf;
+
+function installSymbolHasInstanceImpls(context: any) {
+  nodeGlobals.forEach((name) => {
+    const Constructor = context[name];
+    if (typeof Constructor === 'function') {
+      const Prototype = Constructor.prototype;
+      Object.defineProperty(Constructor, Symbol.hasInstance, {
+        configurable: true,
+        value: (x: any) => {
+          if (x?.constructor?.name === name) { return true; }
+          for (let p = x; p != null && (p = getPrototypeOf(p));) {
+            if (p === Prototype) { return true; }
+          }
+          return false;
+        },
+      });
+    }
+  });
+
+  return context;
 }

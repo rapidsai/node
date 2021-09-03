@@ -19,18 +19,24 @@ const btoa = require('btoa') as (x: string) => string;
 const svg2img = require('svg2img') as typeof import('svg2img').default;
 
 export class ImageLoader extends jsdom.ResourceLoader {
-  constructor(private _url: string) { super(); }
+  constructor(private _url: string, private _cwd: string) { super(); }
   fetch(url: string, options: jsdom.FetchOptions) {
     // Hack since JSDOM 16.2.2: If loading a relative file
     // from our dummy localhost URI, translate to a file:// URI.
-    if (url.startsWith(this._url)) { url = url.slice(this._url.length); }
+    if (url.startsWith(this._url)) {  //
+      url = url.slice(this._url.length);
+    }
     const isDataURL = url && url.startsWith('data:');
     if (isDataURL) {
       const result = this._loadDataURL(url, options);
       if (result) { return <any>result; }
     }
-    const isFilePath = !isDataURL && !Url.parse(url).protocol;
-    return super.fetch(isFilePath ? `file://${process.cwd()}/${url}` : url, options);
+    const isFilePath = url && !isDataURL && !Url.parse(url).protocol;
+    if (isFilePath) {  //
+      if (url.startsWith('/')) { url = url.slice(1); }
+      return super.fetch(`file://${this._cwd}/${url}`, options);
+    }
+    return super.fetch(url, options);
   }
   private _loadDataURL(url: string, options: jsdom.FetchOptions) {
     const {mediaType, encoding, contents} = parseDataURLPrefix(url);

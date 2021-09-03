@@ -17,6 +17,7 @@ import * as Path from 'path';
 import * as Url from 'url';
 
 export function installFetch(window: jsdom.DOMWindow) {
+  const cwd: string = window.jsdom.global.__cwd;
   const {
     Headers,
     Request,
@@ -28,13 +29,13 @@ export function installFetch(window: jsdom.DOMWindow) {
   window.jsdom.global.Response = Response;
   window.jsdom.global.fetch    = function fileAwareFetch(url: string, options: RequestInit = {}) {
     const isDataURI  = url && url.startsWith('data:');
-    const isFilePath = !isDataURI && !Url.parse(url).protocol;
+    const isFilePath = url && !isDataURI && !Url.parse(url).protocol;
     if (isFilePath) {
-      const loader  = new jsdom.ResourceLoader();
-      const fileUrl = `file://localhost/${process.cwd()}/${url}`;
+      if (url.startsWith('/')) { url = url.slice(1); }
+      const loader = new jsdom.ResourceLoader();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return loader
-        .fetch(fileUrl, options)!  //
+        .fetch(`file://localhost/${cwd}/${url}`, options)!  //
         .then((x) => new Response(x, {
                 status: 200,
                 headers: {

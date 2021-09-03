@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node -r esm
+#!/usr/bin/env -S node --trace-uncaught
 
 // Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
@@ -21,14 +21,12 @@ require('@babel/register')({
   babelrc: false,
   cwd: __dirname,
   presets: [
-    ["@babel/preset-env", { "targets": { "node": "current" } }],
-    ['@babel/preset-react', { "useBuiltIns": true }]
+    ['@babel/preset-env', {'targets': {'node': 'current'}}],
+    ['@babel/preset-react', {'useBuiltIns': true}]
   ]
 });
 
-const { createModuleWindow } = require('@nvidia/glfw');
-module.exports = createModuleWindow(`${__dirname}/app.js`, true);
+const {createModuleWindow} = require('@nvidia/glfw');
+module.exports             = createModuleWindow(`${__dirname}/app.js`, true);
 
-if (require.main === module) {
-  module.exports.open({ transparent: false });
-}
+if (require.main === module) { module.exports.open({transparent: false}); }

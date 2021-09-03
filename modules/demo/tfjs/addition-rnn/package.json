@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name":  "@rapidsai/demo-tfjs-addition-rnn",
+  "name": "@rapidsai/demo-tfjs-addition-rnn",
   "main": "index.js",
   "version": "0.0.0",
   "license": "Apache-2.0",
@@ -10,8 +10,8 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "start": "node -r esm index.js",
-    "watch": "find -type f | entr -c -d -r node -r esm index.js"
+    "start": "node --trace-uncaught index.js",
+    "watch": "find -type f | entr -c -d -r node --trace-uncaught index.js"
   },
   "dependencies": {
     "@babel/core": "7.14.6",
@@ -28,17 +28,5 @@
     "demo.js",
     "index.js",
     "package.json"
-  ],
-  "esm": {
-    "cjs": true,
-    "force": true,
-    "mode": "auto",
-    "cache": false,
-    "sourceMap": true,
-    "mainFields": [
-      "esnext",
-      "module",
-      "main"
-    ]
-  }
+  ]
 }

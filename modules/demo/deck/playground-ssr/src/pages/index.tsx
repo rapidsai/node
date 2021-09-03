@@ -12,35 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type { NextPage, GetServerSidePropsContext } from 'next';
+import type { NextPage } from 'next';
 import Head from 'next/head';
 
 import styles from '../styles/Index.module.css';
 import Playground from '../components/playground';
 
-type Props = {
-  rtcId: string;
-};
-
-export async function getServerSideProps({ params = { rtcId: '' } }: GetServerSidePropsContext<Props>) {
-  // Force server-side rendering to translate the rtcId from the URL into a React prop
-  return {
-    props: {
-      rtcId: params.rtcId,
-    }
-  };
-}
-
-const Index = ((props: Props) => {
+const Index = (() => {
   return (
     <div className={styles['app']}>
       <Head>
-        <title>rtc session id: {props.rtcId}</title>
+        <title>Playground</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Playground rtcId={props.rtcId} />
+      <Playground />
     </div>
-  )
+  );
 }) as NextPage;
 
 export default Index;

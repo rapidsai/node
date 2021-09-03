@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node -r esm
+#!/usr/bin/env -S node --trace-uncaught
 
 // Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
@@ -14,16 +14,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module.exports = function () {
-  require('segfault-handler').registerHandler('./crash.log');
-
+module.exports = (glfwOptions = {
+  title: '',
+  visible: true,
+  transparent: false,
+}) => {
   require('@babel/register')({
     cache: false,
     babelrc: false,
     cwd: __dirname,
     presets: [
-      ['@babel/preset-env', { 'targets': { 'node': 'current' } }],
-      ['@babel/preset-react', { 'useBuiltIns': true }]
+      ['@babel/preset-env', {'targets': {'node': 'current'}}],
+      ['@babel/preset-react', {'useBuiltIns': true}]
     ]
   });
 
@@ -41,28 +43,30 @@ module.exports = function () {
   async function* inputs(delay, paths) {
     const sleep = (t) => new Promise((r) => setTimeout(r, t));
     for (const path of paths.split(',')) {
-      if (path) {
-        yield path;
-      }
+      if (path) { yield path; }
       await sleep(delay);
     }
   }
 
-  const props = {
-    visible: true,
-    transparent: false,
-    _title: '',
-    nodes: inputs(delay, parseArg('--nodes=')),
-    edges: inputs(delay, parseArg('--edges=')),
-    width: parseInt(parseArg('--width=', 800)) | 0,
-    height: parseInt(parseArg('--height=', 600)) | 0,
-    layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
-  };
-
-  require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./src/app.js', {}, props);
-
-}
+  return require('@rapidsai/jsdom')
+    .RapidsJSDOM.fromReactComponent(
+      './src/app.js',
+      {
+        glfwOptions,
+        // Change cwd to the example dir so relative file paths are resolved
+        module: {path: __dirname},
+      },
+      {
+        nodes: inputs(delay, parseArg('--nodes=')),
+        edges: inputs(delay, parseArg('--edges=')),
+        width: parseInt(parseArg('--width=', 800)) | 0,
+        height: parseInt(parseArg('--height=', 600)) | 0,
+        layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
+      });
+};
 
 if (require.main === module) {
-  module.exports();
+  require('segfault-handler').registerHandler('./crash.log');
+
+  module.exports().window.addEventListener('close', () => process.exit(0), {once: true});
 }

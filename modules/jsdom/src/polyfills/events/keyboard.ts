@@ -87,6 +87,22 @@ function isSpecialKey(evt: GLFWKeyboardEvent) {
 }
 
 export class GLFWKeyboardEvent extends GLFWEvent {
+  public static fromDOMEvent(window: DOMWindow, event: KeyboardEvent) {
+    const evt     = new GLFWKeyboardEvent(event.type);
+    evt.target    = window;
+    evt._key      = event.key;
+    evt._code     = event.code;
+    evt._which    = event.keyCode;
+    evt._charCode = event.charCode;
+    evt._repeat   = event.repeat;
+    evt._altKey   = event.altKey;
+    evt._ctrlKey  = event.ctrlKey;
+    evt._metaKey  = event.metaKey;
+    evt._shiftKey = event.shiftKey;
+    evt._capsLock = false;
+    if (event.getModifierState) { evt._capsLock = event.getModifierState('CapsLock'); }
+    return evt;
+  }
   public static fromKeyEvent(
     window: DOMWindow, key: number, scancode: number, action: number, modifiers: number) {
     const down = action !== glfw.RELEASE;

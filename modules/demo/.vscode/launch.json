@@ -20,13 +20,18 @@
             "program": "${workspaceFolder}/${input:DEMO_NAME}",
             "stopOnEntry": false,
             "args": ["${input:DEMO_ARGS}"],
-            "runtimeArgs": ["-r", "esm"],
             "cwd": "${workspaceFolder}/${input:DEMO_NAME}",
             "console": "integratedTerminal",
+            "skipFiles": [
+                "**/node_modules/**",
+                "<node_internals>/**",
+                // "**/node_modules/esm/**",
+                // "<node_internals>/internal/fs/utils",
+            ],
             "env": {
                 "NODE_NO_WARNINGS": "1",
-                "NODE_ENV": "development",
-                // "NODE_ENV": "production",
+                // "NODE_ENV": "development",
+                "NODE_ENV": "production",
                 // "READABLE_STREAM": "disable",
             }
         },
@@ -57,7 +62,6 @@
                 // { "name": "READABLE_STREAM", "value": "disable" },
             ],
             "args": [
-                "-r", "esm",
                 "--inspect=9229",
                 "--expose-internals",
                 "${workspaceFolder}/${input:DEMO_NAME}",
@@ -102,7 +106,7 @@
             "command": "shellCommand.execute",
             "args": {
                 "description": "Select a demo to debug",
-                "command": "echo client-server luma graph spatial xterm $(find modules/demo/deck modules/demo/tfjs modules/demo/ipc -maxdepth 2 -type f -name 'package.json' -print0 | grep -z -v node_modules | tr -d '\\0' | sed -r 's@modules/demo/@@g' | sed -r 's@/package.json@ @g') | sort -Vr | sed -r 's@\\s@\\n@g'",
+                "command": "echo client-server luma graph spatial xterm $(find modules/demo/deck modules/demo/tfjs modules/demo/ipc modules/demo/ssr -maxdepth 2 -type f -name 'package.json' -print0 | grep -z -v node_modules | tr -d '\\0' | sed -r 's@modules/demo/@@g' | sed -r 's@/package.json@ @g') | sort -Vr | sed -r 's@\\s@\\n@g'",
             }
         },
     ]

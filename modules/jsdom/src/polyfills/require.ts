@@ -20,7 +20,19 @@ import * as vm from 'vm';
  * Creates a custom Module object which runs all required scripts in a provided vm context.
  */
 export function createContextRequire(options: CreateContextRequireOptions) {
-  return createRequire(new ContextModule(options));
+  const mod = new ContextModule(options);
+  return createRequire(mod)('esm')(mod, {
+    'cjs': true,
+    'wasm': true,
+    'debug': true,
+    'force': true,
+    'mode': 'auto',
+    'cache': false,
+    'sourceMap': true,
+    'mainFields': ['main', 'module', 'esnext'],
+    // 'mainFields': ['esnext', 'module', 'main'],
+    // 'mainFields': ['esnext', 'module', 'main'].reverse()
+  });
 }
 
 let moduleId = 0;
@@ -29,11 +41,11 @@ let moduleId = 0;
  * Patch nodejs module system to support context,
  * compilation and module resolution overrides.
  */
-const Module_: any      = Module;
-const originalLoad      = Module_._load;
-const originalResolve   = Module_._resolveFilename;
-const originalCompile   = Module_.prototype._compile;
-const originalProtoLoad = Module_.prototype.load;
+const Module_: any                   = Module;
+const module_static__load            = Module_._load;
+const module_static__resolveFilename = Module_._resolveFilename;
+const module_prototype__compile      = Module_.prototype._compile;
+const module_prototype_load          = Module_.prototype.load;
 
 interface CreateContextRequireOptions {
   /** The directory from which to resolve requires for this module. */
@@ -59,7 +71,7 @@ class ContextModule extends Module {
    */
   constructor({dir, context, resolve, extensions}: CreateContextRequireOptions) {
     const filename = path.join(dir, `index.${moduleId++}.ctx`);
-    super(filename);
+    super(filename, require.main);
 
     this.filename              = filename;
     this._context              = context;
@@ -74,54 +86,84 @@ class ContextModule extends Module {
       vm.createContext(context);
     }
   }
+
+  public static _load(request: string, parent: Module, isMain: boolean) {
+    return patched_static__load.call(ContextModule, request, parent, isMain);
+  }
+
+  public static _resolveFilename(request: string, parent: Module, isMain?: boolean, options?: {
+    paths?: string[]
+  }) {
+    return patched_static__resolveFilename.call(ContextModule, request, parent, isMain, options);
+  }
+
+  public _compile(content: string, filename: string) {
+    return patched_prototype__compile.call(this, content, filename);
+  }
+
+  public load(filename: string) { return patched_prototype_load.call(this, filename); }
+
+  declare private _vm: typeof import('vm');
+
+  public get vm() { return this._vm || (this._vm = patchVMForContextModule(this)); }
 }
 
 /**
  * Use custom require cache for context modules
  *
  * @param request The file to resolve.
- * @param parentModule The module requiring this file.
+ * @param parent The module requiring this file.
  * @param isMain
  */
-function _load(request: string, parentModule: Module, isMain: boolean): string {
-  const isNotBuiltin  = Module.builtinModules.indexOf(request) === -1;
-  const contextModule = isNotBuiltin && findNearestContextModule(parentModule);
+function patched_static__load(request: string, parent: Module, isMain: boolean): any {
+  if (request === 'vm') {
+    return findNearestContextModule(parent)?.vm || module_static__load(request, parent, isMain);
+  }
 
-  if (!contextModule) { return originalLoad(request, parentModule, isMain); }
-
-  const cached = contextModule._cache[_resolveFilename(request, parentModule, isMain)];
-  if (cached) {
-    if (parentModule.children.indexOf(cached) === -1) { parentModule.children.push(cached); }
-
-    return cached.exports;
+  if (Module.builtinModules.indexOf(request) !== -1) {
+    return module_static__load(request, parent, isMain);
   }
 
   const previousCache = Module_._cache;
-  Module_._cache      = contextModule._cache;
+  const contextModule = findNearestContextModule(parent);
 
-  try {
-    return originalLoad(request, parentModule, isMain);
-  } finally { Module_._cache = previousCache; }
+  if (contextModule) {
+    const filename = patched_static__resolveFilename(request, parent, isMain);
+    const cached   = contextModule._cache[filename];
+    if (cached) {
+      if (parent.children.indexOf(cached) === -1) {  //
+        parent.children.push(cached);
+      }
+      return cached.exports;
+    }
+    Module_._cache = contextModule._cache;
+  }
+
+  return tryAndReset(
+    () => {},
+    () => module_static__load(request, parent, isMain),
+    () => { Module_._cache = previousCache; },
+  );
 }
 
 /**
  * Hijack native file resolution using closest custom resolver.
  *
  * @param request The file to resolve.
- * @param parentModule The module requiring this file.
+ * @param parent The module requiring this file.
  */
-function _resolveFilename(
-  request: string, parentModule: Module, isMain?: boolean, options?: {paths?: string[]|undefined;}):
+function patched_static__resolveFilename(
+  request: string, parent: Module, isMain?: boolean, options?: {paths?: string[]|undefined;}):
   string {
   const isNotBuiltin  = Module.builtinModules.indexOf(request) === -1;
-  const contextModule = isNotBuiltin && findNearestContextModule(parentModule);
+  const contextModule = isNotBuiltin && findNearestContextModule(parent);
 
   if (contextModule) {
     const resolver = contextModule._resolve;
 
     if (resolver) {
       // Normalize paths for custom resolvers.
-      const dir = path.dirname(parentModule.filename);
+      const dir = path.dirname(parent.filename);
 
       if (path.isAbsolute(request)) {
         request = path.relative(dir, request);
@@ -133,11 +175,11 @@ function _resolveFilename(
       return (contextModule._relativeResolveCache[relResolveCacheKey] ||
               (contextModule._relativeResolveCache[relResolveCacheKey] = resolver(dir, request)));
     } else {
-      return originalResolve(request, parentModule, isMain, options);
+      return module_static__resolveFilename(request, parent, isMain, options);
     }
   }
 
-  return originalResolve(request, parentModule, isMain, options);
+  return module_static__resolveFilename(request, parent, isMain, options);
 }
 
 /**
@@ -145,21 +187,22 @@ function _resolveFilename(
  *
  * @param filename
  */
-function load(this: NodeModule, filename: string) {
+function patched_prototype_load(this: NodeModule, filename: string) {
   const contextModule = findNearestContextModule(this) as ContextModule;
   if (contextModule) {
     const extensions = contextModule._hooks;
     const ext        = path.extname(filename);
     const compiler   = extensions && extensions[ext];
     if (compiler) {
-      const originalCompiler   = Module_._extensions[ext];
-      Module_._extensions[ext] = compiler;
-      try {
-        return originalProtoLoad.call(this, filename);
-      } finally { Module_._extensions[ext] = originalCompiler; }
+      const original = Module_._extensions[ext];
+      return tryAndReset(
+        () => { Module_._extensions[ext] = compiler; },
+        () => module_prototype_load.call(this, filename),
+        () => { Module_._extensions[ext] = original; },
+      );
     }
   }
-  return originalProtoLoad.call(this, filename);
+  return module_prototype_load.call(this, filename);
 }
 
 /**
@@ -168,20 +211,24 @@ function load(this: NodeModule, filename: string) {
  * @param content The file contents of the script.
  * @param filename The filename for the script.
  */
-function _compile(this: Module, content: string, filename: string) {
+function patched_prototype__compile(this: Module, content: string, filename: string) {
   const contextModule = findNearestContextModule(this);
 
   if (contextModule) {
-    const context = contextModule._context;
-    const script =
-      new vm.Script(Module.wrap(content), {filename, lineOffset: 0, displayErrors: true});
-
-    return runScript(context, script)
-      .call(
-        this.exports, this.exports, createRequire(this), this, filename, path.dirname(filename));
+    const code = Module.wrap(content);
+    const opts = {filename, lineOffset: 0, displayErrors: true};
+    const init = runScript(contextModule._context, new vm.Script(code, opts));
+    return init.call(
+      this.exports,
+      this.exports,
+      createRequire(this),
+      this,
+      filename,
+      path.dirname(filename),
+    );
   }
 
-  return originalCompile.call(this, content, filename);
+  return module_prototype__compile.call(this, content, filename);
 }
 
 /**
@@ -212,6 +259,19 @@ function runScript(context: any, script: vm.Script) {
                                                               : context);
 }
 
+function tryAndReset(setup: () => any, work: () => any, reset: () => any) {
+  setup();
+  let result = undefined;
+  try {
+    result = work();
+  } catch (e) {
+    reset();
+    throw e;
+  }
+  reset();
+  return result;
+}
+
 /**
  * Creates a require function bound to a module
  * and adds a `resolve` function the same as nodejs.
@@ -221,19 +281,14 @@ function runScript(context: any, script: vm.Script) {
 function createRequire(mod: Module): NodeJS.Require {
   const main = findNearestContextModule(mod);
   function require(id: string) {
-    let exported;
-    installModuleHooks(Module);
-    try {
-      exported = mod.require(id);
-    } catch (e) {
-      uninstallModuleHooks(Module);
-      throw e;
-    }
-    uninstallModuleHooks(Module);
-    return exported;
+    return tryAndReset(
+      () => { installModuleHooks(Module); },
+      () => mod.require(id),
+      () => { uninstallModuleHooks(Module); },
+    );
   }
   function resolve(id: string, options?: {paths?: string[]|undefined;}) {
-    return _resolveFilename(id, mod, false, options);
+    return patched_static__resolveFilename(id, mod, false, options);
   }
   require.main       = main;
   require.cache      = main && main._cache;
@@ -242,20 +297,65 @@ function createRequire(mod: Module): NodeJS.Require {
   return require;
 }
 
+let installedCount = 0;
+
 function installModuleHooks(Module: any) {
-  const M            = Module.__proto__ && Module.__proto__.prototype ? Module.__proto__ : Module;
-  const P            = M.prototype;
-  M._load            = _load;
-  M._resolveFilename = _resolveFilename;
-  P._compile         = _compile;
-  P.load             = load;
+  if (++installedCount === 1) {
+    // Jest hijacks the Module builtin, this gets the real one.
+    Module       = Module.__proto__ && Module.__proto__.prototype ? Module.__proto__ : Module;
+    Module._load = patched_static__load;
+    Module._resolveFilename   = patched_static__resolveFilename;
+    Module.prototype._compile = patched_prototype__compile;
+    Module.prototype.load     = patched_prototype_load;
+  }
 }
 
 function uninstallModuleHooks(Module: any) {
-  const M            = Module.__proto__ && Module.__proto__.prototype ? Module.__proto__ : Module;
-  const P            = M.prototype;
-  M._load            = originalLoad;
-  M._resolveFilename = originalResolve;
-  P._compile         = originalCompile;
-  P.load             = originalProtoLoad;
+  if (--installedCount === 0) {
+    // Jest hijacks the Module builtin, this gets the real one.
+    Module       = Module.__proto__ && Module.__proto__.prototype ? Module.__proto__ : Module;
+    Module._load = module_static__load;
+    Module._resolveFilename   = module_static__resolveFilename;
+    Module.prototype._compile = module_prototype__compile;
+    Module.prototype.load     = module_prototype_load;
+  }
+}
+
+function patchVMForContextModule(mod: ContextModule) {
+  const clone = (obj: any) => Object.create(Object.getPrototypeOf(obj),  //
+                                            Object.getOwnPropertyDescriptors(obj));
+
+  function Script_(this: any, ...args: ConstructorParameters<typeof vm.Script>) {
+    return Reflect.construct(vm.Script, args, new.target || Script_);
+  }
+
+  Script_.prototype = clone(vm.Script.prototype);
+
+  Script_.prototype.runInNewContext = function(context?: vm.Context,
+                                               options?: vm.RunningScriptOptions) {
+    if (context?.global?.window === mod._context.window) {
+      context = Object.create(Object.getPrototypeOf(mod._context), {
+        ...Object.getOwnPropertyDescriptors(mod._context),
+        ...Object.getOwnPropertyDescriptors(context),
+      });
+    }
+    return vm.Script.prototype.runInNewContext.call(this, context, options);
+  };
+
+  Script_.prototype.runInThisContext = function(options?: vm.RunningScriptOptions) {
+    return vm.Script.prototype.runInNewContext.call(this, mod._context, options);
+  };
+
+  const vm_ = Object.assign(clone(vm), {Script: Script_});
+
+  vm_.compileFunction = function(
+    code: string, params?: readonly string[], options?: vm.CompileFunctionOptions) {
+    if (!options?.parsingContext) {
+      return vm.compileFunction.call(
+        this, code, params, {...options, parsingContext: mod._context});
+    }
+    return vm.compileFunction.call(this, code, params, options);
+  };
+
+  return vm_;
 }

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import isBrowser from '../is-browser';
-import { createPeer } from '../webrtc/client';
 import React, { Component, createRef } from 'react';
+import { createPeer } from '../../webrtc/client';
+import isBrowser from '../is-browser';
 
 type Props = {
-  rtcId: string;
+  json?: any;
   width?: number;
   height?: number;
 };
@@ -27,6 +27,7 @@ const defaultProps = { muted: true, autoPlay: true, width: 800, height: 600 };
 export default class WebRTCFrame extends Component<Props> {
 
   private _peer: any;
+  private _sock: any;
   private _videoRef = createRef<HTMLVideoElement>();
   private _onKeyEvent = this._eventHandler(serializeKeyEvent);
   private _onFocusEvent = this._eventHandler(serializeFocusEvent);
@@ -35,21 +36,24 @@ export default class WebRTCFrame extends Component<Props> {
 
   componentDidMount() {
     if (isBrowser) {
-      this._playStream = this._playStream.bind(this);
-      this._destroyPeer = this._destroyPeer.bind(this);
-      this._peer = createPeer(this.props.rtcId);
-      this._peer.on('stream', this._playStream);
-      window.addEventListener('beforeunload', this._destroyPeer);
+      const { peer, sock } = createPeer();
+      this._peer = peer;
+      this._sock = sock;
+      this._play = this._play.bind(this);
+      this._peer.on('stream', this._play);
+      this._destroy = this._destroy.bind(this)
+      window.addEventListener('beforeunload', this._destroy);
     }
   }
 
   componentWillUnmount() {
-    window.removeEventListener('beforeunload', this._destroyPeer);
-    this._destroyPeer();
+    window.removeEventListener('beforeunload', this._destroy);
+    this._destroy();
   }
 
   render() {
-    const { width, height, children, ...props } = this.props;
+    const { json, width, height } = this.props;
+    this._send('render', { json, width, height });
     return (
       <video
         {...defaultProps}
@@ -61,7 +65,13 @@ export default class WebRTCFrame extends Component<Props> {
     );
   }
 
-  protected _playStream(source: MediaSource) {
+  protected _send(type: string, data: any = {}) {
+    if (isBrowser && this._peer && this._peer.connected) {
+      this._peer.send(JSON.stringify({ type, data }));
+    }
+  }
+
+  protected _play(source: MediaSource) {
     const video = this._videoRef.current;
     console.log('playing video:', source);
     if (video) {
@@ -70,26 +80,30 @@ export default class WebRTCFrame extends Component<Props> {
       } else {  // for older browsers
         (video as any).src = window.URL.createObjectURL(source);
       }
+      const { json, width, height } = this.props;
+      Array.from({ length: 5 }, (_, i) => i).forEach(() => {
+        this._send('render', { json, width, height });
+      });
     }
-    const promise = video?.play();
-    promise && this._peer.send({ type: 'play' });
-    return promise;
+    return video?.play();
   }
 
-  protected _destroyPeer() {
-    if (isBrowser && this._peer && this._peer.connected) {
-      this._peer.destroy();
-      this._peer = null;
+  protected _destroy() {
+    if (isBrowser) {
+      if (this._peer && this._peer.connected) {
+        this._peer.destroy();
+        this._peer = null;
+      }
+      if (this._sock && this._sock.connected) {
+        this._sock.destroy();
+        this._sock = null;
+      }
     }
   }
 
   protected _eventHandler(serialize: (event: any) => any) {
-    return () => {
-      if (this._peer && this._peer.connected) {
-        this._peer.send(JSON.stringify({
-          type: 'event', data: serialize(event)
-        }));
-      }
+    return (event: any) => {
+      this._send('event', serialize(event));
     }
   }
 

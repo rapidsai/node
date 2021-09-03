@@ -142,13 +142,13 @@
             "editor.tabSize": 2,
             "editor.formatOnSave": true,
             "editor.formatOnSaveMode": "file",
-            "editor.defaultFormatter": "xaver.clang-format"
+            "editor.defaultFormatter": "vscode.json-language-features"
         },
         "[javascript]": {
             "editor.tabSize": 2,
             "editor.formatOnSave": true,
             "editor.formatOnSaveMode": "file",
-            "editor.defaultFormatter": "vscode.typescript-language-features"
+            "editor.defaultFormatter": "xaver.clang-format"
         },
         "[typescript]": {
             "editor.tabSize": 2,
@@ -156,11 +156,17 @@
             "editor.formatOnSaveMode": "file",
             "editor.defaultFormatter": "xaver.clang-format"
         },
+        "[javascriptreact]": {
+            "editor.tabSize": 2,
+            "editor.formatOnSave": true,
+            "editor.formatOnSaveMode": "file",
+            "editor.defaultFormatter": "vscode.typescript-language-features"
+        },
         "[typescriptreact]": {
             "editor.tabSize": 2,
             "editor.formatOnSave": true,
             "editor.formatOnSaveMode": "file",
-            // "editor.defaultFormatter": "xaver.clang-format"
+            "editor.defaultFormatter": "vscode.typescript-language-features"
         },
         "clangd.path": "/usr/bin/clangd",
         "clangd.semanticHighlighting": false,

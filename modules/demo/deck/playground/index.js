@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node -r esm
+#!/usr/bin/env -S node --trace-uncaught
 
 // Copyright (c) 2020, NVIDIA CORPORATION.
 //
@@ -14,30 +14,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const { RapidsJSDOM } = require('@rapidsai/jsdom');
-
-module.exports = RapidsJSDOM.fromReactComponent.bind(
-  RapidsJSDOM,
-  require('path').join(__dirname, 'src', 'app.js')
-);
-
-if (require.main === module) {
-
-  require('segfault-handler').registerHandler('./crash.log');
-
+module.exports = (glfwOptions = {
+  transparent: false
+},
+                  reactProps = {}) => {
   require('@babel/register')({
     cache: false,
     babelrc: false,
     cwd: __dirname,
     presets: [
-      ["@babel/preset-env", { "targets": { "node": "current" } }],
-      ['@babel/preset-react', { "useBuiltIns": true }]
+      ['@babel/preset-env', {'targets': {'node': 'current'}}],
+      ['@babel/preset-react', {'useBuiltIns': true}]
     ]
   });
 
-  // Change cwd to the example dir so relative file paths are resolved
-  process.chdir(__dirname);
+  return require('@rapidsai/jsdom')
+    .RapidsJSDOM.fromReactComponent(
+      require('path').join(__dirname, 'src', 'app.js'),
+      {
+        glfwOptions,
+        // Change cwd to the example dir so relative file paths are resolved
+        module: {path: __dirname},
+      },
+      reactProps);
+};
 
-  module.exports({}, { template: process.argv[2] }).window
-    .addEventListener('close', () => process.exit(0), { once: true });
+if (require.main === module) {
+  require('segfault-handler').registerHandler('./crash.log');
+
+  module.exports({}, {template: process.argv[2]})
+    .window.addEventListener('close', () => process.exit(0), {once: true});
 }

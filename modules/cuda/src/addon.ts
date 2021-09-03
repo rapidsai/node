@@ -21,6 +21,7 @@ export const {
   IPC_HANDLE_SIZE,
   getDriverVersion,
   rgbaMirror,
+  bgraToYCrCb420,
 
   Math,
   driver,

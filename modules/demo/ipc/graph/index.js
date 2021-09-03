@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node -r esm
+#!/usr/bin/env -S node --trace-uncaught
 
 // Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
@@ -20,8 +20,8 @@ require('@babel/register')({
   cache: false,
   babelrc: false,
   presets: [
-    ['@babel/preset-env', { 'targets': { 'node': 'current' } }],
-    ['@babel/preset-react', { 'useBuiltIns': true }]
+    ['@babel/preset-env', {'targets': {'node': 'current'}}],
+    ['@babel/preset-react', {'useBuiltIns': true}]
   ]
 });
 
@@ -38,7 +38,7 @@ if (require.main === module) {
     (args.find((arg) => arg.includes(prefix)) || `${prefix}${fallback}`).slice(prefix.length);
 
   const delay = Math.max(parseInt(parseArg('--delay=', 0)) | 0, 0);
-  const url = args.find((arg) => arg.includes('tcp://')) || 'tcp://0.0.0.0:6000';
+  const url   = args.find((arg) => arg.includes('tcp://')) || 'tcp://0.0.0.0:6000';
 
   module.exports.open({
     visible: true,

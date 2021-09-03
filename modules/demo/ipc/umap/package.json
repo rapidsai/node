@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name":  "@rapidsai/demo-ipc-umap",
+  "name": "@rapidsai/demo-ipc-umap",
   "main": "index.js",
   "version": "0.0.0",
   "license": "Apache-2.0",
@@ -10,8 +10,8 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "start": "node -r esm index.js",
-    "watch": "find -type f | entr -c -d -r node -r esm index.js"
+    "start": "node --trace-uncaught index.js",
+    "watch": "find -type f | entr -c -d -r node --trace-uncaught index.js"
   },
   "dependencies": {
     "@babel/core": "7.14.6",
@@ -34,17 +34,5 @@
     "README.md",
     "package.json",
     "umap.py"
-  ],
-  "esm": {
-    "cjs": true,
-    "force": true,
-    "mode": "auto",
-    "cache": false,
-    "sourceMap": true,
-    "mainFields": [
-      "esnext",
-      "module",
-      "main"
-    ]
-  }
+  ]
 }

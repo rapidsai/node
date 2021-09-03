@@ -34,12 +34,8 @@ export function installGetContext(window: jsdom.DOMWindow) {
     }
     private readonly window: jsdom.DOMWindow;
     public readonly canvas: HTMLCanvasElement;
-    public get drawingBufferWidth() {  //
-      return this.window.frameBufferWidth ?? this.window.outerWidth;
-    }
-    public get drawingBufferHeight() {
-      return this.window.frameBufferHeight ?? this.window.outerHeight;
-    }
+    public get drawingBufferWidth() { return this.canvas.width; }
+    public get drawingBufferHeight() { return this.canvas.height; }
   }
 
   window.jsdom.global.WebGLActiveInfo            = gl.WebGLActiveInfo;
@@ -80,7 +76,8 @@ export function installGetContext(window: jsdom.DOMWindow) {
       case 'webgl2':
       case 'experimental-webgl': {
         if (!this.gl) {  //
-          window._gl = this.gl = new GLFWRenderingContext(this, window, settings);
+          this.gl = new GLFWRenderingContext(this, window, settings);
+          if (!window._gl) { window._gl = this.gl; }
         }
         return this.gl;
       }

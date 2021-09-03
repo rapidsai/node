@@ -13,10 +13,11 @@
 // limitations under the License.
 
 import * as jsdom from 'jsdom';
+import * as Path from 'path';
 
 import {installGetContext} from './polyfills/canvas';
 import {installFetch} from './polyfills/fetch';
-import {installGLFWWindow} from './polyfills/glfw';
+import {GLFWWindowOptions, installGLFWWindow} from './polyfills/glfw';
 import {installImageData, installImageDecode} from './polyfills/image';
 import {installJSDOMUtils} from './polyfills/jsdom';
 import {installMjolnirHammer} from './polyfills/mjolnir';
@@ -32,11 +33,13 @@ import {ImageLoader} from './resourceloader';
 export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
   module?: NodeModule;
   frameRate?: number;
+  glfwOptions?: GLFWWindowOptions;
   reportUnhandledExceptions?: boolean;
   onAnimationFrameRequested?: AnimationFrameRequestedCallback;
 }
 
-export const defaultOptions = {
+const defaultOptions = {
+  glfwOptions: {},
   reportUnhandledExceptions: true,
   onAnimationFrameRequested: undefined
 };
@@ -62,29 +65,34 @@ export class RapidsJSDOM extends jsdom.JSDOM {
       url,
       install: installObjectURL,
     } = createObjectUrlAndTmpDir();
+
+    const cwd = opts.module
+                  ? opts.module.path || Path.dirname(opts.module.filename || opts.module.id)
+                  : process.cwd();
+
     super(undefined, {
       ...opts,
       url,
       pretendToBeVisual: true,
       runScripts: 'outside-only',
-      resources: new ImageLoader(url),
+      resources: new ImageLoader(url, cwd),
       beforeParse(window) {
         const {
-          module: mod,
+          glfwOptions,
           reportUnhandledExceptions,
-          onAnimationFrameRequested = defaultFrameScheduler(window, opts),
+          onAnimationFrameRequested = defaultFrameScheduler(window, opts.frameRate),
         } = opts;
 
         if (reportUnhandledExceptions) { installUnhandledExceptionListeners(); }
 
-        installJSDOMUtils(window, mod);
+        installJSDOMUtils(window, cwd);
         installFetch(window);
         installStreams(window);
         installObjectURL(window);
         installImageData(window);
         installImageDecode(window);
         installGetContext(window);
-        installGLFWWindow(window);
+        installGLFWWindow(window, glfwOptions);
         installAnimationFrame(window, onAnimationFrameRequested);
         installMjolnirHammer(window);
       }
@@ -92,7 +100,7 @@ export class RapidsJSDOM extends jsdom.JSDOM {
   }
 }
 
-function defaultFrameScheduler(window: jsdom.DOMWindow, {frameRate: fps = 60}: RapidsJSDOMOptions) {
+function defaultFrameScheduler(window: jsdom.DOMWindow, fps = 60) {
   let request: AnimationFrameRequest|null = null;
   let interval: any                       = setInterval(() => {
     if (request) {

@@ -30,7 +30,7 @@ fi
 if [[ "$DEMO" == "" ]]; then
     DEMOS="
     $(echo modules/demo/{graph,luma,spatial,xterm,client-server}/package.json)
-    $(find modules/demo/{deck,tfjs,ipc} -maxdepth 2 -type f -name 'package.json')
+    $(find modules/demo/{deck,tfjs,ipc,ssr} -maxdepth 2 -type f -name 'package.json')
     ";
     DEMOS="$(echo -e "$DEMOS" | grep -v node_modules | sort -Vr)";
     DEMOS=(${DEMOS});
@@ -66,5 +66,5 @@ elif [[ "$DEMO" =~ "modules/demo/deck/playground-ssr" ]]; then
 else
     NODE_ENV=${NODE_ENV:-production} \
     NODE_NO_WARNINGS=${NODE_NO_WARNINGS:-1} \
-    exec node --trace-uncaught -r esm "$DEMO" ${ARGS}
+    exec node --trace-uncaught "$DEMO" ${ARGS}
 fi

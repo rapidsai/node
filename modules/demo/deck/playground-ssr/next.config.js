@@ -4,14 +4,15 @@ module.exports = {
   generateEtags: false,
   reactStrictMode: true,
   poweredByHeader: false,
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+  eslint: {ignoreDuringBuilds: true},
+  webpack: (config, {buildId, dev, isServer, defaultLoaders, webpack}) => {
     // Note: we provide webpack above so you should not `require` it
     // Perform customizations to webpack config
     // config.plugins.push(new webpack.IgnorePlugin({ resourceRegExp: /.*?\.node/ig }))
     if (isServer) {
       const majorMinor = process.versions.node.split('.').slice(0, 2).join('.');
-      config.target = `node${majorMinor}`;
-      config.node = {
+      config.target    = `node${majorMinor}`;
+      config.node      = {
         global: true,
         __dirname: true,
         __filename: true,
@@ -32,7 +33,8 @@ module.exports = {
       });
     } else {
       // config.plugins.push(new webpack.IgnorePlugin({ resourceRegExp: /.*?\.node/ig }));
-      config.plugins.push(new webpack.IgnorePlugin({ resourceRegExp: /.*?child_process/ig }));
+      config.plugins.push(new webpack.ProvidePlugin({process: 'process/browser'}));
+      config.plugins.push(new webpack.IgnorePlugin({resourceRegExp: /.*?child_process/ig}));
       config.resolve.alias['apache-arrow'] = require.resolve('apache-arrow/Arrow.es2015.min.js');
     }
     // console.log(require('util').inspect({ isServer, config }, false, Infinity, true));

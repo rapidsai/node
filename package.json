@@ -56,6 +56,7 @@
     "modules/demo/xterm",
     "modules/demo/ipc/*",
     "modules/demo/deck/*",
+    "modules/demo/ssr/*",
     "modules/demo/tfjs/*",
     "modules/demo/client-server"
   ],
@@ -86,7 +87,7 @@
     }
   },
   "lint-staged": {
-    "modules/**/@(src|test|include)/**/*.@(ts|h|cc?|cuh?|(c|h)pp)": [
+    "modules/**/@(src|test|include)/**/*.@(ts|js|h|cc?|cuh?|(c|h)pp)": [
       "scripts/exec.js lint"
     ]
   },

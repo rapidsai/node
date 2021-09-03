@@ -11,7 +11,7 @@
   "scripts": {
     "clean": "rimraf build doc compile_commands.json",
     "doc": "rimraf doc && typedoc --options typedoc.js",
-    "test": "node -r dotenv/config -r esm node_modules/.bin/jest -c jest.config.js",
+    "test": "node -r dotenv/config node_modules/.bin/jest -c jest.config.js",
     "build": "yarn tsc:build",
     "compile": "yarn tsc:build",
     "rebuild": "yarn tsc:build",
@@ -26,6 +26,7 @@
     "canvas": "2.8.0",
     "cross-fetch": "3.1.4",
     "fetch-readablestream": "0.2.0",
+    "esm": "3.2.25",
     "jsdom": "16.6.0",
     "svg2img": "0.9.3",
     "usertiming": "0.1.8",

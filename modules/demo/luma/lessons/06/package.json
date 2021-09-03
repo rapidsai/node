@@ -13,17 +13,5 @@
     "@luma.gl/experimental": "8.5.4",
     "@luma.gl/shadertools": "8.5.4",
     "math.gl": "3.5.4"
-  },
-  "esm": {
-    "cjs": true,
-    "force": true,
-    "mode": "auto",
-    "cache": false,
-    "sourceMap": true,
-    "mainFields": [
-      "esnext",
-      "module",
-      "main"
-    ]
   }
 }

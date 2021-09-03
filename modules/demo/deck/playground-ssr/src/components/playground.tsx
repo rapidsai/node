@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { StaticMap } from 'react-map-gl';
-import { useRef, useState, Fragment } from 'react';
+// import { StaticMap } from 'react-map-gl';
+// import { useRef, useState, Fragment } from 'react';
+import { useState, Fragment } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import DeckWithMapboxMaps from './deck-with-mapbox-maps';
+// import DeckWithMapboxMaps from './deck-with-mapbox-maps';
 
 import isBrowser from '../is-browser';
 import WebRTCFrame from './webrtcframe';
@@ -32,23 +33,16 @@ const AceEditor = (() => {
   return () => <div />;
 })();
 
-const { JSONConverter, JSONConfiguration } = require('@deck.gl/json');
-const JSON_CONVERTER_CONFIGURATION = require('@rapidsai/demo-deck-playground/src/configuration').default;
-const JSON_TEMPLATES = require('@rapidsai/demo-deck-playground/json-examples').default;
-const INITIAL_TEMPLATE = Object.keys(JSON_TEMPLATES)[0];
+import { templates } from '../../configuration';
+// import { templates, converter } from '../configuration';
 
-type Props = {
-  rtcId: string;
-};
+const _template = Object.keys(templates)[0];
 
-const Playground = (props: Props) => {
+const Playground = () => {
 
-  const configuration = useRef(new JSONConfiguration(JSON_CONVERTER_CONFIGURATION));
-  const converter = useRef(new JSONConverter({ configuration: configuration.current }));
-
-  const [template, updateTemplate] = useState(INITIAL_TEMPLATE);
-  const [json, updateJSON] = useState(JSON_TEMPLATES[template]);
-  const [jsonProps, updateJSONProps] = useState(() => converter.current.convert(json));
+  const [template, updateTemplate] = useState(_template);
+  const [json, updateJSON] = useState(templates[template]);
+  // const [jsonProps, updateJSONProps] = useState(() => converter.convert(json));
   const [editorContent, updateEditorContent] = useState(JSON.stringify(json, null, 2));
 
   const onEditorChanged = (text: string) => {
@@ -56,12 +50,29 @@ const Playground = (props: Props) => {
     try {
       const json = text && JSON.parse(text);
       updateJSON(json);
-      updateJSONProps(converter.current.convert(json));
+      // updateJSONProps(converter.convert(json));
       updateEditorContent(JSON.stringify(json, null, 2));
     } catch (error) {
       // ignore error, user is editing and not yet correct JSON
     }
   };
+
+  // const deckWithMaps = (
+  //   <DeckWithMapboxMaps
+  //     id="json-deck"
+  //     {...jsonProps}
+  //     Map={StaticMap}
+  //   />
+  // );
+
+  // if (!isBrowser) {
+  //   console.log(json);
+  //   // console.log(require('util').inspect(children, true, null, true));
+  //   // console.log(require('../react-serialize').serialize(deckWithMaps, new Map<Function, string>([
+  //   //   [DeckWithMapboxMaps, 'DeckWithMapboxMaps'],
+  //   //   [StaticMap, 'StaticMap'],
+  //   // ])));
+  // }
 
   return (
     <Fragment>
@@ -70,7 +81,7 @@ const Playground = (props: Props) => {
           name="JSON templates"
           defaultValue={template}
           onChange={(event) => updateTemplate(event.target.value)}>
-          {Object.entries(JSON_TEMPLATES).map(([key]) => (
+          {Object.entries(templates).map(([key]) => (
             <option key={key} value={key}>
               {key}
             </option>
@@ -96,17 +107,7 @@ const Playground = (props: Props) => {
       <div className={styles['right-pane']}>
         <AutoSizer defaultWidth={800} defaultHeight={600}>
           {({ width, height }) => (
-            <WebRTCFrame
-              width={width}
-              height={height}
-              rtcId={props.rtcId}
-            >
-              <DeckWithMapboxMaps
-                id="json-deck"
-                {...jsonProps}
-                Map={StaticMap}
-              />
-            </WebRTCFrame>
+            <WebRTCFrame json={json} width={width} height={height} />
           )}
         </AutoSizer>
       </div>
