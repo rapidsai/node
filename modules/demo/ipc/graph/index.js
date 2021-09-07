@@ -14,49 +14,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-require('segfault-handler').registerHandler('./crash.log');
+module.exports = ({url, ...glfwOptions} = {
+  title: '',
+  visible: true,
+  transparent: false,
+}) => {
+  require('@babel/register')({
+    cache: false,
+    babelrc: false,
+    cwd: __dirname,
+    presets: [
+      ['@babel/preset-env', {'targets': {'node': 'current'}}],
+      ['@babel/preset-react', {'useBuiltIns': true}]
+    ]
+  });
 
-require('@babel/register')({
-  cache: false,
-  babelrc: false,
-  presets: [
-    ['@babel/preset-env', {'targets': {'node': 'current'}}],
-    ['@babel/preset-react', {'useBuiltIns': true}]
-  ]
-});
-
-// Change cwd to the example dir so relative file paths are resolved
-process.chdir(__dirname);
-
-let args = process.argv.slice(2);
-if (args.length === 1 && args[0].includes(' ')) { args = args[0].split(' '); }
-
-module.exports = require('@nvidia/glfw').createReactWindow(`${__dirname}/src/index.js`, true);
+  return require('@rapidsai/jsdom')
+    .RapidsJSDOM.fromReactComponent(
+      './src/app.js',
+      {
+        glfwOptions,
+        // Change cwd to the example dir so relative file paths are resolved
+        module: {path: __dirname},
+      },
+      {url});
+};
 
 if (require.main === module) {
+  const args = process.argv.length === 3 && process.argv[2].includes(' ')
+                 ? process.argv[2].split(' ')
+                 : process.argv.slice(2);
+
   const parseArg = (prefix, fallback = '') =>
     (args.find((arg) => arg.includes(prefix)) || `${prefix}${fallback}`).slice(prefix.length);
 
-  const delay = Math.max(parseInt(parseArg('--delay=', 0)) | 0, 0);
-  const url   = args.find((arg) => arg.includes('tcp://')) || 'tcp://0.0.0.0:6000';
+  const url = args.find((arg) => arg.includes('tcp://')) || 'tcp://0.0.0.0:6000';
 
-  module.exports.open({
-    visible: true,
-    transparent: false,
-    _title: '',
-    url: url && require('url').parse(url),
-    nodes: inputs(delay, parseArg('--nodes=')),
-    edges: inputs(delay, parseArg('--edges=')),
-    width: parseInt(parseArg('--width=', 800)) | 0,
-    height: parseInt(parseArg('--height=', 600)) | 0,
-    layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
-  });
-
-  async function* inputs(delay, paths) {
-    const sleep = (t) => new Promise((r) => setTimeout(r, t));
-    for (const path of paths.split(',')) {
-      yield path;
-      await sleep(delay);
-    }
-  }
+  module
+    .exports({
+      title: '',
+      visible: true,
+      transparent: false,
+      url: url && require('url').parse(url),
+      width: parseInt(parseArg('--width=', 800)) | 0,
+      height: parseInt(parseArg('--height=', 600)) | 0,
+    })
+    .window.addEventListener('close', () => process.exit(0), {once: true});
 }

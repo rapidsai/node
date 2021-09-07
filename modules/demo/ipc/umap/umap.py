@@ -6,6 +6,7 @@ import numpy as np
 
 import zmq
 import traceback
+from cudf.core.buffer import Buffer
 from cudf.core.index import RangeIndex
 from cudf.core.column import CategoricalColumn
 from cuml.internals import GraphBasedDimRedCallback
@@ -75,7 +76,7 @@ def filled_series(size, dtype, fill_value=0):
 
 def to_series_view(mem, dtype):
     ptr = numba.cuda.cudadrv.driver.device_pointer(mem)
-    buf = cudf.core.Buffer(ptr, mem.gpu_data.size)
+    buf = Buffer(ptr, mem.gpu_data.size)
     return cudf.Series(buf, dtype=dtype)
 
 def create_initial_nodes_df(labels):

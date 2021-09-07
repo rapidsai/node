@@ -47,6 +47,5 @@ module.exports = () => {
 if (require.main === module) {
   // ensure tests are run with headless EGL
   delete process.env.DISPLAY;
-  require('segfault-handler').registerHandler('./crash.log');
   module.exports().window.addEventListener('close', () => process.exit(0), {once: true});
 }

@@ -21,6 +21,8 @@
             "@rapidsai/cuspatial/*":                  ["modules/cuspatial/src/*"],
             "@rapidsai/deck.gl":                      ["modules/deck.gl/src/index"],
             "@rapidsai/deck.gl/*":                    ["modules/deck.gl/src/*"],
+            "@rapidsai/jsdom":                        ["modules/jsdom/src/index"],
+            "@rapidsai/jsdom/*":                      ["modules/jsdom/src/*"],
             "@nvidia/glfw":                           ["modules/glfw/src/index"],
             "@nvidia/glfw/*":                         ["modules/glfw/src/*"],
             "@nvidia/webgl":                          ["modules/webgl/src/index"],

@@ -29,9 +29,6 @@ module.exports = (glfwOptions = {
     ]
   });
 
-  // Change cwd to the example dir so relative file paths are resolved
-  process.chdir(__dirname);
-
   let args = process.argv.slice(2);
   if (args.length === 1 && args[0].includes(' ')) { args = args[0].split(' '); }
 
@@ -66,7 +63,5 @@ module.exports = (glfwOptions = {
 };
 
 if (require.main === module) {
-  require('segfault-handler').registerHandler('./crash.log');
-
   module.exports().window.addEventListener('close', () => process.exit(0), {once: true});
 }

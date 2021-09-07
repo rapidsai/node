@@ -16,8 +16,6 @@
 
 const Path = require('path');
 
-require('segfault-handler').registerHandler('./crash.log');
-
 // Change cwd to the example dir so relative file paths are resolved
 process.chdir(__dirname);
 

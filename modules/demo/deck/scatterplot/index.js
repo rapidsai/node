@@ -18,8 +18,6 @@ module.exports =
   (glfwOptions = {
     transparent: false
   }) => {
-    require('segfault-handler').registerHandler('./crash.log');
-
     require('@babel/register')({
       cache: false,
       babelrc: false,

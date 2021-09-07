@@ -40,8 +40,6 @@ module.exports = (glfwOptions = {
 };
 
 if (require.main === module) {
-  require('segfault-handler').registerHandler('./crash.log');
-
   module.exports({}, {template: process.argv[2]})
     .window.addEventListener('close', () => process.exit(0), {once: true});
 }

@@ -25,9 +25,11 @@
     "btoa": "1.2.1",
     "canvas": "2.8.0",
     "cross-fetch": "3.1.4",
-    "fetch-readablestream": "0.2.0",
     "esm": "3.2.25",
+    "fetch-readablestream": "0.2.0",
     "jsdom": "16.6.0",
+    "react-dom": "17.0.2",
+    "react": "17.0.2",
     "svg2img": "0.9.3",
     "usertiming": "0.1.8",
     "web-streams-polyfill": "2.1.1"
