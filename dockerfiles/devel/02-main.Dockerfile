@@ -5,10 +5,7 @@ FROM ${FROM_IMAGE} as wrtc
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt update --fix-missing \
  && apt install -y --no-install-recommends \
-    python2 libnvidia-encode-470 \
- && (update-alternatives --remove-all python >/dev/null 2>&1 || true) \
- && update-alternatives --install /usr/bin/python python $(realpath $(which python2)) 1 \
- && update-alternatives --set python $(realpath $(which python2)) \
+    python libnvidia-encode-470 \
  # Clean up
  && apt autoremove -y && apt clean \
  && rm -rf \
