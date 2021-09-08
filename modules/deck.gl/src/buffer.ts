@@ -80,6 +80,11 @@ export const Buffer = (() => {
         this.asCUDABuffer(offset).set({buffer, byteOffset: srcOffset, byteLength: srcLength});
         return this;
       }
+      asMappedResource(work: (buffer: this) => any) {
+        this._mapResource();
+        work(this);
+        this._unmapResource();
+      }
       asCUDABuffer(byteOffset = 0, byteLength = this.byteLength - byteOffset) {
         if (this._handle.cudaGraphicsResourceMapped) {
           return new Uint8Buffer(

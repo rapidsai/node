@@ -13,6 +13,10 @@
 // limitations under the License.
 
 declare module '@deck.gl/core' {
+  export class Deck {
+    [key: string]: any;
+  }
+
   export interface DeckContext {
     gl: WebGL2RenderingContext;
     shaderCache: any;

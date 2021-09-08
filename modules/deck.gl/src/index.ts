@@ -14,3 +14,6 @@
 
 export * from './buffer';
 export * from './layers/graph';
+
+export {Deck as DeckSSR} from './ssr/deck';
+export {AnimationLoop as AnimationLoopSSR} from './ssr/animation-loop';

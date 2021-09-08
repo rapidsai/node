@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node -r esm
+#!/usr/bin/env -S node --trace-uncaught
 
 // Copyright (c) 2020, NVIDIA CORPORATION.
 //
@@ -14,21 +14,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-require('segfault-handler').registerHandler('./crash.log');
+module.exports = (glfwOptions = {
+  transparent: false
+}) => {
+  require('@babel/register')({
+    cache: false,
+    babelrc: false,
+    cwd: __dirname,
+    presets: [
+      ['@babel/preset-env', {'targets': {'node': 'current'}}],
+      ['@babel/preset-react', {'useBuiltIns': true}]
+    ]
+  });
 
-require('@babel/register')({
-  cache: false,
-  babelrc: false,
-  cwd: __dirname,
-  presets: [
-    ['@babel/preset-env', { 'targets': { 'node': 'current' } }],
-    ['@babel/preset-react', { 'useBuiltIns': true }]
-  ]
-});
-
-const { createReactWindow } = require('@nvidia/glfw');
-module.exports = createReactWindow(`${__dirname}/app.js`, true);
+  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.js', {
+    glfwOptions,
+    // Change cwd to the example dir so relative file paths are resolved
+    module: {path: __dirname},
+  });
+};
 
 if (require.main === module) {
-  module.exports.open({ transparent: false });
+  module.exports().window.addEventListener('close', () => process.exit(0), {once: true});
 }
+
+/*
+ * Introduces new error:
+ *
+ * (node:2608695) V8: /opt/rapids/node/node_modules/@loaders.gl/las/dist/es5/libs/laz-perf.js:2321
+ * Linking failure in asm.js: Unexpected stdlib member (Use `node --trace-warnings ...` to show
+ * where the warning was created)
+ *
+ * still works tho
+ */
