@@ -29,7 +29,6 @@
     "@material-ui/lab": "4.0.0-alpha.60",
     "@material-ui/pickers": "3.3.10",
     "material-ui-confirm": "2.1.3",
-    "fastify": "3.20.2",
     "fastify-nextjs": "6.0.0",
     "next": "11.1.0",
     "react": "17.0.2",

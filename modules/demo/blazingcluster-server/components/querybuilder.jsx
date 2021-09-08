@@ -35,15 +35,23 @@ const config = {
     },
     page_is_redirect: {
       label: 'page_is_redirect',
-      type: 'boolean',
-      operators: ['equal'],
+      type: 'number',
       valueSources: ['value'],
+      fieldSettings: {
+        min: 0,
+        max: 1,
+      },
+      preferWidgets: ['slider', 'rangeslider'],
     },
     page_is_new: {
       label: 'page_is_new',
-      type: 'boolean',
-      operators: ['equal'],
+      type: 'number',
       valueSources: ['value'],
+      fieldSettings: {
+        min: 0,
+        max: 1,
+      },
+      preferWidgets: ['slider', 'rangeslider'],
     },
   }
 };
@@ -94,10 +102,10 @@ export class QueryBuilder extends React.Component {
 
   _parseQuery(query) {
     if (query === undefined || query.length == 0) return '';
-    // Hacky, but the sql builder uses 'false' and 'true' when constructing the query.
-    // Let's just replace any instances with '0' and '1' for compatibility with BlazingSQL.
-    query = query.replace('false', '0');
-    query = query.replace('true', '1');
+    // Hacky, but the sql builder uses 'NOT EMPTY' and 'EMPTY' when constructing the query.
+    // Let's just replace any instances with 'NOT NULL' and 'NULL' for compatibility with BlazingSQL.
+    query = query.replace('NOT EMPTY', 'NOT NULL');
+    query = query.replace('EMPTY', 'NULL');
     return `SELECT page_id, page_title, page_is_redirect, page_is_new FROM test_table WHERE ${JSON.parse(query)}`;
 }
 }

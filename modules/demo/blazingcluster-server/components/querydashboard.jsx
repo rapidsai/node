@@ -14,15 +14,16 @@
 
 import Button from '@material-ui/core/Button';
 import React from 'react';
-import {Col, Container, FormControl, InputGroup, Row} from 'react-bootstrap';
-import {QueryBuilder} from './querybuilder';
+import { Col, Container, FormControl, InputGroup, Row } from 'react-bootstrap';
+import { QueryBuilder } from './querybuilder';
+import { QueryResultTable } from './queryresult';
 
 export class QueryDashboard extends React.Component {
   constructor() {
     super();
     this.state = {
       query: '',
-      queryResult: 'Waiting for query...',
+      queryResult: [],
       queryButtonEnabled: false,
     };
 
@@ -35,24 +36,26 @@ export class QueryDashboard extends React.Component {
 
   async runQuery() {
     if (this.state.queryButtonEnabled) {
-      this.setState({queryButtonEnabled: false});
-      await fetch(`http://localhost:3000/run_query?sql=${this.state.query}`)
+      this.setState({ queryButtonEnabled: false });
+      await fetch(`/run_query?sql=${this.state.query}`)
         .then(response => response.json())
-        .then(data => {this.setState({
-                queryResult: `Query time: ${data['queryTime']}ms\nResults: ${
-                  data['resultsCount']}\n\n${data['result']}`
-              })});
-      this.setState({queryButtonEnabled: true});
+        .then(data => {
+          this.setState({
+            queryResult: `Query time: ${data['queryTime']}ms\nResults: ${data['resultsCount']}\n\n${data['result']}`
+          })
+        });
+      this.setState({ queryButtonEnabled: true });
     }
   }
 
   render() {
     return (
       <Container style={{
-      paddingTop: 40 }}>
+        paddingTop: 40
+      }}>
         <QueryBuilder onQueryChange={
-      this.onQueryChange} />
-        <Row style={{ marginTop: 20 }}>
+          this.onQueryChange} />
+        <Row style={{ marginTop: 20, marginBottom: 20 }}>
           <Col lg={9} md={9} sm={8} xs={8}>
             <InputGroup className={"queryInput"}>
               <div className="input-group-prepend">
@@ -65,7 +68,7 @@ export class QueryDashboard extends React.Component {
             <Button variant='contained' color='primary' className={'queryButton'} disabled={!this.state.queryButtonEnabled} onClick={this.runQuery}>Run Query</Button>
           </Col>
         </Row>
-        <FormControl style={{ marginTop: 20 }} rows="10" as="textarea" disabled={true} value={this.state.queryResult} aria-label="SQL result" />
+        <QueryResultTable data={this.state.queryResult} />
       </Container >
     )
   }

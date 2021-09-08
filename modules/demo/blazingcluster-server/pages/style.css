@@ -17,10 +17,6 @@ body {
     margin-bottom: 40px;
 }
 
-pre, div {
-    color: white;
-}
-
 .navbar {
     background-color: #7300ff!important;
     font-weight: bold;
@@ -57,4 +53,4 @@ pre, div {
 
 .queryInput {
     height: 50px !important;
- }
+}
