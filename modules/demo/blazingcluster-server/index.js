@@ -56,7 +56,7 @@ fastify.register(require('fastify-nextjs')).after(() => {
     });
   }
 
-  reply.send({result: 'Failed to parse query.'})
+  reply.send(new Error('Failed to parse query.'));
   })
 });
 
