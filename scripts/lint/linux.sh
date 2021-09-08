@@ -5,7 +5,7 @@ set -Eeo pipefail
 tsc_files=""
 cpp_files=""
 cmd_input="$(echo "$@" | tr ' ' '\n')"
-tsc_regex="^(\./)?modules/\w+?/(src|test)/.*?\.(t|j)s$"
+tsc_regex="^(\./)?modules/\w+?/(src|test)/.*?\.ts$"
 cpp_regex="^(\./)?modules/\w+?/(src|include)/.*?\.(h|cc?|cuh?|(c|h)pp)$"
 
 if [[ "$cmd_input" != "" ]]; then

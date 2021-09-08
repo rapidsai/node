@@ -87,7 +87,7 @@
     }
   },
   "lint-staged": {
-    "modules/**/@(src|test|include)/**/*.@(ts|js|h|cc?|cuh?|(c|h)pp)": [
+    "modules/**/@(src|test|include)/**/*.@(ts|h|cc?|cuh?|(c|h)pp)": [
       "scripts/exec.js lint"
     ]
   },
