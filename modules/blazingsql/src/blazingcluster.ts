@@ -104,9 +104,9 @@ export class BlazingCluster {
   private constructor(numWorkers: number) {
     // If `__dirname` includes '/src' we are currently running a Jest test. Use a different relative
     // path for when we are in a Jest test versus normal usage.
-    const relativePath = __dirname.includes('/src') ? './build/js/worker.js'
-                                                    : './modules/blazingsql/build/js/worker.js';
-    this.workers       = Array(numWorkers);
+    const relativePath =
+      __dirname.includes('/src') ? `${__dirname}/../build/js/worker.js` : `${__dirname}/worker.js`;
+    this.workers = Array(numWorkers);
     for (let i = 0; i < numWorkers; ++i) { this.workers[i] = fork(relativePath); }
   }
 

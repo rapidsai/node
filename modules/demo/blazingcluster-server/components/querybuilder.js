@@ -12,46 +12,54 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Query, Builder, Utils as QbUtils } from 'react-awesome-query-builder';
-import React from 'react';
-import MaterialConfig from 'react-awesome-query-builder/lib/config/material';
-
 import 'react-awesome-query-builder/lib/css/styles.css';
+
+import React from 'react';
+import {Builder, Query, Utils as QbUtils} from 'react-awesome-query-builder';
+import MaterialConfig from 'react-awesome-query-builder/lib/config/material';
 
 const config = {
   ...MaterialConfig,
   fields: {
-    a: {
-      label: 'a',
+    page_id: {
+      label: 'page_id',
       type: 'number',
-      fieldSettings: {
-        min: 0,
-      },
       valueSources: ['value'],
       preferWidgets: ['number'],
     },
-    b: {
-      label: 'b',
+    page_len: {
+      label: 'page_len',
       type: 'number',
-      fieldSettings: {
-        min: 0,
-      },
       valueSources: ['value'],
       preferWidgets: ['number'],
+    },
+    page_is_redirect: {
+      label: 'page_is_redirect',
+      type: 'boolean',
+      operators: ['equal'],
+      valueSources: ['value'],
+    },
+    page_is_new: {
+      label: 'page_is_new',
+      type: 'boolean',
+      operators: ['equal'],
+      valueSources: ['value'],
     },
   }
 };
 
 const queryValue = {
-  "id": "9a99988a-0123-4456-b89a-b1607f326fd8", "type": "group", "children1": {
-    "a98ab9b9-cdef-4012-b456-71607f326fd9": {
-      "type": "rule",
-      "properties": {
+  'id': '9a99988a-0123-4456-b89a-b1607f326fd8',
+  'type': 'group',
+  'children1': {
+    'a98ab9b9-cdef-4012-b456-71607f326fd9': {
+      'type': 'rule',
+      'properties': {
         field: null,
         operator: null,
         value: [],
         valueSrc: [],
-        "type": "rule",
+        'type': 'rule',
       }
     }
   }
@@ -66,21 +74,15 @@ export class QueryBuilder extends React.Component {
     };
   }
 
-  render = () => (
-    <div>
-      <Query
-        {...config}
-        value={this.state.tree}
-        onChange={this.onChange}
-        renderBuilder={this.renderBuilder}
-      />
-    </div>
-  )
+  render = () => (<div><Query{...config} value = {this.state.tree} onChange = {
+                          this.onChange} renderBuilder = { this.renderBuilder } />
+    </div>)
 
   renderBuilder = (props) => (
-    <div className="query-builder-container">
-      <div className="query-builder qb-lite">
-        <Builder {...props} />
+    <div className='query-builder-container'>
+      <div className='query-builder qb-lite'>
+        <Builder {
+    ...props} />
       </div>
     </div>
   )
@@ -92,6 +94,10 @@ export class QueryBuilder extends React.Component {
 
   _parseQuery(query) {
     if (query === undefined || query.length == 0) return '';
-    return `SELECT a, b FROM test_table WHERE ${JSON.parse(query)}`;
-  }
+    // Hacky, but the sql builder uses 'false' and 'true' when constructing the query.
+    // Let's just replace any instances with '0' and '1' for compatibility with BlazingSQL.
+    query = query.replace('false', '0');
+    query = query.replace('true', '1');
+    return `SELECT page_id, page_title, page_is_redirect, page_is_new FROM test_table WHERE ${JSON.parse(query)}`;
+}
 }

@@ -14,54 +14,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const { performance } = require('perf_hooks');
-const { BlazingCluster } = require('@rapidsai/blazingsql');
-const { Series, DataFrame } = require('@rapidsai/cudf');
-const fastify = require('fastify')({
-  pluginTimeout: 30000
-});
+const {performance}    = require('perf_hooks');
+const {BlazingCluster} = require('@rapidsai/blazingsql');
+const {DataFrame}      = require('@rapidsai/cudf');
+const fastify          = require('fastify')({pluginTimeout: 30000});
 
 let bc;
-const init = async () => {
+const init =
+  async () => {
   bc = await BlazingCluster.init(2);
-  await bc.createTable('test_table', createLargeDataFrame());
+  await bc.createTable('test_table', DataFrame.readCSV({
+    header: 0,
+    sourceType: 'files',
+    sources: [`${__dirname}/small.csv`],
+  }));
 }
+
 init();
 
 // Change cwd to the example dir so relative file paths are resolved
 process.chdir(__dirname);
 
-fastify
-  .register(require('fastify-nextjs'))
-  .after(() => {
-    fastify.next('/')
-    fastify.get('/run_query', async function (request, reply) {
-      const { sql } = request.query;
-      if (sql) {
-        const t0 = performance.now();
-        const df = await bc.sql(sql);
-        const t1 = performance.now();
-        const queryTime = t1 - t0;
-        reply.send({
-          result: df.names.reduce((result, name) => {
-            result += `${name}: ${[...df.get(name)]} \n\n`;
-            return result;
-          }, ''),
-          resultsCount: df.numRows,
-          queryTime: queryTime
-        });
-      }
-      reply.send({ result: 'Failed to parse query.' })
-    })
-  });
+fastify.register(require('fastify-nextjs')).after(() => {
+  fastify.next('/')
+  fastify.get('/run_query', async function (request, reply) {
+  const {sql} = request.query;
+  if (sql) {
+    const t0        = performance.now();
+    const df        = await bc.sql(sql);
+    const t1        = performance.now();
+    const queryTime = t1 - t0;
+    reply.send({
+      result: df.names.reduce(
+        (result, name) => {
+          result += `${name}: ${[...df.get(name)]} \n\n`;
+          return result;
+        },
+        ''),
+      resultsCount: df.numRows,
+      queryTime: queryTime
+    });
+  }
 
-fastify.listen(3000, err => {
-  if (err) throw err
-  console.log('Server listening on http://localhost:3000')
+  reply.send({result: 'Failed to parse query.'})
+  })
 });
 
-function createLargeDataFrame() {
-  const a = Series.new(Array.from({ length: 300 }, (_, i) => i + 1));
-  const b = Series.new(Array.from({ length: 300 }, (_, i) => i + 5));
-  return new DataFrame({ 'a': a, 'b': b });
-}
+  fastify.listen(3000, err => {
+    if (err) throw err
+      console.log('Server listening on http://localhost:3000')
+  });
