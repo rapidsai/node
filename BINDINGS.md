@@ -160,6 +160,7 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `as_index`           |                       |                       |                       |
 | `as_mask`            |                       |                       |                       |
 | `astype`             |      ✅ (`cast`)      |      ✅ (`cast`)      |      ✅ (`cast`)      |
+| `byte_count`         |         N/A           |   ✅ (`byteCount`)   |       N/A           |
 | `clip`               |                       |                       |                       |
 | `copy`               |          ✅           |          ✅           |          ✅           |
 | `count`              | ✅ (`countNonNulls`)  | ✅ (`countNonNulls`)  | ✅ (`countNonNulls`)  |
@@ -175,6 +176,7 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `from_categorical`   |                       |                       |                       |
 | `from_masked_array`  |                       |                       |                       |
 | `from_pandas`        |                       |                       |                       |
+| `get_json_object`    |                       | ✅ (`getJSONObject`)  |                       |
 | `groupby`            |                       |                       |                       |
 | `hash_encode`        |                       |                       |                       |
 | `hash_values`        |                       |                       |                       |
@@ -187,6 +189,7 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `kurt`               |    ✅ (`kurtosis`)    |    ✅ (`kurtosis`)    |    ✅ (`kurtosis`)    |
 | `kurtosis`           |          ✅           |          ✅           |          ✅           |
 | `label_encoding`     |                       |                       |                       |
+| `len`                |                       |         ✅             |       N/A           |
 | `map`                |                       |                       |                       |
 | `mask`               |                       |                       |                       |
 | `memory_usage`       |                       |                       |                       |
@@ -195,6 +198,7 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `notnull`            |   ✅ (`isNotNull`)    |   ✅ (`isNotNull`)    |   ✅ (`isNotNull`)    |
 | `nunique`            |                       |                       |                       |
 | `one_hot_encoding`   |                       |                       |                       |
+| `pad`                |         N/A           |         ✅             |       N/A           |
 | `pipe`               |                       |                       |                       |
 | `quantile`           |                       |                       |                       |
 | `rank`               |                       |                       |                       |
@@ -230,7 +234,7 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `value_counts`       |          ✅           |          ✅           |          ✅           |
 | `values_to_string`   |                       |                       |                       |
 | `where`              |                       |                       |                       |
-| `get_json_object`    |                       | ✅ (`getJSONObject`)  |                       |
+| `zfill`              |         N/A           |         ✅             |       N/A           |
 
 ### DataFrame
 

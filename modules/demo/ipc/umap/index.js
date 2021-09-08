@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node -r esm
+#!/usr/bin/env -S node --trace-uncaught
 
 // Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
@@ -14,21 +14,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-require('segfault-handler').registerHandler('./crash.log');
+module.exports = (glfwOptions = {
+  title: '',
+  visible: true,
+  transparent: false,
+}) => {
+  const {RapidsJSDOM} = require('@rapidsai/jsdom');
+  const jsdom         = new RapidsJSDOM({
+    glfwOptions,
+    // Change cwd to the example dir so relative file paths are resolved
+    module: {path: __dirname}
+  });
 
-require('@babel/register')({
-  cache: false,
-  babelrc: false,
-  cwd: __dirname,
-  presets: [
-    ["@babel/preset-env", { "targets": { "node": "current" } }],
-    ['@babel/preset-react', { "useBuiltIns": true }]
-  ]
-});
+  jsdom.window.evalFn(() => {
+    __babel({
+      cache: false,
+      babelrc: false,
+      cwd: process.cwd(),
+      presets: [
+        ['@babel/preset-env', {'targets': {'node': 'current'}}],
+        ['@babel/preset-react', {'useBuiltIns': true}]
+      ]
+    });
 
-const { createModuleWindow } = require('@nvidia/glfw');
-module.exports = createModuleWindow(`${__dirname}/app.js`, true);
+    return require(`./app.js`);
+  }, {__babel: require('@babel/register')});
+
+  return jsdom;
+};
 
 if (require.main === module) {
-  module.exports.open({ transparent: false });
+  module.exports().window.addEventListener('close', () => process.exit(0), {once: true});
 }

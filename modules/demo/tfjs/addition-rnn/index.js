@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node -r esm
+#!/usr/bin/env -S node --trace-uncaught
 
 // Copyright (c) 2021, NVIDIA CORPORATION.
 //
@@ -14,21 +14,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-require('segfault-handler').registerHandler('./crash.log');
+module.exports = () => {
+  require('@babel/register')({
+    cache: false,
+    babelrc: false,
+    cwd: __dirname,
+    presets: [
+      ['@babel/preset-env', {'targets': {'node': 'current'}}],
+      ['@babel/preset-react', {'useBuiltIns': true}]
+    ]
+  });
 
-require('@babel/register')({
-  cache: false,
-  babelrc: false,
-  cwd: __dirname,
-  presets: [
-    ["@babel/preset-env", { "targets": { "node": "current" } }],
-    ['@babel/preset-react', { "useBuiltIns": true }]
-  ]
-});
+  const {GLFWOpenGLProfile} = require('@nvidia/glfw');
+  const {RapidsJSDOM}       = require('@rapidsai/jsdom');
+  const jsdom               = new RapidsJSDOM({
+    // Change cwd to the example dir so relative file paths are resolved
+    module: {path: __dirname},
+    glfwOptions: {openGLProfile: GLFWOpenGLProfile.COMPAT}
+  });
 
-const { createModuleWindow, GLFWOpenGLProfile } = require('@nvidia/glfw');
-module.exports = createModuleWindow(`${__dirname}/app.js`, true);
+  jsdom.window.evalFn(() => { require('./app.js'); });
+
+  return jsdom;
+};
 
 if (require.main === module) {
-  module.exports.open({ transparent: false, openGLProfile: GLFWOpenGLProfile.COMPAT });
+  // ensure demo is run with headless EGL
+  delete process.env.DISPLAY;
+  module.exports().window.addEventListener('close', () => process.exit(0), {once: true});
 }

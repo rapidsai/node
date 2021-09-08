@@ -16,7 +16,9 @@
 import cudf
 import cugraph
 import numpy as np
+from cugraph.structure.graph_implementation import simpleGraphImpl
 
+EdgeList = simpleGraphImpl.EdgeList
 
 def from_cudf_edgelist(df, source="src", target="dst"):
 
@@ -38,7 +40,7 @@ def from_cudf_edgelist(df, source="src", target="dst"):
         return cudf.core.column.NumericalColumn(data, dtype=dtype)
 
     def compute_edge_bundles(edges, id_, src, dst):
-        
+
         edges = cudf.DataFrame({
             "eid": drop_index(edges[id_]),
             "src": drop_index(edges[src]),
@@ -111,9 +113,11 @@ def from_cudf_edgelist(df, source="src", target="dst"):
         return drop_index(edges.rename({"eid": "id"}, axis=1, copy=False))
 
     df = drop_index(df)
-    graph = cugraph.MultiDiGraph()
     nodes = make_nodes(df, source, target)
     edges = make_edges(df, source, target, nodes)
-    graph.edgelist = cugraph.Graph.EdgeList(edges["src"], edges["dst"])
-    nodes = nodes.set_index("id", drop=False).join(graph.degree().set_index("vertex"))
+    graph = cugraph.MultiGraph(directed=True)
+    graph._Impl = simpleGraphImpl(graph.graph_properties)
+    graph._Impl.edgelist = EdgeList(edges["src"], edges["dst"])
+    degree = graph._Impl.degree().set_index("vertex")
+    nodes = nodes.set_index("id", drop=False).join(degree)
     return graph, drop_index(nodes.sort_index()), edges

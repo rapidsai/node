@@ -217,7 +217,6 @@ export default class AppAnimationLoop extends AnimationLoop {
     });
 
     return loadFile('macbook.json').then(macbookJSON => {
-        console.log('macbookJSON:', macbookJSON);
       // Fix attribute name to match with Shaders
       macbookJSON = macbookJSON.replace('vertices', 'positions');
       const program = new Program(gl, {vs: VERTEX_SHADER, fs: FRAGMENT_SHADER});

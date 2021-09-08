@@ -25,6 +25,8 @@ export declare const IPC_HANDLE_SIZE: number;
 export declare function getDriverVersion(): number;
 export declare function rgbaMirror(
   width: number, height: number, axis: number, source: any, target?: any): void;
+export declare function bgraToYCrCb420(
+  target: any, source: any, width: number, height: number): void;
 
 export declare namespace Math {
   export function abs<T extends number|bigint>(x: T): T;
