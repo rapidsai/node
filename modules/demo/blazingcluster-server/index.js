@@ -14,10 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {performance}    = require('perf_hooks');
-const {BlazingCluster} = require('@rapidsai/blazingsql');
-const {DataFrame}      = require('@rapidsai/cudf');
-const fastify          = require('fastify')({pluginTimeout: 30000});
+const {performance}             = require('perf_hooks');
+const {BlazingCluster}          = require('@rapidsai/blazingsql');
+const {DataFrame}               = require('@rapidsai/cudf');
+const fastify                   = require('fastify')({pluginTimeout: 30000, logger: true});
+const {RecordBatchStreamWriter} = require('apache-arrow');
 
 let bc;
 const init =
@@ -35,28 +36,15 @@ init();
 // Change cwd to the example dir so relative file paths are resolved
 process.chdir(__dirname);
 
-fastify.register(require('fastify-nextjs')).after(() => {
+fastify.register((require('fastify-arrow'))).register(require('fastify-nextjs')).after(() => {
   fastify.next('/')
   fastify.get('/run_query', async function (request, reply) {
-  const {sql} = request.query;
-  if (sql) {
-    const t0        = performance.now();
-    const df        = await bc.sql(sql);
-    const t1        = performance.now();
-    const queryTime = t1 - t0;
-    reply.send({
-      result: df.names.reduce(
-        (result, name) => {
-          result += `${name}: ${[...df.get(name)]} \n\n`;
-          return result;
-        },
-        ''),
-      resultsCount: df.numRows,
-      queryTime: queryTime
-    });
-  }
-
-  reply.send(new Error('Failed to parse query.'));
+  const {sql}     = request.query;
+  const t0        = performance.now();
+  const df        = await bc.sql(sql);
+  const t1        = performance.now();
+  const queryTime = t1 - t0;
+  RecordBatchStreamWriter.writeAll(df.toArrow()).pipe(reply.stream());
   })
 });
 

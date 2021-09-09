@@ -17,13 +17,14 @@ import React from 'react';
 import { Col, Container, FormControl, InputGroup, Row } from 'react-bootstrap';
 import { QueryBuilder } from './querybuilder';
 import { QueryResultTable } from './queryresult';
+import { Table } from 'apache-arrow';
 
 export class QueryDashboard extends React.Component {
   constructor() {
     super();
     this.state = {
       query: '',
-      queryResult: [],
+      queryResult: {},
       queryButtonEnabled: false,
     };
 
@@ -37,13 +38,22 @@ export class QueryDashboard extends React.Component {
   async runQuery() {
     if (this.state.queryButtonEnabled) {
       this.setState({ queryButtonEnabled: false });
-      await fetch(`/run_query?sql=${this.state.query}`)
-        .then(response => response.json())
-        .then(data => {
-          this.setState({
-            queryResult: `Query time: ${data['queryTime']}ms\nResults: ${data['resultsCount']}\n\n${data['result']}`
-          })
+      await fetch(`/run_query?sql=${this.state.query}`, {
+        method: `GET`,
+        headers: {
+          'accepts': `application/octet-stream`
+        }
+      }).then((res) => Table.from(res)).then((table) => {
+        this.setState({
+          queryResult: {
+            pageId: [...table.getColumn("page_id")],
+            pageTitle: [...table.getColumn("page_title")],
+            pageLength: [...table.getColumn("page_len")],
+            pageRedirect: [...table.getColumn("page_is_redirect")],
+            pageNew: [...table.getColumn("page_is_new")],
+          }
         });
+      });
       this.setState({ queryButtonEnabled: true });
     }
   }

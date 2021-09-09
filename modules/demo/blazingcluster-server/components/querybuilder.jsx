@@ -15,7 +15,7 @@
 import 'react-awesome-query-builder/lib/css/styles.css';
 
 import React from 'react';
-import {Builder, Query, Utils as QbUtils} from 'react-awesome-query-builder';
+import { Builder, Query, Utils as QbUtils } from 'react-awesome-query-builder';
 import MaterialConfig from 'react-awesome-query-builder/lib/config/material';
 
 const config = {
@@ -82,15 +82,15 @@ export class QueryBuilder extends React.Component {
     };
   }
 
-  render = () => (<div><Query{...config} value = {this.state.tree} onChange = {
-                          this.onChange} renderBuilder = { this.renderBuilder } />
-    </div>)
+  render = () => (<div><Query{...config} value={this.state.tree} onChange={
+    this.onChange} renderBuilder={this.renderBuilder} />
+  </div>)
 
   renderBuilder = (props) => (
     <div className='query-builder-container'>
       <div className='query-builder qb-lite'>
         <Builder {
-    ...props} />
+          ...props} />
       </div>
     </div>
   )
@@ -106,6 +106,6 @@ export class QueryBuilder extends React.Component {
     // Let's just replace any instances with 'NOT NULL' and 'NULL' for compatibility with BlazingSQL.
     query = query.replace('NOT EMPTY', 'NOT NULL');
     query = query.replace('EMPTY', 'NULL');
-    return `SELECT page_id, page_title, page_is_redirect, page_is_new FROM test_table WHERE ${JSON.parse(query)}`;
-}
+    return `SELECT page_id, page_title, page_len, page_is_redirect, page_is_new FROM test_table WHERE ${JSON.parse(query)}`;
+  }
 }

@@ -22,7 +22,28 @@ function createData(page_id, page_title, page_length, page_redirect, page_new) {
 }
 
 function formatData(data) {
-  return [];
+  if (Object.keys(data).length === 0) {
+    return [];
+  }
+
+  const rows = [];
+  data['pageTitle'].forEach((title, idx) => {
+    const pageId = data['pageId'][idx];
+    const pageLength = data['pageLength'][idx];
+    const pageNew = data['pageNew'][idx];
+    const pageRedirect = data['pageRedirect'][idx];
+    rows.push(
+      createData(
+        pageId,
+        title,
+        pageLength,
+        pageRedirect,
+        pageNew
+      )
+    );
+  });
+
+  return rows;
 }
 
 const useStyles = makeStyles({
