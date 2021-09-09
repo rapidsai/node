@@ -22,6 +22,7 @@ import {Column} from './column';
 import {ColumnAccessor} from './column_accessor';
 import {concat as concatDataFrames} from './dataframe/concat';
 import {Join, JoinResult} from './dataframe/join';
+import {DataFrameFormatter, DisplayOptions} from './dataframe/print';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {Scalar} from './scalar';
 import {AbstractSeries, Series} from './series';
@@ -222,6 +223,16 @@ export class DataFrame<T extends TypeMap = any> {
 
   /** @ignore */
   asTable() { return new Table({columns: this._accessor.columns}); }
+
+  /**
+   *
+   * @param options
+   * @returns void
+   */
+  toString(options?: DisplayOptions): string {
+    const formatter = new DataFrameFormatter(options ?? {}, this);
+    return formatter.render();
+  }
 
   /**
    * Return a new DataFrame containing only specified columns.
