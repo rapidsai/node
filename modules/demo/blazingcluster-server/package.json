@@ -1,7 +1,6 @@
 {
   "private": true,
   "name": "@rapidsai/demo-blazingcluster-server",
-  "main": "index.js",
   "version": "0.0.0",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
@@ -10,8 +9,9 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "start": "node -r esm index.js",
-    "watch": "find -type f | entr -c -d -r node -r esm index.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next build && next start"
   },
   "dependencies": {
     "@babel/core": "7.14.6",
@@ -35,23 +35,11 @@
     "react-dom": "17.0.2",
     "bootstrap": "4.6.0",
     "react-bootstrap": "1.6.1",
-    "react-awesome-query-builder": "4.4.3",
-    "file-system": "2.2.2"
+    "react-awesome-query-builder": "4.4.3"
   },
   "files": [
-    "index.js",
-    "package.json"
-  ],
-  "esm": {
-    "cjs": true,
-    "force": true,
-    "mode": "auto",
-    "cache": false,
-    "sourceMap": true,
-    "mainFields": [
-      "esnext",
-      "module",
-      "main"
-    ]
-  }
+    "package.json",
+    "pages",
+    "components"
+  ]
 }
