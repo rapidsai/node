@@ -394,26 +394,25 @@ export class FittedUMAP extends UMAP {
     this._check_type(features.type);
     const nSamples = Math.floor(features.length / nFeatures);
     if (this._coo.getSize() == 0) {
-      this._coo = this._umap.graph({
+      const target_ = (target !== null) ? {target: target._col.data, targetType: target.type} : {};
+      this._coo     = this._umap.graph({
         features: features._col.data,
         featuresType: features.type,
         nSamples: nSamples,
         nFeatures: nFeatures,
         convertDType: convertDType,
+        ...target_
       });
     }
-    let options = {
+    const options = {
       features: features._col.data,
       featuresType: features.type,
       nSamples: nSamples,
       nFeatures: nFeatures,
       convertDType: convertDType,
       embeddings: this._embeddings || this._generate_embeddings(nSamples, features.type),
-      coo: this._coo,
+      coo: this._coo
     };
-    if (target !== null) {
-      options = {...options, ...{ target: target._col.data, targetType: target.type }};
-    }
     this._embeddings = this._umap.refine(options);
   }
 
@@ -431,7 +430,7 @@ export class FittedUMAP extends UMAP {
 target: null|R, convertDType = true) {
     // runtime type check
     this._check_type(features.get(features.names[0]).type);
-    return this.refineSeries(
+    this.refineSeries(
       dataframeToSeries(features) as Series<T>, target, features.numColumns, convertDType);
   }
 
@@ -465,7 +464,7 @@ target: null|R, convertDType = true) {
                                          target: (number|bigint|null|undefined)[]|null,
                                          nFeatures    = 1,
                                          convertDType = true) {
-    return this.refineSeries(
+    this.refineSeries(
       Series.new({type: this._resolveType(convertDType, features[0]), data: features}) as T,
       (target == null)
         ? null

@@ -111,7 +111,7 @@ void UMAP::fit(DeviceBuffer::wrapper_t const& X,
   try {
     ML::UMAP::fit(handle,
                   static_cast<float*>(X->data()),
-                  static_cast<float*>(y->data()),
+                  (y->size() != 0) ? static_cast<float*>(y->data()) : nullptr,
                   n_samples,
                   n_features,
                   static_cast<int64_t*>(knn_indices->data()),
@@ -132,7 +132,7 @@ COO::wrapper_t UMAP::get_graph(DeviceBuffer::wrapper_t const& X,
   auto coo_    = std::make_shared<raft::sparse::COO<float>>(d_alloc, stream);
   ML::UMAP::get_graph(handle,
                       static_cast<float*>(X->data()),
-                      static_cast<float*>(y->data()),
+                      (y->size() != 0) ? static_cast<float*>(y->data()) : nullptr,
                       n_samples,
                       n_features,
                       coo_.get(),
@@ -144,7 +144,6 @@ COO::wrapper_t UMAP::get_graph(DeviceBuffer::wrapper_t const& X,
 void UMAP::refine(DeviceBuffer::wrapper_t const& X,
                   cudf::size_type n_samples,
                   cudf::size_type n_features,
-                  DeviceBuffer::wrapper_t const& y,
                   COO::wrapper_t const& coo,
                   bool convert_dtype,
                   DeviceBuffer::wrapper_t const& embeddings) {
@@ -152,7 +151,6 @@ void UMAP::refine(DeviceBuffer::wrapper_t const& X,
     raft::handle_t handle;
     ML::UMAP::refine(handle,
                      static_cast<float*>(X->data()),
-                     static_cast<float*>(y->data()),
                      n_samples,
                      n_features,
                      coo->get_coo(),
@@ -252,23 +250,16 @@ Napi::Value UMAP::refine(Napi::CallbackInfo const& info) {
 
   DeviceBuffer::wrapper_t X =
     data_to_devicebuffer(args.Env(), props.Get("features"), props.Get("featuresType"));
-  DeviceBuffer::wrapper_t y =
-    props.Has("y") ? data_to_devicebuffer(args.Env(), props.Get("target"), props.Get("targetType"))
-                   : DeviceBuffer::New(args.Env());
 
   DeviceBuffer::wrapper_t embeddings = props.Get("embeddings");
 
   refine(X,
          props.Get("nSamples"),
          props.Get("nFeatures"),
-         y,
          props.Get("coo"),
          props.Get("convertDType"),
          embeddings);
 
-  // Napi::Array embeds = Napi::Array::New(args.Env(), 1);
-  // uint32_t i         = 0;
-  // embeds[i]          = embeddings;
   return embeddings;
 }
 

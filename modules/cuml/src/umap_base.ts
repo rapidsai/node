@@ -58,15 +58,14 @@ export type FitProps<T extends Numeric = any, R extends Numeric = any> = {
   knnDists?: DeviceBuffer
 };
 
-export type RefineProps<T extends Numeric = any, R extends Numeric = any> = {
+export type RefineProps<T extends Numeric = any> = {
   features: DeviceBuffer|(T['scalarType']|null|undefined)[],
   featuresType: T,
   nSamples: number,
   nFeatures: number,
   convertDType: boolean,
   embeddings: DeviceBuffer,
-  target?: DeviceBuffer|(R['scalarType']|null|undefined)[],
-  targetType?: R, coo: COOInterface
+  coo: COOInterface
 };
 
 export type GetGraphProps<T extends Numeric = any, R extends Numeric = any> = {
@@ -121,7 +120,7 @@ export interface UMAPInterface {
 
   transform<T extends Numeric>(options?: transformProps<T>): DeviceBuffer;
 
-  refine<T extends Numeric, R extends Numeric>(options?: RefineProps<T, R>): DeviceBuffer;
+  refine<T extends Numeric>(options?: RefineProps<T>): DeviceBuffer;
 
   graph<T extends Numeric, R extends Numeric>(options?: GetGraphProps<T, R>): COOInterface;
 }

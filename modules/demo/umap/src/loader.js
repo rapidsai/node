@@ -22,9 +22,13 @@ const { UMAP } = require('@rapidsai/cuml');
 const defaultLayoutParams = {
   simulating: { name: 'simulating', val: true },
   autoCenter: { name: 'auto-center', val: false },
-  nEpochs: {
+  train: {
     name: 'start iterative training',
     val: false,
+  },
+  supervised: {
+    name: 'supervised',
+    val: false
   },
   controlsVisible: { name: 'controls visible', val: true },
 };
@@ -139,7 +143,7 @@ export default async function* loadGraphData(props = {}) {
   let nextFrames = dataframes.next();
   let datasourceCompleted = false;
   let graphUpdated = false;
-  let training_finished = true;
+  let supervisedUpdated = false;
   while (true) {
     graphUpdated = false;
     // Wait for a new set of source dataframes or for the
@@ -149,24 +153,20 @@ export default async function* loadGraphData(props = {}) {
       : Promise.race([rendered, nextFrames.then(({ value } = {}) => value)]));
 
     if (newDFs) {
-      console.log(newDFs);
       if (newDFs[0] !== nodes) {
         graphUpdated = true;
-        [nodes, embeddings] = generateUMAP(newDFs[0], embeddings, layoutParams.nEpochs.val);
+        [nodes, embeddings] = generateUMAP(newDFs[0], embeddings, layoutParams.supervised.val);
         nextFrames = dataframes.next();
       }
     }
 
-    if (layoutParams.nEpochs.val) {
-      training_finished = false;
-    } else {
-      training_finished = true;
+    if (layoutParams.train.val) {
+      [nodes, embeddings] = generateUMAP(nodes, embeddings, layoutParams.supervised.val);
     }
 
-    if (!training_finished) {
-      [nodes, embeddings] = generateUMAP(nodes, embeddings);
-    } else {
-      training_finished = true;
+    if (supervisedUpdated != layoutParams.supervised.val) {
+      embeddings = null;
+      supervisedUpdated = layoutParams.supervised.val;
     }
 
     if (!layoutParams.simulating.val && !graphUpdated) {
@@ -243,13 +243,13 @@ function createGraphRenderProps(nodes) {
   }
 }
 
-function generateUMAP(nodesDF, fittedUMAP = null, nEpochs = 1) {
+function generateUMAP(nodesDF, fittedUMAP = null, supervised = false) {
+  const options = { nNeighbors: 5, init: 1, randomState: 42 };
+
   if (fittedUMAP == null) {
-    const options = { nNeighbors: 5, init: 1, nEpochs: nEpochs, randomState: 42 };
-    fittedUMAP = (new UMAP(options)).fitDataFrame(df.drop(['target']), null);
+    fittedUMAP = (new UMAP({ nEpochs: 300, ...options })).fitDataFrame(df.drop(['target']), supervised ? df.get('target') : null);
   } else {
-    console.log("calling refine");
-    fittedUMAP.refineDataFrame(df.drop(['target']), null);
+    fittedUMAP.refineDataFrame(df.drop(['target']), supervised ? df.get('target') : null);
   }
   const lowDimensionEmbeddingDF = fittedUMAP.embeddings.asDataFrame();
   return [

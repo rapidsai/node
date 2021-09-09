@@ -70,7 +70,6 @@ struct UMAP : public EnvLocalObjectWrap<UMAP> {
   void refine(DeviceBuffer::wrapper_t const& X,
               cudf::size_type n_samples,
               cudf::size_type n_features,
-              DeviceBuffer::wrapper_t const& y,
               COO::wrapper_t const& coo,
               bool convert_dtype,
               DeviceBuffer::wrapper_t const& embeddings);
