@@ -53,6 +53,7 @@ struct node_cuda : public nv::EnvLocalAddon, public Napi::Addon<node_cuda> {
 
                   InstanceMethod<&node_cuda::get_driver_version>("getDriverVersion"),
                   InstanceMethod<&node_cuda::rgba_mirror>("rgbaMirror"),
+                  InstanceMethod<&node_cuda::bgra_to_ycrcb420>("bgraToYCrCb420"),
 
                   InstanceValue("Device", InitClass<nv::Device>(env, exports)),
                   InstanceValue("PinnedMemory", InitClass<nv::PinnedMemory>(env, exports)),
@@ -90,6 +91,23 @@ struct node_cuda : public nv::EnvLocalAddon, public Napi::Addon<node_cuda> {
       nv::Span<uint8_t> dst = args[4];
       nppiMirror_8u_C4R(src.data(), width * 4, dst.data(), width * 4, roi, flip);
     }
+
+    return info.Env().Undefined();
+  }
+
+  Napi::Value bgra_to_ycrcb420(Napi::CallbackInfo const& info) {
+    nv::CallbackArgs args{info};
+    nv::Span<uint8_t> dst = args[0];
+    nv::Span<uint8_t> src = args[1];
+    int32_t width         = args[2];
+    int32_t height        = args[3];
+    NppiSize roi          = {width, height};
+    Npp8u* dstBuff[3]     = {
+      dst.data(), dst.data() + width * height, dst.data() + width * height * 5 / 4};
+
+    int dstSteps[3] = {width, width / 2, width / 2};
+
+    nppiBGRToYCrCb420_8u_AC4P3R(src.data(), width * 4, dstBuff, dstSteps, roi);
 
     return info.Env().Undefined();
   }

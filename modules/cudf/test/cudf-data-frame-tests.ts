@@ -48,6 +48,18 @@ test('DataFrame initialization', () => {
   expect(table_0.get('col_1').type.typeId).toBe(col_1.type.typeId);
 });
 
+test('Empty DataFrame initialization', () => {
+  const table_0 = new DataFrame({});
+  expect(table_0.numColumns).toBe(0);
+  expect(table_0.numRows).toBe(0);
+  expect(table_0.names).toStrictEqual([]);
+
+  const table_1 = new DataFrame();
+  expect(table_1.numColumns).toBe(0);
+  expect(table_1.numRows).toBe(0);
+  expect(table_1.names).toStrictEqual([]);
+});
+
 test('DataFrame asTable', () => {
   const length = 100;
   const col_0  = Series.new({type: new Int32(), data: new Int32Buffer(length)});

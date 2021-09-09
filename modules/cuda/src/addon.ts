@@ -21,6 +21,7 @@ export const {
   IPC_HANDLE_SIZE,
   getDriverVersion,
   rgbaMirror,
+  bgraToYCrCb420,
 
   Math,
   driver,
@@ -43,6 +44,7 @@ export const {
 
 export type getDriverVersion = typeof import('./node_cuda').getDriverVersion;
 export type rgbaMirror       = typeof import('./node_cuda').rgbaMirror;
+export type bgraToYCrCb420   = typeof import('./node_cuda').bgraToYCrCb420;
 
 export type Math    = typeof import('./node_cuda').Math;
 export type driver  = typeof import('./node_cuda').driver;

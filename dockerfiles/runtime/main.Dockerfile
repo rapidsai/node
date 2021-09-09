@@ -17,9 +17,10 @@ RUN cp                                               \
     /opt/rapids/node/build/rapidsai-cuml-*.tgz       \
     /opt/rapids/node/build/rapidsai-cugraph-*.tgz    \
     /opt/rapids/node/build/rapidsai-cuspatial-*.tgz  \
+    /opt/rapids/node/build/rapidsai-deck.gl-*.tgz    \
+    /opt/rapids/node/build/rapidsai-jsdom-*.tgz      \
     . \
- && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz \
- && npm dedupe  --production --omit dev --omit peer --omit optional --legacy-peer-deps --force
+ && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz
 
 
 FROM ${FROM_IMAGE}
@@ -67,6 +68,8 @@ RUN cd /usr/local/lib \
     libgdal-dev \
     # X11 dependencies
     libxrandr-dev libxinerama-dev libxcursor-dev \
+    # Wayland dependencies
+    libwayland-dev wayland-protocols libxkbcommon-dev \
     # GLEW dependencies
     libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # UCX runtime dependencies
