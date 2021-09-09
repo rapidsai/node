@@ -384,7 +384,6 @@ export class FittedUMAP extends UMAP {
    *
    * @param nFeatures number of properties in the input features, if features is of the format
    *   [x1,y1,x2,y2...]
-   * @returns FittedUMAP object with updated embeddings
    */
   refineSeries<T extends Series<Numeric>, R extends Series<Numeric>>(features: T,
                                                                      target: null|R,
@@ -424,7 +423,6 @@ export class FittedUMAP extends UMAP {
    * @param target cuDF Series containing target values
    * @param convertDType When set to True, the method will automatically convert the inputs to
    *   float32
-   * @returns FittedUMAP object with updated embeddings
    */
   refineDataFrame<T extends Numeric, K extends string, R extends Series<Numeric>,>(features: DataFrame<{[P in K]: T}>,
 target: null|R, convertDType = true) {
@@ -458,7 +456,6 @@ target: null|R, convertDType = true) {
    * @param nFeatures number of properties in the input features, if features is of the format
    *   [x1, y1, x2, y2...]
    *
-   * @returns FittedUMAP object with updated embeddings
    */
   refineArray<T extends Series<Numeric>>(features: (number|bigint|null|undefined)[],
                                          target: (number|bigint|null|undefined)[]|null,
