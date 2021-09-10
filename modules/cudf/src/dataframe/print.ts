@@ -20,13 +20,14 @@ import {TypeMap} from '../types/mappings';
 export type DisplayOptions = {
   /**
    * The maximum number of columns to display before truncation. Truncation may also occur
-   * if the total printed width in characters exceeds `widht
+   * if the total printed width in characters exceeds `width`
+   * (default: 20)
    *
    */
   maxColumns?: number,
 
   /**
-   * The maximum width in characters of a column when printing a DataFram. When the column *
+   * The maximum width in characters of a column when printing a DataFrame. When the column *
    * overflows, a "..." placeholder is embedded in the output. A value of zero means unlimited.
    * (default: 50)
    */
