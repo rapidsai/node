@@ -41,7 +41,6 @@ function DownloadDataSet() {
       {
         method: `GET`,
         headers: {
-          [`Accept`]: `application/octet-stream`,
           [`Accept-Encoding`]: `br;q=1.0, gzip;q=0.8, deflate;q=0.6, identity;q=0.4, *;q=0.1`,
         },
       },
