@@ -47,7 +47,7 @@ export type DisplayOptions = {
 }
 
 export class DataFrameFormatter<T extends TypeMap> {
-  private obj: DataFrame;
+  private frame: DataFrame;
   private maxColumns: number;
   private maxColWidth: number;
   private maxRows: number;
@@ -55,7 +55,7 @@ export class DataFrameFormatter<T extends TypeMap> {
   private htrunc: boolean;
   private vtrunc: boolean;
 
-  constructor(options: DisplayOptions, obj: DataFrame<T>) {
+  constructor(options: DisplayOptions, frame: DataFrame<T>) {
     this.maxColumns  = options.maxColumns ?? 20;
     this.maxColWidth = options.maxColWidth ?? 50;
     this.maxRows     = options.maxRows ?? 60;
@@ -63,18 +63,18 @@ export class DataFrameFormatter<T extends TypeMap> {
     this.htrunc      = false;
     this.vtrunc      = false;
 
-    let tmp = this.preprocess(obj);
+    let tmp = this._preprocess(frame);
     while (this._totalWidth(tmp) > this.width) {
       this.htrunc = true;
       const names = [...tmp.names];
       const N     = Math.ceil((names.length - 1) / 2);
       tmp         = tmp.drop([names[N]]);
     }
-    this.obj = tmp;
+    this.frame = tmp;
   }
 
-  preprocess(obj: DataFrame<T>) {
-    let tmp: DataFrame = obj;
+  private _preprocess(frame: DataFrame<T>) {
+    let tmp: DataFrame = frame;
 
     if (this.maxColumns > 0 && tmp.numColumns > this.maxColumns) {
       this.htrunc       = true;
@@ -97,14 +97,14 @@ export class DataFrameFormatter<T extends TypeMap> {
   }
 
   render(): string {
-    const headers: string[] = [...this.obj.names];
-    const widths: number[]  = this._computeWidths(this.obj, headers);
+    const headers: string[] = [...this.frame.names];
+    const widths: number[]  = this._computeWidths(this.frame, headers);
     const lines             = [];
 
     lines.push(this._formatFields(headers, widths, '   '));
 
-    for (let i = 0; i < this.obj.numRows; ++i) {
-      const fields = headers.map((name: string) => this.obj.get(name).getValue(i));
+    for (let i = 0; i < this.frame.numRows; ++i) {
+      const fields = headers.map((name: string) => this.frame.get(name).getValue(i));
       lines.push(this._formatFields(fields, widths));
     }
 
@@ -118,16 +118,16 @@ export class DataFrameFormatter<T extends TypeMap> {
     return lines.join('\n');
   }
 
-  _totalWidth(obj: DataFrame) {
-    const widths = this._computeWidths(obj, [...obj.names]);
+  private _totalWidth(frame: DataFrame) {
+    const widths = this._computeWidths(frame, [...frame.names]);
     return widths.reduce((x, y) => x + y, 0) + widths.length;
   }
 
-  _computeWidths(obj: DataFrame, headers: string[]) {
-    const inds   = Series.sequence({type: new Int32, size: obj.numRows, init: 0});
+  private _computeWidths(frame: DataFrame, headers: string[]) {
+    const inds   = Series.sequence({type: new Int32, size: frame.numRows, init: 0});
     const widths = [];
     for (const name of headers) {
-      const lengths   = obj.get(name).len();
+      const lengths   = frame.get(name).len();
       const truncated = lengths.scatter(3, inds.gather(lengths.gt(this.maxColWidth)));  // '...'
       widths.push(Math.max(name.length, truncated.max()));
     }
