@@ -21,22 +21,23 @@ const fastify                   = require('fastify')({pluginTimeout: 30000, logg
 const {RecordBatchStreamWriter} = require('apache-arrow');
 
 let bc;
-const init =
-  async () => {
+
+fastify.register(async (instance, opts, done) => {
   bc = await BlazingCluster.init(2);
   await bc.createTable('test_table', DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
     sources: [`${__dirname}/small.csv`],
   }));
-}
-
-init();
+  done();
+});
 
 // Change cwd to the example dir so relative file paths are resolved
 process.chdir(__dirname);
 
-fastify.register((require('fastify-arrow'))).register(require('fastify-nextjs')).after(() => {
+fastify.register((require('fastify-arrow')))
+       .register(require('fastify-nextjs'))
+       .after(() => {
   fastify.next('/')
   fastify.get('/run_query', async function (request, reply) {
   const {sql}     = request.query;
