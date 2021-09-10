@@ -225,12 +225,14 @@ export class DataFrame<T extends TypeMap = any> {
   asTable() { return new Table({columns: this._accessor.columns}); }
 
   /**
+   * Return a string with a tabular representation of the DataFrame, pretty-printed according to the
+   * options given.
    *
    * @param options
    * @returns void
    */
-  toString(options?: DisplayOptions): string {
-    const formatter = new DataFrameFormatter(options ?? {}, this);
+  toString(options: DisplayOptions = {}): string {
+    const formatter = new DataFrameFormatter(options, this);
     return formatter.render();
   }
 
