@@ -17,8 +17,19 @@
 const {performance}             = require('perf_hooks');
 const {BlazingCluster}          = require('@rapidsai/blazingsql');
 const {DataFrame}               = require('@rapidsai/cudf');
-const fastify                   = require('fastify')({pluginTimeout: 30000, logger: true});
+const fastify                   = require('fastify')({pluginTimeout: 30000});
 const {RecordBatchStreamWriter} = require('apache-arrow');
+const fs                        = require('fs');
+
+const DATA_PATH = `${__dirname}/wikipedia_pages.csv`;
+if (!fs.existsSync(DATA_PATH)) {
+  console.error(`
+  .csv data not found! Run this to download the sample data from AWS S3 (178.6 MB):
+
+  node ${__dirname}/data.js
+  `);
+  process.exit(1);
+}
 
 let bc;
 
@@ -27,7 +38,7 @@ fastify.register(async (instance, opts, done) => {
   await bc.createTable('test_table', DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
-    sources: [`${__dirname}/small.csv`],
+    sources: [DATA_PATH],
   }));
   done();
 });
