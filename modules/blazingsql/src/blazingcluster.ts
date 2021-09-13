@@ -15,7 +15,7 @@
 import {DataFrame, DataType, TypeMap} from '@rapidsai/cudf';
 import {ChildProcess, fork} from 'child_process';
 
-import {UcpContext} from './addon';
+import {ContextProps, UcpContext} from './addon';
 import {BlazingContext} from './blazingcontext';
 import {defaultClusterConfigValues} from './config';
 
@@ -60,12 +60,21 @@ export class BlazingCluster {
    * await BlazingContext.init();
    * ```
    */
-  static async init(clusterOptions: Partial<ClusterProps>         = {},
-                    contextConfigOptions: Record<string, unknown> = {}): Promise<BlazingCluster> {
+  static async init(clusterOptions: Partial<ClusterProps> = {},
+                    contextOptions: Partial<ContextProps> = {}): Promise<BlazingCluster> {
     const {numWorkers = 1, ip = '0.0.0.0', port = 4000} = clusterOptions;
+    const {
+      ralId            = 0,
+      workerId         = ralId.toString(),
+      networkIfaceName = 'lo',
+      allocationMode   = 'cuda_memory_resource',
+      initialPoolSize  = null,
+      maximumPoolSize  = null,
+      enableLogging    = false,
+    }                   = contextOptions;
+    const configOptions = {...defaultClusterConfigValues, ...contextOptions.configOptions};
 
-    const bc            = new BlazingCluster(numWorkers);
-    const configOptions = {...defaultClusterConfigValues, ...contextConfigOptions};
+    const bc = new BlazingCluster(numWorkers);
 
     const ucpMetadata = ['0', ...Object.keys(bc.workers)].map(
       (_, idx) => { return ({workerId: idx.toString(), ip: ip, port: port + idx}); });
@@ -73,10 +82,16 @@ export class BlazingCluster {
     const createContextPromises: Promise<void>[] = [];
     bc.workers.forEach((worker, idx) => {
       createContextPromises.push(new Promise<void>((resolve) => {
-        const ralId = idx + 1;  // start ralId at 1 since ralId 0 is reserved for main process
+        const id = ralId + idx + 1;  // start ralId at 1 since ralId 0 is reserved for main process
         worker.send({
           operation: CREATE_BLAZING_CONTEXT,
-          ralId: ralId,
+          ralId: id,
+          workerId: id.toString(),
+          networkIfaceName: networkIfaceName,
+          allocationMode: allocationMode,
+          initialPoolSize: initialPoolSize,
+          maximumPoolSize: maximumPoolSize,
+          enableLogging: enableLogging,
           ucpMetadata: ucpMetadata,
           configOptions: configOptions,
           port: port,
@@ -90,9 +105,15 @@ export class BlazingCluster {
 
     const ucpContext  = new UcpContext();
     bc.blazingContext = new BlazingContext({
-      ralId: 0,
+      ralId: ralId,
+      workerId: workerId,
+      networkIfaceName: networkIfaceName,
       ralCommunicationPort: port,
-      configOptions: {...configOptions},
+      allocationMode: allocationMode,
+      initialPoolSize: initialPoolSize,
+      maximumPoolSize: maximumPoolSize,
+      enableLogging: enableLogging,
+      configOptions: configOptions,
       workersUcpInfo: ucpMetadata.map((xs) => ({...xs, ucpContext})),
     });
 

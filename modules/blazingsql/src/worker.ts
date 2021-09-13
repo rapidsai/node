@@ -34,6 +34,12 @@ process.on('message', (args: any) => {
   switch (operation) {
     case CREATE_BLAZING_CONTEXT: {
       const ralId              = rest['ralId'] as number;
+      const workerId           = rest['workerId'] as string;
+      const networkIfaceName   = rest['networkIfaceName'] as string;
+      const allocationMode     = rest['allocationMode'] as string;
+      const initialPoolSize    = rest['initialPoolSize'];
+      const maximumPoolSize    = rest['maximumPoolSize'];
+      const enableLogging      = rest['enableLogging'];
       const ucpMetaData: any[] = rest['ucpMetadata'] as Record<string, any>[];
       const configOptions      = rest['configOptions'] as Record<string, unknown>;
       const port               = rest['port'] as number;
@@ -41,8 +47,14 @@ process.on('message', (args: any) => {
 
       bc = new BlazingContext({
         ralId: ralId,
+        workerId: workerId,
+        networkIfaceName: networkIfaceName,
+        allocationMode: allocationMode,
+        initialPoolSize: initialPoolSize,
+        maximumPoolSize: maximumPoolSize,
+        enableLogging: enableLogging,
         ralCommunicationPort: port + ralId,
-        configOptions: {...configOptions},
+        configOptions: configOptions,
         workersUcpInfo: ucpMetaData.map((xs: any) => ({...xs, ucpContext}))
       });
 
