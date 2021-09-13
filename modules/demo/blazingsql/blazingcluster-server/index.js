@@ -33,23 +33,20 @@ if (!fs.existsSync(DATA_PATH)) {
 
 let bc;
 
-const init =
-  async () => {
+// Change cwd to the example dir so relative file paths are resolved
+process.chdir(__dirname);
+
+fastify.register((require('fastify-arrow')))
+       .register(require('fastify-nextjs'))
+       .register(async (instane, opts, done) => {
   bc = await BlazingCluster.init(2);
   await bc.createTable('test_table', DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
     sources: [DATA_PATH],
   }));
-}
-
-init();
-
-// Change cwd to the example dir so relative file paths are resolved
-process.chdir(__dirname);
-
-fastify.register((require('fastify-arrow')))
-       .register(require('fastify-nextjs'))
+  done();
+       })
        .after(() => {
   fastify.next('/')
   fastify.get('/run_query', async function (request, reply) {
