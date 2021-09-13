@@ -50,12 +50,14 @@ fastify.register((require('fastify-arrow')))
        .after(() => {
   fastify.next('/')
   fastify.get('/run_query', async function (request, reply) {
-  const {sql}     = request.query;
-  const t0        = performance.now();
-  const df        = await bc.sql(sql);
-  const t1        = performance.now();
-  const queryTime = t1 - t0;
-  RecordBatchStreamWriter.writeAll(df.toArrow()).pipe(reply.stream());
+  const {sql}      = request.query;
+  const t0         = performance.now();
+  const df         = await bc.sql(sql);
+  const t1         = performance.now();
+  const queryTime  = t1 - t0;
+  const arrowTable = df.toArrow();
+  arrowTable.schema.metadata.set('queryTime', queryTime);
+  RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
   })
 });
 

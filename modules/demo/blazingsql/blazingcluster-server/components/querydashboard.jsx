@@ -24,6 +24,7 @@ export class QueryDashboard extends React.Component {
     super();
     this.state = {
       query: '',
+      queryTime: '',
       queryResult: {},
       queryButtonEnabled: false,
     };
@@ -51,7 +52,8 @@ export class QueryDashboard extends React.Component {
             pageLength: [...table.getColumn("page_len")],
             pageRedirect: [...table.getColumn("page_is_redirect")],
             pageNew: [...table.getColumn("page_is_new")],
-          }
+          },
+          queryTime: table.schema.metadata.get('queryTime'),
         });
       });
       this.setState({ queryButtonEnabled: true });
@@ -78,7 +80,7 @@ export class QueryDashboard extends React.Component {
             <Button variant='contained' color='primary' className={'queryButton'} disabled={!this.state.queryButtonEnabled} onClick={this.runQuery}>Run Query</Button>
           </Col>
         </Row>
-        <QueryResultTable data={this.state.queryResult} />
+        <QueryResultTable data={this.state.queryResult} queryTime={this.state.queryTime} />
       </Container >
     )
   }

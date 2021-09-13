@@ -8,6 +8,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
+import Typography from '@material-ui/core/Typography';
 
 const columns = [
   { id: 'page_id', label: 'Page ID', minWidth: 0 },
@@ -55,7 +56,7 @@ const useStyles = makeStyles({
   },
 });
 
-export function QueryResultTable({ data }) {
+export function QueryResultTable({ data, queryTime }) {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -73,6 +74,9 @@ export function QueryResultTable({ data }) {
 
   return (
     <Paper className={classes.root}>
+      <Typography style={{ marginLeft: 5 }} variant="h6" id="tableTitle" component="div">
+        Query Time: {Math.round(queryTime)} ms
+      </Typography>
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
