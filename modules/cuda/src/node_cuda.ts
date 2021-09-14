@@ -565,11 +565,6 @@ export declare class IpcHandle {
    * another process.
    */
   readonly handle: Uint8Array;
-  /**
-   * @summary Close the underlying IPC memory handle, allowing this process to free the
-   * exported {@link DeviceMemory}.
-   */
-  close(): void;
 }
 
 /**

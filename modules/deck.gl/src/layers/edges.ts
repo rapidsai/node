@@ -32,8 +32,8 @@ export class EdgeLayer extends Layer {
   static get layerName() { return 'EdgeLayer'; }
   static get defaultProps() {
     return {
-      opacity: 1,
       width: 1,
+      opacity: 1,
       highlightedNode: -1,
       highlightedEdge: -1,
     };
@@ -62,12 +62,42 @@ export class EdgeLayer extends Layer {
     this.getAttributeManager().addInstanced(EdgeLayer.getAccessors(context));
   }
   updateState({props, oldProps, context, changeFlags}: UpdateStateProps) {
+    ['selectedEdgeId',
+     'highlightedEdgeId',
+     'selectedEdgeIndex',
+     'highlightedEdgeIndex',
+     'selectedSourceNodeId',
+     'highlightedSourceNodeId',
+     'selectedTargetNodeId',
+     'highlightedTargetNodeId']
+      .filter((key) => typeof props[key] === 'number')
+      .forEach((key) => this.internalState[key] = props[key]);
+
+    if (this.internalState.highlightedEdgeIndex !== -1) {
+      props.highlightedObjectIndex = this.internalState.highlightedEdgeIndex;
+    }
+
     super.updateState({props, oldProps, context, changeFlags});
+
     if (changeFlags.extensionsChanged) {
       if (this.state.model) { this.state.model.delete(); }
       this.setState({model: this._getModel(context)});
       this.getAttributeManager().invalidateAll();
     }
+  }
+  serialize() {
+    return {
+      highlightedNode: this.props.highlightedNode,
+      highlightedEdge: this.props.highlightedEdge,
+      selectedEdgeId: this.internalState.selectedEdgeId,
+      highlightedEdgeId: this.internalState.highlightedEdgeId,
+      selectedEdgeIndex: this.internalState.selectedEdgeIndex,
+      highlightedEdgeIndex: this.internalState.highlightedEdgeIndex,
+      selectedSourceNodeId: this.internalState.selectedSourceNodeId,
+      highlightedSourceNodeId: this.internalState.highlightedSourceNodeId,
+      selectedTargetNodeId: this.internalState.selectedTargetNodeId,
+      highlightedTargetNodeId: this.internalState.highlightedTargetNodeId,
+    };
   }
   draw({uniforms, ...rest}: {uniforms?: any, context?: DeckContext} = {}) {
     this.state.model.draw({

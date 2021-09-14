@@ -51,12 +51,25 @@ DeviceMemory::wrapper_t DeviceMemory::New(Napi::Env const& env, std::size_t size
 
 void DeviceMemory::Finalize(Napi::Env env) {
   if (data_ != nullptr && size_ > 0) {
+    if (!ipcMemHandle_.IsEmpty()) { cudaIpcCloseMemHandle(data_); }
     if (cudaFree(data_) == cudaSuccess) {
       Napi::MemoryManagement::AdjustExternalMemory(env, -size_);
     }
   }
+  ipcMemHandle_.Reset();
   data_ = nullptr;
   size_ = 0;
+}
+
+Napi::Uint8Array DeviceMemory::getIpcMemHandle() {
+  Napi::Env env = Env();
+  if (data_ != nullptr && ipcMemHandle_.IsEmpty()) {
+    auto ary = Napi::Uint8Array::New(env, CUDA_IPC_HANDLE_SIZE);
+    auto ptr = reinterpret_cast<cudaIpcMemHandle_t*>(ary.Data());
+    NODE_CUDA_TRY(CUDAAPI::cudaIpcGetMemHandle(ptr, data_), env);
+    ipcMemHandle_ = Napi::Persistent(ary);
+  }
+  return ipcMemHandle_.Value();
 }
 
 Napi::Value DeviceMemory::slice(Napi::CallbackInfo const& info) {

@@ -23,12 +23,13 @@ let jsdom = null;
 function render({data, events = [], sharedMemoryKey}) {
   const {lesson, width = 800, height = 600, animationProps} = data;
 
-  if (!loop) { ({jsdom, loop} = createLoop(width, height, lesson)); }
+  if (loop) {
+    loop = loop.restore(animationProps);
+  } else {
+    ({jsdom, loop} = createLoop(width, height, lesson));
+  }
 
   Object.assign(jsdom.window, {width, height});
-  if (animationProps && loop.animationProps) {  //
-    Object.assign(loop.animationProps, animationProps);
-  }
 
   events.filter(Boolean).forEach((event) => {
     try {
@@ -36,25 +37,15 @@ function render({data, events = [], sharedMemoryKey}) {
     } catch (e) { console.error(e && e.stack || e); }
   });
 
-  const rendered = loop.waitForRender().then((loop) => {
-    const props = Object.keys(loop.animationProps).reduce((props, key) => {
-      const val = loop.animationProps[key];
-      switch (val && typeof val) {
-        case null:
-        case undefined:
-        case 'number':
-        case 'string':
-        case 'boolean': props[key] = val;
-        default: break;
-      }
-      return props;
-    }, {_mousePosition: loop.animationProps._mousePosition});
-    return ({...data, animationProps: props, frame: copyFramebuffer(loop, sharedMemoryKey)});
-  });
+  const rendered = loop.waitForRender();
 
   loop.start();
 
-  return rendered;
+  return rendered.then((loop) => ({
+                         ...data,
+                         animationProps: loop.serialize(),
+                         frame: copyFramebuffer(loop, sharedMemoryKey),
+                       }));
 }
 
 function createLoop(width, height, lesson) {
@@ -89,6 +80,8 @@ function createLoop(width, height, lesson) {
     ((src, dst) => {
       dst.start                   = src.start;
       dst.pause                   = src.pause;
+      dst.restore                 = src.restore;
+      dst.serialize               = src.serialize;
       dst._renderFrame            = src._renderFrame;
       dst.onAfterRender           = src.onAfterRender;
       dst.onBeforeRender          = src.onBeforeRender;

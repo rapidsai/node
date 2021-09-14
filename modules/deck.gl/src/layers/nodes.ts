@@ -68,12 +68,33 @@ export class NodeLayer extends Layer {
     this.getAttributeManager().addInstanced(NodeLayer.getAccessors(context));
   }
   updateState({props, oldProps, context, changeFlags}: UpdateStateProps) {
+    ['selectedNodeId', 'highlightedNodeId', 'selectedNodeIndex', 'highlightedNodeIndex']
+      .filter((key) => typeof props[key] === 'number')
+      .forEach((key) => this.internalState[key] = props[key]);
+
+    if (this.internalState.highlightedNodeIndex !== -1) {
+      props.highlightedObjectIndex = this.internalState.highlightedNodeIndex;
+    }
+
     super.updateState({props, oldProps, context, changeFlags});
+
     if (changeFlags.extensionsChanged) {
       if (this.state.model) { this.state.model.delete(); }
       this.setState({model: this._getModel(context)});
       this.getAttributeManager().invalidateAll();
     }
+  }
+  serialize() {
+    return {
+      selectedNodeId: this.internalState.selectedNodeId,
+      highlightedNode: this.internalState.highlightedNodeId,
+      highlightedNodeId: this.internalState.highlightedNodeId,
+      selectedNodeIndex: this.internalState.selectedNodeIndex,
+      highlightedSourceNode: this.props.highlightedSourceNode,
+      highlightedTargetNode: this.props.highlightedTargetNode,
+      highlightedNodeIndex: this.internalState.highlightedNodeIndex,
+      highlightedObjectIndex: this.internalState.highlightedNodeId,
+    };
   }
   draw({uniforms, ...rest}: {uniforms?: any, context?: DeckContext} = {}) {
     this.state.model.draw({

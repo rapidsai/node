@@ -139,31 +139,6 @@ export function installGLFWWindow(window: jsdom.DOMWindow, windowOptions: GLFWWi
       configurable: false,
       get() { return _yscale; },
     },
-    mouseX: {
-      enumerable: true,
-      configurable: false,
-      get() { return _mouseX; },
-    },
-    mouseY: {
-      enumerable: true,
-      configurable: false,
-      get() { return _mouseY; },
-    },
-    scrollX: {
-      enumerable: true,
-      configurable: false,
-      get() { return _scrollX; },
-    },
-    scrollY: {
-      enumerable: true,
-      configurable: false,
-      get() { return _scrollY; },
-    },
-    buttons: {
-      enumerable: true,
-      configurable: false,
-      get() { return _buttons; },
-    },
     focused: {
       enumerable: true,
       configurable: false,
@@ -183,11 +158,6 @@ export function installGLFWWindow(window: jsdom.DOMWindow, windowOptions: GLFWWi
       enumerable: true,
       configurable: false,
       get() { return _transparent; },
-    },
-    modifiers: {
-      enumerable: true,
-      configurable: false,
-      get() { return _modifiers; },
     },
     altKey: {
       enumerable: true,
@@ -424,6 +394,42 @@ export function installGLFWWindow(window: jsdom.DOMWindow, windowOptions: GLFWWi
         }
       }
     },
+    mouseX: {
+      enumerable: true,
+      configurable: false,
+      get() { return _mouseX; },
+      set(_: number) { _mouseX = _; },
+    },
+    mouseY: {
+      enumerable: true,
+      configurable: false,
+      get() { return _mouseY; },
+      set(_: number) { _mouseY = _; },
+    },
+    buttons: {
+      enumerable: true,
+      configurable: false,
+      get() { return _buttons; },
+      set(_: number) { _buttons = _; },
+    },
+    scrollX: {
+      enumerable: true,
+      configurable: false,
+      get() { return _scrollX; },
+      set(_: number) { _scrollX = _; },
+    },
+    scrollY: {
+      enumerable: true,
+      configurable: false,
+      get() { return _scrollY; },
+      set(_: number) { _scrollY = _; },
+    },
+    modifiers: {
+      enumerable: true,
+      configurable: false,
+      get() { return _modifiers; },
+      set(_: number) { _modifiers = _; },
+    },
     _gl: {
       enumerable: false,
       configurable: false,
@@ -451,6 +457,11 @@ export function installGLFWWindow(window: jsdom.DOMWindow, windowOptions: GLFWWi
     'onmouseenter',
     'onmouseleave',
     'onwheel',
+  ]);
+
+  defineDOMElementPropertyAliases(window.MouseEvent.prototype, [
+    {name: 'x', aliases: ['offsetX']},
+    {name: 'y', aliases: ['offsetY']},
   ]);
 
   defineDOMElementPropertyAliases(window, [
@@ -789,17 +800,17 @@ function defineDOMEventListenerProperties(window: jsdom.DOMWindow, propertyNames
   });
 }
 
-function defineDOMElementPropertyAliases(window: jsdom.DOMWindow,
+function defineDOMElementPropertyAliases(element: any,
                                          aliases: {name: string, aliases: string[]}[]) {
   /* eslint-disable @typescript-eslint/unbound-method */
   aliases.forEach(({name, aliases = []}) => {
-    const descriptor = Object.getOwnPropertyDescriptor(window, name);
+    const descriptor = Object.getOwnPropertyDescriptor(element, name);
     if (descriptor) {
       descriptor.get =
         ((get) => get && function(this: any) { return get.call(this); })(descriptor.get);
       descriptor.set =
         ((set) => set && function(this: any, _: any) { return set.call(this, _); })(descriptor.set);
-      aliases.forEach((alias) => Object.defineProperty(window, alias, descriptor));
+      aliases.forEach((alias) => Object.defineProperty(element, alias, descriptor));
     }
   });
 }
