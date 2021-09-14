@@ -46,6 +46,9 @@ export type DisplayOptions = {
 
 }
 
+const SEP       = ' ';
+const SEP_WIDTH = SEP.length;
+
 export class DataFrameFormatter<T extends TypeMap> {
   private frame: DataFrame;
   private maxColumns: number;
@@ -54,6 +57,7 @@ export class DataFrameFormatter<T extends TypeMap> {
   private width: number;
   private htrunc: boolean;
   private vtrunc: boolean;
+  private measuredWidths: {[key: string]: number};
 
   constructor(options: DisplayOptions, frame: DataFrame<T>) {
     this.maxColumns  = options.maxColumns ?? 20;
@@ -63,7 +67,12 @@ export class DataFrameFormatter<T extends TypeMap> {
     this.htrunc      = false;
     this.vtrunc      = false;
 
+    if (this.maxColWidth < 4) { throw Error('maxColWidth must be at least 4'); }
+
     let tmp = this._preprocess(frame);
+
+    this.measuredWidths = this._measureWidths(tmp);
+
     while (this._totalWidth(tmp) > this.width) {
       this.htrunc = true;
       const names = [...tmp.names];
@@ -98,7 +107,7 @@ export class DataFrameFormatter<T extends TypeMap> {
 
   render(): string {
     const headers: string[] = [...this.frame.names];
-    const widths: number[]  = this._computeWidths(this.frame, headers);
+    const widths: number[]  = this._computeWidthsForColumns(headers);
     const lines             = [];
 
     lines.push(this._formatFields(headers, widths, '   '));
@@ -119,19 +128,26 @@ export class DataFrameFormatter<T extends TypeMap> {
   }
 
   private _totalWidth(frame: DataFrame) {
-    const widths = this._computeWidths(frame, [...frame.names]);
-    return widths.reduce((x, y) => x + y, 0) + widths.length;
+    const widths = this._computeWidthsForColumns([...frame.names]);
+    return widths.reduce((x, y) => x + y, 0) + (widths.length - 1) * SEP_WIDTH;
   }
 
-  private _computeWidths(frame: DataFrame, headers: string[]) {
-    const inds   = Series.sequence({type: new Int32, size: frame.numRows, init: 0});
+  private _computeWidthsForColumns(headers: string[]) {
     const widths = [];
-    for (const name of headers) {
+    for (const name of headers) { widths.push(this.measuredWidths[name]); }
+
+    return widths;
+  }
+
+  private _measureWidths(frame: DataFrame) {
+    const inds = Series.sequence({type: new Int32, size: frame.numRows, init: 0});
+
+    const widths: {[key: string]: number} = {};
+    for (const name of [...frame.names]) {
       const lengths   = frame.get(name).len();
       const truncated = lengths.scatter(3, inds.gather(lengths.gt(this.maxColWidth)));  // '...'
-      widths.push(Math.max(name.length, truncated.max()));
+      widths[name]    = Math.max(name.length, truncated.max());
     }
-
     return widths;
   }
 
@@ -146,6 +162,6 @@ export class DataFrameFormatter<T extends TypeMap> {
 
     const truncated = fields.map((val: string) => val.length > this.maxColWidth ? '...' : val);
 
-    return truncated.map((val: string, i: number) => val.padStart(widths[i], ' ')).join(' ');
+    return truncated.map((val: string, i: number) => val.padStart(widths[i], ' ')).join(SEP);
   }
 }
