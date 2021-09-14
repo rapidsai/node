@@ -338,4 +338,21 @@ export class BlazingCluster {
 
     return result_df;
   }
+
+  /**
+   * Sends a `SIGTERM` signal to all spawned workers. Essentially terminates all spawned workers and
+   * removes any references to them.
+   *
+   * @example
+   * ```typescript
+   * import {BlazingCluster} from '@rapidsai/blazingsql';
+   *
+   * const bc = await BlazingCluster.init();
+   * bc.kill();
+   * ```
+   */
+  kill(): void {
+    this.workers.forEach((w) => { w.kill(); });
+    this.workers.length = 0;
+  }
 }
