@@ -39,7 +39,7 @@ process.chdir(__dirname);
 fastify.register((require('fastify-arrow')))
        .register(require('fastify-nextjs'))
        .register(async (instane, opts, done) => {
-  bc = await BlazingCluster.init(2);
+  bc = await BlazingCluster.init({numWorkers: 2});
   await bc.createTable('test_table', DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
