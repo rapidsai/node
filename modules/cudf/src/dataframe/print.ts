@@ -40,7 +40,7 @@ export type DisplayOptions = {
   maxRows?: number,
 
   /**
-   * Width of the display in characters. (default: 80)
+   * Width of the display in characters. A value of zero means unlimited. (default: 0)
    */
   width?: number,
 
@@ -63,7 +63,7 @@ export class DataFrameFormatter<T extends TypeMap> {
     this.maxColumns  = options.maxColumns ?? 20;
     this.maxColWidth = options.maxColWidth ?? 50;
     this.maxRows     = options.maxRows ?? 60;
-    this.width       = options.width ?? 80;
+    this.width       = options.width ?? 0;
     this.htrunc      = false;
     this.vtrunc      = false;
 
@@ -73,7 +73,7 @@ export class DataFrameFormatter<T extends TypeMap> {
 
     this.measuredWidths = this._measureWidths(tmp);
 
-    while (this._totalWidth(tmp) > this.width) {
+    while (this.width > 0 && this._totalWidth(tmp) > this.width) {
       this.htrunc = true;
       const names = [...tmp.names];
       const N     = Math.ceil((names.length - 1) / 2);

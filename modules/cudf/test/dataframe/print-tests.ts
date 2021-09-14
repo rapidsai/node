@@ -87,7 +87,7 @@ null
   });
 
   test('exceeds width', () => {
-    expect(new DataFrame({'a': a, 'b': b, 'c': c, 'd': d}).toString({maxColWidth: 70}))
+    expect(new DataFrame({'a': a, 'b': b, 'c': c, 'd': d}).toString({maxColWidth: 70, width: 80}))
       .toEqual(
         `\
   a          b               d
@@ -274,7 +274,7 @@ null
     const cols: any = {};
     for (let i = 0; i < 30; ++i) { cols[`a${i}`] = a; }
     const df = new DataFrame(cols);
-    expect(df.toString({maxColumns: 30, width: 200}))
+    expect(df.toString({maxColumns: 30}))
       .toEqual(
         `\
  a0  a1  a2  a3  a4  a5  a6  a7  a8  a9 a10 a11 a12 a13 a14 a15 a16 a17 a18 a19 a20 a21 a22 a23 a24 a25 a26 a27 a28 a29
