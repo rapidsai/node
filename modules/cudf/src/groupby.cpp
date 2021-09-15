@@ -114,49 +114,56 @@ Napi::Value GroupBy::argmax(Napi::CallbackInfo const& info) {
   auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
-  return _single_aggregation([&]() { return cudf::make_argmax_aggregation(); }, values, mr, info);
+  return _single_aggregation(
+    [&]() { return cudf::make_argmax_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
 }
 
 Napi::Value GroupBy::argmin(Napi::CallbackInfo const& info) {
   auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
-  return _single_aggregation([&]() { return cudf::make_argmin_aggregation(); }, values, mr, info);
+  return _single_aggregation(
+    [&]() { return cudf::make_argmin_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
 }
 
 Napi::Value GroupBy::count(Napi::CallbackInfo const& info) {
   auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
-  return _single_aggregation([&]() { return cudf::make_count_aggregation(); }, values, mr, info);
+  return _single_aggregation(
+    [&]() { return cudf::make_count_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
 }
 
 Napi::Value GroupBy::max(Napi::CallbackInfo const& info) {
   auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
-  return _single_aggregation([&]() { return cudf::make_max_aggregation(); }, values, mr, info);
+  return _single_aggregation(
+    [&]() { return cudf::make_max_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
 }
 
 Napi::Value GroupBy::mean(Napi::CallbackInfo const& info) {
   auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
-  return _single_aggregation([&]() { return cudf::make_mean_aggregation(); }, values, mr, info);
+  return _single_aggregation(
+    [&]() { return cudf::make_mean_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
 }
 
 Napi::Value GroupBy::median(Napi::CallbackInfo const& info) {
   auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
-  return _single_aggregation([&]() { return cudf::make_median_aggregation(); }, values, mr, info);
+  return _single_aggregation(
+    [&]() { return cudf::make_median_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
 }
 
 Napi::Value GroupBy::min(Napi::CallbackInfo const& info) {
   auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
-  return _single_aggregation([&]() { return cudf::make_min_aggregation(); }, values, mr, info);
+  return _single_aggregation(
+    [&]() { return cudf::make_min_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
 }
 
 Napi::Value GroupBy::nth(Napi::CallbackInfo const& info) {
@@ -173,35 +180,48 @@ Napi::Value GroupBy::nth(Napi::CallbackInfo const& info) {
                                                 : rmm::mr::get_current_device_resource();
 
   return _single_aggregation(
-    [&]() { return cudf::make_nth_element_aggregation(n); }, values_table, mr, info);
+    [&]() { return cudf::make_nth_element_aggregation<cudf::groupby_aggregation>(n); },
+    values_table,
+    mr,
+    info);
 }
 
 Napi::Value GroupBy::nunique(Napi::CallbackInfo const& info) {
   auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
-  return _single_aggregation([&]() { return cudf::make_nunique_aggregation(); }, values, mr, info);
+  return _single_aggregation(
+    [&]() { return cudf::make_nunique_aggregation<cudf::groupby_aggregation>(); },
+    values,
+    mr,
+    info);
 }
 
 Napi::Value GroupBy::std(Napi::CallbackInfo const& info) {
   auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
-  return _single_aggregation([&]() { return cudf::make_std_aggregation(); }, values, mr, info);
+  return _single_aggregation(
+    [&]() { return cudf::make_std_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
 }
 
 Napi::Value GroupBy::sum(Napi::CallbackInfo const& info) {
   auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
-  return _single_aggregation([&]() { return cudf::make_sum_aggregation(); }, values, mr, info);
+  return _single_aggregation(
+    [&]() { return cudf::make_sum_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
 }
 
 Napi::Value GroupBy::var(Napi::CallbackInfo const& info) {
   auto args   = _get_basic_args(info);
   auto values = args.first;
   auto mr     = args.second;
-  return _single_aggregation([&]() { return cudf::make_variance_aggregation(); }, values, mr, info);
+  return _single_aggregation(
+    [&]() { return cudf::make_variance_aggregation<cudf::groupby_aggregation>(); },
+    values,
+    mr,
+    info);
 }
 
 Napi::Value GroupBy::quantile(Napi::CallbackInfo const& info) {
@@ -221,7 +241,10 @@ Napi::Value GroupBy::quantile(Napi::CallbackInfo const& info) {
                                                 : rmm::mr::get_current_device_resource();
 
   return _single_aggregation(
-    [&]() { return cudf::make_quantile_aggregation(qs, interpolation); }, values_table, mr, info);
+    [&]() { return cudf::make_quantile_aggregation<cudf::groupby_aggregation>(qs, interpolation); },
+    values_table,
+    mr,
+    info);
 }
 
 std::pair<nv::Table*, rmm::mr::device_memory_resource*> GroupBy::_get_basic_args(
