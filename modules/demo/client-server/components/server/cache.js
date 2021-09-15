@@ -12,62 +12,64 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const fs = require('fs/promises');
-const { DataFrame, Series, Uint32 } = require('@rapidsai/cudf');
-const { Field, Vector, Float32, List } = require('apache-arrow');
-const path = require('path');
+const fs                                                = require('fs/promises');
+const {DataFrame, Series, Uint32, Int16, Int8, Float32} = require('@rapidsai/cudf');
+const {Field, Vector, List}                             = require('apache-arrow');
+const path                                              = require('path');
 
-module.exports = () => {
-  let timeout = null;
-  let datasets = {
-    uber: null,
-    mortgage: null
+module.exports =
+  () => {
+    let timeout = null;
+    let datasets =
+      {uber: null, mortgage: null}
+    // let uberTracts = null;
+
+    function
+    clearCachedGPUData() {
+      datasets.uber     = null;
+      datasets.mortgage = null;
+    }
+
+    return async function loadDataMiddleware(datasetName, req, res, next) {
+      if (timeout) { clearTimeout(timeout); }
+
+      // Set a 10-minute debounce to release server GPU memory
+      timeout = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
+
+      req[datasetName] =
+        datasets[datasetName] || (datasets[datasetName] = await readDataset(datasets, datasetName));
+
+      next();
+    }
   }
-  // let uberTracts = null;
-
-  function clearCachedGPUData() {
-    datasets.uber = null;
-    datasets.mortgage = null;
-  }
-
-  return async function loadDataMiddleware(datasetName, req, res, next) {
-    if (timeout) { clearTimeout(timeout); }
-
-    // Set a 10-minute debounce to release server GPU memory
-    timeout = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
-
-    req[datasetName] = datasets[datasetName] || (datasets[datasetName] = await readDataset(datasets, datasetName));
-
-    next();
-  }
-}
 
 async function readDataset(datasets, datasetName) {
-  if (datasetName == "uber") {
-    //clear mortgage dataset from mem
+  if (datasetName == 'uber') {
+    // clear mortgage dataset from mem
     datasets.mortgage = null;
     return readUberTrips();
   }
-  if (datasetName == "mortgage") {
-    //clear uber dataset from mem
+  if (datasetName == 'mortgage') {
+    // clear uber dataset from mem
     datasets.uber = null;
     return readMortgageData();
   }
 }
 
-async function readUberTrips() {
+async function
+readUberTrips() {
   const trips = DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
     sources: [path.resolve('./public', 'data/san_fran_uber.csv')],
     dataTypes: {
-      sourceid: 'int16',
-      dstid: 'int16',
-      month: 'int8',
-      day: 'int8',
-      start_hour: 'int8',
-      end_hour: 'int8',
-      travel_time: 'float32'
+      sourceid: new Int16,
+      dstid: new Int16,
+      month: new Int8,
+      day: new Int8,
+      start_hour: new Int8,
+      end_hour: new Int8,
+      travel_time: new Float32
     }
   });
   return new DataFrame({
@@ -83,20 +85,21 @@ async function readUberTrips() {
   });
 }
 
-async function readMortgageData() {
+async function
+readMortgageData() {
   const mortgage = DataFrame.readCSV({
     header: 0,
     sourceType: 'files',
     sources: [path.resolve('./public', 'data/mortgage.csv')],
     dataTypes: {
-      index: 'int16',
-      zip: 'int32',
-      dti: 'float32',
-      current_actual_upb: 'float32',
-      borrower_credit_score: 'int16',
-      load_id: 'int32',
-      delinquency_12_prediction: 'float32',
-      seller_name: 'int16'
+      index: new Int16,
+      zip: new Int32,
+      dti: new Float32,
+      current_actual_upb: new Float32,
+      borrower_credit_score: new Int16,
+      load_id: new Int32,
+      delinquency_12_prediction: new Float32,
+      seller_name: new Int16
     }
   });
   return new DataFrame({
@@ -112,19 +115,16 @@ async function readMortgageData() {
   });
 }
 
-async function readUberTracts() {
+async function
+readUberTracts() {
+  const {features} = JSON.parse(
+    await fs.readFile('public/data/san_francisco_censustracts.geojson', {encoding: 'utf8'}));
 
-  const { features } = JSON.parse(await fs.readFile(
-    'public/data/san_francisco_censustracts.geojson',
-    { encoding: 'utf8' }
-  ));
-
-  const polygons = features
-    .filter((f) => f.geometry.type === 'MultiPolygon')
-    .reduce((x, { geometry }) => x.concat(geometry.coordinates), []);
+  const polygons = features.filter((f) => f.geometry.type === 'MultiPolygon')
+                     .reduce((x, {geometry}) => x.concat(geometry.coordinates), []);
 
   return new DataFrame({
-    id: Series.sequence({ type: new Uint32, init: 0, size: polygons.length }),
+    id: Series.sequence({type: new Uint32, init: 0, size: polygons.length}),
     polygons: Series.new(featureToVector(polygons))
   });
 
@@ -133,11 +133,9 @@ async function readUberTracts() {
       values: coordinates,
       highWaterMark: Number.POSITIVE_INFINITY,
       type: new List(Field.new({
-        name: 'rings', type: new List(Field.new({
-          name: 'coords', type: new List(Field.new({
-            name: 'points', type: new Float32()
-          }))
-        }))
+        name: 'rings',
+        type: new List(Field.new(
+          {name: 'coords', type: new List(Field.new({name: 'points', type: new Float32()}))}))
       })),
     });
   }

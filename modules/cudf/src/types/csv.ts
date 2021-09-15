@@ -13,64 +13,66 @@
 // limitations under the License.
 
 import {
-  Bool8,
-  Float32,
-  Float64,
-  Int16,
-  Int32,
-  Int64,
-  Int8,
-  Uint16,
-  Uint32,
-  Uint64,
-  Uint8,
-  Utf8String
+  // Bool8,
+  DataType,
+  // Float32,
+  // Float64,
+  // Int16,
+  // Int32,
+  // Int64,
+  // Int8,
+  // Uint16,
+  // Uint32,
+  // Uint64,
+  // Uint8,
+  // Utf8String
 } from './dtypes';
 
-export type CSVType = 'int8'|'int16'|'int32'|'int64'|'uint8'|'uint16'|'uint32'|'uint64'|'float32'|
-  'float64'|'datetime64[s]'|'datetime64[ms]'|'datetime64[us]'|'datetime64[ns]'|'timedelta64[s]'|
-  'timedelta64[ms]'|'timedelta64[us]'|'timedelta64[ns]'|'bool'|'category'|'str'|'hex'|'hex32'|
-  'hex64'|'date'|'date32'|'date64'|'timestamp'|'timestamp[us]'|'timestamp[s]'|'timestamp[ms]'|
-  'timestamp[ns]';
+// export type CSVType =
+// 'int8'|'int16'|'int32'|'int64'|'uint8'|'uint16'|'uint32'|'uint64'|'float32'|
+//   'float64'|'datetime64[s]'|'datetime64[ms]'|'datetime64[us]'|'datetime64[ns]'|'timedelta64[s]'|
+//   'timedelta64[ms]'|'timedelta64[us]'|'timedelta64[ns]'|'bool'|'category'|'str'|'hex'|'hex32'|
+//   'hex64'|'date'|'date32'|'date64'|'timestamp'|'timestamp[us]'|'timestamp[s]'|'timestamp[ms]'|
+//   'timestamp[ns]';
 
 export type CSVTypeMap = {
-  [key: string]: CSVType;
+  [key: string]: DataType;
 };
 
-export type CSVToCUDFType<T extends CSVType> = {
-  'int8': Int8,
-  'int16': Int16,
-  'int32': Int32,
-  'int64': Int64,
-  'uint8': Uint8,
-  'uint16': Uint16,
-  'uint32': Uint32,
-  'uint64': Uint64,
-  'float32': Float32,
-  'float64': Float64,
-  'datetime64[s]': never,
-  'datetime64[ms]': never,
-  'datetime64[us]': never,
-  'datetime64[ns]': never,
-  'timedelta64[s]': never,
-  'timedelta64[ms]': never,
-  'timedelta64[us]': never,
-  'timedelta64[ns]': never,
-  'bool': Bool8,
-  'category': never,
-  'str': Utf8String,
-  'hex': never,
-  'hex32': never,
-  'hex64': never,
-  'date': never,
-  'date32': never,
-  'date64': never,
-  'timestamp': never,
-  'timestamp[us]': never,
-  'timestamp[s]': never,
-  'timestamp[ms]': never,
-  'timestamp[ns]': never,
-}[T];
+// export type CSVToCUDFType<T extends CSVType> = {
+//   'int8': Int8,
+//   'int16': Int16,
+//   'int32': Int32,
+//   'int64': Int64,
+//   'uint8': Uint8,
+//   'uint16': Uint16,
+//   'uint32': Uint32,
+//   'uint64': Uint64,
+//   'float32': Float32,
+//   'float64': Float64,
+//   'datetime64[s]': never,
+//   'datetime64[ms]': never,
+//   'datetime64[us]': never,
+//   'datetime64[ns]': never,
+//   'timedelta64[s]': never,
+//   'timedelta64[ms]': never,
+//   'timedelta64[us]': never,
+//   'timedelta64[ns]': never,
+//   'bool': Bool8,
+//   'category': never,
+//   'str': Utf8String,
+//   'hex': never,
+//   'hex32': never,
+//   'hex64': never,
+//   'date': never,
+//   'date32': never,
+//   'date64': never,
+//   'timestamp': never,
+//   'timestamp[us]': never,
+//   'timestamp[s]': never,
+//   'timestamp[ms]': never,
+//   'timestamp[ns]': never,
+// }[T];
 
 export interface ReadCSVOptionsCommon<T extends CSVTypeMap = any> {
   /**
