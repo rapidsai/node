@@ -23,7 +23,6 @@
 #include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
 
-#include <cuml/common/device_buffer.hpp>
 #include <raft/handle.hpp>
 
 #include <napi.h>
