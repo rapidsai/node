@@ -30,8 +30,15 @@ fromEvent(process, 'message', (x) => x)
       case 'render.request':
         return group                                                                //
           .pipe(concatMap(({data}) => render(data), ({id}, data) => ({id, data})))  //
-          .pipe(tap((result) => process.send({...result, type: 'render.result'})));
+          .pipe(tap((result) => send({...result, type: 'render.result'})));
     }
     return EMPTY;
   }))
   .subscribe();
+
+function send(x) {
+  try {
+    JSON.stringify(x);
+    process.send(x);
+  } catch (e) { debugger; }
+}

@@ -146,7 +146,7 @@
         },
         "[javascript]": {
             "editor.tabSize": 2,
-            "editor.formatOnSave": true,
+            "editor.formatOnSave": false,
             "editor.formatOnSaveMode": "file",
             "editor.defaultFormatter": "xaver.clang-format"
         },

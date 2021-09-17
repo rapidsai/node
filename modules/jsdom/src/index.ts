@@ -13,14 +13,17 @@
 // limitations under the License.
 
 import * as jsdom from 'jsdom';
-import * as Path from 'path';
 
 import {installGetContext} from './polyfills/canvas';
 import {installFetch} from './polyfills/fetch';
 import {GLFWWindowOptions, installGLFWWindow} from './polyfills/glfw';
 import {installImageData, installImageDecode} from './polyfills/image';
 import {installJSDOMUtils} from './polyfills/jsdom';
-import {installMjolnirHammer} from './polyfills/mjolnir';
+import {mjolnirHammerResolvers} from './polyfills/modules/mjolnir';
+import {createContextRequire as createRequire} from './polyfills/modules/require';
+import {createResolve, ResolversMap} from './polyfills/modules/resolve';
+import {createTransform} from './polyfills/modules/transform';
+import {createContextFactory} from './polyfills/modules/vm';
 import {createObjectUrlAndTmpDir} from './polyfills/object-url';
 import {
   AnimationFrameRequest,
@@ -31,9 +34,11 @@ import {installStreams} from './polyfills/streams';
 import {ImageLoader} from './resourceloader';
 
 export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
-  module?: NodeModule;
+  module?: {path: string};
   frameRate?: number;
   glfwOptions?: GLFWWindowOptions;
+  resolvers?: ResolversMap;
+  babel?: boolean|Partial<import('@babel/core').TransformOptions>;
   reportUnhandledExceptions?: boolean;
   onAnimationFrameRequested?: AnimationFrameRequestedCallback;
 }
@@ -41,60 +46,87 @@ export interface RapidsJSDOMOptions extends jsdom.ConstructorOptions {
 const defaultOptions = {
   glfwOptions: {},
   reportUnhandledExceptions: true,
-  onAnimationFrameRequested: undefined
+  onAnimationFrameRequested: undefined,
+  babel: {
+    cache: false,
+    babelrc: false,
+    presets: [
+      ['@babel/preset-env', {'targets': {'node': 'current'}}],
+      ['@babel/preset-react', {'useBuiltIns': true}]
+    ]
+  }
 };
 
 export class RapidsJSDOM extends jsdom.JSDOM {
   static fromReactComponent(componentPath: string,
                             jsdomOptions: RapidsJSDOMOptions = {},
                             reactProps                       = {}) {
-    const jsdom = new RapidsJSDOM(jsdomOptions);
-    jsdom.window.evalFn(() => {
+    const jsdom  = new RapidsJSDOM(jsdomOptions);
+    const loaded = jsdom.window.evalFn(async () => {
       const React     = require('react');
       const ReactDOM  = require('react-dom');
-      const Component = require(componentPath);
-      ReactDOM.render(React.createElement(Component.default || Component, reactProps),
+      const Component = await eval(`import('${componentPath}')`);
+      ReactDOM.render(React.createElement(Component, reactProps),
                       document.body.appendChild(document.createElement('div')));
     }, {componentPath, reactProps});
-    return jsdom;
+    return Object.assign(jsdom, {loaded});
   }
 
   constructor(options: RapidsJSDOMOptions = {}) {
-    const opts = Object.assign({}, defaultOptions, options);
-    const {
-      url,
-      install: installObjectURL,
-    } = createObjectUrlAndTmpDir();
+    const opts                             = Object.assign({}, defaultOptions, options);
+    const {path: dir = process.cwd()}      = opts.module ?? require.main ?? module;
+    const {url, install: installObjectURL} = createObjectUrlAndTmpDir();
 
-    const cwd = opts.module
-                  ? opts.module.path || Path.dirname(opts.module.filename || opts.module.id)
-                  : process.cwd();
+    const imageLoader = new ImageLoader(url, dir);
 
     super(undefined, {
       ...opts,
       url,
+      resources: imageLoader,
       pretendToBeVisual: true,
       runScripts: 'outside-only',
-      resources: new ImageLoader(url, cwd),
       beforeParse(window) {
+        if (opts.reportUnhandledExceptions) { installUnhandledExceptionListeners(); }
+
         const {
-          glfwOptions,
-          reportUnhandledExceptions,
           onAnimationFrameRequested = defaultFrameScheduler(window, opts.frameRate),
         } = opts;
 
-        if (reportUnhandledExceptions) { installUnhandledExceptionListeners(); }
+        const createContext = createContextFactory(window, dir);
 
-        installJSDOMUtils(window, cwd);
-        installFetch(window);
-        installStreams(window);
-        installObjectURL(window);
-        installImageData(window);
-        installImageDecode(window);
-        installGetContext(window);
-        installGLFWWindow(window, glfwOptions);
-        installAnimationFrame(window, onAnimationFrameRequested);
-        installMjolnirHammer(window);
+        window = [
+          installJSDOMUtils({
+            createContext,
+            require: createRequire({
+              dir,
+              context: createContext(),
+              resolve: createResolve({...opts.resolvers, ...mjolnirHammerResolvers()}),
+              ...createTransform((opts.babel || undefined) &&  //
+                                     (typeof opts.babel === 'object')
+                                   ? {...opts.babel, cwd: dir}
+                                   : {...defaultOptions.babel, cwd: dir}),
+            })
+          }),
+          installFetch,
+          installStreams,
+          installObjectURL,
+          installImageData,
+          installImageDecode,
+          installGetContext,
+          installGLFWWindow(opts.glfwOptions),
+          installAnimationFrame(onAnimationFrameRequested),
+        ].reduce((window, fn) => fn(window), window);
+
+        // installFetch(window);
+        // installStreams(window);
+        // installObjectURL(window);
+        // installImageData(window);
+        // installImageDecode(window);
+        // installGetContext(window);
+        // installGLFWWindow(glfwOptions);
+        // installAnimationFrame(window, onAnimationFrameRequested);
+
+        imageLoader.svg2img = window.evalFn(() => require('svg2img').default);
       }
     });
   }

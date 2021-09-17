@@ -20,13 +20,18 @@
             "program": "${workspaceFolder}/${input:DEMO_NAME}",
             "stopOnEntry": false,
             "args": ["${input:DEMO_ARGS}"],
+            "runtimeArgs": ["--experimental-vm-modules"],
             "cwd": "${workspaceFolder}/${input:DEMO_NAME}",
             "console": "integratedTerminal",
             "skipFiles": [
                 // "**/node_modules/**",
-                "<node_internals>/**",
-                "**/node_modules/esm/**",
-                // "<node_internals>/internal/fs/utils",
+                // "<node_internals>/**",
+                // "**/node_modules/esm/**",
+                "**/node_modules/debug/**",
+                "**/node_modules/mjolnir.js/**",
+                "<node_internals>/internal/buffer",
+                "<node_internals>/internal/fs/utils",
+                // "<node_internals>/internal/validators",
             ],
             "env": {
                 "NODE_NO_WARNINGS": "1",
@@ -64,6 +69,7 @@
             "args": [
                 "--inspect=9229",
                 "--expose-internals",
+                "--experimental-vm-modules",
                 "${workspaceFolder}/${input:DEMO_NAME}",
                 // "${input:DEMO_ARGS}"
             ],

@@ -46,7 +46,7 @@ function copyAndConvertFramebuffer() {
 
     // DtoD copy from framebuffer into our pixelbuffer
     readPixelsToBuffer(
-      framebuffer, {sourceType: gl.UNSIGNED_BYTE, sourceFormat: gl.BGRA, target: rgbaDeviceBuffer});
+      framebuffer, {sourceType: gl.UNSIGNED_BYTE, sourceFormat: gl.RGBA, target: rgbaDeviceBuffer});
 
     // Map and unmap the GL buffer as a CUDA buffer
     rgbaDeviceBuffer.asMappedResource((glBuffer) => {

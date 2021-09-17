@@ -71,15 +71,20 @@ export class Deck extends BaseDeck {
   }
   _onViewStateChange(params: any) {
     this._latestViewState = {...params.viewState};
-    if (this._latestViewState.minZoom == null) {
-      this._latestViewState.minZoom = Number.NEGATIVE_INFINITY;
-    }
-    if (this._latestViewState.maxZoom == null) {
-      this._latestViewState.maxZoom = Number.POSITIVE_INFINITY;
-    }
-    Object.assign(params.viewState, this._latestViewState);
-    Object.assign(this.interactiveState, params.interactionState);
-    return super._onViewStateChange(params);
+    // if (this._latestViewState.minZoom == null) {
+    //   this._latestViewState.minZoom = Number.NEGATIVE_INFINITY;
+    // }
+    // if (this._latestViewState.maxZoom == null) {
+    //   this._latestViewState.maxZoom = Number.POSITIVE_INFINITY;
+    // }
+    // Object.assign(params.viewState, this._latestViewState);
+    // Object.assign(this.interactiveState, params.interactionState);
+    // const viewState = {...params.viewState};
+    super._onViewStateChange(params);
+    // console.log({
+    //   viewState1: viewState,
+    //   viewState2: this.viewState,
+    // });
   }
   _onInteractionStateChange(interactionState: any) {
     return super._onInteractionStateChange(Object.assign(this.interactiveState, interactionState));
@@ -91,6 +96,7 @@ export class Deck extends BaseDeck {
     if (state.metrics) { this.metrics = {...this.metrics, ...state.metrics}; }
     if ('_metricsCounter' in state) { this._metricsCounter = state._metricsCounter; }
     if (state._pickRequest) { this._pickRequest = {...this._pickRequest, ...state._pickRequest}; }
+    if (state.props?.initialViewState) { this._latestViewState = state.props.initialViewState; }
     if (state.interactiveState) {
       this.interactiveState = {...this.interactiveState, ...state.interactiveState};
     }
@@ -177,6 +183,8 @@ export class Deck extends BaseDeck {
     //   return controllers;
     // })();
 
+    // if (this._latestViewState) { console.log(this._latestViewState); }
+
     return {
       // views,
       // controllers,
@@ -187,15 +195,19 @@ export class Deck extends BaseDeck {
       _pickRequest: this._pickRequest ? {...this._pickRequest} : undefined,
       animationProps: this.animationLoop ? this.animationLoop.serialize() : undefined,
       interactiveState: this.interactiveState ? {...this.interactiveState} : undefined,
-      _lastPointerDownInfo: this._lastPointerDownInfo ? {...this._lastPointerDownInfo} : undefined,
-      deckPicker: {lastPickedInfo: serializeLastPickedInfo(this)},
+      _lastPointerDownInfo: serializePickingInfo(this._lastPointerDownInfo),
+      deckPicker: this.deckPicker.lastPickedInfo && {
+        lastPickedInfo: serializeLastPickedInfo(this),
+      },
+      // viewState: {...this._getViewState()},
       props: {
         debug: this.props.debug,
         _animate: this.props._animate,
         _pickable: this.props._pickable,
         touchAction: this.props.touchAction,
-        // viewState: {...this._getViewState()},
-        initialViewState: this._latestViewState,
+        // initialViewState: {...this._latestViewState},
+        // initialViewState: {...this._getViewState()},
+        // initialViewState: {...this.props.initialViewState},
         useDevicePixels: this.props.useDevicePixels,
         drawPickingColors: this.props.drawPickingColors,
         _typedArrayManagerProps: this.props._typedArrayManagerProps,
@@ -204,16 +216,28 @@ export class Deck extends BaseDeck {
   }
 }
 
+function serializePickingInfo(info: any) {
+  const {layer, viewport, sourceLayer} = info || {};
+  return info && {
+    x: info.x,
+    y: info.y,
+    index: info.index,
+    color: info.color,
+    picked: info.picked,
+    coordinate: info.coordinate,
+    devicePixel: info.devicePixel,
+    layer: layer && {id: layer.id},
+    viewport: viewport && {id: viewport.id},
+    sourceLayer: sourceLayer && {id: sourceLayer.id},
+  };
+}
+
 function serializeLastPickedInfo({deckPicker}: any) {
   const {lastPickedInfo}       = deckPicker || {};
   const {index, layerId, info} = lastPickedInfo || {};
-  const {layer, viewport}      = info || {};
   return lastPickedInfo && {
     index,
     layerId,
-    info: info && {
-      layer: layer && {id: layer.id},
-      viewport: viewport && {id: viewport.id},
-    },
+    info: serializePickingInfo(info),
   };
 }

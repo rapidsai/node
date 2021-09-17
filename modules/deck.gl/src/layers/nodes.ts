@@ -72,9 +72,9 @@ export class NodeLayer extends Layer {
       .filter((key) => typeof props[key] === 'number')
       .forEach((key) => this.internalState[key] = props[key]);
 
-    if (this.internalState.highlightedNodeIndex !== -1) {
-      props.highlightedObjectIndex = this.internalState.highlightedNodeIndex;
-    }
+    // if (this.internalState.highlightedNode && this.internalState.highlightedNode !== -1) {
+    //   props.highlightedObjectIndex = this.internalState.highlightedNode;
+    // }
 
     super.updateState({props, oldProps, context, changeFlags});
 
@@ -87,13 +87,9 @@ export class NodeLayer extends Layer {
   serialize() {
     return {
       selectedNodeId: this.internalState.selectedNodeId,
-      highlightedNode: this.internalState.highlightedNodeId,
-      highlightedNodeId: this.internalState.highlightedNodeId,
       selectedNodeIndex: this.internalState.selectedNodeIndex,
-      highlightedSourceNode: this.props.highlightedSourceNode,
-      highlightedTargetNode: this.props.highlightedTargetNode,
+      highlightedNodeId: this.internalState.highlightedNodeId,
       highlightedNodeIndex: this.internalState.highlightedNodeIndex,
-      highlightedObjectIndex: this.internalState.highlightedNodeId,
     };
   }
   draw({uniforms, ...rest}: {uniforms?: any, context?: DeckContext} = {}) {

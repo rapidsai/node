@@ -27,44 +27,60 @@ class Renderer {
     this._render = render;
   }
   async render(props = {}, graph = {}, state = {}, events = [], frame = 0) {
+    if (!props.initialViewState && !state?.deck?.props?.initialViewState) {
+      props = {
+        ...props,
+        initialViewState: {
+          zoom: 1,
+          target: [0, 0, 0],
+          minZoom: Number.NEGATIVE_INFINITY,
+          maxZoom: Number.POSITIVE_INFINITY,
+        }
+      };
+    }
+
+    const window = this.jsdom.window;
+
     graph = openGraphIpcHandles(graph);
     props && this.deck.setProps(props);
     state?.deck && this.deck.restore(state.deck);
     state?.graph && Object.assign(graph, state.graph);
-    state?.window && Object.assign(this.jsdom.window, state.window);
+    state?.window && Object.assign(window, state.window);
 
     await this._render(graph);
 
     if (events.length > 0) {
       events.forEach((event) => {  //
         // if (event.type === 'wheel') { debugger; }
-        this.jsdom.window.dispatchEvent(event);
+        window.dispatchEvent(event);
       });
-      await this._render(graph);
+      // await this._render();
+      // await this._render(graph);
+      this.deck.animationLoop.redraw();
+      // this.deck.animationLoop.start().redraw();
     }
 
     closeIpcHandles(graph.data.nodes);
     closeIpcHandles(graph.data.edges);
 
     return {
-      frame: frame > 0 ? {...copyFramebuffer(this.deck.animationLoop, frame)}
-                       : {width: state.width, height: state.height, frame},
+      frame: copyFramebuffer(this.deck.animationLoop, frame),
       state: {
         deck: this.deck.serialize(),
         graph: this.deck.layerManager.getLayers()[0]?.serialize(),
         window: {
-          x: this.jsdom.window.x,
-          y: this.jsdom.window.y,
-          title: this.jsdom.window.title,
-          width: this.jsdom.window.width,
-          height: this.jsdom.window.height,
-          cursor: this.jsdom.window.cursor,
-          mouseX: this.jsdom.window.mouseX,
-          mouseY: this.jsdom.window.mouseY,
-          buttons: this.jsdom.window.buttons,
-          scrollX: this.jsdom.window.scrollX,
-          scrollY: this.jsdom.window.scrollY,
-          modifiers: this.jsdom.window.modifiers,
+          x: window.x,
+          y: window.y,
+          title: window.title,
+          width: window.width,
+          height: window.height,
+          cursor: window.cursor,
+          mouseX: window.mouseX,
+          mouseY: window.mouseY,
+          buttons: window.buttons,
+          scrollX: window.scrollX,
+          scrollY: window.scrollY,
+          modifiers: window.modifiers,
         },
       },
     };
@@ -110,14 +126,9 @@ function makeDeck() {
     createFramebuffer: true,
     controller: {
       keyboard: false,
+      doubleClickZoom: false,
       type: ImmediateOrthographicController,
       scrollZoom: {speed: 0.01, smooth: false},
-    },
-    initialViewState: {
-      zoom: 1,
-      target: [0, 0, 0],
-      minZoom: Number.NEGATIVE_INFINITY,
-      maxZoom: Number.POSITIVE_INFINITY,
     },
     layers: [new GraphLayer({pickable: true})],
     views: [
@@ -132,11 +143,11 @@ function makeDeck() {
 
   return {
     deck,
-    render(graph = {}) {
-      const rendered = deck.animationLoop.waitForRender();
-      deck.setProps({layers: [new GraphLayer(graph)]});
+    render(graph) {
+      const done = deck.animationLoop.waitForRender();
+      if (graph) { deck.setProps({layers: [new GraphLayer(graph)]}); }
       deck.animationLoop.start();
-      return rendered;
+      return done;
     },
   };
 }

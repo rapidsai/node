@@ -159,23 +159,22 @@ function layoutAndRenderGraphs(clients) {
       const props = {...client.props};
       const event =
         [
-          'blur',
           'focus',
-          'beforeunload',
-          'keypress',
+          'blur',
           'keydown',
+          'keypress',
           'keyup',
-          'wheel',
-          'mousemove',
           'mouseenter',
-          'mouseleave',
           'mousedown',
+          'mousemove',
           'mouseup',
-        ].map(x => client.event[x])
-          .filter(x => x);
+          'mouseleave',
+          'wheel',
+          'beforeunload'
+        ].map((x) => client.event[x])
+          .filter(Boolean);
 
       if (event.length === 0 && !props.layout) { continue; }
-
       if (event.length !== 0) { client.event = Object.create(null); }
       if (props.layout) { client.graph = forceAtlas2(client.graph); }
 
@@ -204,16 +203,17 @@ function layoutAndRenderGraphs(clients) {
                           nodes: getIpcHandles(client.graph.nodes),
                         },
                       },
-                      (error, {state, frame}) => {
+                      (error, result) => {
                         client.isRendering = false;
-                        if (!(id in clients)) { return; }
-                        if (error) { throw error; }
-                        state && Object.assign(client.state, state);
-                        // console.log(state?.deck?.props?.initialViewState);
-                        // if (state?.deck?.props) {
-                        //   client.props.initialViewState = state.deck.props.initialViewState;
-                        // }
-                        client.video.onFrame({...frame, data: client.frame.buffer});
+                        if (id in clients) {
+                          if (error) { throw error; }
+                          result?.state && Object.assign(client.state, result.state);
+                          // console.log(state?.deck?.props?.initialViewState);
+                          // if (state?.deck?.props) {
+                          //   client.props.initialViewState = state.deck.props.initialViewState;
+                          // }
+                          client.video.onFrame({...result.frame, data: client.frame.buffer});
+                        }
                       });
     }
   }

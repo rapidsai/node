@@ -60,16 +60,6 @@ function createLoop(width, height, lesson) {
   });
 
   state.loop = state.jsdom.window.evalFn(() => {
-    __babel({
-      cache: false,
-      babelrc: false,
-      cwd: process.cwd(),
-      presets: [
-        ['@babel/preset-env', {'targets': {'node': 'current'}}],
-        ['@babel/preset-react', {'useBuiltIns': true}]
-      ]
-    });
-
     window.website = true;
     window.width   = __width;
     window.height  = __height;
@@ -101,7 +91,6 @@ function createLoop(width, height, lesson) {
   }, {
     __width: width,
     __height: height,
-    __babel: require('@babel/register'),
   });
 
   return state;

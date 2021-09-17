@@ -73,9 +73,10 @@ export class EdgeLayer extends Layer {
       .filter((key) => typeof props[key] === 'number')
       .forEach((key) => this.internalState[key] = props[key]);
 
-    if (this.internalState.highlightedEdgeIndex !== -1) {
-      props.highlightedObjectIndex = this.internalState.highlightedEdgeIndex;
-    }
+    // if (this.internalState.highlightedEdgeIndex && this.internalState.highlightedEdgeIndex !==
+    // -1) {
+    //   props.highlightedObjectIndex = this.internalState.highlightedEdgeIndex;
+    // }
 
     super.updateState({props, oldProps, context, changeFlags});
 
@@ -87,15 +88,13 @@ export class EdgeLayer extends Layer {
   }
   serialize() {
     return {
-      highlightedNode: this.props.highlightedNode,
-      highlightedEdge: this.props.highlightedEdge,
       selectedEdgeId: this.internalState.selectedEdgeId,
-      highlightedEdgeId: this.internalState.highlightedEdgeId,
       selectedEdgeIndex: this.internalState.selectedEdgeIndex,
+      highlightedEdgeId: this.internalState.highlightedEdgeId,
       highlightedEdgeIndex: this.internalState.highlightedEdgeIndex,
       selectedSourceNodeId: this.internalState.selectedSourceNodeId,
-      highlightedSourceNodeId: this.internalState.highlightedSourceNodeId,
       selectedTargetNodeId: this.internalState.selectedTargetNodeId,
+      highlightedSourceNodeId: this.internalState.highlightedSourceNodeId,
       highlightedTargetNodeId: this.internalState.highlightedTargetNodeId,
     };
   }

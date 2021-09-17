@@ -1,6 +1,4 @@
-#!/usr/bin/env -S node --trace-uncaught
-
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,18 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module.exports = () => {
-  const {RapidsJSDOM} = require('@rapidsai/jsdom');
-  const jsdom         = new RapidsJSDOM({
-    // Change cwd to the example dir so relative file paths are resolved
-    module: {path: require('path').join(__dirname, `lessons`, process.argv[2])}
-  });
+import * as Module from 'module';
 
-  jsdom.window.evalFn(() => import(`./app.js`));
+export type Resolver =
+  (request: string, parent: Module, isMain?: boolean, options?: {paths?: string[]|undefined;}) =>
+    any;
 
-  return jsdom;
+export type ResolversMap = {
+  [path: string]: Resolver
 };
 
-if (require.main === module) {
-  module.exports().window.addEventListener('close', () => process.exit(0), {once: true});
+export function createResolve(resolvers?: ResolversMap) {
+  const fns = resolvers ? resolvers : {} as ResolversMap;
+
+  return (...args: Parameters<Resolver>) => {
+    return (fns[args[0]] || (Module as any)._resolveFilename)(...args);
+  };
 }
