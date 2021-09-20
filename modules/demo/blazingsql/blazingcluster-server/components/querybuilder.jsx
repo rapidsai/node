@@ -21,38 +21,48 @@ import MaterialConfig from 'react-awesome-query-builder/lib/config/material';
 const config = {
   ...MaterialConfig,
   fields: {
-    page_id: {
-      label: 'page_id',
+    id: {
+      label: 'id',
       type: 'number',
       valueSources: ['value'],
       preferWidgets: ['number'],
     },
-    page_len: {
-      label: 'page_len',
+    revid: {
+      label: 'revid',
       type: 'number',
       valueSources: ['value'],
       preferWidgets: ['number'],
     },
-    page_is_redirect: {
-      label: 'page_is_redirect',
-      type: 'number',
+    url: {
+      label: 'url',
+      type: 'text',
       valueSources: ['value'],
-      fieldSettings: {
-        min: 0,
-        max: 1,
+      excludeOperators: ["proximity", "equal", "not_equal"],
+      mainWidgetProps: {
+        valueLabel: "url",
+        valuePlaceholder: "Enter url",
       },
-      preferWidgets: ['slider', 'rangeslider'],
     },
-    page_is_new: {
-      label: 'page_is_new',
-      type: 'number',
+    title: {
+      label: 'title',
+      type: 'text',
       valueSources: ['value'],
-      fieldSettings: {
-        min: 0,
-        max: 1,
+      excludeOperators: ["proximity", "equal", "not_equal"],
+      mainWidgetProps: {
+        valueLabel: "title",
+        valuePlaceholder: "Enter title",
       },
-      preferWidgets: ['slider', 'rangeslider'],
     },
+    text: {
+      label: 'text',
+      type: 'text',
+      valueSources: ['value'],
+      excludeOperators: ["proximity", "equal", "not_equal"],
+      mainWidgetProps: {
+        valueLabel: "text",
+        valuePlaceholder: "Enter text",
+      },
+    }
   }
 };
 
@@ -106,6 +116,6 @@ export class QueryBuilder extends React.Component {
     // Let's just replace any instances with 'NOT NULL' and 'NULL' for compatibility with BlazingSQL.
     query = query.replace('NOT EMPTY', 'NOT NULL');
     query = query.replace('EMPTY', 'NULL');
-    return `SELECT page_id, page_title, page_len, page_is_redirect, page_is_new FROM test_table WHERE ${JSON.parse(query)}`;
+    return `SELECT id, revid, url, title, text FROM test_table WHERE ${JSON.parse(query)}`;
   }
 }

@@ -11,15 +11,15 @@ import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
 
 const columns = [
-  { id: 'page_id', label: 'Page ID', minWidth: 0 },
-  { id: 'page_title', label: 'Page Title', minWidth: 100 },
-  { id: 'page_length', label: 'Page Length', minWidth: 0 },
-  { id: 'page_redirect', label: 'Is Redirect', minWidth: 0 },
-  { id: 'page_new', label: 'Is New', minWidth: 0 },
+  { id: 'id', label: 'ID', minWidth: 0 },
+  { id: 'revid', label: 'Rev ID', minWidth: 0 },
+  { id: 'url', label: 'URL', minWidth: 0 },
+  { id: 'title', label: 'Title', minWidth: 0 },
+  { id: 'text', label: 'Text', minWidth: 0 }
 ];
 
-function createData(page_id, page_title, page_length, page_redirect, page_new) {
-  return { page_id, page_title, page_length, page_redirect, page_new };
+function createData(id, revid, url, title, text) {
+  return { id, revid, url, title, text };
 }
 
 function formatData(data) {
@@ -28,18 +28,19 @@ function formatData(data) {
   }
 
   const rows = [];
-  data['pageTitle'].forEach((title, idx) => {
-    const pageId = data['pageId'][idx];
-    const pageLength = data['pageLength'][idx];
-    const pageNew = data['pageNew'][idx];
-    const pageRedirect = data['pageRedirect'][idx];
+  data['title'].forEach((_, idx) => {
+    const id = data['id'][idx];
+    const revid = data['revid'][idx];
+    const url = data['url'][idx];
+    const title = data['title'][idx];
+    const text = data['text'][idx];
     rows.push(
       createData(
-        pageId,
+        id,
+        revid,
+        url,
         title,
-        pageLength,
-        pageRedirect,
-        pageNew
+        text
       )
     );
   });

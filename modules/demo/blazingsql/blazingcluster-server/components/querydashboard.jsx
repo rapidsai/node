@@ -47,11 +47,11 @@ export class QueryDashboard extends React.Component {
       }).then((res) => Table.from(res)).then((table) => {
         this.setState({
           queryResult: {
-            pageId: [...table.getColumn("page_id")],
-            pageTitle: [...table.getColumn("page_title")],
-            pageLength: [...table.getColumn("page_len")],
-            pageRedirect: [...table.getColumn("page_is_redirect")],
-            pageNew: [...table.getColumn("page_is_new")],
+            id: [...table.getColumn("id")],
+            revid: [...table.getColumn("revid")],
+            url: [...table.getColumn("url")],
+            title: [...table.getColumn("title")],
+            text: [...table.getColumn("text")],
           },
           queryTime: table.schema.metadata.get('queryTime'),
         });
