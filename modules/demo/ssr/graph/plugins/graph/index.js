@@ -147,7 +147,7 @@ function graphSSRClients(fastify) {
 }
 
 function layoutAndRenderGraphs(clients) {
-  const renderer = new RenderCluster({numWorkers: 1 || 4});
+  const renderer = new RenderCluster({numWorkers: 1 && 4});
 
   return () => {
     for (const id in clients) {

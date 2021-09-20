@@ -27,18 +27,6 @@ class Renderer {
     this._render = render;
   }
   async render(props = {}, graph = {}, state = {}, events = [], frame = 0) {
-    if (!props.initialViewState && !state?.deck?.props?.initialViewState) {
-      props = {
-        ...props,
-        initialViewState: {
-          zoom: 1,
-          target: [0, 0, 0],
-          minZoom: Number.NEGATIVE_INFINITY,
-          maxZoom: Number.POSITIVE_INFINITY,
-        }
-      };
-    }
-
     const window = this.jsdom.window;
 
     graph = openGraphIpcHandles(graph);
@@ -47,18 +35,9 @@ class Renderer {
     state?.graph && Object.assign(graph, state.graph);
     state?.window && Object.assign(window, state.window);
 
-    await this._render(graph);
+    (events || []).forEach((event) => window.dispatchEvent(event));
 
-    if (events.length > 0) {
-      events.forEach((event) => {  //
-        // if (event.type === 'wheel') { debugger; }
-        window.dispatchEvent(event);
-      });
-      // await this._render();
-      // await this._render(graph);
-      this.deck.animationLoop.redraw();
-      // this.deck.animationLoop.start().redraw();
-    }
+    await this._render(graph);
 
     closeIpcHandles(graph.data.nodes);
     closeIpcHandles(graph.data.edges);
@@ -67,7 +46,9 @@ class Renderer {
       frame: copyFramebuffer(this.deck.animationLoop, frame),
       state: {
         deck: this.deck.serialize(),
-        graph: this.deck.layerManager.getLayers()[0]?.serialize(),
+        graph: this.deck.layerManager.getLayers()
+                 ?.find((layer) => layer.id === 'GraphLayer')
+                 .serialize(),
         window: {
           x: window.x,
           y: window.y,
@@ -81,6 +62,7 @@ class Renderer {
           scrollX: window.scrollX,
           scrollY: window.scrollY,
           modifiers: window.modifiers,
+          mouseInWindow: window.mouseInWindow,
         },
       },
     };
@@ -115,27 +97,63 @@ function makeDeck() {
   deckLog.level        = 0;
   deckLog.enable(false);
 
-  const {OrthographicView, OrthographicController} = require('@deck.gl/core');
+  const {OrthographicView}       = require('@deck.gl/core');
+  const {TextLayer}              = require('@deck.gl/layers');
+  const {DeckSSR, GraphLayer}    = require('@rapidsai/deck.gl');
+  const {OrthographicController} = require('@rapidsai/deck.gl');
 
-  class ImmediateOrthographicController extends OrthographicController {
-    get linearTransitionProps() { return null; }
-  }
+  const makeLayers = (deck, graph = {}) => {
+    const [viewport] = (deck?.viewManager?.getViewports() || []);
+    const [minX = Number.NEGATIVE_INFINITY,
+           minY = Number.NEGATIVE_INFINITY,
+    ]                = viewport?.getBounds() || [];
+    return [
+      new TextLayer({
+        sizeScale: 1,
+        opacity: 0.9,
+        maxWidth: 2000,
+        pickable: false,
+        getTextAnchor: 'start',
+        getAlignmentBaseline: 'top',
+        getSize: ({size})          => size,
+        getColor: ({color})        => color,
+        getPixelOffset: ({offset}) => offset,
+        data: Array.from({length: +process.env.NUM_WORKERS},
+                         (_, i) =>  //
+                         ({
+                           size: 15,
+                           offset: [0, i * 15],
+                           text: `Worker ${i}`,
+                           position: [minX, minY],
+                           color: +process.env.WORKER_ID === i  //
+                                    ? [245, 171, 53, 255]
+                                    : [255, 255, 255, 255],
+                         }))
+      }),
+      new GraphLayer({pickable: true, ...graph}),
+    ];
+  };
 
-  const {DeckSSR, GraphLayer} = require('@rapidsai/deck.gl');
-  const deck                  = new DeckSSR({
+  const deck = new DeckSSR({
     createFramebuffer: true,
-    controller: {
-      keyboard: false,
-      doubleClickZoom: false,
-      type: ImmediateOrthographicController,
-      scrollZoom: {speed: 0.01, smooth: false},
+    initialViewState: {
+      zoom: 1,
+      target: [0, 0, 0],
+      minZoom: Number.NEGATIVE_INFINITY,
+      maxZoom: Number.POSITIVE_INFINITY,
     },
-    layers: [new GraphLayer({pickable: true})],
+    layers: [makeLayers(null, {})],
     views: [
       new OrthographicView({
         clear: {
           color: [...[46, 46, 46].map((x) => x / 255), 1],
-        }
+        },
+        controller: {
+          keyboard: false,
+          doubleClickZoom: false,
+          type: OrthographicController,
+          scrollZoom: {speed: 0.01, smooth: false},
+        },
       }),
     ],
     onAfterAnimationFrameRender({_loop}) { _loop.pause(); },
@@ -145,7 +163,7 @@ function makeDeck() {
     deck,
     render(graph) {
       const done = deck.animationLoop.waitForRender();
-      if (graph) { deck.setProps({layers: [new GraphLayer(graph)]}); }
+      deck.setProps({layers: makeLayers(deck, graph)});
       deck.animationLoop.start();
       return done;
     },

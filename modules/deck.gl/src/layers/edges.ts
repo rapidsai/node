@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '../deck.gl';
-
-import {DeckContext, Layer, picking, PickingInfo, project32, UpdateStateProps} from '@deck.gl/core';
 import {Geometry, Model} from '@luma.gl/engine';
+
+import {DeckContext, DeckLayer, PickingInfo, UpdateStateProps} from '../deck.gl';
 
 import {
   edgeComponentAccessor,
@@ -26,9 +25,11 @@ import {
 import edgeFragmentShader from './edges/edge-fragment.glsl';
 import edgeVertexShader from './edges/edge-vertex.glsl';
 
+const {Layer, picking, project32} = require('@deck.gl/core');
+
 const NUM_SEGMENTS = 40;
 
-export class EdgeLayer extends Layer {
+export class EdgeLayer extends (Layer as typeof DeckLayer) {
   static get layerName() { return 'EdgeLayer'; }
   static get defaultProps() {
     return {

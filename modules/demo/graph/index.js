@@ -37,7 +37,7 @@ module.exports = (glfwOptions = {
 
   return require('@rapidsai/jsdom')
     .RapidsJSDOM.fromReactComponent(
-      './src/app.js',
+      './src/app.jsx',
       {
         glfwOptions,
         // Change cwd to the example dir so relative file paths are resolved

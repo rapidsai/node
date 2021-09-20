@@ -93,7 +93,12 @@ class RenderCluster {
         // serialization: 'advanced',
         execArgv: ['--trace-uncaught'],
         stdio: ['pipe', 'inherit', 'inherit', 'ipc'],
-        env: {...process.env, DISPLAY: undefined, WAYLAND_DISPLAY: undefined},
+        env: {
+          ...process.env,
+          DISPLAY: undefined,
+          WORKER_ID: i,
+          NUM_WORKERS: numWorkers,
+        },
       });
 
       worker.jobs = 0;

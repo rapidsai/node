@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '../deck.gl';
+import {DeckContext, DeckLayer, PickingInfo, UpdateStateProps} from '../deck.gl';
 
-import {DeckContext, Layer, picking, PickingInfo, project32, UpdateStateProps} from '@deck.gl/core';
+const {Layer, picking, project32} = require('@deck.gl/core');
+
 import {Geometry, Model} from '@luma.gl/engine';
 
 import {
@@ -26,7 +27,7 @@ import {
 import nodeFragmentShader from './nodes/node-fragment.glsl';
 import nodeVertexShader from './nodes/node-vertex.glsl';
 
-export class NodeLayer extends Layer {
+export class NodeLayer extends (Layer as typeof DeckLayer) {
   static get layerName() { return 'NodeLayer'; }
   static get defaultProps() {
     return {

@@ -1,6 +1,4 @@
-#!/usr/bin/env -S node --trace-uncaught
-
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './app';
+import {
+  Buffer as LumaBuffer_,
+} from '@luma.gl/webgl';
 
-export default App;
+// Add protected props and methods missing on the luma.gl typings
+export declare class LumaResource {
+  _deleteHandle(handle?: any): void;
+}
 
-if (process.env.REACT_APP_ENVIRONMENT === 'browser') {
-  ReactDOM.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-    document.getElementById('root')
-  );
+export declare class LumaBuffer extends LumaBuffer_ {
+  // _handle isn't mutable in practice, even though it is in the luma.gl typings
+  _handle: any;
+  _deleteHandle(): void;
+  _setData(data: any, offset?: number, byteLength?: number): void;
+  _setByteLength(byteLength: number, usage?: number): void;
 }

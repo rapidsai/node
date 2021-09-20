@@ -58,7 +58,9 @@ function copyAndConvertFramebuffer() {
     });
 
     // DtoH copy for output
-    i420DeviceBuffer.copyInto(shm.get(sharedMemoryKey, 'Uint8ClampedArray'));
+    const out = shm.get(sharedMemoryKey, 'Uint8ClampedArray');
+    i420DeviceBuffer.copyInto(out);
+    shm.detach(sharedMemoryKey);
 
     return {width, height, data: sharedMemoryKey};
   };

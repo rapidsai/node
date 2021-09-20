@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Deck as BaseDeck} from '@deck.gl/core';
+import {Deck as DeckGL} from '../deck.gl';
+
+const {Deck: BaseDeck} = require('@deck.gl/core');
+
 import {createGLContext} from '@luma.gl/gltools';
 
 import {AnimationLoop} from './animation-loop';
 
-export class Deck extends BaseDeck {
+export class Deck extends (BaseDeck as typeof DeckGL) {
   _createAnimationLoop(props: any) {
     const {
       width,
@@ -69,34 +72,22 @@ export class Deck extends BaseDeck {
 
     return loop;
   }
+
   _onViewStateChange(params: any) {
-    this._latestViewState = {...params.viewState};
-    // if (this._latestViewState.minZoom == null) {
-    //   this._latestViewState.minZoom = Number.NEGATIVE_INFINITY;
-    // }
-    // if (this._latestViewState.maxZoom == null) {
-    //   this._latestViewState.maxZoom = Number.POSITIVE_INFINITY;
-    // }
-    // Object.assign(params.viewState, this._latestViewState);
-    // Object.assign(this.interactiveState, params.interactionState);
-    // const viewState = {...params.viewState};
+    this.props.initialViewState = {...this.props.initialViewState, ...params.viewState};
     super._onViewStateChange(params);
-    // console.log({
-    //   viewState1: viewState,
-    //   viewState2: this.viewState,
-    // });
   }
+
   _onInteractionStateChange(interactionState: any) {
     return super._onInteractionStateChange(Object.assign(this.interactiveState, interactionState));
   }
+
   restore(state: any) {
-    if (state.props) { this.setProps(state.props); }
     if ('width' in state) { this.width = state.width; }
     if ('height' in state) { this.height = state.height; }
     if (state.metrics) { this.metrics = {...this.metrics, ...state.metrics}; }
     if ('_metricsCounter' in state) { this._metricsCounter = state._metricsCounter; }
     if (state._pickRequest) { this._pickRequest = {...this._pickRequest, ...state._pickRequest}; }
-    if (state.props?.initialViewState) { this._latestViewState = state.props.initialViewState; }
     if (state.interactiveState) {
       this.interactiveState = {...this.interactiveState, ...state.interactiveState};
     }
@@ -106,22 +97,6 @@ export class Deck extends BaseDeck {
 
     if ('animationProps' in state && this.animationLoop) {
       this.animationLoop.restore(state.animationProps);
-    }
-
-    if (state.views && this.viewManager) {
-      const viewMap = this.viewManager.getViews();
-      [...Object.keys(viewMap), ...Object.keys(state.views)]
-        .map((viewId) => [state.views[viewId], viewMap[viewId]?.props])
-        .filter(([source, target]) => source && target)
-        .forEach(([source, target]) => Object.assign(target, source));
-    }
-
-    if (state.controllers && this.viewManager) {
-      const controllersMap = this.viewManager.controllers;
-      [...Object.keys(controllersMap), ...Object.keys(state.controllers)]
-        .map((viewId) => [state.controllers[viewId], controllersMap[viewId]])
-        .filter(([source, target]) => source && target)
-        .forEach(([source, target]) => Object.assign(target, source));
     }
 
     if (state.deckPicker && this.deckPicker) {
@@ -143,51 +118,20 @@ export class Deck extends BaseDeck {
       };
     }
 
+    if (state.props) {
+      const {props} = state;
+      if (props.initialViewState) {
+        if (props.initialViewState.minZoom === null) { delete props.initialViewState.minZoom; }
+        if (props.initialViewState.maxZoom === null) { delete props.initialViewState.maxZoom; }
+      }
+      this.setProps(props);
+    }
+
     return this;
   }
+
   serialize() {
-    // const {minZoom, maxZoom, target} = this._getViewState();
-    // const viewState                  = {
-    //   target,
-    //   minZoom: minZoom !== null ? minZoom : Number.NEGATIVE_INFINITY,
-    //   maxZoom: maxZoom !== null ? maxZoom : Number.POSITIVE_INFINITY,
-    // };
-
-    // const views = (() => {
-    //   const views   = {} as any;
-    //   const viewMap = this.viewManager.getViews();
-    //   for (const viewId in viewMap) {  //
-    //     views[viewId] = {controller: viewMap[viewId].controller};
-    //   }
-    //   return views;
-    // })();
-
-    // const controllers = (() => {
-    //   const controllers = {} as any;
-    //   for (const viewId in this.viewManager.controllers) {  //
-    //     const controller    = this.viewManager.controllers[viewId];
-    //     controllers[viewId] = {
-    //       _state: controller._state,
-    //       dragPan: controller.dragPan,
-    //       keyboard: controller.keyboard,
-    //       touchZoom: controller.touchZoom,
-    //       dragRotate: controller.dragRotate,
-    //       scrollZoom: controller.scrollZoom,
-    //       touchRotate: controller.touchRotate,
-    //       doubleClickZoom: controller.doubleClickZoom,
-    //       _interactionState: controller._interactionState,
-    //       _eventStartBlocked: controller._eventStartBlocked,
-    //       controllerStateProps: controller.controllerStateProps,
-    //     };
-    //   }
-    //   return controllers;
-    // })();
-
-    // if (this._latestViewState) { console.log(this._latestViewState); }
-
     return {
-      // views,
-      // controllers,
       width: this.width,
       height: this.height,
       _metricsCounter: this._metricsCounter,
@@ -199,16 +143,13 @@ export class Deck extends BaseDeck {
       deckPicker: this.deckPicker.lastPickedInfo && {
         lastPickedInfo: serializeLastPickedInfo(this),
       },
-      // viewState: {...this._getViewState()},
       props: {
         debug: this.props.debug,
         _animate: this.props._animate,
         _pickable: this.props._pickable,
         touchAction: this.props.touchAction,
-        // initialViewState: {...this._latestViewState},
-        // initialViewState: {...this._getViewState()},
-        // initialViewState: {...this.props.initialViewState},
         useDevicePixels: this.props.useDevicePixels,
+        initialViewState: this.props.initialViewState,
         drawPickingColors: this.props.drawPickingColors,
         _typedArrayManagerProps: this.props._typedArrayManagerProps,
       },

@@ -12,10 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '../deck.gl';
+import {
+  DeckCompositeLayer,
+  DeckContext,
+  DeckTextLayer,
+  PickingInfo,
+  UpdateStateProps
+} from '../deck.gl';
 
-import {CompositeLayer, DeckContext, PickingInfo, UpdateStateProps} from '@deck.gl/core';
-import {TextLayer} from '@deck.gl/layers';
+const {TextLayer}      = require('@deck.gl/layers') as {TextLayer: typeof DeckTextLayer};
+const {CompositeLayer} = require('@deck.gl/core');
+
 import {Accessor} from '@luma.gl/webgl';
 
 import {Buffer} from '../buffer';
@@ -48,7 +55,7 @@ const nodeBufferNames = [
   'nodeElementIndices'
 ];
 
-export class GraphLayer extends CompositeLayer {
+export class GraphLayer extends (CompositeLayer as typeof DeckCompositeLayer) {
   static get layerName() { return 'GraphLayer'; }
   static get defaultProps() {
     const defaultNodeProps = NodeLayer.defaultProps;
@@ -74,11 +81,6 @@ export class GraphLayer extends CompositeLayer {
       nodeRadiusMaxPixels: defaultNodeProps.radiusMaxPixels,
       nodeLineWidthMinPixels: defaultNodeProps.lineWidthMinPixels,
       nodeLineWidthMaxPixels: defaultNodeProps.lineWidthMaxPixels,
-      // highlight props
-      highlightedEdge: defaultEdgeProps.highlightedEdge,
-      highlightedNode: defaultNodeProps.highlightedNode,
-      highlightedSourceNode: defaultNodeProps.highlightedSourceNode,
-      highlightedTargetNode: defaultNodeProps.highlightedTargetNode,
     };
   }
   static getAccessors(context: DeckContext) {
@@ -121,10 +123,15 @@ export class GraphLayer extends CompositeLayer {
            super.shouldUpdateState({props, changeFlags, oldProps, ...rest});
   }
   updateState({props, oldProps, changeFlags, ...rest}: UpdateStateProps) {
-    this.setState(
-      ['highlightedEdge', 'highlightedNode', 'highlightedSourceNode', 'highlightedTargetNode']
-        .filter((key) => typeof props[key] === 'number')
-        .reduce((state, key) => ({...state, [key]: props[key]}), {}));
+    // highlight props
+    this.setState([
+      'labels',
+      'highlightedEdge',
+      'highlightedNode',
+      'highlightedSourceNode',
+      'highlightedTargetNode'
+    ].filter((key) => key in props)
+                    .reduce((state, key) => ({...state, [key]: props[key]}), {}));
 
     super.updateState({props, oldProps, changeFlags, ...rest});
 
@@ -184,6 +191,7 @@ export class GraphLayer extends CompositeLayer {
     return {
       highlightedEdge: this.state.highlightedEdge,
       highlightedNode: this.state.highlightedNode,
+      labels: this.state.labels?.filter((x: any) => x?.text),
       highlightedSourceNode: this.state.highlightedSourceNode,
       highlightedTargetNode: this.state.highlightedTargetNode,
       _subLayerProps: (this.internalState.subLayers || [])
@@ -234,10 +242,10 @@ export class GraphLayer extends CompositeLayer {
     }
     if (nodeId !== -1 && (typeof this.props.getNodeLabels === 'function')) {
       nextState.labels = this.props.getNodeLabels(
-        {x, y, nodeId, edgeId, sourceNodeId, targetNodeId, layer, props: this.props});
+        {x, y, coordinate, nodeId, edgeId, sourceNodeId, targetNodeId, layer, props: this.props});
     } else if (edgeId !== -1 && (typeof this.props.getEdgeLabels === 'function')) {
       nextState.labels = this.props.getEdgeLabels(
-        {x, y, nodeId, edgeId, sourceNodeId, targetNodeId, layer, props: this.props});
+        {x, y, coordinate, nodeId, edgeId, sourceNodeId, targetNodeId, layer, props: this.props});
     } else {
       nextState.labels = [{
         text: label,
@@ -291,7 +299,7 @@ export class GraphLayer extends CompositeLayer {
                                                 ...nodeLayerProps(props, state, offset, length),
                                               }));
 
-    if (this.state.labels && this.state.labels.length) {
+    if (this.state.labels?.length) {
       layers.push(new TextLayer(this.getSubLayerProps({
         id: `${TextLayer.name}-0`,
         ...textLayerProps(this.props, this.state),
@@ -481,7 +489,7 @@ const textLayerProps = (_props: any, state: any) => ({
   fontFamily: 'sans-serif, sans',
   getSize: (d: any)        => d.size,
   getColor: (d: any)       => d.color,
-  getPosition: (d: any)    => d.position,
   getPixelOffset: (d: any) => d.offset || [d.size, 0],
-  data: state.labels.filter((label: any) => !!label.text)
+  data: state.labels.filter((label: any) => !!label.text),
+  getPosition: (d: any) => typeof d.position === 'function' ? d.position() : d.position,
 });

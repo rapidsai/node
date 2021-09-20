@@ -56,6 +56,7 @@
         function dispatchRemoteEvent(target, type) {
             let timeout = null;
             target.addEventListener(type, (e) => {
+                if (target === video) { e.preventDefault(); }
                 if (!timeout) {
                     timeout = setTimeout(() => { timeout = null; }, 1000 / 60);
                     peer.send(JSON.stringify({ type: 'event', data: serializeEvent(e) }));

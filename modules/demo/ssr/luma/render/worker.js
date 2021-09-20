@@ -61,8 +61,6 @@ function createLoop(width, height, lesson) {
 
   state.loop = state.jsdom.window.evalFn(() => {
     window.website = true;
-    window.width   = __width;
-    window.height  = __height;
 
     const AppAnimationLoop   = require('./app').default;
     const {AnimationLoopSSR} = require('@rapidsai/deck.gl');
@@ -88,9 +86,6 @@ function createLoop(width, height, lesson) {
     loop.props._onAfterRender = ({_loop}) => { _loop.pause(); };
 
     return loop;
-  }, {
-    __width: width,
-    __height: height,
   });
 
   return state;
