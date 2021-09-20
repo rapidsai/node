@@ -13,19 +13,47 @@
 // limitations under the License.
 
 import * as Module from 'module';
+import * as Path from 'path';
 
 export type Resolver =
   (request: string, parent: Module, isMain?: boolean, options?: {paths?: string[]|undefined;}) =>
-    any;
+    string;
 
 export type ResolversMap = {
   [path: string]: Resolver
 };
 
-export function createResolve(resolvers?: ResolversMap) {
-  const fns = resolvers ? resolvers : {} as ResolversMap;
+const nodeModulesWithSeparator       = `node_modules${Path.sep}`;
+const nodeModulesWithSeparatorLength = nodeModulesWithSeparator.length;
 
-  return (...args: Parameters<Resolver>) => {
-    return (fns[args[0]] || (Module as any)._resolveFilename)(...args);
-  };
+export function createResolve(resolvers?: ResolversMap): Resolver {
+  resolvers = resolvers || {};
+
+  return resolve;
+
+  function resolve(request: string, parent: Module, isMain?: boolean, options?: any) {
+    // Normalize request path so custom resolvers can have a stable key
+    const resolveFilename = resolvers![resolverKey(request, parent)];
+    return resolveFilename  //
+             ? resolveFilename(request, parent, isMain, options)
+             : (<any>Module)._resolveFilename(request, parent, isMain, options);
+  }
+
+  function resolverKey(request: string, parent: Module) {
+    const dir = '' + parent.path;
+    const idx = dir.lastIndexOf(nodeModulesWithSeparator) ?? -1;
+    const pre = dir.slice(~idx && idx + nodeModulesWithSeparatorLength || 0);
+    return Path.join(pre, normalizeReq(request, parent));
+  }
+
+  function normalizeReq(request: string, parent: Module) {
+    if (Path.isAbsolute(request)) {
+      const relative = Path.relative(parent.path, request);
+      if (!relative.startsWith(`.${Path.sep}`)) {  //
+        return `.${Path.sep}${relative}`;
+      }
+      return relative;
+    }
+    return request;
+  }
 }

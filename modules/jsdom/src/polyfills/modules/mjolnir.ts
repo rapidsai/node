@@ -26,35 +26,3 @@ function mjolnirHammerResolver(request: string, ...args: any[]) {
   request = request.replace('hammer', 'hammer.browser');
   return (Module as any)._resolveFilename(request, ...args);
 }
-
-// export function installMjolnirHammer(window: jsdom.DOMWindow) {
-//   window.evalFn(async function() {
-//     const hammerjs = require('hammerjs');
-//     const {enhancePointerEventInput, enhanceMouseInput} =
-//       require('mjolnir.js/dist/es5/utils/hammer-overrides');
-//     enhancePointerEventInput(hammerjs.PointerEventInput);
-//     enhanceMouseInput(hammerjs.MouseInput);
-//     (await Promise.all([
-//       import(`mjolnir.js/src/utils/hammer${'.js'}`),
-//       import(`mjolnir.js/dist/es5/utils/hammer${'.js'}`),
-//       import(`mjolnir.js/dist/esm/utils/hammer${'.js'}`),
-//     ]))
-//       .forEach((mjolnirHammer) => {
-//         try {
-//           redefine(mjolnirHammer, [
-//             {field: 'default', value: hammerjs},
-//             {field: 'Manager', value: hammerjs['Manager']},
-//           ]);
-//         } catch (e) { /**/
-//         }
-//       });
-//     function redefine(target: any, fields: {field: string, value: any}[]) {
-//       Object.defineProperties(target, fields.reduce((descriptors, {field, value}) => {
-//         descriptors[field] = {...Object.getOwnPropertyDescriptor(target, field), value};
-//         return descriptors;
-//       }, {} as PropertyDescriptorMap));
-//     }
-//   });
-
-//   return window;
-// }

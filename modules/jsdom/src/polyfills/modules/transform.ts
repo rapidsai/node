@@ -67,7 +67,7 @@ function compilersByExtension(transform: Transform) {
 
   // compile `.js` files even if "type": "module" is set in the file's package.json
   function transformAndCompile(module: Module, filename: string) {
-    return (<any>module)._compile(transform(filename, fs.readFileSync(filename, 'utf8')));
+    return (<any>module)._compile(transform(filename, fs.readFileSync(filename, 'utf8')), filename);
   }
 }
 

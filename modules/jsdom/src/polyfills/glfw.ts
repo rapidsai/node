@@ -81,6 +81,7 @@ export function installGLFWWindow(windowOptions: GLFWWindowOptions = {}) {
     let _buttons       = 0;
     let _modifiers     = 0;
     let _gl: any       = null;
+    let _mouseInWindow = false;
     let _subscriptions = new Subscription();
 
     let {
@@ -407,6 +408,12 @@ export function installGLFWWindow(windowOptions: GLFWWindowOptions = {}) {
         get() { return _mouseY; },
         set(_: number) { _mouseY = _; },
       },
+      mouseInWindow: {
+        enumerable: true,
+        configurable: false,
+        get() { return _mouseInWindow; },
+        set(_: boolean) { _mouseInWindow = _; },
+      },
       buttons: {
         enumerable: true,
         configurable: false,
@@ -461,8 +468,8 @@ export function installGLFWWindow(windowOptions: GLFWWindowOptions = {}) {
     ]);
 
     defineDOMElementPropertyAliases(window.MouseEvent.prototype, [
-      {name: 'x', aliases: ['offsetX']},
-      {name: 'y', aliases: ['offsetY']},
+      {name: 'clientX', aliases: ['offsetX']},
+      {name: 'clientY', aliases: ['offsetY']},
     ]);
 
     defineDOMElementPropertyAliases(window, [
@@ -471,8 +478,8 @@ export function installGLFWWindow(windowOptions: GLFWWindowOptions = {}) {
       {name: 'scrollX', aliases: ['scrollLeft', 'pageXOffset']},
       {name: 'scrollY', aliases: ['scrollTop', 'pageYOffset']},
       {name: 'onwheel', aliases: ['onscroll', 'onmousewheel']},
-      {name: 'width', aliases: ['clientWidth', 'innerWidth', 'offsetWidth']},
-      {name: 'height', aliases: ['clientHeight', 'innerHeight', 'offsetHeight']},
+      {name: 'width', aliases: ['clientWidth', 'innerWidth', 'outerWidth', 'offsetWidth']},
+      {name: 'height', aliases: ['clientHeight', 'innerHeight', 'outerHeight', 'offsetHeight']},
     ]);
 
     // Attaching functions
@@ -701,11 +708,12 @@ export function installGLFWWindow(windowOptions: GLFWWindowOptions = {}) {
 
     window._dispatchGLFWMouseEventIntoDOM = function dispatchGLFWMouseEventIntoDOM(
                                               this: jsdom.DOMWindow, event: GLFWMouseEvent) {
-      _mouseX  = event.x;
-      _mouseY  = event.y;
-      _buttons = event.buttons;
-      let m    = _modifiers;
-      m        = event.altKey ? (m | GLFWModifierKey.MOD_ALT) : (m & ~GLFWModifierKey.MOD_ALT);
+      _mouseX        = event.x;
+      _mouseY        = event.y;
+      _buttons       = event.buttons;
+      _mouseInWindow = event.type !== 'mouseleave';
+      let m          = _modifiers;
+      m = event.altKey ? (m | GLFWModifierKey.MOD_ALT) : (m & ~GLFWModifierKey.MOD_ALT);
       m = event.ctrlKey ? (m | GLFWModifierKey.MOD_CONTROL) : (m & ~GLFWModifierKey.MOD_CONTROL);
       m = event.metaKey ? (m | GLFWModifierKey.MOD_SUPER) : (m & ~GLFWModifierKey.MOD_SUPER);
       m = event.shiftKey ? (m | GLFWModifierKey.MOD_SHIFT) : (m & ~GLFWModifierKey.MOD_SHIFT);
@@ -850,6 +858,8 @@ function defineLayoutProps(window: jsdom.DOMWindow, proto: any) {
    'clientHeight',
    'innerWidth',
    'innerHeight',
+   'outerWidth',
+   'outerHeight',
    'offsetWidth',
    'offsetHeight',
   ].forEach((k) => Object.defineProperty(proto, k, {

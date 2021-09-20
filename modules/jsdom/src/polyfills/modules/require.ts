@@ -69,6 +69,8 @@ export class ContextModule extends Module {
   declare public __resolve: Resolver;
   declare public _transform: Transform;
 
+  declare public _cachedDynamicImporter: (specifier: string) => Promise<any>;
+
   /**
    * Custom nodejs Module implementation which uses a provided
    * resolver, require hooks, and context.
@@ -88,10 +90,10 @@ export class ContextModule extends Module {
 
     this._moduleCache  = {};
     this._resolveCache = {};
-    this._context      = context;
     this._extensions   = extensions;
     this._transform    = transform;
     this._require      = createRequire(this);
+    this._context      = isContext(context) ? context : vm.createContext(context);
 
     if (typeof resolve === 'function') {
       this.__resolve = resolve;
@@ -99,10 +101,7 @@ export class ContextModule extends Module {
       this._resolveFilename = module_static__resolveFilename;
     }
 
-    if (!vm.isContext(context) && typeof context.runVMScript !== 'function' &&
-        typeof context.getInternalVMContext !== 'function') {
-      vm.createContext(context);
-    }
+    this._cachedDynamicImporter = createImport(this._require, context, this._transform);
 
     this.loaded = true;
   }
@@ -120,13 +119,12 @@ export class ContextModule extends Module {
   public _resolveFilename(request: string, parent: Module, isMain?: boolean, options?: {
     paths?: string[]|undefined;
   }) {
-    // Normalize paths for custom resolvers.
     const cache    = this._resolveCache;
     const cacheKey = `${parent.path}\x00${request}`;
     if (cache[cacheKey]) { return cache[cacheKey]; }
     const resolved = this.__resolve(request, parent, isMain, options);
     if (resolved) { cache[cacheKey] = resolved; }
-    return resolved as string;
+    return resolved;
   }
 
   public _compile(content: string, filename: string) {
@@ -135,16 +133,12 @@ export class ContextModule extends Module {
 
   public load(filename: string) { return patched_prototype_load.call(this, filename); }
 
-  // declare private _vm: typeof import('vm');
-
-  // public get vm() { return this._vm || (this._vm = patchVMForContextModule(this)); }
-
   public exec(content: string, filename: string, inner = this._context) {
     const outer   = this._context;
     const options = {
       filename,
       displayErrors: true,
-      importModuleDynamically: this.createImport(inner)
+      importModuleDynamically: this.createDynamicImporter(inner),
     };
     return tryAndReset(
       () => { this._context = inner; },
@@ -153,8 +147,10 @@ export class ContextModule extends Module {
     );
   }
 
-  public createImport(context = this._context) {
-    return createImport(this._require, context, this._transform);
+  public createDynamicImporter(context = this._context) {
+    return context === this._context  //
+             ? this._cachedDynamicImporter
+             : createImport(this._require, context, this._transform);
   }
 }
 
@@ -166,21 +162,16 @@ export class ContextModule extends Module {
  * @param isMain
  */
 function patched_static__load(request: string, parent: Module, isMain: boolean): any {
-  // if (request === 'vm') {
-  //   return findNearestContextModule(parent)?.vm || module_static__load(request, parent, isMain);
-  // }
-
   if (Module.builtinModules.indexOf(request) !== -1) {
     return module_static__load(request, parent, isMain);
   }
 
-  const contextModule = findNearestContextModule(parent);
+  const module = findNearestContextModule(parent);
 
-  if (contextModule) {
+  if (module) {
     const filename = patched_static__resolveFilename(request, parent, isMain);
     // ensure native addons are added to the global static Module._cache
-    const cache =
-      Path.extname(filename) === '.node' ? module_static__cache : contextModule._moduleCache;
+    const cache = Path.extname(filename) === '.node' ? module_static__cache : module._moduleCache;
     const child = cache[filename];
     if (child) {
       if (parent.children.indexOf(child) === -1) { parent.children.push(child); }
@@ -254,22 +245,11 @@ function patched_prototype__compile(this: Module, content: string, filename: str
   const module = findNearestContextModule(this);
 
   if (module) {
-    // const code = Module.wrap(content);
-    // const opts = {
-    //   filename,
-    //   displayErrors: true,
-    //   importModuleDynamically: module.createImport(),
-    // };
-    // const init = runScript(module._context, new vm.Script(code, opts));
-    const init = module.exec(Module.wrap(content), filename);
-    return init.call(
-      this.exports,
-      this.exports,
-      createRequire(this),
-      this,
-      filename,
-      Path.dirname(filename),
-    );
+    const exports = this.exports;
+    const require = createRequire(this);
+    const dirname = Path.dirname(filename);
+    return module.exec(Module.wrap(content), filename)
+      .call(exports, exports, require, this, filename, dirname);
   }
 
   return module_prototype__compile.call(this, content, filename);
@@ -301,6 +281,11 @@ function runScript(context: vm.Context, script: vm.Script) {
            ? context.runVMScript(script)
            : script.runInContext(context.getInternalVMContext ? context.getInternalVMContext()
                                                               : context);
+}
+
+function isContext(context: any) {
+  return vm.isContext(context) || (typeof context.runVMScript === 'function' &&
+                                   typeof context.getInternalVMContext === 'function');
 }
 
 function tryAndReset<Work extends() => any>(setup: () => any, work: Work, reset: () => any) {
@@ -368,42 +353,3 @@ function uninstallModuleHooks() {
     M.prototype.load     = module_prototype_load;
   }
 }
-
-// function patchVMForContextModule(mod: ContextModule) {
-//   const clone = (obj: any) => Object.create(Object.getPrototypeOf(obj),  //
-//                                             Object.getOwnPropertyDescriptors(obj));
-
-//   function Script_(this: any, ...args: ConstructorParameters<typeof vm.Script>) {
-//     return Reflect.construct(vm.Script, args, new.target || Script_);
-//   }
-
-//   Script_.prototype = clone(vm.Script.prototype);
-
-//   Script_.prototype.runInNewContext = function(context?: vm.Context,
-//                                                options?: vm.RunningScriptOptions) {
-//     if (context?.global?.window === mod._context.window) {
-//       context = Object.create(Object.getPrototypeOf(mod._context), {
-//         ...Object.getOwnPropertyDescriptors(mod._context),
-//         ...Object.getOwnPropertyDescriptors(context),
-//       });
-//     }
-//     return vm.Script.prototype.runInNewContext.call(this, context, options);
-//   };
-
-//   Script_.prototype.runInThisContext = function(options?: vm.RunningScriptOptions) {
-//     return vm.Script.prototype.runInNewContext.call(this, mod._context, options);
-//   };
-
-//   const vm_ = Object.assign(clone(vm), {Script: Script_});
-
-//   vm_.compileFunction = function(
-//     code: string, params?: readonly string[], options?: vm.CompileFunctionOptions) {
-//     if (!options?.parsingContext) {
-//       return vm.compileFunction.call(
-//         this, code, params, {...options, parsingContext: mod._context});
-//     }
-//     return vm.compileFunction.call(this, code, params, options);
-//   };
-
-//   return vm_;
-// }

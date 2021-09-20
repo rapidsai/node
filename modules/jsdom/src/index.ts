@@ -48,7 +48,6 @@ const defaultOptions = {
   reportUnhandledExceptions: true,
   onAnimationFrameRequested: undefined,
   babel: {
-    cache: false,
     babelrc: false,
     presets: [
       ['@babel/preset-env', {'targets': {'node': 'current'}}],
@@ -66,7 +65,7 @@ export class RapidsJSDOM extends jsdom.JSDOM {
       const React     = require('react');
       const ReactDOM  = require('react-dom');
       const Component = await eval(`import('${componentPath}')`);
-      ReactDOM.render(React.createElement(Component, reactProps),
+      ReactDOM.render(React.createElement(Component.default || Component, reactProps),
                       document.body.appendChild(document.createElement('div')));
     }, {componentPath, reactProps});
     return Object.assign(jsdom, {loaded});
@@ -116,15 +115,6 @@ export class RapidsJSDOM extends jsdom.JSDOM {
           installGLFWWindow(opts.glfwOptions),
           installAnimationFrame(onAnimationFrameRequested),
         ].reduce((window, fn) => fn(window), window);
-
-        // installFetch(window);
-        // installStreams(window);
-        // installObjectURL(window);
-        // installImageData(window);
-        // installImageDecode(window);
-        // installGetContext(window);
-        // installGLFWWindow(glfwOptions);
-        // installAnimationFrame(window, onAnimationFrameRequested);
 
         imageLoader.svg2img = window.evalFn(() => require('svg2img').default);
       }

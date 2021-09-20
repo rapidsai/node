@@ -28,10 +28,10 @@ export function createImport(require: Require,
     const path = require.resolve(specifier);
     const opts = {displayErrors: true, context, importModuleDynamically, identifier: path};
     try {
-      // Try importing via require first
+      // Try importing as CJS first
       return await tryRequire(path, opts);
     } catch (e) {
-      // If require throws, try importing as ESM
+      // If CJS throws, try importing as ESM
       return await tryImport(path, opts);
     }
   }
@@ -53,6 +53,6 @@ export function createImport(require: Require,
   }
 
   function linkAndEvaluate(module: any) {
-    return module.link(importModuleDynamically).then(() => module.evaluate());
+    return module.link(importModuleDynamically).then(() => module.evaluate()).then(() => module);
   }
 }

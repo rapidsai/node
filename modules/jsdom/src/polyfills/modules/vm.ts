@@ -49,7 +49,7 @@ export function createContextFactory(window: jsdom.DOMWindow, cwd: string) {
     });
 
     const innerContext =
-      vm.createContext(Object.assign(innerGlobal, {process: innerProcess, globals}));
+      vm.createContext(Object.assign(innerGlobal, {process: innerProcess, ...globals}));
 
     return installSymbolHasInstanceImpls(innerContext);
   }
