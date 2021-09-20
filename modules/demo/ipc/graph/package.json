@@ -14,8 +14,8 @@
     "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
   },
   "dependencies": {
-    "@deck.gl/core": "8.5.7",
-    "@deck.gl/react": "8.5.7",
+    "@deck.gl/core": "8.5.8",
+    "@deck.gl/react": "8.5.8",
     "@luma.gl/core": "8.5.7",
     "@luma.gl/gltools": "8.5.7",
     "@nvidia/cuda": "0.0.1",

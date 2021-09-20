@@ -13,12 +13,12 @@
     "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
   },
   "dependencies": {
-    "@deck.gl/react": "8.5.7",
-    "@deck.gl/core": "8.5.7",
-    "@deck.gl/layers": "8.5.7",
-    "@loaders.gl/las": "3.0.11",
-    "@loaders.gl/ply": "3.0.11",
-    "@loaders.gl/core": "3.0.11",
+    "@deck.gl/react": "8.5.8",
+    "@deck.gl/core": "8.5.8",
+    "@deck.gl/layers": "8.5.8",
+    "@loaders.gl/las": "3.0.12",
+    "@loaders.gl/ply": "3.0.12",
+    "@loaders.gl/core": "3.0.12",
     "@rapidsai/jsdom": "0.0.1",
     "react": "17.0.2",
     "react-dom": "17.0.2"

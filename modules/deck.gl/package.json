@@ -19,8 +19,8 @@
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@deck.gl/core": "8.5.7",
-    "@deck.gl/layers": "8.5.7",
+    "@deck.gl/core": "8.5.8",
+    "@deck.gl/layers": "8.5.8",
     "@luma.gl/core": "8.5.7",
     "@luma.gl/engine": "8.5.7",
     "@luma.gl/webgl": "8.5.7",

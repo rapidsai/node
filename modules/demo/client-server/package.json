@@ -13,12 +13,12 @@
     "start": "next build && next start"
   },
   "dependencies": {
-    "@deck.gl/core": "8.5.7",
-    "@deck.gl/layers": "8.5.7",
-    "@deck.gl/react": "8.5.7",
-    "@deck.gl/carto": "8.5.7",
-    "@deck.gl/geo-layers": "8.5.7",
-    "@deck.gl/mesh-layers": "8.5.7",
+    "@deck.gl/core": "8.5.8",
+    "@deck.gl/layers": "8.5.8",
+    "@deck.gl/react": "8.5.8",
+    "@deck.gl/carto": "8.5.8",
+    "@deck.gl/geo-layers": "8.5.8",
+    "@deck.gl/mesh-layers": "8.5.8",
     "@fortawesome/fontawesome-svg-core": "1.2.35",
     "@fortawesome/free-solid-svg-icons": "5.15.3",
     "@fortawesome/react-fontawesome": "0.1.14",
