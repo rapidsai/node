@@ -11,11 +11,11 @@ import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
 
 const columns = [
-  { id: 'id', label: 'ID', minWidth: 0 },
-  { id: 'revid', label: 'Rev ID', minWidth: 0 },
-  { id: 'url', label: 'URL', minWidth: 0 },
-  { id: 'title', label: 'Title', minWidth: 0 },
-  { id: 'text', label: 'Text', minWidth: 0 }
+  { id: 'id', label: 'ID' },
+  { id: 'revid', label: 'Rev ID' },
+  { id: 'url', label: 'URL', minWidth: 310, },
+  { id: 'title', label: 'Title', },
+  { id: 'text', label: 'Text', minWidth: 700 }
 ];
 
 function createData(id, revid, url, title, text) {

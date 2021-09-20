@@ -39,11 +39,12 @@ export class QueryDashboard extends React.Component {
   async runQuery() {
     if (this.state.queryButtonEnabled) {
       this.setState({ queryButtonEnabled: false });
-      await fetch(`/run_query?sql=${this.state.query}`, {
-        method: `GET`,
+      await fetch(`/run_query`, {
+        method: `POST`,
         headers: {
           'accepts': `application/octet-stream`
-        }
+        },
+        body: `${this.state.query}`
       }).then((res) => Table.from(res)).then((table) => {
         this.setState({
           queryResult: {
