@@ -297,8 +297,13 @@ export class BlazingCluster {
    * ```
    */
   async sql(query: string): Promise<DataFrame> {
-    const queryPromises = [];
+    const algebra = this.explain(query);
+    if (algebra.includes('LogicalValues(tuples=[[]])')) {
+      // SQL returns empty result.
+      return new DataFrame();
+    }
 
+    const queryPromises = [];
     queryPromises.push(new Promise((resolve) => {
       ctxToken++;
       const messageId = _generateMessageId(ctxToken);

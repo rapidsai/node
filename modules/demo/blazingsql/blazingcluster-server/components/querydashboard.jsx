@@ -46,14 +46,15 @@ export class QueryDashboard extends React.Component {
         },
         body: `${this.state.query}`
       }).then((res) => Table.from(res)).then((table) => {
+        const result = table.length == 0 ? {} : {
+          id: [...table.getColumn("id")],
+          revid: [...table.getColumn("revid")],
+          url: [...table.getColumn("url")],
+          title: [...table.getColumn("title")],
+          text: [...table.getColumn("text")],
+        };
         this.setState({
-          queryResult: {
-            id: [...table.getColumn("id")],
-            revid: [...table.getColumn("revid")],
-            url: [...table.getColumn("url")],
-            title: [...table.getColumn("title")],
-            text: [...table.getColumn("text")],
-          },
+          queryResult: result,
           queryTime: table.schema.metadata.get('queryTime'),
         });
       });

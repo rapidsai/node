@@ -214,8 +214,11 @@ export class BlazingContext {
    */
   sql(query: string, ctxToken: number = Math.random() * Number.MAX_SAFE_INTEGER | 0) {
     const algebra = this.explain(query);
-    if (algebra.includes('LogicalValues(tuples=[[]])') || algebra == '') {
-      throw new Error('ERROR: Failed to parse given query');
+    if (algebra == '') { throw new Error('ERROR: Failed to parse given query'); }
+
+    if (algebra.includes('LogicalValues(tuples=[[]])')) {
+      // SQL returns an empty execution graph.
+      return new ExecutionGraph();
     }
 
     if (algebra.includes(') OVER (')) {
