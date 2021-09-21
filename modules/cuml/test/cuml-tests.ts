@@ -1,4 +1,4 @@
-import {DataFrame} from '@rapidsai/cudf';
+import {DataFrame, Float32} from '@rapidsai/cudf';
 import {
   trustworthiness,
   trustworthinessDataFrame,
@@ -11,11 +11,11 @@ const df = DataFrame.readCSV({
   sourceType: 'files',
   sources: [`${__dirname}/iris.csv`],
   dataTypes: {
-    sepal_length: 'float32',
-    sepal_width: 'float32',
-    petal_length: 'float32',
-    petal_width: 'float32',
-    target: 'float32'
+    sepal_length: new Float32,
+    sepal_width: new Float32,
+    petal_length: new Float32,
+    petal_width: new Float32,
+    target: new Float32
   }
 });
 const X  = df.drop(['target']);

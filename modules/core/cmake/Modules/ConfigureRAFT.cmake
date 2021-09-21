@@ -46,7 +46,8 @@ function(find_and_configure_raft VERSION)
     endif()
     # Make sure consumers of our libs can see raft::raft
     _fix_cmake_global_defaults(raft::raft)
-
+    # Make these -isystem so -Werror doesn't fail their builds
+    _set_interface_include_dirs_as_system(raft::raft)
 endfunction()
 
 find_and_configure_raft(${RAFT_VERSION})

@@ -25,21 +25,10 @@ module.exports = () => {
   });
 
   jsdom.window.evalFn(() => {
-    __babel({
-      cache: false,
-      babelrc: false,
-      cwd: process.cwd(),
-      presets: [
-        ['@babel/preset-env', {'targets': {'node': 'current'}}],
-        ['@babel/preset-react', {'useBuiltIns': true}]
-      ]
-    });
-
     // Silence all internal TF.js warnings
     console.warn = () => {};
-
     return require('./test').execute();
-  }, {__babel: require('@babel/register')});
+  });
 
   return jsdom;
 };

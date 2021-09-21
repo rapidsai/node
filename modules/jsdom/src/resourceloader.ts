@@ -16,9 +16,11 @@ import * as jsdom from 'jsdom';
 import * as Url from 'url';
 
 const btoa = require('btoa') as (x: string) => string;
-const svg2img = require('svg2img') as typeof import('svg2img').default;
 
 export class ImageLoader extends jsdom.ResourceLoader {
+  declare private _svg2img: typeof import('svg2img').default;
+  public set svg2img(f: typeof import('svg2img').default) { this._svg2img = f; }
+
   constructor(private _url: string, private _cwd: string) { super(); }
   fetch(url: string, options: jsdom.FetchOptions) {
     // Hack since JSDOM 16.2.2: If loading a relative file
@@ -42,7 +44,7 @@ export class ImageLoader extends jsdom.ResourceLoader {
     const {mediaType, encoding, contents} = parseDataURLPrefix(url);
     switch (mediaType) {
       case 'image/svg+xml':  //
-        return loadSVGDataUrl(encoding, contents, options);
+        return loadSVGDataUrl(this._svg2img, encoding, contents, options);
       default: break;
     }
     return undefined;
@@ -58,7 +60,10 @@ function parseDataURLPrefix(url: string) {
   return {mediaType, encoding, prefix, contents: url.slice(comma + 1)};
 }
 
-function loadSVGDataUrl(encoding: string, contents: string, {element}: jsdom.FetchOptions) {
+function loadSVGDataUrl(svg2img: typeof import('svg2img').default,
+                        encoding: string,
+                        contents: string,
+                        {element}: jsdom.FetchOptions) {
   const options = {width: element?.offsetWidth, height: element?.offsetHeight};
   const data    = (() => {
     switch (encoding) {

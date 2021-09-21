@@ -15,23 +15,13 @@
 // limitations under the License.
 
 module.exports = () => {
-  require('@babel/register')({
-    cache: false,
-    babelrc: false,
-    cwd: __dirname,
-    presets: [
-      ['@babel/preset-env', {'targets': {'node': 'current'}}],
-      ['@babel/preset-react', {'useBuiltIns': true}]
-    ]
-  });
-
   const {RapidsJSDOM} = require('@rapidsai/jsdom');
   const jsdom         = new RapidsJSDOM({
     // Change cwd to the example dir so relative file paths are resolved
     module: {path: require('path').join(__dirname, `lessons`, process.argv[2])}
   });
 
-  jsdom.window.evalFn(() => require(`./app.js`));
+  jsdom.window.evalFn(() => import(`./app.js`));
 
   return jsdom;
 };

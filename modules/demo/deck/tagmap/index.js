@@ -17,16 +17,6 @@
 module.exports = (glfwOptions = {
   transparent: false
 }) => {
-  require('@babel/register')({
-    cache: false,
-    babelrc: false,
-    cwd: __dirname,
-    presets: [
-      ['@babel/preset-env', {'targets': {'node': 'current'}}],
-      ['@babel/preset-react', {'useBuiltIns': true}]
-    ]
-  });
-
   return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.js', {
     glfwOptions,
     // Change cwd to the example dir so relative file paths are resolved

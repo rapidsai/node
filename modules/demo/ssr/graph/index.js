@@ -1,6 +1,6 @@
 #!/usr/bin/env -S node --trace-uncaught
 
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,17 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './app';
+const fastify = require('fastify')();
 
-export default App;
+fastify  //
+  .register(require('./plugins/webrtc'), require('./plugins/graph')(fastify))
+  .register(require('fastify-static'), {root: require('path').join(__dirname, 'public')})
+  .get('/', (req, reply) => reply.sendFile('video.html'));
 
-if (process.env.REACT_APP_ENVIRONMENT === 'browser') {
-  ReactDOM.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-    document.getElementById('root')
-  );
-}
+fastify.listen(8080).then(() => console.log('server ready'));

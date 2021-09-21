@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '../deck.gl';
-
-import {DeckContext, Layer, picking, PickingInfo, project32, UpdateStateProps} from '@deck.gl/core';
 import {Geometry, Model} from '@luma.gl/engine';
+
+import {DeckContext, DeckLayer, PickingInfo, UpdateStateProps} from '../deck.gl';
 
 import {
   edgeComponentAccessor,
@@ -26,14 +25,16 @@ import {
 import edgeFragmentShader from './edges/edge-fragment.glsl';
 import edgeVertexShader from './edges/edge-vertex.glsl';
 
+const {Layer, picking, project32} = require('@deck.gl/core');
+
 const NUM_SEGMENTS = 40;
 
-export class EdgeLayer extends Layer {
+export class EdgeLayer extends (Layer as typeof DeckLayer) {
   static get layerName() { return 'EdgeLayer'; }
   static get defaultProps() {
     return {
-      opacity: 1,
       width: 1,
+      opacity: 1,
       highlightedNode: -1,
       highlightedEdge: -1,
     };
@@ -62,12 +63,41 @@ export class EdgeLayer extends Layer {
     this.getAttributeManager().addInstanced(EdgeLayer.getAccessors(context));
   }
   updateState({props, oldProps, context, changeFlags}: UpdateStateProps) {
+    ['selectedEdgeId',
+     'highlightedEdgeId',
+     'selectedEdgeIndex',
+     'highlightedEdgeIndex',
+     'selectedSourceNodeId',
+     'highlightedSourceNodeId',
+     'selectedTargetNodeId',
+     'highlightedTargetNodeId']
+      .filter((key) => typeof props[key] === 'number')
+      .forEach((key) => this.internalState[key] = props[key]);
+
+    // if (this.internalState.highlightedEdgeIndex && this.internalState.highlightedEdgeIndex !==
+    // -1) {
+    //   props.highlightedObjectIndex = this.internalState.highlightedEdgeIndex;
+    // }
+
     super.updateState({props, oldProps, context, changeFlags});
+
     if (changeFlags.extensionsChanged) {
       if (this.state.model) { this.state.model.delete(); }
       this.setState({model: this._getModel(context)});
       this.getAttributeManager().invalidateAll();
     }
+  }
+  serialize() {
+    return {
+      selectedEdgeId: this.internalState.selectedEdgeId,
+      selectedEdgeIndex: this.internalState.selectedEdgeIndex,
+      highlightedEdgeId: this.internalState.highlightedEdgeId,
+      highlightedEdgeIndex: this.internalState.highlightedEdgeIndex,
+      selectedSourceNodeId: this.internalState.selectedSourceNodeId,
+      selectedTargetNodeId: this.internalState.selectedTargetNodeId,
+      highlightedSourceNodeId: this.internalState.highlightedSourceNodeId,
+      highlightedTargetNodeId: this.internalState.highlightedTargetNodeId,
+    };
   }
   draw({uniforms, ...rest}: {uniforms?: any, context?: DeckContext} = {}) {
     this.state.model.draw({

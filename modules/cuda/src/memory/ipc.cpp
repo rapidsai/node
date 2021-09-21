@@ -84,38 +84,23 @@ Napi::Function IpcHandle::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceAccessor("buffer", &IpcHandle::buffer, nullptr, napi_enumerable),
                        InstanceAccessor("device", &IpcHandle::device, nullptr, napi_enumerable),
                        InstanceAccessor("handle", &IpcHandle::handle, nullptr, napi_enumerable),
-                       InstanceMethod("close", &IpcHandle::close),
                      });
 };
 
 IpcHandle::IpcHandle(CallbackArgs const& args) : EnvLocalObjectWrap<IpcHandle>(args) {
-  Napi::Env env                = args.Env();
   DeviceMemory::wrapper_t dmem = args[0].ToObject();
   dmem_                        = Napi::Persistent(dmem);
-  handle_                      = Napi::Persistent(Napi::Uint8Array::New(env, CUDA_IPC_HANDLE_SIZE));
-  NODE_CUDA_TRY(CUDAAPI::cudaIpcGetMemHandle(handle(), dmem->data()), env);
+  handle_                      = Napi::Persistent(dmem->getIpcMemHandle());
 }
 
 IpcHandle::wrapper_t IpcHandle::New(Napi::Env const& env, DeviceMemory const& dmem) {
   return EnvLocalObjectWrap<IpcHandle>::New(env, dmem.Value());
 }
 
-void IpcHandle::Finalize(Napi::Env env) { close(env); }
-
 Napi::Value IpcHandle::buffer(Napi::CallbackInfo const& info) { return dmem_.Value(); }
 
 Napi::Value IpcHandle::device(Napi::CallbackInfo const& info) { return CPPToNapi(info)(device()); }
 
 Napi::Value IpcHandle::handle(Napi::CallbackInfo const& info) { return handle_.Value(); }
-
-void IpcHandle::close() { close(Env()); }
-
-void IpcHandle::close(Napi::Env const& env) {
-  if (!dmem_.IsEmpty()) { cudaIpcCloseMemHandle(dmem_.Value()->data()); }
-  dmem_.Reset();
-  handle_.Reset();
-}
-
-void IpcHandle::close(Napi::CallbackInfo const& info) { close(info.Env()); }
 
 }  // namespace nv

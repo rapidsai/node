@@ -15,16 +15,6 @@
 // limitations under the License.
 
 module.exports = () => {
-  require('@babel/register')({
-    cache: false,
-    babelrc: false,
-    cwd: __dirname,
-    presets: [
-      ['@babel/preset-env', {'targets': {'node': 'current'}}],
-      ['@babel/preset-react', {'useBuiltIns': true}]
-    ]
-  });
-
   const {GLFWOpenGLProfile} = require('@nvidia/glfw');
   const {RapidsJSDOM}       = require('@rapidsai/jsdom');
   const jsdom               = new RapidsJSDOM({
