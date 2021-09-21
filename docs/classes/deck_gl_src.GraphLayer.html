@@ -70,7 +70,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">CompositeLayer</span>
+						<span class="tsd-signature-type">DeckCompositeLayer</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">this</span><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
 								<span class="target">GraphLayer</span>
@@ -115,6 +115,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="deck_gl_src.GraphLayer.html#initializeState" class="tsd-kind-icon">initialize<wbr>State</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="deck_gl_src.GraphLayer.html#onHover" class="tsd-kind-icon">on<wbr>Hover</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="deck_gl_src.GraphLayer.html#renderLayers" class="tsd-kind-icon">render<wbr>Layers</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="deck_gl_src.GraphLayer.html#serialize" class="tsd-kind-icon">serialize</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="deck_gl_src.GraphLayer.html#setState" class="tsd-kind-icon">set<wbr>State</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="deck_gl_src.GraphLayer.html#shouldUpdateState" class="tsd-kind-icon">should<wbr>Update<wbr>State</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="deck_gl_src.GraphLayer.html#updateState" class="tsd-kind-icon">update<wbr>State</a></li>
@@ -135,9 +136,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from CompositeLayer.constructor</p>
+								<p>Inherited from (CompositeLayer as typeof DeckCompositeLayer).constructor</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/deck.gl.ts#L60">modules/deck.gl/src/deck.gl.ts:60</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/deck.gl.ts#L62">modules/deck.gl/src/deck.gl.ts:62</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -158,9 +159,9 @@
 					<h3>internal<wbr>State</h3>
 					<div class="tsd-signature tsd-kind-icon">internal<wbr>State<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from CompositeLayer.internalState</p>
+						<p>Inherited from (CompositeLayer as typeof DeckCompositeLayer).internalState</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/deck.gl.ts#L63">modules/deck.gl/src/deck.gl.ts:63</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/deck.gl.ts#L65">modules/deck.gl/src/deck.gl.ts:65</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -169,9 +170,9 @@
 					<h3>props</h3>
 					<div class="tsd-signature tsd-kind-icon">props<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from CompositeLayer.props</p>
+						<p>Inherited from (CompositeLayer as typeof DeckCompositeLayer).props</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/deck.gl.ts#L61">modules/deck.gl/src/deck.gl.ts:61</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/deck.gl.ts#L63">modules/deck.gl/src/deck.gl.ts:63</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -180,9 +181,9 @@
 					<h3>state</h3>
 					<div class="tsd-signature tsd-kind-icon">state<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from CompositeLayer.state</p>
+						<p>Inherited from (CompositeLayer as typeof DeckCompositeLayer).state</p>
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/deck.gl.ts#L62">modules/deck.gl/src/deck.gl.ts:62</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/deck.gl.ts#L64">modules/deck.gl/src/deck.gl.ts:64</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -199,7 +200,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/layers/graph.ts#L53">modules/deck.gl/src/layers/graph.ts:53</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/layers/graph.ts#L60">modules/deck.gl/src/layers/graph.ts:60</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>edgeOpacity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>edgeStrokeWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>edgesVisible<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>nodeFillOpacity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>nodeLineWidthMaxPixels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>nodeLineWidthMinPixels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>nodeLineWidthScale<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>nodeRadiusMaxPixels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>nodeRadiusMinPixels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>nodeRadiusScale<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>nodeStrokeOpacity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>nodeStrokeRatio<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>nodesFilled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>nodesStroked<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>nodesVisible<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>numEdges<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>min<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>numNodes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>min<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span></h4>
@@ -307,7 +308,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/layers/graph.ts#L52">modules/deck.gl/src/layers/graph.ts:52</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/layers/graph.ts#L59">modules/deck.gl/src/layers/graph.ts:59</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -326,9 +327,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from CompositeLayer.draw</p>
+								<p>Inherited from (CompositeLayer as typeof DeckCompositeLayer).draw</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/deck.gl.ts#L69">modules/deck.gl/src/deck.gl.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/deck.gl.ts#L71">modules/deck.gl/src/deck.gl.ts:71</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -361,9 +362,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides CompositeLayer.finalizeState</p>
+								<p>Overrides (CompositeLayer as typeof DeckCompositeLayer).finalizeState</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/layers/graph.ts#L168">modules/deck.gl/src/layers/graph.ts:168</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/layers/graph.ts#L208">modules/deck.gl/src/layers/graph.ts:208</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -385,9 +386,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from CompositeLayer.getAttributeManager</p>
+								<p>Inherited from (CompositeLayer as typeof DeckCompositeLayer).getAttributeManager</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/deck.gl.ts#L72">modules/deck.gl/src/deck.gl.ts:72</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/deck.gl.ts#L74">modules/deck.gl/src/deck.gl.ts:74</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -403,9 +404,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from CompositeLayer.getPickingInfo</p>
+								<p>Inherited from (CompositeLayer as typeof DeckCompositeLayer).getPickingInfo</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/deck.gl.ts#L70">modules/deck.gl/src/deck.gl.ts:70</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/deck.gl.ts#L72">modules/deck.gl/src/deck.gl.ts:72</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -435,9 +436,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from CompositeLayer.getSubLayerProps</p>
+								<p>Inherited from (CompositeLayer as typeof DeckCompositeLayer).getSubLayerProps</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/deck.gl.ts#L75">modules/deck.gl/src/deck.gl.ts:75</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/deck.gl.ts#L78">modules/deck.gl/src/deck.gl.ts:78</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -459,9 +460,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides CompositeLayer.initializeState</p>
+								<p>Overrides (CompositeLayer as typeof DeckCompositeLayer).initializeState</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/layers/graph.ts#L83">modules/deck.gl/src/layers/graph.ts:83</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/layers/graph.ts#L92">modules/deck.gl/src/layers/graph.ts:92</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -483,9 +484,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides CompositeLayer.onHover</p>
+								<p>Overrides (CompositeLayer as typeof DeckCompositeLayer).onHover</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/layers/graph.ts#L181">modules/deck.gl/src/layers/graph.ts:181</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/layers/graph.ts#L221">modules/deck.gl/src/layers/graph.ts:221</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -502,16 +503,53 @@
 					<a name="renderLayers" class="tsd-anchor"></a>
 					<h3>render<wbr>Layers</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">render<wbr>Layers<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">TextLayer</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">render<wbr>Layers<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DeckTextLayer</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/layers/graph.ts#L219">modules/deck.gl/src/layers/graph.ts:219</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/layers/graph.ts#L259">modules/deck.gl/src/layers/graph.ts:259</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">TextLayer</span><span class="tsd-signature-symbol">[]</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">DeckTextLayer</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="serialize" class="tsd-anchor"></a>
+					<h3>serialize</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">serialize<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>_subLayerProps<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>highlightedEdge<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>highlightedNode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>highlightedSourceNode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>highlightedTargetNode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>labels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/layers/graph.ts#L189">modules/deck.gl/src/layers/graph.ts:189</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>_subLayerProps<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>highlightedEdge<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>highlightedNode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>highlightedSourceNode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>highlightedTargetNode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>labels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>_sub<wbr>Layer<wbr>Props<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>highlighted<wbr>Edge<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>highlighted<wbr>Node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>highlighted<wbr>Source<wbr>Node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>highlighted<wbr>Target<wbr>Node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>labels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</section>
@@ -524,9 +562,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from CompositeLayer.setState</p>
+								<p>Inherited from (CompositeLayer as typeof DeckCompositeLayer).setState</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/deck.gl.ts#L64">modules/deck.gl/src/deck.gl.ts:64</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/deck.gl.ts#L66">modules/deck.gl/src/deck.gl.ts:66</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -548,9 +586,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides CompositeLayer.shouldUpdateState</p>
+								<p>Overrides (CompositeLayer as typeof DeckCompositeLayer).shouldUpdateState</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/layers/graph.ts#L112">modules/deck.gl/src/layers/graph.ts:112</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/layers/graph.ts#L121">modules/deck.gl/src/layers/graph.ts:121</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -572,9 +610,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides CompositeLayer.updateState</p>
+								<p>Overrides (CompositeLayer as typeof DeckCompositeLayer).updateState</p>
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/layers/graph.ts#L116">modules/deck.gl/src/layers/graph.ts:116</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/layers/graph.ts#L125">modules/deck.gl/src/layers/graph.ts:125</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -597,7 +635,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e6e2008/modules/deck.gl/src/layers/graph.ts#L77">modules/deck.gl/src/layers/graph.ts:77</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/ed23711/modules/deck.gl/src/layers/graph.ts#L86">modules/deck.gl/src/layers/graph.ts:86</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -858,6 +896,9 @@
 						<a href="deck_gl_src.AnimationLoopSSR.html" class="tsd-kind-icon">Animation<wbr>LoopSSR</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="deck_gl_src.Buffer.html" class="tsd-kind-icon">Buffer</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
 						<a href="deck_gl_src.DeckSSR.html" class="tsd-kind-icon">DeckSSR</a>
 					</li>
 				</ul>
@@ -907,6 +948,9 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="deck_gl_src.GraphLayer.html#renderLayers" class="tsd-kind-icon">render<wbr>Layers</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="deck_gl_src.GraphLayer.html#serialize" class="tsd-kind-icon">serialize</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="deck_gl_src.GraphLayer.html#setState" class="tsd-kind-icon">set<wbr>State</a>
 							</li>
@@ -923,8 +967,8 @@
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-variable tsd-parent-kind-module">
-						<a href="../modules/deck_gl_src.html#Buffer" class="tsd-kind-icon">Buffer</a>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="deck_gl_src.OrthographicController.html" class="tsd-kind-icon">Orthographic<wbr>Controller</a>
 					</li>
 				</ul>
 			</nav>
