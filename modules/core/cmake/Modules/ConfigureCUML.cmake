@@ -35,7 +35,7 @@ function(find_and_configure_cuml VERSION)
         CPMFindPackage(NAME     cuml
             VERSION             ${VERSION}
             GIT_REPOSITORY      https://github.com/AjayThorve/cuml.git
-            GIT_TAG             fea/umap-refine
+            GIT_TAG             fea/umap-refine-21.10
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp

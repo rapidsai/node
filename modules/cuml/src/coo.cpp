@@ -35,8 +35,7 @@ COO::wrapper_t COO::New(Napi::Env const& env, std::shared_ptr<raft::sparse::COO<
 
 COO::COO(CallbackArgs const& args) : EnvLocalObjectWrap<COO>(args) {
   raft::handle_t handle;
-  auto coo_ =
-    std::make_shared<raft::sparse::COO<float>>(handle.get_device_allocator(), handle.get_stream());
+  auto coo_  = std::make_shared<raft::sparse::COO<float>>(handle.get_stream());
   this->coo_ = std::move(coo_);
 }
 

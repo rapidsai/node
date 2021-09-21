@@ -128,9 +128,8 @@ COO::wrapper_t UMAP::get_graph(DeviceBuffer::wrapper_t const& X,
                                DeviceBuffer::wrapper_t const& y,
                                bool convert_dtype) {
   raft::handle_t handle;
-  auto d_alloc = handle.get_device_allocator();
-  auto stream  = handle.get_stream();
-  auto coo_    = std::make_shared<raft::sparse::COO<float>>(d_alloc, stream);
+  auto stream = handle.get_stream();
+  auto coo_   = std::make_shared<raft::sparse::COO<float>>(stream);
   ML::UMAP::get_graph(handle,
                       static_cast<float*>(X->data()),
                       (y->size() != 0) ? static_cast<float*>(y->data()) : nullptr,
