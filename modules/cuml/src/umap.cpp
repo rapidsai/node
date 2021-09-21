@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <node_rmm/device_buffer.hpp>
+
 #include <node_cuda/utilities/error.hpp>
 #include <node_cudf/utilities/buffer.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
-#include <node_rmm/device_buffer.hpp>
 
 #include <node_cuml/umap.hpp>
 

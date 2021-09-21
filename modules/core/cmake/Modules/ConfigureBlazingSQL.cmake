@@ -20,6 +20,14 @@ function(find_and_configure_blazingsql VERSION)
 
     include(ConfigureCUDF)
 
+    if (TARGET cudf::arrow_shared AND (NOT TARGET arrow_shared))
+        add_library(arrow_shared ALIAS cudf::arrow_shared)
+    endif()
+
+    if (TARGET cudf::arrow_cuda_shared AND (NOT TARGET arrow_cuda_shared))
+        add_library(arrow_cuda_shared ALIAS cudf::arrow_cuda_shared)
+    endif()
+
     _clean_build_dirs_if_not_fully_built(blazingsql-io libblazingsql-io.so)
 
     _set_package_dir_if_exists(absl absl)
@@ -27,18 +35,17 @@ function(find_and_configure_blazingsql VERSION)
 
     if(NOT TARGET blazingdb::blazingsql-io)
         _fix_rapids_cmake_dir()
-        # _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
+        _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         CPMFindPackage(NAME     blazingsql-io
             VERSION             ${VERSION}
-            # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
-            # GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_REPOSITORY      https://github.com/trxcllnt/blazingsql.git
-            GIT_TAG             fea/rapids-cmake
+            GIT_TAG             fea/rapids-cmake-${MAJOR_AND_MINOR}
             SOURCE_SUBDIR       io
             OPTIONS             "S3_SUPPORT OFF"
                                 "GCS_SUPPORT OFF"
                                 "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
+                                "BLAZINGSQL_IO_BUILD_ARROW_ORC OFF"
                                 "BLAZINGSQL_IO_USE_ARROW_STATIC OFF"
                                 "BLAZINGSQL_IO_BUILD_ARROW_PYTHON OFF"
         )
@@ -54,25 +61,27 @@ function(find_and_configure_blazingsql VERSION)
 
     if(NOT TARGET blazingdb::blazingsql-engine)
         _fix_rapids_cmake_dir()
-        # _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
+        _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         CPMFindPackage(NAME     blazingsql-engine
             VERSION             ${VERSION}
-            # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
-            # GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_REPOSITORY      https://github.com/trxcllnt/blazingsql.git
-            GIT_TAG             fea/rapids-cmake
+            GIT_TAG             fea/rapids-cmake-${MAJOR_AND_MINOR}
             SOURCE_SUBDIR       engine
-            OPTIONS             "S3_SUPPORT OFF"
+            OPTIONS             "BUILD_TESTS OFF"
+                                "BUILD_BENCHMARKS OFF"
+                                "S3_SUPPORT OFF"
                                 "GCS_SUPPORT OFF"
                                 "MYSQL_SUPPORT OFF"
                                 "SQLITE_SUPPORT OFF"
                                 "POSTGRESQL_SUPPORT OFF"
-                                "CUDA_STATIC_RUNTIME ON"
-                                "BUILD_TESTS OFF"
-                                "BUILD_BENCHMARKS OFF"
+                                "CUDA_STATIC_RUNTIME OFF"
+                                "BLAZINGSQL_ENGINE_USE_ARROW_STATIC OFF"
                                 "DISABLE_DEPRECATION_WARNING ON"
                                 "BLAZINGSQL_IO_USE_ARROW_STATIC OFF"
+                                "BLAZINGSQL_IO_BUILD_ARROW_ORC OFF"
                                 "BLAZINGSQL_IO_BUILD_ARROW_PYTHON OFF"
+                                "BLAZINGSQL_ENGINE_ENABLE_DEBUG_UTILS OFF"
+                                "BLAZINGSQL_ENGINE_BUILD_ARROW_ORC OFF"
                                 "BLAZINGSQL_ENGINE_BUILD_ARROW_PYTHON OFF"
                                 "BLAZINGSQL_ENGINE_WITH_PYTHON_ERRORS OFF"
         )

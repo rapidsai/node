@@ -16,8 +16,8 @@ jobs:
         LINUX: [ubuntu18.04, ubuntu20.04]
     env:
       ARCH: amd64
-      NODE: 16.6.2
-      RAPIDS: 21.08.00
+      NODE: 16.9.1
+      RAPIDS: 21.10.00
       REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - name: Free up disk space

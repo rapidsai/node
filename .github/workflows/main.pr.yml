@@ -19,8 +19,8 @@ jobs:
             LINUX: ubuntu20.04
     env:
       ARCH: amd64
-      NODE: 16.6.2
-      RAPIDS: 21.08.00
+      NODE: 16.9.1
+      RAPIDS: 21.10.00
     steps:
       - name: Checkout
         uses: actions/checkout@v2
