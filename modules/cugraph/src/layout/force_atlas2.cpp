@@ -53,19 +53,30 @@ Napi::Value GraphCOO::force_atlas2(Napi::CallbackInfo const &info) {
   auto gravity               = get_float(options.Get("gravity"), 1.0);
   auto verbose               = get_bool(options.Get("verbose"), false);
 
-  float *x_start{nullptr};
-  float *y_start{nullptr};
+  float *s_positions{nullptr};
+  float *x_positions{nullptr};
+  float *y_positions{nullptr};
 
-  auto positions = [&](auto const &initial_positions) mutable -> DeviceBuffer::wrapper_t {
-    if (DeviceBuffer::IsInstance(initial_positions.val)) {
-      auto buf = DeviceBuffer::Unwrap(initial_positions);
-      x_start  = reinterpret_cast<float *>(buf->data());
-      y_start  = x_start + num_nodes();
-      return *buf;
+  auto positions = [&](auto const &initial_positions) mutable -> Napi::Value {
+    if (initial_positions.IsObject()) {
+      auto pos = initial_positions.template As<Napi::Object>();
+      if (pos.Has("buffer") and pos.Get("buffer").IsObject()) {
+        auto buf = pos.Get("buffer").template As<Napi::Object>();
+        if (buf.Has("ptr") and buf.Get("ptr").IsNumber()) { pos = buf; }
+      }
+      if (pos.Has("ptr") and pos.Get("ptr").IsNumber()) {
+        auto ptr    = pos.Get("ptr").template As<Napi::Number>().Int64Value();
+        s_positions = reinterpret_cast<float *>(ptr);
+        x_positions = s_positions;
+        y_positions = x_positions + num_nodes();
+      }
+      return pos;
     }
-    return DeviceBuffer::New(info.Env(),
-                             std::make_unique<rmm::device_buffer>(
-                               num_nodes() * 2 * sizeof(float), rmm::cuda_stream_default, mr));
+    auto buf    = DeviceBuffer::New(info.Env(),
+                                 std::make_unique<rmm::device_buffer>(
+                                   num_nodes() * 2 * sizeof(float), rmm::cuda_stream_default, mr));
+    s_positions = static_cast<float *>(buf->data());
+    return buf;
   }(options.Get("positions"));
 
   auto graph  = this->view();
@@ -73,10 +84,10 @@ Napi::Value GraphCOO::force_atlas2(Napi::CallbackInfo const &info) {
 
   cugraph::force_atlas2(*handle,
                         graph,
-                        reinterpret_cast<float *>(positions->data()),
+                        s_positions,
                         max_iter,
-                        x_start,
-                        y_start,
+                        x_positions,
+                        y_positions,
                         outbound_attraction,
                         lin_log_mode,
                         prevent_overlapping,

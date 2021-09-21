@@ -12,10 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '../deck.gl';
+import {
+  DeckCompositeLayer,
+  DeckContext,
+  DeckTextLayer,
+  PickingInfo,
+  UpdateStateProps
+} from '../deck.gl';
 
-import {CompositeLayer, DeckContext, PickingInfo, UpdateStateProps} from '@deck.gl/core';
-import {TextLayer} from '@deck.gl/layers';
+const {TextLayer}      = require('@deck.gl/layers') as {TextLayer: typeof DeckTextLayer};
+const {CompositeLayer} = require('@deck.gl/core');
+
 import {Accessor} from '@luma.gl/webgl';
 
 import {Buffer} from '../buffer';
@@ -48,9 +55,11 @@ const nodeBufferNames = [
   'nodeElementIndices'
 ];
 
-export class GraphLayer extends CompositeLayer {
+export class GraphLayer extends (CompositeLayer as typeof DeckCompositeLayer) {
   static get layerName() { return 'GraphLayer'; }
   static get defaultProps() {
+    const defaultNodeProps = NodeLayer.defaultProps;
+    const defaultEdgeProps = EdgeLayer.defaultProps;
     return {
       // graph props
       numNodes: {type: 'number', min: 0, value: 0},
@@ -58,20 +67,20 @@ export class GraphLayer extends CompositeLayer {
       nodesVisible: {type: 'boolean', value: true},
       edgesVisible: {type: 'boolean', value: true},
       // edge props
-      edgeOpacity: EdgeLayer.defaultProps.opacity,
-      edgeStrokeWidth: EdgeLayer.defaultProps.width,
+      edgeOpacity: defaultEdgeProps.opacity,
+      edgeStrokeWidth: defaultEdgeProps.width,
       // node props
-      nodesFilled: NodeLayer.defaultProps.filled,
-      nodesStroked: NodeLayer.defaultProps.stroked,
-      nodeFillOpacity: NodeLayer.defaultProps.fillOpacity,
-      nodeStrokeRatio: NodeLayer.defaultProps.strokeRatio,
-      nodeStrokeOpacity: NodeLayer.defaultProps.strokeOpacity,
-      nodeRadiusScale: NodeLayer.defaultProps.radiusScale,
-      nodeLineWidthScale: NodeLayer.defaultProps.lineWidthScale,
-      nodeRadiusMinPixels: NodeLayer.defaultProps.radiusMinPixels,
-      nodeRadiusMaxPixels: NodeLayer.defaultProps.radiusMaxPixels,
-      nodeLineWidthMinPixels: NodeLayer.defaultProps.lineWidthMinPixels,
-      nodeLineWidthMaxPixels: NodeLayer.defaultProps.lineWidthMaxPixels,
+      nodesFilled: defaultNodeProps.filled,
+      nodesStroked: defaultNodeProps.stroked,
+      nodeFillOpacity: defaultNodeProps.fillOpacity,
+      nodeStrokeRatio: defaultNodeProps.strokeRatio,
+      nodeStrokeOpacity: defaultNodeProps.strokeOpacity,
+      nodeRadiusScale: defaultNodeProps.radiusScale,
+      nodeLineWidthScale: defaultNodeProps.lineWidthScale,
+      nodeRadiusMinPixels: defaultNodeProps.radiusMinPixels,
+      nodeRadiusMaxPixels: defaultNodeProps.radiusMaxPixels,
+      nodeLineWidthMinPixels: defaultNodeProps.lineWidthMinPixels,
+      nodeLineWidthMaxPixels: defaultNodeProps.lineWidthMaxPixels,
     };
   }
   static getAccessors(context: DeckContext) {
@@ -113,7 +122,19 @@ export class GraphLayer extends CompositeLayer {
     return changeFlags.viewportChanged ||
            super.shouldUpdateState({props, changeFlags, oldProps, ...rest});
   }
-  updateState({props, oldProps, changeFlags}: UpdateStateProps) {
+  updateState({props, oldProps, changeFlags, ...rest}: UpdateStateProps) {
+    // highlight props
+    this.setState([
+      'labels',
+      'highlightedEdge',
+      'highlightedNode',
+      'highlightedSourceNode',
+      'highlightedTargetNode'
+    ].filter((key) => key in props)
+                    .reduce((state, key) => ({...state, [key]: props[key]}), {}));
+
+    super.updateState({props, oldProps, changeFlags, ...rest});
+
     changeFlags = {
       ...changeFlags,
       edgesChanged: false,
@@ -165,6 +186,25 @@ export class GraphLayer extends CompositeLayer {
       }));
     }
   }
+  serialize() {
+    const subLayerIdPrefixSize = `${this.props.id}-`.length;
+    return {
+      highlightedEdge: this.state.highlightedEdge,
+      highlightedNode: this.state.highlightedNode,
+      labels: this.state.labels?.filter((x: any) => x?.text),
+      highlightedSourceNode: this.state.highlightedSourceNode,
+      highlightedTargetNode: this.state.highlightedTargetNode,
+      _subLayerProps: (this.internalState.subLayers || [])
+                        .reduce(
+                          (subLayers: any, layer: any) => {
+                            if (layer && typeof layer.serialize === 'function') {
+                              subLayers[layer.id.slice(subLayerIdPrefixSize)] = layer.serialize();
+                            }
+                            return subLayers;
+                          },
+                          {})
+    };
+  }
   finalizeState(contex?: DeckContext) {
     [...edgeBufferNames, ...nodeBufferNames]
       .map((name) => this.state.buffers[name])
@@ -202,10 +242,10 @@ export class GraphLayer extends CompositeLayer {
     }
     if (nodeId !== -1 && (typeof this.props.getNodeLabels === 'function')) {
       nextState.labels = this.props.getNodeLabels(
-        {x, y, nodeId, edgeId, sourceNodeId, targetNodeId, layer, props: this.props});
+        {x, y, coordinate, nodeId, edgeId, sourceNodeId, targetNodeId, layer, props: this.props});
     } else if (edgeId !== -1 && (typeof this.props.getEdgeLabels === 'function')) {
       nextState.labels = this.props.getEdgeLabels(
-        {x, y, nodeId, edgeId, sourceNodeId, targetNodeId, layer, props: this.props});
+        {x, y, coordinate, nodeId, edgeId, sourceNodeId, targetNodeId, layer, props: this.props});
     } else {
       nextState.labels = [{
         text: label,
@@ -234,13 +274,13 @@ export class GraphLayer extends CompositeLayer {
     props.edgesVisible &&
       renderChunks(
         this.state.numEdgesLoaded, EdgeLayer, (index, offset, length) => ({
-                                                id: `${props.id as string}-edge-layer-${index}`,
+                                                id: `${EdgeLayer.layerName}-${index}`,
                                                 ...edgeLayerProps(props, state, offset, length),
                                               }));
 
     // render bezier control points for debugging
     // renderChunks(this.state.numEdgesLoaded, ScatterplotLayer, (index, offset, length) => ({
-    //     id: `${props.id}-bezier-control-points-layer-${index}`,
+    //     id: `${ScatterplotLayer.name}-${index}`,
     //     numInstances: length,
     //     radiusScale: 2,
     //     data: {
@@ -255,13 +295,13 @@ export class GraphLayer extends CompositeLayer {
     props.nodesVisible &&
       renderChunks(
         this.state.numNodesLoaded, NodeLayer, (index, offset, length) => ({
-                                                id: `${props.id as string}-node-layer-${index}`,
+                                                id: `${NodeLayer.layerName}-${index}`,
                                                 ...nodeLayerProps(props, state, offset, length),
                                               }));
 
-    if (this.state.labels && this.state.labels.length) {
+    if (this.state.labels?.length) {
       layers.push(new TextLayer(this.getSubLayerProps({
-        id: `${props.id as string}-text-layer-0`,
+        id: `${TextLayer.name}-0`,
         ...textLayerProps(this.props, this.state),
       })));
     }
@@ -387,6 +427,8 @@ const edgeLayerProps = (props: any, state: any, offset: number, length: number) 
   width: props.edgeStrokeWidth,
   highlightedNode: state.highlightedNode,
   highlightedEdge: state.highlightedEdge,
+  highlightedSourceNode: state.highlightedSourceNode,
+  highlightedTargetNode: state.highlightedTargetNode,
   data: {
     attributes: {
       instanceEdges: sliceLayerAttrib(offset, state.buffers.edgeList),
@@ -417,6 +459,7 @@ const nodeLayerProps = (props: any, state: any, offset: number, length: number) 
   lineWidthMinPixels: props.nodeLineWidthMinPixels,
   lineWidthMaxPixels: props.nodeLineWidthMaxPixels,
   highlightedNode: state.highlightedNode,
+  highlightedEdge: state.highlightedEdge,
   highlightedSourceNode: state.highlightedSourceNode,
   highlightedTargetNode: state.highlightedTargetNode,
   data: {
@@ -439,13 +482,14 @@ const textLayerProps = (_props: any, state: any) => ({
   opacity: 1.0,
   maxWidth: -1,
   pickable: false,
-  backgroundColor: [46, 46, 46],
+  background: true,
+  getBackgroundColor: () => [46, 46, 46],
   getTextAnchor: 'start',
   getAlignmentBaseline: 'top',
   fontFamily: 'sans-serif, sans',
   getSize: (d: any)        => d.size,
   getColor: (d: any)       => d.color,
-  getPosition: (d: any)    => d.position,
   getPixelOffset: (d: any) => d.offset || [d.size, 0],
-  data: state.labels.filter((label: any) => !!label.text)
+  data: state.labels.filter((label: any) => !!label.text),
+  getPosition: (d: any) => typeof d.position === 'function' ? d.position() : d.position,
 });

@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-
+import { log as deckLog, OrthographicView } from '@deck.gl/core';
 import { TextLayer } from '@deck.gl/layers';
 import { default as DeckGL } from '@deck.gl/react';
-import { log as deckLog, OrthographicView } from '@deck.gl/core';
-
 import { GraphLayer } from '@rapidsai/deck.gl';
-
 import { as as asAsyncIterable } from 'ix/asynciterable/as';
 import { takeWhile } from 'ix/asynciterable/operators/takewhile';
+import React from 'react';
 
 import { default as loadGraphData } from './loader';
 
@@ -35,7 +32,7 @@ export class App extends React.Component {
     super(props, context);
     this._isMounted = false;
     this._deck = React.createRef();
-    this.state = { graph: {}, autoCenter: true, labels: [] };
+    this.state = { graph: {}, autoCenter: true };
   }
   componentWillUnmount() { this._isMounted = false; }
   componentDidMount() {
@@ -47,22 +44,16 @@ export class App extends React.Component {
   }
   render() {
     const { onAfterRender, ...props } = this.props;
-    const { params = {}, selectedParameter, labels } = this.state;
-    const [viewport] = (this._deck?.current?.deck?.getViewports() || []);
+    const { params = {}, selectedParameter } = this.state;
+    const [viewport] = (this._deck?.current?.deck?.viewManager?.getViewports() || []);
 
     if (this.state.autoCenter && this.state.bbox) {
       const viewState = centerOnBbox(this.state.bbox);
       viewState && (props.initialViewState = viewState);
     }
 
-    let [
-      minX = Number.NEGATIVE_INFINITY, minY = Number.NEGATIVE_INFINITY,
-      maxX = Number.POSITIVE_INFINITY, maxY = Number.POSITIVE_INFINITY,
-    ] = (viewport?.getBounds() || []);
-
-    if (labels[1] && isFinite(minX + maxY)) {
-      labels[1].position = [minX, maxY];
-    }
+    const [minX = Number.NEGATIVE_INFINITY, minY = Number.NEGATIVE_INFINITY] =
+      (viewport?.getBounds() || []);
 
     return (
       <DeckGL {...props}
@@ -78,10 +69,9 @@ export class App extends React.Component {
           nodesStroked={true}
           nodeFillOpacity={.5}
           nodeStrokeOpacity={.9}
+          {...this.state.graph}
           getNodeLabels={getNodeLabels}
           getEdgeLabels={getEdgeLabels}
-          labels={this.state.labels}
-          {...this.state.graph}
         />
         {viewport && selectedParameter !== undefined ?
           <TextLayer
@@ -106,7 +96,8 @@ export class App extends React.Component {
               color: [255, 255, 255],
               position: [minX, minY],
             }))}
-          /> : null}
+          /> : null
+        }
       </DeckGL>
     );
   }
@@ -133,18 +124,17 @@ App.defaultProps = {
       }
     })
   ]
-};
+}
+  ;
 
 function onDragStart({ index }, { target }) {
-  if (target) {
-    [window, target].forEach((element) => (element.style || {}).cursor = 'grabbing');
-  }
+  if (target) { [window, target].forEach((element) => (element.style || {}).cursor = 'grabbing'); }
 }
 
 function onDragEnd({ index }, { target }) {
   if (target) {
-    [window, target].forEach((element) =>
-      (element.style || {}).cursor = ~index ? 'pointer' : 'default');
+    [window, target].forEach((element) => (element.style || {}).cursor =
+      ~index ? 'pointer' : 'default');
   }
 }
 
@@ -167,53 +157,71 @@ function centerOnBbox([minX, maxX, minY, maxY]) {
 function getNodeLabels({ x, y, coordinate, nodeId, props, layer }) {
   let size = 14;
   const color = [255, 255, 255];
-  props.labels.length = 1;
-  props.labels[0] = {
-    size, color, offset: [14, 0],
-    position: coordinate || layer.context.viewport.unproject([x, y]),
+  const labels = [{
+    size,
+    color,
+    offset: [14, 0],
+    position: () => {
+      const x = window.mouseInWindow ? window.mouseX : -1;
+      const y = window.mouseInWindow ? window.mouseY : -1;
+      return layer.context.viewport.unproject([x, y]);
+    },
     text: props.data.nodes.attributes.nodeName
       ? props.data.nodes.attributes.nodeName.getValue(nodeId)
       : `${nodeId}`,
-  };
+  }];
   if (props.data.nodes.attributes.nodeData) {
     size *= 1.5;
-    props.labels.length = 2;
     const text = `${props.data.nodes.attributes.nodeData.getValue(nodeId) || ''}`.trimEnd();
     const lineSpacing = 3, padding = 20;
     const nBreaks = ((text.match(/\n/ig) || []).length + 1);
     const offsetX = 0, offsetY = (size + lineSpacing) * nBreaks;
-    const [minX, , , maxY] = layer.context.viewport.getBounds();
-    props.labels[1] = {
-      text, color, size, position: [minX, maxY],
+    labels.push({
+      text,
+      color,
+      size,
+      position: () => {
+        const [minX, , , maxY] = layer.context.viewport.getBounds();
+        return [minX, maxY];
+      },
       offset: [offsetX + padding, -padding - offsetY],
-    };
+    });
   }
-  return props.labels;
+  return labels;
 }
 
 function getEdgeLabels({ x, y, coordinate, edgeId, props, layer }) {
   let size = 14;
   const color = [255, 255, 255];
-  props.labels.length = 1;
-  props.labels[0] = {
-    size, color, offset: [14, 0],
-    position: coordinate || layer.context.viewport.unproject([x, y]),
+  const labels = [{
+    size,
+    color,
+    offset: [14, 0],
+    position: () => {
+      const x = window.mouseInWindow ? window.mouseX : -1;
+      const y = window.mouseInWindow ? window.mouseY : -1;
+      return layer.context.viewport.unproject([x, y]);
+    },
     text: props.data.edges.attributes.edgeName
       ? props.data.edges.attributes.edgeName.getValue(edgeId)
       : `${sourceNodeId} - ${targetNodeId}`,
-  };
+  }];
   if (props.data.edges.attributes.edgeData) {
     size *= 1.5;
-    props.labels.length = 2;
     const text = `${props.data.edges.attributes.edgeData.getValue(edgeId) || ''}`.trimEnd();
     const lineSpacing = 3, padding = 20;
     const nBreaks = ((text.match(/\n/ig) || []).length + 1);
     const offsetX = 0, offsetY = (size + lineSpacing) * nBreaks;
-    const [minX, , , maxY] = layer.context.viewport.getBounds();
-    props.labels[1] = {
-      text, color, size, position: [minX, maxY],
+    labels.push({
+      text,
+      color,
+      size,
       offset: [offsetX + padding, -padding - offsetY],
-    };
+      position: () => {
+        const [minX, , , maxY] = layer.context.viewport.getBounds();
+        return [minX, maxY];
+      },
+    });
   }
-  return props.labels;
+  return labels;
 }

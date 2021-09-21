@@ -26,19 +26,7 @@ module.exports = (glfwOptions = {
     module: {path: __dirname}
   });
 
-  jsdom.window.evalFn(() => {
-    __babel({
-      cache: false,
-      babelrc: false,
-      cwd: process.cwd(),
-      presets: [
-        ['@babel/preset-env', {'targets': {'node': 'current'}}],
-        ['@babel/preset-react', {'useBuiltIns': true}]
-      ]
-    });
-
-    return require(`./app.js`);
-  }, {__babel: require('@babel/register')});
+  jsdom.window.evalFn(() => require(`./app.js`));
 
   return jsdom;
 };
