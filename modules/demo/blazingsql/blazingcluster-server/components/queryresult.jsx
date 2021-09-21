@@ -15,7 +15,7 @@ const columns = [
   { id: 'revid', label: 'Rev ID', minWidth: 0, },
   { id: 'url', label: 'URL', minWidth: 0, },
   { id: 'title', label: 'Title', minWidth: 0, },
-  { id: 'text', label: 'Text', minWidth: 1000 }
+  { id: 'text', label: 'Text', minWidth: 500 }
 ];
 
 function createData(id, revid, url, title, text) {
@@ -58,6 +58,12 @@ const useStyles = makeStyles({
   container: {
     maxHeight: 440,
   },
+  tableCell: {
+    display: 'block',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    maxHeight: 100,
+  }
 });
 
 export function QueryResultTable({ data, queryTime }) {
@@ -104,7 +110,7 @@ export function QueryResultTable({ data, queryTime }) {
                     const value = row[column.id];
                     return (
                       <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value}
+                        <div className={classes.tableCell}>{column.format && typeof value === 'number' ? column.format(value) : value}</div>
                       </TableCell>
                     );
                   })}
