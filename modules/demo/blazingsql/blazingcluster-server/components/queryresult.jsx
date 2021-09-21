@@ -11,11 +11,11 @@ import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
 
 const columns = [
-  { id: 'id', label: 'ID' },
-  { id: 'revid', label: 'Rev ID' },
-  { id: 'url', label: 'URL', minWidth: 310, },
-  { id: 'title', label: 'Title', },
-  { id: 'text', label: 'Text', minWidth: 700 }
+  { id: 'id', label: 'ID', minWidth: 0, },
+  { id: 'revid', label: 'Rev ID', minWidth: 0, },
+  { id: 'url', label: 'URL', minWidth: 0, },
+  { id: 'title', label: 'Title', minWidth: 0, },
+  { id: 'text', label: 'Text', minWidth: 1000 }
 ];
 
 function createData(id, revid, url, title, text) {
@@ -27,7 +27,7 @@ function formatData(data) {
     return [];
   }
 
-  const rows = [];
+  let rows = [];
   data['title'].forEach((_, idx) => {
     const id = data['id'][idx];
     const revid = data['revid'][idx];
@@ -44,6 +44,9 @@ function formatData(data) {
       )
     );
   });
+
+  // TODO: Consider lazy loading... for now let's take 500 elements.
+  rows = rows.slice(0, 500);
 
   return rows;
 }
