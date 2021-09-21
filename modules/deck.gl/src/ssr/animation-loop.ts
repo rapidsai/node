@@ -31,10 +31,12 @@ export class AnimationLoop extends DeckAnimationLoop {
   declare private _animationFrameId: any;
   constructor(props = {}) {
     super(props);
-    this._sync           = (<any>props)._sync || false;
-    this._animationProps = (<any>props).animationProps;
+    this._sync                        = (<any>props)._sync || false;
+    this._animationProps              = (<any>props).animationProps;
+    (<any>this.props)._onBeforeRender = (<any>props)._onBeforeRender;
+    (<any>this.props)._onAfterRender  = (<any>props)._onAfterRender;
   }
-  start(opts = {}): DeckAnimationLoop {
+  start(opts = {}): this {
     if (this._initialized && !this._running) {
       this._running = true;
       (<any>this)._startLoop();
@@ -79,8 +81,8 @@ export class AnimationLoop extends DeckAnimationLoop {
     return this._running ? requestAnimationFrame(renderFrameCallback) : undefined;
   }
   _initializeCallbackData() {
-    const animationProps = _initializeCallbackData.call(this);
-    if (this._animationProps) {
+    const animationProps = _initializeCallbackData.call(this) ?? this.animationProps;
+    if (animationProps && this._animationProps) {
       const {
         useDevicePixels = animationProps.useDevicePixels,
         needsRedraw     = animationProps.needsRedraw,
@@ -108,6 +110,30 @@ export class AnimationLoop extends DeckAnimationLoop {
       animationProps._mousePosition  = _mousePosition;
     }
     return animationProps;
+  }
+  restore(animationProps: any = {}) {
+    if (animationProps && this.animationProps) {  //
+      Object.assign(this.animationProps, animationProps);
+    }
+    return this;
+  }
+  serialize() {
+    const props = this.animationProps as any;
+    return Object.keys(props).reduce((result: any, key) => {
+      const value = props[key];
+      switch (value && typeof value) {
+        case null:
+        case undefined:
+        case 'number':
+        case 'string':
+        case 'boolean': {
+          result[key] = value;
+          break;
+        }
+        default: break;
+      }
+      return result;
+    }, {_mousePosition: props._mousePosition});
   }
 }
 

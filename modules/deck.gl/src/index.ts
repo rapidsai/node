@@ -17,3 +17,4 @@ export * from './layers/graph';
 
 export {Deck as DeckSSR} from './ssr/deck';
 export {AnimationLoop as AnimationLoopSSR} from './ssr/animation-loop';
+export {default as OrthographicController} from './ssr/orthographic-controller';
