@@ -56,6 +56,7 @@ export class QueryDashboard extends React.Component {
         this.setState({
           queryResult: result,
           queryTime: table.schema.metadata.get('queryTime'),
+          resultCount: table.length,
         });
       });
       this.setState({ queryButtonEnabled: true });
@@ -82,7 +83,7 @@ export class QueryDashboard extends React.Component {
             <Button variant='contained' color='primary' className={'queryButton'} disabled={!this.state.queryButtonEnabled} onClick={this.runQuery}>Run Query</Button>
           </Col>
         </Row>
-        <QueryResultTable data={this.state.queryResult} queryTime={this.state.queryTime} />
+        <QueryResultTable data={this.state.queryResult} queryTime={this.state.queryTime} resultCount={this.state.resultCount} />
       </Container >
     )
   }

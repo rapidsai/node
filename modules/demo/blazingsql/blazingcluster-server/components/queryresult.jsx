@@ -66,7 +66,7 @@ const useStyles = makeStyles({
   }
 });
 
-export function QueryResultTable({ data, queryTime }) {
+export function QueryResultTable({ data, queryTime, resultCount }) {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -85,7 +85,8 @@ export function QueryResultTable({ data, queryTime }) {
   return (
     <Paper className={classes.root}>
       <Typography style={{ marginLeft: 5 }} variant="h6" id="tableTitle" component="div">
-        Query Time: {Math.round(queryTime)} ms
+        <div>Query Time: {Math.round(queryTime)} ms</div>
+        <div>Results: {resultCount ?? 0}</div>
       </Typography>
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label="sticky table">
