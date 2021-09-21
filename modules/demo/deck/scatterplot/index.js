@@ -14,26 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module.exports =
-  (glfwOptions = {
-    transparent: false
-  }) => {
-    require('@babel/register')({
-      cache: false,
-      babelrc: false,
-      cwd: __dirname,
-      presets: [
-        ['@babel/preset-env', {'targets': {'node': 'current'}}],
-        ['@babel/preset-react', {'useBuiltIns': true}]
-      ]
-    });
-
-    return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.js', {
-      glfwOptions,
-      // Change cwd to the example dir so relative file paths are resolved
-      module: {path: __dirname},
-    });
-  }
+module.exports = (glfwOptions = { transparent: false }) => {
+  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.js', {
+    glfwOptions,
+    // Change cwd to the example dir so relative file paths are resolved
+    module: {path: __dirname},
+  });
+};
 
 if (require.main === module) {
   module.exports().window.addEventListener('close', () => process.exit(0), {once: true});

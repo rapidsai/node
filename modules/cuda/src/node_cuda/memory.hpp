@@ -38,11 +38,11 @@ struct Memory {
    */
   Memory(Napi::CallbackInfo const& args) {}
 
-  void* data() const { return data_; }
-  size_t size() const { return size_; }
-  int32_t device() const { return device_id_; }
-  uint8_t* base() const { return reinterpret_cast<uint8_t*>(data_); }
-  uintptr_t ptr() const { return reinterpret_cast<uintptr_t>(data_); }
+  inline void* data() const { return data_; }
+  inline size_t size() const { return size_; }
+  inline int32_t device() const { return device_id_; }
+  inline uint8_t* base() const { return reinterpret_cast<uint8_t*>(data_); }
+  inline uintptr_t ptr() const { return reinterpret_cast<uintptr_t>(data_); }
 
  protected:
   Napi::Value device(Napi::CallbackInfo const& info) { return CPPToNapi(info)(device()); }
@@ -151,6 +151,14 @@ struct DeviceMemory : public EnvLocalObjectWrap<DeviceMemory>, public Memory {
    */
   DeviceMemory(CallbackArgs const& args);
 
+  DeviceMemory(const nv::DeviceMemory& other)
+    : EnvLocalObjectWrap<DeviceMemory>({other.Env(), {}}), Memory({other.Env(), {}}) {
+    data_         = other.data_;
+    size_         = other.size_;
+    device_id_    = other.device_id_;
+    ipcMemHandle_ = Napi::Persistent(other.ipcMemHandle_.Value());
+  }
+
   /**
    * @brief Destructor called when the JavaScript VM garbage collects this DeviceMemory instance.
    *
@@ -158,8 +166,12 @@ struct DeviceMemory : public EnvLocalObjectWrap<DeviceMemory>, public Memory {
    */
   void Finalize(Napi::Env env) override;
 
+  Napi::Uint8Array getIpcMemHandle();
+
  private:
   Napi::Value slice(Napi::CallbackInfo const& info);
+
+  Napi::Reference<Napi::Uint8Array> ipcMemHandle_;
 };
 
 /**
@@ -270,7 +282,7 @@ struct IpcMemory : public EnvLocalObjectWrap<IpcMemory>, public Memory {
 
 struct IpcHandle : public EnvLocalObjectWrap<IpcHandle> {
   /**
-   * @brief Initialize and export the IpcMemoryHandle JavaScript constructor and prototype.
+   * @brief Initialize and export the IpcHandle JavaScript constructor and prototype.
    *
    * @param env The active JavaScript environment.
    * @param exports The exports object to decorate.
@@ -279,7 +291,7 @@ struct IpcHandle : public EnvLocalObjectWrap<IpcHandle> {
   static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
-   * @brief Construct a new IpcMemoryHandle instance from C++.
+   * @brief Construct a new IpcHandle instance from C++.
    *
    * @param dmem Device memory for which to create an IPC memory handle.
    */
@@ -295,42 +307,26 @@ struct IpcHandle : public EnvLocalObjectWrap<IpcHandle> {
   inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
-   * @brief Constructs a new IpcMemoryHandle instance.
+   * @brief Constructs a new IpcHandle instance.
    *
    * @param args The JavaScript arguments list wrapped in a conversion helper.
    */
   IpcHandle(CallbackArgs const& args);
 
-  /**
-   * @brief Destructor called when the JavaScript VM garbage collects this IpcMemoryHandle instance.
-   *
-   * @param env The active JavaScript environment.
-   */
-  void Finalize(Napi::Env env) override;
-
-  int32_t device() const {
+  inline int32_t device() const {
     if (!dmem_.IsEmpty()) {  //
       return dmem_.Value()->device();
     }
     return -1;
   }
 
-  cudaIpcMemHandle_t* handle() const {
+  inline cudaIpcMemHandle_t* handle() const {
     return reinterpret_cast<cudaIpcMemHandle_t*>(handle_.Value().Data());
   }
-
-  /**
-   * @brief Close the underlying IPC memory handle, allowing this process to free the underlying
-   * device memory.
-   */
-  void close();
-  void close(Napi::Env const& env);
 
  private:
   Napi::Reference<Wrapper<DeviceMemory>> dmem_;
   Napi::Reference<Napi::Uint8Array> handle_;
-
-  void close(Napi::CallbackInfo const& info);
 
   Napi::Value buffer(Napi::CallbackInfo const& info);
   Napi::Value device(Napi::CallbackInfo const& info);

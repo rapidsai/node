@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '../deck.gl';
+import {DeckContext, DeckLayer, PickingInfo, UpdateStateProps} from '../deck.gl';
 
-import {DeckContext, Layer, picking, PickingInfo, project32, UpdateStateProps} from '@deck.gl/core';
+const {Layer, picking, project32} = require('@deck.gl/core');
+
 import {Geometry, Model} from '@luma.gl/engine';
 
 import {
@@ -26,7 +27,7 @@ import {
 import nodeFragmentShader from './nodes/node-fragment.glsl';
 import nodeVertexShader from './nodes/node-vertex.glsl';
 
-export class NodeLayer extends Layer {
+export class NodeLayer extends (Layer as typeof DeckLayer) {
   static get layerName() { return 'NodeLayer'; }
   static get defaultProps() {
     return {
@@ -68,12 +69,29 @@ export class NodeLayer extends Layer {
     this.getAttributeManager().addInstanced(NodeLayer.getAccessors(context));
   }
   updateState({props, oldProps, context, changeFlags}: UpdateStateProps) {
+    ['selectedNodeId', 'highlightedNodeId', 'selectedNodeIndex', 'highlightedNodeIndex']
+      .filter((key) => typeof props[key] === 'number')
+      .forEach((key) => this.internalState[key] = props[key]);
+
+    // if (this.internalState.highlightedNode && this.internalState.highlightedNode !== -1) {
+    //   props.highlightedObjectIndex = this.internalState.highlightedNode;
+    // }
+
     super.updateState({props, oldProps, context, changeFlags});
+
     if (changeFlags.extensionsChanged) {
       if (this.state.model) { this.state.model.delete(); }
       this.setState({model: this._getModel(context)});
       this.getAttributeManager().invalidateAll();
     }
+  }
+  serialize() {
+    return {
+      selectedNodeId: this.internalState.selectedNodeId,
+      selectedNodeIndex: this.internalState.selectedNodeIndex,
+      highlightedNodeId: this.internalState.highlightedNodeId,
+      highlightedNodeIndex: this.internalState.highlightedNodeIndex,
+    };
   }
   draw({uniforms, ...rest}: {uniforms?: any, context?: DeckContext} = {}) {
     this.state.model.draw({

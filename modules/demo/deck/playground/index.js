@@ -18,16 +18,6 @@ module.exports = (glfwOptions = {
   transparent: false
 },
                   reactProps = {}) => {
-  require('@babel/register')({
-    cache: false,
-    babelrc: false,
-    cwd: __dirname,
-    presets: [
-      ['@babel/preset-env', {'targets': {'node': 'current'}}],
-      ['@babel/preset-react', {'useBuiltIns': true}]
-    ]
-  });
-
   return require('@rapidsai/jsdom')
     .RapidsJSDOM.fromReactComponent(
       require('path').join(__dirname, 'src', 'app.js'),
