@@ -3573,7 +3573,7 @@ anymatch@^3.0.3, anymatch@~3.1.1:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apache-arrow@4.0.0, apache-arrow@5.0.0, apache-arrow@^4.0.0, apache-arrow@^5.0.0:
+apache-arrow@4.0.0, apache-arrow@^4.0.0, apache-arrow@^5.0.0:
   version "4.0.0"
   resolved "https://registry.npmjs.org/apache-arrow/-/apache-arrow-4.0.0.tgz#29616f5b5959cf0b0a6e49f8aa060ea53d4429ba"
   integrity sha512-Y1o9UfCVhh7IB+RPVbCx7SgF51SjvT9ZKxCtFU1eaqleFZNxj89mH2gvQia4uA197x158XDemTz9O+Rrv+f5tg==
