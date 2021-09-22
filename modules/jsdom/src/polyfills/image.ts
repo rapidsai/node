@@ -14,10 +14,11 @@
 
 import * as jsdom from 'jsdom';
 
-const {ImageData} = require('canvas');
-
 export function installImageData(window: jsdom.DOMWindow) {
-  window.jsdom.global.ImageData ??= ImageData;
+  window.jsdom.global.ImageData ??= window.evalFn(() => {
+    // debugger;
+    return require('canvas').ImageData;
+  });
   return window;
 }
 

@@ -66,5 +66,6 @@ elif [[ "$DEMO" =~ "modules/demo/deck/playground-ssr" ]]; then
 else
     NODE_ENV=${NODE_ENV:-production} \
     NODE_NO_WARNINGS=${NODE_NO_WARNINGS:-1} \
-    exec node --trace-uncaught "$DEMO" ${ARGS}
+    exec npm --prefix="$DEMO" start -- ${ARGS}
+    # exec node --experimental-vm-modules --trace-uncaught "$DEMO" ${ARGS}
 fi
