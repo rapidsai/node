@@ -37,7 +37,8 @@
     "bootstrap": "4.6.0",
     "react-bootstrap": "1.6.1",
     "react-awesome-query-builder": "4.4.3",
-    "request": "2.88.2"
+    "request": "2.88.2",
+    "cli-progress": "3.9.1"
   },
   "files": [
     "package.json",

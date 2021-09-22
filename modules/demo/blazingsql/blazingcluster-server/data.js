@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-var fs      = require('fs');
-var request = require('request');
-var zlib    = require('zlib');
+const fs          = require('fs');
+const request     = require('request');
+const zlib        = require('zlib');
+const cliProgress = require('cli-progress');
 
 module.exports = DownloadBlazingClusterServerDataSet;
 
@@ -23,11 +24,24 @@ if (require.main === module) {  //
 }
 
 async function DownloadBlazingClusterServerDataSet() {
-  console.log('Downloading and unzipping dataset...');
+  const downloadBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+
+  console.log(' Downloading dataset...');
+  var receivedBytes = 0;
   request('https://node-rapids-data.s3.us-west-2.amazonaws.com/wikipedia/page_titles_en.csv.gz')
-    .on('error', function(err) { console.log('Error: ' + err.message); })
-    .on('end',
-        function() { console.log('Download finished, Blazing Server Demo is ready to launch.'); })
+    .on('error',
+        function(err) {
+          downloadBar.stop();
+          console.log('Error: ' + err.message);
+        })
+    .on('response',
+        function(data) { downloadBar.start(parseInt(data.headers['content-length']), 0) })
+    .on('data',
+        function(chunk) {
+          receivedBytes += chunk.length;
+          downloadBar.update(receivedBytes);
+        })
+    .on('end', function() { downloadBar.stop(); })
     .pipe(zlib.createGunzip())
     .pipe(fs.createWriteStream(`${__dirname}/wikipedia_pages.csv`));
 }
