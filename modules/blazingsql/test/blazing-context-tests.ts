@@ -111,3 +111,17 @@ test('find all columns within a table that meet condition', () => {
   const result = new DataFrame({'key': Series.new(['a', 'b']), 'val': Series.new([7.6, 7.1])});
   expect(bc.sql('SELECT * FROM test_table WHERE val > 4').result()).toStrictEqual(result);
 });
+
+test('empty sql result', () => {
+  const key = Series.new(['a', 'b', 'c', 'd', 'e']);
+  const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
+  const df  = new DataFrame({'key': key, 'val': val});
+
+  const bc = new BlazingContext();
+  bc.createTable('test_table', df);
+
+  const result = new DataFrame();
+  // Query should be empty since BETWEEN values are reversed.
+  expect(bc.sql('SELECT * FROM test_table WHERE val BETWEEN 10 AND 0').result())
+    .toStrictEqual(result);
+});

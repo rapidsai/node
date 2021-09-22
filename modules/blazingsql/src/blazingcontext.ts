@@ -31,7 +31,7 @@ import {
   RelationalAlgebraGenerator
 } from './algebra';
 import {defaultContextConfigValues} from './config';
-import {ExecutionGraph} from './execution_graph';
+import {EmptyExecutionGraph, ExecutionGraph} from './execution_graph';
 import {json_plan_py} from './json_plan';
 
 export class BlazingContext {
@@ -218,7 +218,7 @@ export class BlazingContext {
 
     if (algebra.includes('LogicalValues(tuples=[[]])')) {
       // SQL returns an empty execution graph.
-      return new ExecutionGraph();
+      return new EmptyExecutionGraph();
     }
 
     if (algebra.includes(') OVER (')) {

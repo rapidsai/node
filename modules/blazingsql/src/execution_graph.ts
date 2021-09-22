@@ -16,22 +16,29 @@ import {DataFrame, Series} from '@rapidsai/cudf';
 import {ExecutionGraphWrapper} from './node_blazingsql';
 
 export class ExecutionGraph {
-  private executionGraphWrapper: ExecutionGraphWrapper|undefined;
+  private executionGraphWrapper: ExecutionGraphWrapper;
 
-  constructor(executionGraphWrapper?: ExecutionGraphWrapper) {
+  constructor(executionGraphWrapper: ExecutionGraphWrapper) {
     this.executionGraphWrapper = executionGraphWrapper;
   }
 
-  start(): void { this.executionGraphWrapper?.start(); }
+  start(): void { this.executionGraphWrapper.start(); }
 
   result() {
-    if (this.executionGraphWrapper === undefined) return new DataFrame();
     const {names, tables: [table]} = this.executionGraphWrapper.result();
     return new DataFrame(names.reduce(
       (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }
 
   sendTo(ralId: number, messageId: string): ExecutionGraph {
-    return new ExecutionGraph(this.executionGraphWrapper?.sendTo(ralId, messageId));
+    return new ExecutionGraph(this.executionGraphWrapper.sendTo(ralId, messageId));
   }
+}
+
+export class EmptyExecutionGraph {
+  constructor() {}
+
+  start() {}
+  result() { return new DataFrame(); }
+  sendTo() {}
 }
