@@ -36,7 +36,8 @@
     "react-dom": "17.0.2",
     "bootstrap": "4.6.0",
     "react-bootstrap": "1.6.1",
-    "react-awesome-query-builder": "4.4.3"
+    "react-awesome-query-builder": "4.4.3",
+    "request": "2.88.2"
   },
   "files": [
     "package.json",

@@ -24,7 +24,7 @@ const fs                        = require('fs');
 const DATA_PATH = `${__dirname}/wikipedia_pages.csv`;
 if (!fs.existsSync(DATA_PATH)) {
   console.error(`
-  .csv data not found! Run this to download the sample data from AWS S3 (178.6 MB):
+  .csv data not found! Run this to download the dataset from AWS S3 (16.0 GB):
 
   node ${__dirname}/data.js
   `);
