@@ -1049,7 +1049,7 @@
     cartocolor "^4.0.2"
     d3-scale "^3.2.3"
 
-"@deck.gl/core@8.5.0", "@deck.gl/core@8.5.4":
+"@deck.gl/core@8.5.4":
   version "8.5.4"
   resolved "https://registry.npmjs.org/@deck.gl/core/-/core-8.5.4.tgz#c9ddccb7ec98adf00e8cda8425f5d54b2db26c2a"
   integrity sha512-kkgsAHtbBFa9yRxE8ZkfYHyWaC/HZsjNGAZqk+q2GTd8eX5mJHUWcp7hbc4a2f8XObaRN4iILwZhVa2jWCyB9Q==
@@ -1125,7 +1125,7 @@
     "@luma.gl/experimental" "^8.5.4"
     "@luma.gl/shadertools" "^8.5.4"
 
-"@deck.gl/react@8.5.0", "@deck.gl/react@8.5.4":
+"@deck.gl/react@8.5.4":
   version "8.5.4"
   resolved "https://registry.npmjs.org/@deck.gl/react/-/react-8.5.4.tgz#ce2c6b869a481f985418237cc73348b97e0c5690"
   integrity sha512-RL4sgQG2qKvTQDRLiUeNnPitFqSH9myd+T/zBtD0Smmy1yzoqoQagUAT0auPSQhjrmFWIGmkJSLAPt5I19YxhQ==

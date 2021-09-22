@@ -14,13 +14,6 @@
     "start": "next build && next start"
   },
   "dependencies": {
-    "@babel/core": "7.14.6",
-    "@babel/preset-env": "7.14.7",
-    "@babel/preset-react": "7.14.5",
-    "@babel/register": "7.14.5",
-    "@deck.gl/core": "8.5.0",
-    "@deck.gl/react": "8.5.0",
-    "@luma.gl/core": "8.5.4",
     "@rapidsai/cudf": "0.0.1",
     "@rapidsai/blazingsql": "0.0.1",
     "@material-ui/core": "4.12.3",
