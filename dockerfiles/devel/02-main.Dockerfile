@@ -93,10 +93,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     # UCX runtime dependencies
     libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
  # Install UCX
- && git clone --depth 1 --branch v1.10.x https://github.com/openucx/ucx.git /tmp/ucx \
- && curl -o /tmp/cuda-alloc-rcache.patch \
-         -L https://raw.githubusercontent.com/rapidsai/ucx-split-feedstock/11ad7a3c1f25514df8064930f69c310be4fd55dc/recipe/cuda-alloc-rcache.patch \
- && cd /tmp/ucx && git apply /tmp/cuda-alloc-rcache.patch && rm /tmp/cuda-alloc-rcache.patch \
+ && git clone --depth 1 --branch v1.11.x https://github.com/openucx/ucx.git /tmp/ucx \
+ && cd /tmp/ucx \
  && sed -i 's/io_demo_LDADD =/io_demo_LDADD = $(CUDA_LDFLAGS)/' /tmp/ucx/test/apps/iodemo/Makefile.am \
  && /tmp/ucx/autogen.sh && mkdir /tmp/ucx/build && cd /tmp/ucx/build \
  && ../contrib/configure-release \
