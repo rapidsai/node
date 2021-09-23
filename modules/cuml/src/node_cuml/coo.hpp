@@ -51,7 +51,7 @@ struct COO : public EnvLocalObjectWrap<COO> {
   inline int get_size() { return coo_->nnz; }
 
  private:
-  std::unique_ptr<raft::sparse::COO<float>>
+  std::unique_ptr<raft::sparse::COO<float, int32_t>>
     coo_;  ///< Pointer to the underlying raft::sparse::COO<float>
 
   Napi::Value get_size(Napi::CallbackInfo const& info);
