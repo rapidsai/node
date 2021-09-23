@@ -27,7 +27,8 @@ Napi::Function COO::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(env, "COO", {InstanceMethod<&COO::get_size>("getSize")});
 }
 
-COO::wrapper_t COO::New(Napi::Env const& env, std::unique_ptr<raft::sparse::COO<float>> coo) {
+COO::wrapper_t COO::New(Napi::Env const& env,
+                        std::unique_ptr<raft::sparse::COO<float, int32_t>> coo) {
   auto buf  = EnvLocalObjectWrap<COO>::New(env);
   buf->coo_ = std::move(coo);
   return buf;

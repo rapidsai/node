@@ -35,11 +35,12 @@ struct COO : public EnvLocalObjectWrap<COO> {
   static Napi::Function Init(Napi::Env const& env, Napi::Object exports);
 
   /**
-   * @brief Construct a new COO instance from an raft::sparse::COO<float>.
+   * @brief Construct a new COO instance from an raft::sparse::COO<float, int32_t>.
    *
-   * @param buffer Pointer the raft::sparse::COO<float> to own.
+   * @param buffer Pointer the raft::sparse::COO<float, int32_t> to own.
    */
-  static wrapper_t New(Napi::Env const& env, std::unique_ptr<raft::sparse::COO<float>> coo);
+  static wrapper_t New(Napi::Env const& env,
+                       std::unique_ptr<raft::sparse::COO<float, int32_t>> coo);
 
   /**
    * @brief Construct a new COO instance.
@@ -47,12 +48,12 @@ struct COO : public EnvLocalObjectWrap<COO> {
    */
   COO(CallbackArgs const& info);
 
-  inline raft::sparse::COO<float>* get_coo() { return coo_.get(); }
+  inline raft::sparse::COO<float, int32_t>* get_coo() { return coo_.get(); }
   inline int get_size() { return coo_->nnz; }
 
  private:
   std::unique_ptr<raft::sparse::COO<float, int32_t>>
-    coo_;  ///< Pointer to the underlying raft::sparse::COO<float>
+    coo_;  ///< Pointer to the underlying raft::sparse::COO<float, int32_t>
 
   Napi::Value get_size(Napi::CallbackInfo const& info);
 };
