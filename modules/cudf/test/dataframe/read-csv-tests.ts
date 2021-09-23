@@ -13,9 +13,8 @@
 // limitations under the License.
 
 import {setDefaultAllocator} from '@nvidia/cuda';
-import {DataFrame} from '@rapidsai/cudf';
+import {DataFrame, Float64, Int32, Utf8String} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
-
 import {promises} from 'fs';
 import * as Path from 'path';
 
@@ -34,7 +33,7 @@ describe('DataFrame.readCSV', () => {
       header: 0,
       sourceType: 'buffers',
       sources: [Buffer.from(makeCSVString({rows}))],
-      dataTypes: {a: 'int32', b: 'float64', c: 'str'},
+      dataTypes: {a: new Int32, b: new Float64, c: new Utf8String},
     });
     expect(df.get('a').data.toArray()).toEqual(new Int32Array([0, 1, 2]));
     expect(df.get('b').data.toArray()).toEqual(new Float64Array([1.0, 2.0, 3.0]));
@@ -53,7 +52,7 @@ describe('DataFrame.readCSV', () => {
       header: 0,
       sourceType: 'files',
       sources: [path],
-      dataTypes: {a: 'int32', b: 'float64', c: 'str'},
+      dataTypes: {a: new Int32, b: new Float64, c: new Utf8String},
     });
     expect(df.get('a').data.toArray()).toEqual(new Int32Array([0, 1, 2]));
     expect(df.get('b').data.toArray()).toEqual(new Float64Array([1.0, 2.0, 3.0]));

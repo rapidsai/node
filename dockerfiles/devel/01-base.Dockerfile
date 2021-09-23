@@ -1,6 +1,6 @@
 ARG FROM_IMAGE
 ARG FROM_IMAGE_DEFAULT
-ARG NODE_VERSION=16.6.2
+ARG NODE_VERSION=16.9.1
 
 FROM node:$NODE_VERSION-stretch-slim as node
 
@@ -65,7 +65,7 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     # clang-format for automatically formatting C++ and TS/JS
     clang-format-${CLANG_FORMAT_VERSION} \
     # CMake
-    curl libssl-dev libcurl4-openssl-dev zlib1g-dev \
+    curl libssl-dev libcurl4-openssl-dev zlib1g-dev liblz4-dev \
     cmake=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
     cmake-data=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
  \
