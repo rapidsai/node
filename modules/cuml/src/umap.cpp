@@ -128,17 +128,14 @@ COO::wrapper_t UMAP::get_graph(DeviceBuffer::wrapper_t const& X,
                                DeviceBuffer::wrapper_t const& y,
                                bool convert_dtype) {
   raft::handle_t handle;
-  auto stream = handle.get_stream();
-  auto coo_   = std::make_shared<raft::sparse::COO<float>>(stream);
-  ML::UMAP::get_graph(handle,
-                      static_cast<float*>(X->data()),
-                      (y->size() != 0) ? static_cast<float*>(y->data()) : nullptr,
-                      n_samples,
-                      n_features,
-                      coo_.get(),
-                      &this->params_);
+  auto coo = ML::UMAP::get_graph(handle,
+                                 static_cast<float*>(X->data()),
+                                 (y->size() != 0) ? static_cast<float*>(y->data()) : nullptr,
+                                 n_samples,
+                                 n_features,
+                                 &this->params_);
 
-  return COO::New(this->Env(), coo_);
+  return COO::New(this->Env(), std::move(coo));
 }
 
 void UMAP::refine(DeviceBuffer::wrapper_t const& X,

@@ -39,7 +39,7 @@ struct COO : public EnvLocalObjectWrap<COO> {
    *
    * @param buffer Pointer the raft::sparse::COO<float> to own.
    */
-  static wrapper_t New(Napi::Env const& env, std::shared_ptr<raft::sparse::COO<float>> coo);
+  static wrapper_t New(Napi::Env const& env, std::unique_ptr<raft::sparse::COO<float>> coo);
 
   /**
    * @brief Construct a new COO instance.
@@ -51,7 +51,7 @@ struct COO : public EnvLocalObjectWrap<COO> {
   inline int get_size() { return coo_->nnz; }
 
  private:
-  std::shared_ptr<raft::sparse::COO<float>>
+  std::unique_ptr<raft::sparse::COO<float>>
     coo_;  ///< Pointer to the underlying raft::sparse::COO<float>
 
   Napi::Value get_size(Napi::CallbackInfo const& info);

@@ -27,7 +27,7 @@ Napi::Function COO::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(env, "COO", {InstanceMethod<&COO::get_size>("getSize")});
 }
 
-COO::wrapper_t COO::New(Napi::Env const& env, std::shared_ptr<raft::sparse::COO<float>> coo) {
+COO::wrapper_t COO::New(Napi::Env const& env, std::unique_ptr<raft::sparse::COO<float>> coo) {
   auto buf  = EnvLocalObjectWrap<COO>::New(env);
   buf->coo_ = std::move(coo);
   return buf;
@@ -35,7 +35,7 @@ COO::wrapper_t COO::New(Napi::Env const& env, std::shared_ptr<raft::sparse::COO<
 
 COO::COO(CallbackArgs const& args) : EnvLocalObjectWrap<COO>(args) {
   raft::handle_t handle;
-  auto coo_  = std::make_shared<raft::sparse::COO<float>>(handle.get_stream());
+  auto coo_  = std::make_unique<raft::sparse::COO<float, int>>(handle.get_stream());
   this->coo_ = std::move(coo_);
 }
 
