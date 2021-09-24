@@ -49,7 +49,6 @@ function formatData(table) {
   const titles = [...table.getColumn("title")].slice(0, resultsToDisplay);
   const texts = [...table.getColumn("text")].slice(0, resultsToDisplay);
 
-
   for (let i = 0; i < resultsToDisplay; ++i) {
     rows.push({
       id: ids[i],
