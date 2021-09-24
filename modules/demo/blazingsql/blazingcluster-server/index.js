@@ -44,7 +44,7 @@ fastify.register((require('fastify-arrow')))
   .register(require('fastify-nextjs', {
     dev: process.env.NODE_ENV !== 'production',
   }))
-  .register(async (instane, opts, done) => {
+  .register(async (instance, opts, done) => {
     bc = await BlazingCluster.init({numWorkers: 2});
     await bc.createTable('test_table', DataFrame.readCSV({
       header: 0,
