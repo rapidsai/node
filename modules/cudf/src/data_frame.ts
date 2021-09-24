@@ -27,7 +27,7 @@ import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps
 import {Scalar} from './scalar';
 import {AbstractSeries, Series} from './series';
 import {Table, ToArrowMetadata} from './table';
-import {CSVToCUDFType, CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
+import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {
   Bool8,
   DataType,
@@ -95,16 +95,16 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * import {DataFrame, Series, Int16, Bool, Float32, Utf8String}  from '@rapidsai/cudf';
    * const df = DataFrame.readCSV({
    *  header: 0,
    *  sourceType: 'files',
    *  sources: ['test.csv'],
    *  dataTypes: {
-   *    a: 'int16',
-   *    b: 'bool',
-   *    c: 'float32',
-   *    d: 'str'
+   *    a: new Int16,
+   *    b: new Bool,
+   *    c: new Float32,
+   *    d: new Utf8String
    *  }
    * })
    * ```
@@ -113,7 +113,7 @@ export class DataFrame<T extends TypeMap = any> {
     const {names, table} = Table.readCSV(options);
     return new DataFrame(new ColumnAccessor(
       names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}),
-                   {} as ColumnsMap<{[P in keyof T]: CSVToCUDFType<T[P]>}>)));
+                   {} as ColumnsMap<{[P in keyof T]: T[P]}>)));
   }
 
   /**

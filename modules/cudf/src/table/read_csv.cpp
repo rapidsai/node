@@ -76,7 +76,7 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
   };
   auto names_and_types = [&](std::string const& key) {
     std::vector<std::string> names;
-    std::vector<std::string> types;
+    std::vector<cudf::data_type> types;
     auto dtypes = napi_opt(key);
     if (is_null(dtypes) || !dtypes.IsObject()) {
       names.resize(0);
@@ -87,10 +87,11 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
       names.reserve(type_names.Length());
       types.reserve(type_names.Length());
       for (uint32_t i = 0; i < type_names.Length(); ++i) {
-        auto name = type_names.Get(i).ToString().Utf8Value();
-        auto type = data_types.Get(name).ToString().Utf8Value();
+        auto name  = type_names.Get(i).ToString().Utf8Value();
+        auto _type = data_types.Get(name).As<Napi::Object>();
+        auto type  = arrow_to_cudf_type(_type);
         names.push_back(name);
-        types.push_back(name + ":" + type);
+        types.push_back(type);
       }
     }
     names.shrink_to_fit();
@@ -99,7 +100,7 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
   };
 
   std::vector<std::string> names;
-  std::vector<std::string> types;
+  std::vector<cudf::data_type> types;
   std::tie(names, types) = names_and_types("dataTypes");
 
   auto opts = std::move(cudf::io::csv_reader_options::builder(source)
@@ -180,8 +181,8 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
       } else if (dt_cols.Get(i).IsNumber()) {
         date_indexes.push_back(dt_cols.Get(i).ToNumber());
       }
-      opts.set_infer_date_names(date_names);
-      opts.set_infer_date_indexes(date_indexes);
+      opts.set_parse_dates(date_names);
+      opts.set_parse_dates(date_indexes);
     }
   }
   if (!is_null(null_values) && null_values.IsArray()) {
