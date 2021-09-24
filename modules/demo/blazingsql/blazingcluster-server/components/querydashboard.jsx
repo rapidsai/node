@@ -27,6 +27,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
 
+const NUMBER_OF_RESULTS_TO_DISPLAY = 500;
 const columns = [
   { id: 'id', label: 'ID', minWidth: 0, },
   { id: 'revid', label: 'Rev ID', minWidth: 0, },
@@ -35,37 +36,26 @@ const columns = [
   { id: 'text', label: 'Text', minWidth: 500 }
 ];
 
-function createData(id, revid, url, title, text) {
-  return { id, revid, url, title, text };
-}
-
-function formatData(data) {
-  if (Object.keys(data).length === 0) {
-    return [];
+function formatData(table) {
+  let rows = [];
+  if (table.length == 0) {
+    return rows;
   }
 
-  let rows = [];
-  const length = data['title'].length;
-  for (let i = 0; i < length; ++i) {
-    const id = data['id'][i];
-    const revid = data['revid'][i];
-    const url = data['url'][i];
-    const title = data['title'][i];
-    const text = data['text'][i];
-    rows.push(
-      createData(
-        id,
-        revid,
-        url,
-        title,
-        text
-      )
-    );
+  const ids = [...table.getColumn("id")].map((x) => +x).slice(0, NUMBER_OF_RESULTS_TO_DISPLAY);
+  const revids = [...table.getColumn("revid")].map((x) => +x).slice(0, NUMBER_OF_RESULTS_TO_DISPLAY);
+  const urls = [...table.getColumn("url")].slice(0, NUMBER_OF_RESULTS_TO_DISPLAY);
+  const titles = [...table.getColumn("title")].slice(0, NUMBER_OF_RESULTS_TO_DISPLAY);
+  const texts = [...table.getColumn("text")].slice(0, NUMBER_OF_RESULTS_TO_DISPLAY);
 
-    // Let's just process the first 500 results due to client side rendering bottleneck.
-    if (i >= 500) {
-      break;
-    }
+  for (let i = 0; i < NUMBER_OF_RESULTS_TO_DISPLAY; ++i) {
+    rows.push({
+      id: ids[i],
+      revid: revids[i],
+      url: urls[i],
+      title: titles[i],
+      text: texts[i]
+    });
   }
 
   return rows;
@@ -100,15 +90,8 @@ export class QueryDashboard extends React.Component {
         },
         body: `${this.state.query}`
       }).then((res) => Table.from(res)).then((table) => {
-        const result = table.length == 0 ? {} : {
-          id: [...table.getColumn("id")].map((x) => +x),
-          revid: [...table.getColumn("revid")].map((x) => +x),
-          url: [...table.getColumn("url")],
-          title: [...table.getColumn("title")],
-          text: [...table.getColumn("text")],
-        };
         this.setState({
-          queryResult: formatData(result),
+          queryResult: formatData(table),
           queryTime: table.schema.metadata.get('queryTime'),
           resultCount: table.length,
           page: 0,
