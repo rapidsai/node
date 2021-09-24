@@ -17,9 +17,13 @@
 const {performance}             = require('perf_hooks');
 const {BlazingCluster}          = require('@rapidsai/blazingsql');
 const {DataFrame}               = require('@rapidsai/cudf');
-const fastify                   = require('fastify')({pluginTimeout: 30000});
 const {RecordBatchStreamWriter} = require('apache-arrow');
 const fs                        = require('fs');
+
+const fastify = require('fastify')({
+  pluginTimeout: 30000,
+  logger: process.env.NODE_ENV !== 'production',
+});
 
 const DATA_PATH = `${__dirname}/wikipedia_pages.csv`;
 if (!fs.existsSync(DATA_PATH)) {
@@ -37,30 +41,32 @@ let bc;
 process.chdir(__dirname);
 
 fastify.register((require('fastify-arrow')))
-       .register(require('fastify-nextjs'))
-       .register(async (instane, opts, done) => {
-  bc = await BlazingCluster.init({numWorkers: 2});
-  await bc.createTable('test_table', DataFrame.readCSV({
-    header: 0,
-    sourceType: 'files',
-    sources: [DATA_PATH],
-  }));
-  done();
-       })
-       .after(() => {
-  fastify.next('/')
-  fastify.post('/run_query', async function (request, reply) {
-  const t0         = performance.now();
-  const df         = await bc.sql(request.body);
-  const t1         = performance.now();
-  const queryTime  = t1 - t0;
-  const arrowTable = df.toArrow();
-  arrowTable.schema.metadata.set('queryTime', queryTime);
-  RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
+  .register(require('fastify-nextjs', {
+    dev: process.env.NODE_ENV !== 'production',
+  }))
+  .register(async (instane, opts, done) => {
+    bc = await BlazingCluster.init({numWorkers: 2});
+    await bc.createTable('test_table', DataFrame.readCSV({
+      header: 0,
+      sourceType: 'files',
+      sources: [DATA_PATH],
+    }));
+    done();
   })
-});
-
-  fastify.listen(3000, err => {
-    if (err) throw err
-      console.log('Server listening on http://localhost:3000')
+  .after(() => {
+    fastify.next('/');
+    fastify.post('/run_query', async function(request, reply) {
+      const t0         = performance.now();
+      const df         = await bc.sql(request.body);
+      const t1         = performance.now();
+      const queryTime  = t1 - t0;
+      const arrowTable = df.toArrow();
+      arrowTable.schema.metadata.set('queryTime', queryTime);
+      RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
+    });
   });
+
+fastify.listen(3000, err => {
+  if (err) throw err
+    console.log('Server listening on http://localhost:3000')
+});
