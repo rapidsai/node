@@ -3,9 +3,7 @@ module.exports = {
     ignoreDuringBuilds: true,
   },
   webpack: (config, {buildId, dev, isServer, defaultLoaders, webpack}) => {
-    if (isServer) {
-      config.externals.push({'apache-arrow': 'apache-arrow'});
-    } else {
+    if (!isServer) {
       config.resolve.alias['apache-arrow'] = require.resolve('apache-arrow/Arrow.es2015.min.js');
     }
     return config;
