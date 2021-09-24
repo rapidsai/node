@@ -27,7 +27,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
 
-const NUMBER_OF_RESULTS_TO_DISPLAY = 500;
+const MAX_RESULTS_TO_DISPLAY = 500;
 const columns = [
   { id: 'id', label: 'ID', minWidth: 0, },
   { id: 'revid', label: 'Rev ID', minWidth: 0, },
@@ -42,13 +42,15 @@ function formatData(table) {
     return rows;
   }
 
-  const ids = [...table.getColumn("id")].map((x) => +x).slice(0, NUMBER_OF_RESULTS_TO_DISPLAY);
-  const revids = [...table.getColumn("revid")].map((x) => +x).slice(0, NUMBER_OF_RESULTS_TO_DISPLAY);
-  const urls = [...table.getColumn("url")].slice(0, NUMBER_OF_RESULTS_TO_DISPLAY);
-  const titles = [...table.getColumn("title")].slice(0, NUMBER_OF_RESULTS_TO_DISPLAY);
-  const texts = [...table.getColumn("text")].slice(0, NUMBER_OF_RESULTS_TO_DISPLAY);
+  const resultsToDisplay = table.length < MAX_RESULTS_TO_DISPLAY ? table.length : MAX_RESULTS_TO_DISPLAY;
+  const ids = [...table.getColumn("id")].map((x) => +x).slice(0, resultsToDisplay);
+  const revids = [...table.getColumn("revid")].map((x) => +x).slice(0, resultsToDisplay);
+  const urls = [...table.getColumn("url")].slice(0, resultsToDisplay);
+  const titles = [...table.getColumn("title")].slice(0, resultsToDisplay);
+  const texts = [...table.getColumn("text")].slice(0, resultsToDisplay);
 
-  for (let i = 0; i < NUMBER_OF_RESULTS_TO_DISPLAY; ++i) {
+
+  for (let i = 0; i < resultsToDisplay; ++i) {
     rows.push({
       id: ids[i],
       revid: revids[i],
