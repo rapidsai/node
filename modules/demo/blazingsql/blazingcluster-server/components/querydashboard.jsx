@@ -16,8 +16,60 @@ import Button from '@material-ui/core/Button';
 import React from 'react';
 import { Col, Container, FormControl, InputGroup, Row } from 'react-bootstrap';
 import { QueryBuilder } from './querybuilder';
-import { QueryResultTable } from './queryresult';
 import { Table } from 'apache-arrow';
+import Paper from '@material-ui/core/Paper';
+import MatTable from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
+import Typography from '@material-ui/core/Typography';
+
+const columns = [
+  { id: 'id', label: 'ID', minWidth: 0, },
+  { id: 'revid', label: 'Rev ID', minWidth: 0, },
+  { id: 'url', label: 'URL', minWidth: 0, },
+  { id: 'title', label: 'Title', minWidth: 0, },
+  { id: 'text', label: 'Text', minWidth: 500 }
+];
+
+function createData(id, revid, url, title, text) {
+  return { id, revid, url, title, text };
+}
+
+function formatData(data) {
+  if (Object.keys(data).length === 0) {
+    return [];
+  }
+
+  let rows = [];
+  const length = data['title'].length;
+  for (let i = 0; i < length; ++i) {
+    const id = data['id'][i];
+    const revid = data['revid'][i];
+    const url = data['url'][i];
+    const title = data['title'][i];
+    const text = data['text'][i];
+    rows.push(
+      createData(
+        id,
+        revid,
+        url,
+        title,
+        text
+      )
+    );
+
+    // Let's just process the first 500 results due to client side rendering bottleneck.
+    if (i >= 500) {
+      break;
+    }
+  }
+
+  return rows;
+}
 
 export class QueryDashboard extends React.Component {
   constructor() {
@@ -25,8 +77,10 @@ export class QueryDashboard extends React.Component {
     this.state = {
       query: '',
       queryTime: '',
-      queryResult: {},
+      queryResult: [],
       queryButtonEnabled: false,
+      page: 0,
+      rowsPerPage: 10,
     };
 
     this.runQuery = this.runQuery.bind(this);
@@ -54,14 +108,29 @@ export class QueryDashboard extends React.Component {
           text: [...table.getColumn("text")],
         };
         this.setState({
-          queryResult: result,
+          queryResult: formatData(result),
           queryTime: table.schema.metadata.get('queryTime'),
           resultCount: table.length,
+          page: 0,
+          rowsPerPage: 10
         });
       });
       this.setState({ queryButtonEnabled: true });
     }
   }
+
+  handleChangePage = (event, newPage) => {
+    this.setState({
+      page: newPage
+    });
+  };
+
+  handleChangeRowsPerPage = (event) => {
+    this.setState({
+      rowsPerPage: +event.target.value,
+      page: 0
+    });
+  };
 
   render() {
     return (
@@ -83,7 +152,56 @@ export class QueryDashboard extends React.Component {
             <Button variant='contained' color='primary' className={'queryButton'} disabled={!this.state.queryButtonEnabled} onClick={this.runQuery}>Run Query</Button>
           </Col>
         </Row>
-        <QueryResultTable data={this.state.queryResult} queryTime={this.state.queryTime} resultCount={this.state.resultCount} />
+        <Paper>
+          <Typography style={{ marginLeft: 5 }} variant="h6" id="tableTitle" component="div">
+            <div>Query Time: {Math.round(this.state.queryTime)} ms</div>
+            <div>Results: {this.state.resultCount ?? 0}</div>
+          </Typography>
+          <TableContainer>
+            <MatTable stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.id}
+                      align={column.align}
+                      style={{ minWidth: column.minWidth }}
+                    >
+                      {column.label}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {this.state.queryResult.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage).map((row) => {
+                  return (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                      {columns.map((column) => {
+                        const value = row[column.id];
+                        return (
+                          <TableCell key={column.id} align={column.align}>
+                            <div style={{ display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', maxHeight: 100 }}>
+                              {column.format && typeof value === 'number' ? column.format(value) : value}
+                            </div>
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </MatTable>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 100, 500]}
+            component="div"
+            count={this.state.queryResult.length}
+            rowsPerPage={this.state.rowsPerPage}
+            page={this.state.page}
+            onPageChange={this.handleChangePage}
+            onRowsPerPageChange={this.handleChangeRowsPerPage}
+          />
+        </Paper>
       </Container >
     )
   }
