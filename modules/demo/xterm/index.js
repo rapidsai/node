@@ -14,9 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module.exports = () => {
-  const jsdom = new (require('@rapidsai/jsdom').RapidsJSDOM)();
-
+module.exports = (glfwOptions = {
+  title: 'XTerm Demo'
+}) => {
+  const jsdom = new (require('@rapidsai/jsdom').RapidsJSDOM)({glfwOptions});
   jsdom.window.evalFn(() => {
     const {Terminal}   = require('xterm');
     const {WebglAddon} = require('xterm-addon-webgl');

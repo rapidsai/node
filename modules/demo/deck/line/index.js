@@ -15,6 +15,7 @@
 // limitations under the License.
 
 module.exports = (glfwOptions = {
+  title: 'Line Demo',
   transparent: false
 }) => {
   return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.js', {

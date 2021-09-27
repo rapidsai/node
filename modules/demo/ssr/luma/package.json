@@ -25,7 +25,8 @@
     "fastify-static": "4.2.3",
     "rxjs": "6.6.7",
     "shm-typed-array": "0.0.13",
-    "socket.io": "4.1.3"
+    "socket.io": "4.1.3",
+    "wrtc": "0.4.7"
   },
   "files": [
     "public",
