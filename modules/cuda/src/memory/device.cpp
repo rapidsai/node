@@ -51,7 +51,6 @@ DeviceMemory::wrapper_t DeviceMemory::New(Napi::Env const& env, std::size_t size
 
 void DeviceMemory::Finalize(Napi::Env env) {
   if (data_ != nullptr && size_ > 0) {
-    if (!ipcMemHandle_.IsEmpty()) { cudaIpcCloseMemHandle(data_); }
     if (cudaFree(data_) == cudaSuccess) {
       Napi::MemoryManagement::AdjustExternalMemory(env, -size_);
     }

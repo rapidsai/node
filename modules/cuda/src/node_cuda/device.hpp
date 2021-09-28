@@ -68,15 +68,6 @@ struct Device : public EnvLocalObjectWrap<Device> {
     return count;
   }
 
-  /**
-   * @brief Check whether an Napi value is an instance of `Device`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `Device`
-   * @return false if the value is not a `Device`
-   */
-  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
-
   template <typename Function>
   static inline void call_in_context(Napi::Env const& env,
                                      int32_t new_device_id,

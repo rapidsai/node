@@ -19,6 +19,21 @@
 
 namespace nv {
 
+/**
+ * @brief Check whether an Napi value is an instance of `Memory`.
+ *
+ * @param val The Napi::Value to test
+ * @return true if the value is a `Memory`
+ * @return false if the value is not a `Memory`
+ */
+bool Memory::IsInstance(Napi::Value const& value) {
+  return IpcMemory::IsInstance(value) or      //
+         DeviceMemory::IsInstance(value) or   //
+         ManagedMemory::IsInstance(value) or  //
+         PinnedMemory::IsInstance(value) or   //
+         MappedGLMemory::IsInstance(value);
+}
+
 namespace {
 
 void cudaMemsetNapi(CallbackArgs const& args) {
