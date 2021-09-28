@@ -19,6 +19,7 @@ import {
   Context,
   ContextProps,
   getTableScanInfo,
+  parseSchema,
   runGeneratePhysicalGraph,
 } from './addon';
 import {
@@ -75,6 +76,22 @@ export class BlazingContext {
       maximumPoolSize,
       enableLogging
     });
+  }
+
+  // Temp definition, merge with createTable probably.
+  createTableCSV(tableName: string, input: string[]): void {
+    console.log(tableName);
+    const schema       = parseSchema(input, 'csv', [], [], false);
+    const mappingFiles = {'localhost': schema['files']};
+
+    console.log(schema);
+    console.log(mappingFiles);
+
+    const uriValues: any[] = [];
+    const fileType         = schema['file_type'];
+
+    console.log(uriValues);
+    console.log(fileType);
   }
 
   /**

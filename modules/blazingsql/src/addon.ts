@@ -19,12 +19,20 @@ import {loadNativeModule} from '@rapidsai/core';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
 
-export const {getTableScanInfo, runGeneratePhysicalGraph, Context, UcpContext, ExecutionGraph} =
+export const {
+  parseSchema,
+  getTableScanInfo,
+  runGeneratePhysicalGraph,
+  Context,
+  UcpContext,
+  ExecutionGraph
+} =
   loadNativeModule<typeof import('./node_blazingsql')>(
     module, 'node_blazingsql', init => init(CUDA, RMM, CUDF));
 
 export type getTableScanInfo         = typeof import('./node_blazingsql').getTableScanInfo;
 export type runGeneratePhysicalGraph = typeof import('./node_blazingsql').runGeneratePhysicalGraph;
+export type parseSchema              = typeof import('./node_blazingsql').parseSchema;
 
 export type Context        = import('./node_blazingsql').Context;
 export type UcpContext     = import('./node_blazingsql').UcpContext;

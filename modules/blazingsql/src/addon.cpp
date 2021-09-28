@@ -31,6 +31,7 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
         InstanceValue("UcpContext", InitClass<nv::blazingsql::UcpContext>(env, exports)),
         InstanceValue("CacheMachine", InitClass<nv::blazingsql::CacheMachine>(env, exports)),
         InstanceValue("ExecutionGraph", InitClass<nv::blazingsql::ExecutionGraph>(env, exports)),
+        InstanceMethod<&node_blazingsql::parse_schema>("parseSchema"),
         InstanceMethod<&node_blazingsql::get_table_scan_info>("getTableScanInfo"),
         InstanceMethod<&node_blazingsql::run_generate_physical_graph>("runGeneratePhysicalGraph"),
       });
@@ -67,6 +68,19 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
 
     return Napi::String::New(
       env, nv::blazingsql::run_generate_physical_graph(0, worker_ids, ctx_token, query));
+  }
+
+  Napi::Value parse_schema(Napi::CallbackInfo const& info) {
+    auto env = info.Env();
+    nv::CallbackArgs args{info};
+
+    std::vector<std::string> input = args[0];
+    std::string file_format        = args[1];
+    // skip kwargs for now.
+    // skip extraColumns for now.
+    bool ignoreMissingPaths = args[4];
+
+    return nv::blazingsql::parse_schema(env, input, file_format, ignoreMissingPaths);
   }
 };
 

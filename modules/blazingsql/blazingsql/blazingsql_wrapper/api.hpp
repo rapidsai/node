@@ -58,6 +58,11 @@ std::string run_generate_physical_graph(uint32_t const& masterIndex,
                                         int32_t const& ctx_token,
                                         std::string const& query);
 
+Napi::Value parse_schema(Napi::Env const& env,
+                         std::vector<std::string> const& input,
+                         std::string const& file_format,
+                         bool const& ignoreMissingFiles);
+
 void start_execute_graph(ExecutionGraph::wrapper_t const& execution_graph,
                          int32_t const& ctx_token);
 
