@@ -179,6 +179,47 @@ std::string run_generate_physical_graph(uint32_t const& masterIndex,
   return ::runGeneratePhysicalGraph(masterIndex, worker_ids, ctx_token, query);
 }
 
+Napi::Value parse_schema(Napi::Env const& env,
+                         std::vector<std::string> const& input,
+                         std::string const& file_format,
+                         bool const& ignoreMissingFiles) {
+  auto table_schema = ::parseSchema(input, file_format, {}, {}, {}, ignoreMissingFiles);
+
+  // TODO: We could probably make a Table js/c++ object here.
+  auto result = Napi::Object::New(env);
+
+  auto files = Napi::Array::New(env, table_schema.files.size());
+  for (size_t i = 0; i < table_schema.files.size(); ++i) {
+    files.Set(i, Napi::String::New(env, table_schema.files[i]));
+  }
+  result.Set("files", files);
+
+  result.Set("file_type", table_schema.data_type);
+
+  auto types = Napi::Array::New(env, table_schema.types.size());
+  for (size_t i = 0; i < table_schema.types.size(); ++i) {
+    types.Set(
+      i, Napi::Number::New(env, (int)table_schema.types[i]));  // TODO: Might be bad casting here.
+  }
+  result.Set("types", types);
+
+  auto names = Napi::Array::New(env, table_schema.names.size());
+  for (size_t i = 0; i < table_schema.names.size(); ++i) {
+    names.Set(i, Napi::String::New(env, table_schema.names[i]));
+  }
+  result.Set("names", names);
+
+  auto calcite_to_file_indices = Napi::Array::New(env, table_schema.calcite_to_file_indices.size());
+  for (size_t i = 0; i < table_schema.calcite_to_file_indices.size(); ++i) {
+    calcite_to_file_indices.Set(i, Napi::Number::New(env, table_schema.calcite_to_file_indices[i]));
+  }
+  result.Set("calcite_to_file_indices", calcite_to_file_indices);
+
+  result.Set("has_header_csv", Napi::Boolean::New(env, table_schema.has_header_csv));
+
+  return result;
+}
+
 void start_execute_graph(ExecutionGraph::wrapper_t const& execution_graph,
                          int32_t const& ctx_token) {
   ::startExecuteGraph(*execution_graph, ctx_token);

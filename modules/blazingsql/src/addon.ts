@@ -22,6 +22,7 @@ import {addon as RMM} from '@rapidsai/rmm';
 export const {
   getTableScanInfo,
   runGeneratePhysicalGraph,
+  parseSchema,
   Context,
   UcpContext,
   ExecutionGraphWrapper
@@ -31,6 +32,7 @@ export const {
 
 export type getTableScanInfo         = typeof import('./node_blazingsql').getTableScanInfo;
 export type runGeneratePhysicalGraph = typeof import('./node_blazingsql').runGeneratePhysicalGraph;
+export type parseSchema              = typeof import('./node_blazingsql').parseSchema;
 
 export type Context               = import('./node_blazingsql').Context;
 export type UcpContext            = import('./node_blazingsql').UcpContext;
