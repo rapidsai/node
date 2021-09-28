@@ -12,30 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "graph.hpp"
-#include "api.hpp"
+#include "blazingsql_wrapper/graph.hpp"
+#include "blazingsql_wrapper/api.hpp"
 
 #include <node_cudf/table.hpp>
+
 #include <nv_node/utilities/args.hpp>
 
 #include <execution_graph/graph.h>
 
 namespace nv {
+namespace blazingsql {
 
 Napi::Function ExecutionGraph::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(env,
                      "ExecutionGraph",
-                     {InstanceMethod<&ExecutionGraph::start>("start"),
-                      InstanceMethod<&ExecutionGraph::result>("result"),
-                      InstanceMethod<&ExecutionGraph::send_to>("sendTo")});
+                     {
+                       InstanceMethod<&ExecutionGraph::send>("sendTo"),
+                       InstanceMethod<&ExecutionGraph::start>("start"),
+                       InstanceMethod<&ExecutionGraph::result>("result"),
+                     });
 }
 
 ExecutionGraph::wrapper_t ExecutionGraph::New(Napi::Env const& env,
                                               std::shared_ptr<ral::cache::graph> const& graph,
-                                              nv::Wrapper<nv::ContextWrapper> const& context) {
+                                              nv::Wrapper<Context> const& context) {
   auto inst      = EnvLocalObjectWrap<ExecutionGraph>::New(env, {});
   inst->_graph   = graph;
   inst->_context = Napi::Persistent(context);
+  if (context->get_node_id() == -1) {
+    context->set_node_id(graph->get_last_kernel()->input_cache()->get_context()->getNodeIndex(
+      ral::communication::CommunicationData::getInstance().getSelfNode()));
+  }
   return inst;
 }
 
@@ -54,7 +62,7 @@ Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
   start(info);
 
   if (!_results) {
-    auto [names, tables] = nv::get_execute_graph_result(*this, _graph->get_context_token());
+    auto [names, tables] = get_execute_graph_result(*this, _graph->get_context_token());
     _names               = std::move(names);
     _tables              = Napi::Persistent(Napi::Array::New(env, tables.size()));
     for (size_t i = 0; i < tables.size(); ++i) {
@@ -79,26 +87,24 @@ Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
   return result;
 }
 
-Napi::Value ExecutionGraph::send_to(Napi::CallbackInfo const& info) {
-  Napi::Env env          = info.Env();
-  int32_t dst_ral_id     = info[0].ToNumber();
-  std::string message_id = info[1].ToString();
-  auto tables            = result(info).ToObject().Get("tables").As<Napi::Array>();
-  auto first_table       = Table::Unwrap(tables.Get(0u).ToObject());
+Napi::Value ExecutionGraph::send(Napi::CallbackInfo const& info) {
+  Napi::Env env                = info.Env();
+  int32_t dst_ral_id           = info[0].ToNumber();
+  std::string message_id       = info[1].ToString();
+  auto tables                  = result(info).ToObject().Get("tables").As<Napi::Array>();
+  Table::wrapper_t first_table = tables.Get(0u).ToObject();
 
-  auto last_kernel   = _graph->get_last_kernel();
-  auto input_cache   = last_kernel->input_cache();
-  auto query_context = input_cache->get_context();
+  auto query_context = _graph->get_last_kernel()->input_cache()->get_context();
 
-  auto src_ral_id = _context.Value()->get_ral_id();
-  int32_t node_id =
-    query_context->getNodeIndex(ral::communication::CommunicationData::getInstance().getSelfNode());
+  // auto src_ral_id = _context.Value()->get_ral_id();
+  // int32_t node_id =
+  //   query_context->getNodeIndex(ral::communication::CommunicationData::getInstance().getSelfNode());
   std::string ctx_token = std::to_string(query_context->getContextToken());
 
-  _context.Value()->add_to_cache(
-    node_id, src_ral_id, dst_ral_id, ctx_token, message_id, _names, first_table->view(), false);
+  _context.Value()->send(dst_ral_id, ctx_token, message_id, _names, *first_table);
 
   return this->Value();
 }
 
+}  // namespace blazingsql
 }  // namespace nv

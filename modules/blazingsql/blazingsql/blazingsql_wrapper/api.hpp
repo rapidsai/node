@@ -14,26 +14,33 @@
 
 #pragma once
 
-#include "contextwrapper.hpp"
+#include "context.hpp"
 #include "graph.hpp"
 
-#include <nv_node/utilities/args.hpp>
-
 #include <cudf/table/table.hpp>
+
+#include <nv_node/utilities/args.hpp>
 
 struct NodeMetaDataUCP;
 struct TableSchema;
 
 namespace nv {
+namespace blazingsql {
 
-ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props);
+std::tuple<uint16_t,
+           int32_t,
+           std::vector<std::string>,
+           UcpContext::wrapper_t,
+           std::shared_ptr<ral::cache::CacheMachine>,
+           std::shared_ptr<ral::cache::CacheMachine>>
+initialize(Napi::Env const& env, NapiToCPP::Object const& props);
 
 std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_info(
   std::string const& logical_plan);
 
 ExecutionGraph::wrapper_t run_generate_graph(
   Napi::Env const& env,
-  nv::Wrapper<nv::ContextWrapper> const& context,
+  Wrapper<Context> const& context,
   uint32_t const& masterIndex,
   std::vector<std::string> const& worker_ids,
   std::vector<cudf::table_view> const& table_views,
@@ -58,4 +65,5 @@ std::tuple<std::vector<std::string>, std::vector<std::unique_ptr<cudf::table>>>
 get_execute_graph_result(ExecutionGraph::wrapper_t const& execution_graph,
                          int32_t const& ctx_token);
 
+}  // namespace blazingsql
 }  // namespace nv

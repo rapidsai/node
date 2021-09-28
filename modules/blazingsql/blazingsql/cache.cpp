@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cache.hpp"
+#include "blazingsql_wrapper/cache.hpp"
 
 #include <nv_node/utilities/args.hpp>
 
 #include <cache_machine/CacheMachine.h>
 
 namespace nv {
+namespace blazingsql {
 
 Napi::Function CacheMachine::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(env, "CacheMachine", {});
@@ -68,4 +69,5 @@ std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> CacheMachine:
 CacheMachine::CacheMachine(Napi::CallbackInfo const& info)
   : EnvLocalObjectWrap<CacheMachine>(info) {}
 
+}  // namespace blazingsql
 }  // namespace nv

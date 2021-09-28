@@ -17,9 +17,9 @@ import {DataFrame, Float64, Series, Utf8String} from '@rapidsai/cudf';
 
 let bc: BlazingCluster;
 
-beforeAll(async () => { bc = await BlazingCluster.init(); });
+beforeAll(async () => { bc = await BlazingCluster.init({numWorkers: 2}); });
 
-afterAll(() => { bc.kill(); });
+afterAll(() => { bc?.kill(); });
 
 test('create and drop table', async () => {
   const a  = Series.new([1, 2, 3]);

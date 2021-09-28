@@ -17,11 +17,14 @@
 #include "cache.hpp"
 #include "ucpcontext.hpp"
 
+#include <nv_node/objectwrap.hpp>
+
 namespace nv {
+namespace blazingsql {
 
 struct CacheMachine;
 
-struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
+struct Context : public EnvLocalObjectWrap<Context> {
   /**
    * @brief Initialize and export the ContextWrapper JavaScript constructor and prototype.
    *
@@ -46,28 +49,35 @@ struct ContextWrapper : public EnvLocalObjectWrap<ContextWrapper> {
   /**
    * @brief Construct a new ContextWrapper instance from JavaScript.
    */
-  ContextWrapper(Napi::CallbackInfo const& info);
+  Context(Napi::CallbackInfo const& info);
 
-  inline int32_t get_ral_id() const { return _ral_id; }
+  inline int32_t get_ral_id() const { return _id; }
 
-  void add_to_cache(int32_t const& node_id,
-                    int32_t const& src_ral_id,
-                    int32_t const& dst_ral_id,
-                    std::string const& ctx_token,
-                    std::string const& message_id,
-                    std::vector<std::string> const& column_names,
-                    cudf::table_view const& table_view,
-                    bool const& use_transport_in);
+  inline int32_t get_node_id() const { return _node_id; }
+  inline void set_node_id(int32_t node_id) { _node_id = node_id; }
 
-  std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> pull_from_cache(
-    std::string const& message_id, bool const& use_transport_in);
+  void send(int32_t const& dst_ral_id,
+            std::string const& ctx_token,
+            std::string const& message_id,
+            std::vector<std::string> const& column_names,
+            cudf::table_view const& table_view);
+
+  std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> pull(
+    std::string const& message_id);
 
  private:
+  int32_t _id{};
   int32_t _port{};
-  int32_t _ral_id{};
-  Napi::Reference<Wrapper<CacheMachine>> _transport_out;
-  Napi::Reference<Wrapper<CacheMachine>> _transport_in;
+  int32_t _node_id{-1};
+  std::vector<std::string> _worker_ids{};
   Napi::Reference<UcpContext::wrapper_t> _ucp_context;
+  Napi::Reference<Wrapper<CacheMachine>> _transport_in;
+  Napi::Reference<Wrapper<CacheMachine>> _transport_out;
+
+  void send(Napi::CallbackInfo const& info);
+  Napi::Value pull(Napi::CallbackInfo const& info);
+  Napi::Value run_generate_graph(Napi::CallbackInfo const& info);
 };
 
+}  // namespace blazingsql
 }  // namespace nv

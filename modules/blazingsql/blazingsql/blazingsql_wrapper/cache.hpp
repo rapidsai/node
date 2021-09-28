@@ -18,8 +18,6 @@
 
 #include <nv_node/objectwrap.hpp>
 
-#include <napi.h>
-
 namespace ral {
 namespace cache {
 struct CacheMachine;
@@ -27,6 +25,7 @@ struct CacheMachine;
 }  // namespace ral
 
 namespace nv {
+namespace blazingsql {
 
 struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
   /**
@@ -66,4 +65,5 @@ struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
   std::shared_ptr<ral::cache::CacheMachine> _cache;
 };
 
+}  // namespace blazingsql
 }  // namespace nv

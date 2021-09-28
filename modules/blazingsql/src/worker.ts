@@ -33,29 +33,28 @@ process.on('message', (args: any) => {
 
   switch (operation) {
     case CREATE_BLAZING_CONTEXT: {
-      const ralId              = rest['ralId'] as number;
-      const workerId           = rest['workerId'] as string;
-      const networkIfaceName   = rest['networkIfaceName'] as string;
-      const allocationMode     = rest['allocationMode'] as string;
-      const initialPoolSize    = rest['initialPoolSize'];
-      const maximumPoolSize    = rest['maximumPoolSize'];
-      const enableLogging      = rest['enableLogging'];
-      const ucpMetaData: any[] = rest['ucpMetadata'] as Record<string, any>[];
-      const configOptions      = rest['configOptions'] as Record<string, unknown>;
-      const port               = rest['port'] as number;
-      ucpContext               = new UcpContext();
+      const id                    = rest['id'] as number;
+      const networkIfaceName      = rest['networkIfaceName'] as string;
+      const allocationMode        = rest['allocationMode'] as string;
+      const initialPoolSize       = rest['initialPoolSize'];
+      const maximumPoolSize       = rest['maximumPoolSize'];
+      const enableLogging         = rest['enableLogging'];
+      const workersUcpInfo: any[] = rest['workersUcpInfo'] as Record<string, any>[];
+      const configOptions         = rest['configOptions'] as Record<string, unknown>;
+      const port                  = rest['port'] as number;
+      ucpContext                  = new UcpContext();
 
       bc = new BlazingContext({
-        ralId: ralId,
-        workerId: workerId,
-        networkIfaceName: networkIfaceName,
-        allocationMode: allocationMode,
-        initialPoolSize: initialPoolSize,
-        maximumPoolSize: maximumPoolSize,
-        enableLogging: enableLogging,
-        ralCommunicationPort: port + ralId,
-        configOptions: configOptions,
-        workersUcpInfo: ucpMetaData.map((xs: any) => ({...xs, ucpContext}))
+        id: id,
+        port: port + id,
+        ucpContext,
+        networkIfaceName,
+        allocationMode,
+        initialPoolSize,
+        maximumPoolSize,
+        enableLogging,
+        configOptions,
+        workersUcpInfo
       });
 
       (<any>process).send({operation: BLAZING_CONTEXT_CREATED});
@@ -76,7 +75,7 @@ process.on('message', (args: any) => {
       const tableName = rest['tableName'] as string;
       const messageId = rest['messageId'] as string;
 
-      bc.createTable(tableName, bc.pullFromCache(messageId));
+      bc.createTable(tableName, bc.pull(messageId));
       (<any>process).send({operation: TABLE_CREATED});
       break;
     }

@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "context.hpp"
-
-#include <blazingsql/api.hpp>
-#include <blazingsql/cache.hpp>
-#include <blazingsql/graph.hpp>
+#include <blazingsql_wrapper/api.hpp>
+#include <blazingsql_wrapper/cache.hpp>
+#include <blazingsql_wrapper/graph.hpp>
 
 #include <node_cudf/table.hpp>
 
@@ -26,21 +24,22 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
   node_blazingsql(Napi::Env env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
     DefineAddon(
       exports,
-      {InstanceMethod("init", &node_blazingsql::InitAddon),
-       InstanceMethod<&node_blazingsql::get_table_scan_info>("getTableScanInfo"),
-       InstanceMethod<&node_blazingsql::run_generate_physical_graph>("runGeneratePhysicalGraph"),
-       InstanceValue("_cpp_exports", _cpp_exports.Value()),
-       InstanceValue("Context", InitClass<nv::Context>(env, exports)),
-       InstanceValue("CacheMachine", InitClass<nv::CacheMachine>(env, exports)),
-       InstanceValue("ExecutionGraphWrapper", InitClass<nv::ExecutionGraph>(env, exports)),
-       InstanceValue("UcpContext", InitClass<nv::UcpContext>(env, exports)),
-       InstanceValue("ContextWrapper", InitClass<nv::ContextWrapper>(env, exports))});
+      {
+        InstanceMethod("init", &node_blazingsql::InitAddon),
+        InstanceValue("_cpp_exports", _cpp_exports.Value()),
+        InstanceValue("Context", InitClass<nv::blazingsql::Context>(env, exports)),
+        InstanceValue("UcpContext", InitClass<nv::blazingsql::UcpContext>(env, exports)),
+        InstanceValue("CacheMachine", InitClass<nv::blazingsql::CacheMachine>(env, exports)),
+        InstanceValue("ExecutionGraph", InitClass<nv::blazingsql::ExecutionGraph>(env, exports)),
+        InstanceMethod<&node_blazingsql::get_table_scan_info>("getTableScanInfo"),
+        InstanceMethod<&node_blazingsql::run_generate_physical_graph>("runGeneratePhysicalGraph"),
+      });
   }
 
  private:
   Napi::Value get_table_scan_info(Napi::CallbackInfo const& info) {
     auto env            = info.Env();
-    auto [names, steps] = nv::get_table_scan_info(info[0].ToString());
+    auto [names, steps] = nv::blazingsql::get_table_scan_info(info[0].ToString());
 
     Napi::Array table_names = Napi::Array::New(env, names.size());
     Napi::Array table_scans = Napi::Array::New(env, steps.size());
@@ -62,13 +61,12 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
     auto env = info.Env();
     nv::CallbackArgs args{info};
 
-    uint32_t masterIndex                = args[0];
-    std::vector<std::string> worker_ids = args[1];
-    int32_t ctx_token                   = args[2];
-    std::string query                   = args[3];
+    std::vector<std::string> worker_ids = args[0];
+    int32_t ctx_token                   = args[1];
+    std::string query                   = args[2];
 
     return Napi::String::New(
-      env, nv::run_generate_physical_graph(masterIndex, worker_ids, ctx_token, query));
+      env, nv::blazingsql::run_generate_physical_graph(0, worker_ids, ctx_token, query));
   }
 };
 

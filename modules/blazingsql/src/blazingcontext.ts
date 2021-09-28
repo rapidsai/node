@@ -20,7 +20,6 @@ import {
   ContextProps,
   getTableScanInfo,
   runGeneratePhysicalGraph,
-  WorkerUcpInfo
 } from './addon';
 import {
   ArrayList,
@@ -31,7 +30,7 @@ import {
   RelationalAlgebraGenerator
 } from './algebra';
 import {defaultContextConfigValues} from './config';
-import {EmptyExecutionGraph, ExecutionGraph} from './execution_graph';
+import {ExecutionGraph} from './execution_graph';
 import {json_plan_py} from './json_plan';
 
 export class BlazingContext {
@@ -40,7 +39,6 @@ export class BlazingContext {
   private schema: any;
   private generator: any;
   private tables: Map<string, DataFrame>;
-  private workers: WorkerUcpInfo[];
   private configOptions: Record<string, unknown>;
 
   constructor(options: Partial<ContextProps> = {}) {
@@ -50,26 +48,25 @@ export class BlazingContext {
     this.tables    = new Map<string, DataFrame>();
 
     const {
-      ralId                = 0,
-      workerId             = ralId.toString(),
-      networkIfaceName     = 'lo',
-      ralCommunicationPort = 0,
-      workersUcpInfo       = [],
-      allocationMode       = 'cuda_memory_resource',
-      initialPoolSize      = null,
-      maximumPoolSize      = null,
-      enableLogging        = false,
+      id               = 0,
+      port             = 0,
+      networkIfaceName = 'lo',
+      workersUcpInfo   = [],
+      allocationMode   = 'cuda_memory_resource',
+      initialPoolSize  = null,
+      maximumPoolSize  = null,
+      enableLogging    = false,
+      ucpContext,
     } = options;
 
     const {singleNode = workersUcpInfo.length <= 1} = options;
     this.configOptions = {...defaultContextConfigValues, ...options.configOptions};
 
-    this.workers = workersUcpInfo;
     this.context = new Context({
-      ralId,
-      workerId,
+      id,
+      port,
       networkIfaceName,
-      ralCommunicationPort,
+      ucpContext,
       workersUcpInfo,
       singleNode,
       configOptions: this.configOptions,
@@ -218,7 +215,7 @@ export class BlazingContext {
 
     if (algebra.includes('LogicalValues(tuples=[[]])')) {
       // SQL returns an empty execution graph.
-      return new EmptyExecutionGraph();
+      return new ExecutionGraph();
     }
 
     if (algebra.includes(') OVER (')) {
@@ -226,7 +223,6 @@ export class BlazingContext {
         'WARNING: Window Functions are currently an experimental feature and not fully supported or tested');
     }
 
-    const masterIndex      = 0;
     const tableScanInfo    = getTableScanInfo(algebra);
     const tableNames       = tableScanInfo[0];
     const tableScans       = tableScanInfo[1];
@@ -240,17 +236,14 @@ export class BlazingContext {
         return result;
       }, []);
 
-    return new ExecutionGraph(this.context.runGenerateGraph(
-      masterIndex,
-      this.workers.length < 1 ? ['self'] : this.workers.map((w) => w.workerId),
-      selectedDataFrames,
-      tableNames,
-      tableScans,
-      ctxToken,
-      json_plan_py(algebra),
-      this.configOptions,
-      query,
-      currentTimestamp));
+    return new ExecutionGraph(this.context.runGenerateGraph(selectedDataFrames,
+                                                            tableNames,
+                                                            tableScans,
+                                                            ctxToken,
+                                                            json_plan_py(algebra),
+                                                            this.configOptions,
+                                                            query,
+                                                            currentTimestamp));
   }
 
   /**
@@ -281,10 +274,9 @@ export class BlazingContext {
       algebra = callMethodSync(this.generator, 'getRelationalAlgebraString', sql);
 
       if (detail == true) {
-        const masterIndex = 0;
-        const ctxToken    = Math.random() * Number.MAX_SAFE_INTEGER;
-        algebra           = json_plan_py(
-          runGeneratePhysicalGraph(masterIndex, ['self'], ctxToken, json_plan_py(algebra)), 'True');
+        const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
+        algebra =
+          json_plan_py(runGeneratePhysicalGraph(['self'], ctxToken, json_plan_py(algebra)), 'True');
       }
     } catch (ex) { throw new Error(ex.cause.getMessageSync()); }
 
@@ -306,11 +298,11 @@ export class BlazingContext {
    * const df = new DataFrame({'a': a});
    *
    * const bc = new BlazingContext();
-   * bc.sendToCache(0, 0, "message_1", df);
+   * bc.send(0, 0, "message_1", df);
    * ```
    */
-  sendToCache(ralId: number, ctxToken: number, messageId: string, df: DataFrame) {
-    this.context.sendToCache(ralId, ctxToken, messageId, df);
+  send(id: number, ctxToken: number, messageId: string, df: DataFrame) {
+    this.context.send(id, ctxToken, messageId, df);
   }
 
   /**
@@ -327,12 +319,12 @@ export class BlazingContext {
    * const df = new DataFrame({'a': a});
    *
    * const bc = new BlazingContext();
-   * bc.sendToCache(0, 0, "message_1", df);
-   * bc.pullFromCache("message_1"); // [1, 2, 3]
+   * bc.send(0, 0, "message_1", df);
+   * bc.pull("message_1"); // [1, 2, 3]
    * ```
    */
-  pullFromCache(messageId: string) {
-    const {names, table} = this.context.pullFromCache(messageId);
+  pull(messageId: string) {
+    const {names, table} = this.context.pull(messageId);
     return new DataFrame(names.reduce(
       (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }

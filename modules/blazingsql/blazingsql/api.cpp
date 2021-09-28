@@ -12,25 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "api.hpp"
-#include "ucpcontext.hpp"
+#include "blazingsql_wrapper/api.hpp"
+#include "blazingsql_wrapper/ucpcontext.hpp"
 
 #include <engine/engine.h>
 #include <engine/initialize.h>
 
 namespace nv {
+namespace blazingsql {
 
-ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object const& props) {
-  uint16_t ral_id                = props.Get("ralId");
-  std::string worker_id          = props.Get("workerId");
-  std::string network_iface_name = props.Get("networkIfaceName");
-  int32_t ral_communication_port = props.Get("ralCommunicationPort");
-  bool single_node               = props.Get("singleNode");
-  std::string allocation_mode    = props.Get("allocationMode");
-  std::size_t initial_pool_size  = props.Get("initialPoolSize");
-  std::size_t maximum_pool_size  = props.Get("maximumPoolSize");
-  bool enable_logging            = props.Get("enableLogging");
-
+std::tuple<uint16_t,
+           int32_t,
+           std::vector<std::string>,
+           UcpContext::wrapper_t,
+           std::shared_ptr<ral::cache::CacheMachine>,
+           std::shared_ptr<ral::cache::CacheMachine>>
+initialize(Napi::Env const& env, NapiToCPP::Object const& props) {
   auto config_options = [&] {
     std::map<std::string, std::string> config{};
     auto prop = props.Get("configOptions");
@@ -51,42 +48,59 @@ ContextWrapper::wrapper_t initialize(Napi::Env const& env, NapiToCPP::Object con
     return config;
   }();
 
-  Napi::Array objects               = props.Get("workersUcpInfo");
-  UcpContext::wrapper_t ucp_context = UcpContext::wrapper_t();
-  std::vector<NodeMetaDataUCP> workers_ucp_info;
-  if (!objects.IsEmpty()) {
-    workers_ucp_info.reserve(objects.Length());
-    for (int i = 0; i < objects.Length(); ++i) {
-      Napi::Object worker_info = objects.Get(i).As<Napi::Object>();
-      std::string id           = worker_info.Get("workerId").ToString();
-      std::string ip           = worker_info.Get("ip").ToString();
-      std::int32_t port        = worker_info.Get("port").ToNumber();
-      ucp_context              = worker_info.Get("ucpContext").ToObject();
+  UcpContext::wrapper_t ucp_context{};
+  std::vector<std::string> worker_ids{};
+  std::vector<NodeMetaDataUCP> ucp_metadata{};
 
-      workers_ucp_info.push_back({
-        id,            // std::string worker_id;
-        ip,            // std::string ip;
-        0,             // std::uintptr_t ep_handle;
-        0,             // std::uintptr_t worker_handle;
-        *ucp_context,  // std::uintptr_t context_handle;
-        port,          // std::int32_t port;
-      });
+  if (UcpContext::IsInstance(props.Get("ucpContext"))) {
+    ucp_context = props.Get("ucpContext").ToObject();
+    if (props.Get("workersUcpInfo").IsArray()) {
+      auto list = props.Get("workersUcpInfo").As<Napi::Array>();
+      worker_ids.reserve(list.Length());
+      ucp_metadata.reserve(list.Length());
+      for (size_t i = 0; i < list.Length(); ++i) {
+        NapiToCPP::Object worker = list.Get(i);
+        std::string id           = worker.Get("id");
+        worker_ids.push_back(id);
+        ucp_metadata.push_back({
+          id,                             // std::string worker_id
+          worker.Get("ip").ToString(),    // std::string ip
+          0,                              // std::uintptr_t ep_handle
+          0,                              // std::uintptr_t worker_handle
+          *ucp_context,                   // std::uintptr_t context_handle
+          worker.Get("port").ToNumber(),  // int32_t port
+        });
+      }
     }
   }
 
-  auto init_result = ::initialize(ral_id,
-                                  worker_id,
-                                  network_iface_name,
-                                  ral_communication_port,
-                                  workers_ucp_info,
-                                  single_node,
-                                  config_options,
-                                  allocation_mode,
-                                  initial_pool_size,
-                                  maximum_pool_size,
-                                  enable_logging);
+  uint16_t id      = props.Get("id");
+  bool single_node = ucp_metadata.size() == 0;
+  if (single_node) { worker_ids.push_back(std::to_string(id)); }
 
-  return ContextWrapper::New(env, ral_id, init_result, ucp_context);
+  auto init_result = std::move(::initialize(id,
+                                            std::to_string(id),
+                                            props.Get("networkIfaceName"),
+                                            props.Get("port"),
+                                            ucp_metadata,
+                                            single_node,
+                                            config_options,
+                                            props.Get("allocationMode"),
+                                            props.Get("initialPoolSize"),
+                                            props.Get("maximumPoolSize"),
+                                            props.Get("enableLogging")));
+
+  auto& caches        = init_result.first;
+  auto& port          = init_result.second;
+  auto& transport_in  = caches.second;
+  auto& transport_out = caches.first;
+
+  return std::make_tuple(id,
+                         port,
+                         std::move(worker_ids),
+                         std::move(ucp_context),
+                         std::move(transport_in),
+                         std::move(transport_out));
 }
 
 std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_info(
@@ -98,7 +112,7 @@ std::tuple<std::vector<std::string>, std::vector<std::string>> get_table_scan_in
 
 ExecutionGraph::wrapper_t run_generate_graph(
   Napi::Env const& env,
-  nv::Wrapper<nv::ContextWrapper> const& context,
+  Wrapper<Context> const& context,
   uint32_t const& masterIndex,
   std::vector<std::string> const& worker_ids,
   std::vector<cudf::table_view> const& table_views,
@@ -191,4 +205,5 @@ get_execute_graph_result(ExecutionGraph::wrapper_t const& execution_graph,
   return {std::move(bsql_result->names), std::move(bsql_result->cudfTables)};
 }
 
+}  // namespace blazingsql
 }  // namespace nv

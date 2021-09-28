@@ -16,20 +16,19 @@ import {DataFrame, Table} from '@rapidsai/cudf';
 export declare function getTableScanInfo(logicalPlan: string): [string[], string[]];
 
 export declare function runGeneratePhysicalGraph(
-  masterIdex: number, workerIds: string[], ctxToken: number, query: string): string;
+  workerIds: string[], ctxToken: number, query: string): string;
 
 export type WorkerUcpInfo = {
-  workerId: string,
+  id: number,
   ip: string,
   port: number,
-  ucpContext: UcpContext
 }
 
 export type ContextProps = {
-  ralId: number;             //
-  workerId: string;          //
+  id: number;                //
+  port: number;              //
+  ucpContext?: UcpContext;   //
   networkIfaceName: string;  //
-  ralCommunicationPort: number;
   workersUcpInfo: WorkerUcpInfo[];
   singleNode: boolean;
   configOptions: Record<string, unknown>;
@@ -42,26 +41,24 @@ export type ContextProps = {
 export declare class Context {
   constructor(props: ContextProps);
 
-  runGenerateGraph(masterIndex: number,
-                   workerIds: string[],
-                   dataframes: DataFrame[],
+  runGenerateGraph(dataframes: DataFrame[],
                    tableNames: string[],
                    tableScans: string[],
                    ctxToken: number,
                    query: string,
                    configOptions: Record<string, unknown>,
                    sql: string,
-                   currentTimestamp: string): ExecutionGraphWrapper;
-  sendToCache(ralId: number, ctxToken: number, messageId: string, df: DataFrame): void;
-  pullFromCache(messageId: string): {names: string[], table: Table};
+                   currentTimestamp: string): ExecutionGraph;
+  send(id: number, ctxToken: number, messageId: string, df: DataFrame): void;
+  pull(messageId: string): {names: string[], table: Table};
 }
 
-export declare class ExecutionGraphWrapper {
+export declare class ExecutionGraph {
   constructor();
 
   start(): void;
   result(): {names: string[], tables: Table[]};
-  sendTo(ralId: number, messageId: string): ExecutionGraphWrapper;
+  sendTo(id: number, messageId: string): ExecutionGraph;
 }
 
 export declare class UcpContext {

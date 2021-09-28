@@ -64,8 +64,7 @@ export class BlazingCluster {
                     contextOptions: Partial<ContextProps> = {}): Promise<BlazingCluster> {
     const {numWorkers = 1, ip = '0.0.0.0', port = 4000} = clusterOptions;
     const {
-      ralId            = 0,
-      workerId         = ralId.toString(),
+      id               = 0,
       networkIfaceName = 'lo',
       allocationMode   = 'cuda_memory_resource',
       initialPoolSize  = null,
@@ -74,27 +73,24 @@ export class BlazingCluster {
     }                   = contextOptions;
     const configOptions = {...defaultClusterConfigValues, ...contextOptions.configOptions};
 
-    const bc = new BlazingCluster(numWorkers);
+    const bc = new BlazingCluster(numWorkers - 1);
 
-    const ucpMetadata = ['0', ...Object.keys(bc.workers)].map(
-      (_, idx) => { return ({workerId: idx.toString(), ip: ip, port: port + idx}); });
+    const workersUcpInfo = Array.from({length: numWorkers}, (_, id) => ({id, ip, port: port + id}));
 
     const createContextPromises: Promise<void>[] = [];
     bc.workers.forEach((worker, idx) => {
       createContextPromises.push(new Promise<void>((resolve) => {
-        const id = ralId + idx + 1;  // start ralId at 1 since ralId 0 is reserved for main process
         worker.send({
           operation: CREATE_BLAZING_CONTEXT,
-          ralId: id,
-          workerId: id.toString(),
-          networkIfaceName: networkIfaceName,
-          allocationMode: allocationMode,
-          initialPoolSize: initialPoolSize,
-          maximumPoolSize: maximumPoolSize,
-          enableLogging: enableLogging,
-          ucpMetadata: ucpMetadata,
-          configOptions: configOptions,
-          port: port,
+          id: id + idx + 1,  // start id at 1 since id 0 is reserved for main process
+          port,
+          networkIfaceName,
+          allocationMode,
+          initialPoolSize,
+          maximumPoolSize,
+          enableLogging,
+          workersUcpInfo,
+          configOptions,
         });
         worker.once('message', (msg: any) => {
           const {operation}: {operation: string} = msg;
@@ -105,16 +101,16 @@ export class BlazingCluster {
 
     const ucpContext  = new UcpContext();
     bc.blazingContext = new BlazingContext({
-      ralId: ralId,
-      workerId: workerId,
-      networkIfaceName: networkIfaceName,
-      ralCommunicationPort: port,
-      allocationMode: allocationMode,
-      initialPoolSize: initialPoolSize,
-      maximumPoolSize: maximumPoolSize,
-      enableLogging: enableLogging,
-      configOptions: configOptions,
-      workersUcpInfo: ucpMetadata.map((xs) => ({...xs, ucpContext})),
+      id,
+      port,
+      ucpContext,
+      networkIfaceName,
+      allocationMode,
+      initialPoolSize,
+      maximumPoolSize,
+      enableLogging,
+      configOptions,
+      workersUcpInfo,
     });
 
     await Promise.all(createContextPromises);
@@ -123,12 +119,9 @@ export class BlazingCluster {
   }
 
   private constructor(numWorkers: number) {
-    // If `__dirname` includes '/src' we are currently running a Jest test. Use a different relative
-    // path for when we are in a Jest test versus normal usage.
-    const relativePath =
+    const workerPath =
       __dirname.includes('/src') ? `${__dirname}/../build/js/worker.js` : `${__dirname}/worker.js`;
-    this.workers = Array(numWorkers);
-    for (let i = 0; i < numWorkers; ++i) { this.workers[i] = fork(relativePath); }
+    this.workers = Array.from({length: numWorkers}, () => fork(workerPath));
   }
 
   /**
@@ -156,12 +149,12 @@ export class BlazingCluster {
 
     const createTablePromises: Promise<void>[] = [];
     this.workers.forEach((worker, i) => {
-      const ralId = i + 1;  // start ralId at 1 since ralId 0 is reserved for main process
+      const id = i + 1;  // start id at 1 since id 0 is reserved for main process
       ctxToken++;
       const messageId = _generateMessageId(ctxToken);
       createTablePromises.push(new Promise((resolve) => {
-        this.blazingContext.sendToCache(
-          ralId,
+        this.blazingContext.send(
+          id,
           ctxToken,
           messageId,
           DataFrame.fromArrow(table.slice((i + 1) * len, (i + 2) * len).serialize()));
@@ -326,7 +319,7 @@ export class BlazingCluster {
           } = msg;
 
           if (operation === QUERY_RAN) {
-            resolve({ctxToken, messageId, df: this.blazingContext.pullFromCache(messageId)});
+            resolve({ctxToken, messageId, df: this.blazingContext.pull(messageId)});
           }
         });
       }));

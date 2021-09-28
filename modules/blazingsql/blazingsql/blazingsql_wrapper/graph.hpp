@@ -14,11 +14,9 @@
 
 #pragma once
 
-#include "contextwrapper.hpp"
+#include "context.hpp"
 
 #include <nv_node/objectwrap.hpp>
-
-#include <napi.h>
 
 namespace ral {
 namespace cache {
@@ -27,6 +25,7 @@ struct graph;
 }  // namespace ral
 
 namespace nv {
+namespace blazingsql {
 
 struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
   /**
@@ -44,7 +43,7 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
    */
   static wrapper_t New(Napi::Env const& env,
                        std::shared_ptr<ral::cache::graph> const& graph,
-                       nv::Wrapper<nv::ContextWrapper> const& context);
+                       Wrapper<Context> const& context);
 
   /**
    * @brief Construct a new ExecutionGraph instance from JavaScript.
@@ -58,13 +57,14 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
 
   bool _started{false};
   bool _results{false};
-  Napi::Reference<Wrapper<ContextWrapper>> _context;
+  Napi::Reference<Wrapper<Context>> _context;
   std::vector<std::string> _names{};
   Napi::Reference<Napi::Array> _tables{};
 
   void start(Napi::CallbackInfo const& info);
+  Napi::Value send(Napi::CallbackInfo const& info);
   Napi::Value result(Napi::CallbackInfo const& info);
-  Napi::Value send_to(Napi::CallbackInfo const& info);
 };
 
+}  // namespace blazingsql
 }  // namespace nv

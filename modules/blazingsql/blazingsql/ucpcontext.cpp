@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "ucpcontext.hpp"
-#include <communication/ucx_init.h>
+#include "blazingsql_wrapper/ucpcontext.hpp"
 
 #include <nv_node/utilities/args.hpp>
 
+#include <communication/ucx_init.h>
+
 namespace nv {
+namespace blazingsql {
 
 Napi::Function UcpContext::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(env, "UcpContext", {});
@@ -31,4 +33,5 @@ UcpContext::UcpContext(Napi::CallbackInfo const& info) : EnvLocalObjectWrap<UcpC
   this->_ucp_context = ral::communication::CreateUcpContext();
 }
 
+}  // namespace blazingsql
 }  // namespace nv
