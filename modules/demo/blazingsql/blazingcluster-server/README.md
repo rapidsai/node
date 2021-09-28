@@ -24,6 +24,22 @@ cd modules/demo/blazingsql/blazingcluster-server
 yarn start
 ```
 
+## Interesting Queries
+
+Using the query builder you can seamlessly build queries and execute them against our dataset. Here are some interesting queries if you need some inspiration...
+
+- Who appears in more Wikipedia pages, Plato or Newton?
+  - Select `text`, using the `like` operator, type in `Plato`/`Newton` and check out how many results are returned.
+- Which programming language is referenced the most across all Wikipedia pages?
+  - Select `text`, using the `like` operator, type in your favorite programming language and see how popular it is.
+- Is there any Wikipedia page that avoids using the most common english word `the`?
+  - Select `text`, using the `Is not empty` operator
+  - Click `ADD GROUP`, select `text`, using the `not like` operator, type in `the`.
+- How many Wikipedia pages have your first name in the `title`?
+  - Select `title`, using the `like` operator, type in your first name.
+- How many Wikipedia pages are redirects to other pages?
+  - Select `text`, using the `Is empty` operator.
+
 ## Dataset
 
 The dataset used for this demo is the entire collection of 2021 english Wikipedia pages. This includes the following for each page...
@@ -32,7 +48,7 @@ The dataset used for this demo is the entire collection of 2021 english Wikipedi
 2. Revision ID
 3. Page URL
 4. Page Title
-5. Page text
+5. Page Text
 
 This ends up totaling to about ~17GB (uncompressed) worth of data.
 
