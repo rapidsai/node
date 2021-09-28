@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryData} from '@nvidia/cuda';
+import {MemoryData, MemoryView, Uint8Buffer} from '@nvidia/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
@@ -140,6 +140,10 @@ export class DataFrame<T extends TypeMap = any> {
    * @return The Arrow data as a DataFrame
    */
   public static fromArrow<T extends TypeMap>(memory: DeviceBuffer|MemoryData): DataFrame<T> {
+    if (memory instanceof ArrayBuffer || ArrayBuffer.isView(memory)) {
+      memory = new Uint8Buffer(memory);
+    }
+    if (memory instanceof MemoryView) { memory = memory.buffer; }
     const {names, table} = Table.fromArrow(memory);
     return new DataFrame(new ColumnAccessor(names.reduce(
       (map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {} as ColumnsMap<T>)));
