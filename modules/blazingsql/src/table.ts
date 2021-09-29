@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, DataType} from '@rapidsai/cudf';
+import {arrowToCUDFType, DataFrame, DataType} from '@rapidsai/cudf';
 import {parseSchema} from './addon';
 
 export interface ParsedSchema {
@@ -49,7 +49,7 @@ class CSVTable implements TableSource {
   getSource() { return this.schema; }
   type(columnName: string): DataType {
     const idx = this.schema.names.indexOf(columnName);
-    return this.schema.types[idx];
+    return arrowToCUDFType(this.schema.types[idx]);
   }
 }
 
