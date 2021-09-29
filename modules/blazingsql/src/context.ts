@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, DataType, Series, TypeMap} from '@rapidsai/cudf';
+import {DataFrame, DataType, Series} from '@rapidsai/cudf';
 import {callMethodSync, callStaticMethodSync} from 'java';
 
 import {
@@ -95,7 +95,7 @@ export class SQLContext {
    * bc.createTable('test_table', df);
    * ```
    */
-  createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>|string[]): void {
+  createTable(tableName: string, input: DataFrame|string[]): void {
     callMethodSync(this._db, 'removeTable', tableName);
 
     const table = new SQLTable(tableName, input);
