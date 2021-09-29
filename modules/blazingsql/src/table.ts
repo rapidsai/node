@@ -25,21 +25,17 @@ export interface ParsedSchema {
 }
 
 export class SQLTable {
-  public tableName: string;
-  public tableSource: TableSource;
+  public readonly tableName: string;
+  public readonly tableSource: TableSource;
 
   constructor(tableName: string, input: DataFrame|string[]) {
     this.tableName   = tableName;
     this.tableSource = input instanceof DataFrame ? new DataFrameTable(input) : new CSVTable(input);
   }
-
-  names(): string[] { return this.tableSource.names(); }
-
-  type(columnName: string): DataType { return this.tableSource.type(columnName); }
 }
 
 interface TableSource {
-  names(): string[];
+  get names(): string[];
   type(columnName: string): DataType;
   getSource(): any;
 }
@@ -49,10 +45,8 @@ class CSVTable implements TableSource {
 
   constructor(input: string[]) { this.schema = parseSchema(input); }
 
+  get names(): string[] { return this.schema.names; }
   getSource() { return this.schema; }
-
-  names(): string[] { return this.schema.names; }
-
   type(columnName: string): DataType {
     const idx = this.schema.names.indexOf(columnName);
     return this.schema.types[idx];
@@ -64,9 +58,7 @@ export class DataFrameTable implements TableSource {
 
   constructor(input: DataFrame) { this.df = input; }
 
+  get names(): string[] { return this.df.names.concat(); }
   getSource() { return this.df; }
-
-  names(): string[] { return this.df.names.concat(); }
-
   type(columnName: string): DataType { return this.df.get(columnName).type; }
 }

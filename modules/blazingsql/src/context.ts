@@ -102,11 +102,11 @@ export class SQLContext {
     this._tables.set(tableName, table);
 
     const arr = ArrayList();
-    table.names().forEach((name: string, index: number) => {
+    table.tableSource.names.forEach((name: string, index: number) => {
       const dataType =
         callStaticMethodSync('com.blazingdb.calcite.catalog.domain.CatalogColumnDataType',
                              'fromTypeId',
-                             table.type(name).typeId);
+                             table.tableSource.type(name).typeId);
       const column = CatalogColumnImpl([name, dataType, index]);
       callMethodSync(arr, 'add', column);
     });
@@ -184,7 +184,7 @@ export class SQLContext {
   public describeTable(tableName: string): Map<string, DataType> {
     const table = this._tables.get(tableName);
     if (table === undefined) { return new Map(); }
-    return table.tableSource.names().reduce(
+    return table.tableSource.names.reduce(
       (m: Map<string, DataType>, name: string) => m.set(name, table.tableSource.type(name)),
       new Map());
   }
@@ -287,7 +287,7 @@ export class SQLContext {
         algebra =
           json_plan_py(runGeneratePhysicalGraph(['self'], ctxToken, json_plan_py(algebra)), 'True');
       }
-    } catch (ex) { throw new Error(ex.cause.getMessageSync()); }
+    } catch (ex: any) { throw new Error(ex.cause.getMessageSync()); }
 
     return String(algebra);
   }
