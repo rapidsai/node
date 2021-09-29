@@ -15,31 +15,31 @@
 import {SQLCluster} from '@rapidsai/blazingsql';
 import {DataFrame, Float64, Series, Utf8String} from '@rapidsai/cudf';
 
-let bc: SQLCluster;
+let sqlCluster: SQLCluster;
 
-beforeAll(async () => { bc = await SQLCluster.init({numWorkers: 2}); });
+beforeAll(async () => { sqlCluster = await SQLCluster.init({numWorkers: 2}); });
 
-afterAll(() => { bc?.kill(); });
+afterAll(() => { sqlCluster?.kill(); });
 
 test('create and drop table', async () => {
   const a  = Series.new([1, 2, 3]);
   const df = new DataFrame({'a': a});
 
-  await bc.createTable('test_table', df);
-  expect(bc.listTables().length).toEqual(1);
+  await sqlCluster.createTable('test_table', df);
+  expect(sqlCluster.listTables().length).toEqual(1);
 
-  await bc.dropTable('test_table');
-  expect(bc.listTables().length).toEqual(0);
+  await sqlCluster.dropTable('test_table');
+  expect(sqlCluster.listTables().length).toEqual(0);
 });
 
 test('list tables', async () => {
   const a  = Series.new([1, 2, 3]);
   const df = new DataFrame({'a': a});
 
-  await bc.createTable('test_table', df);
-  await bc.createTable('test_table2', df);
+  await sqlCluster.createTable('test_table', df);
+  await sqlCluster.createTable('test_table2', df);
 
-  expect(bc.listTables()).toEqual(['test_table', 'test_table2']);
+  expect(sqlCluster.listTables()).toEqual(['test_table', 'test_table2']);
 });
 
 test('describe table', async () => {
@@ -48,10 +48,10 @@ test('describe table', async () => {
   const df = new DataFrame({'a': a, 'b': b});
 
   // Empty map since table doesn't exist
-  expect(bc.describeTable('nonexisting_table').size).toEqual(0);
+  expect(sqlCluster.describeTable('nonexisting_table').size).toEqual(0);
 
-  await bc.createTable('test_table', df);
-  const tableDescription = bc.describeTable('test_table');
+  await sqlCluster.createTable('test_table', df);
+  const tableDescription = sqlCluster.describeTable('test_table');
   expect([...tableDescription.keys()]).toEqual(['a', 'b']);
   expect([...tableDescription.values()]).toEqual([new Float64, new Utf8String]);
 });
@@ -61,17 +61,17 @@ test('explain', async () => {
   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
   const df  = new DataFrame({'key': key, 'val': val});
 
-  await bc.createTable('test_table', df);
+  await sqlCluster.createTable('test_table', df);
 
   const query = 'SELECT * FROM test_table WHERE val > 4';
 
   // Result strings copied from BlazingSQL
-  expect(bc.explain(query))
+  expect(sqlCluster.explain(query))
     .toEqual(
       `LogicalProject(key=[$0], val=[$1])
   BindableTableScan(table=[[main, test_table]], filters=[[>($1, 4)]])
 `);
-  expect(bc.explain(query, true))
+  expect(sqlCluster.explain(query, true))
     .toEqual(
       `LogicalProject(key=[$0], val=[$1])
   BindableTableScan(table=[[main, test_table]], filters=[[>($1, 4)]])
@@ -84,9 +84,10 @@ test('select a single column (one worker)', async () => {
   const b  = Series.new([7, 2, 7, 1, 2]);
   const df = new DataFrame({'a': a, 'b': b});
 
-  await bc.createTable('test_table', df);
+  await sqlCluster.createTable('test_table', df);
 
-  await expect(bc.sql('SELECT a FROM test_table')).resolves.toStrictEqual(new DataFrame({a}));
+  await expect(sqlCluster.sql('SELECT a FROM test_table'))
+    .resolves.toStrictEqual(new DataFrame({a}));
 });
 
 test('select all columns (one worker)', async () => {
@@ -94,9 +95,9 @@ test('select all columns (one worker)', async () => {
   const b  = Series.new([7, 2, 7, 1, 2]);
   const df = new DataFrame({'a': a, 'b': b});
 
-  await bc.createTable('test_table', df);
+  await sqlCluster.createTable('test_table', df);
 
-  await expect(bc.sql('SELECT * FROM test_table'))
+  await expect(sqlCluster.sql('SELECT * FROM test_table'))
     .resolves.toStrictEqual(new DataFrame({'a': a, 'b': b}));
 });
 
@@ -105,11 +106,11 @@ test('union columns from two tables (one worker)', async () => {
   const df1 = new DataFrame({'a': a});
   const df2 = new DataFrame({'a': a});
 
-  await bc.createTable('t1', df1);
-  await bc.createTable('t2', df2);
+  await sqlCluster.createTable('t1', df1);
+  await sqlCluster.createTable('t2', df2);
 
   const result = new DataFrame({'a': Series.new([...a, ...a])});
-  await expect(bc.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2'))
+  await expect(sqlCluster.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2'))
     .resolves.toStrictEqual(result);
 });
 
@@ -118,10 +119,11 @@ test('find all columns within a table that meet condition (one worker)', async (
   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
   const df  = new DataFrame({'key': key, 'val': val});
 
-  await bc.createTable('test_table', df);
+  await sqlCluster.createTable('test_table', df);
 
   const result = new DataFrame({'key': Series.new(['a', 'b']), 'val': Series.new([7.6, 7.1])});
-  await expect(bc.sql('SELECT * FROM test_table WHERE val > 4')).resolves.toStrictEqual(result);
+  await expect(sqlCluster.sql('SELECT * FROM test_table WHERE val > 4'))
+    .resolves.toStrictEqual(result);
 });
 
 test('empty sql result', async () => {
@@ -129,10 +131,10 @@ test('empty sql result', async () => {
   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
   const df  = new DataFrame({'key': key, 'val': val});
 
-  await bc.createTable('test_table', df);
+  await sqlCluster.createTable('test_table', df);
 
   const result = new DataFrame();
   // Query should be empty since BETWEEN values are reversed.
-  await expect(bc.sql('SELECT * FROM test_table WHERE val BETWEEN 10 AND 0'))
+  await expect(sqlCluster.sql('SELECT * FROM test_table WHERE val BETWEEN 10 AND 0'))
     .resolves.toStrictEqual(result);
 });
