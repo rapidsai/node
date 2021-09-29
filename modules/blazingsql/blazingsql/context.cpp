@@ -106,13 +106,6 @@ Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
     table_views.push_back(*table);
     column_names.push_back(names);
   }
-  
-  for (std::size_t i = 0; i < schemas.Length(); ++i) {
-    NapiToCPP::Object schema = schemas.Get(i);
-    std::vector<std::string> names = schema.Get("names");
-
-    column_names.push_back(names);
-  }
 
   std::vector<std::string> worker_ids;
   worker_ids.reserve(_worker_ids.size());

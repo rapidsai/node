@@ -15,9 +15,12 @@
 #include "blazingsql_wrapper/api.hpp"
 #include "blazingsql_wrapper/ucpcontext.hpp"
 #include "cudf/types.hpp"
+#include <node_cudf/utilities/dtypes.hpp>
 
 #include <engine/engine.h>
 #include <engine/initialize.h>
+#include <algorithm>
+#include <cstdint>
 
 namespace nv {
 namespace blazingsql {
@@ -174,19 +177,24 @@ ExecutionGraph::wrapper_t run_generate_graph(
     std::vector<std::string> names = schema.Get("names");
     std::vector<std::string> files = schema.Get("files");
     std::vector<size_t> calcite_to_file_indicies = schema.Get("calcite_to_file_indices");
+    
+    std::vector<int32_t> type_ints = schema.Get("types");
+    std::vector<cudf::type_id> type_ids;
+    type_ids.reserve(type_ints.size());
+    for (auto const& type : type_ints) { type_ids.push_back(cudf::type_id(type)); }
+
     bool has_header_csv = schema.Get("has_header_csv");
-    std::vector<int32_t> type_ids = schema.Get("types");
 
     table_schemas.push_back({
-      {},          // std::vector<ral::frame::BlazingTableView> blazingTableViews
-      {cudf::type_id::STRING, cudf::type_id::INT64, cudf::type_id::INT64, cudf::type_id::INT64},                  // std::vector<cudf::type_id> types
-      files,                        // std::vector<std::string> files
-      files,                        // std::vector<std::string> datasource TODO could be wrong.
+      {},                        // std::vector<ral::frame::BlazingTableView> blazingTableViews
+      type_ids,                  // std::vector<cudf::type_id> types
+      files,                     // std::vector<std::string> files
+      files,                     // std::vector<std::string> datasource TODO could be wrong.
       names,                     // std::vector<std::string> names
-      calcite_to_file_indicies,                        // std::vector<size_t> calcite_to_file_indices
+      calcite_to_file_indicies,  // std::vector<size_t> calcite_to_file_indices
       {},                        // std::vector<bool> in_file
-      ral::io::DataType::CSV,   // int data_type
-      has_header_csv,                     // bool has_header_csv = false
+      ral::io::DataType::CSV,    // int data_type
+      has_header_csv,            // bool has_header_csv = false
       {cudf::table_view{}, {}},  // ral::frame::BlazingTableView metadata
       {{0}},                     // std::vector<std::vector<int>> row_groups_ids
       nullptr                    // std::shared_ptr<arrow::Table> arrow_tabl
@@ -239,12 +247,12 @@ Napi::Value parse_schema(Napi::Env const& env,
   }
   result.Set("files", files);
 
-  result.Set("file_type", table_schema.data_type);
+  result.Set("fileType", table_schema.data_type);
 
   auto types = Napi::Array::New(env, table_schema.types.size());
   for (size_t i = 0; i < table_schema.types.size(); ++i) {
     types.Set(
-      i, Napi::Number::New(env, (int)table_schema.types[i]));  // TODO: Might be bad casting here.
+      i, cudf_to_arrow_type(env, cudf::data_type(table_schema.types[i])));
   }
   result.Set("types", types);
 
@@ -258,9 +266,9 @@ Napi::Value parse_schema(Napi::Env const& env,
   for (size_t i = 0; i < table_schema.calcite_to_file_indices.size(); ++i) {
     calcite_to_file_indices.Set(i, Napi::Number::New(env, table_schema.calcite_to_file_indices[i]));
   }
-  result.Set("calcite_to_file_indices", calcite_to_file_indices);
+  result.Set("calciteToFileIndicies", calcite_to_file_indices);
 
-  result.Set("has_header_csv", Napi::Boolean::New(env, table_schema.has_header_csv));
+  result.Set("hasHeaderCSV", Napi::Boolean::New(env, table_schema.has_header_csv));
 
   return result;
 }
