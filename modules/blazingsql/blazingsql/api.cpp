@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include "blazingsql_wrapper/api.hpp"
+#include <node_cudf/utilities/dtypes.hpp>
 #include "blazingsql_wrapper/ucpcontext.hpp"
 #include "cudf/types.hpp"
-#include <node_cudf/utilities/dtypes.hpp>
 
 #include <engine/engine.h>
 #include <engine/initialize.h>
@@ -174,10 +174,10 @@ ExecutionGraph::wrapper_t run_generate_graph(
   for (std::size_t i = 0; i < schemas.Length(); ++i) {
     NapiToCPP::Object schema = schemas.Get(i);
 
-    std::vector<std::string> names = schema.Get("names");
-    std::vector<std::string> files = schema.Get("files");
+    std::vector<std::string> names               = schema.Get("names");
+    std::vector<std::string> files               = schema.Get("files");
     std::vector<size_t> calcite_to_file_indicies = schema.Get("calcite_to_file_indices");
-    
+
     std::vector<int32_t> type_ints = schema.Get("types");
     std::vector<cudf::type_id> type_ids;
     type_ids.reserve(type_ints.size());
@@ -199,8 +199,8 @@ ExecutionGraph::wrapper_t run_generate_graph(
       {{0}},                     // std::vector<std::vector<int>> row_groups_ids
       nullptr                    // std::shared_ptr<arrow::Table> arrow_tabl
     });
-    table_schema_cpp_arg_keys.push_back({});
-    table_schema_cpp_arg_values.push_back({});
+    table_schema_cpp_arg_keys.push_back({"has_header_csv"});
+    table_schema_cpp_arg_values.push_back({!has_header_csv ? "True" : "False"});
     files_all.push_back(files);
     file_types.push_back(ral::io::DataType::CSV);
     uri_values.push_back({});
@@ -251,8 +251,7 @@ Napi::Value parse_schema(Napi::Env const& env,
 
   auto types = Napi::Array::New(env, table_schema.types.size());
   for (size_t i = 0; i < table_schema.types.size(); ++i) {
-    types.Set(
-      i, cudf_to_arrow_type(env, cudf::data_type(table_schema.types[i])));
+    types.Set(i, cudf_to_arrow_type(env, cudf::data_type(table_schema.types[i])));
   }
   result.Set("types", types);
 
