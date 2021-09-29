@@ -12,20 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, Series} from '@rapidsai/cudf';
+/* eslint-disable @typescript-eslint/await-thenable */
+
+import {DataFrame, Series, Table} from '@rapidsai/cudf';
 
 export class ExecutionGraph {
   constructor(private _graph?: import('./rapidsai_sql').ExecutionGraph) {}
 
   start(): void { this._graph?.start(); }
 
-  result() {
-    const {names, tables: [table]} = this._graph?.result() || {names: [], tables: []};
+  async result() {
+    const {names, table} = await this._graph?.result() || {names: [], table: new Table({})};
     return new DataFrame(names.reduce(
       (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }
 
-  sendTo(id: number, messageId: string) {
-    return new ExecutionGraph(this._graph?.sendTo(id, messageId));
+  async sendTo(id: number, messageId: string) {
+    return new ExecutionGraph(
+      await this.result().then((df) => this._graph?.sendTo(id, messageId, df)));
   }
 }

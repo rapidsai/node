@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* eslint-disable @typescript-eslint/await-thenable */
-
 import {ContextProps, UcpContext} from '../addon';
 import {SQLContext} from '../context';
 
@@ -26,14 +24,14 @@ function init({uuid, ...props}: {uuid: string}&ContextProps) {
   context = new SQLContext({...props, ucpContext: new UcpContext()});
 }
 
-async function dropTable({name}: {name: string}) { await context.dropTable(name); }
+function dropTable({name}: {name: string}) { context.dropTable(name); }
 
 async function createTable({name, table_id}: {name: string, table_id: string}) {
-  await context.createTable(name, await context.pull(table_id));
+  context.createTable(name, await context.pull(table_id));
 }
 
 async function sql({uuid, query, token}: {uuid: string, query: string, token: number}) {
-  await (await context.sql(query, token)).sendTo(0, uuid);
+  await context.sql(query, token).sendTo(0, uuid);
 }
 
 process.on('message', ({type, ...opts}: any) => {
@@ -41,9 +39,9 @@ process.on('message', ({type, ...opts}: any) => {
   (async () => {
     switch (type) {
       case 'kill': return die(opts);
+      case 'init': return init(opts);
       case 'sql': return await sql(opts);
-      case 'init': return await init(opts);
-      case 'dropTable': return await dropTable(opts);
+      case 'dropTable': return dropTable(opts);
       case 'createTable': return await createTable(opts);
     }
     return {};

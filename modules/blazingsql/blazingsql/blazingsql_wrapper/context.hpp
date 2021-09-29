@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "async.hpp"
 #include "cache.hpp"
 #include "ucpcontext.hpp"
 
@@ -62,8 +63,7 @@ struct Context : public EnvLocalObjectWrap<Context> {
             std::vector<std::string> const& column_names,
             cudf::table_view const& table_view);
 
-  std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> pull(
-    std::string const& message_id);
+  SQLTask* pull(std::string const& message_id);
 
  private:
   int32_t _id{};

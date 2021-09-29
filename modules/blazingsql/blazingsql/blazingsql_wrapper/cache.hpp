@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "async.hpp"
+
 #include <node_cudf/table.hpp>
 
 #include <nv_node/objectwrap.hpp>
@@ -58,8 +60,7 @@ struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
                     std::vector<std::string> const& column_names,
                     cudf::table_view const& table_view);
 
-  std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> pull_from_cache(
-    std::string const& message_id);
+  SQLTask* pull_from_cache(std::string const& message_id);
 
  private:
   std::shared_ptr<ral::cache::CacheMachine> _cache;

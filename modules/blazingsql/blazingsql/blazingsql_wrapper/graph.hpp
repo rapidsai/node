@@ -50,16 +50,14 @@ struct ExecutionGraph : public EnvLocalObjectWrap<ExecutionGraph> {
    */
   ExecutionGraph(Napi::CallbackInfo const& info);
 
-  inline operator std::shared_ptr<ral::cache::graph>() { return _graph; }
+  inline operator std::shared_ptr<ral::cache::graph>() const { return _graph; }
 
  private:
-  std::shared_ptr<ral::cache::graph> _graph;
-
   bool _started{false};
-  bool _results{false};
+  bool _fetched{false};
+  Napi::Reference<Napi::Promise> _results;
+  std::shared_ptr<ral::cache::graph> _graph;
   Napi::Reference<Wrapper<Context>> _context;
-  std::vector<std::string> _names{};
-  Napi::Reference<Napi::Array> _tables{};
 
   void start(Napi::CallbackInfo const& info);
   Napi::Value send(Napi::CallbackInfo const& info);

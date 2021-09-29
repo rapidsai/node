@@ -24,7 +24,7 @@ import {ContextProps} from '../addon';
 import {SQLCluster, Worker} from '../cluster';
 
 const remoteWorkerPath =
-  Path.resolve(__dirname.includes('/src') ? `${__dirname}/../build/js/cluster/worker.js`
+  Path.resolve(__dirname.includes('/src') ? `${__dirname}/../../build/js/cluster/worker.js`
                                           : `${__dirname}/worker.js`);
 
 export class RemoteSQLWorker implements Worker {

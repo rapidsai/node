@@ -77,7 +77,7 @@ export class SQLContext {
   }
 
   // Temp definition, merge with createTable probably.
-  createTableCSV(tableName: string, input: string[]): void {
+  public createTableCSV(tableName: string, input: string[]): void {
     console.log(tableName);
     const schema       = parseSchema(input, 'csv', [], [], false);
     const mappingFiles = {'localhost': schema['files']};
@@ -111,7 +111,7 @@ export class SQLContext {
    * bc.createTable('test_table', df);
    * ```
    */
-  createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
+  public createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
     callMethodSync(this._db, 'removeTable', tableName);
     this._tables.set(tableName, input);
 
@@ -150,7 +150,7 @@ export class SQLContext {
    * bc.dropTable('test_table', df);
    * ```
    */
-  dropTable(tableName: string): void {
+  public dropTable(tableName: string): void {
     if (!this._tables.has(tableName)) {
       throw new Error(`Unable to find table with name ${tableName} to drop from SQLContext memory`);
     }
@@ -177,7 +177,7 @@ export class SQLContext {
    * bc.listTables(); // ['test_table']
    * ```
    */
-  listTables(): string[] { return [...this._tables.keys()]; }
+  public listTables(): string[] { return [...this._tables.keys()]; }
 
   /**
    * Returns a map with column names as keys and the column data type as values.
@@ -195,7 +195,7 @@ export class SQLContext {
    * bc.describeTable('test_table'); // {'a': Int32}
    * ```
    */
-  describeTable(tableName: string): Map<string, DataType> {
+  public describeTable(tableName: string): Map<string, DataType> {
     const table = this._tables.get(tableName);
     if (table === undefined) { return new Map(); }
     return table.names.reduce(
@@ -223,7 +223,7 @@ export class SQLContext {
    * bc.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
    * ```
    */
-  sql(query: string, ctxToken: number = Math.random() * Number.MAX_SAFE_INTEGER | 0) {
+  public sql(query: string, ctxToken: number = Math.random() * Number.MAX_SAFE_INTEGER | 0) {
     const algebra = this.explain(query);
     if (algebra == '') { throw new Error('ERROR: Failed to parse given query'); }
 
@@ -281,7 +281,7 @@ export class SQLContext {
    * aliases=[[a]])
    * ```
    */
-  explain(sql: string, detail = false): string {
+  public explain(sql: string, detail = false): string {
     let algebra = '';
 
     try {
@@ -300,8 +300,9 @@ export class SQLContext {
   /**
    * Sends a DataFrame to the cache machine.
    *
-   * @param messageId The message id which will later be used to pull the results from the cache
-   *   machine
+   * @param id The id of the destination SQLContext
+   * @param ctxToken The token associated with the messageId
+   * @param messageId The id used to pull the table on the destination SQLContext
    *
    * @example
    * ```typescript
@@ -315,7 +316,7 @@ export class SQLContext {
    * bc.send(0, 0, "message_1", df);
    * ```
    */
-  send(id: number, ctxToken: number, messageId: string, df: DataFrame) {
+  public send(id: number, ctxToken: number, messageId: string, df: DataFrame) {
     this.context.send(id, ctxToken, messageId, df);
   }
 
@@ -334,11 +335,11 @@ export class SQLContext {
    *
    * const bc = new SQLContext();
    * bc.send(0, 0, "message_1", df);
-   * bc.pull("message_1"); // [1, 2, 3]
+   * await bc.pull("message_1"); // [1, 2, 3]
    * ```
    */
-  pull(messageId: string) {
-    const {names, table} = this.context.pull(messageId);
+  async pull(messageId: string) {
+    const {names, table} = await this.context.pull(messageId);
     return new DataFrame(names.reduce(
       (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }
