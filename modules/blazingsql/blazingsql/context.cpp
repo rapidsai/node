@@ -18,10 +18,23 @@
 
 #include <node_cudf/table.hpp>
 
+#include <cudf/copying.hpp>
+
 #include <execution_graph/Context.h>
 
 namespace nv {
 namespace blazingsql {
+
+namespace {
+
+std::pair<std::vector<std::string>, Table::wrapper_t> get_names_and_table(NapiToCPP::Object df) {
+  std::vector<std::string> names = df.Get("names");
+  Napi::Function asTable         = df.Get("asTable");
+  Table::wrapper_t table         = asTable.Call(df.val, {}).ToObject();
+  return {std::move(names), std::move(table)};
+}
+
+}  // namespace
 
 Napi::Function Context::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(env,
@@ -29,6 +42,7 @@ Napi::Function Context::Init(Napi::Env const& env, Napi::Object exports) {
                      {
                        InstanceMethod<&Context::send>("send"),
                        InstanceMethod<&Context::pull>("pull"),
+                       InstanceMethod<&Context::broadcast>("broadcast"),
                        InstanceMethod<&Context::run_generate_graph>("runGenerateGraph"),
                      });
 }
@@ -53,13 +67,13 @@ Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
   std::vector<std::string> table_scans = args[2];
   int32_t ctx_token                    = args[3];
   std::string query                    = args[4];
-  std::string sql                      = args[5];
-  std::string current_timestamp        = args[6];
+  auto config_opts_                    = args[5];
+  std::string sql                      = args[6];
+  std::string current_timestamp        = args[7];
   auto config_options                  = [&] {
     std::map<std::string, std::string> config{};
-    auto prop = args[7];
-    if (!prop.IsNull() && prop.IsObject()) {
-      auto opts = prop.As<Napi::Object>();
+    if (!config_opts_.IsNull() && config_opts_.IsObject()) {
+      auto opts = config_opts_.As<Napi::Object>();
       auto keys = opts.GetPropertyNames();
       for (auto i = 0u; i < keys.Length(); ++i) {
         std::string name = keys.Get(i).ToString();
@@ -83,20 +97,25 @@ Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
   auto tables = Napi::Array::New(env, data_frames.Length());
 
   for (std::size_t i = 0; i < data_frames.Length(); ++i) {
-    NapiToCPP::Object df           = data_frames.Get(i);
-    std::vector<std::string> names = df.Get("names");
-    Napi::Function asTable         = df.Get("asTable");
-    Table::wrapper_t table         = asTable.Call(df.val, {}).ToObject();
+    NapiToCPP::Object df = data_frames.Get(i);
+    auto [names, table]  = get_names_and_table(df);
 
     tables.Set(i, table);
     table_views.push_back(*table);
     column_names.push_back(names);
   }
 
+  std::vector<std::string> worker_ids;
+  worker_ids.reserve(_worker_ids.size());
+  std::transform(
+    _worker_ids.begin(), _worker_ids.end(), std::back_inserter(worker_ids), [](int32_t const id) {
+      return std::to_string(id);
+    });
+
   return blazingsql::run_generate_graph(env,
                                         *this,
                                         0,
-                                        this->_worker_ids,
+                                        worker_ids,
                                         table_views,
                                         column_names,
                                         table_names,
@@ -130,9 +149,7 @@ void Context::send(Napi::CallbackInfo const& info) {
   std::string message_id = args[2];
   NapiToCPP::Object df   = args[3];
 
-  std::vector<std::string> names = df.Get("names");
-  Napi::Function asTable         = df.Get("asTable");
-  Table::wrapper_t table         = asTable.Call(df.val, {}).ToObject();
+  auto [names, table] = get_names_and_table(df);
 
   this->send(dst_ral_id, ctx_token, message_id, names, *table);
 }
@@ -154,6 +171,50 @@ Napi::Value Context::pull(Napi::CallbackInfo const& info) {
   result.Set("names", result_names);
   result.Set("table", Table::New(env, std::move(bsql_table)));
   return result;
+}
+
+Napi::Value Context::broadcast(Napi::CallbackInfo const& info) {
+  auto env = info.Env();
+  CallbackArgs args{info};
+  int32_t ctx_token    = args[0];
+  NapiToCPP::Object df = args[1];
+
+  Table::wrapper_t table;
+  std::vector<std::string> names;
+  std::tie(names, table) = get_names_and_table(df);
+
+  auto const num_rows    = table->num_rows();
+  auto const num_workers = _worker_ids.size();
+  auto const num_slice_rows =
+    static_cast<cudf::size_type>(ceil(static_cast<double>(num_rows) / num_workers));
+
+  auto slices = cudf::slice(*table, [&]() {  //
+    cudf::size_type count{0};
+    std::vector<cudf::size_type> indices;
+    std::generate_n(std::back_inserter(indices), num_workers * 2, [&]() mutable {
+      return std::min(num_rows, num_slice_rows * (++count / 2));
+    });
+    return indices;
+  }());
+
+  auto messages = Napi::Array::New(env, num_workers);
+
+  for (int32_t i = num_workers; --i > -1;) {
+    auto const id  = _worker_ids[i];
+    auto const tok = std::to_string(ctx_token + i);
+    auto const msg = "broadcast_table_message_" + tok;
+
+    messages[i] = msg;
+
+    if (id != _id) {
+      this->send(id, tok, msg, names, slices[i]);
+    } else {
+      this->_transport_in.Value()->add_to_cache(
+        get_node_id(), get_ral_id(), get_ral_id(), tok, msg, names, slices[i]);
+    }
+  }
+
+  return messages;
 }
 
 }  // namespace blazingsql

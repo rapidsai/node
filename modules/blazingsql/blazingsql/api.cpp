@@ -23,7 +23,7 @@ namespace blazingsql {
 
 std::tuple<uint16_t,
            int32_t,
-           std::vector<std::string>,
+           std::vector<int32_t>,
            UcpContext::wrapper_t,
            std::shared_ptr<ral::cache::CacheMachine>,
            std::shared_ptr<ral::cache::CacheMachine>>
@@ -48,8 +48,8 @@ initialize(Napi::Env const& env, NapiToCPP::Object const& props) {
     return config;
   }();
 
+  std::vector<int32_t> worker_ids{};
   UcpContext::wrapper_t ucp_context{};
-  std::vector<std::string> worker_ids{};
   std::vector<NodeMetaDataUCP> ucp_metadata{};
 
   if (UcpContext::IsInstance(props.Get("ucpContext"))) {
@@ -60,10 +60,9 @@ initialize(Napi::Env const& env, NapiToCPP::Object const& props) {
       ucp_metadata.reserve(list.Length());
       for (size_t i = 0; i < list.Length(); ++i) {
         NapiToCPP::Object worker = list.Get(i);
-        std::string id           = worker.Get("id");
-        worker_ids.push_back(id);
+        worker_ids.push_back(worker.Get("id"));
         ucp_metadata.push_back({
-          id,                             // std::string worker_id
+          worker.Get("id").ToString(),    // std::string worker_id
           worker.Get("ip").ToString(),    // std::string ip
           0,                              // std::uintptr_t ep_handle
           0,                              // std::uintptr_t worker_handle
@@ -76,7 +75,7 @@ initialize(Napi::Env const& env, NapiToCPP::Object const& props) {
 
   uint16_t id      = props.Get("id");
   bool single_node = ucp_metadata.size() == 0;
-  if (single_node) { worker_ids.push_back(std::to_string(id)); }
+  if (single_node) { worker_ids.push_back(id); }
 
   auto init_result = std::move(::initialize(id,
                                             std::to_string(id),

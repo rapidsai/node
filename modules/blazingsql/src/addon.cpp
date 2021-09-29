@@ -20,20 +20,20 @@
 
 #include <nv_node/utilities/args.hpp>
 
-struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazingsql> {
-  node_blazingsql(Napi::Env env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
+struct rapidsai_sql : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_sql> {
+  rapidsai_sql(Napi::Env env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
     DefineAddon(
       exports,
       {
-        InstanceMethod("init", &node_blazingsql::InitAddon),
+        InstanceMethod("init", &rapidsai_sql::InitAddon),
         InstanceValue("_cpp_exports", _cpp_exports.Value()),
         InstanceValue("Context", InitClass<nv::blazingsql::Context>(env, exports)),
         InstanceValue("UcpContext", InitClass<nv::blazingsql::UcpContext>(env, exports)),
         InstanceValue("CacheMachine", InitClass<nv::blazingsql::CacheMachine>(env, exports)),
         InstanceValue("ExecutionGraph", InitClass<nv::blazingsql::ExecutionGraph>(env, exports)),
-        InstanceMethod<&node_blazingsql::parse_schema>("parseSchema"),
-        InstanceMethod<&node_blazingsql::get_table_scan_info>("getTableScanInfo"),
-        InstanceMethod<&node_blazingsql::run_generate_physical_graph>("runGeneratePhysicalGraph"),
+        InstanceMethod<&rapidsai_sql::parse_schema>("parseSchema"),
+        InstanceMethod<&rapidsai_sql::get_table_scan_info>("getTableScanInfo"),
+        InstanceMethod<&rapidsai_sql::run_generate_physical_graph>("runGeneratePhysicalGraph"),
       });
   }
 
@@ -84,4 +84,4 @@ struct node_blazingsql : public nv::EnvLocalAddon, public Napi::Addon<node_blazi
   }
 };
 
-NODE_API_ADDON(node_blazingsql);
+NODE_API_ADDON(rapidsai_sql);

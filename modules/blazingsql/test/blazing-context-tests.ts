@@ -1,11 +1,11 @@
-import {BlazingContext} from '@rapidsai/blazingsql';
+import {SQLContext} from '@rapidsai/blazingsql';
 import {DataFrame, Float64, Series, Utf8String} from '@rapidsai/cudf';
 
 test('create and drop table', () => {
   const a  = Series.new([1, 2, 3]);
   const df = new DataFrame({'a': a});
 
-  const bc = new BlazingContext();
+  const bc = new SQLContext();
   bc.createTable('test_table', df);
   expect(bc.listTables().length).toEqual(1);
 
@@ -17,7 +17,7 @@ test('list tables', () => {
   const a  = Series.new([1, 2, 3]);
   const df = new DataFrame({'a': a});
 
-  const bc = new BlazingContext();
+  const bc = new SQLContext();
   bc.createTable('test_table', df);
   bc.createTable('test_table2', df);
 
@@ -29,7 +29,7 @@ test('describe table', () => {
   const b  = Series.new(['foo', 'bar', 'foo']);
   const df = new DataFrame({'a': a, 'b': b});
 
-  const bc = new BlazingContext();
+  const bc = new SQLContext();
 
   // Empty map since table doesn't exist
   expect(bc.describeTable('nonexisting_table').size).toEqual(0);
@@ -45,7 +45,7 @@ test('explain', () => {
   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
   const df  = new DataFrame({'key': key, 'val': val});
 
-  const bc = new BlazingContext();
+  const bc = new SQLContext();
   bc.createTable('test_table', df);
 
   const query = 'SELECT * FROM test_table WHERE val > 4';
@@ -69,7 +69,7 @@ test('select a single column', () => {
   const b  = Series.new([7, 2, 7, 1, 2]);
   const df = new DataFrame({'a': a, 'b': b});
 
-  const bc = new BlazingContext();
+  const bc = new SQLContext();
   bc.createTable('test_table', df);
 
   expect(bc.sql('SELECT a FROM test_table').result()).toStrictEqual(new DataFrame({a}));
@@ -80,7 +80,7 @@ test('select all columns', () => {
   const b  = Series.new([7, 2, 7, 1, 2]);
   const df = new DataFrame({'a': a, 'b': b});
 
-  const bc = new BlazingContext();
+  const bc = new SQLContext();
   bc.createTable('test_table', df);
 
   expect(bc.sql('SELECT * FROM test_table').result())
@@ -92,7 +92,7 @@ test('union columns from two tables', () => {
   const df1 = new DataFrame({'a': a});
   const df2 = new DataFrame({'a': a});
 
-  const bc = new BlazingContext();
+  const bc = new SQLContext();
   bc.createTable('t1', df1);
   bc.createTable('t2', df2);
 
@@ -105,7 +105,7 @@ test('find all columns within a table that meet condition', () => {
   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
   const df  = new DataFrame({'key': key, 'val': val});
 
-  const bc = new BlazingContext();
+  const bc = new SQLContext();
   bc.createTable('test_table', df);
 
   const result = new DataFrame({'key': Series.new(['a', 'b']), 'val': Series.new([7.6, 7.1])});
@@ -117,7 +117,7 @@ test('empty sql result', () => {
   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
   const df  = new DataFrame({'key': key, 'val': val});
 
-  const bc = new BlazingContext();
+  const bc = new SQLContext();
   bc.createTable('test_table', df);
 
   const result = new DataFrame();

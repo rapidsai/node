@@ -69,13 +69,14 @@ struct Context : public EnvLocalObjectWrap<Context> {
   int32_t _id{};
   int32_t _port{};
   int32_t _node_id{-1};
-  std::vector<std::string> _worker_ids{};
+  std::vector<int32_t> _worker_ids{};
   Napi::Reference<UcpContext::wrapper_t> _ucp_context;
   Napi::Reference<Wrapper<CacheMachine>> _transport_in;
   Napi::Reference<Wrapper<CacheMachine>> _transport_out;
 
   void send(Napi::CallbackInfo const& info);
   Napi::Value pull(Napi::CallbackInfo const& info);
+  Napi::Value broadcast(Napi::CallbackInfo const& info);
   Napi::Value run_generate_graph(Napi::CallbackInfo const& info);
 };
 

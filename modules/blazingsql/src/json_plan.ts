@@ -72,9 +72,7 @@ def _visit(lines):
         child_level, expr = lines[index]
         if child_level == root_level + 1:
             new_dicc = {"expr": expr, "children": []}
-            if (
-                len(dicc["children"]) == 0
-            ):  # No es necesario, deberia funcionar con solo append
+            if (len(dicc["children"]) == 0):
                 dicc["children"] = [new_dicc]
             else:
                 dicc["children"].append(new_dicc)
@@ -179,7 +177,7 @@ else:
 `
     ]);
 
-  if (stderr.length) { throw new Error('' + stderr); }
+  if (stderr.length) { throw new Error('' + stderr.toString()); }
 
-  return '' + stdout;
+  return '' + stdout.toString();
 };

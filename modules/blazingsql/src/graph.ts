@@ -15,7 +15,7 @@
 import {DataFrame, Series} from '@rapidsai/cudf';
 
 export class ExecutionGraph {
-  constructor(private _graph?: import('./node_blazingsql').ExecutionGraph) {}
+  constructor(private _graph?: import('./rapidsai_sql').ExecutionGraph) {}
 
   start(): void { this._graph?.start(); }
 

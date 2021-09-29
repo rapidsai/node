@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const defaultContextConfigValues: Record<string, unknown> = {
+export const defaultContextConfigValues = {
+  PROTOCOL: 'AUTO',
   JOIN_PARTITION_SIZE_THRESHOLD: 400000000,
   CONCATENATING_CACHE_NUM_BYTES_TIMEOUT: 100,
   MAX_JOIN_SCATTER_MEM_OVERHEAD: 500000000,
@@ -41,10 +42,10 @@ export const defaultContextConfigValues: Record<string, unknown> = {
   LOGGING_MAX_SIZE_PER_FILE: 1073741824,  // 1 GB
   TRANSPORT_BUFFER_BYTE_SIZE: 1048576,    // 1 MB in bytes
   TRANSPORT_POOL_NUM_BUFFERS: 1000,
-  PROTOCOL: 'AUTO',
   REQUIRE_ACKNOWLEDGE: false,
 };
 
-export const defaultClusterConfigValues: Record<string, unknown> = {
+export const defaultClusterConfigValues = {
+  ...defaultContextConfigValues,
   PROTOCOL: 'UCX'
 };

@@ -27,15 +27,15 @@ export const {
   UcpContext,
   ExecutionGraph
 } =
-  loadNativeModule<typeof import('./node_blazingsql')>(
+  loadNativeModule<typeof import('./rapidsai_sql')>(
     module, 'node_blazingsql', init => init(CUDA, RMM, CUDF));
 
-export type getTableScanInfo         = typeof import('./node_blazingsql').getTableScanInfo;
-export type runGeneratePhysicalGraph = typeof import('./node_blazingsql').runGeneratePhysicalGraph;
-export type parseSchema              = typeof import('./node_blazingsql').parseSchema;
+export type getTableScanInfo         = typeof import('./rapidsai_sql').getTableScanInfo;
+export type runGeneratePhysicalGraph = typeof import('./rapidsai_sql').runGeneratePhysicalGraph;
+export type parseSchema              = typeof import('./rapidsai_sql').parseSchema;
 
-export type Context        = import('./node_blazingsql').Context;
-export type UcpContext     = import('./node_blazingsql').UcpContext;
-export type ExecutionGraph = import('./node_blazingsql').ExecutionGraph;
-export type ContextProps   = import('./node_blazingsql').ContextProps;
-export type WorkerUcpInfo  = import('./node_blazingsql').WorkerUcpInfo;
+export type Context        = import('./rapidsai_sql').Context;
+export type UcpContext     = import('./rapidsai_sql').UcpContext;
+export type ExecutionGraph = import('./rapidsai_sql').ExecutionGraph;
+export type ContextProps   = import('./rapidsai_sql').ContextProps;
+export type WorkerUcpInfo  = import('./rapidsai_sql').WorkerUcpInfo;

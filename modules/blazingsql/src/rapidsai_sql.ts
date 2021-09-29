@@ -26,9 +26,9 @@ export declare function parseSchema(input: string[],
                                     ignoreMissingPaths: boolean): Record<string, unknown>;
 
 export type WorkerUcpInfo = {
-  id: number,
-  ip: string,
-  port: number,
+  id: number;    //
+  ip: string;    //
+  port: number;  //
 }
 
 export type ContextProps = {
@@ -37,7 +37,6 @@ export type ContextProps = {
   ucpContext?: UcpContext;   //
   networkIfaceName: string;  //
   workersUcpInfo: WorkerUcpInfo[];
-  singleNode: boolean;
   configOptions: Record<string, unknown>;
   allocationMode: string;
   initialPoolSize: number | null;
@@ -48,6 +47,9 @@ export type ContextProps = {
 export declare class Context {
   constructor(props: ContextProps);
 
+  broadcast(ctxToken: number, df: DataFrame): string[];
+  pull(messageId: string): {names: string[], table: Table};
+  send(id: number, ctxToken: number, messageId: string, df: DataFrame): void;
   runGenerateGraph(dataframes: DataFrame[],
                    tableNames: string[],
                    tableScans: string[],
@@ -56,8 +58,6 @@ export declare class Context {
                    configOptions: Record<string, unknown>,
                    sql: string,
                    currentTimestamp: string): ExecutionGraph;
-  send(id: number, ctxToken: number, messageId: string, df: DataFrame): void;
-  pull(messageId: string): {names: string[], table: Table};
 }
 
 export declare class ExecutionGraph {

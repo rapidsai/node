@@ -29,7 +29,7 @@ namespace blazingsql {
 
 std::tuple<uint16_t,
            int32_t,
-           std::vector<std::string>,
+           std::vector<int32_t>,
            UcpContext::wrapper_t,
            std::shared_ptr<ral::cache::CacheMachine>,
            std::shared_ptr<ral::cache::CacheMachine>>

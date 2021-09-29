@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BlazingCluster} from '@rapidsai/blazingsql';
+import {SQLCluster} from '@rapidsai/blazingsql';
 import {DataFrame, Float64, Series, Utf8String} from '@rapidsai/cudf';
 
-let bc: BlazingCluster;
+let bc: SQLCluster;
 
-beforeAll(async () => { bc = await BlazingCluster.init({numWorkers: 2}); });
+beforeAll(async () => { bc = await SQLCluster.init({numWorkers: 2}); });
 
 afterAll(() => { bc?.kill(); });
 

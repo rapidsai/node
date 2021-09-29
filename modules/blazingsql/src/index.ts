@@ -13,5 +13,5 @@
 // limitations under the License.
 
 export {UcpContext} from './addon';
-export {BlazingCluster} from './blazingcluster';
-export {BlazingContext} from './blazingcontext';
+export {SQLCluster} from './cluster';
+export {SQLContext} from './context';

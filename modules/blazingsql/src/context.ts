@@ -31,22 +31,22 @@ import {
   RelationalAlgebraGenerator
 } from './algebra';
 import {defaultContextConfigValues} from './config';
-import {ExecutionGraph} from './execution_graph';
+import {ExecutionGraph} from './graph';
 import {json_plan_py} from './json_plan';
 
-export class BlazingContext {
-  private context: Context;
-  private db: any;
-  private schema: any;
-  private generator: any;
-  private tables: Map<string, DataFrame>;
-  private configOptions: Record<string, unknown>;
+export class SQLContext {
+  public readonly context: Context;
+  declare private _db: any;
+  declare private _schema: any;
+  declare private _generator: any;
+  declare private _tables: Map<string, DataFrame>;
+  declare private _configOptions: Record<string, unknown>;
 
   constructor(options: Partial<ContextProps> = {}) {
-    this.db        = CatalogDatabaseImpl('main');
-    this.schema    = BlazingSchema(this.db);
-    this.generator = RelationalAlgebraGenerator(this.schema);
-    this.tables    = new Map<string, DataFrame>();
+    this._db        = CatalogDatabaseImpl('main');
+    this._schema    = BlazingSchema(this._db);
+    this._generator = RelationalAlgebraGenerator(this._schema);
+    this._tables    = new Map<string, DataFrame>();
 
     const {
       id               = 0,
@@ -60,8 +60,7 @@ export class BlazingContext {
       ucpContext,
     } = options;
 
-    const {singleNode = workersUcpInfo.length <= 1} = options;
-    this.configOptions = {...defaultContextConfigValues, ...options.configOptions};
+    this._configOptions = {...defaultContextConfigValues, ...options.configOptions};
 
     this.context = new Context({
       id,
@@ -69,8 +68,7 @@ export class BlazingContext {
       networkIfaceName,
       ucpContext,
       workersUcpInfo,
-      singleNode,
-      configOptions: this.configOptions,
+      configOptions: this._configOptions,
       allocationMode,
       initialPoolSize,
       maximumPoolSize,
@@ -95,7 +93,7 @@ export class BlazingContext {
   }
 
   /**
-   * Create a BlazingSQL table to be used for future queries.
+   * Create a SQL table to be used for future queries.
    *
    * @param tableName Name of the table when referenced in a query
    * @param input Data source for the table
@@ -103,19 +101,19 @@ export class BlazingContext {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {BlazingContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/blazingsql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
    * const df = new DataFrame({'a': a, 'b': b});
    *
-   * const bc = new BlazingContext();
+   * const bc = new SQLContext();
    * bc.createTable('test_table', df);
    * ```
    */
   createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
-    callMethodSync(this.db, 'removeTable', tableName);
-    this.tables.set(tableName, input);
+    callMethodSync(this._db, 'removeTable', tableName);
+    this._tables.set(tableName, input);
 
     const arr = ArrayList();
     input.names.forEach((name: string, index: number) => {
@@ -126,42 +124,41 @@ export class BlazingContext {
       const column = CatalogColumnImpl([name, dataType, index]);
       callMethodSync(arr, 'add', column);
     });
-    const tableJava = CatalogTableImpl([tableName, this.db, arr]);
-    callMethodSync(this.db, 'addTable', tableJava);
-    this.schema    = BlazingSchema(this.db);
-    this.generator = RelationalAlgebraGenerator(this.schema);
+    const tableJava = CatalogTableImpl([tableName, this._db, arr]);
+    callMethodSync(this._db, 'addTable', tableJava);
+    this._schema    = BlazingSchema(this._db);
+    this._generator = RelationalAlgebraGenerator(this._schema);
   }
 
   /**
-   * Drop a BlazingSQL table from BlazingContext memory.
+   * Drop a SQL table from SQLContext memory.
    *
    * @param tableName Name of the table to drop
    *
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {BlazingContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/blazingsql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
    * const df = new DataFrame({'a': a, 'b': b});
    *
-   * const bc = new BlazingContext();
+   * const bc = new SQLContext();
    * bc.createTable('test_table', df);
    * bc.sql('SELECT a FROM test_table');
    * bc.dropTable('test_table', df);
    * ```
    */
   dropTable(tableName: string): void {
-    if (!this.tables.has(tableName)) {
-      throw new Error(
-        `Unable to find table with name ${tableName} to drop from BlazingContext memory`);
+    if (!this._tables.has(tableName)) {
+      throw new Error(`Unable to find table with name ${tableName} to drop from SQLContext memory`);
     }
 
-    callMethodSync(this.db, 'removeTable', tableName);
-    this.schema    = BlazingSchema(this.db);
-    this.generator = RelationalAlgebraGenerator(this.schema);
-    this.tables.delete(tableName);
+    callMethodSync(this._db, 'removeTable', tableName);
+    this._schema    = BlazingSchema(this._db);
+    this._generator = RelationalAlgebraGenerator(this._schema);
+    this._tables.delete(tableName);
   }
 
   /**
@@ -170,17 +167,17 @@ export class BlazingContext {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {BlazingContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/blazingsql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const df = new DataFrame({'a': a});
    *
-   * const bc = new BlazingContext();
+   * const bc = new SQLContext();
    * bc.createTable('test_table', df);
    * bc.listTables(); // ['test_table']
    * ```
    */
-  listTables(): string[] { return [...this.tables.keys()]; }
+  listTables(): string[] { return [...this._tables.keys()]; }
 
   /**
    * Returns a map with column names as keys and the column data type as values.
@@ -188,25 +185,25 @@ export class BlazingContext {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {BlazingContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/blazingsql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const df = new DataFrame({'a': a});
    *
-   * const bc = new BlazingContext();
+   * const bc = new SQLContext();
    * bc.createTable('test_table', df);
    * bc.describeTable('test_table'); // {'a': Int32}
    * ```
    */
   describeTable(tableName: string): Map<string, DataType> {
-    const table = this.tables.get(tableName);
+    const table = this._tables.get(tableName);
     if (table === undefined) { return new Map(); }
     return table.names.reduce(
       (m: Map<string, DataType>, name: string) => m.set(name, table.get(name).type), new Map());
   }
 
   /**
-   * Query a BlazingSQL table and return the result as a DataFrame.
+   * Query a SQL table and return the result as a DataFrame.
    *
    * @param query SQL query string
    * @param ctxToken an optional content token used for communicating multiple nodes
@@ -214,13 +211,13 @@ export class BlazingContext {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {BlazingContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/blazingsql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
    * const df = new DataFrame({'a': a, 'b': b});
    *
-   * const bc = new BlazingContext();
+   * const bc = new SQLContext();
    * bc.createTable('test_table', df);
    *
    * bc.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
@@ -248,7 +245,7 @@ export class BlazingContext {
       d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}000`;
     const selectedDataFrames: DataFrame[] =
       tableNames.reduce((result: DataFrame[], tableName: string) => {
-        const table = this.tables.get(tableName);
+        const table = this._tables.get(tableName);
         if (table !== undefined) { result.push(table); }
         return result;
       }, []);
@@ -258,7 +255,7 @@ export class BlazingContext {
                                                             tableScans,
                                                             ctxToken,
                                                             json_plan_py(algebra),
-                                                            this.configOptions,
+                                                            this._configOptions,
                                                             query,
                                                             currentTimestamp));
   }
@@ -272,12 +269,12 @@ export class BlazingContext {
    * @example
    * ```typescript
    * import {Series, DataFrame} from '@rapidsai/cudf';
-   * import {BlazingContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/blazingsql';
    *
    * const a  = Series.new([1, 2, 3]);
    * const df = new DataFrame({'a': a});
    *
-   * const bc = new BlazingContext();
+   * const bc = new SQLContext();
    * bc.createTable('test_table', df);
    *
    * bc.explain('SELECT a FROM test_table'); // BindableTableScan(table=[[main, test_table]],
@@ -288,7 +285,7 @@ export class BlazingContext {
     let algebra = '';
 
     try {
-      algebra = callMethodSync(this.generator, 'getRelationalAlgebraString', sql);
+      algebra = callMethodSync(this._generator, 'getRelationalAlgebraString', sql);
 
       if (detail == true) {
         const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
@@ -309,12 +306,12 @@ export class BlazingContext {
    * @example
    * ```typescript
    * import {Series, DataFrame from '@rapidsai/cudf';
-   * import {BlazingContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/blazingsql';
    *
    * const a  = Series.new([1, 2, 3]);
    * const df = new DataFrame({'a': a});
    *
-   * const bc = new BlazingContext();
+   * const bc = new SQLContext();
    * bc.send(0, 0, "message_1", df);
    * ```
    */
@@ -330,12 +327,12 @@ export class BlazingContext {
    * @example
    * ```typescript
    * import {Series, DataFrame from '@rapidsai/cudf';
-   * import {BlazingContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/blazingsql';
    *
    * const a  = Series.new([1, 2, 3]);
    * const df = new DataFrame({'a': a});
    *
-   * const bc = new BlazingContext();
+   * const bc = new SQLContext();
    * bc.send(0, 0, "message_1", df);
    * bc.pull("message_1"); // [1, 2, 3]
    * ```
