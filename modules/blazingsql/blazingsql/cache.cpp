@@ -57,13 +57,14 @@ void CacheMachine::add_to_cache(int32_t const& node_id,
   this->_cache->addToCache(std::move(table), message_id, true, metadata, true);
 }
 
-std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> CacheMachine::pull_from_cache(
-  std::string const& message_id) {
-  auto result   = this->_cache->pullCacheData(message_id);
-  auto names    = result->names();
-  auto decached = result->decache();
-  auto table    = decached->releaseCudfTable();
-  return {std::move(names), std::move(table)};
+SQLTask* CacheMachine::pull_from_cache(std::string const& message_id) {
+  return new SQLTask(Env(), [this, message_id]() {
+    auto result   = this->_cache->pullCacheData(message_id);
+    auto names    = result->names();
+    auto decached = result->decache();
+    auto table    = decached->releaseCudfTable();
+    return std::make_pair(std::move(names), std::move(table));
+  });
 }
 
 CacheMachine::CacheMachine(Napi::CallbackInfo const& info)

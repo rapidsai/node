@@ -205,7 +205,7 @@ export class SQLCluster {
    * // ['test_table']
    * ```
    */
-  public async listTables() { return await this.context.listTables(); }
+  public listTables() { return this.context.listTables(); }
 
   /**
    * Returns a map with column names as keys and the column data type as values.
@@ -224,9 +224,7 @@ export class SQLCluster {
    * // {'a': Int32}
    * ```
    */
-  public async describeTable(tableName: string) {
-    return await this.context.describeTable(tableName);
-  }
+  public describeTable(tableName: string) { return this.context.describeTable(tableName); }
 
   /**
    * Returns a break down of a given query's logical relational algebra plan.
@@ -249,9 +247,7 @@ export class SQLCluster {
    * // BindableTableScan(table=[[main, test_table]], aliases=[[a]])
    * ```
    */
-  public async explain(sql: string, detail = false) {
-    return await this.context.explain(sql, detail);
-  }
+  public explain(sql: string, detail = false) { return this.context.explain(sql, detail); }
 
   /**
    * Sends a `SIGTERM` signal to all spawned workers. Essentially terminates all spawned workers and

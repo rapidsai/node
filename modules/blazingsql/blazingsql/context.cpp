@@ -139,9 +139,8 @@ void Context::send(int32_t const& dst_ral_id,
     get_node_id(), get_ral_id(), dst_ral_id, ctx_token, message_id, column_names, table_view);
 }
 
-std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> Context::pull(
-  std::string const& message_id) {
-  return std::move(this->_transport_in.Value()->pull_from_cache(message_id));
+SQLTask* Context::pull(std::string const& message_id) {
+  return this->_transport_in.Value()->pull_from_cache(message_id);
 }
 
 void Context::send(Napi::CallbackInfo const& info) {
@@ -158,22 +157,7 @@ void Context::send(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value Context::pull(Napi::CallbackInfo const& info) {
-  auto env = info.Env();
-  CallbackArgs args{info};
-
-  std::string message_id = args[0];
-
-  auto [bsql_names, bsql_table] = pull(message_id);
-
-  auto result_names = Napi::Array::New(env, bsql_names.size());
-  for (size_t i = 0; i < bsql_names.size(); ++i) {
-    result_names.Set(i, Napi::String::New(env, bsql_names[i]));
-  }
-
-  auto result = Napi::Object::New(env);
-  result.Set("names", result_names);
-  result.Set("table", Table::New(env, std::move(bsql_table)));
-  return result;
+  return pull(info[0].ToString())->run();
 }
 
 Napi::Value Context::broadcast(Napi::CallbackInfo const& info) {

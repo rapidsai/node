@@ -273,15 +273,13 @@ Napi::Value parse_schema(Napi::Env const& env,
   return result;
 }
 
-void start_execute_graph(ExecutionGraph::wrapper_t const& execution_graph,
-                         int32_t const& ctx_token) {
-  ::startExecuteGraph(*execution_graph, ctx_token);
+void start_execute_graph(std::shared_ptr<ral::cache::graph> const& graph) {
+  ::startExecuteGraph(graph, graph->get_context_token());
 }
 
 std::tuple<std::vector<std::string>, std::vector<std::unique_ptr<cudf::table>>>
-get_execute_graph_result(ExecutionGraph::wrapper_t const& execution_graph,
-                         int32_t const& ctx_token) {
-  auto bsql_result = std::move(::getExecuteGraphResult(*execution_graph, ctx_token));
+get_execute_graph_result(std::shared_ptr<ral::cache::graph> const& graph) {
+  auto bsql_result = std::move(::getExecuteGraphResult(graph, graph->get_context_token()));
   return {std::move(bsql_result->names), std::move(bsql_result->cudfTables)};
 }
 

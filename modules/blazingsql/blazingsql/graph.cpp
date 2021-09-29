@@ -14,8 +14,13 @@
 
 #include "blazingsql_wrapper/graph.hpp"
 #include "blazingsql_wrapper/api.hpp"
+#include "blazingsql_wrapper/async.hpp"
 
 #include <node_cudf/table.hpp>
+
+#include <cudf/concatenate.hpp>
+#include <cudf/table/table.hpp>
+#include <cudf/table/table_view.hpp>
 
 #include <nv_node/utilities/args.hpp>
 
@@ -52,56 +57,52 @@ ExecutionGraph::ExecutionGraph(Napi::CallbackInfo const& info)
 
 void ExecutionGraph::start(Napi::CallbackInfo const& info) {
   if (!_started) {
-    start_execute_graph(*this, _graph->get_context_token());
+    start_execute_graph(_graph);
     _started = true;
   }
 }
 
 Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
-  Napi::Env env = info.Env();
+  auto env = info.Env();
+
   start(info);
 
-  if (!_results) {
-    auto [names, tables] = get_execute_graph_result(*this, _graph->get_context_token());
-    _names               = std::move(names);
-    _tables              = Napi::Persistent(Napi::Array::New(env, tables.size()));
-    for (size_t i = 0; i < tables.size(); ++i) {
-      _tables.Value().Set(i, nv::Table::New(env, std::move(tables[i])));
-    }
-    _results = true;
+  if (_fetched == false) {
+    _fetched  = true;
+    auto task = new SQLTask(env, [this]() {
+      auto [names, tables] = std::move(get_execute_graph_result(_graph));
+      if (tables.size() > 1) {
+        std::vector<cudf::table_view> views;
+        views.reserve(tables.size());
+        std::transform(tables.begin(), tables.end(), std::back_inserter(views), [](auto const& t) {
+          return t->view();
+        });
+        return std::make_pair(std::move(names), std::move(cudf::concatenate(views)));
+      }
+      return std::make_pair(std::move(names), std::move(tables[0]));
+    });
+    _results  = Napi::Persistent(task->run());
   }
 
-  auto result_names = Napi::Array::New(env, _names.size());
-  for (size_t i = 0; i < _names.size(); ++i) {
-    result_names.Set(i, Napi::String::New(env, _names[i]));
-  }
-
-  auto result_tables = Napi::Array::New(env, _tables.Value().Length());
-  for (size_t i = 0; i < _tables.Value().Length(); ++i) {
-    result_tables.Set(i, _tables.Value().Get(i));
-  }
-
-  auto result = Napi::Object::New(env);
-  result.Set("names", result_names);
-  result.Set("tables", result_tables);
-  return result;
+  return _results.Value();
 }
 
 Napi::Value ExecutionGraph::send(Napi::CallbackInfo const& info) {
-  Napi::Env env                = info.Env();
-  int32_t dst_ral_id           = info[0].ToNumber();
-  std::string message_id       = info[1].ToString();
-  auto tables                  = result(info).ToObject().Get("tables").As<Napi::Array>();
-  Table::wrapper_t first_table = tables.Get(0u).ToObject();
+  auto env = info.Env();
+  CallbackArgs args{info};
 
-  auto query_context = _graph->get_last_kernel()->input_cache()->get_context();
+  int32_t dst_ral_id     = args[0];
+  std::string message_id = args[1];
+  NapiToCPP::Object df   = args[2];
 
-  // auto src_ral_id = _context.Value()->get_ral_id();
-  // int32_t node_id =
-  //   query_context->getNodeIndex(ral::communication::CommunicationData::getInstance().getSelfNode());
-  std::string ctx_token = std::to_string(query_context->getContextToken());
+  std::vector<std::string> names = df.Get("names");
+  Napi::Function asTable         = df.Get("asTable");
+  Table::wrapper_t table         = asTable.Call(df.val, {}).ToObject();
 
-  _context.Value()->send(dst_ral_id, ctx_token, message_id, _names, *first_table);
+  auto ctx_token =
+    std::to_string(_graph->get_last_kernel()->input_cache()->get_context()->getContextToken());
+
+  _context.Value()->send(dst_ral_id, ctx_token, message_id, names, *table);
 
   return this->Value();
 }

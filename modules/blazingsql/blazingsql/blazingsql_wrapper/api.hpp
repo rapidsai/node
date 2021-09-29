@@ -64,12 +64,10 @@ Napi::Value parse_schema(Napi::Env const& env,
                          std::string const& file_format,
                          bool const& ignoreMissingFiles);
 
-void start_execute_graph(ExecutionGraph::wrapper_t const& execution_graph,
-                         int32_t const& ctx_token);
+void start_execute_graph(std::shared_ptr<ral::cache::graph> const& execution_graph);
 
 std::tuple<std::vector<std::string>, std::vector<std::unique_ptr<cudf::table>>>
-get_execute_graph_result(ExecutionGraph::wrapper_t const& execution_graph,
-                         int32_t const& ctx_token);
+get_execute_graph_result(std::shared_ptr<ral::cache::graph> const& execution_graph);
 
 }  // namespace blazingsql
 }  // namespace nv
