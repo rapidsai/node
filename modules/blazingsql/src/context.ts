@@ -33,20 +33,21 @@ import {
 import {defaultContextConfigValues} from './config';
 import {ExecutionGraph} from './graph';
 import {json_plan_py} from './json_plan';
+import {SQLTable} from './table';
 
 export class SQLContext {
   public readonly context: Context;
   declare private _db: any;
   declare private _schema: any;
   declare private _generator: any;
-  declare private _tables: Map<string, DataFrame>;
+  declare private _tables: Map<string, SQLTable>;
   declare private _configOptions: Record<string, unknown>;
 
   constructor(options: Partial<ContextProps> = {}) {
     this._db        = CatalogDatabaseImpl('main');
     this._schema    = BlazingSchema(this._db);
     this._generator = RelationalAlgebraGenerator(this._schema);
-    this._tables    = new Map<string, DataFrame>();
+    this._tables    = new Map<string, SQLTable>();
 
     const {
       id               = 0,
@@ -76,22 +77,6 @@ export class SQLContext {
     });
   }
 
-  // Temp definition, merge with createTable probably.
-  createTableCSV(tableName: string, input: string[]): void {
-    console.log(tableName);
-    const schema       = parseSchema(input, 'csv', [], [], false);
-    const mappingFiles = {'localhost': schema['files']};
-
-    console.log(schema);
-    console.log(mappingFiles);
-
-    const uriValues: any[] = [];
-    const fileType         = schema['file_type'];
-
-    console.log(uriValues);
-    console.log(fileType);
-  }
-
   /**
    * Create a SQL table to be used for future queries.
    *
@@ -113,7 +98,7 @@ export class SQLContext {
    */
   createTable<T extends TypeMap>(tableName: string, input: DataFrame<T>): void {
     callMethodSync(this._db, 'removeTable', tableName);
-    this._tables.set(tableName, input);
+    this._tables.set(tableName, new SQLTable(tableName, input));
 
     const arr = ArrayList();
     input.names.forEach((name: string, index: number) => {
@@ -121,6 +106,30 @@ export class SQLContext {
         callStaticMethodSync('com.blazingdb.calcite.catalog.domain.CatalogColumnDataType',
                              'fromTypeId',
                              input.get(name).type.typeId);
+      const column = CatalogColumnImpl([name, dataType, index]);
+      callMethodSync(arr, 'add', column);
+    });
+    const tableJava = CatalogTableImpl([tableName, this._db, arr]);
+    callMethodSync(this._db, 'addTable', tableJava);
+    this._schema    = BlazingSchema(this._db);
+    this._generator = RelationalAlgebraGenerator(this._schema);
+  }
+
+  createCSVTable(tableName: string, input: string[]): void {
+    const schema = parseSchema(input, 'csv');
+    callMethodSync(this._db, 'removeTable', tableName);
+    this._tables.set(tableName, new SQLTable(tableName, new DataFrame(), schema));
+
+    const names = schema['names'] as string[];
+    const types = schema['types'] as number[];
+
+    console.log(input);
+    console.log(schema);
+
+    const arr = ArrayList();
+    names.forEach((name: string, index: number) => {
+      const dataType = callStaticMethodSync(
+        'com.blazingdb.calcite.catalog.domain.CatalogColumnDataType', 'fromTypeId', types[index]);
       const column = CatalogColumnImpl([name, dataType, index]);
       callMethodSync(arr, 'add', column);
     });
@@ -198,8 +207,8 @@ export class SQLContext {
   describeTable(tableName: string): Map<string, DataType> {
     const table = this._tables.get(tableName);
     if (table === undefined) { return new Map(); }
-    return table.names.reduce(
-      (m: Map<string, DataType>, name: string) => m.set(name, table.get(name).type), new Map());
+    return table.df.names.reduce(
+      (m: Map<string, DataType>, name: string) => m.set(name, table.df.get(name).type), new Map());
   }
 
   /**
@@ -246,11 +255,21 @@ export class SQLContext {
     const selectedDataFrames: DataFrame[] =
       tableNames.reduce((result: DataFrame[], tableName: string) => {
         const table = this._tables.get(tableName);
-        if (table !== undefined) { result.push(table); }
+        if (table !== undefined) {
+          if (table.df.numRows != 0) { result.push(table.df); }
+        }
+        return result;
+      }, []);
+
+    const selectedSchemas: Record<string, unknown>[] =
+      tableNames.reduce((result: Record<string, unknown>[], tableName: string) => {
+        const table = this._tables.get(tableName);
+        if (table !== undefined) { result.push(table.schema); }
         return result;
       }, []);
 
     return new ExecutionGraph(this.context.runGenerateGraph(selectedDataFrames,
+                                                            selectedSchemas,
                                                             tableNames,
                                                             tableScans,
                                                             ctxToken,

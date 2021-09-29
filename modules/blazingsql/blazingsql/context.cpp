@@ -15,6 +15,7 @@
 #include "blazingsql_wrapper/context.hpp"
 #include "blazingsql_wrapper/api.hpp"
 #include "blazingsql_wrapper/cache.hpp"
+#include "nv_node/utilities/napi_to_cpp.hpp"
 
 #include <node_cudf/table.hpp>
 
@@ -63,13 +64,14 @@ Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
 
   Napi::Array data_frames              = args[0];
-  std::vector<std::string> table_names = args[1];
-  std::vector<std::string> table_scans = args[2];
-  int32_t ctx_token                    = args[3];
-  std::string query                    = args[4];
-  auto config_opts_                    = args[5];
-  std::string sql                      = args[6];
-  std::string current_timestamp        = args[7];
+  Napi::Array schemas                  = args[1];
+  std::vector<std::string> table_names = args[2];
+  std::vector<std::string> table_scans = args[3];
+  int32_t ctx_token                    = args[4];
+  std::string query                    = args[5];
+  auto config_opts_                    = args[6];
+  std::string sql                      = args[7];
+  std::string current_timestamp        = args[8];
   auto config_options                  = [&] {
     std::map<std::string, std::string> config{};
     if (!config_opts_.IsNull() && config_opts_.IsObject()) {
@@ -104,6 +106,13 @@ Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
     table_views.push_back(*table);
     column_names.push_back(names);
   }
+  
+  for (std::size_t i = 0; i < schemas.Length(); ++i) {
+    NapiToCPP::Object schema = schemas.Get(i);
+    std::vector<std::string> names = schema.Get("names");
+
+    column_names.push_back(names);
+  }
 
   std::vector<std::string> worker_ids;
   worker_ids.reserve(_worker_ids.size());
@@ -117,6 +126,7 @@ Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
                                         0,
                                         worker_ids,
                                         table_views,
+                                        schemas,
                                         column_names,
                                         table_names,
                                         table_scans,
