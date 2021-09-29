@@ -44,6 +44,7 @@ ExecutionGraph::wrapper_t run_generate_graph(
   uint32_t const& masterIndex,
   std::vector<std::string> const& worker_ids,
   std::vector<cudf::table_view> const& table_views,
+  Napi::Array const& schemas,
   std::vector<std::vector<std::string>> const& column_names,
   std::vector<std::string> const& table_names,
   std::vector<std::string> const& table_scans,

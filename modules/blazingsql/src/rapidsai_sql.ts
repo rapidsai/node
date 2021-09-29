@@ -19,11 +19,7 @@ export declare function getTableScanInfo(logicalPlan: string): [string[], string
 export declare function runGeneratePhysicalGraph(
   workerIds: string[], ctxToken: number, query: string): string;
 
-export declare function parseSchema(input: string[],
-                                    fileFormat: string,
-                                    args: string[],
-                                    extraColumns: any[],
-                                    ignoreMissingPaths: boolean): Record<string, unknown>;
+export declare function parseSchema(input: string[], fileFormat: string): Record<string, unknown>;
 
 export type WorkerUcpInfo = {
   id: number;    //
@@ -51,6 +47,7 @@ export declare class Context {
   pull(messageId: string): Promise<{names: string[], table: Table}>;
   send(id: number, ctxToken: number, messageId: string, df: DataFrame): void;
   runGenerateGraph(dataframes: DataFrame[],
+                   schemas: Record<string, unknown>[],
                    tableNames: string[],
                    tableScans: string[],
                    ctxToken: number,

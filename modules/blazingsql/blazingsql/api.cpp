@@ -14,6 +14,7 @@
 
 #include "blazingsql_wrapper/api.hpp"
 #include "blazingsql_wrapper/ucpcontext.hpp"
+#include "cudf/types.hpp"
 
 #include <engine/engine.h>
 #include <engine/initialize.h>
@@ -115,6 +116,7 @@ ExecutionGraph::wrapper_t run_generate_graph(
   uint32_t const& masterIndex,
   std::vector<std::string> const& worker_ids,
   std::vector<cudf::table_view> const& table_views,
+  Napi::Array const& schemas,
   std::vector<std::vector<std::string>> const& column_names,
   std::vector<std::string> const& table_names,
   std::vector<std::string> const& table_scans,
@@ -163,6 +165,36 @@ ExecutionGraph::wrapper_t run_generate_graph(
     table_schema_cpp_arg_values.push_back({});
     files_all.push_back({});
     file_types.push_back(ral::io::DataType::CUDF);
+    uri_values.push_back({});
+  }
+
+  for (std::size_t i = 0; i < schemas.Length(); ++i) {
+    NapiToCPP::Object schema = schemas.Get(i);
+
+    std::vector<std::string> names = schema.Get("names");
+    std::vector<std::string> files = schema.Get("files");
+    std::vector<size_t> calcite_to_file_indicies = schema.Get("calcite_to_file_indices");
+    bool has_header_csv = schema.Get("has_header_csv");
+    std::vector<int32_t> type_ids = schema.Get("types");
+
+    table_schemas.push_back({
+      {},          // std::vector<ral::frame::BlazingTableView> blazingTableViews
+      {cudf::type_id::STRING, cudf::type_id::INT64, cudf::type_id::INT64, cudf::type_id::INT64},                  // std::vector<cudf::type_id> types
+      files,                        // std::vector<std::string> files
+      files,                        // std::vector<std::string> datasource TODO could be wrong.
+      names,                     // std::vector<std::string> names
+      calcite_to_file_indicies,                        // std::vector<size_t> calcite_to_file_indices
+      {},                        // std::vector<bool> in_file
+      ral::io::DataType::CSV,   // int data_type
+      has_header_csv,                     // bool has_header_csv = false
+      {cudf::table_view{}, {}},  // ral::frame::BlazingTableView metadata
+      {{0}},                     // std::vector<std::vector<int>> row_groups_ids
+      nullptr                    // std::shared_ptr<arrow::Table> arrow_tabl
+    });
+    table_schema_cpp_arg_keys.push_back({});
+    table_schema_cpp_arg_values.push_back({});
+    files_all.push_back(files);
+    file_types.push_back(ral::io::DataType::CSV);
     uri_values.push_back({});
   }
 

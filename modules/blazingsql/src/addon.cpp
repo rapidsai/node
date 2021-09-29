@@ -76,11 +76,8 @@ struct rapidsai_sql : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_sql>
 
     std::vector<std::string> input = args[0];
     std::string file_format        = args[1];
-    // skip kwargs for now.
-    // skip extraColumns for now.
-    bool ignoreMissingPaths = args[4];
 
-    return nv::blazingsql::parse_schema(env, input, file_format, ignoreMissingPaths);
+    return nv::blazingsql::parse_schema(env, input, file_format, false);
   }
 };
 
