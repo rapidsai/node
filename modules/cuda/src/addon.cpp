@@ -29,8 +29,15 @@ struct node_cuda : public nv::EnvLocalAddon, public Napi::Addon<node_cuda> {
   node_cuda(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
     _driver     = Napi::Persistent(Napi::Object::New(env));
     _runtime    = Napi::Persistent(Napi::Object::New(env));
-    _after_init = Napi::Persistent(Napi::Function::New(
-      env, [](Napi::CallbackInfo const& info) { NODE_CU_TRY(cuInit(0), info.Env()); }));
+    _after_init = Napi::Persistent(Napi::Function::New(env, [](Napi::CallbackInfo const& info) {
+      auto env = info.Env();
+      NODE_CU_TRY(cuInit(0), env);
+      auto device = std::max(nv::Device::active_device_id(), 0);
+      if (device < nv::Device::get_num_devices()) {
+        NODE_CUDA_TRY(cudaSetDevice(device), env);
+        NODE_CUDA_TRY(cudaDeviceSynchronize(), env);
+      }
+    }));
 
     nv::gl::initModule(env, exports, _driver.Value(), _runtime.Value());
     nv::kernel::initModule(env, exports, _driver.Value(), _runtime.Value());

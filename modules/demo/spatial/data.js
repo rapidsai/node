@@ -12,59 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const Path = require('path');
-const https = require('https');
-const { createWriteStream } = require('fs');
-const { finished } = require('stream/promises');
-const { RecordBatchStreamWriter } = require('apache-arrow');
-const { Series, DataFrame, Int32, Float32 } = require('@rapidsai/cudf');
+const Path                                = require('path');
+const https                               = require('https');
+const {createWriteStream}                 = require('fs');
+const {finished}                          = require('stream/promises');
+const {RecordBatchStreamWriter}           = require('apache-arrow');
+const {Series, DataFrame, Int32, Float32} = require('@rapidsai/cudf');
 
 module.exports = loadSpatialDataset;
 
-if (require.main === module) {
+if (require.main === module) {  //
   module.exports().catch((e) => console.error(e) || process.exit(1));
 }
 
 async function loadSpatialDataset() {
+  const points =
+    (await loadTables(1)).reduce((points, table) => points ? points.concat(table) : table, null);
 
-  const points = (await loadFiles(1)).reduce((points, file) => {
-    return points ? points.concat(reshape(file)) : reshape(file);
-  }, null).castAll(new Float32);
-
-  await finished(RecordBatchStreamWriter
-    .writeAll(points.castAll(new Float32).toArrow())
-    .pipe(createWriteStream(
-      Path.join(__dirname, 'data', `${points.numRows}_points.arrow`)
-    )));
+  await finished(
+    RecordBatchStreamWriter.writeAll(DataFrame.fromArrow(points.serialize()).toArrow())
+      .pipe(createWriteStream(Path.join(__dirname, 'data', `${points.length}_points.arrow`))));
 }
 
-async function loadFiles(numConcurrentRequests = 4) {
-
-  const files = [];
+async function loadTables(numConcurrentRequests = 4) {
+  const tables = [];
 
   for (let i = 0, n = 13; i < n;) {
     const requests = [];
-    for (let j = -1; ++j < numConcurrentRequests && ++i < n;) {
-      requests.push(loadFile(i));
-    }
-    files.push(...(await Promise.all(requests)));
+    for (let j = -1; ++j < numConcurrentRequests && ++i < n;) { requests.push(loadFile(i)); }
+    tables.push(...(await Promise.all(requests)).map(reshapeFileToTable));
   }
 
-  return files;
+  return tables;
 }
 
-function reshape(file) {
-  const size = file.byteLength / 16;
-  const shape = { type: new Int32, step: 4, size };
-  const data = Series.new({ type: new Int32, data: file });
+function reshapeFileToTable(file) {
+  const size  = file.byteLength / 16;
+  const shape = {type: new Int32, step: 4, size};
+  const data  = Series.new({type: new Int32, data: file});
   return new DataFrame({
-    x: data.gather(Series.sequence({ ...shape, init: 0 })),
-    y: data.gather(Series.sequence({ ...shape, init: 1 })),
-  });
+           x: data.gather(Series.sequence({...shape, init: 0})),
+           y: data.gather(Series.sequence({...shape, init: 1})),
+         })
+    .castAll(new Float32)
+    .toArrow();
 }
 
 function loadFile(i) {
-
   const options = {
     method: `GET`,
     path: `/spatial/2009${i < 10 ? '0' : ''}${i}.cny.gz`,
@@ -76,9 +70,7 @@ function loadFile(i) {
   };
 
   return new Promise((resolve, reject) => {
-
     const req = https.request(options, (res) => {
-
       const encoding = res.headers['content-encoding'] || '';
 
       let body = new Uint8Array(res.headers['content-length'] | 0);
@@ -91,20 +83,22 @@ function loadFile(i) {
         res = res.pipe(require('zlib').createBrotliDecompress());
       }
 
-      finished(
-        res.on('data', (part) => {
-          if (body.buffer.byteLength < body.byteOffset + part.byteLength) {
-            const both = new Uint8Array(Math.max(
-              body.buffer.byteLength * 2,
-              body.buffer.byteLength + part.byteLength
-            ));
-            both.set(new Uint8Array(body.buffer, 0, body.byteOffset));
-            body = both.subarray(body.byteOffset);
-          }
-          body.set(part);
-          body = body.subarray(part.byteLength);
+      finished(res.on('data',
+                      (part) => {
+                        if (body.buffer.byteLength < body.byteOffset + part.byteLength) {
+                          const both = new Uint8Array(Math.max(
+                            body.buffer.byteLength * 2, body.buffer.byteLength + part.byteLength));
+                          both.set(new Uint8Array(body.buffer, 0, body.byteOffset));
+                          body = both.subarray(body.byteOffset);
+                        }
+                        body.set(part);
+                        body = body.subarray(part.byteLength);
+                      }))
+        .then(() => {
+          console.log(`Loaded "https://${[options.hostname, options.path].join('')}"`);
+          resolve(new Uint8Array(body.buffer, 0, body.byteOffset));
         })
-      ).then(() => resolve(new Uint8Array(body.buffer, 0, body.byteOffset))).catch(reject);
+        .catch(reject);
     });
 
     req.end();

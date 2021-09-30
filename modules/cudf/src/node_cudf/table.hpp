@@ -236,6 +236,7 @@ struct Table : public EnvLocalObjectWrap<Table> {
   static Napi::Value read_csv(Napi::CallbackInfo const& info);
   void write_csv(Napi::CallbackInfo const& info);
 
+  static Napi::Value read_parquet(Napi::CallbackInfo const& info);
   static Napi::Value from_arrow(Napi::CallbackInfo const& info);
 
   Napi::Value to_arrow(Napi::CallbackInfo const& info);

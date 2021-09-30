@@ -17,7 +17,7 @@ module.exports = mergeOptions(loadOptions('modules/cuda'),
                               loadOptions('modules/deck.gl'),
                               loadOptions('modules/glfw'),
                               loadOptions('modules/webgl'),
-                              loadOptions('modules/blazingsql'),
+                              loadOptions('modules/sql'),
                               {
                                 out: 'doc',
                                 name: 'RAPIDS',

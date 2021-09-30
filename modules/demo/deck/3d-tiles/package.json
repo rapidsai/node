@@ -13,6 +13,7 @@
     "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
   },
   "dependencies": {
+    "@deck.gl/core": "8.5.8",
     "@deck.gl/geo-layers": "8.5.8",
     "@deck.gl/mesh-layers": "8.5.8",
     "@deck.gl/react": "8.5.8",
