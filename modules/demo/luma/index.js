@@ -14,9 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module.exports = () => {
+module.exports = (glfwOptions = {
+  title: 'Luma Demo',
+}) => {
   const {RapidsJSDOM} = require('@rapidsai/jsdom');
   const jsdom         = new RapidsJSDOM({
+    glfwOptions: glfwOptions,
     // Change cwd to the example dir so relative file paths are resolved
     module: {path: require('path').join(__dirname, `lessons`, process.argv[2])}
   });

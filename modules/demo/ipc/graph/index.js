@@ -15,7 +15,7 @@
 // limitations under the License.
 
 module.exports = ({url, ...glfwOptions} = {
-  title: '',
+  title: 'Graph Demo',
   visible: true,
   transparent: false,
 }) => {

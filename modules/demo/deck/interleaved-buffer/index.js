@@ -15,6 +15,7 @@
 // limitations under the License.
 
 module.exports = (glfwOptions = {
+  title: 'Interleaved Buffer Demo',
   transparent: false
 }) => {
   const jsdom = new (require('@rapidsai/jsdom').RapidsJSDOM)({
