@@ -113,7 +113,7 @@ export class QueryBuilder extends React.Component {
   _parseQuery(query) {
     if (query === undefined || query.length == 0) return '';
     // Hacky, but the sql builder uses 'NOT EMPTY' and 'EMPTY' when constructing the query.
-    // Let's just replace any instances with 'NOT NULL' and 'NULL' for compatibility with BlazingSQL.
+    // Let's just replace any instances with 'NOT NULL' and 'NULL'.
     query = query.replace('NOT EMPTY', 'NOT NULL');
     query = query.replace('EMPTY', 'NULL');
     return `SELECT id, revid, url, title, text FROM test_table WHERE ${JSON.parse(query)}`;

@@ -1,6 +1,6 @@
 # SQLCluster Server Demo
 
-This demo demonstrates the SQLCluster module which allows for multi-GPU SQL queries using BlazingSQL on node.
+This demo demonstrates the SQLCluster module which allows for multi-GPU SQL queries using our SQL engine.
 
 ## Main Dependencies
 

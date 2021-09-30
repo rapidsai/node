@@ -60,7 +60,7 @@ RUN cd /usr/local/lib \
  && apt install -y --no-install-recommends \
     # UCX runtime dependencies
     libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
-    # blazingSQL dependencies
+    # SQL dependencies
     openjdk-8-jre libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
  # Clean up
  && apt autoremove -y && apt clean \

@@ -77,7 +77,7 @@ RUN cd /usr/local/lib \
     libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
     # node-canvas dependencies
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
-    # blazingSQL dependencies
+    # SQL dependencies
     openjdk-8-jre libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
  # Clean up
  && apt autoremove -y && apt clean \

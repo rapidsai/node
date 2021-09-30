@@ -50,7 +50,6 @@ test('explain', () => {
 
   const query = 'SELECT * FROM test_table WHERE val > 4';
 
-  // Result strings copied from BlazingSQL
   expect(sqlContext.explain(query))
     .toEqual(
       `LogicalProject(key=[$0], val=[$1])

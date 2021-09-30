@@ -86,7 +86,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     build-essential libxmu-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # cuSpatial dependencies
     libgdal-dev \
-    # blazingSQL dependencies
+    # SQL dependencies
     maven openjdk-8-jdk libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
     # UCX build dependencies
     automake autoconf libtool \

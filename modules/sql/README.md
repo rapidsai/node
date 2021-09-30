@@ -1,8 +1,8 @@
-# node-rapids GPU accelerated SQL engine
+# <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids GPU accelerated SQL engine
 
-The js bindings for [BlazingSQL](https://github.com/BlazingDB/blazingsql) provides an API that allows for GPU accelerated SQL queries on [cuDF](https://github.com/rapidsai/cudf) DataFrames.
+These js bindings allow for GPU accelerated SQL queries.
 
-For example, the following snippet creates a DataFrame, then uses BlazingSQL to select and query a DataFrame using the `SQLContext` module.
+For example, the following snippet creates a DataFrame, then uses our SQL engine to select and query a DataFrame using the `SQLContext` module.
 
 ```javascript
 var { Series, DataFrame, Int32 } = require("@rapidsai/cudf");
@@ -18,7 +18,7 @@ bc.createTable('test_table', df);
 bc.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
 ```
 
-We have also provided the `SQLCluster` module which allows one to run BlazingSQL queries on multiple child processes.
+We have also provided the `SQLCluster` module which allows one to run SQL queries on multiple GPUs.
 
 ```javascript
 var { Series, DataFrame } = require("@rapidsai/cudf");
