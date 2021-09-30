@@ -114,6 +114,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 COPY --from=wrtc --chown=root:root /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=wrtc --chown=node:node /home/node/wrtc-0.4.7-dev.tgz /home/node/wrtc-0.4.7-dev.tgz
 
+ENV NODE_PATH=/usr/local/lib/node_modules
+
 WORKDIR /opt/rapids/node
 
 USER node
