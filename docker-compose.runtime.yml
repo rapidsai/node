@@ -115,12 +115,12 @@ services:
         <<: *main_build_args
         FROM_IMAGE: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-16.9.1}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-base-${ARCH:-amd64}
 
-  blazingsql:
+  sql:
     <<: *main_service_settings
-    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-16.9.1}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-blazingsql-${ARCH:-amd64}
+    image: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-16.9.1}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-sql-${ARCH:-amd64}
     build:
       <<: *main_build_settings
-      dockerfile: dockerfiles/runtime/blazingsql.Dockerfile
+      dockerfile: dockerfiles/runtime/sql.Dockerfile
       args:
         <<: *main_build_args
         FROM_IMAGE: rapidsai/node:${RAPIDS_VERSION:-latest}-runtime-node${NODE_VERSION:-16.9.1}-cuda${CUDA_VERSION:-11.2.2}-${LINUX_VERSION:-ubuntu20.04}-base-${ARCH:-amd64}

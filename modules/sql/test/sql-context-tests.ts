@@ -1,5 +1,5 @@
-import {SQLContext} from '@rapidsai/blazingsql';
 import {DataFrame, Float64, Series, Utf8String} from '@rapidsai/cudf';
+import {SQLContext} from '@rapidsai/sql';
 
 test('create and drop table', () => {
   const a  = Series.new([1, 2, 3]);

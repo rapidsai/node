@@ -12,7 +12,7 @@ RUN rm /home/node/wrtc-0.4.7-dev.tgz                 \
     /opt/rapids/node/build/nvidia-cuda-*.tgz         \
     /opt/rapids/node/build/rapidsai-rmm-*.tgz        \
     /opt/rapids/node/build/rapidsai-cudf-*.tgz       \
-    /opt/rapids/node/build/rapidsai-blazingsql-*.tgz \
+    /opt/rapids/node/build/rapidsai-sql-*.tgz        \
     . \
  && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz
 

@@ -14,6 +14,6 @@
     "modules/demo/ssr/*",
     "modules/demo/tfjs/*",
     "modules/demo/client-server",
-    "modules/demo/blazingsql/*"
+    "modules/demo/sql/*"
   ]
 }

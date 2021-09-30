@@ -28,7 +28,7 @@ export const {
   ExecutionGraph
 } =
   loadNativeModule<typeof import('./rapidsai_sql')>(
-    module, 'node_blazingsql', init => init(CUDA, RMM, CUDF));
+    module, 'rapidsai_sql', init => init(CUDA, RMM, CUDF));
 
 export type getTableScanInfo         = typeof import('./rapidsai_sql').getTableScanInfo;
 export type runGeneratePhysicalGraph = typeof import('./rapidsai_sql').runGeneratePhysicalGraph;

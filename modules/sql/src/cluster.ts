@@ -47,7 +47,7 @@ export class SQLCluster {
    *
    * @example
    * ```typescript
-   * import {SQLCluster} from '@rapidsai/blazingsql';
+   * import {SQLCluster} from '@rapidsai/sql';
    *
    * const cluster = await Cluster.init();
    * ```
@@ -111,7 +111,7 @@ export class SQLCluster {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {SQLCluster} from '@rapidsai/blazingsql';
+   * import {SQLCluster} from '@rapidsai/sql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
@@ -135,7 +135,7 @@ export class SQLCluster {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {SQLCluster} from '@rapidsai/blazingsql';
+   * import {SQLCluster} from '@rapidsai/sql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
@@ -160,7 +160,7 @@ export class SQLCluster {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {SQLCluster} from '@rapidsai/blazingsql';
+   * import {SQLCluster} from '@rapidsai/sql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
@@ -194,7 +194,7 @@ export class SQLCluster {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {SQLCluster} from '@rapidsai/blazingsql';
+   * import {SQLCluster} from '@rapidsai/sql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const df = new DataFrame({'a': a});
@@ -213,7 +213,7 @@ export class SQLCluster {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {SQLCluster} from '@rapidsai/blazingsql';
+   * import {SQLCluster} from '@rapidsai/sql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const df = new DataFrame({'a': a});
@@ -235,7 +235,7 @@ export class SQLCluster {
    * @example
    * ```typescript
    * import {Series, DataFrame} from '@rapidsai/cudf';
-   * import {SQLCluster} from '@rapidsai/blazingsql';
+   * import {SQLCluster} from '@rapidsai/sql';
    *
    * const a  = Series.new([1, 2, 3]);
    * const df = new DataFrame({'a': a});
@@ -255,7 +255,7 @@ export class SQLCluster {
    *
    * @example
    * ```typescript
-   * import {SQLCluster} from '@rapidsai/blazingsql';
+   * import {SQLCluster} from '@rapidsai/sql';
    *
    * const bc = await SQLCluster.init();
    * bc.kill();

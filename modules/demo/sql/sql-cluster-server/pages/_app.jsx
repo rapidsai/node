@@ -24,7 +24,7 @@ export default function App() {
     <div>
       <Navbar bg="dark" variant="dark">
         <Container>
-          <Navbar.Brand className={"navbar"}>node-rapids │ Blazing Cluster Server Demo</Navbar.Brand>
+          <Navbar.Brand className={"navbar"}>node-rapids │ SQLCluster Server Demo</Navbar.Brand>
           <Nav>
             <Nav.Link href="https://github.com/rapidsai/node">node-rapids github</Nav.Link>
           </Nav>

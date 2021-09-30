@@ -28,13 +28,13 @@
     "cpp:rebuild:debug": "scripts/exec.js run cpp:rebuild:debug --concurrency 1",
     "docker:build:devel": "touch .env && DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_SCAN_SUGGEST=false docker-compose -f docker-compose.devel.yml build --force-rm base main",
     "docker:build:devel:nteract": "yarn docker:build:devel && DOCKER_SCAN_SUGGEST=false docker-compose -f docker-compose.devel.yml build --force-rm nteract",
-    "docker:build:runtime": "yarn docker:build:devel && DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_SCAN_SUGGEST=false docker-compose -f docker-compose.runtime.yml build --force-rm cuda-base cudagl-base build main demo glfw cudf blazingsql cuml cugraph cuspatial",
+    "docker:build:runtime": "yarn docker:build:devel && DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_SCAN_SUGGEST=false docker-compose -f docker-compose.runtime.yml build --force-rm cuda-base cudagl-base build main demo glfw cudf sql cuml cugraph cuspatial",
     "docker:run:devel": "touch .env && docker-compose -f docker-compose.devel.yml run --rm main",
     "docker:run:devel:nteract": "touch .env && docker-compose -f docker-compose.devel.yml run --rm nteract",
     "docker:run:runtime:main": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm main",
     "docker:run:runtime:glfw": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm glfw",
     "docker:run:runtime:cudf": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm cudf",
-    "docker:run:runtime:blazingsql": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm blazingsql",
+    "docker:run:runtime:sql": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm sql",
     "docker:run:runtime:cuml": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm cuml",
     "docker:run:runtime:cugraph": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm cugraph",
     "docker:run:runtime:cuspatial": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm cuspatial",
@@ -59,7 +59,7 @@
     "modules/demo/ssr/*",
     "modules/demo/tfjs/*",
     "modules/demo/client-server",
-    "modules/demo/blazingsql/*"
+    "modules/demo/sql/*"
   ],
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "4.26.0",

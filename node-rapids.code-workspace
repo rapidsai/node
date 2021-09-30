@@ -110,7 +110,7 @@
             "./node-rapids/modules/demo",
             "./node-rapids/modules/glfw",
             "./node-rapids/modules/webgl",
-            "./node-rapids/modules/blazingsql"
+            "./node-rapids/modules/sql"
         ],
         "eslint.options": {
             "configFile": ".eslintrc.js"

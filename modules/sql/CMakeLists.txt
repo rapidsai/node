@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
-project(node_blazingsql VERSION 0.0.1 LANGUAGES C CXX)
+project(rapidsai_sql VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
@@ -124,7 +124,7 @@ target_link_libraries(blazingsql_wrapper
 )
 
 ###################################################################################################
-# - node_blazingsql target ------------------------------------------------------------------------------
+# - rapidsai_sql target ------------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_BLAZINGSQL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 

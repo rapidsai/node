@@ -13,7 +13,7 @@ RUN cp                                               \
     /opt/rapids/node/build/nvidia-webgl-*.tgz        \
     /opt/rapids/node/build/rapidsai-rmm-*.tgz        \
     /opt/rapids/node/build/rapidsai-cudf-*.tgz       \
-    /opt/rapids/node/build/rapidsai-blazingsql-*.tgz \
+    /opt/rapids/node/build/rapidsai-sql-*.tgz        \
     /opt/rapids/node/build/rapidsai-cuml-*.tgz       \
     /opt/rapids/node/build/rapidsai-cugraph-*.tgz    \
     /opt/rapids/node/build/rapidsai-cuspatial-*.tgz  \

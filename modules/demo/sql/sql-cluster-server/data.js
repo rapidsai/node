@@ -17,13 +17,13 @@ const request     = require('request');
 const zlib        = require('zlib');
 const cliProgress = require('cli-progress');
 
-module.exports = DownloadBlazingClusterServerDataSet;
+module.exports = DownloadSQLClusterServerDataSet;
 
 if (require.main === module) {  //
   module.exports().catch((e) => console.error(e) || process.exit(1));
 }
 
-async function DownloadBlazingClusterServerDataSet() {
+async function DownloadSQLClusterServerDataSet() {
   const downloadBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 
   console.log(' Downloading dataset...');

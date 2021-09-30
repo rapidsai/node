@@ -15,7 +15,7 @@
 // limitations under the License.
 
 const {performance}             = require('perf_hooks');
-const {BlazingCluster}          = require('@rapidsai/blazingsql');
+const {SQLCluster}              = require('@rapidsai/sql');
 const {DataFrame}               = require('@rapidsai/cudf');
 const {RecordBatchStreamWriter} = require('apache-arrow');
 const fs                        = require('fs');
@@ -45,7 +45,7 @@ fastify.register((require('fastify-arrow')))
     dev: process.env.NODE_ENV !== 'production',
   }))
   .register(async (instance, opts, done) => {
-    bc = await BlazingCluster.init({numWorkers: 2});
+    bc = await SQLCluster.init({numWorkers: 2});
     await bc.createTable('test_table', DataFrame.readCSV({
       header: 0,
       sourceType: 'files',

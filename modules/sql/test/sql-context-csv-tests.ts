@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {SQLContext} from '@rapidsai/blazingsql';
 import {DataFrame, Float64, Int64, Series, Utf8String} from '@rapidsai/cudf';
+import {SQLContext} from '@rapidsai/sql';
 import {promises} from 'fs';
 import * as Path from 'path';
 

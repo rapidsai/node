@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {SQLCluster} from '@rapidsai/blazingsql';
 import {DataFrame, Float64, Series, Utf8String} from '@rapidsai/cudf';
+import {SQLCluster} from '@rapidsai/sql';
 
 let sqlCluster: SQLCluster;
 

@@ -85,7 +85,7 @@ export class SQLContext {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {SQLContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/sql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
@@ -124,7 +124,7 @@ export class SQLContext {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {SQLContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/sql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
@@ -153,7 +153,7 @@ export class SQLContext {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {SQLContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/sql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const df = new DataFrame({'a': a});
@@ -171,7 +171,7 @@ export class SQLContext {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {SQLContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/sql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const df = new DataFrame({'a': a});
@@ -198,7 +198,7 @@ export class SQLContext {
    * @example
    * ```typescript
    * import {Series, DataFrame, Int32} from '@rapidsai/cudf';
-   * import {SQLContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/sql';
    *
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
@@ -264,7 +264,7 @@ export class SQLContext {
    * @example
    * ```typescript
    * import {Series, DataFrame} from '@rapidsai/cudf';
-   * import {SQLContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/sql';
    *
    * const a  = Series.new([1, 2, 3]);
    * const df = new DataFrame({'a': a});
@@ -302,7 +302,7 @@ export class SQLContext {
    * @example
    * ```typescript
    * import {Series, DataFrame from '@rapidsai/cudf';
-   * import {SQLContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/sql';
    *
    * const a  = Series.new([1, 2, 3]);
    * const df = new DataFrame({'a': a});
@@ -323,7 +323,7 @@ export class SQLContext {
    * @example
    * ```typescript
    * import {Series, DataFrame from '@rapidsai/cudf';
-   * import {SQLContext} from '@rapidsai/blazingsql';
+   * import {SQLContext} from '@rapidsai/sql';
    *
    * const a  = Series.new([1, 2, 3]);
    * const df = new DataFrame({'a': a});

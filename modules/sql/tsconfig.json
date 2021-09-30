@@ -4,8 +4,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@rapidsai/blazingsql": ["src/index"],
-            "@rapidsai/blazingsql/*": ["src/*"]
+            "@rapidsai/sql": ["src/index"],
+            "@rapidsai/sql/*": ["src/*"]
         },
         "target": "ESNEXT",
         "module": "commonjs",
