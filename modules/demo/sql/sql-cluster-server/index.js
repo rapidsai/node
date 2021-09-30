@@ -35,7 +35,7 @@ if (!fs.existsSync(DATA_PATH)) {
   process.exit(1);
 }
 
-let bc;
+let sqlCluster;
 
 // Change cwd to the example dir so relative file paths are resolved
 process.chdir(__dirname);
@@ -45,8 +45,8 @@ fastify.register((require('fastify-arrow')))
     dev: process.env.NODE_ENV !== 'production',
   }))
   .register(async (instance, opts, done) => {
-    bc = await SQLCluster.init({numWorkers: 2});
-    await bc.createTable('test_table', DataFrame.readCSV({
+    sqlCluster = await SQLCluster.init({numWorkers: 2});
+    await sqlCluster.createTable('test_table', DataFrame.readCSV({
       header: 0,
       sourceType: 'files',
       sources: [DATA_PATH],
@@ -57,7 +57,7 @@ fastify.register((require('fastify-arrow')))
     fastify.next('/');
     fastify.post('/run_query', async function(request, reply) {
       const t0         = performance.now();
-      const df         = await bc.sql(request.body);
+      const df         = await sqlCluster.sql(request.body);
       const t1         = performance.now();
       const queryTime  = t1 - t0;
       const arrowTable = df.toArrow();

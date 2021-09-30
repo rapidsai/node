@@ -117,8 +117,8 @@ export class SQLCluster {
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
    * const df = new DataFrame({'a': a, 'b': b});
    *
-   * const bc = await SQLCluster.init();
-   * await bc.createTable('test_table', df);
+   * const sqlCluster = await SQLCluster.init();
+   * await sqlCluster.createTable('test_table', df);
    * ```
    */
   public async createTable(tableName: string, input: DataFrame) {
@@ -141,10 +141,10 @@ export class SQLCluster {
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
    * const df = new DataFrame({'a': a, 'b': b});
    *
-   * const bc = await SQLCluster.init();
-   * await bc.createTable('test_table', df);
-   * await bc.dropTable('test_table');
-   * console.log(await bc.listTables());
+   * const sqlCluster = await SQLCluster.init();
+   * await sqlCluster.createTable('test_table', df);
+   * await sqlCluster.dropTable('test_table');
+   * console.log(await sqlCluster.listTables());
    * // []
    * ```
    */
@@ -166,10 +166,10 @@ export class SQLCluster {
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
    * const df = new DataFrame({'a': a, 'b': b});
    *
-   * const bc = await SQLCluster.init();
-   * await bc.createTable('test_table', df);
+   * const sqlCluster = await SQLCluster.init();
+   * await sqlCluster.createTable('test_table', df);
    *
-   * console.log((await bc.sql('SELECT a FROM test_table')).toString())
+   * console.log((await sqlCluster.sql('SELECT a FROM test_table')).toString())
    * //  a
    * //  0
    * //  1
@@ -199,9 +199,9 @@ export class SQLCluster {
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const df = new DataFrame({'a': a});
    *
-   * const bc = await SQLCluster.init();
-   * await bc.createTable('test_table', df);
-   * console.log(await bc.listTables());
+   * const sqlCluster = await SQLCluster.init();
+   * await sqlCluster.createTable('test_table', df);
+   * console.log(await sqlCluster.listTables());
    * // ['test_table']
    * ```
    */
@@ -218,9 +218,9 @@ export class SQLCluster {
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const df = new DataFrame({'a': a});
    *
-   * const bc = await SQLCluster.init();
-   * await bc.createTable('test_table', df);
-   * console.log(await bc.describeTable('test_table'));
+   * const sqlCluster = await SQLCluster.init();
+   * await sqlCluster.createTable('test_table', df);
+   * console.log(sqlCluster.describeTable('test_table'));
    * // {'a': Int32}
    * ```
    */
@@ -240,10 +240,10 @@ export class SQLCluster {
    * const a  = Series.new([1, 2, 3]);
    * const df = new DataFrame({'a': a});
    *
-   * const bc = await SQLCluster.init();
-   * await bc.createTable('test_table', df);
+   * const sqlCluster = await SQLCluster.init();
+   * await sqlCluster.createTable('test_table', df);
    *
-   * console.log(await bc.explain('SELECT a FROM test_table'));
+   * console.log(sqlCluster.explain('SELECT a FROM test_table'));
    * // BindableTableScan(table=[[main, test_table]], aliases=[[a]])
    * ```
    */
@@ -257,8 +257,8 @@ export class SQLCluster {
    * ```typescript
    * import {SQLCluster} from '@rapidsai/sql';
    *
-   * const bc = await SQLCluster.init();
-   * bc.kill();
+   * const sqlCluster = await SQLCluster.init();
+   * sqlCluster.kill();
    * ```
    */
   public kill(): void {

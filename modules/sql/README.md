@@ -12,10 +12,10 @@ var a  = Series.new({type: new Int32(), data: [1, 2, 3]});
 var b  = Series.new({type: new Int32(), data: [4, 5, 6]});
 var df = new DataFrame({'a': a, 'b': b});
 
-var bc = new SQLContext();
-bc.createTable('test_table', df);
+var sqlContext = new SQLContext();
+sqlContext.createTable('test_table', df);
 
-bc.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
+sqlContext.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
 ```
 
 We have also provided the `SQLCluster` module which allows one to run SQL queries on multiple GPUs.
@@ -27,10 +27,10 @@ var { SQLCluster } = require("@rapidsai/sql");
 var a  = Series.new(['foo', 'bar']);
 var df = new DataFrame({'a': a});
 
-var bc = await SQLCluster.init({numWorkers: 2});
-await bc.createTable('test_table', df);
+var sqlCluster = await SQLCluster.init({numWorkers: 2});
+await sqlCluster.createTable('test_table', df);
 
-await bc.sql('SELECT a FROM test_table WHERE a LIKE \'%foo%\'');  // ['foo']
+await sqlCluster.sql('SELECT a FROM test_table WHERE a LIKE \'%foo%\'');  // ['foo']
 ```
 
 For detailed SQL API, [follow our API Documentation](https://rapidsai.github.io/node/modules/sql_src.html).

@@ -91,8 +91,8 @@ export class SQLContext {
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
    * const df = new DataFrame({'a': a, 'b': b});
    *
-   * const bc = new SQLContext();
-   * bc.createTable('test_table', df);
+   * const sqlContext = new SQLContext();
+   * sqlContext.createTable('test_table', df);
    * ```
    */
   createTable(tableName: string, input: DataFrame|string[]): void {
@@ -130,10 +130,10 @@ export class SQLContext {
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
    * const df = new DataFrame({'a': a, 'b': b});
    *
-   * const bc = new SQLContext();
-   * bc.createTable('test_table', df);
-   * bc.sql('SELECT a FROM test_table');
-   * bc.dropTable('test_table', df);
+   * const sqlContext = new SQLContext();
+   * sqlContext.createTable('test_table', df);
+   * sqlContext.sql('SELECT a FROM test_table');
+   * sqlContext.dropTable('test_table', df);
    * ```
    */
   public dropTable(tableName: string): void {
@@ -158,9 +158,9 @@ export class SQLContext {
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const df = new DataFrame({'a': a});
    *
-   * const bc = new SQLContext();
-   * bc.createTable('test_table', df);
-   * bc.listTables(); // ['test_table']
+   * const sqlContext = new SQLContext();
+   * sqlContext.createTable('test_table', df);
+   * sqlContext.listTables(); // ['test_table']
    * ```
    */
   public listTables(): string[] { return [...this._tables.keys()]; }
@@ -176,9 +176,9 @@ export class SQLContext {
    * const a  = Series.new({type: new Int32(), data: [1, 2, 3]});
    * const df = new DataFrame({'a': a});
    *
-   * const bc = new SQLContext();
-   * bc.createTable('test_table', df);
-   * bc.describeTable('test_table'); // {'a': Int32}
+   * const sqlContext = new SQLContext();
+   * sqlContext.createTable('test_table', df);
+   * sqlContext.describeTable('test_table'); // {'a': Int32}
    * ```
    */
   public describeTable(tableName: string): Map<string, DataType> {
@@ -204,10 +204,10 @@ export class SQLContext {
    * const b  = Series.new({type: new Int32(), data: [4, 5, 6]});
    * const df = new DataFrame({'a': a, 'b': b});
    *
-   * const bc = new SQLContext();
-   * bc.createTable('test_table', df);
+   * const sqlContext = new SQLContext();
+   * sqlContext.createTable('test_table', df);
    *
-   * bc.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
+   * sqlContext.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
    * ```
    */
   public sql(query: string, ctxToken: number = Math.random() * Number.MAX_SAFE_INTEGER | 0) {
@@ -269,11 +269,11 @@ export class SQLContext {
    * const a  = Series.new([1, 2, 3]);
    * const df = new DataFrame({'a': a});
    *
-   * const bc = new SQLContext();
-   * bc.createTable('test_table', df);
+   * const sqlContext = new SQLContext();
+   * sqlContext.createTable('test_table', df);
    *
-   * bc.explain('SELECT a FROM test_table'); // BindableTableScan(table=[[main, test_table]],
-   * aliases=[[a]])
+   * sqlContext.explain('SELECT a FROM test_table'); // BindableTableScan(table=[[main,
+   * test_table]], aliases=[[a]])
    * ```
    */
   public explain(sql: string, detail = false): string {
@@ -307,8 +307,8 @@ export class SQLContext {
    * const a  = Series.new([1, 2, 3]);
    * const df = new DataFrame({'a': a});
    *
-   * const bc = new SQLContext();
-   * bc.send(0, 0, "message_1", df);
+   * const sqlContext = new SQLContext();
+   * sqlContext.send(0, 0, "message_1", df);
    * ```
    */
   public send(id: number, ctxToken: number, messageId: string, df: DataFrame) {
@@ -328,9 +328,9 @@ export class SQLContext {
    * const a  = Series.new([1, 2, 3]);
    * const df = new DataFrame({'a': a});
    *
-   * const bc = new SQLContext();
-   * bc.send(0, 0, "message_1", df);
-   * await bc.pull("message_1"); // [1, 2, 3]
+   * const sqlContext = new SQLContext();
+   * sqlContext.send(0, 0, "message_1", df);
+   * await sqlContext.pull("message_1"); // [1, 2, 3]
    * ```
    */
   async pull(messageId: string) {
