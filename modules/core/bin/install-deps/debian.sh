@@ -74,14 +74,14 @@ install_vscode_extensions() {
 [ -z "$(which code)" ]  && ask_before_install "Missing vscode. Install vscode (y/n)?" "install_vscode"
 [ -z "$(which clangd)" ] && ask_before_install "Missing clangd. Install clangd (y/n)?" "install_clangd"
 
+# 1. cuSpatial dependencies
+# 2. X11 dependencies
+# 3. node-canvas dependencies
+# 4. GLEW dependencies
 install_apt_deps jq software-properties-common \
-    # cuSpatial dependencies
     libgdal-dev \
-    # X11 dependencies
     libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev \
-    # node-canvas dependencies
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
-    # GLEW dependencies
     build-essential libxmu-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev
 
 if [ -n "$INSTALL_CMAKE" ]; then
