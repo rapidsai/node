@@ -25,19 +25,10 @@ if(NODE_RAPIDS_USE_SCCACHE)
     find_program(SCCACHE_PROGRAM_PATH sccache)
     if(SCCACHE_PROGRAM_PATH)
         message(STATUS "Using sccache: ${SCCACHE_PROGRAM_PATH}")
-        set(CCACHE_COMMAND CACHE STRING "${SCCACHE_PROGRAM_PATH}")
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${SCCACHE_PROGRAM_PATH}")
         if(DEFINED ENV{SCCACHE_DIR})
             message(STATUS "Using sccache directory: $ENV{SCCACHE_DIR}")
-            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${SCCACHE_PROGRAM_PATH}")
-        else()
-            execute_process(COMMAND node -p
-                            "require('@rapidsai/core').sccache_path"
-                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                            OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_SCCACHE_DIR
-                            OUTPUT_STRIP_TRAILING_WHITESPACE)
-            message(STATUS "Using sccache directory: ${NODE_RAPIDS_CMAKE_SCCACHE_DIR}")
-            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE
-                "SCCACHE_DIR=${NODE_RAPIDS_CMAKE_SCCACHE_DIR} ${SCCACHE_PROGRAM_PATH}")
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "SCCACHE_DIR=${SCCACHE_DIR} ${SCCACHE_PROGRAM_PATH}")
         endif(DEFINED ENV{SCCACHE_DIR})
     endif(SCCACHE_PROGRAM_PATH)
 endif(NODE_RAPIDS_USE_SCCACHE)

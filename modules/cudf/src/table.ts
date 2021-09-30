@@ -22,6 +22,7 @@ import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {TypeMap} from './types/mappings';
+import {ReadParquetOptions} from './types/parquet';
 
 export type ToArrowMetadata = [string | number, ToArrowMetadata[]?];
 
@@ -46,6 +47,14 @@ interface TableConstructor {
    */
   readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>):
     {names: (keyof T)[], table: Table};
+
+  /**
+   * Reads an Apache Parquet dataset into a set of columns.
+   *
+   * @param options Settings for controlling reading behavior.
+   * @return The CSV data as a Table and a list of column names.
+   */
+  readParquet(options: ReadParquetOptions): {names: string[], table: Table};
 
   /**
    * Adapts an arrow Table in IPC format into a set of columns.

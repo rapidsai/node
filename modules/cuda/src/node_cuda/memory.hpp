@@ -44,6 +44,15 @@ struct Memory {
   inline uint8_t* base() const { return reinterpret_cast<uint8_t*>(data_); }
   inline uintptr_t ptr() const { return reinterpret_cast<uintptr_t>(data_); }
 
+  /**
+   * @brief Check whether an Napi value is an instance of `Memory`.
+   *
+   * @param val The Napi::Value to test
+   * @return true if the value is a `Memory`
+   * @return false if the value is not a `Memory`
+   */
+  static bool IsInstance(Napi::Value const& value);
+
  protected:
   Napi::Value device(Napi::CallbackInfo const& info) { return CPPToNapi(info)(device()); }
   Napi::Value ptr(Napi::CallbackInfo const& info) { return CPPToNapi(info)(ptr()); }
@@ -71,6 +80,7 @@ struct Memory {
  *
  */
 struct PinnedMemory : public EnvLocalObjectWrap<PinnedMemory>, public Memory {
+  using EnvLocalObjectWrap<PinnedMemory>::IsInstance;
   /**
    * @brief Initialize and export the PinnedMemory JavaScript constructor and prototype.
    *
@@ -86,15 +96,6 @@ struct PinnedMemory : public EnvLocalObjectWrap<PinnedMemory>, public Memory {
    * @param size Size in bytes to allocate in pinned host memory.
    */
   static wrapper_t New(Napi::Env const& env, size_t size);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `PinnedMemory`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `PinnedMemory`
-   * @return false if the value is not a `PinnedMemory`
-   */
-  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
    * @brief Constructs a new PinnedMemory instance.
@@ -119,6 +120,7 @@ struct PinnedMemory : public EnvLocalObjectWrap<PinnedMemory>, public Memory {
  *
  */
 struct DeviceMemory : public EnvLocalObjectWrap<DeviceMemory>, public Memory {
+  using EnvLocalObjectWrap<DeviceMemory>::IsInstance;
   /**
    * @brief Initialize and export the DeviceMemory JavaScript constructor and prototype.
    *
@@ -134,15 +136,6 @@ struct DeviceMemory : public EnvLocalObjectWrap<DeviceMemory>, public Memory {
    * @param size Size in bytes to allocate in device memory.
    */
   static wrapper_t New(Napi::Env const& env, std::size_t size);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `DeviceMemory`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `DeviceMemory`
-   * @return false if the value is not a `DeviceMemory`
-   */
-  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
    * @brief Constructs a new DeviceMemory instance.
@@ -179,6 +172,7 @@ struct DeviceMemory : public EnvLocalObjectWrap<DeviceMemory>, public Memory {
  *
  */
 struct ManagedMemory : public EnvLocalObjectWrap<ManagedMemory>, public Memory {
+  using EnvLocalObjectWrap<ManagedMemory>::IsInstance;
   /**
    * @brief Initialize and export the ManagedMemory JavaScript constructor and prototype.
    *
@@ -194,15 +188,6 @@ struct ManagedMemory : public EnvLocalObjectWrap<ManagedMemory>, public Memory {
    * @param size Size in bytes to allocate in CUDA managed memory.
    */
   static wrapper_t New(Napi::Env const& env, size_t size);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `ManagedMemory`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `ManagedMemory`
-   * @return false if the value is not a `ManagedMemory`
-   */
-  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
    * @brief Constructs a new ManagedMemory instance.
@@ -227,6 +212,7 @@ struct ManagedMemory : public EnvLocalObjectWrap<ManagedMemory>, public Memory {
  *
  */
 struct IpcMemory : public EnvLocalObjectWrap<IpcMemory>, public Memory {
+  using EnvLocalObjectWrap<IpcMemory>::IsInstance;
   /**
    * @brief Initialize and export the IPCMemory JavaScript constructor and prototype.
    *
@@ -242,15 +228,6 @@ struct IpcMemory : public EnvLocalObjectWrap<IpcMemory>, public Memory {
    * @param handle Handle to the device memory shared by another process.
    */
   static wrapper_t New(Napi::Env const& env, cudaIpcMemHandle_t const& handle);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `IpcMemory`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `IpcMemory`
-   * @return false if the value is not a `IpcMemory`
-   */
-  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
    * @brief Constructs a new IPCMemory instance.
@@ -281,6 +258,7 @@ struct IpcMemory : public EnvLocalObjectWrap<IpcMemory>, public Memory {
 };
 
 struct IpcHandle : public EnvLocalObjectWrap<IpcHandle> {
+  using EnvLocalObjectWrap<IpcHandle>::IsInstance;
   /**
    * @brief Initialize and export the IpcHandle JavaScript constructor and prototype.
    *
@@ -296,15 +274,6 @@ struct IpcHandle : public EnvLocalObjectWrap<IpcHandle> {
    * @param dmem Device memory for which to create an IPC memory handle.
    */
   static wrapper_t New(Napi::Env const& env, DeviceMemory const& dmem);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `IpcHandle`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `IpcHandle`
-   * @return false if the value is not a `IpcHandle`
-   */
-  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
    * @brief Constructs a new IpcHandle instance.
@@ -338,6 +307,7 @@ struct IpcHandle : public EnvLocalObjectWrap<IpcHandle> {
  *
  */
 struct MappedGLMemory : public EnvLocalObjectWrap<MappedGLMemory>, public Memory {
+  using EnvLocalObjectWrap<MappedGLMemory>::IsInstance;
   /**
    * @brief Initialize and export the MappedGLMemory JavaScript constructor and prototype.
    *
@@ -353,15 +323,6 @@ struct MappedGLMemory : public EnvLocalObjectWrap<MappedGLMemory>, public Memory
    * @param resource The registered CUDA Graphics Resource for an OpenGL buffer.
    */
   static wrapper_t New(Napi::Env const& env, cudaGraphicsResource_t resource);
-
-  /**
-   * @brief Check whether an Napi value is an instance of `MappedGLMemory`.
-   *
-   * @param val The Napi::Value to test
-   * @return true if the value is a `MappedGLMemory`
-   * @return false if the value is not a `MappedGLMemory`
-   */
-  inline static bool is_instance(Napi::Value const& value) { return IsInstance(value); }
 
   /**
    * @brief Construct a new MappedGLMemory instance from JavaScript.
