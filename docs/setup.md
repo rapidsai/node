@@ -25,6 +25,9 @@ See our [`docker`, `docker-compose`, and `nvidia-container-runtime` installation
 To build and run the development container, issue the following commands:
 
 ```bash
+# Make a local .env file of var overrides for the containers and build
+cp .env.sample .env
+
 # Build the development container
 yarn docker:build:devel
 
