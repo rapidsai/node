@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryData} from '@nvidia/cuda';
+import {MemoryData, MemoryView, Uint8Buffer} from '@nvidia/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
@@ -42,6 +42,7 @@ import {
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
+import {ReadParquetOptions} from './types/parquet';
 
 export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
@@ -116,12 +117,33 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Read an Apache Parquet from disk and create a cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = DataFrame.readParquet({
+   *  sources: ['test'],
+   * })
+   * ```
+   */
+  public static readParquet(options: ReadParquetOptions) {
+    const {names, table} = Table.readParquet(options);
+    return new DataFrame(new ColumnAccessor(
+      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {})));
+  }
+
+  /**
    * Adapts an Arrow Table in IPC format into a DataFrame.
    *
    * @param memory A buffer holding Arrow table
    * @return The Arrow data as a DataFrame
    */
   public static fromArrow<T extends TypeMap>(memory: DeviceBuffer|MemoryData): DataFrame<T> {
+    if (memory instanceof ArrayBuffer || ArrayBuffer.isView(memory)) {
+      memory = new Uint8Buffer(memory);
+    }
+    if (memory instanceof MemoryView) { memory = memory.buffer; }
     const {names, table} = Table.fromArrow(memory);
     return new DataFrame(new ColumnAccessor(names.reduce(
       (map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {} as ColumnsMap<T>)));

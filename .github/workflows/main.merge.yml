@@ -160,16 +160,16 @@ jobs:
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
           tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf-${{ env.ARCH }}
-      - name: Build runtime blazingsql
+      - name: Build runtime sql
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          file: dockerfiles/runtime/blazingsql.Dockerfile
+          file: dockerfiles/runtime/sql.Dockerfile
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-build-${{ env.ARCH }}"
-          tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-blazingsql-${{ env.ARCH }}
+          tags: ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node-${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql-${{ env.ARCH }}
       - name: Build runtime cuml
         uses: docker/build-push-action@v2
         with:

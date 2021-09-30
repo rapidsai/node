@@ -18,6 +18,7 @@
 #include <cudf/io/csv.hpp>
 #include <cudf/io/datasource.hpp>
 #include <cudf/io/types.hpp>
+#include <node_cudf/utilities/metadata.hpp>
 
 namespace nv {
 
@@ -38,6 +39,9 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
   };
   auto long_opt = [&](std::string const& key) {
     return has_opt(key) ? options.Get(key).ToNumber().Int32Value() : -1;
+  };
+  auto byte_opt = [&](std::string const& key) {
+    return has_opt(key) ? options.Get(key).ToNumber() : 0;
   };
   auto bool_opt = [&](std::string const& key, bool default_val) {
     return has_opt(key) ? options.Get(key).ToBoolean() == true : default_val;
@@ -100,8 +104,8 @@ cudf::io::csv_reader_options make_reader_options(Napi::Object const& options,
   std::tie(names, types) = names_and_types("dataTypes");
 
   auto opts = std::move(cudf::io::csv_reader_options::builder(source)
-                          .byte_range_offset(0)
-                          .byte_range_size(0)
+                          .byte_range_offset(byte_opt("byteOffset"))
+                          .byte_range_size(byte_opt("byteRange"))
                           .compression(compression_type("compression"))
                           .mangle_dupe_cols(bool_opt("renameDuplicateColumns", true))
                           .nrows(long_opt("numRows"))
@@ -203,28 +207,12 @@ std::vector<cudf::io::host_buffer> get_host_buffers(std::vector<Span<char>> cons
   return buffers;
 }
 
-Napi::Array get_output_names(Napi::Env const& env, cudf::io::table_with_metadata const& result) {
-  auto const& column_names = result.metadata.column_names;
-  auto names               = Napi::Array::New(env, column_names.size());
-  for (std::size_t i = 0; i < column_names.size(); ++i) { names.Set(i, column_names[i]); }
-  return names;
-}
-
-Napi::Array get_output_cols(Napi::Env const& env, cudf::io::table_with_metadata const& result) {
-  auto contents = result.tbl->release();
-  auto columns  = Napi::Array::New(env, contents.size());
-  for (std::size_t i = 0; i < contents.size(); ++i) {
-    columns.Set(i, Column::New(env, std::move(contents[i]))->Value());
-  }
-  return columns;
-}
-
 Napi::Value read_csv_files(Napi::Object const& options, std::vector<std::string> const& sources) {
   auto env    = options.Env();
   auto result = cudf::io::read_csv(make_reader_options(options, cudf::io::source_info{sources}));
   auto output = Napi::Object::New(env);
-  output.Set("names", get_output_names(env, result));
-  output.Set("table", Table::New(env, get_output_cols(env, result)));
+  output.Set("names", get_output_names_from_metadata(env, result));
+  output.Set("table", Table::New(env, get_output_cols_from_metadata(env, result)));
   return output;
 }
 
@@ -233,8 +221,8 @@ Napi::Value read_csv_strings(Napi::Object const& options, std::vector<Span<char>
   auto result = cudf::io::read_csv(
     make_reader_options(options, cudf::io::source_info{get_host_buffers(sources)}));
   auto output = Napi::Object::New(env);
-  output.Set("names", get_output_names(env, result));
-  output.Set("table", Table::New(env, get_output_cols(env, result)));
+  output.Set("names", get_output_names_from_metadata(env, result));
+  output.Set("table", Table::New(env, get_output_cols_from_metadata(env, result)));
   return output;
 }
 
