@@ -15,7 +15,7 @@
 // limitations under the License.
 
 module.exports = (glfwOptions = {
-  title: 'Scene Graph Layer Demo',
+  title: 'SceneGraph Layer Demo',
   transparent: false
 }) => {
   return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.js', {
