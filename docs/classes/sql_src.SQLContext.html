@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>BlazingContext | RAPIDS</title>
+	<title>SQLContext | RAPIDS</title>
 	<meta name="description" content="Documentation for RAPIDS">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -53,13 +53,13 @@
 					<a href="../modules.html">RAPIDS</a>
 				</li>
 				<li>
-					<a href="../modules/blazingsql_src.html">blazingsql/src</a>
+					<a href="../modules/sql_src.html">sql/src</a>
 				</li>
 				<li>
-					<a href="blazingsql_src.BlazingContext.html">BlazingContext</a>
+					<a href="sql_src.SQLContext.html">SQLContext</a>
 				</li>
 			</ul>
-			<h1>Class BlazingContext</h1>
+			<h1>Class SQLContext</h1>
 		</div>
 	</div>
 </header>
@@ -70,7 +70,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">BlazingContext</span>
+						<span class="target">SQLContext</span>
 					</li>
 				</ul>
 			</section>
@@ -81,19 +81,26 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="sql_src.SQLContext.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="sql_src.SQLContext.html#context" class="tsd-kind-icon">context</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="blazingsql_src.BlazingContext.html#createTable" class="tsd-kind-icon">create<wbr>Table</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#describeTable" class="tsd-kind-icon">describe<wbr>Table</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#dropTable" class="tsd-kind-icon">drop<wbr>Table</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#explain" class="tsd-kind-icon">explain</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#listTables" class="tsd-kind-icon">list<wbr>Tables</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#pullFromCache" class="tsd-kind-icon">pull<wbr>From<wbr>Cache</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="blazingsql_src.BlazingContext.html#sql" class="tsd-kind-icon">sql</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#createTable" class="tsd-kind-icon">create<wbr>Table</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#describeTable" class="tsd-kind-icon">describe<wbr>Table</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#dropTable" class="tsd-kind-icon">drop<wbr>Table</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#explain" class="tsd-kind-icon">explain</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#listTables" class="tsd-kind-icon">list<wbr>Tables</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#pull" class="tsd-kind-icon">pull</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#send" class="tsd-kind-icon">send</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#sql" class="tsd-kind-icon">sql</a></li>
 							</ul>
 						</section>
 					</div>
@@ -105,13 +112,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Blazing<wbr>Context<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ContextProps</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="blazingsql_src.BlazingContext.html" class="tsd-signature-type" data-tsd-kind="Class">BlazingContext</a></li>
+						<li class="tsd-signature tsd-kind-icon">new SQLContext<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ContextProps</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="sql_src.SQLContext.html" class="tsd-signature-type" data-tsd-kind="Class">SQLContext</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2b8a20b/modules/blazingsql/src/blazingcontext.ts#L46">modules/blazingsql/src/blazingcontext.ts:46</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2adf616/modules/sql/src/context.ts#L45">modules/sql/src/context.ts:45</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -120,51 +127,58 @@
 									<h5>options: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ContextProps</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = {}</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="blazingsql_src.BlazingContext.html" class="tsd-signature-type" data-tsd-kind="Class">BlazingContext</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="sql_src.SQLContext.html" class="tsd-signature-type" data-tsd-kind="Class">SQLContext</a></h4>
 						</li>
 					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="context" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> context</h3>
+					<div class="tsd-signature tsd-kind-icon">context<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Context</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rapidsai/node/blob/2adf616/modules/sql/src/context.ts#L38">modules/sql/src/context.ts:38</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="createTable" class="tsd-anchor"></a>
 					<h3>create<wbr>Table</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Table&lt;T&gt;<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, input<span class="tsd-signature-symbol">: </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Table<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, input<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2b8a20b/modules/blazingsql/src/blazingcontext.ts#L102">modules/blazingsql/src/blazingcontext.ts:102</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2adf616/modules/sql/src/context.ts#L98">modules/sql/src/context.ts:98</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Create a BlazingSQL table to be used for future queries.</p>
+									<p>Create a SQL table to be used for future queries.</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
 									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
-<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">BlazingContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/blazingsql&#039;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]});</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">b</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">]});</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">a</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;b&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">b</span><span style="color: #000000">});</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bc</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">BlazingContext</span><span style="color: #000000">();</span>
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
 </code></pre>
 									</dd>
 								</dl>
 							</div>
-							<h4 class="tsd-type-parameters-title">Type parameters</h4>
-							<ul class="tsd-type-parameters">
-								<li>
-									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#TypeMap" class="tsd-signature-type" data-tsd-kind="Type alias">TypeMap</a></h4>
-								</li>
-							</ul>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -174,7 +188,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>input: <a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>input: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>Data source for the table</p>
 									</div>
@@ -194,7 +208,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2b8a20b/modules/blazingsql/src/blazingcontext.ts#L187">modules/blazingsql/src/blazingcontext.ts:187</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2adf616/modules/sql/src/context.ts#L184">modules/sql/src/context.ts:184</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -204,14 +218,14 @@
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
 									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
-<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">BlazingContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/blazingsql&#039;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]});</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">a</span><span style="color: #000000">});</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bc</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">BlazingContext</span><span style="color: #000000">();</span>
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">describeTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// {&#039;a&#039;: Int32}</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">describeTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// {&#039;a&#039;: Int32}</span>
 </code></pre>
 									</dd>
 								</dl>
@@ -236,26 +250,26 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2b8a20b/modules/blazingsql/src/blazingcontext.ts#L141">modules/blazingsql/src/blazingcontext.ts:141</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2adf616/modules/sql/src/context.ts#L139">modules/sql/src/context.ts:139</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Drop a BlazingSQL table from BlazingContext memory.</p>
+									<p>Drop a SQL table from SQLContext memory.</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
 									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
-<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">BlazingContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/blazingsql&#039;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]});</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">b</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">]});</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">a</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;b&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">b</span><span style="color: #000000">});</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bc</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">BlazingContext</span><span style="color: #000000">();</span>
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">sql</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SELECT a FROM test_table&#039;</span><span style="color: #000000">);</span>
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">dropTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">sql</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SELECT a FROM test_table&#039;</span><span style="color: #000000">);</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">dropTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
 </code></pre>
 									</dd>
 								</dl>
@@ -283,7 +297,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2b8a20b/modules/blazingsql/src/blazingcontext.ts#L275">modules/blazingsql/src/blazingcontext.ts:275</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2adf616/modules/sql/src/context.ts#L279">modules/sql/src/context.ts:279</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -292,17 +306,17 @@
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
-									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">DataFrame</span><span style="color: #000000"> </span><span style="color: #001080">from</span><span style="color: #000000"> &#039;@</span><span style="color: #001080">rapidsai</span><span style="color: #000000">/</span><span style="color: #001080">cudf</span><span style="color: #000000">&#039;;</span>
-<span style="color: #001080">import</span><span style="color: #000000"> {</span><span style="color: #001080">BlazingContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/blazingsql&#039;</span><span style="color: #000000">;</span>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">DataFrame</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]);</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">a</span><span style="color: #000000">});</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bc</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">BlazingContext</span><span style="color: #000000">();</span>
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
 
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">explain</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SELECT a FROM test_table&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// BindableTableScan(table=[[main, test_table]],</span>
-<span style="color: #001080">aliases</span><span style="color: #000000">=[[</span><span style="color: #001080">a</span><span style="color: #000000">]])</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">explain</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SELECT a FROM test_table&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// BindableTableScan(table=[[main,</span>
+<span style="color: #001080">test_table</span><span style="color: #000000">]], </span><span style="color: #001080">aliases</span><span style="color: #000000">=[[</span><span style="color: #001080">a</span><span style="color: #000000">]])</span>
 </code></pre>
 									</dd>
 								</dl>
@@ -336,7 +350,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2b8a20b/modules/blazingsql/src/blazingcontext.ts#L169">modules/blazingsql/src/blazingcontext.ts:169</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2adf616/modules/sql/src/context.ts#L166">modules/sql/src/context.ts:166</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -346,14 +360,14 @@
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
 									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
-<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">BlazingContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/blazingsql&#039;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]});</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">a</span><span style="color: #000000">});</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bc</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">BlazingContext</span><span style="color: #000000">();</span>
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">listTables</span><span style="color: #000000">(); </span><span style="color: #008000">// [&#039;test_table&#039;]</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">listTables</span><span style="color: #000000">(); </span><span style="color: #008000">// [&#039;test_table&#039;]</span>
 </code></pre>
 									</dd>
 								</dl>
@@ -363,33 +377,106 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="pullFromCache" class="tsd-anchor"></a>
-					<h3>pull<wbr>From<wbr>Cache</h3>
+					<a name="pull" class="tsd-anchor"></a>
+					<h3>pull</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">pull<wbr>From<wbr>Cache<span class="tsd-signature-symbol">(</span>messageId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">pull<span class="tsd-signature-symbol">(</span>messageId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2b8a20b/modules/blazingsql/src/blazingcontext.ts#L297">modules/blazingsql/src/blazingcontext.ts:297</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2adf616/modules/sql/src/context.ts#L336">modules/sql/src/context.ts:336</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Returns a DataFrame pulled from the Cache Machine caching system.</p>
+									<p>Returns a DataFrame pulled from the cache machine.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">DataFrame</span><span style="color: #000000"> </span><span style="color: #001080">from</span><span style="color: #000000"> &#039;@</span><span style="color: #001080">rapidsai</span><span style="color: #000000">/</span><span style="color: #001080">cudf</span><span style="color: #000000">&#039;;</span>
+<span style="color: #001080">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">a</span><span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">send</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;message_1&quot;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
+<span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">pull</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;message_1&quot;</span><span style="color: #000000">); </span><span style="color: #008000">// [1, 2, 3]</span>
+</code></pre>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>messageId: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>The message id given when sending over the results via UCX</p>
+										<p>The message id given when initially sending the DataFrame to the cache</p>
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="send" class="tsd-anchor"></a>
+					<h3>send</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">send<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, ctxToken<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, messageId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, df<span class="tsd-signature-symbol">: </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2adf616/modules/sql/src/context.ts#L314">modules/sql/src/context.ts:314</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sends a DataFrame to the cache machine.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">DataFrame</span><span style="color: #000000"> </span><span style="color: #001080">from</span><span style="color: #000000"> &#039;@</span><span style="color: #001080">rapidsai</span><span style="color: #000000">/</span><span style="color: #001080">cudf</span><span style="color: #000000">&#039;;</span>
+<span style="color: #001080">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">a</span><span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">send</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;message_1&quot;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>id: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The id of the destination SQLContext</p>
+									</div>
+								</li>
+								<li>
+									<h5>ctxToken: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The token associated with the messageId</p>
+									</div>
+								</li>
+								<li>
+									<h5>messageId: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The id used to pull the table on the destination SQLContext</p>
+									</div>
+								</li>
+								<li>
+									<h5>df: <a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -403,26 +490,26 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2b8a20b/modules/blazingsql/src/blazingcontext.ts#L216">modules/blazingsql/src/blazingcontext.ts:216</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/2adf616/modules/sql/src/context.ts#L213">modules/sql/src/context.ts:213</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Query a BlazingSQL table and return the result as a DataFrame.</p>
+									<p>Query a SQL table and return the result as a DataFrame.</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
 									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
-<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">BlazingContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/blazingsql&#039;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]});</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">b</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">]});</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">a</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;b&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">b</span><span style="color: #000000">});</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bc</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">BlazingContext</span><span style="color: #000000">();</span>
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
 
-<span style="color: #001080">bc</span><span style="color: #000000">.</span><span style="color: #795E26">sql</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SELECT a FROM test_table&#039;</span><span style="color: #000000">).</span><span style="color: #795E26">result</span><span style="color: #000000">(); </span><span style="color: #008000">// [1, 2, 3]</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">sql</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SELECT a FROM test_table&#039;</span><span style="color: #000000">).</span><span style="color: #795E26">result</span><span style="color: #000000">(); </span><span style="color: #008000">// [1, 2, 3]</span>
 </code></pre>
 									</dd>
 								</dl>
@@ -454,9 +541,6 @@
 					<li class=" ">
 						<a href="../modules.html">Modules</a>
 					</li>
-					<li class="current tsd-kind-module">
-						<a href="../modules/blazingsql_src.html">blazingsql/src</a>
-					</li>
 					<li class=" tsd-kind-module">
 						<a href="../modules/cuda_src.html">cuda/src</a>
 					</li>
@@ -478,6 +562,9 @@
 					<li class=" tsd-kind-module">
 						<a href="../modules/rmm_src.html">rmm/src</a>
 					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/sql_src.html">sql/src</a>
+					</li>
 					<li class=" tsd-kind-module">
 						<a href="../modules/webgl_src.html">webgl/src</a>
 					</li>
@@ -485,44 +572,53 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="sql_src.SQLCluster.html" class="tsd-kind-icon">SQLCluster</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class tsd-parent-kind-module">
-						<a href="blazingsql_src.BlazingContext.html" class="tsd-kind-icon">Blazing<wbr>Context</a>
+						<a href="sql_src.SQLContext.html" class="tsd-kind-icon">SQLContext</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="blazingsql_src.BlazingContext.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="sql_src.SQLContext.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
-								<a href="blazingsql_src.BlazingContext.html#createTable" class="tsd-kind-icon">create<wbr>Table</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="blazingsql_src.BlazingContext.html#describeTable" class="tsd-kind-icon">describe<wbr>Table</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="sql_src.SQLContext.html#context" class="tsd-kind-icon">context</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="blazingsql_src.BlazingContext.html#dropTable" class="tsd-kind-icon">drop<wbr>Table</a>
+								<a href="sql_src.SQLContext.html#createTable" class="tsd-kind-icon">create<wbr>Table</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="blazingsql_src.BlazingContext.html#explain" class="tsd-kind-icon">explain</a>
+								<a href="sql_src.SQLContext.html#describeTable" class="tsd-kind-icon">describe<wbr>Table</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="blazingsql_src.BlazingContext.html#listTables" class="tsd-kind-icon">list<wbr>Tables</a>
+								<a href="sql_src.SQLContext.html#dropTable" class="tsd-kind-icon">drop<wbr>Table</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="blazingsql_src.BlazingContext.html#pullFromCache" class="tsd-kind-icon">pull<wbr>From<wbr>Cache</a>
+								<a href="sql_src.SQLContext.html#explain" class="tsd-kind-icon">explain</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="blazingsql_src.BlazingContext.html#sql" class="tsd-kind-icon">sql</a>
+								<a href="sql_src.SQLContext.html#listTables" class="tsd-kind-icon">list<wbr>Tables</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="sql_src.SQLContext.html#pull" class="tsd-kind-icon">pull</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="sql_src.SQLContext.html#send" class="tsd-kind-icon">send</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="sql_src.SQLContext.html#sql" class="tsd-kind-icon">sql</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
-						<a href="../modules/blazingsql_src.html#UcpContext" class="tsd-kind-icon">Ucp<wbr>Context</a>
+						<a href="../modules/sql_src.html#UcpContext" class="tsd-kind-icon">Ucp<wbr>Context</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-module">
-						<a href="../modules/blazingsql_src.html#UcpContext-1" class="tsd-kind-icon">Ucp<wbr>Context</a>
+						<a href="../modules/sql_src.html#UcpContext-1" class="tsd-kind-icon">Ucp<wbr>Context</a>
 					</li>
 				</ul>
 			</nav>
@@ -545,6 +641,7 @@
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
 				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">
