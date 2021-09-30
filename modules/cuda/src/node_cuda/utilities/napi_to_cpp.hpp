@@ -72,7 +72,7 @@ inline NapiToCPP::operator cudaIpcMemHandle_t() const {
     for (size_t i = 0; i < ary.Length(); ++i) { buf.Set(i, ary.Get(i)); }
     return *reinterpret_cast<cudaIpcMemHandle_t*>(buf.ArrayBuffer().Data());
   }
-  if (IpcHandle::is_instance(val)) { return *(IpcHandle::Unwrap(ToObject())->handle()); }
+  if (IpcHandle::IsInstance(val)) { return *(IpcHandle::Unwrap(ToObject())->handle()); }
   return *reinterpret_cast<cudaIpcMemHandle_t*>(this->operator char*());
 }
 
@@ -133,43 +133,43 @@ inline NapiToCPP::operator cudaChannelFormatDesc() const {
 
 template <>
 inline NapiToCPP::operator Device() const {
-  if (Device::is_instance(val)) { return *Device::Unwrap(val.ToObject()); }
+  if (Device::IsInstance(val)) { return *Device::Unwrap(val.ToObject()); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a Device instance");
 }
 
 template <>
 inline NapiToCPP::operator PinnedMemory() const {
-  if (PinnedMemory::is_instance(val)) { return *PinnedMemory::Unwrap(val.ToObject()); }
+  if (PinnedMemory::IsInstance(val)) { return *PinnedMemory::Unwrap(val.ToObject()); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a PinnedMemory instance");
 }
 
 template <>
 inline NapiToCPP::operator DeviceMemory() const {
-  if (DeviceMemory::is_instance(val)) { return *DeviceMemory::Unwrap(val.ToObject()); }
+  if (DeviceMemory::IsInstance(val)) { return *DeviceMemory::Unwrap(val.ToObject()); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a DeviceMemory instance");
 }
 
 template <>
 inline NapiToCPP::operator ManagedMemory() const {
-  if (ManagedMemory::is_instance(val)) { return *ManagedMemory::Unwrap(val.ToObject()); }
+  if (ManagedMemory::IsInstance(val)) { return *ManagedMemory::Unwrap(val.ToObject()); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a ManagedMemory instance");
 }
 
 template <>
 inline NapiToCPP::operator IpcMemory() const {
-  if (IpcMemory::is_instance(val)) { return *IpcMemory::Unwrap(val.ToObject()); }
+  if (IpcMemory::IsInstance(val)) { return *IpcMemory::Unwrap(val.ToObject()); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a IpcMemory instance");
 }
 
 template <>
 inline NapiToCPP::operator IpcHandle() const {
-  if (IpcHandle::is_instance(val)) { return std::move(*IpcHandle::Unwrap(val.ToObject())); }
+  if (IpcHandle::IsInstance(val)) { return std::move(*IpcHandle::Unwrap(val.ToObject())); }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a IpcHandle instance");
 }
 
 template <>
 inline NapiToCPP::operator MappedGLMemory() const {
-  if (MappedGLMemory::is_instance(val)) {
+  if (MappedGLMemory::IsInstance(val)) {
     return std::move(*MappedGLMemory::Unwrap(val.ToObject()));
   }
   NAPI_THROW(Napi::Error::New(val.Env()), "Expected value to be a MappedGLMemory instance");
