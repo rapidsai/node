@@ -135,7 +135,7 @@ ExecutionGraph::wrapper_t run_generate_graph(
   std::vector<int> file_types;
   std::vector<std::vector<std::map<std::string, std::string>>> uri_values;
 
-  table_schemas.reserve(table_views.size());
+  table_schemas.reserve(table_views.size() + schemas.Length());
   table_schema_cpp_arg_keys.reserve(table_views.size());
   table_schema_cpp_arg_values.reserve(table_views.size());
   files_all.reserve(table_views.size());
