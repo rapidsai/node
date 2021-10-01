@@ -94,7 +94,10 @@
 					<h2>Notebooks</h2>
 				</a>
 				<p>We&#39;ve included a container for launching <a href="https://nteract.io/desktop"><code>nteract/desktop</code></a> with access to locally built <code>node-rapids</code> modules:</p>
-				<pre><code class="language-shell"><span style="color: #008000"># Build the development and nteract containers (only necessary once)</span>
+				<pre><code class="language-shell"><span style="color: #008000"># Make a local .env file of var overrides for the containers and build</span>
+<span style="color: #000000">cp .env.sample .env</span>
+
+<span style="color: #008000"># Build the development and nteract containers (only necessary once)</span>
 <span style="color: #000000">yarn docker:build:devel &amp;&amp; yarn docker:build:devel:nteract</span>
 
 <span style="color: #008000"># Compile the TypeScript and C++ modules inside the development container</span>
@@ -126,7 +129,7 @@
 				<a href="#what-is-the-env-file-used-for-and-what-variables-can-be-set-in-it" id="what-is-the-env-file-used-for-and-what-variables-can-be-set-in-it" style="color: inherit; text-decoration: none;">
 					<h3>What is the <code>.env</code> file used for and what variables can be set in it?</h3>
 				</a>
-				<p>The <code>.env</code> file is used by the <a href="https://github.com/rapidsai/node/blob/main/docker-compose.devel.yml">docker-compose.yml</a> file when building and running the development containers (i.e. <code>yarn docker:build:devel</code> and <code>yarn docker:run:devel</code>). Any variables in the <a href="https://github.com/rapidsai/node/blob/main/docker-compose.devel.yml">docker-compose.yml</a> file can be set in the <code>.env</code> file. The <a href="https://github.com/rapidsai/node/blob/main/.env.sample">.env.sample</a> file includes some common variables that may be set in the <code>.env</code> file.</p>
+				<p>The <code>.env</code> file is used by the <a href="https://github.com/rapidsai/node/blob/main/docker-compose.devel.yml">docker-compose.*.yml</a> files when building and running the containers (i.e. <code>yarn docker:{build,run}:{devel,runtime}</code>). Any variables in the <a href="https://github.com/rapidsai/node/blob/main/docker-compose.devel.yml">docker-compose.*.yml</a> files can be set in the <code>.env</code> file. The <a href="https://github.com/rapidsai/node/blob/main/.env.sample">.env.sample</a> file includes some common variables that may be set in the <code>.env</code> file.</p>
 				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
 					<h2>License</h2>
 				</a>
