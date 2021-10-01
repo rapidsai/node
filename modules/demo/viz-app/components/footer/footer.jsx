@@ -16,7 +16,7 @@ export default function Footer() {
   return (
     <div style={{ padding: 10 }}>
       <p style={{ color: "white" }}>
-        Powered by <a href="https://developer.nvidia.com/rapids">RAPIDS</a> | <a href="https://docs.rapids.ai/">Docs</a> | <a href="https://github.com/rapidsai">GitHub</a>
+        Powered by <a href="https://rapids.ai/">RAPIDS</a> | <a href="https://rapidsai.github.io/node/">Docs</a> | <a href="https://github.com/rapidsai/node">GitHub</a>
       </p>
     </div>
   )
