@@ -39,12 +39,10 @@ function(find_and_configure_rmm VERSION)
                                 "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
         _fix_rapids_cmake_dir()
     endif()
-
     # Make sure consumers of our libs can see rmm::rmm
     _fix_cmake_global_defaults(rmm::rmm)
     _fix_cmake_global_defaults(rmm::Thrust)
     _fix_cmake_global_defaults(rmm::spdlog_header_only)
-
 endfunction()
 
 find_and_configure_rmm(${RMM_VERSION})

@@ -36,6 +36,9 @@ The `node-rapids` modules are not yet available on npm. They must be built local
 We've included a container for launching [`nteract/desktop`](https://nteract.io/desktop) with access to locally built `node-rapids` modules:
 
 ```shell
+# Make a local .env file of var overrides for the containers and build
+cp .env.sample .env
+
 # Build the development and nteract containers (only necessary once)
 yarn docker:build:devel && yarn docker:build:devel:nteract
 
@@ -69,7 +72,7 @@ You can review [BINDINGS.md](https://github.com/rapidsai/node/blob/main/BINDINGS
 
 ### What is the `.env` file used for and what variables can be set in it?
 
-The `.env` file is used by the [docker-compose.yml](https://github.com/rapidsai/node/blob/main/docker-compose.devel.yml) file when building and running the development containers (i.e. `yarn docker:build:devel` and `yarn docker:run:devel`). Any variables in the [docker-compose.yml](https://github.com/rapidsai/node/blob/main/docker-compose.devel.yml) file can be set in the `.env` file. The [.env.sample](https://github.com/rapidsai/node/blob/main/.env.sample) file includes some common variables that may be set in the `.env` file.
+The `.env` file is used by the [docker-compose.*.yml](https://github.com/rapidsai/node/blob/main/docker-compose.devel.yml) files when building and running the containers (i.e. `yarn docker:{build,run}:{devel,runtime}`). Any variables in the [docker-compose.*.yml](https://github.com/rapidsai/node/blob/main/docker-compose.devel.yml) files can be set in the `.env` file. The [.env.sample](https://github.com/rapidsai/node/blob/main/.env.sample) file includes some common variables that may be set in the `.env` file.
 
 ## License
 

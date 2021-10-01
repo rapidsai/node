@@ -35,17 +35,21 @@ function(find_and_configure_raft VERSION)
         _get_update_disconnected_state(raft ${VERSION} UPDATE_DISCONNECTED)
         CPMAddPackage(NAME raft
             VERSION        ${VERSION}
-            GIT_REPOSITORY https://github.com/rapidsai/raft.git
-            GIT_TAG        branch-${MAJOR_AND_MINOR}
+            # GIT_REPOSITORY https://github.com/rapidsai/raft.git
+            # GIT_TAG        branch-${MAJOR_AND_MINOR}
+            GIT_REPOSITORY https://github.com/trxcllnt/raft.git
+            GIT_TAG        fix/node-rapids-21.10
             GIT_SHALLOW    TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR  cpp
             OPTIONS        "BUILD_TESTS OFF"
-        )
+                           "RAFT_USE_FAISS_STATIC OFF"
+            )
         _fix_rapids_cmake_dir()
     endif()
     # Make sure consumers of our libs can see raft::raft
-    _fix_cmake_global_defaults(raft::raft)
+    # _fix_cmake_global_defaults(raft::raft)
+
     # Make these -isystem so -Werror doesn't fail their builds
     _set_interface_include_dirs_as_system(raft::raft)
 endfunction()
