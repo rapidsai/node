@@ -148,7 +148,7 @@ function centerOnBbox([minX, maxX, minY, maxY]) {
     return {
       minZoom: Number.NEGATIVE_INFINITY,
       maxZoom: Number.POSITIVE_INFINITY,
-      zoom: Math.log(Math.abs(zoom)) * Math.sign(zoom),
+      zoom: Math.log2(Math.abs(zoom)) * Math.sign(zoom),
       target: [minX + (width * .5), minY + (height * .5), 0],
     };
   }
