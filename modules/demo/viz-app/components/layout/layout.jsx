@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import Dashboard from "../../components/dashboard/dashboard";
+import styles from './layout.module.css'
+import CustomNavbar from '../navbar/navbar'
 
-export default function UMAP() {
+export default function Layout({ title, children, resetall, displayReset }) {
   return (
-    <Dashboard demoName={"UMAP Demo"} />
+    <>
+      <CustomNavbar title={title} resetall={resetall} displayReset={displayReset}></CustomNavbar>
+      <div className={styles.container}>
+        {children}
+      </div>
+    </>
   )
 }

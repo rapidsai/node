@@ -13,10 +13,16 @@
 // limitations under the License.
 
 import React from 'react';
-import Dashboard from "../../components/dashboard/dashboard";
+import Layout from '../layout/layout';
 
-export default function UMAP() {
-  return (
-    <Dashboard demoName={"UMAP Demo"} />
-  )
+export default class Dashboard extends React.Component {
+  render() {
+    const { demoName } = this.props;
+
+    return (
+      <Layout title={demoName}>
+
+      </Layout>
+    )
+  }
 }

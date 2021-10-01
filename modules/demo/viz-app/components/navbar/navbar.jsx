@@ -12,11 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import Dashboard from "../../components/dashboard/dashboard";
+import Navbar from 'react-bootstrap/Navbar';
+import styles from './navbar.module.css';
 
-export default function UMAP() {
-  return (
-    <Dashboard demoName={"UMAP Demo"} />
-  )
+export default function CustomNavbar({ title, resetall, displayReset }) {
+    return (
+        <Navbar bg="dark" variant="dark" className={styles.navbar}>
+            <Navbar.Brand>
+                <div className={styles.title}>
+                    {title}
+                </div>
+            </Navbar.Brand>
+        </Navbar >
+    )
 }

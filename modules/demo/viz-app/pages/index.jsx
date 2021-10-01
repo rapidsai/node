@@ -35,7 +35,7 @@ export default function Home() {
       <Row>
         {
           demos.map((demo) => (
-            <Col>
+            <Col key={demo['title']}>
               <DemoCard title={demo['title']} description={demo['description']} href={demo['href']} />
             </Col>
           ))
