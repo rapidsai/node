@@ -15,6 +15,7 @@
 import React from 'react';
 import Layout from '../layout/layout';
 import TempDemoView from '../temp-demo-view/temp-demo-view';
+import Footer from '../footer/footer';
 
 export default class DemoDashboard extends React.Component {
   render() {
@@ -23,6 +24,7 @@ export default class DemoDashboard extends React.Component {
     return (
       <Layout title={demoName}>
         <TempDemoView />
+        <Footer />
       </Layout>
     )
   }

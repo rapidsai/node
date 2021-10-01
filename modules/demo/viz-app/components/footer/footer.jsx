@@ -1,4 +1,4 @@
-/* Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -10,17 +10,14 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License. */
+// limitations under the License.
 
-html, #__next, .jumbotron {
-    background-color: #1a1a1a !important;
-}
-
-a {
-    color: rgb(207, 207, 207) !important;
-    text-decoration: underline !important;
-}
-
-a:hover {
-    color: rgb(172, 172, 172) !important;
+export default function Footer() {
+  return (
+    <div style={{ padding: 10 }}>
+      <p style={{ color: "white" }}>
+        Powered by <a href="https://developer.nvidia.com/rapids">RAPIDS</a> | <a href="https://docs.rapids.ai/">Docs</a> | <a href="https://github.com/rapidsai">GitHub</a>
+      </p>
+    </div>
+  )
 }
