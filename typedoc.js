@@ -11,6 +11,7 @@ const mergeOptions = (...opts) => Object.assign(
 module.exports = mergeOptions(loadOptions('modules/cuda'),
                               loadOptions('modules/rmm'),
                               loadOptions('modules/cudf'),
+                              loadOptions('modules/cuml'),
                               loadOptions('modules/cugraph'),
                               loadOptions('modules/cuspatial'),
                               loadOptions('modules/deck.gl'),

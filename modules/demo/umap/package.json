@@ -1,0 +1,35 @@
+{
+  "private": true,
+  "name": "@rapidsai/demo-umap",
+  "main": "index.js",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "bin": "index.js",
+  "scripts": {
+    "start": "node --experimental-vm-modules --trace-uncaught index.js",
+    "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
+  },
+  "dependencies": {
+    "@deck.gl/core": "8.5.8",
+    "@deck.gl/react": "8.5.8",
+    "@luma.gl/core": "8.5.4",
+    "@nvidia/cuda": "0.0.1",
+    "@nvidia/glfw": "0.0.1",
+    "@rapidsai/jsdom": "0.0.1",
+    "@rapidsai/cudf": "0.0.1",
+    "@rapidsai/cugraph": "0.0.1",
+    "@rapidsai/deck.gl": "0.0.1",
+    "ix": "4.4.1",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  },
+  "files": [
+    "src",
+    "index.js",
+    "package.json"
+  ]
+}
