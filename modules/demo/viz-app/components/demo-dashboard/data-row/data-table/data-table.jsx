@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export default function Footer() {
+import React from 'react';
+import styles from './data-table.module.css';
+import { Container } from 'react-bootstrap';
+
+export default function DataTable() {
   return (
-    <div style={{ padding: 10 }}>
-      <p style={{ color: "white" }}>
-        Powered by <a href="https://rapids.ai/">RAPIDS</a> | <a href="https://rapidsai.github.io/node/">Docs</a> | <a href="https://github.com/rapidsai/node">GitHub</a>
-      </p>
-    </div>
+    <Container className={styles.container}>
+      <p>Data Table goes here.</p>
+    </Container>
   )
 }

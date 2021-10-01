@@ -22,11 +22,6 @@ export default function Home() {
       title: 'UMAP',
       description: 'This is the description of the UMAP demo.',
       href: '/demo/umap'
-    },
-    {
-      title: 'Graph',
-      description: 'Here is some description about the graph...',
-      href: '/demo/Graph'
     }
   ];
 

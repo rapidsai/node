@@ -12,25 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import Layout from './layout/layout';
-import TempDemoView from './temp-demo-view/temp-demo-view';
-import DataRow from './data-row/data-row';
-import Footer from './footer/footer';
-import { Container } from 'react-bootstrap';
-
-export default class DemoDashboard extends React.Component {
-  render() {
-    const { demoName } = this.props;
-
-    return (
-      <Layout title={demoName}>
-        <TempDemoView />
-        <Container fluid style={{ paddingTop: 20 }}>
-          <DataRow />
-          <Footer />
-        </Container>
-      </Layout>
-    )
-  }
+export default function Footer() {
+  return (
+    <div>
+      <p style={{ color: "white" }}>
+        Powered by <a href="https://rapids.ai/">RAPIDS</a> | <a href="https://rapidsai.github.io/node/">Docs</a> | <a href="https://github.com/rapidsai/node">GitHub</a>
+      </p>
+    </div>
+  )
 }
