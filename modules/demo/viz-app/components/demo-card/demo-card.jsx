@@ -25,7 +25,7 @@ export default function DemoCard({ title, description, href }) {
           {description}
         </Card.Text>
         <Link href={href}>
-          <Button variant="primary">Start Demo</Button>
+          <Button variant="dark">Start Demo</Button>
         </Link>
       </Card.Body>
     </Card>
