@@ -65,6 +65,11 @@ list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
 include(ConfigureCXX)
 include(ConfigureCUDA)
 include(ConfigureNapi)
+
+if(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
+    include(ConfigureCUDF)
+endif()
+
 include(ConfigureCUML)
 
 ###################################################################################################
@@ -97,10 +102,6 @@ target_compile_options(${PROJECT_NAME}
                     "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CXX>:${NODE_RAPIDS_CMAKE_CXX_FLAGS}>>"
                     "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CUDA>:${NODE_RAPIDS_CMAKE_CUDA_FLAGS}>>"
 )
-
-if(NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-    include(ConfigureCUDF)
-endif()
 
 if(TARGET cudf::cudf)
     set(LIBCUDF_LIBRARY cudf::cudf)

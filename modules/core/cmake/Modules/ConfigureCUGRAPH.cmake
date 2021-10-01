@@ -33,20 +33,21 @@ function(find_and_configure_cugraph VERSION)
         _get_update_disconnected_state(cugraph ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cugraph
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
+            # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
+            # GIT_TAG             branch-${MAJOR_AND_MINOR}
+            GIT_REPOSITORY      https://github.com/trxcllnt/cugraph.git
+            GIT_TAG             fix/node-rapids-21.10
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
+                                "CUGRAPH_USE_FAISS_STATIC OFF"
         )
         _fix_rapids_cmake_dir()
     endif()
     # Make sure consumers of our libs can see cugraph::cugraph
     _fix_cmake_global_defaults(cugraph::cugraph)
-    # Make these -isystem so -Werror doesn't fail their builds
-    _set_interface_include_dirs_as_system(FAISS::FAISS)
 endfunction()
 
 find_and_configure_cugraph(${CUGRAPH_VERSION})

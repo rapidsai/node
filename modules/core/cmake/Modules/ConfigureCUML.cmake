@@ -20,7 +20,7 @@ function(find_and_configure_cuml VERSION)
 
     include(ConfigureRAFT)
 
-    _clean_build_dirs_if_not_fully_built(cuml libcuml.so)
+    _clean_build_dirs_if_not_fully_built(cuml libcuml++.so)
 
     _set_package_dir_if_exists(cuml cuml)
     _set_package_dir_if_exists(fmt fmtlib)
@@ -34,8 +34,10 @@ function(find_and_configure_cuml VERSION)
         _get_update_disconnected_state(cuml ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cuml
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
+            # GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
+            # GIT_TAG             branch-${MAJOR_AND_MINOR}
+            GIT_REPOSITORY      https://github.com/trxcllnt/cuml.git
+            GIT_TAG             fix/node-rapids-21.10
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
@@ -56,13 +58,13 @@ function(find_and_configure_cuml VERSION)
                                 "BUILD_CUML_C_LIBRARY OFF"
                                 "BUILD_CUML_CPP_LIBRARY ON"
                                 "BUILD_CUML_PRIMS_BENCH OFF"
+                                "CUML_USE_FAISS_STATIC OFF"
+                                "CUML_USE_TREELITE_STATIC OFF"
         )
         _fix_rapids_cmake_dir()
     endif()
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
-    # Make these -isystem so -Werror doesn't fail their builds
-    _set_interface_include_dirs_as_system(FAISS::FAISS)
 endfunction()
 
 find_and_configure_cuml(${CUML_VERSION})
