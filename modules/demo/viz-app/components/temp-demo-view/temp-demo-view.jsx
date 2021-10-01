@@ -1,4 +1,4 @@
-/* Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -10,9 +10,14 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License. */
+// limitations under the License.
 
-.container {
-  width: 100%;
-  height: 80%;
+import styles from './temp-demo-view.module.css';
+
+// While we wait for the actual hookup of the demo, we'll use this place-holder
+// to represent the size that the demo will take up.
+export default function TempDemoView() {
+    return (
+        <div className={styles.view} />
+    )
 }
