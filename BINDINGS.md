@@ -471,7 +471,15 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `Random Projection`                  |                                                |
 | `tSVD`                               |                                                |
 | `TSNE`                               |                                                |
-| `UMAP`                               |                                                |
+
+#### Dimensionality Reduction and Manifold Learning - UMAP
+| cuML                                 |                  node-rapids                   |
+| ------------------------------------ | :--------------------------------------------: |
+| `fit`                                |  ✅ (`fitSeries`, `fitDataFrame`,`fitArray`)   |
+| `transform`                          |  ✅ (`transformSeries`, `transformDataFrame`,  |
+|                                      |         `transformArray`)                      |
+| `refine`                             |  ✅ (`refineSeries`, `refineDataFrame`,        |
+|                                      |         `refineformArray`)                     |
 
 
 #### Linear / Nonlinear Models for Regression or Classification
@@ -501,5 +509,7 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `Auto-regressive Integrated Moving Average`|                                                |
 | `SHAP Kernel Explainer`                    |                                                |
 | `SHAP Permutation Explainer`               |                                                |
+| `trustworthiness_score`                    | ✅ (`trustworthinessSeries`,                   |
+|                                            | `trustworthinessDataFrame`, `trustworthiness`) |
 
 #### EOF

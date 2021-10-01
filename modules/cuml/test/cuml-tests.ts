@@ -76,3 +76,57 @@ test('transform trustworthiness score (array)', () => {
 
   expect(score).toBeGreaterThan(0.95);
 });
+
+test('refine trustworthiness score (series)', () => {
+  const umap       = new UMAP({nEpochs: 3, ...options});
+  const fittedUmap = umap.fitSeries(XSeries, y, 4);
+
+  const score = trustworthinessSeries(XSeries, fittedUmap.embeddings.asSeries(), 4);
+  expect(score).toBeGreaterThan(0.45);
+
+  // refine
+  for (let i = 1; i < 50; i++) { fittedUmap.refineSeries(XSeries, y, 4); }
+  const score_1 = trustworthinessSeries(XSeries, fittedUmap.embeddings.asSeries(), 4);
+  expect(score_1).toBeGreaterThan(score);
+
+  // refine further
+  for (let i = 1; i < 50; i++) { fittedUmap.refineSeries(XSeries, y, 4); }
+  const score_2 = trustworthinessSeries(XSeries, fittedUmap.embeddings.asSeries(), 4);
+  expect(score_2).toBeGreaterThan(score_1);
+});
+
+test('refine trustworthiness score (dataframe)', () => {
+  const umap       = new UMAP({nEpochs: 3, ...options});
+  const fittedUmap = umap.fitDataFrame(X, y);
+
+  const score = trustworthinessDataFrame(X, fittedUmap.embeddings.asDataFrame());
+  expect(score).toBeGreaterThan(0.45);
+
+  // refine
+  for (let i = 1; i < 50; i++) { fittedUmap.refineDataFrame(X, y); }
+  const score_1 = trustworthinessDataFrame(X, fittedUmap.embeddings.asDataFrame());
+  expect(score_1).toBeGreaterThan(score);
+
+  // refine further
+  for (let i = 1; i < 50; i++) { fittedUmap.refineDataFrame(X, y); }
+  const score_2 = trustworthinessDataFrame(X, fittedUmap.embeddings.asDataFrame());
+  expect(score_2).toBeGreaterThan(score_1);
+});
+
+test('transform trustworthiness score (array)', () => {
+  const umap       = new UMAP({nEpochs: 3, ...options});
+  const fittedUmap = umap.fitArray([...XSeries], [...y], 4);
+
+  const score = trustworthiness([...XSeries], [...fittedUmap.embeddings.asSeries()], 4);
+  expect(score).toBeGreaterThan(0.45);
+
+  // refine
+  for (let i = 1; i < 50; i++) { fittedUmap.refineArray([...XSeries], [...y], 4); }
+  const score_1 = trustworthiness([...XSeries], [...fittedUmap.embeddings.asSeries()], 4);
+  expect(score_1).toBeGreaterThan(score);
+
+  // refine further
+  for (let i = 1; i < 50; i++) { fittedUmap.refineArray([...XSeries], [...y], 4); }
+  const score_2 = trustworthiness([...XSeries], [...fittedUmap.embeddings.asSeries()], 4);
+  expect(score_2).toBeGreaterThan(score_1);
+});

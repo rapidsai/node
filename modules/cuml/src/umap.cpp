@@ -60,7 +60,9 @@ Napi::Function UMAP::Init(Napi::Env const& env, Napi::Object exports) {
                       InstanceAccessor<&UMAP::verbosity>("verbosity"),
                       InstanceAccessor<&UMAP::target_metric>("targetMetric"),
                       InstanceMethod<&UMAP::fit>("fit"),
-                      InstanceMethod<&UMAP::transform>("transform")});
+                      InstanceMethod<&UMAP::transform>("transform"),
+                      InstanceMethod<&UMAP::refine>("refine"),
+                      InstanceMethod<&UMAP::get_graph>("graph")});
 }
 
 ML::UMAPParams update_params(NapiToCPP::Object props) {
@@ -110,13 +112,48 @@ void UMAP::fit(DeviceBuffer::wrapper_t const& X,
   try {
     ML::UMAP::fit(handle,
                   static_cast<float*>(X->data()),
-                  static_cast<float*>(y->data()),
+                  (y->size() != 0) ? static_cast<float*>(y->data()) : nullptr,
                   n_samples,
                   n_features,
                   static_cast<int64_t*>(knn_indices->data()),
                   static_cast<float*>(knn_dists->data()),
                   &this->params_,
                   static_cast<float*>(embeddings->data()));
+  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+}
+
+COO::wrapper_t UMAP::get_graph(DeviceBuffer::wrapper_t const& X,
+                               cudf::size_type n_samples,
+                               cudf::size_type n_features,
+                               DeviceBuffer::wrapper_t const& y,
+                               bool convert_dtype) {
+  raft::handle_t handle;
+  auto coo = ML::UMAP::get_graph(handle,
+                                 static_cast<float*>(X->data()),
+                                 (y->size() != 0) ? static_cast<float*>(y->data()) : nullptr,
+                                 n_samples,
+                                 n_features,
+                                 &this->params_);
+
+  return COO::New(this->Env(), std::move(coo));
+}
+
+void UMAP::refine(DeviceBuffer::wrapper_t const& X,
+                  cudf::size_type n_samples,
+                  cudf::size_type n_features,
+                  COO::wrapper_t const& coo,
+                  bool convert_dtype,
+                  DeviceBuffer::wrapper_t const& embeddings) {
+  try {
+    raft::handle_t handle;
+    ML::UMAP::refine(handle,
+                     static_cast<float*>(X->data()),
+                     n_samples,
+                     n_features,
+                     coo->get_coo(),
+                     &this->params_,
+                     static_cast<float*>(embeddings->data()));
+
   } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
@@ -178,6 +215,47 @@ Napi::Value UMAP::fit(Napi::CallbackInfo const& info) {
       knn_dists,
       props.Get("convertDType"),
       embeddings);
+
+  return embeddings;
+}
+
+Napi::Value UMAP::get_graph(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  NODE_CUDF_EXPECT(
+    args[0].IsObject(), "refine constructor expects an Object of properties", args.Env());
+
+  NapiToCPP::Object props = args[0];
+
+  DeviceBuffer::wrapper_t X =
+    data_to_devicebuffer(args.Env(), props.Get("features"), props.Get("featuresType"));
+  DeviceBuffer::wrapper_t y =
+    props.Has("y") ? data_to_devicebuffer(args.Env(), props.Get("target"), props.Get("targetType"))
+                   : DeviceBuffer::New(args.Env());
+
+  auto cgraph_coo =
+    get_graph(X, props.Get("nSamples"), props.Get("nFeatures"), y, props.Get("convertDType"));
+
+  return cgraph_coo;
+}
+
+Napi::Value UMAP::refine(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+  NODE_CUDF_EXPECT(
+    args[0].IsObject(), "get_graph constructor expects an Object of properties", args.Env());
+
+  NapiToCPP::Object props = args[0];
+
+  DeviceBuffer::wrapper_t X =
+    data_to_devicebuffer(args.Env(), props.Get("features"), props.Get("featuresType"));
+
+  DeviceBuffer::wrapper_t embeddings = props.Get("embeddings");
+
+  refine(X,
+         props.Get("nSamples"),
+         props.Get("nFeatures"),
+         props.Get("coo"),
+         props.Get("convertDType"),
+         embeddings);
 
   return embeddings;
 }
