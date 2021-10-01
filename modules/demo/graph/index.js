@@ -15,7 +15,7 @@
 // limitations under the License.
 
 module.exports = (glfwOptions = {
-  title: '',
+  title: 'Graph Demo',
   visible: true,
   transparent: false,
 }) => {
@@ -39,15 +39,17 @@ module.exports = (glfwOptions = {
     .RapidsJSDOM.fromReactComponent(
       './src/app.jsx',
       {
-        glfwOptions,
+        glfwOptions: {
+          ...glfwOptions,
+          width: parseInt(parseArg('--width=', 800)) | 0,
+          height: parseInt(parseArg('--height=', 600)) | 0,
+        },
         // Change cwd to the example dir so relative file paths are resolved
         module: {path: __dirname},
       },
       {
         nodes: inputs(delay, parseArg('--nodes=')),
         edges: inputs(delay, parseArg('--edges=')),
-        width: parseInt(parseArg('--width=', 800)) | 0,
-        height: parseInt(parseArg('--height=', 600)) | 0,
         layoutParams: JSON.parse(`{${parseArg('--params=')}}`),
       });
 };

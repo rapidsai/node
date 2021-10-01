@@ -19,7 +19,7 @@ ${CUDA_HOME}/lib64:\
 ARG GCC_VERSION=9
 ARG LLDB_VERSION=12
 ARG CLANGD_VERSION=12
-ARG CMAKE_VERSION=3.20.2
+ARG CMAKE_VERSION=3.21.3
 ARG SCCACHE_VERSION=0.2.15
 ARG CLANG_FORMAT_VERSION=12
 
@@ -30,13 +30,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     gpg wget software-properties-common \
  && add-apt-repository --no-update -y ppa:git-core/ppa \
  && add-apt-repository --no-update -y ppa:ubuntu-toolchain-r/test \
- # Install kitware CMake apt sources
- && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
-  | gpg --dearmor - \
-  | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
- && bash -c 'echo -e "\
-deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main\n\
-" | tee /etc/apt/sources.list.d/kitware.list >/dev/null' \
  # Install LLVM apt sources
  && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - \
  && bash -c 'echo -e "\
@@ -66,8 +59,6 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     clang-format-${CLANG_FORMAT_VERSION} \
     # CMake
     curl libssl-dev libcurl4-openssl-dev zlib1g-dev liblz4-dev \
-    cmake=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
-    cmake-data=$(apt policy cmake 2>/dev/null | grep "$CMAKE_VERSION" | cut -d' ' -f6) \
  \
  # Remove any existing gcc and g++ alternatives
  && (update-alternatives --remove-all cc  >/dev/null 2>&1 || true) \
@@ -102,6 +93,11 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  # Set lldb-${LLDB_VERSION} as the default lldb, llvm-config-${LLDB_VERSION} as default llvm-config
  && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION} \
  \
+ # Install CMake
+ && curl -fsSL --compressed -o "/tmp/cmake-$CMAKE_VERSION-linux-$(uname -m).sh" \
+    "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-$(uname -m).sh" \
+ && sh "/tmp/cmake-$CMAKE_VERSION-linux-$(uname -m).sh" --skip-license --exclude-subdir --prefix=/usr/local \
+ \
  # Install sccache
  && curl -o /tmp/sccache.tar.gz \
          -L "https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl.tar.gz" \
@@ -116,7 +112,6 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     /tmp/* \
     /var/tmp/* \
     /var/lib/apt/lists/* \
-    /etc/apt/sources.list.d/kitware.list \
     /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list \
     /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list \
     /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list

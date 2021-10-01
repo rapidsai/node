@@ -15,7 +15,7 @@
 // limitations under the License.
 
 module.exports = (glfwOptions = {
-  title: '',
+  title: 'UMAP Demo',
   visible: true,
   transparent: false,
 }) => {
