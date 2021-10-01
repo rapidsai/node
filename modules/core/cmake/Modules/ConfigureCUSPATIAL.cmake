@@ -42,10 +42,8 @@ function(find_and_configure_cuspatial VERSION)
                                 "DISABLE_DEPRECATION_WARNING ON")
         _fix_rapids_cmake_dir()
     endif()
-
     # Make sure consumers of our libs can see cuspatial::cuspatial
     _fix_cmake_global_defaults(cuspatial::cuspatial)
-
 endfunction()
 
 find_and_configure_cuspatial(${CUSPATIAL_VERSION})

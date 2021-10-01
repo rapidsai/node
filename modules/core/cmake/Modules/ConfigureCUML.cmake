@@ -65,6 +65,8 @@ function(find_and_configure_cuml VERSION)
     endif()
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
+    # Make these -isystem so -Werror doesn't fail their builds
+    _set_interface_include_dirs_as_system(FAISS::FAISS)
 endfunction()
 
 find_and_configure_cuml(${CUML_VERSION})
