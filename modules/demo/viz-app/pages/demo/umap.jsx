@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '../styles/global.css'
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React from 'react';
 
-export default function App({Component, pageProps}) {
-  return < Component { ...pageProps }
-  />
+export default class UMAPDemo extends React.Component {
+  render() {
+    return <div>UMAP Demo Page</div>
+  }
 }

@@ -12,8 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import DemoCard from "../components/demo-card/demo-card";
+import { Container, Row, Col } from 'react-bootstrap';
+
 export default function Home() {
+
+  const demos = [
+    {
+      title: 'UMAP',
+      description: 'This is the description of the UMAP demo.',
+      href: '/demo/umap'
+    },
+    {
+      title: 'Graph',
+      description: 'Here is some description about the graph...',
+      href: '/demo/Graph'
+    },
+  ];
+
   return (
-    <div><h3>Viz App</h3></div>
+    <Container>
+      <Row>
+        {
+          demos.map((demo) => (
+            <Col>
+              <DemoCard title={demo['title']} description={demo['description']} href={demo['href']} />
+            </Col>
+          ))
+        }
+      </Row>
+    </Container>
   )
 }

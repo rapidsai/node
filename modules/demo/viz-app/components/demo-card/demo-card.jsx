@@ -12,10 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '../styles/global.css'
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Card, Button } from 'react-bootstrap';
+import Link from 'next/link';
 
-export default function App({Component, pageProps}) {
-  return < Component { ...pageProps }
-  />
+export default function DemoCard({ title, description, href }) {
+  return (
+    <Card style={{ width: '18rem' }}>
+      <Card.Body>
+        <Card.Title>{title}</Card.Title>
+        <Card.Text>
+          {description}
+        </Card.Text>
+        <Link href={href}>
+          <Button variant="primary">Start Demo</Button>
+        </Link>
+      </Card.Body>
+    </Card>
+  )
 }
