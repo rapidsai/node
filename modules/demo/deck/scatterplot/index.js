@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --trace-uncaught
+#!/usr/bin/env -S node --experimental-vm-modules --trace-uncaught
 
 // Copyright (c) 2020, NVIDIA CORPORATION.
 //
@@ -14,7 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module.exports = (glfwOptions = { title: 'Scatter Plot Demo', transparent: false }) => {
+module.exports = (glfwOptions = {
+  title: 'Scatter Plot Demo',
+  transparent: false
+}) => {
   return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.js', {
     glfwOptions,
     // Change cwd to the example dir so relative file paths are resolved
