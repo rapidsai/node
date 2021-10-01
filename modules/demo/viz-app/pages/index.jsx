@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import DemoCard from "../components/demo-card/demo-card";
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Jumbotron } from 'react-bootstrap';
 
 export default function Home() {
 
@@ -27,20 +27,22 @@ export default function Home() {
       title: 'Graph',
       description: 'Here is some description about the graph...',
       href: '/demo/Graph'
-    },
+    }
   ];
 
   return (
-    <Container>
-      <Row>
-        {
-          demos.map((demo) => (
-            <Col key={demo['title']}>
-              <DemoCard title={demo['title']} description={demo['description']} href={demo['href']} />
-            </Col>
-          ))
-        }
-      </Row>
-    </Container>
+    <Jumbotron>
+      <Container>
+        <Row className={"justify-content-center"}>
+          {
+            demos.map((demo) => (
+              <Col xs={12} md={6} lg={4} className={"mb-4"} key={demo['title']}>
+                <DemoCard title={demo['title']} description={demo['description']} href={demo['href']} />
+              </Col>
+            ))
+          }
+        </Row>
+      </Container>
+    </Jumbotron>
   )
 }

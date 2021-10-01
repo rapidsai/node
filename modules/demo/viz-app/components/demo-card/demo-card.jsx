@@ -17,7 +17,8 @@ import Link from 'next/link';
 
 export default function DemoCard({ title, description, href }) {
   return (
-    <Card style={{ width: '18rem' }}>
+    <Card>
+      <Card.Img variant="top" height={170} style={{ backgroundColor: "lightgrey" }} />
       <Card.Body>
         <Card.Title>{title}</Card.Title>
         <Card.Text>

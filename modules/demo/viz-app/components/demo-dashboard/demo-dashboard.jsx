@@ -16,7 +16,7 @@ import React from 'react';
 import Layout from '../layout/layout';
 import TempDemoView from '../temp-demo-view/temp-demo-view';
 
-export default class Dashboard extends React.Component {
+export default class DemoDashboard extends React.Component {
   render() {
     const { demoName } = this.props;
 

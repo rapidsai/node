@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import React from 'react';
-import Dashboard from "../../components/dashboard/dashboard";
+import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 
 export default function UMAP() {
   return (
-    <Dashboard demoName={"UMAP Demo"} />
+    <DemoDashboard demoName={"UMAP Demo"} />
   )
 }
