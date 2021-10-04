@@ -68,6 +68,10 @@ export class RemoteSQLWorker implements Worker {
     return this._send({type: 'createTable', name, table_id}).then(() => undefined);
   }
 
+  public createCSVTable(name: string, path: string[]) {
+    return this._send({type: 'createCSVTable', name, path}).then(() => undefined);
+  }
+
   public dropTable(name: string) {
     return this._send({type: 'dropTable', name}).then(() => undefined);
   }

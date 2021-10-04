@@ -30,6 +30,10 @@ async function createTable({name, table_id}: {name: string, table_id: string}) {
   context.createTable(name, await context.pull(table_id));
 }
 
+function createCSVTable({name, path}: {name: string, path: string}) {
+  context.createTable(name, [path]);
+}
+
 async function sql({uuid, query, token}: {uuid: string, query: string, token: number}) {
   await context.sql(query, token).sendTo(0, uuid);
 }
@@ -43,6 +47,7 @@ process.on('message', ({type, ...opts}: any) => {
       case 'sql': return await sql(opts);
       case 'dropTable': return dropTable(opts);
       case 'createTable': return await createTable(opts);
+      case 'createCSVTable': return createCSVTable(opts);
     }
     return {};
   })()

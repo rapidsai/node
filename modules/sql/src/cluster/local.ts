@@ -38,6 +38,10 @@ export class LocalSQLWorker implements Worker {
     await this.context.createTable(name, await this.context.pull(table_id));
   }
 
+  public async createCSVTable(name: string, path: string[]) {
+    await this.context.createTable(name, path);
+  }
+
   public async dropTable(name: string) { await this.context.dropTable(name); }
 
   public async sql(query: string, token: number) {

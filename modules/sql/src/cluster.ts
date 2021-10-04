@@ -28,6 +28,7 @@ export interface Worker {
   dropTable(name: string): Promise<void>;
   sql(query: string, token: number): Promise<DataFrame>;
   createTable(name: string, table_id: string): Promise<void>;
+  createCSVTable(name: string, paths: string[]): Promise<void>;
   createContext(props: Omit<ContextProps, 'id'>): Promise<void>;
 }
 
@@ -121,10 +122,19 @@ export class SQLCluster {
    * await sqlCluster.createTable('test_table', df);
    * ```
    */
-  public async createTable(tableName: string, input: DataFrame) {
-    ctxToken += this._workers.length;
-    const ids = this.context.context.broadcast(ctxToken - this._workers.length, input).reverse();
-    await Promise.all(this._workers.map((worker, i) => worker.createTable(tableName, ids[i])));
+  public async createTable(tableName: string, input: DataFrame|string[]) {
+    if (input instanceof DataFrame) {
+      ctxToken += this._workers.length;
+      const ids = this.context.context.broadcast(ctxToken - this._workers.length, input).reverse();
+      await Promise.all(this._workers.map((worker, i) => worker.createTable(tableName, ids[i])));
+    } else {
+      const chunkedPaths: string[][] = [];
+      for (let i = this._workers.length; i > 0; i--) {
+        chunkedPaths.push(input.splice(0, Math.ceil(input.length / i)));
+      }
+      await Promise.all(
+        this._workers.map((worker, i) => worker.createCSVTable(tableName, chunkedPaths[i])));
+    }
   }
 
   /**
