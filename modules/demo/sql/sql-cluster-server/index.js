@@ -45,12 +45,8 @@ fastify.register((require('fastify-arrow')))
     dev: process.env.NODE_ENV !== 'production',
   }))
   .register(async (instance, opts, done) => {
-    sqlCluster = await SQLCluster.init({numWorkers: 2});
-    await sqlCluster.createTable('test_table', DataFrame.readCSV({
-      header: 0,
-      sourceType: 'files',
-      sources: [DATA_PATH],
-    }));
+    sqlCluster = await SQLCluster.init({numWorkers: 10});
+    await sqlCluster.createTable('test_table', [DATA_PATH]);
     done();
   })
   .after(() => {
