@@ -80,7 +80,7 @@ export class SQLContext {
    * Create a SQL table to be used for future queries.
    *
    * @param tableName Name of the table when referenced in a query
-   * @param input Data source for the table
+   * @param input DataFrame or paths to CSV files
    *
    * @example
    * ```typescript
