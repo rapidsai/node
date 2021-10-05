@@ -16,6 +16,7 @@ import {MemoryResource} from '@rapidsai/rmm';
 
 import {Column, PadSideType} from '../column';
 import {Series} from '../series';
+import {Table} from '../table';
 import {
   Bool8,
   Categorical,
@@ -32,6 +33,21 @@ import {
   Uint8,
   Utf8String
 } from '../types/dtypes';
+
+export type ConcatenateOptions = {
+  /** String that should inserted between each string from each row. Default is an empty string. */
+  separator?: string,
+  /**
+     String that should be used in place of any null strings found in any column. Default makes a
+     null entry in any  produces a null result for that row.
+   */
+  narep?: string,
+  /** If true, then the separator is included for null rows if narep is valid. Default is true. */
+  separatorOnNulls?: boolean,
+
+  /** Device memory resource used to allocate the returned column's device memory. */
+  memoryResource?: MemoryResource
+};
 
 /**
  * A Series of utf8-string values in GPU memory.
@@ -371,5 +387,33 @@ export class StringSeries extends Series<Utf8String> {
    */
   getJSONObject(jsonPath: string, memoryResource?: MemoryResource): StringSeries {
     return Series.new(this._col.getJSONObject(jsonPath, memoryResource));
+  }
+
+  /**
+   * Row-wise concatenates the given list of strings series and returns a single string series
+   * result.
+   *
+   * @param series List of string series to concatenate.
+   * @param opts Options for the concatenation
+   * @returns New series with concatenated results.
+   *
+   * @example
+   * ```typescript
+   * import {StringSeries} from '@rapidsai/cudf';
+   * const s = StringSeries.new(['a', 'b', null])
+   * const t = StringSeries.new(['foo', null, 'bar'])
+   * [...StringSeries.concatenate([s, t])] // ["afoo", null, null]
+   * ```
+   */
+  public static concatenate(series: StringSeries[],
+                            opts: ConcatenateOptions = {}): Series<Utf8String> {
+    const columns: Column[] = [];
+    for (const s of series) { columns.push(s._col); }
+    const separator        = opts.separator ?? '';
+    const narep            = opts.narep ?? null;
+    const separatorOnNulls = opts.separatorOnNulls ?? true;
+
+    return Series.new(Column.concatenate(
+      new Table({columns: columns}), separator, narep, separatorOnNulls, opts.memoryResource));
   }
 }
