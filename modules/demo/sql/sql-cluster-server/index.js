@@ -25,15 +25,17 @@ const fastify = require('fastify')({
   logger: process.env.NODE_ENV !== 'production',
 });
 
-const DATA_PATH = `${__dirname}/wikipedia_pages.csv`;
-if (!fs.existsSync(DATA_PATH)) {
-  console.error(`
-  .csv data not found! Run this to download the dataset from AWS S3 (16.0 GB):
+const DATA_PATHS = Array.from({length: 10}, (_, i) => `${__dirname}/data/wiki_page_${i}.csv`);
+DATA_PATHS.forEach((DATA_PATH) => {
+  if (!fs.existsSync(DATA_PATH)) {
+    console.error(`
+    .csv data not found! Run this to download the dataset from AWS S3 (16.0 GB):
 
-  node ${__dirname}/data.js
-  `);
-  process.exit(1);
-}
+    node ${__dirname}/data.js
+    `);
+    process.exit(1);
+  }
+})
 
 let sqlCluster;
 
@@ -46,7 +48,7 @@ fastify.register((require('fastify-arrow')))
   }))
   .register(async (instance, opts, done) => {
     sqlCluster = await SQLCluster.init({numWorkers: 10});
-    await sqlCluster.createTable('test_table', [DATA_PATH]);
+    await sqlCluster.createTable('test_table', DATA_PATHS);
     done();
   })
   .after(() => {

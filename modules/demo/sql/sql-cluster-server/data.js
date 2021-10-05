@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const fs          = require('fs');
-const request     = require('request');
-const zlib        = require('zlib');
-const cliProgress = require('cli-progress');
+const axios = require('axios').default;
+const fs    = require('fs');
+const zlib  = require('zlib');
 
 module.exports = DownloadSQLClusterServerDataSet;
 
@@ -24,24 +23,21 @@ if (require.main === module) {  //
 }
 
 async function DownloadSQLClusterServerDataSet() {
-  const downloadBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+  if (!fs.existsSync(`${__dirname}/data`)) { fs.mkdirSync(`${__dirname}/data`); }
 
-  console.log(' Downloading dataset...');
-  var receivedBytes = 0;
-  request('https://node-rapids-data.s3.us-west-2.amazonaws.com/wikipedia/page_titles_en.csv.gz')
-    .on('error',
-        function(err) {
-          downloadBar.stop();
-          console.log('Error: ' + err.message);
-        })
-    .on('response',
-        function(data) { downloadBar.start(parseInt(data.headers['content-length']), 0) })
-    .on('data',
-        function(chunk) {
-          receivedBytes += chunk.length;
-          downloadBar.update(receivedBytes);
-        })
-    .on('end', function() { downloadBar.stop(); })
-    .pipe(zlib.createGunzip())
-    .pipe(fs.createWriteStream(`${__dirname}/wikipedia_pages.csv`));
+  console.log('Downloading dataset...');
+  for (let i = 0; i < 10; ++i) { await DownloadChunk(i); }
+}
+
+async function DownloadChunk(index) {
+  await axios
+    .get(`https://node-rapids-data.s3.us-west-2.amazonaws.com/wikipedia/page_titles_en_${
+           index}.csv.gz`,
+         {responseType: 'stream'})
+    .then(function(response) {
+      response.data.pipe(zlib.createGunzip())
+        .pipe(fs.createWriteStream(`${__dirname}/data/wiki_page_${index}.csv`));
+    })
+    .catch(function(error) { console.log(error); })
+    .then()
 }
