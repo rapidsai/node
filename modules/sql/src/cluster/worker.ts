@@ -30,8 +30,8 @@ async function createTable({name, table_id}: {name: string, table_id: string}) {
   context.createTable(name, await context.pull(table_id));
 }
 
-function createCSVTable({name, path}: {name: string, path: string}) {
-  context.createTable(name, [path]);
+function createCSVTable({name, paths}: {name: string, paths: string[]}) {
+  context.createTable(name, paths);
 }
 
 async function sql({uuid, query, token}: {uuid: string, query: string, token: number}) {
