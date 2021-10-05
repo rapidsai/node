@@ -32,7 +32,8 @@
     "react": "17.0.2",
     "react-bootstrap": "1.6.1",
     "react-dom": "17.0.2",
-    "react-map-gl": "5.3.16"
+    "react-map-gl": "5.3.16",
+    "react-burger-menu": "3.0.6"
   },
   "files": [
     "pages",

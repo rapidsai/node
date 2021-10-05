@@ -18,19 +18,23 @@ import TempDemoView from './temp-demo-view/temp-demo-view';
 import DataRow from './data-row/data-row';
 import Footer from './footer/footer';
 import { Container } from 'react-bootstrap';
+import SlideMenu from './slide-menu/slide-menu';
 
 export default class DemoDashboard extends React.Component {
   render() {
     const { demoName } = this.props;
 
     return (
-      <Layout title={demoName}>
-        <TempDemoView />
-        <Container fluid style={{ paddingTop: 20 }}>
-          <DataRow />
-          <Footer />
-        </Container>
-      </Layout>
+      <div id="outer-container">
+        <SlideMenu />
+        <Layout id="page-wrap" title={demoName}>
+          <TempDemoView />
+          <Container fluid style={{ paddingTop: 20 }}>
+            <DataRow />
+            <Footer />
+          </Container>
+        </Layout>
+      </div>
     )
   }
 }

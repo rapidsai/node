@@ -24,3 +24,59 @@ a {
 a:hover {
     color: rgb(172, 172, 172) !important;
 }
+
+/* NavBar Menu */
+.bm-burger-button {
+    position: absolute;
+    width: 36px;
+    height: 30px;
+    top: 12px;
+    left: 12px;
+}
+
+.bm-burger-bars {
+    background: black;
+}
+
+.bm-burger-bars-hover {
+    background: #373a47;
+}
+
+.bm-cross-button {
+    height: 24px;
+    width: 24px;
+}
+
+.bm-cross {
+    background-color: black;
+}
+
+.bm-menu-wrap {
+    position: absolute;
+    height: 100%;
+}
+
+.bm-menu {
+    background: #e2e2e2;
+    padding: 2.5em 1em 0;
+    font-size: 1.15em;
+    border-right: 3px solid #868686;
+}
+
+.bm-morph-shape {
+    fill: #373a47;
+}
+
+.bm-item-list {
+    color: #b8b7ad;
+    padding: 0.8em;
+}
+
+.bm-item {
+    display: inline-block;
+}
+
+.bm-overlay {
+    background: rgba(0, 0, 0, 0.3);
+}
+/*  */

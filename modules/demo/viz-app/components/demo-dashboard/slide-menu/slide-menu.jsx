@@ -12,22 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { SlideMenu } from '../slide-menu/slide-menu';
-import { Container } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
+import React from 'react';
 import { slide as Menu } from 'react-burger-menu';
-import styles from './navbar.module.css';
-import Navbar from 'react-bootstrap/Navbar';
 
-export default function CustomNavbar({ title }) {
-    return (
-        <Navbar bg="dark" variant="dark" className={styles.navbar}>
-            <Navbar.Brand>
-                <div className={styles.title}>
-                    {title}
-                </div>
-            </Navbar.Brand>
-        </Navbar >
-    )
+export default function SlideMenu() {
+  return (
+    <Menu pageWrapId={"page-wrap"} outerContainerId={"outer-container"} width={'50vw'}>
+      <a id="home" className="menu-item" href="/">Menu item</a>
+      <a id="home" className="menu-item" href="/">Menu item</a>
+      <a id="home" className="menu-item" href="/">Menu item</a>
+      <a id="home" className="menu-item" href="/">Menu item</a>
+      <a id="home" className="menu-item" href="/">Menu item</a>
+    </Menu>
+  );
 }
