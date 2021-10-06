@@ -145,10 +145,8 @@ export class SQLCluster {
 
       await Promise.all(this._workers.slice().reverse().map((worker, i) => {
         if (chunkedPaths[i].length > 0) {
-          console.log('1');
           return worker.createCSVTable(tableName, chunkedPaths[i]);
         } else {
-          console.log('2');
           ctxToken += 1;
           const message = `broadcast_table_message_${ctxToken}`;
           this.context.context.send(worker.id, ctxToken, message, empty);
