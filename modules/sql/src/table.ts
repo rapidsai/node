@@ -31,9 +31,7 @@ export class SQLTable {
   constructor(tableName: string, input: DataFrame|string[]) {
     this.tableName = tableName;
 
-    this.tableSource = input instanceof DataFrame ? new DataFrameTable(input)
-                       : input.length == 0        ? new DataFrameTable(new DataFrame())
-                                                  : new CSVTable(input);
+    this.tableSource = input instanceof DataFrame ? new DataFrameTable(input) : new CSVTable(input);
   }
 }
 
