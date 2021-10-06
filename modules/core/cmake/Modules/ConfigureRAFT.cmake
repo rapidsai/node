@@ -29,26 +29,46 @@ function(find_and_configure_raft VERSION)
     _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(libcudacxx libcudacxx)
 
+    if(NOT TARGET cuco::cuco)
+        _fix_rapids_cmake_dir()
+        _get_update_disconnected_state(cuco 0.0.1 UPDATE_DISCONNECTED)
+        CPMFindPackage(NAME cuco
+            VERSION         0.0.1
+            # GIT_REPOSITORY https://github.com/NVIDIA/cuCollections.git
+            # GIT_TAG        dev
+            GIT_REPOSITORY  https://github.com/robertmaynard/cuCollections.git
+            GIT_TAG         use_latest_rapids_cmake
+            GIT_SHALLOW     TRUE
+            ${UPDATE_DISCONNECTED}
+            OPTIONS        "BUILD_TESTS OFF"
+                           "BUILD_BENCHMARKS OFF"
+                           "BUILD_EXAMPLES OFF"
+            )
+        _fix_rapids_cmake_dir()
+    endif()
+    # Make sure consumers of our libs can see cuco::cuco
+    _fix_cmake_global_defaults(cuco::cuco)
+
     if(NOT TARGET raft::raft)
         _fix_rapids_cmake_dir()
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(raft ${VERSION} UPDATE_DISCONNECTED)
-        CPMAddPackage(NAME raft
-            VERSION        ${VERSION}
+        CPMFindPackage(NAME raft
+            VERSION         ${VERSION}
             # GIT_REPOSITORY https://github.com/rapidsai/raft.git
             # GIT_TAG        branch-${MAJOR_AND_MINOR}
-            GIT_REPOSITORY https://github.com/trxcllnt/raft.git
-            GIT_TAG        fix/node-rapids-21.10
-            GIT_SHALLOW    TRUE
+            GIT_REPOSITORY  https://github.com/trxcllnt/raft.git
+            GIT_TAG         fix/build-shared-faiss
+            GIT_SHALLOW     TRUE
             ${UPDATE_DISCONNECTED}
-            SOURCE_SUBDIR  cpp
-            OPTIONS        "BUILD_TESTS OFF"
-                           "RAFT_USE_FAISS_STATIC OFF"
+            SOURCE_SUBDIR   cpp
+            OPTIONS         "BUILD_TESTS OFF"
+                            "RAFT_USE_FAISS_STATIC OFF"
             )
         _fix_rapids_cmake_dir()
     endif()
     # Make sure consumers of our libs can see raft::raft
-    # _fix_cmake_global_defaults(raft::raft)
+    _fix_cmake_global_defaults(raft::raft)
 
     # Make these -isystem so -Werror doesn't fail their builds
     _set_interface_include_dirs_as_system(raft::raft)

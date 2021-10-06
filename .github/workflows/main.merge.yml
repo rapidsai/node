@@ -12,12 +12,12 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.0]
+        CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
     env:
       ARCH: amd64
-      NODE: 16.9.1
-      RAPIDS: 21.10.00
+      NODE: 16.10.0
+      RAPIDS: 21.12.00
       REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - name: Free up disk space

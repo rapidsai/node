@@ -23,7 +23,9 @@ function(find_and_configure_cugraph VERSION)
     _clean_build_dirs_if_not_fully_built(cugraph libcugraph.so)
 
     _set_package_dir_if_exists(cuco cuco)
+    _set_package_dir_if_exists(raft raft)
     _set_package_dir_if_exists(faiss faiss)
+    _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(cugraph cugraph)
     _set_package_dir_if_exists(cuhornet cuhornet)
 
@@ -36,7 +38,7 @@ function(find_and_configure_cugraph VERSION)
             # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
             # GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_REPOSITORY      https://github.com/trxcllnt/cugraph.git
-            GIT_TAG             fix/node-rapids-21.10
+            GIT_TAG             fix/build-shared-faiss
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
