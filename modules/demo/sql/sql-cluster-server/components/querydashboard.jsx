@@ -94,7 +94,7 @@ export class QueryDashboard extends React.Component {
         this.setState({
           queryResult: formatData(table),
           queryTime: table.schema.metadata.get('queryTime'),
-          resultCount: table.length,
+          resultCount: table.schema.metadata.get('queryResults'),
           page: 0,
           rowsPerPage: 10
         });
@@ -185,6 +185,9 @@ export class QueryDashboard extends React.Component {
             onPageChange={this.handleChangePage}
             onRowsPerPageChange={this.handleChangeRowsPerPage}
           />
+          <div style={{ textAlign: "end", paddingRight: "20px", paddingBottom: "5px", fontSize: "12px", color: "grey" }}>
+            (Table only displays 500 results max)
+          </div>
         </Paper>
       </Container >
     )
