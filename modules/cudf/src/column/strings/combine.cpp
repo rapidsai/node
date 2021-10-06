@@ -51,11 +51,10 @@ Napi::Value Column::concatenate(Napi::CallbackInfo const& info) {
   }
 
   Table::wrapper_t columns            = args[0];
-  const std::string& separator_string = args[1];
-  const cudf::string_scalar separator{separator_string};
+  const cudf::string_scalar separator{args[1]};
 
   auto narep = [&args]() {
-    if (args[2].IsNull()) {
+    if (args[2].IsNull() or args[2].IsUndefined()) {
       return cudf::string_scalar{"", false};
     } else {
       const std::string& narep_string = args[2];
