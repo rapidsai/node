@@ -128,8 +128,9 @@ export class SQLCluster {
       await Promise.all(this._workers.map((worker, i) => worker.createTable(tableName, ids[i])));
     } else {
       const chunkSize    = this._workers.length;
-      const chunkedPaths = [...Array(Math.ceil(input.length / chunkSize))].map(
-        (_, i) => input.slice(i * chunkSize, i * chunkSize + chunkSize));
+      const chunkedPaths = chunkSize == 1 ? [input] : [
+        ...Array(Math.ceil(input.length / chunkSize))
+      ].map((_, i) => input.slice(i * chunkSize, i * chunkSize + chunkSize));
 
       await Promise.all(this._workers.slice().reverse().map((worker, i) => {
         // TODO: This logic needs to be reworked. We split up the .csv files among the workers.
@@ -139,8 +140,7 @@ export class SQLCluster {
           return worker.createCSVTable(tableName, chunkedPaths[i]);
         } else {
           const {types, names} = parseSchema(input);
-
-          const empty = new DataFrame(
+          const empty          = new DataFrame(
             names.reduce((xs, name, i) => ({
                            ...xs,
                            [name]: Series.new({type: arrowToCUDFType(types[i]), data: []}),
