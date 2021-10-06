@@ -15,9 +15,8 @@
 /* eslint-disable @typescript-eslint/await-thenable */
 
 import {Device} from '@nvidia/cuda';
-import {DataFrame} from '@rapidsai/cudf';
-
-import {ContextProps} from './addon';
+import {arrowToCUDFType, DataFrame, Series} from '@rapidsai/cudf';
+import {ContextProps, parseSchema} from './addon';
 import {LocalSQLWorker} from './cluster/local';
 import {RemoteSQLWorker} from './cluster/remote';
 import {defaultClusterConfigValues} from './config';
@@ -128,12 +127,32 @@ export class SQLCluster {
       const ids = this.context.context.broadcast(ctxToken - this._workers.length, input).reverse();
       await Promise.all(this._workers.map((worker, i) => worker.createTable(tableName, ids[i])));
     } else {
-      const chunkedPaths: string[][] = [];
-      for (let i = this._workers.length; i > 0; i--) {
-        chunkedPaths.push(input.splice(0, Math.ceil(input.length / i)));
-      }
-      await Promise.all(
-        this._workers.map((worker, i) => worker.createCSVTable(tableName, chunkedPaths[i])));
+      const chunkSize    = this._workers.length;
+      const chunkedPaths = [...Array(Math.ceil(input.length / chunkSize))].map(
+        (_, i) => input.slice(i * chunkSize, i * chunkSize + chunkSize));
+
+      await Promise.all(this._workers.slice().reverse().map((worker, i) => {
+        // TODO: This logic needs to be reworked. We split up the .csv files among the workers.
+        // There is a possibility a worker does not get a .csv file, therefore we need to give it an
+        // empty DataFrame.
+        if (chunkedPaths[i]) {
+          return worker.createCSVTable(tableName, chunkedPaths[i]);
+        } else {
+          const {types, names} = parseSchema(input);
+
+          const empty = new DataFrame(
+            names.reduce((xs, name, i) => ({
+                           ...xs,
+                           [name]: Series.new({type: arrowToCUDFType(types[i]), data: []}),
+                         }),
+                         {}));
+
+          ctxToken += 1;
+          const message = `broadcast_table_message_${ctxToken}`;
+          this.context.context.send(worker.id, ctxToken, message, empty);
+          return worker.createTable(tableName, message);
+        }
+      }));
     }
   }
 
