@@ -59,8 +59,7 @@ fastify.register((require('fastify-arrow')))
       const t1           = performance.now();
       const queryTime    = t1 - t0;
       const queryResults = df.numRows;
-      console.log(df.numRows);
-      const arrowTable = df.head(500).toArrow();
+      const arrowTable   = df.head(500).toArrow();
       arrowTable.schema.metadata.set('queryTime', queryTime);
       arrowTable.schema.metadata.set('queryResults', queryResults);
       RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
