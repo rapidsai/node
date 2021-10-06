@@ -90,17 +90,17 @@ describe('StringSeries.concatenate', () => {
     const result = StringSeries.concatenate([s, t, s], {separator: '::'});
     expect([...result]).toEqual(['a::foo::a', null, null]);
   });
-  test('narep (no separator)', () => {
-    const result = StringSeries.concatenate([s, t], {narep: 'null'});
+  test('nullRepr (no separator)', () => {
+    const result = StringSeries.concatenate([s, t], {nullRepr: 'null'});
     expect([...result]).toEqual(['afoo', 'bnull', 'nullbar']);
   });
-  test('narep (separator)', () => {
-    const result = StringSeries.concatenate([s, t], {separator: '::', narep: 'null'});
+  test('nullRepr (separator)', () => {
+    const result = StringSeries.concatenate([s, t], {separator: '::', nullRepr: 'null'});
     expect([...result]).toEqual(['a::foo', 'b::null', 'null::bar']);
   });
-  test('narep (separatorOnNulls)', () => {
-    const result =
-      StringSeries.concatenate([s, t], {separator: '::', narep: 'null', separatorOnNulls: false});
+  test('nullRepr (separatorOnNulls)', () => {
+    const result = StringSeries.concatenate(
+      [s, t], {separator: '::', nullRepr: 'null', separatorOnNulls: false});
     expect([...result]).toEqual(['a::foo', 'bnull', 'nullbar']);
   });
 });

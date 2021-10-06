@@ -41,8 +41,10 @@ export type ConcatenateOptions = {
      String that should be used in place of any null strings found in any column. Default makes a
      null entry in any  produces a null result for that row.
    */
-  narep?: string,
-  /** If true, then the separator is included for null rows if narep is valid. Default is true. */
+  nullRepr?: string,
+  /**
+     If true, then the separator is included for null rows if nullRepr is valid. Default is true.
+   */
   separatorOnNulls?: boolean,
 
   /** Device memory resource used to allocate the returned column's device memory. */
@@ -410,10 +412,10 @@ export class StringSeries extends Series<Utf8String> {
     const columns: Column[] = [];
     for (const s of series) { columns.push(s._col); }
     const separator        = opts.separator ?? '';
-    const narep            = opts.narep ?? null;
+    const nullRepr         = opts.nullRepr ?? null;
     const separatorOnNulls = opts.separatorOnNulls ?? true;
 
     return Series.new(Column.concatenate(
-      new Table({columns: columns}), separator, narep, separatorOnNulls, opts.memoryResource));
+      new Table({columns: columns}), separator, nullRepr, separatorOnNulls, opts.memoryResource));
   }
 }

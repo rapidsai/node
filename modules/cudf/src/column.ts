@@ -83,16 +83,17 @@ interface ColumnConstructor {
    *
    * @param columns List of string columns to concatenate.
    * @param separator String that should inserted between each string from each row.
-   * @param narep String that should be used in place of any null strings found in any column.
+   * @param nullRepr String that should be used in place of any null strings found in any column.
    *   Null value means any null entry in any column will produces a null result for that row.
-   * @param separate_nulls If true, then the separator is included for null rows if narep is valid.
+   * @param separate_nulls If true, then the separator is included for null rows if nullRepr is
+   *   valid.
    * @param memoryResource The optional MemoryResource used to allocate the result column's device
    *   memory
    * @returns New column with concatenated results.
    */
   concatenate(columns: Table,
               separator: string,
-              narep: string|null,
+              nullRepr: string|null,
               separate_nulls: boolean,
               memoryResource?: MemoryResource): Column<Utf8String>;
 
