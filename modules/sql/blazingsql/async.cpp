@@ -27,7 +27,7 @@ Napi::Promise SQLTask::run() {
   return deferred_.Promise();
 }
 
-void SQLTask::Execute() { std::tie(names_, table_) = work_(); }
+void SQLTask::Execute() { std::tie(names_, tables_) = work_(); }
 
 std::vector<napi_value> SQLTask::GetResult(Napi::Env env) {
   size_t i{0};
@@ -35,7 +35,11 @@ std::vector<napi_value> SQLTask::GetResult(Napi::Env env) {
   std::for_each(names_.begin(), names_.end(), [&](auto const& name) mutable {  //
     names[i++] = name;
   });
-  return {names, Table::New(env, std::move(table_))};
+  auto tables = Napi::Array::New(env, tables_.size());
+  for (size_t i = 0; i < tables_.size(); ++i) {
+    tables[i] = Table::New(env, std::move(tables_[i]));
+  }
+  return {names, tables};
 }
 
 void SQLTask::OnOK() {

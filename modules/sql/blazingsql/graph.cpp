@@ -71,15 +71,7 @@ Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
     _fetched  = true;
     auto task = new SQLTask(env, [this]() {
       auto [names, tables] = std::move(get_execute_graph_result(_graph));
-      if (tables.size() > 1) {
-        std::vector<cudf::table_view> views;
-        views.reserve(tables.size());
-        std::transform(tables.begin(), tables.end(), std::back_inserter(views), [](auto const& t) {
-          return t->view();
-        });
-        return std::make_pair(std::move(names), std::move(cudf::concatenate(views)));
-      }
-      return std::make_pair(std::move(names), std::move(tables[0]));
+      return std::make_pair(std::move(names), std::move(tables));
     });
     _results  = Napi::Persistent(task->run());
   }

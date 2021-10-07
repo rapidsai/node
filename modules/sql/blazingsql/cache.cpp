@@ -57,13 +57,21 @@ void CacheMachine::add_to_cache(int32_t const& node_id,
   this->_cache->addToCache(std::move(table), message_id, true, metadata, true);
 }
 
-SQLTask* CacheMachine::pull_from_cache(std::string const& message_id) {
-  return new SQLTask(Env(), [this, message_id]() {
-    auto result   = this->_cache->pullCacheData(message_id);
-    auto names    = result->names();
-    auto decached = result->decache();
-    auto table    = decached->releaseCudfTable();
-    return std::make_pair(std::move(names), std::move(table));
+SQLTask* CacheMachine::pull_from_cache(std::vector<std::string> const& message_ids) {
+  return new SQLTask(Env(), [this, message_ids]() {
+    std::vector<std::unique_ptr<cudf::table>> tables;
+    tables.reserve(message_ids.size());
+    std::vector<std::string> table_names;
+    for (size_t i = 0; i < message_ids.size(); ++i) {
+      auto result   = this->_cache->pullCacheData(message_ids[i]);
+      auto names    = result->names();
+      auto decached = result->decache();
+      auto table    = decached->releaseCudfTable();
+      tables.push_back(std::move(table));
+      table_names = names;  // TODO Mzegar: We should handle this better.
+    }
+
+    return std::make_pair(std::move(table_names), std::move(tables));
   });
 }
 

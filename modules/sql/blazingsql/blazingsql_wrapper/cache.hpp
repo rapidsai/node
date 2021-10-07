@@ -60,7 +60,7 @@ struct CacheMachine : public nv::EnvLocalObjectWrap<CacheMachine> {
                     std::vector<std::string> const& column_names,
                     cudf::table_view const& table_view);
 
-  SQLTask* pull_from_cache(std::string const& message_id);
+  SQLTask* pull_from_cache(std::vector<std::string> const& message_ids);
 
  private:
   std::shared_ptr<ral::cache::CacheMachine> _cache;
