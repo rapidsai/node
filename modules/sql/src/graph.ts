@@ -34,6 +34,6 @@ export class ExecutionGraph {
 
   async sendTo(id: number, messageId: string) {
     return new ExecutionGraph(
-      await this.result().then((df) => this._graph?.sendTo(id, messageId, df[0])));
+      await this.result().then((df) => this._graph?.sendTo(id, messageId, df)));
   }
 }
