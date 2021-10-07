@@ -32,8 +32,7 @@ export class ExecutionGraph {
     return results;
   }
 
-  async sendTo(id: number, messageId: string) {
-    return new ExecutionGraph(
-      await this.result().then((df) => this._graph?.sendTo(id, messageId, df)));
+  async sendTo(id: number) {
+    return new ExecutionGraph(await this.result().then((df) => this._graph?.sendTo(id, df)));
   }
 }
