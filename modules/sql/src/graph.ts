@@ -22,13 +22,18 @@ export class ExecutionGraph {
   start(): void { this._graph?.start(); }
 
   async result() {
-    const {names, table} = await this._graph?.result() || {names: [], table: new Table({})};
-    return new DataFrame(names.reduce(
-      (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
+    const {names, tables} = await this._graph?.result() || {names: [], tables: [new Table({})]};
+    const results: DataFrame[] = [];
+    tables.forEach((table: Table) => {
+      results.push(new DataFrame(names.reduce(
+        (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {})));
+    });
+
+    return results;
   }
 
   async sendTo(id: number, messageId: string) {
     return new ExecutionGraph(
-      await this.result().then((df) => this._graph?.sendTo(id, messageId, df)));
+      await this.result().then((df) => this._graph?.sendTo(id, messageId, df[0])));
   }
 }

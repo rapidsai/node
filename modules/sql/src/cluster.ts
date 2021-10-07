@@ -25,7 +25,7 @@ export interface Worker {
   readonly id: number;
   kill(): void;
   dropTable(name: string): Promise<void>;
-  sql(query: string, token: number): Promise<DataFrame>;
+  sql(query: string, token: number): Promise<DataFrame[]>;
   createTable(name: string, table_id: string): Promise<void>;
   createCSVTable(name: string, paths: string[]): Promise<void>;
   createContext(props: Omit<ContextProps, 'id'>): Promise<void>;
@@ -213,8 +213,7 @@ export class SQLCluster {
       return new DataFrame();
     }
     const token = ctxToken++;
-    return new DataFrame().concat(
-      ...(await Promise.all(this._workers.map((worker) => worker.sql(query, token)))).reverse());
+    return await Promise.all(this._workers.map((worker) => worker.sql(query, token)));
   }
 
   /**

@@ -62,7 +62,7 @@ export declare class ExecutionGraph {
   constructor();
 
   start(): void;
-  result(): Promise<{names: string[], table: Table}>;
+  result(): Promise<{names: string[], tables: Table[]}>;
   sendTo(id: number, messageId: string, df: DataFrame): ExecutionGraph;
 }
 
