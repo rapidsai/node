@@ -35,8 +35,8 @@ export class LocalSQLWorker implements Worker {
   }
 
   public async createTable(name: string, table_id: string) {
-    const tables = await this.context.pull([table_id]);
-    this.context.createTable(name, tables[0]);
+    const table = await this.context.pull(table_id);
+    this.context.createTable(name, table);
   }
 
   public async createCSVTable(name: string, paths: string[]) {

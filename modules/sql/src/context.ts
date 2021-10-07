@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, DataType, Series, Table} from '@rapidsai/cudf';
+import {DataFrame, DataType, Series} from '@rapidsai/cudf';
 import {callMethodSync, callStaticMethodSync} from 'java';
 
 import {
@@ -333,15 +333,9 @@ export class SQLContext {
    * await sqlContext.pull("message_1"); // [1, 2, 3]
    * ```
    */
-  async pull(messageIds: string[]) {
-    const {names, tables} = await this.context.pull(messageIds);
-
-    const results: DataFrame[] = [];
-    tables.forEach((table: Table) => {
-      results.push(new DataFrame(names.reduce(
-        (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {})));
-    });
-
-    return results;
+  async pull(messageId: string) {
+    const {names, tables} = await this.context.pull(messageId);
+    return new DataFrame(names.reduce(
+      (cols, name, i) => ({...cols, [name]: Series.new(tables[0].getColumnByIndex(i))}), {}));
   }
 }

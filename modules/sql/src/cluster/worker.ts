@@ -27,8 +27,8 @@ function init({uuid, ...props}: {uuid: string}&ContextProps) {
 function dropTable({name}: {name: string}) { context.dropTable(name); }
 
 async function createTable({name, table_id}: {name: string, table_id: string}) {
-  const tables = await context.pull([table_id]);
-  context.createTable(name, tables[0]);
+  const table = await context.pull(table_id);
+  context.createTable(name, table);
 }
 
 function createCSVTable({name, paths}: {name: string, paths: string[]}) {

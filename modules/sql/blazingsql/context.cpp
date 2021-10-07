@@ -139,8 +139,8 @@ void Context::send(int32_t const& dst_ral_id,
     get_node_id(), get_ral_id(), dst_ral_id, ctx_token, message_id, column_names, table_view);
 }
 
-SQLTask* Context::pull(std::vector<std::string> const& message_ids) {
-  return this->_transport_in.Value()->pull_from_cache(message_ids);
+SQLTask* Context::pull(std::string const& message_id) {
+  return this->_transport_in.Value()->pull_from_cache(message_id);
 }
 
 void Context::send(Napi::CallbackInfo const& info) {
@@ -157,9 +157,7 @@ void Context::send(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value Context::pull(Napi::CallbackInfo const& info) {
-  CallbackArgs args{info};
-  std::vector<std::string> message_ids = args[0];
-  return pull(message_ids)->run();
+  return pull(info[0].ToString())->run();
 }
 
 Napi::Value Context::broadcast(Napi::CallbackInfo const& info) {

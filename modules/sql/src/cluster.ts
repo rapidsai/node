@@ -25,7 +25,7 @@ export interface Worker {
   readonly id: number;
   kill(): void;
   dropTable(name: string): Promise<void>;
-  sql(query: string, token: number): Promise<DataFrame[]>;
+  sql(query: string, token: number): Promise<any>;
   createTable(name: string, table_id: string): Promise<void>;
   createCSVTable(name: string, paths: string[]): Promise<void>;
   createContext(props: Omit<ContextProps, 'id'>): Promise<void>;

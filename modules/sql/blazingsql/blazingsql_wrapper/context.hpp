@@ -63,7 +63,7 @@ struct Context : public EnvLocalObjectWrap<Context> {
             std::vector<std::string> const& column_names,
             cudf::table_view const& table_view);
 
-  SQLTask* pull(std::vector<std::string> const& message_ids);
+  SQLTask* pull(std::string const& message_id);
 
  private:
   int32_t _id{};

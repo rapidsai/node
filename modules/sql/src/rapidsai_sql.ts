@@ -45,7 +45,7 @@ export declare class Context {
   constructor(props: ContextProps);
 
   broadcast(ctxToken: number, df: DataFrame): string[];
-  pull(messageIds: string[]): Promise<{names: string[], tables: Table[]}>;
+  pull(messageId: string): Promise<{names: string[], tables: Table[]}>;
   send(id: number, ctxToken: number, messageId: string, df: DataFrame): void;
   runGenerateGraph(dataframes: DataFrame[],
                    schemas: Record<string, unknown>[],
