@@ -334,10 +334,7 @@ export class SQLContext {
    * ```
    */
   async pull(messageIds: string[]) {
-    console.log(messageIds);
     const {names, tables} = await this.context.pull(messageIds);
-
-    console.log(`tables:${tables.length}`);
 
     const results: DataFrame[] = [];
     tables.forEach((table: Table) => {
@@ -345,6 +342,6 @@ export class SQLContext {
         (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {})));
     });
 
-    return [new DataFrame({})];
+    return results;
   }
 }

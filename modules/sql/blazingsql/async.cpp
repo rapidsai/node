@@ -43,10 +43,10 @@ std::vector<napi_value> SQLTask::GetResult(Napi::Env env) {
 }
 
 void SQLTask::OnOK() {
-  auto res     = GetResult(Env());
-  auto obj     = Napi::Object::New(Env());
-  obj["names"] = res[0];
-  obj["table"] = res[1];
+  auto res      = GetResult(Env());
+  auto obj      = Napi::Object::New(Env());
+  obj["names"]  = res[0];
+  obj["tables"] = res[1];
   deferred_.Resolve(obj);
 }
 

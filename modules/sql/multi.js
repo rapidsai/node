@@ -8,9 +8,9 @@ async function test() {
   const bc = await SQLCluster.init();
   await bc.createTable('test_table', df);
 
-  const result = await bc.sql('SELECT * FROM test_table');
+  // const result = await bc.sql('SELECT * FROM test_table');
 
-  console.log(result.toString());
+  // console.log(result.toString());
 
   bc.kill();
 }
