@@ -23,6 +23,7 @@ const fs                        = require('fs');
 const fastify = require('fastify')({
   pluginTimeout: 30000,
   logger: process.env.NODE_ENV !== 'production',
+  keepAliveTimeout: 0,
 });
 
 const DATA_PATHS = Array.from({length: 10}, (_, i) => `${__dirname}/data/wiki_page_${i}.csv`);
@@ -54,15 +55,26 @@ fastify.register((require('fastify-arrow')))
   .after(() => {
     fastify.next('/');
     fastify.post('/run_query', async function(request, reply) {
-      const t0           = performance.now();
-      const df           = await sqlCluster.sql(request.body);
-      const t1           = performance.now();
-      const queryTime    = t1 - t0;
-      const queryResults = df.numRows;
-      const arrowTable   = df.head(500).toArrow();
-      arrowTable.schema.metadata.set('queryTime', queryTime);
-      arrowTable.schema.metadata.set('queryResults', queryResults);
-      RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
+      try {
+        request.log.info({query: request.body}, `calling sqlCluster.sql()`);
+        const t0 = performance.now();
+        const df = await sqlCluster.sql(request.body).catch((err) => {
+          request.log.error({err}, `Error calling sqlCluster.sql`);
+          return new DataFrame();
+        });
+        request.log.info({numRows: df.numRows}, `got sqlCluster.sql result`);
+        const t1           = performance.now();
+        const queryTime    = t1 - t0;
+        const queryResults = df.numRows;
+        const arrowTable   = df.head(500).toArrow();
+        request.log.info(`sending 500 rows`);
+        arrowTable.schema.metadata.set('queryTime', queryTime);
+        arrowTable.schema.metadata.set('queryResults', queryResults);
+        RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
+      } catch (err) {
+        request.log.error({err}, '/run_query error');
+        reply.code(500).send(err);
+      }
     });
   });
 

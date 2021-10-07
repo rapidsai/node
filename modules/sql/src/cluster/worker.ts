@@ -52,7 +52,12 @@ process.on('message', ({type, ...opts}: any) => {
     return {};
   })()
     .catch((error) => {
-      if (opts.uuid && process.send) { process.send({error, uuid: opts.uuid}); }
+      if (opts.uuid && process.send) {
+        process.send({
+          error: {message: error?.message || 'Unknown error', stack: error?.stack},
+          uuid: opts.uuid
+        });
+      }
     })
     .then((res: any) => {
       if (opts.uuid && process.send) { process.send({...res, uuid: opts.uuid}); }
