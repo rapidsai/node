@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --trace-uncaught
+#!/usr/bin/env -S node --experimental-vm-modules --trace-uncaught
 
 // Copyright (c) 2020, NVIDIA CORPORATION.
 //
@@ -18,14 +18,12 @@ module.exports = (glfwOptions = {
   title: 'Playground Demo',
   transparent: false
 }) => {
-  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent(
-    require('path').join(__dirname, 'src', 'app.js'),
-    {
+  return require('@rapidsai/jsdom')
+    .RapidsJSDOM.fromReactComponent(require('path').join(__dirname, 'src', 'app.js'), {
       glfwOptions,
       // Change cwd to the example dir so relative file paths are resolved
       module: {path: __dirname},
-    }
-  );
+    });
 };
 
 if (require.main === module) {

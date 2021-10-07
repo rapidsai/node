@@ -4,7 +4,7 @@ set -Eeo pipefail
 
 _copy_lib() {
     (
-        src="$1"
+        src="$(realpath -m $1)"
         dst="$2"
         if [ ! -e "$dst" ]; then
             echo "${3:+$3 }cp -d $src $dst";
@@ -22,11 +22,6 @@ _copy_lib_links() {
             dst="$dir/$(basename $lib)"
             if [[ "$src" != "$dst" ]]; then
                 _copy_lib "$src" "$dst";
-                while [[ -L "$lib" ]]; do
-                    dst="$(readlink $lib)"
-                    lib="$(cd $(dirname "$lib") && realpath -s "$dst")"
-                    _copy_lib "$lib" "$dir/$(basename $lib)";
-                done
             fi
         fi
     )
@@ -51,25 +46,29 @@ _collect_dependencies() {
     )
 }
 
-dir_=""
+dir_="$(realpath build/Release)"
+mkdir -p "$dir_"
+echo "rm -rf $dir_"/*.so* && rm -rf "$dir_"/*.so*
+ls -l "$dir_/*".so* 2>/dev/null || true
+
 libs=""
 
 for lib in ${@}; do
+    paths=""
     if [[ "${lib##*.}" == "node" ]]; then
-        lib="$PWD/$lib"
-        dir_="$(dirname $(realpath -m "$lib"))"
-        mkdir -p "$dir_"
-    elif [[ -e "/opt/rapids/node/modules/.cache/build" ]]; then
-        lib="$(shopt -s globstar; cd /opt/rapids/node/modules/.cache && realpath -m $lib)"
+        paths="$(realpath -m "$dir_/$lib")"
     else
-        lib="$(shopt -s globstar; realpath -m $lib)"
+        paths="$paths $(find $dir_ -type l -name $lib)"
+        paths="$paths $(find $dir_ -type f -name $lib)"
+        if [[ -e "/opt/rapids/node/modules/.cache/build/Release" ]]; then
+            paths="$paths $(find /opt/rapids/node/modules/.cache/build/Release -type l -name $lib)"
+            paths="$paths $(find /opt/rapids/node/modules/.cache/build/Release -type f -name $lib)"
+        fi
     fi
-    libs="${libs:+$libs }$(echo $lib)"
+    libs="${libs:+$libs }$(echo $paths)"
 done
 
-echo "rm -rf $dir_"/*.so* && rm -rf "$dir_"/*.so*
-
-ls -l "$dir_/*".so* 2>/dev/null || true
+# echo -e "libs:\n$libs"
 
 deps=""
 

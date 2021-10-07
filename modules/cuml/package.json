@@ -26,7 +26,7 @@
     "cpp:rebuild:debug": "nvidia-cmake-js -g rebuild -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
-    "dev:copy:libs": "nvidia-cmake-copy-libs build/Release/node_cuml.node **/libcuml++.so"
+    "dev:copy:libs": "nvidia-cmake-copy-libs node_cuml.node"
   },
   "dependencies": {
     "@rapidsai/cudf": "0.0.1"

@@ -58,6 +58,7 @@ function(find_and_configure_cuml VERSION)
                                 "BUILD_CUML_C_LIBRARY OFF"
                                 "BUILD_CUML_CPP_LIBRARY ON"
                                 "BUILD_CUML_PRIMS_BENCH OFF"
+                                "RAFT_USE_FAISS_STATIC OFF"
                                 "CUML_USE_FAISS_STATIC OFF"
                                 "CUML_USE_TREELITE_STATIC OFF"
         )
@@ -66,7 +67,7 @@ function(find_and_configure_cuml VERSION)
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
     # Make these -isystem so -Werror doesn't fail their builds
-    _set_interface_include_dirs_as_system(FAISS::FAISS)
+    _set_interface_include_dirs_as_system(faiss::faiss)
 endfunction()
 
 find_and_configure_cuml(${CUML_VERSION})

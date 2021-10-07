@@ -26,7 +26,7 @@
     "cpp:rebuild:debug": "nvidia-cmake-js -g rebuild -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
-    "dev:copy:libs": "nvidia-cmake-copy-libs build/Release/rapidsai_sql.node && rimraf build/Release/libcudf.so build/Release/libarrow*"
+    "dev:copy:libs": "nvidia-cmake-copy-libs rapidsai_sql.node && rimraf build/Release/libcudf.so build/Release/libarrow*"
   },
   "dependencies": {
     "@rapidsai/cudf": "0.0.1",
