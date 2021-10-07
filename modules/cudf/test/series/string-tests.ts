@@ -66,6 +66,45 @@ describe('StringSeries', () => {
   });
 });
 
+describe('StringSeries.concatenate', () => {
+  const s = StringSeries.new(['a', 'b', null]);
+  const t = StringSeries.new(['foo', null, 'bar']);
+
+  test('basic (no opts)', () => {
+    const result = StringSeries.concatenate([s, t]);
+    expect([...result]).toEqual(['afoo', null, null]);
+  });
+  test('basic (repeat)', () => {
+    const result = StringSeries.concatenate([s, t, s, t]);
+    expect([...result]).toEqual(['afooafoo', null, null]);
+  });
+  test('basic (empty opts)', () => {
+    const result = StringSeries.concatenate([s, t], {});
+    expect([...result]).toEqual(['afoo', null, null]);
+  });
+  test('separator', () => {
+    const result = StringSeries.concatenate([s, t], {separator: '::'});
+    expect([...result]).toEqual(['a::foo', null, null]);
+  });
+  test('separator (repeat)', () => {
+    const result = StringSeries.concatenate([s, t, s], {separator: '::'});
+    expect([...result]).toEqual(['a::foo::a', null, null]);
+  });
+  test('nullRepr (no separator)', () => {
+    const result = StringSeries.concatenate([s, t], {nullRepr: 'null'});
+    expect([...result]).toEqual(['afoo', 'bnull', 'nullbar']);
+  });
+  test('nullRepr (separator)', () => {
+    const result = StringSeries.concatenate([s, t], {separator: '::', nullRepr: 'null'});
+    expect([...result]).toEqual(['a::foo', 'b::null', 'null::bar']);
+  });
+  test('nullRepr (separatorOnNulls)', () => {
+    const result = StringSeries.concatenate(
+      [s, t], {separator: '::', nullRepr: 'null', separatorOnNulls: false});
+    expect([...result]).toEqual(['a::foo', 'bnull', 'nullbar']);
+  });
+});
+
 describe.each([['foo'], [/foo/], [/foo/ig]])('Series regex search (pattern=%p)', (pattern) => {
   test('containsRe', () => {
     const expected = [true, true, true, true, true, false, false, true, true];

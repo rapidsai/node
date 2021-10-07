@@ -28,6 +28,7 @@
 #include <cudf/copying.hpp>
 #include <cudf/replace.hpp>
 #include <cudf/stream_compaction.hpp>
+#include <cudf/strings/combine.hpp>
 #include <cudf/strings/padding.hpp>
 #include <cudf/types.hpp>
 #include <cudf/unary.hpp>
@@ -654,11 +655,6 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::scalar const& value,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
-  // column/strings/json.cpp
-  Column::wrapper_t get_json_object(
-    std::string const& json_path,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
-
   // column/replace.cpp
   Column::wrapper_t replace_nulls(
     cudf::column_view const& replacement,
@@ -708,6 +704,15 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Column::wrapper_t count_characters(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // column/strings/combine.cpp
+  static Column::wrapper_t concatenate(
+    Napi::Env const& env,
+    cudf::table_view const& columns,
+    cudf::string_scalar const& separator,
+    cudf::string_scalar const& narep,
+    cudf::strings::separator_on_nulls separator_on_nulls,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
+
   // column/strings/contains.cpp
   Column::wrapper_t contains_re(
     std::string const& pattern,
@@ -720,6 +725,11 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Column::wrapper_t matches_re(
     std::string const& pattern,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  // column/strings/json.cpp
+  Column::wrapper_t get_json_object(
+    std::string const& json_path,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
   // column/strings/padding.cpp
   Column::wrapper_t pad(
@@ -853,9 +863,6 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value cumulative_product(Napi::CallbackInfo const& info);
   Napi::Value cumulative_sum(Napi::CallbackInfo const& info);
 
-  // column/strings/json.cpp
-  Napi::Value get_json_object(Napi::CallbackInfo const& info);
-
   // column/replace.cpp
   Napi::Value replace_nulls(Napi::CallbackInfo const& info);
   Napi::Value replace_nans(Napi::CallbackInfo const& info);
@@ -893,10 +900,16 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value count_bytes(Napi::CallbackInfo const& info);
   Napi::Value count_characters(Napi::CallbackInfo const& info);
 
+  // column/filling.cpp
+  static Napi::Value concatenate(Napi::CallbackInfo const& info);
+
   // column/strings/contains.cpp
   Napi::Value contains_re(Napi::CallbackInfo const& info);
   Napi::Value count_re(Napi::CallbackInfo const& info);
   Napi::Value matches_re(Napi::CallbackInfo const& info);
+
+  // column/strings/json.cpp
+  Napi::Value get_json_object(Napi::CallbackInfo const& info);
 
   // column/strings/padding.cpp
   Napi::Value pad(Napi::CallbackInfo const& info);

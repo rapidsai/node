@@ -17,6 +17,7 @@ import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 
 import CUDF from './addon';
 import {Scalar} from './scalar';
+import {Table} from './table';
 import {
   Bool8,
   DataType,
@@ -75,6 +76,26 @@ export type ColumnProps<T extends DataType = any> = {
 interface ColumnConstructor {
   readonly prototype: Column;
   new<T extends DataType = any>(props: ColumnProps<T>): Column<T>;
+
+  /**
+   * Row-wise concatenates the given list of strings columns and returns a single strings column
+   * result.
+   *
+   * @param columns List of string columns to concatenate.
+   * @param separator String that should inserted between each string from each row.
+   * @param nullRepr String that should be used in place of any null strings found in any column.
+   *   Null value means any null entry in any column will produces a null result for that row.
+   * @param separate_nulls If true, then the separator is included for null rows if nullRepr is
+   *   valid.
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory
+   * @returns New column with concatenated results.
+   */
+  concatenate(columns: Table,
+              separator: string,
+              nullRepr: string|null,
+              separate_nulls: boolean,
+              memoryResource?: MemoryResource): Column<Utf8String>;
 
   /**
    * Fills a column with a sequence of values specified by an initial value and a step of 1.
