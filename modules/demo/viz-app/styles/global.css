@@ -79,4 +79,12 @@ a:hover {
 .bm-overlay {
     background: rgba(0, 0, 0, 0.3);
 }
+
+.menu-item {
+    color: black !important;
+    border-bottom: 1px solid black;
+    font-size: 16px;
+    line-height: 13px;
+    padding-bottom: 5px;
+}
 /*  */

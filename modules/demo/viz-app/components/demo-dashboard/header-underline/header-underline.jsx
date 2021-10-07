@@ -13,15 +13,12 @@
 // limitations under the License.
 
 import React from 'react';
-import { slide as Menu } from 'react-burger-menu';
-import HeaderUnderline from '../header-underline/header-underline';
 
-export default function SlideMenu() {
+export default function HeaderUnderline(props) {
   return (
-    <Menu pageWrapId={"page-wrap"} outerContainerId={"outer-container"} width={'50vw'}>
-      <HeaderUnderline title={"Data Source"}>
-        <div></div>
-      </HeaderUnderline>
-    </Menu>
+    <div>
+      <div className={"menu-item"}>{props.title}</div>
+      {props.children}
+    </div>
   );
 }

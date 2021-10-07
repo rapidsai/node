@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { SlideMenu } from '../slide-menu/slide-menu';
-import { Container } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
-import { slide as Menu } from 'react-burger-menu';
 import styles from './navbar.module.css';
 import Navbar from 'react-bootstrap/Navbar';
 
