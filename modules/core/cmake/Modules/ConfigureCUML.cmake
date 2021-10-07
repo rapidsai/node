@@ -31,7 +31,6 @@ function(find_and_configure_cuml VERSION)
     _set_package_dir_if_exists(RapidJSON rapidjson)
 
     if(NOT TARGET cuml::cuml)
-        _fix_rapids_cmake_dir()
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cuml ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cuml
@@ -64,7 +63,6 @@ function(find_and_configure_cuml VERSION)
                                 "CUML_USE_FAISS_STATIC OFF"
                                 "CUML_USE_TREELITE_STATIC OFF"
         )
-        _fix_rapids_cmake_dir()
     endif()
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
