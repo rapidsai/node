@@ -86,8 +86,6 @@ function head(dfs, rows) {
   let result   = new DataFrame();
   let rowCount = 0;
 
-  console.log(dfs.length);
-
   for (let i = 0; i < dfs.length; ++i) {
     if (dfs[i].numRows == 0) continue;
     rowCount += dfs[i].numRows;
