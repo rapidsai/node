@@ -334,8 +334,8 @@ export class SQLContext {
    * ```
    */
   async pull(messageId: string) {
-    const {names, tables} = await this.context.pull(messageId);
+    const {names, tables: [table]} = await this.context.pull(messageId);
     return new DataFrame(names.reduce(
-      (cols, name, i) => ({...cols, [name]: Series.new(tables[0].getColumnByIndex(i))}), {}));
+      (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }
 }
