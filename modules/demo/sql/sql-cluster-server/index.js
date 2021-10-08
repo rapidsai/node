@@ -89,7 +89,7 @@ function head(dfs, rows) {
   for (let i = 0; i < dfs.length; ++i) {
     if (dfs[i].numRows == 0) continue;
     rowCount += dfs[i].numRows;
-    if (result.numRows <= rows) { result = result.concat(dfs[i].head(rows)); }
+    if (result.numRows <= rows) { result = result.concat(dfs[i].head(rows - result.numRows)); }
   }
 
   return {results: result, resultCount: rowCount};
