@@ -38,7 +38,7 @@ function(find_and_configure_cuml VERSION)
             # GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
             # GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_REPOSITORY      https://github.com/trxcllnt/cuml.git
-            GIT_TAG             fix/node-rapids-21.12
+            GIT_TAG             fix/build-shared-faiss
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
