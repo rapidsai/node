@@ -36,7 +36,7 @@ function createCSVTable({name, paths}: {name: string, paths: string[]}) {
 }
 
 async function sql({query, token}: {uuid: string, query: string, token: number}) {
-  await context.sql(query, token).sendTo(0);
+  return {messageIds: await context.sql(query, token).sendTo(0)};
 }
 
 process.on('message', ({type, ...opts}: any) => {
