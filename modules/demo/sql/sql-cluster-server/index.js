@@ -57,19 +57,18 @@ fastify.register((require('fastify-arrow')))
     fastify.post('/run_query', async function(request, reply) {
       try {
         request.log.info({query: request.body}, `calling sqlCluster.sql()`);
-        const t0 = performance.now();
-        const df = await sqlCluster.sql(request.body).catch((err) => {
+        const t0        = performance.now();
+        const dfs       = await sqlCluster.sql(request.body).catch((err) => {
           request.log.error({err}, `Error calling sqlCluster.sql`);
           return new DataFrame();
         });
-        request.log.info({numRows: df.numRows}, `got sqlCluster.sql result`);
-        const t1           = performance.now();
-        const queryTime    = t1 - t0;
-        const queryResults = df.numRows;
-        const arrowTable   = df.head(500).toArrow();
-        request.log.info(`sending 500 rows`);
+        const t1        = performance.now();
+        const queryTime = t1 - t0;
+
+        const {results, resultCount} = head(dfs, 500);
+        const arrowTable             = results.toArrow();
         arrowTable.schema.metadata.set('queryTime', queryTime);
-        arrowTable.schema.metadata.set('queryResults', queryResults);
+        arrowTable.schema.metadata.set('queryResults', resultCount);
         RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
       } catch (err) {
         request.log.error({err}, '/run_query error');
@@ -82,3 +81,18 @@ fastify.listen(3000, err => {
   if (err) throw err
     console.log('Server listening on http://localhost:3000')
 });
+
+function head(dfs, rows) {
+  let result   = new DataFrame();
+  let rowCount = 0;
+
+  console.log(dfs.length);
+
+  for (let i = 0; i < dfs.length; ++i) {
+    if (dfs[i].numRows == 0) continue;
+    rowCount += dfs[i].numRows;
+    if (result.numRows <= rows) { result = result.concat(dfs[i].head(rows)); }
+  }
+
+  return {results: result, resultCount: rowCount};
+}

@@ -210,10 +210,10 @@ export class SQLCluster {
     const algebra = await this.explain(query);
     if (algebra.includes('LogicalValues(tuples=[[]])')) {
       // SQL returns empty result.
-      return new DataFrame();
+      return [];
     }
     const token = ctxToken++;
-    return await Promise.all(this._workers.map((worker) => worker.sql(query, token)));
+    return (await Promise.all(this._workers.map((worker) => worker.sql(query, token)))).flat();
   }
 
   /**
