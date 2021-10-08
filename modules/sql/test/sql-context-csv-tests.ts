@@ -51,8 +51,9 @@ test('query CSV table', async () => {
   const sqlContext = new SQLContext();
   sqlContext.createTable('test_table', [path]);
 
-  const result = new DataFrame({'c': Series.new(['foo', 'bar', 'foo'])});
-  await expect(sqlContext.sql('SELECT c FROM test_table').result()).resolves.toStrictEqual(result);
+  await expect(sqlContext.sql('SELECT c FROM test_table').result()).resolves.toStrictEqual([
+    new DataFrame({'c': Series.new(['foo', 'bar', 'foo'])})
+  ]);
 });
 
 let csvTmpDir = '';
