@@ -25,6 +25,26 @@ a:hover {
     color: rgb(172, 172, 172) !important;
 }
 
+.max {
+    width: 100%;
+}
+
+/* Buttons */
+.textButton {
+    color: black;
+    user-select: none;
+}
+
+.textButton:hover {
+    color: rgb(83, 83, 83);
+    cursor: pointer;
+}
+
+.textButton:active {
+    color: black;
+}
+/*  */
+
 /* NavBar Menu */
 .bm-burger-button {
     position: absolute;
@@ -83,8 +103,8 @@ a:hover {
 .menu-item {
     color: black !important;
     border-bottom: 1px solid black;
-    font-size: 16px;
+    font-size: 23px;
     line-height: 13px;
-    padding-bottom: 5px;
+    padding-bottom: 8px;
 }
 /*  */

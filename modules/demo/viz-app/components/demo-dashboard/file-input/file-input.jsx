@@ -14,11 +14,21 @@
 
 import React from 'react';
 
-export default function HeaderUnderline(props) {
-  return (
-    <div>
-      <div style={{ marginBottom: 5 }} className={"menu-item"}>{props.title}</div>
-      {props.children}
-    </div>
-  );
+export default class FileInput extends React.Component {
+  constructor(props) {
+    super(props)
+    this.uploadFile = this.uploadFile.bind(this);
+  }
+
+  uploadFile(event) {
+    let file = event.target.files[0];
+    this.props.onChange(file.name);
+  }
+
+  render() {
+    return <label style={{ width: 120, height: 0 }}>
+      <p className={"textButton"}>Select Data ▼</p>
+      <input type="file" style={{ display: "none" }} onChange={this.uploadFile} />
+    </label>
+  }
 }

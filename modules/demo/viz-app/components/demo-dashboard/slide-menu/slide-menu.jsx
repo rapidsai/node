@@ -13,15 +13,47 @@
 // limitations under the License.
 
 import React from 'react';
-import { slide as Menu } from 'react-burger-menu';
+import FileInput from '../file-input/file-input';
 import HeaderUnderline from '../header-underline/header-underline';
+import { slide as Menu } from 'react-burger-menu';
+import { Row, Col, Container } from 'react-bootstrap';
 
-export default function SlideMenu() {
-  return (
-    <Menu pageWrapId={"page-wrap"} outerContainerId={"outer-container"} width={'50vw'}>
-      <HeaderUnderline title={"Data Source"}>
-        <div></div>
-      </HeaderUnderline>
-    </Menu>
-  );
+export default class SlideMenu extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      selectedFilePath: "",
+    }
+    this.onLoadClick = this.onLoadClick.bind(this);
+    this.onDataChange = this.onDataChange.bind(this);
+  }
+
+  onDataChange(filePath) {
+    this.setState({
+      selectedFilePath: filePath
+    });
+  }
+
+  onLoadClick() {
+
+  }
+
+  render() {
+    return (
+      <Menu pageWrapId={"page-wrap"} outerContainerId={"outer-container"} width={'50vw'}>
+        <HeaderUnderline title={"Data Source"}>
+          <Row>
+            <Col className={"col-auto"}>
+              <FileInput onChange={this.onDataChange}></FileInput>
+              <p style={{ color: "black" }}>Selection: {this.state.selectedFilePath}</p>
+            </Col>
+            <Col className={"max"} ><div className={"d-flex"} /></Col>
+            <Col className={"col-auto"}>
+              <p className={"textButton"} onClick={this.onLoadClick}>[Load]</p>
+            </Col>
+          </Row>
+        </HeaderUnderline>
+      </Menu >
+    );
+  }
 }
