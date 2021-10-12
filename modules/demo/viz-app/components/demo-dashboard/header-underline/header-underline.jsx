@@ -16,7 +16,7 @@ import React from 'react';
 
 export default function HeaderUnderline(props) {
   return (
-    <div>
+    <div style={{ marginBottom: 30 }}>
       <div style={{ marginBottom: 5 }} className={"menu-item"}>{props.title}</div>
       {props.children}
     </div>

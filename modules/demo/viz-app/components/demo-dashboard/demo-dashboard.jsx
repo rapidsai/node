@@ -26,7 +26,10 @@ export default class DemoDashboard extends React.Component {
 
     return (
       <div id="outer-container">
-        <SlideMenu />
+        <SlideMenu
+          onLoadClick={this.props.onLoadClick}
+          onRenderClick={this.props.onRenderClick}
+        />
         <Layout id="page-wrap" title={demoName}>
           <TempDemoView />
           <Container fluid style={{ paddingTop: 20 }}>

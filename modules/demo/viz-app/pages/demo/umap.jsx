@@ -17,6 +17,9 @@ import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 
 export default function UMAP() {
   return (
-    <DemoDashboard demoName={"UMAP Demo"} />
+    <DemoDashboard demoName={"UMAP Demo"}
+      onLoadClick={(fileName) => { console.log(fileName) }}
+      onRenderClick={() => { console.log("Render Clicked") }}
+    />
   )
 }

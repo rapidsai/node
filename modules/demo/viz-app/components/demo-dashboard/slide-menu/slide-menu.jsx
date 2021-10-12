@@ -24,8 +24,9 @@ export default class SlideMenu extends React.Component {
     this.state = {
       selectedFilePath: "",
     }
-    this.onLoadClick = this.onLoadClick.bind(this);
     this.onDataChange = this.onDataChange.bind(this);
+    this.onLoadClick = this.onLoadClick.bind(this);
+    this.onRenderClick = this.onRenderClick.bind(this);
   }
 
   onDataChange(filePath) {
@@ -35,7 +36,11 @@ export default class SlideMenu extends React.Component {
   }
 
   onLoadClick() {
+    this.props.onLoadClick(this.state.selectedFilePath);
+  }
 
+  onRenderClick() {
+    this.props.onRenderClick();
   }
 
   render() {
@@ -52,6 +57,9 @@ export default class SlideMenu extends React.Component {
               <p className={"textButton"} onClick={this.onLoadClick}>[Load]</p>
             </Col>
           </Row>
+        </HeaderUnderline>
+        <HeaderUnderline title={"Visualization"}>
+          <p className={"textButton"} onClick={this.onRenderClick}>[Render]</p>
         </HeaderUnderline>
       </Menu >
     );
