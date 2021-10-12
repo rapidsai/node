@@ -57,25 +57,27 @@ a:hover {
 
 .react-tabs__tab {
     display: inline-block;
-    border: 1px solid transparent;
-    border-bottom: none;
+    border: 1px solid;
+    border-bottom: 3px;
     bottom: -1px;
     position: relative;
     list-style: none;
     padding: 6px 12px;
     cursor: pointer;
     background: #fff;
-    border-radius: 5px 5px 0 0;
     margin-right: 3px;
+    margin-bottom: 1px;
     font-size: 14px;
     font-weight: bold;
+    border-radius: 5px 5px 0 0;
+    border-color: #aaa;
 }
 
 .react-tabs__tab--selected {
     background: #fff;
-    border-color: #aaa;
     color: black;
-    border-radius: 5px 5px 0 0;
+    border-bottom: 1px solid;
+    border-color: #fff;
 }
 
 .react-tabs__tab--disabled {
@@ -94,6 +96,9 @@ a:hover {
 .react-tabs__tab-panel {
     display: none;
     background: #fff !important;
+    border-color: #aaa;
+    border: 1px solid transparent;
+    padding: 5px;
 }
 
 .react-tabs__tab-panel--selected {

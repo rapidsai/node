@@ -14,9 +14,7 @@
 
 import styles from './demo-view.module.css';
 
-// While we wait for the actual hookup of the demo, we'll use this place-holder
-// to represent the size that the demo will take up.
-export default function TempDemoView({ demoView }) {
+export default function DemoView({ demoView }) {
     return (
         <div className={styles.view}>
             {demoView}
