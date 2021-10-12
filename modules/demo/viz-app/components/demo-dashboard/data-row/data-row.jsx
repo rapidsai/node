@@ -19,7 +19,7 @@ import DataMetrics from './data-metrics/data-metrics';
 
 export default function DataRow({ dataTable, dataMetrics }) {
   return (
-    <Row>
+    <Row style={{ marginBottom: 10 }}>
       {dataTable != undefined &&
         <Col xs={12} sm={dataMetrics == undefined ? 12 : 8}>
           <DataTable source={dataTable} />
