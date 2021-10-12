@@ -15,6 +15,7 @@
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import React from 'react';
 import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
+import HeaderUnderline from '../../components/demo-dashboard/header-underline/header-underline';
 
 export default class UMAP extends React.Component {
   constructor(props) {
@@ -48,7 +49,15 @@ export default class UMAP extends React.Component {
   }
 
   dataMetrics() {
-    return <div>Data Metrics</div>
+    return (
+      <div style={{ padding: 10, color: 'white' }}>
+        <HeaderUnderline title={"Data Metrics"} fontSize={18} color={"white"}>
+          <div>{'>'} 100,001,203 Edges</div>
+          <div>{'>'} 20,001,525 Nodes</div>
+          <div>{'>'} 5.2GB</div>
+        </HeaderUnderline>
+      </div>
+    )
   }
 
   render() {

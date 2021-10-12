@@ -58,6 +58,7 @@ export default class SlideMenu extends React.Component {
             </Col>
           </Row>
         </HeaderUnderline>
+        <div style={{ height: 20 }} />
         <HeaderUnderline title={"Visualization"}>
           <p className={"textButton"} onClick={this.onRenderClick}>[Render]</p>
         </HeaderUnderline>

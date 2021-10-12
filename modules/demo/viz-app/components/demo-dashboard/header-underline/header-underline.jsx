@@ -16,8 +16,10 @@ import React from 'react';
 
 export default function HeaderUnderline(props) {
   return (
-    <div style={{ marginBottom: 30 }}>
-      <div style={{ marginBottom: 5 }} className={"menu-item"}>{props.title}</div>
+    <div>
+      <div className={"menu-item"} style={{ marginBottom: 5, fontSize: props.fontSize, color: props.color, borderBottomColor: props.color }}>
+        {props.title}
+      </div>
       {props.children}
     </div>
   );

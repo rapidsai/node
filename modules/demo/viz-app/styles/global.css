@@ -162,7 +162,7 @@ a:hover {
 }
 
 .menu-item {
-    color: black !important;
+    color: black;
     border-bottom: 1px solid black;
     font-size: 23px;
     line-height: 13px;
