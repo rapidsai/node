@@ -14,12 +14,11 @@
 
 import React from 'react';
 import styles from './data-metrics.module.css';
-import { Container } from 'react-bootstrap';
 
-export default function DataMetrics() {
+export default function DataMetrics({ source }) {
   return (
-    <Container className={styles.container}>
-      <p>Data Metrics go here.</p>
-    </Container>
+    <div className={styles.container}>
+      {source}
+    </div>
   )
 }

@@ -33,7 +33,7 @@ export default class DemoDashboard extends React.Component {
         <Layout id="page-wrap" title={demoName}>
           <TempDemoView />
           <Container fluid style={{ paddingTop: 20 }}>
-            <DataRow />
+            <DataRow dataTable={this.props.dataTable} dataMetrics={this.props.dataMetrics} />
             <Footer />
           </Container>
         </Layout>

@@ -14,12 +14,11 @@
 
 import React from 'react';
 import styles from './data-table.module.css';
-import { Container } from 'react-bootstrap';
 
-export default function DataTable() {
+export default function DataTable({ source }) {
   return (
-    <Container className={styles.container}>
-      <p>Data Table goes here.</p>
-    </Container>
+    <div className={styles.container}>
+      {source}
+    </div>
   )
 }

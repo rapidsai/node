@@ -13,18 +13,20 @@
 // limitations under the License.
 
 import React from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import DataTable from './data-table/data-table';
 import DataMetrics from './data-metrics/data-metrics';
 
-export default function DataRow() {
+export default function DataRow({ dataTable, dataMetrics }) {
   return (
     <Row>
-      <Col xs={12} sm={8} md={8} lg={8}>
-        <DataTable />
-      </Col>
+      {dataTable != undefined &&
+        <Col xs={12} sm={dataMetrics == undefined ? 12 : 8}>
+          <DataTable source={dataTable} />
+        </Col>
+      }
       <Col>
-        <DataMetrics />
+        <DataMetrics source={dataMetrics} />
       </Col>
     </Row>
   )

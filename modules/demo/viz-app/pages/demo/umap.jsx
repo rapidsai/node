@@ -15,11 +15,23 @@
 import React from 'react';
 import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 
-export default function UMAP() {
-  return (
-    <DemoDashboard demoName={"UMAP Demo"}
-      onLoadClick={(fileName) => { console.log(fileName) }}
-      onRenderClick={() => { console.log("Render Clicked") }}
-    />
-  )
+export default class UMAP extends React.Component {
+  render() {
+    return (
+      <DemoDashboard demoName={"UMAP Demo"}
+        onLoadClick={(fileName) => { console.log(fileName) }}
+        onRenderClick={() => { console.log("Render Clicked") }}
+        dataTable={dataTable()}
+        dataMetrics={dataMetrics()}
+      />
+    )
+  }
+}
+
+function dataTable() {
+  return <div>Dable Table</div>
+}
+
+function dataMetrics() {
+  return <div>Data Metrics</div>
 }
