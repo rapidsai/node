@@ -33,7 +33,8 @@
     "react-bootstrap": "1.6.1",
     "react-dom": "17.0.2",
     "react-map-gl": "5.3.16",
-    "react-burger-menu": "3.0.6"
+    "react-burger-menu": "3.0.6",
+    "react-tabs": "3.2.2"
   },
   "files": [
     "pages",
