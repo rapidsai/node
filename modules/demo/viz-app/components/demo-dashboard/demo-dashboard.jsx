@@ -14,7 +14,7 @@
 
 import React from 'react';
 import Layout from './layout/layout';
-import TempDemoView from './temp-demo-view/temp-demo-view';
+import DemoView from './demo-view/demo-view';
 import DataRow from './data-row/data-row';
 import Footer from './footer/footer';
 import { Container } from 'react-bootstrap';
@@ -31,7 +31,7 @@ export default class DemoDashboard extends React.Component {
           onRenderClick={this.props.onRenderClick}
         />
         <Layout id="page-wrap" title={demoName}>
-          <TempDemoView />
+          <DemoView demoView={this.props.demoView} />
           <Container fluid style={{ paddingTop: 20 }}>
             <DataRow dataTable={this.props.dataTable} dataMetrics={this.props.dataMetrics} />
             <Footer />

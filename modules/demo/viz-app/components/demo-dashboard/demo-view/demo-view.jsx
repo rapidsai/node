@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import styles from './temp-demo-view.module.css';
+import styles from './demo-view.module.css';
 
 // While we wait for the actual hookup of the demo, we'll use this place-holder
 // to represent the size that the demo will take up.
-export default function TempDemoView() {
+export default function TempDemoView({ demoView }) {
     return (
-        <div className={styles.view} />
+        <div className={styles.view}>
+            {demoView}
+        </div>
     )
 }

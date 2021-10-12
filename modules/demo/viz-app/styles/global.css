@@ -51,8 +51,7 @@ a:hover {
 }
 
 .react-tabs__tab-list {
-    border-bottom: 1px solid #aaa;
-    margin: 0 0 10px;
+    margin: 0 0 0 0;
     padding: 0;
 }
 
@@ -94,6 +93,7 @@ a:hover {
 
 .react-tabs__tab-panel {
     display: none;
+    background: #fff !important;
 }
 
 .react-tabs__tab-panel--selected {

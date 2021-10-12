@@ -23,6 +23,12 @@ export default class UMAP extends React.Component {
     this.dataMetrics = this.dataMetrics.bind(this);
   }
 
+  demoView() {
+    return (
+      <p>Demo goes here.</p>
+    );
+  }
+
   dataTable() {
     return (
       <Tabs>
@@ -48,6 +54,7 @@ export default class UMAP extends React.Component {
   render() {
     return (
       <DemoDashboard demoName={"UMAP Demo"}
+        demoView={this.demoView()}
         onLoadClick={(fileName) => { console.log(fileName) }}
         onRenderClick={() => { console.log("Render Clicked") }}
         dataTable={this.dataTable()}
