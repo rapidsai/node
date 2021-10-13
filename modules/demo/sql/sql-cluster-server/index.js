@@ -49,7 +49,7 @@ fastify.register((require('fastify-arrow')))
   }))
   .register(async (instance, opts, done) => {
     sqlCluster = await SQLCluster.init({numWorkers: 10});
-    await sqlCluster.createTable('test_table', [`${__dirname}/data/test.csv`]);
+    await sqlCluster.createTable('test_table', DATA_PATHS);
     done();
   })
   .after(() => {
