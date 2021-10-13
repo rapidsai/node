@@ -39,7 +39,20 @@ export default class UMAP extends React.Component {
       },
       {
         Header: 'Col Name',
-        accessor: 'colname',
+        accessor: 'colname1',
+      },
+      {
+        Header: 'Col Name',
+        accessor: 'colname2',
+      },
+      {
+        Header: 'Col Name',
+        accessor: 'colname3',
+      }
+      ,
+      {
+        Header: 'Col Name',
+        accessor: 'colname4',
       }
     ];
   }
@@ -47,7 +60,13 @@ export default class UMAP extends React.Component {
   fakeData(i) {
     return {
       index: `testvalue${i}`,
-      colname: `colname${i}`
+      colname1: `colname${i}`,
+      colname2: `colname${i}`,
+      colname3: `colname${i}`,
+      colname4: `colname${i}`,
+      colname2: `colname${i}`,
+      colname3: `colname${i}`,
+      colname4: `colname${i}`,
     };
   }
 
@@ -62,7 +81,7 @@ export default class UMAP extends React.Component {
         <TabPanel>
           <ExtendedTable
             cols={this.columns()}
-            data={[this.fakeData(0), this.fakeData(1)]}
+            data={[this.fakeData(0), this.fakeData(1), this.fakeData(2), this.fakeData(3), this.fakeData(4), this.fakeData(5), this.fakeData(6), this.fakeData(7)]}
           />
         </TabPanel>
         <TabPanel>

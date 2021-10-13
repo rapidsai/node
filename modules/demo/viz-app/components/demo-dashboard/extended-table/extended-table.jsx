@@ -36,15 +36,12 @@ export default function ExtendedTable({ cols, data }) {
   return (
     <>
       <table className={styles.table} {...getTableProps()}>
-        <thead className={styles.th}>
+        <thead>
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                // Add the sorting props to control sorting. For this example
-                // we can add them into the header props
-                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                <th className={styles.th} {...column.getHeaderProps(column.getSortByToggleProps())}>
                   {column.render('Header')}
-                  {/* Add a sort direction indicator */}
                   <span>
                     {column.isSorted
                       ? column.isSortedDesc
@@ -65,7 +62,7 @@ export default function ExtendedTable({ cols, data }) {
                 <tr className={i % 2 != 0 ? styles.grey : ''} {...row.getRowProps()}>
                   {row.cells.map(cell => {
                     return (
-                      <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                      <td className={styles.td} {...cell.getCellProps()}>{cell.render('Cell')}</td>
                     )
                   })}
                 </tr>

@@ -15,6 +15,7 @@
 .table {
     border-spacing: 0;
     border: 1px solid black;
+    width: 100%;
 }
 
 .tr:last-child {
@@ -22,9 +23,17 @@
 }
 
 .th {
-    background: #e5e5e5
+    background: #e5e5e5;
+    border: 1px solid black;
+    padding-left: 5px;
+}
+
+.td {
+    border-right: 1px solid black;
+    padding-left: 5px;
 }
 
 .grey {
-    background: #e5e5e5
+    background: #e5e5e5;
+    border: 1px solid black;
 }
