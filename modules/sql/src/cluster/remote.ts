@@ -78,7 +78,7 @@ export class RemoteSQLWorker implements Worker {
 
   public sql(query: string, token: number) {
     return this._send({type: 'sql', query, token})
-      .then(({messageIds}) =>
+      .then(({messageIds}: {messageIds: string[]}) =>
               Promise.all(messageIds.map((id: string) => this._cluster.context.pull(id))));
   }
 

@@ -189,7 +189,7 @@ ExecutionGraph::wrapper_t run_generate_graph(
       {},                        // std::vector<ral::frame::BlazingTableView> blazingTableViews
       type_ids,                  // std::vector<cudf::type_id> types
       files,                     // std::vector<std::string> files
-      files,                     // std::vector<std::string> datasource TODO could be wrong.
+      files,                     // std::vector<std::string> datasource
       names,                     // std::vector<std::string> names
       calcite_to_file_indicies,  // std::vector<size_t> calcite_to_file_indices
       {},                        // std::vector<bool> in_file
