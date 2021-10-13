@@ -15,8 +15,8 @@
 import {Uint8ClampedBuffer} from '@nvidia/cuda';
 import {MemoryResource} from '@rapidsai/rmm';
 
-import {Series} from '../series';
-import {Bool8, Int32, Int64} from '../types/dtypes';
+import {Series, StringSeries} from '../series';
+import {Bool8, Int32, Int64, Int8} from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
 
@@ -24,6 +24,10 @@ import {NumericSeries} from './numeric';
  * A Series of 1-byte boolean values in GPU memory.
  */
 export class Bool8Series extends NumericSeries<Bool8> {
+  _castAsString(memoryResource?: MemoryResource): StringSeries {
+    return StringSeries.new(this.cast(new Int8)._col.stringsFromIntegers(memoryResource));
+  }
+
   /**
    * A Uint8 view of the values in GPU memory.
    */
