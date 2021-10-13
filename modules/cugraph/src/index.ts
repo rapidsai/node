@@ -15,3 +15,5 @@
 export * as addon from './addon';
 
 export {GraphCOO} from './addon';
+
+export {hypergraph, hypergraphDirect} from './hypergraph';
