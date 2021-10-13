@@ -16,44 +16,9 @@ import React from 'react';
 import { useTable, useSortBy } from 'react-table';
 import styles from './extended-table.module.css';
 
-const range = len => {
-  const arr = []
-  for (let i = 0; i < len; i++) {
-    arr.push(i)
-  }
-  return arr
-}
-
-const test = (d) => {
-  return {
-    index: `testvalue${d}`
-  };
-}
-
-function makeData(...lens) {
-  const makeDataLevel = (depth = 0) => {
-    const len = lens[depth]
-    return range(len).map(d => {
-      return {
-        ...test(d),
-        subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined,
-      }
-    })
-  }
-
-  return makeDataLevel()
-}
-
-export default function ExtendedTable() {
+export default function ExtendedTable({ cols, data }) {
   const columns = React.useMemo(
-    () => [
-      {
-        Header: 'Index',
-        accessor: 'index',
-      },
-    ], []);
-
-  const data = React.useMemo(() => makeData(60), []);
+    () => cols, []);
 
   const {
     getTableProps,
@@ -64,9 +29,9 @@ export default function ExtendedTable() {
   } = useTable({
     columns,
     data,
-  }, useSortBy)
+  }, useSortBy);
 
-  const firstPageRows = rows.slice(0, 20)
+  const firstPageRows = rows.slice(0, 20);
 
   return (
     <>

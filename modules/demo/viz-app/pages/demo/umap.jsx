@@ -31,6 +31,26 @@ export default class UMAP extends React.Component {
     );
   }
 
+  columns() {
+    return [
+      {
+        Header: 'Index',
+        accessor: 'index',
+      },
+      {
+        Header: 'Col Name',
+        accessor: 'colname',
+      }
+    ];
+  }
+
+  fakeData(i) {
+    return {
+      index: `testvalue${i}`,
+      colname: `colname${i}`
+    };
+  }
+
   dataTable() {
     return (
       <Tabs>
@@ -40,7 +60,10 @@ export default class UMAP extends React.Component {
         </TabList>
 
         <TabPanel>
-          <ExtendedTable />
+          <ExtendedTable
+            cols={this.columns()}
+            data={[this.fakeData(0), this.fakeData(1)]}
+          />
         </TabPanel>
         <TabPanel>
           <div>This is edge list</div>
