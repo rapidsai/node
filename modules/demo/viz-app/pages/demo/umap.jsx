@@ -16,6 +16,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import React from 'react';
 import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 import HeaderUnderline from '../../components/demo-dashboard/header-underline/header-underline';
+import ExtendedTable from '../../components/demo-dashboard/extended-table/extended-table';
 
 export default class UMAP extends React.Component {
   constructor(props) {
@@ -39,7 +40,7 @@ export default class UMAP extends React.Component {
         </TabList>
 
         <TabPanel>
-          <div>This is node list</div>
+          <ExtendedTable />
         </TabPanel>
         <TabPanel>
           <div>This is edge list</div>
