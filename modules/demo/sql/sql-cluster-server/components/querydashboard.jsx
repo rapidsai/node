@@ -26,6 +26,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
+import LoadingOverlay from 'react-loading-overlay';
 
 const MAX_RESULTS_TO_DISPLAY = 500;
 const columns = [
@@ -70,6 +71,7 @@ export class QueryDashboard extends React.Component {
       queryTime: '',
       queryResult: [],
       queryButtonEnabled: false,
+      runningQuery: false,
       page: 0,
       rowsPerPage: 10,
     };
@@ -84,6 +86,7 @@ export class QueryDashboard extends React.Component {
   async runQuery() {
     if (this.state.queryButtonEnabled) {
       this.setState({ queryButtonEnabled: false });
+      this.setState({ runningQuery: true });
       await fetch(`/run_query`, {
         method: `POST`,
         headers: {
@@ -99,6 +102,7 @@ export class QueryDashboard extends React.Component {
           rowsPerPage: 10
         });
       });
+      this.setState({ runningQuery: false });
       this.setState({ queryButtonEnabled: true });
     }
   }
@@ -121,8 +125,14 @@ export class QueryDashboard extends React.Component {
       <Container style={{
         paddingTop: 40
       }}>
-        <QueryBuilder onQueryChange={
-          this.onQueryChange} />
+        <LoadingOverlay
+          active={this.state.runningQuery}
+          spinner
+          text='Running query...'
+        >
+          <QueryBuilder onQueryChange={
+            this.onQueryChange} />
+        </LoadingOverlay>
         <Row style={{ marginTop: 20, marginBottom: 20 }}>
           <Col lg={9} md={9} sm={8} xs={8}>
             <InputGroup className={"queryInput"}>
