@@ -101,8 +101,6 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::cumulative_min>("cumulativeMin"),
                        InstanceMethod<&Column::cumulative_product>("cumulativeProduct"),
                        InstanceMethod<&Column::cumulative_sum>("cumulativeSum"),
-                       // column/strings/json.cpp
-                       InstanceMethod<&Column::get_json_object>("getJSONObject"),
                        // column/replacement.cpp
                        InstanceMethod<&Column::replace_nulls>("replaceNulls"),
                        InstanceMethod<&Column::replace_nans>("replaceNaNs"),
@@ -137,10 +135,14 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        // column/strings/attributes.cpp
                        InstanceMethod<&Column::count_bytes>("countBytes"),
                        InstanceMethod<&Column::count_characters>("countCharacters"),
+                       // column/strings/combine.cpp
+                       StaticMethod<&Column::concatenate>("concatenate"),
                        // column/strings/contains.cpp
                        InstanceMethod<&Column::contains_re>("containsRe"),
                        InstanceMethod<&Column::count_re>("countRe"),
                        InstanceMethod<&Column::matches_re>("matchesRe"),
+                       // column/strings/json.cpp
+                       InstanceMethod<&Column::get_json_object>("getJSONObject"),
                        // column/strings/padding.cpp
                        InstanceMethod<&Column::pad>("pad"),
                        InstanceMethod<&Column::zfill>("zfill"),
