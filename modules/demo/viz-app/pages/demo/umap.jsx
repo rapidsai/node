@@ -103,6 +103,10 @@ export default class UMAP extends React.Component {
           <div>{'>'} 20,001,525 Nodes</div>
           <div>{'>'} 5.2GB</div>
         </HeaderUnderline>
+        <div style={{ height: 20 }} />
+        <HeaderUnderline title={"Query Log"} fontSize={18} color={"white"}>
+          <div className={"whiteTextButton"}>Export Selected ▼</div>
+        </HeaderUnderline>
       </div>
     )
   }
