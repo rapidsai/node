@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import React from 'react';
-import styles from './tool-bar.module.css'
+import styles from './tool-bar.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faVectorSquare, faDrawPolygon, faMousePointer, faSearchMinus, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 export default class ToolBar extends React.Component {
   constructor(props) {
@@ -31,26 +33,28 @@ export default class ToolBar extends React.Component {
     this.props.onToolSelect(tool);
   }
 
-  createTool(name, selectedTool) {
+  createTool(name, icon, selectedTool) {
     return (
       <div onClick={() => { this.selectTool(name) }} className={`${styles.tool} ${selectedTool == name ? styles.selected : ''}`}>
-        {name}
+        <FontAwesomeIcon icon={icon} />
       </div>
     );
   }
 
-  createButton(name, onClick) {
-    return <div onClick={onClick} className={styles.tool}>{name}</div>
+  createButton(icon, onClick) {
+    return <div onClick={onClick} className={styles.tool}>
+      <FontAwesomeIcon icon={icon} />
+    </div>
   }
 
   render() {
     return (
       <div className={styles.toolBar}>
-        {this.createTool('box', this.state.selectedTool)}
-        {this.createTool('poly', this.state.selectedTool)}
-        {this.createTool('node', this.state.selectedTool)}
-        {this.createButton('reset', this.props.onResetClick)}
-        {this.createButton('clear', this.props.onClearClick)}
+        {this.createTool('box', faVectorSquare, this.state.selectedTool)}
+        {this.createTool('poly', faDrawPolygon, this.state.selectedTool)}
+        {this.createTool('node', faMousePointer, this.state.selectedTool)}
+        {this.createButton(faSearchMinus, this.props.onResetClick)}
+        {this.createButton(faTimes, this.props.onClearClick)}
       </div>
     );
   }
