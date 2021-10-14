@@ -1,0 +1,171 @@
+/* Copyright (c) 2021, NVIDIA CORPORATION.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License. */
+
+html, #__next, .jumbotron {
+    background-color: #1a1a1a !important;
+}
+
+a {
+    color: rgb(207, 207, 207) !important;
+    text-decoration: underline !important;
+}
+
+a:hover {
+    color: rgb(172, 172, 172) !important;
+}
+
+.max {
+    width: 100%;
+}
+
+/* Buttons */
+.textButton {
+    color: black;
+    user-select: none;
+}
+
+.textButton:hover {
+    color: rgb(83, 83, 83);
+    cursor: pointer;
+}
+
+.textButton:active {
+    color: black;
+}
+/*  */
+
+/* Tabs */
+.react-tabs {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.react-tabs__tab-list {
+    margin: 0 0 0 0;
+    padding: 0;
+}
+
+.react-tabs__tab {
+    display: inline-block;
+    border: 1px solid;
+    border-bottom: 3px;
+    bottom: -1px;
+    position: relative;
+    list-style: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    background: #fff;
+    margin-right: 3px;
+    margin-bottom: 1px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px 5px 0 0;
+    border-color: #aaa;
+}
+
+.react-tabs__tab--selected {
+    background: #fff;
+    color: black;
+    border-bottom: 1px solid;
+    border-color: #fff;
+}
+
+.react-tabs__tab--disabled {
+    color: GrayText;
+    cursor: default;
+}
+
+.react-tabs__tab:focus {
+    outline: none;
+}
+
+.react-tabs__tab:focus:after {
+    position: absolute;
+}
+
+.react-tabs__tab-panel {
+    display: none;
+    background: #fff !important;
+    border-color: #aaa;
+    border: 1px solid transparent;
+    padding: 5px;
+}
+
+.react-tabs__tab-panel--selected {
+    display: block;
+}
+/*  */
+
+/* NavBar Menu */
+.bm-burger-button {
+    position: absolute;
+    width: 36px;
+    height: 30px;
+    top: 12px;
+    left: 12px;
+}
+
+.bm-burger-bars {
+    background: black;
+}
+
+.bm-burger-bars-hover {
+    background: #373a47;
+}
+
+.bm-cross-button {
+    height: 24px;
+    width: 24px;
+}
+
+.bm-cross {
+    background-color: black;
+}
+
+.bm-menu-wrap {
+    position: absolute;
+    height: 100%;
+}
+
+.bm-menu {
+    background: #e2e2e2;
+    padding: 2.5em 1em 0;
+    font-size: 1.15em;
+    border-right: 3px solid #868686;
+}
+
+.bm-morph-shape {
+    fill: #373a47;
+}
+
+.bm-item-list {
+    color: #b8b7ad;
+    padding: 0.8em;
+}
+
+.bm-item {
+    display: inline-block;
+}
+
+.bm-overlay {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.menu-item {
+    color: black;
+    border-bottom: 1px solid black;
+    font-size: 23px;
+    line-height: 13px;
+    padding-bottom: 8px;
+}
+/*  */
