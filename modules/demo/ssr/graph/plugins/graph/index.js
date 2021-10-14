@@ -234,7 +234,6 @@ function layoutAndRenderGraphs(clients) {
           client.isRendering = false;
           if (id in clients) {
             if (error) { throw error; }
-
             if (client.state.clearSelections == true) {
               // clear selection is called once
               result.state.clearSelections = false;
@@ -246,17 +245,11 @@ function layoutAndRenderGraphs(clients) {
 
               // send to client
               sendToClient(client.dataframes.nodes);
-
             } else if (JSON.stringify(client.state.selectedInfo.selectedCoordinates) !==
                        JSON.stringify(result.state.selectedInfo.selectedCoordinates)) {
               // selections updated
               const nodes = Series.new({type: new Int32, data: result.state.selectedInfo.selected});
               sendToClient(client.dataframes.nodes.gather(nodes));
-            }
-
-            if (client.state.pickingMode !== 'boxSelect') {
-              // boxSelect toggle is false, clear the previous selected box
-              result.state.boxSelectCoordinates.rectdata = [{polygon: [[]], show: false}];
             }
 
             // copy result state to client's current state
