@@ -20,9 +20,75 @@ class Renderer {
   constructor() {
     const onAnimationFrameRequested = immediateAnimationFrame(this);
     const jsdom                     = new RapidsJSDOM({module, onAnimationFrameRequested});
-    const {deck, render}            = jsdom.window.evalFn(makeDeck);
 
-    this.deck    = deck;
+    const {deck, render} = jsdom.window.evalFn(makeDeck);
+
+    const onDragStart =
+      (info, event) => {
+        if (this.deck.props.controller.dragPan) { return; }
+        const {x, y}                            = info;
+        const [px, py]                          = info.viewport.unproject([x, y]);
+        this.deck.boxSelectCoordinates.startPos = [x, y];
+        this.deck.boxSelectCoordinates.rectdata =
+          [{polygon: [[px, py], [px, py], [px, py], [px, py]], show: true}];
+      }
+
+    const onDragEnd =
+      (info, event) => {
+        if (this.deck.props.controller.dragPan || !this.deck.boxSelectCoordinates.startPos ||
+            !this.deck.boxSelectCoordinates.rectdata) {
+          return;
+        }
+        const {x, y} = info;
+        const sx     = this.deck.boxSelectCoordinates.startPos[0];
+        const sy     = this.deck.boxSelectCoordinates.startPos[1];
+
+        this.deck.boxSelectCoordinates.rectdata =
+          [{polygon: this.deck.boxSelectCoordinates.rectdata[0].polygon || [], show: true}];
+        this.deck.boxSelectCoordinates.startPos    = null;
+        this.deck.selectedInfo.selectedCoordinates = {
+          x: Math.min(sx, x),
+          y: Math.min(sy, y),
+          width: Math.abs(x - sx),
+          height: Math.abs(y - sy),
+          layerIds: ['GraphLayer']
+        };
+
+        this.deck.selectedInfo.selected =
+          this.deck.pickObjects(this.deck.selectedInfo.selectedCoordinates)
+            .filter(selected => selected.hasOwnProperty('nodeId'))
+            .map(n => n.nodeId);
+        console.log(this.deck.selectedInfo.selected);
+      }
+
+    const onDrag = (info, event) => {
+      if (this.deck.props.controller.dragPan) { return; }
+      if (this.deck.boxSelectCoordinates.startPos) {
+        const {x, y}     = info;
+        const [px, py]   = info.viewport.unproject([x, y]);
+        const startPoint = this.deck.boxSelectCoordinates.rectdata[0].polygon[0];
+        this.deck.boxSelectCoordinates.rectdata =
+          [{polygon: [startPoint, [startPoint[0], py], [px, py], [px, startPoint[1]]], show: true}];
+      };
+    };
+
+    const handleClick = (info, event) => {
+      this.deck.selectedInfo.selectedCoordinates = {
+        x: info.x,
+        y: info.y,
+        radius: 1,
+      };
+      this.deck.selectedInfo.selected =
+        [this.deck.pickObject(this.deck.selectedInfo.selectedCoordinates)]
+          .filter(selected => selected && selected.hasOwnProperty('nodeId'))
+          .map(n => n.nodeId);
+
+      console.log(this.deck.selectedInfo.selected, this.deck.selectedInfo.selectedCoordinates);
+    };
+
+    this.deck = deck;
+    this.deck.setProps(
+      {onClick: handleClick, onDrag: onDrag, onDragStart: onDragStart, onDragEnd: onDragEnd});
     this.jsdom   = jsdom;
     this._render = render;
   }
@@ -34,10 +100,16 @@ class Renderer {
     state?.deck && this.deck.restore(state.deck);
     state?.graph && Object.assign(graph, state.graph);
     state?.window && Object.assign(window, state.window);
+    state?.selectedInfo && Object.assign(this.deck.selectedInfo, state.selectedInfo);
+    state?.boxSelectCoordinates &&
+      Object.assign(this.deck.boxSelectCoordinates, state.boxSelectCoordinates);
 
     (events || []).forEach((event) => window.dispatchEvent(event));
 
-    await this._render(graph);
+    await this._render(graph,
+                       this.deck.boxSelectCoordinates.rectdata,
+                       state.pickingMode === 'boxSelect' ? {controller: {dragPan: false}}
+                                                         : {controller: {dragPan: true}});
 
     closeIpcHandles(graph.data.nodes);
     closeIpcHandles(graph.data.edges);
@@ -64,7 +136,9 @@ class Renderer {
           modifiers: window.modifiers,
           mouseInWindow: window.mouseInWindow,
         },
-      },
+        boxSelectCoordinates: this.deck.boxSelectCoordinates,
+        selectedInfo: this.deck.selectedInfo
+      }
     };
   }
 }
@@ -97,10 +171,10 @@ function makeDeck() {
   deckLog.level        = 0;
   deckLog.enable(false);
 
-  const {OrthographicView}       = require('@deck.gl/core');
-  const {TextLayer}              = require('@deck.gl/layers');
-  const {DeckSSR, GraphLayer}    = require('@rapidsai/deck.gl');
-  const {OrthographicController} = require('@rapidsai/deck.gl');
+  const {OrthographicView}        = require('@deck.gl/core');
+  const {TextLayer, PolygonLayer} = require('@deck.gl/layers');
+  const {DeckSSR, GraphLayer}     = require('@rapidsai/deck.gl');
+  const {OrthographicController}  = require('@rapidsai/deck.gl');
 
   const makeLayers = (deck, graph = {}) => {
     const [viewport] = (deck?.viewManager?.getViewports() || []);
@@ -130,8 +204,22 @@ function makeDeck() {
                                     : [255, 255, 255, 255],
                          }))
       }),
-      new GraphLayer({pickable: true, ...graph}),
+      new GraphLayer({pickable: true, ...graph})
     ];
+  };
+
+  getPolygonLayer = (rectdata) => {
+    return new PolygonLayer({
+      filled: true,
+      stroked: true,
+      getPolygon: d => d.polygon,
+      lineWidthUnits: 'pixels',
+      getLineWidth: 2,
+      getLineColor: [80, 80, 80],
+      getLineColor: [0, 0, 0, 150],
+      getFillColor: [255, 255, 255, 65],
+      data: rectdata
+    })
   };
 
   const deck = new DeckSSR({
@@ -153,17 +241,24 @@ function makeDeck() {
           doubleClickZoom: false,
           type: OrthographicController,
           scrollZoom: {speed: 0.01, smooth: false},
-        },
+          // dragPan: false
+        }
       }),
     ],
     onAfterAnimationFrameRender({_loop}) { _loop.pause(); },
   });
 
+  deck.selectedInfo         = {selectedCoordinates: {}, selected: []};
+  deck.boxSelectCoordinates = {rectdata: [{polygon: [[]], show: false}], startPos: null};
+
   return {
     deck,
-    render(graph) {
+    render(graph, rectdata, cb_props = {}) {
       const done = deck.animationLoop.waitForRender();
-      deck.setProps({layers: makeLayers(deck, graph)});
+      deck.setProps({
+        layers: makeLayers(deck, graph).concat(rectdata[0].show ? getPolygonLayer(rectdata) : []),
+        ...cb_props
+      });
       deck.animationLoop.start();
       return done;
     },

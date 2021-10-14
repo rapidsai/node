@@ -9,7 +9,17 @@
 </head>
 
 <body style="background:#2e2e2e; margin:0;">
+
     <video autoplay muted width="800" height="600"></video>
+    <div>
+        <input type="checkbox" id="box-select" onchange="updatePan()">
+        <label for="box-select">box-select</label>
+    </div>
+
+    <div>
+        <button onclick="updateClearSelections()">clear selections</button>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.0/simplepeer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
     <script>
@@ -31,6 +41,11 @@
         // Negotiate handshake
         sock.on('signal', (data) => peer.signal(data));
         peer.on('signal', (data) => sock.emit('signal', data));
+        peer.on('data', (data) => {
+            var decoded = new TextDecoder().decode(data);
+            var decodedjson = JSON.parse(decoded);
+            console.log("got data from peer: ", decodedjson.data);
+        });
 
         // Server video stream
         peer.on('stream', (stream) => {
@@ -62,6 +77,14 @@
                     peer.send(JSON.stringify({ type: 'event', data: serializeEvent(e) }));
                 }
             });
+        }
+
+        function updatePan(){
+            let value = document.getElementById("box-select").checked;
+            peer.send(JSON.stringify({type: 'pickingMode', data: value? "boxSelect" : "click"}));
+        }
+        function updateClearSelections(){
+            peer.send(JSON.stringify({ type: 'clearSelections', data: true}));
         }
 
         function serializeEvent(original) {

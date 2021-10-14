@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const wrtc            = require('wrtc');
-const {MemoryView}    = require('@nvidia/cuda');
-const {Float32Buffer} = require('@nvidia/cuda');
-const {GraphCOO}      = require('@rapidsai/cugraph');
+const wrtc                       = require('wrtc');
+const {MemoryView}               = require('@nvidia/cuda');
+const {Float32Buffer}            = require('@nvidia/cuda');
+const {GraphCOO}                 = require('@rapidsai/cugraph');
+const {Series, Int32, DataFrame} = require('@rapidsai/cudf');
 
 const {loadNodes, loadEdges} = require('./loader');
 const {RenderCluster}        = require('../../render/cluster');
@@ -49,16 +50,24 @@ function graphSSRClients(fastify) {
       g: graphId = 'default',
     } = sock?.handshake?.query || {};
 
-    const stream = new wrtc.MediaStream({id: `${sock.id}:video`});
-    const source = new wrtc.nonstandard.RTCVideoSource({});
+    const stream   = new wrtc.MediaStream({id: `${sock.id}:video`});
+    const source   = new wrtc.nonstandard.RTCVideoSource({});
+    [nodes, edges] = await Promise.all([loadNodes(graphId), loadEdges(graphId)]);
 
     clients[stream.id] = {
       video: source,
-      state: {},
+      state: {
+        pickingMode: 'click',  // 'click', 'boxSelect'
+        selectedInfo: {selectedCoordinates: {}, selected: []},
+        boxSelectCoordinates: {rectdata: [{polygon: [[]], show: false}], startPos: null},
+        clearSelections: false
+      },
       event: {},
       props: {width, height, layout},
-      graph: await loadGraph(graphId),
+      graph: await loadGraph(graphId, nodes, edges),
       frame: shmCreate(width * height * 3 / 2),
+      dataframes: {nodes, edges},
+      peer: peer,
     };
 
     stream.addTrack(source.createTrack());
@@ -79,6 +88,14 @@ function graphSSRClients(fastify) {
           clients[stream.id].event[data.type] = data;
           break;
         }
+        case 'pickingMode': {
+          clients[stream.id].state.pickingMode = data;
+          break;
+        }
+        case 'clearSelections': {
+          clients[stream.id].state.clearSelections = JSON.parse(data);
+          break;
+        }
       }
     }
   }
@@ -94,10 +111,9 @@ function graphSSRClients(fastify) {
     }
   }
 
-  async function loadGraph(id) {
+  async function loadGraph(id, nodes, edges) {
     if (!(id in graphs)) {
       const asDeviceMemory = (buf) => new (buf[Symbol.species])(buf);
-      const [nodes, edges]         = await Promise.all([loadNodes(id), loadEdges(id)]);
       const src                    = edges.get('src');
       const dst                    = edges.get('dst');
       graphs[id]                   = {
@@ -124,7 +140,7 @@ function graphSSRClients(fastify) {
       ));
 
     return {
-      gravity: 1.0,
+      gravity: 0.0,
       linLogMode: false,
       scalingRatio: 5.0,
       barnesHutTheta: 0.0,
@@ -132,16 +148,16 @@ function graphSSRClients(fastify) {
       strongGravityMode: false,
       outboundAttraction: false,
       graph: graphs[id].graph,
-      edges: {
-        ...graphs[id].edges,
-        length: graphs[id].graph.numEdges(),
-      },
       nodes: {
         ...graphs[id].nodes,
         length: graphs[id].graph.numNodes(),
         nodeXPositions: pos.subarray(0, pos.length / 2),
         nodeYPositions: pos.subarray(pos.length / 2),
       },
+      edges: {
+        ...graphs[id].edges,
+        length: graphs[id].graph.numEdges(),
+      }
     };
   }
 }
@@ -152,8 +168,15 @@ function layoutAndRenderGraphs(clients) {
   return () => {
     for (const id in clients) {
       const client = clients[id];
+      const sendToClient =
+        (data) => {
+          const res = getPaginatedRows(data, 1, 25).toArrow().toArray();
+          client.peer.send(JSON.stringify({type: 'data', data: res}));
+        }
 
-      if (client.isRendering) { continue; }
+      if (client.isRendering) {
+        continue;
+      }
 
       const state = {...client.state};
       const props = {...client.props};
@@ -170,7 +193,10 @@ function layoutAndRenderGraphs(clients) {
           'mouseup',
           'mouseleave',
           'wheel',
-          'beforeunload'
+          'beforeunload',
+          'shiftKey',
+          'dragStart',
+          'dragOver'
         ].map((x) => client.event[x])
           .filter(Boolean);
 
@@ -190,33 +216,61 @@ function layoutAndRenderGraphs(clients) {
 
       client.isRendering = true;
 
-      renderer.render(id,
-                      {
-                        state,
-                        props,
-                        event,
-                        frame: client.frame.key,
-                        graph: {
-                          ...client.graph,
-                          graph: undefined,
-                          edges: getIpcHandles(client.graph.edges),
-                          nodes: getIpcHandles(client.graph.nodes),
-                        },
-                      },
-                      (error, result) => {
-                        client.isRendering = false;
-                        if (id in clients) {
-                          if (error) { throw error; }
-                          result?.state && Object.assign(client.state, result.state);
-                          // console.log(state?.deck?.props?.initialViewState);
-                          // if (state?.deck?.props) {
-                          //   client.props.initialViewState = state.deck.props.initialViewState;
-                          // }
-                          client.video.onFrame({...result.frame, data: client.frame.buffer});
-                        }
-                      });
+      renderer.render(
+        id,
+        {
+          state,
+          props,
+          event,
+          frame: client.frame.key,
+          graph: {
+            ...client.graph,
+            graph: undefined,
+            edges: getIpcHandles(client.graph.edges),
+            nodes: getIpcHandles(client.graph.nodes),
+          },
+        },
+        (error, result) => {
+          client.isRendering = false;
+          if (id in clients) {
+            if (error) { throw error; }
+
+            if (client.state.clearSelections == true) {
+              // clear selection is called once
+              result.state.clearSelections = false;
+
+              // reset selected state
+              result.state.selectedInfo.selected                    = [];
+              result.state.selectedInfo.selectedCoordinates         = {};
+              result.state.boxSelectCoordinates.rectdata[0].polygon = [[]];
+
+              // send to client
+              sendToClient(client.dataframes.nodes);
+
+            } else if (JSON.stringify(client.state.selectedInfo.selectedCoordinates) !==
+                       JSON.stringify(result.state.selectedInfo.selectedCoordinates)) {
+              // selections updated
+              const nodes = Series.new({type: new Int32, data: result.state.selectedInfo.selected});
+              sendToClient(client.dataframes.nodes.gather(nodes));
+            }
+
+            if (client.state.pickingMode !== 'boxSelect') {
+              // boxSelect toggle is false, clear the previous selected box
+              result.state.rectdata = [{polygon: [[]], show: false}];
+            }
+
+            // copy result state to client's current state
+            result?.state && Object.assign(client.state, result.state);
+
+            client.video.onFrame({...result.frame, data: client.frame.buffer});
+          }
+        });
     }
   }
+}
+
+function getPaginatedRows(df, page = 1, rowsPerPage = 25) {
+  return df.head(page * rowsPerPage).tail(rowsPerPage);
 }
 
 function forceAtlas2({graph, nodes, edges, ...params}) {
