@@ -17,13 +17,30 @@
 
 #include <node_rmm/memory_resource.hpp>
 
-#include <cudf/unary.hpp>
-
+#include <cudf/scalar/scalar.hpp>
+#include <cudf/strings/convert/convert_booleans.hpp>
 #include <cudf/strings/convert/convert_floats.hpp>
 #include <cudf/strings/convert/convert_integers.hpp>
+#include <cudf/unary.hpp>
 #include <rmm/mr/device/per_device_resource.hpp>
 
 namespace nv {
+
+Column::wrapper_t Column::strings_from_booleans(rmm::mr::device_memory_resource* mr) const {
+  try {
+    return Column::New(
+      Env(),
+      cudf::strings::from_booleans(
+        this->view(), cudf::string_scalar("true"), cudf::string_scalar("false"), mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+}
+
+Column::wrapper_t Column::strings_to_booleans(rmm::mr::device_memory_resource* mr) const {
+  try {
+    return Column::New(Env(),
+                       cudf::strings::to_booleans(this->view(), cudf::string_scalar("true"), mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+}
 
 Column::wrapper_t Column::string_is_float(rmm::mr::device_memory_resource* mr) const {
   return Column::New(Env(), cudf::strings::is_float(this->view(), mr));
@@ -57,6 +74,18 @@ Column::wrapper_t Column::strings_to_integers(cudf::data_type out_type,
   try {
     return Column::New(Env(), cudf::strings::to_integers(this->view(), out_type, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+}
+
+Napi::Value Column::strings_from_booleans(Napi::CallbackInfo const& info) {
+  CallbackArgs const args{info};
+  rmm::mr::device_memory_resource* mr = args[0];
+  return strings_from_booleans(mr);
+}
+
+Napi::Value Column::strings_to_booleans(Napi::CallbackInfo const& info) {
+  CallbackArgs const args{info};
+  rmm::mr::device_memory_resource* mr = args[0];
+  return strings_to_booleans(mr);
 }
 
 Napi::Value Column::string_is_float(Napi::CallbackInfo const& info) {
