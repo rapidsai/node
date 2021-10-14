@@ -23,72 +23,7 @@ class Renderer {
 
     const {deck, render} = jsdom.window.evalFn(makeDeck);
 
-    const onDragStart =
-      (info, event) => {
-        if (this.deck.props.controller.dragPan) { return; }
-        const {x, y}                            = info;
-        const [px, py]                          = info.viewport.unproject([x, y]);
-        this.deck.boxSelectCoordinates.startPos = [x, y];
-        this.deck.boxSelectCoordinates.rectdata =
-          [{polygon: [[px, py], [px, py], [px, py], [px, py]], show: true}];
-      }
-
-    const onDragEnd =
-      (info, event) => {
-        if (this.deck.props.controller.dragPan || !this.deck.boxSelectCoordinates.startPos ||
-            !this.deck.boxSelectCoordinates.rectdata) {
-          return;
-        }
-        const {x, y} = info;
-        const sx     = this.deck.boxSelectCoordinates.startPos[0];
-        const sy     = this.deck.boxSelectCoordinates.startPos[1];
-
-        this.deck.boxSelectCoordinates.rectdata =
-          [{polygon: this.deck.boxSelectCoordinates.rectdata[0].polygon || [], show: true}];
-        this.deck.boxSelectCoordinates.startPos    = null;
-        this.deck.selectedInfo.selectedCoordinates = {
-          x: Math.min(sx, x),
-          y: Math.min(sy, y),
-          width: Math.abs(x - sx),
-          height: Math.abs(y - sy),
-          layerIds: ['GraphLayer']
-        };
-
-        this.deck.selectedInfo.selected =
-          this.deck.pickObjects(this.deck.selectedInfo.selectedCoordinates)
-            .filter(selected => selected.hasOwnProperty('nodeId'))
-            .map(n => n.nodeId);
-        console.log(this.deck.selectedInfo.selected);
-      }
-
-    const onDrag = (info, event) => {
-      if (this.deck.props.controller.dragPan) { return; }
-      if (this.deck.boxSelectCoordinates.startPos) {
-        const {x, y}     = info;
-        const [px, py]   = info.viewport.unproject([x, y]);
-        const startPoint = this.deck.boxSelectCoordinates.rectdata[0].polygon[0];
-        this.deck.boxSelectCoordinates.rectdata =
-          [{polygon: [startPoint, [startPoint[0], py], [px, py], [px, startPoint[1]]], show: true}];
-      };
-    };
-
-    const handleClick = (info, event) => {
-      this.deck.selectedInfo.selectedCoordinates = {
-        x: info.x,
-        y: info.y,
-        radius: 1,
-      };
-      this.deck.selectedInfo.selected =
-        [this.deck.pickObject(this.deck.selectedInfo.selectedCoordinates)]
-          .filter(selected => selected && selected.hasOwnProperty('nodeId'))
-          .map(n => n.nodeId);
-
-      console.log(this.deck.selectedInfo.selected, this.deck.selectedInfo.selectedCoordinates);
-    };
-
-    this.deck = deck;
-    this.deck.setProps(
-      {onClick: handleClick, onDrag: onDrag, onDragStart: onDragStart, onDragEnd: onDragEnd});
+    this.deck    = deck;
     this.jsdom   = jsdom;
     this._render = render;
   }
@@ -97,9 +32,11 @@ class Renderer {
 
     graph = openGraphIpcHandles(graph);
     props && this.deck.setProps(props);
+
     state?.deck && this.deck.restore(state.deck);
     state?.graph && Object.assign(graph, state.graph);
     state?.window && Object.assign(window, state.window);
+
     state?.selectedInfo && Object.assign(this.deck.selectedInfo, state.selectedInfo);
     state?.boxSelectCoordinates &&
       Object.assign(this.deck.boxSelectCoordinates, state.boxSelectCoordinates);
@@ -222,6 +159,68 @@ function makeDeck() {
     })
   };
 
+  const onDragStart =
+    (info, event) => {
+      if (deck.props.controller.dragPan) { return; }
+      const {x, y}                       = info;
+      const [px, py]                     = info.viewport.unproject([x, y]);
+      deck.boxSelectCoordinates.startPos = [x, y];
+      deck.boxSelectCoordinates.rectdata =
+        [{polygon: [[px, py], [px, py], [px, py], [px, py]], show: true}];
+    }
+
+  const onDragEnd =
+    (info, event) => {
+      if (deck.props.controller.dragPan || !deck.boxSelectCoordinates.startPos ||
+          !deck.boxSelectCoordinates.rectdata) {
+        return;
+      }
+      const {x, y} = info;
+      const sx     = deck.boxSelectCoordinates.startPos[0];
+      const sy     = deck.boxSelectCoordinates.startPos[1];
+
+      deck.boxSelectCoordinates.rectdata =
+        [{polygon: deck.boxSelectCoordinates.rectdata[0].polygon || [], show: true}];
+      deck.boxSelectCoordinates.startPos    = null;
+      deck.selectedInfo.selectedCoordinates = {
+        x: Math.min(sx, x),
+        y: Math.min(sy, y),
+        width: Math.abs(x - sx),
+        height: Math.abs(y - sy),
+        layerIds: ['GraphLayer']
+      };
+
+      deck.selectedInfo.selected = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
+                                     .filter(selected => selected.hasOwnProperty('nodeId'))
+                                     .map(n => n.nodeId);
+      console.log(deck.selectedInfo.selected);
+    }
+
+  const onDrag = (info, event) => {
+    if (deck.props.controller.dragPan) { return; }
+    if (deck.boxSelectCoordinates.startPos) {
+      const {x, y}     = info;
+      const [px, py]   = info.viewport.unproject([x, y]);
+      const startPoint = deck.boxSelectCoordinates.rectdata[0].polygon[0];
+      deck.boxSelectCoordinates.rectdata =
+        [{polygon: [startPoint, [startPoint[0], py], [px, py], [px, startPoint[1]]], show: true}];
+    };
+  };
+
+  const onClick = (info, event) => {
+    deck.selectedInfo.selectedCoordinates = {
+      x: info.x,
+      y: info.y,
+      radius: 1,
+    };
+    deck.selectedInfo.selected =
+      [deck.pickObject(deck.selectedInfo.selectedCoordinates)]
+        .filter(selected => selected && selected.hasOwnProperty('nodeId'))
+        .map(n => n.nodeId);
+
+    console.log(deck.selectedInfo.selected, deck.selectedInfo.selectedCoordinates);
+  };
+
   const deck = new DeckSSR({
     createFramebuffer: true,
     initialViewState: {
@@ -250,6 +249,7 @@ function makeDeck() {
 
   deck.selectedInfo         = {selectedCoordinates: {}, selected: []};
   deck.boxSelectCoordinates = {rectdata: [{polygon: [[]], show: false}], startPos: null};
+  deck.setProps({onClick, onDrag, onDragStart, onDragEnd});
 
   return {
     deck,
