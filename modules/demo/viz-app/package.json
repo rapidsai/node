@@ -35,7 +35,10 @@
     "react-map-gl": "5.3.16",
     "react-burger-menu": "3.0.6",
     "react-tabs": "3.2.2",
-    "react-table": "7.7.0"
+    "react-table": "7.7.0",
+    "simple-peer": "9.11.0",
+    "socket.io-client": "4.2.0",
+    "react-native-webrtc": "1.92.2"
   },
   "files": [
     "pages",
