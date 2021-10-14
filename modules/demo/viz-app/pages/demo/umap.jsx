@@ -18,6 +18,7 @@ import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 import HeaderUnderline from '../../components/demo-dashboard/header-underline/header-underline';
 import ExtendedTable from '../../components/demo-dashboard/extended-table/extended-table';
 import ToolBar from '../../components/demo-dashboard/tool-bar/tool-bar';
+import FileInput from '../../components/demo-dashboard/file-input/file-input';
 
 export default class UMAP extends React.Component {
   constructor(props) {
@@ -116,7 +117,9 @@ export default class UMAP extends React.Component {
         </HeaderUnderline>
         <div style={{ height: 20 }} />
         <HeaderUnderline title={"Query Log"} fontSize={18} color={"white"}>
-          <div className={"whiteTextButton"}>Export Selected ▼</div>
+          <FileInput useWhite={true} onChange={(path) => { console.log(path) }}>
+            Export Selected ▼
+          </FileInput>
         </HeaderUnderline>
       </div>
     )

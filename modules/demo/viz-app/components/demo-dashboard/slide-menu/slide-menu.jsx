@@ -49,7 +49,9 @@ export default class SlideMenu extends React.Component {
         <HeaderUnderline title={"Data Source"}>
           <Row>
             <Col className={"col-auto"}>
-              <FileInput onChange={this.onDataChange}></FileInput>
+              <FileInput onChange={this.onDataChange}>
+                Select Data ▼
+              </FileInput>
               <p style={{ color: "black" }}>Selection: {this.state.selectedFilePath}</p>
             </Col>
             <Col className={"max"} ><div className={"d-flex"} /></Col>

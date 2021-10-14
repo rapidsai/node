@@ -26,8 +26,8 @@ export default class FileInput extends React.Component {
   }
 
   render() {
-    return <label style={{ width: 120, height: 0 }}>
-      <p className={"textButton"}>Select Data ▼</p>
+    return <label style={{ width: 130, height: 0 }}>
+      <p className={this.props?.useWhite ? "whiteTextButton" : "textButton"}>{this.props.children}</p>
       <input type="file" style={{ display: "none" }} onChange={this.uploadFile} />
     </label>
   }
