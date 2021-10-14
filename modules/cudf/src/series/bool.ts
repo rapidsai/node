@@ -16,7 +16,7 @@ import {Uint8ClampedBuffer} from '@nvidia/cuda';
 import {MemoryResource} from '@rapidsai/rmm';
 
 import {Series, StringSeries} from '../series';
-import {Bool8, Int32, Int64, Int8} from '../types/dtypes';
+import {Bool8, Int32, Int64} from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
 
@@ -25,7 +25,7 @@ import {NumericSeries} from './numeric';
  */
 export class Bool8Series extends NumericSeries<Bool8> {
   _castAsString(memoryResource?: MemoryResource): StringSeries {
-    return StringSeries.new(this.cast(new Int8)._col.stringsFromIntegers(memoryResource));
+    return StringSeries.new(this._col.stringsFromBooleans(memoryResource));
   }
 
   /**

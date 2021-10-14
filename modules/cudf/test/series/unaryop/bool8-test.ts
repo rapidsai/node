@@ -23,6 +23,6 @@ setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 describe('Series unaryops (Bool8)', () => {
   test('Series.cast Utf8String', () => {
     const actual = Series.new([null, true, false, true]);
-    expect([...actual.cast(new Utf8String)]).toEqual([null, '1', '0', '1']);
+    expect([...actual.cast(new Utf8String)]).toEqual([null, 'true', 'false', 'true']);
   });
 });
