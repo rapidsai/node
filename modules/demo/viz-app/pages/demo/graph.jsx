@@ -90,8 +90,11 @@ export default class UMAP extends React.Component {
     super(props);
     this.dataTable = this.dataTable.bind(this);
     this.dataMetrics = this.dataMetrics.bind(this);
-    this.socket = io("localhost:8080", { transports: ['websocket'], reconnection: false });
     this.videoRef = React.createRef();
+  }
+
+  componentDidMount() {
+    this.socket = io("localhost:8080", { transports: ['websocket'], reconnection: false, query: { width: 2000, height: 500 } });
     this.peer = new SimplePeer({
       wrtc: wrtc,
       trickle: true,
@@ -113,19 +116,6 @@ export default class UMAP extends React.Component {
       this.videoRef.current.srcObject = stream;
     });
 
-    // dispatchRemoteEvent(this.videoRef, 'focus');
-    // dispatchRemoteEvent(this.videoRef, 'wheel');
-    // // dispatchRemoteEvent(document, 'keyup');
-    // // dispatchRemoteEvent(document, 'keydown');
-    // // dispatchRemoteEvent(document, 'keypress');
-    // dispatchRemoteEvent(this.videoRef, 'mouseup');
-    // dispatchRemoteEvent(this.videoRef, 'mousemove');
-    // dispatchRemoteEvent(this.videoRef, 'mousedown');
-    // dispatchRemoteEvent(this.videoRef, 'mouseenter');
-    // dispatchRemoteEvent(this.videoRef, 'mouseleave');
-  }
-
-  componentDidMount() {
     this.dispatchRemoteEvent(this.videoRef.current, 'blur');
     this.dispatchRemoteEvent(this.videoRef.current, 'wheel');
     this.dispatchRemoteEvent(window, 'beforeunload');
@@ -154,7 +144,7 @@ export default class UMAP extends React.Component {
 
   demoView() {
     return (
-      <video autoPlay muted width="800" height="100%" ref={this.videoRef}> Demo goes here</video>
+      <video autoPlay muted width="2000" height="500" ref={this.videoRef}> Demo goes here</video>
     );
   }
 

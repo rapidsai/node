@@ -209,11 +209,12 @@ function layoutAndRenderGraphs(clients) {
         height = client.props.height ?? 600,
       } = client.state;
 
+      state.window = {width: width, height: height, ...client.state.window};
+
       if (client.frame?.byteLength !== (width * height * 3 / 2)) {
         shmDetach(client.frame.key, true);
         client.frame = shmCreate(width * height * 3 / 2);
       }
-
       client.isRendering = true;
 
       renderer.render(
@@ -251,7 +252,6 @@ function layoutAndRenderGraphs(clients) {
               const nodes = Series.new({type: new Int32, data: result.state.selectedInfo.selected});
               sendToClient(client.dataframes.nodes.gather(nodes));
             }
-
             // copy result state to client's current state
             result?.state && Object.assign(client.state, result.state);
 
