@@ -50,9 +50,8 @@
 }
 
 .select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+    background-color: white;
     border: none;
     font-weight: bold;
+    margin-right: 8px;
 }
