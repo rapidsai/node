@@ -37,3 +37,18 @@
     background: #e5e5e5;
     border: 1px solid black;
 }
+
+.spacer {
+    display:flex;
+    justify-content:space-between;
+}
+
+.pagination {
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
+}
+
+.select {
+    margin-right: 10px;
+}

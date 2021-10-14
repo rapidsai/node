@@ -81,7 +81,11 @@ export default class UMAP extends React.Component {
         <TabPanel>
           <ExtendedTable
             cols={this.columns()}
-            data={[this.fakeData(0), this.fakeData(1), this.fakeData(2), this.fakeData(3), this.fakeData(4), this.fakeData(5), this.fakeData(6), this.fakeData(7)]}
+            data={[
+              this.fakeData(0), this.fakeData(1), this.fakeData(2), this.fakeData(3), this.fakeData(4), this.fakeData(5),
+              this.fakeData(6), this.fakeData(7), this.fakeData(8), this.fakeData(9), this.fakeData(10), this.fakeData(11),
+              this.fakeData(12)
+            ]}
           />
         </TabPanel>
         <TabPanel>
