@@ -66,7 +66,7 @@ function onlyH264(sdp) {
 
 
 function serializeEvent(original) {
-  const serialized = Object
+  return Object
     .getOwnPropertyNames(Object.getPrototypeOf(original))
     .reduce((serialized, field) => {
       switch (typeof original[field]) {
@@ -75,14 +75,9 @@ function serializeEvent(original) {
         case 'function': break;
         default: serialized[field] = original[field];
       }
+      serialized = { ...serialized, x: serialized.layerX, y: serialized.layerY };
       return serialized;
     }, { type: original.type });
-  if (original.type === 'wheel') {
-    const { x = window.mouseX } = original;
-    const { y = window.mouseY } = original;
-    Object.assign(serialized, { x, y });
-  }
-  return serialized;
 }
 
 export default class UMAP extends React.Component {
@@ -91,6 +86,7 @@ export default class UMAP extends React.Component {
     this.dataTable = this.dataTable.bind(this);
     this.dataMetrics = this.dataMetrics.bind(this);
     this.videoRef = React.createRef();
+    this.peer = null;
   }
 
   componentDidMount() {
@@ -118,14 +114,15 @@ export default class UMAP extends React.Component {
 
     this.dispatchRemoteEvent(this.videoRef.current, 'blur');
     this.dispatchRemoteEvent(this.videoRef.current, 'wheel');
-    this.dispatchRemoteEvent(window, 'beforeunload');
-    this.dispatchRemoteEvent(document, 'keydown');
-    this.dispatchRemoteEvent(document, 'keypress');
     this.dispatchRemoteEvent(this.videoRef.current, 'mouseup');
     this.dispatchRemoteEvent(this.videoRef.current, 'mousemove');
     this.dispatchRemoteEvent(this.videoRef.current, 'mousedown');
     this.dispatchRemoteEvent(this.videoRef.current, 'mouseenter');
     this.dispatchRemoteEvent(this.videoRef.current, 'mouseleave');
+    // this.dispatchRemoteEvent(window, 'beforeunload');
+    // this.dispatchRemoteEvent(document, 'keydown');
+    // this.dispatchRemoteEvent(document, 'keypress');
+
   }
 
   dispatchRemoteEvent(target, type) {
@@ -144,7 +141,13 @@ export default class UMAP extends React.Component {
 
   demoView() {
     return (
-      <video autoPlay muted width="2000" height="500" ref={this.videoRef}> Demo goes here</video>
+      <video autoPlay muted width="2000" height="500"
+        ref={this.videoRef}
+      // onMouseUp={remoteEvent}
+      // onMouseDown={remoteEvent} onMouseMove={remoteEvent}
+      // onMouseLeave={remoteEvent} onWheel={remoteEvent}
+      // onMouseEnter={remoteEvent} onBlur={remoteEvent}
+      > Demo goes here</video>
     );
   }
 
