@@ -50,5 +50,9 @@
 }
 
 .select {
-    margin-right: 10px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border: none;
+    font-weight: bold;
 }

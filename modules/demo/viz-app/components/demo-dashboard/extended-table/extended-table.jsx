@@ -96,6 +96,7 @@ export default function ExtendedTable({ cols, data }) {
               </option>
             ))}
           </select>
+          <div style={{ paddingRight: 8 }}>▼</div>
           <div className={"textButton"} style={{ paddingRight: 5 }} onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
             {'<<'}
           </div>{' '}
