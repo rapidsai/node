@@ -17,6 +17,7 @@ import React from 'react';
 import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 import HeaderUnderline from '../../components/demo-dashboard/header-underline/header-underline';
 import ExtendedTable from '../../components/demo-dashboard/extended-table/extended-table';
+import ToolBar from '../../components/demo-dashboard/tool-bar/tool-bar';
 
 export default class UMAP extends React.Component {
   constructor(props) {
@@ -28,6 +29,16 @@ export default class UMAP extends React.Component {
   demoView() {
     return (
       <p>Demo goes here.</p>
+    );
+  }
+
+  toolBar() {
+    return (
+      <ToolBar
+        onResetClick={() => { console.log("reset") }}
+        onClearClick={() => { console.log("clear") }}
+        onToolSelect={(tool) => { console.log(tool); }}
+      />
     );
   }
 
