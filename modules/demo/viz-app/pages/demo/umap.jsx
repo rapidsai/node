@@ -130,6 +130,7 @@ export default class UMAP extends React.Component {
         onRenderClick={() => { console.log("Render Clicked") }}
         dataTable={this.dataTable()}
         dataMetrics={this.dataMetrics()}
+        isLoading={false}
       />
     )
   }

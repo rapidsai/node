@@ -12,16 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import styles from './layout.module.css'
-import CustomNavbar from '../navbar/navbar'
+import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 
-export default function Layout({ title, children, resetall, displayReset, isLoading }) {
+export default function Status({ isLoading }) {
   return (
-    <>
-      <CustomNavbar title={title} resetall={resetall} displayReset={displayReset} isLoading={isLoading}></CustomNavbar>
-      <div className={styles.container}>
-        {children}
-      </div>
-    </>
-  )
+    <div style={{ fontSize: 20, transition: "all 4000ms ease" }}>
+      {isLoading ? `Loading` : `Ready`} <FontAwesomeIcon spin={isLoading} icon={faCircleNotch} />
+    </div>
+  );
 }

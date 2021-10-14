@@ -16,7 +16,7 @@ import React from 'react';
 import FileInput from '../file-input/file-input';
 import HeaderUnderline from '../header-underline/header-underline';
 import { slide as Menu } from 'react-burger-menu';
-import { Row, Col, Container } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 
 export default class SlideMenu extends React.Component {
   constructor(props) {
