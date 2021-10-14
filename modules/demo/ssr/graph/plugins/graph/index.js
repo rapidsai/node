@@ -240,9 +240,9 @@ function layoutAndRenderGraphs(clients) {
               result.state.clearSelections = false;
 
               // reset selected state
-              result.state.selectedInfo.selected                    = [];
-              result.state.selectedInfo.selectedCoordinates         = {};
-              result.state.boxSelectCoordinates.rectdata[0].polygon = [[]];
+              result.state.selectedInfo.selected            = [];
+              result.state.selectedInfo.selectedCoordinates = {};
+              result.state.boxSelectCoordinates.rectdata    = [{polygon: [[]], show: false}];
 
               // send to client
               sendToClient(client.dataframes.nodes);
@@ -256,7 +256,7 @@ function layoutAndRenderGraphs(clients) {
 
             if (client.state.pickingMode !== 'boxSelect') {
               // boxSelect toggle is false, clear the previous selected box
-              result.state.rectdata = [{polygon: [[]], show: false}];
+              result.state.boxSelectCoordinates.rectdata = [{polygon: [[]], show: false}];
             }
 
             // copy result state to client's current state
