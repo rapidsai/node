@@ -50,9 +50,8 @@ function graphSSRClients(fastify) {
       g: graphId = 'default',
     } = sock?.handshake?.query || {};
 
-    const stream   = new wrtc.MediaStream({id: `${sock.id}:video`});
-    const source   = new wrtc.nonstandard.RTCVideoSource({});
-    [nodes, edges] = await Promise.all([loadNodes(graphId), loadEdges(graphId)]);
+    const stream = new wrtc.MediaStream({id: `${sock.id}:video`});
+    const source = new wrtc.nonstandard.RTCVideoSource({});
 
     clients[stream.id] = {
       video: source,
@@ -64,9 +63,8 @@ function graphSSRClients(fastify) {
       },
       event: {},
       props: {width, height, layout},
-      graph: await loadGraph(graphId, nodes, edges),
+      graph: await loadGraph(graphId),
       frame: shmCreate(width * height * 3 / 2),
-      dataframes: {nodes, edges},
       peer: peer,
     };
 
@@ -111,22 +109,27 @@ function graphSSRClients(fastify) {
     }
   }
 
-  async function loadGraph(id, nodes, edges) {
+  async function loadGraph(id) {
+    let dataframes = [];
+
     if (!(id in graphs)) {
       const asDeviceMemory = (buf) => new (buf[Symbol.species])(buf);
-      const src                    = edges.get('src');
-      const dst                    = edges.get('dst');
+      dataframes                   = await Promise.all([loadNodes(id), loadEdges(id)]);
+      const src                    = dataframes[1].get('src');
+      const dst                    = dataframes[1].get('dst');
       graphs[id]                   = {
         refCount: 0,
+        // nodes: nodes,
+        // edges: edges,
         nodes: {
-          nodeRadius: asDeviceMemory(nodes.get('size').data),
-          nodeFillColors: asDeviceMemory(nodes.get('color').data),
-          nodeElementIndices: asDeviceMemory(nodes.get('id').data),
+          nodeRadius: asDeviceMemory(dataframes[0].get('size').data),
+          nodeFillColors: asDeviceMemory(dataframes[0].get('color').data),
+          nodeElementIndices: asDeviceMemory(dataframes[0].get('id').data),
         },
         edges: {
-          edgeList: asDeviceMemory(edges.get('edge').data),
-          edgeColors: asDeviceMemory(edges.get('color').data),
-          edgeBundles: asDeviceMemory(edges.get('bundle').data),
+          edgeList: asDeviceMemory(dataframes[1].get('edge').data),
+          edgeColors: asDeviceMemory(dataframes[1].get('color').data),
+          edgeBundles: asDeviceMemory(dataframes[1].get('bundle').data),
         },
         graph: new GraphCOO(src._col, dst._col, {directedEdges: true}),
       };
@@ -157,7 +160,8 @@ function graphSSRClients(fastify) {
       edges: {
         ...graphs[id].edges,
         length: graphs[id].graph.numEdges(),
-      }
+      },
+      dataframes: dataframes
     };
   }
 }
@@ -245,12 +249,12 @@ function layoutAndRenderGraphs(clients) {
               result.state.boxSelectCoordinates.rectdata    = [{polygon: [[]], show: false}];
 
               // send to client
-              sendToClient(client.dataframes.nodes);
+              sendToClient(client.graph.dataframes[0]);
             } else if (JSON.stringify(client.state.selectedInfo.selectedCoordinates) !==
                        JSON.stringify(result.state.selectedInfo.selectedCoordinates)) {
               // selections updated
               const nodes = Series.new({type: new Int32, data: result.state.selectedInfo.selected});
-              sendToClient(client.dataframes.nodes.gather(nodes));
+              sendToClient(client.graph.dataframes[0].gather(nodes));
             }
             // copy result state to client's current state
             result?.state && Object.assign(client.state, result.state);
