@@ -57,7 +57,7 @@ function graphSSRClients(fastify) {
       video: source,
       state: {
         pickingMode: 'click',  // 'click', 'boxSelect'
-        selectedInfo: {selectedCoordinates: {}, selected: []},
+        selectedInfo: {},
         boxSelectCoordinates: {rectdata: [{polygon: [[]], show: false}], startPos: null},
         clearSelections: false
       },
@@ -68,11 +68,11 @@ function graphSSRClients(fastify) {
       peer: peer,
     };
     if (clients[stream.id].graph.dataframes[0]) {
-      const res = getPaginatedRows(clients[stream.id].graph.dataframes[0], 1, 25);
+      const res = getPaginatedRows(clients[stream.id].graph.dataframes[0]);
       peer.send(JSON.stringify({type: 'data', data: {nodes: res}}));
     }
     if (clients[stream.id].graph.dataframes[1]) {
-      const res = getPaginatedRows(clients[stream.id].graph.dataframes[1], 1, 25);
+      const res = getPaginatedRows(clients[stream.id].graph.dataframes[1]);
       peer.send(JSON.stringify({type: 'data', data: {edges: res}}));
     }
 
@@ -102,6 +102,10 @@ function graphSSRClients(fastify) {
           clients[stream.id].state.clearSelections = JSON.parse(data);
           break;
         }
+        case 'layout': {
+          clients[stream.id].props.layout = JSON.parse(data);
+          break;
+        }
       }
     }
   }
@@ -127,8 +131,6 @@ function graphSSRClients(fastify) {
       const dst                    = dataframes[1].get('dst');
       graphs[id]                   = {
         refCount: 0,
-        // nodes: nodes,
-        // edges: edges,
         nodes: {
           nodeRadius: asDeviceMemory(dataframes[0].get('size').data),
           nodeFillColors: asDeviceMemory(dataframes[0].get('color').data),
@@ -182,10 +184,8 @@ function layoutAndRenderGraphs(clients) {
       const client = clients[id];
       const sendToClient =
         ([nodes, edges]) => {
-          client.peer.send(
-            JSON.stringify({type: 'data', data: {nodes: getPaginatedRows(nodes, 1, 25)}}));
-          client.peer.send(
-            JSON.stringify({type: 'data', data: {edges: getPaginatedRows(edges, 1, 25)}}));
+          client.peer.send(JSON.stringify({type: 'data', data: {nodes: getPaginatedRows(nodes)}}));
+          client.peer.send(JSON.stringify({type: 'data', data: {edges: getPaginatedRows(edges)}}));
         }
 
       if (client.isRendering) {
@@ -216,7 +216,7 @@ function layoutAndRenderGraphs(clients) {
 
       if (event.length === 0 && !props.layout) { continue; }
       if (event.length !== 0) { client.event = Object.create(null); }
-      if (props.layout) { client.graph = forceAtlas2(client.graph); }
+      if (props.layout == true) { client.graph = forceAtlas2(client.graph); }
 
       const {
         width  = client.props.width ?? 800,
@@ -260,7 +260,7 @@ function layoutAndRenderGraphs(clients) {
               result.state.boxSelectCoordinates.rectdata    = [{polygon: [[]], show: false}];
 
               // send to client
-              sendToClient(client.graph.dataframes);
+              if (client.graph.dataframes) { sendToClient(client.graph.dataframes); }
             } else if (JSON.stringify(client.state.selectedInfo.selectedCoordinates) !==
                        JSON.stringify(result.state.selectedInfo.selectedCoordinates)) {
               // selections updated
@@ -268,10 +268,12 @@ function layoutAndRenderGraphs(clients) {
                 Series.new({type: new Int32, data: result.state.selectedInfo.selectedNodes});
               const edges =
                 Series.new({type: new Int32, data: result.state.selectedInfo.selectedEdges});
-              sendToClient([
-                client.graph.dataframes[0].gather(nodes),
-                client.graph.dataframes[1].gather(edges)
-              ]);
+              if (client.graph.dataframes) {
+                sendToClient([
+                  client.graph.dataframes[0].gather(nodes),
+                  client.graph.dataframes[1].gather(edges)
+                ]);
+              }
             }
             // copy result state to client's current state
             result?.state && Object.assign(client.state, result.state);
@@ -283,7 +285,7 @@ function layoutAndRenderGraphs(clients) {
   }
 }
 
-function getPaginatedRows(df, page = 1, rowsPerPage = 25) {
+function getPaginatedRows(df, page = 1, rowsPerPage = 400) {
   if (!df) { return {}; }
   return df.head(page * rowsPerPage).tail(rowsPerPage).toArrow().toArray();
 }

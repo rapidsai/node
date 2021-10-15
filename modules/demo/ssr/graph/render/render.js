@@ -50,7 +50,6 @@ class Renderer {
 
     closeIpcHandles(graph.data.nodes);
     closeIpcHandles(graph.data.edges);
-
     return {
       frame: copyFramebuffer(this.deck.animationLoop, frame),
       state: {
@@ -215,7 +214,6 @@ function makeDeck() {
   };
 
   const onClick = (info, event) => {
-    console.log(info);
     deck.selectedInfo.selectedCoordinates = {
       x: info.x,
       y: info.y,
@@ -226,7 +224,7 @@ function makeDeck() {
         .filter(selected => selected && selected.hasOwnProperty('nodeId'))
         .map(n => n.nodeId);
 
-    console.log(deck.selectedInfo.selected, deck.selectedInfo.selectedCoordinates);
+    console.log(deck.selectedInfo.selectedNodes, deck.selectedInfo.selectedCoordinates);
   };
 
   const deck = new DeckSSR({
