@@ -17,6 +17,7 @@ import React from 'react';
 import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 import HeaderUnderline from '../../components/demo-dashboard/header-underline/header-underline';
 import ExtendedTable from '../../components/demo-dashboard/extended-table/extended-table';
+import ToolBar from '../../components/demo-dashboard/tool-bar/tool-bar';
 
 import { io } from "socket.io-client";
 import SimplePeer from "simple-peer";
@@ -86,11 +87,12 @@ export default class UMAP extends React.Component {
     this.dataTable = this.dataTable.bind(this);
     this.dataMetrics = this.dataMetrics.bind(this);
     this.videoRef = React.createRef();
-    this.peer = null;
+    this.peerConnected = false;
   }
 
   componentDidMount() {
-    this.socket = io("localhost:8080", { transports: ['websocket'], reconnection: false, query: { width: 2000, height: 500 } });
+    console.log(this.videoRef.current.width);
+    this.socket = io("localhost:8080", { transports: ['websocket'], reconnection: false, query: { width: this.videoRef.current.width, height: this.videoRef.current.height } });
     this.peer = new SimplePeer({
       wrtc: wrtc,
       trickle: true,
@@ -110,6 +112,15 @@ export default class UMAP extends React.Component {
     this.peer.on('signal', (data) => this.socket.emit('signal', data));
     this.peer.on('stream', (stream) => {
       this.videoRef.current.srcObject = stream;
+    });
+    this.peer.on('connect', () => {
+      this.peerConnected = true;
+    })
+
+    this.peer.on('data', (data) => {
+      var decoded = new TextDecoder().decode(data);
+      var decodedjson = JSON.parse(decoded);
+      console.log("got data from peer: ", decodedjson.data);
     });
 
     this.dispatchRemoteEvent(this.videoRef.current, 'blur');
@@ -133,7 +144,7 @@ export default class UMAP extends React.Component {
       }
       if (!timeout) {
         timeout = setTimeout(() => { timeout = null; }, 1000 / 60);
-        if (this.peer) {
+        if (this.peerConnected) {
           this.peer.send(JSON.stringify({ type: 'event', data: serializeEvent(e) }));
         }
       }
@@ -141,15 +152,23 @@ export default class UMAP extends React.Component {
   }
 
 
+
   demoView() {
     return (
-      <video autoPlay muted width="2000" height="500"
-        ref={this.videoRef}
-      // onMouseUp={remoteEvent}
-      // onMouseDown={remoteEvent} onMouseMove={remoteEvent}
-      // onMouseLeave={remoteEvent} onWheel={remoteEvent}
-      // onMouseEnter={remoteEvent} onBlur={remoteEvent}
-      > Demo goes here</video>
+      <div width="2000" height="500" style={{ display: "flex" }}>
+        <video autoPlay muted width="1880px" height="500px" style={{ flexDirection: "row", float: "left" }}
+          ref={this.videoRef}
+        // onMouseUp={remoteEvent}
+        // onMouseDown={remoteEvent} onMouseMove={remoteEvent}
+        // onMouseLeave={remoteEvent} onWheel={remoteEvent}
+        // onMouseEnter={remoteEvent} onBlur={remoteEvent}
+        > Demo goes here</video>
+        <ToolBar style={{ flexDirection: "row" }}
+          onResetClick={() => { console.log("reset") }}
+          onClearClick={() => { this.peer.send(JSON.stringify({ type: 'clearSelections', data: true })); }}
+          onToolSelect={(tool) => { this.peer.send(JSON.stringify({ type: 'pickingMode', data: tool })); }}
+        />
+      </div>
     );
   }
 

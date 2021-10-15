@@ -36,5 +36,6 @@
 }
 
 .selected {
+    background-color: hsla(0, 7%, 25%, 0.643);
     border: 2px solid #99d0ef;
 }
