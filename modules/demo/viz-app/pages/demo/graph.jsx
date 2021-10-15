@@ -92,11 +92,13 @@ export default class UMAP extends React.Component {
     this.state = {
       nodes: {
         tableData: [{}],
-        tableColumns: [{ Header: "Loading...", accessor: "Loading..." }]
+        tableColumns: [{ Header: "Loading...", accessor: "Loading..." }],
+        length: 0
       },
       edges: {
         tableData: [{}],
-        tableColumns: [{ Header: "Loading...", accessor: "Loading..." }]
+        tableColumns: [{ Header: "Loading...", accessor: "Loading..." }],
+        length: 0
       }
     }
   }
@@ -137,15 +139,19 @@ export default class UMAP extends React.Component {
 
     this.peer.on('data', (data) => {
       const decodedjson = JSON.parse(new TextDecoder().decode(data));
-      const dataframe = Object.keys(decodedjson.data)[0];
-      if (decodedjson.data[[dataframe]].length > 0) {
-        this.setState({
-          [dataframe]: {
-            tableColumns: processColumns(decodedjson.data[[dataframe]][0]),
-            tableData: decodedjson.data[[dataframe]],
-          }
-        });
-      }
+      const keys = Object.keys(decodedjson.data);
+      keys.forEach((key) => {
+        if (['edges', 'nodes'].includes(key) && decodedjson.data[[key]].data.length > 0) {
+          this.setState({
+            [key]: {
+              tableColumns: processColumns(decodedjson.data[[key]].data[0]),
+              tableData: decodedjson.data[[key]].data,
+              length: decodedjson.data[[key]].length
+            }
+          });
+        }
+      });
+
 
     });
 
@@ -156,10 +162,6 @@ export default class UMAP extends React.Component {
     this.dispatchRemoteEvent(this.videoRef.current, 'mousedown');
     this.dispatchRemoteEvent(this.videoRef.current, 'mouseenter');
     this.dispatchRemoteEvent(this.videoRef.current, 'mouseleave');
-    // this.dispatchRemoteEvent(window, 'beforeunload');
-    // this.dispatchRemoteEvent(document, 'keydown');
-    // this.dispatchRemoteEvent(document, 'keypress');
-
   }
 
   dispatchRemoteEvent(target, type) {
@@ -184,6 +186,11 @@ export default class UMAP extends React.Component {
       <div style={{ width: "2000px", height: "500px", display: "flex" }}>
         <video autoPlay muted width="1860px" height="500px" style={{ flexDirection: "row", float: "left" }}
           ref={this.videoRef}
+        /**
+         *  Using synthetic react events is throwing:
+         * `Unable to preventDefault inside passive event listener due to target being treated as passive`,
+         *  Temporarily using dom event listeners
+        */
         // onMouseUp={remoteEvent}
         // onMouseDown={remoteEvent} onMouseMove={remoteEvent}
         // onMouseLeave={remoteEvent} onWheel={remoteEvent}
@@ -226,9 +233,8 @@ export default class UMAP extends React.Component {
     return (
       <div style={{ padding: 10, color: 'white' }}>
         <HeaderUnderline title={"Data Metrics"} fontSize={18} color={"white"}>
-          <div>{'>'} 100,001,203 Edges</div>
-          <div>{'>'} 20,001,525 Nodes</div>
-          <div>{'>'} 5.2GB</div>
+          <div>{'>'} {this.state.nodes.length} Edges</div>
+          <div>{'>'} {this.state.edges.length} Nodes</div>
         </HeaderUnderline>
       </div>
     )

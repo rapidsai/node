@@ -69,11 +69,17 @@ function graphSSRClients(fastify) {
     };
     if (clients[stream.id].graph.dataframes[0]) {
       const res = getPaginatedRows(clients[stream.id].graph.dataframes[0]);
-      peer.send(JSON.stringify({type: 'data', data: {nodes: res}}));
+      peer.send(JSON.stringify({
+        type: 'data',
+        data: {nodes: {data: res, length: clients[stream.id].graph.dataframes[0].numRows}}
+      }));
     }
     if (clients[stream.id].graph.dataframes[1]) {
       const res = getPaginatedRows(clients[stream.id].graph.dataframes[1]);
-      peer.send(JSON.stringify({type: 'data', data: {edges: res}}));
+      peer.send(JSON.stringify({
+        type: 'data',
+        data: {edges: {data: res, length: clients[stream.id].graph.dataframes[1].numRows}}
+      }));
     }
 
     stream.addTrack(source.createTrack());
@@ -184,8 +190,10 @@ function layoutAndRenderGraphs(clients) {
       const client = clients[id];
       const sendToClient =
         ([nodes, edges]) => {
-          client.peer.send(JSON.stringify({type: 'data', data: {nodes: getPaginatedRows(nodes)}}));
-          client.peer.send(JSON.stringify({type: 'data', data: {edges: getPaginatedRows(edges)}}));
+          client.peer.send(JSON.stringify(
+            {type: 'data', data: {nodes: {data: getPaginatedRows(nodes), length: nodes.numRows}}}));
+          client.peer.send(JSON.stringify(
+            {type: 'data', data: {edges: {data: getPaginatedRows(edges), length: edges.numRows}}}));
         }
 
       if (client.isRendering) {
