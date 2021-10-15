@@ -1,4 +1,7 @@
-#!/usr/bin/env -S bash -Eeo pipefail
+#!/usr/bin/env bash
+
+set -Eeo pipefail
+
 
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 IS_DEBIAN=$(. /etc/os-release;[ "$ID_LIKE" = "debian" ] && echo 1 || echo 0)

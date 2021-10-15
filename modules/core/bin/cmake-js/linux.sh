@@ -1,4 +1,6 @@
-#!/usr/bin/env -S bash -Eeo pipefail
+#!/usr/bin/env bash
+
+set -Eeo pipefail
 
 if [[ "$(yarn why cmake-js >/dev/null 2>&1)" || $? != 0 ]]; then exit 0; fi;
 
