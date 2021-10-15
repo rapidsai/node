@@ -17,8 +17,7 @@ import { useTable, useSortBy, usePagination } from 'react-table';
 import styles from './extended-table.module.css';
 
 export default function ExtendedTable({ cols, data }) {
-  const columns = React.useMemo(
-    () => cols, []);
+  const columns = cols;
 
   const {
     getTableProps,

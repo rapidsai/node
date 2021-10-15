@@ -67,6 +67,14 @@ function graphSSRClients(fastify) {
       frame: shmCreate(width * height * 3 / 2),
       peer: peer,
     };
+    if (clients[stream.id].graph.dataframes[0]) {
+      const res = getPaginatedRows(clients[stream.id].graph.dataframes[0], 1, 25);
+      peer.send(JSON.stringify({type: 'data', data: {nodes: res}}));
+    }
+    if (clients[stream.id].graph.dataframes[1]) {
+      const res = getPaginatedRows(clients[stream.id].graph.dataframes[1], 1, 25);
+      peer.send(JSON.stringify({type: 'data', data: {edges: res}}));
+    }
 
     stream.addTrack(source.createTrack());
     peer.streams.push(stream);
@@ -174,8 +182,8 @@ function layoutAndRenderGraphs(clients) {
       const client = clients[id];
       const sendToClient =
         (data) => {
-          const res = getPaginatedRows(data, 1, 25).toArrow().toArray();
-          client.peer.send(JSON.stringify({type: 'data', data: res}));
+          const res = getPaginatedRows(data, 1, 25);
+          client.peer.send(JSON.stringify({type: 'data', data: {nodes: res}}));
         }
 
       if (client.isRendering) {
@@ -267,7 +275,8 @@ function layoutAndRenderGraphs(clients) {
 }
 
 function getPaginatedRows(df, page = 1, rowsPerPage = 25) {
-  return df.head(page * rowsPerPage).tail(rowsPerPage);
+  if (!df) { return {}; }
+  return df.head(page * rowsPerPage).tail(rowsPerPage).toArrow().toArray();
 }
 
 function forceAtlas2({graph, nodes, edges, ...params}) {

@@ -82,17 +82,28 @@ function serializeEvent(original) {
 }
 
 export default class UMAP extends React.Component {
+
   constructor(props) {
     super(props);
     this.dataTable = this.dataTable.bind(this);
     this.dataMetrics = this.dataMetrics.bind(this);
     this.videoRef = React.createRef();
     this.peerConnected = false;
+    this.state = {
+      nodes: {
+        tableData: [{}],
+        tableColumns: [{ Header: "Loading...", accessor: "Loading..." }]
+      },
+      edges: {
+        tableData: [{}],
+        tableColumns: [{ Header: "Loading...", accessor: "Loading..." }]
+      }
+    }
   }
 
   componentDidMount() {
     console.log(this.videoRef.current.width);
-    this.socket = io("localhost:8080", { transports: ['websocket'], reconnection: false, query: { width: this.videoRef.current.width, height: this.videoRef.current.height } });
+    this.socket = io("localhost:8080", { transports: ['websocket'], reconnection: true, query: { width: this.videoRef.current.width, height: this.videoRef.current.height } });
     this.peer = new SimplePeer({
       wrtc: wrtc,
       trickle: true,
@@ -115,12 +126,27 @@ export default class UMAP extends React.Component {
     });
     this.peer.on('connect', () => {
       this.peerConnected = true;
-    })
+    });
+
+    function processColumns(columnObject) {
+      return Object.keys(columnObject).reduce(
+        (prev, curr) => {
+          return prev.concat([{ "Header": curr, "accessor": curr }]);
+        }, []);
+    }
 
     this.peer.on('data', (data) => {
-      var decoded = new TextDecoder().decode(data);
-      var decodedjson = JSON.parse(decoded);
-      console.log("got data from peer: ", decodedjson.data);
+      const decodedjson = JSON.parse(new TextDecoder().decode(data));
+      const dataframe = Object.keys(decodedjson.data)[0];
+      if (decodedjson.data[[dataframe]].length > 0) {
+        this.setState({
+          [dataframe]: {
+            tableColumns: processColumns(decodedjson.data[[dataframe]][0]),
+            tableData: decodedjson.data[[dataframe]],
+          }
+        });
+      }
+
     });
 
     this.dispatchRemoteEvent(this.videoRef.current, 'blur');
@@ -155,60 +181,21 @@ export default class UMAP extends React.Component {
 
   demoView() {
     return (
-      <div width="2000" height="500" style={{ display: "flex" }}>
-        <video autoPlay muted width="1880px" height="500px" style={{ flexDirection: "row", float: "left" }}
+      <div style={{ width: "2000px", height: "500px", display: "flex" }}>
+        <video autoPlay muted width="1860px" height="500px" style={{ flexDirection: "row", float: "left" }}
           ref={this.videoRef}
         // onMouseUp={remoteEvent}
         // onMouseDown={remoteEvent} onMouseMove={remoteEvent}
         // onMouseLeave={remoteEvent} onWheel={remoteEvent}
         // onMouseEnter={remoteEvent} onBlur={remoteEvent}
         > Demo goes here</video>
-        <ToolBar style={{ flexDirection: "row" }}
+        <ToolBar style={{ flexDirection: "row", width: "200px" }}
           onResetClick={() => { console.log("reset") }}
           onClearClick={() => { this.peer.send(JSON.stringify({ type: 'clearSelections', data: true })); }}
           onToolSelect={(tool) => { this.peer.send(JSON.stringify({ type: 'pickingMode', data: tool })); }}
         />
       </div>
     );
-  }
-
-  columns() {
-    return [
-      {
-        Header: 'Index',
-        accessor: 'index',
-      },
-      {
-        Header: 'Col Name',
-        accessor: 'colname1',
-      },
-      {
-        Header: 'Col Name',
-        accessor: 'colname2',
-      },
-      {
-        Header: 'Col Name',
-        accessor: 'colname3',
-      }
-      ,
-      {
-        Header: 'Col Name',
-        accessor: 'colname4',
-      }
-    ];
-  }
-
-  fakeData(i) {
-    return {
-      index: `testvalue${i}`,
-      colname1: `colname${i}`,
-      colname2: `colname${i}`,
-      colname3: `colname${i}`,
-      colname4: `colname${i}`,
-      colname2: `colname${i}`,
-      colname3: `colname${i}`,
-      colname4: `colname${i}`,
-    };
   }
 
   dataTable() {
@@ -221,12 +208,15 @@ export default class UMAP extends React.Component {
 
         <TabPanel>
           <ExtendedTable
-            cols={this.columns()}
-            data={[this.fakeData(0), this.fakeData(1), this.fakeData(2), this.fakeData(3), this.fakeData(4), this.fakeData(5), this.fakeData(6), this.fakeData(7)]}
+            cols={this.state.nodes.tableColumns}
+            data={this.state.nodes.tableData}
           />
         </TabPanel>
         <TabPanel>
-          <div>This is edge list</div>
+          <ExtendedTable
+            cols={this.state.edges.tableColumns}
+            data={this.state.edges.tableData}
+          />
         </TabPanel>
       </Tabs>
     )
