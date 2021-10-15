@@ -5,17 +5,14 @@ FROM ${DEVEL_IMAGE} as devel
 
 WORKDIR /home/node
 
-RUN rm /home/node/wrtc-0.4.7-dev.tgz                \
- && cp                                              \
-    /opt/rapids/node/.npmrc                         \
-    /opt/rapids/node/build/rapidsai-core-*.tgz      \
-    /opt/rapids/node/build/nvidia-cuda-*.tgz        \
-    /opt/rapids/node/build/rapidsai-rmm-*.tgz       \
-    /opt/rapids/node/build/rapidsai-cudf-*.tgz      \
-    /opt/rapids/node/build/rapidsai-cuspatial-*.tgz \
+RUN cp                                   \
+    /opt/rapids/rapidsai-core-*.tgz      \
+    /opt/rapids/nvidia-cuda-*.tgz        \
+    /opt/rapids/rapidsai-rmm-*.tgz       \
+    /opt/rapids/rapidsai-cudf-*.tgz      \
+    /opt/rapids/rapidsai-cuspatial-*.tgz \
     . \
  && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz
-
 
 FROM ${FROM_IMAGE}
 
@@ -27,12 +24,17 @@ USER root
 
 # Install dependencies
 RUN export DEBIAN_FRONTEND=noninteractive \
- && apt update --fix-missing \
+ && apt update \
  && apt install -y --no-install-recommends \
     # cuSpatial dependencies
     libgdal-dev \
  # Clean up
- && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ && apt autoremove -y && apt clean \
+ && rm -rf \
+    /tmp/* \
+    /var/tmp/* \
+    /var/lib/apt/lists/* \
+    /var/cache/apt/archives/*
 
 COPY --from=devel --chown=node:node /home/node/node_modules/ /home/node/node_modules/
 

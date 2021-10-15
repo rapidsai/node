@@ -40,13 +40,13 @@ We've included a container for launching [`nteract/desktop`](https://nteract.io/
 cp .env.sample .env
 
 # Build the development and nteract containers (only necessary once)
-yarn docker:build:devel && yarn docker:build:devel:nteract
+yarn docker:build:devel && yarn docker:build:devel:notebook
 
 # Compile the TypeScript and C++ modules inside the development container
 yarn docker:run:devel bash -c 'yarn && yarn build'
 
 # Start a containerized nteract/desktop with the source tree as Docker volume mounts
-yarn docker:run:nteract
+yarn docker:run:devel:notebook
 ```
 
 `node-rapids` packages are built with [`N-API`](https://nodejs.org/api/n-api.html) via the [`node-addon-api`](https://github.com/nodejs/node-addon-api) library.
