@@ -133,7 +133,9 @@ export default class UMAP extends React.Component {
       }
       if (!timeout) {
         timeout = setTimeout(() => { timeout = null; }, 1000 / 60);
-        this.peer.send(JSON.stringify({ type: 'event', data: serializeEvent(e) }));
+        if (this.peer) {
+          this.peer.send(JSON.stringify({ type: 'event', data: serializeEvent(e) }));
+        }
       }
     });
   }
@@ -225,7 +227,7 @@ export default class UMAP extends React.Component {
 
   render() {
     return (
-      <DemoDashboard demoName={"UMAP Demo"}
+      <DemoDashboard demoName={"Graph Demo"}
         demoView={this.demoView()}
         onLoadClick={(fileName) => { console.log(fileName) }}
         onRenderClick={() => { console.log("Render Clicked") }}
