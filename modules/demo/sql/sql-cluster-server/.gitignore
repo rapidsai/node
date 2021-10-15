@@ -29,5 +29,5 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# data
-*.csv
+# ignore dataset
+/data

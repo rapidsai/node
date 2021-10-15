@@ -71,8 +71,9 @@ test('select a single column', async () => {
   const sqlContext = new SQLContext();
   sqlContext.createTable('test_table', df);
 
-  await expect(sqlContext.sql('SELECT a FROM test_table').result())
-    .resolves.toStrictEqual(new DataFrame({a}));
+  await expect(sqlContext.sql('SELECT a FROM test_table').result()).resolves.toStrictEqual([
+    new DataFrame({a})
+  ]);
 });
 
 test('select all columns', async () => {
@@ -83,8 +84,9 @@ test('select all columns', async () => {
   const sqlContext = new SQLContext();
   sqlContext.createTable('test_table', df);
 
-  await expect(sqlContext.sql('SELECT * FROM test_table').result())
-    .resolves.toStrictEqual(new DataFrame({'a': a, 'b': b}));
+  await expect(sqlContext.sql('SELECT * FROM test_table').result()).resolves.toStrictEqual([
+    new DataFrame({'a': a, 'b': b})
+  ]);
 });
 
 test('union columns from two tables', async () => {
@@ -96,9 +98,8 @@ test('union columns from two tables', async () => {
   sqlContext.createTable('t1', df1);
   sqlContext.createTable('t2', df2);
 
-  const result = new DataFrame({'a': Series.new([...a, ...a])});
   await expect(sqlContext.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2').result())
-    .resolves.toStrictEqual(result);
+    .resolves.toStrictEqual([new DataFrame({'a': Series.new([...a, ...a])})]);
 });
 
 test('find all columns within a table that meet condition', async () => {
@@ -109,9 +110,9 @@ test('find all columns within a table that meet condition', async () => {
   const sqlContext = new SQLContext();
   sqlContext.createTable('test_table', df);
 
-  const result = new DataFrame({'key': Series.new(['a', 'b']), 'val': Series.new([7.6, 7.1])});
   await expect(sqlContext.sql('SELECT * FROM test_table WHERE val > 4').result())
-    .resolves.toStrictEqual(result);
+    .resolves.toStrictEqual(
+      [new DataFrame({'key': Series.new(['a', 'b']), 'val': Series.new([7.6, 7.1])})]);
 });
 
 test('empty sql result', async () => {
@@ -122,8 +123,7 @@ test('empty sql result', async () => {
   const sqlContext = new SQLContext();
   sqlContext.createTable('test_table', df);
 
-  const result = new DataFrame();
   // Query should be empty since BETWEEN values are reversed.
   await expect(sqlContext.sql('SELECT * FROM test_table WHERE val BETWEEN 10 AND 0').result())
-    .resolves.toStrictEqual(result);
+    .resolves.toStrictEqual([new DataFrame()]);
 });

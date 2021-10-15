@@ -44,8 +44,10 @@ export type ContextProps = {
 export declare class Context {
   constructor(props: ContextProps);
 
+  public readonly id: number;
+
   broadcast(ctxToken: number, df: DataFrame): string[];
-  pull(messageId: string): Promise<{names: string[], table: Table}>;
+  pull(messageId: string): Promise<{names: string[], tables: Table[]}>;
   send(id: number, ctxToken: number, messageId: string, df: DataFrame): void;
   runGenerateGraph(dataframes: DataFrame[],
                    schemas: Record<string, unknown>[],
@@ -62,8 +64,8 @@ export declare class ExecutionGraph {
   constructor();
 
   start(): void;
-  result(): Promise<{names: string[], table: Table}>;
-  sendTo(id: number, messageId: string, df: DataFrame): ExecutionGraph;
+  result(): Promise<{names: string[], tables: Table[]}>;
+  sendTo(id: number, df: DataFrame[]): string[];
 }
 
 export declare class UcpContext {
