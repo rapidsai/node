@@ -43,6 +43,20 @@ a:hover {
 .textButton:active {
     color: black;
 }
+
+.whiteTextButton {
+    color: white;
+    user-select: none;
+}
+
+.whiteTextButton:hover {
+    color: rgb(204, 204, 204);
+    cursor: pointer;
+}
+
+.whiteTextButton:active {
+    color: white;
+}
 /*  */
 
 /* Tabs */

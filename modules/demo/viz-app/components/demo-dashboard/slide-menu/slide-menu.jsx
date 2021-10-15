@@ -16,7 +16,7 @@ import React from 'react';
 import FileInput from '../file-input/file-input';
 import HeaderUnderline from '../header-underline/header-underline';
 import { slide as Menu } from 'react-burger-menu';
-import { Row, Col, Container } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 
 export default class SlideMenu extends React.Component {
   constructor(props) {
@@ -49,7 +49,9 @@ export default class SlideMenu extends React.Component {
         <HeaderUnderline title={"Data Source"}>
           <Row>
             <Col className={"col-auto"}>
-              <FileInput onChange={this.onDataChange}></FileInput>
+              <FileInput onChange={this.onDataChange}>
+                Select Data ▼
+              </FileInput>
               <p style={{ color: "black" }}>Selection: {this.state.selectedFilePath}</p>
             </Col>
             <Col className={"max"} ><div className={"d-flex"} /></Col>

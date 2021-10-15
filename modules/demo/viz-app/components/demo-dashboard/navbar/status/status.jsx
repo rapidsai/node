@@ -13,22 +13,13 @@
 // limitations under the License.
 
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 
-export default class FileInput extends React.Component {
-  constructor(props) {
-    super(props)
-    this.uploadFile = this.uploadFile.bind(this);
-  }
-
-  uploadFile(event) {
-    let file = event.target.files[0];
-    this.props.onChange(file.name);
-  }
-
-  render() {
-    return <label style={{ width: 130, height: 0 }}>
-      <p className={this.props?.useWhite ? "whiteTextButton" : "textButton"}>{this.props.children}</p>
-      <input type="file" style={{ display: "none" }} onChange={this.uploadFile} />
-    </label>
-  }
+export default function Status({ isLoading }) {
+  return (
+    <div style={{ fontSize: 20, transition: "all 4000ms ease" }}>
+      {isLoading ? `Loading` : `Ready`} <FontAwesomeIcon spin={isLoading} icon={faCircleNotch} />
+    </div>
+  );
 }

@@ -17,6 +17,8 @@ import React from 'react';
 import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 import HeaderUnderline from '../../components/demo-dashboard/header-underline/header-underline';
 import ExtendedTable from '../../components/demo-dashboard/extended-table/extended-table';
+import ToolBar from '../../components/demo-dashboard/tool-bar/tool-bar';
+import FileInput from '../../components/demo-dashboard/file-input/file-input';
 
 export default class UMAP extends React.Component {
   constructor(props) {
@@ -28,6 +30,16 @@ export default class UMAP extends React.Component {
   demoView() {
     return (
       <p>Demo goes here.</p>
+    );
+  }
+
+  toolBar() {
+    return (
+      <ToolBar
+        onResetClick={() => { console.log("reset") }}
+        onClearClick={() => { console.log("clear") }}
+        onToolSelect={(tool) => { console.log(tool); }}
+      />
     );
   }
 
@@ -81,7 +93,11 @@ export default class UMAP extends React.Component {
         <TabPanel>
           <ExtendedTable
             cols={this.columns()}
-            data={[this.fakeData(0), this.fakeData(1), this.fakeData(2), this.fakeData(3), this.fakeData(4), this.fakeData(5), this.fakeData(6), this.fakeData(7)]}
+            data={[
+              this.fakeData(0), this.fakeData(1), this.fakeData(2), this.fakeData(3), this.fakeData(4), this.fakeData(5),
+              this.fakeData(6), this.fakeData(7), this.fakeData(8), this.fakeData(9), this.fakeData(10), this.fakeData(11),
+              this.fakeData(12)
+            ]}
           />
         </TabPanel>
         <TabPanel>
@@ -99,6 +115,12 @@ export default class UMAP extends React.Component {
           <div>{'>'} 20,001,525 Nodes</div>
           <div>{'>'} 5.2GB</div>
         </HeaderUnderline>
+        <div style={{ height: 20 }} />
+        <HeaderUnderline title={"Query Log"} fontSize={18} color={"white"}>
+          <FileInput useWhite={true} onChange={(path) => { console.log(path) }}>
+            Export Selected ▼
+          </FileInput>
+        </HeaderUnderline>
       </div>
     )
   }
@@ -111,6 +133,7 @@ export default class UMAP extends React.Component {
         onRenderClick={() => { console.log("Render Clicked") }}
         dataTable={this.dataTable()}
         dataMetrics={this.dataMetrics()}
+        isLoading={false}
       />
     )
   }

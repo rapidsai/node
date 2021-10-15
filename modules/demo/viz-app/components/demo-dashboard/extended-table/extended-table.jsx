@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import React from 'react';
-import { useTable, useSortBy } from 'react-table';
+import { useTable, useSortBy, usePagination } from 'react-table';
 import styles from './extended-table.module.css';
 
 export default function ExtendedTable({ cols, data }) {
@@ -24,14 +24,23 @@ export default function ExtendedTable({ cols, data }) {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    rows,
+    page,
     prepareRow,
+
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+    state: { pageIndex, pageSize },
   } = useTable({
     columns,
     data,
-  }, useSortBy);
-
-  const firstPageRows = rows.slice(0, 20);
+    initialState: { pageIndex: 0 },
+  }, useSortBy, usePagination);
 
   return (
     <>
@@ -55,7 +64,7 @@ export default function ExtendedTable({ cols, data }) {
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {firstPageRows.map(
+          {page.map(
             (row, i) => {
               prepareRow(row);
               return (
@@ -71,7 +80,41 @@ export default function ExtendedTable({ cols, data }) {
           )}
         </tbody>
       </table>
-      <br />
+      <div className={styles.spacer}>
+        <div />
+        <div className={styles.pagination}>
+          <select
+            className={styles.select}
+            value={pageSize}
+            onChange={e => {
+              setPageSize(Number(e.target.value))
+            }}
+          >
+            {[10, 20, 30, 40, 50].map(pageSize => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+          <div className={"textButton"} style={{ paddingRight: 5 }} onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+            {'<<'}
+          </div>{' '}
+          <div className={"textButton"} style={{ paddingRight: 5 }} onClick={() => previousPage()} disabled={!canPreviousPage}>
+            {'<'}
+          </div>{' '}
+          <span style={{ paddingRight: 5 }}>
+            <strong>
+              {pageIndex + 1} of {pageOptions.length}
+            </strong>{' '}
+          </span>
+          <div className={"textButton"} style={{ paddingRight: 5 }} onClick={() => nextPage()} disabled={!canNextPage}>
+            {'>'}
+          </div>{' '}
+          <div className={"textButton"} onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+            {'>>'}
+          </div>{' '}
+        </div>
+      </div>
     </>
   )
 }
