@@ -19,9 +19,9 @@ export default function Home() {
 
   const demos = [
     {
-      title: 'UMAP',
-      description: 'This is the description of the UMAP demo.',
-      href: '/demo/umap'
+      title: 'Graph',
+      description: 'This is the description of the Graph demo.',
+      href: '/demo/graph'
     }
   ];
 

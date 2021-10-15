@@ -22,7 +22,7 @@ export default class ToolBar extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedTool: 'none',
+      selectedTool: 'click',
     }
     this.selectTool = this.selectTool.bind(this);
   }
@@ -53,10 +53,10 @@ export default class ToolBar extends React.Component {
   render() {
     return (
       <div className={styles.toolBar}>
-        {this.createTool('box', faVectorSquare, this.state.selectedTool)}
-        {this.createTool('poly', faDrawPolygon, this.state.selectedTool)}
-        {this.createTool('node', faMousePointer, this.state.selectedTool)}
-        {this.createButton(<Image src="/images/zoom.png" width={20} height={20} />, this.props.onResetClick)}
+        {this.createTool('boxSelect', faVectorSquare, this.state.selectedTool)}
+        {/* {this.createTool('poly', faDrawPolygon, this.state.selectedTool)} */}
+        {this.createTool('click', faMousePointer, this.state.selectedTool)}
+        {/* {this.createButton(<Image src="/images/zoom.png" width={20} height={20} />, this.props.onResetClick)} */}
         {this.createButton(<Image src="/images/reset.png" width={20} height={20} />, this.props.onClearClick)}
       </div>
     );
