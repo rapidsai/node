@@ -74,6 +74,8 @@ struct Context : public EnvLocalObjectWrap<Context> {
   Napi::Reference<Wrapper<CacheMachine>> _transport_in;
   Napi::Reference<Wrapper<CacheMachine>> _transport_out;
 
+  Napi::Value get_ral_id(Napi::CallbackInfo const& info);
+
   void send(Napi::CallbackInfo const& info);
   Napi::Value pull(Napi::CallbackInfo const& info);
   Napi::Value broadcast(Napi::CallbackInfo const& info);

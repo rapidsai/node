@@ -62,7 +62,7 @@ export class SQLCluster {
       enableLogging    = false,
     }                   = options;
     const configOptions = {...defaultClusterConfigValues, ...options.configOptions};
-    const cluster       = new SQLCluster(Math.min(numWorkers, Device.numDevices));
+    const cluster       = new SQLCluster(options.id || 0, Math.min(numWorkers, Device.numDevices));
     await cluster._createContexts({
       ip,
       port,
@@ -79,17 +79,17 @@ export class SQLCluster {
   private declare _workers: Worker[];
   private declare _worker: LocalSQLWorker;
 
-  private constructor(numWorkers: number) {
+  private constructor(id: number, numWorkers: number) {
     process.on('exit', this.kill.bind(this));
     process.on('beforeExit', this.kill.bind(this));
 
-    this._worker = new LocalSQLWorker(0);
+    this._worker = new LocalSQLWorker(id);
     this._workers =
       Array
         .from({length: numWorkers},
-              (_, i) => i === 0
-                          ? this._worker
-                          : new RemoteSQLWorker(this, i, {...process.env, CUDA_VISIBLE_DEVICES: i}))
+              (_, i) => i === 0 ? this._worker
+                                : new RemoteSQLWorker(
+                                    this, id + i, {...process.env, CUDA_VISIBLE_DEVICES: i}))
         .reverse();
   }
 

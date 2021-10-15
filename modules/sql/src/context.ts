@@ -76,6 +76,8 @@ export class SQLContext {
     });
   }
 
+  public get id() { return this.context.id; }
+
   /**
    * Create a SQL table to be used for future queries.
    *
