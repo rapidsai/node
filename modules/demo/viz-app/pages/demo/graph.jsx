@@ -81,7 +81,7 @@ function serializeEvent(original) {
     }, { type: original.type });
 }
 
-export default class UMAP extends React.Component {
+export default class Graph extends React.Component {
 
   constructor(props) {
     super(props);
@@ -195,7 +195,7 @@ export default class UMAP extends React.Component {
         // onMouseDown={remoteEvent} onMouseMove={remoteEvent}
         // onMouseLeave={remoteEvent} onWheel={remoteEvent}
         // onMouseEnter={remoteEvent} onBlur={remoteEvent}
-        > Demo goes here</video>
+        />
         <ToolBar style={{ flexDirection: "row", width: "200px" }}
           onResetClick={() => { console.log("reset") }}
           onClearClick={() => { this.peer.send(JSON.stringify({ type: 'clearSelections', data: true })); }}
