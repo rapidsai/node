@@ -85,8 +85,7 @@ export class QueryDashboard extends React.Component {
 
   async runQuery() {
     if (this.state.queryButtonEnabled) {
-      this.setState({ queryButtonEnabled: false });
-      this.setState({ runningQuery: true });
+      this.setState({ runningQuery: true, queryButtonEnabled: false });
       await fetch(`/run_query`, {
         method: `POST`,
         headers: {
@@ -102,8 +101,7 @@ export class QueryDashboard extends React.Component {
           rowsPerPage: 10
         });
       });
-      this.setState({ runningQuery: false });
-      this.setState({ queryButtonEnabled: true });
+      this.setState({ runningQuery: false, queryButtonEnabled: true });
     }
   }
 
