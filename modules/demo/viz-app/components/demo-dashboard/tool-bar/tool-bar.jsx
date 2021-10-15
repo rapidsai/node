@@ -14,6 +14,7 @@
 
 import React from 'react';
 import styles from './tool-bar.module.css';
+import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faVectorSquare, faDrawPolygon, faMousePointer, faSearchMinus, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -41,10 +42,12 @@ export default class ToolBar extends React.Component {
     );
   }
 
-  createButton(icon, onClick) {
-    return <div onClick={onClick} className={styles.tool}>
-      <FontAwesomeIcon icon={icon} />
-    </div>
+  createButton(tag, onClick) {
+    return (
+      <div onClick={onClick} className={styles.tool}>
+        {tag}
+      </div>
+    )
   }
 
   render() {
@@ -53,8 +56,8 @@ export default class ToolBar extends React.Component {
         {this.createTool('box', faVectorSquare, this.state.selectedTool)}
         {this.createTool('poly', faDrawPolygon, this.state.selectedTool)}
         {this.createTool('node', faMousePointer, this.state.selectedTool)}
-        {this.createButton(faSearchMinus, this.props.onResetClick)}
-        {this.createButton(faTimes, this.props.onClearClick)}
+        {this.createButton(<Image src="/images/zoom.png" width={20} height={20} />, this.props.onResetClick)}
+        {this.createButton(<Image src="/images/reset.png" width={20} height={20} />, this.props.onClearClick)}
       </div>
     );
   }
