@@ -1,0 +1,36 @@
+name: Build and publish runtime cuspatial image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish-runtime-cuspatial-image:
+    needs:
+      - build-and-publish-devel-packages-image
+      - build-and-publish-runtime-cuda-base-image
+    name: Build and publish runtime cuspatial image
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+      matrix:
+        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        LINUX: [ubuntu18.04, ubuntu20.04]
+    env:
+      ARCH: amd64
+      NODE: 16.10.0
+      RAPIDS: 21.12.00
+      REPOSITORY: ghcr.io/rapidsai/node
+    steps:
+      - uses: .github/actions/build-and-publish-image
+        with:
+          file: dockerfiles/runtime/cuspatial.Dockerfile
+          tags: |
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial-${{ env.ARCH }}
+          secrets: |
+            "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}"
+            "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          build-args: |
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"

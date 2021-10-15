@@ -1,0 +1,39 @@
+name: Build and publish devel packages image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish-devel-packages-image:
+    needs:
+      - build-and-publish-devel-main-image
+    name: Build and publish devel packages image
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+      matrix:
+        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        LINUX: [ubuntu18.04, ubuntu20.04]
+    env:
+      ARCH: amd64
+      NODE: 16.10.0
+      RAPIDS: 21.12.00
+      REPOSITORY: ghcr.io/rapidsai/node
+    steps:
+      - uses: .github/actions/build-and-publish-image
+        with:
+          file: dockerfiles/devel/package.Dockerfile
+          tags: |
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}
+          secrets: |
+            "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}"
+            "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          build-args: |
+            "PARALLEL_LEVEL=1"
+            "SCCACHE_IDLE_TIMEOUT=32768"
+            "SCCACHE_REGION=us-west-2"
+            "SCCACHE_BUCKET=node-rapids-sccache"
+            "RAPIDS_VERSION=${{ env.RAPIDS }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
