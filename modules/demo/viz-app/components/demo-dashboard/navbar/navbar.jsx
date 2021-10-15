@@ -14,8 +14,9 @@
 
 import styles from './navbar.module.css';
 import Navbar from 'react-bootstrap/Navbar';
+import Status from './status/status';
 
-export default function CustomNavbar({ title }) {
+export default function CustomNavbar({ title, isLoading }) {
     return (
         <Navbar bg="dark" variant="dark" className={styles.navbar}>
             <Navbar.Brand>
@@ -23,6 +24,8 @@ export default function CustomNavbar({ title }) {
                     {title}
                 </div>
             </Navbar.Brand>
+            <Navbar className={"mr-auto"}></Navbar>
+            <Status isLoading={isLoading} />
         </Navbar >
     )
 }

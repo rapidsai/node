@@ -37,3 +37,31 @@
     background: #e5e5e5;
     border: 1px solid black;
 }
+
+.spacer {
+    display:flex;
+    justify-content:space-between;
+}
+
+.pagination {
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
+}
+
+.select {
+    background-color: white;
+    border: none;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.select:hover {
+    color: rgb(83, 83, 83);
+    cursor: pointer;
+}
+
+.select:active {
+    color: black;
+    cursor: pointer;
+}

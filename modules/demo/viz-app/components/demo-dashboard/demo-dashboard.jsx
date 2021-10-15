@@ -22,7 +22,7 @@ import SlideMenu from './slide-menu/slide-menu';
 
 export default class DemoDashboard extends React.Component {
   render() {
-    const { demoName } = this.props;
+    const { demoName, isLoading } = this.props;
 
     return (
       <div id="outer-container">
@@ -30,7 +30,7 @@ export default class DemoDashboard extends React.Component {
           onLoadClick={this.props.onLoadClick}
           onRenderClick={this.props.onRenderClick}
         />
-        <Layout id="page-wrap" title={demoName}>
+        <Layout id="page-wrap" title={demoName} isLoading={isLoading}>
           <DemoView demoView={this.props.demoView} />
           <Container fluid style={{ paddingTop: 20 }}>
             <DataRow dataTable={this.props.dataTable} dataMetrics={this.props.dataMetrics} />
