@@ -58,7 +58,7 @@ function getDefaultNodes() {
       'ustr::c',
       'ustr::d'
     ])),
-    id: Series.sequence({type: new Uint8, init: 0, step: 1, size: 40}),
+    id: Series.sequence({type: new Uint32, init: 0, step: 1, size: 40}),
     color: Series.new({
       type: new Uint32,
       data: [
