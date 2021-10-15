@@ -68,12 +68,18 @@ export class RemoteSQLWorker implements Worker {
     return this._send({type: 'createTable', name, table_id}).then(() => undefined);
   }
 
+  public createCSVTable(name: string, paths: string[]) {
+    return this._send({type: 'createCSVTable', name, paths}).then(() => undefined);
+  }
+
   public dropTable(name: string) {
     return this._send({type: 'dropTable', name}).then(() => undefined);
   }
 
   public sql(query: string, token: number) {
-    return this._send({type: 'sql', query, token}).then((x) => this._cluster.context.pull(x.uuid));
+    return this._send({type: 'sql', query, token, destinationId: this._cluster.context.id})
+      .then(({messageIds}: {messageIds: string[]}) =>
+              Promise.all(messageIds.map((id: string) => this._cluster.context.pull(id))));
   }
 
   private _send({type, ...rest}: any = {}) {

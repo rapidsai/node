@@ -15,9 +15,8 @@
 /* eslint-disable @typescript-eslint/await-thenable */
 
 import {Device} from '@rapidsai/cuda';
-import {DataFrame} from '@rapidsai/cudf';
-
-import {ContextProps} from './addon';
+import {arrowToCUDFType, DataFrame, Series} from '@rapidsai/cudf';
+import {ContextProps, parseSchema} from './addon';
 import {LocalSQLWorker} from './cluster/local';
 import {RemoteSQLWorker} from './cluster/remote';
 import {defaultClusterConfigValues} from './config';
@@ -26,8 +25,9 @@ export interface Worker {
   readonly id: number;
   kill(): void;
   dropTable(name: string): Promise<void>;
-  sql(query: string, token: number): Promise<DataFrame>;
+  sql(query: string, token: number): Promise<DataFrame[]>;
   createTable(name: string, table_id: string): Promise<void>;
+  createCSVTable(name: string, paths: string[]): Promise<void>;
   createContext(props: Omit<ContextProps, 'id'>): Promise<void>;
 }
 
@@ -62,7 +62,7 @@ export class SQLCluster {
       enableLogging    = false,
     }                   = options;
     const configOptions = {...defaultClusterConfigValues, ...options.configOptions};
-    const cluster       = new SQLCluster(Math.min(numWorkers, Device.numDevices));
+    const cluster       = new SQLCluster(options.id || 0, Math.min(numWorkers, Device.numDevices));
     await cluster._createContexts({
       ip,
       port,
@@ -79,17 +79,17 @@ export class SQLCluster {
   private declare _workers: Worker[];
   private declare _worker: LocalSQLWorker;
 
-  private constructor(numWorkers: number) {
+  private constructor(id: number, numWorkers: number) {
     process.on('exit', this.kill.bind(this));
     process.on('beforeExit', this.kill.bind(this));
 
-    this._worker = new LocalSQLWorker(0);
+    this._worker = new LocalSQLWorker(id);
     this._workers =
       Array
         .from({length: numWorkers},
-              (_, i) => i === 0
-                          ? this._worker
-                          : new RemoteSQLWorker(this, i, {...process.env, CUDA_VISIBLE_DEVICES: i}))
+              (_, i) => i === 0 ? this._worker
+                                : new RemoteSQLWorker(
+                                    this, id + i, {...process.env, CUDA_VISIBLE_DEVICES: i}))
         .reverse();
   }
 
@@ -106,7 +106,7 @@ export class SQLCluster {
    * Create a SQL table to be used for future queries.
    *
    * @param tableName Name of the table when referenced in a query
-   * @param input Data source for the table
+   * @param input DataFrame or paths to CSV files
    *
    * @example
    * ```typescript
@@ -121,10 +121,39 @@ export class SQLCluster {
    * await sqlCluster.createTable('test_table', df);
    * ```
    */
-  public async createTable(tableName: string, input: DataFrame) {
-    ctxToken += this._workers.length;
-    const ids = this.context.context.broadcast(ctxToken - this._workers.length, input).reverse();
-    await Promise.all(this._workers.map((worker, i) => worker.createTable(tableName, ids[i])));
+  public async createTable(tableName: string, input: DataFrame|string[]) {
+    if (input instanceof DataFrame) {
+      ctxToken += this._workers.length;
+      const ids = this.context.context.broadcast(ctxToken - this._workers.length, input).reverse();
+      await Promise.all(this._workers.map((worker, i) => worker.createTable(tableName, ids[i])));
+    } else {
+      // TODO: This logic needs to be reworked. We split up the .csv files among the workers.
+      // There is a possibility a worker does not get a .csv file, therefore we need to give it an
+      // empty DataFrame.
+      const {types, names} = parseSchema(input);
+      const empty          = new DataFrame(
+        names.reduce((xs, name, i) => ({
+                       ...xs,
+                       [name]: Series.new({type: arrowToCUDFType(types[i]), data: []}),
+                     }),
+                     {}));
+
+      const chunkedPaths: string[][] = [];
+      for (let i = this._workers.length; i > 0; i--) {
+        chunkedPaths.push(input.splice(0, Math.ceil(input.length / i)));
+      }
+
+      await Promise.all(this._workers.slice().reverse().map((worker, i) => {
+        if (chunkedPaths[i].length > 0) {
+          return worker.createCSVTable(tableName, chunkedPaths[i]);
+        } else {
+          ctxToken += 1;
+          const message = `broadcast_table_message_${ctxToken}`;
+          this.context.context.send(worker.id, ctxToken, message, empty);
+          return worker.createTable(tableName, message);
+        }
+      }));
+    }
   }
 
   /**
@@ -181,11 +210,10 @@ export class SQLCluster {
     const algebra = await this.explain(query);
     if (algebra.includes('LogicalValues(tuples=[[]])')) {
       // SQL returns empty result.
-      return new DataFrame();
+      return [];
     }
     const token = ctxToken++;
-    return new DataFrame().concat(
-      ...(await Promise.all(this._workers.map((worker) => worker.sql(query, token)))).reverse());
+    return (await Promise.all(this._workers.map((worker) => worker.sql(query, token)))).flat();
   }
 
   /**

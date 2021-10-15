@@ -711,6 +711,31 @@ export interface Column<T extends DataType = any> {
   isNotNaN(memoryResource?: MemoryResource): Column<Bool8>;
 
   /**
+   * Returns a new strings column converting the boolean values from the provided column into
+   * strings.
+   *
+   * Any null entries will result in corresponding null entries in the output column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   *  @returns A string Column with booleans as strings.
+   */
+  stringsFromBooleans(memoryResource?: MemoryResource): Column<Utf8String>;
+
+  /**
+   * Returns a new Bool8 column parsing true/false values from the provided strings column.
+   *
+   * Any null entries will result in corresponding null entries in the output column.
+   *
+   * @param memoryResource  The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   *  @returns A Column of boolean type with the results of the conversion.
+   */
+  stringsToBooleans(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
    * Creates a column of `BOOL8` elements indicating strings in which all characters are valid for
    * conversion to floats.
    *

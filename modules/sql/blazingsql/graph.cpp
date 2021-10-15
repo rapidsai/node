@@ -71,15 +71,7 @@ Napi::Value ExecutionGraph::result(Napi::CallbackInfo const& info) {
     _fetched  = true;
     auto task = new SQLTask(env, [this]() {
       auto [names, tables] = std::move(get_execute_graph_result(_graph));
-      if (tables.size() > 1) {
-        std::vector<cudf::table_view> views;
-        views.reserve(tables.size());
-        std::transform(tables.begin(), tables.end(), std::back_inserter(views), [](auto const& t) {
-          return t->view();
-        });
-        return std::make_pair(std::move(names), std::move(cudf::concatenate(views)));
-      }
-      return std::make_pair(std::move(names), std::move(tables[0]));
+      return std::make_pair(std::move(names), std::move(tables));
     });
     _results  = Napi::Persistent(task->run());
   }
@@ -91,20 +83,27 @@ Napi::Value ExecutionGraph::send(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
 
-  int32_t dst_ral_id     = args[0];
-  std::string message_id = args[1];
-  NapiToCPP::Object df   = args[2];
+  int32_t dst_ral_id      = args[0];
+  Napi::Array data_frames = args[1];
 
-  std::vector<std::string> names = df.Get("names");
-  Napi::Function asTable         = df.Get("asTable");
-  Table::wrapper_t table         = asTable.Call(df.val, {}).ToObject();
+  auto messages = Napi::Array::New(env, data_frames.Length());
+  for (int i = 0; i < data_frames.Length(); ++i) {
+    NapiToCPP::Object df           = data_frames.Get(i);
+    std::vector<std::string> names = df.Get("names");
+    Napi::Function asTable         = df.Get("asTable");
 
-  auto ctx_token =
-    std::to_string(_graph->get_last_kernel()->input_cache()->get_context()->getContextToken());
+    Table::wrapper_t table = asTable.Call(df.val, {}).ToObject();
 
-  _context.Value()->send(dst_ral_id, ctx_token, message_id, names, *table);
+    auto ctx_token =
+      std::to_string(_graph->get_last_kernel()->input_cache()->get_context()->getContextToken());
 
-  return this->Value();
+    std::string message = "broadcast_table_message_" + std::to_string(i);
+    messages[i]         = message;
+
+    _context.Value()->send(dst_ral_id, ctx_token, message, names, *table);
+  }
+
+  return messages;
 }
 
 }  // namespace blazingsql

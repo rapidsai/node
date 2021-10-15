@@ -147,6 +147,8 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::pad>("pad"),
                        InstanceMethod<&Column::zfill>("zfill"),
                        // column/convert.cpp
+                       InstanceMethod<&Column::strings_from_booleans>("stringsFromBooleans"),
+                       InstanceMethod<&Column::strings_to_booleans>("stringsToBooleans"),
                        InstanceMethod<&Column::string_is_float>("stringIsFloat"),
                        InstanceMethod<&Column::strings_from_floats>("stringsFromFloats"),
                        InstanceMethod<&Column::strings_to_floats>("stringsToFloats"),

@@ -41,6 +41,7 @@ Napi::Function Context::Init(Napi::Env const& env, Napi::Object exports) {
   return DefineClass(env,
                      "Context",
                      {
+                       InstanceAccessor<&Context::get_ral_id>("id"),
                        InstanceMethod<&Context::send>("send"),
                        InstanceMethod<&Context::pull>("pull"),
                        InstanceMethod<&Context::broadcast>("broadcast"),
@@ -128,6 +129,10 @@ Napi::Value Context::run_generate_graph(Napi::CallbackInfo const& info) {
                                         sql,
                                         current_timestamp,
                                         config_options);
+}
+
+Napi::Value Context::get_ral_id(Napi::CallbackInfo const& info) {
+  return Napi::Value::From(info.Env(), _id);
 }
 
 void Context::send(int32_t const& dst_ral_id,

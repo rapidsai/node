@@ -150,6 +150,20 @@ test('Column.nansToNulls', () => {
   expect([...Series.new(result)]).toEqual(expected);
 });
 
+test('Column.stringsFromBooleans', () => {
+  const col      = Series.new([true, false, true, null, true])._col;
+  const result   = col.stringsFromBooleans();
+  const expected = ['true', 'false', 'true', null, 'true'];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.stringsToBooleans', () => {
+  const col      = Series.new(['true', 'false', 'true', null, 'true'])._col;
+  const result   = col.stringsToBooleans();
+  const expected = [true, false, true, null, true];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
 test('Column.stringIsFloat', () => {
   const col      = Series.new(['1.2', '12', 'abc', '-2.3', '-5', null, '2e+17', '0'])._col;
   const result   = col.stringIsFloat();

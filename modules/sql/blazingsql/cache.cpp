@@ -63,7 +63,9 @@ SQLTask* CacheMachine::pull_from_cache(std::string const& message_id) {
     auto names    = result->names();
     auto decached = result->decache();
     auto table    = decached->releaseCudfTable();
-    return std::make_pair(std::move(names), std::move(table));
+    std::vector<std::unique_ptr<cudf::table>> tables;
+    tables.push_back(std::move(table));
+    return std::make_pair(std::move(names), std::move(tables));
   });
 }
 

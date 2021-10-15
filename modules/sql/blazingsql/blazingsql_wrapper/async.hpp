@@ -24,8 +24,8 @@
 namespace nv {
 namespace blazingsql {
 
-using SQLTaskCallback =
-  typename std::function<std::pair<std::vector<std::string>, std::unique_ptr<cudf::table>>()>;
+using SQLTaskCallback = typename std::function<
+  std::pair<std::vector<std::string>, std::vector<std::unique_ptr<cudf::table>>>()>;
 
 struct SQLTask : public Napi::AsyncWorker {
   SQLTask(Napi::Env const& env, SQLTaskCallback const& work);
@@ -44,7 +44,7 @@ struct SQLTask : public Napi::AsyncWorker {
 
   SQLTaskCallback work_;
   std::vector<std::string> names_;
-  std::unique_ptr<cudf::table> table_;
+  std::vector<std::unique_ptr<cudf::table>> tables_;
 
   Napi::Promise::Deferred deferred_;
 };
