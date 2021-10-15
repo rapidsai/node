@@ -75,8 +75,11 @@ jobs:
           if [[ "${{ steps.devel_dockerfiles_changed.outputs.any_changed }}" == "true" ]]; then
             AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
             AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-              yarn docker:build:devel
+              yarn docker:build:devel:main
           fi
-          AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
-          AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            yarn docker:run:devel bash -c 'yarn && yarn rebuild'
+          mkdir -p /tmp/.{yarn,cache}
+          docker run --rm \
+            -u "$(id -u):$(id -g)" -v "$(pwd):/opt/rapids/node:rw" -v "/tmp/.yarn:/.yarn:rw" -v "/tmp/.cache:/.cache:rw" \
+            --env-file .env -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
+            yarn && yarn rebuild
