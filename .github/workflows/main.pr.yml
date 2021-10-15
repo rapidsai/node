@@ -82,4 +82,4 @@ jobs:
             -u "$(id -u):$(id -g)" -v "$(pwd):/opt/rapids/node:rw" -v "/tmp/.yarn:/.yarn:rw" -v "/tmp/.cache:/.cache:rw" \
             --env-file .env -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
-            yarn && yarn rebuild
+            bash -c 'set -ex; echo $PATH && echo $CUDA_HOME && which -a nvcc && nvcc --version && yarn && yarn rebuild'
