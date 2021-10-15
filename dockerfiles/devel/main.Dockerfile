@@ -116,9 +116,9 @@ RUN apt update \
  && NVENC_VERSION=$(apt policy libnvidia-encode-* 2>/dev/null | grep libnvidia-encode- | cut -d'-' -f3 | cut -d':' -f1 | sort -rh | head -n1) \
  && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libnvidia-encode-$NVENC_VERSION \
  && apt autoremove -y && apt clean && rm -rf /tmp/* /var/tmp/* /var/lib/apt/lists/* /var/cache/apt/archives/* \
- && ln -s /lib/$(uname -m)-linux-gnu/libcuda.so /usr/local/lib/libcuda.so \
- && ln -s /lib/$(uname -m)-linux-gnu/libnvcuvid.so /usr/local/lib/libnvcuvid.so \
- && ln -s /lib/$(uname -m)-linux-gnu/libnvidia-encode.so /usr/local/lib/libnvidia-encode.so
+ && ln -s /usr/lib/$(uname -m)-linux-gnu/libcuda.so /usr/local/lib/libcuda.so \
+ && ln -s /usr/lib/$(uname -m)-linux-gnu/libnvcuvid.so /usr/local/lib/libnvcuvid.so \
+ && ln -s /usr/lib/$(uname -m)-linux-gnu/libnvidia-encode.so /usr/local/lib/libnvidia-encode.so
 
 FROM compilers as wrtc
 
