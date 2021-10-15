@@ -190,10 +190,17 @@ function makeDeck() {
         layerIds: ['GraphLayer']
       };
 
-      deck.selectedInfo.selected = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
-                                     .filter(selected => selected.hasOwnProperty('nodeId'))
-                                     .map(n => n.nodeId);
-      console.log(deck.selectedInfo.selected);
+      deck.selectedInfo.selectedNodes = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
+                                          .filter(selected => selected.hasOwnProperty('nodeId'))
+                                          .map(n => n.nodeId);
+
+      deck.selectedInfo.selectedEdges = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
+                                          .filter(selected => selected.hasOwnProperty('edgeId'))
+                                          .map(n => n.edgeId);
+      console.log('selected Nodes',
+                  deck.selectedInfo.selectedNodes,
+                  '\nselected Edges',
+                  deck.selectedInfo.selectedEdges);
     }
 
   const onDrag = (info, event) => {
@@ -208,12 +215,13 @@ function makeDeck() {
   };
 
   const onClick = (info, event) => {
+    console.log(info);
     deck.selectedInfo.selectedCoordinates = {
       x: info.x,
       y: info.y,
       radius: 1,
     };
-    deck.selectedInfo.selected =
+    deck.selectedInfo.selectedNodes =
       [deck.pickObject(deck.selectedInfo.selectedCoordinates)]
         .filter(selected => selected && selected.hasOwnProperty('nodeId'))
         .map(n => n.nodeId);

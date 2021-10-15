@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const wrtc                       = require('wrtc');
-const {MemoryView}               = require('@nvidia/cuda');
-const {Float32Buffer}            = require('@nvidia/cuda');
-const {GraphCOO}                 = require('@rapidsai/cugraph');
-const {Series, Int32, DataFrame} = require('@rapidsai/cudf');
+const wrtc            = require('wrtc');
+const {MemoryView}    = require('@nvidia/cuda');
+const {Float32Buffer} = require('@nvidia/cuda');
+const {GraphCOO}      = require('@rapidsai/cugraph');
+const {Series, Int32} = require('@rapidsai/cudf');
 
 const {loadNodes, loadEdges} = require('./loader');
 const {RenderCluster}        = require('../../render/cluster');
@@ -181,9 +181,11 @@ function layoutAndRenderGraphs(clients) {
     for (const id in clients) {
       const client = clients[id];
       const sendToClient =
-        (data) => {
-          const res = getPaginatedRows(data, 1, 25);
-          client.peer.send(JSON.stringify({type: 'data', data: {nodes: res}}));
+        ([nodes, edges]) => {
+          client.peer.send(
+            JSON.stringify({type: 'data', data: {nodes: getPaginatedRows(nodes, 1, 25)}}));
+          client.peer.send(
+            JSON.stringify({type: 'data', data: {edges: getPaginatedRows(edges, 1, 25)}}));
         }
 
       if (client.isRendering) {
@@ -252,17 +254,24 @@ function layoutAndRenderGraphs(clients) {
               result.state.clearSelections = false;
 
               // reset selected state
-              result.state.selectedInfo.selected            = [];
+              result.state.selectedInfo.selectedNodes       = [];
+              result.state.selectedInfo.selectedEdges       = [];
               result.state.selectedInfo.selectedCoordinates = {};
               result.state.boxSelectCoordinates.rectdata    = [{polygon: [[]], show: false}];
 
               // send to client
-              sendToClient(client.graph.dataframes[0]);
+              sendToClient(client.graph.dataframes);
             } else if (JSON.stringify(client.state.selectedInfo.selectedCoordinates) !==
                        JSON.stringify(result.state.selectedInfo.selectedCoordinates)) {
               // selections updated
-              const nodes = Series.new({type: new Int32, data: result.state.selectedInfo.selected});
-              sendToClient(client.graph.dataframes[0].gather(nodes));
+              const nodes =
+                Series.new({type: new Int32, data: result.state.selectedInfo.selectedNodes});
+              const edges =
+                Series.new({type: new Int32, data: result.state.selectedInfo.selectedEdges});
+              sendToClient([
+                client.graph.dataframes[0].gather(nodes),
+                client.graph.dataframes[1].gather(edges)
+              ]);
             }
             // copy result state to client's current state
             result?.state && Object.assign(client.state, result.state);
