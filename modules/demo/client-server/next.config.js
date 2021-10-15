@@ -9,11 +9,11 @@ module.exports = {
     if (isServer) {
       config.externals.push({
         '@rapidsai/core': '@rapidsai/core',
-        '@nvidia/cuda': '@nvidia/cuda',
-        '@nvidia/webgl': '@nvidia/webgl',
+        '@rapidsai/cuda': '@rapidsai/cuda',
+        '@rapidsai/webgl': '@rapidsai/webgl',
         '@rapidsai/deck.gl': '@rapidsai/deck.gl',
         '@rapidsai/rmm': '@rapidsai/rmm',
-        '@nvidia/glfw': '@nvidia/glfw',
+        '@rapidsai/glfw': '@rapidsai/glfw',
         '@rapidsai/cudf': '@rapidsai/cudf',
         '@rapidsai/cugraph': '@rapidsai/cugraph',
         '@rapidsai/cuspatial': '@rapidsai/cuspatial',

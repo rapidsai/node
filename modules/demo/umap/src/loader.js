@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {clampRange as clamp} from '@nvidia/cuda';
+import {clampRange as clamp} from '@rapidsai/cuda';
 import {DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
 import {concat as concatAsync, zip as zipAsync} from 'ix/asynciterable';
 import {flatMap as flatMapAsync} from 'ix/asynciterable/operators';

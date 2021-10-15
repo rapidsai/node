@@ -55,7 +55,7 @@ module.exports = {
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@nvidia\/glfw(.*)": "<rootDir>/src/$1",
+    "^@rapidsai\/glfw(.*)": "<rootDir>/src/$1",
     "^\.\.\/(Debug|Release)\/(node_glfw.node)$": "<rootDir>/build/$1/$2",
   }
 };

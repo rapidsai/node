@@ -54,7 +54,7 @@ module.exports = {
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@nvidia\/cuml(.*)": "<rootDir>/src/$1",
+    "^@rapidsai\/cuml(.*)": "<rootDir>/src/$1",
     "^\.\.\/(Debug|Release)\/(node_cuml.node)$": "<rootDir>/build/$1/$2",
   }
 };

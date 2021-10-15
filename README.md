@@ -9,9 +9,9 @@
 
 Additionally, `node-rapids` includes _limited_ bindings to:
 
-* [`@nvidia/cuda`](https://github.com/rapidsai/node/tree/main/modules/cuda) - Interact with GPUs via the [CUDA Runtime APIs](https://developer.nvidia.com/cuda-toolkit)
-* [`@nvidia/glfw`](https://github.com/rapidsai/node/tree/main/modules/glfw) - Create platform-agnostic native windows with OpenGL contexts via [GLFW](https://github.com/glfw/glfw)
-* [`@nvidia/webgl`](https://github.com/rapidsai/node/tree/main/modules/webgl) - Provides a [`WebGL2RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext) via [OpenGL ES](https://www.khronos.org/opengles)
+* [`@rapidsai/cuda`](https://github.com/rapidsai/node/tree/main/modules/cuda) - Interact with GPUs via the [CUDA Runtime APIs](https://developer.nvidia.com/cuda-toolkit)
+* [`@rapidsai/glfw`](https://github.com/rapidsai/node/tree/main/modules/glfw) - Create platform-agnostic native windows with OpenGL contexts via [GLFW](https://github.com/glfw/glfw)
+* [`@rapidsai/webgl`](https://github.com/rapidsai/node/tree/main/modules/webgl) - Provides a [`WebGL2RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext) via [OpenGL ES](https://www.khronos.org/opengles)
 * [`@rapidsai/sql`](https://github.com/rapidsai/node/tree/main/modules/sql) - GPU-accelerated SQL queries
 
 See the [API docs](https://rapidsai.github.io/node/) for detailed information about each module.

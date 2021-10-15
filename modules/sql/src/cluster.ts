@@ -14,7 +14,7 @@
 
 /* eslint-disable @typescript-eslint/await-thenable */
 
-import {Device} from '@nvidia/cuda';
+import {Device} from '@rapidsai/cuda';
 import {DataFrame} from '@rapidsai/cudf';
 
 import {ContextProps} from './addon';

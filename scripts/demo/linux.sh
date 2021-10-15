@@ -2,7 +2,6 @@
 
 set -Eeo pipefail
 
-
 find node_modules -name .cache -type d -exec rm -rf "{}" +
 
 fuzzy-find() {

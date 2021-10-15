@@ -78,7 +78,7 @@ interface DeviceList extends Iterable<Device> {
  *
  * @example
  * ```typescript
- * import {Device, devices} from '@nvidia/cuda';
+ * import {Device, devices} from '@rapidsai/cuda';
  *
  * console.log(`Number of devices: ${devices.length}`);
  *

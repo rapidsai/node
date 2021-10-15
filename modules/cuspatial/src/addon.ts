@@ -14,8 +14,8 @@
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
-import {addon as CUDA} from '@nvidia/cuda';
 import {loadNativeModule} from '@rapidsai/core';
+import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF, Column, FloatingPoint, Int32, Table, Uint32} from '@rapidsai/cudf';
 import {addon as RMM, MemoryResource} from '@rapidsai/rmm';
 

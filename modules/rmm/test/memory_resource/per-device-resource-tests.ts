@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {expect} from '@jest/globals';
-import {devices} from '@nvidia/cuda';
+import {devices} from '@rapidsai/cuda';
 import {
   DeviceBuffer,
   getPerDeviceResource,

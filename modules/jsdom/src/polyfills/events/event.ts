@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GLFWModifierKey} from '@nvidia/glfw';
+import {GLFWModifierKey} from '@rapidsai/glfw';
 import {DOMWindow} from 'jsdom';
 import {Observable, Observer} from 'rxjs';
 

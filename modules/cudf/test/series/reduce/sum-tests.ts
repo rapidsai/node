@@ -14,7 +14,7 @@
 
 import '../../jest-extensions';
 
-import {BigIntArray, setDefaultAllocator, TypedArray, Uint8Buffer} from '@nvidia/cuda';
+import {BigIntArray, setDefaultAllocator, TypedArray, Uint8Buffer} from '@rapidsai/cuda';
 import {
   Bool8,
   Float32,

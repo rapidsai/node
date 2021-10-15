@@ -16,7 +16,7 @@ import {
   BigIntArray,
   TypedArray,
   TypedArrayConstructor,
-} from '@nvidia/cuda';
+} from '@rapidsai/cuda';
 import {
   Bool8,
   DataType,

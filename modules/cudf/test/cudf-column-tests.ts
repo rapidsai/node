@@ -18,7 +18,7 @@ import {
   Int32Buffer,
   setDefaultAllocator,
   Uint8Buffer
-} from '@nvidia/cuda';
+} from '@rapidsai/cuda';
 import {Bool8, Column, Float32, Float64, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import {BoolVector} from 'apache-arrow';

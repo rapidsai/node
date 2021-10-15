@@ -54,7 +54,7 @@ module.exports = {
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@nvidia\/cuda(.*)": "<rootDir>/src/$1",
+    "^@rapidsai\/cuda(.*)": "<rootDir>/src/$1",
     "^\.\.\/(Debug|Release)\/(node_cuda.node)$": "<rootDir>/build/$1/$2",
   }
 };

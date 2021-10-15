@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Int32Buffer, Int64Buffer} from '@nvidia/cuda';
+import {Int32Buffer, Int64Buffer} from '@rapidsai/cuda';
 import {MemoryResource} from '@rapidsai/rmm';
 import {Series} from '../series';
 import {

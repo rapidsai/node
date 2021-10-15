@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {setDefaultAllocator} from '@nvidia/cuda';
+import {setDefaultAllocator} from '@rapidsai/cuda';
 import {DataFrame, Float32, Float64, Int32, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 

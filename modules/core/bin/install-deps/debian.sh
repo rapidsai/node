@@ -2,7 +2,6 @@
 
 set -Eeo pipefail
 
-
 APT_DEPS=""
 CMAKE_OPTS=""
 INSTALL_CMAKE=""

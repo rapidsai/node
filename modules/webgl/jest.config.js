@@ -54,7 +54,7 @@ module.exports = {
   "preset": "ts-jest",
   "testMatch": null,
   "moduleNameMapper": {
-    "^@nvidia\/webgl(.*)": "<rootDir>/src/$1",
+    "^@rapidsai\/webgl(.*)": "<rootDir>/src/$1",
     "^\.\.\/(Debug|Release)\/(node_webgl.node)$": "<rootDir>/build/$1/$2",
   }
 };

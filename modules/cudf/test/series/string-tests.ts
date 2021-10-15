@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {setDefaultAllocator} from '@nvidia/cuda';
+import {setDefaultAllocator} from '@rapidsai/cuda';
 import {
   Float32,
   Float64,

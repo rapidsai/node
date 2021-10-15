@@ -14,8 +14,8 @@
 
 /* eslint-disable @typescript-eslint/no-redeclare */
 
-import {addon as CUDA} from '@nvidia/cuda';
 import {loadNativeModule} from '@rapidsai/core';
+import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
 

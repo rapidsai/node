@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryData, MemoryView, Uint8Buffer} from '@nvidia/cuda';
+import {MemoryData, MemoryView, Uint8Buffer} from '@rapidsai/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';

@@ -2,10 +2,9 @@
 
 set -Eeo pipefail
 
-
 TOP="$(pwd)"
 BIN="$(realpath node_modules/.bin)"
-DIRS=$(lerna exec --scope "@nvidia/*" --scope "@rapidsai/*" "echo \$PWD")
+DIRS=$(lerna exec --scope "@rapidsai/*" "echo \$PWD")
 RAPIDS_CORE_PATH=$(lerna exec --scope "@rapidsai/core" "echo \$PWD" | head -n1)
 
 if [ -L "$TOP/.cache" ]; then

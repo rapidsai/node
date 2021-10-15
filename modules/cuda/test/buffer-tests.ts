@@ -27,7 +27,7 @@ import {
   Uint32Buffer,
   Uint64Buffer,
   Uint8Buffer,
-} from '@nvidia/cuda';
+} from '@rapidsai/cuda';
 
 describe.each(<[MemoryViewConstructor<TypedArray|BigIntArray>, typeof Number | typeof BigInt][]>[
   [Int8Buffer, Number],

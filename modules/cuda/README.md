@@ -1,4 +1,4 @@
-### node-cuda (`npm install @nvidia/cuda`)
+### node-cuda (`npm install @rapidsai/cuda`)
     A node native addon that provides bindings to the CUDA driver and runtime APIs.
     These bindings allow calling the CUDA device management, memory, stream, event, ipc, and
     DX/GL interop APIs from JS. These APIs allow node (v8 or chakracore) applications to read,

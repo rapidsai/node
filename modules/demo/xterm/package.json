@@ -14,7 +14,7 @@
     "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
   },
   "dependencies": {
-    "@nvidia/glfw": "0.0.1",
+    "@rapidsai/glfw": "0.0.1",
     "xterm": "4.3.0",
     "xterm-addon-webgl": "0.4.1"
   },

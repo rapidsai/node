@@ -2,7 +2,6 @@
 
 set -Eeo pipefail
 
-
 set -Eeo pipefail
 
 echo "cleaning node-rapids"

@@ -21,7 +21,7 @@ import {
   Uint32Buffer,
   Uint64Buffer,
   Uint8Buffer,
-} from '@nvidia/cuda';
+} from '@rapidsai/cuda';
 import {MemoryResource} from '@rapidsai/rmm';
 
 import {Column} from '../column';

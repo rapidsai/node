@@ -2,7 +2,6 @@
 
 set -Eeo pipefail
 
-
 _copy_lib() {
     (
         src="$(realpath -m $1)"

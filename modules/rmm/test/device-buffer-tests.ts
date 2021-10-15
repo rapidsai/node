@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Float32Buffer, setDefaultAllocator} from '@nvidia/cuda';
+import {Float32Buffer, setDefaultAllocator} from '@rapidsai/cuda';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 describe('DeviceBuffer', () => {

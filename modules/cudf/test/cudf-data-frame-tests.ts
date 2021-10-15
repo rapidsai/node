@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@nvidia/cuda';
+import {Float32Buffer, Int32Buffer, setDefaultAllocator, Uint8Buffer} from '@rapidsai/cuda';
 import {
   Bool8,
   DataFrame,

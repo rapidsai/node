@@ -14,7 +14,7 @@
     "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
   },
   "dependencies": {
-    "@nvidia/cuda": "0.0.1",
+    "@rapidsai/cuda": "0.0.1",
     "@rapidsai/deck.gl": "0.0.1",
     "@rapidsai/jsdom": "0.0.1",
     "fastify-plugin": "3.0.0",

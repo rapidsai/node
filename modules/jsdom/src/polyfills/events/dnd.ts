@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {glfw} from '@nvidia/glfw';
+import {glfw} from '@rapidsai/glfw';
 import {DOMWindow} from 'jsdom';
 import {map, publish, refCount} from 'rxjs/operators';
 

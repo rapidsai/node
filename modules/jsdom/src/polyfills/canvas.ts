@@ -15,7 +15,7 @@
 import * as jsdom from 'jsdom';
 
 export function installGetContext(window: jsdom.DOMWindow) {
-  const gl = window.evalFn(() => require('@nvidia/webgl')) as typeof import('@nvidia/webgl');
+  const gl = window.evalFn(() => require('@rapidsai/webgl')) as typeof import('@rapidsai/webgl');
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const JSDOM_getContext = window.HTMLCanvasElement.prototype.getContext;

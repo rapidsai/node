@@ -2,7 +2,6 @@
 
 set -Eeo pipefail
 
-
 tsc_files=""
 cpp_files=""
 cmd_input="$(echo "$@" | tr ' ' '\n')"

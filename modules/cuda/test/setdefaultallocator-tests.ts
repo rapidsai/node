@@ -19,7 +19,7 @@ import {
   ManagedMemory,
   PinnedMemory,
   setDefaultAllocator
-} from '@nvidia/cuda';
+} from '@rapidsai/cuda';
 
 test('setDefaultAllocator with null resets to the default DeviceMemory allocator', () => {
   // Set a custom allocate fn

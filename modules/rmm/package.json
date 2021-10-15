@@ -28,7 +28,7 @@
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w"
   },
   "dependencies": {
-    "@nvidia/cuda": "0.0.1"
+    "@rapidsai/cuda": "0.0.1"
   },
   "files": [
     "LICENSE",

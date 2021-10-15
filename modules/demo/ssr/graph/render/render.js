@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {IpcMemory, Uint8Buffer} = require('@nvidia/cuda');
+const {IpcMemory, Uint8Buffer} = require('@rapidsai/cuda');
 const {RapidsJSDOM}            = require('@rapidsai/jsdom');
 const copyFramebuffer          = require('./copy')();
 
