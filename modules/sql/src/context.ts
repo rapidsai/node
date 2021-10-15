@@ -76,11 +76,13 @@ export class SQLContext {
     });
   }
 
+  public get id() { return this.context.id; }
+
   /**
    * Create a SQL table to be used for future queries.
    *
    * @param tableName Name of the table when referenced in a query
-   * @param input Data source for the table
+   * @param input DataFrame or paths to CSV files
    *
    * @example
    * ```typescript
@@ -334,7 +336,7 @@ export class SQLContext {
    * ```
    */
   async pull(messageId: string) {
-    const {names, table} = await this.context.pull(messageId);
+    const {names, tables: [table]} = await this.context.pull(messageId);
     return new DataFrame(names.reduce(
       (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
   }

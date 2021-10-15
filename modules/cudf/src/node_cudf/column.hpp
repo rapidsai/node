@@ -743,6 +743,13 @@ struct Column : public EnvLocalObjectWrap<Column> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/convert.cpp
+
+  Column::wrapper_t strings_from_booleans(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t strings_to_booleans(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
   Column::wrapper_t string_is_float(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
@@ -916,6 +923,8 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value zfill(Napi::CallbackInfo const& info);
 
   // column/convert.hpp
+  Napi::Value strings_from_booleans(Napi::CallbackInfo const& info);
+  Napi::Value strings_to_booleans(Napi::CallbackInfo const& info);
   Napi::Value string_is_float(Napi::CallbackInfo const& info);
   Napi::Value strings_from_floats(Napi::CallbackInfo const& info);
   Napi::Value strings_to_floats(Napi::CallbackInfo const& info);

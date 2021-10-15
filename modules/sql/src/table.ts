@@ -29,7 +29,8 @@ export class SQLTable {
   public readonly tableSource: TableSource;
 
   constructor(tableName: string, input: DataFrame|string[]) {
-    this.tableName   = tableName;
+    this.tableName = tableName;
+
     this.tableSource = input instanceof DataFrame ? new DataFrameTable(input) : new CSVTable(input);
   }
 }

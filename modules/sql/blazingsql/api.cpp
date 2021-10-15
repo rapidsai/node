@@ -176,20 +176,20 @@ ExecutionGraph::wrapper_t run_generate_graph(
 
     std::vector<std::string> names               = schema.Get("names");
     std::vector<std::string> files               = schema.Get("files");
-    std::vector<size_t> calcite_to_file_indicies = schema.Get("calcite_to_file_indices");
+    std::vector<size_t> calcite_to_file_indicies = schema.Get("calciteToFileIndicies");
 
     std::vector<int32_t> type_ints = schema.Get("types");
     std::vector<cudf::type_id> type_ids;
     type_ids.reserve(type_ints.size());
     for (auto const& type : type_ints) { type_ids.push_back(cudf::type_id(type)); }
 
-    bool has_header_csv = schema.Get("has_header_csv");
+    bool has_header_csv = schema.Get("hasHeaderCSV");
 
     table_schemas.push_back({
       {},                        // std::vector<ral::frame::BlazingTableView> blazingTableViews
       type_ids,                  // std::vector<cudf::type_id> types
       files,                     // std::vector<std::string> files
-      files,                     // std::vector<std::string> datasource TODO could be wrong.
+      files,                     // std::vector<std::string> datasource
       names,                     // std::vector<std::string> names
       calcite_to_file_indicies,  // std::vector<size_t> calcite_to_file_indices
       {},                        // std::vector<bool> in_file
@@ -200,7 +200,7 @@ ExecutionGraph::wrapper_t run_generate_graph(
       nullptr                    // std::shared_ptr<arrow::Table> arrow_tabl
     });
     table_schema_cpp_arg_keys.push_back({"has_header_csv"});
-    table_schema_cpp_arg_values.push_back({!has_header_csv ? "True" : "False"});
+    table_schema_cpp_arg_values.push_back({has_header_csv ? "True" : "False"});
     files_all.push_back(files);
     file_types.push_back(ral::io::DataType::CSV);
     uri_values.push_back({});
