@@ -1,8 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env -S bash -Eeo pipefail
 
 if [[ "$(yarn why cmake-js >/dev/null 2>&1)" || $? != 0 ]]; then exit 0; fi;
-
-set -Eeo pipefail
 
 args=""
 debug=false
@@ -36,7 +34,6 @@ PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}
 
 PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}                    \
 CMAKE_BUILD_PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}        \
-CCACHE_CONFIGPATH="$RAPIDS_MODULES_PATH/.cache/ccache" \
 HOME="$RAPIDS_CORE_PATH"                               \
     cmake-js ${args} | grep -v -P '^ptxas /tmp/tmpxft(.*?)$'
 

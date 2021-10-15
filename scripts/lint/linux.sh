@@ -1,6 +1,4 @@
-#!/usr/bin/env bash
-
-set -Eeo pipefail
+#!/usr/bin/env -S bash -Eeo pipefail
 
 tsc_files=""
 cpp_files=""

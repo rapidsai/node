@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env -S bash -Eeo pipefail
 
 set -Eeo pipefail
 
@@ -11,4 +11,4 @@ fi
 # clean modules/*/build dirs
 lerna run --no-bail clean || true;
 lerna clean --loglevel error --yes || true;
-rimraf yarn.lock node_modules doc compile_commands.json modules/.cache/{build,cpm}
+rimraf yarn.lock node_modules doc compile_commands.json .cache/{binary,source}

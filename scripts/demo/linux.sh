@@ -1,11 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env -S bash -Eeo pipefail
 
-set -Eeo pipefail
-# set -x
-
-if [ -d node_modules/esm/node_modules/.cache ]; then
-    find node_modules -name .cache -type d -exec rm -rf "{}" +
-fi;
+find node_modules -name .cache -type d -exec rm -rf "{}" +
 
 fuzzy-find() {
     (
