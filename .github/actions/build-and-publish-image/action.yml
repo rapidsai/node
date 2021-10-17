@@ -68,6 +68,7 @@ runs:
         push: ${{ inputs.push }}
         file: ${{ inputs.file }}
         tags: ${{ inputs.tags }}
-        secrets: ${{ inputs.secrets }}
+        secrets: |
+          ${{ inputs.secrets }}
         platforms: ${{ inputs.platforms }}
         build-args: ${{ inputs.build-args }}
