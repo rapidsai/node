@@ -23,7 +23,7 @@ jobs:
       RAPIDS: 21.12.00
       REPOSITORY: ghcr.io/rapidsai/node
     steps:
-      - uses: .github/actions/build-and-publish-image
+      - uses: ./.github/actions/build-and-publish-image
         with:
           file: dockerfiles/runtime/sql.Dockerfile
           tags: |
