@@ -65,7 +65,7 @@ runs:
       uses: docker/build-push-action@v2
       with:
         context: .
-        push: true
+        push: ${{ github.event_name != 'pull_request' }}
         file: ${{ inputs.file }}
         tags: ${{ inputs.tags }}
         secrets: ${{ inputs.secrets }}
