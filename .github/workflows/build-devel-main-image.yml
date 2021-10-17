@@ -30,7 +30,7 @@ jobs:
         with:
           registry-url: ghcr.io
           registry-username: ${{ github.token }}
-          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.repository_owner }}
           push: ${{ github.event_name != 'pull_request' }}
           file: dockerfiles/devel/main.Dockerfile
           tags: |
