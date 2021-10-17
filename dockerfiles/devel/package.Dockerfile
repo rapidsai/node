@@ -33,10 +33,8 @@ COPY --chown=rapids:rapids yarn.lock     yarn.lock
 COPY --chown=rapids:rapids scripts       scripts
 COPY --chown=rapids:rapids modules       modules
 
-RUN --mount=type=secret,id=AWS_ACCESS_KEY_ID \
-    --mount=type=secret,id=AWS_SECRET_ACCESS_KEY \
-    export AWS_ACCESS_KEY_ID="$(cat /run/secrets/AWS_ACCESS_KEY_ID 2>/dev/null || echo $AWS_ACCESS_KEY_ID)"; \
-    export AWS_SECRET_ACCESS_KEY="$(cat /run/secrets/AWS_SECRET_ACCESS_KEY 2>/dev/null || echo $AWS_SECRET_ACCESS_KEY)"; \
+RUN --mount=type=secret,id=sccache_credentials \
+    if [ -f /run/secrets/sccache_credentials ]; then set -a; . /run/secrets/sccache_credentials; set +a; fi; \
     echo -e "build context:\n$(find .)" \
  && bash -c 'echo -e "\
 CUDAARCHS=$CUDAARCHS\n\

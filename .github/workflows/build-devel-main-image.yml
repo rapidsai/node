@@ -33,14 +33,18 @@ jobs:
           registry: ghcr.io
           username: ${{ github.token }}
           password: ${{ github.repository_owner }}
+      - name: Initialize sccache_credentials
+        run: |
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
       - uses: ./.github/actions/build-and-publish-image
         with:
           push: ${{ github.event_name == 'push' }}
+          secret-files: |
+            "sccache_credentials=/tmp/sccache_credentials"
           file: dockerfiles/devel/main.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           build-args: |
             "NODE_VERSION=${{ env.NODE }}"
             "SCCACHE_IDLE_TIMEOUT=32768"

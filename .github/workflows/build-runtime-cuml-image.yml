@@ -33,14 +33,18 @@ jobs:
           registry: ghcr.io
           username: ${{ github.token }}
           password: ${{ github.repository_owner }}
+      - name: Initialize sccache_credentials
+        run: |
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
       - uses: ./.github/actions/build-and-publish-image
         with:
           push: ${{ github.event_name == 'push' }}
+          secret-files: |
+            "sccache_credentials=/tmp/sccache_credentials"
           file: dockerfiles/runtime/cuml.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml-${{ env.ARCH }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"

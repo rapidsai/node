@@ -13,10 +13,10 @@ inputs:
   tags:
     required: true
     description: "Image tags to publish"
-  secrets:
+  secret-files:
     default: ""
     required: false
-    description: "Optional secrets to mount"
+    description: "Optional file of secrets to mount"
   platforms:
     default: ""
     required: false
@@ -25,14 +25,6 @@ inputs:
     default: ""
     required: false
     description: "Optional build arguments to use"
-  AWS_ACCESS_KEY_ID:
-    default: ""
-    required: false
-    description: "Optional AWS access id for writing to the shared sccache S3 bucket"
-  AWS_SECRET_ACCESS_KEY:
-    default: ""
-    required: false
-    description: "Optional AWS secret key for writing to the shared sccache S3 bucket"
 
 outputs:
   digest:
@@ -78,6 +70,4 @@ runs:
         tags: ${{ inputs.tags }}
         platforms: ${{ inputs.platforms }}
         build-args: ${{ inputs.build-args }}
-        secrets: |
-          "AWS_ACCESS_KEY_ID=${{ inputs.AWS_ACCESS_KEY_ID }}"
-          "AWS_SECRET_ACCESS_KEY=${{ inputs.AWS_SECRET_ACCESS_KEY }}"
+        secret-files: ${{ inputs.secret-files }}

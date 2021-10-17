@@ -128,16 +128,14 @@ ARG SCCACHE_IDLE_TIMEOUT
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_SECRET_ACCESS_KEY
 
-RUN --mount=type=secret,id=AWS_ACCESS_KEY_ID \
-    --mount=type=secret,id=AWS_SECRET_ACCESS_KEY \
+RUN --mount=type=secret,id=sccache_credentials \
     --mount=type=cache,target=/opt/node-webrtc \
     --mount=type=bind,from=nvenc,source=/usr/local/lib/libcuda.so,target=/usr/local/lib/libcuda.so \
     --mount=type=bind,from=nvenc,source=/usr/local/lib/libnvcuvid.so,target=/usr/local/lib/libnvcuvid.so \
     --mount=type=bind,from=nvenc,source=/usr/local/lib/libnvidia-encode.so,target=/usr/local/lib/libnvidia-encode.so \
     \
     if [ ! -f /opt/node-webrtc/build/Release/wrtc.node ]; then \
-        export AWS_ACCESS_KEY_ID="$(cat /run/secrets/AWS_ACCESS_KEY_ID 2>/dev/null || echo $AWS_ACCESS_KEY_ID)"; \
-        export AWS_SECRET_ACCESS_KEY="$(cat /run/secrets/AWS_SECRET_ACCESS_KEY 2>/dev/null || echo $AWS_SECRET_ACCESS_KEY)"; \
+        if [ -f /run/secrets/sccache_credentials ]; then set -a; . /run/secrets/sccache_credentials; set +a; fi; \
         apt update \
          && DEBIAN_FRONTEND=noninteractive \
             apt install -y --no-install-recommends python \
