@@ -1,4 +1,4 @@
-name: Build and publish runtime main image
+name: Build runtime main image
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     needs:
       - build-and-publish-devel-packages-image
       - build-and-publish-runtime-cudagl-base-image
-    name: Build and publish runtime main image
+    name: Build runtime main image
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
@@ -37,7 +37,8 @@ jobs:
         run: |
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
-      - uses: ./.github/actions/build-and-publish-image
+      - name: Build and push image
+        uses: ./.github/actions/build-and-publish-image
         with:
           push: ${{ github.event_name == 'push' }}
           secret-files: |
