@@ -7,7 +7,7 @@ WORKDIR /home/node
 
 RUN cp                              \
     /opt/rapids/rapidsai-core-*.tgz \
-    /opt/rapids/nvidia-cuda-*.tgz   \
+    /opt/rapids/rapidsai-cuda-*.tgz \
     /opt/rapids/rapidsai-rmm-*.tgz  \
     /opt/rapids/rapidsai-cudf-*.tgz \
     /opt/rapids/rapidsai-sql-*.tgz  \

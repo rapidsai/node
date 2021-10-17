@@ -5,11 +5,11 @@ FROM ${DEVEL_IMAGE} as devel
 
 WORKDIR /home/node
 
-RUN cp                              \
-    /opt/rapids/wrtc-0.4.7-dev.tgz  \
-    /opt/rapids/rapidsai-core-*.tgz \
-    /opt/rapids/nvidia-glfw-*.tgz   \
-    /opt/rapids/nvidia-webgl-*.tgz  \
+RUN cp                               \
+    /opt/rapids/wrtc-0.4.7-dev.tgz   \
+    /opt/rapids/rapidsai-core-*.tgz  \
+    /opt/rapids/rapidsai-glfw-*.tgz  \
+    /opt/rapids/rapidsai-webgl-*.tgz \
     . \
  && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz
 

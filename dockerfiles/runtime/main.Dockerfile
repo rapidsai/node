@@ -8,9 +8,9 @@ WORKDIR /home/node
 RUN cp                                   \
     /opt/rapids/wrtc-0.4.7-dev.tgz       \
     /opt/rapids/rapidsai-core-*.tgz      \
-    /opt/rapids/nvidia-cuda-*.tgz        \
-    /opt/rapids/nvidia-glfw-*.tgz        \
-    /opt/rapids/nvidia-webgl-*.tgz       \
+    /opt/rapids/rapidsai-cuda-*.tgz      \
+    /opt/rapids/rapidsai-glfw-*.tgz      \
+    /opt/rapids/rapidsai-webgl-*.tgz     \
     /opt/rapids/rapidsai-rmm-*.tgz       \
     /opt/rapids/rapidsai-cudf-*.tgz      \
     /opt/rapids/rapidsai-sql-*.tgz       \
