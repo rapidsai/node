@@ -22,6 +22,9 @@ jobs:
       RAPIDS: 21.12.00
       REPOSITORY: ghcr.io/rapidsai/node
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
       - uses: ./.github/actions/build-and-publish-image
         with:
           file: dockerfiles/devel/package.Dockerfile

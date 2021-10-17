@@ -49,9 +49,6 @@ runs:
         docker rmi $(docker image ls -aq) || true
         df -h
         docker images
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 2
     - uses: docker/setup-qemu-action@v1
     - uses: docker/setup-buildx-action@v1
       with:
