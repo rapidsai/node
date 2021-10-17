@@ -28,6 +28,10 @@ jobs:
           fetch-depth: 2
       - uses: ./.github/actions/build-and-publish-image
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.token }}
+          registry-username: ${{ github.repository_owner }}
+          push: ${{ github.event_name != 'pull_request' }}
           file: dockerfiles/runtime/cudf.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf-${{ env.ARCH }}

@@ -3,6 +3,10 @@ name: build-and-publish-image
 description: "Build and publish a Docker image"
 
 inputs:
+  push:
+    default: false
+    required: false
+    description: "Push the image to the container registry"
   file:
     required: true
     description: "Dockerfile to build"
@@ -21,6 +25,18 @@ inputs:
     default: ""
     required: false
     description: "Optional build arguments to use"
+  registry-url:
+    default: "ghcr.io"
+    required: false
+    description: "URL of the container registry to use"
+  registry-username:
+    default: ""
+    required: false
+    description: "URL of the container registry to use"
+  registry-password:
+    default: ""
+    required: false
+    description: "URL of the container registry to use"
 
 outputs:
   digest:
@@ -55,15 +71,16 @@ runs:
       with:
         buildkitd-flags: --debug
     - uses: docker/login-action@v1
+      if: ${{ inputs.push }}
       with:
-        registry: ghcr.io
-        username: ${{ github.token }}
-        password: ${{ github.repository_owner }}
+        registry: ${{ inputs.registry-url }}
+        username: ${{ inputs.registry-username }}
+        password: ${{ inputs.registry-username }}
     - id: docker-build
       uses: docker/build-push-action@v2
       with:
         context: .
-        push: ${{ github.event_name != 'pull_request' }}
+        push: ${{ inputs.push }}
         file: ${{ inputs.file }}
         tags: ${{ inputs.tags }}
         secrets: ${{ inputs.secrets }}
