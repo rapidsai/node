@@ -26,12 +26,16 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
+      - name: Login to container registry
+        uses: docker/login-action@v1
+        if: github.event_name == 'push'
+        with:
+          registry: ghcr.io
+          username: ${{ github.token }}
+          password: ${{ github.repository_owner }}
       - uses: ./.github/actions/build-and-publish-image
         with:
-          registry-url: ghcr.io
-          registry-username: ${{ github.token }}
-          registry-password: ${{ github.repository_owner }}
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event_name == 'push' }}
           file: dockerfiles/runtime/demo.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo-${{ env.ARCH }}
