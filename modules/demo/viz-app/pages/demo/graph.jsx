@@ -205,19 +205,6 @@ export default class Graph extends React.Component {
     );
   }
 
-  fakeData(i) {
-    return {
-      index: `testvalue${i}`,
-      colname1: `colname${i}`,
-      colname2: `colname${i}`,
-      colname3: `colname${i}`,
-      colname4: `colname${i}`,
-      colname2: `colname${i}`,
-      colname3: `colname${i}`,
-      colname4: `colname${i}`,
-    };
-  }
-
   dataTable() {
     return (
       <Tabs>
@@ -228,34 +215,8 @@ export default class Graph extends React.Component {
 
         <TabPanel>
           <ExtendedTable
-            cols={[
-              {
-                Header: 'Index',
-                accessor: 'index',
-              },
-              {
-                Header: 'Col Name',
-                accessor: 'colname1',
-              },
-              {
-                Header: 'Col Name',
-                accessor: 'colname2',
-              },
-              {
-                Header: 'Col Name',
-                accessor: 'colname3',
-              }
-              ,
-              {
-                Header: 'Col Name',
-                accessor: 'colname4',
-              }
-            ]}
-            data={[
-              this.fakeData(0), this.fakeData(1), this.fakeData(2), this.fakeData(3), this.fakeData(4), this.fakeData(5),
-              this.fakeData(6), this.fakeData(7), this.fakeData(8), this.fakeData(9), this.fakeData(10), this.fakeData(11),
-              this.fakeData(12)
-            ]}
+            cols={this.state.nodes.tableColumns}
+            data={this.state.nodes.tableData}
           />
         </TabPanel>
         <TabPanel>
