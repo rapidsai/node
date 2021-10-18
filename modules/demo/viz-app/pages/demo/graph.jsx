@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import { Form, Col, Row } from 'react-bootstrap';
 import React from 'react';
 import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 import HeaderUnderline from '../../components/demo-dashboard/header-underline/header-underline';
@@ -22,6 +23,7 @@ import ToolBar from '../../components/demo-dashboard/tool-bar/tool-bar';
 import { io } from "socket.io-client";
 import SimplePeer from "simple-peer";
 import wrtc from 'wrtc';
+import axios from 'axios';
 
 function onlyH264(sdp) {
   // remove non-h264 codecs from the supported codecs list
@@ -99,13 +101,36 @@ export default class Graph extends React.Component {
         tableData: [{}],
         tableColumns: [{ Header: "Loading...", accessor: "Loading..." }],
         length: 0
-      }
+      },
+      fileUploadStatus: {},
+      nodesFileOptions: [],
+      edgesFileOptions: [],
+      nodesFile: "",
+      edgesFile: "",
+      nodesParams: [],
+      edgesParams: [],
+      nodesRenderColumns: {
+        x: "x",
+        y: "y",
+        color: "",
+        size: "",
+        id: ""
+      },
+      edgesRenderColumns: {
+        src: "src", dst: "dst",
+        color: "", bundle: "", id: ""
+      },
+      gpuLoadStatus: "not loaded",
+      forceAtlas2: false
     }
   }
 
   componentDidMount() {
     console.log(this.videoRef.current.width);
-    this.socket = io("localhost:8080", { transports: ['websocket'], reconnection: true, query: { width: this.videoRef.current.width, height: this.videoRef.current.height } });
+    this.socket = io("localhost:8080", {
+      transports: ['websocket'], reconnection: true,
+      query: { width: this.videoRef.current.width, height: this.videoRef.current.height, layout: this.state.forceAtlas2 }
+    });
     this.peer = new SimplePeer({
       wrtc: wrtc,
       trickle: true,
@@ -240,12 +265,166 @@ export default class Graph extends React.Component {
     )
   }
 
+  uploadFile(file) {
+    console.log("uploading", file.name, this);
+    let formData = new FormData();
+    formData.append("file", file);
+    axios.post("http://localhost:8080/uploadFile", formData, {
+    }).then(respone => { console.log(respone.statusText); })
+      .then(success => {
+        console.log("file uploaded successfully");
+      })
+      .catch(error => {
+        console.log("error");
+      });
+  }
+
+  reloadFiles() {
+    axios.get("http://localhost:8080/getFileNames?id=" + this.socket.id).then((response) => {
+      this.setState({
+        nodesFileOptions: response.data,
+        edgesFileOptions: response.data,
+        nodesFile: response.data[0],
+        edgesFile: response.data[0]
+      })
+    }).catch((error) => {
+      // handle error
+      console.log(error);
+    }).then(() => {
+      console.log("request complete")
+    })
+  }
+
+  fetchDFParameters() {
+    axios.get("http://localhost:8080/fetchDFParameters", {
+      params: {
+        id: this.socket.id
+      }
+    }).then((response) => {
+      this.setState({
+        nodesParams: response.data.nodesParams,
+        edgesParams: response.data.edgesParams,
+        nodesRenderColumns: {
+          x: response.data.nodesParams[0],
+          y: response.data.nodesParams[0],
+          color: response.data.nodesParams[0],
+          size: response.data.nodesParams[0],
+          id: response.data.nodesParams[0]
+        },
+        edgesRenderColumns: {
+          src: response.data.edgesParams[0], dst: response.data.edgesParams[0],
+          color: response.data.edgesParams[0], bundle: response.data.edgesParams[0], id: response.data.edgesParams[0]
+        }
+      });
+    }).catch((error) => { }).then(() => { });
+  }
+
+  loadOnGPU() {
+    axios.get("http://localhost:8080/loadOnGPU", {
+      params: {
+        id: this.socket.id,
+        nodes: this.state.nodesFile,
+        edges: this.state.edgesFile
+      }
+    }).then((response) => {
+      this.setState({
+        gpuLoadStatus: response.data
+      });
+    }).catch((error) => {
+      this.setState({
+        gpuLoadStatus: "not loaded"
+      })
+    }).then(() => {
+      this.fetchDFParameters()
+    });
+  }
+
+  updateRenderColumns(df, param, value) {
+    if (df == "nodes") {
+      this.setState({
+        nodesRenderColumns: Object.assign(this.state.nodesRenderColumns, { [param]: value })
+      });
+    } else {
+      this.setState({
+        edgesRenderColumns: Object.assign(this.state.edgesRenderColumns, { [param]: value })
+      });
+    }
+  }
+
+  getDFParameters() {
+    if (this.state.gpuLoadStatus !== "not loaded") {
+      return (
+        <Form.Group>
+          <Form.Label>Nodes</Form.Label>
+          <Form.Row>
+            {["x", "y", "color", "size", "id"].map((param) => <Form.Group as={Col} md="2">
+              <Form.Label>{param}</Form.Label>
+              <Form.Control as="select" custom onChange={(e) => { this.updateRenderColumns("nodes", param, e.target.value); }}>
+                {this.state.nodesParams.map((obj) => <option value={obj}>{obj}</option>)}
+              </Form.Control>
+            </Form.Group>)}
+          </Form.Row>
+          <Form.Label>Edges</Form.Label>
+          <Form.Row>
+            {["src", "dst", "color", "bundle", "id"].map((param) => <Form.Group as={Col} md="2">
+              <Form.Label>{param}</Form.Label>
+              <Form.Control as="select" custom onChange={(e) => { this.updateRenderColumns("edges", param, e.target.value); }}>
+                {this.state.edgesParams.map((obj) => <option value={obj}>{obj}</option>)}
+              </Form.Control>
+            </Form.Group>)}
+          </Form.Row>
+        </Form.Group>
+      )
+    } else {
+      return (<></>)
+    }
+  }
+
+  getCustomComponents() {
+    return (<div>
+      <p className={"textButton"} onClick={() => this.reloadFiles()}>[Refresh files]</p>
+      <Form.Group>
+        <Form.Label>Select Nodes</Form.Label>
+        <Form.Control as="select" custom onChange={(e) => { this.setState({ nodesFile: e.target.value }); }}>
+          {this.state.nodesFileOptions.map((obj) => <option value={obj}>{obj}</option>)}
+        </Form.Control>
+        <Form.Label>Select Edges</Form.Label>
+        <Form.Control as="select" custom onChange={(e) => { this.setState({ edgesFile: e.target.value }); }}>
+          {this.state.edgesFileOptions.map((obj) => <option value={obj}>{obj}</option>)}
+        </Form.Control>
+        <p className={"textButton"} onClick={() => this.loadOnGPU()}>[Load on GPU] {this.state.gpuLoadStatus}</p>
+      </Form.Group>
+      {this.getDFParameters()}
+
+      <h4 style={{ color: 'black' }}><Form.Check
+        type="switch"
+        id="custom-switch"
+        label="ForceAtlas2"
+        onChange={((e) => {
+          this.peer.send(JSON.stringify({ type: 'layout', data: e.target.checked }));
+        })}
+      /> </h4>
+    </div >)
+  }
+
+  onRenderClick() {
+    axios.post("http://localhost:8080/updateRenderColumns", {
+      nodes: this.state.nodesRenderColumns,
+      edges: this.state.edgesRenderColumns,
+      id: this.socket.id
+    }).then((response) => {
+      console.log("success");
+    }).catch((error) => {
+      console.log("error");
+    })
+  }
   render() {
     return (
       <DemoDashboard demoName={"Graph Demo"}
         demoView={this.demoView()}
-        onLoadClick={(fileName) => { console.log(fileName) }}
-        onRenderClick={() => { console.log("Render Clicked") }}
+        onLoadClick={this.uploadFile}
+        customComponents={this.getCustomComponents()}
+        onRenderClick={() => this.onRenderClick()}
         dataTable={this.dataTable()}
         dataMetrics={this.dataMetrics()}
       />

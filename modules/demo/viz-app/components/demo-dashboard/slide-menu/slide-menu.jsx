@@ -22,46 +22,48 @@ export default class SlideMenu extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedFilePath: "",
+      selectedFile: {}
     }
     this.onDataChange = this.onDataChange.bind(this);
     this.onLoadClick = this.onLoadClick.bind(this);
     this.onRenderClick = this.onRenderClick.bind(this);
   }
 
-  onDataChange(filePath) {
+  onDataChange(file) {
     this.setState({
-      selectedFilePath: filePath
+      selectedFile: file,
     });
   }
 
   onLoadClick() {
-    this.props.onLoadClick(this.state.selectedFilePath);
+    console.log("hereherhehre");
+    this.props.onLoadClick(this.state.selectedFile);
   }
 
   onRenderClick() {
     this.props.onRenderClick();
   }
 
+
   render() {
     return (
       <Menu pageWrapId={"page-wrap"} outerContainerId={"outer-container"} width={'50vw'}>
         <HeaderUnderline title={"Data Source"}>
           <Row>
-            <Col className={"col-auto"}>
-              <FileInput onChange={this.onDataChange}>
-                Select Data ▼
-              </FileInput>
-              <p style={{ color: "black" }}>Selection: {this.state.selectedFilePath}</p>
+            <Col className={"col-auto"}><FileInput onChange={this.onDataChange}>
+              Select file to upload ▼
+            </FileInput>
             </Col>
+            <p style={{ color: "black" }}>Selection: {this.state.selectedFile.name}</p>
             <Col className={"max"} ><div className={"d-flex"} /></Col>
             <Col className={"col-auto"}>
-              <p className={"textButton"} onClick={this.onLoadClick}>[Load]</p>
+              <p className={"textButton"} onClick={this.onLoadClick}>[upload]</p>
             </Col>
           </Row>
         </HeaderUnderline>
         <div style={{ height: 20 }} />
         <HeaderUnderline title={"Visualization"}>
+          {this.props.customComponents}
           <p className={"textButton"} onClick={this.onRenderClick}>[Render]</p>
         </HeaderUnderline>
       </Menu >

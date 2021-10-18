@@ -24,6 +24,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
     <script>
         const sock = io({ transports: ['websocket'], reconnection: true });
+        console.log(sock);
         const video = document.querySelector('video');
         const peer = new SimplePeer({
             trickle: true,

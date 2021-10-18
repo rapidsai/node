@@ -38,7 +38,8 @@
     "react-table": "7.7.0",
     "simple-peer": "9.11.0",
     "socket.io-client": "4.2.0",
-    "react-native-webrtc": "1.92.2"
+    "react-native-webrtc": "1.92.2",
+    "fetch": "1.1.0"
   },
   "files": [
     "pages",
