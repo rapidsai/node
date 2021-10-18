@@ -13,12 +13,12 @@
 // limitations under the License. */
 
 .navbar{
-    background-color: #e2e2e2 !important;
-    border-bottom: 3px solid #868686;
+    background-color: #363636 !important;
+    border-bottom: 3px solid #121212;
 }
 
 .title {
-    color: black;
+    color: white;
     font-weight: bold;
     padding-left: 45px;
 }

@@ -15,7 +15,7 @@
 .toolBar {
     display: inline-flex;
     flex-direction: column;
-    background-color: #e2e2e2;
+    background-color: #363636;
 }
 
 .tool {
@@ -24,18 +24,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    color: rgb(207, 207, 207);
 }
 
 .tool:hover {
-    background-color: #cacaca;
+    background-color: rgb(83, 83, 83);
     cursor: pointer;
 }
 
 .tool:active {
-    background-color: #e2e2e2;
+    background-color: rgb(207, 207, 207);
 }
 
 .selected {
-    background-color: hsla(0, 7%, 25%, 0.643);
+    background-color: rgb(83, 83, 83);
     border: 2px solid #99d0ef;
 }

@@ -46,23 +46,23 @@ export default class SlideMenu extends React.Component {
   render() {
     return (
       <Menu pageWrapId={"page-wrap"} outerContainerId={"outer-container"} width={'50vw'}>
-        <HeaderUnderline title={"Data Source"}>
+        <HeaderUnderline title={"Data Source"} color={"white"}>
           <Row>
             <Col className={"col-auto"}>
-              <FileInput onChange={this.onDataChange}>
+              <FileInput onChange={this.onDataChange} useWhite={true}>
                 Select Data ▼
               </FileInput>
-              <p style={{ color: "black" }}>Selection: {this.state.selectedFilePath}</p>
+              <p style={{ color: "white" }}>Selection: {this.state.selectedFilePath}</p>
             </Col>
             <Col className={"max"} ><div className={"d-flex"} /></Col>
             <Col className={"col-auto"}>
-              <p className={"textButton"} onClick={this.onLoadClick}>[Load]</p>
+              <p className={"whiteTextButton"} onClick={this.onLoadClick}>[Load]</p>
             </Col>
           </Row>
         </HeaderUnderline>
         <div style={{ height: 20 }} />
-        <HeaderUnderline title={"Visualization"}>
-          <p className={"textButton"} onClick={this.onRenderClick}>[Render]</p>
+        <HeaderUnderline title={"Visualization"} color={"white"}>
+          <p className={"whiteTextButton"} onClick={this.onRenderClick}>[Render]</p>
         </HeaderUnderline>
       </Menu >
     );
