@@ -82,7 +82,6 @@ runs:
         buildkitd-flags: --debug
     - name: Login to container registry
       uses: docker/login-action@v1
-      if: ${{ inputs.push == 'true' && inputs.registry-url != '' && inputs.registry-username != '' && inputs.registry-password != '' }}
       with:
         registry: ${{ inputs.registry-url }}
         username: ${{ inputs.registry-username }}
