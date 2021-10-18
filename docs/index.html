@@ -68,9 +68,9 @@
 				</ul>
 				<p>Additionally, <code>node-rapids</code> includes <em>limited</em> bindings to:</p>
 				<ul>
-					<li><a href="https://github.com/rapidsai/node/tree/main/modules/cuda"><code>@nvidia/cuda</code></a> - Interact with GPUs via the <a href="https://developer.nvidia.com/cuda-toolkit">CUDA Runtime APIs</a></li>
-					<li><a href="https://github.com/rapidsai/node/tree/main/modules/glfw"><code>@nvidia/glfw</code></a> - Create platform-agnostic native windows with OpenGL contexts via <a href="https://github.com/glfw/glfw">GLFW</a></li>
-					<li><a href="https://github.com/rapidsai/node/tree/main/modules/webgl"><code>@nvidia/webgl</code></a> - Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext"><code>WebGL2RenderingContext</code></a> via <a href="https://www.khronos.org/opengles">OpenGL ES</a></li>
+					<li><a href="https://github.com/rapidsai/node/tree/main/modules/cuda"><code>@rapidsai/cuda</code></a> - Interact with GPUs via the <a href="https://developer.nvidia.com/cuda-toolkit">CUDA Runtime APIs</a></li>
+					<li><a href="https://github.com/rapidsai/node/tree/main/modules/glfw"><code>@rapidsai/glfw</code></a> - Create platform-agnostic native windows with OpenGL contexts via <a href="https://github.com/glfw/glfw">GLFW</a></li>
+					<li><a href="https://github.com/rapidsai/node/tree/main/modules/webgl"><code>@rapidsai/webgl</code></a> - Provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext"><code>WebGL2RenderingContext</code></a> via <a href="https://www.khronos.org/opengles">OpenGL ES</a></li>
 					<li><a href="https://github.com/rapidsai/node/tree/main/modules/sql"><code>@rapidsai/sql</code></a> - GPU-accelerated SQL queries</li>
 				</ul>
 				<p>See the <a href="https://rapidsai.github.io/node/">API docs</a> for detailed information about each module.</p>
@@ -98,13 +98,13 @@
 <span style="color: #000000">cp .env.sample .env</span>
 
 <span style="color: #008000"># Build the development and nteract containers (only necessary once)</span>
-<span style="color: #000000">yarn docker:build:devel &amp;&amp; yarn docker:build:devel:nteract</span>
+<span style="color: #000000">yarn docker:build:devel &amp;&amp; yarn docker:build:devel:notebook</span>
 
 <span style="color: #008000"># Compile the TypeScript and C++ modules inside the development container</span>
 <span style="color: #000000">yarn docker:run:devel bash -c </span><span style="color: #A31515">&#039;yarn &amp;&amp; yarn build&#039;</span>
 
 <span style="color: #008000"># Start a containerized nteract/desktop with the source tree as Docker volume mounts</span>
-<span style="color: #000000">yarn docker:run:nteract</span>
+<span style="color: #000000">yarn docker:run:devel:notebook</span>
 </code></pre>
 				<p><code>node-rapids</code> packages are built with <a href="https://nodejs.org/api/n-api.html"><code>N-API</code></a> via the <a href="https://github.com/nodejs/node-addon-api"><code>node-addon-api</code></a> library.</p>
 				<a href="#demos" id="demos" style="color: inherit; text-decoration: none;">

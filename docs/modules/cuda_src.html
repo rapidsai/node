@@ -190,7 +190,7 @@
 					<div class="tsd-signature tsd-kind-icon">CUDAMemory<wbr>View<span class="tsd-signature-symbol">:</span> <a href="../classes/cuda_src.Int8Buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Int8Buffer</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cuda_src.Int16Buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Int16Buffer</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cuda_src.Int32Buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Int32Buffer</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cuda_src.Int64Buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Int64Buffer</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cuda_src.Uint8Buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8Buffer</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cuda_src.Uint8ClampedBuffer.html" class="tsd-signature-type" data-tsd-kind="Class">Uint8ClampedBuffer</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cuda_src.Uint16Buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Uint16Buffer</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cuda_src.Uint32Buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Uint32Buffer</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cuda_src.Uint64Buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Uint64Buffer</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cuda_src.Float32Buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float32Buffer</a><span class="tsd-signature-symbol"> | </span><a href="../classes/cuda_src.Float64Buffer.html" class="tsd-signature-type" data-tsd-kind="Class">Float64Buffer</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node/blob/e544224/modules/cuda/src/buffer.ts#L49">modules/cuda/src/buffer.ts:49</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node/blob/1cba9f8/modules/cuda/src/buffer.ts#L49">modules/cuda/src/buffer.ts:49</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -203,7 +203,7 @@
 					<div class="tsd-signature tsd-kind-icon">devices<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">DeviceList</span><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node/blob/e544224/modules/cuda/src/device.ts#L126">modules/cuda/src/device.ts:126</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node/blob/1cba9f8/modules/cuda/src/device.ts#L126">modules/cuda/src/device.ts:126</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -226,7 +226,7 @@
 								for all CUDA devices available to the current process.</p>
 							</dd>
 							<dt>example</dt>
-							<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Device</span><span style="color: #000000">, </span><span style="color: #001080">devices</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@nvidia/cuda&#039;</span><span style="color: #000000">;</span>
+							<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Device</span><span style="color: #000000">, </span><span style="color: #001080">devices</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cuda&#039;</span><span style="color: #000000">;</span>
 
 <span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">`Number of devices: </span><span style="color: #0000FF">${</span><span style="color: #001080">devices</span><span style="color: #000000FF">.</span><span style="color: #001080">length</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">);</span>
 
@@ -287,7 +287,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e544224/modules/cuda/src/util.ts#L96">modules/cuda/src/util.ts:96</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/1cba9f8/modules/cuda/src/util.ts#L96">modules/cuda/src/util.ts:96</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -299,7 +299,7 @@
 									<dd><p>Normalizes begin/end to between 0 and length, and wrap around on negative indices.</p>
 									</dd>
 									<dt>example</dt>
-									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">clampRange</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@nvidia/cuda&#039;</span><span style="color: #000000">;</span>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">clampRange</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cuda&#039;</span><span style="color: #000000">;</span>
 
 <span style="color: #795E26">clampRange</span><span style="color: #000000">(</span><span style="color: #098658">5</span><span style="color: #000000">)        </span><span style="color: #008000">// [0, 5]</span>
 <span style="color: #795E26">clampRange</span><span style="color: #000000">(</span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, -</span><span style="color: #098658">1</span><span style="color: #000000">) </span><span style="color: #008000">// [0, 4]</span>
@@ -356,7 +356,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/e544224/modules/cuda/src/buffer.ts#L99">modules/cuda/src/buffer.ts:99</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/1cba9f8/modules/cuda/src/buffer.ts#L99">modules/cuda/src/buffer.ts:99</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -372,7 +372,7 @@
 <span style="color: #000000">  </span><span style="color: #001080">ManagedMemory</span><span style="color: #000000">,</span>
 <span style="color: #000000">  </span><span style="color: #001080">Float32Buffer</span><span style="color: #000000">,</span>
 <span style="color: #000000">  </span><span style="color: #001080">setDefaultAllocator</span>
-<span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@nvidia/cuda&#039;</span><span style="color: #000000">;</span>
+<span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cuda&#039;</span><span style="color: #000000">;</span>
 
 <span style="color: #008000">// The default allocator creates `DeviceMemory` instances,</span>
 <span style="color: #008000">// which can only be accessed directly from the GPU device.</span>
