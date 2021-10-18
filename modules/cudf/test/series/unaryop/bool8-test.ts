@@ -14,7 +14,7 @@
 
 import '../../jest-extensions';
 
-import {setDefaultAllocator} from '@nvidia/cuda';
+import {setDefaultAllocator} from '@rapidsai/cuda';
 import {Series, Utf8String} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 

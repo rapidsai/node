@@ -1,4 +1,4 @@
-### node-webgl (`npm install @nvidia/webgl`)
+### node-webgl (`npm install @rapidsai/webgl`)
     A node native addon that provides OpenGL bindings via GLEW (http://glew.sourceforge.net/).
     GLEW is a cross-platform OpenGL extension loader, providing runtime mechanisms for querying
     and loading only the OpenGL extensions available on the target platform and OpenGL version.

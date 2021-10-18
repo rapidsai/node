@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Device, DeviceFlags, devices} from '@nvidia/cuda';
+import {Device, DeviceFlags, devices} from '@rapidsai/cuda';
 
 test.each([
   DeviceFlags.scheduleAuto,

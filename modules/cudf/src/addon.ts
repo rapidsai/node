@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {addon as CUDA} from '@nvidia/cuda';
 import {loadNativeModule} from '@rapidsai/core';
+import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as RMM} from '@rapidsai/rmm';
 
 export const CUDF = loadNativeModule<any>(module, 'node_cudf', init => init(CUDA, RMM));

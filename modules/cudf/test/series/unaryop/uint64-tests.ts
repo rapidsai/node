@@ -14,7 +14,7 @@
 
 import '../../jest-extensions';
 
-import {BigIntArray, setDefaultAllocator, TypedArray, TypedArrayConstructor} from '@nvidia/cuda';
+import {BigIntArray, setDefaultAllocator, TypedArray, TypedArrayConstructor} from '@rapidsai/cuda';
 import {Bool8, Float32, Float64, Int64, Numeric, Uint64, Utf8String} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';

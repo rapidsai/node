@@ -1,9 +1,9 @@
 module.exports = {
-    entryPoints: ['src/index.ts'],
-    out: 'doc',
-    name: '@nvidia/webgl',
-    tsconfig: 'tsconfig.json',
-    excludePrivate: true,
-    excludeProtected: true,
-    excludeExternals: true,
+  entryPoints: ['src/index.ts'],
+  out: 'doc',
+  name: '@rapidsai/webgl',
+  tsconfig: 'tsconfig.json',
+  excludePrivate: true,
+  excludeProtected: true,
+  excludeExternals: true,
 };

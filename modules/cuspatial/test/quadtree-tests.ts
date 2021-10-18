@@ -14,7 +14,7 @@
 
 import '@rapidsai/cudf/test/jest-extensions';
 
-import {setDefaultAllocator} from '@nvidia/cuda';
+import {setDefaultAllocator} from '@rapidsai/cuda';
 import {Float32, Float64, FloatingPoint} from '@rapidsai/cudf';
 import {Quadtree} from '@rapidsai/cuspatial';
 import {DeviceBuffer} from '@rapidsai/rmm';

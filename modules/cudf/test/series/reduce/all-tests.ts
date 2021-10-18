@@ -14,7 +14,7 @@
 
 import '../../jest-extensions';
 
-import {setDefaultAllocator} from '@nvidia/cuda';
+import {setDefaultAllocator} from '@rapidsai/cuda';
 import {
   Bool8,
   Float32,

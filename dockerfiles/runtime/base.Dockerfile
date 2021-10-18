@@ -27,11 +27,13 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     libstdc++6 \
  # Clean up
  && add-apt-repository --remove -y ppa:ubuntu-toolchain-r/test \
+ && apt remove -y software-properties-common \
  && apt autoremove -y && apt clean \
  && rm -rf \
     /tmp/* \
     /var/tmp/* \
-    /var/lib/apt/lists/*
+    /var/lib/apt/lists/* \
+    /var/cache/apt/archives/*
 
 # Install node
 COPY --from=devel /usr/local/bin/node                 /usr/local/bin/node

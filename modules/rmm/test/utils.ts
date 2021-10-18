@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // import {test} from '@jest/globals';
-// import {Device, devices} from '@nvidia/cuda';
+// import {Device, devices} from '@rapidsai/cuda';
 
 export const sizes = {
   '1_MiB': 1 << 20,

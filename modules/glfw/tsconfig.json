@@ -4,8 +4,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@nvidia/glfw": ["src/index"],
-            "@nvidia/glfw/*": ["src/*"]
+            "@rapidsai/glfw": ["src/index"],
+            "@rapidsai/glfw/*": ["src/*"]
         },
         "target": "ESNEXT",
         "module": "commonjs",

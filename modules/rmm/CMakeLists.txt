@@ -36,7 +36,7 @@ execute_process(COMMAND node -p
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
-                "require('path').dirname(require.resolve('@nvidia/cuda'))"
+                "require('path').dirname(require.resolve('@rapidsai/cuda'))"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NODE_RAPIDS_CUDA_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)

@@ -17,8 +17,8 @@
         "downlevelIteration": false,
         "baseUrl": "../",
         "paths": {
-            "@nvidia/glfw": ["src/index"],
-            "@nvidia/glfw/*": ["src/*"]
+            "@rapidsai/glfw": ["src/index"],
+            "@rapidsai/glfw/*": ["src/*"]
         }
     }
 }

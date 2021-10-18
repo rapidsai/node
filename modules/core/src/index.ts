@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,14 +16,9 @@ import * as Path from 'path';
 
 export * from './loadnativemodule';
 
-export const modules_path = Path.resolve(__dirname, '..', '..', '..');
-
+export const modules_path          = Path.resolve(__dirname, '..', '..', '..');
 export const project_root_dir_path = Path.resolve(modules_path, '..');
-
-export const cpm_source_cache_path = Path.resolve(modules_path, '.cache', 'cpm');
-
-export const cpm_binary_cache_path = Path.resolve(modules_path, '.cache', 'build');
-
 export const cpp_core_include_path = Path.resolve(modules_path, 'core', 'include');
-
-export const cmake_modules_path = Path.resolve(modules_path, 'core', 'cmake', 'Modules');
+export const cmake_modules_path    = Path.resolve(modules_path, 'core', 'cmake', 'Modules');
+export const cpm_source_cache_path = Path.resolve(project_root_dir_path, '.cache', 'source');
+export const cpm_binary_cache_path = Path.resolve(project_root_dir_path, '.cache', 'binary');

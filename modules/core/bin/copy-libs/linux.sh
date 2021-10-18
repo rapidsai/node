@@ -60,9 +60,9 @@ for lib in ${@}; do
     else
         paths="$paths $(find $dir_ -type l -name $lib)"
         paths="$paths $(find $dir_ -type f -name $lib)"
-        if [[ -e "/opt/rapids/node/modules/.cache/build/Release" ]]; then
-            paths="$paths $(find /opt/rapids/node/modules/.cache/build/Release -type l -name $lib)"
-            paths="$paths $(find /opt/rapids/node/modules/.cache/build/Release -type f -name $lib)"
+        if [[ -e "/opt/rapids/node/.cache/build/Release" ]]; then
+            paths="$paths $(find /opt/rapids/node/.cache/build/Release -type l -name $lib)"
+            paths="$paths $(find /opt/rapids/node/.cache/build/Release -type f -name $lib)"
         fi
     fi
     libs="${libs:+$libs }$(echo $paths)"

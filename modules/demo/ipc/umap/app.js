@@ -12,26 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {COORDINATE_SYSTEM, Deck, log as deckLog, OrthographicView} from '@deck.gl/core';
+import {IpcMemory, Uint8Buffer} from '@rapidsai/cuda';
 import Url from 'url';
 import * as zmq from 'zeromq';
-import { Deck, OrthographicView, COORDINATE_SYSTEM, log as deckLog } from '@deck.gl/core';
-import ArrowGraphLayer from './layers/arrow-graph-layer';
-import { IpcMemory, Uint8Buffer } from '@nvidia/cuda';
 
-let numNodes = 0;
-let numEdges = 0;
-let drawEdges = null;
-let graphVersion = 0;
-let redrawTimeout = null;
+import ArrowGraphLayer from './layers/arrow-graph-layer';
+
+let numNodes             = 0;
+let numEdges             = 0;
+let drawEdges            = null;
+let graphVersion         = 0;
+let redrawTimeout        = null;
 let onAfterRenderPromise = null;
 
 const deck = new Deck({
   width: '100%',
   height: '100%',
   controller: true,
-  initialViewState: { target: [0, 0, 0], zoom: -5.2 },
-  views: new OrthographicView({ controller: true }),
-  onViewStateChange: ({ viewState }) => redraw({ viewState, drawEdges })
+  initialViewState: {target: [0, 0, 0], zoom: -5.2},
+  views: new OrthographicView({controller: true}),
+  onViewStateChange: ({viewState}) => redraw({viewState, drawEdges})
 });
 
 window._inputEventTarget = deck.canvas;
@@ -44,27 +45,38 @@ const useTestData = false;
 
 async function localRenderLoop() {
   await Promise.resolve().then(() => {
-    const r = 5;
-    const d = r * 2;
+    const r    = 5;
+    const d    = r * 2;
     const xOff = 100;
     const yOff = 100;
-    const c = [0xFFFFFFFF, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF];
+    const c    = [0xFFFFFFFF, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF];
 
     const edgeUpdates = [(() => {
       const edges = [
-        [0, 1], [0, 2], [0, 3],
-        [1, 0], [1, 2], [1, 3], [1, 3],
-        [2, 0], [2, 1], [2, 3],
-        [3, 1], [3, 1], [3, 2], [3, 0], [3, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [1, 0],
+        [1, 2],
+        [1, 3],
+        [1, 3],
+        [2, 0],
+        [2, 1],
+        [2, 3],
+        [3, 1],
+        [3, 1],
+        [3, 2],
+        [3, 0],
+        [3, 0],
       ];
-      const bundles = (() => {
-        const { keys, offsets, lengths } = edges.reduce(({ keys, offsets, lengths }, e, i) => {
-          const k = `${e.sort((a, b) => a - b)}`;
+      const bundles   = (() => {
+        const {keys, offsets, lengths} = edges.reduce(({keys, offsets, lengths}, e, i) => {
+          const k    = `${e.sort((a, b) => a - b)}`;
           lengths[k] = (lengths[k] || 0) + 1;
           offsets[i] = (lengths[k] - 1);
-          keys[i] = k;
-          return { keys, offsets, lengths };
-        }, { keys: [], offsets: [], lengths: {} });
+          keys[i]    = k;
+          return {keys, offsets, lengths};
+        }, {keys: [], offsets: [], lengths: {}});
         return keys.map((k, i) => [offsets[i], lengths[k]]);
       })();
       return {
@@ -77,16 +89,18 @@ async function localRenderLoop() {
 
     const nodeUpdates = [(() => {
       return {
-        offset: 0,
-        position: Float32Array.from([
+        offset: 0, position: Float32Array.from([
           // x, y
-          (xOff * +0), (yOff * +0) + d, // center (white)
-          (xOff * +1) + d, (yOff * +1) - d, // bottom right (blue)
-          (xOff * -1) - d, (yOff * +1) - d, // bottom left (green)
-          (xOff * +0), (yOff * -1) - d, // top middle (red)
+          (xOff * +0),
+          (yOff * +0) + d,  // center (white)
+          (xOff * +1) + d,
+          (yOff * +1) - d,  // bottom right (blue)
+          (xOff * -1) - d,
+          (yOff * +1) - d,  // bottom left (green)
+          (xOff * +0),
+          (yOff * -1) - d,  // top middle (red)
         ]),
-        size: Uint8Array.from([r, r, r, r]),
-        color: Uint32Array.from(c),
+          size: Uint8Array.from([r, r, r, r]), color: Uint32Array.from(c),
       }
     })()];
 
@@ -97,32 +111,33 @@ async function localRenderLoop() {
     //     edges: edgeUpdates[0],
     //     nodes: nodeUpdates[0],
     // });
-    return redraw({
-      nodeUpdates,
-      edgeUpdates,
-      drawEdges: drawEdges = true,
-      graphVersion: ++graphVersion
-    });
+    return redraw(
+      {nodeUpdates, edgeUpdates, drawEdges: drawEdges = true, graphVersion: ++graphVersion});
   });
 }
 
-
 async function remoteRenderLoop() {
-  const mapToObject = (m) => [...m.entries()].reduce((xs, [k, v]) => ({ ...xs, [k]: v }), {});
+  const mapToObject = (m) => [...m.entries()].reduce((xs, [k, v]) => ({...xs, [k]: v}), {});
   const loadIpcHandle = (handle) => new Uint8Buffer(new IpcMemory(handle));
-  const loadIpcHandles = (handles, names) => handles.filter(Boolean)
-    // .filter(({name, data}) => (data || []).length > 0 && ~names.indexOf(name))
-    .filter(({ name, data }) => (data || []).length > 0)
-    .reduce((xs, { name, data }) => xs.set(name, loadIpcHandle(data)), new Map());
+  const loadIpcHandles           = (handles, names) =>
+    handles
+      .filter(Boolean)
+      // .filter(({name, data}) => (data || []).length > 0 && ~names.indexOf(name))
+      .filter(({name, data}) => (data || []).length > 0)
+      .reduce((xs, {name, data}) => xs.set(name, loadIpcHandle(data)), new Map());
 
-  const closeMemHandle = ({ buffer }) => { try { buffer.close(); } catch (e) { } };
+  const closeMemHandle = ({buffer}) => {
+    try {
+      buffer.close();
+    } catch (e) {}
+  };
 
   const ipchs = new zmq.Pull();
   const ready = new zmq.Request();
 
-  const { protocol, hostname, port } = Url.parse(process.argv[2]);
-  const ipchsUrl = `${protocol}//${hostname}:${port}`;
-  const readyUrl = `${protocol}//${hostname}:${+port + 1}`;
+  const {protocol, hostname, port} = Url.parse(process.argv[2]);
+  const ipchsUrl                   = `${protocol}//${hostname}:${port}`;
+  const readyUrl = `${protocol}//${hostname}:${+ port + 1}`;
 
   ipchs.connect(ipchsUrl);
   ready.connect(readyUrl);
@@ -132,7 +147,7 @@ async function remoteRenderLoop() {
 
   for await (const msg of ipchs) {
     // console.log(msg);
-    let { node: nodeTokens, edge: edgeTokens } = JSON.parse(msg);
+    let {node: nodeTokens, edge: edgeTokens} = JSON.parse(msg);
     // console.log(nodeTokens);
     nodeTokens = (nodeTokens || []).filter(Boolean);
     edgeTokens = (edgeTokens || []).filter(Boolean);
@@ -142,20 +157,25 @@ async function remoteRenderLoop() {
     let edgeIPCBuffers = loadIpcHandles(edgeTokens, ['edge', 'color', 'bundle']);
     if (nodeIPCBuffers.size + edgeIPCBuffers.size > 0) {
       // console.log(nodeIPCBuffers);
-      numNodes = nodeIPCBuffers.has('color') ? nodeIPCBuffers.get('color').byteLength / 4 : numNodes;
-      numEdges = edgeIPCBuffers.has('color') ? edgeIPCBuffers.get('color').byteLength / 8 : numEdges;
-      const nodeUpdates = nodeIPCBuffers.size === 0 ? [] : [{ length: numNodes, offset: 0, ...mapToObject(nodeIPCBuffers) }];
+      numNodes =
+        nodeIPCBuffers.has('color') ? nodeIPCBuffers.get('color').byteLength / 4 : numNodes;
+      numEdges =
+        edgeIPCBuffers.has('color') ? edgeIPCBuffers.get('color').byteLength / 8 : numEdges;
+      const nodeUpdates = nodeIPCBuffers.size === 0
+                            ? []
+                            : [{length: numNodes, offset: 0, ...mapToObject(nodeIPCBuffers)}];
       // console.log(nodeUpdates);
       // console.log(nodeUpdates[0]);
-      const edgeUpdates = edgeIPCBuffers.size === 0 ? [] : [{ length: numEdges, offset: 0, ...mapToObject(edgeIPCBuffers) }];
+      const edgeUpdates = edgeIPCBuffers.size === 0
+                            ? []
+                            : [{length: numEdges, offset: 0, ...mapToObject(edgeIPCBuffers)}];
       // console.log(nodeUpdates[0].position);
-      await redraw({ nodeUpdates, edgeUpdates, drawEdges: drawEdges = null, graphVersion: ++graphVersion });
+      await redraw(
+        {nodeUpdates, edgeUpdates, drawEdges: drawEdges = null, graphVersion: ++graphVersion});
       nodeIPCBuffers.forEach(closeMemHandle);
       edgeIPCBuffers.forEach(closeMemHandle);
       await ready.send('ready');
-      if (`${await ready.receive()}` === 'close') {
-        break;
-      }
+      if (`${await ready.receive()}` === 'close') { break; }
     }
   }
 
@@ -164,39 +184,36 @@ async function remoteRenderLoop() {
   ipchs.close();
   ready.close();
 
-  await redraw({ drawEdges: drawEdges = true });
+  await redraw({drawEdges: drawEdges = true});
 }
 
-function redraw({ nodeUpdates = [], edgeUpdates = [], ...rest }) {
+function redraw({nodeUpdates = [], edgeUpdates = [], ...rest}) {
   const nextProps = {
     width: window.clientWidth,
     height: window.clientHeight,
-    layers: [
-      new ArrowGraphLayer(
-        {
-          id: 'graph',
-          nodeUpdates,
-          edgeUpdates,
-          numNodes: numNodes,
-          numEdges: numEdges,
-          version: graphVersion,
-          edgeWidth: useTestData ? 5 : 1,
-          edgeOpacity: useTestData ? 0.5 : 0.01,
-          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        },
-        { drawEdges }
-      )
-    ]
+    layers: [new ArrowGraphLayer({
+      id: 'graph',
+      nodeUpdates,
+      edgeUpdates,
+      numNodes: numNodes,
+      numEdges: numEdges,
+      version: graphVersion,
+      edgeWidth: useTestData ? 5 : 1,
+      edgeOpacity: useTestData ? 0.5 : 0.01,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+    },
+                                 {drawEdges})]
   };
 
   rest.viewState !== undefined && (nextProps.viewState = rest.viewState);
 
   if (!onAfterRenderPromise) {
     onAfterRenderPromise = new Promise((resolve) => {
-      nextProps.onAfterRender = () => {
-        onAfterRenderPromise = null;
-        resolve();
-      }
+      nextProps.onAfterRender =
+        () => {
+          onAfterRenderPromise = null;
+          resolve();
+        }
     });
   }
   deck.setProps(nextProps);
@@ -205,7 +222,7 @@ function redraw({ nodeUpdates = [], edgeUpdates = [], ...rest }) {
     redrawTimeout !== null && clearTimeout(redrawTimeout);
     redrawTimeout = setTimeout(() => {
       redrawTimeout = null;
-      redraw({ drawEdges: drawEdges = true });
+      redraw({drawEdges: drawEdges = true});
     }, 350);
   }
 

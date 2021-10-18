@@ -13,17 +13,13 @@
 // limitations under the License.
 
 test.skip('CUDA-GL interop', () => {
-
-  require('@nvidia/glfw')
-    .createWindow(testCUDAGLInterop, true)
-    .open();
+  require('@rapidsai/glfw').createWindow(testCUDAGLInterop, true).open();
 
   function testCUDAGLInterop() {
-
-    const assert = require('assert');
-    const { Uint8Buffer, CUDA } = require('@nvidia/cuda');
-    const { Buffer: GLBuffer } = require('@luma.gl/core');
-    const { WebGL2RenderingContext } = require('@nvidia/webgl');
+    const assert                   = require('assert');
+    const {Uint8Buffer, CUDA}      = require('@rapidsai/cuda');
+    const {Buffer: GLBuffer}       = require('@luma.gl/core');
+    const {WebGL2RenderingContext} = require('@rapidsai/webgl');
 
     const gl = new WebGL2RenderingContext();
 
@@ -35,13 +31,8 @@ test.skip('CUDA-GL interop', () => {
 
     const cudaBuf = new Uint8Buffer(16).copyFrom(hostBuf).copyInto(hostResult1);
 
-    const lumaBuf = new GLBuffer(gl, {
-      target: gl.ARRAY_BUFFER,
-      accessor: {
-        size: 1,
-        type: gl.UNSIGNED_BYTE
-      }
-    });
+    const lumaBuf =
+      new GLBuffer(gl, {target: gl.ARRAY_BUFFER, accessor: {size: 1, type: gl.UNSIGNED_BYTE}});
 
     lumaBuf.reallocate(cudaBuf.length * lumaBuf.accessor.BYTES_PER_VERTEX);
 
@@ -55,7 +46,7 @@ test.skip('CUDA-GL interop', () => {
     CUDA.runtime.cudaGraphicsUnmapResources([cudaGLPtr]);
     CUDA.runtime.cudaGraphicsUnregisterResource(cudaGLPtr);
 
-    lumaBuf.getData({ dstData: hostResult3 });
+    lumaBuf.getData({dstData: hostResult3});
 
     assert.ok(hostResult1.equals(hostBuf));
     assert.ok(hostResult2.equals(hostBuf));

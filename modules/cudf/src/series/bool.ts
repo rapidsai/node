@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Uint8ClampedBuffer} from '@nvidia/cuda';
+import {Uint8ClampedBuffer} from '@rapidsai/cuda';
 import {MemoryResource} from '@rapidsai/rmm';
 
 import {Series, StringSeries} from '../series';

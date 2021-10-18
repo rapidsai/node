@@ -17,7 +17,7 @@ const {Buffer: LumaBuffer_} = require('@luma.gl/webgl');
 import {BufferProps} from '@luma.gl/webgl';
 import {LumaBuffer} from './luma.gl';
 
-import {CUDA, Uint8Buffer} from '@nvidia/cuda';
+import {CUDA, Uint8Buffer} from '@rapidsai/cuda';
 
 export class Buffer extends (LumaBuffer_ as typeof LumaBuffer) {
   static mapResources(buffers: any[] = []) {

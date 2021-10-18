@@ -1,5 +1,5 @@
 {
-  "name": "@nvidia/webgl",
+  "name": "@rapidsai/webgl",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",

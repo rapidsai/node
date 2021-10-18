@@ -17,8 +17,8 @@
         "downlevelIteration": false,
         "baseUrl": "../",
         "paths": {
-            "@nvidia/webgl": ["src/index"],
-            "@nvidia/webgl/*": ["src/*"]
+            "@rapidsai/webgl": ["src/index"],
+            "@rapidsai/webgl/*": ["src/*"]
         }
     }
 }

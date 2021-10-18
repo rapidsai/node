@@ -29,7 +29,7 @@
     "dev:copy:libs": "nvidia-cmake-copy-libs node_cudf.node libarrow*.so.500 libparquet*.so.500"
   },
   "dependencies": {
-    "@nvidia/cuda": "0.0.1",
+    "@rapidsai/cuda": "0.0.1",
     "@rapidsai/rmm": "0.0.1",
     "apache-arrow": "^4.0.0"
   },

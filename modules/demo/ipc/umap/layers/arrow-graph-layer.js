@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CompositeLayer } from '@deck.gl/core';
-import { Buffer, Texture2D, Transform } from '@luma.gl/core';
+import {CompositeLayer} from '@deck.gl/core';
 import GL from '@luma.gl/constants';
+import {Buffer, Texture2D, Transform} from '@luma.gl/core';
+import {CUDA, Uint8Buffer} from '@rapidsai/cuda';
 
-import { getLayerAttributes } from './utils';
-import NodeLayer from './node/node-layer';
 import EdgeLayer from './edge/bezier-curve-layer';
-
 import edgePositionsVS from './edge/edge-positions-vertex.glsl';
-
-import { Uint8Buffer, CUDA } from '@nvidia/cuda';
+import NodeLayer from './node/node-layer';
+import {getLayerAttributes} from './utils';
 
 const defaultProps = {
   numNodes: 0,
@@ -34,7 +32,7 @@ const defaultProps = {
   edgeOpacity: 0.1,
 };
 
-const TEXTURE_WIDTH = 256;
+const TEXTURE_WIDTH       = 256;
 const nodeLayerAttributes = getLayerAttributes(NodeLayer);
 const edgeLayerAttributes = getLayerAttributes(EdgeLayer);
 
@@ -49,27 +47,31 @@ function resizeBuffer(buffer, numInstances) {
   }
 }
 
-function registerCUDAGraphicsResources(webGLToCUDABufferMap, cudaResourceToBuffersMap, webGLBuffers) {
+function registerCUDAGraphicsResources(
+  webGLToCUDABufferMap, cudaResourceToBuffersMap, webGLBuffers) {
   webGLBuffers.forEach((glBuffer) => {
     if (!webGLToCUDABufferMap.has(glBuffer) || !webGLToCUDABufferMap.get(glBuffer)[1]) {
       try {
-        const cuGraphicsResource = CUDA.runtime.cudaGraphicsGLRegisterBuffer(glBuffer.handle.ptr, 0);
+        const cuGraphicsResource =
+          CUDA.runtime.cudaGraphicsGLRegisterBuffer(glBuffer.handle.ptr, 0);
         webGLToCUDABufferMap.set(glBuffer, [cuGraphicsResource, null]);
         cudaResourceToBuffersMap.set(cuGraphicsResource, [glBuffer, null]);
-      } catch (e) { }
+      } catch (e) {}
     }
   });
 }
 
-function getCUDAGraphicsResourcesBuffers(webGLToCUDABufferMap, cudaResourceToBuffersMap, webGLBuffers) {
+function getCUDAGraphicsResourcesBuffers(
+  webGLToCUDABufferMap, cudaResourceToBuffersMap, webGLBuffers) {
   webGLBuffers.forEach((glBuffer) => {
     if (!webGLToCUDABufferMap.has(glBuffer) || !webGLToCUDABufferMap.get(glBuffer)[1]) {
       const [cuGraphicsResource] = webGLToCUDABufferMap.get(glBuffer);
       try {
-        const cuBuffer = new Uint8Buffer(CUDA.runtime.cudaGraphicsResourceGetMappedPointer(cuGraphicsResource));
+        const cuBuffer =
+          new Uint8Buffer(CUDA.runtime.cudaGraphicsResourceGetMappedPointer(cuGraphicsResource));
         webGLToCUDABufferMap.set(glBuffer, [cuGraphicsResource, cuBuffer]);
         cudaResourceToBuffersMap.set(cuGraphicsResource, [glBuffer, cuBuffer]);
-      } catch (e) { }
+      } catch (e) {}
     }
   });
 }
@@ -100,13 +102,13 @@ function updatePartialBuffer(buffer, data, instanceOffset, webGLToCUDABufferMap)
   const [, cuBuffer] = webGLToCUDABufferMap.get(buffer);
   try {
     cuBuffer.copyFrom(data, instanceOffset * buffer.accessor.BYTES_PER_VERTEX);
-  } catch (e) { }
+  } catch (e) {}
 }
 
 export default class ArrowGraphLayer extends CompositeLayer {
   static get layerName() { return 'ArrowGraphLayer'; }
   initializeState() {
-    const { gl } = this.context;
+    const {gl} = this.context;
     this.setState({
       loadedNodeCount: 0,
       loadedEdgeCount: 0,
@@ -116,36 +118,22 @@ export default class ArrowGraphLayer extends CompositeLayer {
       edgePositionsToUpdate: Object.create(null),
 
       // Node layer buffers
-      nodeColorsBuffer: new Buffer(gl, {
-        accessor: nodeLayerAttributes.instanceFillColors,
-        byteLength: 1
-      }),
-      nodeRadiusBuffer: new Buffer(gl, {
-        accessor: nodeLayerAttributes.instanceRadius,
-        byteLength: 1
-      }),
-      nodePositionsBuffer: new Buffer(gl, {
-        accessor: nodeLayerAttributes.instancePositions,
-        byteLength: 1
-      }),
+      nodeColorsBuffer:
+        new Buffer(gl, {accessor: nodeLayerAttributes.instanceFillColors, byteLength: 1}),
+      nodeRadiusBuffer:
+        new Buffer(gl, {accessor: nodeLayerAttributes.instanceRadius, byteLength: 1}),
+      nodePositionsBuffer:
+        new Buffer(gl, {accessor: nodeLayerAttributes.instancePositions, byteLength: 1}),
 
       // Line layer buffers
-      edgeSourcePositionsBuffer: new Buffer(gl, {
-        accessor: edgeLayerAttributes.instanceSourcePositions,
-        byteLength: 1
-      }),
-      edgeTargetPositionsBuffer: new Buffer(gl, {
-        accessor: edgeLayerAttributes.instanceTargetPositions,
-        byteLength: 1
-      }),
-      edgeControlPointsBuffer: new Buffer(gl, {
-        accessor: edgeLayerAttributes.instanceTargetPositions,
-        byteLength: 1
-      }),
-      edgeColorsBuffer: new Buffer(gl, {
-        accessor: { ...edgeLayerAttributes.instanceSourceColors, size: 8 },
-        byteLength: 1
-      }),
+      edgeSourcePositionsBuffer:
+        new Buffer(gl, {accessor: edgeLayerAttributes.instanceSourcePositions, byteLength: 1}),
+      edgeTargetPositionsBuffer:
+        new Buffer(gl, {accessor: edgeLayerAttributes.instanceTargetPositions, byteLength: 1}),
+      edgeControlPointsBuffer:
+        new Buffer(gl, {accessor: edgeLayerAttributes.instanceTargetPositions, byteLength: 1}),
+      edgeColorsBuffer: new Buffer(
+        gl, {accessor: {...edgeLayerAttributes.instanceSourceColors, size: 8}, byteLength: 1}),
 
       // Transform feedback buffers
       nodePositionsTexture: new Texture2D(gl, {
@@ -153,33 +141,19 @@ export default class ArrowGraphLayer extends CompositeLayer {
         type: GL.FLOAT,
         width: 1,
         height: 1,
-        parameters: {
-          [GL.TEXTURE_MIN_FILTER]: [GL.NEAREST],
-          [GL.TEXTURE_MAG_FILTER]: [GL.NEAREST]
-        },
+        parameters: {[GL.TEXTURE_MIN_FILTER]: [GL.NEAREST], [GL.TEXTURE_MAG_FILTER]: [GL.NEAREST]},
         mipmap: false
       }),
-      edgesBuffer: new Buffer(gl, {
-        accessor: { type: GL.UNSIGNED_INT, size: 2 },
-        byteLength: 1
-      }),
-      edgeBundlesBuffer: new Buffer(gl, {
-        accessor: { type: GL.UNSIGNED_INT, size: 2 },
-        byteLength: 1
-      }),
+      edgesBuffer: new Buffer(gl, {accessor: {type: GL.UNSIGNED_INT, size: 2}, byteLength: 1}),
+      edgeBundlesBuffer:
+        new Buffer(gl, {accessor: {type: GL.UNSIGNED_INT, size: 2}, byteLength: 1}),
 
-      edgeSourcePositionsBufferTemp: new Buffer(gl, {
-        accessor: edgeLayerAttributes.instanceSourcePositions,
-        byteLength: 1
-      }),
-      edgeTargetPositionsBufferTemp: new Buffer(gl, {
-        accessor: edgeLayerAttributes.instanceTargetPositions,
-        byteLength: 1
-      }),
-      edgeControlPointsBufferTemp: new Buffer(gl, {
-        accessor: edgeLayerAttributes.instanceTargetPositions,
-        byteLength: 1
-      }),
+      edgeSourcePositionsBufferTemp:
+        new Buffer(gl, {accessor: edgeLayerAttributes.instanceSourcePositions, byteLength: 1}),
+      edgeTargetPositionsBufferTemp:
+        new Buffer(gl, {accessor: edgeLayerAttributes.instanceTargetPositions, byteLength: 1}),
+      edgeControlPointsBufferTemp:
+        new Buffer(gl, {accessor: edgeLayerAttributes.instanceTargetPositions, byteLength: 1}),
     });
 
     this.setState({
@@ -204,8 +178,8 @@ export default class ArrowGraphLayer extends CompositeLayer {
   }
 
   /* eslint-disable max-statements */
-  updateState({ props, oldProps }) {
-    const { nodeUpdates, edgeUpdates, numNodes, numEdges, drawEdges } = props;
+  updateState({props, oldProps}) {
+    const {nodeUpdates, edgeUpdates, numNodes, numEdges, drawEdges} = props;
     const {
       nodeColorsBuffer,
       nodeRadiusBuffer,
@@ -221,16 +195,18 @@ export default class ArrowGraphLayer extends CompositeLayer {
       edgeTargetPositionsBufferTemp,
       edgeColorsBuffer,
       edgesBuffer,
-      webGLToCUDABufferMap, cudaResourceToBuffersMap
+      webGLToCUDABufferMap,
+      cudaResourceToBuffersMap
     } = this.state;
 
-    let { hasRenderedEdges, loadedNodeCount, loadedEdgeCount } = this.state;
+    let {hasRenderedEdges, loadedNodeCount, loadedEdgeCount} = this.state;
 
     // Resize node layer buffers
     if (numNodes && numNodes !== oldProps.numNodes) {
       resizeBuffer(nodeColorsBuffer, numNodes);
       resizeBuffer(nodeRadiusBuffer, numNodes);
-      nodePositionsTexture.resize({ width: TEXTURE_WIDTH, height: Math.ceil(numNodes / TEXTURE_WIDTH) });
+      nodePositionsTexture.resize(
+        {width: TEXTURE_WIDTH, height: Math.ceil(numNodes / TEXTURE_WIDTH)});
       resizeBuffer(nodePositionsBuffer, nodePositionsTexture.width * nodePositionsTexture.height);
       loadedNodeCount = 0;
     }
@@ -248,13 +224,21 @@ export default class ArrowGraphLayer extends CompositeLayer {
 
     const nodesUpdated = nodeUpdates.length > 0;
     const edgesUpdated = edgeUpdates.length > 0;
-    const webglBuffers = [edgesBuffer, edgeColorsBuffer, nodeColorsBuffer, edgeBundlesBuffer, nodeRadiusBuffer, nodePositionsBuffer];
+    const webglBuffers = [
+      edgesBuffer,
+      edgeColorsBuffer,
+      nodeColorsBuffer,
+      edgeBundlesBuffer,
+      nodeRadiusBuffer,
+      nodePositionsBuffer
+    ];
 
-    (nodesUpdated || edgesUpdated) && mapCUDAGraphicsResources(webGLToCUDABufferMap, cudaResourceToBuffersMap, webglBuffers);
+    (nodesUpdated || edgesUpdated) &&
+      mapCUDAGraphicsResources(webGLToCUDABufferMap, cudaResourceToBuffersMap, webglBuffers);
 
     // Apply node data updates
     while (nodeUpdates.length) {
-      const { length, offset, color, size, position } = nodeUpdates.shift();
+      const {length, offset, color, size, position} = nodeUpdates.shift();
       color && updatePartialBuffer(nodeColorsBuffer, color, offset, webGLToCUDABufferMap);
       size && updatePartialBuffer(nodeRadiusBuffer, size, offset, webGLToCUDABufferMap);
       position && updatePartialBuffer(nodePositionsBuffer, position, offset, webGLToCUDABufferMap);
@@ -264,33 +248,33 @@ export default class ArrowGraphLayer extends CompositeLayer {
     // Apply edge data updates
     let edgePositionsToUpdate = this.state.edgePositionsToUpdate;
     while (edgeUpdates.length) {
-      const { length, offset, edge, color, bundle } = edgeUpdates.shift();
+      const {length, offset, edge, color, bundle} = edgeUpdates.shift();
       edge && updatePartialBuffer(edgesBuffer, edge, offset, webGLToCUDABufferMap);
       color && updatePartialBuffer(edgeColorsBuffer, color, offset, webGLToCUDABufferMap);
       bundle && updatePartialBuffer(edgeBundlesBuffer, bundle, offset, webGLToCUDABufferMap);
       loadedEdgeCount = Math.max(loadedEdgeCount, offset + length);
-      edgePositionsToUpdate[`[${offset},${length}]`] = { offset, length };
+      edgePositionsToUpdate[`[${offset},${length}]`] = {offset, length};
     }
 
-    (nodesUpdated || edgesUpdated) && unmapCUDAGraphicsResources(webGLToCUDABufferMap, cudaResourceToBuffersMap, webglBuffers);
+    (nodesUpdated || edgesUpdated) &&
+      unmapCUDAGraphicsResources(webGLToCUDABufferMap, cudaResourceToBuffersMap, webglBuffers);
 
     // Update edge position buffers
     if (drawEdges && numEdges > 0) {
-
-      const allNodesLoaded = (numNodes > 0 && loadedNodeCount === numNodes
-        && (nodeColorsBuffer.byteLength / nodeColorsBuffer.accessor.BYTES_PER_VERTEX) === numNodes
-        && (nodeRadiusBuffer.byteLength / nodeRadiusBuffer.accessor.BYTES_PER_VERTEX) === numNodes
-      );
+      const allNodesLoaded =
+        (numNodes > 0 && loadedNodeCount === numNodes &&
+         (nodeColorsBuffer.byteLength / nodeColorsBuffer.accessor.BYTES_PER_VERTEX) === numNodes &&
+         (nodeRadiusBuffer.byteLength / nodeRadiusBuffer.accessor.BYTES_PER_VERTEX) === numNodes);
 
       if (!hasRenderedEdges || (nodesUpdated && allNodesLoaded)) {
-        nodePositionsTexture.setImageData({ data: nodePositionsBuffer });
+        nodePositionsTexture.setImageData({data: nodePositionsBuffer});
       }
 
-      const allEdgesLoaded = (numEdges > 0 && loadedEdgeCount === numEdges
-        && (edgesBuffer.byteLength / edgesBuffer.accessor.BYTES_PER_VERTEX) === numEdges
-        && (edgeColorsBuffer.byteLength / edgeColorsBuffer.accessor.BYTES_PER_VERTEX) === numEdges
-        && (edgeBundlesBuffer.byteLength / edgeBundlesBuffer.accessor.BYTES_PER_VERTEX) === numEdges
-      );
+      const allEdgesLoaded =
+        (numEdges > 0 && loadedEdgeCount === numEdges &&
+         (edgesBuffer.byteLength / edgesBuffer.accessor.BYTES_PER_VERTEX) === numEdges &&
+         (edgeColorsBuffer.byteLength / edgeColorsBuffer.accessor.BYTES_PER_VERTEX) === numEdges &&
+         (edgeBundlesBuffer.byteLength / edgeBundlesBuffer.accessor.BYTES_PER_VERTEX) === numEdges);
 
       const edgePositionUpdateInfo = {
         loadedNodeCount,
@@ -307,7 +291,7 @@ export default class ArrowGraphLayer extends CompositeLayer {
       };
 
       if (allEdgesLoaded && (nodesUpdated || !hasRenderedEdges)) {
-        hasRenderedEdges = true;
+        hasRenderedEdges              = true;
         edgePositionUpdateInfo.offset = 0;
         edgePositionUpdateInfo.length = numEdges;
         copyEdgePositions(edgePositionUpdateInfo);
@@ -322,7 +306,7 @@ export default class ArrowGraphLayer extends CompositeLayer {
       }
     }
 
-    this.setState({ loadedNodeCount, loadedEdgeCount, hasRenderedEdges, edgePositionsToUpdate });
+    this.setState({loadedNodeCount, loadedEdgeCount, hasRenderedEdges, edgePositionsToUpdate});
   }
   /* eslint-enable max-statements */
 
@@ -340,51 +324,45 @@ export default class ArrowGraphLayer extends CompositeLayer {
     } = this.state;
 
     return [
-      loadedEdgeCount &&
-      new EdgeLayer(
-        this.getSubLayerProps({
-          id: 'edges',
-          numInstances: loadedEdgeCount,
-          visible: this.props.drawEdges,
-          opacity: this.props.edgeOpacity,
-          strokeWidth: this.props.edgeWidth,
-          data: {
-            attributes: {
-              instanceSourcePositions: edgeSourcePositionsBuffer,
-              instanceTargetPositions: edgeTargetPositionsBuffer,
-              instanceControlPoints: edgeControlPointsBuffer,
-              instanceSourceColors: edgeColorsBuffer,
-              instanceTargetColors: edgeColorsBuffer,
-            }
-          },
-          pickable: true,
-          autoHighlight: true,
-          highlightColor: [255, 255, 255, 255],
-        })
-      ),
-      loadedNodeCount &&
-      new NodeLayer(
-        this.getSubLayerProps({
-          id: 'nodes',
-          numInstances: loadedNodeCount,
-          data: {
-            attributes: {
-              instanceRadius: nodeRadiusBuffer,
-              instanceFillColors: nodeColorsBuffer,
-              instanceLineColors: nodeColorsBuffer,
-              instancePositions: nodePositionsBuffer,
-            }
-          },
-          opacity: 0.5,
-          radiusScale: 1,
-          radiusMinPixels: 0,
-          radiusMaxPixels: 25,
-          // interaction
-          pickable: true,
-          autoHighlight: true,
-          highlightColor: [255, 255, 255, 255],
-        })
-      )
+      loadedEdgeCount && new EdgeLayer(this.getSubLayerProps({
+        id: 'edges',
+        numInstances: loadedEdgeCount,
+        visible: this.props.drawEdges,
+        opacity: this.props.edgeOpacity,
+        strokeWidth: this.props.edgeWidth,
+        data: {
+          attributes: {
+            instanceSourcePositions: edgeSourcePositionsBuffer,
+            instanceTargetPositions: edgeTargetPositionsBuffer,
+            instanceControlPoints: edgeControlPointsBuffer,
+            instanceSourceColors: edgeColorsBuffer,
+            instanceTargetColors: edgeColorsBuffer,
+          }
+        },
+        pickable: true,
+        autoHighlight: true,
+        highlightColor: [255, 255, 255, 255],
+      })),
+      loadedNodeCount && new NodeLayer(this.getSubLayerProps({
+        id: 'nodes',
+        numInstances: loadedNodeCount,
+        data: {
+          attributes: {
+            instanceRadius: nodeRadiusBuffer,
+            instanceFillColors: nodeColorsBuffer,
+            instanceLineColors: nodeColorsBuffer,
+            instancePositions: nodePositionsBuffer,
+          }
+        },
+        opacity: 0.5,
+        radiusScale: 1,
+        radiusMinPixels: 0,
+        radiusMaxPixels: 25,
+        // interaction
+        pickable: true,
+        autoHighlight: true,
+        highlightColor: [255, 255, 255, 255],
+      }))
     ];
   }
 }
@@ -408,16 +386,18 @@ function copyEdgePositions({
   edgeSourcePositionsBufferTemp,
   edgeTargetPositionsBufferTemp
 }) {
-
   if (length <= 0) return;
 
   // Update edge position buffers
   resizeBuffer(edgeControlPointsBufferTemp, length);
   resizeBuffer(edgeSourcePositionsBufferTemp, length);
   resizeBuffer(edgeTargetPositionsBufferTemp, length);
-  edgePositionsTransform.update({ elementCount: length, });
+  edgePositionsTransform.update({
+    elementCount: length,
+  });
   edgePositionsTransform.run({
-    offset, uniforms: {
+    offset,
+    uniforms: {
       loadedNodeCount,
       loadedEdgeCount,
       width: TEXTURE_WIDTH,

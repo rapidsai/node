@@ -24,7 +24,7 @@ import {
   GLFWStandardCursor,
   GLFWWindowAttribute,
   isHeadless,
-} from '@nvidia/glfw';
+} from '@rapidsai/glfw';
 import * as jsdom from 'jsdom';
 import {Subscription} from 'rxjs';
 

@@ -74,7 +74,7 @@ let allocateMemory = allocateDeviceMemory;
  *   ManagedMemory,
  *   Float32Buffer,
  *   setDefaultAllocator
- * } from '@nvidia/cuda';
+ * } from '@rapidsai/cuda';
  *
  * // The default allocator creates `DeviceMemory` instances,
  * // which can only be accessed directly from the GPU device.

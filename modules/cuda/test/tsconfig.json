@@ -17,8 +17,8 @@
         "downlevelIteration": false,
         "baseUrl": "../",
         "paths": {
-            "@nvidia/cuda": ["src/index"],
-            "@nvidia/cuda/*": ["src/*"]
+            "@rapidsai/cuda": ["src/index"],
+            "@rapidsai/cuda/*": ["src/*"]
         }
     }
 }

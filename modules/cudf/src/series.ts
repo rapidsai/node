@@ -25,7 +25,7 @@ import {
   Uint64Buffer,
   Uint8Buffer,
   Uint8ClampedBuffer,
-} from '@nvidia/cuda';
+} from '@rapidsai/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';

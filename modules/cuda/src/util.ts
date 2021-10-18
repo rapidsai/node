@@ -69,7 +69,7 @@ export const isIteratorResult = <T = any>(x: any):
  * @description Normalizes begin/end to between 0 and length, and wrap around on negative indices.
  * @example
  * ```typescript
- * import {clampRange} from '@nvidia/cuda';
+ * import {clampRange} from '@rapidsai/cuda';
  *
  * clampRange(5)        // [0, 5]
  * clampRange(5, 0, -1) // [0, 4]

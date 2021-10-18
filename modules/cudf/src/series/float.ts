@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Float32Buffer, Float64Buffer} from '@nvidia/cuda';
+import {Float32Buffer, Float64Buffer} from '@rapidsai/cuda';
 import {MemoryResource} from '@rapidsai/rmm';
 
 import {Column} from '../column';

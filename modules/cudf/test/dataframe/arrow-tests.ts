@@ -78,7 +78,7 @@ function spawnIPCSourceSubprocess() {
                  `-e`,
                  `
 const { Table, FloatVector, IntVector } = require('apache-arrow');
-const { Uint8Buffer } = require('@nvidia/cuda');
+const { Uint8Buffer } = require('@rapidsai/cuda');
 const table = Table.new(
   [
     FloatVector.from(new Float64Array([1.1, 2.2, 0, -3.3, -4.4])),
@@ -104,7 +104,7 @@ function spawnIPCTargetSubprocess({handle}: {handle: Array<number>}) {
                [
                  '-e',
                  `
-const { IpcMemory } = require("@nvidia/cuda");
+const { IpcMemory } = require("@rapidsai/cuda");
 const { DataFrame } = require(".");
 const dmem = new IpcMemory([${handle.toString()}]);
 const df = DataFrame.fromArrow(dmem);

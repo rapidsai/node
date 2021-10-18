@@ -14,7 +14,7 @@
 
 /* eslint-disable @typescript-eslint/await-thenable */
 
-import {Device} from '@nvidia/cuda';
+import {Device} from '@rapidsai/cuda';
 import {arrowToCUDFType, DataFrame, Series} from '@rapidsai/cudf';
 import {ContextProps, parseSchema} from './addon';
 import {LocalSQLWorker} from './cluster/local';

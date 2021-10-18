@@ -1,5 +1,5 @@
 {
-  "name": "@nvidia/glfw",
+  "name": "@rapidsai/glfw",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
@@ -29,7 +29,7 @@
     "dev:copy:libs": "nvidia-cmake-copy-libs node_glfw_*.node"
   },
   "dependencies": {
-    "@nvidia/webgl": "0.0.1",
+    "@rapidsai/webgl": "0.0.1",
     "@rapidsai/core": "0.0.1"
   },
   "files": [

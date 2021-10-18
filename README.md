@@ -9,9 +9,9 @@
 
 Additionally, `node-rapids` includes _limited_ bindings to:
 
-* [`@nvidia/cuda`](https://github.com/rapidsai/node/tree/main/modules/cuda) - Interact with GPUs via the [CUDA Runtime APIs](https://developer.nvidia.com/cuda-toolkit)
-* [`@nvidia/glfw`](https://github.com/rapidsai/node/tree/main/modules/glfw) - Create platform-agnostic native windows with OpenGL contexts via [GLFW](https://github.com/glfw/glfw)
-* [`@nvidia/webgl`](https://github.com/rapidsai/node/tree/main/modules/webgl) - Provides a [`WebGL2RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext) via [OpenGL ES](https://www.khronos.org/opengles)
+* [`@rapidsai/cuda`](https://github.com/rapidsai/node/tree/main/modules/cuda) - Interact with GPUs via the [CUDA Runtime APIs](https://developer.nvidia.com/cuda-toolkit)
+* [`@rapidsai/glfw`](https://github.com/rapidsai/node/tree/main/modules/glfw) - Create platform-agnostic native windows with OpenGL contexts via [GLFW](https://github.com/glfw/glfw)
+* [`@rapidsai/webgl`](https://github.com/rapidsai/node/tree/main/modules/webgl) - Provides a [`WebGL2RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext) via [OpenGL ES](https://www.khronos.org/opengles)
 * [`@rapidsai/sql`](https://github.com/rapidsai/node/tree/main/modules/sql) - GPU-accelerated SQL queries
 
 See the [API docs](https://rapidsai.github.io/node/) for detailed information about each module.
@@ -40,13 +40,13 @@ We've included a container for launching [`nteract/desktop`](https://nteract.io/
 cp .env.sample .env
 
 # Build the development and nteract containers (only necessary once)
-yarn docker:build:devel && yarn docker:build:devel:nteract
+yarn docker:build:devel && yarn docker:build:devel:notebook
 
 # Compile the TypeScript and C++ modules inside the development container
 yarn docker:run:devel bash -c 'yarn && yarn build'
 
 # Start a containerized nteract/desktop with the source tree as Docker volume mounts
-yarn docker:run:nteract
+yarn docker:run:devel:notebook
 ```
 
 `node-rapids` packages are built with [`N-API`](https://nodejs.org/api/n-api.html) via the [`node-addon-api`](https://github.com/nodejs/node-addon-api) library.

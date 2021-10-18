@@ -13,8 +13,8 @@
 // limitations under the License.
 
 const wrtc            = require('wrtc');
-const {MemoryView}    = require('@nvidia/cuda');
-const {Float32Buffer} = require('@nvidia/cuda');
+const {MemoryView}    = require('@rapidsai/cuda');
+const {Float32Buffer} = require('@rapidsai/cuda');
 const {GraphCOO}      = require('@rapidsai/cugraph');
 const {Series, Int32} = require('@rapidsai/cudf');
 

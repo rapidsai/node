@@ -5,14 +5,13 @@ FROM ${DEVEL_IMAGE} as devel
 
 WORKDIR /home/node
 
-RUN cp                                          \
-    /opt/rapids/node/.npmrc                     \
-    /opt/rapids/node/build/rapidsai-core-*.tgz  \
-    /opt/rapids/node/build/nvidia-glfw-*.tgz    \
-    /opt/rapids/node/build/nvidia-webgl-*.tgz   \
+RUN cp                               \
+    /opt/rapids/wrtc-0.4.7-dev.tgz   \
+    /opt/rapids/rapidsai-core-*.tgz  \
+    /opt/rapids/rapidsai-glfw-*.tgz  \
+    /opt/rapids/rapidsai-webgl-*.tgz \
     . \
  && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz
-
 
 FROM ${FROM_IMAGE}
 
@@ -23,7 +22,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES all
 USER root
 
 RUN export DEBIAN_FRONTEND=noninteractive \
- && apt update --fix-missing \
+ && apt update \
  && apt install -y --no-install-recommends \
     # X11 dependencies
     libxrandr-dev libxinerama-dev libxcursor-dev \
@@ -34,7 +33,12 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     # node-canvas dependencies
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
  # Clean up
- && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ && apt autoremove -y && apt clean \
+ && rm -rf \
+    /tmp/* \
+    /var/tmp/* \
+    /var/lib/apt/lists/* \
+    /var/cache/apt/archives/*
 
 COPY --from=devel --chown=node:node /home/node/node_modules/ /home/node/node_modules/
 

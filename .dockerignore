@@ -4,11 +4,9 @@
 **/*.zip
 **/*.*.o
 **/*.arrow
-**/*.ipynb
 **/*.geojson
 **/*.parquet
 **/*.tar.gz
-**/yarn.lock
 **/lerna-debug.log
 **/docker-compose*.yml
 **/compile_commands.json

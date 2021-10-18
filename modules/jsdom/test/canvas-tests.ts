@@ -26,7 +26,7 @@ describe('HTMLCanvasElement', () => {
 
   test(`getContext('webgl2') returns our OpenGL context`, () => {
     expect(globalWindow.evalFn(() => {
-      const gl         = require('@nvidia/webgl');
+      const gl         = require('@rapidsai/webgl');
       const {document} = window;
       const canvas     = document.body.appendChild(document.createElement('canvas'));
       return canvas.getContext('webgl2') instanceof gl.WebGL2RenderingContext;

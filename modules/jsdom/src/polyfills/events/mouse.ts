@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {glfw, GLFWMouseButton} from '@nvidia/glfw';
+import {glfw, GLFWMouseButton} from '@rapidsai/glfw';
 import {DOMWindow} from 'jsdom';
 import {merge as mergeObservables} from 'rxjs';
 import {map, publish, refCount} from 'rxjs/operators';

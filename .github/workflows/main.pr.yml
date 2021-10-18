@@ -26,20 +26,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Free up disk space
-        if: always()
         run: |
           df -h
           docker images
           sudo swapoff -a
           sudo rm -f /swapfile
           sudo apt clean
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /home/linuxbrew/.linuxbrew
-          sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$CONDA"
+          sudo rm -rf /opt/ghc "$CONDA" \
+            /usr/share/swift \
+            /usr/share/dotnet \
+            /usr/local/lib/android \
+            /home/linuxbrew/.linuxbrew \
+            /opt/hostedtoolcache/CodeQL
           docker rmi $(docker image ls -aq) || true
           df -h
           docker images
@@ -48,7 +46,7 @@ jobs:
         with:
           key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
           path: |
-            modules/.cache
+            .cache
       - name: Cache node_modules
         uses: actions/cache@v2
         with:
@@ -60,11 +58,9 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            dockerfiles/devel/01-base.Dockerfile
-            dockerfiles/devel/02-main.Dockerfile
+            dockerfiles/devel/main.Dockerfile
       - name: Build devel images and packages
         run: |
-          echo "UID=$(id -u)" >> .env
           echo "ARCH=${{ env.ARCH }}" >> .env
           echo "CUDAARCHS=ALL" >> .env
           echo "PARALLEL_LEVEL=1" >> .env
@@ -73,23 +69,17 @@ jobs:
           echo "CUDA_VERSION=${{ matrix.CUDA }}" >> .env
           echo "RAPIDS_VERSION=${{ env.RAPIDS }}" >> .env
           echo "LINUX_VERSION=${{ matrix.LINUX }}" >> .env
-          echo "SCCACHE_CACHE_SIZE=100G" >> .env
           echo "SCCACHE_IDLE_TIMEOUT=32768" >> .env
           echo "SCCACHE_REGION=us-west-2" >> .env
           echo "SCCACHE_BUCKET=node-rapids-sccache" >> .env
           if [[ "${{ steps.devel_dockerfiles_changed.outputs.any_changed }}" == "true" ]]; then
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
-            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-              yarn docker:build:devel
+            AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+              yarn docker:build:devel:main
           fi
-          mkdir -p /tmp/.yarn /tmp/.cache
+          mkdir -p /tmp/.{yarn,cache}
           docker run --rm \
-            --env-file .env \
-            -u "$(id -u):$(id -g)" \
-            -v "/tmp/.yarn:/.yarn:rw" \
-            -v "/tmp/.cache:/.cache:rw" \
-            -v "$(pwd):/opt/rapids/node:rw" \
-            -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
-            -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            -u "$(id -u):$(id -g)" -v "$(pwd):/opt/rapids/node:rw" -v "/tmp/.yarn:/.yarn:rw" -v "/tmp/.cache:/.cache:rw" \
+            --env-file .env -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
             bash -c 'set -ex; echo $PATH && echo $CUDA_HOME && which -a nvcc && nvcc --version && yarn && yarn rebuild'

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {expect} from '@jest/globals';
-import {Uint8Buffer} from '@nvidia/cuda';
+import {Uint8Buffer} from '@rapidsai/cuda';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
 import {sizes} from '../utils';

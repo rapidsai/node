@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {CUDA, Uint8Buffer}               = require('@nvidia/cuda');
+const {CUDA, Uint8Buffer}               = require('@rapidsai/cuda');
 const {Buffer: DeckBuffer}              = require('@rapidsai/deck.gl');
 const {Framebuffer, readPixelsToBuffer} = require('@luma.gl/webgl');
 const shm                               = require('shm-typed-array');

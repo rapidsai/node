@@ -12,37 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { clampRange as clamp } from '@nvidia/cuda';
-import { DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String } from '@rapidsai/cudf';
-import * as Arrow from 'apache-arrow';
-import { concat as concatAsync, zip as zipAsync } from 'ix/asynciterable';
-import { flatMap as flatMapAsync } from 'ix/asynciterable/operators';
-const { UMAP } = require('@rapidsai/cuml');
+import {clampRange as clamp} from '@rapidsai/cuda';
+import {DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
+import {concat as concatAsync, zip as zipAsync} from 'ix/asynciterable';
+import {flatMap as flatMapAsync} from 'ix/asynciterable/operators';
+const {UMAP} = require('@rapidsai/cuml');
 
 const defaultLayoutParams = {
-  simulating: { name: 'simulating', val: true },
-  autoCenter: { name: 'auto-center', val: false },
+  simulating: {name: 'simulating', val: true},
+  autoCenter: {name: 'auto-center', val: false},
   train: {
     name: 'start iterative training',
     val: false,
   },
-  supervised: {
-    name: 'supervised',
-    val: false
-  },
-  controlsVisible: { name: 'controls visible', val: true },
+  supervised: {name: 'supervised', val: false},
+  controlsVisible: {name: 'controls visible', val: true},
 };
-const df = DataFrame.readCSV({ header: 0, sourceType: 'files', sources: ['/opt/rapids/node/modules/demo/umap/data/data.csv'] }).castAll(new Float32);
+const df =
+  DataFrame.readCSV({header: 0, sourceType: 'files', sources: [`${__dirname}/data/data.csv`]})
+    .castAll(new Float32);
 
 const layoutParamNames = Object.keys(defaultLayoutParams);
 
-
 export default async function* loadGraphData(props = {}) {
-  const layoutParams = { ...defaultLayoutParams };
+  const layoutParams = {...defaultLayoutParams};
   if (props.layoutParams) {
     layoutParamNames.forEach((name) => {
       if (props.layoutParams.hasOwnProperty(name)) {
-        const { val, min, max } = layoutParams[name];
+        const {val, min, max} = layoutParams[name];
         switch (typeof val) {
           case 'boolean': layoutParams[name].val = !!props.layoutParams[name]; break;
           case 'number':
@@ -65,8 +62,8 @@ export default async function* loadGraphData(props = {}) {
       selectedParameter =
         clamp(layoutParamNames.length, selectedParameter + 1)[0] % layoutParamNames.length;
     } else if (['PageUp', 'PageDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.code) !== -1) {
-      const key = layoutParamNames[selectedParameter];
-      const { val, min, max, step } = layoutParams[key];
+      const key                   = layoutParamNames[selectedParameter];
+      const {val, min, max, step} = layoutParams[key];
       if (typeof val === 'boolean') {
         layoutParams[key].val = !val;
       } else if (e.code === 'PageUp') {
@@ -89,10 +86,10 @@ export default async function* loadGraphData(props = {}) {
     if (source instanceof DataFrame) { return yield source; }
     if (typeof source === 'string' && dataTypes) {
       return yield DataFrame.readCSV(
-        { header: 0, sourceType: 'files', sources: [source], dataTypes });
+        {header: 0, sourceType: 'files', sources: [source], dataTypes});
     }
     if (typeof source[Symbol.iterator] === 'function' ||
-      typeof source[Symbol.asyncIterator] === 'function') {
+        typeof source[Symbol.asyncIterator] === 'function') {
       let count = 0;
       for await (const x of flatMapAsync((x) => getDataFrames(x, undefined, dataTypes))(source)) {
         count++;
@@ -120,43 +117,42 @@ export default async function* loadGraphData(props = {}) {
     data: 'str',
   });
 
-  function getDefaultEdges() {
-    return null;
-  }
+  function getDefaultEdges() { return null; }
 
   /**
-   * @type DataFrame<{name: Utf8String, id: Uint32, color: Uint32, size: Uint8, x: Float32, y: Float32}>
+   * @type DataFrame<{name: Utf8String, id: Uint32, color: Uint32, size: Uint8, x: Float32, y:
+   *   Float32}>
    */
-  let nodes = null;
-  let embeddings = null;
-  let graphDesc = {};
-  let bbox = [0, 0, 0, 0];
-  let onAfterRender = () => { };
-  let rendered = new Promise(() => { });
+  let nodes         = null;
+  let embeddings    = null;
+  let graphDesc     = {};
+  let bbox          = [0, 0, 0, 0];
+  let onAfterRender = () => {};
+  let rendered           = new Promise(() => {});
 
   console.log(nodeDFs);
-  let dataframes = concatAsync(zipAsync(nodeDFs, edgeDFs), (async function* () {
-    datasourceCompleted = true;
-    nextFrames = new Promise(() => { });
-  })())[Symbol.asyncIterator]();
+  let dataframes = concatAsync(zipAsync(nodeDFs, edgeDFs), (async function*() {
+                                 datasourceCompleted = true;
+                                 nextFrames          = new Promise(() => {});
+                               })())[Symbol.asyncIterator]();
 
-  let nextFrames = dataframes.next();
+  let nextFrames          = dataframes.next();
   let datasourceCompleted = false;
-  let graphUpdated = false;
-  let supervisedUpdated = false;
+  let graphUpdated        = false;
+  let supervisedUpdated   = false;
   while (true) {
     graphUpdated = false;
     // Wait for a new set of source dataframes or for the
     // most recent frame to finish rendering before advancing
     const newDFs = await (datasourceCompleted
-      ? rendered
-      : Promise.race([rendered, nextFrames.then(({ value } = {}) => value)]));
+                            ? rendered
+                            : Promise.race([rendered, nextFrames.then(({value} = {}) => value)]));
 
     if (newDFs) {
       if (newDFs[0] !== nodes) {
-        graphUpdated = true;
+        graphUpdated        = true;
         [nodes, embeddings] = generateUMAP(newDFs[0], embeddings, layoutParams.supervised.val);
-        nextFrames = dataframes.next();
+        nextFrames          = dataframes.next();
       }
     }
 
@@ -165,7 +161,7 @@ export default async function* loadGraphData(props = {}) {
     }
 
     if (supervisedUpdated != layoutParams.supervised.val) {
-      embeddings = null;
+      embeddings        = null;
       supervisedUpdated = layoutParams.supervised.val;
     }
 
@@ -177,7 +173,7 @@ export default async function* loadGraphData(props = {}) {
       bbox = [...nodes.get('x').minmax(), ...nodes.get('y').minmax()];
 
       graphDesc = createGraphRenderProps(nodes);
-      ({ promise: rendered, resolve: onAfterRender } = promiseSubject());
+      ({promise: rendered, resolve: onAfterRender} = promiseSubject());
     }
 
     // Yield the results to the caller for rendering
@@ -191,18 +187,17 @@ export default async function* loadGraphData(props = {}) {
     };
 
     // Wait for the frame to finish rendering before advancing
-    rendered = rendered.catch(() => { }).then(() => { });
+    rendered = rendered.catch(() => {}).then(() => {});
   }
 }
-
 
 function promiseSubject() {
   let resolve, reject;
   let promise = new Promise((r1, r2) => {
     resolve = r1;
-    reject = r2;
+    reject  = r2;
   });
-  return { promise, resolve, reject };
+  return {promise, resolve, reject};
 }
 
 /**
@@ -220,34 +215,37 @@ function createGraphRenderProps(nodes) {
   const numEdges = 0;
   return {
     numNodes, numEdges, nodeRadiusScale: 1 / 75,
-    // nodeRadiusScale: 1/255,
-    nodeRadiusMinPixels: 5, nodeRadiusMaxPixels: 150, data: {
-      nodes: {
-        offset: 0,
-        length: numNodes,
-        attributes: {
-          nodeName: nodes.get('name'),
-          nodeRadius: nodes.get('size').data,
-          nodeXPositions: nodes.get('x').data,
-          nodeYPositions: nodes.get('y').data,
-          nodeFillColors: nodes.get('color').data,
-          nodeElementIndices: nodes.get('id').data,
-          nodeData: nodes.has('data') ? nodes.get('data') : null
-        }
-      }, edges: {
-        offset: 0,
-        length: numEdges,
-        attributes: { edgeName: null, edgeList: null, edgeColors: null, edgeBundles: null, edgeData: null }
+      // nodeRadiusScale: 1/255,
+      nodeRadiusMinPixels: 5, nodeRadiusMaxPixels: 150, data: {
+        nodes: {
+          offset: 0,
+          length: numNodes,
+          attributes: {
+            nodeName: nodes.get('name'),
+            nodeRadius: nodes.get('size').data,
+            nodeXPositions: nodes.get('x').data,
+            nodeYPositions: nodes.get('y').data,
+            nodeFillColors: nodes.get('color').data,
+            nodeElementIndices: nodes.get('id').data,
+            nodeData: nodes.has('data') ? nodes.get('data') : null
+          }
+        },
+        edges: {
+          offset: 0,
+          length: numEdges,
+          attributes:
+            {edgeName: null, edgeList: null, edgeColors: null, edgeBundles: null, edgeData: null}
+        },
       },
-    },
   }
 }
 
 function generateUMAP(nodesDF, fittedUMAP = null, supervised = false) {
-  const options = { nNeighbors: 5, init: 1, randomState: 42 };
+  const options = {nNeighbors: 5, init: 1, randomState: 42};
 
   if (fittedUMAP == null) {
-    fittedUMAP = (new UMAP({ nEpochs: 300, ...options })).fitDataFrame(df.drop(['target']), supervised ? df.get('target') : null);
+    fittedUMAP = (new UMAP({nEpochs: 300, ...options}))
+                   .fitDataFrame(df.drop(['target']), supervised ? df.get('target') : null);
   } else {
     fittedUMAP.refineDataFrame(df.drop(['target']), supervised ? df.get('target') : null);
   }
@@ -256,28 +254,40 @@ function generateUMAP(nodesDF, fittedUMAP = null, supervised = false) {
     nodesDF.assign({
       x: lowDimensionEmbeddingDF.get(0),
       y: lowDimensionEmbeddingDF.get(1),
-      size: Series.sequence({ type: new Uint8, init: 0.1, step: 0, size: nodesDF.numRows })
-    }), fittedUMAP];
+      size: Series.sequence({type: new Uint8, init: 0.1, step: 0, size: nodesDF.numRows})
+    }),
+    fittedUMAP
+  ];
 }
 
 function getDefaultNodes() {
-  console.log("called getDefaultNodes");
-  const colorData = ["-12451426", "-11583787", "-12358156", "-10375427", "-7610114", "-4194305", "-6752794", "-5972565", "-5914010", "-4356046"];
-  const labelsData = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
-  const nodesDF = new DataFrame({
-    id: Series.sequence({ type: new Uint32, init: 0, step: 1, size: df.numRows }),
+  console.log('called getDefaultNodes');
+  const colorData = [
+    '-12451426',
+    '-11583787',
+    '-12358156',
+    '-10375427',
+    '-7610114',
+    '-4194305',
+    '-6752794',
+    '-5972565',
+    '-5914010',
+    '-4356046'
+  ];
+  const labelsData =
+    ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+  const nodesDF      = new DataFrame({
+    id: Series.sequence({type: new Uint32, init: 0, step: 1, size: df.numRows}),
     name: df.get('target')
   });
   const labelsUnique = [...nodesDF.get('name').unique()];
 
-  let color = Series.sequence({ type: new Uint32, init: 0, step: 1, size: df.numRows });
-  let data = Series.new({ type: new Utf8String, data: [...color] });
+  let color = Series.sequence({type: new Uint32, init: 0, step: 1, size: df.numRows});
+  let data  = Series.new({type: new Utf8String, data: [...color]});
   labelsUnique.forEach(e => {
     color = color.scatter(colorData[e], nodesDF.filter(nodesDF.get('name').eq(e)).get('id'));
-    data = data.scatter(labelsData[e], nodesDF.filter(nodesDF.get('name').eq(e)).get('id'));
+    data  = data.scatter(labelsData[e], nodesDF.filter(nodesDF.get('name').eq(e)).get('id'));
   });
 
-  return nodesDF.assign({
-    color, data
-  });
+  return nodesDF.assign({color, data});
 }

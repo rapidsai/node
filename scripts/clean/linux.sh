@@ -2,6 +2,8 @@
 
 set -Eeo pipefail
 
+set -Eeo pipefail
+
 echo "cleaning node-rapids"
 
 if [[ ! -d node_modules || ! -d node_modules/lerna || ! -d node_modules/rimraf ]]; then
@@ -11,4 +13,4 @@ fi
 # clean modules/*/build dirs
 lerna run --no-bail clean || true;
 lerna clean --loglevel error --yes || true;
-rimraf yarn.lock node_modules doc compile_commands.json modules/.cache/{build,cpm}
+rimraf yarn.lock node_modules doc compile_commands.json .cache/{binary,source}

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BigIntArray, TypedArray} from '@nvidia/cuda';
+import {BigIntArray, TypedArray} from '@rapidsai/cuda';
 import {zip} from 'ix/iterable';
 
 declare global {

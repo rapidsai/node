@@ -2,7 +2,6 @@ version: "3.8"
 
 x-base-settings: &base_service_settings
   tty: true
-  user: node
   env_file: .env
   network_mode: host
   build: &base_build_settings
@@ -21,7 +20,7 @@ x-base-settings: &base_service_settings
 x-main-service-settings: &main_service_settings
   <<: *base_service_settings
   volumes:
-    - "${PWD}:/opt/rapids/node:rw"
+    - ".:/opt/rapids/node:rw"
     - "/etc/fonts:/etc/fonts:ro"
     - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
     - "/usr/share/fonts:/usr/share/fonts:ro"
@@ -30,7 +29,6 @@ x-main-service-settings: &main_service_settings
     - "/etc/localtime:/etc/localtime"
     - "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
     - "${XDG_RUNTIME_DIR:-/run/user/$UID}:${XDG_RUNTIME_DIR:-/run/user/$UID}"
-  working_dir: /opt/rapids/node
   environment: &main_environment_settings
     <<: *base_environment_settings
     # Use the host's X11 display
@@ -46,46 +44,49 @@ x-main-service-settings: &main_service_settings
   security_opt:
     - apparmor=unconfined
 
-
 services:
-
-  base:
-    <<: *base_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-21.12.00}-devel-node${NODE_VERSION:-16.10.0}-cudagl${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-base-${ARCH:-amd64}
-    build:
-      <<: *base_build_settings
-      dockerfile: dockerfiles/devel/01-base.Dockerfile
-      args:
-        UID: ${UID:-1000}
-        NODE_VERSION: ${NODE_VERSION:-16.10.0}
-        ADDITIONAL_GROUPS: "${ARCH_USER_GROUPS:---groups sudo}"
-        FROM_IMAGE: ${ARCH_BASE_IMAGE:-}
-        FROM_IMAGE_DEFAULT: nvidia/cudagl:${CUDA_VERSION:-11.4.2}-devel-${LINUX_VERSION:-ubuntu20.04}
 
   main:
     <<: *main_service_settings
     image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-21.12.00}-devel-node${NODE_VERSION:-16.10.0}-cudagl${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-main-${ARCH:-amd64}
     build:
       <<: *base_build_settings
-      dockerfile: dockerfiles/devel/02-main.Dockerfile
+      dockerfile: dockerfiles/devel/main.Dockerfile
       args:
+        NODE_VERSION: ${NODE_VERSION:-16.10.0}
+        ADDITIONAL_GROUPS: "${ARCH_USER_GROUPS:-}"
+        FROM_IMAGE: ${ARCH_BASE_IMAGE:-}
+        FROM_IMAGE_DEFAULT: nvidia/cudagl:${CUDA_VERSION:-11.4.2}-devel-${LINUX_VERSION:-ubuntu20.04}
         SCCACHE_REGION: "${SCCACHE_REGION:-}"
         SCCACHE_BUCKET: "${SCCACHE_BUCKET:-}"
-        SCCACHE_CACHE_SIZE: "${SCCACHE_CACHE_SIZE:-}"
         SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-}"
         AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
         AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-21.12.00}-devel-node${NODE_VERSION:-16.10.0}-cudagl${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-base-${ARCH:-amd64}
 
-  nteract:
-    <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-21.12.00}-devel-node${NODE_VERSION:-16.10.0}-cudagl${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-nteract-${ARCH:-amd64}
+  packages:
+    <<: *base_service_settings
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-21.12.00}-devel-node${NODE_VERSION:-16.10.0}-cudagl${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-packages-${ARCH:-amd64}
     build:
       <<: *base_build_settings
-      dockerfile: dockerfiles/devel/03-nteract.Dockerfile
+      dockerfile: dockerfiles/devel/package.Dockerfile
+      args:
+        PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
+        RAPIDS_VERSION: "${RAPIDS_VERSION:-21.12.00}"
+        SCCACHE_REGION: "${SCCACHE_REGION:-us-west-2}"
+        SCCACHE_BUCKET: "${SCCACHE_BUCKET:-node-rapids-sccache}"
+        SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-32768}"
+        AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
+        AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-21.12.00}-devel-node${NODE_VERSION:-16.10.0}-cudagl${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-main-${ARCH:-amd64}
+
+  notebook:
+    <<: *main_service_settings
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-21.12.00}-devel-node${NODE_VERSION:-16.10.0}-cudagl${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-notebook-${ARCH:-amd64}
+    build:
+      <<: *base_build_settings
+      dockerfile: dockerfiles/devel/notebook.Dockerfile
       args:
         FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-21.12.00}-devel-node${NODE_VERSION:-16.10.0}-cudagl${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-main-${ARCH:-amd64}
     environment:
       <<: *main_environment_settings
       QT_AUTO_SCREEN_SCALE_FACTOR: 0
-    command: nteract
