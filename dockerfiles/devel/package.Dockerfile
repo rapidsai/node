@@ -33,6 +33,8 @@ COPY --chown=rapids:rapids yarn.lock     yarn.lock
 COPY --chown=rapids:rapids scripts       scripts
 COPY --chown=rapids:rapids modules       modules
 
+USER root
+
 RUN --mount=type=secret,id=sccache_credentials \
     if [ -f /run/secrets/sccache_credentials ]; then set -a; . /run/secrets/sccache_credentials; set +a; fi; \
     echo -e "build context:\n$(find .)" \
@@ -50,6 +52,9 @@ SCCACHE_IDLE_TIMEOUT=$SCCACHE_IDLE_TIMEOUT\n\
  && yarn dev:npm:pack \
  && yarn cache clean \
  && cp build/*.tgz ../ \
- && cd .. && rm -rf node
+ && cd .. && rm -rf node \
+ && chown -R rapids:rapids .
+
+USER rapids
 
 WORKDIR /home/node
