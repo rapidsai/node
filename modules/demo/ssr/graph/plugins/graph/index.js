@@ -69,7 +69,9 @@ function graphSSRClients(fastify) {
       peer: peer,
     };
 
-    // if (clients[stream.id].graph !== {}) {
+    if (clients[stream.id].graph !== {}) {
+      peer.send(JSON.stringify({type: 'data', data: 'newQuery'}));
+    }
     //   if (clients[stream.id].graph.dataframes[0]) {
     //     const res = getPaginatedRows(clients[stream.id].graph.dataframes[0]);
     //     peer.send(JSON.stringify({
@@ -139,17 +141,8 @@ function layoutAndRenderGraphs(clients) {
   return () => {
     for (const id in clients) {
       const client = clients[id];
-      const sendToClient =
-        ([nodes, edges]) => {
-          client.peer.send(JSON.stringify(
-            {type: 'data', data: {nodes: {data: getPaginatedRows(nodes), length: nodes.numRows}}}));
-          client.peer.send(JSON.stringify(
-            {type: 'data', data: {edges: {data: getPaginatedRows(edges), length: edges.numRows}}}));
-        }
 
-      if (client.isRendering) {
-        continue;
-      }
+      if (client.isRendering) { continue; }
 
       if (client.graph == {}) { continue; }
 
@@ -215,24 +208,16 @@ function layoutAndRenderGraphs(clients) {
               result.state.clearSelections = false;
 
               // reset selected state
-              result.state.selectedInfo.selectedNodes       = [];
-              result.state.selectedInfo.selectedEdges       = [];
+              result.state.selectedInfo.nodes               = [];
+              result.state.selectedInfo.edges               = [];
               result.state.selectedInfo.selectedCoordinates = {};
               result.state.boxSelectCoordinates.rectdata    = [{polygon: [[]], show: false}];
 
               // send to client
-              sendToClient([client.data.nodes.dataframe, client.data.edges.dataframe]);
+              client.peer.send(JSON.stringify({type: 'data', data: 'newQuery'}));
             } else if (JSON.stringify(client.state.selectedInfo.selectedCoordinates) !==
                        JSON.stringify(result.state.selectedInfo.selectedCoordinates)) {
-              // selections updated
-              const nodes =
-                Series.new({type: new Int32, data: result.state.selectedInfo.selectedNodes});
-              const edges =
-                Series.new({type: new Int32, data: result.state.selectedInfo.selectedEdges});
-              sendToClient([
-                client.data.nodes.dataframe.gather(nodes),
-                client.data.edges.dataframe.gather(edges)
-              ]);
+              client.peer.send(JSON.stringify({type: 'data', data: 'newQuery'}));
             }
             // copy result state to client's current state
             result?.state && Object.assign(client.state, result.state);

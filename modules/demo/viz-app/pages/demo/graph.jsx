@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import { Form, Col, Row } from 'react-bootstrap';
 import React from 'react';
 import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 import HeaderUnderline from '../../components/demo-dashboard/header-underline/header-underline';
 import ExtendedTable from '../../components/demo-dashboard/extended-table/extended-table';
 import ToolBar from '../../components/demo-dashboard/tool-bar/tool-bar';
 
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import { Form, Col, Row } from 'react-bootstrap';
 import { io } from "socket.io-client";
 import SimplePeer from "simple-peer";
 import wrtc from 'wrtc';
@@ -90,6 +90,8 @@ export default class Graph extends React.Component {
     this.dataTable = this.dataTable.bind(this);
     this.dataMetrics = this.dataMetrics.bind(this);
     this.videoRef = React.createRef();
+    this.fetchIdRef = React.createRef(0);
+
     this.peerConnected = false;
     this.state = {
       nodes: {
@@ -121,7 +123,17 @@ export default class Graph extends React.Component {
         color: "", bundle: "", id: ""
       },
       gpuLoadStatus: "not loaded",
-      forceAtlas2: false
+      forceAtlas2: false,
+      nodesPageInfo: {
+        pageIndex: 0,
+        pageSize: 10,
+        controlledPageCount: 100
+      },
+      edgesPageInfo: {
+        pageIndex: 0,
+        pageSize: 10,
+        controlledPageCount: 100
+      }
     }
   }
 
@@ -155,29 +167,13 @@ export default class Graph extends React.Component {
       this.peerConnected = true;
     });
 
-    function processColumns(columnObject) {
-      return Object.keys(columnObject).reduce(
-        (prev, curr) => {
-          return prev.concat([{ "Header": curr, "accessor": curr }]);
-        }, []);
-    }
-
     this.peer.on('data', (data) => {
-      const decodedjson = JSON.parse(new TextDecoder().decode(data));
-      const keys = Object.keys(decodedjson.data);
-      keys.forEach((key) => {
-        if (['edges', 'nodes'].includes(key) && decodedjson.data[[key]].data.length > 0) {
-          this.setState({
-            [key]: {
-              tableColumns: processColumns(decodedjson.data[[key]].data[0]),
-              tableData: decodedjson.data[[key]].data,
-              length: decodedjson.data[[key]].length
-            }
-          });
-        }
-      });
-
-
+      var decoded = new TextDecoder().decode(data);
+      var decodedjson = JSON.parse(decoded);
+      console.log(decodedjson)
+      if (decodedjson.data == "newQuery") {
+        this.fetchCurrentData();
+      }
     });
 
     this.dispatchRemoteEvent(this.videoRef.current, 'blur');
@@ -204,8 +200,6 @@ export default class Graph extends React.Component {
     });
   }
 
-
-
   demoView() {
     return (
       <div style={{ width: "2000px", height: "500px", display: "flex" }}>
@@ -230,6 +224,48 @@ export default class Graph extends React.Component {
     );
   }
 
+  async fetchPaginatedData(pageIndex, pageSize, dataframe) {
+    function processColumns(columnObject) {
+      return Object.keys(columnObject).reduce(
+        (prev, curr) => {
+          return prev.concat([{ "Header": curr, "accessor": curr }]);
+        }, []);
+    }
+
+    const fetchId = ++this.fetchIdRef.current;
+
+    if (fetchId === this.fetchIdRef.current) {
+      await axios.post('http://localhost:8080/fetchPaginatedData', {
+        id: this.socket.id,
+        pageIndex: pageIndex + 1,
+        pageSize: pageSize,
+        dataframe: dataframe
+      }).then((response) => {
+        this.setState({
+          [dataframe]: {
+            tableColumns: processColumns(response.data.page[0]),
+            tableData: response.data.page,
+            length: response.data.numRows
+          },
+        });
+        this.updatePages();
+      }).catch((err) => {
+        console.log(err);
+      })
+    }
+  }
+
+  updatePages() {
+    this.setState({
+      nodesPageInfo: {
+        ...this.state.nodesPageInfo, ...{ controlledPageCount: parseInt(this.state.nodes.length / this.state.nodesPageInfo.pageSize) }
+      },
+      edgesPageInfo: {
+        ...this.state.edgesPageInfo, ...{ controlledPageCount: parseInt(this.state.edges.length / this.state.edgesPageInfo.pageSize) }
+      }
+    });
+  }
+
   dataTable() {
     return (
       <Tabs>
@@ -242,12 +278,26 @@ export default class Graph extends React.Component {
           <ExtendedTable
             cols={this.state.nodes.tableColumns}
             data={this.state.nodes.tableData}
+            fetchPaginatedData={({ pageIndex, pageSize }) => {
+              this.setState({
+                nodesPageInfo: { pageIndex: pageIndex, pageSize: pageSize }
+              });
+              this.fetchPaginatedData(pageIndex, pageSize, "nodes");
+            }}
+            controlledPageCount={this.state.nodesPageInfo.controlledPageCount}
           />
         </TabPanel>
         <TabPanel>
           <ExtendedTable
             cols={this.state.edges.tableColumns}
             data={this.state.edges.tableData}
+            controlledPageCount={this.state.edgesPageInfo.controlledPageCount}
+            fetchPaginatedData={({ pageIndex, pageSize }) => {
+              this.setState({
+                edgesPageInfo: { pageIndex: pageIndex, pageSize: pageSize }
+              });
+              this.fetchPaginatedData(pageIndex, pageSize, "edges");
+            }}
           />
         </TabPanel>
       </Tabs>
@@ -305,17 +355,21 @@ export default class Graph extends React.Component {
         nodesParams: response.data.nodesParams,
         edgesParams: response.data.edgesParams,
         nodesRenderColumns: {
-          x: response.data.nodesParams[0],
-          y: response.data.nodesParams[0],
-          color: response.data.nodesParams[0],
-          size: response.data.nodesParams[0],
-          id: response.data.nodesParams[0]
+          x: response.data.nodesParams.includes('x') ? '' : response.data.nodesParams[0],
+          y: response.data.nodesParams.includes('y') ? '' : response.data.nodesParams[0],
+          color: response.data.nodesParams.includes('color') ? 'color' : response.data.nodesParams[0],
+          size: response.data.nodesParams.includes('size') ? 'size' : response.data.nodesParams[0],
+          id: response.data.nodesParams.includes('id') ? 'id' : response.data.nodesParams[0]
         },
         edgesRenderColumns: {
-          src: response.data.edgesParams[0], dst: response.data.edgesParams[0],
-          color: response.data.edgesParams[0], bundle: response.data.edgesParams[0], id: response.data.edgesParams[0]
+          src: response.data.edgesParams.includes('src') ? 'src' : response.data.edgesParams[0],
+          dst: response.data.edgesParams.includes('dst') ? 'dst' : response.data.edgesParams[0],
+          color: response.data.edgesParams.includes('color') ? 'color' : response.data.edgesParams[0],
+          bundle: response.data.edgesParams.includes('bundle') ? 'bundle' : response.data.edgesParams[0],
+          id: response.data.edgesParams.includes('edge') ? 'edge' : response.data.edgesParams[0]
         }
       });
+      console.log(this.state.nodesRenderColumns);
     }).catch((error) => { }).then(() => { });
   }
 
@@ -328,7 +382,9 @@ export default class Graph extends React.Component {
       }
     }).then((response) => {
       this.setState({
-        gpuLoadStatus: response.data
+        nodes: { ...this.state.nodes, ...{ length: response.data.nodes } },
+        edges: { ...this.state.edges, ...{ length: response.data.edges } },
+        gpuLoadStatus: "success"
       });
     }).catch((error) => {
       this.setState({
@@ -407,6 +463,16 @@ export default class Graph extends React.Component {
     </div >)
   }
 
+  fetchCurrentData() {
+    this.fetchPaginatedData(
+      this.state.nodesPageInfo.pageIndex, this.state.nodesPageInfo.pageSize, "nodes");
+    this.fetchPaginatedData(
+      this.state.edgesPageInfo.pageIndex, this.state.edgesPageInfo.pageSize, "edges");
+    this.updatePages();
+  }
+
+
+
   onRenderClick() {
     axios.post("http://localhost:8080/updateRenderColumns", {
       nodes: this.state.nodesRenderColumns,
@@ -416,6 +482,8 @@ export default class Graph extends React.Component {
       console.log("success");
     }).catch((error) => {
       console.log("error");
+    }).then(() => {
+      this.fetchCurrentData();
     })
   }
   render() {

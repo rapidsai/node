@@ -1,26 +1,26 @@
-const {graphs, clients}      = require('../graph');
-const fs                     = require('fs')
-const util                   = require('util')
-const {pipeline}             = require('stream')
-const pump                   = util.promisify(pipeline)
-var glob                     = require('glob');
-const {Float32Buffer}        = require('@rapidsai/cuda');
-const {GraphCOO}             = require('@rapidsai/cugraph');
-const {DataFrame, Uint32}    = require('@rapidsai/cudf');
-const {loadEdges, loadNodes} = require('../graph/loader');
+const {graphs, clients}          = require('../graph');
+const fs                         = require('fs')
+const util                       = require('util')
+const {pipeline}                 = require('stream')
+const pump                       = util.promisify(pipeline)
+var glob                         = require('glob');
+const {Float32Buffer}            = require('@rapidsai/cuda');
+const {GraphCOO}                 = require('@rapidsai/cugraph');
+const {DataFrame, Series, Int32} = require('@rapidsai/cudf');
+const {loadEdges, loadNodes}     = require('../graph/loader');
+const {RecordBatchStreamWriter}  = require('apache-arrow');
 
 function readDataFrame(path) {
-  let df = new DataFrame({});
   if (path.indexOf('.csv', path.length - 4) !== -1) {
     // csv file
-    df = DataFrame.readCSV({sources: [path], header: 0, sourceType: 'files'});
+    return DataFrame.readCSV({sources: [path], header: 0, sourceType: 'files'});
 
   } else if (path.indexOf('.parquet', path.length - 8) !== -1) {
     // csv file
-    df = DataFrame.readParquet({sources: [path]});
+    return DataFrame.readParquet({sources: [path]});
   }
-  if (df.names.includes('Unnamed: 0')) { df = df.cast({'Unnamed: 0': new Uint32}); }
-  return df;
+  // if (df.names.includes('Unnamed: 0')) { df = df.cast({'Unnamed: 0': new Uint32}); }
+  return new DataFrame({});
 }
 
 async function getNodesForGraph(asDeviceMemory, nodes, numNodes) {
@@ -57,6 +57,12 @@ async function getEdgesForGraph(asDeviceMemory, edges) {
 
   if (edges.dataframe.names.includes(edges.color)) {
     edgesRes.edgeColors = asDeviceMemory(edges.dataframe.get(edges.color).data);
+  } else {
+    edgesRes.edgeColors = asDeviceMemory(
+      Series
+        .sequence(
+          {type: new Uint64, size: edges.dataframe.numRows, init: 18443486512814075489n, step: 0})
+        .data);
   }
   if (edges.dataframe.names.includes(edges.id)) {
     edgesRes.edgeList = asDeviceMemory(edges.dataframe.get(edges.id).data);
@@ -67,13 +73,17 @@ async function getEdgesForGraph(asDeviceMemory, edges) {
   return edgesRes;
 }
 
-module.exports = function(fastify, opts, done) {
-  fastify.register(require('fastify-multipart'))
-  fastify.register(require('fastify-cors'),
-                   {
-                     // put your options here
-                   });
+async function getPaginatedRows(df, pageIndex = 1, pageSize = 400, selected = []) {
+  console.log(selected);
+  if (selected.length == 0) {
+    return [df.head(pageIndex * pageSize).tail(pageSize).toArrow(), df.numRows];
+  }
+  const selectedSeries = Series.new({type: new Int32, data: selected});
+  let dfUpdated        = df.gather(selectedSeries);
+  return [dfUpdated.head(pageIndex * pageSize).tail(pageSize).toArrow(), dfUpdated.numRows];
+}
 
+module.exports = function(fastify, opts, done) {
   // fastify.addHook('preValidation', (request, reply, done) => {
   //   console.log('this is executed', request);
   //   done()
@@ -157,7 +167,13 @@ module.exports = function(fastify, opts, done) {
         fastify[clients][id].data.nodes.dataframe = await loadNodes();
         fastify[clients][id].data.edges.dataframe = await loadEdges();
       }
-      reply.send('successfully loaded in GPU Memory');
+      if (fastify[clients][id].data.nodes.dataframe.numRows == 0) {
+        reply.code(500).send('no dataframe loaded');
+      }
+      reply.send(JSON.stringify({
+        'nodes': fastify[clients][id].data.nodes.dataframe.numRows,
+        'edges': fastify[clients][id].data.edges.dataframe.numRows
+      }));
     }
     else {
       reply.code(500).send('client handshake not established');
@@ -182,9 +198,35 @@ module.exports = function(fastify, opts, done) {
       Object.assign(fastify[clients][id].data.nodes, request.body.nodes);
       Object.assign(fastify[clients][id].data.edges, request.body.edges);
       fastify[clients][id].graph = await loadGraph('default', fastify[clients][id].data);
+      reply.code(200).send();
     } else {
       reply.code(500).send('client handshake not established');
     }
   });
+
+  fastify.post('/fetchPaginatedData', async (request, reply) => {
+    const id = `${request.body.id}:video`;
+    if (id in fastify[clients]) {
+      const pageIndex = request.body.pageIndex;
+      const pageSize  = request.body.pageSize;
+      const dataframe = request.body.dataframe;  //{'nodes', 'edges'}
+      const [res, numRows] =
+        await getPaginatedRows(fastify[clients][id].data[dataframe].dataframe,
+                               pageIndex,
+                               pageSize,
+                               fastify[clients][id].state.selectedInfo[dataframe]);
+
+      reply.send(JSON.stringify({page: res.toArray(), numRows: numRows}));
+      // try {
+      //   // RecordBatchStreamWriter.writeAll(res).pipe(reply.stream());
+      // } catch (err) {
+      //   request.log.error({err}, '/run_query error');
+      //   reply.code(500).send(err);
+      // }
+    } else {
+      reply.code(500).send('client handshake not established');
+    }
+  });
+
   done();
 }

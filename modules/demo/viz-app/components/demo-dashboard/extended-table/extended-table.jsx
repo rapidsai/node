@@ -16,8 +16,8 @@ import React from 'react';
 import { useTable, useSortBy, usePagination } from 'react-table';
 import styles from './extended-table.module.css';
 
-export default function ExtendedTable({ cols, data }) {
-  const columns = cols;
+export default function ExtendedTable({ cols, data, fetchPaginatedData, controlledPageCount }) {
+  const columns = React.useMemo(() => cols);
 
   const {
     getTableProps,
@@ -25,7 +25,6 @@ export default function ExtendedTable({ cols, data }) {
     headerGroups,
     page,
     prepareRow,
-
     canPreviousPage,
     canNextPage,
     pageOptions,
@@ -38,8 +37,18 @@ export default function ExtendedTable({ cols, data }) {
   } = useTable({
     columns,
     data,
-    initialState: { pageIndex: 0 },
+    pageCount: controlledPageCount,
+    initialState: {
+      pageIndex: 0,
+    },
+    manualPagination: true,
+    autoResetPage: false,
   }, useSortBy, usePagination);
+
+
+  React.useEffect(() => {
+    fetchPaginatedData({ pageIndex, pageSize })
+  }, [pageIndex, pageSize]);
 
   return (
     <>

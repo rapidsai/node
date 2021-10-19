@@ -19,6 +19,9 @@ const fastify = require('fastify')();
 fastify  //
   .register(require('./plugins/webrtc'), require('./plugins/graph')(fastify))
   .register(require('fastify-static'), {root: require('path').join(__dirname, 'public')})
+  .register(require('fastify-multipart'))
+  .register(require('fastify-cors'), {})
+  .register((require('fastify-arrow')))
   .register(require('./plugins/api'))
   .get('/', (req, reply) => reply.sendFile('video.html'))
 

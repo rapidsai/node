@@ -189,17 +189,15 @@ function makeDeck() {
         layerIds: ['GraphLayer']
       };
 
-      deck.selectedInfo.selectedNodes = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
-                                          .filter(selected => selected.hasOwnProperty('nodeId'))
-                                          .map(n => n.nodeId);
+      deck.selectedInfo.nodes = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
+                                  .filter(selected => selected.hasOwnProperty('nodeId'))
+                                  .map(n => n.nodeId);
 
-      deck.selectedInfo.selectedEdges = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
-                                          .filter(selected => selected.hasOwnProperty('edgeId'))
-                                          .map(n => n.edgeId);
-      console.log('selected Nodes',
-                  deck.selectedInfo.selectedNodes,
-                  '\nselected Edges',
-                  deck.selectedInfo.selectedEdges);
+      deck.selectedInfo.edges = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
+                                  .filter(selected => selected.hasOwnProperty('edgeId'))
+                                  .map(n => n.edgeId);
+      console.log(
+        'selected Nodes', deck.selectedInfo.nodes, '\nselected Edges', deck.selectedInfo.edges);
     }
 
   const onDrag = (info, event) => {
@@ -219,12 +217,11 @@ function makeDeck() {
       y: info.y,
       radius: 1,
     };
-    deck.selectedInfo.selectedNodes =
-      [deck.pickObject(deck.selectedInfo.selectedCoordinates)]
-        .filter(selected => selected && selected.hasOwnProperty('nodeId'))
-        .map(n => n.nodeId);
+    deck.selectedInfo.nodes = [deck.pickObject(deck.selectedInfo.selectedCoordinates)]
+                                .filter(selected => selected && selected.hasOwnProperty('nodeId'))
+                                .map(n => n.nodeId);
 
-    console.log(deck.selectedInfo.selectedNodes, deck.selectedInfo.selectedCoordinates);
+    console.log(deck.selectedInfo.nodes, deck.selectedInfo.selectedCoordinates);
   };
 
   const deck = new DeckSSR({
