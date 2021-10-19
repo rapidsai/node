@@ -23,7 +23,7 @@ The latest manifest is available at the [GitHub container registry page](https:/
 
 ## Retrieving the runtime images
 
-The following will retrieve each library (+ its native and JS dependencies) installed into `/home/node/node_modules`:
+The following will retrieve the docker image with each library (+ its native and JS dependencies) installed into the image's `/home/node/node_modules`:
 
 ```bash
 REPO=ghcr.io/rapidsai/node
@@ -89,13 +89,13 @@ docker run --rm \
 
 ## Extracting the packaged artifacts
 
-We also publish the container of npm-packed `.tgz` artifacts that are installed into each runtime image.
+We also publish the container of npm-packed `.tgz` artifacts installed into each runtime image.
 
 You can use the following technique to install the npm-packed modules into another container or bare-metal cloud instance, provided you also install any runtime dependencies (a gcc-9-compatible `libstdc++`, matching CUDA Toolkit, etc.) needed by the module.
 
 ```bash
 REPO=ghcr.io/rapidsai/node
-VERSIONS="21.12.00-runtime-node16.10.0-cudagl11.4.2-ubuntu20.04"
+VERSIONS="21.12.00-devel-node16.10.0-cudagl11.4.2-ubuntu20.04"
 
 # Pull the latest image of the packaged .tgz artifacts
 docker pull $REPO:$VERSIONS-packages-amd64
