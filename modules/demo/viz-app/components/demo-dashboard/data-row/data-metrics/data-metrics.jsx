@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import React from 'react';
-import styles from './data-metrics.module.css';
+import styles from '../data-container.module.css';
 
 export default function DataMetrics({ source }) {
   return (
