@@ -32,7 +32,7 @@ import {
 import {defaultContextConfigValues} from './config';
 import {ExecutionGraph} from './graph';
 import {json_plan_py} from './json_plan';
-import {DataFrameTable, SQLTable} from './table';
+import {DataFrameTable, FileTable, SQLTable} from './SQLTable';
 
 export class SQLContext {
   public readonly context: Context;
@@ -79,10 +79,10 @@ export class SQLContext {
   public get id() { return this.context.id; }
 
   /**
-   * Create a SQL table to be used for future queries.
+   * Create a SQL table from CUDF DataFrames.
    *
    * @param tableName Name of the table when referenced in a query
-   * @param input DataFrame or paths to CSV files
+   * @param input DataFrame
    *
    * @example
    * ```typescript
@@ -97,22 +97,34 @@ export class SQLContext {
    * sqlContext.createTable('test_table', df);
    * ```
    */
-  createTable(tableName: string, input: DataFrame|string[]): void {
-    callMethodSync(this._db, 'removeTable', tableName);
+  createDataFrameTable(tableName: string, input: DataFrame): void {
+    this._createTable(new DataFrameTable(tableName, input));
+  }
 
-    const table = new SQLTable(tableName, input);
-    this._tables.set(tableName, table);
+  // TODO: Write docs for this.
+  createCSVTable(tableName: string, input: string[]): void {
+    this._createTable(new FileTable(tableName, input, 'csv'));
+  }
+
+  // TODO: Write docs for this.
+  createParquetTable(tableName: string, input: string[]): void {
+    this._createTable(new FileTable(tableName, input, 'parquet'));
+  }
+
+  private _createTable(input: SQLTable): void {
+    callMethodSync(this._db, 'removeTable', input.tableName);
+    this._tables.set(input.tableName, input);
 
     const arr = ArrayList();
-    table.tableSource.names.forEach((name: string, index: number) => {
+    input.names.forEach((name: string, index: number) => {
       const dataType =
         callStaticMethodSync('com.blazingdb.calcite.catalog.domain.CatalogColumnDataType',
                              'fromTypeId',
-                             table.tableSource.type(name).typeId);
+                             input.type(name).typeId);
       const column = CatalogColumnImpl([name, dataType, index]);
       callMethodSync(arr, 'add', column);
     });
-    const tableJava = CatalogTableImpl([tableName, this._db, arr]);
+    const tableJava = CatalogTableImpl([input.tableName, this._db, arr]);
     callMethodSync(this._db, 'addTable', tableJava);
     this._schema    = BlazingSchema(this._db);
     this._generator = RelationalAlgebraGenerator(this._schema);
@@ -186,9 +198,8 @@ export class SQLContext {
   public describeTable(tableName: string): Map<string, DataType> {
     const table = this._tables.get(tableName);
     if (table === undefined) { return new Map(); }
-    return table.tableSource.names.reduce(
-      (m: Map<string, DataType>, name: string) => m.set(name, table.tableSource.type(name)),
-      new Map());
+    return table.names.reduce(
+      (m: Map<string, DataType>, name: string) => m.set(name, table.type(name)), new Map());
   }
 
   /**
@@ -238,10 +249,10 @@ export class SQLContext {
     tableNames.forEach((tableName: string) => {
       const table = this._tables.get(tableName);
       if (table !== undefined) {
-        if (table.tableSource instanceof DataFrameTable) {
-          selectedDataFrames.push(table.tableSource.getSource());
+        if (table instanceof DataFrameTable) {
+          selectedDataFrames.push(table.getSource());
         } else {
-          selectedSchemas.push(table.tableSource.getSource());
+          selectedSchemas.push(table.getSource());
         }
       }
     });

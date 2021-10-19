@@ -27,7 +27,7 @@ test('create, list, describe, and drop CSV table', async () => {
   await promises.writeFile(path, makeCSVString({rows}));
 
   const sqlContext = new SQLContext();
-  sqlContext.createTable('test_table', [path]);
+  sqlContext.createCSVTable('test_table', [path]);
 
   expect(sqlContext.listTables()).toEqual(['test_table']);
 
@@ -49,7 +49,7 @@ test('query CSV table', async () => {
   await promises.writeFile(path, makeCSVString({rows}));
 
   const sqlContext = new SQLContext();
-  sqlContext.createTable('test_table', [path]);
+  sqlContext.createCSVTable('test_table', [path]);
 
   await expect(sqlContext.sql('SELECT c FROM test_table').result()).resolves.toStrictEqual([
     new DataFrame({'c': Series.new(['foo', 'bar', 'foo'])})

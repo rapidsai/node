@@ -13,14 +13,14 @@
 // limitations under the License.
 
 import {DataFrame, Table} from '@rapidsai/cudf';
-import {ParsedSchema} from './table';
+import {ParsedSchema} from './SQLTable';
 
 export declare function getTableScanInfo(logicalPlan: string): [string[], string[]];
 
 export declare function runGeneratePhysicalGraph(
   workerIds: string[], ctxToken: number, query: string): string;
 
-export declare function parseSchema(input: string[]): ParsedSchema;
+export declare function parseSchema(input: string[], fileType: string): ParsedSchema;
 
 export type WorkerUcpInfo = {
   id: number;    //

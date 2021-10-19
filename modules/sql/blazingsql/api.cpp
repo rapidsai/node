@@ -171,6 +171,8 @@ ExecutionGraph::wrapper_t run_generate_graph(
     uri_values.push_back({});
   }
 
+  std::cout << "got here!" << std::endl;
+
   for (std::size_t i = 0; i < schemas.Length(); ++i) {
     NapiToCPP::Object schema = schemas.Get(i);
 
@@ -238,7 +240,6 @@ Napi::Value parse_schema(Napi::Env const& env,
                          bool const& ignoreMissingFiles) {
   auto table_schema = ::parseSchema(input, file_format, {}, {}, {}, ignoreMissingFiles);
 
-  // TODO: We could probably make a Table js/c++ object here.
   auto result = Napi::Object::New(env);
 
   auto files = Napi::Array::New(env, table_schema.files.size());

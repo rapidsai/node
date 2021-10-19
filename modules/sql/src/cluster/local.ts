@@ -36,11 +36,11 @@ export class LocalSQLWorker implements Worker {
 
   public async createTable(name: string, table_id: string) {
     const table = await this.context.pull(table_id);
-    this.context.createTable(name, table);
+    this.context.createDataFrameTable(name, table);
   }
 
   public async createCSVTable(name: string, paths: string[]) {
-    await this.context.createTable(name, paths);
+    await this.context.createCSVTable(name, paths);
   }
 
   public async dropTable(name: string) { await this.context.dropTable(name); }

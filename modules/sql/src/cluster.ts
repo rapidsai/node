@@ -130,9 +130,9 @@ export class SQLCluster {
       // TODO: This logic needs to be reworked. We split up the .csv files among the workers.
       // There is a possibility a worker does not get a .csv file, therefore we need to give it an
       // empty DataFrame.
-      const {types, names} = parseSchema(input);
+      const {types, names} = parseSchema(input, 'csv');  // TODO: MZEGAR Fix before merge.
       const empty          = new DataFrame(
-        names.reduce((xs, name, i) => ({
+        names.reduce((xs: any, name: any, i: any) => ({
                        ...xs,
                        [name]: Series.new({type: arrowToCUDFType(types[i]), data: []}),
                      }),

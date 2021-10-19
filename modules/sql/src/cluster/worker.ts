@@ -28,11 +28,11 @@ function dropTable({name}: {name: string}) { context.dropTable(name); }
 
 async function createTable({name, table_id}: {name: string, table_id: string}) {
   const table = await context.pull(table_id);
-  context.createTable(name, table);
+  context.createDataFrameTable(name, table);
 }
 
 function createCSVTable({name, paths}: {name: string, paths: string[]}) {
-  context.createTable(name, paths);
+  context.createCSVTable(name, paths);
 }
 
 async function sql({query, token, destinationId}:
