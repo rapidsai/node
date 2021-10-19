@@ -131,9 +131,10 @@ module.exports = function(fastify, opts, done) {
   });
 
   fastify.post('/uploadFile', async function(req, reply) {
-    const data = await req.file();
-
-    const filepath = `${__dirname}/../../data/${data.filename}`;
+    const data     = await req.file();
+    const basePath = `${__dirname}/../../data/`;
+    if (!fs.existsSync(basePath)) { fs.mkdirSync(basePath); }
+    const filepath = `${basePath}${data.filename}`;
     const target = fs.createWriteStream(filepath);
     try {
       await pump(data.file, target);
