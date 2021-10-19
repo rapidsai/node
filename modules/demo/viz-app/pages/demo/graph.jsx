@@ -21,7 +21,6 @@ import ToolBar from '../../components/demo-dashboard/tool-bar/tool-bar';
 
 import { io } from "socket.io-client";
 import SimplePeer from "simple-peer";
-import wrtc from 'wrtc';
 
 function onlyH264(sdp) {
   // remove non-h264 codecs from the supported codecs list
@@ -107,7 +106,6 @@ export default class Graph extends React.Component {
     console.log(this.videoRef.current.width);
     this.socket = io("localhost:8080", { transports: ['websocket'], reconnection: true, query: { width: this.videoRef.current.width, height: this.videoRef.current.height } });
     this.peer = new SimplePeer({
-      wrtc: wrtc,
       trickle: true,
       initiator: true,
       sdpTransform: (sdp) => {
