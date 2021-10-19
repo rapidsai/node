@@ -30,9 +30,15 @@ export function createImport(require: Require,
     try {
       // Try importing as CJS first
       return await tryRequire(path, opts);
-    } catch (e) {
+    } catch (e1) {
       // If CJS throws, try importing as ESM
-      return await tryImport(path, opts);
+      try {
+        return await tryImport(path, opts);
+      } catch (e2) {
+        throw new Error(`
+${String(e1?.stack ?? e1?.message ?? e1)}\n
+${String(e2?.stack ?? e2?.message ?? e2)}`);
+      }
     }
   }
 
