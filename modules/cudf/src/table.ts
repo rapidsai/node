@@ -215,9 +215,9 @@ export interface Table {
   writeCSV(options: TableWriteCSVOptions): void;
 
   /**
-   * Write this Table to Parquet file format.
-   * @param filePath Where to save the Parquet file.
-   * @param options Settings for controlling writing behavior.
+   * Write a Table to parquet file format.
+   * @param filePath File path or root directory path.
+   * @param options Options controlling parquet writing behavior.
    */
   writeParquet(filePath: string, options: TableWriteParquetOptions): void;
 

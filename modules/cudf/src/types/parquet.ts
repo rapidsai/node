@@ -41,7 +41,6 @@ export interface ReadParquetBufferOptions extends ReadParquetOptionsCommon {
 export type ReadParquetOptions = ReadParquetFileOptions|ReadParquetBufferOptions;
 
 export interface WriteParquetOptions {
-  column_names?: string[];
   /** The name of compression to use (default 'snappy'). */
   compression?: 'snappy';
   /** Write timestamps in int96 format (default 'false'). */

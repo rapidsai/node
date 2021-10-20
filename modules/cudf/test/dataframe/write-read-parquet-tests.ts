@@ -12,13 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Float64Buffer, setDefaultAllocator} from '@rapidsai/cuda';
+import {Float64Buffer} from '@rapidsai/cuda';
 import {DataFrame, Float64, Series} from '@rapidsai/cudf';
-import {DeviceBuffer} from '@rapidsai/rmm';
 import {promises} from 'fs';
 import * as Path from 'path';
-
-setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
 test('writes and reads a Parquet', () => {
   const expected = new DataFrame({
