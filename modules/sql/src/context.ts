@@ -106,9 +106,21 @@ export class SQLContext {
     this._createTable(new FileTable(tableName, input, 'csv'));
   }
 
+  createPSVTable(tableName: string, input: string[]): void {
+    this._createTable(new FileTable(tableName, input, 'psv'));
+  }
+
   // TODO: Write docs for this.
   createParquetTable(tableName: string, input: string[]): void {
     this._createTable(new FileTable(tableName, input, 'parquet'));
+  }
+
+  createORCTable(tableName: string, input: string[]): void {
+    this._createTable(new FileTable(tableName, input, 'orc'));
+  }
+
+  createJSONTable(tableName: string, input: string[]): void {
+    this._createTable(new FileTable(tableName, input, 'json'));
   }
 
   private _createTable(input: SQLTable): void {

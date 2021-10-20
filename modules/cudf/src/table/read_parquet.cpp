@@ -62,6 +62,26 @@ Napi::Value read_parquet_files(Napi::Object const& options,
   return output;
 }
 
+std::vector<cudf::io::host_buffer> get_host_buffers(std::vector<Span<char>> const& sources) {
+  std::vector<cudf::io::host_buffer> buffers;
+  buffers.reserve(sources.size());
+  std::transform(sources.begin(), sources.end(), std::back_inserter(buffers), [&](auto const& buf) {
+    return cudf::io::host_buffer{buf.data(), buf.size()};
+  });
+  return buffers;
+}
+
+Napi::Value read_parquet_strings(Napi::Object const& options,
+                                 std::vector<Span<char>> const& sources) {
+  auto env    = options.Env();
+  auto result = cudf::io::read_parquet(
+    make_reader_options(options, cudf::io::source_info{get_host_buffers(sources)}));
+  auto output = Napi::Object::New(env);
+  output.Set("names", get_output_names_from_metadata(env, result));
+  output.Set("table", Table::New(env, get_output_cols_from_metadata(env, result)));
+  return output;
+}
+
 }  // namespace
 
 Napi::Value Table::read_parquet(Napi::CallbackInfo const& info) {
@@ -72,9 +92,11 @@ Napi::Value Table::read_parquet(Napi::CallbackInfo const& info) {
   auto options = info[0].As<Napi::Object>();
   auto sources = options.Get("sources");
 
-  NODE_CUDF_EXPECT(sources.IsArray(), "readParquet expects an Array of paths", env);
+  NODE_CUDF_EXPECT(sources.IsArray(), "readCSV expects an Array of paths or buffers", env);
   try {
-    return read_parquet_files(options, NapiToCPP{sources});
+    return (options.Get("sourceType").ToString().Utf8Value() == "files")
+             ? read_parquet_files(options, NapiToCPP{sources})
+             : read_parquet_strings(options, NapiToCPP{sources});
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
 }
 

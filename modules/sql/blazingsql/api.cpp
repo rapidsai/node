@@ -171,14 +171,15 @@ ExecutionGraph::wrapper_t run_generate_graph(
     uri_values.push_back({});
   }
 
-  std::cout << "got here!" << std::endl;
-
   for (std::size_t i = 0; i < schemas.Length(); ++i) {
     NapiToCPP::Object schema = schemas.Get(i);
 
     std::vector<std::string> names               = schema.Get("names");
     std::vector<std::string> files               = schema.Get("files");
     std::vector<size_t> calcite_to_file_indicies = schema.Get("calciteToFileIndicies");
+
+    int file_type_int           = schema.Get("fileType");
+    ral::io::DataType file_type = ral::io::DataType(file_type_int);
 
     std::vector<int32_t> type_ints = schema.Get("types");
     std::vector<cudf::type_id> type_ids;
@@ -195,7 +196,7 @@ ExecutionGraph::wrapper_t run_generate_graph(
       names,                     // std::vector<std::string> names
       calcite_to_file_indicies,  // std::vector<size_t> calcite_to_file_indices
       {},                        // std::vector<bool> in_file
-      ral::io::DataType::CSV,    // int data_type
+      file_type,                 // int data_type
       has_header_csv,            // bool has_header_csv = false
       {cudf::table_view{}, {}},  // ral::frame::BlazingTableView metadata
       {{0}},                     // std::vector<std::vector<int>> row_groups_ids
@@ -204,7 +205,7 @@ ExecutionGraph::wrapper_t run_generate_graph(
     table_schema_cpp_arg_keys.push_back({"has_header_csv"});
     table_schema_cpp_arg_values.push_back({has_header_csv ? "True" : "False"});
     files_all.push_back(files);
-    file_types.push_back(ral::io::DataType::CSV);
+    file_types.push_back(file_type);
     uri_values.push_back({});
   }
 

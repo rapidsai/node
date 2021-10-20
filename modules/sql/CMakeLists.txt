@@ -118,6 +118,8 @@ target_link_libraries(blazingsql_wrapper
     PUBLIC  rmm::rmm
             cudf::cudf
     PRIVATE blazingdb::blazingsql-engine
+            "$ENV{CPM_BINARY_CACHE}/arrow-build/release/libparquet.so"
+            "$ENV{CPM_BINARY_CACHE}/arrow-build/release/libarrow_dataset.so"
     PUBLIC  "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
             "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
             "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node"

@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface ReadParquetOptions {
-  sources: string[];
+export interface ReadParquetOptionsCommon {
   /** The list of columns to read */
   columns?: string[];
   /** The number of rows to skip from the start of the file */
@@ -27,4 +26,24 @@ export interface ReadParquetOptions {
    * loaded.
    */
   usePandasMetadata?: boolean;
+}
+
+export interface ReadParquetFileOptions extends ReadParquetOptionsCommon {
+  sourceType: 'files';
+  sources: string[];
+}
+
+export interface ReadParquetBufferOptions extends ReadParquetOptionsCommon {
+  sourceType: 'buffers';
+  sources: (Uint8Array|Buffer)[];
+}
+
+export type ReadParquetOptions = ReadParquetFileOptions|ReadParquetBufferOptions;
+
+export interface WriteParquetOptions {
+  column_names?: string[];
+  /** The name of compression to use (default 'snappy'). */
+  compression?: 'snappy';
+  /** Write timestamps in int96 format (default 'false'). */
+  int96Timestamps?: boolean;
 }

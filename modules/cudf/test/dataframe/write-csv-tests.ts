@@ -20,7 +20,7 @@ import {makeCSVString, toStringAsync} from './utils';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
-describe('DataFrame.writeCSV', () => {
+describe('DataFrame.toCSV', () => {
   test('writes a CSV', async () => {
     const rows = [
       {a: 0, b: '1.0', c: '2'},

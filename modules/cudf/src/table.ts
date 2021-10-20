@@ -22,7 +22,7 @@ import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {TypeMap} from './types/mappings';
-import {ReadParquetOptions} from './types/parquet';
+import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
 
 export type ToArrowMetadata = [string | number, ToArrowMetadata[]?];
 
@@ -31,6 +31,11 @@ interface TableWriteCSVOptions extends WriteCSVOptions {
   next: (chunk: Buffer) => void;
   /** Callback invoked when writing is finished. */
   complete: () => void;
+  /** Column names to write in the header. */
+  columnNames?: string[];
+}
+
+interface TableWriteParquetOptions extends WriteParquetOptions {
   /** Column names to write in the header. */
   columnNames?: string[];
 }
@@ -208,6 +213,13 @@ export interface Table {
    * @param options Settings for controlling writing behavior.
    */
   writeCSV(options: TableWriteCSVOptions): void;
+
+  /**
+   * Write this Table to Parquet file format.
+   * @param filePath Where to save the Parquet file.
+   * @param options Settings for controlling writing behavior.
+   */
+  writeParquet(filePath: string, options: TableWriteParquetOptions): void;
 
   dropNans(keys: number[], threshold: number): Table;
   dropNulls(keys: number[], threshold: number): Table;

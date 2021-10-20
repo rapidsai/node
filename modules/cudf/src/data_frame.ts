@@ -42,7 +42,7 @@ import {
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
-import {ReadParquetOptions} from './types/parquet';
+import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
 
 export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
@@ -805,6 +805,19 @@ export class DataFrame<T extends TypeMap = any> {
       columnNames: this.names as string[],
     });
     return readable as AsyncIterable<string>;
+  }
+
+  /**
+   * Write a DataFrame to parquet format.
+   *
+   * @param filePath File path or root directory path.
+   * @param options Options controlling parquet writing behavior.
+   *
+   */
+  toParquet(filePath: string, options: WriteParquetOptions = {}) {
+    new Table({
+      columns: this._accessor.columns
+    }).writeParquet(filePath, {...options, columnNames: this.names as string[]});
   }
 
   /**
