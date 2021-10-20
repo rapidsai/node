@@ -42,7 +42,7 @@ export type ReadParquetOptions = ReadParquetFileOptions|ReadParquetBufferOptions
 
 export interface WriteParquetOptions {
   /** The name of compression to use (default 'snappy'). */
-  compression?: 'snappy';
+  compression?: 'snappy'|'none';
   /** Write timestamps in int96 format (default 'false'). */
   int96Timestamps?: boolean;
 }

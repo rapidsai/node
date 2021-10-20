@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Float64Buffer} from '@rapidsai/cuda';
-import {DataFrame, Float64, Series} from '@rapidsai/cudf';
+import {Float64Buffer, Int32Buffer} from '@rapidsai/cuda';
+import {DataFrame, Float64, Int32, Series} from '@rapidsai/cudf';
 import {promises} from 'fs';
 import * as Path from 'path';
 
 test('writes and reads a Parquet', () => {
   const expected = new DataFrame({
+    a: Series.new({length: 3, type: new Int32, data: new Int32Buffer([1, 2, 3])}),
     b: Series.new({length: 3, type: new Float64, data: new Float64Buffer([1.0, 2.0, 3.0])}),
     c: Series.new(['2', '3', '4']),
   });
@@ -39,7 +40,7 @@ let tmpDir = '';
 const rimraf = require('rimraf');
 
 beforeAll(async () => {  //
-  tmpDir = await promises.mkdtemp(Path.join('/tmp', 'node_sql'));
+  tmpDir = await promises.mkdtemp(Path.join('/tmp', 'node_cudf'));
 });
 
 afterAll(() => {

@@ -51,8 +51,9 @@ cudf::io::parquet_writer_options make_writer_options(Napi::Object const& options
 
   return std::move(cudf::io::parquet_writer_options::builder(sink, table)
                      .metadata(&metadata)
-                     .compression(has_opt("compression") ? cudf::io::compression_type::SNAPPY
-                                                         : cudf::io::compression_type::NONE)
+                     .compression(str_opt("compression", "snappy") == "snappy"
+                                    ? cudf::io::compression_type::SNAPPY
+                                    : cudf::io::compression_type::NONE)
                      .int96_timestamps(bool_opt("int96Timestamps", false))
                      .build());
 }
