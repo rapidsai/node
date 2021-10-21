@@ -22,6 +22,7 @@ import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {TypeMap} from './types/mappings';
+import {ReadORCOptions} from './types/orc';
 import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
 
 export type ToArrowMetadata = [string | number, ToArrowMetadata[]?];
@@ -40,6 +41,11 @@ interface TableWriteParquetOptions extends WriteParquetOptions {
   columnNames?: string[];
 }
 
+interface TableWriteORCOptions {
+  /** Column names to write in the header. */
+  columnNames?: string[];
+}
+
 interface TableConstructor {
   readonly prototype: Table;
   new(props: {columns?: ReadonlyArray<Column>|null}): Table;
@@ -52,6 +58,14 @@ interface TableConstructor {
    */
   readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>):
     {names: (keyof T)[], table: Table};
+
+  /**
+   * Reads an ORC dataset into a set of columns.
+   *
+   * @param options Settings for controlling reading behavior.
+   * @return The ORC data as a Table and a list of column names.
+   */
+  readORC(options: ReadORCOptions): {names: string[], table: Table};
 
   /**
    * Reads an Apache Parquet dataset into a set of columns.
@@ -213,6 +227,13 @@ export interface Table {
    * @param options Settings for controlling writing behavior.
    */
   writeCSV(options: TableWriteCSVOptions): void;
+
+  /**
+   * Write a Table to ORC file format.
+   * @param filePath File path or root directory path.
+   * @param options Options controlling ORC writing behavior.
+   */
+  writeORC(filePath: string, options: TableWriteORCOptions): void;
 
   /**
    * Write a Table to parquet file format.

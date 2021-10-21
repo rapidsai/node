@@ -42,6 +42,7 @@ import {
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
+import {ReadORCOptions} from './types/orc';
 import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
 
 export type SeriesMap<T extends TypeMap> = {
@@ -114,6 +115,23 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(new ColumnAccessor(
       names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}),
                    {} as ColumnsMap<{[P in keyof T]: T[P]}>)));
+  }
+
+  /**
+   * Read an Apache ORC from disk and create a cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * const df = DataFrame.readORC({
+   *  sources: ['test'],
+   * })
+   * ```
+   */
+  public static readORC(options: ReadORCOptions) {
+    const {names, table} = Table.readORC(options);
+    return new DataFrame(new ColumnAccessor(
+      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {})));
   }
 
   /**
@@ -805,6 +823,19 @@ export class DataFrame<T extends TypeMap = any> {
       columnNames: this.names as string[],
     });
     return readable as AsyncIterable<string>;
+  }
+
+  /**
+   * Write a DataFrame to ORC format.
+   *
+   * @param filePath File path or root directory path.
+   * @param options Options controlling ORC writing behavior.
+   *
+   */
+  toORC(filePath: string) {
+    new Table({columns: this._accessor.columns}).writeORC(filePath, {
+      columnNames: this.names as string[]
+    });
   }
 
   /**
