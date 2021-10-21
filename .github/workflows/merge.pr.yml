@@ -5,6 +5,15 @@ on:
     branches:
       - main
 
+env:
+  ARCH: amd64
+  NODE: 16.10.0
+  RAPIDS: 21.12.00
+
+concurrency:
+  group: build_docker_images
+  cancel-in-progress: true
+
 jobs:
 
   build-and-publish-devel-main-image:
@@ -15,35 +24,32 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            dockerfiles/devel/main.Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         uses: ./.github/actions/build-and-publish-image
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/devel/main.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
           build-args: |
             "NODE_VERSION=${{ env.NODE }}"
             "SCCACHE_IDLE_TIMEOUT=32768"
@@ -61,46 +67,48 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            .npmrc
+            modules
+            yarn\.lock
+            package\.json
+            dockerfiles/devel/(main|package).Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         uses: ./.github/actions/build-and-publish-image
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/devel/package.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}
           build-args: |
             "PARALLEL_LEVEL=1"
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
             "RAPIDS_VERSION=${{ env.RAPIDS }}"
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
+            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
 
   build-and-publish-runtime-cuda-base-image:
     needs:
       - build-and-publish-devel-main-image
+      - build-and-publish-devel-packages-image
     name: Build runtime cuda-base image
     runs-on: ubuntu-20.04
     strategy:
@@ -108,43 +116,41 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            dockerfiles/runtime/base.Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         uses: ./.github/actions/build-and-publish-image
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/base.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
           build-args: |
             "UID=1000"
             "FROM_IMAGE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
+            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
 
   build-and-publish-runtime-cudagl-base-image:
     needs:
       - build-and-publish-devel-main-image
+      - build-and-publish-devel-packages-image
     name: Build runtime cudagl-base image
     runs-on: ubuntu-20.04
     strategy:
@@ -152,39 +158,36 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            dockerfiles/runtime/base.Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/base.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
           build-args: |
             "UID=1000"
             "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
+            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
 
   build-and-publish-runtime-cudf-image:
     needs:
@@ -197,38 +200,37 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            .npmrc
+            modules/(rmm|core|cuda|cudf)
+            dockerfiles/runtime/cudf.Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/cudf.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf-${{ env.ARCH }}
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
+            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
 
   build-and-publish-runtime-cugraph-image:
     needs:
@@ -241,38 +243,37 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            .npmrc
+            modules/(rmm|core|cuda|cudf|cugraph)
+            dockerfiles/runtime/cugraph.Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/cugraph.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph-${{ env.ARCH }}
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
+            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
 
   build-and-publish-runtime-cuml-image:
     needs:
@@ -285,38 +286,37 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            .npmrc
+            modules/(rmm|core|cuda|cudf|cuml)
+            dockerfiles/runtime/cuml.Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/cuml.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml-${{ env.ARCH }}
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
+            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
 
   build-and-publish-runtime-cuspatial-image:
     needs:
@@ -329,38 +329,37 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            .npmrc
+            modules/(rmm|core|cuda|cudf|cuspatial)
+            dockerfiles/runtime/cuspatial.Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/cuspatial.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial-${{ env.ARCH }}
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
+            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
 
   build-and-publish-runtime-glfw-image:
     needs:
@@ -373,38 +372,37 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            .npmrc
+            modules/(core|glfw|webgl)
+            dockerfiles/runtime/glfw.Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/glfw.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw-${{ env.ARCH }}
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
+            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
 
   build-and-publish-runtime-sql-image:
     needs:
@@ -417,38 +415,37 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            .npmrc
+            modules/(rmm|core|cuda|cudf|sql)
+            dockerfiles/runtime/sql.Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/sql.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql-${{ env.ARCH }}
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
+            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
 
   build-and-publish-runtime-main-image:
     needs:
@@ -461,38 +458,37 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            .npmrc
+            modules/(core|cuda|glfw|webgl|rmm|cudf|sql|cuml|cugraph|cuspatial|deck\.gl|jsdom)
+            dockerfiles/runtime/main.Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/main.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
+            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
 
   build-and-publish-runtime-demo-image:
     needs:
@@ -505,35 +501,34 @@ jobs:
       matrix:
         CUDA: [11.0.3, 11.2.2, 11.4.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
-    env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
-      REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Login to container registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Initialize sccache_credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+          files: |
+            .npmrc
+            modules
+            dockerfiles/runtime/demo.Dockerfile
+            .github/workflows/merge.pr.yml
+            .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
           push: ${{ github.event_name == 'push' }}
-          secret-files: |
-            "sccache_credentials=/tmp/sccache_credentials"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/demo.Dockerfile
           tags: |
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo-${{ env.ARCH }}
+            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo-${{ env.ARCH }}
           build-args: |
-            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
+            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"

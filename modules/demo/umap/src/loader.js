@@ -14,9 +14,9 @@
 
 import {clampRange as clamp} from '@rapidsai/cuda';
 import {DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
+import {UMAP} from '@rapidsai/cuml';
 import {concat as concatAsync, zip as zipAsync} from 'ix/asynciterable';
 import {flatMap as flatMapAsync} from 'ix/asynciterable/operators';
-const {UMAP} = require('@rapidsai/cuml');
 
 const defaultLayoutParams = {
   simulating: {name: 'simulating', val: true},

@@ -13,7 +13,7 @@
 // limitations under the License. */
 
 html, #__next, .jumbotron {
-    background-color: #1a1a1a !important;
+    background-color: #121212 !important;
 }
 
 a {
@@ -78,20 +78,21 @@ a:hover {
     list-style: none;
     padding: 6px 12px;
     cursor: pointer;
-    background: #fff;
+    background: #202020;
     margin-right: 3px;
     margin-bottom: 1px;
     font-size: 14px;
     font-weight: bold;
     border-radius: 5px 5px 0 0;
-    border-color: #aaa;
+    border-color: #202020;
+    color: rgb(204, 204, 204);
 }
 
 .react-tabs__tab--selected {
-    background: #fff;
-    color: black;
-    border-bottom: 1px solid;
-    border-color: #fff;
+    background: #363636;
+    border-color: #363636;
+    color: white;
+    border-bottom: 1px solid #363636;
 }
 
 .react-tabs__tab--disabled {
@@ -109,10 +110,7 @@ a:hover {
 
 .react-tabs__tab-panel {
     display: none;
-    background: #fff !important;
-    border-color: #aaa;
-    border: 1px solid transparent;
-    padding: 5px;
+    background: #363636 !important;
 }
 
 .react-tabs__tab-panel--selected {
@@ -130,11 +128,11 @@ a:hover {
 }
 
 .bm-burger-bars {
-    background: black;
+    background: white;
 }
 
 .bm-burger-bars-hover {
-    background: #373a47;
+    background: rgb(204, 204, 204);
 }
 
 .bm-cross-button {
@@ -143,7 +141,7 @@ a:hover {
 }
 
 .bm-cross {
-    background-color: black;
+    background-color: white;
 }
 
 .bm-menu-wrap {
@@ -152,10 +150,10 @@ a:hover {
 }
 
 .bm-menu {
-    background: #e2e2e2;
+    background: #363636;
     padding: 2.5em 1em 0;
     font-size: 1.15em;
-    border-right: 3px solid #868686;
+    border-right: 3px solid #121212;
 }
 
 .bm-morph-shape {

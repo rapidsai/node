@@ -57,7 +57,7 @@ export default function ExtendedTable({ cols, data, fetchPaginatedData, controll
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th className={styles.th} {...column.getHeaderProps(column.getSortByToggleProps())}>
+                <th className={`${styles.th} whiteTextButton`} {...column.getHeaderProps(column.getSortByToggleProps())}>
                   {column.render('Header')}
                   <span>
                     {column.isSorted
@@ -104,21 +104,21 @@ export default function ExtendedTable({ cols, data, fetchPaginatedData, controll
               </option>
             ))}
           </select>
-          <div className={"textButton"} style={{ paddingRight: 5 }} onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+          <div className={"whiteTextButton"} style={{ paddingRight: 5 }} onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
             {'<<'}
           </div>{' '}
-          <div className={"textButton"} style={{ paddingRight: 5 }} onClick={() => previousPage()} disabled={!canPreviousPage}>
+          <div className={"whiteTextButton"} style={{ paddingRight: 5 }} onClick={() => previousPage()} disabled={!canPreviousPage}>
             {'<'}
           </div>{' '}
-          <span style={{ paddingRight: 5 }}>
+          <span style={{ paddingRight: 5, color: "white" }}>
             <strong>
               {pageIndex + 1} of {pageOptions.length}
             </strong>{' '}
           </span>
-          <div className={"textButton"} style={{ paddingRight: 5 }} onClick={() => nextPage()} disabled={!canNextPage}>
+          <div className={"whiteTextButton"} style={{ paddingRight: 5 }} onClick={() => nextPage()} disabled={!canNextPage}>
             {'>'}
           </div>{' '}
-          <div className={"textButton"} onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+          <div className={"whiteTextButton"} onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
             {'>>'}
           </div>{' '}
         </div>

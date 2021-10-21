@@ -22,8 +22,6 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { Form, Col, Row } from 'react-bootstrap';
 import { io } from "socket.io-client";
 import SimplePeer from "simple-peer";
-import wrtc from 'wrtc';
-import axios from 'axios';
 
 function onlyH264(sdp) {
   // remove non-h264 codecs from the supported codecs list
@@ -144,7 +142,6 @@ export default class Graph extends React.Component {
       query: { width: this.videoRef.current.width, height: this.videoRef.current.height, layout: this.state.forceAtlas2 }
     });
     this.peer = new SimplePeer({
-      wrtc: wrtc,
       trickle: true,
       initiator: true,
       sdpTransform: (sdp) => {

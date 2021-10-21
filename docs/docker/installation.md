@@ -11,7 +11,7 @@
 
 Follow the [official docker installation instructions](https://docs.docker.com/get-docker/) to install docker for your OS.
 <details>
-<summary>Click here to see Ubuntu 16.04+ docker-ce installation commands:</summary>
+<summary>Click here to see Ubuntu 18.04+ docker-ce installation commands:</summary>
 <pre>
 # Install docker-ce in one command. Adds your current user to the docker user group.<br/>
 release=$(lsb_release -cs) \
@@ -26,7 +26,7 @@ release=$(lsb_release -cs) \
 
 Follow the [official nvidia-container-toolkit installation instructions](https://github.com/NVIDIA/nvidia-docker#quickstart) to install the nvidia-container-toolkit for your OS.
 <details>
-<summary>Click here to see Ubuntu 16.04+ nvidia-container-toolkit installation commands:</summary>
+<summary>Click here to see Ubuntu 18.04+ nvidia-container-toolkit installation commands:</summary>
 <pre>
 # Add nvidia-container-toolkit apt package repositories
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
@@ -44,7 +44,7 @@ sudo systemctl restart docker
 
 Follow the [official docker-compose installation instructions](https://docs.docker.com/compose/install/) to install docker-compose v1.28.5+ for your OS.
 <details>
-<summary>Click here to see Ubuntu 16.04+ docker-compose installation commands:</summary>
+<summary>Click here to see Ubuntu 18.04+ docker-compose installation commands:</summary>
 <pre>
 # Install docker-compose v1.28.5, or select any newer release in https://github.com/docker/compose/releases
 DOCKER_COMPOSE_VERSION=1.28.5<br/>
@@ -54,7 +54,9 @@ sudo curl \
 </pre>
 </details>
 
-## Using the nvidia-container-runtime with docker-compose before v1.28.5
+Note: If you installed docker-compose v2+, also install [compose-switch](https://github.com/docker/compose-switch).
+
+### Using the nvidia-container-runtime with docker-compose before v1.28.5
 
 Prior to docker-compose v1.28.5, using the nvidia-container-runtime with docker-compose [requires](https://github.com/docker/compose/issues/6691) `nvidia-container-runtime` is set as the default docker runtime. To do this, you will need to create or edit the `/etc/docker/daemon.json` file and update the "default-runtime" and "runtimes" settings.
 <details>

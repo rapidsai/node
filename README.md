@@ -1,78 +1,49 @@
 # <div align="left"><img src="https://rapids.ai/assets/images/rapids_logo.png" width="90px"/>&nbsp; node-rapids
 
-[`node-rapids`](https://github.com/rapidsai/node) is collection of `node` native C++ addons for the RAPIDS libraries:
+[`node-rapids`](https://github.com/rapidsai/node) is a collection of Node.js native addons for the [NVIDIA RAPIDS](https://rapids.ai/) suite of GPU-accelerated data-science and ETL libraries on Linux and WSL2.
 
-* [`@rapidsai/rmm`](https://github.com/rapidsai/node/tree/main/modules/rmm) - Bindings to the [RAPIDS Memory Manager](https://github.com/rapidsai/rmm)
-* [`@rapidsai/cudf`](https://github.com/rapidsai/node/tree/main/modules/cudf) - Bindings to the [RAPIDS GPU DataFrame](https://github.com/rapidsai/cudf)
-* [`@rapidsai/cugraph`](https://github.com/rapidsai/node/tree/main/modules/cugraph) - Bindings to the [RAPIDS Graph Analytics Library](https://github.com/rapidsai/cugraph)
-* [`@rapidsai/cuspatial`](https://github.com/rapidsai/node/tree/main/modules/cuspatial) - Bindings to the [RAPIDS Accelerated GIS Library](https://github.com/rapidsai/cuspatial)
+* [`@rapidsai/rmm`](https://github.com/rapidsai/node/tree/main/modules/rmm) - [RAPIDS Memory Manager](https://github.com/rapidsai/rmm)
+* [`@rapidsai/cudf`](https://github.com/rapidsai/node/tree/main/modules/cudf) - [RAPIDS GPU DataFrame](https://github.com/rapidsai/cudf)
+* [`@rapidsai/cuml`](https://github.com/rapidsai/node/tree/main/modules/cuml) - [RAPIDS Machine Learning Library](https://github.com/rapidsai/cuml)
+* [`@rapidsai/cugraph`](https://github.com/rapidsai/node/tree/main/modules/cugraph) - [RAPIDS Graph Analytics Library](https://github.com/rapidsai/cugraph)
+* [`@rapidsai/cuspatial`](https://github.com/rapidsai/node/tree/main/modules/cuspatial) - [RAPIDS Accelerated GIS Library](https://github.com/rapidsai/cuspatial)
+* [`@rapidsai/sql`](https://github.com/rapidsai/node/tree/main/modules/sql) - Multi-node/multi-GPU accelerated SQL execution engine
 
-Additionally, `node-rapids` includes _limited_ bindings to:
+`node-rapids` includes limited bindings to other necessary native APIs:
 
 * [`@rapidsai/cuda`](https://github.com/rapidsai/node/tree/main/modules/cuda) - Interact with GPUs via the [CUDA Runtime APIs](https://developer.nvidia.com/cuda-toolkit)
 * [`@rapidsai/glfw`](https://github.com/rapidsai/node/tree/main/modules/glfw) - Create platform-agnostic native windows with OpenGL contexts via [GLFW](https://github.com/glfw/glfw)
 * [`@rapidsai/webgl`](https://github.com/rapidsai/node/tree/main/modules/webgl) - Provides a [`WebGL2RenderingContext`](https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext) via [OpenGL ES](https://www.khronos.org/opengles)
-* [`@rapidsai/sql`](https://github.com/rapidsai/node/tree/main/modules/sql) - GPU-accelerated SQL queries
+
+`node-rapids` uses the ABI-stable [`N-API`](https://nodejs.org/api/n-api.html) via [`node-addon-api`](https://github.com/nodejs/node-addon-api), so the libraries work in node and Electron without recompiling.
 
 See the [API docs](https://rapidsai.github.io/node/) for detailed information about each module.
 
-## Setup
+## Getting started
 
-#### System/CUDA/GPU requirements
+Due to native dependency distribution complexity, pre-packaged builds of the `node-rapids` modules are presently only available via our [public docker images](https://github.com/orgs/rapidsai/packages/container/package/node). See [USAGE.md](https://github.com/rapidsai/node/tree/main/USAGE.md) for more details.
 
-- Ubuntu 16.04+ (other Linuxes may work, but untested)
-- Docker 19.03+ (optional)
-- docker-compose v1.28.5+ (optional)
-- CUDAToolkit 10.1+
-- NVIDIA driver 418.39+
-- Pascal architecture (Compute Capability >=6.0) or better
+## Getting involved
 
-To get started building and using `node-rapids`, follow the [setup instructions](https://github.com/rapidsai/node/tree/main/docs/setup.md).
+See [DEVELOP.md](https://github.com/rapidsai/node/blob/main/DEVELOP.md) for details on setting up a local dev environment and building the code.
 
-The `node-rapids` modules are not yet available on npm. They must be built locally or in our Docker environments.
-
-## Notebooks
-
-We've included a container for launching [`nteract/desktop`](https://nteract.io/desktop) with access to locally built `node-rapids` modules:
-
-```shell
-# Make a local .env file of var overrides for the containers and build
-cp .env.sample .env
-
-# Build the development and nteract containers (only necessary once)
-yarn docker:build:devel && yarn docker:build:devel:notebook
-
-# Compile the TypeScript and C++ modules inside the development container
-yarn docker:run:devel bash -c 'yarn && yarn build'
-
-# Start a containerized nteract/desktop with the source tree as Docker volume mounts
-yarn docker:run:devel:notebook
-```
-
-`node-rapids` packages are built with [`N-API`](https://nodejs.org/api/n-api.html) via the [`node-addon-api`](https://github.com/nodejs/node-addon-api) library.
-
-
-## Demos
-
-The demos module contains a bunch of examples which use a combination of node-rapids modules to re-implement some browser+webgl based examples. Some of them include:
-
-- [deck.gl](https://github.com/rapidsai/node/tree/main/modules/demo/deck/)
-- [luma.gl](https://github.com/rapidsai/node/tree/main/modules/demo/luma/)
-- [TensorFlow.js](https://github.com/rapidsai/node/tree/main/modules/demo/tfjs/)
-- [XTerm.js](https://github.com/rapidsai/node/tree/main/modules/demo/xterm/)
-- [CUML UMAP](https://github.com/rapidsai/node/tree/main/modules/demo/ipc/umap/)
-
-After you build the modules, run `yarn demo` from the command line to choose the demo you want to run.
-
-## Bindings Progress
+We want your input! Join us in the [#node-rapids channel](https://rapids-goai.slack.com/archives/C0237JMVBRS) in the [RAPIDS-GoAI Slack workspace](https://rapids-goai.slack.com).
+  
+## Tracking Progress
 
 You can review [BINDINGS.md](https://github.com/rapidsai/node/blob/main/BINDINGS.md) to see which bindings have been completed for each of the RAPIDS libraries.
 
-## FAQs
+## Demos
 
-### What is the `.env` file used for and what variables can be set in it?
+Check out our [demos](https://github.com/rapidsai/node/tree/main/modules/demo) to see various visualization and compute capabilities:
 
-The `.env` file is used by the [docker-compose.*.yml](https://github.com/rapidsai/node/blob/main/docker-compose.devel.yml) files when building and running the containers (i.e. `yarn docker:{build,run}:{devel,runtime}`). Any variables in the [docker-compose.*.yml](https://github.com/rapidsai/node/blob/main/docker-compose.devel.yml) files can be set in the `.env` file. The [.env.sample](https://github.com/rapidsai/node/blob/main/.env.sample) file includes some common variables that may be set in the `.env` file.
+* [OpenGL lessons in luma.gl](https://github.com/rapidsai/node/tree/main/modules/demo/luma/)
+* [Library of deck.gl demos in OpenGL](https://github.com/rapidsai/node/tree/main/modules/demo/deck/)
+* [Rendering text via Xterm.js's WebGL addon](https://github.com/rapidsai/node/tree/main/modules/demo/xterm/)
+* [TensorFlow.js Examples](https://github.com/rapidsai/node/tree/main/modules/demo/tfjs/)
+* [Simulating & rendering with cuGraph](https://github.com/rapidsai/node/tree/main/modules/demo/graph/)
+* [Querying millions of points with cuSpatial](https://github.com/rapidsai/node/tree/main/modules/demo/spatial/)
+* [Multi-GPU SQL queries on GBs of CSVs](https://github.com/rapidsai/node/tree/main/modules/demo/sql/sql-cluster-server/)
 
 ## License
 

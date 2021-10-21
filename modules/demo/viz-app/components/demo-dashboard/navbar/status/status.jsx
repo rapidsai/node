@@ -18,7 +18,7 @@ import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 
 export default function Status({ isLoading }) {
   return (
-    <div style={{ fontSize: 20, transition: "all 4000ms ease" }}>
+    <div style={{ fontSize: 20, color: "white" }}>
       {isLoading ? `Loading` : `Ready`} <FontAwesomeIcon spin={isLoading} icon={faCircleNotch} />
     </div>
   );

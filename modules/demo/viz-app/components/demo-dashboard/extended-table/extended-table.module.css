@@ -14,28 +14,21 @@
 
 .table {
     border-spacing: 0;
-    border: 1px solid black;
     width: 100%;
-}
-
-.tr:last-child {
-    border-bottom: 0;
+    color: white;
 }
 
 .th {
-    background: #e5e5e5;
-    border: 1px solid black;
+    background: #2e2e2e;
     padding-left: 5px;
 }
 
 .td {
-    border-right: 1px solid black;
     padding-left: 5px;
 }
 
 .grey {
-    background: #e5e5e5;
-    border: 1px solid black;
+    background: #2e2e2e;
 }
 
 .spacer {
@@ -50,18 +43,19 @@
 }
 
 .select {
-    background-color: white;
+    background-color: #363636;
     border: none;
     font-weight: bold;
     margin-right: 8px;
+    color: white;
 }
 
 .select:hover {
-    color: rgb(83, 83, 83);
+    color: rgb(204, 204, 204);
     cursor: pointer;
 }
 
 .select:active {
-    color: black;
+    color: white;
     cursor: pointer;
 }

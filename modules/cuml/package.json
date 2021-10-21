@@ -22,8 +22,12 @@
     "cpp:build:debug": "nvidia-cmake-js -g build -D",
     "cpp:compile": "nvidia-cmake-js -g compile && yarn dev:copy:libs",
     "cpp:compile:debug": "nvidia-cmake-js -g compile -D",
+    "cpp:configure": "nvidia-cmake-js -g configure",
+    "cpp:configure:debug": "nvidia-cmake-js -g configure -D",
     "cpp:rebuild": "nvidia-cmake-js -g rebuild && yarn dev:copy:libs",
     "cpp:rebuild:debug": "nvidia-cmake-js -g rebuild -D",
+    "cpp:reconfigure": "nvidia-cmake-js -g reconfigure",
+    "cpp:reconfigure:debug": "nvidia-cmake-js -g reconfigure -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
     "dev:copy:libs": "nvidia-cmake-copy-libs node_cuml.node"
