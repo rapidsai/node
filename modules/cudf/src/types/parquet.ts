@@ -15,15 +15,17 @@
 export interface ReadParquetOptionsCommon {
   /** The list of columns to read */
   columns?: string[];
+  /** Specifies for each input file, which row groups to read. */
+  rowGroups?: number[][];
   /** The number of rows to skip from the start of the file */
   skipRows?: number;
   /** The total number of rows to read */
   numRows?: number;
-  /** Return string columns as GDF_CATEGORY dtype */
+  /** Return string columns as GDF_CATEGORY dtype (default 'false') */
   stringsToCategorical?: boolean;
   /**
    * If true and dataset has custom PANDAS schema metadata, ensure that index columns are also
-   * loaded.
+   * loaded (default 'true').
    */
   usePandasMetadata?: boolean;
 }

@@ -39,6 +39,13 @@ export interface ReadORCBufferOptions extends ReadORCOptionsCommon {
 
 export type ReadORCOptions = ReadORCFileOptions|ReadORCBufferOptions;
 
+export interface WriteORCOptions {
+  /** The name of compression to use (default 'None'). */
+  compression?: 'snappy'|'none';
+  /** Write timestamps in int96 format (default 'true'). */
+  enableStatistics?: boolean;
+}
+
 export interface TableWriteORCOptions {
   /** Column names to write in the header. */
   columnNames?: string[];

@@ -32,6 +32,9 @@ cudf::io::orc_writer_options make_writer_options(Napi::Object const& options,
   auto str_opt = [&](std::string const& key, std::string const& default_val) {
     return has_opt(key) ? options.Get(key).ToString().Utf8Value() : default_val;
   };
+  auto bool_opt = [&](std::string const& key, bool default_val) {
+    return has_opt(key) ? options.Get(key).ToBoolean() == true : default_val;
+  };
 
   auto null_value = str_opt("nullValue", "N/A");
   cudf::io::table_input_metadata metadata{};
@@ -46,7 +49,13 @@ cudf::io::orc_writer_options make_writer_options(Napi::Object const& options,
     metadata.column_metadata.push_back(column);
   }
 
-  return std::move(cudf::io::orc_writer_options::builder(sink, table).metadata(&metadata).build());
+  return std::move(cudf::io::orc_writer_options::builder(sink, table)
+                     .metadata(&metadata)
+                     .enable_statistics(bool_opt("enableStatistics", true))
+                     .compression(str_opt("compression", "none") == "snappy"
+                                    ? cudf::io::compression_type::SNAPPY
+                                    : cudf::io::compression_type::NONE)
+                     .build());
 }
 
 }  // namespace

@@ -37,12 +37,23 @@ cudf::io::parquet_reader_options make_reader_options(Napi::Object const& options
     return has_opt(key) ? options.Get(key).ToBoolean() == true : default_val;
   };
 
+  auto napi_row_groups = napi_opt("rowGroups");
+  std::vector<std::vector<cudf::size_type>> row_groups;
+  if (!is_null(napi_row_groups) && napi_row_groups.IsArray()) {
+    auto arr = napi_row_groups.As<Napi::Array>();
+    for (size_t i = 0; i < arr.Length(); ++i) { row_groups.push_back(NapiToCPP{arr.Get(i)}); }
+  }
+
   auto opts = std::move(cudf::io::parquet_reader_options::builder(source)
-                          .skip_rows(long_opt("skipRows"))
                           .num_rows(long_opt("numRows"))
                           .convert_strings_to_categories(bool_opt("stringsToCategorical", false))
                           .use_pandas_metadata(bool_opt("usePandasMetadata", true))
                           .build());
+
+  // These cannot be both set together (cudf exception), so we only set them depending on if
+  // the options contains a definition for them.
+  if (!row_groups.empty()) { opts.set_row_groups(row_groups); }
+  if (has_opt("skipRows")) { opts.set_skip_rows(long_opt("skipRows")); }
 
   auto columns = napi_opt("columns");
 

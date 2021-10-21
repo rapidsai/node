@@ -42,7 +42,7 @@ import {
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
-import {ReadORCOptions} from './types/orc';
+import {ReadORCOptions, WriteORCOptions} from './types/orc';
 import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
 
 export type SeriesMap<T extends TypeMap> = {
@@ -834,10 +834,10 @@ export class DataFrame<T extends TypeMap = any> {
    * @param options Options controlling ORC writing behavior.
    *
    */
-  toORC(filePath: string) {
-    new Table({columns: this._accessor.columns}).writeORC(filePath, {
-      columnNames: this.names as string[]
-    });
+  toORC(filePath: string, options: WriteORCOptions = {}) {
+    new Table({
+      columns: this._accessor.columns
+    }).writeORC(filePath, {...options, columnNames: this.names as string[]});
   }
 
   /**
