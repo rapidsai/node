@@ -20,14 +20,6 @@ function(find_and_configure_blazingsql VERSION)
 
     include(ConfigureCUDF)
 
-    if (TARGET cudf::arrow_shared AND (NOT TARGET arrow_shared))
-        add_library(arrow_shared ALIAS cudf::arrow_shared)
-    endif()
-
-    if (TARGET cudf::arrow_cuda_shared AND (NOT TARGET arrow_cuda_shared))
-        add_library(arrow_cuda_shared ALIAS cudf::arrow_cuda_shared)
-    endif()
-
     _clean_build_dirs_if_not_fully_built(blazingsql-io libblazingsql-io.so)
 
     _set_package_dir_if_exists(absl absl)
