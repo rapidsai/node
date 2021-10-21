@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <node_cudf/table.hpp>
+#include <node_cudf/utilities/metadata.hpp>
 
 #include <cudf/io/data_sink.hpp>
 #include <cudf/io/parquet.hpp>
@@ -20,32 +21,6 @@
 namespace nv {
 
 namespace {
-
-cudf::io::table_input_metadata make_writer_metadata(Napi::Object const& options,
-                                                    cudf::table_view const& table) {
-  auto env      = options.Env();
-  auto has_opt  = [&](std::string const& key) { return options.Has(key); };
-  auto napi_opt = [&](std::string const& key) -> Napi::Value {
-    return has_opt(key) ? options.Get(key) : env.Undefined();
-  };
-  auto str_opt = [&](std::string const& key, std::string const& default_val) {
-    return has_opt(key) ? options.Get(key).ToString().Utf8Value() : default_val;
-  };
-  auto null_value = str_opt("nullValue", "N/A");
-  cudf::io::table_input_metadata metadata{};
-  Napi::Array column_names = napi_opt("columnNames").IsArray()
-                               ? napi_opt("columnNames").As<Napi::Array>()
-                               : Napi::Array::New(env, table.num_columns());
-  metadata.column_metadata.reserve(table.num_columns());
-  for (uint32_t i = 0; i < column_names.Length(); ++i) {
-    auto name   = column_names.Has(i) ? column_names.Get(i) : env.Null();
-    auto column = cudf::io::column_in_metadata(
-      name.IsString() || name.IsNumber() ? name.ToString().Utf8Value() : null_value);
-    metadata.column_metadata.push_back(column);
-  }
-
-  return metadata;
-};
 
 cudf::io::parquet_writer_options make_writer_options(Napi::Object const& options,
                                                      cudf::io::sink_info const& sink,
@@ -80,7 +55,7 @@ void Table::write_parquet(Napi::CallbackInfo const& info) {
   auto options          = args[1].As<Napi::Object>();
 
   cudf::table_view table = *this;
-  auto metadata          = make_writer_metadata(options, table);
+  auto metadata          = make_writer_columns_metadata(options, table);
   auto writer_opts = make_writer_options(options, cudf::io::sink_info{file_path}, table, &metadata);
   cudf::io::write_parquet(writer_opts);
 }

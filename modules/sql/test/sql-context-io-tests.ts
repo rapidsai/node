@@ -79,6 +79,22 @@ describe('Parquet', () => {
     sqlContext.dropTable('test_table');
     expect(sqlContext.listTables().length).toEqual(0);
   });
+
+  test('query Parquet table', async () => {
+    const a  = Series.new([1.0, 2.0, 3.0]);
+    const b  = Series.new(['foo', 'bar', 'foo']);
+    const df = new DataFrame({'a': a, 'b': b});
+
+    const path = Path.join(tmpDir, 'simple.parquet');
+    df.toParquet(path);
+
+    const sqlContext = new SQLContext();
+    sqlContext.createParquetTable('test_table', [path]);
+
+    await expect(sqlContext.sql('SELECT b FROM test_table').result()).resolves.toStrictEqual([
+      new DataFrame({'b': Series.new(['foo', 'bar', 'foo'])})
+    ]);
+  });
 });
 
 describe('ORC', () => {
@@ -101,6 +117,22 @@ describe('ORC', () => {
 
     sqlContext.dropTable('test_table');
     expect(sqlContext.listTables().length).toEqual(0);
+  });
+
+  test('query ORC table', async () => {
+    const a  = Series.new([1.0, 2.0, 3.0]);
+    const b  = Series.new(['foo', 'bar', 'foo']);
+    const df = new DataFrame({'a': a, 'b': b});
+
+    const path = Path.join(tmpDir, 'simple.orc');
+    df.toORC(path);
+
+    const sqlContext = new SQLContext();
+    sqlContext.createORCTable('test_table', [path]);
+
+    await expect(sqlContext.sql('SELECT b FROM test_table').result()).resolves.toStrictEqual([
+      new DataFrame({'b': Series.new(['foo', 'bar', 'foo'])})
+    ]);
   });
 });
 
