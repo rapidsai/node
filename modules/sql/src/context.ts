@@ -101,26 +101,58 @@ export class SQLContext {
     this._createTable(new DataFrameTable(tableName, input));
   }
 
-  // TODO: Write docs for this.
+  /**
+   * Create a SQL table from CSV file(s).
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param input array of paths to CSV file(s)
+   *
+   * @example
+   * ```typescript
+   * import {SQLContext} from '@rapidsai/sql';
+   *
+   * const sqlContext = new SQLContext();
+   * sqlContext.createTable('test_table', ['test.csv']);
+   * ```
+   */
   createCSVTable(tableName: string, input: string[]): void {
     this._createTable(new FileTable(tableName, input, 'csv'));
   }
 
-  createPSVTable(tableName: string, input: string[]): void {
-    this._createTable(new FileTable(tableName, input, 'psv'));
-  }
-
-  // TODO: Write docs for this.
+  /**
+   * Create a SQL table from parquet file(s).
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param input array of paths to parquet file(s)
+   *
+   * @example
+   * ```typescript
+   * import {SQLContext} from '@rapidsai/sql';
+   *
+   * const sqlContext = new SQLContext();
+   * sqlContext.createTable('test_table', ['test.parquet']);
+   * ```
+   */
   createParquetTable(tableName: string, input: string[]): void {
     this._createTable(new FileTable(tableName, input, 'parquet'));
   }
 
+  /**
+   * Create a SQL table from ORC file(s).
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param input array of paths to ORC file(s)
+   *
+   * @example
+   * ```typescript
+   * import {SQLContext} from '@rapidsai/sql';
+   *
+   * const sqlContext = new SQLContext();
+   * sqlContext.createTable('test_table', ['test.orc']);
+   * ```
+   */
   createORCTable(tableName: string, input: string[]): void {
     this._createTable(new FileTable(tableName, input, 'orc'));
-  }
-
-  createJSONTable(tableName: string, input: string[]): void {
-    this._createTable(new FileTable(tableName, input, 'json'));
   }
 
   private _createTable(input: SQLTable): void {

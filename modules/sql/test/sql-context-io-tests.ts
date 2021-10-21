@@ -59,13 +59,13 @@ describe('CSV', () => {
 });
 
 describe('Parquet', () => {
-  test('create, list, describe, and drop Parquet table', async () => {
-    const a  = Series.new([1, 2, 3]);
+  test('create, list, describe, and drop Parquet table', () => {
+    const a  = Series.new([1.0, 2.0, 3.0]);
     const b  = Series.new(['foo', 'bar', 'foo']);
     const df = new DataFrame({'a': a, 'b': b});
 
     const path = Path.join(tmpDir, 'simple.parquet');
-    await promises.writeFile(path, DataFrame.fromParquet());
+    df.toParquet(path);
 
     const sqlContext = new SQLContext();
     sqlContext.createParquetTable('test_table', [path]);
@@ -73,8 +73,31 @@ describe('Parquet', () => {
     expect(sqlContext.listTables()).toEqual(['test_table']);
 
     const tableDescription = sqlContext.describeTable('test_table');
-    expect([...tableDescription.keys()]).toEqual(['a', 'b', 'c']);
-    expect([...tableDescription.values()]).toEqual([new Int64, new Float64, new Utf8String]);
+    expect([...tableDescription.keys()]).toEqual(['a', 'b']);
+    expect([...tableDescription.values()]).toEqual([new Float64, new Utf8String]);
+
+    sqlContext.dropTable('test_table');
+    expect(sqlContext.listTables().length).toEqual(0);
+  });
+});
+
+describe('ORC', () => {
+  test('create, list, describe, and drop ORC table', () => {
+    const a  = Series.new([1.0, 2.0, 3.0]);
+    const b  = Series.new(['foo', 'bar', 'foo']);
+    const df = new DataFrame({'a': a, 'b': b});
+
+    const path = Path.join(tmpDir, 'simple.orc');
+    df.toORC(path);
+
+    const sqlContext = new SQLContext();
+    sqlContext.createORCTable('test_table', [path]);
+
+    expect(sqlContext.listTables()).toEqual(['test_table']);
+
+    const tableDescription = sqlContext.describeTable('test_table');
+    expect([...tableDescription.keys()]).toEqual(['a', 'b']);
+    expect([...tableDescription.values()]).toEqual([new Float64, new Utf8String]);
 
     sqlContext.dropTable('test_table');
     expect(sqlContext.listTables().length).toEqual(0);
