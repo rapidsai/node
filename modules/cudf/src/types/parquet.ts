@@ -46,3 +46,8 @@ export interface WriteParquetOptions {
   /** Write timestamps in int96 format (default 'false'). */
   int96Timestamps?: boolean;
 }
+
+export interface TableWriteParquetOptions extends WriteParquetOptions {
+  /** Column names to write in the header. */
+  columnNames?: string[];
+}

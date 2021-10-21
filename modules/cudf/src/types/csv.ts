@@ -112,3 +112,12 @@ export interface WriteCSVOptions {
   /** Maximum number of rows to write in each chunk (limits memory use). */
   rowsPerChunk?: number;
 }
+
+export interface TableWriteCSVOptions extends WriteCSVOptions {
+  /** Callback invoked for each CSV chunk. */
+  next: (chunk: Buffer) => void;
+  /** Callback invoked when writing is finished. */
+  complete: () => void;
+  /** Column names to write in the header. */
+  columnNames?: string[];
+}

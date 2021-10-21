@@ -18,33 +18,15 @@ import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import CUDF from './addon';
 import {Column} from './column';
 import {Scalar} from './scalar';
-import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
+import {CSVTypeMap, ReadCSVOptions} from './types/csv';
+import {TableWriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {TypeMap} from './types/mappings';
-import {ReadORCOptions} from './types/orc';
-import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
+import {ReadORCOptions, TableWriteORCOptions} from './types/orc';
+import {ReadParquetOptions, TableWriteParquetOptions} from './types/parquet';
 
 export type ToArrowMetadata = [string | number, ToArrowMetadata[]?];
-
-interface TableWriteCSVOptions extends WriteCSVOptions {
-  /** Callback invoked for each CSV chunk. */
-  next: (chunk: Buffer) => void;
-  /** Callback invoked when writing is finished. */
-  complete: () => void;
-  /** Column names to write in the header. */
-  columnNames?: string[];
-}
-
-interface TableWriteParquetOptions extends WriteParquetOptions {
-  /** Column names to write in the header. */
-  columnNames?: string[];
-}
-
-interface TableWriteORCOptions {
-  /** Column names to write in the header. */
-  columnNames?: string[];
-}
 
 interface TableConstructor {
   readonly prototype: Table;

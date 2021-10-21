@@ -15,12 +15,16 @@
 export interface ReadORCOptionsCommon {
   /** The list of columns to read */
   columns?: string[];
+  /** Only these stripes will be read from the file. */
+  stripes?: number[][];
   /** The number of rows to skip from the start of the file */
   skipRows?: number;
   /** The total number of rows to read */
   numRows?: number;
-  /** Use row index if available for faster seeking */
+  /** Use row index if available for faster seeking (default 'true') */
   useIndex?: boolean;
+  /** Names of the columns that should be converted from Decimal to Float64 */
+  decimalColsAsFloats?: string[];
 }
 
 export interface ReadORCFileOptions extends ReadORCOptionsCommon {
@@ -34,3 +38,8 @@ export interface ReadORCBufferOptions extends ReadORCOptionsCommon {
 }
 
 export type ReadORCOptions = ReadORCFileOptions|ReadORCBufferOptions;
+
+export interface TableWriteORCOptions {
+  /** Column names to write in the header. */
+  columnNames?: string[];
+}

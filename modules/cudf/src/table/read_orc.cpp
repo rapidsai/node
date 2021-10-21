@@ -37,14 +37,29 @@ cudf::io::orc_reader_options make_reader_options(Napi::Object const& options,
     return has_opt(key) ? options.Get(key).ToBoolean() == true : default_val;
   };
 
+  auto napi_stripes = napi_opt("stripes");
+  std::vector<std::vector<cudf::size_type>> stripes;
+  if (!is_null(napi_stripes) && napi_stripes.IsArray()) {
+    auto arr = napi_stripes.As<Napi::Array>();
+    for (size_t i = 0; i < arr.Length(); ++i) { stripes.push_back(NapiToCPP{arr.Get(i)}); }
+  }
+
   auto opts = std::move(cudf::io::orc_reader_options::builder(source)
-                          .skip_rows(long_opt("skipRows"))
                           .num_rows(long_opt("numRows"))
                           .use_index(bool_opt("useIndex", true))
                           .build());
 
-  auto columns = napi_opt("columns");
+  // These cannot be both set together (cudf exception), so we only set them depending on if
+  // the options contains a definition for them.
+  if (!stripes.empty()) { opts.set_stripes(stripes); }
+  if (has_opt("skipRows")) { opts.set_skip_rows(long_opt("skipRows")); }
 
+  auto decimal_cols_as_floats = napi_opt("decimalColsAsFloats");
+  if (!is_null(decimal_cols_as_floats) && decimal_cols_as_floats.IsArray()) {
+    opts.set_decimal_cols_as_float(NapiToCPP{decimal_cols_as_floats});
+  }
+
+  auto columns = napi_opt("columns");
   if (!is_null(columns) && columns.IsArray()) { opts.set_columns(NapiToCPP{columns}); }
 
   return opts;

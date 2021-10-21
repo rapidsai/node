@@ -124,7 +124,8 @@ export class DataFrame<T extends TypeMap = any> {
    * ```typescript
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    * const df = DataFrame.readORC({
-   *  sources: ['test'],
+   *  sourceType: 'files',
+   *  sources: ['test.orc'],
    * })
    * ```
    */
@@ -141,7 +142,8 @@ export class DataFrame<T extends TypeMap = any> {
    * ```typescript
    * import {DataFrame, Series}  from '@rapidsai/cudf';
    * const df = DataFrame.readParquet({
-   *  sources: ['test'],
+   *  sourceType: 'files',
+   *  sources: ['test.parquet'],
    * })
    * ```
    */
