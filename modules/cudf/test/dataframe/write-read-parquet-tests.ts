@@ -32,7 +32,7 @@ test('writes and reads a Parquet', () => {
     sources: [path],
   });
 
-  expect(result).toStrictEqual(expected);
+  expect(result.toString()).toEqual(expected.toString());
 });
 
 let tmpDir = '';

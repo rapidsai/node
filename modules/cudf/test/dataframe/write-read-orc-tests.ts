@@ -32,7 +32,7 @@ test('writes and reads an ORC', () => {
     sources: [path],
   });
 
-  expect(result).toStrictEqual(expected);
+  expect(result.toString()).toEqual(expected.toString());
 });
 
 let tmpDir = '';

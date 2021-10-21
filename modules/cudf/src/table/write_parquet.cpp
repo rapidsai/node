@@ -21,9 +21,8 @@ namespace nv {
 
 namespace {
 
-cudf::io::parquet_writer_options make_writer_options(Napi::Object const& options,
-                                                     cudf::io::sink_info const& sink,
-                                                     cudf::table_view const& table) {
+cudf::io::table_input_metadata make_writer_metadata(Napi::Object const& options,
+                                                    cudf::table_view const& table) {
   auto env      = options.Env();
   auto has_opt  = [&](std::string const& key) { return options.Has(key); };
   auto napi_opt = [&](std::string const& key) -> Napi::Value {
@@ -32,10 +31,6 @@ cudf::io::parquet_writer_options make_writer_options(Napi::Object const& options
   auto str_opt = [&](std::string const& key, std::string const& default_val) {
     return has_opt(key) ? options.Get(key).ToString().Utf8Value() : default_val;
   };
-  auto bool_opt = [&](std::string const& key, bool default_val) {
-    return has_opt(key) ? options.Get(key).ToBoolean() == true : default_val;
-  };
-
   auto null_value = str_opt("nullValue", "N/A");
   cudf::io::table_input_metadata metadata{};
   Napi::Array column_names = napi_opt("columnNames").IsArray()
@@ -49,8 +44,23 @@ cudf::io::parquet_writer_options make_writer_options(Napi::Object const& options
     metadata.column_metadata.push_back(column);
   }
 
+  return metadata;
+};
+
+cudf::io::parquet_writer_options make_writer_options(Napi::Object const& options,
+                                                     cudf::io::sink_info const& sink,
+                                                     cudf::table_view const& table,
+                                                     cudf::io::table_input_metadata* metadata) {
+  auto has_opt = [&](std::string const& key) { return options.Has(key); };
+  auto str_opt = [&](std::string const& key, std::string const& default_val) {
+    return has_opt(key) ? options.Get(key).ToString().Utf8Value() : default_val;
+  };
+  auto bool_opt = [&](std::string const& key, bool default_val) {
+    return has_opt(key) ? options.Get(key).ToBoolean() == true : default_val;
+  };
+
   return std::move(cudf::io::parquet_writer_options::builder(sink, table)
-                     .metadata(&metadata)
+                     .metadata(metadata)
                      .compression(str_opt("compression", "snappy") == "snappy"
                                     ? cudf::io::compression_type::SNAPPY
                                     : cudf::io::compression_type::NONE)
@@ -70,7 +80,9 @@ void Table::write_parquet(Napi::CallbackInfo const& info) {
   auto options          = args[1].As<Napi::Object>();
 
   cudf::table_view table = *this;
-  cudf::io::write_parquet(make_writer_options(options, cudf::io::sink_info{file_path}, table));
+  auto metadata          = make_writer_metadata(options, table);
+  auto writer_opts = make_writer_options(options, cudf::io::sink_info{file_path}, table, &metadata);
+  cudf::io::write_parquet(writer_opts);
 }
 
 }  // namespace nv
