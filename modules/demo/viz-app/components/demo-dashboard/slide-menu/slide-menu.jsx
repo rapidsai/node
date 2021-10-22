@@ -36,7 +36,6 @@ export default class SlideMenu extends React.Component {
   }
 
   onLoadClick() {
-    console.log("hereherhehre");
     this.props.onLoadClick(this.state.selectedFile);
   }
 
@@ -55,7 +54,7 @@ export default class SlideMenu extends React.Component {
                 Select Data ▼
               </FileInput>
             </Col>
-            <p style={{ color: "black" }}>Selection: {this.state.selectedFile.name}</p>
+            <p style={{ color: "white" }}>Selection: {this.state.selectedFile.name}</p>
             <Col className={"max"} ><div className={"d-flex"} /></Col>
             <Col className={"col-auto"}>
               <p className={"whiteTextButton"} onClick={this.onLoadClick}>[upload]</p>
@@ -64,6 +63,7 @@ export default class SlideMenu extends React.Component {
         </HeaderUnderline>
         <div style={{ height: 20 }} />
         <HeaderUnderline title={"Visualization"} color={"white"}>
+          {this.props.customComponents}
           <p className={"whiteTextButton"} onClick={this.onRenderClick}>[Render]</p>
         </HeaderUnderline>
       </Menu >
