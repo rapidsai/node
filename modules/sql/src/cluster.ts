@@ -141,7 +141,7 @@ export class SQLCluster {
    * import {sqlCluster} from '@rapidsai/sql';
    *
    * const sqlCluster = await SQLCluster.init();
-   * sqlCluster.createCSVTable('test_table', ['test.csv']);
+   * await sqlCluster.createCSVTable('test_table', ['test.csv']);
    * ```
    */
   public async createCSVTable(tableName: string, filePaths: string[]) {
@@ -153,17 +153,17 @@ export class SQLCluster {
   }
 
   /**
-   * Create a SQL table from parquet file(s).
+   * Create a SQL table from Apache Parquet file(s).
    *
    * @param tableName Name of the table when referenced in a query
-   * @param filePaths array of paths to parquet file(s)
+   * @param filePaths array of paths to Parquet file(s)
    *
    * @example
    * ```typescript
    * import {sqlCluster} from '@rapidsai/sql';
    *
    * const sqlCluster = await SQLCluster.init();
-   * sqlCluster.createParquetTable('test_table', ['test.parquet']);
+   * await sqlCluster.createParquetTable('test_table', ['test.parquet']);
    * ```
    */
   public async createParquetTable(tableName: string, filePaths: string[]) {
@@ -175,7 +175,7 @@ export class SQLCluster {
   }
 
   /**
-   * Create a SQL table from ORC file(s).
+   * Create a SQL table from Apache ORC file(s).
    *
    * @param tableName Name of the table when referenced in a query
    * @param filePaths array of paths to ORC file(s)
@@ -185,7 +185,7 @@ export class SQLCluster {
    * import {sqlCluster} from '@rapidsai/sql';
    *
    * const sqlCluster = await SQLCluster.init();
-   * sqlCluster.createORCTable('test_table', ['test.orc']);
+   * await sqlCluster.createORCTable('test_table', ['test.orc']);
    * ```
    */
   public async createORCTable(tableName: string, filePaths: string[]) {

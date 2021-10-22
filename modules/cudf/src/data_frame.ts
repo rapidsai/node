@@ -122,7 +122,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * import {DataFrame}  from '@rapidsai/cudf';
    * const df = DataFrame.readORC({
    *  sourceType: 'files',
    *  sources: ['test.orc'],
@@ -140,7 +140,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * import {DataFrame}  from '@rapidsai/cudf';
    * const df = DataFrame.readParquet({
    *  sourceType: 'files',
    *  sources: ['test.parquet'],
@@ -841,10 +841,10 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
-   * Write a DataFrame to parquet format.
+   * Write a DataFrame to Parquet format.
    *
    * @param filePath File path or root directory path.
-   * @param options Options controlling parquet writing behavior.
+   * @param options Options controlling Parquet writing behavior.
    *
    */
   toParquet(filePath: string, options: WriteParquetOptions = {}) {

@@ -211,14 +211,14 @@ export interface Table {
   writeCSV(options: TableWriteCSVOptions): void;
 
   /**
-   * Write a Table to ORC file format.
+   * Write a Table to Apache ORC file format.
    * @param filePath File path or root directory path.
    * @param options Options controlling ORC writing behavior.
    */
   writeORC(filePath: string, options: TableWriteORCOptions): void;
 
   /**
-   * Write a Table to parquet file format.
+   * Write a Table to Apache Parquet file format.
    * @param filePath File path or root directory path.
    * @param options Options controlling parquet writing behavior.
    */

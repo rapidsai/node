@@ -79,10 +79,10 @@ export class SQLContext {
   public get id() { return this.context.id; }
 
   /**
-   * Create a SQL table from CUDF DataFrames.
+   * Create a SQL table from cudf.DataFrames.
    *
    * @param tableName Name of the table when referenced in a query
-   * @param input DataFrame
+   * @param input cudf.DataFrame
    *
    * @example
    * ```typescript
@@ -120,7 +120,7 @@ export class SQLContext {
   }
 
   /**
-   * Create a SQL table from parquet file(s).
+   * Create a SQL table from Apache Parquet file(s).
    *
    * @param tableName Name of the table when referenced in a query
    * @param filePaths array of paths to parquet file(s)
@@ -138,7 +138,7 @@ export class SQLContext {
   }
 
   /**
-   * Create a SQL table from ORC file(s).
+   * Create a SQL table from Apache ORC file(s).
    *
    * @param tableName Name of the table when referenced in a query
    * @param filePaths array of paths to ORC file(s)

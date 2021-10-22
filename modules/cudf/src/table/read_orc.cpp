@@ -98,12 +98,12 @@ Napi::Value read_orc_strings(Napi::Object const& options, std::vector<Span<char>
 Napi::Value Table::read_orc(Napi::CallbackInfo const& info) {
   auto env = info.Env();
 
-  NODE_CUDF_EXPECT(info[0].IsObject(), "readParquet expects an Object of ReadParquetOptions", env);
+  NODE_CUDF_EXPECT(info[0].IsObject(), "readORC expects an Object of ReadORCOptions", env);
 
   auto options = info[0].As<Napi::Object>();
   auto sources = options.Get("sources");
 
-  NODE_CUDF_EXPECT(sources.IsArray(), "readCSV expects an Array of paths or buffers", env);
+  NODE_CUDF_EXPECT(sources.IsArray(), "readORC expects an Array of paths or buffers", env);
   try {
     return (options.Get("sourceType").ToString().Utf8Value() == "files")
              ? read_orc_files(options, NapiToCPP{sources})
