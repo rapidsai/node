@@ -6,11 +6,8 @@ Collection of react-based dashboard which include interactive vizualizations whi
 # Running Instructions:
 
 ```bash
-# Terminal 1: start the rendering server
-yarn demo modules/demo/ssr/graph
-
-# Terminal 2: start hhe front-end viz-app
-yarn demo modules/demo/viz-app
+start the rendering server and the front-end app concurrently
+yarn start
 ```
 
-Visit `localhost:3000/demo/graph` to access the demo.
+Visit `localhost:3000` to access the demos.
