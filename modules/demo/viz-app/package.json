@@ -8,9 +8,9 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "next dev -p 3005",
     "build": "next build",
-    "ssr-client": "next build && next start -p 3001",
+    "ssr-client": "next build && next start -p 3005",
     "ssr-server": "cd ../ssr/graph && npm start",
     "ssr-proxy": "node proxy",
     "start": "concurrently \"npm:ssr-* \""
