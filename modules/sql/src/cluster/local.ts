@@ -34,13 +34,21 @@ export class LocalSQLWorker implements Worker {
     });
   }
 
-  public async createTable(name: string, table_id: string) {
+  public async createDataFrameTable(name: string, table_id: string) {
     const table = await this.context.pull(table_id);
     this.context.createDataFrameTable(name, table);
   }
 
   public async createCSVTable(name: string, paths: string[]) {
     await this.context.createCSVTable(name, paths);
+  }
+
+  public async createParquetTable(name: string, paths: string[]) {
+    await this.context.createParquetTable(name, paths);
+  }
+
+  public async createORCTable(name: string, paths: string[]) {
+    await this.context.createORCTable(name, paths);
   }
 
   public async dropTable(name: string) { await this.context.dropTable(name); }

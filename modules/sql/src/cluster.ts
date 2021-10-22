@@ -26,8 +26,10 @@ export interface Worker {
   kill(): void;
   dropTable(name: string): Promise<void>;
   sql(query: string, token: number): Promise<DataFrame[]>;
-  createTable(name: string, table_id: string): Promise<void>;
+  createDataFrameTable(name: string, table_id: string): Promise<void>;
   createCSVTable(name: string, paths: string[]): Promise<void>;
+  createParquetTable(name: string, paths: string[]): Promise<void>;
+  createORCTable(name: string, paths: string[]): Promise<void>;
   createContext(props: Omit<ContextProps, 'id'>): Promise<void>;
 }
 
@@ -124,7 +126,8 @@ export class SQLCluster {
   public async createDataFrameTable(tableName: string, input: DataFrame) {
     ctxToken += this._workers.length;
     const ids = this.context.context.broadcast(ctxToken - this._workers.length, input).reverse();
-    await Promise.all(this._workers.map((worker, i) => worker.createTable(tableName, ids[i])));
+    await Promise.all(
+      this._workers.map((worker, i) => worker.createDataFrameTable(tableName, ids[i])));
   }
 
   /**
@@ -142,7 +145,11 @@ export class SQLCluster {
    * ```
    */
   public async createCSVTable(tableName: string, filePaths: string[]) {
-    await this._createFileTable(tableName, filePaths, 'csv');
+    await this._createFileTable(
+      tableName,
+      filePaths,
+      'csv',
+      (worker, chunkedPaths) => { return worker.createCSVTable(tableName, chunkedPaths); });
   }
 
   /**
@@ -160,7 +167,11 @@ export class SQLCluster {
    * ```
    */
   public async createParquetTable(tableName: string, filePaths: string[]) {
-    await this._createFileTable(tableName, filePaths, 'parquet');
+    await this._createFileTable(
+      tableName,
+      filePaths,
+      'parquet',
+      (worker, chunkedPaths) => { return worker.createParquetTable(tableName, chunkedPaths); });
   }
 
   /**
@@ -178,10 +189,19 @@ export class SQLCluster {
    * ```
    */
   public async createORCTable(tableName: string, filePaths: string[]) {
-    await this._createFileTable(tableName, filePaths, 'orc');
+    await this._createFileTable(
+      tableName,
+      filePaths,
+      'orc',
+      (worker, chunkedPaths) => { return worker.createORCTable(tableName, chunkedPaths); });
   }
 
-  private async _createFileTable(tableName: string, filePath: string[], fileType: string) {
+  private async _createFileTable(
+    tableName: string,
+    filePath: string[],
+    fileType: string,
+    cb: (worker: Worker, chunkedPaths: string[]) => Promise<void>,
+  ) {
     // TODO: This logic needs to be reworked. We split up the .csv files among the workers.
     // There is a possibility a worker does not get a .csv file, therefore we need to give it an
     // empty DataFrame.
@@ -200,12 +220,12 @@ export class SQLCluster {
 
     await Promise.all(this._workers.slice().reverse().map((worker, i) => {
       if (chunkedPaths[i].length > 0) {
-        return worker.createCSVTable(tableName, chunkedPaths[i]);
+        return cb(worker, chunkedPaths[i]);
       } else {
         ctxToken += 1;
         const message = `broadcast_table_message_${ctxToken}`;
         this.context.context.send(worker.id, ctxToken, message, empty);
-        return worker.createTable(tableName, message);
+        return worker.createDataFrameTable(tableName, message);
       }
     }));
   }
