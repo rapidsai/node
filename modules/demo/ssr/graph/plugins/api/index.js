@@ -1,14 +1,28 @@
-const {graphs, clients}          = require('../graph');
-const fs                         = require('fs')
-const util                       = require('util')
-const {pipeline}                 = require('stream')
-const pump                       = util.promisify(pipeline)
-var glob                         = require('glob');
-const {Float32Buffer}            = require('@rapidsai/cuda');
-const {GraphCOO}                 = require('@rapidsai/cugraph');
-const {DataFrame, Series, Int32} = require('@rapidsai/cudf');
-const {loadEdges, loadNodes}     = require('../graph/loader');
-const {RecordBatchStreamWriter}  = require('apache-arrow');
+// Copyright (c) 2021, NVIDIA CORPORATION.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+const {graphs, clients}                           = require('../graph');
+const fs                                          = require('fs')
+const util                                        = require('util')
+const {pipeline}                                  = require('stream')
+const pump                                        = util.promisify(pipeline)
+var glob                                          = require('glob');
+const {Float32Buffer}                             = require('@rapidsai/cuda');
+const {GraphCOO}                                  = require('@rapidsai/cugraph');
+const {DataFrame, Series, Int32, Uint64, Float64} = require('@rapidsai/cudf');
+const {loadEdges, loadNodes}                      = require('../graph/loader');
+const {RecordBatchStreamWriter}                   = require('apache-arrow');
 
 function readDataFrame(path) {
   if (path.indexOf('.csv', path.length - 4) !== -1) {
@@ -41,13 +55,15 @@ async function getNodesForGraph(asDeviceMemory, nodes, numNodes) {
     nodesRes.nodeYPositions = pos.subarray(pos.length / 2);
   }
   if (nodes.dataframe.names.includes(nodes.size)) {
-    nodesRes.nodeRadius = asDeviceMemory(nodes.dataframe.get(nodes.size).data);
+    nodesRes.nodeRadius = asDeviceMemory(nodes.dataframe.get(nodes.size).cast(new Float64).data);
   }
   if (nodes.dataframe.names.includes(nodes.color)) {
-    nodesRes.nodeFillColors = asDeviceMemory(nodes.dataframe.get(nodes.color).data);
+    nodesRes.nodeFillColors =
+      asDeviceMemory(nodes.dataframe.get(nodes.color).cast(new Float64).data);
   }
   if (nodes.dataframe.names.includes(nodes.id)) {
-    nodesRes.nodeElementIndices = asDeviceMemory(nodes.dataframe.get(nodes.id).data);
+    nodesRes.nodeElementIndices =
+      asDeviceMemory(nodes.dataframe.get(nodes.id).cast(new Uint64).data);
   }
   return nodesRes;
 }
@@ -65,7 +81,7 @@ async function getEdgesForGraph(asDeviceMemory, edges) {
         .data);
   }
   if (edges.dataframe.names.includes(edges.id)) {
-    edgesRes.edgeList = asDeviceMemory(edges.dataframe.get(edges.id).data);
+    edgesRes.edgeList = asDeviceMemory(edges.dataframe.get(edges.id).cast(new Uint64).data);
   }
   if (edges.dataframe.names.includes(edges.bundle)) {
     edgesRes.edgeBundles = asDeviceMemory(edges.dataframe.get(edges.bundle).data);
