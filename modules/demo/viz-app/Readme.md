@@ -6,7 +6,7 @@ Collection of react-based dashboard which include interactive vizualizations whi
 # Running Instructions:
 
 ```bash
-start the rendering server and the front-end app concurrently
+# start the rendering server and the front-end app concurrently
 yarn start
 ```
 
