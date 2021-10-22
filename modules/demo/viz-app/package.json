@@ -8,9 +8,12 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
-    "start": "next build && next start"
+    "ssr-client": "next build && next start -p 3001",
+    "ssr-server": "cd ../ssr/graph && npm start",
+    "ssr-proxy": "node proxy",
+    "start": "concurrently \"npm:ssr-* \""
   },
   "dependencies": {
     "@deck.gl/core": "8.5.8",
@@ -39,7 +42,9 @@
     "simple-peer": "9.11.0",
     "socket.io-client": "4.2.0",
     "react-native-webrtc": "1.92.2",
-    "fetch": "1.1.0"
+    "fetch": "1.1.0",
+    "concurrently": "6.3.0",
+    "redbird": "0.10.0"
   },
   "files": [
     "pages",

@@ -22,6 +22,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { Form, Col, Row } from 'react-bootstrap';
 import { io } from "socket.io-client";
 import SimplePeer from "simple-peer";
+import axios from 'axios';
 
 function onlyH264(sdp) {
   // remove non-h264 codecs from the supported codecs list
@@ -232,7 +233,7 @@ export default class Graph extends React.Component {
     const fetchId = ++this.fetchIdRef.current;
 
     if (fetchId === this.fetchIdRef.current) {
-      await axios.post('http://localhost:8080/fetchPaginatedData', {
+      await axios.post('/api/fetchPaginatedData', {
         id: this.socket.id,
         pageIndex: pageIndex + 1,
         pageSize: pageSize,
@@ -316,7 +317,7 @@ export default class Graph extends React.Component {
     console.log("uploading", file.name, this);
     let formData = new FormData();
     formData.append("file", file);
-    axios.post("http://localhost:8080/uploadFile", formData, {
+    axios.post("/api/uploadFile", formData, {
     }).then(respone => { console.log(respone.statusText); })
       .then(success => {
         console.log("file uploaded successfully");
@@ -327,7 +328,7 @@ export default class Graph extends React.Component {
   }
 
   reloadFiles() {
-    axios.get("http://localhost:8080/getFileNames?id=" + this.socket.id).then((response) => {
+    axios.get("/api/getFileNames?id=" + this.socket.id).then((response) => {
       this.setState({
         nodesFileOptions: response.data,
         edgesFileOptions: response.data,
@@ -343,7 +344,7 @@ export default class Graph extends React.Component {
   }
 
   fetchDFParameters() {
-    axios.get("http://localhost:8080/fetchDFParameters", {
+    axios.get("/api/fetchDFParameters", {
       params: {
         id: this.socket.id
       }
@@ -371,7 +372,7 @@ export default class Graph extends React.Component {
   }
 
   loadOnGPU() {
-    axios.get("http://localhost:8080/loadOnGPU", {
+    axios.get("/api/loadOnGPU", {
       params: {
         id: this.socket.id,
         nodes: this.state.nodesFile,
@@ -435,7 +436,7 @@ export default class Graph extends React.Component {
 
   getCustomComponents() {
     return (<div>
-      <p className={"textButton"} onClick={() => this.reloadFiles()}>[Refresh files]</p>
+      <p className={"textButton", "whiteTextButton"} onClick={() => this.reloadFiles()}>[Refresh files]</p>
       <Form.Group>
         <Form.Label>Select Nodes</Form.Label>
         <Form.Control as="select" custom onChange={(e) => { this.setState({ nodesFile: e.target.value }); }}>
@@ -445,7 +446,7 @@ export default class Graph extends React.Component {
         <Form.Control as="select" custom onChange={(e) => { this.setState({ edgesFile: e.target.value }); }}>
           {this.state.edgesFileOptions.map((obj) => <option value={obj}>{obj}</option>)}
         </Form.Control>
-        <p className={"textButton"} onClick={() => this.loadOnGPU()}>[Load on GPU] {this.state.gpuLoadStatus}</p>
+        <p className={"textButton", "whiteTextButton"} onClick={() => this.loadOnGPU()}>[Load on GPU] {this.state.gpuLoadStatus}</p>
       </Form.Group>
       {this.getDFParameters()}
 
@@ -471,7 +472,7 @@ export default class Graph extends React.Component {
 
 
   onRenderClick() {
-    axios.post("http://localhost:8080/updateRenderColumns", {
+    axios.post("/api/updateRenderColumns", {
       nodes: this.state.nodesRenderColumns,
       edges: this.state.edgesRenderColumns,
       id: this.socket.id
