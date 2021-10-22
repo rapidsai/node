@@ -27,6 +27,8 @@ Due to native dependency distribution complexity, pre-packaged builds of the `no
 
 See [DEVELOP.md](https://github.com/rapidsai/node/blob/main/DEVELOP.md) for details on setting up a local dev environment and building the code.
 
+We want your input! Join us in the [#node-rapids channel](https://rapids-goai.slack.com/archives/C0237JMVBRS) in the [RAPIDS-GoAI Slack workspace](https://rapids-goai.slack.com).
+  
 ## Tracking Progress
 
 You can review [BINDINGS.md](https://github.com/rapidsai/node/blob/main/BINDINGS.md) to see which bindings have been completed for each of the RAPIDS libraries.
