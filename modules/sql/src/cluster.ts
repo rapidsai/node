@@ -121,39 +121,93 @@ export class SQLCluster {
    * await sqlCluster.createTable('test_table', df);
    * ```
    */
-  public async createTable(tableName: string, input: DataFrame|string[]) {
-    if (input instanceof DataFrame) {
-      ctxToken += this._workers.length;
-      const ids = this.context.context.broadcast(ctxToken - this._workers.length, input).reverse();
-      await Promise.all(this._workers.map((worker, i) => worker.createTable(tableName, ids[i])));
-    } else {
-      // TODO: This logic needs to be reworked. We split up the .csv files among the workers.
-      // There is a possibility a worker does not get a .csv file, therefore we need to give it an
-      // empty DataFrame.
-      const {types, names} = parseSchema(input, 'csv');  // TODO: MZEGAR Fix before merge.
-      const empty          = new DataFrame(
-        names.reduce((xs: any, name: any, i: any) => ({
-                       ...xs,
-                       [name]: Series.new({type: arrowToCUDFType(types[i]), data: []}),
-                     }),
-                     {}));
+  public async createDataFrameTable(tableName: string, input: DataFrame) {
+    ctxToken += this._workers.length;
+    const ids = this.context.context.broadcast(ctxToken - this._workers.length, input).reverse();
+    await Promise.all(this._workers.map((worker, i) => worker.createTable(tableName, ids[i])));
+  }
 
-      const chunkedPaths: string[][] = [];
-      for (let i = this._workers.length; i > 0; i--) {
-        chunkedPaths.push(input.splice(0, Math.ceil(input.length / i)));
-      }
+  /**
+   * Create a SQL table from CSV file(s).
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param filePaths array of paths to CSV file(s)
+   *
+   * @example
+   * ```typescript
+   * import {sqlCluster} from '@rapidsai/sql';
+   *
+   * const sqlCluster = await SQLCluster.init();
+   * sqlCluster.createCSVTable('test_table', ['test.csv']);
+   * ```
+   */
+  public async createCSVTable(tableName: string, filePaths: string[]) {
+    await this._createFileTable(tableName, filePaths, 'csv');
+  }
 
-      await Promise.all(this._workers.slice().reverse().map((worker, i) => {
-        if (chunkedPaths[i].length > 0) {
-          return worker.createCSVTable(tableName, chunkedPaths[i]);
-        } else {
-          ctxToken += 1;
-          const message = `broadcast_table_message_${ctxToken}`;
-          this.context.context.send(worker.id, ctxToken, message, empty);
-          return worker.createTable(tableName, message);
-        }
-      }));
+  /**
+   * Create a SQL table from parquet file(s).
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param filePaths array of paths to parquet file(s)
+   *
+   * @example
+   * ```typescript
+   * import {sqlCluster} from '@rapidsai/sql';
+   *
+   * const sqlCluster = await SQLCluster.init();
+   * sqlCluster.createParquetTable('test_table', ['test.parquet']);
+   * ```
+   */
+  public async createParquetTable(tableName: string, filePaths: string[]) {
+    await this._createFileTable(tableName, filePaths, 'parquet');
+  }
+
+  /**
+   * Create a SQL table from ORC file(s).
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param filePaths array of paths to ORC file(s)
+   *
+   * @example
+   * ```typescript
+   * import {sqlCluster} from '@rapidsai/sql';
+   *
+   * const sqlCluster = await SQLCluster.init();
+   * sqlCluster.createORCTable('test_table', ['test.orc']);
+   * ```
+   */
+  public async createORCTable(tableName: string, filePaths: string[]) {
+    await this._createFileTable(tableName, filePaths, 'orc');
+  }
+
+  private async _createFileTable(tableName: string, filePath: string[], fileType: string) {
+    // TODO: This logic needs to be reworked. We split up the .csv files among the workers.
+    // There is a possibility a worker does not get a .csv file, therefore we need to give it an
+    // empty DataFrame.
+    const {types, names} = parseSchema(filePath, fileType);  // TODO: MZEGAR Fix before merge.
+    const empty =
+      new DataFrame(names.reduce((xs: any, name: any, i: any) => ({
+                                   ...xs,
+                                   [name]: Series.new({type: arrowToCUDFType(types[i]), data: []}),
+                                 }),
+                                 {}));
+
+    const chunkedPaths: string[][] = [];
+    for (let i = this._workers.length; i > 0; i--) {
+      chunkedPaths.push(filePath.splice(0, Math.ceil(filePath.length / i)));
     }
+
+    await Promise.all(this._workers.slice().reverse().map((worker, i) => {
+      if (chunkedPaths[i].length > 0) {
+        return worker.createCSVTable(tableName, chunkedPaths[i]);
+      } else {
+        ctxToken += 1;
+        const message = `broadcast_table_message_${ctxToken}`;
+        this.context.context.send(worker.id, ctxToken, message, empty);
+        return worker.createTable(tableName, message);
+      }
+    }));
   }
 
   /**

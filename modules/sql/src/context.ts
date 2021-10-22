@@ -94,7 +94,7 @@ export class SQLContext {
    * const df = new DataFrame({'a': a, 'b': b});
    *
    * const sqlContext = new SQLContext();
-   * sqlContext.createTable('test_table', df);
+   * sqlContext.createDataFrameTable('test_table', df);
    * ```
    */
   createDataFrameTable(tableName: string, input: DataFrame): void {
@@ -105,54 +105,54 @@ export class SQLContext {
    * Create a SQL table from CSV file(s).
    *
    * @param tableName Name of the table when referenced in a query
-   * @param input array of paths to CSV file(s)
+   * @param filePaths array of paths to CSV file(s)
    *
    * @example
    * ```typescript
    * import {SQLContext} from '@rapidsai/sql';
    *
    * const sqlContext = new SQLContext();
-   * sqlContext.createTable('test_table', ['test.csv']);
+   * sqlContext.createCSVTable('test_table', ['test.csv']);
    * ```
    */
-  createCSVTable(tableName: string, input: string[]): void {
-    this._createTable(new FileTable(tableName, input, 'csv'));
+  createCSVTable(tableName: string, filePaths: string[]): void {
+    this._createTable(new FileTable(tableName, filePaths, 'csv'));
   }
 
   /**
    * Create a SQL table from parquet file(s).
    *
    * @param tableName Name of the table when referenced in a query
-   * @param input array of paths to parquet file(s)
+   * @param filePaths array of paths to parquet file(s)
    *
    * @example
    * ```typescript
    * import {SQLContext} from '@rapidsai/sql';
    *
    * const sqlContext = new SQLContext();
-   * sqlContext.createTable('test_table', ['test.parquet']);
+   * sqlContext.createParquetTable('test_table', ['test.parquet']);
    * ```
    */
-  createParquetTable(tableName: string, input: string[]): void {
-    this._createTable(new FileTable(tableName, input, 'parquet'));
+  createParquetTable(tableName: string, filePaths: string[]): void {
+    this._createTable(new FileTable(tableName, filePaths, 'parquet'));
   }
 
   /**
    * Create a SQL table from ORC file(s).
    *
    * @param tableName Name of the table when referenced in a query
-   * @param input array of paths to ORC file(s)
+   * @param filePaths array of paths to ORC file(s)
    *
    * @example
    * ```typescript
    * import {SQLContext} from '@rapidsai/sql';
    *
    * const sqlContext = new SQLContext();
-   * sqlContext.createTable('test_table', ['test.orc']);
+   * sqlContext.createORCTable('test_table', ['test.orc']);
    * ```
    */
-  createORCTable(tableName: string, input: string[]): void {
-    this._createTable(new FileTable(tableName, input, 'orc'));
+  createORCTable(tableName: string, filePaths: string[]): void {
+    this._createTable(new FileTable(tableName, filePaths, 'orc'));
   }
 
   private _createTable(input: SQLTable): void {
