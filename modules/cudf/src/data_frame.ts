@@ -835,9 +835,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    */
   toORC(filePath: string, options: WriteORCOptions = {}) {
-    new Table({
-      columns: this._accessor.columns
-    }).writeORC(filePath, {...options, columnNames: this.names as string[]});
+    this.asTable().writeORC(filePath, {...options, columnNames: this.names as string[]});
   }
 
   /**
@@ -848,9 +846,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    */
   toParquet(filePath: string, options: WriteParquetOptions = {}) {
-    new Table({
-      columns: this._accessor.columns
-    }).writeParquet(filePath, {...options, columnNames: this.names as string[]});
+    this.asTable().writeParquet(filePath, {...options, columnNames: this.names as string[]});
   }
 
   /**

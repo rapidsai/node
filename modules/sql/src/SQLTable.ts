@@ -35,7 +35,7 @@ export class FileTable implements SQLTable {
   public tableName: string;
   private schema: ParsedSchema;
 
-  constructor(tableName: string, input: string[], fileType: string) {
+  constructor(tableName: string, input: string[], fileType: 'csv'|'orc'|'parquet') {
     this.tableName = tableName;
     this.schema    = parseSchema(input, fileType);
   }

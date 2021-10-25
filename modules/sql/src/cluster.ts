@@ -199,7 +199,7 @@ export class SQLCluster {
   private async _createFileTable(
     tableName: string,
     filePath: string[],
-    fileType: string,
+    fileType: 'csv'|'orc'|'parquet',
     cb: (worker: Worker, chunkedPaths: string[]) => Promise<void>,
   ) {
     // TODO: This logic needs to be reworked. We split up the files among the workers.

@@ -20,7 +20,7 @@ export declare function getTableScanInfo(logicalPlan: string): [string[], string
 export declare function runGeneratePhysicalGraph(
   workerIds: string[], ctxToken: number, query: string): string;
 
-export declare function parseSchema(input: string[], fileType: string): ParsedSchema;
+export declare function parseSchema(input: string[], fileType: 'csv'|'orc'|'parquet'): ParsedSchema;
 
 export type WorkerUcpInfo = {
   id: number;    //
