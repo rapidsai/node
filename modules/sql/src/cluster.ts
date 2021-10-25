@@ -15,7 +15,7 @@
 /* eslint-disable @typescript-eslint/await-thenable */
 
 import {Device} from '@rapidsai/cuda';
-import {arrowToCUDFType, DataFrame, Series} from '@rapidsai/cudf';
+import {arrowToCUDFType, DataFrame, DataType, Series} from '@rapidsai/cudf';
 import {ContextProps, parseSchema} from './addon';
 import {LocalSQLWorker} from './cluster/local';
 import {RemoteSQLWorker} from './cluster/remote';
@@ -40,6 +40,23 @@ export interface ClusterProps {
 }
 
 let ctxToken = 0;
+
+function _emptyDataFrameWithTypes(names: string[], types: DataType[]) {
+  return new DataFrame(
+    names.reduce((xs: any, name: any, i: any) => ({
+                   ...xs,
+                   [name]: Series.new({type: arrowToCUDFType(types[i]), data: []}),
+                 }),
+                 {}));
+}
+
+function _distributeFilePaths(filePaths: string[], numWorkers: number) {
+  const chunkedPaths: string[][] = [];
+  for (let i = numWorkers; i > 0; i--) {
+    chunkedPaths.push(filePaths.splice(0, Math.ceil(filePaths.length / i)));
+  }
+  return chunkedPaths;
+}
 
 export class SQLCluster {
   /**
@@ -125,7 +142,9 @@ export class SQLCluster {
    */
   public async createDataFrameTable(tableName: string, input: DataFrame) {
     ctxToken += this._workers.length;
-    const ids = this.context.context.broadcast(ctxToken - this._workers.length, input).reverse();
+    const ids =
+      this.context.context.broadcast(ctxToken - this._workers.length, this._workers.length, input)
+        .reverse();
     await Promise.all(
       this._workers.map((worker, i) => worker.createDataFrameTable(tableName, ids[i])));
   }
@@ -145,11 +164,19 @@ export class SQLCluster {
    * ```
    */
   public async createCSVTable(tableName: string, filePaths: string[]) {
-    await this._createFileTable(
-      tableName,
-      filePaths,
-      'csv',
-      (worker, chunkedPaths) => { return worker.createCSVTable(tableName, chunkedPaths); });
+    const {names, types} = parseSchema(filePaths, 'csv');
+    const emptyDataFrame = _emptyDataFrameWithTypes(names, types);
+    const chunkedPaths   = _distributeFilePaths(filePaths, this._workers.length);
+
+    await Promise.all(this._workers.slice().reverse().map((worker, i) => {
+      if (chunkedPaths[i].length > 0) {
+        return worker.createCSVTable(tableName, chunkedPaths[i]);
+      } else {
+        ctxToken += 1;
+        const ids = this.context.context.broadcast(ctxToken, 1, emptyDataFrame);
+        return worker.createDataFrameTable(tableName, ids[0]);
+      }
+    }));
   }
 
   /**
@@ -167,11 +194,19 @@ export class SQLCluster {
    * ```
    */
   public async createParquetTable(tableName: string, filePaths: string[]) {
-    await this._createFileTable(
-      tableName,
-      filePaths,
-      'parquet',
-      (worker, chunkedPaths) => { return worker.createParquetTable(tableName, chunkedPaths); });
+    const {names, types} = parseSchema(filePaths, 'parquet');
+    const emptyDataFrame = _emptyDataFrameWithTypes(names, types);
+    const chunkedPaths   = _distributeFilePaths(filePaths, this._workers.length);
+
+    await Promise.all(this._workers.map((worker, i) => {
+      if (chunkedPaths[i].length > 0) {
+        return worker.createParquetTable(tableName, chunkedPaths[i]);
+      } else {
+        ctxToken += 1;
+        const ids = this.context.context.broadcast(ctxToken, 1, emptyDataFrame);
+        return worker.createDataFrameTable(tableName, ids[0]);
+      }
+    }));
   }
 
   /**
@@ -189,43 +224,17 @@ export class SQLCluster {
    * ```
    */
   public async createORCTable(tableName: string, filePaths: string[]) {
-    await this._createFileTable(
-      tableName,
-      filePaths,
-      'orc',
-      (worker, chunkedPaths) => { return worker.createORCTable(tableName, chunkedPaths); });
-  }
-
-  private async _createFileTable(
-    tableName: string,
-    filePath: string[],
-    fileType: string,
-    cb: (worker: Worker, chunkedPaths: string[]) => Promise<void>,
-  ) {
-    // TODO: This logic needs to be reworked. We split up the .csv files among the workers.
-    // There is a possibility a worker does not get a .csv file, therefore we need to give it an
-    // empty DataFrame.
-    const {types, names} = parseSchema(filePath, fileType);  // TODO: MZEGAR Fix before merge.
-    const empty =
-      new DataFrame(names.reduce((xs: any, name: any, i: any) => ({
-                                   ...xs,
-                                   [name]: Series.new({type: arrowToCUDFType(types[i]), data: []}),
-                                 }),
-                                 {}));
-
-    const chunkedPaths: string[][] = [];
-    for (let i = this._workers.length; i > 0; i--) {
-      chunkedPaths.push(filePath.splice(0, Math.ceil(filePath.length / i)));
-    }
+    const {names, types} = parseSchema(filePaths, 'orc');
+    const emptyDataFrame = _emptyDataFrameWithTypes(names, types);
+    const chunkedPaths   = _distributeFilePaths(filePaths, this._workers.length);
 
     await Promise.all(this._workers.slice().reverse().map((worker, i) => {
       if (chunkedPaths[i].length > 0) {
-        return cb(worker, chunkedPaths[i]);
+        return worker.createORCTable(tableName, chunkedPaths[i]);
       } else {
         ctxToken += 1;
-        const message = `broadcast_table_message_${ctxToken}`;
-        this.context.context.send(worker.id, ctxToken, message, empty);
-        return worker.createDataFrameTable(tableName, message);
+        const ids = this.context.context.broadcast(ctxToken, 1, emptyDataFrame);
+        return worker.createDataFrameTable(tableName, ids[0]);
       }
     }));
   }

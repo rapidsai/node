@@ -46,7 +46,7 @@ export declare class Context {
 
   public readonly id: number;
 
-  broadcast(ctxToken: number, df: DataFrame): string[];
+  broadcast(ctxToken: number, numWorkers: number, df: DataFrame): string[];
   pull(messageId: string): Promise<{names: string[], tables: Table[]}>;
   send(id: number, ctxToken: number, messageId: string, df: DataFrame): void;
   runGenerateGraph(dataframes: DataFrame[],

@@ -78,7 +78,7 @@ test('explain', async () => {
 `);
 });
 
-test('select a single column (one worker)', async () => {
+test('select a single column', async () => {
   const a  = Series.new([6, 9, 1, 6, 2]);
   const b  = Series.new([7, 2, 7, 1, 2]);
   const df = new DataFrame({'a': a, 'b': b});
@@ -89,7 +89,7 @@ test('select a single column (one worker)', async () => {
   expect(result).toStrictEqual(new DataFrame({a}));
 });
 
-test('select all columns (one worker)', async () => {
+test('select all columns', async () => {
   const a  = Series.new([6, 9, 1, 6, 2]);
   const b  = Series.new([7, 2, 7, 1, 2]);
   const df = new DataFrame({'a': a, 'b': b});
@@ -100,7 +100,7 @@ test('select all columns (one worker)', async () => {
   expect(result).toStrictEqual(new DataFrame({'a': a, 'b': b}));
 });
 
-test('union columns from two tables (one worker)', async () => {
+test('union columns from two tables', async () => {
   const a   = Series.new([1, 2, 3]);
   const df1 = new DataFrame({'a': a});
   const df2 = new DataFrame({'a': a});
@@ -112,7 +112,7 @@ test('union columns from two tables (one worker)', async () => {
   expect(result).toStrictEqual(new DataFrame({'a': Series.new([...a, ...a])}));
 });
 
-test('find all columns within a table that meet condition (one worker)', async () => {
+test('find all columns within a table that meet condition', async () => {
   const key = Series.new(['a', 'b', 'c', 'd', 'e']);
   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
   const df  = new DataFrame({'key': key, 'val': val});

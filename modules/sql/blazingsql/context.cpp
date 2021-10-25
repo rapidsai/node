@@ -169,14 +169,14 @@ Napi::Value Context::broadcast(Napi::CallbackInfo const& info) {
   auto env = info.Env();
   CallbackArgs args{info};
   int32_t ctx_token    = args[0];
-  NapiToCPP::Object df = args[1];
+  int32_t num_workers  = args[1];
+  NapiToCPP::Object df = args[2];
 
   Table::wrapper_t table;
   std::vector<std::string> names;
   std::tie(names, table) = get_names_and_table(df);
 
-  auto const num_rows    = table->num_rows();
-  auto const num_workers = _worker_ids.size();
+  auto const num_rows = table->num_rows();
   auto const num_slice_rows =
     static_cast<cudf::size_type>(ceil(static_cast<double>(num_rows) / num_workers));
 
