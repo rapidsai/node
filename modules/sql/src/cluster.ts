@@ -202,10 +202,10 @@ export class SQLCluster {
     fileType: string,
     cb: (worker: Worker, chunkedPaths: string[]) => Promise<void>,
   ) {
-    // TODO: This logic needs to be reworked. We split up the .csv files among the workers.
-    // There is a possibility a worker does not get a .csv file, therefore we need to give it an
+    // TODO: This logic needs to be reworked. We split up the files among the workers.
+    // There is a possibility a worker does not get a file, therefore we need to give it an
     // empty DataFrame.
-    const {types, names} = parseSchema(filePath, fileType);  // TODO: MZEGAR Fix before merge.
+    const {types, names} = parseSchema(filePath, fileType);
     const empty =
       new DataFrame(names.reduce((xs: any, name: any, i: any) => ({
                                    ...xs,
