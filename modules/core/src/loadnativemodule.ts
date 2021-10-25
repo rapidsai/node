@@ -33,7 +33,7 @@ export function loadNativeModule<T = any>(
       if ((nativeModule = require(Path.join(moduleBasePath, '..', type, `${name}.node`)))) {
         break;
       }
-    } catch (e) {
+    } catch (e: any) {
       errors.push(e);
       continue;
     }
