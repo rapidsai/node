@@ -75,9 +75,17 @@ type JoinProps<
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
   GroupBySingleProps<T, R>|Partial<GroupByMultipleProps<T, R, IndexKey>>;
 
-function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
+function _seriesToColumns<T extends TypeMap>(data: ColumnsMap<T>|SeriesMap<T>) {
   const columns = {} as any;
-  for (const [name, series] of Object.entries(data)) { columns[name] = series._col; }
+  for (const [name, col] of Object.entries(data)) {
+    if (col instanceof Column) {
+      columns[name] = col;
+    } else if (col instanceof Series) {
+      columns[name] = col._col;
+    } else {
+      columns[name] = Series.new(col)._col;
+    }
+  }
   return <ColumnsMap<T>>columns;
 }
 
@@ -185,7 +193,10 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  constructor(data: ColumnAccessor<T>|SeriesMap<T> = {} as SeriesMap<T>) {
+  constructor(data?: SeriesMap<T>);
+  constructor(data?: ColumnsMap<T>);
+  constructor(data?: ColumnAccessor<T>);
+  constructor(data: any = {}) {
     this._accessor =
       (data instanceof ColumnAccessor) ? data : new ColumnAccessor(_seriesToColumns(data));
   }
@@ -835,9 +846,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    */
   toORC(filePath: string, options: WriteORCOptions = {}) {
-    new Table({
-      columns: this._accessor.columns
-    }).writeORC(filePath, {...options, columnNames: this.names as string[]});
+    this.asTable().writeORC(filePath, {...options, columnNames: this.names as string[]});
   }
 
   /**
@@ -848,9 +857,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    */
   toParquet(filePath: string, options: WriteParquetOptions = {}) {
-    new Table({
-      columns: this._accessor.columns
-    }).writeParquet(filePath, {...options, columnNames: this.names as string[]});
+    this.asTable().writeParquet(filePath, {...options, columnNames: this.names as string[]});
   }
 
   /**

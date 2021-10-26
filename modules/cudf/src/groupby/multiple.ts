@@ -16,17 +16,13 @@ import {MemoryResource} from '@rapidsai/rmm';
 import {Field} from 'apache-arrow';
 
 import {Column} from '../column';
-import {DataFrame, SeriesMap} from '../data_frame';
+import {DataFrame} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
-import {DataType, Struct} from '../types/dtypes';
-import {Interpolation, TypeMap} from '../types/mappings';
+import {Struct} from '../types/dtypes';
+import {ColumnsMap, Interpolation, TypeMap} from '../types/mappings';
 
 import {GroupByBase, GroupByBaseProps} from './base';
-
-type TypeMapOf<T extends string, R extends DataType> = {
-  [P in T]: R
-};
 
 export type GroupByMultipleProps<T extends TypeMap, R extends keyof T, IndexKey extends string> = {
   by: R[],
@@ -46,12 +42,11 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
 
     type Subset        = Pick<T, R>;
     type Index         = Struct<Subset>;
-    type IndexTypeMap  = TypeMapOf<IndexKey, Index>;
     type RestTypeMap   = Omit<T, R>;
-    type RestSeriesMap = SeriesMap<RestTypeMap>;
+    type RestSeriesMap = ColumnsMap<RestTypeMap>;
 
-    const rest_map = this._values.names.reduce(
-      (xs, key, index) => ({...xs, [key]: Series.new(cols[index])}), {} as RestSeriesMap);
+    const rest_map = this._values.names.reduce((xs, key, index) => ({...xs, [key]: cols[index]}),
+                                               {} as RestSeriesMap);
 
     if (this.index_key in rest_map) {
       throw new Error(`Groupby column name ${this.index_key} already exists`);
@@ -68,8 +63,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
 
     const index = Series.new<Index>({type: new Struct(fields), children: children});
 
-    return new DataFrame({[this.index_key]: index, ...rest_map} as
-                         SeriesMap<IndexTypeMap&RestTypeMap>);
+    return new DataFrame({[this.index_key]: index._col, ...rest_map});
   }
 
   /**

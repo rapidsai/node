@@ -224,13 +224,13 @@ export class SQLCluster {
    * ```
    */
   public async createORCTable(tableName: string, filePaths: string[]) {
-    const {names, types} = parseSchema(filePaths, 'orc');
+    const {names, types} = parseSchema(filePaths, 'parquet');
     const emptyDataFrame = _emptyDataFrameWithTypes(names, types);
     const chunkedPaths   = _distributeFilePaths(filePaths, this._workers.length);
 
-    await Promise.all(this._workers.slice().reverse().map((worker, i) => {
+    await Promise.all(this._workers.map((worker, i) => {
       if (chunkedPaths[i].length > 0) {
-        return worker.createORCTable(tableName, chunkedPaths[i]);
+        return worker.createParquetTable(tableName, chunkedPaths[i]);
       } else {
         ctxToken += 1;
         const ids = this.context.context.broadcast(ctxToken, 1, emptyDataFrame);

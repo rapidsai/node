@@ -113,11 +113,11 @@ export class Quadtree<T extends FloatingPoint> {
       maxDepth,
       minSize,
       quadtree: new DataFrame({
-        [names[0]]: Series.new(table.getColumnByIndex<Uint32>(0)),
-        [names[1]]: Series.new(table.getColumnByIndex<Uint8>(1)),
-        [names[2]]: Series.new(table.getColumnByIndex<Bool8>(2)),
-        [names[3]]: Series.new(table.getColumnByIndex<Uint32>(3)),
-        [names[4]]: Series.new(table.getColumnByIndex<Uint32>(4)),
+        [names[0]]: table.getColumnByIndex<Uint32>(0),
+        [names[1]]: table.getColumnByIndex<Uint8>(1),
+        [names[2]]: table.getColumnByIndex<Bool8>(2),
+        [names[3]]: table.getColumnByIndex<Uint32>(3),
+        [names[4]]: table.getColumnByIndex<Uint32>(4),
       })
     });
   }
@@ -244,8 +244,8 @@ export class Quadtree<T extends FloatingPoint> {
   public get points() {
     const remap = new Table({columns: [this._x, this._y]}).gather(this._keyMap);
     return new DataFrame({
-      x: Series.new(remap.getColumnByIndex<T>(0)),
-      y: Series.new(remap.getColumnByIndex<T>(1)),
+      x: remap.getColumnByIndex<T>(0),
+      y: remap.getColumnByIndex<T>(1),
     });
   }
 
@@ -296,8 +296,8 @@ export class Quadtree<T extends FloatingPoint> {
                                                 polygonPointY._col as Column<T>,
                                                 memoryResource);
     return new DataFrame({
-      [names[0]]: Series.new(table.getColumnByIndex<Uint32>(0)),
-      [names[1]]: Series.new(table.getColumnByIndex<Uint32>(1)),
+      [names[0]]: table.getColumnByIndex<Uint32>(0),
+      [names[1]]: table.getColumnByIndex<Uint32>(1),
     });
   }
 
@@ -340,9 +340,9 @@ export class Quadtree<T extends FloatingPoint> {
                                                           polylinePointY._col as Column<T>,
                                                           memoryResource);
     return new DataFrame({
-      [names[0]]: Series.new(table.getColumnByIndex<Uint32>(0)),
-      [names[1]]: Series.new(table.getColumnByIndex<Uint32>(1)),
-      [names[2]]: Series.new(table.getColumnByIndex<T>(2)),
+      [names[0]]: table.getColumnByIndex<Uint32>(0),
+      [names[1]]: table.getColumnByIndex<Uint32>(1),
+      [names[2]]: table.getColumnByIndex<T>(2),
     });
   }
 
@@ -363,8 +363,8 @@ export class Quadtree<T extends FloatingPoint> {
                                                                    this.maxDepth,
                                                                    memoryResource);
     return new DataFrame({
-      [names[0]]: Series.new(table.getColumnByIndex<Uint32>(0)),
-      [names[1]]: Series.new(table.getColumnByIndex<Uint32>(1)),
+      [names[0]]: table.getColumnByIndex<Uint32>(0),
+      [names[1]]: table.getColumnByIndex<Uint32>(1),
     });
   }
 }

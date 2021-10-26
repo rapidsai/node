@@ -74,16 +74,17 @@ Napi::Value read_orc_files(Napi::Object const& options, std::vector<std::string>
   return output;
 }
 
-std::vector<cudf::io::host_buffer> get_host_buffers(std::vector<Span<char>> const& sources) {
+std::vector<cudf::io::host_buffer> get_host_buffers(std::vector<Span<uint8_t>> const& sources) {
   std::vector<cudf::io::host_buffer> buffers;
   buffers.reserve(sources.size());
   std::transform(sources.begin(), sources.end(), std::back_inserter(buffers), [&](auto const& buf) {
-    return cudf::io::host_buffer{buf.data(), buf.size()};
+    return cudf::io::host_buffer{static_cast<Span<char>>(buf), buf.size()};
   });
   return buffers;
 }
 
-Napi::Value read_orc_strings(Napi::Object const& options, std::vector<Span<char>> const& sources) {
+Napi::Value read_orc_sources(Napi::Object const& options,
+                             std::vector<Span<uint8_t>> const& sources) {
   auto env    = options.Env();
   auto result = cudf::io::read_orc(
     make_reader_options(options, cudf::io::source_info{get_host_buffers(sources)}));
@@ -107,7 +108,7 @@ Napi::Value Table::read_orc(Napi::CallbackInfo const& info) {
   try {
     return (options.Get("sourceType").ToString().Utf8Value() == "files")
              ? read_orc_files(options, NapiToCPP{sources})
-             : read_orc_strings(options, NapiToCPP{sources});
+             : read_orc_sources(options, NapiToCPP{sources});
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(env, err.what())); }
 }
 

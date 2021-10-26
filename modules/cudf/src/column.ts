@@ -1034,7 +1034,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The min of all the values in this Column.
    */
-  min(memoryResource?: MemoryResource): T extends Integral? bigint: number;
+  min(memoryResource?: MemoryResource): T['scalarType'];
 
   /**
    * Compute the max of all values in this Column.
@@ -1043,7 +1043,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The max of all the values in this Column.
    */
-  max(memoryResource?: MemoryResource): T extends Integral? bigint: number;
+  max(memoryResource?: MemoryResource): T['scalarType'];
 
   /**
    * Compute a pair of [min,max] of all values in this Column.
@@ -1052,7 +1052,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The pair of [min,max] of all the values in this Column.
    */
-  minmax(memoryResource?: MemoryResource): (T extends Integral? bigint: number)[];
+  minmax(memoryResource?: MemoryResource): [T['scalarType'], T['scalarType']];
 
   /**
    * Compute the sum of all values in this Column.
@@ -1097,7 +1097,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The median of all the values in this Column.
    */
-  median(memoryResource?: MemoryResource): number;
+  median(memoryResource?: MemoryResource): T['scalarType'];
 
   /**
    * Compute the nunique of all values in this Column.
@@ -1281,7 +1281,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns New column of strings.
    */
-  zfill(width: number, memoryResource?: MemoryResource): Column<Utf8String>
+  zfill(width: number, memoryResource?: MemoryResource): Column<Utf8String>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

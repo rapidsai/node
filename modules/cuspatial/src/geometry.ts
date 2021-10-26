@@ -56,16 +56,16 @@ export function polylineBoundingBoxes<T extends FloatingPoint>(
   const points         = polylines.elements;
   const xs             = points.getChild('x');
   const ys             = points.getChild('y');
-  const {names, table} = computePolylineBoundingBoxes<T>(offsetsMinus1(polylines.offsets),
-                                                         xs._col as Column<T>,
-                                                         ys._col as Column<T>,
-                                                         expansionRadius,
-                                                         memoryResource);
-  return <any>new DataFrame({
-    [names[0]]: Series.new(table.getColumnByIndex<T>(0)),
-    [names[1]]: Series.new(table.getColumnByIndex<T>(1)),
-    [names[2]]: Series.new(table.getColumnByIndex<T>(2)),
-    [names[3]]: Series.new(table.getColumnByIndex<T>(3)),
+  const {names, table} = computePolylineBoundingBoxes(offsetsMinus1(polylines.offsets),
+                                                      xs._col as Column<T>,
+                                                      ys._col as Column<T>,
+                                                      expansionRadius,
+                                                      memoryResource);
+  return new DataFrame({
+    [names[0]]: table.getColumnByIndex<T>(0),
+    [names[1]]: table.getColumnByIndex<T>(1),
+    [names[2]]: table.getColumnByIndex<T>(2),
+    [names[3]]: table.getColumnByIndex<T>(3),
   });
 }
 
@@ -83,16 +83,16 @@ export function polygonBoundingBoxes<T extends FloatingPoint>(polygons: Polygons
   const points         = rings.elements;
   const xs             = points.getChild('x');
   const ys             = points.getChild('y');
-  const {names, table} = computePolygonBoundingBoxes<T>(offsetsMinus1(polygons.offsets),
-                                                        offsetsMinus1(rings.offsets),
-                                                        xs._col as Column<T>,
-                                                        ys._col as Column<T>,
-                                                        memoryResource);
-  return <any>new DataFrame({
-    [names[0]]: Series.new(table.getColumnByIndex<T>(0)),
-    [names[1]]: Series.new(table.getColumnByIndex<T>(1)),
-    [names[2]]: Series.new(table.getColumnByIndex<T>(2)),
-    [names[3]]: Series.new(table.getColumnByIndex<T>(3)),
+  const {names, table} = computePolygonBoundingBoxes(offsetsMinus1(polygons.offsets),
+                                                     offsetsMinus1(rings.offsets),
+                                                     xs._col as Column<T>,
+                                                     ys._col as Column<T>,
+                                                     memoryResource);
+  return new DataFrame({
+    [names[0]]: table.getColumnByIndex<T>(0),
+    [names[1]]: table.getColumnByIndex<T>(1),
+    [names[2]]: table.getColumnByIndex<T>(2),
+    [names[3]]: table.getColumnByIndex<T>(3),
   });
 }
 
