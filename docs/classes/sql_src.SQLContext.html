@@ -99,7 +99,10 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#createTable" class="tsd-kind-icon">create<wbr>Table</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#createCSVTable" class="tsd-kind-icon">createCSVTable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#createDataFrameTable" class="tsd-kind-icon">create<wbr>Data<wbr>Frame<wbr>Table</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#createORCTable" class="tsd-kind-icon">createORCTable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#createParquetTable" class="tsd-kind-icon">create<wbr>Parquet<wbr>Table</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#describeTable" class="tsd-kind-icon">describe<wbr>Table</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#dropTable" class="tsd-kind-icon">drop<wbr>Table</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLContext.html#explain" class="tsd-kind-icon">explain</a></li>
@@ -124,7 +127,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/context.ts#L45">modules/sql/src/context.ts:45</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L45">modules/sql/src/context.ts:45</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -146,7 +149,7 @@
 					<div class="tsd-signature tsd-kind-icon">context<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Context</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/context.ts#L38">modules/sql/src/context.ts:38</a></li>
+							<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L38">modules/sql/src/context.ts:38</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -163,7 +166,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/context.ts#L79">modules/sql/src/context.ts:79</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L79">modules/sql/src/context.ts:79</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -174,33 +177,28 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="createTable" class="tsd-anchor"></a>
-					<h3>create<wbr>Table</h3>
+					<a name="createCSVTable" class="tsd-anchor"></a>
+					<h3>createCSVTable</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Table<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, input<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">createCSVTable<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, filePaths<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/context.ts#L100">modules/sql/src/context.ts:100</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L118">modules/sql/src/context.ts:118</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Create a SQL table to be used for future queries.</p>
+									<p>Create a SQL table from CSV file(s).</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
-									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
-<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]});</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">b</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">]});</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">a</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;b&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">b</span><span style="color: #000000">});</span>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
-<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">createTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">createCSVTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, [</span><span style="color: #A31515">&#039;test.csv&#039;</span><span style="color: #000000">]);</span>
 </code></pre>
 									</dd>
 								</dl>
@@ -214,9 +212,152 @@
 									</div>
 								</li>
 								<li>
-									<h5>input: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>filePaths: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>DataFrame or paths to CSV files</p>
+										<p>array of paths to CSV file(s)</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createDataFrameTable" class="tsd-anchor"></a>
+					<h3>create<wbr>Data<wbr>Frame<wbr>Table</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Data<wbr>Frame<wbr>Table<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, input<span class="tsd-signature-symbol">: </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L100">modules/sql/src/context.ts:100</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Create a SQL table from cudf.DataFrames.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">Series</span><span style="color: #000000">, </span><span style="color: #001080">DataFrame</span><span style="color: #000000">, </span><span style="color: #001080">Int32</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/cudf&#039;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">a</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">]});</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">b</span><span style="color: #000000">  = </span><span style="color: #001080">Series</span><span style="color: #000000">.</span><span style="color: #795E26">new</span><span style="color: #000000">({</span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Int32</span><span style="color: #000000">(), </span><span style="color: #001080">data:</span><span style="color: #000000"> [</span><span style="color: #098658">4</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">, </span><span style="color: #098658">6</span><span style="color: #000000">]});</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">df</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">DataFrame</span><span style="color: #000000">({</span><span style="color: #A31515">&#039;a&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">a</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;b&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #001080">b</span><span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">createDataFrameTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, </span><span style="color: #001080">df</span><span style="color: #000000">);</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>tableName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Name of the table when referenced in a query</p>
+									</div>
+								</li>
+								<li>
+									<h5>input: <a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>cudf.DataFrame</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createORCTable" class="tsd-anchor"></a>
+					<h3>createORCTable</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">createORCTable<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, filePaths<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L154">modules/sql/src/context.ts:154</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Create a SQL table from Apache ORC file(s).</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">createORCTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, [</span><span style="color: #A31515">&#039;test.orc&#039;</span><span style="color: #000000">]);</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>tableName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Name of the table when referenced in a query</p>
+									</div>
+								</li>
+								<li>
+									<h5>filePaths: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>array of paths to ORC file(s)</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createParquetTable" class="tsd-anchor"></a>
+					<h3>create<wbr>Parquet<wbr>Table</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Parquet<wbr>Table<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, filePaths<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L136">modules/sql/src/context.ts:136</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Create a SQL table from Apache Parquet file(s).</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">SQLContext</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlContext</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">SQLContext</span><span style="color: #000000">();</span>
+<span style="color: #001080">sqlContext</span><span style="color: #000000">.</span><span style="color: #795E26">createParquetTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, [</span><span style="color: #A31515">&#039;test.parquet&#039;</span><span style="color: #000000">]);</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>tableName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Name of the table when referenced in a query</p>
+									</div>
+								</li>
+								<li>
+									<h5>filePaths: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>array of paths to parquet file(s)</p>
 									</div>
 								</li>
 							</ul>
@@ -234,7 +375,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/context.ts#L186">modules/sql/src/context.ts:186</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L242">modules/sql/src/context.ts:242</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -276,7 +417,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/context.ts#L141">modules/sql/src/context.ts:141</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L197">modules/sql/src/context.ts:197</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -323,7 +464,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/context.ts#L281">modules/sql/src/context.ts:281</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L336">modules/sql/src/context.ts:336</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -376,7 +517,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/context.ts#L168">modules/sql/src/context.ts:168</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L224">modules/sql/src/context.ts:224</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -412,7 +553,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/context.ts#L338">modules/sql/src/context.ts:338</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L393">modules/sql/src/context.ts:393</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -457,7 +598,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/context.ts#L316">modules/sql/src/context.ts:316</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L371">modules/sql/src/context.ts:371</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -516,7 +657,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/context.ts#L215">modules/sql/src/context.ts:215</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/context.ts#L270">modules/sql/src/context.ts:270</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -619,7 +760,16 @@
 								<a href="sql_src.SQLContext.html#id" class="tsd-kind-icon">id</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="sql_src.SQLContext.html#createTable" class="tsd-kind-icon">create<wbr>Table</a>
+								<a href="sql_src.SQLContext.html#createCSVTable" class="tsd-kind-icon">createCSVTable</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="sql_src.SQLContext.html#createDataFrameTable" class="tsd-kind-icon">create<wbr>Data<wbr>Frame<wbr>Table</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="sql_src.SQLContext.html#createORCTable" class="tsd-kind-icon">createORCTable</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="sql_src.SQLContext.html#createParquetTable" class="tsd-kind-icon">create<wbr>Parquet<wbr>Table</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="sql_src.SQLContext.html#describeTable" class="tsd-kind-icon">describe<wbr>Table</a>

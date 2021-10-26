@@ -87,7 +87,10 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLCluster.html#createTable" class="tsd-kind-icon">create<wbr>Table</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLCluster.html#createCSVTable" class="tsd-kind-icon">createCSVTable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLCluster.html#createDataFrameTable" class="tsd-kind-icon">create<wbr>Data<wbr>Frame<wbr>Table</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLCluster.html#createORCTable" class="tsd-kind-icon">createORCTable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLCluster.html#createParquetTable" class="tsd-kind-icon">create<wbr>Parquet<wbr>Table</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLCluster.html#describeTable" class="tsd-kind-icon">describe<wbr>Table</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLCluster.html#dropTable" class="tsd-kind-icon">drop<wbr>Table</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sql_src.SQLCluster.html#explain" class="tsd-kind-icon">explain</a></li>
@@ -112,7 +115,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/cluster.ts#L96">modules/sql/src/cluster.ts:96</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L98">modules/sql/src/cluster.ts:98</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="sql_src.SQLContext.html" class="tsd-signature-type" data-tsd-kind="Class">SQLContext</a></h4>
@@ -123,16 +126,62 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="createTable" class="tsd-anchor"></a>
-					<h3>create<wbr>Table</h3>
+					<a name="createCSVTable" class="tsd-anchor"></a>
+					<h3>createCSVTable</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Table<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, input<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">createCSVTable<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, filePaths<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/cluster.ts#L124">modules/sql/src/cluster.ts:124</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L147">modules/sql/src/cluster.ts:147</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Create a SQL table from CSV file(s).</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">sqlCluster</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlCluster</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">SQLCluster</span><span style="color: #000000">.</span><span style="color: #795E26">init</span><span style="color: #000000">();</span>
+<span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">sqlCluster</span><span style="color: #000000">.</span><span style="color: #795E26">createCSVTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, [</span><span style="color: #A31515">&#039;test.csv&#039;</span><span style="color: #000000">]);</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>tableName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Name of the table when referenced in a query</p>
+									</div>
+								</li>
+								<li>
+									<h5>filePaths: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>array of paths to CSV file(s)</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createDataFrameTable" class="tsd-anchor"></a>
+					<h3>create<wbr>Data<wbr>Frame<wbr>Table</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Data<wbr>Frame<wbr>Table<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, input<span class="tsd-signature-symbol">: </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L126">modules/sql/src/cluster.ts:126</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -163,9 +212,101 @@
 									</div>
 								</li>
 								<li>
-									<h5>input: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>input: <a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>DataFrame or paths to CSV files</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createORCTable" class="tsd-anchor"></a>
+					<h3>createORCTable</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">createORCTable<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, filePaths<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L191">modules/sql/src/cluster.ts:191</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Create a SQL table from Apache ORC file(s).</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">sqlCluster</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlCluster</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">SQLCluster</span><span style="color: #000000">.</span><span style="color: #795E26">init</span><span style="color: #000000">();</span>
+<span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">sqlCluster</span><span style="color: #000000">.</span><span style="color: #795E26">createORCTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, [</span><span style="color: #A31515">&#039;test.orc&#039;</span><span style="color: #000000">]);</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>tableName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Name of the table when referenced in a query</p>
+									</div>
+								</li>
+								<li>
+									<h5>filePaths: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>array of paths to ORC file(s)</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createParquetTable" class="tsd-anchor"></a>
+					<h3>create<wbr>Parquet<wbr>Table</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Parquet<wbr>Table<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, filePaths<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L169">modules/sql/src/cluster.ts:169</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Create a SQL table from Apache Parquet file(s).</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>example</dt>
+									<dd><pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> {</span><span style="color: #001080">sqlCluster</span><span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@rapidsai/sql&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sqlCluster</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">SQLCluster</span><span style="color: #000000">.</span><span style="color: #795E26">init</span><span style="color: #000000">();</span>
+<span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">sqlCluster</span><span style="color: #000000">.</span><span style="color: #795E26">createParquetTable</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;test_table&#039;</span><span style="color: #000000">, [</span><span style="color: #A31515">&#039;test.parquet&#039;</span><span style="color: #000000">]);</span>
+</code></pre>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>tableName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Name of the table when referenced in a query</p>
+									</div>
+								</li>
+								<li>
+									<h5>filePaths: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>array of paths to Parquet file(s)</p>
 									</div>
 								</li>
 							</ul>
@@ -183,7 +324,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/cluster.ts#L255">modules/sql/src/cluster.ts:255</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L329">modules/sql/src/cluster.ts:329</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -226,7 +367,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/cluster.ts#L180">modules/sql/src/cluster.ts:180</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L254">modules/sql/src/cluster.ts:254</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -274,7 +415,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/cluster.ts#L278">modules/sql/src/cluster.ts:278</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L352">modules/sql/src/cluster.ts:352</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -327,7 +468,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/cluster.ts#L292">modules/sql/src/cluster.ts:292</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L366">modules/sql/src/cluster.ts:366</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -359,7 +500,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/cluster.ts#L236">modules/sql/src/cluster.ts:236</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L310">modules/sql/src/cluster.ts:310</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -396,7 +537,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/cluster.ts#L209">modules/sql/src/cluster.ts:209</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L283">modules/sql/src/cluster.ts:283</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -448,7 +589,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/sql/src/cluster.ts#L55">modules/sql/src/cluster.ts:55</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/sql/src/cluster.ts#L57">modules/sql/src/cluster.ts:57</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -528,7 +669,16 @@
 								<a href="sql_src.SQLCluster.html#context" class="tsd-kind-icon">context</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="sql_src.SQLCluster.html#createTable" class="tsd-kind-icon">create<wbr>Table</a>
+								<a href="sql_src.SQLCluster.html#createCSVTable" class="tsd-kind-icon">createCSVTable</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="sql_src.SQLCluster.html#createDataFrameTable" class="tsd-kind-icon">create<wbr>Data<wbr>Frame<wbr>Table</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="sql_src.SQLCluster.html#createORCTable" class="tsd-kind-icon">createORCTable</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="sql_src.SQLCluster.html#createParquetTable" class="tsd-kind-icon">create<wbr>Parquet<wbr>Table</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="sql_src.SQLCluster.html#describeTable" class="tsd-kind-icon">describe<wbr>Table</a>

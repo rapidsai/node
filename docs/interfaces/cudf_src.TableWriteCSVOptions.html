@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>WriteCSVOptions | RAPIDS</title>
+	<title>TableWriteCSVOptions | RAPIDS</title>
 	<meta name="description" content="Documentation for RAPIDS">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="../modules/cudf_src.html">cudf/src</a>
 				</li>
 				<li>
-					<a href="cudf_src.WriteCSVOptions.html">WriteCSVOptions</a>
+					<a href="cudf_src.TableWriteCSVOptions.html">TableWriteCSVOptions</a>
 				</li>
 			</ul>
-			<h1>Interface WriteCSVOptions</h1>
+			<h1>Interface TableWriteCSVOptions</h1>
 		</div>
 	</div>
 </header>
@@ -70,10 +70,10 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">WriteCSVOptions</span>
+						<a href="cudf_src.WriteCSVOptions.html" class="tsd-signature-type" data-tsd-kind="Interface">WriteCSVOptions</a>
 						<ul class="tsd-hierarchy">
 							<li>
-								<a href="cudf_src.TableWriteCSVOptions.html" class="tsd-signature-type" data-tsd-kind="Interface">TableWriteCSVOptions</a>
+								<span class="target">TableWriteCSVOptions</span>
 							</li>
 						</ul>
 					</li>
@@ -86,13 +86,21 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cudf_src.WriteCSVOptions.html#delimiter" class="tsd-kind-icon">delimiter</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cudf_src.WriteCSVOptions.html#falseValue" class="tsd-kind-icon">false<wbr>Value</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cudf_src.WriteCSVOptions.html#includeHeader" class="tsd-kind-icon">include<wbr>Header</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cudf_src.WriteCSVOptions.html#lineTerminator" class="tsd-kind-icon">line<wbr>Terminator</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cudf_src.WriteCSVOptions.html#nullValue" class="tsd-kind-icon">null<wbr>Value</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cudf_src.WriteCSVOptions.html#rowsPerChunk" class="tsd-kind-icon">rows<wbr>Per<wbr>Chunk</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cudf_src.WriteCSVOptions.html#trueValue" class="tsd-kind-icon">true<wbr>Value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="cudf_src.TableWriteCSVOptions.html#columnNames" class="tsd-kind-icon">column<wbr>Names</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="cudf_src.TableWriteCSVOptions.html#delimiter" class="tsd-kind-icon">delimiter</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="cudf_src.TableWriteCSVOptions.html#falseValue" class="tsd-kind-icon">false<wbr>Value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="cudf_src.TableWriteCSVOptions.html#includeHeader" class="tsd-kind-icon">include<wbr>Header</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="cudf_src.TableWriteCSVOptions.html#lineTerminator" class="tsd-kind-icon">line<wbr>Terminator</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="cudf_src.TableWriteCSVOptions.html#nullValue" class="tsd-kind-icon">null<wbr>Value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="cudf_src.TableWriteCSVOptions.html#rowsPerChunk" class="tsd-kind-icon">rows<wbr>Per<wbr>Chunk</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="cudf_src.TableWriteCSVOptions.html#trueValue" class="tsd-kind-icon">true<wbr>Value</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.TableWriteCSVOptions.html#complete" class="tsd-kind-icon">complete</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="cudf_src.TableWriteCSVOptions.html#next" class="tsd-kind-icon">next</a></li>
 							</ul>
 						</section>
 					</div>
@@ -101,10 +109,26 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="columnNames" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> column<wbr>Names</h3>
+					<div class="tsd-signature tsd-kind-icon">column<wbr>Names<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/cudf/src/types/csv.ts#L122">modules/cudf/src/types/csv.ts:122</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Column names to write in the header.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="delimiter" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> delimiter</h3>
 					<div class="tsd-signature tsd-kind-icon">delimiter<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="cudf_src.WriteCSVOptions.html">WriteCSVOptions</a>.<a href="cudf_src.WriteCSVOptions.html#delimiter">delimiter</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/cudf/src/types/csv.ts#L101">modules/cudf/src/types/csv.ts:101</a></li>
 						</ul>
@@ -115,11 +139,12 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="falseValue" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> false<wbr>Value</h3>
 					<div class="tsd-signature tsd-kind-icon">false<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="cudf_src.WriteCSVOptions.html">WriteCSVOptions</a>.<a href="cudf_src.WriteCSVOptions.html#falseValue">falseValue</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/cudf/src/types/csv.ts#L107">modules/cudf/src/types/csv.ts:107</a></li>
 						</ul>
@@ -130,11 +155,12 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="includeHeader" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> include<wbr>Header</h3>
 					<div class="tsd-signature tsd-kind-icon">include<wbr>Header<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="cudf_src.WriteCSVOptions.html">WriteCSVOptions</a>.<a href="cudf_src.WriteCSVOptions.html#includeHeader">includeHeader</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/cudf/src/types/csv.ts#L109">modules/cudf/src/types/csv.ts:109</a></li>
 						</ul>
@@ -145,11 +171,12 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="lineTerminator" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> line<wbr>Terminator</h3>
 					<div class="tsd-signature tsd-kind-icon">line<wbr>Terminator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="cudf_src.WriteCSVOptions.html">WriteCSVOptions</a>.<a href="cudf_src.WriteCSVOptions.html#lineTerminator">lineTerminator</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/cudf/src/types/csv.ts#L111">modules/cudf/src/types/csv.ts:111</a></li>
 						</ul>
@@ -160,11 +187,12 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="nullValue" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> null<wbr>Value</h3>
 					<div class="tsd-signature tsd-kind-icon">null<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="cudf_src.WriteCSVOptions.html">WriteCSVOptions</a>.<a href="cudf_src.WriteCSVOptions.html#nullValue">nullValue</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/cudf/src/types/csv.ts#L103">modules/cudf/src/types/csv.ts:103</a></li>
 						</ul>
@@ -175,11 +203,12 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="rowsPerChunk" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> rows<wbr>Per<wbr>Chunk</h3>
 					<div class="tsd-signature tsd-kind-icon">rows<wbr>Per<wbr>Chunk<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="cudf_src.WriteCSVOptions.html">WriteCSVOptions</a>.<a href="cudf_src.WriteCSVOptions.html#rowsPerChunk">rowsPerChunk</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/cudf/src/types/csv.ts#L113">modules/cudf/src/types/csv.ts:113</a></li>
 						</ul>
@@ -190,11 +219,12 @@
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="trueValue" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> true<wbr>Value</h3>
 					<div class="tsd-signature tsd-kind-icon">true<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="cudf_src.WriteCSVOptions.html">WriteCSVOptions</a>.<a href="cudf_src.WriteCSVOptions.html#trueValue">trueValue</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/cudf/src/types/csv.ts#L105">modules/cudf/src/types/csv.ts:105</a></li>
 						</ul>
@@ -204,6 +234,59 @@
 							<p>String to use for boolean true values (default &#39;true&#39;).</p>
 						</div>
 					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="complete" class="tsd-anchor"></a>
+					<h3>complete</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">complete<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/cudf/src/types/csv.ts#L120">modules/cudf/src/types/csv.ts:120</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Callback invoked when writing is finished.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="next" class="tsd-anchor"></a>
+					<h3>next</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">next<span class="tsd-signature-symbol">(</span>chunk<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Buffer</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/36ff27e/modules/cudf/src/types/csv.ts#L118">modules/cudf/src/types/csv.ts:118</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Callback invoked for each CSV chunk.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>chunk: <span class="tsd-signature-type">Buffer</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -250,28 +333,37 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-module">
-						<a href="cudf_src.WriteCSVOptions.html" class="tsd-kind-icon">WriteCSVOptions</a>
+						<a href="cudf_src.TableWriteCSVOptions.html" class="tsd-kind-icon">Table<wbr>WriteCSVOptions</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="cudf_src.WriteCSVOptions.html#delimiter" class="tsd-kind-icon">delimiter</a>
+								<a href="cudf_src.TableWriteCSVOptions.html#columnNames" class="tsd-kind-icon">column<wbr>Names</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="cudf_src.WriteCSVOptions.html#falseValue" class="tsd-kind-icon">false<wbr>Value</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="cudf_src.TableWriteCSVOptions.html#delimiter" class="tsd-kind-icon">delimiter</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="cudf_src.WriteCSVOptions.html#includeHeader" class="tsd-kind-icon">include<wbr>Header</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="cudf_src.TableWriteCSVOptions.html#falseValue" class="tsd-kind-icon">false<wbr>Value</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="cudf_src.WriteCSVOptions.html#lineTerminator" class="tsd-kind-icon">line<wbr>Terminator</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="cudf_src.TableWriteCSVOptions.html#includeHeader" class="tsd-kind-icon">include<wbr>Header</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="cudf_src.WriteCSVOptions.html#nullValue" class="tsd-kind-icon">null<wbr>Value</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="cudf_src.TableWriteCSVOptions.html#lineTerminator" class="tsd-kind-icon">line<wbr>Terminator</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="cudf_src.WriteCSVOptions.html#rowsPerChunk" class="tsd-kind-icon">rows<wbr>Per<wbr>Chunk</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="cudf_src.TableWriteCSVOptions.html#nullValue" class="tsd-kind-icon">null<wbr>Value</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="cudf_src.WriteCSVOptions.html#trueValue" class="tsd-kind-icon">true<wbr>Value</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="cudf_src.TableWriteCSVOptions.html#rowsPerChunk" class="tsd-kind-icon">rows<wbr>Per<wbr>Chunk</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="cudf_src.TableWriteCSVOptions.html#trueValue" class="tsd-kind-icon">true<wbr>Value</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.TableWriteCSVOptions.html#complete" class="tsd-kind-icon">complete</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="cudf_src.TableWriteCSVOptions.html#next" class="tsd-kind-icon">next</a>
 							</li>
 						</ul>
 					</li>
@@ -298,6 +390,7 @@
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
 				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
 				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
