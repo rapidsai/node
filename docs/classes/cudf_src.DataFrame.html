@@ -177,13 +177,15 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Data<wbr>Frame&lt;T&gt;<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ColumnAccessor</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#SeriesMap" class="tsd-signature-type" data-tsd-kind="Type alias">SeriesMap</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Data<wbr>Frame&lt;T&gt;<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">?: </span><a href="../modules/cudf_src.html#SeriesMap" class="tsd-signature-type" data-tsd-kind="Type alias">SeriesMap</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Data<wbr>Frame&lt;T&gt;<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">?: </span><a href="../modules/cudf_src.html#ColumnsMap" class="tsd-signature-type" data-tsd-kind="Type alias">ColumnsMap</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Data<wbr>Frame&lt;T&gt;<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ColumnAccessor</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L168">modules/cudf/src/data_frame.ts:168</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L176">modules/cudf/src/data_frame.ts:176</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -212,7 +214,57 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>data: <span class="tsd-signature-type">ColumnAccessor</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="../modules/cudf_src.html#SeriesMap" class="tsd-signature-type" data-tsd-kind="Type alias">SeriesMap</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> data: <a href="../modules/cudf_src.html#SeriesMap" class="tsd-signature-type" data-tsd-kind="Type alias">SeriesMap</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L177">modules/cudf/src/data_frame.ts:177</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Create a new cudf.DataFrame</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#TypeMap" class="tsd-signature-type" data-tsd-kind="Type alias">TypeMap</a> = <span class="tsd-signature-type">any</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> data: <a href="../modules/cudf_src.html#ColumnsMap" class="tsd-signature-type" data-tsd-kind="Type alias">ColumnsMap</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L178">modules/cudf/src/data_frame.ts:178</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Create a new cudf.DataFrame</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../modules/cudf_src.html#TypeMap" class="tsd-signature-type" data-tsd-kind="Type alias">TypeMap</a> = <span class="tsd-signature-type">any</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> data: <span class="tsd-signature-type">ColumnAccessor</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="cudf_src.DataFrame.html" class="tsd-signature-type" data-tsd-kind="Class">DataFrame</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -232,7 +284,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L222">modules/cudf/src/data_frame.ts:222</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L233">modules/cudf/src/data_frame.ts:233</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -267,7 +319,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L205">modules/cudf/src/data_frame.ts:205</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L216">modules/cudf/src/data_frame.ts:216</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -302,7 +354,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L188">modules/cudf/src/data_frame.ts:188</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L199">modules/cudf/src/data_frame.ts:199</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -337,7 +389,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L244">modules/cudf/src/data_frame.ts:244</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L255">modules/cudf/src/data_frame.ts:255</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -380,7 +432,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1568">modules/cudf/src/data_frame.ts:1568</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1579">modules/cudf/src/data_frame.ts:1579</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -429,7 +481,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1190">modules/cudf/src/data_frame.ts:1190</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1201">modules/cudf/src/data_frame.ts:1201</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -478,7 +530,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1352">modules/cudf/src/data_frame.ts:1352</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1363">modules/cudf/src/data_frame.ts:1363</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -527,7 +579,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1163">modules/cudf/src/data_frame.ts:1163</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1174">modules/cudf/src/data_frame.ts:1174</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -576,7 +628,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1325">modules/cudf/src/data_frame.ts:1325</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1336">modules/cudf/src/data_frame.ts:1336</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -626,7 +678,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L297">modules/cudf/src/data_frame.ts:297</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L308">modules/cudf/src/data_frame.ts:308</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -665,7 +717,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L314">modules/cudf/src/data_frame.ts:314</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L325">modules/cudf/src/data_frame.ts:325</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -713,7 +765,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1217">modules/cudf/src/data_frame.ts:1217</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1228">modules/cudf/src/data_frame.ts:1228</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -762,7 +814,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1379">modules/cudf/src/data_frame.ts:1379</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1390">modules/cudf/src/data_frame.ts:1390</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -811,7 +863,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L396">modules/cudf/src/data_frame.ts:396</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L407">modules/cudf/src/data_frame.ts:407</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -868,7 +920,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L425">modules/cudf/src/data_frame.ts:425</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L436">modules/cudf/src/data_frame.ts:436</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -920,7 +972,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1487">modules/cudf/src/data_frame.ts:1487</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1498">modules/cudf/src/data_frame.ts:1498</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -969,7 +1021,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1514">modules/cudf/src/data_frame.ts:1514</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1525">modules/cudf/src/data_frame.ts:1525</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1018,7 +1070,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L455">modules/cudf/src/data_frame.ts:455</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L466">modules/cudf/src/data_frame.ts:466</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1075,7 +1127,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1109">modules/cudf/src/data_frame.ts:1109</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1120">modules/cudf/src/data_frame.ts:1120</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1124,7 +1176,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1271">modules/cudf/src/data_frame.ts:1271</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1282">modules/cudf/src/data_frame.ts:1282</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1173,7 +1225,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L337">modules/cudf/src/data_frame.ts:337</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L348">modules/cudf/src/data_frame.ts:348</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1222,7 +1274,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1945">modules/cudf/src/data_frame.ts:1945</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1956">modules/cudf/src/data_frame.ts:1956</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1282,7 +1334,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1046">modules/cudf/src/data_frame.ts:1046</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1057">modules/cudf/src/data_frame.ts:1057</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1371,7 +1423,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L977">modules/cudf/src/data_frame.ts:977</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L988">modules/cudf/src/data_frame.ts:988</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1460,7 +1512,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1406">modules/cudf/src/data_frame.ts:1406</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1417">modules/cudf/src/data_frame.ts:1417</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1509,7 +1561,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L740">modules/cudf/src/data_frame.ts:740</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L751">modules/cudf/src/data_frame.ts:751</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1553,7 +1605,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1541">modules/cudf/src/data_frame.ts:1541</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1552">modules/cudf/src/data_frame.ts:1552</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1602,7 +1654,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L593">modules/cudf/src/data_frame.ts:593</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L604">modules/cudf/src/data_frame.ts:604</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1655,7 +1707,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L375">modules/cudf/src/data_frame.ts:375</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L386">modules/cudf/src/data_frame.ts:386</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1706,7 +1758,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L682">modules/cudf/src/data_frame.ts:682</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L693">modules/cudf/src/data_frame.ts:693</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1748,7 +1800,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L706">modules/cudf/src/data_frame.ts:706</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L717">modules/cudf/src/data_frame.ts:717</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1806,7 +1858,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L356">modules/cudf/src/data_frame.ts:356</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L367">modules/cudf/src/data_frame.ts:367</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1850,7 +1902,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L626">modules/cudf/src/data_frame.ts:626</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L637">modules/cudf/src/data_frame.ts:637</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1901,7 +1953,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L491">modules/cudf/src/data_frame.ts:491</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L502">modules/cudf/src/data_frame.ts:502</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1973,7 +2025,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1759">modules/cudf/src/data_frame.ts:1759</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1770">modules/cudf/src/data_frame.ts:1770</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2020,7 +2072,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1819">modules/cudf/src/data_frame.ts:1819</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1830">modules/cudf/src/data_frame.ts:1830</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2061,7 +2113,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1851">modules/cudf/src/data_frame.ts:1851</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1862">modules/cudf/src/data_frame.ts:1862</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2101,7 +2153,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1791">modules/cudf/src/data_frame.ts:1791</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1802">modules/cudf/src/data_frame.ts:1802</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2148,7 +2200,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L756">modules/cudf/src/data_frame.ts:756</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L767">modules/cudf/src/data_frame.ts:767</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2186,7 +2238,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L773">modules/cudf/src/data_frame.ts:773</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L784">modules/cudf/src/data_frame.ts:784</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2227,7 +2279,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1622">modules/cudf/src/data_frame.ts:1622</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1633">modules/cudf/src/data_frame.ts:1633</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2278,7 +2330,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1433">modules/cudf/src/data_frame.ts:1433</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1444">modules/cudf/src/data_frame.ts:1444</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2327,7 +2379,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1723">modules/cudf/src/data_frame.ts:1723</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1734">modules/cudf/src/data_frame.ts:1734</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2376,7 +2428,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1595">modules/cudf/src/data_frame.ts:1595</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1606">modules/cudf/src/data_frame.ts:1606</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2425,7 +2477,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L522">modules/cudf/src/data_frame.ts:522</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L533">modules/cudf/src/data_frame.ts:533</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2483,7 +2535,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1880">modules/cudf/src/data_frame.ts:1880</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1891">modules/cudf/src/data_frame.ts:1891</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2535,7 +2587,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1906">modules/cudf/src/data_frame.ts:1906</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1917">modules/cudf/src/data_frame.ts:1917</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2590,7 +2642,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L278">modules/cudf/src/data_frame.ts:278</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L289">modules/cudf/src/data_frame.ts:289</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2637,7 +2689,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1082">modules/cudf/src/data_frame.ts:1082</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1093">modules/cudf/src/data_frame.ts:1093</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2686,7 +2738,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1244">modules/cudf/src/data_frame.ts:1244</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1255">modules/cudf/src/data_frame.ts:1255</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2735,7 +2787,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1648">modules/cudf/src/data_frame.ts:1648</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1659">modules/cudf/src/data_frame.ts:1659</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2786,7 +2838,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L571">modules/cudf/src/data_frame.ts:571</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L582">modules/cudf/src/data_frame.ts:582</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2843,7 +2895,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1460">modules/cudf/src/data_frame.ts:1460</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1471">modules/cudf/src/data_frame.ts:1471</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2892,7 +2944,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1686">modules/cudf/src/data_frame.ts:1686</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1697">modules/cudf/src/data_frame.ts:1697</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2964,7 +3016,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L657">modules/cudf/src/data_frame.ts:657</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L668">modules/cudf/src/data_frame.ts:668</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3015,7 +3067,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1136">modules/cudf/src/data_frame.ts:1136</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1147">modules/cudf/src/data_frame.ts:1147</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3064,7 +3116,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L1298">modules/cudf/src/data_frame.ts:1298</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L1309">modules/cudf/src/data_frame.ts:1309</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3113,7 +3165,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L829">modules/cudf/src/data_frame.ts:829</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L840">modules/cudf/src/data_frame.ts:840</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3152,7 +3204,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L799">modules/cudf/src/data_frame.ts:799</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L810">modules/cudf/src/data_frame.ts:810</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3184,7 +3236,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L256">modules/cudf/src/data_frame.ts:256</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L267">modules/cudf/src/data_frame.ts:267</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3214,7 +3266,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L142">modules/cudf/src/data_frame.ts:142</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L150">modules/cudf/src/data_frame.ts:150</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3252,7 +3304,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L112">modules/cudf/src/data_frame.ts:112</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L120">modules/cudf/src/data_frame.ts:120</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -3303,7 +3355,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rapidsai/node/blob/0ca5480/modules/cudf/src/data_frame.ts#L130">modules/cudf/src/data_frame.ts:130</a></li>
+									<li>Defined in <a href="https://github.com/rapidsai/node/blob/8d94864/modules/cudf/src/data_frame.ts#L138">modules/cudf/src/data_frame.ts:138</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
