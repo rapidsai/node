@@ -26,13 +26,21 @@ function init({uuid, ...props}: {uuid: string}&ContextProps) {
 
 function dropTable({name}: {name: string}) { context.dropTable(name); }
 
-async function createTable({name, table_id}: {name: string, table_id: string}) {
+async function createDataFrameTable({name, table_id}: {name: string, table_id: string}) {
   const table = await context.pull(table_id);
-  context.createTable(name, table);
+  context.createDataFrameTable(name, table);
 }
 
 function createCSVTable({name, paths}: {name: string, paths: string[]}) {
-  context.createTable(name, paths);
+  context.createCSVTable(name, paths);
+}
+
+function createParquetTable({name, paths}: {name: string, paths: string[]}) {
+  context.createParquetTable(name, paths);
+}
+
+function createORCTable({name, paths}: {name: string, paths: string[]}) {
+  context.createORCTable(name, paths);
 }
 
 async function sql({query, token, destinationId}:
@@ -48,8 +56,10 @@ process.on('message', ({type, ...opts}: any) => {
       case 'init': return init(opts);
       case 'sql': return await sql(opts);
       case 'dropTable': return dropTable(opts);
-      case 'createTable': return await createTable(opts);
+      case 'createDataFrameTable': return await createDataFrameTable(opts);
       case 'createCSVTable': return createCSVTable(opts);
+      case 'createParquetTable': return createParquetTable(opts);
+      case 'createORCTable': return createORCTable(opts);
     }
     return {};
   })()

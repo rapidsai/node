@@ -42,7 +42,8 @@ import {
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
-import {ReadParquetOptions} from './types/parquet';
+import {ReadORCOptions, WriteORCOptions} from './types/orc';
+import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
 
 export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
@@ -125,13 +126,32 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Read an Apache ORC from disk and create a cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame}  from '@rapidsai/cudf';
+   * const df = DataFrame.readORC({
+   *  sourceType: 'files',
+   *  sources: ['test.orc'],
+   * })
+   * ```
+   */
+  public static readORC(options: ReadORCOptions) {
+    const {names, table} = Table.readORC(options);
+    return new DataFrame(new ColumnAccessor(
+      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {})));
+  }
+
+  /**
    * Read an Apache Parquet from disk and create a cudf.DataFrame
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * import {DataFrame}  from '@rapidsai/cudf';
    * const df = DataFrame.readParquet({
-   *  sources: ['test'],
+   *  sourceType: 'files',
+   *  sources: ['test.parquet'],
    * })
    * ```
    */
@@ -816,6 +836,28 @@ export class DataFrame<T extends TypeMap = any> {
       columnNames: this.names as string[],
     });
     return readable as AsyncIterable<string>;
+  }
+
+  /**
+   * Write a DataFrame to ORC format.
+   *
+   * @param filePath File path or root directory path.
+   * @param options Options controlling ORC writing behavior.
+   *
+   */
+  toORC(filePath: string, options: WriteORCOptions = {}) {
+    this.asTable().writeORC(filePath, {...options, columnNames: this.names as string[]});
+  }
+
+  /**
+   * Write a DataFrame to Parquet format.
+   *
+   * @param filePath File path or root directory path.
+   * @param options Options controlling Parquet writing behavior.
+   *
+   */
+  toParquet(filePath: string, options: WriteParquetOptions = {}) {
+    this.asTable().writeParquet(filePath, {...options, columnNames: this.names as string[]});
   }
 
   /**

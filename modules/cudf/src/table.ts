@@ -18,22 +18,15 @@ import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import CUDF from './addon';
 import {Column} from './column';
 import {Scalar} from './scalar';
-import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
+import {CSVTypeMap, ReadCSVOptions} from './types/csv';
+import {TableWriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {TypeMap} from './types/mappings';
-import {ReadParquetOptions} from './types/parquet';
+import {ReadORCOptions, TableWriteORCOptions} from './types/orc';
+import {ReadParquetOptions, TableWriteParquetOptions} from './types/parquet';
 
 export type ToArrowMetadata = [string | number, ToArrowMetadata[]?];
-
-interface TableWriteCSVOptions extends WriteCSVOptions {
-  /** Callback invoked for each CSV chunk. */
-  next: (chunk: Buffer) => void;
-  /** Callback invoked when writing is finished. */
-  complete: () => void;
-  /** Column names to write in the header. */
-  columnNames?: string[];
-}
 
 interface TableConstructor {
   readonly prototype: Table;
@@ -47,6 +40,14 @@ interface TableConstructor {
    */
   readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>):
     {names: (keyof T)[], table: Table};
+
+  /**
+   * Reads an ORC dataset into a set of columns.
+   *
+   * @param options Settings for controlling reading behavior.
+   * @return The ORC data as a Table and a list of column names.
+   */
+  readORC(options: ReadORCOptions): {names: string[], table: Table};
 
   /**
    * Reads an Apache Parquet dataset into a set of columns.
@@ -208,6 +209,20 @@ export interface Table {
    * @param options Settings for controlling writing behavior.
    */
   writeCSV(options: TableWriteCSVOptions): void;
+
+  /**
+   * Write a Table to Apache ORC file format.
+   * @param filePath File path or root directory path.
+   * @param options Options controlling ORC writing behavior.
+   */
+  writeORC(filePath: string, options: TableWriteORCOptions): void;
+
+  /**
+   * Write a Table to Apache Parquet file format.
+   * @param filePath File path or root directory path.
+   * @param options Options controlling parquet writing behavior.
+   */
+  writeParquet(filePath: string, options: TableWriteParquetOptions): void;
 
   dropNans(keys: number[], threshold: number): Table;
   dropNulls(keys: number[], threshold: number): Table;

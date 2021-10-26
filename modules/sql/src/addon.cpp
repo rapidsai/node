@@ -75,8 +75,9 @@ struct rapidsai_sql : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_sql>
     nv::CallbackArgs args{info};
 
     std::vector<std::string> input = args[0];
+    std::string file_type          = args[1];
 
-    return nv::blazingsql::parse_schema(env, input, "csv", false);
+    return nv::blazingsql::parse_schema(env, input, file_type, false);
   }
 };
 

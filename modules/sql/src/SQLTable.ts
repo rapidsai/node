@@ -24,27 +24,21 @@ export interface ParsedSchema {
   hasHeaderCSV: boolean;
 }
 
-export class SQLTable {
-  public readonly tableName: string;
-  public readonly tableSource: TableSource;
-
-  constructor(tableName: string, input: DataFrame|string[]) {
-    this.tableName = tableName;
-
-    this.tableSource = input instanceof DataFrame ? new DataFrameTable(input) : new CSVTable(input);
-  }
-}
-
-interface TableSource {
+export interface SQLTable {
+  tableName: string;
   get names(): string[];
   type(columnName: string): DataType;
   getSource(): any;
 }
 
-class CSVTable implements TableSource {
+export class FileTable implements SQLTable {
+  public tableName: string;
   private schema: ParsedSchema;
 
-  constructor(input: string[]) { this.schema = parseSchema(input); }
+  constructor(tableName: string, input: string[], fileType: 'csv'|'orc'|'parquet') {
+    this.tableName = tableName;
+    this.schema    = parseSchema(input, fileType);
+  }
 
   get names(): string[] { return this.schema.names; }
   getSource() { return this.schema; }
@@ -54,10 +48,14 @@ class CSVTable implements TableSource {
   }
 }
 
-export class DataFrameTable implements TableSource {
+export class DataFrameTable implements SQLTable {
+  public tableName: string;
   private df: DataFrame;
 
-  constructor(input: DataFrame) { this.df = input; }
+  constructor(tableName: string, input: DataFrame) {
+    this.tableName = tableName;
+    this.df        = input;
+  }
 
   get names(): string[] { return this.df.names.concat(); }
   getSource() { return this.df; }

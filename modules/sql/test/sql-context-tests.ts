@@ -6,7 +6,7 @@ test('create and drop table', () => {
   const df = new DataFrame({'a': a});
 
   const sqlContext = new SQLContext();
-  sqlContext.createTable('test_table', df);
+  sqlContext.createDataFrameTable('test_table', df);
   expect(sqlContext.listTables().length).toEqual(1);
 
   sqlContext.dropTable('test_table');
@@ -18,8 +18,8 @@ test('list tables', () => {
   const df = new DataFrame({'a': a});
 
   const sqlContext = new SQLContext();
-  sqlContext.createTable('test_table', df);
-  sqlContext.createTable('test_table2', df);
+  sqlContext.createDataFrameTable('test_table', df);
+  sqlContext.createDataFrameTable('test_table2', df);
 
   expect(sqlContext.listTables()).toEqual(['test_table', 'test_table2']);
 });
@@ -34,7 +34,7 @@ test('describe table', () => {
   // Empty map since table doesn't exist
   expect(sqlContext.describeTable('nonexisting_table').size).toEqual(0);
 
-  sqlContext.createTable('test_table', df);
+  sqlContext.createDataFrameTable('test_table', df);
   const tableDescription = sqlContext.describeTable('test_table');
   expect([...tableDescription.keys()]).toEqual(['a', 'b']);
   expect([...tableDescription.values()]).toEqual([new Float64, new Utf8String]);
@@ -46,7 +46,7 @@ test('explain', () => {
   const df  = new DataFrame({'key': key, 'val': val});
 
   const sqlContext = new SQLContext();
-  sqlContext.createTable('test_table', df);
+  sqlContext.createDataFrameTable('test_table', df);
 
   const query = 'SELECT * FROM test_table WHERE val > 4';
 
@@ -69,7 +69,7 @@ test('select a single column', async () => {
   const df = new DataFrame({'a': a, 'b': b});
 
   const sqlContext = new SQLContext();
-  sqlContext.createTable('test_table', df);
+  sqlContext.createDataFrameTable('test_table', df);
 
   await expect(sqlContext.sql('SELECT a FROM test_table').result()).resolves.toStrictEqual([
     new DataFrame({a})
@@ -82,7 +82,7 @@ test('select all columns', async () => {
   const df = new DataFrame({'a': a, 'b': b});
 
   const sqlContext = new SQLContext();
-  sqlContext.createTable('test_table', df);
+  sqlContext.createDataFrameTable('test_table', df);
 
   await expect(sqlContext.sql('SELECT * FROM test_table').result()).resolves.toStrictEqual([
     new DataFrame({'a': a, 'b': b})
@@ -95,8 +95,8 @@ test('union columns from two tables', async () => {
   const df2 = new DataFrame({'a': a});
 
   const sqlContext = new SQLContext();
-  sqlContext.createTable('t1', df1);
-  sqlContext.createTable('t2', df2);
+  sqlContext.createDataFrameTable('t1', df1);
+  sqlContext.createDataFrameTable('t2', df2);
 
   await expect(sqlContext.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2').result())
     .resolves.toStrictEqual([new DataFrame({'a': Series.new([...a, ...a])})]);
@@ -108,7 +108,7 @@ test('find all columns within a table that meet condition', async () => {
   const df  = new DataFrame({'key': key, 'val': val});
 
   const sqlContext = new SQLContext();
-  sqlContext.createTable('test_table', df);
+  sqlContext.createDataFrameTable('test_table', df);
 
   await expect(sqlContext.sql('SELECT * FROM test_table WHERE val > 4').result())
     .resolves.toStrictEqual(
@@ -121,7 +121,7 @@ test('empty sql result', async () => {
   const df  = new DataFrame({'key': key, 'val': val});
 
   const sqlContext = new SQLContext();
-  sqlContext.createTable('test_table', df);
+  sqlContext.createDataFrameTable('test_table', df);
 
   // Query should be empty since BETWEEN values are reversed.
   await expect(sqlContext.sql('SELECT * FROM test_table WHERE val BETWEEN 10 AND 0').result())

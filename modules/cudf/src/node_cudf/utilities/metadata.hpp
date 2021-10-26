@@ -20,6 +20,9 @@
 
 namespace nv {
 
+cudf::io::table_input_metadata make_writer_columns_metadata(Napi::Object const& options,
+                                                            cudf::table_view const& table);
+
 Napi::Array get_output_names_from_metadata(Napi::Env const& env,
                                            cudf::io::table_with_metadata const& result);
 
