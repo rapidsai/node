@@ -16,6 +16,6 @@ To run the demo
 ```bash
 yarn demo #and select the point-cloud demo from the list of demos
 
-cd modules/demo/point-cloud
+cd modules/demo/ssr/point-cloud
 yarn start #yarn dev for dev environment
 ```
