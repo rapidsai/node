@@ -72,21 +72,6 @@ function graphSSRClients(fastify) {
     if (clients[stream.id].graph !== {}) {
       peer.send(JSON.stringify({type: 'data', data: 'newQuery'}));
     }
-    //   if (clients[stream.id].graph.dataframes[0]) {
-    //     const res = getPaginatedRows(clients[stream.id].graph.dataframes[0]);
-    //     peer.send(JSON.stringify({
-    //       type: 'data',
-    //       data: {nodes: {data: res, length: clients[stream.id].graph.dataframes[0].numRows}}
-    //     }));
-    //   }
-    //   if (clients[stream.id].graph.dataframes[1]) {
-    //     const res = getPaginatedRows(clients[stream.id].graph.dataframes[1]);
-    //     peer.send(JSON.stringify({
-    //       type: 'data',
-    //       data: {edges: {data: res, length: clients[stream.id].graph.dataframes[1].numRows}}
-    //     }));
-    //   }
-    // }
 
     stream.addTrack(source.createTrack());
     peer.streams.push(stream);
@@ -143,8 +128,6 @@ function layoutAndRenderGraphs(clients) {
 
       if (client.isRendering) { continue; }
 
-      if (client.graph == {}) { continue; }
-
       const state = {...client.state};
       const props = {...client.props};
       const event =
@@ -169,7 +152,7 @@ function layoutAndRenderGraphs(clients) {
 
       if (event.length === 0 && !props.layout) { continue; }
       if (event.length !== 0) { client.event = Object.create(null); }
-      if (props.layout == true && client.graph !== {}) { client.graph = forceAtlas2(client.graph); }
+      if (props.layout == true) { client.graph = forceAtlas2(client.graph); }
 
       const {
         width  = client.props.width ?? 800,
@@ -226,11 +209,6 @@ function layoutAndRenderGraphs(clients) {
         });
     }
   }
-}
-
-function getPaginatedRows(df, page = 1, rowsPerPage = 400) {
-  if (!df) { return {}; }
-  return df.head(page * rowsPerPage).tail(rowsPerPage).toArrow().toArray();
 }
 
 function forceAtlas2({graph, nodes, edges, ...params}) {
