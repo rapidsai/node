@@ -55,8 +55,8 @@ class Renderer {
       state: {
         deck: this.deck.serialize(),
         graph: this.deck.layerManager.getLayers()
-                 ?.find((layer) => layer.id === 'GraphLayer')
-                 .serialize(),
+                 ?.find((layer) => layer.id === 'laz-point-cloud-layer')
+                 .graph,
         window: {
           x: window.x,
           y: window.y,
@@ -117,33 +117,7 @@ function makeDeck() {
     'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/point-cloud-laz/indoor.0.1.laz';
 
   const makeLayers = (deck, graph = {}) => {
-    const [viewport] = (deck?.viewManager?.getViewports() || []);
-    const [minX = Number.NEGATIVE_INFINITY,
-           minY = Number.NEGATIVE_INFINITY,
-    ]                = viewport?.getBounds() || [];
     return [
-      new TextLayer({
-        sizeScale: 1,
-        opacity: 0.9,
-        maxWidth: 2000,
-        pickable: false,
-        getTextAnchor: 'start',
-        getAlignmentBaseline: 'top',
-        getSize: ({size})          => size,
-        getColor: ({color})        => color,
-        getPixelOffset: ({offset}) => offset,
-        data: Array.from({length: +process.env.NUM_WORKERS},
-                         (_, i) =>  //
-                         ({
-                           size: 15,
-                           offset: [0, i * 15],
-                           text: `Worker ${i}`,
-                           position: [minX, minY],
-                           color: +process.env.WORKER_ID === i  //
-                                    ? [245, 171, 53, 255]
-                                    : [255, 255, 255, 255],
-                         }))
-      }),
       new PointCloudLayer({
         id: 'laz-point-cloud-layer',
         data: LAZ_SAMPLE,
@@ -152,23 +126,10 @@ function makeDeck() {
         getColor: [255, 255, 255],
         opacity: 0.5,
         pointSize: 0.5,
-        graph: graph
-      })
+        graph: graph,
+        pickable: true
+      }),
     ];
-  };
-
-  getPolygonLayer = (rectdata) => {
-    return new PolygonLayer({
-      filled: true,
-      stroked: true,
-      getPolygon: d => d.polygon,
-      lineWidthUnits: 'pixels',
-      getLineWidth: 2,
-      getLineColor: [80, 80, 80],
-      getLineColor: [0, 0, 0, 150],
-      getFillColor: [255, 255, 255, 65],
-      data: rectdata
-    })
   };
 
   const onDragStart =
@@ -274,10 +235,7 @@ function makeDeck() {
     deck,
     render(graph, rectdata, cb_props = {}) {
       const done = deck.animationLoop.waitForRender();
-      deck.setProps({
-        layers: makeLayers(deck, graph).concat(rectdata[0].show ? getPolygonLayer(rectdata) : []),
-        ...cb_props
-      });
+      deck.setProps({layers: makeLayers(deck, graph).concat([]), ...cb_props});
       deck.animationLoop.start();
       return done;
     },
