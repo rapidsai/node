@@ -168,7 +168,7 @@ module.exports = function(fastify, opts, done) {
     }
   });
 
-  fastify.post('/datasets/read', async (request, reply) => {
+  fastify.post('/dataset/read', async (request, reply) => {
     const filePath = `${__dirname}/../../data/`
     if (fs.existsSync(`${filePath}${request.body.nodes}`) &&
         fs.existsSync(`${filePath}${request.body.edges}`)) {
