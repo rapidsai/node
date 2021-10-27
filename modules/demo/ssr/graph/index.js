@@ -15,6 +15,14 @@
 // limitations under the License.
 
 const fastify = require('fastify')();
+const fs      = require('fs');
+const path    = require('path');
+
+// create `/data` directory if it does not exist
+const basePath = path.join(__dirname, 'data/');
+fs.access(basePath, fs.constants.F_OK, (err, _) => () => {
+  if (!err) { fs.mkdir(basePath); }
+});
 
 fastify  //
   .register(require('./plugins/webrtc'), require('./plugins/graph')(fastify))

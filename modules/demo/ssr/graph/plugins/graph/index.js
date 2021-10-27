@@ -116,7 +116,6 @@ function graphSSRClients(fastify) {
         }
         case 'layout': {
           clients[stream.id].props.layout = JSON.parse(data);
-          console.log(JSON.parse(data));
           break;
         }
       }

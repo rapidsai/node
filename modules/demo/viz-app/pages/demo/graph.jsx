@@ -233,7 +233,7 @@ export default class Graph extends React.Component {
     const fetchId = ++this.fetchIdRef.current;
 
     if (fetchId === this.fetchIdRef.current) {
-      await axios.post('/api/fetchPaginatedData', {
+      await axios.post('/api/dataframe/read', {
         id: this.socket.id,
         pageIndex: pageIndex + 1,
         pageSize: pageSize,
@@ -317,7 +317,7 @@ export default class Graph extends React.Component {
     console.log("uploading", file.name, this);
     let formData = new FormData();
     formData.append("file", file);
-    axios.post("/api/uploadFile", formData, {
+    axios.post("/api//datasets/upload", formData, {
     }).then(respone => { console.log(respone.statusText); })
       .then(success => {
         console.log("file uploaded successfully");
@@ -328,7 +328,7 @@ export default class Graph extends React.Component {
   }
 
   reloadFiles() {
-    axios.get("/api/getFileNames?id=" + this.socket.id).then((response) => {
+    axios.get("/api/datasets?id=" + this.socket.id).then((response) => {
       this.setState({
         nodesFileOptions: response.data,
         edgesFileOptions: response.data,
@@ -344,7 +344,7 @@ export default class Graph extends React.Component {
   }
 
   fetchDFParameters() {
-    axios.get("/api/fetchDFParameters", {
+    axios.get("/api/dataframe/columnNames/read", {
       params: {
         id: this.socket.id
       }
@@ -372,12 +372,10 @@ export default class Graph extends React.Component {
   }
 
   loadOnGPU() {
-    axios.get("/api/loadOnGPU", {
-      params: {
-        id: this.socket.id,
-        nodes: this.state.nodesFile,
-        edges: this.state.edgesFile
-      }
+    axios.post("/api/datasets/read", {
+      id: this.socket.id,
+      nodes: this.state.nodesFile,
+      edges: this.state.edgesFile
     }).then((response) => {
       this.setState({
         nodes: { ...this.state.nodes, ...{ length: response.data.nodes } },
@@ -469,21 +467,27 @@ export default class Graph extends React.Component {
     this.updatePages();
   }
 
-
-
+  renderGraph() {
+    axios.post("/api/graph/render", {
+      id: this.socket.id
+    }).then((response) => {
+      this.fetchCurrentData();
+    }).catch((error) => {
+      console.log(error);
+    })
+  }
   onRenderClick() {
-    axios.post("/api/updateRenderColumns", {
+    axios.post("/api/dataframe/columnNames/update", {
       nodes: this.state.nodesRenderColumns,
       edges: this.state.edgesRenderColumns,
       id: this.socket.id
     }).then((response) => {
-      console.log("success");
+      this.renderGraph();
     }).catch((error) => {
-      console.log("error");
-    }).then(() => {
-      this.fetchCurrentData();
+      console.log(error);
     })
   }
+
   render() {
     return (
       <DemoDashboard demoName={"Graph Demo"}

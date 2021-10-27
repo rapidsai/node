@@ -90,34 +90,38 @@ async function getEdgesForGraph(asDeviceMemory, edges) {
 }
 
 async function getPaginatedRows(df, pageIndex = 1, pageSize = 400, selected = []) {
-  console.log(selected);
-  if (selected.length == 0) {
-    return [df.head(pageIndex * pageSize).tail(pageSize).toArrow(), df.numRows];
+  const idxs =
+    Series.sequence({type: new Int32, init: (pageIndex) * pageSize, size: pageSize, step: 1});
+  if (selected.length != 0) {
+    const selectedSeries = Series.new({type: new Int32, data: selected}).unique(true);
+    const updatedDF      = df.gather(selectedSeries);
+    return [updatedDF.gather(idxs).toArrow(), updatedDF.numRows];
   }
-  const selectedSeries = Series.new({type: new Int32, data: selected});
-  let dfUpdated        = df.gather(selectedSeries);
-  return [dfUpdated.head(pageIndex * pageSize).tail(pageSize).toArrow(), dfUpdated.numRows];
+  return [df.gather(idxs).toArrow(), df.numRows];
 }
 
 module.exports = function(fastify, opts, done) {
-  // fastify.addHook('preValidation', (request, reply, done) => {
-  //   console.log('this is executed', request);
-  //   done()
-  // });
-
-  async function loadGraph(id, data) {
-    if (!(id in fastify[graphs])) {
-      const asDeviceMemory = (buf) => new (buf[Symbol.species])(buf);
-      const src                    = data.edges.dataframe.get(data.edges.src);
-      const dst                    = data.edges.dataframe.get(data.edges.dst);
-      const graph                  = new GraphCOO(src._col, dst._col, {directedEdges: true});
-      fastify[graphs][id]          = {
-        refCount: 0,
-        nodes: await getNodesForGraph(asDeviceMemory, data.nodes, graph.numNodes()),
-        edges: await getEdgesForGraph(asDeviceMemory, data.edges),
-        graph: graph,
-      };
+  fastify.addHook('preValidation', (request, reply, done) => {
+    request.query.id =
+      (request.method == 'POST') ? `${request.body.id}:video` : `${request.query.id}:video`;
+    if (request.query.id in fastify[clients]) {
+      done();
+    } else {
+      reply.code(500).send('client handshake not established');
     }
+  });
+
+  async function renderGraph(id, data) {
+    const asDeviceMemory = (buf) => new (buf[Symbol.species])(buf);
+    const src                    = data.edges.dataframe.get(data.edges.src);
+    const dst                    = data.edges.dataframe.get(data.edges.dst);
+    const graph                  = new GraphCOO(src._col, dst._col, {directedEdges: true});
+    fastify[graphs][id]          = {
+      refCount: 0,
+      nodes: await getNodesForGraph(asDeviceMemory, data.nodes, graph.numNodes()),
+      edges: await getEdgesForGraph(asDeviceMemory, data.edges),
+      graph: graph,
+    };
 
     ++fastify[graphs][id].refCount;
 
@@ -141,17 +145,12 @@ module.exports = function(fastify, opts, done) {
     };
   }
 
-  fastify.get('/getIDValue', async (request, reply) => {
-    console.log(fastify[clients][request.query.id + ':video']);
-    reply.send(fastify[clients][request.query.id + ':video'].graph.dataframes[0].numRows);
-  });
-
-  fastify.post('/uploadFile', async function(req, reply) {
+  fastify.post('/datasets/upload', async function(req, reply) {
     const data     = await req.file();
     const basePath = `${__dirname}/../../data/`;
     if (!fs.existsSync(basePath)) { fs.mkdirSync(basePath); }
-    const filepath = `${basePath}${data.filename}`;
-    const target = fs.createWriteStream(filepath);
+    const filepath = Path.join(basePath, data.filename);
+    const target   = fs.createWriteStream(filepath);
     try {
       await pump(data.file, target);
       console.log('success');
@@ -159,8 +158,8 @@ module.exports = function(fastify, opts, done) {
     reply.send()
   });
 
-  fastify.get('/getFileNames', async (request, reply) => {
-    if (`${request.query.id}:video` in fastify[clients]) {
+  fastify.get('/datasets', async (request, reply) => {
+    if (request.query.id in fastify[clients]) {
       glob(`*.{csv,parquet}`,
            {cwd: `${__dirname}/../../data/`},
            (er, files) => { reply.send(JSON.stringify(files.concat(['defaultExample']))); });
@@ -169,80 +168,69 @@ module.exports = function(fastify, opts, done) {
     }
   });
 
-  fastify.get('/loadOnGPU', async (request, reply) => {
-    const id       = `${request.query.id}:video`;
+  fastify.post('/datasets/read', async (request, reply) => {
     const filePath = `${__dirname}/../../data/`
-    if (id in fastify[clients]) {
-      if (fs.existsSync(`${filePath}${request.query.nodes}`) &&
-          fs.existsSync(`${filePath}${request.query.edges}`)) {
-        fastify[clients][id].data.nodes.dataframe =
-          await readDataFrame(`${filePath}${request.query.nodes}`);
+    if (fs.existsSync(`${filePath}${request.body.nodes}`) &&
+        fs.existsSync(`${filePath}${request.body.edges}`)) {
+      fastify[clients][request.query.id].data.nodes.dataframe =
+        await readDataFrame(`${filePath}${request.body.nodes}`);
 
-        fastify[clients][id].data.edges.dataframe =
-          await readDataFrame(`${filePath}${request.query.edges}`);
-      } else {
-        fastify[clients][id].data.nodes.dataframe = await loadNodes();
-        fastify[clients][id].data.edges.dataframe = await loadEdges();
-      }
-      if (fastify[clients][id].data.nodes.dataframe.numRows == 0) {
-        reply.code(500).send('no dataframe loaded');
-      }
-      reply.send(JSON.stringify({
-        'nodes': fastify[clients][id].data.nodes.dataframe.numRows,
-        'edges': fastify[clients][id].data.edges.dataframe.numRows
-      }));
+      fastify[clients][request.query.id].data.edges.dataframe =
+        await readDataFrame(`${filePath}${request.body.edges}`);
     }
     else {
-      reply.code(500).send('client handshake not established');
+      fastify[clients][request.query.id].data.nodes.dataframe = await loadNodes();
+      fastify[clients][request.query.id].data.edges.dataframe = await loadEdges();
     }
+    if (fastify[clients][request.query.id].data.nodes.dataframe.numRows == 0) {
+      reply.code(500).send('no dataframe loaded');
+    }
+    reply.send(JSON.stringify({
+      'nodes': fastify[clients][request.query.id].data.nodes.dataframe.numRows,
+      'edges': fastify[clients][request.query.id].data.edges.dataframe.numRows
+    }));
   })
 
-  fastify.get('/fetchDFParameters', async (request, reply) => {
-    const id = `${request.query.id}:video`;
-    if (id in fastify[clients]) {
-      reply.send(JSON.stringify({
-        nodesParams: fastify[clients][id].data.nodes.dataframe.names.concat([null]),
-        edgesParams: fastify[clients][id].data.edges.dataframe.names.concat([null])
-      }));
-    } else {
-      reply.code(500).send('client handshake not established');
-    }
+  fastify.get('/dataframe/columnNames/read', async (request, reply) => {
+    reply.send(JSON.stringify({
+      nodesParams: fastify[clients][request.query.id].data.nodes.dataframe.names.concat([null]),
+      edgesParams: fastify[clients][request.query.id].data.edges.dataframe.names.concat([null])
+    }));
   });
 
-  fastify.post('/updateRenderColumns', async (request, reply) => {
-    const id = `${request.body.id}:video`;
-    if (id in fastify[clients]) {
-      Object.assign(fastify[clients][id].data.nodes, request.body.nodes);
-      Object.assign(fastify[clients][id].data.edges, request.body.edges);
-      fastify[clients][id].graph = await loadGraph('default', fastify[clients][id].data);
-      reply.code(200).send();
-    } else {
-      reply.code(500).send('client handshake not established');
-    }
+  fastify.post('/dataframe/columnNames/update', async (request, reply) => {
+    try {
+      Object.assign(fastify[clients][request.query.id].data.nodes, request.body.nodes);
+      Object.assign(fastify[clients][request.query.id].data.edges, request.body.edges);
+      reply.code(200).send('successfully updated columnNames');
+    } catch (err) { reply.code(500).send(err); }
   });
 
-  fastify.post('/fetchPaginatedData', async (request, reply) => {
-    const id = `${request.body.id}:video`;
-    if (id in fastify[clients]) {
-      const pageIndex = request.body.pageIndex;
-      const pageSize  = request.body.pageSize;
-      const dataframe = request.body.dataframe;  //{'nodes', 'edges'}
-      const [res, numRows] =
-        await getPaginatedRows(fastify[clients][id].data[dataframe].dataframe,
-                               pageIndex,
-                               pageSize,
-                               fastify[clients][id].state.selectedInfo[dataframe]);
+  fastify.post('/graph/render', async (request, reply) => {
+    try {
+      fastify[clients][request.query.id].graph =
+        await renderGraph('default', fastify[clients][request.query.id].data);
+      reply.code(200).send('successfully rendered graph');
+    } catch (err) { reply.code(500).send(err); }
+  })
 
-      reply.send(JSON.stringify({page: res.toArray(), numRows: numRows}));
-      // try {
-      //   // RecordBatchStreamWriter.writeAll(res).pipe(reply.stream());
-      // } catch (err) {
-      //   request.log.error({err}, '/run_query error');
-      //   reply.code(500).send(err);
-      // }
-    } else {
-      reply.code(500).send('client handshake not established');
-    }
+  fastify.post('/dataframe/read', async (request, reply) => {
+    const pageIndex = request.body.pageIndex;
+    const pageSize  = request.body.pageSize;
+    const dataframe = request.body.dataframe;  //{'nodes', 'edges'}
+    const [res, numRows] =
+      await getPaginatedRows(fastify[clients][request.query.id].data[dataframe].dataframe,
+                             pageIndex,
+                             pageSize,
+                             fastify[clients][request.query.id].state.selectedInfo[dataframe]);
+
+    reply.send(JSON.stringify({page: res.toArray(), numRows: numRows}));
+    // try {
+    //   // RecordBatchStreamWriter.writeAll(res).pipe(reply.stream());
+    // } catch (err) {
+    //   request.log.error({err}, '/run_query error');
+    //   reply.code(500).send(err);
+    // }
   });
 
   done();

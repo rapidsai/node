@@ -196,8 +196,6 @@ function makeDeck() {
       deck.selectedInfo.edges = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
                                   .filter(selected => selected.hasOwnProperty('edgeId'))
                                   .map(n => n.edgeId);
-      console.log(
-        'selected Nodes', deck.selectedInfo.nodes, '\nselected Edges', deck.selectedInfo.edges);
     }
 
   const onDrag = (info, event) => {
