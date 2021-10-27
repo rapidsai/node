@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>WebRTC NVENC Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#2e2e2e" />
+</head>
+
+<body style="background:#2e2e2e; margin:0;">
+
+    <video autoplay muted width="800" height="600"></video>
+
+    <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.0/simplepeer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+    <script>
+        const sock = io({ transports: ['websocket'], reconnection: true });
+        const video = document.querySelector('video');
+        const peer = new SimplePeer({
+            trickle: true,
+            initiator: true,
+            sdpTransform: (sdp) => {
+                // Remove bandwidth restrictions
+                // https://github.com/webrtc/samples/blob/89f17a83ed299ef28d45b933419d809b93d41759/src/content/peerconnection/bandwidth/js/main.js#L240
+                sdp = sdp.replace(/b=AS:.*\r\n/, '').replace(/b=TIAS:.*\r\n/, '');
+                // Force h264 encoding by removing all VP8/9 codecs from the sdp
+                sdp = onlyH264(sdp);
+                return sdp;
+            }
+        });
+
+        // Negotiate handshake
+        sock.on('signal', (data) => peer.signal(data));
+        peer.on('signal', (data) => sock.emit('signal', data));
+        peer.on('data', (data) => {
+            var decoded = new TextDecoder().decode(data);
+            var decodedjson = JSON.parse(decoded);
+            console.log("got data from peer: ", decodedjson.data);
+        });
+
+        // Server video stream
+        peer.on('stream', (stream) => {
+            ('srcObject' in video)
+                ? (video.srcObject = stream)
+                : (video.src = window.URL.createObjectURL(stream));  // for older browsers
+            video.play();
+        });
+
+        dispatchRemoteEvent(video, 'blur');
+        dispatchRemoteEvent(video, 'focus');
+        dispatchRemoteEvent(video, 'wheel');
+        dispatchRemoteEvent(window, 'beforeunload');
+        dispatchRemoteEvent(document, 'keyup');
+        dispatchRemoteEvent(document, 'keydown');
+        dispatchRemoteEvent(document, 'keypress');
+        dispatchRemoteEvent(video, 'mouseup');
+        dispatchRemoteEvent(video, 'mousemove');
+        dispatchRemoteEvent(video, 'mousedown');
+        dispatchRemoteEvent(video, 'mouseenter');
+        dispatchRemoteEvent(video, 'mouseleave');
+
+        function dispatchRemoteEvent(target, type) {
+            let timeout = null;
+            target.addEventListener(type, (e) => {
+                if (target === video) { e.preventDefault(); }
+                if (!timeout) {
+                    timeout = setTimeout(() => { timeout = null; }, 1000 / 60);
+                    peer.send(JSON.stringify({ type: 'event', data: serializeEvent(e) }));
+                }
+            });
+        }
+
+        function serializeEvent(original) {
+            return Object
+                .getOwnPropertyNames(Object.getPrototypeOf(original))
+                .reduce((serialized, field) => {
+                    switch (typeof original[field]) {
+                        case 'object':
+                        case 'symbol':
+                        case 'function': break;
+                        default: serialized[field] = original[field];
+                    }
+                    return serialized;
+                }, { type: original.type });
+        }
+
+        function onlyH264(sdp) {
+            // remove non-h264 codecs from the supported codecs list
+            const videos = sdp.match(/^m=video.*$/gm);
+            if (videos) {
+                return videos.map((video) => [video, [
+                    ...getCodecIds(sdp, 'VP9'),
+                    ...getCodecIds(sdp, 'VP8'),
+                    ...getCodecIds(sdp, 'HEVC'),
+                    ...getCodecIds(sdp, 'H265')
+                ]]).reduce((sdp, [video, ids]) => ids.reduce((sdp, id) => [
+                    new RegExp(`^a=fmtp:${id}(.*?)$`, 'gm'),
+                    new RegExp(`^a=rtpmap:${id}(.*?)$`, 'gm'),
+                    new RegExp(`^a=rtcp-fb:${id}(.*?)$`, 'gm'),
+                ].reduce((sdp, expr) => sdp.replace(expr, ''), sdp), sdp)
+                    .replace(video, ids.reduce((video, id) => video.replace(` ${id}`, ''), video)), sdp)
+                    .replace('\r\n', '\n').split('\n').map((x) => x.trim()).filter(Boolean).join('\r\n') + '\r\n';
+            }
+
+            return sdp;
+
+            function getCodecIds(sdp, codec) {
+                return getIdsForMatcher(sdp, new RegExp(
+                    `^a=rtpmap:(?<id>\\d+)\\s+${codec}\\/\\d+$`, 'm'
+                )).reduce((ids, id) => [
+                    ...ids, id, ...getIdsForMatcher(sdp, new RegExp(
+                        `^a=fmtp:(?<id>\\d+)\\s+apt=${id}$`, 'm'
+                    ))
+                ], []);
+            }
+
+            function getIdsForMatcher(sdp, matcher) {
+                const ids = [];
+                /** @type RegExpMatchArray */
+                let res, str = '' + sdp, pos = 0;
+                for (; res = str.match(matcher); str = str.slice(pos)) {
+                    pos = res.index + res[0].length;
+                    if (res.groups) { ids.push(res.groups.id); }
+                }
+                return ids;
+            }
+        }
+
+    </script>
+</body>
+
+</html>

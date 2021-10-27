@@ -1,41 +1,37 @@
 {
-  "name": "@rapidsai/demo-point-cloud",
-  "version": "0.0.0",
   "private": true,
+  "name": "@rapidsai/demo-point-cloud-ssr",
+  "main": "index.js",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
     "Paul Taylor <paul.e.taylor@me.com>"
   ],
   "bin": "index.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next build && next start"
+    "start": "node --experimental-vm-modules --trace-uncaught index.js",
+    "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
   },
   "dependencies": {
-    "@deck.gl/core": "8.5.8",
-    "@deck.gl/layers": "8.5.8",
-    "@deck.gl/react": "8.5.8",
-    "@deck.gl/carto": "8.5.8",
-    "@deck.gl/geo-layers": "8.5.8",
-    "@deck.gl/mesh-layers": "8.5.8",
-    "@fortawesome/fontawesome-svg-core": "1.2.35",
-    "@fortawesome/free-solid-svg-icons": "5.15.3",
-    "@fortawesome/react-fontawesome": "0.1.14",
-    "@rapidsai/cudf": "0.0.1",
-    "apache-arrow": "^4.0.0",
-    "bootstrap": "4.6.0",
-    "d3": "6.6.2",
-    "echarts": "5.0.2",
-    "echarts-for-react": "3.0.1",
-    "next": "11.1.0",
-    "react": "17.0.2",
-    "react-bootstrap": "1.6.1",
-    "react-dom": "17.0.2",
-    "react-map-gl": "5.3.16"
+    "@rapidsai/cuda": "0.0.1",
+    "@rapidsai/deck.gl": "0.0.1",
+    "@rapidsai/jsdom": "0.0.1",
+    "fastify-plugin": "3.0.0",
+    "fastify-socket.io": "2.0.0",
+    "fastify-static": "4.2.3",
+    "fastify": "3.20.2",
+    "nanoid": "3.1.25",
+    "rxjs": "6.6.7",
+    "shm-typed-array": "0.0.13",
+    "simple-peer": "9.11.0",
+    "socket.io": "4.1.3"
   },
   "files": [
-    "pages",
-    "components"
+    "render",
+    "public",
+    "plugins",
+    "index.js",
+    "package.json"
   ]
 }
