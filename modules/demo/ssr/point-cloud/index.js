@@ -14,24 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const Path = require('path');
+const fastify = require('fastify')();
 
-// Change cwd to the example dir so relative file paths are resolved
-process.chdir(__dirname);
+fastify  //
+  .register(require('./plugins/webrtc'), require('./plugins/point-cloud')(fastify))
+  .register(require('fastify-static'), {root: require('path').join(__dirname, 'public')})
+  .get('/', (req, reply) => reply.sendFile('video.html'));
 
-const next = require.resolve('next/dist/bin/next');
-
-require('fs').stat(Path.join(__dirname, '.next'), (err, stats) => {
-  const {spawnSync} = require('child_process');
-
-  const env = {
-    NEXT_TELEMETRY_DISABLED: 1,  // disable https://nextjs.org/telemetry
-    ...process.env,
-  };
-
-  if (err || !stats || !stats.isDirectory()) {
-    spawnSync(process.execPath, [next, 'build'], {env, cwd: __dirname, stdio: 'inherit'});
-  }
-
-  spawnSync(process.execPath, [next, 'start'], {env, cwd: __dirname, stdio: 'inherit'});
-});
+fastify.listen(8080).then(() => console.log('server ready'));
