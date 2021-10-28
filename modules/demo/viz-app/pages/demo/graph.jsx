@@ -103,7 +103,6 @@ export default class Graph extends React.Component {
         tableColumns: [{ Header: "Loading...", accessor: "Loading..." }],
         length: 0
       },
-      fileUploadStatus: {},
       nodesFileOptions: [],
       edgesFileOptions: [],
       nodesFile: "",
@@ -121,7 +120,7 @@ export default class Graph extends React.Component {
         src: "src", dst: "dst",
         color: "", bundle: "", id: ""
       },
-      gpuLoadStatus: "not loaded",
+      datasetLoaded: false,
       forceAtlas2: false,
       nodesPageInfo: {
         pageIndex: 0,
@@ -168,7 +167,6 @@ export default class Graph extends React.Component {
     this.peer.on('data', (data) => {
       var decoded = new TextDecoder().decode(data);
       var decodedjson = JSON.parse(decoded);
-      console.log(decodedjson)
       if (decodedjson.data == "newQuery") {
         this.fetchCurrentData();
       }
@@ -232,7 +230,7 @@ export default class Graph extends React.Component {
 
     const fetchId = ++this.fetchIdRef.current;
 
-    if (fetchId === this.fetchIdRef.current) {
+    if (fetchId === this.fetchIdRef.current && this.state.datasetLoaded) {
       await axios.post('/api/dataframe/read', {
         id: this.socket.id,
         pageIndex: pageIndex + 1,
@@ -313,20 +311,6 @@ export default class Graph extends React.Component {
     )
   }
 
-  uploadFile(file) {
-    console.log("uploading", file.name, this);
-    let formData = new FormData();
-    formData.append("file", file);
-    axios.post("/api//datasets/upload", formData, {
-    }).then(respone => { console.log(respone.statusText); })
-      .then(success => {
-        console.log("file uploaded successfully");
-      })
-      .catch(error => {
-        console.log("error");
-      });
-  }
-
   reloadFiles() {
     axios.get("/api/datasets?id=" + this.socket.id).then((response) => {
       this.setState({
@@ -380,11 +364,11 @@ export default class Graph extends React.Component {
       this.setState({
         nodes: { ...this.state.nodes, ...{ length: response.data.nodes } },
         edges: { ...this.state.edges, ...{ length: response.data.edges } },
-        gpuLoadStatus: "success"
+        datasetLoaded: true
       });
     }).catch((error) => {
       this.setState({
-        gpuLoadStatus: "not loaded"
+        datasetLoaded: false
       })
     }).then(() => {
       this.fetchDFParameters()
@@ -404,7 +388,7 @@ export default class Graph extends React.Component {
   }
 
   getDFParameters() {
-    if (this.state.gpuLoadStatus !== "not loaded") {
+    if (this.state.datasetLoaded) {
       return (
         <Form.Group>
           <Form.Label>Nodes</Form.Label>
@@ -444,7 +428,7 @@ export default class Graph extends React.Component {
         <Form.Control as="select" custom onChange={(e) => { this.setState({ edgesFile: e.target.value }); }}>
           {this.state.edgesFileOptions.map((obj) => <option value={obj}>{obj}</option>)}
         </Form.Control>
-        <p className={"textButton", "whiteTextButton"} onClick={() => this.loadOnGPU()}>[Load on GPU] {this.state.gpuLoadStatus}</p>
+        <p className={"textButton", "whiteTextButton"} onClick={() => this.loadOnGPU()}>[Load on GPU] {this.state.datasetLoaded ? "loaded successfully" : "not loaded"}</p>
       </Form.Group>
       {this.getDFParameters()}
 
@@ -489,11 +473,12 @@ export default class Graph extends React.Component {
   }
 
   render() {
+    const id = this.socket ? this.socket.id : null;
     return (
       <DemoDashboard demoName={"Graph Demo"}
         demoView={this.demoView()}
-        onLoadClick={this.uploadFile}
-        customComponents={this.getCustomComponents()}
+        id={id}
+        slideMenuCustomComponents={this.getCustomComponents()}
         onRenderClick={() => this.onRenderClick()}
         dataTable={this.dataTable()}
         dataMetrics={this.dataMetrics()}

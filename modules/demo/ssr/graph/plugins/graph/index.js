@@ -69,10 +69,6 @@ function graphSSRClients(fastify) {
       peer: peer,
     };
 
-    if (clients[stream.id].graph !== {}) {
-      peer.send(JSON.stringify({type: 'data', data: 'newQuery'}));
-    }
-
     stream.addTrack(source.createTrack());
     peer.streams.push(stream);
     peer.addStream(stream);

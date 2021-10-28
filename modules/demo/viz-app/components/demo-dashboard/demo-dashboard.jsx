@@ -27,9 +27,9 @@ export default class DemoDashboard extends React.Component {
     return (
       <div id="outer-container">
         <SlideMenu
-          onLoadClick={this.props.onLoadClick}
+          id={this.props.id}
           onRenderClick={this.props.onRenderClick}
-          customComponents={this.props.customComponents}
+          slideMenuCustomComponents={this.props.slideMenuCustomComponents}
         />
         <Layout id="page-wrap" title={demoName} isLoading={isLoading}>
           <DemoView demoView={this.props.demoView} />

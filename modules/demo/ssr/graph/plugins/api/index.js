@@ -17,12 +17,13 @@ const fs                                          = require('fs')
 const util                                        = require('util')
 const {pipeline}                                  = require('stream')
 const pump                                        = util.promisify(pipeline)
-var glob                                          = require('glob');
+const glob                                        = require('glob');
 const {Float32Buffer}                             = require('@rapidsai/cuda');
 const {GraphCOO}                                  = require('@rapidsai/cugraph');
 const {DataFrame, Series, Int32, Uint64, Float64} = require('@rapidsai/cudf');
 const {loadEdges, loadNodes}                      = require('../graph/loader');
 const {RecordBatchStreamWriter}                   = require('apache-arrow');
+const path                                        = require('path');
 
 function readDataFrame(path) {
   if (path.indexOf('.csv', path.length - 4) !== -1) {
@@ -102,12 +103,17 @@ async function getPaginatedRows(df, pageIndex = 1, pageSize = 400, selected = []
 
 module.exports = function(fastify, opts, done) {
   fastify.addHook('preValidation', (request, reply, done) => {
-    request.query.id =
-      (request.method == 'POST') ? `${request.body.id}:video` : `${request.query.id}:video`;
-    if (request.query.id in fastify[clients]) {
+    // handle upload validation after reading request.file() in the route function itself
+    if (request.url == '/datasets/upload') {
       done();
     } else {
-      reply.code(500).send('client handshake not established');
+      request.query.id =
+        (request.method == 'POST') ? `${request.body.id}:video` : `${request.query.id}:video`;
+      if (request.query.id in fastify[clients]) {
+        done();
+      } else {
+        reply.code(500).send('client handshake not established');
+      }
     }
   });
 
@@ -146,26 +152,25 @@ module.exports = function(fastify, opts, done) {
   }
 
   fastify.post('/datasets/upload', async function(req, reply) {
-    const data     = await req.file();
-    const basePath = `${__dirname}/../../data/`;
-    if (!fs.existsSync(basePath)) { fs.mkdirSync(basePath); }
-    const filepath = Path.join(basePath, data.filename);
-    const target   = fs.createWriteStream(filepath);
-    try {
-      await pump(data.file, target);
-      console.log('success');
-    } catch (err) { console.log(err); }
-    reply.send()
-  });
-
-  fastify.get('/datasets', async (request, reply) => {
-    if (request.query.id in fastify[clients]) {
-      glob(`*.{csv,parquet}`,
-           {cwd: `${__dirname}/../../data/`},
-           (er, files) => { reply.send(JSON.stringify(files.concat(['defaultExample']))); });
+    const data = await req.file();
+    const id   = `${data.fields.id.value}:video`;
+    if (id in fastify[clients]) {
+      const basePath = `${__dirname}/../../data/`;
+      const filepath = path.join(basePath, data.filename);
+      const target   = fs.createWriteStream(filepath);
+      try {
+        await pump(data.file, target);
+      } catch (err) { console.log(err); }
+      reply.send();
     } else {
       reply.code(500).send('client handshake not established');
     }
+  });
+
+  fastify.get('/datasets', async (request, reply) => {
+    glob(`*.{csv,parquet}`,
+         {cwd: `${__dirname}/../../data/`},
+         (er, files) => { reply.send(JSON.stringify(files.concat(['defaultExample']))); });
   });
 
   fastify.post('/dataset/read', async (request, reply) => {
