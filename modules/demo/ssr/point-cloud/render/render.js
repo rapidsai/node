@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {IpcMemory, Uint8Buffer} = require('@rapidsai/cuda');
-const {RapidsJSDOM}            = require('@rapidsai/jsdom');
-const copyFramebuffer          = require('./copy')();
+const {RapidsJSDOM}   = require('@rapidsai/jsdom');
+const copyFramebuffer = require('./copy')();
 
 class Renderer {
   constructor() {
@@ -106,6 +105,16 @@ function makeDeck() {
 
   const deck = new DeckSSR({
     createFramebuffer: true,
+    initialViewState: {
+      target: [0, 0, 0],
+      rotationX: 0,
+      rotationOrbit: 0,
+      orbitAxis: 'Y',
+      fov: 50,
+      minZoom: 0,
+      maxZoom: 10,
+      zoom: 1
+    },
     layers: makeLayers(),
     views: [
       new OrbitView(),
