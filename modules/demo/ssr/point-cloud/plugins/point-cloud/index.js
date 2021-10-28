@@ -49,12 +49,7 @@ function graphSSRClients(fastify) {
 
     clients[stream.id] = {
       video: source,
-      state: {
-        pickingMode: 'click',  // 'click', 'boxSelect'
-        selectedInfo: {},
-        boxSelectCoordinates: {rectdata: [{polygon: [[]], show: false}], startPos: null},
-        clearSelections: false
-      },
+      state: {},
       event: {},
       props: {width, height, layout},
       frame: shmCreate(width * height * 3 / 2),
@@ -147,9 +142,4 @@ function layoutAndRenderGraphs(clients) {
                       });
     }
   }
-}
-
-function getPaginatedRows(df, page = 1, rowsPerPage = 400) {
-  if (!df) { return {}; }
-  return df.head(page * rowsPerPage).tail(rowsPerPage).toArrow().toArray();
 }
