@@ -28,12 +28,19 @@ class Renderer {
   }
   async render(props = {}, graph = {}, state = {}, events = [], frame = 0) {
     const window = this.jsdom.window;
+
+    props && this.deck.setProps(props);
+    state?.deck && this.deck.restore(state.deck);
+    state?.window && Object.assign(window, state.window);
+
+    (events || []).forEach((event) => window.dispatchEvent(event));
+
+    await this._render();
+
     return {
       frame: copyFramebuffer(this.deck.animationLoop, frame),
       state: {
         deck: this.deck.serialize(),
-        graph:
-          this.deck.layerManager.getLayers()?.find((layer) => layer.id === 'PointCloudLayer').graph,
         window: {
           x: window.x,
           y: window.y,
@@ -84,23 +91,61 @@ function makeDeck() {
 
   const {OrbitView, COORDINATE_SYSTEM} = require('@deck.gl/core');
   const {PointCloudLayer}              = require('@deck.gl/layers');
+  const {TextLayer}                    = require('@deck.gl/layers');
   const {DeckSSR}                      = require('@rapidsai/deck.gl');
+  const {LASLoader}                    = require('@loaders.gl/las');
+  const {registerLoaders}              = require('@loaders.gl/core');
+
+  registerLoaders(LASLoader);
 
   // Data source: kaarta.com
   const LAZ_SAMPLE =
     'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/point-cloud-laz/indoor.0.1.laz';
 
-  const makeLayers = () => {
-    return [
-      new PointCloudLayer({
-        data: LAZ_SAMPLE,
-        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        getNormal: [0, 1, 0],
-        getColor: [255, 255, 255],
-        opacity: 0.5,
-        pointSize: 0.5,
-      }),
-    ];
+  const makeLayers = (deck, graph = null) => {
+    const [viewport] = (deck?.viewManager?.getViewports() || []);
+    const [minX = Number.NEGATIVE_INFINITY,
+           minY = Number.NEGATIVE_INFINITY,
+    ]                = viewport?.getBounds() || [];
+
+    const textLayer = new TextLayer({
+      sizeScale: 1,
+      opacity: 0.9,
+      maxWidth: 2000,
+      pickable: false,
+      getTextAnchor: 'start',
+      getAlignmentBaseline: 'top',
+      getSize: ({size})          => size,
+      getColor: ({color})        => color,
+      getPixelOffset: ({offset}) => offset,
+      data: Array.from({length: +process.env.NUM_WORKERS},
+                       (_, i) =>  //
+                       ({
+                         size: 15,
+                         offset: [0, i * 15],
+                         text: `Worker ${i}`,
+                         position: [minX, minY],
+                         color: +process.env.WORKER_ID === i  //
+                                  ? [245, 171, 53, 255]
+                                  : [255, 255, 255, 255],
+                       }))
+    });
+    if (graph) {
+      return [textLayer, graph]
+    } else {
+      return [
+        textLayer,
+        new PointCloudLayer({
+          id: 'laz-point-cloud-layer',
+          data: LAZ_SAMPLE,
+          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+          getNormal: [0, 1, 0],
+          getColor: [255, 255, 255],
+          opacity: 0.5,
+          pointSize: 0.5
+        }),
+      ]
+    }
   };
 
   const deck = new DeckSSR({
@@ -115,19 +160,20 @@ function makeDeck() {
       maxZoom: 10,
       zoom: 1
     },
-    layers: makeLayers(),
+    layers: makeLayers(null),
     views: [
       new OrbitView(),
     ],
+    controller: true,
     parameters: {clearColor: [0.93, 0.86, 0.81, 1]},
     onAfterAnimationFrameRender({_loop}) { _loop.pause(); },
   });
 
   return {
     deck,
-    render(graph, cb_props = {}) {
+    render() {
       const done = deck.animationLoop.waitForRender();
-      deck.setProps({layers: makeLayers(deck, graph).concat([]), ...cb_props});
+      deck.setProps({layers: makeLayers(deck)});
       deck.animationLoop.start();
       return done;
     },
