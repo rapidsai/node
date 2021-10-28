@@ -130,6 +130,7 @@ function makeDeck() {
     views: [
       new OrbitView(),
     ],
+    parameters: {clearColor: [0.93, 0.86, 0.81, 1]},
     onAfterAnimationFrameRender({_loop}) { _loop.pause(); },
   });
 
