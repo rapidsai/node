@@ -219,23 +219,22 @@ module.exports = function(fastify, opts, done) {
     } catch (err) { reply.code(500).send(err); }
   })
 
-  fastify.post('/dataframe/read', async (request, reply) => {
-    const pageIndex = request.body.pageIndex;
-    const pageSize  = request.body.pageSize;
-    const dataframe = request.body.dataframe;  //{'nodes', 'edges'}
+  fastify.get('/dataframe/read', async (request, reply) => {
+    const pageIndex = parseInt(request.query.pageIndex);
+    const pageSize  = parseInt(request.query.pageSize);
+    const dataframe = request.query.dataframe;  //{'nodes', 'edges'}
     const [res, numRows] =
       await getPaginatedRows(fastify[clients][request.query.id].data[dataframe].dataframe,
                              pageIndex,
                              pageSize,
                              fastify[clients][request.query.id].state.selectedInfo[dataframe]);
 
-    reply.send(JSON.stringify({page: res.toArray(), numRows: numRows}));
-    // try {
-    //   // RecordBatchStreamWriter.writeAll(res).pipe(reply.stream());
-    // } catch (err) {
-    //   request.log.error({err}, '/run_query error');
-    //   reply.code(500).send(err);
-    // }
+    try {
+      RecordBatchStreamWriter.writeAll(res).pipe(reply.stream());
+    } catch (err) {
+      request.log.error({err}, '/run_query error');
+      reply.code(500).send(err);
+    }
   });
 
   done();

@@ -26,7 +26,7 @@
     "@fortawesome/free-solid-svg-icons": "5.15.3",
     "@fortawesome/react-fontawesome": "0.1.14",
     "@rapidsai/cudf": "0.0.1",
-    "apache-arrow": "^4.0.0",
+    "apache-arrow": "^6.0.0",
     "bootstrap": "4.6.0",
     "d3": "6.6.2",
     "echarts": "5.0.2",
