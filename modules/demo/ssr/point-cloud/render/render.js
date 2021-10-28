@@ -37,16 +37,7 @@ class Renderer {
     state?.graph && Object.assign(graph, state.graph);
     state?.window && Object.assign(window, state.window);
 
-    state?.selectedInfo && Object.assign(this.deck.selectedInfo, state.selectedInfo);
-    state?.boxSelectCoordinates &&
-      Object.assign(this.deck.boxSelectCoordinates, state.boxSelectCoordinates);
-
     (events || []).forEach((event) => window.dispatchEvent(event));
-
-    await this._render(graph,
-                       this.deck.boxSelectCoordinates.rectdata,
-                       state.pickingMode === 'boxSelect' ? {controller: {dragPan: false}}
-                                                         : {controller: {dragPan: true}});
 
     closeIpcHandles(graph.data.nodes);
     closeIpcHandles(graph.data.edges);
@@ -72,8 +63,6 @@ class Renderer {
           modifiers: window.modifiers,
           mouseInWindow: window.mouseInWindow,
         },
-        boxSelectCoordinates: this.deck.boxSelectCoordinates,
-        selectedInfo: this.deck.selectedInfo
       }
     };
   }
@@ -144,12 +133,9 @@ function makeDeck() {
     onAfterAnimationFrameRender({_loop}) { _loop.pause(); },
   });
 
-  deck.selectedInfo         = {selectedCoordinates: {}, selected: []};
-  deck.boxSelectCoordinates = {rectdata: [{polygon: [[]], show: false}], startPos: null};
-
   return {
     deck,
-    render(graph, rectdata, cb_props = {}) {
+    render(graph, cb_props = {}) {
       const done = deck.animationLoop.waitForRender();
       deck.setProps({layers: makeLayers(deck, graph).concat([]), ...cb_props});
       deck.animationLoop.start();
