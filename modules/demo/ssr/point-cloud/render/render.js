@@ -29,25 +29,12 @@ class Renderer {
   }
   async render(props = {}, graph = {}, state = {}, events = [], frame = 0) {
     const window = this.jsdom.window;
-
-    graph = openGraphIpcHandles(graph);
-    props && this.deck.setProps(props);
-
-    state?.deck && this.deck.restore(state.deck);
-    state?.graph && Object.assign(graph, state.graph);
-    state?.window && Object.assign(window, state.window);
-
-    (events || []).forEach((event) => window.dispatchEvent(event));
-
-    closeIpcHandles(graph.data.nodes);
-    closeIpcHandles(graph.data.edges);
     return {
       frame: copyFramebuffer(this.deck.animationLoop, frame),
       state: {
         deck: this.deck.serialize(),
-        graph: this.deck.layerManager.getLayers()
-                 ?.find((layer) => layer.id === 'laz-point-cloud-layer')
-                 .graph,
+        graph:
+          this.deck.layerManager.getLayers()?.find((layer) => layer.id === 'PointCloudLayer').graph,
         window: {
           x: window.x,
           y: window.y,
@@ -107,7 +94,6 @@ function makeDeck() {
   const makeLayers = () => {
     return [
       new PointCloudLayer({
-        id: 'laz-point-cloud-layer',
         data: LAZ_SAMPLE,
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
         getNormal: [0, 1, 0],
@@ -120,13 +106,7 @@ function makeDeck() {
 
   const deck = new DeckSSR({
     createFramebuffer: true,
-    initialViewState: {
-      zoom: 1,
-      target: [0, 0, 0],
-      minZoom: Number.NEGATIVE_INFINITY,
-      maxZoom: Number.POSITIVE_INFINITY,
-    },
-    layers: [makeLayers()],
+    layers: makeLayers(),
     views: [
       new OrbitView(),
     ],
@@ -143,69 +123,4 @@ function makeDeck() {
       return done;
     },
   };
-}
-
-function openGraphIpcHandles({nodes, edges, ...graphLayerProps} = {}) {
-  const data = {
-    nodes: openNodeIpcHandles(nodes),
-    edges: openEdgeIpcHandles(edges),
-  };
-  return {
-    pickable: true,
-    edgeOpacity: .5,
-    edgeStrokeWidth: 2,
-    nodesStroked: true,
-    nodeFillOpacity: .5,
-    nodeStrokeOpacity: .9,
-    nodeRadiusScale: 1 / 75,
-    nodeRadiusMinPixels: 5,
-    nodeRadiusMaxPixels: 150,
-    ...graphLayerProps,
-    data,
-    numNodes: data.nodes.length,
-    numEdges: data.edges.length,
-  };
-}
-
-function openNodeIpcHandles(attrs = {}) {
-  const attributes = {
-    nodeRadius: openIpcHandle(attrs.nodeRadius),
-    nodeXPositions: openIpcHandle(attrs.nodeXPositions),
-    nodeYPositions: openIpcHandle(attrs.nodeYPositions),
-    nodeFillColors: openIpcHandle(attrs.nodeFillColors),
-    nodeElementIndices: openIpcHandle(attrs.nodeElementIndices),
-  };
-  return {offset: 0, length: attrs.length ?? (attributes.nodeRadius?.byteLength || 0), attributes};
-}
-
-function openEdgeIpcHandles(attrs = {}) {
-  const attributes = {
-    edgeList: openIpcHandle(attrs.edgeList),
-    edgeColors: openIpcHandle(attrs.edgeColors),
-    edgeBundles: openIpcHandle(attrs.edgeBundles),
-  };
-  return {
-    offset: 0,
-    length: attrs.length ?? (attributes.edgeList?.byteLength || 0) / 8,
-    attributes
-  };
-}
-
-function openIpcHandle(obj) {
-  if (typeof obj === 'string') { obj = JSON.parse(obj); }
-  if (obj) {
-    const {byteOffset = 0} = obj;
-    const handle           = Uint8Array.from(obj.handle.map(Number));
-    return new Uint8Buffer(new IpcMemory(handle)).subarray(byteOffset);
-  }
-  return null;
-}
-
-function closeIpcHandles(obj) {
-  for (const key in obj) {
-    const {buffer} = obj[key] || {};
-    if (buffer && (buffer instanceof IpcMemory)) {  //
-      buffer.close();
-    }
-  }
 }
