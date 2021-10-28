@@ -15,7 +15,8 @@
 import {DataFrame, Int32, Series, StringSeries, Utf8String} from '@rapidsai/cudf';
 import {TypeMap} from '@rapidsai/cudf';
 
-// import {GraphCOO} from './addon';
+import {Graph} from './graph';
+import {renumber_edges, renumber_nodes} from './renumber';
 
 export interface HypergraphBaseProps {
   columns?: string[]|null;
@@ -47,7 +48,7 @@ export interface HypergraphDirectProps extends HypergraphBaseProps {
 export type HypergraphReturn = {
   nodes: DataFrame,
   edges: DataFrame,
-  // graph: GraphCOO,
+  graph: Graph,
   events: DataFrame,
   entities: DataFrame,
 }
@@ -75,7 +76,6 @@ hypergraph<T extends TypeMap = any>(values: DataFrame<T>, {
   const entities = _create_entity_nodes(
     initial_events, computed_columns, dropNulls, categories, delim, nodeId, category, nodeType);
 
-  // undirected branch
   const edges  = _create_hyper_edges(initial_events,
                                     computed_columns,
                                     dropNulls,
@@ -90,7 +90,9 @@ hypergraph<T extends TypeMap = any>(values: DataFrame<T>, {
   const events = _create_hyper_nodes(initial_events, nodeId, eventId, category, nodeType);
   const nodes  = entities.concat(events);
 
-  return {nodes, edges, events, entities};
+  const graph = create_graph(edges, attribId, eventId);
+
+  return {nodes, edges, events, entities, graph};
 }
 
 export function hypergraphDirect<T extends TypeMap = any>(values: DataFrame<T>, {
@@ -117,7 +119,6 @@ export function hypergraphDirect<T extends TypeMap = any>(values: DataFrame<T>, 
   const entities = _create_entity_nodes(
     initial_events, computed_columns, dropNulls, categories, delim, nodeId, category, nodeType);
 
-  // undirected branch
   const edges  = _create_direct_edges(initial_events,
                                      computed_columns,
                                      dropNulls,
@@ -134,9 +135,9 @@ export function hypergraphDirect<T extends TypeMap = any>(values: DataFrame<T>, 
   const events = new DataFrame({});
   const nodes  = entities;
 
-  // const graph = new GraphCOO(edges.get(attribId)._col, edges.get(eventId)._col);
+  const graph = create_graph(edges, source, target);
 
-  return {nodes, edges, events, entities};
+  return {nodes, edges, events, entities, graph};
 }
 
 function _compute_columns(values: DataFrame, columns: string[]|null, skip: string[]) {
@@ -293,7 +294,7 @@ function _create_direct_edges(events: DataFrame,
       const fs = dropEdgeAttrs ? [eventId, key1, key2] : [eventId, ...edge_attrs];
 
       let df: DataFrame =
-        dropNulls ? events.select(fs).dropNulls(0, 1, [key1, key2]) : events.select(fs);
+        dropNulls ? events.select(fs).dropNulls(0, 2, [key1, key2]) : events.select(fs);
 
       if (df.numRows == 0) { continue; }
 
@@ -316,6 +317,16 @@ function _create_direct_edges(events: DataFrame,
   if (!dropEdgeAttrs) { cols.push(...edge_attrs); }
 
   return new DataFrame().concat(...edge_dfs).select(cols);
+}
+
+function create_graph(edges: DataFrame, source: string, target: string): Graph {
+  const src = edges.get(source);
+  const dst = edges.get(target);
+
+  const rnodes = renumber_nodes(src, dst);
+  const redges = renumber_edges(src, dst, rnodes);
+
+  return Graph.from_edgelist(redges, {source: 'src', destination: 'dst'});
 }
 
 function _prepend_str(series: Series, val: string, delim: string): Series<Utf8String> {

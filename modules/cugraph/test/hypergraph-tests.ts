@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {setDefaultAllocator} from '@nvidia/cuda';
+import {setDefaultAllocator} from '@rapidsai/cuda';
 import {DataFrame, Int32, Series} from '@rapidsai/cudf';
 import {hypergraph, hypergraphDirect} from '@rapidsai/cugraph';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
@@ -48,7 +48,7 @@ test('hyperedges', () => {
   expect('events' in h);
   expect(h.events.numRows).toBe(3);
 
-  // expect('graph' in h);
+  expect('graph' in h);
 
   const edges = h.edges;
 
@@ -177,7 +177,7 @@ test('drop_edge_attrs', () => {
   expect('events' in h);
   expect(h.events.numRows).toBe(3);
 
-  // expect('graph' in h);
+  expect('graph' in h);
 
   const edges = h.edges;
 
@@ -224,7 +224,7 @@ test('drop_edge_attrs_direct', () => {
   expect('events' in h);
   expect(h.events.numRows).toBe(0);
 
-  // expect('graph' in h);
+  expect('graph' in h);
 
   const edges = h.edges;
 
@@ -249,42 +249,46 @@ test('drop_edge_attrs_direct', () => {
 
 test('skip_hyper', () => {
   const df = new DataFrame({
-    a: Series.new(['a', null, 'c']),
+    a: Series.new(['a', null, 'b']),
     b: Series.new(['a', 'b', 'c']),
     c: Series.new([1, 2, 3]).cast(new Int32),
   });
   const h  = hypergraph(df, {skip: ['c'], dropNulls: false});
-  h;  // 9, 6
+  expect(h.graph.layout.numNodes()).toBe(9);
+  expect(h.graph.layout.numEdges()).toBe(6);
 });
 
 test('skip_dropNulls_hyper', () => {
   const df = new DataFrame({
-    a: Series.new(['a', null, 'c']),
+    a: Series.new(['a', null, 'b']),
     b: Series.new(['a', 'b', 'c']),
     c: Series.new([1, 2, 3]).cast(new Int32),
   });
   const h  = hypergraph(df, {skip: ['c'], dropNulls: true});
-  h;  // 8, 5
+  expect(h.graph.layout.numNodes()).toBe(8);
+  expect(h.graph.layout.numEdges()).toBe(5);
 });
 
 test('skip_direct', () => {
   const df = new DataFrame({
-    a: Series.new(['a', null, 'c']),
+    a: Series.new(['a', null, 'b']),
     b: Series.new(['a', 'b', 'c']),
     c: Series.new([1, 2, 3]).cast(new Int32),
   });
   const h  = hypergraphDirect(df, {skip: ['c'], dropNulls: false});
-  h;  // 6, 3
+  expect(h.graph.layout.numNodes()).toBe(6);
+  expect(h.graph.layout.numEdges()).toBe(3);
 });
 
 test('skip_dropNulls_direct', () => {
   const df = new DataFrame({
-    a: Series.new(['a', null, 'c']),
+    a: Series.new(['a', null, 'b']),
     b: Series.new(['a', 'b', 'c']),
     c: Series.new([1, 2, 3]).cast(new Int32),
   });
   const h  = hypergraphDirect(df, {skip: ['c'], dropNulls: true});
-  h;  // 4, 2
+  expect(h.graph.layout.numNodes()).toBe(4);
+  expect(h.graph.layout.numEdges()).toBe(2);
 });
 
 test('dropNulls_hyper', () => {
@@ -293,7 +297,8 @@ test('dropNulls_hyper', () => {
     i: Series.new([1, 2, null]).cast(new Int32),
   });
   const h  = hypergraph(df, {dropNulls: true});
-  h;  // 7, 4
+  expect(h.graph.layout.numNodes()).toBe(7);
+  expect(h.graph.layout.numEdges()).toBe(4);
 });
 
 test('dropNulls_direct', () => {
@@ -302,7 +307,8 @@ test('dropNulls_direct', () => {
     i: Series.new([1, 1, null]).cast(new Int32),
   });
   const h  = hypergraphDirect(df, {dropNulls: true});
-  h;  // 2, 1
+  expect(h.graph.layout.numNodes()).toBe(2);
+  expect(h.graph.layout.numEdges()).toBe(1);
 });
 
 test('skip_skip_null_hyperedge', () => {
