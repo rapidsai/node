@@ -107,16 +107,15 @@ function makeDeck() {
   deckLog.level        = 0;
   deckLog.enable(false);
 
-  const {OrthographicView, COORDINATE_SYSTEM}      = require('@deck.gl/core');
-  const {TextLayer, PolygonLayer, PointCloudLayer} = require('@deck.gl/layers');
-  const {DeckSSR}                                  = require('@rapidsai/deck.gl');
-  const {OrthographicController}                   = require('@rapidsai/deck.gl');
+  const {OrbitView, COORDINATE_SYSTEM} = require('@deck.gl/core');
+  const {PointCloudLayer}              = require('@deck.gl/layers');
+  const {DeckSSR}                      = require('@rapidsai/deck.gl');
 
   // Data source: kaarta.com
   const LAZ_SAMPLE =
     'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/point-cloud-laz/indoor.0.1.laz';
 
-  const makeLayers = (deck, graph = {}) => {
+  const makeLayers = () => {
     return [
       new PointCloudLayer({
         id: 'laz-point-cloud-layer',
@@ -126,79 +125,8 @@ function makeDeck() {
         getColor: [255, 255, 255],
         opacity: 0.5,
         pointSize: 0.5,
-        graph: graph,
-        pickable: true
       }),
     ];
-  };
-
-  const onDragStart =
-    (info, event) => {
-      if (deck.props.controller.dragPan) { return; }
-      const {x, y}                       = info;
-      const [px, py]                     = info.viewport.unproject([x, y]);
-      deck.boxSelectCoordinates.startPos = [x, y];
-      deck.boxSelectCoordinates.rectdata =
-        [{polygon: [[px, py], [px, py], [px, py], [px, py]], show: true}];
-    }
-
-  const onDragEnd =
-    (info, event) => {
-      if (deck.props.controller.dragPan || !deck.boxSelectCoordinates.startPos ||
-          !deck.boxSelectCoordinates.rectdata) {
-        return;
-      }
-      const {x, y} = info;
-      const sx     = deck.boxSelectCoordinates.startPos[0];
-      const sy     = deck.boxSelectCoordinates.startPos[1];
-
-      deck.boxSelectCoordinates.rectdata =
-        [{polygon: deck.boxSelectCoordinates.rectdata[0].polygon || [], show: true}];
-      deck.boxSelectCoordinates.startPos    = null;
-      deck.selectedInfo.selectedCoordinates = {
-        x: Math.min(sx, x),
-        y: Math.min(sy, y),
-        width: Math.abs(x - sx),
-        height: Math.abs(y - sy),
-        layerIds: ['GraphLayer']
-      };
-
-      deck.selectedInfo.selectedNodes = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
-                                          .filter(selected => selected.hasOwnProperty('nodeId'))
-                                          .map(n => n.nodeId);
-
-      deck.selectedInfo.selectedEdges = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
-                                          .filter(selected => selected.hasOwnProperty('edgeId'))
-                                          .map(n => n.edgeId);
-      console.log('selected Nodes',
-                  deck.selectedInfo.selectedNodes,
-                  '\nselected Edges',
-                  deck.selectedInfo.selectedEdges);
-    }
-
-  const onDrag = (info, event) => {
-    if (deck.props.controller.dragPan) { return; }
-    if (deck.boxSelectCoordinates.startPos) {
-      const {x, y}     = info;
-      const [px, py]   = info.viewport.unproject([x, y]);
-      const startPoint = deck.boxSelectCoordinates.rectdata[0].polygon[0];
-      deck.boxSelectCoordinates.rectdata =
-        [{polygon: [startPoint, [startPoint[0], py], [px, py], [px, startPoint[1]]], show: true}];
-    };
-  };
-
-  const onClick = (info, event) => {
-    deck.selectedInfo.selectedCoordinates = {
-      x: info.x,
-      y: info.y,
-      radius: 1,
-    };
-    deck.selectedInfo.selectedNodes =
-      [deck.pickObject(deck.selectedInfo.selectedCoordinates)]
-        .filter(selected => selected && selected.hasOwnProperty('nodeId'))
-        .map(n => n.nodeId);
-
-    console.log(deck.selectedInfo.selectedNodes, deck.selectedInfo.selectedCoordinates);
   };
 
   const deck = new DeckSSR({
@@ -209,27 +137,15 @@ function makeDeck() {
       minZoom: Number.NEGATIVE_INFINITY,
       maxZoom: Number.POSITIVE_INFINITY,
     },
-    layers: [makeLayers(null, {})],
+    layers: [makeLayers()],
     views: [
-      new OrthographicView({
-        clear: {
-          color: [...[46, 46, 46].map((x) => x / 255), 1],
-        },
-        controller: {
-          keyboard: false,
-          doubleClickZoom: false,
-          type: OrthographicController,
-          scrollZoom: {speed: 0.01, smooth: false},
-          // dragPan: false
-        }
-      }),
+      new OrbitView(),
     ],
     onAfterAnimationFrameRender({_loop}) { _loop.pause(); },
   });
 
   deck.selectedInfo         = {selectedCoordinates: {}, selected: []};
   deck.boxSelectCoordinates = {rectdata: [{polygon: [[]], show: false}], startPos: null};
-  deck.setProps({onClick, onDrag, onDragStart, onDragEnd});
 
   return {
     deck,
