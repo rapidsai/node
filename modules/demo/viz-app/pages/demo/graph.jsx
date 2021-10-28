@@ -356,7 +356,7 @@ export default class Graph extends React.Component {
   }
 
   loadOnGPU() {
-    axios.post("/api/dataset/read", {
+    axios.post("/api/dataset/load", {
       id: this.socket.id,
       nodes: this.state.nodesFile,
       edges: this.state.edgesFile
