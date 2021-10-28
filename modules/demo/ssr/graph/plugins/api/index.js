@@ -173,7 +173,7 @@ module.exports = function(fastify, opts, done) {
          (er, files) => { reply.send(JSON.stringify(files.concat(['defaultExample']))); });
   });
 
-  fastify.post('/dataset/load', async (request, reply) => {
+  fastify.post('/dataframe/load', async (request, reply) => {
     const filePath = `${__dirname}/../../data/`
     if (fs.existsSync(`${filePath}${request.body.nodes}`) &&
         fs.existsSync(`${filePath}${request.body.edges}`)) {
