@@ -89,18 +89,20 @@ function makeDeck() {
   deckLog.level        = 0;
   deckLog.enable(false);
 
-  const {OrbitView, COORDINATE_SYSTEM} = require('@deck.gl/core');
-  const {PointCloudLayer}              = require('@deck.gl/layers');
-  const {TextLayer}                    = require('@deck.gl/layers');
-  const {DeckSSR}                      = require('@rapidsai/deck.gl');
-  const {LASLoader}                    = require('@loaders.gl/las');
-  const {registerLoaders}              = require('@loaders.gl/core');
+  const {OrbitView, COORDINATE_SYSTEM, LinearInterpolator} = require('@deck.gl/core');
+  const {PointCloudLayer}                                  = require('@deck.gl/layers');
+  const {TextLayer}                                        = require('@deck.gl/layers');
+  const {DeckSSR}                                          = require('@rapidsai/deck.gl');
+  const {LASLoader}                                        = require('@loaders.gl/las');
+  const {registerLoaders}                                  = require('@loaders.gl/core');
 
   registerLoaders(LASLoader);
 
   // Data source: kaarta.com
   const LAZ_SAMPLE =
     'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/point-cloud-laz/indoor.0.1.laz';
+
+  const transitionInterpolator = new LinearInterpolator(['rotationOrbit']);
 
   const makeLayers = (deck, graph = null) => {
     const [viewport] = (deck?.viewManager?.getViewports() || []);
@@ -162,7 +164,7 @@ function makeDeck() {
     },
     layers: makeLayers(null),
     views: [
-      new OrbitView(),
+      new OrbitView({transitionInterpolator}),
     ],
     controller: true,
     parameters: {clearColor: [0.93, 0.86, 0.81, 1]},
