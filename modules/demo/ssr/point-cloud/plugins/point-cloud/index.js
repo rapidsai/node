@@ -18,7 +18,6 @@ const {RenderCluster} = require('../../render/cluster');
 const {create: shmCreate, detach: shmDetach} = require('shm-typed-array');
 
 module.exports         = graphSSRClients;
-module.exports.graphs  = Symbol('graphs');
 module.exports.clients = Symbol('clients');
 
 /**
@@ -26,13 +25,11 @@ module.exports.clients = Symbol('clients');
  * @param {import('fastify').FastifyInstance} fastify
  */
 function graphSSRClients(fastify) {
-  const graphs  = Object.create(null);
   const clients = Object.create(null);
 
-  fastify.decorate(module.exports.graphs, graphs);
   fastify.decorate(module.exports.clients, clients);
 
-  setInterval(layoutAndRenderGraphs(clients));
+  setInterval(layoutAndRenderPointCloud(clients));
 
   return {onConnect, onData, onClose, onError: onClose};
 
@@ -81,16 +78,10 @@ function graphSSRClients(fastify) {
   function onClose(sock, peer) {
     const [stream] = peer?.streams || [];
     if (stream) { delete clients[stream.id]; }
-    const {g: graphId = 'default'} = sock?.handshake?.query || {};
-    if (graphId in graphs) {
-      if ((graphs[graphId].refCount -= 1) === 0) {  //
-        delete graphs[graphId];
-      }
-    }
   }
 }
 
-function layoutAndRenderGraphs(clients) {
+function layoutAndRenderPointCloud(clients) {
   const renderer = new RenderCluster({numWorkers: 1 && 4});
 
   return () => {

@@ -26,7 +26,7 @@ class Renderer {
     this.jsdom   = jsdom;
     this._render = render;
   }
-  async render(props = {}, graph = {}, state = {}, events = [], frame = 0) {
+  async render(props = {}, state = {}, events = [], frame = 0) {
     const window = this.jsdom.window;
 
     props && this.deck.setProps(props);
@@ -104,9 +104,9 @@ function makeDeck() {
 
   const transitionInterpolator = new LinearInterpolator(['rotationOrbit']);
 
-  const makeLayers = (deck, graph = null) => {
-    if (graph) {
-      return [graph]
+  const makeLayers = (deck, pointCloud = null) => {
+    if (pointCloud) {
+      return [pointCloud]
     } else {
       return [
         new PointCloudLayer({
