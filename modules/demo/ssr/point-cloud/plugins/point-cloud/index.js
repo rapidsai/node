@@ -61,7 +61,22 @@ function graphSSRClients(fastify) {
     peer.addStream(stream);
   }
 
-  function onData(sock, peer, message) { const [stream] = peer?.streams || []; }
+  function onData(sock, peer, message) {
+    const [stream] = peer?.streams || [];
+    if (stream && !peer.destroyed && !peer.destroying) {
+      const {type, data} = (() => {
+        try {
+          return JSON.parse('' + message);
+        } catch (e) { return {}; }
+      })();
+      switch (data && type) {
+        case 'event': {
+          clients[stream.id].event[data.type] = data;
+          break;
+        }
+      }
+    }
+  }
 
   function onClose(sock, peer) {
     const [stream] = peer?.streams || [];
