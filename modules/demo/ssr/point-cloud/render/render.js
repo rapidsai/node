@@ -105,38 +105,10 @@ function makeDeck() {
   const transitionInterpolator = new LinearInterpolator(['rotationOrbit']);
 
   const makeLayers = (deck, graph = null) => {
-    const [viewport] = (deck?.viewManager?.getViewports() || []);
-    const [minX = Number.NEGATIVE_INFINITY,
-           minY = Number.NEGATIVE_INFINITY,
-    ]                = viewport?.getBounds() || [];
-
-    const textLayer = new TextLayer({
-      sizeScale: 1,
-      opacity: 0.9,
-      maxWidth: 2000,
-      pickable: false,
-      getTextAnchor: 'start',
-      getAlignmentBaseline: 'top',
-      getSize: ({size})          => size,
-      getColor: ({color})        => color,
-      getPixelOffset: ({offset}) => offset,
-      data: Array.from({length: +process.env.NUM_WORKERS},
-                       (_, i) =>  //
-                       ({
-                         size: 15,
-                         offset: [0, i * 15],
-                         text: `Worker ${i}`,
-                         position: [minX, minY],
-                         color: +process.env.WORKER_ID === i  //
-                                  ? [245, 171, 53, 255]
-                                  : [255, 255, 255, 255],
-                       }))
-    });
     if (graph) {
-      return [textLayer, graph]
+      return [graph]
     } else {
       return [
-        textLayer,
         new PointCloudLayer({
           id: 'laz-point-cloud-layer',
           data: LAZ_SAMPLE,
