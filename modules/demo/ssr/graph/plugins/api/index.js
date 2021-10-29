@@ -91,14 +91,25 @@ async function getEdgesForGraph(asDeviceMemory, edges) {
 }
 
 async function getPaginatedRows(df, pageIndex = 0, pageSize = 400, selected = []) {
-  const idxs =
-    Series.sequence({type: new Int32, init: (pageIndex - 1) * pageSize, size: pageSize, step: 1});
   if (selected.length != 0) {
     const selectedSeries = Series.new({type: new Int32, data: selected}).unique(true);
     const updatedDF      = df.gather(selectedSeries);
+    const idxs           = Series.sequence({
+      type: new Int32,
+      init: (pageIndex - 1) * pageSize,
+      size: Math.min(pageSize, updatedDF.numRows),
+      step: 1
+    });
     return [updatedDF.gather(idxs).toArrow(), updatedDF.numRows];
+  } else {
+    const idxs = Series.sequence({
+      type: new Int32,
+      init: (pageIndex - 1) * pageSize,
+      size: Math.min(pageSize, df.numRows),
+      step: 1
+    });
+    return [df.gather(idxs).toArrow(), df.numRows];
   }
-  return [df.gather(idxs).toArrow(), df.numRows];
 }
 
 module.exports = function(fastify, opts, done) {
