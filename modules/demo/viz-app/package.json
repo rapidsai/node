@@ -44,7 +44,8 @@
     "react-native-webrtc": "1.92.2",
     "fetch": "1.1.0",
     "concurrently": "6.3.0",
-    "redbird": "0.10.0"
+    "redbird": "0.10.0",
+    "sharp": "0.29.2"
   },
   "files": [
     "pages",

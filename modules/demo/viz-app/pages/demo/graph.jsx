@@ -17,7 +17,7 @@ import DemoDashboard from "../../components/demo-dashboard/demo-dashboard";
 import HeaderUnderline from '../../components/demo-dashboard/header-underline/header-underline';
 import ExtendedTable from '../../components/demo-dashboard/extended-table/extended-table';
 import ToolBar from '../../components/demo-dashboard/tool-bar/tool-bar';
-
+import { Table } from 'apache-arrow';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { Form, Col, Row } from 'react-bootstrap';
 import { io } from "socket.io-client";
@@ -220,34 +220,34 @@ export default class Graph extends React.Component {
     );
   }
 
-  async fetchPaginatedData(pageIndex, pageSize, dataframe) {
-    function processColumns(columnObject) {
-      return Object.keys(columnObject).reduce(
-        (prev, curr) => {
-          return prev.concat([{ "Header": curr, "accessor": curr }]);
-        }, []);
-    }
+  processColumns(table) {
+    return table.schema.fields.map(field => { return { "Header": field.name, "accessor": field.name } })
+  }
 
+  async fetchPaginatedData(pageIndex, pageSize, dataframe) {
     const fetchId = ++this.fetchIdRef.current;
 
     if (fetchId === this.fetchIdRef.current && this.state.datasetLoaded) {
-      await axios.post('/api/dataframe/read', {
+      await fetch('/api/dataframe/read?' + new URLSearchParams({
         id: this.socket.id,
         pageIndex: pageIndex + 1,
         pageSize: pageSize,
         dataframe: dataframe
-      }).then((response) => {
+      }), {
+        method: 'GET',
+        headers: {
+          'accepts': 'application/octect-stream'
+        }
+      }).then((res) => Table.from(res)).then((table) => {
         this.setState({
           [dataframe]: {
-            tableColumns: processColumns(response.data.page[0]),
-            tableData: response.data.page,
-            length: response.data.numRows
+            tableColumns: this.processColumns(table),
+            tableData: [...table],
+            length: table.schema.metadata.get('numRows')
           },
         });
         this.updatePages();
-      }).catch((err) => {
-        console.log(err);
-      })
+      });
     }
   }
 

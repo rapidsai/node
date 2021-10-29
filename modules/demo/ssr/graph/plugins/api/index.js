@@ -90,9 +90,9 @@ async function getEdgesForGraph(asDeviceMemory, edges) {
   return edgesRes;
 }
 
-async function getPaginatedRows(df, pageIndex = 1, pageSize = 400, selected = []) {
+async function getPaginatedRows(df, pageIndex = 0, pageSize = 400, selected = []) {
   const idxs =
-    Series.sequence({type: new Int32, init: (pageIndex) * pageSize, size: pageSize, step: 1});
+    Series.sequence({type: new Int32, init: (pageIndex - 1) * pageSize, size: pageSize, step: 1});
   if (selected.length != 0) {
     const selectedSeries = Series.new({type: new Int32, data: selected}).unique(true);
     const updatedDF      = df.gather(selectedSeries);
@@ -220,17 +220,18 @@ module.exports = function(fastify, opts, done) {
   })
 
   fastify.get('/dataframe/read', async (request, reply) => {
-    const pageIndex = parseInt(request.query.pageIndex);
-    const pageSize  = parseInt(request.query.pageSize);
-    const dataframe = request.query.dataframe;  //{'nodes', 'edges'}
-    const [res, numRows] =
-      await getPaginatedRows(fastify[clients][request.query.id].data[dataframe].dataframe,
-                             pageIndex,
-                             pageSize,
-                             fastify[clients][request.query.id].state.selectedInfo[dataframe]);
-
     try {
-      RecordBatchStreamWriter.writeAll(res).pipe(reply.stream());
+      const pageIndex = parseInt(request.query.pageIndex);
+      const pageSize  = parseInt(request.query.pageSize);
+      const dataframe = request.query.dataframe;  //{'nodes', 'edges'}
+      const [arrowTable, numRows] =
+        await getPaginatedRows(fastify[clients][request.query.id].data[dataframe].dataframe,
+                               pageIndex,
+                               pageSize,
+                               fastify[clients][request.query.id].state.selectedInfo[dataframe]);
+
+      arrowTable.schema.metadata.set('numRows', numRows);
+      RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
     } catch (err) {
       request.log.error({err}, '/run_query error');
       reply.code(500).send(err);
