@@ -25,6 +25,8 @@
             "@rapidsai/jsdom/*":                      ["modules/jsdom/src/*"],
             "@rapidsai/glfw":                           ["modules/glfw/src/index"],
             "@rapidsai/glfw/*":                         ["modules/glfw/src/*"],
+            "@rapidsai/io":                           ["modules/io/src/index"],
+            "@rapidsai/io/*":                         ["modules/io/src/*"],
             "@rapidsai/webgl":                          ["modules/webgl/src/index"],
             "@rapidsai/webgl/*":                        ["modules/webgl/src/*"],
             "@rapidsai/sql":                          ["modules/sql/src/index"],

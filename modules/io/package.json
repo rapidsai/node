@@ -1,0 +1,49 @@
+{
+  "name": "@rapidsai/io",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Paul Taylor <paul.e.taylor@me.com>"
+  ],
+  "main": "index.js",
+  "types": "build/js",
+  "scripts": {
+    "clean": "rimraf build doc compile_commands.json",
+    "doc": "rimraf doc && typedoc --options typedoc.js",
+    "test": "node -r dotenv/config node_modules/.bin/jest -c jest.config.js",
+    "build": "yarn tsc:build && yarn cpp:build",
+    "build:debug": "yarn tsc:build && yarn cpp:build:debug",
+    "compile": "yarn tsc:build && yarn cpp:compile",
+    "compile:debug": "yarn tsc:build && yarn cpp:compile:debug",
+    "rebuild": "yarn tsc:build && yarn cpp:rebuild",
+    "rebuild:debug": "yarn tsc:build && yarn cpp:rebuild:debug",
+    "cpp:build": "nvidia-cmake-js -g build && yarn dev:copy:libs",
+    "cpp:build:debug": "nvidia-cmake-js -g build -D",
+    "cpp:compile": "nvidia-cmake-js -g compile && yarn dev:copy:libs",
+    "cpp:compile:debug": "nvidia-cmake-js -g compile -D",
+    "cpp:configure": "nvidia-cmake-js -g configure",
+    "cpp:configure:debug": "nvidia-cmake-js -g configure -D",
+    "cpp:rebuild": "nvidia-cmake-js -g rebuild && yarn dev:copy:libs",
+    "cpp:rebuild:debug": "nvidia-cmake-js -g rebuild -D",
+    "cpp:reconfigure": "nvidia-cmake-js -g reconfigure",
+    "cpp:reconfigure:debug": "nvidia-cmake-js -g reconfigure -D",
+    "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
+    "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
+    "dev:copy:libs": "nvidia-cmake-copy-libs node_io.node && rimraf build/Release/libcudf.so build/Release/libarrow*"
+  },
+  "dependencies": {
+    "@rapidsai/cudf": "0.0.1"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "index.js",
+    "package.json",
+    "CMakeLists.txt",
+    "src/node_io",
+    "build/js",
+    "build/Release/*.so*",
+    "build/Release/*.node"
+  ]
+}

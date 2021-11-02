@@ -33,6 +33,10 @@
             "path": "modules/cuspatial"
         },
         {
+            "name": "io",
+            "path": "modules/io"
+        },
+        {
             "name": "sql",
             "path": "modules/sql"
         },
