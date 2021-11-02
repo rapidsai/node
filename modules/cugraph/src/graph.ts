@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, Int32, Utf8String} from '@rapidsai/cudf';
+import {DataFrame, DataType, Int32} from '@rapidsai/cudf';
 
 import {GraphCOO} from './addon';
 import {renumber_edges, renumber_nodes} from './renumber';
@@ -27,11 +27,11 @@ export type EdgelistProps = {
 export class Graph {
   df: DataFrame
   layout: GraphCOO
-  renumber_map?: DataFrame<{id: Int32, node: Utf8String}>
+  renumber_map?: DataFrame<{id: Int32, node: DataType}>
 
   constructor(df: DataFrame,
               layout: GraphCOO,
-              renumber_map?: DataFrame<{id: Int32, node: Utf8String}>) {
+              renumber_map?: DataFrame<{id: Int32, node: DataType}>) {
     this.df           = df;
     this.layout       = layout;
     this.renumber_map = renumber_map;
