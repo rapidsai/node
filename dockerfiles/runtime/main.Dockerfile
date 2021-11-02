@@ -17,6 +17,7 @@ RUN cp                                   \
     /opt/rapids/rapidsai-cuml-*.tgz      \
     /opt/rapids/rapidsai-cugraph-*.tgz   \
     /opt/rapids/rapidsai-cuspatial-*.tgz \
+    /opt/rapids/rapidsai-io-*.tgz        \
     /opt/rapids/rapidsai-deck.gl-*.tgz   \
     /opt/rapids/rapidsai-jsdom-*.tgz     \
     . \

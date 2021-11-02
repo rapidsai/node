@@ -114,7 +114,8 @@
             "./node-rapids/modules/demo",
             "./node-rapids/modules/glfw",
             "./node-rapids/modules/webgl",
-            "./node-rapids/modules/sql"
+            "./node-rapids/modules/sql",
+            "./node-rapids/modules/io"
         ],
         "eslint.options": {
             "configFile": ".eslintrc.js"
