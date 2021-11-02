@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
-project(node_io VERSION 0.0.1 LANGUAGES C CXX)
+project(rapidsai_io VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
@@ -40,7 +40,7 @@ execute_process(COMMAND node -p
 
 execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@rapidsai/cuda'))"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                rapidsai_io WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NODE_RAPIDS_CUDA_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -63,7 +63,7 @@ include(ConfigureCUDA)
 include(ConfigureNapi)
 
 ###################################################################################################
-# - node_io target -------------------------------------------------------------------------
+# - rapidsai_io target -------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_IO_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 

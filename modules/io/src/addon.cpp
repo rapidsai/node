@@ -17,10 +17,9 @@
 struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
   rapidsai_io(Napi::Env env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
     DefineAddon(exports,
-                {
-                  InstanceMethod("init", &rapidsai_io::InitAddon),
-                  InstanceMethod<&rapidsai_io::test_method>("testMethod"),
-                });
+                {InstanceMethod("init", &rapidsai_io::InitAddon),
+                 InstanceValue("_cpp_exports", _cpp_exports.Value()),
+                 InstanceMethod<&rapidsai_io::test_method>("testMethod")});
   }
 
  private:
