@@ -24,7 +24,7 @@ import {
   Utf8String,
 } from '@rapidsai/cudf';
 
-function join(edges: DataFrame, nodes: DataFrame<{id: Int32, node: Utf8String}>, col: string) {
+function join(edges: DataFrame, nodes: DataFrame<{id: Int32, node: DataType}>, col: string) {
   const tmp = edges.assign({node: edges.get(col)}).join({other: nodes, on: ['node']}).sortValues({
     idx: {ascending: true}
   });
@@ -45,17 +45,17 @@ export function renumber_nodes(src: any, dst: any): DataFrame {
 }
 
 export function renumber_edges<T extends Series<Numeric>>(
-  src: T, dst: T, nodes: DataFrame<{id: Int32, node: Utf8String}>): DataFrame;
+  src: T, dst: T, nodes: DataFrame<{id: Int32, node: DataType}>): DataFrame;
 export function renumber_edges(src: Series<Utf8String>,
                                dst: Series<Utf8String>,
-                               nodes: DataFrame<{id: Int32, node: Utf8String}>): DataFrame;
+                               nodes: DataFrame<{id: Int32, node: DataType}>): DataFrame;
 export function renumber_edges<R extends DataType, T extends ListSeries<R>>(
-  src: T, dst: T, nodes: DataFrame<{id: Int32, node: Utf8String}>): DataFrame;
+  src: T, dst: T, nodes: DataFrame<{id: Int32, node: DataType}>): DataFrame;
 export function renumber_edges<R extends TypeMap, T extends StructSeries<R>>(
-  src: T, dst: T, nodes: DataFrame<{id: Int32, node: Utf8String}>): DataFrame;
+  src: T, dst: T, nodes: DataFrame<{id: Int32, node: DataType}>): DataFrame;
 
 export function renumber_edges(
-  src: any, dst: any, nodes: DataFrame<{id: Int32, node: Utf8String}>): DataFrame {
+  src: any, dst: any, nodes: DataFrame<{id: Int32, node: DataType}>): DataFrame {
   const idx   = Series.sequence({type: new Int32, size: src.length, init: 0});
   const edges = new DataFrame({src: src, dst: dst, idx: idx});
   return join(join(edges, nodes, 'src'), nodes, 'dst').sortValues({idx: {ascending: true}}).drop([
