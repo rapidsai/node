@@ -26,7 +26,7 @@ struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
  private:
   Napi::Value test_method(Napi::CallbackInfo const& info) {
     auto env = info.Env();
-    return Napi::Array::New(env, 1);
+    return Napi::String::New(env, "test");
   }
 };
 
