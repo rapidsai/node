@@ -17,8 +17,11 @@ import {DataFrame, Int32, Utf8String} from '@rapidsai/cudf';
 import {GraphCOO} from './addon';
 import {renumber_edges, renumber_nodes} from './renumber';
 
-export interface EdgelistProps {
-  source?: string, destination?: string,
+export type EdgelistProps = {
+  /** Name of the column holding the source vertices */
+  source?: string,
+  /** Name of the column holding the destination (target) vertices */
+  destination?: string,
 }
 
 export class Graph {
@@ -34,6 +37,13 @@ export class Graph {
     this.renumber_map = renumber_map;
   }
 
+  /**
+   * Return a new graph created from the edge list representaion.
+   *
+   * @param df This DataFrame contains columns storing edge source and destination vetices
+   * @param props
+   * @returns
+   */
   public static from_edgelist(df: DataFrame, {
     source      = 'src',
     destination = 'dst',

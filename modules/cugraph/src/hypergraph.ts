@@ -18,41 +18,81 @@ import {TypeMap} from '@rapidsai/cudf';
 import {Graph} from './graph';
 import {renumber_edges, renumber_nodes} from './renumber';
 
-export interface HypergraphBaseProps {
+export type HypergraphBaseProps = {
+  /** An optional sequence of column names to process. */
   columns?: string[]|null;
+  /** If True, do not include null values in the graph. */
   dropNulls?: boolean;
+  /**
+     Dictionary mapping column names to distinct categories. If the same
+     value appears columns mapped to the same category, the transform will
+     generate one node for it, instead of one for each column.
+   */
   categories?: {[key: string]: string};
+  /** If True, exclude each row's attributes from its edges (default: False) */
   dropEdgeAttrs?: boolean;
+  /** A sequence of column names not to transform into nodes. */
   skip?: string[];
+  /** The delimiter to use when joining column names, categories, and ids. */
   delim?: string;
-  source?: string;
-  target?: string;
+  /** The name to use as the node id column in the graph and node DataFrame. */
   nodeId?: string;
+  /** The name to use as the event id column in the graph and node DataFrames. */
   eventId?: string;
-  attribId?: string;
+  /** The name to use as the category column in the graph and DataFrames */
   category?: string;
+  /** The name to use as the edge type column in the graph and edge DataFrame */
   edgeType?: string;
+  /** The name to use as the node type column in the graph and node DataFrames. */
   nodeType?: string;
 }
 
-export interface HypergraphProps extends HypergraphBaseProps {
+export type HypergraphProps = HypergraphBaseProps&{
+  /** The name to use as the category column in the graph and DataFrames */
   attribId?: string;
 }
 
-export interface HypergraphDirectProps extends HypergraphBaseProps {
+export type HypergraphDirectProps = HypergraphBaseProps&{
+  /** Select column pairs instead of making all edges. */
   edgeShape?: {[key: string]: string[]};
+  /** The name to use as the source column in the graph and edge DataFrame. */
   source?: string;
+  /** The name to use as the target column in the graph and edge DataFrame. */
   target?: string;
 }
 
 export type HypergraphReturn = {
+  /** A DataFrame of found entity and hyper node attributes. */
   nodes: DataFrame,
+  /** A DataFrame of edge attributes. */
   edges: DataFrame,
+  /**  Graph of the found entity nodes, hyper nodes, and edges. */
   graph: Graph,
+  /** a DataFrame of hyper node attributes for direct graphs, else empty. */
   events: DataFrame,
+  /** A DataFrame of the found entity node attributes. */
   entities: DataFrame,
 }
 
+/**
+ * Creates a hypergraph out of the given dataframe, returning the graph components as dataframes.
+ *
+ * The transform reveals relationships between the rows and unique values. This transform is useful
+ * for lists of events, samples, relationships, and other structured high-dimensional data.  The
+ * transform creates a node for every row, and turns a row's column entries into node attributes.
+ * Every unique value within a column is also turned into a node.
+ *
+ * Edges are added to connect a row's nodes to each of its column nodes. Nodes are given the
+ * attribute specified by ``nodeType`` that corresponds to the originating column name, or if a row
+ * ``eventId``.
+ *
+ * Consider a list of events. Each row represents a distinct event, and each column some metadata
+ * about an event. If multiple events have common metadata, they will be transitively connected
+ * through those metadata values. Conversely, if an event has unique metadata, the unique metadata
+ * will turn into nodes that only have connections to the event node.  For best results, set
+ * ``eventId`` to a row's unique ID, ``skip`` to all non-categorical columns (or ``columns`` to all
+ * categorical columns), and ``categories`` to group columns with the same kinds of values.
+ */
 export function
 hypergraph<T extends TypeMap = any>(values: DataFrame<T>, {
   columns       = null,
@@ -95,6 +135,24 @@ hypergraph<T extends TypeMap = any>(values: DataFrame<T>, {
   return {nodes, edges, events, entities, graph};
 }
 
+/**
+ * Creates a hypergraph out of the given dataframe, returning the graph components as dataframes.
+ *
+ * The transform reveals relationships between the rows and unique values. This transform is useful
+ * for lists of events, samples, relationships, and other structured high-dimensional data.  The
+ * transform creates a node for every row, and turns a row's column entries into node attributes.
+ * Every unique value within a column is also turned into a node.
+ *
+ * Edges are added to connect a row's nodes to one another. Nodes are given the attribute specified
+ * by ``nodeType`` that corresponds to the originating column name, or if a row ``eventId``.
+ *
+ * Consider a list of events. Each row represents a distinct event, and each column some metadata
+ * about an event. If multiple events have common metadata, they will be transitively connected
+ * through those metadata values. Conversely, if an event has unique metadata, the unique metadata
+ * will turn into nodes that only have connections to the event node.  For best results, set
+ * ``eventId`` to a row's unique ID, ``skip`` to all non-categorical columns (or ``columns`` to all
+ * categorical columns), and ``categories`` to group columns with the same kinds of values.
+ */
 export function hypergraphDirect<T extends TypeMap = any>(values: DataFrame<T>, {
   columns       = null,
   categories    = {},
