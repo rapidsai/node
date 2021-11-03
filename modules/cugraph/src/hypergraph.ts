@@ -15,7 +15,7 @@
 import {DataFrame, Int32, Series, StringSeries, Utf8String} from '@rapidsai/cudf';
 import {TypeMap} from '@rapidsai/cudf';
 
-import {Graph} from './graph';
+import {GraphCOO} from './addon';
 import {renumber_edges, renumber_nodes} from './renumber';
 
 export type HypergraphBaseProps = {
@@ -67,7 +67,7 @@ export type HypergraphReturn = {
   /** A DataFrame of edge attributes. */
   edges: DataFrame,
   /**  Graph of the found entity nodes, hyper nodes, and edges. */
-  graph: Graph,
+  graph: GraphCOO,
   /** a DataFrame of hyper node attributes for direct graphs, else empty. */
   events: DataFrame,
   /** A DataFrame of the found entity node attributes. */
@@ -377,14 +377,14 @@ function _create_direct_edges(events: DataFrame,
   return new DataFrame().concat(...edge_dfs).select(cols);
 }
 
-function create_graph(edges: DataFrame, source: string, target: string): Graph {
+function create_graph(edges: DataFrame, source: string, target: string): GraphCOO {
   const src = edges.get(source);
   const dst = edges.get(target);
 
   const rnodes = renumber_nodes(src, dst);
   const redges = renumber_edges(src, dst, rnodes);
 
-  return Graph.from_edgelist(redges, {source: 'src', destination: 'dst'});
+  return new GraphCOO(redges.get('src')._col, redges.get('dst')._col, {directedEdges: true});
 }
 
 function _prepend_str(series: Series, val: string, delim: string): Series<Utf8String> {

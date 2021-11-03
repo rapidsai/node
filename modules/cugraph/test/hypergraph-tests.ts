@@ -254,8 +254,8 @@ test('skip_hyper', () => {
     c: Series.new([1, 2, 3]).cast(new Int32),
   });
   const h  = hypergraph(df, {skip: ['c'], dropNulls: false});
-  expect(h.graph.layout.numNodes()).toBe(9);
-  expect(h.graph.layout.numEdges()).toBe(6);
+  expect(h.graph.numNodes()).toBe(9);
+  expect(h.graph.numEdges()).toBe(6);
 });
 
 test('skip_dropNulls_hyper', () => {
@@ -265,8 +265,8 @@ test('skip_dropNulls_hyper', () => {
     c: Series.new([1, 2, 3]).cast(new Int32),
   });
   const h  = hypergraph(df, {skip: ['c'], dropNulls: true});
-  expect(h.graph.layout.numNodes()).toBe(8);
-  expect(h.graph.layout.numEdges()).toBe(5);
+  expect(h.graph.numNodes()).toBe(8);
+  expect(h.graph.numEdges()).toBe(5);
 });
 
 test('skip_direct', () => {
@@ -276,8 +276,8 @@ test('skip_direct', () => {
     c: Series.new([1, 2, 3]).cast(new Int32),
   });
   const h  = hypergraphDirect(df, {skip: ['c'], dropNulls: false});
-  expect(h.graph.layout.numNodes()).toBe(6);
-  expect(h.graph.layout.numEdges()).toBe(3);
+  expect(h.graph.numNodes()).toBe(6);
+  expect(h.graph.numEdges()).toBe(3);
 });
 
 test('skip_dropNulls_direct', () => {
@@ -287,8 +287,8 @@ test('skip_dropNulls_direct', () => {
     c: Series.new([1, 2, 3]).cast(new Int32),
   });
   const h  = hypergraphDirect(df, {skip: ['c'], dropNulls: true});
-  expect(h.graph.layout.numNodes()).toBe(4);
-  expect(h.graph.layout.numEdges()).toBe(2);
+  expect(h.graph.numNodes()).toBe(4);
+  expect(h.graph.numEdges()).toBe(2);
 });
 
 test('dropNulls_hyper', () => {
@@ -297,8 +297,8 @@ test('dropNulls_hyper', () => {
     i: Series.new([1, 2, null]).cast(new Int32),
   });
   const h  = hypergraph(df, {dropNulls: true});
-  expect(h.graph.layout.numNodes()).toBe(7);
-  expect(h.graph.layout.numEdges()).toBe(4);
+  expect(h.graph.numNodes()).toBe(7);
+  expect(h.graph.numEdges()).toBe(4);
 });
 
 test('dropNulls_direct', () => {
@@ -307,8 +307,8 @@ test('dropNulls_direct', () => {
     i: Series.new([1, 1, null]).cast(new Int32),
   });
   const h  = hypergraphDirect(df, {dropNulls: true});
-  expect(h.graph.layout.numNodes()).toBe(2);
-  expect(h.graph.layout.numEdges()).toBe(1);
+  expect(h.graph.numNodes()).toBe(2);
+  expect(h.graph.numEdges()).toBe(1);
 });
 
 test('skip_skip_null_hyperedge', () => {
