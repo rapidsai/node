@@ -14,21 +14,21 @@
 
 #include <nv_node/utilities/args.hpp>
 
-#include <io.h>
+#include <laz.h>
 
 struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
   rapidsai_io(Napi::Env env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
     DefineAddon(exports,
                 {InstanceMethod("init", &rapidsai_io::InitAddon),
                  InstanceValue("_cpp_exports", _cpp_exports.Value()),
-                 InstanceMethod<&rapidsai_io::test_method>("testMethod")});
+                 InstanceMethod<&rapidsai_io::read_laz>("readLaz")});
   }
 
  private:
-  Napi::Value test_method(Napi::CallbackInfo const& info) {
-    auto env = info.Env();
-    test_thrust();
-    return Napi::String::New(env, "test");
+  void read_laz(Napi::CallbackInfo const& info) {
+    nv::CallbackArgs args{info};
+    std::vector<std::string> paths = args[0];
+    io::read_laz();
   }
 };
 

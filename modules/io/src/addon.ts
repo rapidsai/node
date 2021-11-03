@@ -19,7 +19,7 @@ import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
 
-export const {testMethod} = loadNativeModule<typeof import('./rapidsai_io')>(
+export const {readLaz} = loadNativeModule<typeof import('./rapidsai_io')>(
   module, 'rapidsai_io', init => init(CUDA, RMM, CUDF));
 
-export type testMethod = typeof import('./rapidsai_io').testMethod;
+export type readLaz = typeof import('./rapidsai_io').readLaz;

@@ -12,6 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {testMethod} from '@rapidsai/io';
+import {readLaz} from '@rapidsai/io';
 
-test('quick import test', () => { testMethod('test'); });
+test('import laz', () => { readLaz(['test.laz']); });
