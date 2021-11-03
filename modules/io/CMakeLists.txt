@@ -66,7 +66,11 @@ include(ConfigureThrust)
 ###################################################################################################
 # - rapidsai_io target -------------------------------------------------------------------------
 
-file(GLOB_RECURSE NODE_IO_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE NODE_IO_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE NODE_IO_CUDA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu")
+
+list(APPEND NODE_IO_SRC_FILES ${NODE_IO_CPP_FILES})
+list(APPEND NODE_IO_SRC_FILES ${NODE_IO_CUDA_FILES})
 
 add_library(${PROJECT_NAME} SHARED ${NODE_IO_SRC_FILES} ${CMAKE_JS_SRC})
 
