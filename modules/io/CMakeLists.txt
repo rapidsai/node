@@ -61,7 +61,7 @@ list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
 include(ConfigureCXX)
 include(ConfigureCUDA)
 include(ConfigureNapi)
-include(ConfigureThrust)
+include(ConfigureCUDF)
 
 ###################################################################################################
 # - rapidsai_io target -------------------------------------------------------------------------
@@ -105,6 +105,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
+                      cudf::cudf
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
                       "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")

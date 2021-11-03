@@ -14,6 +14,8 @@
 
 #include <nv_node/utilities/args.hpp>
 
+#include <io.h>
+
 struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
   rapidsai_io(Napi::Env env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
     DefineAddon(exports,

@@ -15,11 +15,6 @@
 #=============================================================================
 
 function(find_and_configure_thrust VERSION)
-
-    include(get_cpm)
-
-    _set_package_dir_if_exists(Thrust thrust)
-
     _get_update_disconnected_state(Thrust ${VERSION} UPDATE_DISCONNECTED)
     CPMAddPackage(NAME  Thrust
         VERSION         ${VERSION}
