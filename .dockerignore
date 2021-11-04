@@ -37,7 +37,7 @@ BINDINGS.md
 doc
 docs
 internal
-dockerfiles
+dev/dockerfiles
 
 .env.sample
 .gitignore

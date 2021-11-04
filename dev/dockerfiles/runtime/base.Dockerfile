@@ -1,20 +1,34 @@
-ARG FROM_IMAGE
-ARG FROM_IMAGE_DEFAULT
+ARG AMD64_BASE
+ARG ARM64_BASE
 ARG DEVEL_IMAGE
 
 FROM ${DEVEL_IMAGE} as devel
 
-FROM ${FROM_IMAGE:-$FROM_IMAGE_DEFAULT}
+FROM ${AMD64_BASE} as base-amd64
+
+FROM ${ARM64_BASE} as base-arm64
+
+ONBUILD RUN cd /usr/local/cuda/lib64 \
+ && ln -s \
+    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1) \
+    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1 | cut -d'.' -f1) \
+ && ln -s \
+    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1 | cut -d'.' -f1) \
+    libcudart.so \
+ && rm /etc/ld.so.cache && ldconfig
+
+ONBUILD ARG ADDITIONAL_GROUPS="--groups sudo,video"
+
+FROM base-${TARGETARCH}
 
 SHELL ["/bin/bash", "-c"]
 
 ENV CUDA_HOME="/usr/local/cuda"
 ENV LD_LIBRARY_PATH="\
 ${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}\
-${CUDA_HOME}/lib:\
 ${CUDA_HOME}/lib64:\
-/usr/local/lib:\
-/usr/lib"
+${CUDA_HOME}/nvvm/lib64:\
+${CUDA_HOME}/lib64/stubs"
 
 # Install gcc-9 toolchain
 RUN export DEBIAN_FRONTEND=noninteractive \
@@ -51,7 +65,7 @@ COPY --from=devel /usr/local/lib/v8-compile-cache.js  /usr/local/lib/v8-compile-
 COPY --from=devel /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 ARG UID=1000
-ARG ADDITIONAL_GROUPS=
+ARG ADDITIONAL_GROUPS
 
 RUN useradd --uid $UID --user-group ${ADDITIONAL_GROUPS} --shell /bin/bash --create-home node \
  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \

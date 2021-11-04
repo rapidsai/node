@@ -58,7 +58,7 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            dockerfiles/devel/main.Dockerfile
+            dev/dockerfiles/devel/main.Dockerfile
       - name: Build devel images and packages
         run: |
           echo "ARCH=${{ env.ARCH }}" >> .env

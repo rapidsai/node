@@ -11,7 +11,7 @@
 
 We publish standalone docker images [to the `rapidsai/node` repository](https://github.com/orgs/rapidsai/packages/container/package/node) to the GitHub container registry on each PR merge.
 
-These images are based on the [`nvidia/cuda`](https://hub.docker.com/r/nvidia/cuda) and [`nvidia/cudagl`](https://hub.docker.com/r/nvidia/cudagl) runtime images. They are intended to be used directly, extended with app code, or to serve as examples for building your own deployment images. The sources for each image are in [dockerfiles/runtime](https://github.com/rapidsai/node/tree/main/dockerfiles/runtime).
+These images are based on the [`nvidia/cuda`](https://hub.docker.com/r/nvidia/cuda) and [`nvidia/cudagl`](https://hub.docker.com/r/nvidia/cudagl) runtime images. They are intended to be used directly, extended with app code, or to serve as examples for building your own deployment images. The sources for each image are in [dev/dockerfiles/runtime](https://github.com/rapidsai/node/tree/main/dev/dockerfiles/runtime).
 
 Our tag template scheme is as follows:
 

@@ -33,7 +33,7 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            dockerfiles/devel/main.Dockerfile
+            dev/dockerfiles/devel/main.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -47,7 +47,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/devel/main.Dockerfile
+          file: dev/dockerfiles/devel/main.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
           build-args: |
@@ -80,7 +80,7 @@ jobs:
             modules
             yarn\.lock
             package\.json
-            dockerfiles/devel/(main|package).Dockerfile
+            dev/dockerfiles/devel/(main|package).Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -94,7 +94,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/devel/package.Dockerfile
+          file: dev/dockerfiles/devel/package.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}
           build-args: |
@@ -125,7 +125,7 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            dockerfiles/runtime/base.Dockerfile
+            dev/dockerfiles/runtime/base.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -139,7 +139,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/base.Dockerfile
+          file: dev/dockerfiles/runtime/base.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
           build-args: |
@@ -167,7 +167,7 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            dockerfiles/runtime/base.Dockerfile
+            dev/dockerfiles/runtime/base.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -181,7 +181,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/base.Dockerfile
+          file: dev/dockerfiles/runtime/base.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
           build-args: |
@@ -211,7 +211,7 @@ jobs:
           files: |
             .npmrc
             modules/(rmm|core|cuda|cudf)
-            dockerfiles/runtime/cudf.Dockerfile
+            dev/dockerfiles/runtime/cudf.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -225,7 +225,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/cudf.Dockerfile
+          file: dev/dockerfiles/runtime/cudf.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf-${{ env.ARCH }}
           build-args: |
@@ -254,7 +254,7 @@ jobs:
           files: |
             .npmrc
             modules/(rmm|core|cuda|cudf|cugraph)
-            dockerfiles/runtime/cugraph.Dockerfile
+            dev/dockerfiles/runtime/cugraph.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -268,7 +268,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/cugraph.Dockerfile
+          file: dev/dockerfiles/runtime/cugraph.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph-${{ env.ARCH }}
           build-args: |
@@ -297,7 +297,7 @@ jobs:
           files: |
             .npmrc
             modules/(rmm|core|cuda|cudf|cuml)
-            dockerfiles/runtime/cuml.Dockerfile
+            dev/dockerfiles/runtime/cuml.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -311,7 +311,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/cuml.Dockerfile
+          file: dev/dockerfiles/runtime/cuml.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml-${{ env.ARCH }}
           build-args: |
@@ -340,7 +340,7 @@ jobs:
           files: |
             .npmrc
             modules/(rmm|core|cuda|cudf|cuspatial)
-            dockerfiles/runtime/cuspatial.Dockerfile
+            dev/dockerfiles/runtime/cuspatial.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -354,7 +354,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/cuspatial.Dockerfile
+          file: dev/dockerfiles/runtime/cuspatial.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial-${{ env.ARCH }}
           build-args: |
@@ -383,7 +383,7 @@ jobs:
           files: |
             .npmrc
             modules/(core|glfw|webgl)
-            dockerfiles/runtime/glfw.Dockerfile
+            dev/dockerfiles/runtime/glfw.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -397,7 +397,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/glfw.Dockerfile
+          file: dev/dockerfiles/runtime/glfw.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw-${{ env.ARCH }}
           build-args: |
@@ -426,7 +426,7 @@ jobs:
           files: |
             .npmrc
             modules/(rmm|core|cuda|cudf|sql)
-            dockerfiles/runtime/sql.Dockerfile
+            dev/dockerfiles/runtime/sql.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -440,7 +440,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/sql.Dockerfile
+          file: dev/dockerfiles/runtime/sql.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql-${{ env.ARCH }}
           build-args: |
@@ -469,7 +469,7 @@ jobs:
           files: |
             .npmrc
             modules/(core|cuda|glfw|webgl|rmm|cudf|sql|cuml|cugraph|cuspatial|deck\.gl|jsdom)
-            dockerfiles/runtime/main.Dockerfile
+            dev/dockerfiles/runtime/main.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -483,7 +483,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/main.Dockerfile
+          file: dev/dockerfiles/runtime/main.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
           build-args: |
@@ -512,7 +512,7 @@ jobs:
           files: |
             .npmrc
             modules
-            dockerfiles/runtime/demo.Dockerfile
+            dev/dockerfiles/runtime/demo.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -526,7 +526,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/demo.Dockerfile
+          file: dev/dockerfiles/runtime/demo.Dockerfile
           tags: |
             ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo-${{ env.ARCH }}
           build-args: |

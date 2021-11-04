@@ -76,7 +76,7 @@ RUN cd /usr/local/lib \
     # node-canvas dependencies
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
     # SQL dependencies
-    openjdk-8-jre libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
+    openjdk-11-jre libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
  # Clean up
  && apt autoremove -y && apt clean \
  && rm -rf \
