@@ -13,9 +13,9 @@ var b  = Series.new({type: new Int32(), data: [4, 5, 6]});
 var df = new DataFrame({'a': a, 'b': b});
 
 var sqlContext = new SQLContext();
-sqlContext.createTable('test_table', df);
+sqlContext.createDataFrameTable('test_table', df);
 
-sqlContext.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
+await sqlContext.sql('SELECT a FROM test_table').result(); // [1, 2, 3]
 ```
 
 We have also provided the `SQLCluster` module which allows one to run SQL queries on multiple GPUs.
@@ -28,7 +28,7 @@ var a  = Series.new(['foo', 'bar']);
 var df = new DataFrame({'a': a});
 
 var sqlCluster = await SQLCluster.init({numWorkers: 2});
-await sqlCluster.createTable('test_table', df);
+await sqlCluster.createDataFrameTable('test_table', df);
 
 await sqlCluster.sql('SELECT a FROM test_table WHERE a LIKE \'%foo%\'');  // ['foo']
 ```
