@@ -14,4 +14,4 @@
 
 import {readLaz} from '@rapidsai/io';
 
-test('import laz', () => { readLaz(['test.laz']); });
+test('import laz', () => { readLaz(`${__dirname}/test.laz`); });
