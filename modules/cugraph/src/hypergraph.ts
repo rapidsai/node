@@ -248,7 +248,7 @@ function _create_entity_nodes(events: DataFrame,
     const cat = name in categories ? categories[name] : name;
     let col   = events.get(name);
     col       = col.unique();
-    col       = dropNulls ? col.dropNulls() : col;  // nansToNulls?
+    col       = dropNulls ? col.dropNulls() : col;
     if (col.length == 0) { continue; }
 
     const df = new DataFrame({
