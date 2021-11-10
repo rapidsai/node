@@ -107,3 +107,20 @@ void Laz::parse_header() {
   auto min_z          = this->read_bytes(8);
   this->_header.min_z = *min_z->data();
 }
+
+void Laz::parse_variable_header() {
+  // Skip reserved
+  this->read_bytes(2);
+
+  auto user_id                  = this->read_bytes(16);
+  this->_variableHeader.user_id = *user_id->data();
+
+  auto record_id                  = this->read_bytes(2);
+  this->_variableHeader.record_id = *record_id->data();
+
+  auto record_length_after_head                  = this->read_bytes(2);
+  this->_variableHeader.record_length_after_head = *record_length_after_head->data();
+
+  // Skip description
+  this->read_bytes(32);
+}

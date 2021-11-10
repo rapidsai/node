@@ -45,6 +45,12 @@ struct LazHeader {
   double min_z;
 };
 
+struct LazVariableLengthHeader {
+  std::string user_id;
+  unsigned short record_id;
+  unsigned short record_length_after_head;
+};
+
 class Laz {
  public:
   Laz(const std::string& path) {
@@ -52,6 +58,7 @@ class Laz {
     _byte_offset = 0;
 
     parse_header();
+    parse_variable_header();
   }
 
  private:
@@ -59,7 +66,9 @@ class Laz {
   size_t _byte_offset;
 
   LazHeader _header;
+  LazVariableLengthHeader _variableHeader;
 
   std::unique_ptr<cudf::io::datasource::buffer> read_bytes(const size_t& size);
   void parse_header();
+  void parse_variable_header();
 };
