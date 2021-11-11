@@ -460,6 +460,7 @@ export default class Graph extends React.Component {
       console.log(error);
     })
   }
+  
   onRenderClick() {
     axios.post("/api/dataframe/columnNames/update", {
       nodes: this.state.nodesRenderColumns,
