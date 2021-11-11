@@ -58,7 +58,7 @@ RUN cd /usr/local/lib \
     # UCX runtime dependencies
     libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
     # SQL dependencies
-    openjdk-11-jre libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
+    openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
  # Clean up
  && apt autoremove -y && apt clean \
  && rm -rf \

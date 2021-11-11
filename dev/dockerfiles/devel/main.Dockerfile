@@ -219,7 +219,6 @@ ONBUILD ARG CLANG_FORMAT_VERSION=12
 # https://github.com/moby/buildkit/blob/b8462c3b7c15b14a8c30a79fad298a1de4ca9f74/frontend/dockerfile/docs/syntax.md#example-cache-apt-packages
 ONBUILD RUN --mount=type=cache,target=/var/lib/apt \
             --mount=type=cache,target=/var/cache/apt \
-            --mount=type=cache,target=/usr/local/lib/llnode \
     rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache; \
  \
@@ -295,7 +294,6 @@ ARG FIXUID_VERSION=0.5.1
 # https://github.com/moby/buildkit/blob/b8462c3b7c15b14a8c30a79fad298a1de4ca9f74/frontend/dockerfile/docs/syntax.md#example-cache-apt-packages
 RUN --mount=type=cache,target=/var/lib/apt \
     --mount=type=cache,target=/var/cache/apt \
-    --mount=type=cache,target=/usr/local/lib/llnode \
     set -x; \
     rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache; \
@@ -317,7 +315,7 @@ RUN --mount=type=cache,target=/var/lib/apt \
     # cuSpatial dependencies
     libgdal-dev \
     # SQL dependencies
-    maven openjdk-11-jdk libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
+    maven openjdk-8-jdk-headless openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
     # UCX build dependencies
     automake autoconf libtool \
     # UCX runtime dependencies
