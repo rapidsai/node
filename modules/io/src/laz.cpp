@@ -14,6 +14,15 @@
 
 #include <laz.hpp>
 
+Laz::Laz(const std::string& path) {
+  // _datasource  = ::cudf::io::datasource::create(path);
+  // _byte_offset = 0;
+
+  // parse_header();
+  // parse_variable_header();
+  parse_header_device();
+}
+
 std::unique_ptr<cudf::io::datasource::buffer> Laz::read_bytes(const size_t& size) {
   auto result = _datasource->host_read(this->_byte_offset, size);
   this->_byte_offset += size;

@@ -53,13 +53,7 @@ struct LazVariableLengthHeader {
 
 class Laz {
  public:
-  Laz(const std::string& path) {
-    _datasource  = ::cudf::io::datasource::create(path);
-    _byte_offset = 0;
-
-    parse_header();
-    parse_variable_header();
-  }
+  Laz(const std::string& path);
 
  private:
   std::unique_ptr<cudf::io::datasource> _datasource;
@@ -70,5 +64,6 @@ class Laz {
 
   std::unique_ptr<cudf::io::datasource::buffer> read_bytes(const size_t& size);
   void parse_header();
+  void parse_header_device();
   void parse_variable_header();
 };
