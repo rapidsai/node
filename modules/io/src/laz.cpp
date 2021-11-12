@@ -15,24 +15,20 @@
 #include <laz.hpp>
 
 Laz::Laz(const std::string& path) {
-  _datasource  = ::cudf::io::datasource::create(path);
-  _byte_offset = 0;
+  _datasource = ::cudf::io::datasource::create(path);
 
-  parse_header_device();
+  parse_header_host();
 }
 
-std::unique_ptr<cudf::io::datasource::buffer> Laz::read(size_t offset,
-                                                        size_t size,
-                                                        rmm::cuda_stream_view stream) {
-  this->_byte_offset += size;
-  if (_datasource->supports_device_read()) {
-    return _datasource->device_read(offset, size, stream);
-  }
-  auto host_read     = _datasource->host_read(offset, size)->data();
-  auto device_buffer = rmm::device_buffer(size, stream);
-  std::memcpy(device_buffer.data(), host_read, size);
-  return cudf::io::datasource::buffer::create(std::move(device_buffer));
-}
+//
+// this->_byte_offset += size;
+// if (_datasource->supports_device_read()) {
+//   return _datasource->device_read(offset, size, stream);
+// }
+// void* host_read    = _datasource->host_read(offset, size).release();
+// auto device_buffer = rmm::device_buffer(size, stream);
+// std::memcpy(device_buffer.data(), host_read, size);
+// return cudf::io::datasource::buffer::create(std::move(device_buffer));
 
 void Laz::parse_header() {
   // auto file_signature          = this->read_bytes(4);

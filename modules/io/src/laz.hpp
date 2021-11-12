@@ -58,7 +58,6 @@ class Laz {
 
  private:
   std::unique_ptr<cudf::io::datasource> _datasource;
-  size_t _byte_offset;
 
   LazHeader _header;
   LazVariableLengthHeader _variableHeader;
@@ -67,6 +66,6 @@ class Laz {
                                                      size_t size,
                                                      rmm::cuda_stream_view stream);
   void parse_header();
-  void parse_header_device();
+  void parse_header_host();
   void parse_variable_header();
 };

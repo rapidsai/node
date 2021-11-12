@@ -17,4 +17,37 @@
 
 #include <cudf/io/datasource.hpp>
 
-void Laz::parse_header_device() { throw std::invalid_argument("end test"); }
+#include <cudf/column/column_factories.hpp>
+#include <cudf/detail/sequence.hpp>
+#include <cudf/scalar/scalar_factories.hpp>
+#include <cudf/table/table.hpp>
+#include <cudf/utilities/bit.hpp>
+#include <cudf/utilities/error.hpp>
+#include <cudf/utilities/traits.hpp>
+#include <rmm/cuda_stream_view.hpp>
+#include <rmm/device_uvector.hpp>
+
+__global__ void parse_header(char const* laz_data) {}
+
+void Laz::parse_header_host() {
+  const size_t header_size = 227;
+  auto header              = read(0, header_size, rmm::cuda_stream_default);
+  std::cout << header->size() << std::endl;
+
+  throw std::invalid_argument("end test");
+}
+
+std::unique_ptr<cudf::io::datasource::buffer> Laz::read(size_t offset,
+                                                        size_t size,
+                                                        rmm::cuda_stream_view stream) {
+  if (_datasource->supports_device_read()) {
+    return _datasource->device_read(offset, size, stream);
+  }
+  auto device_buffer = rmm::device_buffer(size, stream);
+  CUDA_TRY(cudaMemcpyAsync(device_buffer.data(),
+                           _datasource->host_read(offset, size)->data(),
+                           size,
+                           cudaMemcpyHostToDevice,
+                           stream.value()));
+  return cudf::io::datasource::buffer::create(std::move(device_buffer));
+}
