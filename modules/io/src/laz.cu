@@ -17,15 +17,26 @@
 
 #include <cudf/io/datasource.hpp>
 
-__global__ void parse_header(uint8_t const* laz_header_data, LazHeader* result) {}
+__global__ void parse_header(uint8_t const* laz_header_data, LazHeader* result) {
+  result->file_source_id = 0;
+}
 
 void Laz::parse_header_host() {
   const size_t header_size = 227;
   auto header_data         = read(0, header_size, rmm::cuda_stream_default);
-  LazHeader* laz_header    = nullptr;
-  CUDA_TRY(cudaMalloc(&laz_header, sizeof(LazHeader)));
 
-  ::parse_header<<<1, 1>>>(header_data->data(), laz_header);
+  LazHeader *cpu_header, *gpu_header;
+  cpu_header = (LazHeader*)malloc(sizeof(LazHeader));
+  cudaMalloc((void**)&gpu_header, sizeof(LazHeader));
+
+  ::parse_header<<<1, 1>>>(header_data->data(), gpu_header);
+
+  cudaMemcpy(cpu_header, gpu_header, sizeof(LazHeader), cudaMemcpyDeviceToHost);
+
+  std::cout << cpu_header->file_source_id << std::endl;
+
+  free(cpu_header);
+  cudaFree(gpu_header);
 
   throw std::invalid_argument("end test");
 }

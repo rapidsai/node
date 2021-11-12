@@ -18,7 +18,7 @@
 #include <rmm/device_buffer.hpp>
 
 struct LazHeader {
-  std::string file_signature;
+  char file_signature[4];
   unsigned short file_source_id;
   unsigned short global_encoding;
   unsigned char version_major;
