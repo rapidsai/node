@@ -59,9 +59,6 @@ class Laz {
  private:
   std::unique_ptr<cudf::io::datasource> _datasource;
 
-  LazHeader _header;
-  LazVariableLengthHeader _variableHeader;
-
   std::unique_ptr<cudf::io::datasource::buffer> read(size_t offset,
                                                      size_t size,
                                                      rmm::cuda_stream_view stream);

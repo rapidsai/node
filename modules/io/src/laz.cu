@@ -17,22 +17,15 @@
 
 #include <cudf/io/datasource.hpp>
 
-#include <cudf/column/column_factories.hpp>
-#include <cudf/detail/sequence.hpp>
-#include <cudf/scalar/scalar_factories.hpp>
-#include <cudf/table/table.hpp>
-#include <cudf/utilities/bit.hpp>
-#include <cudf/utilities/error.hpp>
-#include <cudf/utilities/traits.hpp>
-#include <rmm/cuda_stream_view.hpp>
-#include <rmm/device_uvector.hpp>
-
-__global__ void parse_header(char const* laz_data) {}
+__global__ void parse_header(uint8_t const* laz_header_data, LazHeader* result) {}
 
 void Laz::parse_header_host() {
   const size_t header_size = 227;
-  auto header              = read(0, header_size, rmm::cuda_stream_default);
-  std::cout << header->size() << std::endl;
+  auto header_data         = read(0, header_size, rmm::cuda_stream_default);
+  LazHeader* laz_header    = nullptr;
+  CUDA_TRY(cudaMalloc(&laz_header, sizeof(LazHeader)));
+
+  ::parse_header<<<1, 1>>>(header_data->data(), laz_header);
 
   throw std::invalid_argument("end test");
 }
