@@ -15,6 +15,7 @@
 #pragma once
 
 #include <cudf/io/datasource.hpp>
+#include <rmm/device_buffer.hpp>
 
 struct LazHeader {
   std::string file_signature;
@@ -62,7 +63,9 @@ class Laz {
   LazHeader _header;
   LazVariableLengthHeader _variableHeader;
 
-  std::unique_ptr<cudf::io::datasource::buffer> read_bytes(const size_t& size);
+  std::unique_ptr<cudf::io::datasource::buffer> read(size_t offset,
+                                                     size_t size,
+                                                     rmm::cuda_stream_view stream);
   void parse_header();
   void parse_header_device();
   void parse_variable_header();

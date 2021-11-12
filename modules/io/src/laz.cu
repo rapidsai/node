@@ -15,4 +15,6 @@
 #include <iostream>
 #include <laz.hpp>
 
-void Laz::parse_header_device() { std::cout << "Calling CUDA" << std::endl; }
+#include <cudf/io/datasource.hpp>
+
+void Laz::parse_header_device() { throw std::invalid_argument("end test"); }
