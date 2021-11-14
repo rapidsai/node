@@ -27,7 +27,6 @@ function(find_and_configure_raft VERSION)
     _set_package_dir_if_exists(nccl nccl)
     _set_package_dir_if_exists(faiss faiss)
     _set_package_dir_if_exists(Thrust thrust)
-    _set_package_dir_if_exists(libcudacxx libcudacxx)
 
     if(NOT TARGET raft::raft)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)

@@ -25,21 +25,27 @@ namespace nv {
 Column::wrapper_t Column::contains_re(std::string const& pattern,
                                       rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::strings::contains_re(this->view(), pattern, mr));
+    return Column::New(
+      Env(),
+      cudf::strings::contains_re(this->view(), pattern, cudf::strings::regex_flags::DEFAULT, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
 Column::wrapper_t Column::count_re(std::string const& pattern,
                                    rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::strings::count_re(this->view(), pattern, mr));
+    return Column::New(
+      Env(),
+      cudf::strings::count_re(this->view(), pattern, cudf::strings::regex_flags::DEFAULT, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
 Column::wrapper_t Column::matches_re(std::string const& pattern,
                                      rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(Env(), cudf::strings::matches_re(this->view(), pattern, mr));
+    return Column::New(
+      Env(),
+      cudf::strings::matches_re(this->view(), pattern, cudf::strings::regex_flags::DEFAULT, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
