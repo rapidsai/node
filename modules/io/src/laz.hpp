@@ -23,8 +23,8 @@ struct LazHeader {
   unsigned short global_encoding;
   unsigned char version_major;
   unsigned char version_minor;
-  std::string system_identifier;
-  std::string generating_software;
+  char system_identifier[32];
+  char generating_software[32];
   unsigned short header_size;
   unsigned long point_data_offset;
   unsigned long variable_length_records_count;
