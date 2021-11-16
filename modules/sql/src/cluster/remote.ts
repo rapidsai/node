@@ -64,12 +64,20 @@ export class RemoteSQLWorker implements Worker {
     return this._send({type: 'init', ...props, id, port}).then(() => undefined);
   }
 
-  public createTable(name: string, table_id: string) {
-    return this._send({type: 'createTable', name, table_id}).then(() => undefined);
+  public createDataFrameTable(name: string, table_id: string) {
+    return this._send({type: 'createDataFrameTable', name, table_id}).then(() => undefined);
   }
 
   public createCSVTable(name: string, paths: string[]) {
     return this._send({type: 'createCSVTable', name, paths}).then(() => undefined);
+  }
+
+  public createParquetTable(name: string, paths: string[]) {
+    return this._send({type: 'createParquetTable', name, paths}).then(() => undefined);
+  }
+
+  public createORCTable(name: string, paths: string[]) {
+    return this._send({type: 'createORCTable', name, paths}).then(() => undefined);
   }
 
   public dropTable(name: string) {

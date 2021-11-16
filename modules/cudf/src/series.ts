@@ -265,7 +265,9 @@ export class AbstractSeries<T extends DataType = any> {
    * const b = Series.new(a._col); // Int32Series [1, 2, 3, 4]
    * ```
    */
-  static new<T extends DataType>(input: AbstractSeries<T>|Column<T>|SeriesProps<T>): Series<T>;
+  static new<T extends AbstractSeries>(input: T): T;
+  static new<T extends DataType>(input: Column<T>): Series<T>;
+  static new<T extends DataType>(input: SeriesProps<T>): Series<T>;
 
   /**
    * Create a new cudf.Int8Series
@@ -1135,7 +1137,7 @@ export class AbstractSeries<T extends DataType = any> {
    */
   toArrow(): VectorType<T> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return new DataFrame({0: this}).toArrow().getChildAt<T>(0)!.chunks[0] as VectorType<T>;
+    return new DataFrame({0: this._col}).toArrow().getChildAt<T>(0)!.chunks[0] as VectorType<T>;
   }
 
   /**
@@ -1322,14 +1324,10 @@ export class AbstractSeries<T extends DataType = any> {
    * @returns object with keys "value" and "count"
    */
   valueCounts(): {count: Int32Series, value: Series<T>} {
-    const df = new DataFrame<{count: T, value: T}>({
-      'count': this,
-      'value': this,
-    });
-    const d  = df.groupBy({by: 'value'}).count();
+    const df = new DataFrame({count: this, value: this}).groupBy({by: 'value'}).count();
     return {
-      count: d.get('count'),
-      value: d.get('value'),
+      count: df.get('count'),
+      value: df.get('value'),
     };
   }
 

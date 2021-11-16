@@ -12,44 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface ReadParquetOptionsCommon {
+export interface ReadORCOptionsCommon {
   /** The list of columns to read */
   columns?: string[];
-  /** Specifies for each input file, which row groups to read. */
-  rowGroups?: number[][];
+  /** Only these stripes will be read from the file. */
+  stripes?: number[][];
   /** The number of rows to skip from the start of the file */
   skipRows?: number;
   /** The total number of rows to read */
   numRows?: number;
-  /** Return string columns as GDF_CATEGORY dtype (default 'false') */
-  stringsToCategorical?: boolean;
-  /**
-   * If true and dataset has custom PANDAS schema metadata, ensure that index columns are also
-   * loaded (default 'true').
-   */
-  usePandasMetadata?: boolean;
+  /** Use row index if available for faster seeking (default 'true') */
+  useIndex?: boolean;
+  /** Names of the columns that should be converted from Decimal to Float64 */
+  decimalColsAsFloats?: string[];
 }
 
-export interface ReadParquetFileOptions extends ReadParquetOptionsCommon {
+export interface ReadORCFileOptions extends ReadORCOptionsCommon {
   sourceType: 'files';
   sources: string[];
 }
 
-export interface ReadParquetBufferOptions extends ReadParquetOptionsCommon {
+export interface ReadORCBufferOptions extends ReadORCOptionsCommon {
   sourceType: 'buffers';
   sources: (Uint8Array|Buffer)[];
 }
 
-export type ReadParquetOptions = ReadParquetFileOptions|ReadParquetBufferOptions;
+export type ReadORCOptions = ReadORCFileOptions|ReadORCBufferOptions;
 
-export interface WriteParquetOptions {
-  /** The name of compression to use (default 'snappy'). */
+export interface WriteORCOptions {
+  /** The name of compression to use (default 'None'). */
   compression?: 'snappy'|'none';
-  /** Write timestamps in int96 format (default 'false'). */
-  int96Timestamps?: boolean;
+  /** Write timestamps in int96 format (default 'true'). */
+  enableStatistics?: boolean;
 }
 
-export interface TableWriteParquetOptions extends WriteParquetOptions {
+export interface TableWriteORCOptions {
   /** Column names to write in the header. */
   columnNames?: string[];
 }

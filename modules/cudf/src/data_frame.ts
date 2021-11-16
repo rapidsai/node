@@ -42,7 +42,8 @@ import {
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
-import {ReadParquetOptions} from './types/parquet';
+import {ReadORCOptions, WriteORCOptions} from './types/orc';
+import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
 
 export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
@@ -74,9 +75,17 @@ type JoinProps<
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
   GroupBySingleProps<T, R>|Partial<GroupByMultipleProps<T, R, IndexKey>>;
 
-function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
+function _seriesToColumns<T extends TypeMap>(data: ColumnsMap<T>|SeriesMap<T>) {
   const columns = {} as any;
-  for (const [name, series] of Object.entries(data)) { columns[name] = series._col; }
+  for (const [name, col] of Object.entries(data)) {
+    if (col instanceof Column) {
+      columns[name] = col;
+    } else if (col instanceof Series) {
+      columns[name] = col._col;
+    } else {
+      columns[name] = Series.new(col)._col;
+    }
+  }
   return <ColumnsMap<T>>columns;
 }
 
@@ -117,13 +126,32 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Read an Apache ORC from disk and create a cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame}  from '@rapidsai/cudf';
+   * const df = DataFrame.readORC({
+   *  sourceType: 'files',
+   *  sources: ['test.orc'],
+   * })
+   * ```
+   */
+  public static readORC(options: ReadORCOptions) {
+    const {names, table} = Table.readORC(options);
+    return new DataFrame(new ColumnAccessor(
+      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {})));
+  }
+
+  /**
    * Read an Apache Parquet from disk and create a cudf.DataFrame
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * import {DataFrame}  from '@rapidsai/cudf';
    * const df = DataFrame.readParquet({
-   *  sources: ['test'],
+   *  sourceType: 'files',
+   *  sources: ['test.parquet'],
    * })
    * ```
    */
@@ -165,7 +193,10 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  constructor(data: ColumnAccessor<T>|SeriesMap<T> = {} as SeriesMap<T>) {
+  constructor(data?: SeriesMap<T>);
+  constructor(data?: ColumnsMap<T>);
+  constructor(data?: ColumnAccessor<T>);
+  constructor(data: any = {}) {
     this._accessor =
       (data instanceof ColumnAccessor) ? data : new ColumnAccessor(_seriesToColumns(data));
   }
@@ -805,6 +836,28 @@ export class DataFrame<T extends TypeMap = any> {
       columnNames: this.names as string[],
     });
     return readable as AsyncIterable<string>;
+  }
+
+  /**
+   * Write a DataFrame to ORC format.
+   *
+   * @param filePath File path or root directory path.
+   * @param options Options controlling ORC writing behavior.
+   *
+   */
+  toORC(filePath: string, options: WriteORCOptions = {}) {
+    this.asTable().writeORC(filePath, {...options, columnNames: this.names as string[]});
+  }
+
+  /**
+   * Write a DataFrame to Parquet format.
+   *
+   * @param filePath File path or root directory path.
+   * @param options Options controlling Parquet writing behavior.
+   *
+   */
+  toParquet(filePath: string, options: WriteParquetOptions = {}) {
+    this.asTable().writeParquet(filePath, {...options, columnNames: this.names as string[]});
   }
 
   /**

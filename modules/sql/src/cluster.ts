@@ -26,8 +26,10 @@ export interface Worker {
   kill(): void;
   dropTable(name: string): Promise<void>;
   sql(query: string, token: number): Promise<DataFrame[]>;
-  createTable(name: string, table_id: string): Promise<void>;
+  createDataFrameTable(name: string, table_id: string): Promise<void>;
   createCSVTable(name: string, paths: string[]): Promise<void>;
+  createParquetTable(name: string, paths: string[]): Promise<void>;
+  createORCTable(name: string, paths: string[]): Promise<void>;
   createContext(props: Omit<ContextProps, 'id'>): Promise<void>;
 }
 
@@ -121,39 +123,111 @@ export class SQLCluster {
    * await sqlCluster.createTable('test_table', df);
    * ```
    */
-  public async createTable(tableName: string, input: DataFrame|string[]) {
-    if (input instanceof DataFrame) {
-      ctxToken += this._workers.length;
-      const ids = this.context.context.broadcast(ctxToken - this._workers.length, input).reverse();
-      await Promise.all(this._workers.map((worker, i) => worker.createTable(tableName, ids[i])));
-    } else {
-      // TODO: This logic needs to be reworked. We split up the .csv files among the workers.
-      // There is a possibility a worker does not get a .csv file, therefore we need to give it an
-      // empty DataFrame.
-      const {types, names} = parseSchema(input);
-      const empty          = new DataFrame(
-        names.reduce((xs, name, i) => ({
-                       ...xs,
-                       [name]: Series.new({type: arrowToCUDFType(types[i]), data: []}),
-                     }),
-                     {}));
+  public async createDataFrameTable(tableName: string, input: DataFrame) {
+    ctxToken += this._workers.length;
+    const ids = this.context.context.broadcast(ctxToken - this._workers.length, input).reverse();
+    await Promise.all(
+      this._workers.map((worker, i) => worker.createDataFrameTable(tableName, ids[i])));
+  }
 
-      const chunkedPaths: string[][] = [];
-      for (let i = this._workers.length; i > 0; i--) {
-        chunkedPaths.push(input.splice(0, Math.ceil(input.length / i)));
-      }
+  /**
+   * Create a SQL table from CSV file(s).
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param filePaths array of paths to CSV file(s)
+   *
+   * @example
+   * ```typescript
+   * import {sqlCluster} from '@rapidsai/sql';
+   *
+   * const sqlCluster = await SQLCluster.init();
+   * await sqlCluster.createCSVTable('test_table', ['test.csv']);
+   * ```
+   */
+  public async createCSVTable(tableName: string, filePaths: string[]) {
+    await this._createFileTable(
+      tableName,
+      filePaths,
+      'csv',
+      (worker, chunkedPaths) => { return worker.createCSVTable(tableName, chunkedPaths); });
+  }
 
-      await Promise.all(this._workers.slice().reverse().map((worker, i) => {
-        if (chunkedPaths[i].length > 0) {
-          return worker.createCSVTable(tableName, chunkedPaths[i]);
-        } else {
-          ctxToken += 1;
-          const message = `broadcast_table_message_${ctxToken}`;
-          this.context.context.send(worker.id, ctxToken, message, empty);
-          return worker.createTable(tableName, message);
-        }
-      }));
+  /**
+   * Create a SQL table from Apache Parquet file(s).
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param filePaths array of paths to Parquet file(s)
+   *
+   * @example
+   * ```typescript
+   * import {sqlCluster} from '@rapidsai/sql';
+   *
+   * const sqlCluster = await SQLCluster.init();
+   * await sqlCluster.createParquetTable('test_table', ['test.parquet']);
+   * ```
+   */
+  public async createParquetTable(tableName: string, filePaths: string[]) {
+    await this._createFileTable(
+      tableName,
+      filePaths,
+      'parquet',
+      (worker, chunkedPaths) => { return worker.createParquetTable(tableName, chunkedPaths); });
+  }
+
+  /**
+   * Create a SQL table from Apache ORC file(s).
+   *
+   * @param tableName Name of the table when referenced in a query
+   * @param filePaths array of paths to ORC file(s)
+   *
+   * @example
+   * ```typescript
+   * import {sqlCluster} from '@rapidsai/sql';
+   *
+   * const sqlCluster = await SQLCluster.init();
+   * await sqlCluster.createORCTable('test_table', ['test.orc']);
+   * ```
+   */
+  public async createORCTable(tableName: string, filePaths: string[]) {
+    await this._createFileTable(
+      tableName,
+      filePaths,
+      'orc',
+      (worker, chunkedPaths) => { return worker.createORCTable(tableName, chunkedPaths); });
+  }
+
+  private async _createFileTable(
+    tableName: string,
+    filePath: string[],
+    fileType: 'csv'|'orc'|'parquet',
+    cb: (worker: Worker, chunkedPaths: string[]) => Promise<void>,
+  ) {
+    // TODO: This logic needs to be reworked. We split up the files among the workers.
+    // There is a possibility a worker does not get a file, therefore we need to give it an
+    // empty DataFrame.
+    const {types, names} = parseSchema(filePath, fileType);
+    const empty =
+      new DataFrame(names.reduce((xs: any, name: any, i: any) => ({
+                                   ...xs,
+                                   [name]: Series.new({type: arrowToCUDFType(types[i]), data: []}),
+                                 }),
+                                 {}));
+
+    const chunkedPaths: string[][] = [];
+    for (let i = this._workers.length; i > 0; i--) {
+      chunkedPaths.push(filePath.splice(0, Math.ceil(filePath.length / i)));
     }
+
+    await Promise.all(this._workers.slice().reverse().map((worker, i) => {
+      if (chunkedPaths[i].length > 0) {
+        return cb(worker, chunkedPaths[i]);
+      } else {
+        ctxToken += 1;
+        const message = `broadcast_table_message_${ctxToken}`;
+        this.context.context.send(worker.id, ctxToken, message, empty);
+        return worker.createDataFrameTable(tableName, message);
+      }
+    }));
   }
 
   /**
