@@ -25,8 +25,8 @@ function(find_and_configure_cudf VERSION)
     _set_package_dir_if_exists(cudf cudf)
     _set_package_dir_if_exists(dlpack dlpack)
     _set_package_dir_if_exists(jitify jitify)
+    _set_package_dir_if_exists(nvcomp nvcomp)
     _set_package_dir_if_exists(Thrust thrust)
-    _set_package_dir_if_exists(libcudacxx libcudacxx)
 
     # Set this so Arrow doesn't add `-Werror` to
     # CMAKE_CXX_FLAGS when CMAKE_BUILD_TYPE=Debug

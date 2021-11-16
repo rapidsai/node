@@ -54,7 +54,7 @@ if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
     set(FETCHCONTENT_BASE_DIR "${CPM_BINARY_CACHE}" CACHE STRING "" FORCE)
 endif()
 
-set(CPM_DOWNLOAD_VERSION 7644c3a40fc7889f8dee53ce21e85dc390b883dc) # v0.32.1
+set(CPM_DOWNLOAD_VERSION 634800c61928d330a6e9559171509a5c3dd479d5) # 0.34.0
 
 if(CPM_SOURCE_CACHE)
   # Expand relative path. This is important if the provided path contains a tilde (~)
@@ -79,10 +79,10 @@ include(${CPM_DOWNLOAD_LOCATION})
 function(_set_package_dir_if_exists pkg dir)
     if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
         if (EXISTS "${CPM_BINARY_CACHE}/${dir}-build")
-            message(STATUS "get_cpm: setting ${pkg}_DIR to '${CPM_BINARY_CACHE}/${dir}-build'")
-            set(${pkg}_DIR "${CPM_BINARY_CACHE}/${dir}-build" PARENT_SCOPE)
+            message(STATUS "get_cpm: setting ${pkg}_ROOT to '${CPM_BINARY_CACHE}/${dir}-build'")
+            set(${pkg}_ROOT "${CPM_BINARY_CACHE}/${dir}-build" PARENT_SCOPE)
         else()
-            message(STATUS "get_cpm: not setting ${pkg}_DIR because '${CPM_BINARY_CACHE}/${dir}-build' does not exist")
+            message(STATUS "get_cpm: not setting ${pkg}_ROOT because '${CPM_BINARY_CACHE}/${dir}-build' does not exist")
         endif()
     endif()
 endfunction()
