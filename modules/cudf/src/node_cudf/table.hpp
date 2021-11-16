@@ -118,9 +118,7 @@ struct Table : public EnvLocalObjectWrap<Table> {
    * @param i Index of the desired column
    * @return A const reference to the desired column
    */
-  Column const& get_column(cudf::size_type i) const {
-    return *Column::Unwrap(columns_.Value().Get(i).ToObject());
-  }
+  Column const& get_column(cudf::size_type i) const { return *columns_[i]; }
 
   // table/reshape.cpp
   Column::wrapper_t interleave_columns(
@@ -206,9 +204,9 @@ struct Table : public EnvLocalObjectWrap<Table> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
  private:
-  cudf::size_type num_columns_{};           ///< The number of columns in the table
-  cudf::size_type num_rows_{};              ///< The number of rows
-  Napi::Reference<Napi::Array> columns_{};  ///< columns of table
+  cudf::size_type num_columns_{};             ///< The number of columns in the table
+  cudf::size_type num_rows_{};                ///< The number of rows
+  std::vector<Column::wrapper_t> columns_{};  ///< columns of table
 
   Napi::Value num_columns(Napi::CallbackInfo const& info);
   Napi::Value num_rows(Napi::CallbackInfo const& info);
