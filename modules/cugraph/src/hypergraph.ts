@@ -18,9 +18,9 @@ import {TypeMap} from '@rapidsai/cudf';
 import {GraphCOO} from './addon';
 import {renumber_edges, renumber_nodes} from './renumber';
 
-export type HypergraphBaseProps = {
+export type HypergraphBaseProps<T extends TypeMap = any> = {
   /** An optional sequence of column names to process. */
-  columns?: string[]|null;
+  columns?: readonly(keyof T&string)[],
   /** If True, do not include null values in the graph. */
   dropNulls?: boolean;
   /**
@@ -32,7 +32,7 @@ export type HypergraphBaseProps = {
   /** If True, exclude each row's attributes from its edges (default: False) */
   dropEdgeAttrs?: boolean;
   /** A sequence of column names not to transform into nodes. */
-  skip?: string[];
+  skip?: readonly(keyof T&string)[],
   /** The delimiter to use when joining column names, categories, and ids. */
   delim?: string;
   /** The name to use as the node id column in the graph and node DataFrame. */
@@ -47,12 +47,12 @@ export type HypergraphBaseProps = {
   nodeType?: string;
 }
 
-export type HypergraphProps = HypergraphBaseProps&{
+export type HypergraphProps<T extends TypeMap = any> = HypergraphBaseProps<T>&{
   /** The name to use as the category column in the graph and DataFrames */
   attribId?: string;
 }
 
-export type HypergraphDirectProps = HypergraphBaseProps&{
+export type HypergraphDirectProps<T extends TypeMap = any> = HypergraphBaseProps<T>&{
   /** Select column pairs instead of making all edges. */
   edgeShape?: {[key: string]: string[]};
   /** The name to use as the source column in the graph and edge DataFrame. */
@@ -95,7 +95,7 @@ export type HypergraphReturn = {
  */
 export function
 hypergraph<T extends TypeMap = any>(values: DataFrame<T>, {
-  columns       = null,
+  columns       = values.names,
   dropNulls     = true,
   categories    = {},
   dropEdgeAttrs = false,
@@ -107,8 +107,8 @@ hypergraph<T extends TypeMap = any>(values: DataFrame<T>, {
   category      = 'category',
   edgeType      = 'edge_type',
   nodeType      = 'node_type',
-}: HypergraphProps = {}): HypergraphReturn {
-  const computed_columns = _compute_columns(values, columns, skip);
+}: HypergraphProps<T> = {}): HypergraphReturn {
+  const computed_columns = _compute_columns(columns, skip);
 
   const initial_events =
     _create_events(values, computed_columns, delim, dropNulls, eventId, nodeType);
@@ -154,7 +154,7 @@ hypergraph<T extends TypeMap = any>(values: DataFrame<T>, {
  * categorical columns), and ``categories`` to group columns with the same kinds of values.
  */
 export function hypergraphDirect<T extends TypeMap = any>(values: DataFrame<T>, {
-  columns       = null,
+  columns       = values.names,
   categories    = {},
   dropNulls     = true,
   edgeShape     = {},
@@ -169,7 +169,7 @@ export function hypergraphDirect<T extends TypeMap = any>(values: DataFrame<T>, 
   edgeType      = 'edge_type',
   nodeType      = 'node_type',
 }: HypergraphDirectProps = {}): HypergraphReturn {
-  const computed_columns = _compute_columns(values, columns, skip);
+  const computed_columns = _compute_columns(columns, skip);
 
   const initial_events =
     _create_events(values, computed_columns, delim, dropNulls, eventId, nodeType);
@@ -198,9 +198,10 @@ export function hypergraphDirect<T extends TypeMap = any>(values: DataFrame<T>, 
   return {nodes, edges, events, entities, graph};
 }
 
-function _compute_columns(values: DataFrame, columns: string[]|null, skip: string[]) {
+function _compute_columns<T extends TypeMap = any>(columns: readonly(keyof T & string)[],
+                                                   skip: readonly(keyof T & string)[]) {
   const result: string[] = [];
-  for (const name of columns ?? values.names) {
+  for (const name of columns) {
     if (!skip.includes(name)) { result.push(name); }
   }
   result.sort();
