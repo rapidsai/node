@@ -47,7 +47,7 @@ struct LazHeader {
 };
 
 struct LazVariableLengthHeader {
-  std::string user_id;
+  char user_id[16];
   unsigned short record_id;
   unsigned short record_length_after_head;
 };

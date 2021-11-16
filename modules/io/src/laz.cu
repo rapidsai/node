@@ -21,7 +21,7 @@ __global__ void parse_header(uint8_t const* laz_header_data, LazHeader* result) 
   size_t byte_offset = 0;
 
   // File signature (4 bytes)
-  for (int i = byte_offset; i < 4; ++i) { result->file_signature[i] = *(laz_header_data + i); }
+  for (int i = 0; i < 4; ++i) { result->file_signature[i] = *(laz_header_data + i); }
   byte_offset += 4;
 
   // File source id (2 bytes)
@@ -187,6 +187,35 @@ __global__ void parse_header(uint8_t const* laz_header_data, LazHeader* result) 
                   *(laz_header_data + byte_offset + 6) + *(laz_header_data + byte_offset + 7);
 }
 
+__global__ void parse_variable_length_header(uint8_t const* laz_variable_header_data,
+                                             LazVariableLengthHeader* result) {
+  size_t byte_offset = 0;
+
+  // Reserved (2 bytes)
+  // not required
+  byte_offset += 2;
+
+  // User id (16 bytes)
+  for (int i = 0; i < 16; ++i) {
+    result->user_id[i] = *(laz_variable_header_data + byte_offset + i);
+  }
+  byte_offset += 16;
+
+  // Record id (2 bytes)
+  result->record_id =
+    *(laz_variable_header_data + byte_offset) + *(laz_variable_header_data + byte_offset + 1);
+  byte_offset += 2;
+
+  // Record length after header (2 bytes)
+  result->record_length_after_head =
+    *(laz_variable_header_data + byte_offset) + *(laz_variable_header_data + byte_offset + 1);
+  byte_offset += 2;
+
+  // Description (32 bytes)
+  // not required
+  byte_offset += 32;
+}
+
 void Laz::parse_header_host() {
   const size_t header_size = 227;
   auto header_data         = read(0, header_size, rmm::cuda_stream_default);
@@ -201,6 +230,23 @@ void Laz::parse_header_host() {
 
   free(cpu_header);
   cudaFree(gpu_header);
+
+  const size_t variable_header_size = 54;
+  auto variable_header_data = read(header_size, variable_header_size, rmm::cuda_stream_default);
+
+  LazVariableLengthHeader *cpu_variable_header, *gpu_variable_header;
+  cpu_variable_header = (LazVariableLengthHeader*)malloc(sizeof(LazVariableLengthHeader));
+  cudaMalloc((void**)&gpu_variable_header, sizeof(LazVariableLengthHeader));
+
+  ::parse_variable_length_header<<<1, 1>>>(variable_header_data->data(), gpu_variable_header);
+
+  free(cpu_variable_header);
+  cudaFree(gpu_variable_header);
+
+  cudaMemcpy(cpu_variable_header,
+             gpu_variable_header,
+             sizeof(LazVariableLengthHeader),
+             cudaMemcpyDeviceToHost);
 
   throw std::invalid_argument("end test");
 }
