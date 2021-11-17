@@ -52,6 +52,8 @@ struct LazVariableLengthHeader {
   unsigned short record_length_after_head;
 };
 
+struct PointRecord {};
+
 class Laz {
  public:
   Laz(const std::string& path);
