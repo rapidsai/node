@@ -218,12 +218,12 @@ __global__ void parse_variable_length_header(uint8_t const* laz_variable_header_
 
   // Record id (2 bytes)
   result->record_id =
-    *(laz_variable_header_data + byte_offset) + *(laz_variable_header_data + byte_offset + 1);
+    *(laz_variable_header_data + byte_offset) | *(laz_variable_header_data + byte_offset + 1) << 8;
   byte_offset += 2;
 
   // Record length after header (2 bytes)
   result->record_length_after_head =
-    *(laz_variable_header_data + byte_offset) + *(laz_variable_header_data + byte_offset + 1);
+    *(laz_variable_header_data + byte_offset) | *(laz_variable_header_data + byte_offset + 1) << 8;
   byte_offset += 2;
 
   // Description (32 bytes)
@@ -256,8 +256,6 @@ void Laz::parse_header_host() {
              gpu_variable_header,
              sizeof(LazVariableLengthHeader),
              cudaMemcpyDeviceToHost);
-
-  std::cout << (int)cpu_header->point_data_format_id << std::endl;
 
   free(cpu_header);
   cudaFree(gpu_header);
