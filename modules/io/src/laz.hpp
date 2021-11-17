@@ -28,7 +28,7 @@ struct LazHeader {
   unsigned short header_size;
   unsigned long point_data_offset;
   unsigned long variable_length_records_count;
-  unsigned char point_data_format_id;
+  int point_data_format_id;
   unsigned short point_data_record_length;
   unsigned long point_record_count;
   unsigned long points_by_return_count[5];
