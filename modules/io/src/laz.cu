@@ -85,7 +85,8 @@ __global__ void parse_header(uint8_t const* laz_header_data, LazHeader* result) 
 
   // Point data format id (1 byte)
   result->point_data_format_id = *(laz_header_data + byte_offset);
-  result->point_data_format_id &= 127;
+  if (result->point_data_format_id & 128 || result->point_data_format_id & 64)
+    result->point_data_format_id &= 127;
   byte_offset += 1;
 
   // Point data record length (2 bytes)
@@ -283,8 +284,6 @@ void Laz::parse_header_host() {
              gpu_variable_header,
              sizeof(LazVariableLengthHeader),
              cudaMemcpyDeviceToHost);
-
-  std::cout << cpu_header->point_data_format_id << std::endl;
 
   free(cpu_header);
   cudaFree(gpu_header);
