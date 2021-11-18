@@ -52,7 +52,18 @@ struct LazVariableLengthHeader {
   unsigned short record_length_after_head;
 };
 
-struct PointRecord {};
+struct PointRecord {
+  long x;
+  long y;
+  long z;
+  unsigned char classification;
+  unsigned char scan_angle;
+  unsigned short point_source_id;
+  double gps_time;
+  unsigned short red;
+  unsigned short green;
+  unsigned short blue;
+};
 
 class Laz {
  public:

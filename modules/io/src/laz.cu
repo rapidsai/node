@@ -110,90 +110,90 @@ __global__ void parse_header(uint8_t const* laz_header_data, LazHeader* result) 
 
   // X scale factor (8 bytes)
   result->x_scale =
-    (*(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
-     *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
-     *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
-     *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56);
+    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
+    *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
+    *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
+    *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56;
   byte_offset += 8;
 
   // Y scale factor (8 bytes)
   result->y_scale =
-    (*(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
-     *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
-     *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
-     *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56);
+    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
+    *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
+    *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
+    *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56;
   byte_offset += 8;
 
   // Z scale factor (8 bytes)
   result->z_scale =
-    (*(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
-     *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
-     *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
-     *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56);
+    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
+    *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
+    *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
+    *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56;
   byte_offset += 8;
 
   // X offset (8 bytes)
   result->x_offset =
-    (*(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
-     *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
-     *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
-     *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56);
+    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
+    *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
+    *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
+    *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56;
   byte_offset += 8;
 
   // Y offset (8 bytes)
   result->y_offset =
-    (*(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
-     *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
-     *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
-     *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56);
+    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
+    *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
+    *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
+    *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56;
   byte_offset += 8;
 
   // Z offset (8 bytes)
   result->z_offset =
-    (*(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
-     *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
-     *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
-     *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56);
+    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
+    *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
+    *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
+    *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56;
   byte_offset += 8;
 
   // Max X (8 bytes)
   result->max_x =
-    (*(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
-     *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
-     *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
-     *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56);
+    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
+    *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
+    *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
+    *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56;
   byte_offset += 8;
 
   // Min X (8 bytes)
   result->min_x =
-    (*(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
-     *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
-     *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
-     *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56);
+    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
+    *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
+    *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
+    *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56;
   byte_offset += 8;
 
   // Max Y (8 bytes)
   result->max_y =
-    (*(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
-     *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
-     *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
-     *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56);
+    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
+    *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
+    *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
+    *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56;
   byte_offset += 8;
 
   // Min Y (8 bytes)
   result->min_y =
-    (*(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
-     *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
-     *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
-     *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56);
+    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
+    *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
+    *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
+    *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56;
   byte_offset += 8;
 
   // Max Z (8 bytes)
   result->max_z =
-    (*(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
-     *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
-     *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
-     *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56);
+    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8 |
+    *(laz_header_data + byte_offset + 2) << 16 | *(laz_header_data + byte_offset + 3) << 24 |
+    *(laz_header_data + byte_offset + 4) << 32 | *(laz_header_data + byte_offset + 5) << 40 |
+    *(laz_header_data + byte_offset + 6) << 48 | *(laz_header_data + byte_offset + 7) << 56;
   byte_offset += 8;
 
   // Min Z (8 bytes)
@@ -237,10 +237,76 @@ __global__ void parse_point_record(uint8_t const* point_data,
                                    LazHeader* header_data,
                                    PointRecord* result) {
   switch (header_data->point_data_format_id) {
-    case 0: break;
-    case 1: break;
-    case 2: break;
-    case 3: break;
+    case 0: break;  // format 0
+    case 1: break;  // format 1
+    case 2: break;  // format 2
+    case 3:         // format 3
+      size_t point_record_size       = 34;
+      size_t number_of_point_records = header_data->point_data_record_length / point_record_size;
+      for (size_t i = 0; i < number_of_point_records; ++i) {
+        size_t byte_offset = i * point_record_size;
+
+        // x (4 bytes)
+        result->x = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
+                    *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
+        byte_offset += 4;
+
+        // y (4 bytes)
+        result->y = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
+                    *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
+        byte_offset += 4;
+
+        // z (4 bytes)
+        result->z = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
+                    *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
+        byte_offset += 4;
+
+        // intensity (2 bytes)
+        // not required
+        byte_offset += 2;
+
+        // return number (1 byte)
+        // not required
+        byte_offset += 1;
+
+        // classification (1 byte)
+        result->classification = *(point_data + byte_offset);
+        byte_offset += 1;
+
+        // Scan angle (1 byte)
+        result->scan_angle = *(point_data + byte_offset);
+        byte_offset += 1;
+
+        // User data (1 byte)
+        // not required
+        byte_offset += 1;
+
+        // Point source id (2 bytes)
+        result->point_source_id = *(point_data + byte_offset) | *(point_data + byte_offset + 1)
+                                                                  << 8;
+        byte_offset += 2;
+
+        // GPS time (8 bytes)
+        result->gps_time =
+          *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
+          *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24 |
+          *(point_data + byte_offset + 4) << 32 | *(point_data + byte_offset + 5) << 40 |
+          *(point_data + byte_offset + 6) << 48 | *(point_data + byte_offset + 7) << 56;
+        byte_offset += 8;
+
+        // Red (2 bytes)
+        result->red = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
+        byte_offset += 2;
+
+        // Green (2 bytes)
+        result->green = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
+        byte_offset += 2;
+
+        // Blue (2 bytes)
+        result->blue = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
+        byte_offset += 2;
+      }
+      break;
   }
 }
 
