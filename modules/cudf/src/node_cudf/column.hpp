@@ -156,7 +156,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   /**
    * @brief Returns the number of child columns
    */
-  cudf::size_type num_children() const { return children_.Value().Length(); }
+  cudf::size_type num_children() const { return children_.size(); }
 
   /**
    * @brief Returns a const reference to the specified child
@@ -165,7 +165,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
    * @return column const& Const reference to the desired child
    */
   Column::wrapper_t child(cudf::size_type child_index) const noexcept {
-    return children_.Value().Get(child_index).ToObject();
+    return children_[child_index]->Value();
   };
 
   /**
@@ -779,8 +779,8 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Reference<DeviceBuffer::wrapper_t> null_mask_;  ///< Bitmask used to represent null values.
                                                         ///< May be empty if `null_count() == 0`
   mutable cudf::size_type null_count_{cudf::UNKNOWN_NULL_COUNT};  ///< The number of null elements
-  Napi::Reference<Napi::Array> children_;  ///< Depending on element type, child
-                                           ///< columns may contain additional data
+  std::vector<Column::wrapper_t> children_;  ///< Depending on element type, child
+                                             ///< columns may contain additional data
 
   Napi::Value type(Napi::CallbackInfo const& info);
   void type(Napi::CallbackInfo const& info, Napi::Value const& value);
