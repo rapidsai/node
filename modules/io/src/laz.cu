@@ -90,8 +90,8 @@ __global__ void parse_header(uint8_t const* laz_header_data, LazHeader* result) 
   byte_offset += 1;
 
   // Point data record length (2 bytes)
-  result->point_data_record_length =
-    *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1) << 8;
+  result->point_data_size = *(laz_header_data + byte_offset) | *(laz_header_data + byte_offset + 1)
+                                                                 << 8;
   byte_offset += 2;
 
   // Number of point records (4 bytes)
@@ -241,10 +241,8 @@ __global__ void parse_point_record(uint8_t const* point_data,
     case 1: break;  // format 1
     case 2: break;  // format 2
     case 3:         // format 3
-      size_t point_record_size       = 34;
-      size_t number_of_point_records = header_data->point_data_record_length / point_record_size;
-      for (size_t i = 0; i < number_of_point_records; ++i) {
-        size_t byte_offset = i * point_record_size;
+      for (size_t i = 0; i < header_data->point_record_count; ++i) {
+        size_t byte_offset = i * header_data->point_data_size;
 
         // x (4 bytes)
         result->x = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
@@ -335,14 +333,14 @@ void Laz::parse_header_host() {
 
   // Point record parse
   auto point_data = read(cpu_header->point_data_offset,
-                         cpu_header->point_data_offset + cpu_header->point_data_record_length,
+                         cpu_header->point_record_count * cpu_header->point_data_size,
                          rmm::cuda_stream_default);
 
   PointRecord *cpu_point_record, *gpu_point_record;
   cpu_point_record = (PointRecord*)malloc(sizeof(PointRecord));
   cudaMalloc((void**)&gpu_point_record, sizeof(PointRecord));
 
-  ::parse_point_record<<<1, 1>>>(header_data->data(), gpu_header, gpu_point_record);
+  ::parse_point_record<<<1, 1>>>(point_data->data(), gpu_header, gpu_point_record);
 
   cudaMemcpy(cpu_point_record, gpu_point_record, sizeof(PointRecord), cudaMemcpyDeviceToHost);
 
