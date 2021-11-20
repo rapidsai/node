@@ -363,6 +363,7 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
     /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list
 
 ENV NODE_PATH=/usr/local/lib/node_modules
+ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught"
 
 COPY --from=wrtc --chown=root:root /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=wrtc --chown=rapids:rapids /opt/rapids/wrtc-0.4.7-dev.tgz /opt/rapids/wrtc-0.4.7-dev.tgz

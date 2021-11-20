@@ -74,6 +74,8 @@ RUN useradd --uid $UID --user-group ${ADDITIONAL_GROUPS} --shell /bin/bash --cre
  # smoke tests
  && node --version && npm --version && yarn --version
 
+ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught"
+
 WORKDIR /home/node
 
 ENTRYPOINT ["docker-entrypoint.sh"]
