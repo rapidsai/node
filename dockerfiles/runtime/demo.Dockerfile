@@ -73,7 +73,7 @@ RUN cd /usr/local/lib \
     # GLEW dependencies
     libglvnd0 libgl1 libglx0 libegl1 libgles2 libglu1-mesa \
     # UCX runtime dependencies
-    libibverbs1 librdmacm1 libnuma1 libhwloc15 \
+    libibverbs1 librdmacm1 libnuma1 \
     # node-canvas dependencies
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libjpeg8 libgif7 librsvg2-2 \
     # SQL dependencies

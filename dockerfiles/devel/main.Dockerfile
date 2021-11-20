@@ -261,7 +261,7 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     # UCX build dependencies
     automake autoconf libtool \
     # UCX runtime dependencies
-    libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
+    libibverbs-dev librdmacm-dev libnuma-dev \
  \
  # Set alternatives for clangd
  && (update-alternatives --remove-all clangd >/dev/null 2>&1 || true) \

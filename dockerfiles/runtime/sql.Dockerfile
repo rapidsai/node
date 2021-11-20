@@ -54,7 +54,7 @@ RUN cd /usr/local/lib \
  && apt update \
  && apt install -y --no-install-recommends \
     # UCX runtime dependencies
-    libibverbs1 librdmacm1 libnuma1 libhwloc15 \
+    libibverbs1 librdmacm1 libnuma1 \
     # SQL dependencies
     openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
  # Clean up
