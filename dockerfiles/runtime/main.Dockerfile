@@ -66,12 +66,8 @@ RUN cd /usr/local/lib \
     # X11 dependencies
     libxrandr2 libxinerama1 libxcursor1 \
     # Wayland dependencies
-    libwayland-bin \
     wayland-protocols \
-    libwayland-server0 \
-    libwayland-egl1 libwayland-egl++0 \
-    libwayland-cursor0 libwayland-cursor++0 \
-    libwayland-client0 libwayland-client++0 libwayland-client-extra++0 \
+    libwayland-{bin,egl1,cursor0,client0,server0} \
     libxkbcommon0 libxkbcommon-x11-0 \
     # GLEW dependencies
     libglvnd0 libgl1 libglx0 libegl1 libgles2 libglu1-mesa \
