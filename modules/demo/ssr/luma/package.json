@@ -2,7 +2,7 @@
   "private": true,
   "name": "@rapidsai/demo-luma.gl-lessons-ssr",
   "main": "index.js",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -17,7 +17,7 @@
     "@rapidsai/cuda": "0.0.1",
     "@rapidsai/deck.gl": "0.0.1",
     "@rapidsai/jsdom": "0.0.1",
-    "@rapidsai/demo-luma.gl-lessons": "0.0.0",
+    "@rapidsai/demo-luma.gl-lessons": "0.0.1",
     "nanoid": "3.1.25",
     "simple-peer": "9.11.0",
     "fastify": "3.20.2",
