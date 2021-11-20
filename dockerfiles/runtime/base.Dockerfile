@@ -34,7 +34,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     libstdc++6 \
     # From opengl/glvnd:runtime
     libxau6 libxdmcp6 libxcb1 libxext6 libx11-6 \
-    libglvnd0 libgl1 libglx0 libegl1 libgles2 \
+    libglvnd0 libopengl0 libgl1 libglx0 libegl1 libgles2 \
  \
  && chmod 0644 /usr/share/glvnd/egl_vendor.d/10_nvidia.json \
  && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
