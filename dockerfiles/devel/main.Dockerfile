@@ -2,7 +2,7 @@
 
 ARG FROM_IMAGE
 ARG FROM_IMAGE_DEFAULT
-ARG NODE_VERSION=16.10.0
+ARG NODE_VERSION=16.13.0
 
 FROM node:$NODE_VERSION-stretch-slim as node
 
@@ -12,6 +12,9 @@ SHELL ["/bin/bash", "-c"]
 
 ENV CUDA_HOME="/usr/local/cuda"
 ENV LD_LIBRARY_PATH="\
+/usr/lib/aarch64-linux-gnu:\
+/usr/lib/x86_64-linux-gnu:\
+/usr/lib/i386-linux-gnu:\
 ${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}\
 ${CUDA_HOME}/lib:\
 ${CUDA_HOME}/lib64:\
@@ -35,6 +38,8 @@ COPY --from=node /opt/yarn-v*/lib/* /usr/local/lib/
 # Copy entrypoint
 COPY --from=node /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
+ADD --chown=root:root https://gitlab.com/nvidia/container-images/opengl/-/raw/5191cf205d3e4bb1150091f9464499b076104354/glvnd/runtime/10_nvidia.json /usr/share/glvnd/egl_vendor.d/10_nvidia.json
+
 # https://github.com/moby/buildkit/blob/b8462c3b7c15b14a8c30a79fad298a1de4ca9f74/frontend/dockerfile/docs/syntax.md#example-cache-apt-packages
 RUN --mount=type=cache,target=/var/lib/apt \
     --mount=type=cache,target=/var/cache/apt \
@@ -55,7 +60,14 @@ RUN --mount=type=cache,target=/var/lib/apt \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} gdb \
     # CMake dependencies
     curl libssl-dev libcurl4-openssl-dev zlib1g-dev liblz4-dev \
+    # From opengl/glvnd:devel
+    pkg-config \
+    libxau6 libxdmcp6 libxcb1 libxext6 libx11-6 \
+    libglvnd-dev libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev \
  \
+ && chmod 0644 /usr/share/glvnd/egl_vendor.d/10_nvidia.json \
+ && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
+ && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
  # Remove any existing gcc and g++ alternatives
  && (update-alternatives --remove-all cc  >/dev/null 2>&1 || true) \
  && (update-alternatives --remove-all c++ >/dev/null 2>&1 || true) \
@@ -194,6 +206,7 @@ FROM compilers
 
 ENV NVIDIA_DRIVER_CAPABILITIES all
 
+ARG TARGETARCH
 ARG LLDB_VERSION=12
 ARG CLANGD_VERSION=12
 ARG FIXUID_VERSION=0.5.1
@@ -204,7 +217,6 @@ ARG ADDITIONAL_GROUPS=
 # https://github.com/moby/buildkit/blob/b8462c3b7c15b14a8c30a79fad298a1de4ca9f74/frontend/dockerfile/docs/syntax.md#example-cache-apt-packages
 RUN --mount=type=cache,target=/var/lib/apt \
     --mount=type=cache,target=/var/cache/apt \
-    --mount=type=cache,target=/usr/local/lib/llnode \
     rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache; \
  \
@@ -241,11 +253,11 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     # GLFW Wayland dependencies
     extra-cmake-modules libwayland-dev wayland-protocols libxkbcommon-dev \
     # GLEW dependencies
-    build-essential libxmu-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
+    build-essential libxmu-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # cuSpatial dependencies
     libgdal-dev \
     # SQL dependencies
-    maven openjdk-8-jdk libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
+    maven openjdk-8-jdk-headless openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
     # UCX build dependencies
     automake autoconf libtool \
     # UCX runtime dependencies
@@ -282,7 +294,7 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  && make -C /tmp/ucx/build -j install \
  \
  # Install fixuid
- && curl -SsL "https://github.com/boxboat/fixuid/releases/download/v$FIXUID_VERSION/fixuid-$FIXUID_VERSION-linux-$(dpkg-architecture -q DEB_BUILD_ARCH).tar.gz" \
+ && curl -SsL "https://github.com/boxboat/fixuid/releases/download/v$FIXUID_VERSION/fixuid-$FIXUID_VERSION-linux-${TARGETARCH}.tar.gz" \
   | tar -C /usr/bin -xzf - \
  && chown root:root /usr/bin/fixuid && chmod 4755 /usr/bin/fixuid && mkdir -p /etc/fixuid \
  && bash -c 'echo -e "\

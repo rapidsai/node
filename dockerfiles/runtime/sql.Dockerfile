@@ -18,8 +18,6 @@ FROM ${FROM_IMAGE}
 
 SHELL ["/bin/bash", "-c"]
 
-ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
-
 USER root
 
 # Install UCX
@@ -56,9 +54,9 @@ RUN cd /usr/local/lib \
  && apt update \
  && apt install -y --no-install-recommends \
     # UCX runtime dependencies
-    libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
+    libibverbs1 librdmacm1 libnuma1 libhwloc15 \
     # SQL dependencies
-    openjdk-8-jre libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
+    openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
  # Clean up
  && apt autoremove -y && apt clean \
  && rm -rf \

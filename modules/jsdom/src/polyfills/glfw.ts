@@ -693,8 +693,8 @@ export function installGLFWWindow(windowOptions: GLFWWindowOptions = {}) {
         glfw.swapInterval(window.swapInterval);
         glfw.swapBuffers(window.id);
         window.poll();
-      } catch (e) {
-        console.error(`Error creating GLFW window:\n${Object.prototype.toString.call(e)}`);
+      } catch (e: any) {
+        console.error(`Error creating GLFW window:\n${String(e && e.stack || e)}`);
         window.destroyGLFWWindow();
         throw e;
       }

@@ -6,9 +6,9 @@ on:
       - main
 
 env:
-  ARCH: amd64
-  NODE: 16.10.0
-  RAPIDS: 21.12.00
+  NODE: 16.13.0
+  RAPIDS: 22.02.00
+  REPOSITORY: ghcr.io/rapidsai/node
 
 concurrency:
   group: build_docker_images
@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - uses: actions/checkout@v2
@@ -49,13 +49,13 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/devel/main.Dockerfile
           tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
           build-args: |
             "NODE_VERSION=${{ env.NODE }}"
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
-            "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
+            "FROM_IMAGE=gpuci/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
 
   build-and-publish-devel-packages-image:
     needs:
@@ -65,7 +65,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - uses: actions/checkout@v2
@@ -96,14 +96,14 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/devel/package.Dockerfile
           tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages
           build-args: |
             "PARALLEL_LEVEL=1"
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
             "RAPIDS_VERSION=${{ env.RAPIDS }}"
-            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-cuda-base-image:
     needs:
@@ -114,49 +114,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
-        LINUX: [ubuntu18.04, ubuntu20.04]
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
-      - name: Check if files changed
-        id: files_changed
-        uses: tj-actions/changed-files@v9.1
-        with:
-          files: |
-            dockerfiles/runtime/base.Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
-      - name: Build and push image
-        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
-        uses: ./.github/actions/build-and-publish-image
-        with:
-          registry-url: ghcr.io
-          registry-username: ${{ github.repository_owner }}
-          registry-password: ${{ github.token }}
-          pull: true
-          push: ${{ github.event_name == 'push' }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/base.Dockerfile
-          tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
-          build-args: |
-            "UID=1000"
-            "FROM_IMAGE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
-            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
-
-  build-and-publish-runtime-cudagl-base-image:
-    needs:
-      - build-and-publish-devel-main-image
-      - build-and-publish-devel-packages-image
-    name: Build runtime cudagl-base image
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: true
-      matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - uses: actions/checkout@v2
@@ -183,11 +141,11 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/base.Dockerfile
           tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base
           build-args: |
             "UID=1000"
-            "FROM_IMAGE=nvidia/cudagl:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
-            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}"
+            "FROM_IMAGE=gpuci/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-cudf-image:
     needs:
@@ -198,7 +156,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - uses: actions/checkout@v2
@@ -227,10 +185,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/cudf.Dockerfile
           tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf-${{ env.ARCH }}
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf
           build-args: |
-            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
 
   build-and-publish-runtime-cugraph-image:
     needs:
@@ -241,7 +199,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - uses: actions/checkout@v2
@@ -270,10 +228,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/cugraph.Dockerfile
           tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph-${{ env.ARCH }}
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph
           build-args: |
-            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
 
   build-and-publish-runtime-cuml-image:
     needs:
@@ -284,7 +242,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - uses: actions/checkout@v2
@@ -313,10 +271,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/cuml.Dockerfile
           tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml-${{ env.ARCH }}
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml
           build-args: |
-            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
 
   build-and-publish-runtime-cuspatial-image:
     needs:
@@ -327,7 +285,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - uses: actions/checkout@v2
@@ -356,21 +314,21 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/cuspatial.Dockerfile
           tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial-${{ env.ARCH }}
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial
           build-args: |
-            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
 
   build-and-publish-runtime-glfw-image:
     needs:
       - build-and-publish-devel-packages-image
-      - build-and-publish-runtime-cudagl-base-image
+      - build-and-publish-runtime-cuda-base-image
     name: Build runtime glfw image
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - uses: actions/checkout@v2
@@ -399,10 +357,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/glfw.Dockerfile
           tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw-${{ env.ARCH }}
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw
           build-args: |
-            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
 
   build-and-publish-runtime-sql-image:
     needs:
@@ -413,7 +371,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - uses: actions/checkout@v2
@@ -442,21 +400,21 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/sql.Dockerfile
           tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql-${{ env.ARCH }}
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql
           build-args: |
-            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
 
   build-and-publish-runtime-main-image:
     needs:
       - build-and-publish-devel-packages-image
-      - build-and-publish-runtime-cudagl-base-image
+      - build-and-publish-runtime-cuda-base-image
     name: Build runtime main image
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - uses: actions/checkout@v2
@@ -485,21 +443,21 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/main.Dockerfile
           tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }}
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
           build-args: |
-            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
 
   build-and-publish-runtime-demo-image:
     needs:
       - build-and-publish-devel-packages-image
-      - build-and-publish-runtime-cudagl-base-image
+      - build-and-publish-runtime-cuda-base-image
     name: Build runtime demo image
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.0.3, 11.2.2, 11.4.2]
+        CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - uses: actions/checkout@v2
@@ -528,7 +486,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dockerfiles/runtime/demo.Dockerfile
           tags: |
-            ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo-${{ env.ARCH }}
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo
           build-args: |
-            "FROM_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-base-${{ env.ARCH }}"
-            "DEVEL_IMAGE=ghcr.io/rapidsai/node:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ env.ARCH }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
