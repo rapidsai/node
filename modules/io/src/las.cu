@@ -308,50 +308,21 @@ __global__ void parse_point_record(uint8_t const* point_data,
   }
 }
 
-void Las::parse_header_host() {
-  // Header parse
-  const size_t header_size = 227;
-  auto header_data         = read(0, header_size, rmm::cuda_stream_default);
-
+void Las::parse_host() {
   LasHeader *cpu_header, *gpu_header;
   cpu_header = (LasHeader*)malloc(sizeof(LasHeader));
   cudaMalloc((void**)&gpu_header, sizeof(LasHeader));
-
-  ::parse_header<<<1, 1>>>(header_data->data(), gpu_header);
-
-  cudaMemcpy(cpu_header, gpu_header, sizeof(LasHeader), cudaMemcpyDeviceToHost);
-
-  // Variable header parse
-  std::cout << cpu_header->point_data_size << std::endl;
-  std::cout << cpu_header->point_record_count << std::endl;
-
-  const size_t variable_header_size = 54;
-  auto variable_header_data = read(header_size, variable_header_size, rmm::cuda_stream_default);
+  parse_header_host(cpu_header, gpu_header);
 
   LasVariableLengthHeader *cpu_variable_header, *gpu_variable_header;
   cpu_variable_header = (LasVariableLengthHeader*)malloc(sizeof(LasVariableLengthHeader));
   cudaMalloc((void**)&gpu_variable_header, sizeof(LasVariableLengthHeader));
-
-  ::parse_variable_length_header<<<1, 1>>>(variable_header_data->data(), gpu_variable_header);
-
-  const size_t offset = cpu_header->point_data_offset;
-  const size_t size   = cpu_header->point_data_size * cpu_header->point_record_count;
-
-  // Point record parse
-  auto point_data = read(offset, size, rmm::cuda_stream_default);
+  parse_variable_header_host(cpu_variable_header, gpu_variable_header);
 
   PointRecord *cpu_point_record, *gpu_point_record;
   cpu_point_record = (PointRecord*)malloc(sizeof(PointRecord));
   cudaMalloc((void**)&gpu_point_record, sizeof(PointRecord));
-
-  ::parse_point_record<<<1, 1>>>(point_data->data(), gpu_header, gpu_point_record);
-
-  cudaMemcpy(cpu_point_record, gpu_point_record, sizeof(PointRecord), cudaMemcpyDeviceToHost);
-
-  cudaMemcpy(cpu_variable_header,
-             gpu_variable_header,
-             sizeof(LasVariableLengthHeader),
-             cudaMemcpyDeviceToHost);
+  parse_point_records_host(cpu_header, gpu_header, cpu_point_record, gpu_point_record);
 
   free(cpu_header);
   cudaFree(gpu_header);
@@ -359,7 +330,42 @@ void Las::parse_header_host() {
   free(cpu_variable_header);
   cudaFree(gpu_variable_header);
 
+  free(cpu_point_record);
+  cudaFree(gpu_point_record);
+
   throw std::invalid_argument("end test");
+}
+
+void Las::parse_header_host(LasHeader* cpu_header, LasHeader* gpu_header) {
+  auto header_data = read(0, header_size, rmm::cuda_stream_default);
+  ::parse_header<<<1, 1>>>(header_data->data(), gpu_header);
+
+  cudaMemcpy(cpu_header, gpu_header, sizeof(LasHeader), cudaMemcpyDeviceToHost);
+}
+
+void Las::parse_variable_header_host(LasVariableLengthHeader* cpu_variable_header,
+                                     LasVariableLengthHeader* gpu_variable_header) {
+  auto variable_header_data = read(header_size, variable_header_size, rmm::cuda_stream_default);
+
+  ::parse_variable_length_header<<<1, 1>>>(variable_header_data->data(), gpu_variable_header);
+
+  cudaMemcpy(cpu_variable_header,
+             gpu_variable_header,
+             sizeof(LasVariableLengthHeader),
+             cudaMemcpyDeviceToHost);
+}
+
+void Las::parse_point_records_host(LasHeader* cpu_header,
+                                   LasHeader* gpu_header,
+                                   PointRecord* cpu_point_record,
+                                   PointRecord* gpu_point_record) {
+  auto point_data = read(cpu_header->point_data_offset,
+                         cpu_header->point_data_size * cpu_header->point_record_count,
+                         rmm::cuda_stream_default);
+
+  ::parse_point_record<<<1, 1>>>(point_data->data(), gpu_header, gpu_point_record);
+
+  cudaMemcpy(cpu_point_record, gpu_point_record, sizeof(PointRecord), cudaMemcpyDeviceToHost);
 }
 
 std::unique_ptr<cudf::io::datasource::buffer> Las::read(size_t offset,

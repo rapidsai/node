@@ -75,7 +75,16 @@ class Las {
   std::unique_ptr<cudf::io::datasource::buffer> read(size_t offset,
                                                      size_t size,
                                                      rmm::cuda_stream_view stream);
-  void parse_header();
-  void parse_header_host();
-  void parse_variable_header();
+
+  void parse_host();
+  void parse_header_host(LasHeader* cpu_header, LasHeader* gpu_header);
+  void parse_variable_header_host(LasVariableLengthHeader* cpu_variable_header,
+                                  LasVariableLengthHeader* gpu_variable_header);
+  void parse_point_records_host(LasHeader* cpu_header,
+                                LasHeader* gpu_header,
+                                PointRecord* cpu_point_record,
+                                PointRecord* gpu_point_record);
+
+  const size_t header_size          = 227;
+  const size_t variable_header_size = 54;
 };
