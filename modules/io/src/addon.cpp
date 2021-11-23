@@ -15,7 +15,7 @@
 #include <cudf/io/datasource.hpp>
 #include <nv_node/utilities/args.hpp>
 
-#include <laz.hpp>
+#include <las.hpp>
 
 #include <fstream>
 #include <iterator>
@@ -26,15 +26,15 @@ struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
     DefineAddon(exports,
                 {InstanceMethod("init", &rapidsai_io::InitAddon),
                  InstanceValue("_cpp_exports", _cpp_exports.Value()),
-                 InstanceMethod<&rapidsai_io::read_laz>("readLaz")});
+                 InstanceMethod<&rapidsai_io::read_las>("readLas")});
   }
 
  private:
-  void read_laz(Napi::CallbackInfo const& info) {
+  void read_las(Napi::CallbackInfo const& info) {
     nv::CallbackArgs args{info};
     std::string path = args[0];
 
-    auto lazFile = Laz(path);
+    auto lasFile = Las(path);
   }
 };
 
