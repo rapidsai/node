@@ -78,7 +78,8 @@ class Las {
 
   void parse_host();
   void parse_header_host(LasHeader* cpu_header, LasHeader* gpu_header);
-  void parse_variable_header_host(LasVariableLengthHeader* cpu_variable_header,
+  void parse_variable_header_host(LasHeader* gpu_header,
+                                  LasVariableLengthHeader* cpu_variable_header,
                                   LasVariableLengthHeader* gpu_variable_header);
   void parse_point_records_host(LasHeader* cpu_header,
                                 LasHeader* gpu_header,

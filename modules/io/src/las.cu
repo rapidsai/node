@@ -206,6 +206,7 @@ __global__ void parse_header(uint8_t const* las_header_data, LasHeader* result) 
 
 __global__ void parse_variable_length_header(uint8_t const* las_variable_header_data,
                                              LasVariableLengthHeader* result) {
+  // TODO: Let's handle multiple variable records here.
   size_t byte_offset = 0;
 
   // Reserved (2 bytes)
@@ -315,13 +316,15 @@ void Las::parse_host() {
   parse_header_host(cpu_header, gpu_header);
 
   LasVariableLengthHeader *cpu_variable_header, *gpu_variable_header;
-  cpu_variable_header = (LasVariableLengthHeader*)malloc(sizeof(LasVariableLengthHeader));
-  cudaMalloc((void**)&gpu_variable_header, sizeof(LasVariableLengthHeader));
-  parse_variable_header_host(cpu_variable_header, gpu_variable_header);
+  cpu_variable_header = (LasVariableLengthHeader*)malloc(cpu_header->variable_length_records_count *
+                                                         sizeof(LasVariableLengthHeader));
+  cudaMalloc((void**)&gpu_variable_header,
+             cpu_header->variable_length_records_count * sizeof(LasVariableLengthHeader));
+  parse_variable_header_host(cpu_header, cpu_variable_header, gpu_variable_header);
 
   PointRecord *cpu_point_record, *gpu_point_record;
-  cpu_point_record = (PointRecord*)malloc(sizeof(PointRecord));
-  cudaMalloc((void**)&gpu_point_record, sizeof(PointRecord));
+  cpu_point_record = (PointRecord*)malloc(cpu_header->point_record_count * sizeof(PointRecord));
+  cudaMalloc((void**)&gpu_point_record, cpu_header->point_record_count * sizeof(PointRecord));
   parse_point_records_host(cpu_header, gpu_header, cpu_point_record, gpu_point_record);
 
   free(cpu_header);
@@ -343,9 +346,15 @@ void Las::parse_header_host(LasHeader* cpu_header, LasHeader* gpu_header) {
   cudaMemcpy(cpu_header, gpu_header, sizeof(LasHeader), cudaMemcpyDeviceToHost);
 }
 
-void Las::parse_variable_header_host(LasVariableLengthHeader* cpu_variable_header,
+void Las::parse_variable_header_host(LasHeader* cpu_header,
+                                     LasVariableLengthHeader* cpu_variable_header,
                                      LasVariableLengthHeader* gpu_variable_header) {
-  auto variable_header_data = read(header_size, variable_header_size, rmm::cuda_stream_default);
+  // Bail out if we have nothing to parse.
+  if (cpu_header->variable_length_records_count == 0) { return; }
+
+  auto variable_header_data = read(header_size,
+                                   cpu_header->variable_length_records_count * variable_header_size,
+                                   rmm::cuda_stream_default);
 
   ::parse_variable_length_header<<<1, 1>>>(variable_header_data->data(), gpu_variable_header);
 
