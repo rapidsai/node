@@ -239,7 +239,8 @@ __global__ void parse_variable_length_header(uint8_t const* las_variable_header_
 __device__ void parse_point_record_format_0(uint8_t const* point_data,
                                             LasHeader* header_data,
                                             PointRecord* result) {
-  for (size_t i = 0; i < header_data->point_record_count; ++i) {
+  size_t idx = threadIdx.x + blockIdx.x * blockDim.x;
+  for (size_t i = idx; i < header_data->point_record_count; ++i) {
     size_t byte_offset = i * header_data->point_data_size;
 
     // x (4 bytes)
@@ -286,7 +287,8 @@ __device__ void parse_point_record_format_0(uint8_t const* point_data,
 __device__ void parse_point_record_format_1(uint8_t const* point_data,
                                             LasHeader* header_data,
                                             PointRecord* result) {
-  for (size_t i = 0; i < header_data->point_record_count; ++i) {
+  size_t idx = threadIdx.x + blockIdx.x * blockDim.x;
+  for (size_t i = idx; i < header_data->point_record_count; ++i) {
     size_t byte_offset = i * header_data->point_data_size;
 
     // x (4 bytes)
@@ -341,7 +343,8 @@ __device__ void parse_point_record_format_1(uint8_t const* point_data,
 __device__ void parse_point_record_format_2(uint8_t const* point_data,
                                             LasHeader* header_data,
                                             PointRecord* result) {
-  for (size_t i = 0; i < header_data->point_record_count; ++i) {
+  size_t idx = threadIdx.x + blockIdx.x * blockDim.x;
+  for (size_t i = idx; i < header_data->point_record_count; ++i) {
     size_t byte_offset = i * header_data->point_data_size;
 
     // x (4 bytes)
@@ -400,7 +403,8 @@ __device__ void parse_point_record_format_2(uint8_t const* point_data,
 __device__ void parse_point_record_format_3(uint8_t const* point_data,
                                             LasHeader* header_data,
                                             PointRecord* result) {
-  for (size_t i = 0; i < header_data->point_record_count; ++i) {
+  size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+  if (i < header_data->point_record_count) {
     size_t byte_offset = i * header_data->point_data_size;
 
     // x (4 bytes)
@@ -540,7 +544,11 @@ void Las::parse_point_records_host(LasHeader* cpu_header,
                          cpu_header->point_data_size * cpu_header->point_record_count,
                          rmm::cuda_stream_default);
 
-  ::parse_point_record<<<1, 1>>>(point_data->data(), gpu_header, gpu_point_record);
+  int blockSize = 0, minGridSize = 0, gridSize = 0;
+  cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, parse_point_record, 0, 0);
+  gridSize = (cpu_header->point_record_count + blockSize - 1) / blockSize;
+
+  ::parse_point_record<<<gridSize, blockSize>>>(point_data->data(), gpu_header, gpu_point_record);
 
   cudaMemcpy(cpu_point_record,
              gpu_point_record,
