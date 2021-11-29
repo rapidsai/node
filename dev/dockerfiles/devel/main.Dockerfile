@@ -2,7 +2,7 @@
 
 ARG AMD64_BASE
 ARG ARM64_BASE
-ARG NODE_VERSION=16.10.0
+ARG NODE_VERSION=16.13.0
 
 FROM node:$NODE_VERSION-stretch-slim as node
 
@@ -28,6 +28,9 @@ ENV PATH="$PATH:\
 ${CUDA_HOME}/bin:\
 ${CUDA_HOME}/nvvm/bin"
 ENV LD_LIBRARY_PATH="\
+/usr/lib/aarch64-linux-gnu:\
+/usr/lib/x86_64-linux-gnu:\
+/usr/lib/i386-linux-gnu:\
 ${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}\
 ${CUDA_HOME}/lib64:\
 ${CUDA_HOME}/nvvm/lib64:\
@@ -37,7 +40,7 @@ ARG GCC_VERSION=9
 ARG CMAKE_VERSION=3.21.3
 ARG SCCACHE_VERSION=0.2.15
 
-ARG NODE_VERSION
+ARG NODE_VERSION=16.13.0
 ENV NODE_VERSION=$NODE_VERSION
 
 # Install node
@@ -49,6 +52,8 @@ COPY --from=node /opt/yarn-v*/bin/* /usr/local/bin/
 COPY --from=node /opt/yarn-v*/lib/* /usr/local/lib/
 # Copy entrypoint
 COPY --from=node /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+ADD --chown=root:root https://gitlab.com/nvidia/container-images/opengl/-/raw/5191cf205d3e4bb1150091f9464499b076104354/glvnd/runtime/10_nvidia.json /usr/share/glvnd/egl_vendor.d/10_nvidia.json
 
 # https://github.com/moby/buildkit/blob/b8462c3b7c15b14a8c30a79fad298a1de4ca9f74/frontend/dockerfile/docs/syntax.md#example-cache-apt-packages
 RUN --mount=type=cache,target=/var/lib/apt \
@@ -70,7 +75,14 @@ RUN --mount=type=cache,target=/var/lib/apt \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} gdb \
     # CMake dependencies
     curl libssl-dev libcurl4-openssl-dev xz-utils zlib1g-dev liblz4-dev \
+    # From opengl/glvnd:devel
+    pkg-config \
+    libxau6 libxdmcp6 libxcb1 libxext6 libx11-6 \
+    libglvnd-dev libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev \
  \
+ && chmod 0644 /usr/share/glvnd/egl_vendor.d/10_nvidia.json \
+ && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
+ && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
  # Remove any existing gcc and g++ alternatives
  && (update-alternatives --remove-all cc >/dev/null 2>&1 || true)  \
  && (update-alternatives --remove-all c++ >/dev/null 2>&1 || true)  \
@@ -311,7 +323,7 @@ RUN --mount=type=cache,target=/var/lib/apt \
     # GLFW Wayland dependencies
     extra-cmake-modules libwayland-dev wayland-protocols libxkbcommon-dev \
     # GLEW dependencies
-    build-essential libxmu-dev libxi-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
+    build-essential libxmu-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
     # cuSpatial dependencies
     libgdal-dev \
     # SQL dependencies
@@ -319,7 +331,7 @@ RUN --mount=type=cache,target=/var/lib/apt \
     # UCX build dependencies
     automake autoconf libtool \
     # UCX runtime dependencies
-    libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
+    libibverbs-dev librdmacm-dev libnuma-dev \
  \
  # Install UCX
  && git clone --depth 1 --branch v1.11.x https://github.com/openucx/ucx.git /tmp/ucx \
@@ -391,6 +403,7 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
  && rm -rf /tmp/* /var/tmp/*
 
 ENV NODE_PATH=/usr/local/lib/node_modules
+ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught"
 
 COPY --from=wrtc --chown=root:root /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=wrtc --chown=rapids:rapids /opt/rapids/wrtc-0.4.7-dev.tgz /opt/rapids/wrtc-0.4.7-dev.tgz

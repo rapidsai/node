@@ -26,8 +26,6 @@ FROM ${FROM_IMAGE}
 
 SHELL ["/bin/bash", "-c"]
 
-ENV NVIDIA_DRIVER_CAPABILITIES all
-
 USER root
 
 # Install UCX
@@ -66,15 +64,17 @@ RUN cd /usr/local/lib \
     # cuSpatial dependencies
     libgdal-dev \
     # X11 dependencies
-    libxrandr-dev libxinerama-dev libxcursor-dev \
+    libxrandr2 libxinerama1 libxcursor1 \
     # Wayland dependencies
-    libwayland-dev wayland-protocols libxkbcommon-dev \
+    wayland-protocols \
+    libwayland-{bin,egl1,cursor0,client0,server0} \
+    libxkbcommon0 libxkbcommon-x11-0 \
     # GLEW dependencies
-    libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
+    libglvnd0 libgl1 libglx0 libegl1 libgles2 libglu1-mesa \
     # UCX runtime dependencies
-    libibverbs-dev librdmacm-dev libnuma-dev libhwloc-dev \
+    libibverbs1 librdmacm1 libnuma1 \
     # node-canvas dependencies
-    libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
+    libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libjpeg8 libgif7 librsvg2-2 \
     # SQL dependencies
     openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
  # Clean up

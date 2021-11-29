@@ -12,15 +12,11 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        include:
-          - CUDA: 11.0.3
-            LINUX: ubuntu18.04
-          - CUDA: 11.4.2
-            LINUX: ubuntu20.04
+        CUDA: [11.5.0]
+        LINUX: [ubuntu18.04, ubuntu20.04]
     env:
-      ARCH: amd64
-      NODE: 16.10.0
-      RAPIDS: 21.12.00
+      NODE: 16.13.0
+      RAPIDS: 22.02.00
       REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - name: Checkout
@@ -44,13 +40,13 @@ jobs:
       - name: Cache C++ dependencies
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
           path: |
             .cache
       - name: Cache node_modules
         uses: actions/cache@v2
         with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-${{ env.ARCH }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           path: |
             node_modules
       - name: Check if devel dockerfiles changed
@@ -61,7 +57,6 @@ jobs:
             dev/dockerfiles/devel/main.Dockerfile
       - name: Build devel images and packages
         run: |
-          echo "ARCH=${{ env.ARCH }}" >> .env
           echo "CUDAARCHS=ALL" >> .env
           echo "PARALLEL_LEVEL=1" >> .env
           echo "REPOSITORY=${{ env.REPOSITORY }}" >> .env
@@ -79,7 +74,12 @@ jobs:
           fi
           mkdir -p /tmp/.{yarn,cache}
           docker run --rm \
-            -u "$(id -u):$(id -g)" -v "$(pwd):/opt/rapids/node:rw" -v "/tmp/.yarn:/.yarn:rw" -v "/tmp/.cache:/.cache:rw" \
-            --env-file .env -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cudagl${{ matrix.CUDA }}-${{ matrix.LINUX }}-main-${{ env.ARCH }} \
+            --env-file .env \
+            -u "$(id -u):$(id -g)" \
+            -v "/tmp/.yarn:/.yarn:rw" \
+            -v "/tmp/.cache:/.cache:rw" \
+            -v "$(pwd):/opt/rapids/node:rw" \
+            -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main \
             bash -c 'set -ex; echo $PATH && echo $CUDA_HOME && which -a nvcc && nvcc --version && yarn && yarn rebuild'

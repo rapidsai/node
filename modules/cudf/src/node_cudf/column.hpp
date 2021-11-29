@@ -742,6 +742,13 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::size_type width,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // column/strings/replace_slice.cpp
+  Column::wrapper_t replace_slice(
+    std::string const& repl             = "",
+    cudf::size_type start               = 0,
+    cudf::size_type stop                = -1,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
   // column/convert.cpp
 
   Column::wrapper_t strings_from_booleans(
@@ -921,6 +928,9 @@ struct Column : public EnvLocalObjectWrap<Column> {
   // column/strings/padding.cpp
   Napi::Value pad(Napi::CallbackInfo const& info);
   Napi::Value zfill(Napi::CallbackInfo const& info);
+
+  // column/strings/replace.cpp
+  Napi::Value replace_slice(Napi::CallbackInfo const& info);
 
   // column/convert.hpp
   Napi::Value strings_from_booleans(Napi::CallbackInfo const& info);

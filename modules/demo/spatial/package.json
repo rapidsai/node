@@ -2,7 +2,7 @@
   "private": true,
   "name": "@rapidsai/demo-spatial",
   "main": "index.js",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [

@@ -1282,6 +1282,29 @@ export interface Column<T extends DataType = any> {
    * @returns New column of strings.
    */
   zfill(width: number, memoryResource?: MemoryResource): Column<Utf8String>;
+
+  /**
+   * Replaces each string in the column with the provided repl string within the [start,stop)
+   * character position range.
+   *
+   * Null string entries will return null output string entries.
+   *
+   * Position values are 0-based meaning position 0 is the first character of each string.
+   *
+   * This function can be used to insert a string into specific position by specifying the same
+   * position value for start and stop. The repl string can be appended to each string by specifying
+   * -1 for both start and stop.
+   *
+   * @param repl Replacement string for specified positions found.
+   * @param start Start position where repl will be added. Default is 0, first character position.
+   * @param stop End position (exclusive) to use for replacement. Default of -1 specifies the end of
+   *   each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns New strings column
+   */
+  replaceSlice(repl: string, start: number, stop: number, memoryResource?: MemoryResource):
+    Column<Utf8String>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

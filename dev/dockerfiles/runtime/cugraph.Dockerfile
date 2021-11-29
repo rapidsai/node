@@ -18,8 +18,6 @@ FROM ${FROM_IMAGE}
 
 SHELL ["/bin/bash", "-c"]
 
-ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
-
 COPY --from=devel --chown=node:node /home/node/node_modules/ /home/node/node_modules/
 
 WORKDIR /home/node

@@ -18,8 +18,6 @@ FROM ${FROM_IMAGE}
 
 SHELL ["/bin/bash", "-c"]
 
-ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
-
 USER root
 
 # Install dependencies
