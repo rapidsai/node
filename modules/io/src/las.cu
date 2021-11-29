@@ -239,8 +239,8 @@ __global__ void parse_variable_length_header(uint8_t const* las_variable_header_
 __device__ void parse_point_record_format_0(uint8_t const* point_data,
                                             LasHeader* header_data,
                                             PointRecord* result) {
-  size_t idx = threadIdx.x + blockIdx.x * blockDim.x;
-  for (size_t i = idx; i < header_data->point_record_count; ++i) {
+  size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+  if (i < header_data->point_record_count) {
     size_t byte_offset = i * header_data->point_data_size;
 
     // x (4 bytes)
@@ -287,8 +287,8 @@ __device__ void parse_point_record_format_0(uint8_t const* point_data,
 __device__ void parse_point_record_format_1(uint8_t const* point_data,
                                             LasHeader* header_data,
                                             PointRecord* result) {
-  size_t idx = threadIdx.x + blockIdx.x * blockDim.x;
-  for (size_t i = idx; i < header_data->point_record_count; ++i) {
+  size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+  if (i < header_data->point_record_count) {
     size_t byte_offset = i * header_data->point_data_size;
 
     // x (4 bytes)
@@ -343,8 +343,8 @@ __device__ void parse_point_record_format_1(uint8_t const* point_data,
 __device__ void parse_point_record_format_2(uint8_t const* point_data,
                                             LasHeader* header_data,
                                             PointRecord* result) {
-  size_t idx = threadIdx.x + blockIdx.x * blockDim.x;
-  for (size_t i = idx; i < header_data->point_record_count; ++i) {
+  size_t i = threadIdx.x + blockIdx.x * blockDim.x;
+  if (i < header_data->point_record_count) {
     size_t byte_offset = i * header_data->point_data_size;
 
     // x (4 bytes)
