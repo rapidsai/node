@@ -69,6 +69,11 @@ class Las {
  public:
   Las(const std::string& path);
 
+  std::unique_ptr<cudf::table> make_table_from_las(
+    LasHeader* header,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource(),
+    rmm::cuda_stream_view stream        = rmm::cuda_stream_default);
+
  private:
   std::unique_ptr<cudf::io::datasource> _datasource;
 
