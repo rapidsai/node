@@ -21,6 +21,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          lfs: true
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Free up disk space
         run: |
           df -h

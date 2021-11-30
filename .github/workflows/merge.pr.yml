@@ -25,9 +25,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -68,9 +72,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -117,9 +125,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -159,9 +171,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -202,9 +218,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -245,9 +265,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -288,9 +312,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -331,9 +359,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -374,9 +406,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -417,9 +453,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -460,9 +500,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
