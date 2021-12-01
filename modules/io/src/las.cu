@@ -248,18 +248,21 @@ std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
   auto point_data = this->read(point_data_offset, point_data_size * point_record_count, stream);
 
   auto data = point_data->data();
+  auto idxs = thrust::make_counting_iterator(0);
   std::vector<std::unique_ptr<cudf::column>> cols;
 
   switch (header->point_data_format_id) {
     case 3:
-      auto idxs = thrust::make_counting_iterator(0);
-      // reserve space for the number of output columns we want to create
-      cols.reserve(3);
+      // allocate enough size for the number of output columns we want to create
+      cols.resize(6);
       // Initialize a vector with the type ids of the output columns
       std::vector<cudf::type_id> ids{{
         cudf::type_id::INT32,  // x
         cudf::type_id::INT32,  // y
         cudf::type_id::INT32,  // z
+        cudf::type_id::UINT8,  // classification
+        cudf::type_id::UINT8,  // scan_angle
+        cudf::type_id::UINT8,  // point_source_id
       }};
       // map the type ids into numeric columns (this is a shortcut to reduce boilerplate)
       std::transform(ids.begin(), ids.end(), cols.begin(), [&](auto const& type_id) {
@@ -268,23 +271,30 @@ std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
       });
       // Make a Thrust iterator that reads the data as point record format 3
       auto iter = thrust::make_transform_iterator(idxs, [=] __host__ __device__(int const& i) {
-        auto ptr = data + (i * point_data_size);
-        auto x   = *reinterpret_cast<int32_t const*>(ptr + 0);
-        auto y   = *reinterpret_cast<int32_t const*>(ptr + 4);
-        auto z   = *reinterpret_cast<int32_t const*>(ptr + 8);
-        return thrust::make_tuple(x, y, z);
+        auto ptr             = data + (i * point_data_size);
+        auto x               = *reinterpret_cast<int32_t const*>(ptr + 0);
+        auto y               = *reinterpret_cast<int32_t const*>(ptr + 4);
+        auto z               = *reinterpret_cast<int32_t const*>(ptr + 8);
+        auto classification  = *reinterpret_cast<uint8_t const*>(ptr + 11);
+        auto scan_angle      = *reinterpret_cast<uint8_t const*>(ptr + 12);
+        auto point_source_id = *reinterpret_cast<uint8_t const*>(ptr + 14);
+        return thrust::make_tuple(x, y, z, classification, scan_angle, point_source_id);
       });
       // Copy the elements yielded by `iter` into a zip iterator. A zip iterator is an
       // iterator that exposes its component fields as if they were a Thrust tuple, so
       // we're effectively copying from an input iterator of tuples into an output
       // iterator of tuples.
-      thrust::copy(rmm::exec_policy(stream),
-                   iter,
-                   iter + point_record_count,
-                   thrust::make_zip_iterator(cols[0]->mutable_view().begin<int32_t>(),  // x
-                                             cols[1]->mutable_view().begin<int32_t>(),  // y
-                                             cols[2]->mutable_view().begin<int32_t>()));
-      ;
+      thrust::copy(
+        rmm::exec_policy(stream),
+        iter,
+        iter + point_record_count,
+        thrust::make_zip_iterator(cols[0]->mutable_view().begin<int32_t>(),  // x
+                                  cols[1]->mutable_view().begin<int32_t>(),  // y
+                                  cols[2]->mutable_view().begin<int32_t>(),  // z
+                                  cols[3]->mutable_view().begin<uint8_t>(),  // classification
+                                  cols[4]->mutable_view().begin<uint8_t>(),  // scan_angle
+                                  cols[5]->mutable_view().begin<uint8_t>()   // point_source_id
+                                  ));
   }
 
   // Return the columns as a cudf Table
