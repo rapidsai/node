@@ -46,12 +46,6 @@ struct LasHeader {
   double min_z;
 };
 
-struct LasVariableLengthHeader {
-  char user_id[16];
-  unsigned short record_id;
-  unsigned short record_length_after_head;
-};
-
 struct PointRecord {
   long x;
   long y;
@@ -83,14 +77,6 @@ class Las {
 
   void parse_host();
   void parse_header_host(LasHeader* cpu_header, LasHeader* gpu_header);
-  void parse_variable_header_host(LasHeader* cpu_header,
-                                  LasHeader* gpu_header,
-                                  LasVariableLengthHeader* cpu_variable_header,
-                                  LasVariableLengthHeader* gpu_variable_header);
-  void parse_point_records_host(LasHeader* cpu_header,
-                                LasHeader* gpu_header,
-                                PointRecord* cpu_point_record,
-                                PointRecord* gpu_point_record);
 
   const size_t header_size          = 227;
   const size_t variable_header_size = 54;

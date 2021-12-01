@@ -215,307 +215,18 @@ __global__ void parse_header(uint8_t const* las_header_data, LasHeader* result) 
     *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
 }
 
-__global__ void parse_variable_length_header(uint8_t const* las_variable_header_data,
-                                             LasHeader* gpu_header,
-                                             LasVariableLengthHeader* result) {
-  for (size_t i = 0; i < gpu_header->variable_length_records_count; ++i) {
-    size_t byte_offset = i * 54;  // variable_header_size
-
-    // Reserved (2 bytes)
-    // not required
-    byte_offset += 2;
-
-    // User id (16 bytes)
-    for (int i = 0; i < 16; ++i) {
-      result[i].user_id[i] = *(las_variable_header_data + byte_offset + i);
-    }
-    byte_offset += 16;
-
-    // Record id (2 bytes)
-    result[i].record_id = *(las_variable_header_data + byte_offset) |
-                          *(las_variable_header_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-
-    // Record length after header (2 bytes)
-    result[i].record_length_after_head = *(las_variable_header_data + byte_offset) |
-                                         *(las_variable_header_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-
-    // Description (32 bytes)
-    // not required
-    byte_offset += 32;
-  }
-}
-
-__device__ void parse_point_record_format_0(uint8_t const* point_data,
-                                            LasHeader* header_data,
-                                            PointRecord* result) {
-  size_t i = threadIdx.x + blockIdx.x * blockDim.x;
-  if (i < header_data->point_record_count) {
-    size_t byte_offset = i * header_data->point_data_size;
-
-    // x (4 bytes)
-    result[i].x = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // y (4 bytes)
-    result[i].y = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // z (4 bytes)
-    result[i].z = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // intensity (2 bytes)
-    // not required
-    byte_offset += 2;
-
-    // return number (1 byte)
-    // not required
-    byte_offset += 1;
-
-    // classification (1 byte)
-    result[i].classification = *(point_data + byte_offset);
-    byte_offset += 1;
-
-    // Scan angle (1 byte)
-    result[i].scan_angle = *(point_data + byte_offset);
-    byte_offset += 1;
-
-    // User data (1 byte)
-    // not required
-    byte_offset += 1;
-
-    // Point source id (2 bytes)
-    result[i].point_source_id = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-  }
-}
-
-__device__ void parse_point_record_format_1(uint8_t const* point_data,
-                                            LasHeader* header_data,
-                                            PointRecord* result) {
-  size_t i = threadIdx.x + blockIdx.x * blockDim.x;
-  if (i < header_data->point_record_count) {
-    size_t byte_offset = i * header_data->point_data_size;
-
-    // x (4 bytes)
-    result[i].x = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // y (4 bytes)
-    result[i].y = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // z (4 bytes)
-    result[i].z = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // intensity (2 bytes)
-    // not required
-    byte_offset += 2;
-
-    // return number (1 byte)
-    // not required
-    byte_offset += 1;
-
-    // classification (1 byte)
-    result[i].classification = *(point_data + byte_offset);
-    byte_offset += 1;
-
-    // Scan angle (1 byte)
-    result[i].scan_angle = *(point_data + byte_offset);
-    byte_offset += 1;
-
-    // User data (1 byte)
-    // not required
-    byte_offset += 1;
-
-    // Point source id (2 bytes)
-    result[i].point_source_id = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-
-    // GPS time (8 bytes)
-    result[i].gps_time =
-      *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-      *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24 |
-      *(point_data + byte_offset + 4) << 32 | *(point_data + byte_offset + 5) << 40 |
-      *(point_data + byte_offset + 6) << 48 | *(point_data + byte_offset + 7) << 56;
-    byte_offset += 8;
-  }
-}
-
-__device__ void parse_point_record_format_2(uint8_t const* point_data,
-                                            LasHeader* header_data,
-                                            PointRecord* result) {
-  size_t i = threadIdx.x + blockIdx.x * blockDim.x;
-  if (i < header_data->point_record_count) {
-    size_t byte_offset = i * header_data->point_data_size;
-
-    // x (4 bytes)
-    result[i].x = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // y (4 bytes)
-    result[i].y = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // z (4 bytes)
-    result[i].z = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // intensity (2 bytes)
-    // not required
-    byte_offset += 2;
-
-    // return number (1 byte)
-    // not required
-    byte_offset += 1;
-
-    // classification (1 byte)
-    result[i].classification = *(point_data + byte_offset);
-    byte_offset += 1;
-
-    // Scan angle (1 byte)
-    result[i].scan_angle = *(point_data + byte_offset);
-    byte_offset += 1;
-
-    // User data (1 byte)
-    // not required
-    byte_offset += 1;
-
-    // Point source id (2 bytes)
-    result[i].point_source_id = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-
-    // Red (2 bytes)
-    result[i].red = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-
-    // Green (2 bytes)
-    result[i].green = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-
-    // Blue (2 bytes)
-    result[i].blue = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-  }
-}
-
-__device__ void parse_point_record_format_3(uint8_t const* point_data,
-                                            LasHeader* header_data,
-                                            PointRecord* result) {
-  size_t i = threadIdx.x + blockIdx.x * blockDim.x;
-  if (i < header_data->point_record_count) {
-    size_t byte_offset = i * header_data->point_data_size;
-
-    // x (4 bytes)
-    result[i].x = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // y (4 bytes)
-    result[i].y = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // z (4 bytes)
-    result[i].z = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-                  *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24;
-    byte_offset += 4;
-
-    // intensity (2 bytes)
-    // not required
-    byte_offset += 2;
-
-    // return number (1 byte)
-    // not required
-    byte_offset += 1;
-
-    // classification (1 byte)
-    result[i].classification = *(point_data + byte_offset);
-    byte_offset += 1;
-
-    // Scan angle (1 byte)
-    result[i].scan_angle = *(point_data + byte_offset);
-    byte_offset += 1;
-
-    // User data (1 byte)
-    // not required
-    byte_offset += 1;
-
-    // Point source id (2 bytes)
-    result[i].point_source_id = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-
-    // GPS time (8 bytes)
-    result[i].gps_time =
-      *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8 |
-      *(point_data + byte_offset + 2) << 16 | *(point_data + byte_offset + 3) << 24 |
-      *(point_data + byte_offset + 4) << 32 | *(point_data + byte_offset + 5) << 40 |
-      *(point_data + byte_offset + 6) << 48 | *(point_data + byte_offset + 7) << 56;
-    byte_offset += 8;
-
-    // Red (2 bytes)
-    result[i].red = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-
-    // Green (2 bytes)
-    result[i].green = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-
-    // Blue (2 bytes)
-    result[i].blue = *(point_data + byte_offset) | *(point_data + byte_offset + 1) << 8;
-    byte_offset += 2;
-  }
-}
-
-__global__ void parse_point_record(uint8_t const* point_data,
-                                   LasHeader* header_data,
-                                   PointRecord* result) {
-  switch (header_data->point_data_format_id) {
-    case 0: parse_point_record_format_0(point_data, header_data, result); break;  // format 0
-    case 1: parse_point_record_format_1(point_data, header_data, result); break;  // format 1
-    case 2: parse_point_record_format_2(point_data, header_data, result); break;  // format 2
-    case 3: parse_point_record_format_3(point_data, header_data, result); break;  // format 3
-  }
-}
-
 void Las::parse_host() {
   LasHeader *cpu_header, *gpu_header;
   cpu_header = (LasHeader*)malloc(sizeof(LasHeader));
   cudaMalloc((void**)&gpu_header, sizeof(LasHeader));
   parse_header_host(cpu_header, gpu_header);
 
-  LasVariableLengthHeader *cpu_variable_header, *gpu_variable_header;
-  cpu_variable_header = (LasVariableLengthHeader*)malloc(cpu_header->variable_length_records_count *
-                                                         sizeof(LasVariableLengthHeader));
-  cudaMalloc((void**)&gpu_variable_header,
-             cpu_header->variable_length_records_count * sizeof(LasVariableLengthHeader));
-  parse_variable_header_host(cpu_header, gpu_header, cpu_variable_header, gpu_variable_header);
-
-  PointRecord *cpu_point_record, *gpu_point_record;
-  cpu_point_record = (PointRecord*)malloc(cpu_header->point_record_count * sizeof(PointRecord));
-  cudaMalloc((void**)&gpu_point_record, cpu_header->point_record_count * sizeof(PointRecord));
-  parse_point_records_host(cpu_header, gpu_header, cpu_point_record, gpu_point_record);
+  auto table = make_table_from_las(cpu_header);
+  std::cout << table->num_columns() << std::endl;
+  std::cout << table->num_rows() << std::endl;
 
   free(cpu_header);
   cudaFree(gpu_header);
-
-  free(cpu_variable_header);
-  cudaFree(gpu_variable_header);
-
-  free(cpu_point_record);
-  cudaFree(gpu_point_record);
 
   throw std::invalid_argument("end test");
 }
@@ -525,26 +236,6 @@ void Las::parse_header_host(LasHeader* cpu_header, LasHeader* gpu_header) {
   ::parse_header<<<1, 1>>>(header_data->data(), gpu_header);
 
   cudaMemcpy(cpu_header, gpu_header, sizeof(LasHeader), cudaMemcpyDeviceToHost);
-}
-
-void Las::parse_variable_header_host(LasHeader* cpu_header,
-                                     LasHeader* gpu_header,
-                                     LasVariableLengthHeader* cpu_variable_header,
-                                     LasVariableLengthHeader* gpu_variable_header) {
-  // Bail out if we have nothing to parse.
-  if (cpu_header->variable_length_records_count == 0) { return; }
-
-  auto variable_header_data = read(header_size,
-                                   cpu_header->variable_length_records_count * variable_header_size,
-                                   rmm::cuda_stream_default);
-
-  ::parse_variable_length_header<<<1, 1>>>(
-    variable_header_data->data(), gpu_header, gpu_variable_header);
-
-  cudaMemcpy(cpu_variable_header,
-             gpu_variable_header,
-             cpu_header->variable_length_records_count * sizeof(LasVariableLengthHeader),
-             cudaMemcpyDeviceToHost);
 }
 
 std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
@@ -557,77 +248,47 @@ std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
   auto point_data = this->read(point_data_offset, point_data_size * point_record_count, stream);
 
   auto data = point_data->data();
-  auto idxs = thrust::make_counting_iterator(0);
   std::vector<std::unique_ptr<cudf::column>> cols;
 
   switch (header->point_data_format_id) {
-    case 0:
+    case 3:
+      auto idxs = thrust::make_counting_iterator(0);
       // reserve space for the number of output columns we want to create
-      cols.reserve(6);
+      cols.reserve(3);
       // Initialize a vector with the type ids of the output columns
       std::vector<cudf::type_id> ids{{
         cudf::type_id::INT32,  // x
         cudf::type_id::INT32,  // y
         cudf::type_id::INT32,  // z
-        cudf::type_id::UINT8,  // classification
-        cudf::type_id::UINT8,  // scan_angle
-        cudf::type_id::UINT8,  // point_source_id
       }};
       // map the type ids into numeric columns (this is a shortcut to reduce boilerplate)
       std::transform(ids.begin(), ids.end(), cols.begin(), [&](auto const& type_id) {
         return cudf::make_numeric_column(
           cudf::data_type{type_id}, point_record_count, cudf::mask_state::UNALLOCATED, stream, mr);
       });
-      // Make a Thrust iterator that reads the data as point record format 0
-      auto iter = thrust::make_transform_iterator(idxs, [=] __device__(auto const& i) {
-        auto ptr             = data + (i * point_data_size);
-        auto x               = *reinterpret_cast<int32_t const*>(ptr + 0);
-        auto y               = *reinterpret_cast<int32_t const*>(ptr + 4);
-        auto z               = *reinterpret_cast<int32_t const*>(ptr + 8);
-        auto classification  = *reinterpret_cast<uint8_t const*>(ptr + 11);
-        auto scan_angle      = *reinterpret_cast<uint8_t const*>(ptr + 12);
-        auto point_source_id = *reinterpret_cast<uint8_t const*>(ptr + 14);
-        return thrust::make_tuple(x, y, z, classification, scan_angle, point_source_id);
+      // Make a Thrust iterator that reads the data as point record format 3
+      auto iter = thrust::make_transform_iterator(idxs, [=] __host__ __device__(int const& i) {
+        auto ptr = data + (i * point_data_size);
+        auto x   = *reinterpret_cast<int32_t const*>(ptr + 0);
+        auto y   = *reinterpret_cast<int32_t const*>(ptr + 4);
+        auto z   = *reinterpret_cast<int32_t const*>(ptr + 8);
+        return thrust::make_tuple(x, y, z);
       });
       // Copy the elements yielded by `iter` into a zip iterator. A zip iterator is an
       // iterator that exposes its component fields as if they were a Thrust tuple, so
       // we're effectively copying from an input iterator of tuples into an output
       // iterator of tuples.
-      thrust::copy(
-        rmm::exec_policy(stream),
-        iter,
-        iter + point_record_count,
-        thrust::make_zip_iterator(cols[0]->mutable_view().begin<int32_t>(),  // x
-                                  cols[1]->mutable_view().begin<int32_t>(),  // y
-                                  cols[2]->mutable_view().begin<int32_t>(),  // z
-                                  cols[3]->mutable_view().begin<uint8_t>(),  // classification
-                                  cols[4]->mutable_view().begin<uint8_t>(),  // scan_angle
-                                  cols[5]->mutable_view().begin<uint8_t>()   // point_source_id
-                                  ));
+      thrust::copy(rmm::exec_policy(stream),
+                   iter,
+                   iter + point_record_count,
+                   thrust::make_zip_iterator(cols[0]->mutable_view().begin<int32_t>(),  // x
+                                             cols[1]->mutable_view().begin<int32_t>(),  // y
+                                             cols[2]->mutable_view().begin<int32_t>()));
+      ;
   }
 
   // Return the columns as a cudf Table
   return std::make_unique<cudf::table>(std::move(cols));
-}
-
-void Las::parse_point_records_host(LasHeader* cpu_header,
-                                   LasHeader* gpu_header,
-                                   PointRecord* cpu_point_record,
-                                   PointRecord* gpu_point_record) {
-  auto point_data = read(cpu_header->point_data_offset,
-                         cpu_header->point_data_size * cpu_header->point_record_count,
-                         rmm::cuda_stream_default);
-
-  int blockSize = 0, minGridSize = 0, gridSize = 0;
-  cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, parse_point_record, 0, 0);
-  gridSize = (cpu_header->point_record_count + blockSize - 1) / blockSize;
-
-  ::parse_point_record<<<gridSize, blockSize>>>(point_data->data(), gpu_header, gpu_point_record);
-
-  cudaMemcpy(cpu_point_record,
-             gpu_point_record,
-             cpu_header->point_record_count * sizeof(PointRecord),
-             cudaMemcpyDeviceToHost);
 }
 
 std::unique_ptr<cudf::io::datasource::buffer> Las::read(size_t offset,
