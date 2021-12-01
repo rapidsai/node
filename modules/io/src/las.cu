@@ -222,8 +222,6 @@ void Las::parse_host() {
   parse_header_host(cpu_header, gpu_header);
 
   auto table = make_table_from_las(cpu_header);
-  std::cout << table->num_columns() << std::endl;
-  std::cout << table->num_rows() << std::endl;
 
   free(cpu_header);
   cudaFree(gpu_header);
@@ -253,37 +251,57 @@ std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
 
   switch (header->point_data_format_id) {
     case 3:
-      // allocate enough size for the number of output columns we want to create
-      cols.resize(3);
-      // Initialize a vector with the type ids of the output columns
+      cols.resize(10);
+
       std::vector<cudf::type_id> ids{{
-        cudf::type_id::INT32,  // x
-        cudf::type_id::INT32,  // y
-        cudf::type_id::INT32,  // z
+        cudf::type_id::INT32,   // x
+        cudf::type_id::INT32,   // y
+        cudf::type_id::INT32,   // z
+        cudf::type_id::INT8,    // classification
+        cudf::type_id::INT8,    // scan angle
+        cudf::type_id::INT16,   // point source id
+        cudf::type_id::UINT64,  // gps time
+        cudf::type_id::INT16,   // red
+        cudf::type_id::INT16,   // green
+        cudf::type_id::INT16,   // blue
       }};
-      // map the type ids into numeric columns (this is a shortcut to reduce boilerplate)
+
       std::transform(ids.begin(), ids.end(), cols.begin(), [&](auto const& type_id) {
         return cudf::make_numeric_column(
           cudf::data_type{type_id}, point_record_count, cudf::mask_state::UNALLOCATED, stream, mr);
       });
-      // Make a Thrust iterator that reads the data as point record format 3
+
       auto iter = thrust::make_transform_iterator(idxs, [=] __host__ __device__(int const& i) {
-        auto ptr = data + (i * 12);
-        auto x   = *reinterpret_cast<int32_t const*>(ptr + 0);
-        auto y   = *reinterpret_cast<int32_t const*>(ptr + 4);
-        auto z   = *reinterpret_cast<int32_t const*>(ptr + 8);
-        return thrust::make_tuple(x, y, z);
+        // subtract 2 since we skip intensity, user data, and bit flags.
+        auto ptr             = data + (i * (point_data_size - 2));
+        auto x               = *reinterpret_cast<int32_t const*>(ptr + 0);
+        auto y               = *reinterpret_cast<int32_t const*>(ptr + 4);
+        auto z               = *reinterpret_cast<int32_t const*>(ptr + 8);
+        auto classifcation   = *reinterpret_cast<int8_t const*>(ptr + 15);
+        auto scan_angle      = *reinterpret_cast<int8_t const*>(ptr + 16);
+        auto point_source_id = *reinterpret_cast<int16_t const*>(ptr + 18);
+        auto gps_time        = *reinterpret_cast<uint16_t const*>(ptr + 20);
+        auto red             = *reinterpret_cast<int16_t const*>(ptr + 28);
+        auto green           = *reinterpret_cast<int16_t const*>(ptr + 30);
+        auto blue            = *reinterpret_cast<int16_t const*>(ptr + 32);
+        return thrust::make_tuple(
+          x, y, z, classifcation, scan_angle, point_source_id, gps_time, red, green, blue);
       });
-      // Copy the elements yielded by `iter` into a zip iterator. A zip iterator is an
-      // iterator that exposes its component fields as if they were a Thrust tuple, so
-      // we're effectively copying from an input iterator of tuples into an output
-      // iterator of tuples.
-      thrust::copy(rmm::exec_policy(stream),
-                   iter,
-                   iter + point_record_count,
-                   thrust::make_zip_iterator(cols[0]->mutable_view().begin<int32_t>(),  // x
-                                             cols[1]->mutable_view().begin<int32_t>(),  // y
-                                             cols[2]->mutable_view().begin<int32_t>()));
+
+      thrust::copy(
+        rmm::exec_policy(stream),
+        iter,
+        iter + point_record_count,
+        thrust::make_zip_iterator(cols[0]->mutable_view().begin<int32_t>(),    // x
+                                  cols[1]->mutable_view().begin<int32_t>(),    // y
+                                  cols[2]->mutable_view().begin<int32_t>(),    // z
+                                  cols[3]->mutable_view().begin<int8_t>(),     // classification
+                                  cols[4]->mutable_view().begin<int8_t>(),     // scan angle
+                                  cols[5]->mutable_view().begin<int16_t>(),    // point source id
+                                  cols[6]->mutable_view().begin<uint16_t>(),   // gps time
+                                  cols[7]->mutable_view().begin<int16_t>(),    // red
+                                  cols[8]->mutable_view().begin<int16_t>(),    // green
+                                  cols[9]->mutable_view().begin<int16_t>()));  // blue
   }
 
   // Return the columns as a cudf Table
