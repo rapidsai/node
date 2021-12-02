@@ -40,6 +40,8 @@ function(find_and_configure_raft VERSION)
             GIT_SHALLOW     TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR   cpp
+            FIND_PACKAGE_ARGUMENTS
+                            "COMPONENTS faiss"
             OPTIONS         "BUILD_TESTS OFF"
                             "RAFT_USE_FAISS_STATIC OFF"
             )
