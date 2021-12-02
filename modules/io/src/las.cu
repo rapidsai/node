@@ -272,13 +272,15 @@ std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
       });
 
       auto iter = thrust::make_transform_iterator(idxs, [=] __host__ __device__(int const& i) {
-        // subtract 2 since we skip intensity, user data, and bit flags.
-        auto ptr             = data + (i * (point_data_size - 2));
+        auto ptr             = data + (i * (point_data_size));
         auto x               = *reinterpret_cast<int32_t const*>(ptr + 0);
         auto y               = *reinterpret_cast<int32_t const*>(ptr + 4);
         auto z               = *reinterpret_cast<int32_t const*>(ptr + 8);
+        auto intensity       = *reinterpret_cast<int16_t const*>(ptr + 12);
+        auto bits            = *reinterpret_cast<int8_t const*>(ptr + 14);
         auto classifcation   = *reinterpret_cast<int8_t const*>(ptr + 15);
         auto scan_angle      = *reinterpret_cast<int8_t const*>(ptr + 16);
+        auto user_data       = *reinterpret_cast<int8_t const*>(ptr + 17);
         auto point_source_id = *reinterpret_cast<int16_t const*>(ptr + 18);
         auto gps_time        = *reinterpret_cast<uint16_t const*>(ptr + 20);
         auto red             = *reinterpret_cast<int16_t const*>(ptr + 28);
