@@ -250,7 +250,202 @@ std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
   std::vector<std::unique_ptr<cudf::column>> cols;
 
   switch (header->point_data_format_id) {
-    case 3:
+    // POINT
+    // FORMAT
+    // ZERO
+    case 0: {
+      cols.resize(9);
+
+      std::vector<cudf::type_id> ids{{
+        cudf::type_id::INT32,  // x
+        cudf::type_id::INT32,  // y
+        cudf::type_id::INT32,  // z
+        cudf::type_id::INT16,  // intensity
+        cudf::type_id::INT8,   // bit_data
+        cudf::type_id::INT8,   // classification
+        cudf::type_id::INT8,   // scan angle
+        cudf::type_id::INT8,   // user data
+        cudf::type_id::INT16,  // point source id
+      }};
+
+      std::transform(ids.begin(), ids.end(), cols.begin(), [&](auto const& type_id) {
+        return cudf::make_numeric_column(
+          cudf::data_type{type_id}, point_record_count, cudf::mask_state::UNALLOCATED, stream, mr);
+      });
+
+      auto iter = thrust::make_transform_iterator(idxs, [=] __host__ __device__(int const& i) {
+        auto ptr = data + (i * (point_data_size));
+        PointDataFormatZero point_data;
+        point_data.x               = static_cast<int32_t const>(*(ptr + 0));
+        point_data.y               = static_cast<int32_t const>(*(ptr + 4));
+        point_data.z               = static_cast<int32_t const>(*(ptr + 8));
+        point_data.intensity       = static_cast<int16_t const>(*(ptr + 12));
+        point_data.bit_data        = static_cast<int8_t const>(*(ptr + 14));
+        point_data.classification  = static_cast<int8_t const>(*(ptr + 15));
+        point_data.scan_angle      = static_cast<int8_t const>(*(ptr + 16));
+        point_data.user_data       = static_cast<int8_t const>(*(ptr + 17));
+        point_data.point_source_id = static_cast<int16_t const>(*(ptr + 18));
+        return thrust::make_tuple(point_data.x,
+                                  point_data.y,
+                                  point_data.z,
+                                  point_data.intensity,
+                                  point_data.bit_data,
+                                  point_data.classification,
+                                  point_data.scan_angle,
+                                  point_data.user_data,
+                                  point_data.point_source_id);
+      });
+
+      thrust::copy(
+        rmm::exec_policy(stream),
+        iter,
+        iter + point_record_count,
+        thrust::make_zip_iterator(cols[0]->mutable_view().begin<int32_t>(),    // x
+                                  cols[1]->mutable_view().begin<int32_t>(),    // y
+                                  cols[2]->mutable_view().begin<int32_t>(),    // z
+                                  cols[3]->mutable_view().begin<int16_t>(),    // intensity
+                                  cols[4]->mutable_view().begin<int8_t>(),     // bits
+                                  cols[5]->mutable_view().begin<int8_t>(),     // classification
+                                  cols[6]->mutable_view().begin<int8_t>(),     // scan angle
+                                  cols[7]->mutable_view().begin<int8_t>(),     // user data
+                                  cols[8]->mutable_view().begin<int16_t>()));  // point source id
+      break;
+    }
+
+    // POINT
+    // FORMAT
+    // ONE
+    case 1: {
+      cols.resize(10);
+
+      std::vector<cudf::type_id> ids{{
+        cudf::type_id::INT32,    // x
+        cudf::type_id::INT32,    // y
+        cudf::type_id::INT32,    // z
+        cudf::type_id::INT16,    // intensity
+        cudf::type_id::INT8,     // bit_data
+        cudf::type_id::INT8,     // classification
+        cudf::type_id::INT8,     // scan angle
+        cudf::type_id::INT8,     // user data
+        cudf::type_id::INT16,    // point source id
+        cudf::type_id::FLOAT64,  // gps time
+      }};
+
+      std::transform(ids.begin(), ids.end(), cols.begin(), [&](auto const& type_id) {
+        return cudf::make_numeric_column(
+          cudf::data_type{type_id}, point_record_count, cudf::mask_state::UNALLOCATED, stream, mr);
+      });
+
+      auto iter = thrust::make_transform_iterator(idxs, [=] __host__ __device__(int const& i) {
+        auto ptr = data + (i * (point_data_size));
+        PointDataFormatOne point_data;
+        point_data.x               = static_cast<int32_t const>(*(ptr + 0));
+        point_data.y               = static_cast<int32_t const>(*(ptr + 4));
+        point_data.z               = static_cast<int32_t const>(*(ptr + 8));
+        point_data.intensity       = static_cast<int16_t const>(*(ptr + 12));
+        point_data.bit_data        = static_cast<int8_t const>(*(ptr + 14));
+        point_data.classification  = static_cast<int8_t const>(*(ptr + 15));
+        point_data.scan_angle      = static_cast<int8_t const>(*(ptr + 16));
+        point_data.user_data       = static_cast<int8_t const>(*(ptr + 17));
+        point_data.point_source_id = static_cast<int16_t const>(*(ptr + 18));
+        point_data.gps_time        = static_cast<double_t const>(*(ptr + 20));
+        return thrust::make_tuple(point_data.x,
+                                  point_data.y,
+                                  point_data.z,
+                                  point_data.intensity,
+                                  point_data.bit_data,
+                                  point_data.classification,
+                                  point_data.scan_angle,
+                                  point_data.user_data,
+                                  point_data.point_source_id,
+                                  point_data.gps_time);
+      });
+
+      thrust::copy(
+        rmm::exec_policy(stream),
+        iter,
+        iter + point_record_count,
+        thrust::make_zip_iterator(cols[0]->mutable_view().begin<int32_t>(),     // x
+                                  cols[1]->mutable_view().begin<int32_t>(),     // y
+                                  cols[2]->mutable_view().begin<int32_t>(),     // z
+                                  cols[3]->mutable_view().begin<int16_t>(),     // intensity
+                                  cols[4]->mutable_view().begin<int8_t>(),      // bits
+                                  cols[5]->mutable_view().begin<int8_t>(),      // classification
+                                  cols[6]->mutable_view().begin<int8_t>(),      // scan angle
+                                  cols[7]->mutable_view().begin<int8_t>(),      // user data
+                                  cols[8]->mutable_view().begin<int16_t>(),     // point source id
+                                  cols[9]->mutable_view().begin<double_t>()));  // gps time
+      break;
+    }
+
+    // POINT
+    // FORMAT
+    // THREE
+    // TODO: Missing colours
+    case 2: {
+      cols.resize(9);
+
+      std::vector<cudf::type_id> ids{{
+        cudf::type_id::INT32,  // x
+        cudf::type_id::INT32,  // y
+        cudf::type_id::INT32,  // z
+        cudf::type_id::INT16,  // intensity
+        cudf::type_id::INT8,   // bit_data
+        cudf::type_id::INT8,   // classification
+        cudf::type_id::INT8,   // scan angle
+        cudf::type_id::INT8,   // user data
+        cudf::type_id::INT16,  // point source id
+      }};
+
+      std::transform(ids.begin(), ids.end(), cols.begin(), [&](auto const& type_id) {
+        return cudf::make_numeric_column(
+          cudf::data_type{type_id}, point_record_count, cudf::mask_state::UNALLOCATED, stream, mr);
+      });
+
+      auto iter = thrust::make_transform_iterator(idxs, [=] __host__ __device__(int const& i) {
+        auto ptr = data + (i * (point_data_size));
+        PointDataFormatTwo point_data;
+        point_data.x               = static_cast<int32_t const>(*(ptr + 0));
+        point_data.y               = static_cast<int32_t const>(*(ptr + 4));
+        point_data.z               = static_cast<int32_t const>(*(ptr + 8));
+        point_data.intensity       = static_cast<int16_t const>(*(ptr + 12));
+        point_data.bit_data        = static_cast<int8_t const>(*(ptr + 14));
+        point_data.classification  = static_cast<int8_t const>(*(ptr + 15));
+        point_data.scan_angle      = static_cast<int8_t const>(*(ptr + 16));
+        point_data.user_data       = static_cast<int8_t const>(*(ptr + 17));
+        point_data.point_source_id = static_cast<int16_t const>(*(ptr + 18));
+        return thrust::make_tuple(point_data.x,
+                                  point_data.y,
+                                  point_data.z,
+                                  point_data.intensity,
+                                  point_data.bit_data,
+                                  point_data.classification,
+                                  point_data.scan_angle,
+                                  point_data.user_data,
+                                  point_data.point_source_id);
+      });
+
+      thrust::copy(
+        rmm::exec_policy(stream),
+        iter,
+        iter + point_record_count,
+        thrust::make_zip_iterator(cols[0]->mutable_view().begin<int32_t>(),    // x
+                                  cols[1]->mutable_view().begin<int32_t>(),    // y
+                                  cols[2]->mutable_view().begin<int32_t>(),    // z
+                                  cols[3]->mutable_view().begin<int16_t>(),    // intensity
+                                  cols[4]->mutable_view().begin<int8_t>(),     // bits
+                                  cols[5]->mutable_view().begin<int8_t>(),     // classification
+                                  cols[6]->mutable_view().begin<int8_t>(),     // scan angle
+                                  cols[7]->mutable_view().begin<int8_t>(),     // user data
+                                  cols[8]->mutable_view().begin<int16_t>()));  // point source id
+      break;
+    }
+
+    // POINT
+    // FORMAT
+    // THREE
+    // TODO: Missing colours
+    case 3: {
       cols.resize(10);
 
       std::vector<cudf::type_id> ids{{
@@ -300,19 +495,20 @@ std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
         rmm::exec_policy(stream),
         iter,
         iter + point_record_count,
-        thrust::make_zip_iterator(cols[0]->mutable_view().begin<int32_t>(),  // x
-                                  cols[1]->mutable_view().begin<int32_t>(),  // y
-                                  cols[2]->mutable_view().begin<int32_t>(),  // z
-                                  cols[3]->mutable_view().begin<int16_t>(),  // intensity
-                                  cols[4]->mutable_view().begin<int8_t>(),   // bits
-                                  cols[5]->mutable_view().begin<int8_t>(),   // classification
-                                  cols[6]->mutable_view().begin<int8_t>(),   // scan angle
-                                  cols[7]->mutable_view().begin<int8_t>(),   // user data
-                                  cols[8]->mutable_view().begin<int16_t>(),
-                                  cols[9]->mutable_view().begin<double_t>()));
+        thrust::make_zip_iterator(cols[0]->mutable_view().begin<int32_t>(),     // x
+                                  cols[1]->mutable_view().begin<int32_t>(),     // y
+                                  cols[2]->mutable_view().begin<int32_t>(),     // z
+                                  cols[3]->mutable_view().begin<int16_t>(),     // intensity
+                                  cols[4]->mutable_view().begin<int8_t>(),      // bits
+                                  cols[5]->mutable_view().begin<int8_t>(),      // classification
+                                  cols[6]->mutable_view().begin<int8_t>(),      // scan angle
+                                  cols[7]->mutable_view().begin<int8_t>(),      // user data
+                                  cols[8]->mutable_view().begin<int16_t>(),     // point source id
+                                  cols[9]->mutable_view().begin<double_t>()));  // gps time
+      break;
+    }
   }
 
-  // Return the columns as a cudf Table
   return std::make_unique<cudf::table>(std::move(cols));
 }
 
