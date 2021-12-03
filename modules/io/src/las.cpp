@@ -16,6 +16,5 @@
 
 Las::Las(const std::string& path) {
   _datasource = ::cudf::io::datasource::create(path);
-
   parse_host();
 }
