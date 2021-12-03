@@ -46,6 +46,22 @@ struct LasHeader {
   double min_z;
 };
 
+struct PointDataFormatThree {
+  long x;
+  long y;
+  long z;
+  unsigned short intensity;
+  unsigned char bits;
+  unsigned char classification;
+  unsigned char scan_angle;
+  unsigned char user_data;
+  unsigned short point_source_id;
+  double gps_time;
+  unsigned short red;
+  unsigned short green;
+  unsigned short blue;
+};
+
 class Las {
  public:
   Las(const std::string& path);
