@@ -46,14 +46,54 @@ struct LasHeader {
   double min_z;
 };
 
+struct PointDataFormatZero {
+  long x;
+  long y;
+  long z;
+  unsigned short intensity;
+  unsigned char bit_data;
+  unsigned char classification;
+  char scan_angle;
+  unsigned char user_data;
+  unsigned short point_source_id;
+};
+
+struct PointDataFormatOne {
+  long x;
+  long y;
+  long z;
+  unsigned short intensity;
+  unsigned char bit_data;
+  unsigned char classification;
+  char scan_angle;
+  unsigned char user_data;
+  unsigned short point_source_id;
+  double gps_time;
+};
+
+struct PointDataFormatTwo {
+  long x;
+  long y;
+  long z;
+  unsigned short intensity;
+  unsigned char bit_data;
+  unsigned char classification;
+  char scan_angle;
+  unsigned char user_data;
+  unsigned short point_source_id;
+  unsigned short red;
+  unsigned short green;
+  unsigned short blue;
+};
+
 struct PointDataFormatThree {
   long x;
   long y;
   long z;
   unsigned short intensity;
-  unsigned char bits;
+  unsigned char bit_data;
   unsigned char classification;
-  unsigned char scan_angle;
+  char scan_angle;
   unsigned char user_data;
   unsigned short point_source_id;
   double gps_time;

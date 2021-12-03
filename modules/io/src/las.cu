@@ -258,7 +258,7 @@ std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
         cudf::type_id::INT32,    // y
         cudf::type_id::INT32,    // z
         cudf::type_id::INT16,    // intensity
-        cudf::type_id::INT8,     // bits
+        cudf::type_id::INT8,     // bit_data
         cudf::type_id::INT8,     // classification
         cudf::type_id::INT8,     // scan angle
         cudf::type_id::INT8,     // user data
@@ -278,7 +278,7 @@ std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
         point_data.y               = static_cast<int32_t const>(*(ptr + 4));
         point_data.z               = static_cast<int32_t const>(*(ptr + 8));
         point_data.intensity       = static_cast<int16_t const>(*(ptr + 12));
-        point_data.bits            = static_cast<int8_t const>(*(ptr + 14));
+        point_data.bit_data        = static_cast<int8_t const>(*(ptr + 14));
         point_data.classification  = static_cast<int8_t const>(*(ptr + 15));
         point_data.scan_angle      = static_cast<int8_t const>(*(ptr + 16));
         point_data.user_data       = static_cast<int8_t const>(*(ptr + 17));
@@ -288,7 +288,7 @@ std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
                                   point_data.y,
                                   point_data.z,
                                   point_data.intensity,
-                                  point_data.bits,
+                                  point_data.bit_data,
                                   point_data.classification,
                                   point_data.scan_angle,
                                   point_data.user_data,
