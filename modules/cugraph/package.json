@@ -35,6 +35,9 @@
   "dependencies": {
     "@rapidsai/cudf": "0.0.1"
   },
+  "devDependencies": {
+    "@rapidsai/cuml": "0.0.1"
+  },
   "files": [
     "LICENSE",
     "README.md",
