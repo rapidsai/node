@@ -106,13 +106,13 @@ class Las {
  public:
   Las(const std::string& path);
 
-  std::unique_ptr<cudf::table> make_table_from_las(
-    LasHeader* header,
+  std::unique_ptr<cudf::table> get_point_cloud_records(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource(),
     rmm::cuda_stream_view stream        = rmm::cuda_stream_default);
 
  private:
   std::unique_ptr<cudf::io::datasource> _datasource;
+  std::unique_ptr<LasHeader> _header;
 
   std::unique_ptr<cudf::io::datasource::buffer> read(size_t offset,
                                                      size_t size,
@@ -121,6 +121,5 @@ class Las {
   void parse_host();
   void parse_header_host(LasHeader* cpu_header, LasHeader* gpu_header);
 
-  const size_t header_size          = 227;
-  const size_t variable_header_size = 54;
+  const size_t header_size = 227;
 };

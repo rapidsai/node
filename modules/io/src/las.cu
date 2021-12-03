@@ -221,12 +221,9 @@ void Las::parse_host() {
   cudaMalloc((void**)&gpu_header, sizeof(LasHeader));
   parse_header_host(cpu_header, gpu_header);
 
-  auto table = make_table_from_las(cpu_header);
+  _header = std::unique_ptr<LasHeader>(cpu_header);
 
-  free(cpu_header);
   cudaFree(gpu_header);
-
-  throw std::invalid_argument("end test");
 }
 
 void Las::parse_header_host(LasHeader* cpu_header, LasHeader* gpu_header) {
@@ -236,12 +233,11 @@ void Las::parse_header_host(LasHeader* cpu_header, LasHeader* gpu_header) {
   cudaMemcpy(cpu_header, gpu_header, sizeof(LasHeader), cudaMemcpyDeviceToHost);
 }
 
-std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
-                                                      rmm::mr::device_memory_resource* mr,
-                                                      rmm::cuda_stream_view stream) {
-  auto const& point_record_count = header->point_record_count;
-  auto const& point_data_offset  = header->point_data_offset;
-  auto const& point_data_size    = header->point_data_size;
+std::unique_ptr<cudf::table> Las::get_point_cloud_records(rmm::mr::device_memory_resource* mr,
+                                                          rmm::cuda_stream_view stream) {
+  auto const& point_record_count = _header->point_record_count;
+  auto const& point_data_offset  = _header->point_data_offset;
+  auto const& point_data_size    = _header->point_data_size;
 
   auto point_data = this->read(point_data_offset, point_data_size * point_record_count, stream);
 
@@ -249,7 +245,7 @@ std::unique_ptr<cudf::table> Las::make_table_from_las(LasHeader* header,
   auto idxs = thrust::make_counting_iterator(0);
   std::vector<std::unique_ptr<cudf::column>> cols;
 
-  switch (header->point_data_format_id) {
+  switch (_header->point_data_format_id) {
     // POINT
     // FORMAT
     // ZERO
