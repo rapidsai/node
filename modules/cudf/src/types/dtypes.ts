@@ -149,8 +149,9 @@ export interface Categorical<T extends DataType = any> extends arrow.Dictionary<
   scalarType: T['scalarType'];
 }
 export class Categorical<T extends DataType = any> extends arrow.Dictionary<T, Int32> {
-  constructor(dictionary: T, id?: number|null, isOrdered?: boolean|null) {
-    super(dictionary, new Int32, id, isOrdered);
+  constructor(dictionary: T, _id?: number|null, isOrdered?: boolean|null) {
+    // we are overriding the id here so that Arrow dictionaries will always compare
+    super(dictionary, new Int32, 0, isOrdered);
   }
 }
 

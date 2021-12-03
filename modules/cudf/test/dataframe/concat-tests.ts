@@ -13,10 +13,12 @@
 // limitations under the License.
 
 import {
+  Categorical,
   DataFrame,
   Float64,
   Int32,
   Series,
+  Utf8String,
 } from '@rapidsai/cudf';
 
 describe('dataframe.concat', () => {
@@ -150,5 +152,17 @@ describe('dataframe.concat', () => {
     const result = dfa.concat(dfb);
     expect([...result.get('a')]).toEqual([1, 2, 3, 4, null, null, null, null, null]);
     expect([...result.get('b')]).toEqual([null, null, null, null, 5, 6, 7, 8, 9]);
+  });
+
+  test('overlapping categorical columns', () => {
+    const a  = Series.new(new Int32Array([1, 2, 3, 4])).cast(new Categorical(new Utf8String));
+    const aa = Series.new(new Int32Array([5, 6, 1, 3, 6, 5])).cast(new Categorical(new Utf8String));
+    const dfa = new DataFrame({'a': a});
+    const dfb = new DataFrame({'a': aa});
+
+    const result = dfa.concat(dfb).get('a');
+    expect([...result]).toEqual(['1', '2', '3', '4', '5', '6', '1', '3', '6', '5']);
+    expect([...result.codes]).toEqual([0, 1, 2, 3, 4, 5, 0, 2, 5, 4]);
+    expect([...result.categories]).toEqual(['1', '2', '3', '4', '5', '6']);
   });
 });

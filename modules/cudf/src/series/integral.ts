@@ -29,6 +29,8 @@ import {Scalar} from '../scalar';
 import {Series} from '../series';
 import {
   Bool8,
+  Categorical,
+  DataType,
   Int16,
   Int32,
   Int64,
@@ -49,6 +51,16 @@ import {StringSeries} from './string';
 abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
   _castAsString(memoryResource?: MemoryResource): StringSeries {
     return StringSeries.new(this._col.stringsFromIntegers(memoryResource));
+  }
+  _castAsCategorical<R extends DataType>(dtype: R, memoryResource?: MemoryResource): Series<R> {
+    const vals = this.cast((dtype as Categorical).dictionary).unique(true, memoryResource);
+    const keys = this.encodeLabels(vals, undefined, undefined, memoryResource);
+    return Series.new<R>(new Column({
+      type: new Categorical((dtype as Categorical).dictionary) as R,
+      length: keys.length,
+      nullMask: this.mask,
+      children: [keys._col, vals._col]
+    }));
   }
 
   /**

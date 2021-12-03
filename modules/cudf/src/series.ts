@@ -652,17 +652,17 @@ export class AbstractSeries<T extends DataType = any> {
    * @param categories The optional Series of values to encode into integers. Defaults to the
    *   unique elements in this Series.
    * @param type The optional integer DataType to use for the returned Series. Defaults to
-   *   Int32.
+   *   Uint32.
    * @param nullSentinel The optional value used to indicate missing category. Defaults to -1.
    * @param memoryResource The optional MemoryResource used to allocate the result Column's
    *   device memory.
    * @returns A sequence of encoded integer labels with values between `0` and `n-1`
    *   categories, and `nullSentinel` for any null values
    */
-  encodeLabels<R extends Integral = Int32>(categories: Series<T>         = this.unique(true),
-                                           type: R                       = new Int32 as R,
-                                           nullSentinel: R['scalarType'] = -1,
-                                           memoryResource?: MemoryResource): Series<R> {
+  encodeLabels<R extends Integral = Uint32>(categories: Series<T>         = this.unique(true),
+                                            type: R                       = new Uint32 as R,
+                                            nullSentinel: R['scalarType'] = -1,
+                                            memoryResource?: MemoryResource): Series<R> {
     try {
       // If there is a failure casting to the current dtype, catch the exception and return
       // encoded labels with all values set to `nullSentinel`, since this means the Column
@@ -684,7 +684,7 @@ export class AbstractSeries<T extends DataType = any> {
     //
     return new DataFrame(new ColumnAccessor({
              value: this._col,
-             order: Series.sequence({type: new Int32, init: 0, step: 1, size: this.length})._col
+             order: Series.sequence({type: new Uint32, init: 0, step: 1, size: this.length})._col
            }))
              .join({
                on: ['value'],
@@ -1580,7 +1580,8 @@ function asColumn<T extends DataType>(value: any) {
   } else {
     const props: ColumnProps<T> = {...value};
     if (value.children != null) {
-      props.children = value.children.map((item: Series) => item._col);
+      props.children =
+        value.children.map((item: Series|Column) => item instanceof Column ? item : item._col);
     }
     return new Column(props);
   }
