@@ -53,14 +53,14 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
     return StringSeries.new(this._col.stringsFromIntegers(memoryResource));
   }
   _castAsCategorical<R extends DataType>(dtype: R, memoryResource?: MemoryResource): Series<R> {
-    const vals = this.cast((dtype as Categorical).dictionary).unique(true, memoryResource);
-    const keys = this.encodeLabels(vals, undefined, undefined, memoryResource);
-    return Series.new<R>(new Column({
+    const categories = this.cast((dtype as Categorical).dictionary).unique(true, memoryResource);
+    const codes      = this.encodeLabels(categories, undefined, undefined, memoryResource);
+    return Series.new<R>({
       type: new Categorical((dtype as Categorical).dictionary) as R,
-      length: keys.length,
+      length: codes.length,
       nullMask: this.mask,
-      children: [keys._col, vals._col]
-    }));
+      children: [codes, categories]
+    });
   }
 
   /**
