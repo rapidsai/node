@@ -24,7 +24,6 @@
 
 #include <cudf/column/column_factories.hpp>
 #include <cudf/io/datasource.hpp>
-#include <cudf/table/table.hpp>
 
 #include <las.hpp>
 
@@ -215,37 +214,38 @@ __global__ void parse_header(uint8_t const* las_header_data, LasHeader* result) 
     *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
 }
 
-void Las::parse_host() {
-  LasHeader *cpu_header, *gpu_header;
-  cpu_header = (LasHeader*)malloc(sizeof(LasHeader));
-  cudaMalloc((void**)&gpu_header, sizeof(LasHeader));
-  parse_header_host(cpu_header, gpu_header);
-
-  _header = std::unique_ptr<LasHeader>(cpu_header);
-
-  cudaFree(gpu_header);
+std::unique_ptr<cudf::io::datasource::buffer> read(
+  const std::unique_ptr<cudf::io::datasource>& datasource,
+  size_t offset,
+  size_t size,
+  rmm::cuda_stream_view stream) {
+  if (datasource->supports_device_read()) { return datasource->device_read(offset, size, stream); }
+  auto device_buffer = rmm::device_buffer(size, stream);
+  CUDA_TRY(cudaMemcpyAsync(device_buffer.data(),
+                           datasource->host_read(offset, size)->data(),
+                           size,
+                           cudaMemcpyHostToDevice,
+                           stream.value()));
+  return cudf::io::datasource::buffer::create(std::move(device_buffer));
 }
 
-void Las::parse_header_host(LasHeader* cpu_header, LasHeader* gpu_header) {
-  auto header_data = read(0, header_size, rmm::cuda_stream_default);
-  ::parse_header<<<1, 1>>>(header_data->data(), gpu_header);
+std::unique_ptr<cudf::table> get_point_cloud_records(
+  const std::unique_ptr<cudf::io::datasource>& datasource,
+  LasHeader* cpu_header,
+  rmm::mr::device_memory_resource* mr,
+  rmm::cuda_stream_view stream) {
+  auto const& point_record_count = cpu_header->point_record_count;
+  auto const& point_data_offset  = cpu_header->point_data_offset;
+  auto const& point_data_size    = cpu_header->point_data_size;
 
-  cudaMemcpy(cpu_header, gpu_header, sizeof(LasHeader), cudaMemcpyDeviceToHost);
-}
-
-std::unique_ptr<cudf::table> Las::get_point_cloud_records(rmm::mr::device_memory_resource* mr,
-                                                          rmm::cuda_stream_view stream) {
-  auto const& point_record_count = _header->point_record_count;
-  auto const& point_data_offset  = _header->point_data_offset;
-  auto const& point_data_size    = _header->point_data_size;
-
-  auto point_data = this->read(point_data_offset, point_data_size * point_record_count, stream);
+  auto point_data =
+    read(datasource, point_data_offset, point_data_size * point_record_count, stream);
 
   auto data = point_data->data();
   auto idxs = thrust::make_counting_iterator(0);
   std::vector<std::unique_ptr<cudf::column>> cols;
 
-  switch (_header->point_data_format_id) {
+  switch (cpu_header->point_data_format_id) {
     // POINT
     // FORMAT
     // ZERO
@@ -508,17 +508,28 @@ std::unique_ptr<cudf::table> Las::get_point_cloud_records(rmm::mr::device_memory
   return std::make_unique<cudf::table>(std::move(cols));
 }
 
-std::unique_ptr<cudf::io::datasource::buffer> Las::read(size_t offset,
-                                                        size_t size,
-                                                        rmm::cuda_stream_view stream) {
-  if (_datasource->supports_device_read()) {
-    return _datasource->device_read(offset, size, stream);
-  }
-  auto device_buffer = rmm::device_buffer(size, stream);
-  CUDA_TRY(cudaMemcpyAsync(device_buffer.data(),
-                           _datasource->host_read(offset, size)->data(),
-                           size,
-                           cudaMemcpyHostToDevice,
-                           stream.value()));
-  return cudf::io::datasource::buffer::create(std::move(device_buffer));
+void parse_header_host(const std::unique_ptr<cudf::io::datasource>& datasource,
+                       LasHeader* cpu_header,
+                       LasHeader* gpu_header,
+                       rmm::cuda_stream_view stream) {
+  auto header_data = read(datasource, 0, HEADER_BYTE_SIZE, stream);
+  ::parse_header<<<1, 1>>>(header_data->data(), gpu_header);
+
+  cudaMemcpy(cpu_header, gpu_header, sizeof(LasHeader), cudaMemcpyDeviceToHost);
+}
+
+std::unique_ptr<cudf::table> parse_host(const std::unique_ptr<cudf::io::datasource>& datasource,
+                                        rmm::mr::device_memory_resource* mr,
+                                        rmm::cuda_stream_view stream) {
+  LasHeader *cpu_header, *gpu_header;
+  cpu_header = (LasHeader*)malloc(sizeof(LasHeader));
+  cudaMalloc((void**)&gpu_header, sizeof(LasHeader));
+  parse_header_host(datasource, cpu_header, gpu_header, stream);
+
+  auto table = get_point_cloud_records(datasource, cpu_header, mr, stream);
+
+  free(cpu_header);
+  cudaFree(gpu_header);
+
+  return table;
 }

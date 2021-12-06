@@ -34,7 +34,8 @@ struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
     nv::CallbackArgs args{info};
     std::string path = args[0];
 
-    auto lasFile = Las(path);
+    auto datasource = ::cudf::io::datasource::create(path);
+    auto table      = parse_host(datasource);
   }
 };
 
