@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, Int32, Series, StringSeries, Utf8String} from '@rapidsai/cudf';
+import {Categorical, DataFrame, Int32, Series, StringSeries, Utf8String} from '@rapidsai/cudf';
 import {TypeMap} from '@rapidsai/cudf';
 
 import {GraphCOO} from './addon';
@@ -388,10 +388,14 @@ function create_graph(edges: DataFrame, source: string, target: string): GraphCO
   return new GraphCOO(redges.get('src')._col, redges.get('dst')._col, {directedEdges: true});
 }
 
-function _prepend_str(series: Series, val: string, delim: string): Series<Utf8String> {
-  const prefix = _scalar_init(val, series.length);
-  return StringSeries.concatenate([prefix, series.cast(new Utf8String)],
-                                  {nullRepr: 'null', separator: delim});
+function _prepend_str(series: Series, val: string, delim: string) {
+  const prefix = val + delim;
+  const suffix = series.cast(new Categorical(new Utf8String));
+  const codes  = Series.new(suffix.codes);
+  const categories =
+    Series.new(suffix.categories.replaceNulls('null')._col.replaceSlice(prefix, 0, 0));
+
+  return Series.new({type: suffix.type, length: codes.length, children: [codes, categories]});
 }
 
 function _scalar_init(val: string, size: number): Series<Utf8String> {
