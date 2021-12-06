@@ -12,4 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export declare function readLas(input: string): void;
+import {DataFrame} from '@rapidsai/cudf';
+
+export declare function readLas(input: string): DataFrame;

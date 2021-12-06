@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <cudf/io/datasource.hpp>
+#include <node_cudf/table.hpp>
 #include <nv_node/utilities/args.hpp>
 
 #include <las.hpp>
@@ -30,12 +31,16 @@ struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
   }
 
  private:
-  void read_las(Napi::CallbackInfo const& info) {
+  Napi::Value read_las(Napi::CallbackInfo const& info) {
     nv::CallbackArgs args{info};
+    auto env = info.Env();
+
     std::string path = args[0];
 
     auto datasource = ::cudf::io::datasource::create(path);
     auto table      = parse_host(datasource);
+
+    return nv::Table::New(env, std::move(table));
   }
 };
 
