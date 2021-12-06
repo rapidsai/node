@@ -117,12 +117,12 @@ std::unique_ptr<cudf::table> get_point_cloud_records(
   rmm::mr::device_memory_resource* mr,
   rmm::cuda_stream_view stream);
 
-void parse_header_host(const std::unique_ptr<cudf::io::datasource>& datasource,
-                       LasHeader* cpu_header,
-                       LasHeader* gpu_header,
-                       rmm::cuda_stream_view stream);
+void parse_las_header_host(const std::unique_ptr<cudf::io::datasource>& datasource,
+                           LasHeader* cpu_header,
+                           LasHeader* gpu_header,
+                           rmm::cuda_stream_view stream);
 
-std::unique_ptr<cudf::table> parse_host(
+std::unique_ptr<cudf::table> parse_las_host(
   const std::unique_ptr<cudf::io::datasource>& datasource,
   rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource(),
   rmm::cuda_stream_view stream        = rmm::cuda_stream_default);
