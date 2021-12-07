@@ -49,6 +49,16 @@ struct LasHeader {
   double min_z;
 };
 
+const std::vector<std::string> PointDataFormatZeroColumnNames = {"x",
+                                                                 "y",
+                                                                 "z",
+                                                                 "intensity",
+                                                                 "bit_data",
+                                                                 "classification",
+                                                                 "scan_angle",
+                                                                 "user_data",
+                                                                 "point_source_id"};
+
 struct PointDataFormatZero {
   long x;
   long y;
@@ -60,6 +70,17 @@ struct PointDataFormatZero {
   unsigned char user_data;
   unsigned short point_source_id;
 };
+
+const std::vector<std::string> PointDataFormatOneColumnNames = {"x",
+                                                                "y",
+                                                                "z",
+                                                                "intensity",
+                                                                "bit_data",
+                                                                "classification",
+                                                                "scan_angle",
+                                                                "user_data",
+                                                                "point_source_id",
+                                                                "gps_time"};
 
 struct PointDataFormatOne {
   long x;
@@ -73,6 +94,19 @@ struct PointDataFormatOne {
   unsigned short point_source_id;
   double gps_time;
 };
+
+const std::vector<std::string> PointDataFormatTwoColumnNames = {"x",
+                                                                "y",
+                                                                "z",
+                                                                "intensity",
+                                                                "bit_data",
+                                                                "classification",
+                                                                "scan_angle",
+                                                                "user_data",
+                                                                "point_source_id",
+                                                                "red",
+                                                                "green",
+                                                                "blue"};
 
 struct PointDataFormatTwo {
   long x;
@@ -88,6 +122,17 @@ struct PointDataFormatTwo {
   unsigned short green;
   unsigned short blue;
 };
+
+const std::vector<std::string> PointDataFormatThreeColumnNames = {"x",
+                                                                  "y",
+                                                                  "z",
+                                                                  "intensity",
+                                                                  "bit_data",
+                                                                  "classification",
+                                                                  "scan_angle",
+                                                                  "user_data",
+                                                                  "point_source_id",
+                                                                  "gps_time"};
 
 struct PointDataFormatThree {
   long x;
@@ -122,7 +167,7 @@ void parse_las_header_host(const std::unique_ptr<cudf::io::datasource>& datasour
                            LasHeader* gpu_header,
                            rmm::cuda_stream_view stream);
 
-std::unique_ptr<cudf::table> parse_las_host(
+std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> parse_las_host(
   const std::unique_ptr<cudf::io::datasource>& datasource,
   rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource(),
   rmm::cuda_stream_view stream        = rmm::cuda_stream_default);

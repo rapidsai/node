@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {readLas} from '@rapidsai/io';
+import {IO} from '@rapidsai/io';
 
-test('import las', () => { const df = readLas(`${__dirname}/test.las`); });
+test('import las', () => {
+  const df = IO.readLas(`${__dirname}/test.las`);
+  df.names.forEach((name) => { console.log([...df.get(name)]); });
+});

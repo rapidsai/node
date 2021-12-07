@@ -250,7 +250,7 @@ std::unique_ptr<cudf::table> get_point_cloud_records(
     // FORMAT
     // ZERO
     case 0: {
-      cols.resize(9);
+      cols.resize(PointDataFormatZeroColumnNames.size());
 
       std::vector<cudf::type_id> ids{{
         cudf::type_id::INT32,  // x
@@ -312,7 +312,7 @@ std::unique_ptr<cudf::table> get_point_cloud_records(
     // FORMAT
     // ONE
     case 1: {
-      cols.resize(10);
+      cols.resize(PointDataFormatOneColumnNames.size());
 
       std::vector<cudf::type_id> ids{{
         cudf::type_id::INT32,    // x
@@ -379,7 +379,7 @@ std::unique_ptr<cudf::table> get_point_cloud_records(
     // THREE
     // TODO: Missing colours
     case 2: {
-      cols.resize(9);
+      cols.resize(PointDataFormatTwoColumnNames.size());
 
       std::vector<cudf::type_id> ids{{
         cudf::type_id::INT32,  // x
@@ -442,7 +442,7 @@ std::unique_ptr<cudf::table> get_point_cloud_records(
     // THREE
     // TODO: Missing colours
     case 3: {
-      cols.resize(10);
+      cols.resize(PointDataFormatThreeColumnNames.size());
 
       std::vector<cudf::type_id> ids{{
         cudf::type_id::INT32,    // x
@@ -518,9 +518,10 @@ void parse_las_header_host(const std::unique_ptr<cudf::io::datasource>& datasour
   cudaMemcpy(cpu_header, gpu_header, sizeof(LasHeader), cudaMemcpyDeviceToHost);
 }
 
-std::unique_ptr<cudf::table> parse_las_host(const std::unique_ptr<cudf::io::datasource>& datasource,
-                                            rmm::mr::device_memory_resource* mr,
-                                            rmm::cuda_stream_view stream) {
+std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> parse_las_host(
+  const std::unique_ptr<cudf::io::datasource>& datasource,
+  rmm::mr::device_memory_resource* mr,
+  rmm::cuda_stream_view stream) {
   LasHeader *cpu_header, *gpu_header;
   cpu_header = (LasHeader*)malloc(sizeof(LasHeader));
   cudaMalloc((void**)&gpu_header, sizeof(LasHeader));
@@ -528,8 +529,28 @@ std::unique_ptr<cudf::table> parse_las_host(const std::unique_ptr<cudf::io::data
 
   auto table = get_point_cloud_records(datasource, cpu_header, mr, stream);
 
+  std::vector<std::string> names;
+  switch (cpu_header->point_data_format_id) {
+    case 0: {
+      names = PointDataFormatZeroColumnNames;
+      break;
+    }
+    case 1: {
+      names = PointDataFormatOneColumnNames;
+      break;
+    }
+    case 2: {
+      names = PointDataFormatTwoColumnNames;
+      break;
+    }
+    case 3: {
+      names = PointDataFormatThreeColumnNames;
+      break;
+    }
+  }
+
   free(cpu_header);
   cudaFree(gpu_header);
 
-  return table;
+  return std::make_tuple(names, std::move(table));
 }

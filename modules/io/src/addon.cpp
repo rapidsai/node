@@ -27,7 +27,7 @@ struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
     DefineAddon(exports,
                 {InstanceMethod("init", &rapidsai_io::InitAddon),
                  InstanceValue("_cpp_exports", _cpp_exports.Value()),
-                 InstanceMethod<&rapidsai_io::read_las>("readLas")});
+                 InstanceMethod<&rapidsai_io::read_las>("readLasTable")});
   }
 
  private:
@@ -38,10 +38,20 @@ struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
     std::string path                    = args[0];
     rmm::mr::device_memory_resource* mr = args[1];
 
-    auto datasource = ::cudf::io::datasource::create(path);
-    auto table      = parse_las_host(datasource, mr);
+    auto datasource     = ::cudf::io::datasource::create(path);
+    auto [names, table] = parse_las_host(datasource, mr);
 
-    return nv::Table::New(env, std::move(table));
+    auto result = Napi::Object::New(env);
+
+    auto table_names = Napi::Array::New(env, names.size());
+    for (size_t i = 0; i < names.size(); ++i) {
+      table_names.Set(i, Napi::String::New(env, names[i]));
+    }
+
+    result.Set("names", table_names);
+    result.Set("table", nv::Table::New(env, std::move(table)));
+
+    return result;
   }
 };
 

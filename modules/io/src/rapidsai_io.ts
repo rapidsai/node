@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame} from '@rapidsai/cudf';
+import {Table} from '@rapidsai/cudf';
 import {MemoryResource} from '@rapidsai/rmm';
 
-export declare function readLas(input: string, memoryResource?: MemoryResource): DataFrame;
+export declare function readLasTable(
+  input: string, memoryResource?: MemoryResource): {names: string[], table: Table};

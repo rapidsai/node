@@ -19,7 +19,7 @@ import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
 
-export const {readLas} = loadNativeModule<typeof import('./rapidsai_io')>(
+export const {readLasTable} = loadNativeModule<typeof import('./rapidsai_io')>(
   module, 'rapidsai_io', init => init(CUDA, RMM, CUDF));
 
-export type readLas = typeof import('./rapidsai_io').readLas;
+export type readLasTable = typeof import('./rapidsai_io').readLasTable;
