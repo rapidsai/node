@@ -35,10 +35,11 @@ struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
     nv::CallbackArgs args{info};
     auto env = info.Env();
 
-    std::string path = args[0];
+    std::string path                    = args[0];
+    rmm::mr::device_memory_resource* mr = args[1];
 
     auto datasource = ::cudf::io::datasource::create(path);
-    auto table      = parse_las_host(datasource);
+    auto table      = parse_las_host(datasource, mr);
 
     return nv::Table::New(env, std::move(table));
   }

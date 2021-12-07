@@ -13,5 +13,6 @@
 // limitations under the License.
 
 import {DataFrame} from '@rapidsai/cudf';
+import {MemoryResource} from '@rapidsai/rmm';
 
-export declare function readLas(input: string): DataFrame;
+export declare function readLas(input: string, memoryResource?: MemoryResource): DataFrame;

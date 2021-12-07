@@ -14,8 +14,4 @@
 
 import {readLas} from '@rapidsai/io';
 
-test('import las', () => {
-  const df = readLas(`${__dirname}/test.las`);
-  console.log(df.numColumns);
-  console.log(df.numRows);
-});
+test('import las', () => { const df = readLas(`${__dirname}/test.las`); });
