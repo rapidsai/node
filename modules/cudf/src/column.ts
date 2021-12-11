@@ -141,6 +141,11 @@ export interface Column<T extends DataType = any> {
   readonly numChildren: number;
 
   /**
+   * @summary Explicitly free the device memory associated with this Column and all child Columns.
+   */
+  dispose(): void;
+
+  /**
    * Return sub-selection from a Column
    *
    * @param selection

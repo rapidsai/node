@@ -641,6 +641,11 @@ export class AbstractSeries<T extends DataType = any> {
   countNonNulls(): number { return this._col.length - this._col.nullCount; }
 
   /**
+   * @summary Explicitly free the device memory associated with this Series.
+   */
+  dispose() { this._col.dispose(); }
+
+  /**
    * Encode the Series values into integer labels.
    *
    *

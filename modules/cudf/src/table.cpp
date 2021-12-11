@@ -35,6 +35,7 @@ Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
                      {
                        InstanceAccessor<&Table::num_columns>("numColumns"),
                        InstanceAccessor<&Table::num_rows>("numRows"),
+                       InstanceMethod<&Table::dispose>("dispose"),
                        InstanceMethod<&Table::scatter_scalar>("scatterScalar"),
                        InstanceMethod<&Table::scatter_table>("scatterTable"),
                        InstanceMethod<&Table::gather>("gather"),
@@ -77,6 +78,7 @@ Table::wrapper_t Table::New(Napi::Env const& env, std::unique_ptr<cudf::table> t
 }
 
 Table::Table(CallbackArgs const& args) : EnvLocalObjectWrap<Table>(args) {
+  // std::cout << "Table::Table" << std::endl;
   auto env = args.Env();
   NODE_CUDF_EXPECT(args.IsConstructCall(), "Table constructor requires 'new'", env);
 
@@ -90,7 +92,9 @@ Table::Table(CallbackArgs const& args) : EnvLocalObjectWrap<Table>(args) {
   if (props.Get("columns").IsArray()) {
     auto cols    = props.Get("columns").As<Napi::Array>();
     num_columns_ = cols.Length();
-    for (auto i = 0; i < num_columns_; ++i) { columns_.push_back(cols.Get(i).ToObject()); }
+    for (auto i = 0; i < num_columns_; ++i) {
+      columns_.push_back(Napi::Persistent(Column::wrapper_t{cols.Get(i).ToObject()}));
+    }
   }
 
   if (num_columns_ > 0) {
@@ -102,11 +106,27 @@ Table::Table(CallbackArgs const& args) : EnvLocalObjectWrap<Table>(args) {
   }
 }
 
+void Table::Finalize(Napi::Env env) {
+  //
+}
+
+void Table::dispose(Napi::Env env) {
+  if (columns_.size() > 0) {
+    for (auto& child : columns_) { child.Value()->dispose(env); }
+    columns_.clear();
+  }
+  num_rows_    = 0;
+  num_columns_ = 0;
+  disposed_    = true;
+}
+
+void Table::dispose(Napi::CallbackInfo const& info) { dispose(info.Env()); }
+
 cudf::table_view Table::view() const {
   // Create views of children
   std::vector<cudf::column_view> child_views;
   child_views.reserve(num_columns_);
-  for (auto i = 0; i < num_columns_; ++i) { child_views.emplace_back(columns_[i]->view()); }
+  for (auto i = 0; i < num_columns_; ++i) { child_views.push_back(columns_[i].Value()->view()); }
 
   return cudf::table_view{child_views};
 }
@@ -115,7 +135,9 @@ cudf::mutable_table_view Table::mutable_view() {
   // Create views of children
   std::vector<cudf::mutable_column_view> child_views;
   child_views.reserve(num_columns_);
-  for (auto i = 0; i < num_columns_; ++i) { child_views.emplace_back(columns_[i]->mutable_view()); }
+  for (auto i = 0; i < num_columns_; ++i) {
+    child_views.push_back(columns_[i].Value()->mutable_view());
+  }
 
   return cudf::mutable_table_view{child_views};
 }
@@ -132,7 +154,7 @@ Napi::Value Table::num_rows(Napi::CallbackInfo const& info) { return CPPToNapi(i
 Napi::Value Table::get_column(Napi::CallbackInfo const& info) {
   cudf::size_type i = CallbackArgs{info}[0];
   if (i >= num_columns_) { throw Napi::Error::New(info.Env(), "Column index out of bounds"); }
-  return columns_[i]->Value();
+  return columns_[i].Value();
 }
 
 Napi::Value Table::order_by(Napi::CallbackInfo const& info) {
