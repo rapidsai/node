@@ -59,7 +59,8 @@ jobs:
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
-            "FROM_IMAGE=gpuci/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
+            "ARM64_BASE=nvcr.io/nvidia/l4t-cuda:10.2.460-runtime"
+            "AMD64_BASE=gpuci/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
 
   build-and-publish-devel-packages-image:
     needs:
@@ -156,7 +157,8 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base
           build-args: |
             "UID=1000"
-            "FROM_IMAGE=gpuci/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
+            "ARM64_BASE=nvcr.io/nvidia/l4t-cuda:10.2.460-runtime"
+            "AMD64_BASE=gpuci/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-cudf-image:
