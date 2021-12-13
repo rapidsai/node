@@ -191,9 +191,11 @@ struct Column : public EnvLocalObjectWrap<Column> {
   inline Napi::Array children() const noexcept {
     uint32_t idx = 0;
     auto arr     = Napi::Array::New(Env(), num_children());
-    std::for_each(children_.begin(), children_.end(), [&](Column::wrapper_t const& val) mutable {
-      arr.Set((idx++), (val));
-    });
+    std::for_each(children_.begin(),
+                  children_.end(),
+                  [&](Napi::Reference<Column::wrapper_t> const& val) mutable {
+                    arr.Set((idx++), (val.Value()));
+                  });
     return arr;
   }
 
