@@ -21,6 +21,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          lfs: true
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Free up disk space
         run: |
           df -h
@@ -54,7 +58,7 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            dockerfiles/devel/main.Dockerfile
+            dev/dockerfiles/devel/main.Dockerfile
       - name: Build devel images and packages
         run: |
           echo "CUDAARCHS=ALL" >> .env

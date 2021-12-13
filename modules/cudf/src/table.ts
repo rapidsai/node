@@ -146,6 +146,11 @@ export interface Table {
   readonly numRows: number;
 
   /**
+   * @summary Explicitly free the device memory associated with this Table.
+   */
+  dispose(): void;
+
+  /**
    * Return sub-selection from a Table
    *
    * @param selection

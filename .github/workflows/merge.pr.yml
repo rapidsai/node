@@ -25,15 +25,19 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            dockerfiles/devel/main.Dockerfile
+            dev/dockerfiles/devel/main.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -47,7 +51,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/devel/main.Dockerfile
+          file: dev/dockerfiles/devel/main.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
           build-args: |
@@ -68,9 +72,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -80,7 +88,7 @@ jobs:
             modules
             yarn\.lock
             package\.json
-            dockerfiles/devel/(main|package).Dockerfile
+            dev/dockerfiles/devel/(main|package).Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -94,7 +102,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/devel/package.Dockerfile
+          file: dev/dockerfiles/devel/package.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages
           build-args: |
@@ -117,15 +125,19 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            dockerfiles/runtime/base.Dockerfile
+            dev/dockerfiles/runtime/base.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -139,7 +151,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/base.Dockerfile
+          file: dev/dockerfiles/runtime/base.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base
           build-args: |
@@ -159,9 +171,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -169,7 +185,7 @@ jobs:
           files: |
             .npmrc
             modules/(rmm|core|cuda|cudf)
-            dockerfiles/runtime/cudf.Dockerfile
+            dev/dockerfiles/runtime/cudf.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -183,7 +199,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/cudf.Dockerfile
+          file: dev/dockerfiles/runtime/cudf.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf
           build-args: |
@@ -202,9 +218,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -212,7 +232,7 @@ jobs:
           files: |
             .npmrc
             modules/(rmm|core|cuda|cudf|cugraph)
-            dockerfiles/runtime/cugraph.Dockerfile
+            dev/dockerfiles/runtime/cugraph.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -226,7 +246,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/cugraph.Dockerfile
+          file: dev/dockerfiles/runtime/cugraph.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph
           build-args: |
@@ -245,9 +265,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -255,7 +279,7 @@ jobs:
           files: |
             .npmrc
             modules/(rmm|core|cuda|cudf|cuml)
-            dockerfiles/runtime/cuml.Dockerfile
+            dev/dockerfiles/runtime/cuml.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -269,7 +293,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/cuml.Dockerfile
+          file: dev/dockerfiles/runtime/cuml.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml
           build-args: |
@@ -288,9 +312,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -298,7 +326,7 @@ jobs:
           files: |
             .npmrc
             modules/(rmm|core|cuda|cudf|cuspatial)
-            dockerfiles/runtime/cuspatial.Dockerfile
+            dev/dockerfiles/runtime/cuspatial.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -312,7 +340,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/cuspatial.Dockerfile
+          file: dev/dockerfiles/runtime/cuspatial.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial
           build-args: |
@@ -331,9 +359,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -341,7 +373,7 @@ jobs:
           files: |
             .npmrc
             modules/(core|glfw|webgl)
-            dockerfiles/runtime/glfw.Dockerfile
+            dev/dockerfiles/runtime/glfw.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -355,7 +387,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/glfw.Dockerfile
+          file: dev/dockerfiles/runtime/glfw.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw
           build-args: |
@@ -374,9 +406,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -384,7 +420,7 @@ jobs:
           files: |
             .npmrc
             modules/(rmm|core|cuda|cudf|sql)
-            dockerfiles/runtime/sql.Dockerfile
+            dev/dockerfiles/runtime/sql.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -398,7 +434,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/sql.Dockerfile
+          file: dev/dockerfiles/runtime/sql.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql
           build-args: |
@@ -417,9 +453,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -427,7 +467,7 @@ jobs:
           files: |
             .npmrc
             modules/(core|cuda|glfw|webgl|rmm|cudf|sql|cuml|cugraph|cuspatial|deck\.gl|jsdom)
-            dockerfiles/runtime/main.Dockerfile
+            dev/dockerfiles/runtime/main.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -441,7 +481,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/main.Dockerfile
+          file: dev/dockerfiles/runtime/main.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
           build-args: |
@@ -460,9 +500,13 @@ jobs:
         CUDA: [11.5.0]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
+          lfs: true
           fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
       - name: Check if files changed
         id: files_changed
         uses: tj-actions/changed-files@v9.1
@@ -470,7 +514,7 @@ jobs:
           files: |
             .npmrc
             modules
-            dockerfiles/runtime/demo.Dockerfile
+            dev/dockerfiles/runtime/demo.Dockerfile
             .github/workflows/merge.pr.yml
             .github/actions/build-and-publish-image/action.yml
       - name: Build and push image
@@ -484,7 +528,7 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          file: dockerfiles/runtime/demo.Dockerfile
+          file: dev/dockerfiles/runtime/demo.Dockerfile
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo
           build-args: |

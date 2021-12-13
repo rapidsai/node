@@ -18,8 +18,6 @@ function(find_and_configure_cuml VERSION)
 
     include(get_cpm)
 
-    include(ConfigureRAFT)
-
     _clean_build_dirs_if_not_fully_built(cuml libcuml++.so)
 
     _set_package_dir_if_exists(cuml cuml)

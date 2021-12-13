@@ -1,31 +1,46 @@
 # syntax=docker/dockerfile:1.3
 
-ARG FROM_IMAGE
-ARG FROM_IMAGE_DEFAULT
+ARG AMD64_BASE
+ARG ARM64_BASE
 ARG NODE_VERSION=16.13.0
 
 FROM node:$NODE_VERSION-stretch-slim as node
 
-FROM ${FROM_IMAGE:-$FROM_IMAGE_DEFAULT} as compilers
+FROM ${AMD64_BASE} as base-amd64
+
+FROM ${ARM64_BASE} as base-arm64
+
+ONBUILD RUN cd /usr/local/cuda/lib64 \
+ && ln -s \
+    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1) \
+    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1 | cut -d'.' -f1) \
+ && ln -s \
+    libcudart.so.$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1 | cut -d'.' -f1) \
+    libcudart.so \
+ && rm /etc/ld.so.cache && ldconfig
+
+FROM base-${TARGETARCH} as compilers
 
 SHELL ["/bin/bash", "-c"]
 
 ENV CUDA_HOME="/usr/local/cuda"
+ENV PATH="$PATH:\
+${CUDA_HOME}/bin:\
+${CUDA_HOME}/nvvm/bin"
 ENV LD_LIBRARY_PATH="\
 /usr/lib/aarch64-linux-gnu:\
 /usr/lib/x86_64-linux-gnu:\
 /usr/lib/i386-linux-gnu:\
 ${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}\
-${CUDA_HOME}/lib:\
 ${CUDA_HOME}/lib64:\
-/usr/local/lib:\
-/usr/lib"
+${CUDA_HOME}/nvvm/lib64:\
+${CUDA_HOME}/lib64/stubs"
 
 ARG GCC_VERSION=9
 ARG CMAKE_VERSION=3.21.3
 ARG SCCACHE_VERSION=0.2.15
 
-ARG NODE_VERSION
+ARG NODE_VERSION=16.13.0
 ENV NODE_VERSION=$NODE_VERSION
 
 # Install node
@@ -59,7 +74,7 @@ RUN --mount=type=cache,target=/var/lib/apt \
     git ninja-build \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} gdb \
     # CMake dependencies
-    curl libssl-dev libcurl4-openssl-dev zlib1g-dev liblz4-dev \
+    curl libssl-dev libcurl4-openssl-dev xz-utils zlib1g-dev liblz4-dev \
     # From opengl/glvnd:devel
     pkg-config \
     libxau6 libxdmcp6 libxcb1 libxext6 libx11-6 \
@@ -69,19 +84,23 @@ RUN --mount=type=cache,target=/var/lib/apt \
  && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
  && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
  # Remove any existing gcc and g++ alternatives
- && (update-alternatives --remove-all cc  >/dev/null 2>&1 || true) \
- && (update-alternatives --remove-all c++ >/dev/null 2>&1 || true) \
- && (update-alternatives --remove-all gcc >/dev/null 2>&1 || true) \
- && (update-alternatives --remove-all g++ >/dev/null 2>&1 || true) \
+ && (update-alternatives --remove-all cc >/dev/null 2>&1 || true)  \
+ && (update-alternatives --remove-all c++ >/dev/null 2>&1 || true)  \
+ && (update-alternatives --remove-all gcc >/dev/null 2>&1 || true)  \
+ && (update-alternatives --remove-all g++ >/dev/null 2>&1 || true)  \
  && (update-alternatives --remove-all gcov >/dev/null 2>&1 || true) \
- && update-alternatives \
-    --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_VERSION} 100 \
-    --slave /usr/bin/cc cc /usr/bin/gcc-${GCC_VERSION} \
-    --slave /usr/bin/g++ g++ /usr/bin/g++-${GCC_VERSION} \
-    --slave /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} \
-    --slave /usr/bin/gcov gcov /usr/bin/gcov-${GCC_VERSION} \
- # Set gcc-${GCC_VERSION} as the default gcc
+ # Install our alternatives
+ && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-${GCC_VERSION} 100 \
+ && update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-${GCC_VERSION} 100 \
+ && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_VERSION} 100 \
+ && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${GCC_VERSION} 100 \
+ && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-${GCC_VERSION} 100 \
+ # Set the default cc/c++/gcc/g++/gcov to v${GCC_VERSION}
+ && update-alternatives --set cc /usr/bin/gcc-${GCC_VERSION} \
+ && update-alternatives --set c++ /usr/bin/g++-${GCC_VERSION} \
  && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} \
+ && update-alternatives --set g++ /usr/bin/g++-${GCC_VERSION} \
+ && update-alternatives --set gcov /usr/bin/gcov-${GCC_VERSION} \
  \
  # Install CMake
  && curl -fsSL --compressed -o "/tmp/cmake-$CMAKE_VERSION-linux-$(uname -m).sh" \
@@ -108,7 +127,7 @@ registry=https://registry.npmjs.org/\n\
  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
  && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
- && npm install --global --unsafe-perm --no-audit --no-fund npm \
+ && /usr/local/bin/npm install --global --unsafe-perm --no-audit --no-fund npm \
  # Smoke tests
  && node --version && npm --version && yarn --version \
  \
@@ -122,18 +141,17 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 WORKDIR /
 
-FROM ${FROM_IMAGE:-$FROM_IMAGE_DEFAULT} as nvenc
+FROM compilers as wrtc-amd64
 
-RUN apt update \
- && NVENC_VERSION=$(apt policy libnvidia-encode-* 2>/dev/null | grep libnvidia-encode- | cut -d'-' -f3 | cut -d':' -f1 | sort -rh | head -n1) \
- && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libnvidia-encode-$NVENC_VERSION \
- && apt autoremove -y && apt clean && rm -rf /tmp/* /var/tmp/* /var/lib/apt/lists/* /var/cache/apt/archives/* \
- && ln -s /usr/lib/$(uname -m)-linux-gnu/libcuda.so /usr/local/lib/libcuda.so \
- && ln -s /usr/lib/$(uname -m)-linux-gnu/libnvcuvid.so /usr/local/lib/libnvcuvid.so \
- && ln -s /usr/lib/$(uname -m)-linux-gnu/libnvidia-encode.so /usr/local/lib/libnvidia-encode.so
+ONBUILD COPY --chown=root:root dev/libs/x86_64/*.so /usr/local/cuda/lib64/stubs/
 
-FROM compilers as wrtc
+FROM compilers as wrtc-arm64
 
+ONBUILD COPY --chown=root:root dev/libs/aarch64/*.so /usr/local/cuda/lib64/stubs/
+
+FROM wrtc-${TARGETARCH} as wrtc
+
+ARG TARGETARCH
 ARG SCCACHE_REGION
 ARG SCCACHE_BUCKET
 ARG SCCACHE_IDLE_TIMEOUT
@@ -142,9 +160,6 @@ ARG AWS_SECRET_ACCESS_KEY
 
 RUN --mount=type=secret,id=sccache_credentials \
     --mount=type=cache,target=/opt/node-webrtc \
-    --mount=type=bind,from=nvenc,source=/usr/local/lib/libcuda.so,target=/usr/local/lib/libcuda.so \
-    --mount=type=bind,from=nvenc,source=/usr/local/lib/libnvcuvid.so,target=/usr/local/lib/libnvcuvid.so \
-    --mount=type=bind,from=nvenc,source=/usr/local/lib/libnvidia-encode.so,target=/usr/local/lib/libnvidia-encode.so \
     \
     if [ ! -f /opt/node-webrtc/build/Release/wrtc.node ]; then \
         if [ -f /run/secrets/sccache_credentials ]; then set -a; . /run/secrets/sccache_credentials; set +a; fi; \
@@ -162,6 +177,7 @@ RUN --mount=type=secret,id=sccache_credentials \
             /opt/node-webrtc-nvenc \
          && cd /opt/node-webrtc-nvenc \
          && env SKIP_DOWNLOAD=1 \
+            TARGET_ARCH=${TARGETARCH} \
             CMAKE_MESSAGE_LOG_LEVEL=VERBOSE \
             CMAKE_C_COMPILER_LAUNCHER=/usr/bin/sccache \
             CMAKE_CXX_COMPILER_LAUNCHER=/usr/bin/sccache \
@@ -202,21 +218,19 @@ RUN --mount=type=secret,id=sccache_credentials \
  # Install NVENC-enabled wrtc
  npm install --global --unsafe-perm --no-audit --no-fund /opt/rapids/wrtc-0.4.7-dev.tgz
 
-FROM compilers
+FROM compilers as main-arm64
 
-ENV NVIDIA_DRIVER_CAPABILITIES all
+ONBUILD ARG ADDITIONAL_GROUPS="--groups sudo,video"
 
-ARG TARGETARCH
-ARG LLDB_VERSION=12
-ARG CLANGD_VERSION=12
-ARG FIXUID_VERSION=0.5.1
-ARG CLANG_FORMAT_VERSION=12
+FROM compilers as main-amd64
 
-ARG ADDITIONAL_GROUPS=
+ONBUILD ARG LLDB_VERSION=12
+ONBUILD ARG CLANGD_VERSION=12
+ONBUILD ARG CLANG_FORMAT_VERSION=12
 
 # https://github.com/moby/buildkit/blob/b8462c3b7c15b14a8c30a79fad298a1de4ca9f74/frontend/dockerfile/docs/syntax.md#example-cache-apt-packages
-RUN --mount=type=cache,target=/var/lib/apt \
-    --mount=type=cache,target=/var/cache/apt \
+ONBUILD RUN --mount=type=cache,target=/var/lib/apt \
+            --mount=type=cache,target=/var/cache/apt \
     rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache; \
  \
@@ -239,29 +253,12 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  \
  && apt update \
  && apt install --no-install-recommends -y \
-    jq entr nano sudo bash-completion \
     # lldb (for llnode)
     lldb-${LLDB_VERSION} libllvm${LLDB_VERSION} \
     # clangd for C++ intellisense and debugging
     clangd-${CLANGD_VERSION} \
     # clang-format for automatically formatting C++ and TS/JS
     clang-format-${CLANG_FORMAT_VERSION} \
-    # X11 dependencies
-    libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev \
-    # node-canvas dependencies
-    libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
-    # GLFW Wayland dependencies
-    extra-cmake-modules libwayland-dev wayland-protocols libxkbcommon-dev \
-    # GLEW dependencies
-    build-essential libxmu-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
-    # cuSpatial dependencies
-    libgdal-dev \
-    # SQL dependencies
-    maven openjdk-8-jdk-headless openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
-    # UCX build dependencies
-    automake autoconf libtool \
-    # UCX runtime dependencies
-    libibverbs-dev librdmacm-dev libnuma-dev \
  \
  # Set alternatives for clangd
  && (update-alternatives --remove-all clangd >/dev/null 2>&1 || true) \
@@ -281,6 +278,60 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
     --slave /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-${LLDB_VERSION} \
  # Set lldb-${LLDB_VERSION} as the default lldb, llvm-config-${LLDB_VERSION} as default llvm-config
  && update-alternatives --set lldb /usr/bin/lldb-${LLDB_VERSION} \
+ \
+ # Globally install llnode
+ && mkdir -p /usr/local/lib/llnode && cd /usr/local/lib/llnode \
+ && (git init 2>/dev/null || true) \
+ && (git remote add origin https://github.com/trxcllnt/llnode.git 2>/dev/null || true) \
+ && git fetch origin use-llvm-project-monorepo && git checkout use-llvm-project-monorepo \
+ && cd / \
+ && npm install --global --unsafe-perm --no-audit --no-fund /usr/local/lib/llnode \
+ && which -a llnode \
+ \
+ # Clean up
+ && apt autoremove -y && apt clean \
+ && rm -rf /tmp/* /var/tmp/* \
+    /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list \
+    /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list \
+    /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list
+
+FROM main-${TARGETARCH}
+
+ENV NVIDIA_DRIVER_CAPABILITIES all
+
+ARG TARGETARCH
+ARG ADDITIONAL_GROUPS
+ARG FIXUID_VERSION=0.5.1
+
+# https://github.com/moby/buildkit/blob/b8462c3b7c15b14a8c30a79fad298a1de4ca9f74/frontend/dockerfile/docs/syntax.md#example-cache-apt-packages
+RUN --mount=type=cache,target=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt \
+    set -x; \
+    rm -f /etc/apt/apt.conf.d/docker-clean; \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache; \
+ \
+ # Install dependencies (llnode etc.)
+    export DEBIAN_FRONTEND=noninteractive \
+ \
+ && apt update \
+ && apt install --no-install-recommends -y \
+    jq entr nano sudo bash-completion \
+    # X11 dependencies
+    libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev \
+    # node-canvas dependencies
+    libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
+    # GLFW Wayland dependencies
+    extra-cmake-modules libwayland-dev wayland-protocols libxkbcommon-dev \
+    # GLEW dependencies
+    build-essential libxmu-dev libgl1-mesa-dev libegl1-mesa-dev libglu1-mesa-dev \
+    # cuSpatial dependencies
+    libgdal-dev \
+    # SQL dependencies
+    maven openjdk-8-jdk-headless openjdk-8-jre-headless libboost-regex-dev libboost-system-dev libboost-filesystem-dev \
+    # UCX build dependencies
+    automake autoconf libtool \
+    # UCX runtime dependencies
+    libibverbs-dev librdmacm-dev libnuma-dev \
  \
  # Install UCX
  && git clone --depth 1 --branch v1.11.x https://github.com/openucx/ucx.git /tmp/ucx \
@@ -312,6 +363,7 @@ paths:\n\
     --create-home --home-dir /opt/rapids \
     rapids \
  && mkdir -p /opt/rapids/node/.cache \
+ && cp /root/.npmrc /opt/rapids/.npmrc \
  && ln -s /opt/rapids/node/.vscode/server /opt/rapids/.vscode-server \
  && ln -s /opt/rapids/node/.vscode/server-insiders /opt/rapids/.vscode-server-insiders \
  && chown -R rapids:rapids /opt/rapids \
@@ -346,21 +398,9 @@ export PROMPT_COMMAND=\"history -a; \$PROMPT_COMMAND\";\n\
     https://raw.githubusercontent.com/dsifford/yarn-completion/5bf2968493a7a76649606595cfca880a77e6ac0e/yarn-completion.bash \
   | tee /etc/bash_completion.d/yarn >/dev/null \
  \
- # Globally install llnode
- && mkdir -p /usr/local/lib/llnode && cd /usr/local/lib/llnode \
- && (git init 2>/dev/null || true) \
- && (git remote add origin https://github.com/trxcllnt/llnode.git 2>/dev/null || true) \
- && git fetch origin use-llvm-project-monorepo && git checkout use-llvm-project-monorepo \
- && cd / \
- && npm install --global --unsafe-perm --no-audit --no-fund /usr/local/lib/llnode \
- && which -a llnode \
- \
  # Clean up
  && apt autoremove -y && apt clean \
- && rm -rf /tmp/* /var/tmp/* \
-    /etc/apt/sources.list.d/llvm-${LLDB_VERSION}.list \
-    /etc/apt/sources.list.d/llvm-${CLANGD_VERSION}.list \
-    /etc/apt/sources.list.d/llvm-${CLANG_FORMAT_VERSION}.list
+ && rm -rf /tmp/* /var/tmp/*
 
 ENV NODE_PATH=/usr/local/lib/node_modules
 ENV NODE_OPTIONS="--experimental-vm-modules --trace-uncaught"

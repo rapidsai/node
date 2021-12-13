@@ -93,6 +93,11 @@ struct EnvLocalObjectWrap : public Napi::ObjectWrap<T>,  //
   using wrapper_t = Wrapper<T>;
 
   using Napi::ObjectWrap<T>::Env;
+  using Napi::ObjectWrap<T>::Ref;
+  using Napi::ObjectWrap<T>::Unref;
+  using Napi::ObjectWrap<T>::Reset;
+  using Napi::ObjectWrap<T>::Value;
+  using Napi::ObjectWrap<T>::SuppressDestruct;
 
   inline EnvLocalObjectWrap(Napi::CallbackInfo const& info) : Napi::ObjectWrap<T>(info){};
 
@@ -170,7 +175,7 @@ struct EnvLocalObjectWrap : public Napi::ObjectWrap<T>,  //
 
   inline operator wrapper_t() const { return Value(); }
 
-  inline wrapper_t Value() const { return Napi::ObjectWrap<T>::Value(); }
+  // inline wrapper_t Value() const { return Napi::ObjectWrap<T>::Value(); }
 };
 
 }  // namespace nv
