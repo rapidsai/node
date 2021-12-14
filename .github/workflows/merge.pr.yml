@@ -6,9 +6,9 @@ on:
       - main
 
 env:
-  NODE: 16.13.0
-  RAPIDS: 22.02.00
-  REPOSITORY: ghcr.io/rapidsai/node
+  NODE: "16.13.0"
+  RAPIDS: "22.02.00"
+  REPOSITORY: "ghcr.io/rapidsai/node"
 
 concurrency:
   group: build_docker_images
@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.5.0]
+        CUDA: ["11.5.0"]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - name: Checkout
@@ -70,7 +70,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.5.0]
+        CUDA: ["11.5.0"]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - name: Checkout
@@ -124,7 +124,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.5.0]
+        CUDA: ["11.5.0"]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - name: Checkout
@@ -171,7 +171,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.5.0]
+        CUDA: ["11.5.0"]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - name: Checkout
@@ -218,7 +218,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.5.0]
+        CUDA: ["11.5.0"]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - name: Checkout
@@ -265,7 +265,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.5.0]
+        CUDA: ["11.5.0"]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - name: Checkout
@@ -312,7 +312,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.5.0]
+        CUDA: ["11.5.0"]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - name: Checkout
@@ -359,7 +359,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.5.0]
+        CUDA: ["11.5.0"]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - name: Checkout
@@ -406,7 +406,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.5.0]
+        CUDA: ["11.5.0"]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - name: Checkout
@@ -453,7 +453,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.5.0]
+        CUDA: ["11.5.0"]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - name: Checkout
@@ -500,7 +500,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.5.0]
+        CUDA: ["11.5.0"]
         LINUX: [ubuntu18.04, ubuntu20.04]
     steps:
       - name: Checkout
