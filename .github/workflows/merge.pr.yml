@@ -37,9 +37,9 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            dev/dockerfiles/devel/main.Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
+            dev/dockerfiles/devel/main\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         uses: ./.github/actions/build-and-publish-image
@@ -85,13 +85,13 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            .npmrc
+            \.npmrc
             modules
             yarn\.lock
             package\.json
-            dev/dockerfiles/devel/(main|package).Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
+            dev/dockerfiles/devel/(main|package)\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
         uses: ./.github/actions/build-and-publish-image
@@ -107,6 +107,7 @@ jobs:
           tags: |
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages
           build-args: |
+            "CUDAARCHS=ALL"
             "PARALLEL_LEVEL=1"
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
@@ -138,9 +139,9 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            dev/dockerfiles/runtime/base.Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
+            dev/dockerfiles/runtime/base\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
         if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
@@ -185,11 +186,11 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            .npmrc
+            \.npmrc
             modules/(rmm|core|cuda|cudf)
-            dev/dockerfiles/runtime/cudf.Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
+            dev/dockerfiles/runtime/cudf\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
         if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
@@ -232,11 +233,11 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            .npmrc
+            \.npmrc
             modules/(rmm|core|cuda|cudf|cugraph)
-            dev/dockerfiles/runtime/cugraph.Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
+            dev/dockerfiles/runtime/cugraph\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
         if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
@@ -279,11 +280,11 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            .npmrc
+            \.npmrc
             modules/(rmm|core|cuda|cudf|cuml)
-            dev/dockerfiles/runtime/cuml.Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
+            dev/dockerfiles/runtime/cuml\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
         if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
@@ -326,11 +327,11 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            .npmrc
+            \.npmrc
             modules/(rmm|core|cuda|cudf|cuspatial)
-            dev/dockerfiles/runtime/cuspatial.Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
+            dev/dockerfiles/runtime/cuspatial\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
         if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
@@ -373,11 +374,11 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            .npmrc
+            \.npmrc
             modules/(core|glfw|webgl)
-            dev/dockerfiles/runtime/glfw.Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
+            dev/dockerfiles/runtime/glfw\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
         if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
@@ -420,11 +421,11 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            .npmrc
+            \.npmrc
             modules/(rmm|core|cuda|cudf|sql)
-            dev/dockerfiles/runtime/sql.Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
+            dev/dockerfiles/runtime/sql\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
         if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
@@ -467,11 +468,11 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            .npmrc
+            \.npmrc
             modules/(core|cuda|glfw|webgl|rmm|cudf|sql|cuml|cugraph|cuspatial|deck\.gl|jsdom)
-            dev/dockerfiles/runtime/main.Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
+            dev/dockerfiles/runtime/main\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
         if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
@@ -514,11 +515,11 @@ jobs:
         uses: tj-actions/changed-files@v9.1
         with:
           files: |
-            .npmrc
+            \.npmrc
             modules
-            dev/dockerfiles/runtime/demo.Dockerfile
-            .github/workflows/merge.pr.yml
-            .github/actions/build-and-publish-image/action.yml
+            dev/dockerfiles/runtime/demo\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build and push image
         uses: ./.github/actions/build-and-publish-image
         if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
