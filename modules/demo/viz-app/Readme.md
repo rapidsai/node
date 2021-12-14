@@ -1,16 +1,19 @@
-# Server-Side Rendered Viz Demos
+# Server-Side Rendered Visualization App Frontend [WIP]
+A collection of react-based visualizations, such as geospatil, graph, and scatterplot, all rendered server-side and streamed to a simple <video> tag via a custom version of webRTC using nvENC. For more details visit the [SSR demos section](https://github.com/rapidsai/node/tree/main/modules/demo/ssr)
 
-Collection of react-based dashboard which include interactive vizualizations which are rendered on the server-side (server app can be found in [demos/ssr/graph](../ssr/graph/).
+## Featured Dependencies
+deckgl
 
 
-# Running Instructions:
+## Data Requirements
+NOTE: while the frontend has no explicit data requirements, it assumes the [SSR Graph demo](https://github.com/rapidsai/node/tree/main/modules/demo/ssr/graph) is server running.
 
-```bash
-# Terminal 1: start the rendering server
+## Start
+Running visualization app requires two running docker instances, then opening `localhost:3000/`:
+`
+# Terminal 1 - start the rendering server:
 yarn demo modules/demo/ssr/graph
 
-# Terminal 2: start hhe front-end viz-app
+# Terminal 2 - start the front end visualization app:
 yarn demo modules/demo/viz-app
-```
-
-Visit `localhost:3000/demo/graph` to access the demo.
+`
