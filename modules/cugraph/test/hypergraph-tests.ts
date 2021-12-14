@@ -122,7 +122,7 @@ test('hyperedges', () => {
   ]);
 });
 
-test('hyperedges_direct', () => {
+test.only('hyperedges_direct', () => {
   const h = hypergraphDirect(hyper_df);
 
   expect('edges' in h);
