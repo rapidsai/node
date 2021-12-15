@@ -6,8 +6,6 @@ SHELL ["/bin/bash", "-c"]
 
 ARG TARGETARCH
 
-ENV NVIDIA_DRIVER_CAPABILITIES all
-
 ADD --chown=node:node \
     https://raw.githubusercontent.com/n-riesco/ijavascript/8637a3e18b89270121f49733d03af0e3e6e0a17a/images/nodejs/js-green-32x32.png \
     /home/node/.local/share/jupyter/kernels/javascript/logo-32x32.png

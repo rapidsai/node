@@ -35,6 +35,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceAccessor<&Column::is_nullable>("nullable"),
                        InstanceAccessor<&Column::num_children>("numChildren"),
 
+                       InstanceMethod<&Column::dispose>("dispose"),
                        InstanceMethod<&Column::get_child>("getChild"),
                        InstanceMethod<&Column::get_value>("getValue"),
                        InstanceMethod<&Column::set_null_mask>("setNullMask"),
@@ -146,6 +147,8 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        // column/strings/padding.cpp
                        InstanceMethod<&Column::pad>("pad"),
                        InstanceMethod<&Column::zfill>("zfill"),
+                       // column/strings/replace.cpp
+                       InstanceMethod<&Column::replace_slice>("replaceSlice"),
                        // column/convert.cpp
                        InstanceMethod<&Column::strings_from_booleans>("stringsFromBooleans"),
                        InstanceMethod<&Column::strings_to_booleans>("stringsToBooleans"),
@@ -220,8 +223,7 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
     case cudf::type_id::TIMESTAMP_MILLISECONDS:
     case cudf::type_id::TIMESTAMP_MICROSECONDS:
     case cudf::type_id::TIMESTAMP_NANOSECONDS: {
-      children_ = Napi::Persistent(Napi::Array::New(env, 0));
-      data_     = Napi::Persistent(data_to_devicebuffer(env, props.Get("data"), type()));
+      data_ = Napi::Persistent(data_to_devicebuffer(env, props.Get("data"), type()));
       size_ = std::max(0, cudf::size_type(data_.Value()->size() / cudf::size_of(type())) - offset_);
       null_mask_ =
         Napi::Persistent(mask.IsNull() ? data_to_null_bitmask(env, props.Get("data"), size_)
@@ -231,15 +233,25 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
     case cudf::type_id::LIST:
     case cudf::type_id::STRING:
     case cudf::type_id::DICTIONARY32: {
+      [&](Napi::Array const& children) {
+        children_.reserve(children.Length());
+        for (uint32_t i = 0; i < children.Length(); ++i) {
+          children_.push_back(Napi::Persistent(Column::wrapper_t{children.Get(i).ToObject()}));
+        }
+      }(props.Get("children").As<Napi::Array>());
       data_      = Napi::Persistent(DeviceBuffer::New(env));
-      children_  = Napi::Persistent(props.Get("children").As<Napi::Array>());
       size_      = std::max(0, (num_children() > 0 ? child(0)->size() - 1 : 0) - offset_);
       null_mask_ = Napi::Persistent(mask_to_null_bitmask(env, mask, size_));
       break;
     }
     case cudf::type_id::STRUCT: {
-      data_     = Napi::Persistent(DeviceBuffer::New(env));
-      children_ = Napi::Persistent(props.Get("children").As<Napi::Array>());
+      [&](Napi::Array const& children) {
+        children_.reserve(children.Length());
+        for (uint32_t i = 0; i < children.Length(); ++i) {
+          children_.push_back(Napi::Persistent(Column::wrapper_t{children.Get(i).ToObject()}));
+        }
+      }(props.Get("children").As<Napi::Array>());
+      data_ = Napi::Persistent(DeviceBuffer::New(env));
       if (num_children() > 0) {
         size_ = std::max(0, child(0)->size() - offset_);
         for (cudf::size_type i = 0; ++i < num_children();) {
@@ -271,6 +283,27 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
     return cudf::UNKNOWN_NULL_COUNT;
   }());
 }
+
+void Column::Finalize(Napi::Env env) {
+  //
+}
+
+void Column::dispose(Napi::Env env) {
+  if (children_.size()) {
+    for (auto& child : children_) { child.Value()->dispose(env); }
+    children_.clear();
+  }
+  if (!data_.IsEmpty() && offset_ == 0) { data_.Value()->dispose(env); }
+  if (!null_mask_.IsEmpty() && offset_ == 0) { null_mask_.Value()->dispose(env); }
+  data_.Reset();
+  null_mask_.Reset();
+  size_       = 0;
+  offset_     = 0;
+  null_count_ = 0;
+  disposed_   = true;
+}
+
+void Column::dispose(Napi::CallbackInfo const& info) { dispose(info.Env()); }
 
 // If the null count is known, return it. Else, compute and return it
 cudf::size_type Column::null_count() const {
@@ -311,34 +344,30 @@ void Column::set_null_count(cudf::size_type new_null_count) {
 }
 
 cudf::column_view Column::view() const {
-  auto const type     = this->type();
-  auto const data     = this->data();
-  auto const mask     = this->null_mask();
-  auto const children = children_.Value().As<Napi::Array>();
+  auto const type = this->type();
+  auto const data = this->data();
+  auto const mask = this->null_mask();
 
   // Create views of children
   std::vector<cudf::column_view> child_views;
-  child_views.reserve(children.Length());
-  for (auto i = 0u; i < children.Length(); ++i) {
-    auto child = children.Get(i).As<Napi::Object>();
-    child_views.emplace_back(*Column::Unwrap(child));
+  child_views.reserve(children_.size());
+  for (auto i = 0u; i < children_.size(); ++i) {
+    child_views.emplace_back(children_[i].Value()->view());
   }
 
   return cudf::column_view(type, size_, *data, *mask, null_count_, offset_, child_views);
 }
 
 cudf::mutable_column_view Column::mutable_view() {
-  auto type     = this->type();
-  auto data     = this->data();
-  auto mask     = this->null_mask();
-  auto children = children_.Value().As<Napi::Array>();
+  auto type = this->type();
+  auto data = this->data();
+  auto mask = this->null_mask();
 
   // Create views of children
   std::vector<cudf::mutable_column_view> child_views;
-  child_views.reserve(children.Length());
-  for (auto i = 0u; i < children.Length(); ++i) {
-    auto child = children.Get(i).As<Napi::Object>();
-    child_views.emplace_back(*Column::Unwrap(child));
+  child_views.reserve(children_.size());
+  for (auto i = 0u; i < children_.size(); ++i) {
+    child_views.emplace_back(children_[i].Value()->mutable_view());
   }
 
   // Store the old null count before resetting it. By accessing the value directly instead of
@@ -429,7 +458,7 @@ Napi::Value Column::gather(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value Column::get_child(Napi::CallbackInfo const& info) {
-  return children_.Value().Get(info[0].ToNumber());
+  return children_[info[0].ToNumber().Int32Value()].Value();
 }
 
 Napi::Value Column::get_value(Napi::CallbackInfo const& info) {

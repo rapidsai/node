@@ -486,6 +486,14 @@ export class DataFrame<T extends TypeMap = any> {
   concat<U extends DataFrame[]>(...others: U) { return concatDataFrames(this, ...others); }
 
   /**
+   * @summary Explicitly free the device memory associated with this DataFrame.
+   */
+  dispose() {
+    this.names.forEach((name) => this.get(name).dispose());
+    this._accessor = new ColumnAccessor({} as ColumnsMap<T>);
+  }
+
+  /**
    * @summary Interleave columns of a DataFrame into a single Series.
    *
    * @param dataType The dtype of the result Series (required if the DataFrame has mixed dtypes).
@@ -897,7 +905,7 @@ export class DataFrame<T extends TypeMap = any> {
    * drop null rows
    * @ignore
    */
-  _dropNullsRows(thresh = 1, subset = this.names) {
+  protected _dropNullsRows(thresh = 1, subset = this.names) {
     const column_indices: number[] = [];
     const allNames                 = this.names;
     subset.forEach((col) => {
@@ -918,7 +926,7 @@ export class DataFrame<T extends TypeMap = any> {
    * drop rows with NaN values (float type only)
    * @ignore
    */
-  _dropNaNsRows(thresh = 1, subset = this.names) {
+  protected _dropNaNsRows(thresh = 1, subset = this.names) {
     const column_indices: number[] = [];
     const allNames                 = this.names;
     subset.forEach((col) => {
@@ -941,7 +949,7 @@ export class DataFrame<T extends TypeMap = any> {
    * drop columns with nulls
    * @ignore
    */
-  _dropNullsColumns(thresh = 1, subset?: Series) {
+  protected _dropNullsColumns(thresh = 1, subset?: Series) {
     const column_names: (keyof T)[] = [];
     const df                        = (subset !== undefined) ? this.gather(subset) : this;
 
@@ -957,7 +965,7 @@ export class DataFrame<T extends TypeMap = any> {
    * drop columns with NaN values(float type only)
    * @ignore
    */
-  _dropNaNsColumns(thresh = 1, subset?: Series, memoryResource?: MemoryResource) {
+  protected _dropNaNsColumns(thresh = 1, subset?: Series, memoryResource?: MemoryResource) {
     const column_names: (keyof T)[] = [];
     const df                        = (subset !== undefined) ? this.gather(subset) : this;
 

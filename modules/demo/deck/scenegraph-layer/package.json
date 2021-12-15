@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@rapidsai/demo-deck-scenegraph-layer-demo",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "Apache-2.0",
   "author": "NVIDIA, Inc. (https://nvidia.com/)",
   "maintainers": [
@@ -15,8 +15,8 @@
   "dependencies": {
     "@deck.gl/react": "8.5.8",
     "@deck.gl/mesh-layers": "8.5.8",
-    "@loaders.gl/gltf": "3.0.12",
-    "@loaders.gl/core": "3.0.12",
+    "@loaders.gl/gltf": "3.0.13",
+    "@loaders.gl/core": "3.0.13",
     "@rapidsai/jsdom": "0.0.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",

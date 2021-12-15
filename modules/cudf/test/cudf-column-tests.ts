@@ -206,6 +206,39 @@ test('Column.stringsToIntegers', () => {
   expect([...Series.new(result)]).toEqual(expected);
 });
 
+describe('Column.replaceSlice', () => {
+  test('prepend', () => {
+    const col      = Series.new(['foo', 'bar', 'abcdef'])._col;
+    const result   = col.replaceSlice('123', 0, 0);
+    const expected = ['123foo', '123bar', '123abcdef'];
+    expect([...Series.new(result)]).toEqual(expected);
+  });
+  test('append', () => {
+    const col      = Series.new(['foo', 'bar', 'abcdef'])._col;
+    const result   = col.replaceSlice('123', -1, -1);
+    const expected = ['foo123', 'bar123', 'abcdef123'];
+    expect([...Series.new(result)]).toEqual(expected);
+  });
+  test('insert', () => {
+    const col      = Series.new(['foo', 'bar', 'abcdef'])._col;
+    const result   = col.replaceSlice('123', 1, 1);
+    const expected = ['f123oo', 'b123ar', 'a123bcdef'];
+    expect([...Series.new(result)]).toEqual(expected);
+  });
+  test('replace middle', () => {
+    const col      = Series.new(['foo', 'bar', 'abcdef'])._col;
+    const result   = col.replaceSlice('123', 1, 2);
+    const expected = ['f123o', 'b123r', 'a123cdef'];
+    expect([...Series.new(result)]).toEqual(expected);
+  });
+  test('replace entire', () => {
+    const col      = Series.new(['foo', 'bar', 'abcdef'])._col;
+    const result   = col.replaceSlice('123', 0, -1);
+    const expected = ['123', '123', '123'];
+    expect([...Series.new(result)]).toEqual(expected);
+  });
+});
+
 describe('Column.setNullMask', () => {
   const arange = (length: number) => Array.from({length}, (_, i) => i);
   const makeTestColumn            = (length: number) =>

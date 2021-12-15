@@ -46,7 +46,7 @@ SCCACHE_REGION=$SCCACHE_REGION\n\
 SCCACHE_BUCKET=$SCCACHE_BUCKET\n\
 SCCACHE_IDLE_TIMEOUT=$SCCACHE_IDLE_TIMEOUT\n\
 " > .env' \
- && yarn --pure-lockfile \
+ && yarn --pure-lockfile --network-timeout 1000000 \
  && yarn tsc:build \
  && yarn cpp:build \
  && yarn dev:npm:pack \
