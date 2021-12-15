@@ -63,7 +63,7 @@ We include a one-shot command for installing most C++ dependencies (in Ubuntu):
 yarn dev:install-cpp-dependencies
 ```
 
-This script does not install GCC or the SQL module's dependencies. You should to install and manage those separately (via [`update-alternatives`](http://manpages.ubuntu.com/manpages/trusty/man8/update-alternatives.8.html) or similar). See [dockerfiles/devel/main.Dockerfile](https://github.com/rapidsai/node/blob/main/dockerfiles/devel/main.Dockerfile) for an example of installing gcc-9, the RDMA/Infiniband drivers, and building UCX.
+This script does not install GCC or the SQL module's dependencies. You should to install and manage those separately (via [`update-alternatives`](http://manpages.ubuntu.com/manpages/trusty/man8/update-alternatives.8.html) or similar). See [dev/dockerfiles/devel/main.Dockerfile](https://github.com/rapidsai/node/blob/main/dev/dockerfiles/devel/main.Dockerfile) for an example of installing gcc-9, the RDMA/Infiniband drivers, and building UCX.
 
 ## Troubleshooting
 

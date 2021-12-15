@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, DataType, Series} from '@rapidsai/cudf';
-import {callMethodSync, callStaticMethodSync} from 'java';
+import {DataFrame, DataType} from '@rapidsai/cudf';
 
 import {
   Context,
@@ -24,6 +23,7 @@ import {
 import {
   ArrayList,
   BlazingSchema,
+  CatalogColumnDataType,
   CatalogColumnImpl,
   CatalogDatabaseImpl,
   CatalogTableImpl,
@@ -156,20 +156,19 @@ export class SQLContext {
   }
 
   private _createTable(input: SQLTable): void {
-    callMethodSync(this._db, 'removeTable', input.tableName);
+    if (this._tables.has(input.tableName)) {  //
+      this._db.removeTableSync(input.tableName);
+    }
     this._tables.set(input.tableName, input);
 
     const arr = ArrayList();
     input.names.forEach((name: string, index: number) => {
-      const dataType =
-        callStaticMethodSync('com.blazingdb.calcite.catalog.domain.CatalogColumnDataType',
-                             'fromTypeId',
-                             input.type(name).typeId);
-      const column = CatalogColumnImpl([name, dataType, index]);
-      callMethodSync(arr, 'add', column);
+      const dataType = CatalogColumnDataType.fromTypeIdSync(input.type(name).typeId);
+      const column   = CatalogColumnImpl([name, dataType, index]);
+      arr.addSync(column);
     });
     const tableJava = CatalogTableImpl([input.tableName, this._db, arr]);
-    callMethodSync(this._db, 'addTable', tableJava);
+    this._db.addTableSync(tableJava);
     this._schema    = BlazingSchema(this._db);
     this._generator = RelationalAlgebraGenerator(this._schema);
   }
@@ -199,7 +198,7 @@ export class SQLContext {
       throw new Error(`Unable to find table with name ${tableName} to drop from SQLContext memory`);
     }
 
-    callMethodSync(this._db, 'removeTable', tableName);
+    this._db.removeTableSync(tableName);
     this._schema    = BlazingSchema(this._db);
     this._generator = RelationalAlgebraGenerator(this._schema);
     this._tables.delete(tableName);
@@ -337,7 +336,7 @@ export class SQLContext {
     let algebra = '';
 
     try {
-      algebra = callMethodSync(this._generator, 'getRelationalAlgebraString', sql);
+      algebra = this._generator.getRelationalAlgebraStringSync(sql);
 
       if (detail == true) {
         const ctxToken = Math.random() * Number.MAX_SAFE_INTEGER;
@@ -392,7 +391,7 @@ export class SQLContext {
    */
   async pull(messageId: string) {
     const {names, tables: [table]} = await this.context.pull(messageId);
-    return new DataFrame(names.reduce(
-      (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {}));
+    return new DataFrame(
+      names.reduce((cols, name, i) => ({...cols, [name]: table.getColumnByIndex(i)}), {}));
   }
 }

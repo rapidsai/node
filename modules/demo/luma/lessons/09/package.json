@@ -1,5 +1,5 @@
 {
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "name": "@rapidsai/demo-luma.gl-lessons-09",
   "scripts": {
@@ -7,7 +7,7 @@
     "start-local": "webpack-dev-server --env.local --progress --hot --open -d"
   },
   "dependencies": {
-    "@loaders.gl/images": "3.0.12",
+    "@loaders.gl/images": "3.0.13",
     "@luma.gl/constants": "8.5.7",
     "@luma.gl/core": "8.5.7",
     "@luma.gl/experimental": "8.5.7",

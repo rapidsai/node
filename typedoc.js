@@ -18,6 +18,7 @@ module.exports = mergeOptions(loadOptions('modules/cuda'),
                               loadOptions('modules/glfw'),
                               loadOptions('modules/webgl'),
                               loadOptions('modules/sql'),
+                              loadOptions('modules/io'),
                               {
                                 out: 'doc',
                                 name: 'RAPIDS',

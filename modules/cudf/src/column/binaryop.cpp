@@ -47,8 +47,8 @@ Column::wrapper_t Column::binary_operation(Column const& rhs,
                                            cudf::type_id output_type,
                                            rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(
-      rhs.Env(), cudf::jit::binary_operation(*this, rhs, op, cudf::data_type{output_type}, mr));
+    return Column::New(rhs.Env(),
+                       cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type}, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(rhs.Env(), err.what())); }
 }
 
@@ -57,8 +57,8 @@ Column::wrapper_t Column::binary_operation(Scalar const& rhs,
                                            cudf::type_id output_type,
                                            rmm::mr::device_memory_resource* mr) const {
   try {
-    return Column::New(
-      rhs.Env(), cudf::jit::binary_operation(*this, rhs, op, cudf::data_type{output_type}, mr));
+    return Column::New(rhs.Env(),
+                       cudf::binary_operation(*this, rhs, op, cudf::data_type{output_type}, mr));
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(rhs.Env(), err.what())); }
 }
 

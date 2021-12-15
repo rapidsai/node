@@ -18,13 +18,10 @@ function(find_and_configure_cugraph VERSION)
 
     include(get_cpm)
 
-    include(ConfigureRAFT)
-
     _clean_build_dirs_if_not_fully_built(cugraph libcugraph.so)
 
     _set_package_dir_if_exists(cuco cuco)
     _set_package_dir_if_exists(raft raft)
-    _set_package_dir_if_exists(faiss faiss)
     _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(cugraph cugraph)
     _set_package_dir_if_exists(cuhornet cuhornet)
@@ -43,13 +40,11 @@ function(find_and_configure_cugraph VERSION)
             SOURCE_SUBDIR       cpp
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
-                                "RAFT_USE_FAISS_STATIC OFF"
         )
     endif()
     # Make sure consumers of our libs can see cugraph::cugraph
     _fix_cmake_global_defaults(cugraph::cugraph)
     # Make these -isystem so -Werror doesn't fail their builds
-    _set_interface_include_dirs_as_system(faiss::faiss)
 endfunction()
 
 find_and_configure_cugraph(${CUGRAPH_VERSION})
