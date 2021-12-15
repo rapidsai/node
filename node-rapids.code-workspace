@@ -33,6 +33,10 @@
             "path": "modules/cuspatial"
         },
         {
+            "name": "io",
+            "path": "modules/io"
+        },
+        {
             "name": "sql",
             "path": "modules/sql"
         },
@@ -110,7 +114,8 @@
             "./node-rapids/modules/demo",
             "./node-rapids/modules/glfw",
             "./node-rapids/modules/webgl",
-            "./node-rapids/modules/sql"
+            "./node-rapids/modules/sql",
+            "./node-rapids/modules/io"
         ],
         "eslint.options": {
             "configFile": ".eslintrc.js"

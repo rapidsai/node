@@ -51,6 +51,7 @@
     "docker:run:runtime:cuspatial": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm cuspatial",
     "docker:run:runtime:demo": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm demo",
     "docker:run:runtime:glfw": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm glfw",
+    "docker:run:runtime:io": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm io",
     "docker:run:runtime:main": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm main",
     "docker:run:runtime:notebook": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm notebook",
     "docker:run:runtime:sql": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm sql",
