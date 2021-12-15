@@ -39,8 +39,8 @@ services:
       dockerfile: dev/dockerfiles/runtime/base.Dockerfile
       args:
         UID: ${UID:-1000}
-        AMD64_BASE: ${AMD64_BASE:-gpuci/cuda:11.5.0-runtime-ubuntu20.04}
-        ARM64_BASE: ${ARM64_BASE:-nvcr.io/nvidia/l4t-cuda:10.2.460-runtime}
+        AMD64_BASE: gpuci/cuda:${CUDA_VERSION:-11.5.0}-runtime-${LINUX_VERSION:-ubuntu20.04}
+        ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-10.2.460}-runtime
         DEVEL_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.13.0}-cuda${CUDA_VERSION:-11.5.0}-${LINUX_VERSION:-ubuntu20.04}-main
 
   main:
