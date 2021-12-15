@@ -36,7 +36,8 @@ if __name__ == \"__main__\":\n\
     \"ijskernel\",\n\
     \"--hide-undefined\",\n\
     \"{connection_file}\",\n\
-    \"--protocol=5.0\"\n\
+    \"--protocol=5.0\",\n\
+    \"--session-working-dir=/opt/rapids/node\"\n\
   ],\n\
   \"name\": \"javascript\",\n\
   \"language\": \"javascript\",\n\
