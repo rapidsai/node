@@ -39,11 +39,8 @@ function(find_and_configure_cudf VERSION)
         _get_update_disconnected_state(cudf ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cudf
             VERSION             ${VERSION}
-            # GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
-            # GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_REPOSITORY      https://github.com/trxcllnt/cudf.git
-            GIT_TAG             fix/branch-22.02
-            # GIT_TAG             fix/arrow-parquet-targets-${MAJOR_AND_MINOR}
+            GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
+            GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp

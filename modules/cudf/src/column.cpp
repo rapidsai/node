@@ -17,6 +17,7 @@
 #include <node_cudf/utilities/cpp_to_napi.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 
+#include <cudf/detail/null_mask.hpp>
 #include <cudf/detail/nvtx/ranges.hpp>
 
 namespace nv {
@@ -312,7 +313,8 @@ cudf::size_type Column::null_count() const {
     null_count_ = 0;
   } else if (null_count_ <= cudf::UNKNOWN_NULL_COUNT) {
     try {
-      null_count_ = cudf::count_unset_bits(*null_mask(), 0, size_);
+      null_count_ =
+        cudf::detail::count_unset_bits(*null_mask(), 0, size_, rmm::cuda_stream_default);
     } catch (std::exception const& e) {
       null_count_ = cudf::UNKNOWN_NULL_COUNT;
       NAPI_THROW(Napi::Error::New(Env(), e.what()));
