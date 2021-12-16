@@ -17,4 +17,13 @@
 #ifdef CUDA_TRY
 #undef CUDA_TRY
 #endif
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif
 #include <raft/handle.hpp>
+#ifdef CHECK_CUDA
+#undef CHECK_CUDA
+#endif
+#ifdef CUDA_TRY
+#undef CUDA_TRY
+#endif

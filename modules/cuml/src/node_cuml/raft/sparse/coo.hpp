@@ -20,7 +20,7 @@
 #ifdef CHECK_CUDA
 #undef CHECK_CUDA
 #endif
-#include <raft/cuda_utils.cuh>
+#include <raft/sparse/coo.hpp>
 #ifdef CHECK_CUDA
 #undef CHECK_CUDA
 #endif
