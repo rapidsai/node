@@ -123,6 +123,16 @@ services:
         <<: *main_build_args
         FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.0}-cuda${CUDA_VERSION:-11.5.0}-${LINUX_VERSION:-ubuntu20.04}-base
 
+  io:
+    <<: *main_service_settings
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-21.12.00}-runtime-node${NODE_VERSION:-16.10.0}-cuda${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-io-${ARCH:-amd64}
+    build:
+      <<: *main_build_settings
+      dockerfile: dockerfiles/runtime/io.Dockerfile
+      args:
+        <<: *main_build_args
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-21.12.00}-runtime-node${NODE_VERSION:-16.10.0}-cuda${CUDA_VERSION:-11.4.2}-${LINUX_VERSION:-ubuntu20.04}-base-${ARCH:-amd64}
+
   notebook:
     <<: *main_service_settings
     image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.0}-cuda${CUDA_VERSION:-11.5.0}-${LINUX_VERSION:-ubuntu20.04}-notebook
