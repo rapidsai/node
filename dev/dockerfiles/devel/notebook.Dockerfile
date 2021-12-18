@@ -15,8 +15,8 @@ ADD --chown=rapids:rapids \
 ARG NTERACT_VERSION=0.28.0
 
 ADD --chown=root:root \
-    https://github.com/nteract/nteract/releases/download/v${NTERACT_VERSION}/nteract_${NTERACT_VERSION}_${TARGETARCH}.deb \
-    /tmp/nteract.deb
+    https://github.com/jupyterlab/jupyterlab-desktop/releases/latest/download/JupyterLab-Setup-Debian.deb \
+    /tmp/JupyterLab-Setup-Debian.deb
 
 USER root
 
@@ -36,42 +36,21 @@ if __name__ == \"__main__\":\n\
     \"ijskernel\",\n\
     \"--hide-undefined\",\n\
     \"{connection_file}\",\n\
-    \"--protocol=5.0\"\n\
+    \"--protocol=5.0\",\n\
+    \"--session-working-dir=/opt/rapids/node\"\n\
   ],\n\
   \"name\": \"javascript\",\n\
   \"language\": \"javascript\",\n\
   \"display_name\": \"Javascript (Node.js)\"\n\
 }' > /opt/rapids/.local/share/jupyter/kernels/javascript/kernel.json" \
  && chmod 0644 /opt/rapids/.local/share/jupyter/kernels/javascript/logo-{32x32,64x64}.png \
- # Add nteract settings
  && mkdir -p /opt/rapids/.jupyter \
- && bash -c "echo -e '{\n\
-  \"theme\": \"dark\",\n\
-  \"editorType\": \"codemirror\",\n\
-  \"defaultKernel\": \"javascript\",\n\
-  \"codeMirror\": {\n\
-    \"mode\": \"text/javascript\",\n\
-    \"theme\": \"monokai\",\n\
-    \"tabSize\": 2,\n\
-    \"matchTags\": true,\n\
-    \"undoDepth\": 999999,\n\
-    \"inputStyle\": \"contenteditable\",\n\
-    \"lineNumbers\": true,\n\
-    \"matchBrackets\": true,\n\
-    \"indentWithTabs\": false,\n\
-    \"cursorBlinkRate\": 500,\n\
-    \"lineWiseCopyCut\": false,\n\
-    \"autoCloseBrackets\": 4,\n\
-    \"selectionsMayTouch\": true,\n\
-    \"showCursorWhenSelecting\": true\n\
-  }\n\
-}' > /opt/rapids/.jupyter/nteract.json" \
  && chown -R rapids:rapids /opt/rapids \
- # Install nteract/desktop
+ # Install Jupyter Desktop
  && apt update \
  && DEBIAN_FRONTEND=noninteractive \
     apt install -y --no-install-recommends \
-    python3-minimal libasound2 jupyter-notebook /tmp/nteract.deb \
+    python3-minimal libasound2 jupyter-notebook /tmp/JupyterLab-Setup-Debian.deb \
  \
  # Clean up
  && apt autoremove -y && apt clean \
@@ -86,12 +65,10 @@ if __name__ == \"__main__\":\n\
  && npm install --global --unsafe-perm --no-audit --no-fund ijavascript \
  && ijsinstall --install=global --spec-path=full
 
-ENV NTERACT_DESKTOP_DISABLE_AUTO_UPDATE=1
-
 USER rapids
 
 WORKDIR /opt/rapids/node
 
 SHELL ["/bin/bash", "-l"]
 
-CMD ["nteract"]
+CMD ["jlab"]
