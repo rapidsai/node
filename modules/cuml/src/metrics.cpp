@@ -12,11 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <node_cuda/utilities/error.hpp>
+// todo: including the below headers with undef guards is the only way cuml builds with raft
+// locally
+// #include <node_cuml/raft/linalg/distance_type.h>
+#include <node_cuml/cuml/metrics/metrics.hpp>
+#include <node_cuml/metrics.hpp>
+#include <node_cuml/raft/handle.hpp>
+
 #include <node_cudf/utilities/buffer.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
-#include <node_cuml/metrics.hpp>
+
 #include <node_rmm/device_buffer.hpp>
+
+#include <node_cuda/utilities/error.hpp>
+
+#include <nv_node/utilities/args.hpp>
 
 #include <napi.h>
 

@@ -59,8 +59,8 @@ services:
       dockerfile: dev/dockerfiles/devel/main.Dockerfile
       args:
         NODE_VERSION: ${NODE_VERSION:-16.13.0}
-        AMD64_BASE: ${AMD64_BASE:-gpuci/cuda:11.5.0-devel-ubuntu20.04}
-        ARM64_BASE: ${ARM64_BASE:-nvcr.io/nvidia/l4t-cuda:10.2.460-runtime}
+        AMD64_BASE: gpuci/cuda:${CUDA_VERSION:-11.5.0}-devel-${LINUX_VERSION:-ubuntu20.04}
+        ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-10.2.460}-runtime
         SCCACHE_REGION: "${SCCACHE_REGION:-}"
         SCCACHE_BUCKET: "${SCCACHE_BUCKET:-}"
         SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-}"

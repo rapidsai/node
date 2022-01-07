@@ -14,13 +14,15 @@
 
 #pragma once
 
-#include <napi.h>
-#include <memory>
+#include <node_cuml/raft/handle.hpp>
+#include <node_cuml/raft/sparse/coo.hpp>
+
 #include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
 
-#include "raft/handle.hpp"
-#include "raft/sparse/coo.cuh"
+#include <napi.h>
+
+#include <memory>
 
 namespace nv {
 
