@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -145,13 +145,13 @@ export interface TimestampNanosecond extends arrow.TimestampNanosecond {
 }
 export class TimestampNanosecond extends arrow.TimestampNanosecond {}
 
-export interface Categorical<T extends DataType = any> extends arrow.Dictionary<T, Int32> {
+export interface Categorical<T extends DataType = any> extends arrow.Dictionary<T, Uint32> {
   scalarType: T['scalarType'];
 }
-export class Categorical<T extends DataType = any> extends arrow.Dictionary<T, Int32> {
+export class Categorical<T extends DataType = any> extends arrow.Dictionary<T, Uint32> {
   constructor(dictionary: T, _id?: number|null, isOrdered?: boolean|null) {
     // we are overriding the id here so that Arrow dictionaries will always compare
-    super(dictionary, new Int32, 0, isOrdered);
+    super(dictionary, new Uint32, 0, isOrdered);
   }
 }
 

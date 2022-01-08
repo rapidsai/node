@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ import {Categorical, DataFrame, Int32, Series, StringSeries, Utf8String} from '@
 import {TypeMap} from '@rapidsai/cudf';
 
 import {GraphCOO} from './addon';
-import {renumber_edges, renumber_nodes} from './renumber';
+import {renumberEdges, renumberNodes} from './renumber';
 
 export type HypergraphBaseProps<T extends TypeMap = any> = {
   /** An optional sequence of column names to process. */
@@ -382,8 +382,8 @@ function create_graph(edges: DataFrame, source: string, target: string): GraphCO
   const src = edges.get(source);
   const dst = edges.get(target);
 
-  const rnodes = renumber_nodes(src, dst);
-  const redges = renumber_edges(src, dst, rnodes);
+  const rnodes = renumberNodes(src, dst);
+  const redges = renumberEdges(src, dst, rnodes);
 
   return new GraphCOO(redges.get('src')._col, redges.get('dst')._col, {directedEdges: true});
 }

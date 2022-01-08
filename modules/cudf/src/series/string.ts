@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ import {Series} from '../series';
 import {Table} from '../table';
 import {
   Bool8,
-  Categorical,
-  DataType,
   Float32,
   Float64,
   Int16,
@@ -60,17 +58,6 @@ export class StringSeries extends Series<Utf8String> {
     return StringSeries.new(this._col);
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
-
-  _castAsCategorical<R extends DataType>(dtype: R, memoryResource?: MemoryResource): Series<R> {
-    const categories = this.cast((dtype as Categorical).dictionary).unique(true, memoryResource);
-    const codes      = this.encodeLabels(categories, undefined, undefined, memoryResource);
-    return Series.new<R>({
-      type: new Categorical((dtype as Categorical).dictionary) as R,
-      length: codes.length,
-      nullMask: this.mask,
-      children: [codes, categories]
-    });
-  }
 
   _castAsInt8(memoryResource?: MemoryResource): Series<Int8> {
     return Series.new(this._col.stringsToIntegers(new Int8, memoryResource));
@@ -162,22 +149,6 @@ export class StringSeries extends Series<Utf8String> {
    */
   // TODO: Account for this.offset
   get data() { return Series.new(this._col.getChild<Uint8>(1)); }
-
-  /**
-   * Concat a StringSeries to the end of the caller, returning a new StringSeries.
-   *
-   * @param other The StringSeries to concat to the end of the caller.
-   *
-   * @example
-   * ```typescript
-   * import {Series} from '@rapidsai/cudf';
-   *
-   * Series.new(["foo"]).concat(Series.new(["bar"])) // ["foo", "bar"]
-   * ```
-   */
-  concat(other: Series<Utf8String>, memoryResource?: MemoryResource): Series<Utf8String> {
-    return this.__construct(this._col.concat(other._col, memoryResource));
-  }
 
   /**
    * Returns a boolean series identifying rows which match the given regex pattern.
@@ -344,7 +315,7 @@ export class StringSeries extends Series<Utf8String> {
    * If the string is already width or more characters, no padding is performed. No strings are
    * truncated.
    *
-   * This equivalent to ‘pad(width,left,'0’)` but is more optimized for this special case.
+   * This equivalent to `pad(width, 'left', '0')` but is more optimized for this special case.
    *
    * Null string entries result in null entries in the output column.
    *

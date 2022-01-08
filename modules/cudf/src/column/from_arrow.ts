@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 import * as arrow from 'apache-arrow';
 
 import {Column} from '../column';
-import {Int32, Uint8} from '../types/dtypes';
+import {Int32, Uint32, Uint8} from '../types/dtypes';
 import {arrowToCUDFType, ArrowToCUDFType} from '../types/mappings';
 
 /** @ignore */
@@ -167,11 +167,11 @@ class VectorToColumnVisitor extends arrow.Visitor {
   // visitSparseUnion<T extends arrow.SparseUnion>(vector: arrow.Vector<T>) {}
   visitDictionary<T extends arrow.Dictionary>(vector: arrow.Vector<T>) {
     const {type, length, data: {nullBitmap: nullMask}} = vector;
-    const indices = this.visit(arrow.Vector.new(vector.data.clone(type.indices))).cast(new Int32);
+    const codes = this.visit(arrow.Vector.new(vector.data.clone(type.indices))).cast(new Uint32);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const dictionary = this.visit(vector.data.dictionary!);
+    const categories = this.visit(vector.data.dictionary!);
     return new Column(
-      {length, type: arrowToCUDFType(type), nullMask, children: [indices, dictionary]});
+      {length, type: arrowToCUDFType(type), nullMask, children: [codes, categories]});
   }
   // visitIntervalDayTime<T extends arrow.IntervalDayTime>(vector: arrow.Vector<T>) {}
   // visitIntervalYearMonth<T extends arrow.IntervalYearMonth>(vector: arrow.Vector<T>) {}

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -92,8 +92,8 @@ export class Join<
       const rhs_col = this.rhs.get(name);
       if (!compareTypes(lhs_col.type, rhs_col.type)) {
         const type = findCommonType(lhs_col.type, rhs_col.type);
-        this.lhs   = this.lhs.assign({[name]: lhs_col.cast(type)}) as DataFrame<Lhs>;
-        this.rhs   = this.rhs.assign({[name]: rhs_col.cast(type)}) as DataFrame<Rhs>;
+        this.lhs   = this.lhs.assign({[name]: lhs_col.cast(type)}) as any as DataFrame<Lhs>;
+        this.rhs   = this.rhs.assign({[name]: rhs_col.cast(type)}) as any as DataFrame<Rhs>;
       }
     });
   }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -67,6 +67,7 @@ import {
   DuplicateKeepOption,
   NullOrder,
 } from './types/enums';
+import {CommonType, findCommonType} from './types/mappings';
 import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
 
 export type SeriesProps<T extends DataType = any> = {
@@ -193,29 +194,6 @@ export type Series<T extends arrow.DataType = any> = {
  * One-dimensional GPU array
  */
 export class AbstractSeries<T extends DataType = any> {
-  // clang-format off
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  _castAsBool8(_memoryResource?: MemoryResource): Series<Bool8> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Bool8 unimplemented`); }
-  _castAsInt8(_memoryResource?: MemoryResource): Series<Int8> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int8 unimplemented`); }
-  _castAsInt16(_memoryResource?: MemoryResource): Series<Int16> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int16 unimplemented`); }
-  _castAsInt32(_memoryResource?: MemoryResource): Series<Int32> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int32 unimplemented`); }
-  _castAsInt64(_memoryResource?: MemoryResource): Series<Int64> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int64 unimplemented`); }
-  _castAsUint8(_memoryResource?: MemoryResource): Series<Uint8> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint8 unimplemented`); }
-  _castAsUint16(_memoryResource?: MemoryResource): Series<Uint16> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint16 unimplemented`); }
-  _castAsUint32(_memoryResource?: MemoryResource): Series<Uint32> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint32 unimplemented`); }
-  _castAsUint64(_memoryResource?: MemoryResource): Series<Uint64> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint64 unimplemented`); }
-  _castAsFloat32(_memoryResource?: MemoryResource): Series<Float32> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Float32 unimplemented`); }
-  _castAsFloat64(_memoryResource?: MemoryResource): Series<Float64> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Float64 unimplemented`); }
-  _castAsString(_memoryResource?: MemoryResource): StringSeries { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to String unimplemented`); }
-  _castAsTimeStampDay(_memoryResource?: MemoryResource): Series<TimestampDay> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampDay unimplemented`); }
-  _castAsTimeStampSecond(_memoryResource?: MemoryResource): Series<TimestampSecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampSecond unimplemented`); }
-  _castAsTimeStampMillisecond(_memoryResource?: MemoryResource): Series<TimestampMillisecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampMillisecond unimplemented`); }
-  _castAsTimeStampMicrosecond(_memoryResource?: MemoryResource): Series<TimestampMicrosecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampMicrosecond unimplemented`); }
-  _castAsTimeStampNanosecond(_memoryResource?: MemoryResource): Series<TimestampNanosecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampNanosecond unimplemented`); }
-  _castAsCategorical<R extends DataType>(_dtype: R, _memoryResource?: MemoryResource): Series<R> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Categorical unimplemented`); }
-  /* eslint-enable @typescript-eslint/no-unused-vars */
-  // clang-format on
-
   /**
    * Create a new cudf.Series from an apache arrow vector
    *
@@ -558,26 +536,6 @@ export class AbstractSeries<T extends DataType = any> {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
   }
 
-  /**
-   * Casts the values to a new dtype (similar to `static_cast` in C++).
-   *
-   * @param dataType The new dtype.
-   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
-   *   memory.
-   * @returns Series of same size as the current Series containing result of the `cast` operation.
-   * @example
-   * ```typescript
-   * import {Series, Bool8, Int32} from '@rapidsai/cudf';
-   *
-   * const a = Series.new({type:new Int32, data: [1,0,1,0]});
-   *
-   * a.cast(new Bool8); // Bool8Series [true, false, true, false];
-   * ```
-   */
-  cast<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Series<R> {
-    return new CastVisitor(this, memoryResource).visit(dataType);
-  }
-
   /** @ignore */
   public _col: Column<T>;
 
@@ -626,6 +584,81 @@ export class AbstractSeries<T extends DataType = any> {
   get numChildren() { return this._col.numChildren; }
 
   /**
+   * Casts the values to a new dtype (similar to `static_cast` in C++).
+   *
+   * @param dataType The new dtype.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   * @returns Series of same size as the current Series containing result of the `cast` operation.
+   * @example
+   * ```typescript
+   * import {Series, Bool8, Int32} from '@rapidsai/cudf';
+   *
+   * const a = Series.new({type:new Int32, data: [1,0,1,0]});
+   *
+   * a.cast(new Bool8); // Bool8Series [true, false, true, false];
+   * ```
+   */
+  cast<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Series<R> {
+    return new CastVisitor(this, memoryResource).visit(dataType);
+  }
+
+  // clang-format off
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  _castAsBool8(_memoryResource?: MemoryResource): Series<Bool8> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Bool8 unimplemented`); }
+  _castAsInt8(_memoryResource?: MemoryResource): Series<Int8> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int8 unimplemented`); }
+  _castAsInt16(_memoryResource?: MemoryResource): Series<Int16> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int16 unimplemented`); }
+  _castAsInt32(_memoryResource?: MemoryResource): Series<Int32> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int32 unimplemented`); }
+  _castAsInt64(_memoryResource?: MemoryResource): Series<Int64> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Int64 unimplemented`); }
+  _castAsUint8(_memoryResource?: MemoryResource): Series<Uint8> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint8 unimplemented`); }
+  _castAsUint16(_memoryResource?: MemoryResource): Series<Uint16> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint16 unimplemented`); }
+  _castAsUint32(_memoryResource?: MemoryResource): Series<Uint32> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint32 unimplemented`); }
+  _castAsUint64(_memoryResource?: MemoryResource): Series<Uint64> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Uint64 unimplemented`); }
+  _castAsFloat32(_memoryResource?: MemoryResource): Series<Float32> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Float32 unimplemented`); }
+  _castAsFloat64(_memoryResource?: MemoryResource): Series<Float64> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to Float64 unimplemented`); }
+  _castAsString(_memoryResource?: MemoryResource): StringSeries { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to String unimplemented`); }
+  _castAsTimeStampDay(_memoryResource?: MemoryResource): Series<TimestampDay> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampDay unimplemented`); }
+  _castAsTimeStampSecond(_memoryResource?: MemoryResource): Series<TimestampSecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampSecond unimplemented`); }
+  _castAsTimeStampMillisecond(_memoryResource?: MemoryResource): Series<TimestampMillisecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampMillisecond unimplemented`); }
+  _castAsTimeStampMicrosecond(_memoryResource?: MemoryResource): Series<TimestampMicrosecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampMicrosecond unimplemented`); }
+  _castAsTimeStampNanosecond(_memoryResource?: MemoryResource): Series<TimestampNanosecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampNanosecond unimplemented`); }
+
+  _castAsCategorical<R extends Categorical>(type: R, memoryResource?: MemoryResource): Series<R> {
+    const categories = this.unique(true, memoryResource);
+    const codes      = this.encodeLabels(categories, undefined, undefined, memoryResource);
+    return Series.new<R>({
+      type,
+      length: codes.length,
+      nullMask: this.mask,
+      children: [codes, categories.cast(type.dictionary)]
+    });
+  }
+
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+  // clang-format on
+
+  /**
+   * Concat a Series to the end of the caller, returning a new Series of a common dtype.
+   *
+   * @param other The Series to concat to the end of the caller.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.new([1, 2, 3]).concat(Series.new([4, 5, 6])) // [1, 2, 3, 4, 5, 6]
+   * ```
+   */
+  concat<R extends DataType>(other: Series<R>,
+                             memoryResource?: MemoryResource): Series<CommonType<T, R>> {
+    type U     = typeof type;
+    const type = findCommonType(this.type, other.type);
+    const lhs  = <Column<U>>(compareTypes(type, this.type) ? this._col : this.cast(type)._col);
+    const rhs  = <Column<U>>(compareTypes(type, other.type) ? other._col : other.cast(type)._col);
+    return Series.new(lhs.concat(rhs, memoryResource));
+  }
+
+  /**
    * Return the number of non-null elements in the Series.
    *
    * @returns The number of non-null elements
@@ -667,7 +700,7 @@ export class AbstractSeries<T extends DataType = any> {
       // If there is a failure casting to the current dtype, catch the exception and return
       // encoded labels with all values set to `nullSentinel`, since this means the Column
       // cannot contain any of the encoded categories.
-      categories = categories.cast(this.type);
+      if (!compareTypes(this.type, categories.type)) { categories = categories.cast(this.type); }
     } catch {
       return Series.sequence(
         {type, init: nullSentinel, step: 0, memoryResource, size: this.length});
@@ -1388,7 +1421,7 @@ export class AbstractSeries<T extends DataType = any> {
                  nullsEqual: boolean,
                  nullsFirst: boolean,
                  memoryResource?: MemoryResource) {
-    return Series.new(
+    return Series.new<T>(
       new Table({columns: [this._col]})
         .dropDuplicates(
           [0], DuplicateKeepOption[keep ? 'first' : 'none'], nullsEqual, nullsFirst, memoryResource)
@@ -1598,10 +1631,7 @@ const columnToSeries = (() => {
   class ColumnToSeriesVisitor extends arrow.Visitor {
     getVisitFn<T extends DataType>(column: Column<T>): (column: Column<T>) => Series<T> {
       if (!(column.type instanceof arrow.DataType)) {
-        return super.getVisitFn({
-          ...(column.type as any),
-          __proto__: arrow.DataType.prototype
-        });
+        (column as any).type = arrowToCUDFType<T>(column.type);
       }
       return super.getVisitFn(column.type);
     }

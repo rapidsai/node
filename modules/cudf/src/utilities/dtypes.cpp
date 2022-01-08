@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -247,7 +247,7 @@ Napi::Object column_to_arrow_type(Napi::Env const& env,
     case cudf::type_id::DICTIONARY32: {
       arrow_type.Set("typeId", -1);
       arrow_type.Set("indices", cudf_to_arrow_type(env, children[0]->type()));
-      arrow_type.Set("dictionary", children[1]);
+      arrow_type.Set("dictionary", cudf_to_arrow_type(env, children[1]->type()));
       arrow_type.Set("isOrdered", false);
       break;
     }

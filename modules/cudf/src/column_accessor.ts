@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ export class ColumnAccessor<T extends TypeMap = any> {
   selectByColumnNames<R extends keyof T>(names: R[]) {
     const data: ColumnsMap<{[P in R]: T[P]}> = {} as any;
     for (const name of names) {
-      if (this._data[name]) { data[name] = this._data[name]; }
+      if (this._data[name] && !data[name]) { data[name] = this._data[name]; }
     }
     return new ColumnAccessor(data);
   }
