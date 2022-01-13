@@ -358,6 +358,26 @@ test('test child(child_index), num_children', () => {
   expect(stringsCol.data.type).toBeInstanceOf(Uint8);
 });
 
+test('test mixed series/column children', () => {
+  const utf8Col    = Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from('hello'))});
+  const offsetsCol = Series.new({type: new Int32, data: new Int32Buffer([0, utf8Col.length])});
+  const stringsCol = Series.new({
+    type: new Utf8String(),
+    length: 1,
+    nullMask: new Uint8Buffer([255]),
+    children: [offsetsCol, utf8Col._col],
+  });
+
+  expect(stringsCol.type).toBeInstanceOf(Utf8String);
+  expect(stringsCol.numChildren).toBe(2);
+  expect(stringsCol.nullCount).toBe(0);
+  expect(stringsCol.getValue(0)).toBe('hello');
+  expect(stringsCol.offsets.length).toBe(offsetsCol.length);
+  expect(stringsCol.offsets.type).toBeInstanceOf(Int32);
+  expect(stringsCol.data.length).toBe(utf8Col.length);
+  expect(stringsCol.data.type).toBeInstanceOf(Uint8);
+});
+
 test('Series.getValue', () => {
   const col = Series.new({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])});
   for (let i = 0; i < 10; i++) { expect(col.getValue(i)).toEqual(i); }

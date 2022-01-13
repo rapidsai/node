@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,8 +78,9 @@ type CommonType_Float64<T extends Numeric> =
 
 // clang-format off
 export type CommonType<T extends DataType, R extends DataType> =
-  T extends R
-    ? R extends T ? T : R :
+  T extends R ? R extends T ? T : R :
+  T extends Utf8String ? T :
+  R extends Utf8String ? R :
   R extends Numeric
     ? T extends Bool8   ? CommonType_Bool8<R>
     : T extends Int8    ? CommonType_Int8<R>
@@ -92,8 +93,11 @@ export type CommonType<T extends DataType, R extends DataType> =
     : T extends Uint64  ? CommonType_Uint64<R>
     : T extends Float32 ? CommonType_Float32<R>
     : T extends Float64 ? CommonType_Float64<R>
-    : never
-  : never;
+    : never :
+  T extends List ? R extends List ? List<CommonType<T['childType'], R['childType']>> : never :
+  T extends Struct ? R extends Struct ? Struct<CommonTypes<T['childTypes'], R['childTypes']>> : never :
+  T extends Categorical ? R extends Categorical ? Categorical<CommonType<T['dictionary'], R['dictionary']>> : never :
+  never;
 
 export type CommonTypes<T extends TypeMap, R extends TypeMap> =
   {
@@ -221,7 +225,7 @@ export const arrowToCUDFType = (() => {
     // public visitDenseUnion           <T extends arrow.DenseUnion>(type: T) { return new DenseUnion(type); }
     // public visitSparseUnion          <T extends arrow.SparseUnion>(type: T) { return new SparseUnion(type); }
     public visitDictionary           <T extends arrow.Dictionary>({dictionary, id, isOrdered}: T) {
-      return new Categorical(dictionary, id, isOrdered);
+      return new Categorical(this.visit(dictionary), id, isOrdered);
     }
     // public visitIntervalDayTime      <T extends arrow.IntervalDayTime>(type: T) { return new IntervalDayTime; }
     // public visitIntervalYearMonth    <T extends arrow.IntervalYearMonth>(type: T) { return new IntervalYearMonth; }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
 
 import {setDefaultAllocator} from '@rapidsai/cuda';
 import {Series} from '@rapidsai/cudf';
-import {renumber_nodes} from '@rapidsai/cugraph';
+import {renumberNodes} from '@rapidsai/cugraph';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 
 const mr = new CudaMemoryResource();
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
 
-test('renumber_nodes strings', () => {
+test('renumberNodes strings', () => {
   const src = Series.new([
     '192.168.1.1',
     '172.217.5.238',
@@ -34,7 +34,7 @@ test('renumber_nodes strings', () => {
     '192.16.31.23',
     '192.168.1.1',
   ]);
-  const df  = renumber_nodes(src, dst);
+  const df  = renumberNodes(src, dst);
   expect([...df.get('node')].sort()).toEqual([
     '192.168.1.1',
     '172.217.5.238',
@@ -44,7 +44,7 @@ test('renumber_nodes strings', () => {
   expect([...df.get('id')]).toEqual([0, 1, 2, 3]);
 });
 
-test('renumber_nodes numeric', () => {
+test('renumberNodes numeric', () => {
   const src = Series.new([
     10,
     20,
@@ -57,7 +57,7 @@ test('renumber_nodes numeric', () => {
     40,
     10,
   ]);
-  const df  = renumber_nodes(src, dst);
+  const df  = renumberNodes(src, dst);
   expect([...df.get('node')].sort()).toEqual([
     10,
     20,
