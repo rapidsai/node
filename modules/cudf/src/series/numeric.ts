@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import {
   Uint64,
   Uint8
 } from '../types/dtypes';
-import {CommonType, findCommonType, Interpolation} from '../types/mappings';
+import {CommonType, Interpolation} from '../types/mappings';
 
 import {Float64Series} from './float';
 import {Int64Series} from './integral';
@@ -41,38 +41,43 @@ import {Int64Series} from './integral';
  * A base class for Series of fixed-width numeric values.
  */
 export abstract class NumericSeries<T extends Numeric> extends Series<T> {
-  _castAsBool8(memoryResource?: MemoryResource): Series<Bool8> {
-    return Series.new(this._col.cast(new Bool8, memoryResource));
+  _castAsBool8(memoryResource?: MemoryResource): Series<Bool8> {  //
+    return this._castNumeric(new Bool8, memoryResource);
   }
-  _castAsInt8(memoryResource?: MemoryResource): Series<Int8> {
-    return Series.new(this._col.cast(new Int8, memoryResource));
+  _castAsInt8(memoryResource?: MemoryResource): Series<Int8> {  //
+    return this._castNumeric(new Int8, memoryResource);
   }
-  _castAsInt16(memoryResource?: MemoryResource): Series<Int16> {
-    return Series.new(this._col.cast(new Int16, memoryResource));
+  _castAsInt16(memoryResource?: MemoryResource): Series<Int16> {  //
+    return this._castNumeric(new Int16, memoryResource);
   }
-  _castAsInt32(memoryResource?: MemoryResource): Series<Int32> {
-    return Series.new(this._col.cast(new Int32, memoryResource));
+  _castAsInt32(memoryResource?: MemoryResource): Series<Int32> {  //
+    return this._castNumeric(new Int32, memoryResource);
   }
-  _castAsInt64(memoryResource?: MemoryResource): Series<Int64> {
-    return Series.new(this._col.cast(new Int64, memoryResource));
+  _castAsInt64(memoryResource?: MemoryResource): Series<Int64> {  //
+    return this._castNumeric(new Int64, memoryResource);
   }
-  _castAsUint8(memoryResource?: MemoryResource): Series<Uint8> {
-    return Series.new(this._col.cast(new Uint8, memoryResource));
+  _castAsUint8(memoryResource?: MemoryResource): Series<Uint8> {  //
+    return this._castNumeric(new Uint8, memoryResource);
   }
-  _castAsUint16(memoryResource?: MemoryResource): Series<Uint16> {
-    return Series.new(this._col.cast(new Uint16, memoryResource));
+  _castAsUint16(memoryResource?: MemoryResource): Series<Uint16> {  //
+    return this._castNumeric(new Uint16, memoryResource);
   }
-  _castAsUint32(memoryResource?: MemoryResource): Series<Uint32> {
-    return Series.new(this._col.cast(new Uint32, memoryResource));
+  _castAsUint32(memoryResource?: MemoryResource): Series<Uint32> {  //
+    return this._castNumeric(new Uint32, memoryResource);
   }
-  _castAsUint64(memoryResource?: MemoryResource): Series<Uint64> {
-    return Series.new(this._col.cast(new Uint64, memoryResource));
+  _castAsUint64(memoryResource?: MemoryResource): Series<Uint64> {  //
+    return this._castNumeric(new Uint64, memoryResource);
   }
-  _castAsFloat32(memoryResource?: MemoryResource): Series<Float32> {
-    return Series.new(this._col.cast(new Float32, memoryResource));
+  _castAsFloat32(memoryResource?: MemoryResource): Series<Float32> {  //
+    return this._castNumeric(new Float32, memoryResource);
   }
-  _castAsFloat64(memoryResource?: MemoryResource): Series<Float64> {
-    return Series.new(this._col.cast(new Float64, memoryResource));
+  _castAsFloat64(memoryResource?: MemoryResource): Series<Float64> {  //
+    return this._castNumeric(new Float64, memoryResource);
+  }
+
+  protected _castNumeric<R extends Numeric>(type: R, memoryResource?: MemoryResource): Series<R> {
+    return Series.new<R>(compareTypes(this.type, type) ? this._col as any as Column<R>
+                                                       : this._col.cast(type, memoryResource));
   }
 
   /** @ignore */
@@ -109,28 +114,6 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     }
     const newLength = byteLength / dataType.BYTES_PER_ELEMENT;
     return Series.new({type: dataType, data: this._col.data, length: newLength});
-  }
-
-  /**
-   * Concat a NumericSeries to the end of the caller, returning a new NumericSeries.
-   *
-   * @param other The NumericSeries to concat to the end of the caller.
-   *
-   * @example
-   * ```typescript
-   * import {Series} from '@rapidsai/cudf';
-   *
-   * Series.new([1, 2, 3]).concat(Series.new([4, 5, 6])) // [1, 2, 3, 4, 5, 6]
-   * ```
-   */
-  concat<R extends Numeric>(other: NumericSeries<R>, memoryResource?: MemoryResource) {
-    type U     = typeof type;
-    const type = findCommonType(this.type, other.type);
-    const lhs =
-      <Column<U>>(compareTypes(type, this.type) ? this._col : this._col.cast(type, memoryResource));
-    const rhs = <Column<U>>(compareTypes(type, other.type) ? other._col
-                                                           : other._col.cast(type, memoryResource));
-    return Series.new(lhs.concat(rhs, memoryResource));
   }
 
   /**
@@ -1455,7 +1438,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
 
     const mu = data.mean(skipNulls);
 
-    const m4 = (data.sub(mu).pow(4).sum(skipNulls) as number) / (V ** 2);
+    const m4 = (data.sub(mu).pow(4).sum(skipNulls) ) / (V ** 2);
 
     // This is modeled after the cudf kurtosis implementation, it would be
     // nice to be able to point to a reference for this specific formula
@@ -1491,7 +1474,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
 
     const mu = data.mean(skipNulls);
 
-    const m3 = (data.sub(mu).pow(3).sum(skipNulls) as number) / n;
+    const m3 = (data.sub(mu).pow(3).sum(skipNulls) ) / n;
 
     return ((n * (n - 1)) ** 0.5) / (n - 2) * m3 / (V ** (3 / 2));
   }

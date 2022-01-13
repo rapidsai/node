@@ -168,8 +168,8 @@ Column::wrapper_t Column::New(Napi::Env const& env, std::unique_ptr<cudf::column
   props.Set("offset", 0);
   props.Set("length", column->size());
   props.Set("nullCount", column->null_count());
-  props.Set("type", column_to_arrow_type(env, *column));
 
+  auto type     = column->type();
   auto contents = column->release();
   auto data     = std::move(contents.data);
   auto mask     = std::move(contents.null_mask);
@@ -182,6 +182,8 @@ Column::wrapper_t Column::New(Napi::Env const& env, std::unique_ptr<cudf::column
     }
     return ary;
   }());
+
+  props.Set("type", column_to_arrow_type(env, type, props.Get("children").As<Napi::Array>()));
 
   props.Set("data", DeviceBuffer::New(env, std::move(data)));
   props.Set("nullMask", DeviceBuffer::New(env, std::move(mask)));

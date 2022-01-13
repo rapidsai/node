@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DataFrame, Int32, Series, StringSeries, Utf8String} from '@rapidsai/cudf';
+import {Categorical, DataFrame, Int32, Series, StringSeries, Utf8String} from '@rapidsai/cudf';
 import {TypeMap} from '@rapidsai/cudf';
 
 import {GraphCOO} from './addon';
-import {renumber_edges, renumber_nodes} from './renumber';
+import {renumberEdges, renumberNodes} from './renumber';
 
 export type HypergraphBaseProps<T extends TypeMap = any> = {
   /** An optional sequence of column names to process. */
@@ -382,16 +382,20 @@ function create_graph(edges: DataFrame, source: string, target: string): GraphCO
   const src = edges.get(source);
   const dst = edges.get(target);
 
-  const rnodes = renumber_nodes(src, dst);
-  const redges = renumber_edges(src, dst, rnodes);
+  const rnodes = renumberNodes(src, dst);
+  const redges = renumberEdges(src, dst, rnodes);
 
   return new GraphCOO(redges.get('src')._col, redges.get('dst')._col, {directedEdges: true});
 }
 
-function _prepend_str(series: Series, val: string, delim: string): Series<Utf8String> {
-  const prefix = _scalar_init(val, series.length);
-  return StringSeries.concatenate([prefix, series.cast(new Utf8String)],
-                                  {nullRepr: 'null', separator: delim});
+function _prepend_str(series: Series, val: string, delim: string) {
+  const prefix = val + delim;
+  const suffix = series.cast(new Categorical(new Utf8String));
+  const codes  = Series.new(suffix.codes);
+  const categories =
+    Series.new(suffix.categories.replaceNulls('null')._col.replaceSlice(prefix, 0, 0));
+
+  return Series.new({type: suffix.type, length: codes.length, children: [codes, categories]});
 }
 
 function _scalar_init(val: string, size: number): Series<Utf8String> {
