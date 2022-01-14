@@ -1,7 +1,6 @@
 {
     "include": [
         "modules/*/src/**/*.ts",
-        "modules/*/test/**/*.ts"
     ],
     "exclude": ["node_modules"],
     "compilerOptions": {
