@@ -6872,6 +6872,18 @@ fastify-socket.io@2.0.0:
     fastify-plugin "^3.0.0"
     socket.io "^4.0.1"
 
+fastify-static@4.2.3:
+  version "4.2.3"
+  resolved "https://registry.npmjs.org/fastify-static/-/fastify-static-4.2.3.tgz#dc1876f3f876bbc78afd68ef8edae08752ed3e28"
+  integrity sha512-uFRgwYXZwLKyaMrByf10efO+HTjAPqyQOlUthoGljQKGCfbwUeTeE7EHadsDWeN7NMeqBE617RamVh9uqatuUw==
+  dependencies:
+    content-disposition "^0.5.3"
+    encoding-negotiator "^2.0.1"
+    fastify-plugin "^3.0.0"
+    glob "^7.1.4"
+    readable-stream "^3.4.0"
+    send "^0.17.1"
+
 fastify-static@4.4.1:
   version "4.4.1"
   resolved "https://registry.npmjs.org/fastify-static/-/fastify-static-4.4.1.tgz#8df79f379a96f58593811da522b769b72f9b8f3e"
