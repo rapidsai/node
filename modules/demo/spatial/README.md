@@ -6,7 +6,7 @@ A geospatial demo using cuSpatial and deck.gl.
 @rapidsai/cuspatial
 @rapidsai/jsdom
 @rapidsai/deckgl
-@apache/glfw
+@rapidsai/glfw
 
 ## Data Requirements
 Data required from `/data/263_tracts.arrow` and census data (auto downloaded) such as `200901.cny.gz`.

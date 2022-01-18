@@ -11,7 +11,7 @@ This demo showcases how to use cudf as a backend compute engine for a client-sid
 ## Featured Dependencies
 @rapidsai/cudf
 deckgl
-@apache/arrow
+apache-arrow
 
 ## Data Requirements
 ### Uber Movement Dataset

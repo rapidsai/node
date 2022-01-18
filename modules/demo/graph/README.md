@@ -6,7 +6,7 @@ A simple graph visualization powered by cuGraph and deck.gl, using a glfw instan
 @rapidsai/cuspatial
 @rapidsai/jsdom
 @rapidsai/deckgl
-@apache/glfw
+@rapidsai/glfw
 
 ## Data Requirements
 Without passing data, graph demo will default to internal data. Passing graph data assumes a node and edge `.csv` format in `/data` folder.

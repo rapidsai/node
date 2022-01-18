@@ -3,7 +3,7 @@ Running [Luma.gl](https://luma.gl/) lessons in a glfw instance, based on [webGL 
 
 ## Featured Dependencies
 @rapidsai/jsdom
-@apache/glfw
+@rapidsai/glfw
 
 Example of starting lesson 01:
 `yarn start 01`
