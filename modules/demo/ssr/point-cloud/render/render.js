@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -91,7 +91,6 @@ function makeDeck() {
 
   const {OrbitView, COORDINATE_SYSTEM, LinearInterpolator} = require('@deck.gl/core');
   const {PointCloudLayer}                                  = require('@deck.gl/layers');
-  const {TextLayer}                                        = require('@deck.gl/layers');
   const {DeckSSR}                                          = require('@rapidsai/deck.gl');
   const {LASLoader}                                        = require('@loaders.gl/las');
   const {registerLoaders}                                  = require('@loaders.gl/core');
@@ -99,27 +98,22 @@ function makeDeck() {
   registerLoaders(LASLoader);
 
   // Data source: kaarta.com
-  const LAZ_SAMPLE =
-    'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/point-cloud-laz/indoor.0.1.laz';
+  const LAZ_SAMPLE = 'http://localhost:8080/indoor.0.1.laz';
 
   const transitionInterpolator = new LinearInterpolator(['rotationOrbit']);
 
-  const makeLayers = (deck, pointCloud = null) => {
-    if (pointCloud) {
-      return [pointCloud]
-    } else {
-      return [
-        new PointCloudLayer({
-          id: 'laz-point-cloud-layer',
-          data: LAZ_SAMPLE,
-          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-          getNormal: [0, 1, 0],
-          getColor: [255, 255, 255],
-          opacity: 0.5,
-          pointSize: 0.5
-        }),
-      ]
-    }
+  const makeLayers = (deck) => {
+    return [
+      new PointCloudLayer({
+        id: 'laz-point-cloud-layer',
+        data: LAZ_SAMPLE,
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        getNormal: [0, 1, 0],
+        getColor: [255, 255, 255],
+        opacity: 0.5,
+        pointSize: 0.5
+      }),
+    ]
   };
 
   const deck = new DeckSSR({
