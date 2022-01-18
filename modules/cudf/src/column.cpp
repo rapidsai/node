@@ -17,6 +17,7 @@
 #include <node_cudf/utilities/cpp_to_napi.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 
+#include <cudf/detail/null_mask.hpp>
 #include <cudf/detail/nvtx/ranges.hpp>
 
 namespace nv {
@@ -167,8 +168,8 @@ Column::wrapper_t Column::New(Napi::Env const& env, std::unique_ptr<cudf::column
   props.Set("offset", 0);
   props.Set("length", column->size());
   props.Set("nullCount", column->null_count());
-  props.Set("type", column_to_arrow_type(env, *column));
 
+  auto type     = column->type();
   auto contents = column->release();
   auto data     = std::move(contents.data);
   auto mask     = std::move(contents.null_mask);
@@ -181,6 +182,8 @@ Column::wrapper_t Column::New(Napi::Env const& env, std::unique_ptr<cudf::column
     }
     return ary;
   }());
+
+  props.Set("type", column_to_arrow_type(env, type, props.Get("children").As<Napi::Array>()));
 
   props.Set("data", DeviceBuffer::New(env, std::move(data)));
   props.Set("nullMask", DeviceBuffer::New(env, std::move(mask)));
@@ -312,7 +315,8 @@ cudf::size_type Column::null_count() const {
     null_count_ = 0;
   } else if (null_count_ <= cudf::UNKNOWN_NULL_COUNT) {
     try {
-      null_count_ = cudf::count_unset_bits(*null_mask(), 0, size_);
+      null_count_ =
+        cudf::detail::count_unset_bits(*null_mask(), 0, size_, rmm::cuda_stream_default);
     } catch (std::exception const& e) {
       null_count_ = cudf::UNKNOWN_NULL_COUNT;
       NAPI_THROW(Napi::Error::New(Env(), e.what()));

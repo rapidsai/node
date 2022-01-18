@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -177,7 +177,7 @@ export class DataFrame<T extends TypeMap = any> {
       (map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {} as ColumnsMap<T>)));
   }
 
-  private _accessor: ColumnAccessor<T>;
+  declare private _accessor: ColumnAccessor<T>;
 
   /**
    * Create a new cudf.DataFrame
@@ -325,7 +325,7 @@ export class DataFrame<T extends TypeMap = any> {
    * // returns df {a: [1, 2, 3], b: ["foo", "bar", "bar"]}
    * ```
    */
-  assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<T&R>;
+  assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<Omit<T, keyof R&string>&R>;
 
   /**
    * Return a new DataFrame with new columns added.
@@ -342,7 +342,7 @@ export class DataFrame<T extends TypeMap = any> {
    * df.assign(df1) // returns df {a: [1, 2, 3], b: ["foo", "bar", "bar"]}
    * ```
    */
-  assign<R extends TypeMap>(data: DataFrame<R>): DataFrame<T&R>;
+  assign<R extends TypeMap>(data: DataFrame<R>): DataFrame<Omit<T, keyof R&string>&R>;
 
   assign<R extends TypeMap>(data: SeriesMap<R>|DataFrame<R>) {
     const columns = (data instanceof DataFrame) ? data._accessor : _seriesToColumns(data);

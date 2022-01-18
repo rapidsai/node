@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {MemoryResource} from '@rapidsai/rmm';
+import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {Column} from '../column';
 import {ColumnAccessor} from '../column_accessor';
@@ -25,14 +26,13 @@ import {
   Int32,
   Int64,
   Int8,
+  Integral,
   Uint16,
   Uint32,
   Uint64,
   Uint8,
   Utf8String
 } from '../types/dtypes';
-
-import {StringSeries} from './string';
 
 /**
  * A Series of dictionary-encoded values in GPU memory.
@@ -47,6 +47,17 @@ export class CategoricalSeries<T extends DataType> extends Series<Categorical<T>
    * @summary The Series of categories.
    */
   public get categories() { return Series.new(this._col.getChild<T>(1)); }
+
+  /**
+   * @inheritdoc
+   */
+  public encodeLabels<R extends Integral = Uint32>(_categories: Series<Categorical<T>> = this,
+                                                   type: R                        = new Uint32 as R,
+                                                   _nullSentinel: R['scalarType'] = -1,
+                                                   _memoryResource?: MemoryResource): Series<R> {
+    return compareTypes(this.type.indices, type) ? this.codes as Series<R>  //
+                                                 : this.codes.cast(type);
+  }
 
   /**
    * @summary Get a value at the specified index to host memory
@@ -84,53 +95,45 @@ export class CategoricalSeries<T extends DataType> extends Series<Categorical<T>
     this._col = this.scatter(value, [index])._col;
   }
 
-  _castNumeric<R extends DataType>(type: R, memoryResource?: MemoryResource): Series<R> {
-    const result = this.categories.gather(this.codes).cast(type, memoryResource);
-    result.setNullMask(this.mask);
-    return result;
+  _castAsInt8(memoryResource?: MemoryResource): Series<Int8> {
+    return this._castCategories(new Int8, memoryResource);
   }
-
-  _castCategories<R extends DataType>(type: R, memoryResource?: MemoryResource): Series<R> {
-    return Series.new(new Column({
+  _castAsInt16(memoryResource?: MemoryResource): Series<Int16> {
+    return this._castCategories(new Int16, memoryResource);
+  }
+  _castAsInt32(memoryResource?: MemoryResource): Series<Int32> {
+    return this._castCategories(new Int32, memoryResource);
+  }
+  _castAsInt64(memoryResource?: MemoryResource): Series<Int64> {
+    return this._castCategories(new Int64, memoryResource);
+  }
+  _castAsUint8(memoryResource?: MemoryResource): Series<Uint8> {
+    return this._castCategories(new Uint8, memoryResource);
+  }
+  _castAsUint16(memoryResource?: MemoryResource): Series<Uint16> {
+    return this._castCategories(new Uint16, memoryResource);
+  }
+  _castAsUint32(memoryResource?: MemoryResource): Series<Uint32> {
+    return this._castCategories(new Uint32, memoryResource);
+  }
+  _castAsUint64(memoryResource?: MemoryResource): Series<Uint64> {
+    return this._castCategories(new Uint64, memoryResource);
+  }
+  _castAsString(memoryResource?: MemoryResource): Series<Utf8String> {
+    return this._castCategories(new Utf8String, memoryResource);
+  }
+  _castAsCategorical<R extends Categorical>(type: R, memoryResource?: MemoryResource): Series<R> {
+    return Series.new({
       type,
       length: this.length,
       nullMask: this.mask,
-      children: [this.codes._col, this.categories.cast(type, memoryResource)._col]
-    }));
+      children: [this.codes, this.categories.cast(type, memoryResource)]
+    });
   }
 
-  _castAsInt8(memoryResource?: MemoryResource): Series<Int8> {
-    return this._castNumeric(new Int8, memoryResource);
-  }
-  _castAsInt16(memoryResource?: MemoryResource): Series<Int16> {
-    return this._castNumeric(new Int16, memoryResource);
-  }
-  _castAsInt32(memoryResource?: MemoryResource): Series<Int32> {
-    return this._castNumeric(new Int32, memoryResource);
-  }
-  _castAsInt64(memoryResource?: MemoryResource): Series<Int64> {
-    return this._castNumeric(new Int64, memoryResource);
-  }
-
-  _castAsUint8(memoryResource?: MemoryResource): Series<Uint8> {
-    return this._castNumeric(new Uint8, memoryResource);
-  }
-  _castAsUint16(memoryResource?: MemoryResource): Series<Uint16> {
-    return this._castNumeric(new Uint16, memoryResource);
-  }
-  _castAsUint32(memoryResource?: MemoryResource): Series<Uint32> {
-    return this._castNumeric(new Uint32, memoryResource);
-  }
-  _castAsUint64(memoryResource?: MemoryResource): Series<Uint64> {
-    return this._castNumeric(new Uint64, memoryResource);
-  }
-
-  _castAsCategorical<R extends DataType>(dtype: R, memoryResource?: MemoryResource): Series<R> {
-    return this._castCategories((dtype as Categorical).dictionary, memoryResource);
-  }
-
-  _castAsString(memoryResource?: MemoryResource): StringSeries {
-    const result = this.categories.gather(this.codes).cast(new Utf8String, memoryResource);
+  protected _castCategories<R extends DataType>(type: R,
+                                                memoryResource?: MemoryResource): Series<R> {
+    const result = this.categories.gather(this.codes).cast(type, memoryResource);
     result.setNullMask(this.mask);
     return result;
   }

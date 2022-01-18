@@ -16,16 +16,14 @@
 
 // todo: including the below headers with undef guards is the only way cuml builds with raft
 // locally
-#include "cuml/manifold/umap.hpp"
-#include "cuml/manifold/umapparams.hpp"
+#include <node_cuml/coo.hpp>
+#include <node_cuml/cuml/manifold/umap.hpp>
+#include <node_cuml/cuml/manifold/umapparams.hpp>
 
 #include <node_cudf/column.hpp>
-#include <node_cuml/coo.hpp>
+
 #include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
-
-#include <raft/handle.hpp>
-#include "raft/sparse/coo.cuh"
 
 #include <napi.h>
 

@@ -15,7 +15,7 @@
 import '../jest-extensions';
 
 import {setDefaultAllocator} from '@rapidsai/cuda';
-import {Categorical, Series} from '@rapidsai/cudf';
+import {Categorical, Series, Utf8String} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import {Data, Dictionary, Int32, Utf8, Vector} from 'apache-arrow';
 
@@ -43,5 +43,13 @@ describe('CategoricalSeries', () => {
     expect([...categorical]).toEqual(['foo', 'foo', 'bar', 'bar']);
     expect([...categorical.codes]).toEqual([1, 1, 0, 0]);
     expect([...categorical.categories]).toEqual(['bar', 'foo']);
+  });
+
+  test('Can cast and Integral Series to Categorical', () => {
+    const vals        = Series.new(new Int32Array([0, 1, 2, 1, 1, 3]));
+    const categorical = vals.cast(new Categorical(new Utf8String));
+    expect([...categorical]).toEqual(['0', '1', '2', '1', '1', '3']);
+    expect([...categorical.codes]).toEqual([0, 1, 2, 1, 1, 3]);
+    expect([...categorical.categories]).toEqual(['0', '1', '2', '3']);
   });
 });

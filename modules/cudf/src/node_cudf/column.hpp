@@ -184,6 +184,22 @@ struct Column : public EnvLocalObjectWrap<Column> {
   };
 
   /**
+   * @brief Returns aa vector of the column's childre
+   *
+   * @return Array of children
+   */
+  inline Napi::Array children() const noexcept {
+    uint32_t idx = 0;
+    auto arr     = Napi::Array::New(Env(), num_children());
+    std::for_each(children_.begin(),
+                  children_.end(),
+                  [&](Napi::Reference<Column::wrapper_t> const& val) mutable {
+                    arr.Set((idx++), (val.Value()));
+                  });
+    return arr;
+  }
+
+  /**
    * @brief Creates a mutable, non-owning view of the column's data and
    * children.
    *

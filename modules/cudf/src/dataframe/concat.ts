@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ export type ConcatTypeMap<D extends DataFrame, T extends unknown[]> =
 
 export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(first: TFirst,
                                                                             ...others: TRest) {
-  const dfs = [first, ...others] as [TFirst, ...TRest];
+  const dfs = ([first, ...others] as [TFirst, ...TRest]).filter((df) => df.numColumns > 0);
   const names =
     [...new Set(dfs.reduce((names: string[], df) => names.concat(df.names), [])).keys()];
 
@@ -99,18 +99,19 @@ export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(firs
       return column;
     });
 
-    // Return a Table
-    return new Table({columns});
+    // Return each DataFrame to concatenate
+    return new DataFrame(
+      names.reduce((map, name, index) => ({...map, [name]: columns[index]}), {}));
   });
 
-  const concatenatedTable = Table.concat(tables);
+  const result = Table.concat(tables.map((df) => df.asTable()));
 
   type TResultTypeMap = ConcatTypeMap<TFirst, TRest>;
 
   // clang-format off
   return new DataFrame(
     names.reduce((map, name, index) =>
-    ({...map, [name]: Series.new(concatenatedTable.getColumnByIndex(index))}),
+    ({...map, [name]: Series.new(result.getColumnByIndex(index))}),
     {} as SeriesMap<{[P in keyof TResultTypeMap]: TResultTypeMap[P]}>)
   ) as TResultTypeMap[keyof TResultTypeMap] extends never
     ? never
