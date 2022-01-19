@@ -78,8 +78,8 @@
     "modules/demo/sql/*"
   ],
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "4.26.0",
-    "@typescript-eslint/parser": "4.26.0",
+    "@typescript-eslint/eslint-plugin": "5.10.0",
+    "@typescript-eslint/parser": "5.10.0",
     "cmake-js": "6.0.0",
     "cross-env": "7.0.3",
     "dotenv": "8.2.0",

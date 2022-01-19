@@ -1438,7 +1438,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
 
     const mu = data.mean(skipNulls);
 
-    const m4 = (data.sub(mu).pow(4).sum(skipNulls) ) / (V ** 2);
+    const m4 = (data.sub(mu).pow(4).sum(skipNulls)) / (V ** 2);
 
     // This is modeled after the cudf kurtosis implementation, it would be
     // nice to be able to point to a reference for this specific formula
@@ -1474,7 +1474,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
 
     const mu = data.mean(skipNulls);
 
-    const m3 = (data.sub(mu).pow(3).sum(skipNulls) ) / n;
+    const m3 = (data.sub(mu).pow(3).sum(skipNulls)) / n;
 
     return ((n * (n - 1)) ** 0.5) / (n - 2) * m3 / (V ** (3 / 2));
   }

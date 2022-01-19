@@ -42,13 +42,13 @@ const left_double = new DataFrame({
 const right_double = new DataFrame({
   a: Series.new({type: new Int32, data: [0, 0, 1]}),
   b: Series.new({type: new Int32, data: [10, 20, 20]}),
-  d: Series.new({type: new Float64, data: [10., 20., 30.]})
+  d: Series.new({type: new Float64, data: [10, 20, 30]})
 });
 
 const right_double_conflict = new DataFrame({
   a: Series.new({type: new Int32, data: [0, 0, 1]}),
   b: Series.new({type: new Int32, data: [10, 20, 20]}),
-  c: Series.new({type: new Float64, data: [10., 20., 30.]})
+  c: Series.new({type: new Float64, data: [10, 20, 30]})
 });
 
 describe('DataFrame.join({how="inner"}) ', () => {
