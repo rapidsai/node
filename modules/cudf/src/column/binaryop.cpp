@@ -255,12 +255,12 @@ Column::wrapper_t Column::operator&&(Scalar const& other) const { return logical
 
 Column::wrapper_t Column::logical_and(Column const& other,
                                       rmm::mr::device_memory_resource* mr) const {
-  return auto_binary_operation(*this, other, cudf::binary_operator::LOGICAL_AND, mr);
+  return binary_operation(other, cudf::binary_operator::LOGICAL_AND, cudf::type_id::BOOL8, mr);
 }
 
 Column::wrapper_t Column::logical_and(Scalar const& other,
                                       rmm::mr::device_memory_resource* mr) const {
-  return auto_binary_operation(*this, other, cudf::binary_operator::LOGICAL_AND, mr);
+  return binary_operation(other, cudf::binary_operator::LOGICAL_AND, cudf::type_id::BOOL8, mr);
 }
 
 Column::wrapper_t Column::operator||(Column const& other) const { return logical_or(other); }
@@ -268,12 +268,12 @@ Column::wrapper_t Column::operator||(Scalar const& other) const { return logical
 
 Column::wrapper_t Column::logical_or(Column const& other,
                                      rmm::mr::device_memory_resource* mr) const {
-  return auto_binary_operation(*this, other, cudf::binary_operator::LOGICAL_OR, mr);
+  return binary_operation(other, cudf::binary_operator::LOGICAL_OR, cudf::type_id::BOOL8, mr);
 }
 
 Column::wrapper_t Column::logical_or(Scalar const& other,
                                      rmm::mr::device_memory_resource* mr) const {
-  return auto_binary_operation(*this, other, cudf::binary_operator::LOGICAL_OR, mr);
+  return binary_operation(other, cudf::binary_operator::LOGICAL_OR, cudf::type_id::BOOL8, mr);
 }
 
 Column::wrapper_t Column::operator<<(Column const& other) const { return shift_left(other); }
