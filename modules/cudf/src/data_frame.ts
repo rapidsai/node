@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,8 @@ import {
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
-import {ReadParquetOptions} from './types/parquet';
+import {ReadORCOptions, WriteORCOptions} from './types/orc';
+import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
 
 export type SeriesMap<T extends TypeMap> = {
   [P in keyof T]: AbstractSeries<T[P]>
@@ -74,9 +75,17 @@ type JoinProps<
 type CombinedGroupByProps<T extends TypeMap, R extends keyof T, IndexKey extends string> =
   GroupBySingleProps<T, R>|Partial<GroupByMultipleProps<T, R, IndexKey>>;
 
-function _seriesToColumns<T extends TypeMap>(data: SeriesMap<T>) {
+function _seriesToColumns<T extends TypeMap>(data: ColumnsMap<T>|SeriesMap<T>) {
   const columns = {} as any;
-  for (const [name, series] of Object.entries(data)) { columns[name] = series._col; }
+  for (const [name, col] of Object.entries(data)) {
+    if (col instanceof Column) {
+      columns[name] = col;
+    } else if (col instanceof Series) {
+      columns[name] = col._col;
+    } else {
+      columns[name] = Series.new(col)._col;
+    }
+  }
   return <ColumnsMap<T>>columns;
 }
 
@@ -117,13 +126,32 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Read an Apache ORC from disk and create a cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame}  from '@rapidsai/cudf';
+   * const df = DataFrame.readORC({
+   *  sourceType: 'files',
+   *  sources: ['test.orc'],
+   * })
+   * ```
+   */
+  public static readORC(options: ReadORCOptions) {
+    const {names, table} = Table.readORC(options);
+    return new DataFrame(new ColumnAccessor(
+      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {})));
+  }
+
+  /**
    * Read an Apache Parquet from disk and create a cudf.DataFrame
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series}  from '@rapidsai/cudf';
+   * import {DataFrame}  from '@rapidsai/cudf';
    * const df = DataFrame.readParquet({
-   *  sources: ['test'],
+   *  sourceType: 'files',
+   *  sources: ['test.parquet'],
    * })
    * ```
    */
@@ -149,7 +177,7 @@ export class DataFrame<T extends TypeMap = any> {
       (map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {} as ColumnsMap<T>)));
   }
 
-  private _accessor: ColumnAccessor<T>;
+  declare private _accessor: ColumnAccessor<T>;
 
   /**
    * Create a new cudf.DataFrame
@@ -165,7 +193,10 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  constructor(data: ColumnAccessor<T>|SeriesMap<T> = {} as SeriesMap<T>) {
+  constructor(data?: SeriesMap<T>);
+  constructor(data?: ColumnsMap<T>);
+  constructor(data?: ColumnAccessor<T>);
+  constructor(data: any = {}) {
     this._accessor =
       (data instanceof ColumnAccessor) ? data : new ColumnAccessor(_seriesToColumns(data));
   }
@@ -294,7 +325,7 @@ export class DataFrame<T extends TypeMap = any> {
    * // returns df {a: [1, 2, 3], b: ["foo", "bar", "bar"]}
    * ```
    */
-  assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<T&R>;
+  assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<Omit<T, keyof R&string>&R>;
 
   /**
    * Return a new DataFrame with new columns added.
@@ -311,7 +342,7 @@ export class DataFrame<T extends TypeMap = any> {
    * df.assign(df1) // returns df {a: [1, 2, 3], b: ["foo", "bar", "bar"]}
    * ```
    */
-  assign<R extends TypeMap>(data: DataFrame<R>): DataFrame<T&R>;
+  assign<R extends TypeMap>(data: DataFrame<R>): DataFrame<Omit<T, keyof R&string>&R>;
 
   assign<R extends TypeMap>(data: SeriesMap<R>|DataFrame<R>) {
     const columns = (data instanceof DataFrame) ? data._accessor : _seriesToColumns(data);
@@ -453,6 +484,14 @@ export class DataFrame<T extends TypeMap = any> {
    * ```
    */
   concat<U extends DataFrame[]>(...others: U) { return concatDataFrames(this, ...others); }
+
+  /**
+   * @summary Explicitly free the device memory associated with this DataFrame.
+   */
+  dispose() {
+    this.names.forEach((name) => this.get(name).dispose());
+    this._accessor = new ColumnAccessor({} as ColumnsMap<T>);
+  }
 
   /**
    * @summary Interleave columns of a DataFrame into a single Series.
@@ -808,6 +847,28 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Write a DataFrame to ORC format.
+   *
+   * @param filePath File path or root directory path.
+   * @param options Options controlling ORC writing behavior.
+   *
+   */
+  toORC(filePath: string, options: WriteORCOptions = {}) {
+    this.asTable().writeORC(filePath, {...options, columnNames: this.names as string[]});
+  }
+
+  /**
+   * Write a DataFrame to Parquet format.
+   *
+   * @param filePath File path or root directory path.
+   * @param options Options controlling Parquet writing behavior.
+   *
+   */
+  toParquet(filePath: string, options: WriteParquetOptions = {}) {
+    this.asTable().writeParquet(filePath, {...options, columnNames: this.names as string[]});
+  }
+
+  /**
    * Copy a Series to an Arrow vector in host memory
    *
    * @example
@@ -844,7 +905,7 @@ export class DataFrame<T extends TypeMap = any> {
    * drop null rows
    * @ignore
    */
-  _dropNullsRows(thresh = 1, subset = this.names) {
+  protected _dropNullsRows(thresh = 1, subset = this.names) {
     const column_indices: number[] = [];
     const allNames                 = this.names;
     subset.forEach((col) => {
@@ -865,7 +926,7 @@ export class DataFrame<T extends TypeMap = any> {
    * drop rows with NaN values (float type only)
    * @ignore
    */
-  _dropNaNsRows(thresh = 1, subset = this.names) {
+  protected _dropNaNsRows(thresh = 1, subset = this.names) {
     const column_indices: number[] = [];
     const allNames                 = this.names;
     subset.forEach((col) => {
@@ -888,7 +949,7 @@ export class DataFrame<T extends TypeMap = any> {
    * drop columns with nulls
    * @ignore
    */
-  _dropNullsColumns(thresh = 1, subset?: Series) {
+  protected _dropNullsColumns(thresh = 1, subset?: Series) {
     const column_names: (keyof T)[] = [];
     const df                        = (subset !== undefined) ? this.gather(subset) : this;
 
@@ -904,7 +965,7 @@ export class DataFrame<T extends TypeMap = any> {
    * drop columns with NaN values(float type only)
    * @ignore
    */
-  _dropNaNsColumns(thresh = 1, subset?: Series, memoryResource?: MemoryResource) {
+  protected _dropNaNsColumns(thresh = 1, subset?: Series, memoryResource?: MemoryResource) {
     const column_names: (keyof T)[] = [];
     const df                        = (subset !== undefined) ? this.gather(subset) : this;
 

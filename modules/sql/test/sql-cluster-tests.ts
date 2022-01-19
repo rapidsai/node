@@ -25,7 +25,7 @@ test('create and drop table', async () => {
   const a  = Series.new([1, 2, 3]);
   const df = new DataFrame({'a': a});
 
-  await sqlCluster.createTable('test_table', df);
+  await sqlCluster.createDataFrameTable('test_table', df);
   expect(sqlCluster.listTables().length).toEqual(1);
 
   await sqlCluster.dropTable('test_table');
@@ -36,8 +36,8 @@ test('list tables', async () => {
   const a  = Series.new([1, 2, 3]);
   const df = new DataFrame({'a': a});
 
-  await sqlCluster.createTable('test_table', df);
-  await sqlCluster.createTable('test_table2', df);
+  await sqlCluster.createDataFrameTable('test_table', df);
+  await sqlCluster.createDataFrameTable('test_table2', df);
 
   expect(sqlCluster.listTables()).toEqual(['test_table', 'test_table2']);
 });
@@ -50,7 +50,7 @@ test('describe table', async () => {
   // Empty map since table doesn't exist
   expect(sqlCluster.describeTable('nonexisting_table').size).toEqual(0);
 
-  await sqlCluster.createTable('test_table', df);
+  await sqlCluster.createDataFrameTable('test_table', df);
   const tableDescription = sqlCluster.describeTable('test_table');
   expect([...tableDescription.keys()]).toEqual(['a', 'b']);
   expect([...tableDescription.values()]).toEqual([new Float64, new Utf8String]);
@@ -61,7 +61,7 @@ test('explain', async () => {
   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
   const df  = new DataFrame({'key': key, 'val': val});
 
-  await sqlCluster.createTable('test_table', df);
+  await sqlCluster.createDataFrameTable('test_table', df);
 
   const query = 'SELECT * FROM test_table WHERE val > 4';
 
@@ -83,7 +83,7 @@ test('select a single column (one worker)', async () => {
   const b  = Series.new([7, 2, 7, 1, 2]);
   const df = new DataFrame({'a': a, 'b': b});
 
-  await sqlCluster.createTable('test_table', df);
+  await sqlCluster.createDataFrameTable('test_table', df);
 
   const result = concat(await sqlCluster.sql('SELECT a FROM test_table'));
   expect(result).toStrictEqual(new DataFrame({a}));
@@ -94,7 +94,7 @@ test('select all columns (one worker)', async () => {
   const b  = Series.new([7, 2, 7, 1, 2]);
   const df = new DataFrame({'a': a, 'b': b});
 
-  await sqlCluster.createTable('test_table', df);
+  await sqlCluster.createDataFrameTable('test_table', df);
 
   const result = concat(await sqlCluster.sql('SELECT * FROM test_table'));
   expect(result).toStrictEqual(new DataFrame({'a': a, 'b': b}));
@@ -105,8 +105,8 @@ test('union columns from two tables (one worker)', async () => {
   const df1 = new DataFrame({'a': a});
   const df2 = new DataFrame({'a': a});
 
-  await sqlCluster.createTable('t1', df1);
-  await sqlCluster.createTable('t2', df2);
+  await sqlCluster.createDataFrameTable('t1', df1);
+  await sqlCluster.createDataFrameTable('t2', df2);
 
   const result = concat(await sqlCluster.sql('SELECT a FROM t1 AS a UNION ALL SELECT a FROM t2'));
   expect(result).toStrictEqual(new DataFrame({'a': Series.new([...a, ...a])}));
@@ -117,7 +117,7 @@ test('find all columns within a table that meet condition (one worker)', async (
   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
   const df  = new DataFrame({'key': key, 'val': val});
 
-  await sqlCluster.createTable('test_table', df);
+  await sqlCluster.createDataFrameTable('test_table', df);
 
   const result = concat(await sqlCluster.sql('SELECT * FROM test_table WHERE val > 4'));
   expect(result).toStrictEqual(
@@ -129,7 +129,7 @@ test('empty sql result', async () => {
   const val = Series.new([7.6, 2.9, 7.1, 1.6, 2.2]);
   const df  = new DataFrame({'key': key, 'val': val});
 
-  await sqlCluster.createTable('test_table', df);
+  await sqlCluster.createDataFrameTable('test_table', df);
 
   // Query should be empty since BETWEEN values are reversed.
   const result =

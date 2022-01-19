@@ -23,8 +23,8 @@ namespace nv {
 
 namespace {
 
-cudf::io::table_metadata make_writer_metadata(Napi::Object const& options,
-                                              cudf::table_view const& table) {
+cudf::io::table_metadata make_csv_writer_metadata(Napi::Object const& options,
+                                                  cudf::table_view const& table) {
   auto env      = options.Env();
   auto has_opt  = [&](std::string const& key) { return options.Has(key); };
   auto napi_opt = [&](std::string const& key) -> Napi::Value {
@@ -119,7 +119,7 @@ void Table::write_csv(Napi::CallbackInfo const& info) {
 
   cudf::table_view table = *this;
   callback_sink sink{next.As<Napi::Function>()};
-  auto metadata = make_writer_metadata(options, table);
+  auto metadata = make_csv_writer_metadata(options, table);
   cudf::io::write_csv(make_writer_options(options, cudf::io::sink_info{&sink}, table, &metadata));
 
   complete.As<Napi::Function>()({});

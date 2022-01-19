@@ -49,7 +49,7 @@ fastify.register((require('fastify-arrow')))
   }))
   .register(async (instance, opts, done) => {
     sqlCluster = await SQLCluster.init({numWorkers: 10});
-    await sqlCluster.createTable('test_table', DATA_PATHS);
+    await sqlCluster.createCSVTable('test_table', DATA_PATHS);
     done();
   })
   .after(() => {
@@ -70,6 +70,9 @@ fastify.register((require('fastify-arrow')))
         arrowTable.schema.metadata.set('queryTime', queryTime);
         arrowTable.schema.metadata.set('queryResults', resultCount);
         RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
+
+        results.dispose();
+        dfs.forEach((df) => df.dispose());
       } catch (err) {
         request.log.error({err}, '/run_query error');
         reply.code(500).send(err);
@@ -89,7 +92,11 @@ function head(dfs, rows) {
   for (let i = 0; i < dfs.length; ++i) {
     if (dfs[i].numRows == 0) continue;
     rowCount += dfs[i].numRows;
-    if (result.numRows <= rows) { result = result.concat(dfs[i].head(rows - result.numRows)); }
+    if (result.numRows <= rows) {
+      const head = dfs[i].head(rows - result.numRows);
+      result = result.concat(head);
+      head.dispose();
+    }
   }
 
   return {results: result, resultCount: rowCount};

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MemoryResource} from '@rapidsai/rmm';
-import * as arrow from 'apache-arrow';
+import {Field} from 'apache-arrow';
 
 import {Column} from '../column';
 import {Series} from '../series';
@@ -53,15 +52,6 @@ export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
       this._col.getChild<T[P]>(this.type.children.findIndex((f) => f.name === name)));
   }
 
-  /**
-   * Concat a StructSeries to the end of the caller, returning a new StructSeries.
-   *
-   * @param other The StructSeries to concat to the end of the caller.
-   */
-  concat(other: Series<Struct<T>>, memoryResource?: MemoryResource): Series<Struct<T>> {
-    return this.__construct(this._col.concat(other._col, memoryResource));
-  }
-
   /** @ignore */
   protected __construct(col: Column<Struct<T>>) {
     return new StructSeries(Object.assign(col, {type: fixNames(this.type, col.type)}));
@@ -78,7 +68,7 @@ Object.defineProperty(StructSeries.prototype, '__construct', {
 function fixNames<T extends DataType>(lhs: T, rhs: T) {
   if (lhs.children && rhs.children && lhs.children.length && rhs.children.length) {
     lhs.children.forEach(({name, type}, idx) => {
-      rhs.children[idx] = arrow.Field.new({name, type: fixNames(type, rhs.children[idx].type)});
+      rhs.children[idx] = Field.new({name, type: fixNames(type, rhs.children[idx].type)});
     });
   }
   return rhs;

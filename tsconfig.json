@@ -1,7 +1,6 @@
 {
     "include": [
         "modules/*/src/**/*.ts",
-        "modules/*/test/**/*.ts"
     ],
     "exclude": ["node_modules"],
     "compilerOptions": {
@@ -9,8 +8,8 @@
         "paths": {
             "@rapidsai/core":                         ["modules/rapids-core/src/index"],
             "@rapidsai/core/*":                       ["modules/rapids-core/src/*"],
-            "@rapidsai/cuda":                           ["modules/cuda/src/index"],
-            "@rapidsai/cuda/*":                         ["modules/cuda/src/*"],
+            "@rapidsai/cuda":                         ["modules/cuda/src/index"],
+            "@rapidsai/cuda/*":                       ["modules/cuda/src/*"],
             "@rapidsai/rmm":                          ["modules/rmm/src/index"],
             "@rapidsai/rmm/*":                        ["modules/rmm/src/*"],
             "@rapidsai/cudf":                         ["modules/cudf/src/index"],
@@ -23,10 +22,12 @@
             "@rapidsai/deck.gl/*":                    ["modules/deck.gl/src/*"],
             "@rapidsai/jsdom":                        ["modules/jsdom/src/index"],
             "@rapidsai/jsdom/*":                      ["modules/jsdom/src/*"],
-            "@rapidsai/glfw":                           ["modules/glfw/src/index"],
-            "@rapidsai/glfw/*":                         ["modules/glfw/src/*"],
-            "@rapidsai/webgl":                          ["modules/webgl/src/index"],
-            "@rapidsai/webgl/*":                        ["modules/webgl/src/*"],
+            "@rapidsai/glfw":                         ["modules/glfw/src/index"],
+            "@rapidsai/glfw/*":                       ["modules/glfw/src/*"],
+            "@rapidsai/io":                           ["modules/io/src/index"],
+            "@rapidsai/io/*":                         ["modules/io/src/*"],
+            "@rapidsai/webgl":                        ["modules/webgl/src/index"],
+            "@rapidsai/webgl/*":                      ["modules/webgl/src/*"],
             "@rapidsai/sql":                          ["modules/sql/src/index"],
             "@rapidsai/sql/*":                        ["modules/sql/src/*"],
             "deck.gl":                                ["node_modules/deck.gl/src/index"],

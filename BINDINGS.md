@@ -358,9 +358,9 @@ The tables below show the bindings that have been implemented in `node-rapids`:
 | `to_feather`         |                       |
 | `to_hdf`             |                       |
 | `to_json`            |                       |
-| `to_orc`             |                       |
+| `to_orc`             |     ✅ (`toORC`)      |
 | `to_pandas`          |                       |
-| `to_parquet`         |                       |
+| `to_parquet`         |   ✅ (`toParquet`)    |
 | `to_records`         |                       |
 | `to_string`          |                       |
 | `transpose`          |                       |

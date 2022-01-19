@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --experimental-vm-modules --trace-uncaught
+#!/usr/bin/env node
 
 // Copyright (c) 2021, NVIDIA CORPORATION.
 //
@@ -18,7 +18,7 @@ module.exports = (glfwOptions = {
   title: 'Spatial Demo',
   transparent: false
 }) => {
-  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.js', {
+  return require('@rapidsai/jsdom').RapidsJSDOM.fromReactComponent('./app.jsx', {
     glfwOptions,
     // Change cwd to the example dir so relative file paths are resolved
     module: {path: __dirname},

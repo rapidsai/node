@@ -50,6 +50,7 @@ DeviceBuffer::wrapper_t DeviceBuffer::New(Napi::Env const& env,
                                           MemoryResource::wrapper_t const& mr) {
   auto buf     = New(env, mr, buffer->stream());
   buf->buffer_ = std::move(buffer);
+  Napi::MemoryManagement::AdjustExternalMemory(env, buf->size());
   return buf;
 }
 

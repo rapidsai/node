@@ -67,14 +67,29 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Table(CallbackArgs const& args);
 
   /**
-   * @brief Returns the number of columns in the table
+   * @brief Destructor called when the JavaScript VM garbage collects this Table
+   * instance.
+   *
+   * @param env The active JavaScript environment.
    */
-  cudf::size_type num_columns() const noexcept { return num_columns_; }
+  void Finalize(Napi::Env) override;
+
+  /**
+   * @brief Explicitly free the device memory associated with this Table.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void dispose(Napi::Env);
 
   /**
    * @brief Returns the number of columns in the table
    */
-  cudf::size_type num_rows() const noexcept { return num_rows_; }
+  inline cudf::size_type num_columns() const noexcept { return num_columns_; }
+
+  /**
+   * @brief Returns the number of columns in the table
+   */
+  inline cudf::size_type num_rows() const noexcept { return num_rows_; }
 
   /**
    * @brief Creates an immutable, non-owning view of the table
@@ -98,7 +113,7 @@ struct Table : public EnvLocalObjectWrap<Table> {
    *
    * @return cudf::table_view Immutable, non-owning `table_view`
    */
-  operator cudf::table_view() const { return this->view(); };
+  inline operator cudf::table_view() const { return this->view(); };
 
   /**
    * @brief Implicit conversion operator to a `mutable_table_view`.
@@ -107,7 +122,7 @@ struct Table : public EnvLocalObjectWrap<Table> {
    *`mutable_table_view `. The conversion is automatic.
    * @return cudf::mutable_table_view  Mutable, non-owning `mutable_table_view`
    */
-  operator cudf::mutable_table_view() { return this->mutable_view(); };
+  inline operator cudf::mutable_table_view() { return this->mutable_view(); };
 
   /**
    * @brief Returns a const reference to the specified column
@@ -118,9 +133,7 @@ struct Table : public EnvLocalObjectWrap<Table> {
    * @param i Index of the desired column
    * @return A const reference to the desired column
    */
-  Column const& get_column(cudf::size_type i) const {
-    return *Column::Unwrap(columns_.Value().Get(i).ToObject());
-  }
+  inline Column const& get_column(cudf::size_type i) const { return *(columns_[i].Value()); }
 
   // table/reshape.cpp
   Column::wrapper_t interleave_columns(
@@ -206,9 +219,12 @@ struct Table : public EnvLocalObjectWrap<Table> {
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
  private:
-  cudf::size_type num_columns_{};           ///< The number of columns in the table
-  cudf::size_type num_rows_{};              ///< The number of rows
-  Napi::Reference<Napi::Array> columns_{};  ///< columns of table
+  cudf::size_type num_columns_{};  ///< The number of columns in the table
+  cudf::size_type num_rows_{};     ///< The number of rows
+  std::vector<Napi::Reference<Column::wrapper_t>> columns_{};  ///< columns of table
+  bool disposed_{false};  ///< Flag indicating this table has been disposed
+
+  void dispose(Napi::CallbackInfo const&);
 
   Napi::Value num_columns(Napi::CallbackInfo const& info);
   Napi::Value num_rows(Napi::CallbackInfo const& info);
@@ -237,6 +253,11 @@ struct Table : public EnvLocalObjectWrap<Table> {
   void write_csv(Napi::CallbackInfo const& info);
 
   static Napi::Value read_parquet(Napi::CallbackInfo const& info);
+  void write_parquet(Napi::CallbackInfo const& info);
+
+  static Napi::Value read_orc(Napi::CallbackInfo const& info);
+  void write_orc(Napi::CallbackInfo const& info);
+
   static Napi::Value from_arrow(Napi::CallbackInfo const& info);
 
   Napi::Value to_arrow(Napi::CallbackInfo const& info);

@@ -1,5 +1,5 @@
 {
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "name": "@rapidsai/demo-luma.gl-lessons-12",
   "description": "The classic WebGL Lesson 12 ported to luma.gl.",

@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node --experimental-vm-modules --trace-uncaught
+#!/usr/bin/env node
 
 // Copyright (c) 2020-2021, NVIDIA CORPORATION.
 //

@@ -14,7 +14,7 @@
 
 /* eslint-disable @typescript-eslint/await-thenable */
 
-import {DataFrame, Series, Table} from '@rapidsai/cudf';
+import {DataFrame, Table} from '@rapidsai/cudf';
 
 export class ExecutionGraph {
   constructor(private _graph?: import('./rapidsai_sql').ExecutionGraph) {}
@@ -22,11 +22,12 @@ export class ExecutionGraph {
   start(): void { this._graph?.start(); }
 
   async result() {
-    const {names, tables} = await this._graph?.result() || {names: [], tables: [new Table({})]};
+    const {names, tables} =
+      this._graph ? (await this._graph.result()) : {names: [], tables: [new Table({})]};
     const results: DataFrame[] = [];
     tables.forEach((table: Table) => {
-      results.push(new DataFrame(names.reduce(
-        (cols, name, i) => ({...cols, [name]: Series.new(table.getColumnByIndex(i))}), {})));
+      results.push(new DataFrame(
+        names.reduce((cols, name, i) => ({...cols, [name]: table.getColumnByIndex(i)}), {})));
     });
 
     return results;

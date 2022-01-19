@@ -18,17 +18,13 @@ function(find_and_configure_cuml VERSION)
 
     include(get_cpm)
 
-    include(ConfigureRAFT)
-
     _clean_build_dirs_if_not_fully_built(cuml libcuml++.so)
 
     _set_package_dir_if_exists(cuml cuml)
     _set_package_dir_if_exists(raft raft)
-    _set_package_dir_if_exists(fmt fmtlib)
     _set_package_dir_if_exists(faiss faiss)
     _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(Treelite treelite)
-    _set_package_dir_if_exists(RapidJSON rapidjson)
 
     if(NOT TARGET cuml::cuml)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)

@@ -67,7 +67,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * @returns A Series of the same number of elements containing the result of the operation.
    */
   rint(memoryResource?: MemoryResource): Series<T> {
-    return Series.new(this._col.rint(memoryResource));
+    return this.__construct(this._col.rint(memoryResource));
   }
 
   _process_reduction(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
@@ -118,9 +118,9 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
 
   replaceNaNs(value: T['scalarType']|Series<T>, memoryResource?: MemoryResource): Series<T> {
     if (value instanceof Series) {
-      return Series.new(this._col.replaceNaNs(value._col as Column<T>, memoryResource));
+      return this.__construct(this._col.replaceNaNs(value._col as Column<T>, memoryResource));
     } else {
-      return Series.new(
+      return this.__construct(
         this._col.replaceNaNs(new Scalar<T>({type: this.type, value}), memoryResource));
     }
   }
@@ -166,12 +166,12 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
     return this._col.any(memoryResource);
   }
 
-  protected _prepare_scan_series(skipNulls: boolean) {
+  protected _prepare_scan_series(skipNulls: boolean): Column<T> {
     const data = this.nansToNulls();
 
-    if (skipNulls) { return data; }
+    if (skipNulls) { return data._col as Column<T>; }
 
-    if (!data.hasNulls) { return data; }
+    if (!data.hasNulls) { return data._col as Column<T>; }
 
     const index = Series.sequence({type: new Int32, size: data.length, step: 1, init: 0});
 
@@ -184,7 +184,7 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
     const mask = [...index.cast(new Bool8).fill(true).scatter(false, slice)];
     copy.setNullMask(mask as any);
 
-    return copy;
+    return copy._col as Column<T>;
   }
 
   /**
@@ -204,9 +204,9 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * a.cumulativeMax() // {4, 4, 5, 5, 5}
    * ```
    */
-  cumulativeMax(skipNulls = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipNulls);
-    return Series.new(result_series._col.cumulativeMax(memoryResource) as Column<T>);
+  cumulativeMax(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
+    const col = this._prepare_scan_series(skipNulls);
+    return Series.new(col.cumulativeMax(memoryResource));
   }
 
   /**
@@ -226,9 +226,9 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * a.cumulativeMin() // {4, 2, 2, 1, 1}
    * ```
    */
-  cumulativeMin(skipNulls = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipNulls);
-    return Series.new(result_series._col.cumulativeMin(memoryResource) as Column<T>);
+  cumulativeMin(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
+    const col = this._prepare_scan_series(skipNulls);
+    return Series.new(col.cumulativeMin(memoryResource));
   }
 
   /**
@@ -248,9 +248,9 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * a.cumulativeProduct() // {4, 8, 40, 40, 40}
    * ```
    */
-  cumulativeProduct(skipNulls = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipNulls);
-    return Series.new(result_series._col.cumulativeProduct(memoryResource) as Column<T>);
+  cumulativeProduct(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
+    const col = this._prepare_scan_series(skipNulls);
+    return Series.new(col.cumulativeProduct(memoryResource));
   }
 
   /**
@@ -270,9 +270,24 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
    * a.cumulativeSum() // {4, 6, 11, 12, 13}
    * ```
    */
-  cumulativeSum(skipNulls = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipNulls);
-    return Series.new(result_series._col.cumulativeSum(memoryResource) as Column<T>);
+  cumulativeSum(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
+    const col = this._prepare_scan_series(skipNulls);
+    return Series.new(col.cumulativeSum(memoryResource));
+  }
+
+  /** @inheritdoc */
+  sum(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.sum(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  product(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.product(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  sumOfSquares(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.sumOfSquares(skipNulls, memoryResource) as number;
   }
 
   /**

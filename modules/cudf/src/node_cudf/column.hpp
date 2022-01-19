@@ -68,6 +68,21 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Column(CallbackArgs const& args);
 
   /**
+   * @brief Destructor called when the JavaScript VM garbage collects this Column
+   * instance.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void Finalize(Napi::Env) override;
+
+  /**
+   * @brief Explicitly free the device memory associated with this Column.
+   *
+   * @param env The active JavaScript environment.
+   */
+  void dispose(Napi::Env);
+
+  /**
    * @brief Returns the column's logical element type
    */
   inline cudf::data_type type() const noexcept { return arrow_to_cudf_type(type_.Value()); }
@@ -156,7 +171,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   /**
    * @brief Returns the number of child columns
    */
-  cudf::size_type num_children() const { return children_.Value().Length(); }
+  inline cudf::size_type num_children() const { return children_.size(); }
 
   /**
    * @brief Returns a const reference to the specified child
@@ -164,9 +179,25 @@ struct Column : public EnvLocalObjectWrap<Column> {
    * @param child_index Index of the desired child
    * @return column const& Const reference to the desired child
    */
-  Column::wrapper_t child(cudf::size_type child_index) const noexcept {
-    return children_.Value().Get(child_index).ToObject();
+  inline Column::wrapper_t child(cudf::size_type child_index) const noexcept {
+    return children_[child_index].Value();
   };
+
+  /**
+   * @brief Returns aa vector of the column's childre
+   *
+   * @return Array of children
+   */
+  inline Napi::Array children() const noexcept {
+    uint32_t idx = 0;
+    auto arr     = Napi::Array::New(Env(), num_children());
+    std::for_each(children_.begin(),
+                  children_.end(),
+                  [&](Napi::Reference<Column::wrapper_t> const& val) mutable {
+                    arr.Set((idx++), (val.Value()));
+                  });
+    return arr;
+  }
 
   /**
    * @brief Creates a mutable, non-owning view of the column's data and
@@ -190,7 +221,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
    *
    * @return cudf::column_view Immutable, non-owning `column_view`
    */
-  operator cudf::column_view() const { return this->view(); };
+  inline operator cudf::column_view() const { return this->view(); };
 
   /**
    * @brief Implicit conversion operator to a `mutable_column_view`.
@@ -206,7 +237,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
    *
    * @return cudf::mutable_column_view Mutable, non-owning `mutable_column_view`
    */
-  operator cudf::mutable_column_view() { return this->mutable_view(); };
+  inline operator cudf::mutable_column_view() { return this->mutable_view(); };
 
   // column/reductions.cpp
 
@@ -742,6 +773,13 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::size_type width,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  // column/strings/replace_slice.cpp
+  Column::wrapper_t replace_slice(
+    std::string const& repl             = "",
+    cudf::size_type start               = 0,
+    cudf::size_type stop                = -1,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
   // column/convert.cpp
 
   Column::wrapper_t strings_from_booleans(
@@ -779,8 +817,10 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Reference<DeviceBuffer::wrapper_t> null_mask_;  ///< Bitmask used to represent null values.
                                                         ///< May be empty if `null_count() == 0`
   mutable cudf::size_type null_count_{cudf::UNKNOWN_NULL_COUNT};  ///< The number of null elements
-  Napi::Reference<Napi::Array> children_;  ///< Depending on element type, child
-                                           ///< columns may contain additional data
+  std::vector<Napi::Reference<Column::wrapper_t>>
+    children_;            ///< Depending on element type, child
+                          ///< columns may contain additional data
+  bool disposed_{false};  ///< Flag indicating this column has been disposed
 
   Napi::Value type(Napi::CallbackInfo const& info);
   void type(Napi::CallbackInfo const& info, Napi::Value const& value);
@@ -793,6 +833,8 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value null_count(Napi::CallbackInfo const& info);
   Napi::Value is_nullable(Napi::CallbackInfo const& info);
   Napi::Value num_children(Napi::CallbackInfo const& info);
+
+  void dispose(Napi::CallbackInfo const&);
 
   Napi::Value gather(Napi::CallbackInfo const& info);
   Napi::Value copy(Napi::CallbackInfo const& info);
@@ -921,6 +963,9 @@ struct Column : public EnvLocalObjectWrap<Column> {
   // column/strings/padding.cpp
   Napi::Value pad(Napi::CallbackInfo const& info);
   Napi::Value zfill(Napi::CallbackInfo const& info);
+
+  // column/strings/replace.cpp
+  Napi::Value replace_slice(Napi::CallbackInfo const& info);
 
   // column/convert.hpp
   Napi::Value strings_from_booleans(Napi::CallbackInfo const& info);

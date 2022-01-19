@@ -141,6 +141,11 @@ export interface Column<T extends DataType = any> {
   readonly numChildren: number;
 
   /**
+   * @summary Explicitly free the device memory associated with this Column and all child Columns.
+   */
+  dispose(): void;
+
+  /**
    * Return sub-selection from a Column
    *
    * @param selection
@@ -1034,7 +1039,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The min of all the values in this Column.
    */
-  min(memoryResource?: MemoryResource): T extends Integral? bigint: number;
+  min(memoryResource?: MemoryResource): T['scalarType'];
 
   /**
    * Compute the max of all values in this Column.
@@ -1043,7 +1048,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The max of all the values in this Column.
    */
-  max(memoryResource?: MemoryResource): T extends Integral? bigint: number;
+  max(memoryResource?: MemoryResource): T['scalarType'];
 
   /**
    * Compute a pair of [min,max] of all values in this Column.
@@ -1052,7 +1057,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The pair of [min,max] of all the values in this Column.
    */
-  minmax(memoryResource?: MemoryResource): (T extends Integral? bigint: number)[];
+  minmax(memoryResource?: MemoryResource): [T['scalarType'], T['scalarType']];
 
   /**
    * Compute the sum of all values in this Column.
@@ -1097,7 +1102,7 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns The median of all the values in this Column.
    */
-  median(memoryResource?: MemoryResource): number;
+  median(memoryResource?: MemoryResource): T['scalarType'];
 
   /**
    * Compute the nunique of all values in this Column.
@@ -1281,7 +1286,30 @@ export interface Column<T extends DataType = any> {
    *   memory.
    * @returns New column of strings.
    */
-  zfill(width: number, memoryResource?: MemoryResource): Column<Utf8String>
+  zfill(width: number, memoryResource?: MemoryResource): Column<Utf8String>;
+
+  /**
+   * Replaces each string in the column with the provided repl string within the [start,stop)
+   * character position range.
+   *
+   * Null string entries will return null output string entries.
+   *
+   * Position values are 0-based meaning position 0 is the first character of each string.
+   *
+   * This function can be used to insert a string into specific position by specifying the same
+   * position value for start and stop. The repl string can be appended to each string by specifying
+   * -1 for both start and stop.
+   *
+   * @param repl Replacement string for specified positions found.
+   * @param start Start position where repl will be added. Default is 0, first character position.
+   * @param stop End position (exclusive) to use for replacement. Default of -1 specifies the end of
+   *   each string.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns New strings column
+   */
+  replaceSlice(repl: string, start: number, stop: number, memoryResource?: MemoryResource):
+    Column<Utf8String>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

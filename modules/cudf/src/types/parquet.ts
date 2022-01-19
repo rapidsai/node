@@ -12,19 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface ReadParquetOptions {
-  sources: string[];
+export interface ReadParquetOptionsCommon {
   /** The list of columns to read */
   columns?: string[];
+  /** Specifies for each input file, which row groups to read. */
+  rowGroups?: number[][];
   /** The number of rows to skip from the start of the file */
   skipRows?: number;
   /** The total number of rows to read */
   numRows?: number;
-  /** Return string columns as GDF_CATEGORY dtype */
+  /** Return string columns as GDF_CATEGORY dtype (default 'false') */
   stringsToCategorical?: boolean;
   /**
    * If true and dataset has custom PANDAS schema metadata, ensure that index columns are also
-   * loaded.
+   * loaded (default 'true').
    */
   usePandasMetadata?: boolean;
+}
+
+export interface ReadParquetFileOptions extends ReadParquetOptionsCommon {
+  sourceType: 'files';
+  sources: string[];
+}
+
+export interface ReadParquetBufferOptions extends ReadParquetOptionsCommon {
+  sourceType: 'buffers';
+  sources: (Uint8Array|Buffer)[];
+}
+
+export type ReadParquetOptions = ReadParquetFileOptions|ReadParquetBufferOptions;
+
+export interface WriteParquetOptions {
+  /** The name of compression to use (default 'snappy'). */
+  compression?: 'snappy'|'none';
+  /** Write timestamps in int96 format (default 'false'). */
+  int96Timestamps?: boolean;
+}
+
+export interface TableWriteParquetOptions extends WriteParquetOptions {
+  /** Column names to write in the header. */
+  columnNames?: string[];
 }

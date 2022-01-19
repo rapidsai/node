@@ -59,11 +59,12 @@ void CacheMachine::add_to_cache(int32_t const& node_id,
 
 SQLTask* CacheMachine::pull_from_cache(std::string const& message_id) {
   return new SQLTask(Env(), [this, message_id]() {
-    auto result   = this->_cache->pullCacheData(message_id);
-    auto names    = result->names();
-    auto decached = result->decache();
-    auto table    = decached->releaseCudfTable();
+    auto result   = std::move(this->_cache->pullCacheData(message_id));
+    auto names    = std::move(result->names());
+    auto decached = std::move(result->decache());
+    auto table    = std::move(decached->releaseCudfTable());
     std::vector<std::unique_ptr<cudf::table>> tables;
+    tables.reserve(1);
     tables.push_back(std::move(table));
     return std::make_pair(std::move(names), std::move(tables));
   });
