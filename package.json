@@ -141,7 +141,7 @@
     "**/apache-arrow": "^4.0.0",
     "**/gl-matrix": "3.3.0",
     "**/jsdom": "16.6.0",
-    "**/math.gl": "3.5.4",
+    "**/math.gl": "3.5.6",
     "**/react-map-gl": "5.3.16"
   },
   "release": {
