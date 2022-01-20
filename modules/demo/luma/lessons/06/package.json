@@ -7,11 +7,11 @@
     "start-local": "webpack-dev-server --env.local --progress --hot --open -d"
   },
   "dependencies": {
-    "@loaders.gl/images": "3.0.13",
-    "@luma.gl/constants": "8.5.7",
-    "@luma.gl/core": "8.5.7",
-    "@luma.gl/experimental": "8.5.7",
-    "@luma.gl/shadertools": "8.5.7",
+    "@loaders.gl/images": "3.1.6",
+    "@luma.gl/constants": "8.5.10",
+    "@luma.gl/core": "8.5.10",
+    "@luma.gl/experimental": "8.5.10",
+    "@luma.gl/shadertools": "8.5.10",
     "math.gl": "3.5.4"
   }
 }

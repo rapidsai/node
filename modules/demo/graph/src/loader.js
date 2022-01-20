@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {clampRange as clamp, Float32Buffer} from '@rapidsai/cuda';
-import {DataFrame, Float32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
+import {DataFrame, Float32, Int32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
 import {GraphCOO} from '@rapidsai/cugraph';
 import {DeviceBuffer} from '@rapidsai/rmm';
 import * as Arrow from 'apache-arrow';
@@ -128,8 +128,8 @@ export default async function* loadGraphData(props = {}) {
 
   let edgeDFs = getDataFrames(props.edges, getDefaultEdges, {
     name: new Utf8String,
-    src: new Uint32,
-    dst: new Uint32,
+    src: new Int32,
+    dst: new Int32,
     edge: new Uint64,
     color: new Uint64,
     bundle: new Uint64,
@@ -137,13 +137,25 @@ export default async function* loadGraphData(props = {}) {
   });
 
   /**
-   * @type DataFrame<{name: Utf8String, id: Uint32, color: Uint32, size: Uint8, x: Float32, y:
-   *   Float32}>
+   * @type DataFrame<{
+   *   name: Utf8String,
+   *   id: Uint32,
+   *   color: Uint32,
+   *   size: Uint8,
+   *   x: Float32,
+   *   y: Float32
+   * }>
    */
   let nodes = null;
   /**
-   * @type DataFrame<{name: Utf8String, src: Uint32, dst: Uint32, edge: Uint64, color: Uint64,
-   *   bundle: Uint64}>
+   * @type DataFrame<{
+   *   name: Utf8String,
+   *   src: Int32,
+   *   dst: Int32,
+   *   edge: Uint64,
+   *   color: Uint64,
+   *   bundle: Uint64
+   * }>
    */
   let edges = null;
   /**
@@ -262,7 +274,7 @@ function promiseSubject() {
  *  name: Utf8String, id: Uint32, color: Uint32, size: Uint8, x: Float32,  y: Float32,
  * }>} nodes
  * @param {DataFrame<{
- *  name: Utf8String, src: Uint32, dst: Uint32, edge: Uint64,  color: Uint64,  bundle: Uint64,
+ *  name: Utf8String, src: Int32, dst: Int32, edge: Uint64,  color: Uint64,  bundle: Uint64,
  * }>} edges
  * @param {*} graph
  */
@@ -377,7 +389,7 @@ function getDefaultEdges() {
   return new DataFrame({
     name: Series.new(Arrow.Utf8Vector.from(Array.from({length: 312}, (_, i) => `${i}`))),
     src: Series.new({
-      type: new Uint32,
+      type: new Int32,
       data: [
         1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,
         1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,  1,  1,  1,  0,
@@ -396,7 +408,7 @@ function getDefaultEdges() {
       ]
     }),
     dst: Series.new({
-      type: new Uint32,
+      type: new Int32,
       data: [
         2,  3,  4,  5,  6,  6,  7,  7,  8,  8,  8,  8,  9,  10, 11, 12, 14, 15, 16, 13, 17, 18, 17,
         17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 35, 35, 35, 36, 37,
