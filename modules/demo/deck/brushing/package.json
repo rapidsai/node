@@ -13,9 +13,9 @@
     "watch": "find -type f | entr -c -d -r node --experimental-vm-modules --trace-uncaught index.js"
   },
   "dependencies": {
-    "@deck.gl/core": "8.5.8",
-    "@deck.gl/extensions": "8.5.8",
-    "@deck.gl/react": "8.5.8",
+    "@deck.gl/core": "8.6.6",
+    "@deck.gl/extensions": "8.6.6",
+    "@deck.gl/react": "8.6.6",
     "@rapidsai/jsdom": "0.0.1",
     "d3-scale": "2.2.2",
     "gl-matrix": "3.3.0",

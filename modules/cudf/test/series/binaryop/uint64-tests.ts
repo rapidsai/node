@@ -216,7 +216,7 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('computes to the power of a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.pow(-1n)].map(Number)).toEqual([18446744073709552000, 1, 0]);
+      expect([...lhs.pow(-1n)].map(Number)).toEqual([0, 1, 18446744073709552000]);
       expect([...lhs.pow(0n)].map(Number)).toEqual([1, 1, 1]);
       expect([...lhs.pow(1n)].map(Number)).toEqual([0, 1, 2]);
       expect([...lhs.pow(2n)].map(Number)).toEqual([0, 1, 4]);
@@ -581,8 +581,7 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('logBase with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.logBase(-1n)].map(Number))
-        .toEqual([9223372036854776000, 9223372036854776000, 9223372036854776000]);
+      expect([...lhs.logBase(-1n)].map(Number)).toEqual([0, 0, 0]);
       expect([...lhs.logBase(0n)].map(Number)).toEqual([9223372036854776000, 0, 0]);
       expect([...lhs.logBase(1n)].map(Number))
         .toEqual([0, 9223372036854776000, 18446744073709552000]);
@@ -608,7 +607,7 @@ describe('Series binaryops (Uint64)', () => {
     });
     test('atan2 with a bigint', () => {
       const {lhs} = makeTestData();
-      expect([...lhs.atan2(-1n)].map(Number)).toEqual([3, 2, 2]);
+      expect([...lhs.atan2(-1n)].map(Number)).toEqual([0, 0, 0]);
       expect([...lhs.atan2(0n)].map(Number)).toEqual([0, 1, 1]);
       expect([...lhs.atan2(1n)].map(Number)).toEqual([0, 0, 1]);
       expect([...lhs.atan2(2n)].map(Number)).toEqual([0, 0, 0]);

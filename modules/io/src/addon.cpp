@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,8 +38,7 @@ struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
     std::string path                    = args[0];
     rmm::mr::device_memory_resource* mr = args[1];
 
-    auto datasource     = ::cudf::io::datasource::create(path);
-    auto [names, table] = parse_las_host(datasource, mr);
+    auto [names, table] = nv::read_las(cudf::io::datasource::create(path), mr);
 
     auto result = Napi::Object::New(env);
 

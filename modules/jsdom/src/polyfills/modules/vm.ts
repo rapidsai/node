@@ -39,6 +39,7 @@ export function createContextFactory(window: jsdom.DOMWindow, cwd: string) {
       ...Object.getOwnPropertyDescriptors(global),
       window: {get: () => innerWindow, configurable: true, enumerable: true},
       global: {get: () => innerContext, configurable: true, enumerable: true},
+      globalThis: {get: () => innerContext, configurable: true, enumerable: true},
     });
 
     const innerProcess = Object.assign(clone(process), {

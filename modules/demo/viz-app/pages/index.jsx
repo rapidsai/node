@@ -22,6 +22,11 @@ export default function Home() {
       title: 'Graph',
       description: 'This is the description of the Graph demo.',
       href: '/demo/graph'
+    },
+    {
+      title: 'Point Cloud',
+      description: 'This is the description of the Point Cloud demo.',
+      href: '/demo/point-cloud'
     }
   ];
 

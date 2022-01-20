@@ -21,6 +21,7 @@ export const defaultContextConfigValues = {
   NUM_BYTES_PER_ORDER_BY_PARTITION: 400000000,
   MAX_DATA_LOAD_CONCAT_CACHE_BYTE_SIZE: 400000000,
   FLOW_CONTROL_BYTES_THRESHOLD:
+    // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
     18446744073709551615,  // https://en.cppreference.com/w/cpp/types/numeric_limits/max
   MAX_ORDER_BY_SAMPLES_PER_NODE: 10000,
   BLAZING_PROCESSING_DEVICE_MEM_CONSUMPTION_THRESHOLD: 0.9,

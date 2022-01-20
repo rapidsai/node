@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,35 +18,32 @@
 #include <cudf/table/table.hpp>
 #include <rmm/device_buffer.hpp>
 
-const int HEADER_BYTE_SIZE = 227;
+namespace nv {
 
 struct LasHeader {
   char file_signature[4];
-  unsigned short file_source_id;
-  unsigned short global_encoding;
-  unsigned char version_major;
-  unsigned char version_minor;
+  uint16_t file_source_id;
+  uint16_t global_encoding;
+
+  char version_major, version_minor;
+
   char system_identifier[32];
   char generating_software[32];
-  unsigned short header_size;
-  unsigned long point_data_offset;
-  unsigned long variable_length_records_count;
-  unsigned char point_data_format_id;
-  unsigned short point_data_size;
-  unsigned long point_record_count;
-  unsigned long points_by_return_count[5];
-  double x_scale;
-  double y_scale;
-  double z_scale;
-  double x_offset;
-  double y_offset;
-  double z_offset;
-  double max_x;
-  double min_x;
-  double max_y;
-  double min_y;
-  double max_z;
-  double min_z;
+
+  uint16_t header_size;
+  uint32_t point_data_offset, variable_length_records_count;
+
+  char point_data_format_id;
+
+  uint16_t point_data_size;
+  uint32_t point_record_count;
+  uint32_t points_by_return_count[5];
+
+  double x_scale, y_scale, z_scale;
+  double x_offset, y_offset, z_offset;
+  double max_x, min_x;
+  double max_y, min_y;
+  double max_z, min_z;
 };
 
 const std::vector<std::string> PointDataFormatZeroColumnNames = {"x",
@@ -60,15 +57,12 @@ const std::vector<std::string> PointDataFormatZeroColumnNames = {"x",
                                                                  "point_source_id"};
 
 struct PointDataFormatZero {
-  long x;
-  long y;
-  long z;
-  unsigned short intensity;
-  unsigned char bit_data;
-  unsigned char classification;
+  int32_t x, y, z;
+  uint16_t intensity;
+  uint8_t bit_data, classification;
   char scan_angle;
-  unsigned char user_data;
-  unsigned short point_source_id;
+  uint8_t user_data;
+  uint16_t point_source_id;
 };
 
 const std::vector<std::string> PointDataFormatOneColumnNames = {"x",
@@ -83,15 +77,12 @@ const std::vector<std::string> PointDataFormatOneColumnNames = {"x",
                                                                 "gps_time"};
 
 struct PointDataFormatOne {
-  long x;
-  long y;
-  long z;
-  unsigned short intensity;
-  unsigned char bit_data;
-  unsigned char classification;
+  int32_t x, y, z;
+  uint16_t intensity;
+  uint8_t bit_data, classification;
   char scan_angle;
-  unsigned char user_data;
-  unsigned short point_source_id;
+  uint8_t user_data;
+  uint16_t point_source_id;
   double gps_time;
 };
 
@@ -109,18 +100,15 @@ const std::vector<std::string> PointDataFormatTwoColumnNames = {"x",
                                                                 "blue"};
 
 struct PointDataFormatTwo {
-  long x;
-  long y;
-  long z;
-  unsigned short intensity;
-  unsigned char bit_data;
-  unsigned char classification;
+  int32_t x, y, z;
+  uint16_t intensity;
+  uint8_t bit_data, classification;
   char scan_angle;
-  unsigned char user_data;
-  unsigned short point_source_id;
-  unsigned short red;
-  unsigned short green;
-  unsigned short blue;
+  uint8_t user_data;
+  uint16_t point_source_id;
+  uint16_t red;
+  uint16_t green;
+  uint16_t blue;
 };
 
 const std::vector<std::string> PointDataFormatThreeColumnNames = {"x",
@@ -135,39 +123,21 @@ const std::vector<std::string> PointDataFormatThreeColumnNames = {"x",
                                                                   "gps_time"};
 
 struct PointDataFormatThree {
-  long x;
-  long y;
-  long z;
-  unsigned short intensity;
-  unsigned char bit_data;
-  unsigned char classification;
+  int32_t x, y, z;
+  uint16_t intensity;
+  uint8_t bit_data, classification;
   char scan_angle;
-  unsigned char user_data;
-  unsigned short point_source_id;
+  uint8_t user_data;
+  uint16_t point_source_id;
   double gps_time;
-  unsigned short red;
-  unsigned short green;
-  unsigned short blue;
+  uint16_t red;
+  uint16_t green;
+  uint16_t blue;
 };
 
-std::unique_ptr<cudf::io::datasource::buffer> read(
-  const std::unique_ptr<cudf::io::datasource>& datasource,
-  size_t offset,
-  size_t size,
-  rmm::cuda_stream_view stream);
-
-std::unique_ptr<cudf::table> get_point_cloud_records(
-  const std::unique_ptr<cudf::io::datasource>& datasource,
-  LasHeader* cpu_header,
-  rmm::mr::device_memory_resource* mr,
-  rmm::cuda_stream_view stream);
-
-void parse_las_header_host(const std::unique_ptr<cudf::io::datasource>& datasource,
-                           LasHeader* cpu_header,
-                           LasHeader* gpu_header,
-                           rmm::cuda_stream_view stream);
-
-std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> parse_las_host(
+std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> read_las(
   const std::unique_ptr<cudf::io::datasource>& datasource,
   rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource(),
   rmm::cuda_stream_view stream        = rmm::cuda_stream_default);
+
+}  // namespace nv

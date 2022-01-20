@@ -188,16 +188,16 @@ yarn demo modules/demo/luma 01
 
 ## Running notebooks
 
-We've included a container for launching [`nteract/desktop`](https://nteract.io/desktop) with access to locally built `node-rapids` modules:
+We've included a container for launching [`jupyterlab-desktop`](https://github.com/jupyterlab/jupyterlab-desktop) with access to locally built `node-rapids` modules:
 
 ```shell
 # Compile the TypeScript and C++ modules inside the development container (only necessary if it hasn't already been built)
 yarn docker:run:devel bash -c 'yarn && yarn build'
 
-# Build the nteract notebook container (only necessary if it hasn't already been built)
+# Build the notebook container (only necessary if it hasn't already been built)
 yarn docker:build:devel:notebook
 
-# Start a containerized `nteract/desktop` instance with the source tree as a docker volume mount
+# Start a containerized `jupyterlab-desktop` instance with the source tree as a docker volume mount
 yarn docker:run:devel:notebook
 ```
 

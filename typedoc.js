@@ -6,11 +6,12 @@ module.exports = {
     'modules/cuml/src/index.ts',
     'modules/cugraph/src/index.ts',
     'modules/cuspatial/src/index.ts',
+    'modules/io/src/index.ts',
     'modules/deck.gl/src/index.ts',
     'modules/glfw/src/index.ts',
+    'modules/jsdom/src/index.ts',
     'modules/webgl/src/index.ts',
     'modules/sql/src/index.ts',
-    'modules/io/src/index.ts'
   ],
   out: 'doc',
   name: 'RAPIDS',
