@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,35 @@
 
 #include <las.hpp>
 
+namespace nv {
+
+namespace {
+
+const int HEADER_BYTE_SIZE = 227;
+
+#define LAS_UINT16(data, offset) \
+  (uint16_t)(static_cast<uint32_t>(data[offset]) | (static_cast<uint32_t>(data[offset + 1]) << 8))
+
+#define LAS_INT32(data, offset)                                                                    \
+  (int32_t)(static_cast<uint32_t>(data[offset]) | (static_cast<uint32_t>(data[offset + 1]) << 8) | \
+            (static_cast<uint32_t>(data[offset + 2]) << 16) |                                      \
+            (static_cast<uint32_t>(data[offset + 3]) << 24))
+
+#define LAS_UINT32(data, offset)                               \
+  (uint32_t)(static_cast<uint32_t>(data[offset]) |             \
+             (static_cast<uint32_t>(data[offset + 1]) << 8) |  \
+             (static_cast<uint32_t>(data[offset + 2]) << 16) | \
+             (static_cast<uint32_t>(data[offset + 3]) << 24))
+
+#define LAS_DOUBLE(data, offset)                                                                  \
+  (double)(static_cast<uint64_t>(data[offset]) | (static_cast<uint64_t>(data[offset + 1]) << 8) | \
+           (static_cast<uint64_t>(data[offset + 2]) << 16) |                                      \
+           (static_cast<uint64_t>(data[offset + 3]) << 24) |                                      \
+           (static_cast<uint64_t>(data[offset + 4]) << 32) |                                      \
+           (static_cast<uint64_t>(data[offset + 5]) << 40) |                                      \
+           (static_cast<uint64_t>(data[offset + 6]) << 48) |                                      \
+           (static_cast<uint64_t>(data[offset + 7]) << 56))
+
 __global__ void parse_header(uint8_t const* las_header_data, LasHeader* result) {
   size_t byte_offset = 0;
 
@@ -35,13 +64,11 @@ __global__ void parse_header(uint8_t const* las_header_data, LasHeader* result) 
   byte_offset += 4;
 
   // File source id (2 bytes)
-  result->file_source_id = *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1)
-                                                                << 8;
+  result->file_source_id = LAS_UINT16(las_header_data, byte_offset);
   byte_offset += 2;
 
   // Global encoding (2 bytes)
-  result->global_encoding = *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1)
-                                                                 << 8;
+  result->global_encoding = LAS_UINT16(las_header_data, byte_offset);
   byte_offset += 2;
 
   // Project ID (16 bytes)
@@ -77,141 +104,85 @@ __global__ void parse_header(uint8_t const* las_header_data, LasHeader* result) 
   byte_offset += 2;
 
   // Header size (2 bytes)
-  result->header_size = *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1)
-                                                             << 8;
+  result->header_size = LAS_UINT16(las_header_data, byte_offset);
   byte_offset += 2;
 
   // Offset to point data (4 bytes)
-  result->point_data_offset =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24;
+  result->point_data_offset = LAS_UINT32(las_header_data, byte_offset);
   byte_offset += 4;
 
   // Number of variable length records (4 bytes)
-  result->variable_length_records_count =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24;
+  result->variable_length_records_count = LAS_UINT32(las_header_data, byte_offset);
   byte_offset += 4;
 
   // Point data format id (1 byte)
   result->point_data_format_id = *(las_header_data + byte_offset);
-  if (result->point_data_format_id & 128 || result->point_data_format_id & 64)
+  if (result->point_data_format_id & 128 || result->point_data_format_id & 64) {
     result->point_data_format_id &= 127;
+  }
   byte_offset += 1;
 
   // Point data record length (2 bytes)
-  result->point_data_size = *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1)
-                                                                 << 8;
+  result->point_data_size = LAS_UINT16(las_header_data, byte_offset);
   byte_offset += 2;
 
   // Number of point records (4 bytes)
-  result->point_record_count =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24;
+  result->point_record_count = LAS_UINT32(las_header_data, byte_offset);
   byte_offset += 4;
 
   // Number of points by return (20 bytes)
   for (int i = 0; i < 4; ++i) {
-    result->points_by_return_count[i] =
-      *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-      *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24;
+    result->points_by_return_count[i] = LAS_UINT32(las_header_data, byte_offset);
     byte_offset += 4;
   }
 
   // X scale factor (8 bytes)
-  result->x_scale =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->x_scale = LAS_DOUBLE(las_header_data, byte_offset);
   byte_offset += 8;
 
   // Y scale factor (8 bytes)
-  result->y_scale =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->y_scale = LAS_DOUBLE(las_header_data, byte_offset);
   byte_offset += 8;
 
   // Z scale factor (8 bytes)
-  result->z_scale =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->z_scale = LAS_DOUBLE(las_header_data, byte_offset);
   byte_offset += 8;
 
   // X offset (8 bytes)
-  result->x_offset =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->x_offset = LAS_DOUBLE(las_header_data, byte_offset);
   byte_offset += 8;
 
   // Y offset (8 bytes)
-  result->y_offset =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->y_offset = LAS_DOUBLE(las_header_data, byte_offset);
   byte_offset += 8;
 
   // Z offset (8 bytes)
-  result->z_offset =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->z_offset = LAS_DOUBLE(las_header_data, byte_offset);
   byte_offset += 8;
 
   // Max X (8 bytes)
-  result->max_x =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->max_x = LAS_DOUBLE(las_header_data, byte_offset);
   byte_offset += 8;
 
   // Min X (8 bytes)
-  result->min_x =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->min_x = LAS_DOUBLE(las_header_data, byte_offset);
   byte_offset += 8;
 
   // Max Y (8 bytes)
-  result->max_y =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->max_y = LAS_DOUBLE(las_header_data, byte_offset);
   byte_offset += 8;
 
   // Min Y (8 bytes)
-  result->min_y =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->min_y = LAS_DOUBLE(las_header_data, byte_offset);
   byte_offset += 8;
 
   // Max Z (8 bytes)
-  result->max_z =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->max_z = LAS_DOUBLE(las_header_data, byte_offset);
   byte_offset += 8;
 
   // Min Z (8 bytes)
-  result->min_z =
-    *(las_header_data + byte_offset) | *(las_header_data + byte_offset + 1) << 8 |
-    *(las_header_data + byte_offset + 2) << 16 | *(las_header_data + byte_offset + 3) << 24 |
-    *(las_header_data + byte_offset + 4) << 32 | *(las_header_data + byte_offset + 5) << 40 |
-    *(las_header_data + byte_offset + 6) << 48 | *(las_header_data + byte_offset + 7) << 56;
+  result->min_z = LAS_DOUBLE(las_header_data, byte_offset);
+  byte_offset += 8;
 }
 
 std::unique_ptr<cudf::io::datasource::buffer> read(
@@ -231,12 +202,12 @@ std::unique_ptr<cudf::io::datasource::buffer> read(
 
 std::unique_ptr<cudf::table> get_point_cloud_records(
   const std::unique_ptr<cudf::io::datasource>& datasource,
-  LasHeader* cpu_header,
+  LasHeader const& header,
   rmm::mr::device_memory_resource* mr,
   rmm::cuda_stream_view stream) {
-  auto const& point_record_count = cpu_header->point_record_count;
-  auto const& point_data_offset  = cpu_header->point_data_offset;
-  auto const& point_data_size    = cpu_header->point_data_size;
+  auto const& point_record_count = header.point_record_count;
+  auto const& point_data_offset  = header.point_data_offset;
+  auto const& point_data_size    = header.point_data_size;
 
   auto point_data =
     read(datasource, point_data_offset, point_data_size * point_record_count, stream);
@@ -245,7 +216,7 @@ std::unique_ptr<cudf::table> get_point_cloud_records(
   auto idxs = thrust::make_counting_iterator(0);
   std::vector<std::unique_ptr<cudf::column>> cols;
 
-  switch (cpu_header->point_data_format_id) {
+  switch (header.point_data_format_id) {
     // POINT
     // FORMAT
     // ZERO
@@ -272,15 +243,15 @@ std::unique_ptr<cudf::table> get_point_cloud_records(
       auto iter = thrust::make_transform_iterator(idxs, [=] __host__ __device__(int const& i) {
         auto ptr = data + (i * (point_data_size));
         PointDataFormatZero point_data;
-        point_data.x               = static_cast<int32_t const>(*(ptr + 0));
-        point_data.y               = static_cast<int32_t const>(*(ptr + 4));
-        point_data.z               = static_cast<int32_t const>(*(ptr + 8));
-        point_data.intensity       = static_cast<int16_t const>(*(ptr + 12));
-        point_data.bit_data        = static_cast<int8_t const>(*(ptr + 14));
-        point_data.classification  = static_cast<int8_t const>(*(ptr + 15));
-        point_data.scan_angle      = static_cast<int8_t const>(*(ptr + 16));
-        point_data.user_data       = static_cast<int8_t const>(*(ptr + 17));
-        point_data.point_source_id = static_cast<int16_t const>(*(ptr + 18));
+        point_data.x               = LAS_INT32(ptr, 0);
+        point_data.y               = LAS_INT32(ptr, 4);
+        point_data.z               = LAS_INT32(ptr, 8);
+        point_data.intensity       = LAS_UINT16(ptr, 12);
+        point_data.bit_data        = ptr[14];
+        point_data.classification  = ptr[15];
+        point_data.scan_angle      = ptr[16];
+        point_data.user_data       = ptr[17];
+        point_data.point_source_id = LAS_UINT16(ptr, 18);
         return thrust::make_tuple(point_data.x,
                                   point_data.y,
                                   point_data.z,
@@ -335,16 +306,16 @@ std::unique_ptr<cudf::table> get_point_cloud_records(
       auto iter = thrust::make_transform_iterator(idxs, [=] __host__ __device__(int const& i) {
         auto ptr = data + (i * (point_data_size));
         PointDataFormatOne point_data;
-        point_data.x               = static_cast<int32_t const>(*(ptr + 0));
-        point_data.y               = static_cast<int32_t const>(*(ptr + 4));
-        point_data.z               = static_cast<int32_t const>(*(ptr + 8));
-        point_data.intensity       = static_cast<int16_t const>(*(ptr + 12));
-        point_data.bit_data        = static_cast<int8_t const>(*(ptr + 14));
-        point_data.classification  = static_cast<int8_t const>(*(ptr + 15));
-        point_data.scan_angle      = static_cast<int8_t const>(*(ptr + 16));
-        point_data.user_data       = static_cast<int8_t const>(*(ptr + 17));
-        point_data.point_source_id = static_cast<int16_t const>(*(ptr + 18));
-        point_data.gps_time        = static_cast<double_t const>(*(ptr + 20));
+        point_data.x               = LAS_INT32(ptr, 0);
+        point_data.y               = LAS_INT32(ptr, 4);
+        point_data.z               = LAS_INT32(ptr, 8);
+        point_data.intensity       = LAS_UINT16(ptr, 12);
+        point_data.bit_data        = ptr[14];
+        point_data.classification  = ptr[15];
+        point_data.scan_angle      = ptr[16];
+        point_data.user_data       = ptr[17];
+        point_data.point_source_id = LAS_UINT16(ptr, 18);
+        point_data.gps_time        = LAS_DOUBLE(ptr, 20);
         return thrust::make_tuple(point_data.x,
                                   point_data.y,
                                   point_data.z,
@@ -401,15 +372,15 @@ std::unique_ptr<cudf::table> get_point_cloud_records(
       auto iter = thrust::make_transform_iterator(idxs, [=] __host__ __device__(int const& i) {
         auto ptr = data + (i * (point_data_size));
         PointDataFormatTwo point_data;
-        point_data.x               = static_cast<int32_t const>(*(ptr + 0));
-        point_data.y               = static_cast<int32_t const>(*(ptr + 4));
-        point_data.z               = static_cast<int32_t const>(*(ptr + 8));
-        point_data.intensity       = static_cast<int16_t const>(*(ptr + 12));
-        point_data.bit_data        = static_cast<int8_t const>(*(ptr + 14));
-        point_data.classification  = static_cast<int8_t const>(*(ptr + 15));
-        point_data.scan_angle      = static_cast<int8_t const>(*(ptr + 16));
-        point_data.user_data       = static_cast<int8_t const>(*(ptr + 17));
-        point_data.point_source_id = static_cast<int16_t const>(*(ptr + 18));
+        point_data.x               = LAS_INT32(ptr, 0);
+        point_data.y               = LAS_INT32(ptr, 4);
+        point_data.z               = LAS_INT32(ptr, 8);
+        point_data.intensity       = LAS_UINT16(ptr, 12);
+        point_data.bit_data        = ptr[14];
+        point_data.classification  = ptr[15];
+        point_data.scan_angle      = ptr[16];
+        point_data.user_data       = ptr[17];
+        point_data.point_source_id = LAS_UINT16(ptr, 18);
         return thrust::make_tuple(point_data.x,
                                   point_data.y,
                                   point_data.z,
@@ -465,16 +436,16 @@ std::unique_ptr<cudf::table> get_point_cloud_records(
       auto iter = thrust::make_transform_iterator(idxs, [=] __host__ __device__(int const& i) {
         auto ptr = data + (i * (point_data_size));
         PointDataFormatThree point_data;
-        point_data.x               = static_cast<int32_t const>(*(ptr + 0));
-        point_data.y               = static_cast<int32_t const>(*(ptr + 4));
-        point_data.z               = static_cast<int32_t const>(*(ptr + 8));
-        point_data.intensity       = static_cast<int16_t const>(*(ptr + 12));
-        point_data.bit_data        = static_cast<int8_t const>(*(ptr + 14));
-        point_data.classification  = static_cast<int8_t const>(*(ptr + 15));
-        point_data.scan_angle      = static_cast<int8_t const>(*(ptr + 16));
-        point_data.user_data       = static_cast<int8_t const>(*(ptr + 17));
-        point_data.point_source_id = static_cast<int16_t const>(*(ptr + 18));
-        point_data.gps_time        = static_cast<double_t const>(*(ptr + 20));
+        point_data.x               = LAS_INT32(ptr, 0);
+        point_data.y               = LAS_INT32(ptr, 4);
+        point_data.z               = LAS_INT32(ptr, 8);
+        point_data.intensity       = LAS_UINT16(ptr, 12);
+        point_data.bit_data        = ptr[14];
+        point_data.classification  = ptr[15];
+        point_data.scan_angle      = ptr[16];
+        point_data.user_data       = ptr[17];
+        point_data.point_source_id = LAS_UINT16(ptr, 18);
+        point_data.gps_time        = LAS_DOUBLE(ptr, 20);
         return thrust::make_tuple(point_data.x,
                                   point_data.y,
                                   point_data.z,
@@ -508,29 +479,31 @@ std::unique_ptr<cudf::table> get_point_cloud_records(
   return std::make_unique<cudf::table>(std::move(cols));
 }
 
-void parse_las_header_host(const std::unique_ptr<cudf::io::datasource>& datasource,
-                           LasHeader* cpu_header,
-                           LasHeader* gpu_header,
-                           rmm::cuda_stream_view stream) {
-  auto header_data = read(datasource, 0, HEADER_BYTE_SIZE, stream);
-  ::parse_header<<<1, 1>>>(header_data->data(), gpu_header);
+#undef LAS_UINT16
+#undef LAS_UINT32
+#undef LAS_DOUBLE
 
-  cudaMemcpy(cpu_header, gpu_header, sizeof(LasHeader), cudaMemcpyDeviceToHost);
-}
+}  // namespace
 
-std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> parse_las_host(
+std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> read_las(
   const std::unique_ptr<cudf::io::datasource>& datasource,
   rmm::mr::device_memory_resource* mr,
   rmm::cuda_stream_view stream) {
-  LasHeader *cpu_header, *gpu_header;
-  cpu_header = (LasHeader*)malloc(sizeof(LasHeader));
-  cudaMalloc((void**)&gpu_header, sizeof(LasHeader));
-  parse_las_header_host(datasource, cpu_header, gpu_header, stream);
+  auto header = [&]() {
+    LasHeader* d_header;
+    LasHeader* h_header;
+    cudaMalloc(&d_header, sizeof(LasHeader));
+    auto data = read(datasource, 0, HEADER_BYTE_SIZE, stream);
+    parse_header<<<1, 1>>>(data->data(), d_header);
+    h_header = static_cast<LasHeader*>(malloc(sizeof(LasHeader)));
+    cudaMemcpy(h_header, d_header, sizeof(LasHeader), cudaMemcpyDefault);
+    return *h_header;
+  }();
 
-  auto table = get_point_cloud_records(datasource, cpu_header, mr, stream);
+  auto table = get_point_cloud_records(datasource, header, mr, stream);
 
   std::vector<std::string> names;
-  switch (cpu_header->point_data_format_id) {
+  switch (header.point_data_format_id) {
     case 0: {
       names = PointDataFormatZeroColumnNames;
       break;
@@ -549,8 +522,7 @@ std::tuple<std::vector<std::string>, std::unique_ptr<cudf::table>> parse_las_hos
     }
   }
 
-  free(cpu_header);
-  cudaFree(gpu_header);
-
   return std::make_tuple(names, std::move(table));
 }
+
+}  // namespace nv
