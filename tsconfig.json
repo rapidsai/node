@@ -22,21 +22,12 @@
             "@rapidsai/deck.gl/*":                    ["modules/deck.gl/src/*"],
             "@rapidsai/jsdom":                        ["modules/jsdom/src/index"],
             "@rapidsai/jsdom/*":                      ["modules/jsdom/src/*"],
-<<<<<<< HEAD
             "@rapidsai/glfw":                         ["modules/glfw/src/index"],
             "@rapidsai/glfw/*":                       ["modules/glfw/src/*"],
             "@rapidsai/io":                           ["modules/io/src/index"],
             "@rapidsai/io/*":                         ["modules/io/src/*"],
             "@rapidsai/webgl":                        ["modules/webgl/src/index"],
             "@rapidsai/webgl/*":                      ["modules/webgl/src/*"],
-=======
-            "@rapidsai/glfw":                           ["modules/glfw/src/index"],
-            "@rapidsai/glfw/*":                         ["modules/glfw/src/*"],
-            "@rapidsai/io":                           ["modules/io/src/index"],
-            "@rapidsai/io/*":                         ["modules/io/src/*"],
-            "@rapidsai/webgl":                          ["modules/webgl/src/index"],
-            "@rapidsai/webgl/*":                        ["modules/webgl/src/*"],
->>>>>>> eeaac006 ([FEA] IO Module (#329))
             "@rapidsai/sql":                          ["modules/sql/src/index"],
             "@rapidsai/sql/*":                        ["modules/sql/src/*"],
             "deck.gl":                                ["node_modules/deck.gl/src/index"],
