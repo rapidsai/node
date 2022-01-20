@@ -51,6 +51,7 @@ export class CategoricalSeries<T extends DataType> extends Series<Categorical<T>
   /**
    * @inheritdoc
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public encodeLabels<R extends Integral = Uint32>(_categories: Series<Categorical<T>> = this,
                                                    type: R                        = new Uint32 as R,
                                                    _nullSentinel: R['scalarType'] = -1,

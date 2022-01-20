@@ -28,7 +28,7 @@ type Edges<TSource extends DataType, TTarget extends DataType> =
 
 export function renumberNodes<TSource extends DataType, TTarget extends DataType>(
   src: Series<TSource>, dst: Series<TTarget>) {
-  const tmp1   = src.concat(dst);
+  const tmp1 = src.concat(dst);
   const node = tmp1.unique();
   tmp1.dispose();
 
