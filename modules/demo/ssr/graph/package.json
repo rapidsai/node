@@ -21,7 +21,7 @@
     "fastify-socket.io": "2.0.0",
     "fastify-static": "4.4.1",
     "fastify": "3.20.2",
-    "nanoid": "3.1.25",
+    "nanoid": "3.1.31",
     "rxjs": "6.6.7",
     "shm-typed-array": "0.0.13",
     "simple-peer": "9.11.0",
