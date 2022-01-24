@@ -18,7 +18,7 @@
     "@rapidsai/deck.gl": "0.0.1",
     "@rapidsai/jsdom": "0.0.1",
     "@rapidsai/demo-luma.gl-lessons": "0.0.1",
-    "nanoid": "3.1.25",
+    "nanoid": "3.1.31",
     "simple-peer": "9.11.0",
     "fastify": "3.20.2",
     "fastify-socket.io": "2.0.0",
