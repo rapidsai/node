@@ -25,7 +25,7 @@
     "fastify-cors": "6.0.2",
     "fastify-arrow": "0.1.0",
     "apache-arrow": "^4.0.0",
-    "nanoid": "3.1.25",
+    "nanoid": "3.1.31",
     "rxjs": "6.6.7",
     "shm-typed-array": "0.0.13",
     "simple-peer": "9.11.0",

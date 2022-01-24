@@ -36,7 +36,9 @@ cudf::io::orc_writer_options make_writer_options(Napi::Object const& options,
 
   return std::move(cudf::io::orc_writer_options::builder(sink, table)
                      .metadata(metadata)
-                     .enable_statistics(bool_opt("enableStatistics", true))
+                     .enable_statistics(bool_opt("enableStatistics", true)
+                                          ? cudf::io::statistics_freq::STATISTICS_PAGE
+                                          : cudf::io::statistics_freq::STATISTICS_NONE)
                      .compression(str_opt("compression", "none") == "snappy"
                                     ? cudf::io::compression_type::SNAPPY
                                     : cudf::io::compression_type::NONE)

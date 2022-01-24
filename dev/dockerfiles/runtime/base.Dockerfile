@@ -17,7 +17,7 @@ ONBUILD RUN cd /usr/local/cuda/lib64 \
     libcudart.so \
  && rm /etc/ld.so.cache && ldconfig
 
-ONBUILD ARG ADDITIONAL_GROUPS="--groups sudo,video"
+ONBUILD ARG ADDITIONAL_GROUPS="--groups video"
 
 FROM base-${TARGETARCH}
 
