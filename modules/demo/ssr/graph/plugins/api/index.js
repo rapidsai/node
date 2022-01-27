@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {graphs, clients}                           = require('../graph');
-const fs                                          = require('fs')
-const util                                        = require('util')
-const {pipeline}                                  = require('stream')
-const pump                                        = util.promisify(pipeline)
-const glob                                        = require('glob');
-const {Float32Buffer}                             = require('@rapidsai/cuda');
-const {GraphCOO}                                  = require('@rapidsai/cugraph');
-const {DataFrame, Series, Int32, Uint64, Float64} = require('@rapidsai/cudf');
-const {loadEdges, loadNodes}                      = require('../graph/loader');
-const {RecordBatchStreamWriter}                   = require('apache-arrow');
-const path                                        = require('path');
+const {graphs, clients} = require('../graph');
+const fs                = require('fs')
+const util              = require('util')
+const {pipeline}        = require('stream')
+const pump              = util.promisify(pipeline)
+const glob              = require('glob');
+const {Float32Buffer}   = require('@rapidsai/cuda');
+const {GraphCOO}        = require('@rapidsai/cugraph');
+const {DataFrame, Series, Int32, Uint8, Uint32, Uint64, Float32, Float64} =
+  require('@rapidsai/cudf');
+const {loadEdges, loadNodes}    = require('../graph/loader');
+const {RecordBatchStreamWriter} = require('apache-arrow');
+const path                      = require('path');
 
 function readDataFrame(path) {
   if (path.indexOf('.csv', path.length - 4) !== -1) {
@@ -56,15 +57,15 @@ async function getNodesForGraph(asDeviceMemory, nodes, numNodes) {
     nodesRes.nodeYPositions = pos.subarray(pos.length / 2);
   }
   if (nodes.dataframe.names.includes(nodes.size)) {
-    nodesRes.nodeRadius = asDeviceMemory(nodes.dataframe.get(nodes.size).cast(new Float64).data);
+    nodesRes.nodeRadius = asDeviceMemory(nodes.dataframe.get(nodes.size).cast(new Uint8).data);
   }
   if (nodes.dataframe.names.includes(nodes.color)) {
     nodesRes.nodeFillColors =
-      asDeviceMemory(nodes.dataframe.get(nodes.color).cast(new Float64).data);
+      asDeviceMemory(nodes.dataframe.get(nodes.color).cast(new Uint32).data);
   }
   if (nodes.dataframe.names.includes(nodes.id)) {
     nodesRes.nodeElementIndices =
-      asDeviceMemory(nodes.dataframe.get(nodes.id).cast(new Uint64).data);
+      asDeviceMemory(nodes.dataframe.get(nodes.id).cast(new Uint32).data);
   }
   return nodesRes;
 }
