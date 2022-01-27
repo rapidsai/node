@@ -144,7 +144,7 @@ function makeDeck() {
     ];
   };
 
-  getPolygonLayer = (rectdata) => {
+  const getPolygonLayer = (rectdata) => {
     return new PolygonLayer({
       filled: true,
       stroked: true,
