@@ -190,7 +190,7 @@ function getNodeLabels({ x, y, coordinate, nodeId, props, layer }) {
   return labels;
 }
 
-function getEdgeLabels({ x, y, coordinate, edgeId, props, layer }) {
+function getEdgeLabels({ x, y, coordinate, edgeId, props, layer, sourceNodeId, targetNodeId }) {
   let size = 14;
   const color = [255, 255, 255];
   const labels = [{
