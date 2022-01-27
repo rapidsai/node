@@ -199,7 +199,8 @@
         "files.associations": {
             "*.cu": "cuda",
             "*.cuh": "cuda",
-            "*.glsl.js": "glsl"
+            "*.glsl.js": "glsl",
+            "*.glsl.ts": "glsl"
         },
         "files.exclude": {
             "**/.git": true,
