@@ -29,19 +29,19 @@ The following will retrieve the docker image with each library (+ its native and
 REPO=ghcr.io/rapidsai/node
 
 VERSIONS="22.02.00-runtime-node16.13.2-cuda11.6.0-ubuntu20.04"
-docker pull $REPO:$VERSIONS-cudf-amd64
-docker pull $REPO:$VERSIONS-cuml-amd64
-docker pull $REPO:$VERSIONS-cugraph-amd64
-docker pull $REPO:$VERSIONS-cuspatial-amd64
+docker pull $REPO:$VERSIONS-cudf
+docker pull $REPO:$VERSIONS-cuml
+docker pull $REPO:$VERSIONS-cugraph
+docker pull $REPO:$VERSIONS-cuspatial
 
 VERSIONS="22.02.00-runtime-node16.13.2-cuda11.6.0-ubuntu20.04"
-docker pull $REPO:$VERSIONS-glfw-amd64
+docker pull $REPO:$VERSIONS-glfw
 
 # Includes all the above RAPIDS libraries in a single image
-docker pull $REPO:$VERSIONS-main-amd64
+docker pull $REPO:$VERSIONS-main
 
 # Includes all the above RAPIDS libraries + demos in a single image
-docker pull $REPO:$VERSIONS-demo-amd64
+docker pull $REPO:$VERSIONS-demo
 ```
 
 ## Running code in the runtime images
@@ -53,7 +53,7 @@ REPO=ghcr.io/rapidsai/node
 VERSIONS="22.02.00-runtime-node16.13.2-cuda11.6.0-ubuntu20.04"
 
 # Be sure to pass either the `--runtime=nvidia` or `--gpus` flag!
-docker run --rm --gpus=0 $REPO:$VERSIONS-cudf-amd64 \
+docker run --rm --gpus=0 $REPO:$VERSIONS-cudf \
     -p "const {Series, DataFrame} = require('@rapidsai/cudf');\
         new DataFrame({ a: Series.new([0, 1, 2]) }).toString()"
 >   a
@@ -77,7 +77,7 @@ docker run --rm \
     -v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     -v "/usr/share/fonts:/usr/share/fonts:ro" \
     -v "/usr/share/icons:/usr/share/icons:ro" \
-    $REPO:$VERSIONS-demo-amd64 \
+    $REPO:$VERSIONS-demo \
     npx @rapidsai/demo-graph
 ```
 
@@ -97,11 +97,11 @@ REPO=ghcr.io/rapidsai/node
 VERSIONS="22.02.00-devel-node16.13.2-cuda11.6.0-ubuntu20.04"
 
 # Pull the latest image of the packaged .tgz artifacts
-docker pull $REPO:$VERSIONS-packages-amd64
+docker pull $REPO:$VERSIONS-packages
 
 # Copy the packaged .tgz artifacts, including any of its `@rapidsai/*` dependencies
 docker run --rm -v "$PWD:/out" \
-    $REPO:$VERSIONS-packages-amd64 \
+    $REPO:$VERSIONS-packages \
     bash -c "cp \
         /opt/rapids/rapidsai-core-*.tgz \
         /opt/rapids/rapidsai-cuda-*.tgz \
