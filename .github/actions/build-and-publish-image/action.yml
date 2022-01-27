@@ -102,6 +102,9 @@ runs:
         tags: ${{ inputs.tags }}
         platforms: ${{ inputs.platforms }}
         build-args: ${{ inputs.build-args }}
+        labels: |
+          org.opencontainers.image.vendor=NVIDIA
+          org.opencontainers.image.source=https://github.com/rapidsai/node
         secret-files: |
           "sccache_credentials=/tmp/sccache_credentials"
     - name: Clean up
