@@ -14,11 +14,9 @@ ADD --chown=node:node \
     https://raw.githubusercontent.com/n-riesco/ijavascript/8637a3e18b89270121f49733d03af0e3e6e0a17a/images/nodejs/js-green-64x64.png \
     /home/node/.local/share/jupyter/kernels/javascript/logo-64x64.png
 
-ARG NTERACT_VERSION=0.28.0
-
 ADD --chown=root:root \
-    https://github.com/nteract/nteract/releases/download/v${NTERACT_VERSION}/nteract_${NTERACT_VERSION}_${TARGETARCH}.deb \
-    /tmp/nteract.deb
+    https://github.com/jupyterlab/jupyterlab-desktop/releases/latest/download/JupyterLab-Setup-Debian.deb \
+    /tmp/JupyterLab-Setup-Debian.deb
 
 USER root
 
@@ -38,7 +36,8 @@ if __name__ == \"__main__\":\n\
     \"ijskernel\",\n\
     \"--hide-undefined\",\n\
     \"{connection_file}\",\n\
-    \"--protocol=5.0\"\n\
+    \"--protocol=5.0\",\n\
+    \"--session-working-dir=/home/node\"\n\
   ],\n\
   \"name\": \"javascript\",\n\
   \"language\": \"javascript\",\n\
@@ -46,36 +45,12 @@ if __name__ == \"__main__\":\n\
 }' > /home/node/.local/share/jupyter/kernels/javascript/kernel.json" \
  && chmod 0644 /home/node/.local/share/jupyter/kernels/javascript/logo-{32x32,64x64}.png \
  \
- # Add nteract settings
- && mkdir -p /home/node/.jupyter \
- && bash -c "echo -e '{\n\
-  \"theme\": \"dark\",\n\
-  \"editorType\": \"codemirror\",\n\
-  \"defaultKernel\": \"javascript\",\n\
-  \"codeMirror\": {\n\
-    \"mode\": \"text/javascript\",\n\
-    \"theme\": \"monokai\",\n\
-    \"tabSize\": 2,\n\
-    \"matchTags\": true,\n\
-    \"undoDepth\": 999999,\n\
-    \"inputStyle\": \"contenteditable\",\n\
-    \"lineNumbers\": true,\n\
-    \"matchBrackets\": true,\n\
-    \"indentWithTabs\": false,\n\
-    \"cursorBlinkRate\": 500,\n\
-    \"lineWiseCopyCut\": false,\n\
-    \"autoCloseBrackets\": 4,\n\
-    \"selectionsMayTouch\": true,\n\
-    \"showCursorWhenSelecting\": true\n\
-  }\n\
-}' > /home/node/.jupyter/nteract.json" \
  && chown -R node:node /home/node \
- \
- # Install nteract/desktop
+ # Install Jupyter desktop
  && apt update \
  && DEBIAN_FRONTEND=noninteractive \
     apt install -y --no-install-recommends \
-    build-essential libasound2 jupyter-notebook /tmp/nteract.deb \
+    build-essential libasound2 jupyter-notebook /tmp/JupyterLab-Setup-Debian.deb \
  # Remove python3 kernelspec
  && jupyter kernelspec remove -f python3 \
  # Install ijavascript
@@ -91,6 +66,7 @@ if __name__ == \"__main__\":\n\
     /var/lib/apt/lists/* \
     /var/cache/apt/archives/*
 
+
 COPY --chown=node:node modules/cudf/notebooks     /home/node/cudf
 COPY --chown=node:node modules/demo/umap/*.ipynb  /home/node/cugraph/
 COPY --chown=node:node modules/demo/graph/*.ipynb /home/node/cugraph/
@@ -101,4 +77,4 @@ WORKDIR /home/node
 
 SHELL ["/bin/bash", "-l"]
 
-CMD ["nteract"]
+CMD ["jlab"]

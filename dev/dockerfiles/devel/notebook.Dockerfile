@@ -12,8 +12,6 @@ ADD --chown=rapids:rapids \
     https://raw.githubusercontent.com/n-riesco/ijavascript/8637a3e18b89270121f49733d03af0e3e6e0a17a/images/nodejs/js-green-64x64.png \
     /opt/rapids/.local/share/jupyter/kernels/javascript/logo-64x64.png
 
-ARG NTERACT_VERSION=0.28.0
-
 ADD --chown=root:root \
     https://github.com/jupyterlab/jupyterlab-desktop/releases/latest/download/JupyterLab-Setup-Debian.deb \
     /tmp/JupyterLab-Setup-Debian.deb
@@ -51,6 +49,11 @@ if __name__ == \"__main__\":\n\
  && DEBIAN_FRONTEND=noninteractive \
     apt install -y --no-install-recommends \
     python3-minimal libasound2 jupyter-notebook /tmp/JupyterLab-Setup-Debian.deb \
+ # Remove python3 kernelspec
+ && jupyter kernelspec remove -f python3 \
+ # Install ijavascript
+ && npm install --global --unsafe-perm --no-audit --no-fund ijavascript \
+ && ijsinstall --install=global --spec-path=full \
  \
  # Clean up
  && apt autoremove -y && apt clean \
@@ -58,12 +61,7 @@ if __name__ == \"__main__\":\n\
     /tmp/* \
     /var/tmp/* \
     /var/lib/apt/lists/* \
-    /var/cache/apt/archives/* \
- # Remove python3 kernelspec
- && jupyter kernelspec remove -f python3 \
- # Install ijavascript
- && npm install --global --unsafe-perm --no-audit --no-fund ijavascript \
- && ijsinstall --install=global --spec-path=full
+    /var/cache/apt/archives/*
 
 USER rapids
 
