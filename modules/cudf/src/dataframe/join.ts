@@ -36,9 +36,9 @@ export type JoinResult<
   LSuffix extends string,
   RSuffix extends string
 > = {
-  [P in string&keyof Lhs as JoinKey<P, Rhs, TOn, LSuffix>]: Lhs[P]
+  [P in keyof Lhs as JoinKey<string & P, Rhs, TOn, LSuffix>]: Lhs[P]
 } & {
-  [P in string&keyof Rhs as JoinKey<P, Lhs, TOn, RSuffix>]: Rhs[P]
+  [P in keyof Rhs as JoinKey<string & P, Lhs, TOn, RSuffix>]: Rhs[P]
 };
 // clang-format on
 

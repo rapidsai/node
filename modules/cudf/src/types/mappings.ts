@@ -56,7 +56,7 @@ export type TypeMap = {
   [key: string]: DataType
 };
 
-export type ColumnsMap<T extends TypeMap> = {
+export type ColumnsMap<T extends TypeMap = any> = {
   [P in keyof T]: Column<T[P]>
 };
 
@@ -79,8 +79,6 @@ type CommonType_Float64<T extends Numeric> =
 // clang-format off
 export type CommonType<T extends DataType, R extends DataType> =
   T extends R ? R extends T ? T : R :
-  T extends Utf8String ? T :
-  R extends Utf8String ? R :
   R extends Numeric
     ? T extends Bool8   ? CommonType_Bool8<R>
     : T extends Int8    ? CommonType_Int8<R>
@@ -115,7 +113,7 @@ export type CommonTypes<T extends TypeMap, R extends TypeMap> =
 
 export function findCommonType<T extends DataType, R extends DataType>(lhs: T,
                                                                        rhs: R): CommonType<T, R> {
-  if (compareTypes(lhs, rhs)) { return arrowToCUDFType(lhs) as CommonType<T, R>; }
+  if (compareTypes(lhs, rhs)) { return arrowToCUDFType(lhs) as unknown as CommonType<T, R>; }
   return arrowToCUDFType(CUDF.findCommonType(lhs, rhs)) as CommonType<T, R>;
 }
 

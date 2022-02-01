@@ -64,7 +64,7 @@ export class ColumnAccessor<T extends TypeMap = any> {
     return new ColumnAccessor({...this._data, ...data} as ColumnsMap<T&R>);
   }
 
-  dropColumns<R extends keyof T>(names: R[]) {
+  dropColumns<R extends keyof T>(names: readonly R[]) {
     const data     = {} as any;
     const namesMap = names.reduce((xs, x) => ({...xs, [x]: true}), {});
     for (const name of this.names) {
@@ -75,7 +75,7 @@ export class ColumnAccessor<T extends TypeMap = any> {
 
   selectByColumnName<R extends keyof T>(name: R) { return this.selectByColumnNames([name]); }
 
-  selectByColumnNames<R extends keyof T>(names: R[]) {
+  selectByColumnNames<R extends keyof T>(names: readonly R[]) {
     const data: ColumnsMap<{[P in R]: T[P]}> = {} as any;
     for (const name of names) {
       if (this._data[name] && !data[name]) { data[name] = this._data[name]; }
