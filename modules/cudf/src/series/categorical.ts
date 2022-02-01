@@ -166,35 +166,37 @@ export class CategoricalSeries<T extends DataType> extends Series<Categorical<T>
     const cur_df = new DataFrame(new ColumnAccessor({old_codes: cur_codes, cur_index: cur_index}));
     const new_df = new DataFrame(new ColumnAccessor({new_codes: new_codes, categories: new_cats}));
 
-    //
     // 1. Join the old and new categories to align their codes
+    const tmp1 = old_df.join({
+      how: 'left',
+      on: ['categories'],
+      // Pass the memoryResource here because the libcudf semantics are that it should only be
+      // used to allocate memory for the columns that are returned.
+      memoryResource,
+      other: new_df,
+    });
+
+    old_df.drop(['categories']).dispose();
+    new_df.drop(['categories']).dispose();
+
     // 2. Join the old and new codes to "recode" the new categories
-    //
-    // Note: Written as a single expression so the intermediate memory allocated for the `join` and
-    // `sortValues` calls are GC'd as soon as possible.
-    //
-    const out_codes =
-      // 2.
-      cur_df
-        .join({
-          how: 'left',
-          on: ['old_codes'],
-          // Pass the memoryResource here because the libcudf semantics are that it should only be
-          // used to allocate memory for the columns that are returned.
-          memoryResource,
-          // 1.
-          other: old_df.join({
-            how: 'left',
-            on: ['categories'],
-            // Pass the memoryResource here because the libcudf semantics are that it should only be
-            // used to allocate memory for the columns that are returned.
-            memoryResource,
-            other: new_df,
-          })
-        })
-        .sortValues({cur_index: {ascending: true}})
-        .get('new_codes')
-        ._col;
+    const tmp2 = cur_df.join({
+      how: 'left',
+      on: ['old_codes'],
+      // Pass the memoryResource here because the libcudf semantics are that it should only be
+      // used to allocate memory for the columns that are returned.
+      memoryResource,
+      other: tmp1
+    });
+    tmp1.dispose();
+    cur_df.drop(['old_codes']).dispose();
+
+    const tmp3 = tmp2.sortValues({cur_index: {ascending: true}});
+    tmp2.dispose();
+
+    const out_codes = tmp3.get('new_codes')._col;
+
+    tmp3.drop(['new_codes']).dispose();
 
     return Series.new(new Column({
       type: this.type,

@@ -25,7 +25,7 @@ import {Join, JoinResult} from './dataframe/join';
 import {DataFrameFormatter, DisplayOptions} from './dataframe/print';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
 import {Scalar} from './scalar';
-import {AbstractSeries, Series} from './series';
+import {Series} from './series';
 import {Table, ToArrowMetadata} from './table';
 import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {
@@ -35,6 +35,7 @@ import {
   FloatTypes,
   IndexType,
   Int32,
+  Int64,
   Integral,
   IntegralTypes,
   Numeric,
@@ -45,8 +46,8 @@ import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 import {ReadORCOptions, WriteORCOptions} from './types/orc';
 import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
 
-export type SeriesMap<T extends TypeMap> = {
-  [P in keyof T]: AbstractSeries<T[P]>
+export type SeriesMap<T extends TypeMap = any> = {
+  [P in keyof T]: {readonly type: T[P]}
 };
 
 export type OrderSpec = {
@@ -100,7 +101,7 @@ function _throwIfNonNumeric(type: DataType, operationName: string) {
  */
 export class DataFrame<T extends TypeMap = any> {
   /**
-   * Read a csv from disk and create a cudf.DataFrame
+   * Read CSV files from disk and create a cudf.DataFrame
    *
    * @example
    * ```typescript
@@ -126,7 +127,7 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
-   * Read an Apache ORC from disk and create a cudf.DataFrame
+   * Read Apache ORC files from disk and create a cudf.DataFrame
    *
    * @example
    * ```typescript
@@ -144,7 +145,7 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
-   * Read an Apache Parquet from disk and create a cudf.DataFrame
+   * Read Apache Parquet files from disk and create a cudf.DataFrame
    *
    * @example
    * ```typescript
@@ -306,7 +307,7 @@ export class DataFrame<T extends TypeMap = any> {
    * df.select(['a', 'b']) // returns df with {a, b}
    * ```
    */
-  select<R extends keyof T>(names: R[]) {
+  select<R extends keyof T>(names: readonly R[]) {
     return new DataFrame(this._accessor.selectByColumnNames(names));
   }
 
@@ -365,7 +366,9 @@ export class DataFrame<T extends TypeMap = any> {
    * df.drop(['a']) // returns df {b: [0, 1, 2, 3, 4, 4]}
    * ```
    */
-  drop<R extends keyof T>(names: R[]) { return new DataFrame(this._accessor.dropColumns(names)); }
+  drop<R extends keyof T>(names: readonly R[]) {
+    return new DataFrame(this._accessor.dropColumns(names));
+  }
 
   /**
    * Return whether the DataFrame has a Series.
@@ -1744,21 +1747,24 @@ export class DataFrame<T extends TypeMap = any> {
    * df2.sum(); // returns `never`
    * ```
    */
-  sum<P extends keyof T>(subset?: (keyof T)[], skipNulls = true, memoryResource?: MemoryResource) {
-    subset = (subset == undefined) ? this.names as (keyof T)[] : subset;
+  sum<P extends keyof T = keyof T>(subset?: readonly P[],
+                                   skipNulls = true,
+                                   memoryResource?: MemoryResource) {
+    subset = (subset == undefined) ? this.names as readonly P[] : subset;
     const containsAllFloatingPoint =
-      subset.every((name) => FloatTypes.some((t) => compareTypes(t, this.get(name).type)));
+      subset.every((name) => FloatTypes.some((t) => compareTypes(t, this.types[name])));
     const containsAllIntegral =
-      subset.every((name) => IntegralTypes.some((t) => compareTypes(t, this.get(name).type)));
+      subset.every((name) => IntegralTypes.some((t) => compareTypes(t, this.types[name])));
     if (!(containsAllFloatingPoint !== containsAllIntegral)) {
       throw new TypeError(
         `sum operation requires dataframe to be entirely of dtype FloatingPoint OR Integral.`);
     }
-    const sums =
-      subset.map((name) => { return (this.get(name) as any).sum(skipNulls, memoryResource); });
-    return Series.new(sums) as any as Series < T[P] extends Integral
-      ? T[P] extends FloatingPoint ? never : Integral
-      : T[P] extends FloatingPoint ? FloatingPoint : never > ;
+
+    const sums = subset.map((name) => (this.get(name) as any).sum(skipNulls, memoryResource));
+
+    return (containsAllIntegral ? Series.new({type: new Int64, data: sums}) : Series.new(sums)) as (
+             Series < T[P] extends Integral ? T[P] extends FloatingPoint ? never : Integral
+                                            : T[P] extends FloatingPoint ? FloatingPoint : never >);
   }
 
   /**

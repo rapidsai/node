@@ -33,7 +33,6 @@ import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {Column, ColumnProps} from './column';
 import {fromArrow} from './column/from_arrow';
-import {ColumnAccessor} from './column_accessor';
 import {DataFrame} from './data_frame';
 import {Scalar} from './scalar';
 import {Table} from './table';
@@ -705,32 +704,31 @@ export class AbstractSeries<T extends DataType = any> {
       return Series.sequence(
         {type, init: nullSentinel, step: 0, memoryResource, size: this.length});
     }
-    //
+
+    const old_df = new DataFrame({
+      value: this._col,
+      order: Series.sequence({type: new Uint32, init: 0, step: 1, size: this.length})._col
+    });
+
+    const new_df = new DataFrame({
+      value: categories._col as Column<T>,
+      codes: Series.sequence({type, init: 0, step: 1, size: categories.length})._col
+    });
+
     // 1. Join this Series' values with the `categories` Series to determine the index
-    // positions
-    //    (i.e. `codes`) of the values to keep.
+    // positions (i.e. `codes`) of the values to keep.
+    const tmp1 = old_df.join({on: ['value'], how: 'left', nullEquality: true, other: new_df});
+    old_df.drop(['value']).dispose();
+    new_df.drop(['value']).dispose();
+
     // 2. Sort the codes by the original value's position in this Series.
+    const tmp2 = tmp1.sortValues({order: {ascending: true}});
+    tmp1.dispose();
+
     // 3. Replace missing codes with `nullSentinel`.
-    //
-    // Note: Written as a single expression so the intermediate memory allocated for the
-    // `join` and `sortValues` calls are GC'd as soon as possible.
-    //
-    return new DataFrame(new ColumnAccessor({
-             value: this._col,
-             order: Series.sequence({type: new Uint32, init: 0, step: 1, size: this.length})._col
-           }))
-             .join({
-               on: ['value'],
-               how: 'left',
-               nullEquality: true,
-               other: new DataFrame(new ColumnAccessor({
-                 value: categories._col as Column<T>,
-                 codes: Series.sequence({type, init: 0, step: 1, size: categories.length})._col
-               })),
-             })
-             .sortValues({order: {ascending: true}})
-             .get('codes')
-             .replaceNulls(nullSentinel, memoryResource) as Series<R>;
+    const codes = tmp2.get('codes').replaceNulls(nullSentinel, memoryResource) as Series<R>;
+    tmp2.dispose();
+    return codes;
   }
 
   /**

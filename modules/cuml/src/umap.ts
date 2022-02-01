@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 import {COO, COOInterface} from './coo';
 import {CUMLLogLevels, MetricType} from './mappings';
 import {UMAPBase, UMAPInterface, UMAPParams} from './umap_base';
-import {dataframeToSeries, seriesToDataframe} from './utilities/array_utils';
+import {dataframeToSeries, seriesToDataFrame} from './utilities/array_utils';
 
 export type Numeric = Integral|Float32;
 
@@ -64,7 +64,7 @@ class Embeddings<T extends Numeric> {
   }
 
   public asSeries() { return Series.new({type: this._dType, data: this._embeddings}); }
-  public asDataFrame() { return seriesToDataframe(this.asSeries(), this.nFeatures); }
+  public asDataFrame() { return seriesToDataFrame(this.asSeries(), this.nFeatures); }
   public asDeviceBuffer() { return this._embeddings; }
 }
 
