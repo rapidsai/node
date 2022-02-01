@@ -38,11 +38,11 @@ export function dataframeToSeries<T extends Numeric, K extends string>(
 export function seriesToDataFrame<T extends Numeric>(
   input: Series<T>, nComponents: number): DataFrame<{[P in number]: T}> {
   const nSamples = Math.floor(input.length / nComponents);
-  const indices  = Series.sequence({type: new Int32, init: 0, size: nSamples, step: nComponents});
   let result     = new DataFrame<{[P in number]: T}>({});
   for (let i = 0; i < nComponents; i++) {
-    result =
-      result.assign(new DataFrame({[i]: input.gather(Series.new(indices.data.subarray(i)))}));
+    const indices = Series.sequence({type: new Int32, init: i, size: nSamples, step: nComponents});
+    result        = result.assign(new DataFrame({[i]: input.gather(indices)}));
+    indices.dispose();
   }
   return result;
 }
