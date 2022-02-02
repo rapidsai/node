@@ -36,7 +36,7 @@ export function renumberEdges<TSource extends DataType, TTarget extends DataType
     const idx   = Series.sequence({type: new Int32, size: src.length, init: 0});
     const edges = new DataFrame<{src: TSource, dst: TTarget, idx: Int32}>(
       {src: src as any, dst: dst as any, idx});
-    return renumberTargets(renumberSources(edges, nodes), nodes)  //
+    return renumberTargets(renumberSources(edges, nodes), nodes)
       .sortValues({idx: {ascending: true}})
       .drop(['idx']);
   });

@@ -36,6 +36,7 @@ import {Column} from './column';
 import {fromArrow} from './column/from_arrow';
 import {DataFrame} from './data_frame';
 import {Scalar} from './scalar';
+import {DISPOSER} from './scope';
 import {Table} from './table';
 import {
   Bool8,
@@ -539,12 +540,9 @@ export class AbstractSeries<T extends DataType = any> {
   /** @ignore */
   public _col: Column<T>;
 
-  static disposables: {[key: number]: Series|DataFrame} = {};
-  static scopeID: number|null                           = null;
-
   protected constructor(input: AbstractSeries<T>|SeriesProps<T>|Column<T>|arrow.Vector<T>) {
     this._col = asColumn<T>(input);
-    if (Series.scopeID != null) { Series.disposables[Series.scopeID] = this; }
+    DISPOSER.add(this);
   }
 
   /**

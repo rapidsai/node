@@ -15,32 +15,42 @@
 import {DataFrame} from './data_frame';
 import {Series} from './series';
 
-let scopeID = 0;
+export class Disposer {
+  private counter                                            = 0;
+  private id: number|null                                            = null;
+  private resources: {[key: number]: (Series<any>|DataFrame<any>)[]} = {};
+
+  add(value: DataFrame|Series) {
+    if (this.id != null) { this.resources[this.id].push(value); }
+  }
+
+  enter(): [(value: any) => void, number|null] {
+    const old_id = this.id;
+    this.id      = this.counter++;
+
+    const ID        = this.id;
+    const resources = this.resources;
+    resources[ID]   = [];
+
+    const cleanup = (value: any) => {
+      for (const resource of resources[ID]) {
+        if (resource !== value) { resource.dispose(); }
+      }
+      delete resources[ID];
+    };
+    return [cleanup, old_id];
+  }
+
+  exit(old_id: number|null) { this.id = old_id; }
+}
+
+export const DISPOSER = new Disposer();
 
 export function scope<T extends DataFrame|Series, F extends(() => T | Promise<T>)>(cb: F):
   ReturnType<F> {
-  const resources = [] as (DataFrame<any>| Series<any>)[];
-  const new_id    = scopeID++;
-  const old_id    = DataFrame.scopeID;
-
-  DataFrame.scopeID             = new_id;
-  DataFrame.disposables[new_id] = resources;
-
-  Series.scopeID             = new_id;
-  Series.disposables[new_id] = resources;
-
-  function cleanup(value: any) {
-    for (const resource of resources) {
-      if (resource !== value) { resource.dispose(); }
-    }
-    delete DataFrame.disposables[new_id];
-    delete Series.disposables[new_id];
-  }
-
-  const result = cb();
-
-  DataFrame.scopeID = old_id;
-  Series.scopeID    = old_id;
+  const [cleanup, old_id] = DISPOSER.enter();
+  const result            = cb();
+  DISPOSER.exit(old_id);
 
   if (result instanceof Promise) {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
