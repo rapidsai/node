@@ -43,6 +43,10 @@ if __name__ == \"__main__\":\n\
 }' > /opt/rapids/.local/share/jupyter/kernels/javascript/kernel.json" \
  && chmod 0644 /opt/rapids/.local/share/jupyter/kernels/javascript/logo-{32x32,64x64}.png \
  && mkdir -p /opt/rapids/.jupyter \
+ && mkdir -p /opt/rapids/.config/jupyterlab-desktop/lab/user-settings/@jupyterlab/apputils-extension \
+ && bash -c "echo -e '{\n\
+  \"theme\": \"JupyterLab Dark\"\n\
+}' > /opt/rapids/.config/jupyterlab-desktop/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings" \
  && chown -R rapids:rapids /opt/rapids \
  # Install Jupyter Desktop
  && apt update \
