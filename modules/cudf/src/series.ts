@@ -20,6 +20,7 @@ import {
   Int64Buffer,
   Int8Buffer,
   MemoryData,
+  MemoryView,
   Uint16Buffer,
   Uint32Buffer,
   Uint64Buffer,
@@ -31,7 +32,7 @@ import * as arrow from 'apache-arrow';
 import {VectorType} from 'apache-arrow/interfaces';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
-import {Column, ColumnProps} from './column';
+import {Column} from './column';
 import {fromArrow} from './column/from_arrow';
 import {DataFrame} from './data_frame';
 import {Scalar} from './scalar';
@@ -81,7 +82,7 @@ export type SeriesProps<T extends DataType = any> = {
    *  ```
    */
   type: T;
-  data?: DeviceBuffer | MemoryData | T['scalarType'][] | null;
+  data?: DeviceBuffer | MemoryData | arrow.Vector<T>| T['scalarType'][] | null;
   offset?: number;
   length?: number;
   nullCount?: number;
@@ -98,7 +99,7 @@ export type SeriesProps<T extends DataType = any> = {
    *  ```
    */
   type: T;
-  data?: DeviceBuffer|MemoryData|(T['scalarType'] | null | undefined)[]|null;
+  data?: DeviceBuffer|MemoryData|arrow.Vector<T>|(T['scalarType'] | null | undefined)[]|null;
   offset?: number;
   length?: number;
   nullCount?: number;
@@ -1540,6 +1541,34 @@ function inferType(value: any[]): DataType {
     'Unable to infer Series type from input values, explicit type declaration expected');
 }
 
+const arrayToDtype = (value: any[]|MemoryView|ArrayBufferView) => {
+  switch (value.constructor) {
+    case Int8Array: return new Int8;
+    case Int8Buffer: return new Int8;
+    case Int16Array: return new Int16;
+    case Int16Buffer: return new Int16;
+    case Int32Array: return new Int32;
+    case Int32Buffer: return new Int32;
+    case BigInt64Array: return new Int64;
+    case Int64Buffer: return new Int64;
+    case Uint8Array: return new Uint8;
+    case Uint8Buffer: return new Uint8;
+    case Uint8ClampedArray: return new Uint8;
+    case Uint8ClampedBuffer: return new Uint8;
+    case Uint16Array: return new Uint16;
+    case Uint16Buffer: return new Uint16;
+    case Uint32Array: return new Uint32;
+    case Uint32Buffer: return new Uint32;
+    case BigUint64Array: return new Uint64;
+    case Uint64Buffer: return new Uint64;
+    case Float32Array: return new Float32;
+    case Float32Buffer: return new Float32;
+    case Float64Array: return new Float64;
+    case Float64Buffer: return new Float64;
+    default: return inferType(value as any[]);
+  }
+};
+
 function asColumn(value: Int8Array|Int8Buffer): Column<Int8>;
 function asColumn(value: Int16Array|Int16Buffer): Column<Int16>;
 function asColumn(value: Int32Array|Int32Buffer): Column<Int32>;
@@ -1566,56 +1595,63 @@ function asColumn<T extends DataType>(value: AbstractSeries<T>|SeriesProps<T>  /
                                       |(Date | null | undefined)[][]): Column<T>;
 
 function asColumn<T extends DataType>(value: any) {
-  if (value instanceof AbstractSeries) { return value._col; }
-  if (Array.isArray(value)) {
-    return fromArrow(arrow.Vector.from(
-             {type: inferType(value), values: value as any, highWaterMark: Infinity})) as any;
+  if (!value) { value = []; }
+
+  // If already a Series, extract the Column
+  if (value instanceof AbstractSeries) { value = value._col; }
+
+  // If Column or ColumnProps, ensure dtype is a concrete instance
+  if (value.type && !(value.type instanceof arrow.DataType)) {
+    value.type = arrowToCUDFType<T>(value.type);
   }
 
-  if (value instanceof Int8Array || value instanceof Int8Buffer) {
-    return new Column({type: new Int8, data: value, length: value.length});
-  } else if (value instanceof Int16Array || value instanceof Int16Buffer) {
-    return new Column({type: new Int16, data: value, length: value.length});
-  } else if (value instanceof Int32Array || value instanceof Int32Buffer) {
-    return new Column({type: new Int32, data: value, length: value.length});
-  } else if (value instanceof BigInt64Array || value instanceof Int64Buffer) {
-    return new Column({type: new Int64, data: value, length: value.length});
-  } else if (value instanceof Uint8Array || value instanceof Uint8Buffer) {
-    return new Column({type: new Uint8, data: value, length: value.length});
-  } else if (value instanceof Uint8ClampedArray || value instanceof Uint8ClampedBuffer) {
-    return new Column({type: new Uint8, data: value, length: value.length});
-  } else if (value instanceof Uint16Array || value instanceof Uint16Buffer) {
-    return new Column({type: new Uint16, data: value, length: value.length});
-  } else if (value instanceof Uint32Array || value instanceof Uint32Buffer) {
-    return new Column({type: new Uint32, data: value, length: value.length});
-  } else if (value instanceof BigUint64Array || value instanceof Uint64Buffer) {
-    return new Column({type: new Uint64, data: value, length: value.length});
-  } else if (value instanceof Float32Array || value instanceof Float32Buffer) {
-    return new Column({type: new Float32, data: value, length: value.length});
-  } else if (value instanceof Float64Array || value instanceof Float64Buffer) {
-    return new Column({type: new Float64, data: value, length: value.length});
+  // Return early if it's already a Column
+  if (value instanceof Column) { return value as Column<T>; }
+
+  // If Array/Vector/TypedArray/MemoryView, wrap in a ColumnProps
+  if (value instanceof arrow.Vector) {
+    value = {data: value};
+  } else if (Array.isArray(value) ||       //
+             ArrayBuffer.isView(value) ||  //
+             value instanceof MemoryView) {
+    value = {data: value, type: arrayToDtype(value)};
   }
 
-  if (value instanceof arrow.Vector) { return fromArrow(value) as any; }
-  if (!value.type && Array.isArray(value.data)) {
-    return fromArrow(arrow.Vector.from(
-             {type: inferType(value.data), values: value.data, highWaterMark: Infinity})) as any;
-  }
-  if (!(value.type instanceof arrow.DataType)) { value.type = arrowToCUDFType<T>(value.type); }
-  if (Array.isArray(value.data)) {
-    return fromArrow(arrow.Vector.from(
-             {type: value.type, values: value.data, highWaterMark: Infinity})) as any;
-  }
-  if (value instanceof Column) {
-    return value;
+  let {data, offset} = value;
+
+  if (typeof data !== 'object') {
+    data = undefined;
   } else {
-    const props: ColumnProps<T> = {...value};
-    if (value.children != null) {
-      props.children =
-        value.children.map((item: Series|Column) => item instanceof Column ? item : item._col);
+    // Use C++ Arrow-to-cuDF conversion if `data` is an Arrow Vector
+    if (data instanceof arrow.Vector) {
+      // Slice `offset` before converting it to a Column
+      return fromArrow<T>(typeof offset !== 'number' ? data : data.slice(offset));
     }
-    return new Column(props);
+
+    // If `data` is an Array, convert it to a Vector and use C++ Arrow-to-cuDF conversion
+    if (Array.isArray(data)) {
+      return fromArrow<T>(arrow.Vector.from({
+        highWaterMark: Infinity,
+        type: value.type ?? inferType(data),
+        // Slice `offset` from the Array before converting so
+        // we don't write unnecessary values with the Arrow builders.
+        values: typeof offset !== 'number' ? data : data.slice(offset)
+      }));
+    }
+
+    // If `data.buffer` is a ArrayBuffer, copy it to a DeviceBuffer
+    if (data.buffer instanceof ArrayBuffer) {
+      data   = new DeviceBuffer(typeof offset !== 'number' ? data : data.subarray(offset));
+      offset = 0;
+    }
+    // If `data.buffer` is a DeviceBuffer, propagate its `byteOffset` to ColumnProps
+    else if (data.buffer instanceof DeviceBuffer) {
+      offset =
+        (typeof offset !== 'number' ? 0 : offset) + (data.byteOffset / data.BYTES_PER_ELEMENT);
+    }
   }
+
+  return new Column<T>({...value, data, offset, children: value.children?.map(asColumn)});
 }
 
 const columnToSeries = (() => {
