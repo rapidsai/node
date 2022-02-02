@@ -539,8 +539,12 @@ export class AbstractSeries<T extends DataType = any> {
   /** @ignore */
   public _col: Column<T>;
 
+  static disposables: {[key: number]: Series|DataFrame} = {};
+  static scopeID: number|null                           = null;
+
   protected constructor(input: AbstractSeries<T>|SeriesProps<T>|Column<T>|arrow.Vector<T>) {
     this._col = asColumn<T>(input);
+    if (Series.scopeID != null) { Series.disposables[Series.scopeID] = this; }
   }
 
   /**

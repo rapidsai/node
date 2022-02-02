@@ -180,6 +180,9 @@ export class DataFrame<T extends TypeMap = any> {
 
   declare private _accessor: ColumnAccessor<T>;
 
+  static disposables: {[key: number]: Series|DataFrame} = {};
+  static scopeID: number|null                           = null;
+
   /**
    * Create a new cudf.DataFrame
    *
@@ -200,6 +203,7 @@ export class DataFrame<T extends TypeMap = any> {
   constructor(data: any = {}) {
     this._accessor =
       (data instanceof ColumnAccessor) ? data : new ColumnAccessor(_seriesToColumns(data));
+    if (DataFrame.scopeID != null) { DataFrame.disposables[DataFrame.scopeID] = this; }
   }
 
   /**
