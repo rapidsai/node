@@ -371,6 +371,31 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * Return a new DataFrame with specified columns renamed.
+   *
+   * @param nameMap Object mapping old to new Column names.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int32, data: [0, 1, 1, 2, 2, 2]}),
+   *  b: Series.new({type: new Float32, data: [0, 1, 2, 3, 4, 4]})
+   * });
+   *
+   * df.rename({a: 'c'}) // returns df {b: [0, 1, 2, 3, 4, 4], c: [0, 1, 1, 2, 2, 2]}
+   * ```
+   */
+  rename<U extends string|number, P extends {[K in keyof T]?: U}>(nameMap: P) {
+    const names = Object.keys(nameMap) as (string & keyof P)[];
+    return this.drop(names).assign(names.reduce(
+      (xs, x) =>                                                                  //
+      ({...xs, [`${nameMap[x]!}`]: this.get(x)}),                                 //
+      {} as SeriesMap<{[K in keyof P as `${NonNullable<P[K]>}`]: T[string & K]}>  //
+      ));
+  }
+
+  /**
    * Return whether the DataFrame has a Series.
    *
    * @param name Name of the Series to return.
