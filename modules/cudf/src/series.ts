@@ -1541,34 +1541,33 @@ function inferType(value: any[]): DataType {
     'Unable to infer Series type from input values, explicit type declaration expected');
 }
 
-const arrayToDtype =
-  (value: any[]|MemoryView|ArrayBufferView) => {
-    switch (value.constructor) {
-      case Int8Array: return new Int8;
-      case Int8Buffer: return new Int8;
-      case Int16Array: return new Int16;
-      case Int16Buffer: return new Int16;
-      case Int32Array: return new Int32;
-      case Int32Buffer: return new Int32;
-      case BigInt64Array: return new Int64;
-      case Int64Buffer: return new Int64;
-      case Uint8Array: return new Uint8;
-      case Uint8Buffer: return new Uint8;
-      case Uint8ClampedArray: return new Uint8;
-      case Uint8ClampedBuffer: return new Uint8;
-      case Uint16Array: return new Uint16;
-      case Uint16Buffer: return new Uint16;
-      case Uint32Array: return new Uint32;
-      case Uint32Buffer: return new Uint32;
-      case BigUint64Array: return new Uint64;
-      case Uint64Buffer: return new Uint64;
-      case Float32Array: return new Float32;
-      case Float32Buffer: return new Float32;
-      case Float64Array: return new Float64;
-      case Float64Buffer: return new Float64;
-      default: return inferType(value as any[]);
-    }
-  };
+const arrayToDtype = (value: any[]|MemoryView|ArrayBufferView) => {
+  switch (value.constructor) {
+    case Int8Array: return new Int8;
+    case Int8Buffer: return new Int8;
+    case Int16Array: return new Int16;
+    case Int16Buffer: return new Int16;
+    case Int32Array: return new Int32;
+    case Int32Buffer: return new Int32;
+    case BigInt64Array: return new Int64;
+    case Int64Buffer: return new Int64;
+    case Uint8Array: return new Uint8;
+    case Uint8Buffer: return new Uint8;
+    case Uint8ClampedArray: return new Uint8;
+    case Uint8ClampedBuffer: return new Uint8;
+    case Uint16Array: return new Uint16;
+    case Uint16Buffer: return new Uint16;
+    case Uint32Array: return new Uint32;
+    case Uint32Buffer: return new Uint32;
+    case BigUint64Array: return new Uint64;
+    case Uint64Buffer: return new Uint64;
+    case Float32Array: return new Float32;
+    case Float32Buffer: return new Float32;
+    case Float64Array: return new Float64;
+    case Float64Buffer: return new Float64;
+    default: return inferType(value as any[]);
+  }
+};
 
 function asColumn(value: Int8Array|Int8Buffer): Column<Int8>;
 function asColumn(value: Int16Array|Int16Buffer): Column<Int16>;
@@ -1603,7 +1602,7 @@ function asColumn<T extends DataType>(value: any) {
 
   // If Column or ColumnProps, ensure dtype is a concrete instance
   if (value.type && !(value.type instanceof arrow.DataType)) {
-    (value ).type = arrowToCUDFType<T>(value.type);
+    value.type = arrowToCUDFType<T>(value.type);
   }
 
   // Return early if it's already a Column
