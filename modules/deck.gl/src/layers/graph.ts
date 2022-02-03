@@ -330,7 +330,7 @@ const copyUpdatesIntoBuffers = ({
   numNodesLoaded,
   edgePositionRanges,
 }: any) => {
-  const updatedBufferNames = (names: string[], {attributes}: any) =>
+  const updatedBufferNames = (names: string[], {attributes = {}}: any) =>
     names.filter((name) => attributes[name]);
   const copyUpdateIntoBuffers = (buffers: any, names: string[], update: any) => {
     for (const name of updatedBufferNames(names, update)) {

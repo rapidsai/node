@@ -305,13 +305,16 @@ export function filterPointsAndColorsByLevel(colors, levels, points, polyIds) {
  * @param {Map<number, [number, number, number, number]>} colorMap
  */
 export function copyPolygonsDtoH(tracts, colorMap) {
-  return [...tracts.toArrow()].map(({id, polygon}) => {
+  console.time(`copy census tracts DtoH (${tracts.numRows.toLocaleString()} tracts)`);
+  const result = [...tracts.toArrow()].map(({id, polygon}) => {
     return {
       id,
       color: colorMap.get(id),
       rings: [...polygon].map((ring) => [...ring].map(({x, y}) => [x, y])),
     };
   });
+  console.timeEnd(`copy census tracts DtoH (${tracts.numRows.toLocaleString()} tracts)`);
+  return result;
 }
 
 /**
@@ -319,7 +322,8 @@ export function copyPolygonsDtoH(tracts, colorMap) {
  * @param {Map<number, [number, number, number, number]>} colorMap
  */
 export function copyPolygonVerticesDtoH(tracts, colorMap) {
-  return [...tracts.toArrow()].flatMap(({id, polygon}) => {
+  console.time(`copy census tract vertices DtoH (${tracts.numRows.toLocaleString()} tracts)`);
+  const result = [...tracts.toArrow()].flatMap(({id, polygon}) => {
     const color = colorMap.get(id);
     return [...polygon].flatMap((ring) => [...ring].map(({x, y}) => ({
                                                           id,
@@ -329,6 +333,8 @@ export function copyPolygonVerticesDtoH(tracts, colorMap) {
                                                           strokeWidth: Math.max(1, (id % 3)),
                                                         })));
   });
+  console.timeEnd(`copy census tract vertices DtoH (${tracts.numRows.toLocaleString()} tracts)`);
+  return result;
 }
 
 const sleep = (t) => new Promise((r) => setTimeout(r, t));
