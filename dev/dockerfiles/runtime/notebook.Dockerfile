@@ -44,6 +44,10 @@ if __name__ == \"__main__\":\n\
   \"display_name\": \"Javascript (Node.js)\"\n\
 }' > /home/node/.local/share/jupyter/kernels/javascript/kernel.json" \
  && chmod 0644 /home/node/.local/share/jupyter/kernels/javascript/logo-{32x32,64x64}.png \
+ && mkdir -p /home/node/.config/jupyterlab-desktop/lab/user-settings/@jupyterlab/apputils-extension \
+ && bash -c "echo -e '{\n\
+  \"theme\": \"JupyterLab Dark\"\n\
+}' > /home/node/.config/jupyterlab-desktop/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings" \
  \
  && chown -R node:node /home/node \
  # Install Jupyter desktop
