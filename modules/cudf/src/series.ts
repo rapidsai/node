@@ -1093,17 +1093,16 @@ export class AbstractSeries<T extends DataType = any> {
           indices: Series<Int32>|number[],
           check_bounds = false,
           memoryResource?: MemoryResource): Series<T> {
-    const dst  = new Table({columns: [this._col]});
-    const inds = indices instanceof Series ? indices : new Series({type: new Int32, data: indices});
+    const dst = new Table({columns: [this._col]});
+    const idx = Series.new(indices).cast(new Int32)._col;
     if (source instanceof Series) {
-      const src = new Table({columns: [source._col]});
-      const out = dst.scatterTable(src, inds._col, check_bounds, memoryResource);
-      return Series.new(out.getColumnByIndex(0));
-    } else {
-      const src = [new Scalar({type: this.type, value: source})];
-      const out = dst.scatterScalar(src, inds._col, check_bounds, memoryResource);
-      return Series.new(out.getColumnByIndex(0));
+      const src = new Table({columns: [source.cast(this.type)._col]});
+      return Series.new(
+        dst.scatterTable(src, idx, check_bounds, memoryResource).getColumnByIndex(0));
     }
+    const src = [new Scalar({type: this.type, value: source})];
+    return Series.new(
+      dst.scatterScalar(src, idx, check_bounds, memoryResource).getColumnByIndex(0));
   }
 
   /**
