@@ -108,14 +108,6 @@ export type SeriesProps<T extends DataType = any> = {
   children?: ReadonlyArray<Series>|null;
 };
 
-export type SequenceOptions<U extends Numeric = any> = {
-  type: U,
-  size: number,
-  init: U['scalarType'],
-  step?: U['scalarType'],
-  memoryResource?: MemoryResource
-};
-
 // clang-format off
 /* eslint-disable @typescript-eslint/no-unused-vars */
 class CastVisitor<T extends DataType> extends arrow.Visitor {
@@ -535,6 +527,43 @@ export class AbstractSeries<T extends DataType = any> {
 
   static new<T extends DataType>(input: any) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
+  }
+
+  /**
+   * Constructs a Series with a sequence of values.
+   *
+   * @note If init is omitted, the default is 0.
+   * @note If step is omitted, the default is 1.
+   * @note If type is omitted, the default is Int32.
+   *
+   * @param opts Options for creating the sequence
+   * @returns Series with the sequence
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int64, Float32} from '@rapidsai/cudf';
+   *
+   * Series.sequence({size: 5}).toArray() // Int32Array[0, 1, 2, 3, 4]
+   * Series.sequence({size: 5, init: 5}).toArray() // Int32Array[5, 6, 7, 8, 9]
+   * Series
+   *   .sequence({ size: 5, init: 0, type: new Int64 })
+   *   .toArray() // BigInt64Array[0n, 1n, 2n, 3n, 4n]
+   * Series
+   *   .sequence({ size: 5, step: 2, init: 1, type: new Float32 })
+   *   .toArray() // Float32Array[1, 3, 5, 7, 9]
+   * ```
+   */
+  static sequence<U extends Numeric = Int32>(opts: {
+    size: number;
+    type?: U;  //
+    init: U['scalarType'];
+    step?: U['scalarType'];
+    memoryResource?: MemoryResource;
+  }): Series<U> {
+    const type = opts.type ?? new Int32;
+    const init = type.scalar(opts.init ?? 0) as Scalar<U>;
+    const step = type.scalar(opts.step ?? 1) as Scalar<U>;
+    return Series.new(Column.sequence<U>(opts.size, init, step, opts.memoryResource));
   }
 
   /** @ignore */
@@ -1191,31 +1220,6 @@ export class AbstractSeries<T extends DataType = any> {
   toArrow(): VectorType<T> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return new DataFrame({0: this._col}).toArrow().getChildAt<T>(0)!.chunks[0] as VectorType<T>;
-  }
-
-  /**
-   * Fills a Series with a sequence of values.
-   *
-   * If step is omitted, it takes a value of 1.
-   *
-   * @param opts Options for creating the sequence
-   * @returns Series with the sequence
-   *
-   * @example
-   * ```typescript
-   * import {Series, Int32, Float32} from '@rapidsai/cudf';
-   *
-   * Series.sequence({type: new Int32, size: 5, init: 0}) // [0, 1, 2, 3, 4]
-   * Series.sequence({type: new Float32, size: 5, step: 2, init: 1}) // [1, 3, 5, 7, 9]
-   * ```
-   */
-  public static sequence<U extends Numeric>(opts: SequenceOptions<U>): Series<U> {
-    const init = new Scalar({type: opts.type, value: opts.init});
-    if (opts.step === undefined || opts.step == 1) {
-      return Series.new(Column.sequence<U>(opts.size, init, opts.memoryResource));
-    }
-    const step = new Scalar({type: opts.type, value: opts.step});
-    return Series.new(Column.sequence<U>(opts.size, init, step, opts.memoryResource));
   }
 
   /**
