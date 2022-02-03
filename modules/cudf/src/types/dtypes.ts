@@ -28,12 +28,10 @@ import {
 import * as arrow from 'apache-arrow';
 
 import {Column} from '../column';
-import {DataFrame, SeriesMap} from '../data_frame';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
 import {Table} from '../table';
-
-import {ColumnsMap, TypeMap} from './mappings';
+import {TypeMap} from './mappings';
 
 export type FloatingPoint = Float32|Float64;
 export type IndexType     = Int8|Int16|Int32|Uint8|Uint16|Uint32;
@@ -218,20 +216,18 @@ export class List<T extends DataType = any> extends arrow.List<T> {
 
 export interface Struct<T extends TypeMap = any> extends arrow.Struct<T> {
   childTypes: T;
-  scalarType: {[P in keyof T]: T[P]['scalarType']};
+  scalarType: Table;
 }
 export class Struct<T extends TypeMap = any> extends arrow.Struct<T> {
-  scalar<T extends TypeMap>(value: DataFrame<T>): Scalar<Struct<T>>;
-  scalar<T extends TypeMap>(value: SeriesMap<T>): Scalar<Struct<T>>;
-  scalar<T extends TypeMap>(value: ColumnsMap<T>): Scalar<Struct<T>>;
-  scalar(value: any) {
-    if (value instanceof Table) {
-      value = new DataFrame(Array.from({length: value.numColumns}, (_, i) => i)
-                              .reduce((xs, x) => ({...xs, [x]: value.getColumnByIndex(x)}), {}));
+  scalar<T extends TypeMap>(value: {[P in keyof T]: T[P]['scalarType']}): Scalar<Struct<T>> {
+    const columns = [] as Column[];
+    const fields  = [] as arrow.Field[];
+    for (const [name, val] of Object.entries(value)) {
+      const {type, _col: col} = Series.new([val]);
+      columns.push(col);
+      fields.push(arrow.Field.new({name, type}));
     }
-    const frame = value instanceof DataFrame ? value : new DataFrame(value);
-    const type  = new Struct(frame.names.map((name) => arrow.Field.new(name, frame.types[name])));
-    return new Scalar({type, value: frame.asTable()});
+    return new Scalar({type: new Struct(fields), value: new Table({columns})});
   }
 }
 
