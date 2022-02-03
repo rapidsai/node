@@ -384,11 +384,10 @@ export class DataFrame<T extends TypeMap = any> {
    */
   rename<U extends string|number, P extends {[K in keyof T]?: U}>(nameMap: P) {
     const names = Object.keys(nameMap) as (string & keyof P)[];
-    return this.drop(names).assign(names.reduce(
-      (xs, x) =>                                                                  //
-      ({...xs, [`${nameMap[x]!}`]: this.get(x)}),                                 //
-      {} as SeriesMap<{[K in keyof P as `${NonNullable<P[K]>}`]: T[string & K]}>  //
-      ));
+    return this.drop(names).assign(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      names.reduce((xs, x) => ({...xs, [`${nameMap[x]!}`]: this.get(x)}),
+                   {} as SeriesMap<{[K in keyof P as `${NonNullable<P[K]>}`]: T[string & K]}>));
   }
 
   /**

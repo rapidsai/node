@@ -183,7 +183,7 @@ export interface Utf8String extends arrow.Utf8 {
 }
 export class Utf8String extends arrow.Utf8 {
   scalar(value: any) {  //
-    return new Scalar({type: new Utf8String, value: '' + value});
+    return new Scalar({type: new Utf8String, value: '' + <string>value});
   }
 }
 
