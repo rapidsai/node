@@ -1156,6 +1156,12 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * Copy the underlying device memory to host and return an Array (or TypedArray) of the values.
+   * @returns
+   */
+  toArray() { return this.toArrow().toArray(); }
+
+  /**
    * Return a string with a tabular representation of the Series, pretty-printed according to the
    * options given.
    *
