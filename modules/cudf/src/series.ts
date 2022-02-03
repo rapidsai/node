@@ -561,8 +561,8 @@ export class AbstractSeries<T extends DataType = any> {
     memoryResource?: MemoryResource;
   }): Series<U> {
     const type = opts.type ?? new Int32;
-    const init = type.scalar(opts.init ?? 0) as Scalar<U>;
-    const step = type.scalar(opts.step ?? 1) as Scalar<U>;
+    const init = new Scalar({type, value: <any>opts.init ?? 0}) as Scalar<U>;
+    const step = new Scalar({type, value: <any>opts.step ?? 1}) as Scalar<U>;
     return Series.new(Column.sequence<U>(opts.size, init, step, opts.memoryResource));
   }
 
