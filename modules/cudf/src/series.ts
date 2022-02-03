@@ -172,8 +172,8 @@ export type Series<T extends arrow.DataType = any> = {
   [arrow.Type.Interval]: never,           // TODO
   [arrow.Type.IntervalDayTime]: never,    // TODO
   [arrow.Type.IntervalYearMonth]: never,  // TODO
-  [arrow.Type.List]: ListSeries<(T extends List ? T['childType'] : any)>,
-  [arrow.Type.Struct]: StructSeries<(T extends Struct ? T['childTypes'] : any)>,
+  [arrow.Type.List]: ListSeries<(T extends List ? T['valueType'] : any)>,
+  [arrow.Type.Struct]: StructSeries<(T extends Struct ? T['dataTypes'] : any)>,
   [arrow.Type.Union]: never,            // TODO
   [arrow.Type.DenseUnion]: never,       // TODO
   [arrow.Type.SparseUnion]: never,      // TODO

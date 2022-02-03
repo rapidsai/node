@@ -92,8 +92,8 @@ export type CommonType<T extends DataType, R extends DataType> =
     : T extends Float32 ? CommonType_Float32<R>
     : T extends Float64 ? CommonType_Float64<R>
     : never :
-  T extends List ? R extends List ? List<CommonType<T['childType'], R['childType']>> : never :
-  T extends Struct ? R extends Struct ? Struct<CommonTypes<T['childTypes'], R['childTypes']>> : never :
+  T extends List ? R extends List ? List<CommonType<T['valueType'], R['valueType']>> : never :
+  T extends Struct ? R extends Struct ? Struct<CommonTypes<T['dataTypes'], R['dataTypes']>> : never :
   T extends Categorical ? R extends Categorical ? Categorical<CommonType<T['dictionary'], R['dictionary']>> : never :
   never;
 

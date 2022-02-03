@@ -111,13 +111,11 @@ export interface Utf8String extends arrow.Utf8 {
 export class Utf8String extends arrow.Utf8 {}
 
 export interface List<T extends DataType = any> extends arrow.List<T> {
-  childType: T;
   scalarType: Column<T>;
 }
 export class List<T extends DataType = any> extends arrow.List<T> {}
 
 export interface Struct<T extends TypeMap = any> extends arrow.Struct<T> {
-  childTypes: T;
   scalarType: Table;
 }
 export class Struct<T extends TypeMap = any> extends arrow.Struct<T> {}
