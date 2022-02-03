@@ -174,7 +174,6 @@
             "editor.defaultFormatter": "vscode.typescript-language-features"
         },
         "clangd.path": "/usr/bin/clangd",
-        "clangd.semanticHighlighting": false,
         "clangd.arguments": [
             "--log=info",
             "--pch-storage=disk",

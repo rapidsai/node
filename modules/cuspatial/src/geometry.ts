@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,17 +21,14 @@ import {computePolygonBoundingBoxes, computePolylineBoundingBoxes} from './addon
 export type BoundingBoxes<T extends FloatingPoint> =
   DataFrame<{x_min: T, y_min: T, x_max: T, y_max: T}>;
 
-export type Coord<T extends FloatingPoint = FloatingPoint>  = T;
-export type Coords<T extends FloatingPoint = FloatingPoint> = Series<T>;
+export type Point<T extends FloatingPoint>  = Struct<{x: T, y: T}>;
+export type Points<T extends FloatingPoint> = Series<Point<T>>;
 
-export type Point<T extends Coord = FloatingPoint>          = Struct<{x: T, y: T}>;
-export type Points<T extends FloatingPoint = FloatingPoint> = Series<Point<Coord<T>>>;
+export type Polyline<T extends FloatingPoint>  = List<Point<T>>;
+export type Polylines<T extends FloatingPoint> = Series<Polyline<T>>;
 
-export type Polyline<T extends Point = Point>                  = List<T>;
-export type Polylines<T extends FloatingPoint = FloatingPoint> = Series<List<Point<T>>>;
-
-export type Polygon<T extends Polyline = Polyline>            = List<T>;
-export type Polygons<T extends FloatingPoint = FloatingPoint> = Series<List<Polyline<Point<T>>>>;
+export type Polygon<T extends FloatingPoint>  = List<Polyline<T>>;
+export type Polygons<T extends FloatingPoint> = Series<Polygon<T>>;
 
 export function makePoints<T extends Series<FloatingPoint>>(x: T, y: T): Points<T['type']> {
   return Series.new({

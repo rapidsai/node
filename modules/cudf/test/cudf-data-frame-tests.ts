@@ -161,6 +161,26 @@ test('DataFrame.drop', () => {
   expect(table_1.names).toStrictEqual(['col_0', 'col_2']);
 });
 
+test('DataFrame.rename', () => {
+  const length = 100;
+  const col_0  = Series.new({type: new Int32(), data: new Int32Buffer(length)});
+
+  const col_1 = Series.new({
+    type: new Bool8(),
+    data: new Uint8Buffer(length),
+    nullMask: new Uint8Buffer(64),
+  });
+
+  const col_2 = Series.new({type: new Int32(), data: new Int32Buffer(length)});
+
+  const table_0 = new DataFrame({col_0, col_1, col_2});
+
+  const table_1 = table_0.rename({col_1: 'col_1_renamed', col_2: 2});
+  expect(table_1.numColumns).toBe(3);
+  expect(table_1.numRows).toBe(length);
+  expect(table_1.names).toStrictEqual(['2', 'col_0', 'col_1_renamed']);
+});
+
 test('DataFrame.orderBy (ascending, non-null)', () => {
   const col    = Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0])});
   const df     = new DataFrame({'a': col});

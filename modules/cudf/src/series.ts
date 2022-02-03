@@ -35,6 +35,7 @@ import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 import {Column} from './column';
 import {fromArrow} from './column/from_arrow';
 import {DataFrame} from './data_frame';
+import {DisplayOptions} from './dataframe/print';
 import {Scalar} from './scalar';
 import {DISPOSER} from './scope';
 import {Table} from './table';
@@ -108,14 +109,6 @@ export type SeriesProps<T extends DataType = any> = {
   children?: ReadonlyArray<Series>|null;
 };
 
-export type SequenceOptions<U extends Numeric = any> = {
-  type: U,
-  size: number,
-  init: U['scalarType'],
-  step?: U['scalarType'],
-  memoryResource?: MemoryResource
-};
-
 // clang-format off
 /* eslint-disable @typescript-eslint/no-unused-vars */
 class CastVisitor<T extends DataType> extends arrow.Visitor {
@@ -180,8 +173,8 @@ export type Series<T extends arrow.DataType = any> = {
   [arrow.Type.Interval]: never,           // TODO
   [arrow.Type.IntervalDayTime]: never,    // TODO
   [arrow.Type.IntervalYearMonth]: never,  // TODO
-  [arrow.Type.List]: ListSeries<(T extends List ? T['childType'] : any)>,
-  [arrow.Type.Struct]: StructSeries<(T extends Struct ? T['childTypes'] : any)>,
+  [arrow.Type.List]: ListSeries<(T extends List ? T['valueType'] : any)>,
+  [arrow.Type.Struct]: StructSeries<(T extends Struct ? T['dataTypes'] : any)>,
   [arrow.Type.Union]: never,            // TODO
   [arrow.Type.DenseUnion]: never,       // TODO
   [arrow.Type.SparseUnion]: never,      // TODO
@@ -535,6 +528,43 @@ export class AbstractSeries<T extends DataType = any> {
 
   static new<T extends DataType>(input: any) {
     return columnToSeries(asColumn<T>(input)) as any as Series<T>;
+  }
+
+  /**
+   * Constructs a Series with a sequence of values.
+   *
+   * @note If init is omitted, the default is 0.
+   * @note If step is omitted, the default is 1.
+   * @note If type is omitted, the default is Int32.
+   *
+   * @param opts Options for creating the sequence
+   * @returns Series with the sequence
+   *
+   * @example
+   * ```typescript
+   * import {Series, Int64, Float32} from '@rapidsai/cudf';
+   *
+   * Series.sequence({size: 5}).toArray() // Int32Array[0, 1, 2, 3, 4]
+   * Series.sequence({size: 5, init: 5}).toArray() // Int32Array[5, 6, 7, 8, 9]
+   * Series
+   *   .sequence({ size: 5, init: 0, type: new Int64 })
+   *   .toArray() // BigInt64Array[0n, 1n, 2n, 3n, 4n]
+   * Series
+   *   .sequence({ size: 5, step: 2, init: 1, type: new Float32 })
+   *   .toArray() // Float32Array[1, 3, 5, 7, 9]
+   * ```
+   */
+  static sequence<U extends Numeric = Int32>(opts: {
+    size: number;
+    type?: U;  //
+    init: U['scalarType'];
+    step?: U['scalarType'];
+    memoryResource?: MemoryResource;
+  }): Series<U> {
+    const type = opts.type ?? new Int32;
+    const init = new Scalar({type, value: <any>opts.init ?? 0}) as Scalar<U>;
+    const step = new Scalar({type, value: <any>opts.step ?? 1}) as Scalar<U>;
+    return Series.new(Column.sequence<U>(opts.size, init, step, opts.memoryResource));
   }
 
   /** @ignore */
@@ -1095,17 +1125,16 @@ export class AbstractSeries<T extends DataType = any> {
           indices: Series<Int32>|number[],
           check_bounds = false,
           memoryResource?: MemoryResource): Series<T> {
-    const dst  = new Table({columns: [this._col]});
-    const inds = indices instanceof Series ? indices : new Series({type: new Int32, data: indices});
+    const dst = new Table({columns: [this._col]});
+    const idx = Series.new(indices).cast(new Int32)._col;
     if (source instanceof Series) {
-      const src = new Table({columns: [source._col]});
-      const out = dst.scatterTable(src, inds._col, check_bounds, memoryResource);
-      return Series.new(out.getColumnByIndex(0));
-    } else {
-      const src = [new Scalar({type: this.type, value: source})];
-      const out = dst.scatterScalar(src, inds._col, check_bounds, memoryResource);
-      return Series.new(out.getColumnByIndex(0));
+      const src = new Table({columns: [source.cast(this.type)._col]});
+      return Series.new(
+        dst.scatterTable(src, idx, check_bounds, memoryResource).getColumnByIndex(0));
     }
+    const src = [new Scalar({type: this.type, value: source})];
+    return Series.new(
+      dst.scatterScalar(src, idx, check_bounds, memoryResource).getColumnByIndex(0));
   }
 
   /**
@@ -1158,6 +1187,22 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * Copy the underlying device memory to host and return an Array (or TypedArray) of the values.
+   * @returns
+   */
+  toArray() { return this.toArrow().toArray(); }
+
+  /**
+   * Return a string with a tabular representation of the Series, pretty-printed according to the
+   * options given.
+   *
+   * @param options
+   */
+  toString(options: DisplayOptions&{name?: string} = {}) {
+    return new DataFrame({[options.name ?? '0']: this}).toString(options);
+  }
+
+  /**
    *
    * @param mask The null-mask. Valid values are marked as 1; otherwise 0. The
    * mask bit given the data index idx is computed as:
@@ -1177,31 +1222,6 @@ export class AbstractSeries<T extends DataType = any> {
   toArrow(): VectorType<T> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return new DataFrame({0: this._col}).toArrow().getChildAt<T>(0)!.chunks[0] as VectorType<T>;
-  }
-
-  /**
-   * Fills a Series with a sequence of values.
-   *
-   * If step is omitted, it takes a value of 1.
-   *
-   * @param opts Options for creating the sequence
-   * @returns Series with the sequence
-   *
-   * @example
-   * ```typescript
-   * import {Series, Int32, Float32} from '@rapidsai/cudf';
-   *
-   * Series.sequence({type: new Int32, size: 5, init: 0}) // [0, 1, 2, 3, 4]
-   * Series.sequence({type: new Float32, size: 5, step: 2, init: 1}) // [1, 3, 5, 7, 9]
-   * ```
-   */
-  public static sequence<U extends Numeric>(opts: SequenceOptions<U>): Series<U> {
-    const init = new Scalar({type: opts.type, value: opts.init});
-    if (opts.step === undefined || opts.step == 1) {
-      return Series.new(Column.sequence<U>(opts.size, init, opts.memoryResource));
-    }
-    const step = new Scalar({type: opts.type, value: opts.step});
-    return Series.new(Column.sequence<U>(opts.size, init, step, opts.memoryResource));
   }
 
   /**

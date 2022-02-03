@@ -285,12 +285,8 @@ export class DataFrame<T extends TypeMap = any> {
    * options given.
    *
    * @param options
-   * @returns void
    */
-  toString(options: DisplayOptions = {}): string {
-    const formatter = new DataFrameFormatter(options, this);
-    return formatter.render();
-  }
+  toString(options: DisplayOptions = {}) { return new DataFrameFormatter(options, this).render(); }
 
   /**
    * Return a new DataFrame containing only specified columns.
@@ -370,6 +366,30 @@ export class DataFrame<T extends TypeMap = any> {
    */
   drop<R extends keyof T>(names: readonly R[]) {
     return new DataFrame(this._accessor.dropColumns(names));
+  }
+
+  /**
+   * Return a new DataFrame with specified columns renamed.
+   *
+   * @param nameMap Object mapping old to new Column names.
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int32, Float32}  from '@rapidsai/cudf';
+   * const df = new DataFrame({
+   *  a: Series.new({type: new Int32, data: [0, 1, 1, 2, 2, 2]}),
+   *  b: Series.new({type: new Float32, data: [0, 1, 2, 3, 4, 4]})
+   * });
+   *
+   * df.rename({a: 'c'}) // returns df {b: [0, 1, 2, 3, 4, 4], c: [0, 1, 1, 2, 2, 2]}
+   * ```
+   */
+  rename<U extends string|number, P extends {[K in keyof T]?: U}>(nameMap: P) {
+    const names = Object.keys(nameMap) as (string & keyof P)[];
+    return this.drop(names).assign(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      names.reduce((xs, x) => ({...xs, [`${nameMap[x]!}`]: this.get(x)}),
+                   {} as SeriesMap<{[K in keyof P as `${NonNullable<P[K]>}`]: T[string & K]}>));
   }
 
   /**

@@ -23,6 +23,7 @@
             "runtimeArgs": ["--experimental-vm-modules"],
             "cwd": "${workspaceFolder}/${input:DEMO_NAME}",
             "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
             "skipFiles": [
                 // "**/node_modules/**",
                 // "<node_internals>/**",

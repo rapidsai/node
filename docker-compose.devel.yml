@@ -74,7 +74,7 @@ services:
       <<: *base_build_settings
       dockerfile: dev/dockerfiles/devel/package.Dockerfile
       args:
-        CUDAARCHS: "${CUDAARCHS:-NATIVE}"
+        CUDAARCHS: "${CUDAARCHS:-ALL}"
         PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
         RAPIDS_VERSION: "${RAPIDS_VERSION:-22.02.00}"
         SCCACHE_REGION: "${SCCACHE_REGION:-us-west-2}"
