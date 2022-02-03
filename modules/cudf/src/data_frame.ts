@@ -283,12 +283,8 @@ export class DataFrame<T extends TypeMap = any> {
    * options given.
    *
    * @param options
-   * @returns void
    */
-  toString(options: DisplayOptions = {}): string {
-    const formatter = new DataFrameFormatter(options, this);
-    return formatter.render();
-  }
+  toString(options: DisplayOptions = {}) { return new DataFrameFormatter(options, this).render(); }
 
   /**
    * Return a new DataFrame containing only specified columns.

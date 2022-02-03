@@ -35,6 +35,7 @@ import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 import {Column} from './column';
 import {fromArrow} from './column/from_arrow';
 import {DataFrame} from './data_frame';
+import {DisplayOptions} from './dataframe/print';
 import {Scalar} from './scalar';
 import {Table} from './table';
 import {
@@ -1152,6 +1153,16 @@ export class AbstractSeries<T extends DataType = any> {
    */
   [Symbol.iterator](): IterableIterator<T['TValue']|null> {
     return this.toArrow()[Symbol.iterator]() as IterableIterator<T['TValue']|null>;
+  }
+
+  /**
+   * Return a string with a tabular representation of the Series, pretty-printed according to the
+   * options given.
+   *
+   * @param options
+   */
+  toString(options: DisplayOptions&{name?: string} = {}) {
+    return new DataFrame({[options.name ?? '0']: this}).toString(options);
   }
 
   /**
