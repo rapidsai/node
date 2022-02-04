@@ -40,7 +40,7 @@
     "docker:build:devel:packages:l4t": "touch .env && npx cross-env DOCKER_BUILDKIT=1 DOCKER_SCAN_SUGGEST=false CUDAARCHS=62-real,72 CUDA_VERSION=10.2.460 LINUX_VERSION=ubuntu18.04 docker buildx bake --set packages.platform=linux/arm64 -f docker-compose.devel.yml packages",
     "docker:build:devel:notebook": "touch .env && npx cross-env DOCKER_BUILDKIT=1 DOCKER_SCAN_SUGGEST=false docker-compose -f docker-compose.devel.yml build --force-rm notebook",
     "docker:build:runtime": "yarn docker:build:runtime:base && yarn docker:build:devel:packages && yarn docker:build:runtime:libraries && yarn docker:build:runtime:notebook",
-    "docker:build:runtime:base": "touch .env && npx cross-env DOCKER_BUILDKIT=1 DOCKER_SCAN_SUGGEST=false docker-compose -f docker-compose.runtime.yml build --pull --force-rm base",
+    "docker:build:runtime:base": "touch .env && npx cross-env DOCKER_BUILDKIT=1 DOCKER_SCAN_SUGGEST=false docker-compose -f docker-compose.runtime.yml build --force-rm base",
     "docker:build:runtime:libraries": "touch .env && npx cross-env DOCKER_BUILDKIT=1 DOCKER_SCAN_SUGGEST=false docker-compose -f docker-compose.runtime.yml build --force-rm --parallel main demo glfw cudf sql cuml cugraph cuspatial",
     "docker:build:runtime:notebook": "touch .env && npx cross-env DOCKER_BUILDKIT=1 DOCKER_SCAN_SUGGEST=false docker-compose -f docker-compose.runtime.yml build --force-rm notebook",
     "docker:run:devel:notebook": "touch .env && docker-compose -f docker-compose.devel.yml run --rm -u $(id -u):$(id -g) notebook",
@@ -141,7 +141,7 @@
     "**/apache-arrow": "^4.0.0",
     "**/gl-matrix": "3.3.0",
     "**/jsdom": "16.6.0",
-    "**/math.gl": "3.5.6",
+    "**/math.gl": "3.5.7",
     "**/react-map-gl": "5.3.16"
   },
   "release": {

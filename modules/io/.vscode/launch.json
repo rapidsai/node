@@ -139,7 +139,7 @@
             "id": "TEST_FILE",
             "command": "shellCommand.execute",
             "args": {
-                "cwd": "${workspaceFolder}/modules/sql",
+                "cwd": "${workspaceFolder}/modules/io",
                 "description": "Select a file to debug",
                 "command": "./node_modules/.bin/jest --listTests | sed -r \"s@$PWD/test/@@g\"",
             }

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ describe('CategoricalSeries', () => {
     expect([...categorical.categories]).toEqual(['bar', 'foo']);
   });
 
-  test('Can cast and Integral Series to Categorical', () => {
+  test('Can cast an Integral Series to Categorical', () => {
     const vals        = Series.new(new Int32Array([0, 1, 2, 1, 1, 3]));
     const categorical = vals.cast(new Categorical(new Utf8String));
     expect([...categorical]).toEqual(['0', '1', '2', '1', '1', '3']);

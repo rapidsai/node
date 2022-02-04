@@ -22,7 +22,6 @@ import {CSVTypeMap, ReadCSVOptions} from './types/csv';
 import {TableWriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
-import {TypeMap} from './types/mappings';
 import {ReadORCOptions, TableWriteORCOptions} from './types/orc';
 import {ReadParquetOptions, TableWriteParquetOptions} from './types/parquet';
 
@@ -167,10 +166,10 @@ export interface Table {
    *   of its values are out of bounds (default: false).
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
-  scatterScalar<T extends TypeMap = any>(source: (Scalar<T[keyof T]>)[],
-                                         indices: Column<Int32>,
-                                         check_bounds?: boolean,
-                                         memoryResource?: MemoryResource): Table;
+  scatterScalar<T extends Scalar[]>(source: T,
+                                    indices: Column<Int32>,
+                                    check_bounds?: boolean,
+                                    memoryResource?: MemoryResource): Table;
 
   /**
    * Scatters a Table of values into this Table according to provided indices.

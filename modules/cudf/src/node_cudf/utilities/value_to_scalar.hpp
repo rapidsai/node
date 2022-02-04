@@ -15,6 +15,7 @@
 #pragma once
 
 #include <node_cudf/column.hpp>
+#include <node_cudf/table.hpp>
 
 #include <cudf/fixed_point/fixed_point.hpp>
 #include <cudf/types.hpp>
@@ -147,6 +148,11 @@ struct set_scalar_value {
     scalar.reset(new cudf::list_scalar(*Column::Unwrap(val.ToObject()), true, stream));
   }
   template <typename T>
+  inline std::enable_if_t<std::is_same_v<T, cudf::struct_view>, void> operator()(
+    std::unique_ptr<cudf::scalar>& scalar, cudaStream_t stream = 0) {
+    scalar.reset(new cudf::struct_scalar(*Table::Unwrap(val.ToObject()), true, stream));
+  }
+  template <typename T>
   inline std::enable_if_t<!(cudf::is_chrono<T>() ||                   //
                             cudf::is_index_type<T>() ||               //
                             cudf::is_floating_point<T>() ||           //
@@ -154,7 +160,8 @@ struct set_scalar_value {
                             std::is_same_v<T, cudf::string_view> ||   //
                             std::is_same_v<T, numeric::decimal32> ||  //
                             std::is_same_v<T, numeric::decimal64> ||  //
-                            std::is_same_v<T, cudf::list_view>),
+                            std::is_same_v<T, cudf::list_view> ||     //
+                            std::is_same_v<T, cudf::struct_view>),
                           void>
   operator()(std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     NAPI_THROW(Napi::Error::New(val.Env(), "Unsupported dtype"));

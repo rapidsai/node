@@ -174,7 +174,6 @@
             "editor.defaultFormatter": "vscode.typescript-language-features"
         },
         "clangd.path": "/usr/bin/clangd",
-        "clangd.semanticHighlighting": false,
         "clangd.arguments": [
             "--log=info",
             "--pch-storage=disk",
@@ -199,7 +198,8 @@
         "files.associations": {
             "*.cu": "cuda",
             "*.cuh": "cuda",
-            "*.glsl.js": "glsl"
+            "*.glsl.js": "glsl",
+            "*.glsl.ts": "glsl"
         },
         "files.exclude": {
             "**/.git": true,

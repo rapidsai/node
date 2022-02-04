@@ -52,6 +52,33 @@ export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
       this._col.getChild<T[P]>(this.type.children.findIndex((f) => f.name === name)));
   }
 
+  /**
+   * Return a value at the specified index to host memory
+   *
+   * @param index the index in this Series to return a value for
+   *
+   * @example
+   * ```typescript
+   * import {Series} from "@rapidsai/cudf";
+   *
+   * // Series<List<Float64>>
+   * Series.new([[1, 2], [3]]).getValue(0) // Series([1, 2])
+   *
+   * // Series<List<Utf8String>>
+   * Series.new([["foo", "bar"], ["test"]]).getValue(1) // Series(["test"])
+   *
+   * // Series<List<Bool8>>
+   * Series.new([[false, true], [true]]).getValue(2) // throws index out of bounds error
+   * ```
+   */
+  getValue(index: number) {
+    const value = this._col.getValue(index);
+    return value === null
+             ? null
+             : this.type.children.reduce(
+                 (xs, f, i) => ({...xs, [f.name]: value.getColumnByIndex(i).getValue(0)}), {});
+  }
+
   /** @ignore */
   protected __construct(col: Column<Struct<T>>) {
     return new StructSeries(Object.assign(col, {type: fixNames(this.type, col.type)}));

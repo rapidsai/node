@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import {
 } from './addon';
 import {
   BoundingBoxes,
-  Coords,
   polygonBoundingBoxes,
   Polygons,
   polylineBoundingBoxes,
@@ -83,7 +82,7 @@ export class Quadtree<T extends FloatingPoint> {
    * @param options.memoryResource Optional resource to use for output device memory allocations.
    * @returns Quadtree
    */
-  static new<T extends Coords>(options: {
+  static new<T extends Series<FloatingPoint>>(options: {
     x: T,
     y: T,
     xMin: number,

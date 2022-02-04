@@ -15,6 +15,7 @@
 #pragma once
 
 #include <node_cudf/column.hpp>
+#include <node_cudf/table.hpp>
 
 #include <cudf/fixed_point/fixed_point.hpp>
 #include <cudf/scalar/scalar.hpp>
@@ -159,10 +160,22 @@ struct get_scalar_value {
     return scalar->is_valid(stream)
              ? Column::New(env,
                            std::make_unique<cudf::column>(
-                             // The list_scalar's view is copied here because its underlying column
-                             // cannot be moved.
+                             // The list_scalar's column_view is copied here because the underlying
+                             // column cannot be moved.
                              static_cast<cudf::list_scalar*>(scalar.get())->view(),
                              stream))
+             : env.Null();
+  }
+  template <typename T>
+  inline std::enable_if_t<std::is_same_v<T, cudf::struct_view>, Napi::Value> operator()(
+    std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
+    return scalar->is_valid(stream)
+             ? Table::New(env,
+                          std::make_unique<cudf::table>(
+                            // The struct_scalar's table_view is copied here because the underlying
+                            // table cannot be moved.
+                            static_cast<cudf::struct_scalar*>(scalar.get())->view(),
+                            stream))
              : env.Null();
   }
   template <typename T>
@@ -173,7 +186,8 @@ struct get_scalar_value {
                             std::is_same_v<T, cudf::string_view> ||   //
                             std::is_same_v<T, numeric::decimal32> ||  //
                             std::is_same_v<T, numeric::decimal64> ||  //
-                            std::is_same_v<T, cudf::list_view>),
+                            std::is_same_v<T, cudf::list_view> ||     //
+                            std::is_same_v<T, cudf::struct_view>),
                           Napi::Value>
   operator()(std::unique_ptr<cudf::scalar> const& scalar, cudaStream_t stream = 0) {
     NAPI_THROW(Napi::Error::New(env, "Unsupported dtype"));
