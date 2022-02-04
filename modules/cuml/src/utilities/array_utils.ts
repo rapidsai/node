@@ -40,12 +40,12 @@ export function seriesToDataFrame<T extends Numeric>(
   input: Series<T>, nComponents: number): DataFrame<{[P in number]: T}> {
   const nSamples = Math.floor(input.length / nComponents);
   let result     = new DataFrame<{[P in number]: T}>({});
-  return scope(() => {
-    for (let i = 0; i < nComponents; i++) {
+  for (let i = 0; i < nComponents; i++) {
+    result = scope(() => {
       const indices =
         Series.sequence({type: new Int32, init: i, size: nSamples, step: nComponents});
-      result = result.assign(new DataFrame({[i]: input.gather(indices)}));
-    }
-    return result;
-  }, [result]);
+      return result.assign(new DataFrame({[i]: input.gather(indices)}));
+    }, [result]);
+  }
+  return result;
 }
