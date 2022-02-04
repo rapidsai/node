@@ -230,18 +230,18 @@ export class Quadtree<T extends FloatingPoint> {
   /**
    * @summary Point x-coordinates in the sorted order they appear in the Quadtree.
    */
-  public get pointX(): Series<T> { return Series.new(this._x.gather(this._keyMap)); }
+  public get pointX(): Series<T> { return Series.new(this._x.gather(this._keyMap, false)); }
 
   /**
    * @summary Point y-coordinates in the sorted order they appear in the Quadtree.
    */
-  public get pointY(): Series<T> { return Series.new(this._y.gather(this._keyMap)); }
+  public get pointY(): Series<T> { return Series.new(this._y.gather(this._keyMap, false)); }
 
   /**
    * @summary Point x and y-coordinates in the sorted order they appear in the Quadtree.
    */
   public get points() {
-    const remap = new Table({columns: [this._x, this._y]}).gather(this._keyMap);
+    const remap = new Table({columns: [this._x, this._y]}).gather(this._keyMap, false);
     return new DataFrame({
       x: remap.getColumnByIndex<T>(0),
       y: remap.getColumnByIndex<T>(1),

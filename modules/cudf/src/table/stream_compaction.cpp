@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 #include <node_cudf/column.hpp>
 #include <node_cudf/table.hpp>
 #include <node_cudf/utilities/napi_to_cpp.hpp>
+
 #include <nv_node/utilities/args.hpp>
 #include <nv_node/utilities/napi_to_cpp.hpp>
 
-#include "cudf/types.hpp"
-
 #include <cudf/stream_compaction.hpp>
 #include <cudf/table/table_view.hpp>
+#include <cudf/types.hpp>
 
 #include <memory>
 #include <vector>

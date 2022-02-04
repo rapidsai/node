@@ -61,7 +61,7 @@ test('Table.gather (bad argument)', () => {
 
   const selection = [2, 4, 5];
 
-  expect(() => table_0.gather(<any>selection)).toThrow();
+  expect(() => table_0.gather(<any>selection, false)).toThrow();
 });
 
 test('Table.gather (indices)', () => {
@@ -72,7 +72,7 @@ test('Table.gather (indices)', () => {
 
   const selection = new Column({type: new Int32, data: new Int32Buffer([2, 4, 5])});
 
-  const result = table_0.gather(selection);
+  const result = table_0.gather(selection, false);
   expect(result.numRows).toBe(3);
 
   const r0 = result.getColumnByIndex(0);
@@ -91,7 +91,7 @@ test('Table.gather (indices)', () => {
   expect(r1.getValue(2)).toBe(5.0);
 });
 
-test('Table.gather (bitmask)', () => {
+test('Table.applyBooleanMask', () => {
   const col_0 = new Column({type: new Int32, data: new Int32Buffer([0, 1, 2, 3, 4, 5])});
   const col_1 =
     new Column({type: new Float32, data: new Float32Buffer([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])});
@@ -103,7 +103,7 @@ test('Table.gather (bitmask)', () => {
     data: new Uint8Buffer([0, 0, 1, 0, 1, 1]),
   });
 
-  const result = table_0.gather(selection);
+  const result = table_0.applyBooleanMask(selection);
   expect(result.numRows).toBe(3);
 
   const r0 = result.getColumnByIndex(0);

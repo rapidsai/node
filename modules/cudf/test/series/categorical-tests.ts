@@ -41,8 +41,8 @@ describe('CategoricalSeries', () => {
     const categories  = Series.new(['foo', 'foo', 'bar', 'bar']);
     const categorical = categories.cast(new Categorical(categories.type));
     expect([...categorical]).toEqual(['foo', 'foo', 'bar', 'bar']);
-    expect([...categorical.codes]).toEqual([1, 1, 0, 0]);
-    expect([...categorical.categories]).toEqual(['bar', 'foo']);
+    expect([...categorical.codes]).toEqual([0, 0, 1, 1]);
+    expect([...categorical.categories]).toEqual(['foo', 'bar']);
   });
 
   test('Can cast an Integral Series to Categorical', () => {
@@ -51,5 +51,14 @@ describe('CategoricalSeries', () => {
     expect([...categorical]).toEqual(['0', '1', '2', '1', '1', '3']);
     expect([...categorical.codes]).toEqual([0, 1, 2, 1, 1, 3]);
     expect([...categorical.categories]).toEqual(['0', '1', '2', '3']);
+  });
+
+  test('Can set new categories', () => {
+    const categories = Series.new(['foo', 'foo', 'bar', 'bar']);
+    const lhs        = categories.cast(new Categorical(categories.type));
+    const rhs        = lhs.setCategories(Series.new(['bar', 'foo']));
+    expect([...rhs]).toEqual(['foo', 'foo', 'bar', 'bar']);
+    expect([...rhs.codes]).toEqual([1, 1, 0, 0]);
+    expect([...rhs.categories]).toEqual(['bar', 'foo']);
   });
 });

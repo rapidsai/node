@@ -232,8 +232,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cumulativeMax(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
-    const col = this._prepare_scan_series(skipNulls);
-    return Series.new(col.cumulativeMax(memoryResource));
+    return this.__construct(this._prepare_scan_series(skipNulls).cumulativeMax(memoryResource));
   }
 
   /**
@@ -254,8 +253,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cumulativeMin(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
-    const col = this._prepare_scan_series(skipNulls);
-    return Series.new(col.cumulativeMin(memoryResource));
+    return this.__construct(this._prepare_scan_series(skipNulls).cumulativeMin(memoryResource));
   }
 
   /**
@@ -276,8 +274,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cumulativeProduct(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
-    const col = this._prepare_scan_series(skipNulls);
-    return Series.new(col.cumulativeProduct(memoryResource));
+    return this.__construct(this._prepare_scan_series(skipNulls).cumulativeProduct(memoryResource));
   }
 
   /**
@@ -298,8 +295,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cumulativeSum(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
-    const col = this._prepare_scan_series(skipNulls);
-    return Series.new(col.cumulativeSum(memoryResource));
+    return this.__construct(this._prepare_scan_series(skipNulls).cumulativeSum(memoryResource));
   }
 
   /** @inheritdoc */

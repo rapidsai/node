@@ -306,7 +306,7 @@ export class StringSeries extends Series<Utf8String> {
    */
   pad(width: number, side: PadSideType = 'right', fill_char = ' ', memoryResource?: MemoryResource):
     Series<Utf8String> {
-    return Series.new(this._col.pad(width, side, fill_char, memoryResource));
+    return this.__construct(this._col.pad(width, side, fill_char, memoryResource));
   }
 
   /**
@@ -332,7 +332,7 @@ export class StringSeries extends Series<Utf8String> {
    * ```
    */
   zfill(width: number, memoryResource?: MemoryResource): Series<Utf8String> {
-    return Series.new(this._col.zfill(width, memoryResource));
+    return this.__construct(this._col.zfill(width, memoryResource));
   }
 
   /**
@@ -358,8 +358,8 @@ export class StringSeries extends Series<Utf8String> {
    * [...a.getJSONObject("$.foo").map(JSON.parse)] // object [{ bar: 'baz' }, { baz: 'bar' }]
    * ```
    */
-  getJSONObject(jsonPath: string, memoryResource?: MemoryResource): StringSeries {
-    return Series.new(this._col.getJSONObject(jsonPath, memoryResource));
+  getJSONObject(jsonPath: string, memoryResource?: MemoryResource): Series<Utf8String> {
+    return this.__construct(this._col.getJSONObject(jsonPath, memoryResource));
   }
 
   /**

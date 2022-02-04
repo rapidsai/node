@@ -16,6 +16,7 @@ import {
   DataFrame,
   Int32,
   Numeric,
+  scope,
   Series,
 } from '@rapidsai/cudf';
 
@@ -29,7 +30,7 @@ export function dataframeToSeries<T extends Numeric, K extends string>(
 }
 
 /**
- * convert a series to a dataframe as per the number of componenet in umapparams
+ * convert a series to a dataframe as per the number of components in umapparams
  * @param input
  * @param n_samples
  * @param nComponents
@@ -40,9 +41,11 @@ export function seriesToDataFrame<T extends Numeric>(
   const nSamples = Math.floor(input.length / nComponents);
   let result     = new DataFrame<{[P in number]: T}>({});
   for (let i = 0; i < nComponents; i++) {
-    const indices = Series.sequence({type: new Int32, init: i, size: nSamples, step: nComponents});
-    result        = result.assign(new DataFrame({[i]: input.gather(indices)}));
-    indices.dispose();
+    result = scope(() => {
+      const indices =
+        Series.sequence({type: new Int32, init: i, size: nSamples, step: nComponents});
+      return result.assign(new DataFrame({[i]: input.gather(indices)}));
+    }, [result]);
   }
   return result;
 }

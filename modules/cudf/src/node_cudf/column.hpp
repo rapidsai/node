@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #include <cudf/binaryop.hpp>
 #include <cudf/column/column_view.hpp>
 #include <cudf/copying.hpp>
+#include <cudf/reduction.hpp>
 #include <cudf/replace.hpp>
 #include <cudf/stream_compaction.hpp>
 #include <cudf/strings/combine.hpp>
@@ -34,7 +35,6 @@
 #include <cudf/unary.hpp>
 
 #include <rmm/device_buffer.hpp>
-#include "cudf/reduction.hpp"
 
 #include <napi.h>
 
@@ -829,6 +829,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value size(Napi::CallbackInfo const& info);
   Napi::Value data(Napi::CallbackInfo const& info);
   Napi::Value null_mask(Napi::CallbackInfo const& info);
+  Napi::Value disposed(Napi::CallbackInfo const& info);
   Napi::Value has_nulls(Napi::CallbackInfo const& info);
   Napi::Value null_count(Napi::CallbackInfo const& info);
   Napi::Value is_nullable(Napi::CallbackInfo const& info);
@@ -837,6 +838,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   void dispose(Napi::CallbackInfo const&);
 
   Napi::Value gather(Napi::CallbackInfo const& info);
+  Napi::Value apply_boolean_mask(Napi::CallbackInfo const& info);
   Napi::Value copy(Napi::CallbackInfo const& info);
 
   Napi::Value get_child(Napi::CallbackInfo const& info);
