@@ -116,7 +116,8 @@ function graphSSRClients(fastify) {
 }
 
 function layoutAndRenderGraphs(clients) {
-  const renderer = new RenderCluster({numWorkers: 1 && 4});
+  const renderer = new RenderCluster(
+    {numWorkers: 1 && 4, renderClassPath: require('path').join(__dirname, 'deck')});
 
   return () => {
     for (const id in clients) {
@@ -170,7 +171,7 @@ function layoutAndRenderGraphs(clients) {
           props,
           event,
           frame: client.frame.key,
-          graph: {
+          layers: {
             ...client.graph,
             graph: undefined,
             edges: getIpcHandles(client.graph.edges),
