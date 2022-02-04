@@ -38,9 +38,11 @@ export class Disposer {
   exit(result: any) {
     if (this.currentScopeId > -1) {
       this.currentScopeId -= 1;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const test = new Set(this.trackedResources.pop()!.flatMap(flattenColumns));
       const keep = new Set([
         result,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         ...this.ingoredResources.pop()!,
         ...this.ingoredResources.flat(1),
         ...this.trackedResources.flat(1),

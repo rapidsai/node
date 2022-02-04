@@ -1826,8 +1826,8 @@ function _nLargestOrSmallest<T extends DataType>(
 }
 
 function transferFields<T extends DataType>(lhs: T, rhs: T) {
-  const {children: lhsFields} = {} = lhs;
-  const {children: rhsFields} = {} = rhs;
+  const {children: lhsFields} = lhs;
+  const {children: rhsFields} = rhs;
   if (lhsFields && rhsFields && lhsFields.length && rhsFields.length) {
     lhsFields.forEach(({name, type, nullable, metadata}, i) => {
       rhsFields[i] = arrow.Field.new({
