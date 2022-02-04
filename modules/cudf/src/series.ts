@@ -69,8 +69,7 @@ import {
   DuplicateKeepOption,
   NullOrder,
 } from './types/enums';
-import {CommonType, findCommonType} from './types/mappings';
-import {ArrowToCUDFType, arrowToCUDFType} from './types/mappings';
+import {ArrowToCUDFType, CommonType, findCommonType} from './types/mappings';
 
 export type SeriesProps<T extends DataType = any> = {
   /*
@@ -557,7 +556,7 @@ export class AbstractSeries<T extends DataType = any> {
   static sequence<U extends Numeric = Int32>(opts: {
     size: number;
     type?: U;  //
-    init: U['scalarType'];
+    init?: U['scalarType'];
     step?: U['scalarType'];
     memoryResource?: MemoryResource;
   }): Series<U> {
@@ -1706,54 +1705,116 @@ const columnToSeries = (() => {
     visitMany<T extends DataType>(columns: Column<T>[]): Series<T>[];
     getVisitFn<T extends DataType>(column: Column<T>): (column: Column<T>) => Series<T>;
   }
-  // clang-format off
   /* eslint-disable @typescript-eslint/no-unused-vars */
   class ColumnToSeriesVisitor extends arrow.Visitor {
-    getVisitFn<T extends DataType>(column: Column<T>): (column: Column<T>) => Series<T> {
-      if (!(column.type instanceof arrow.DataType)) {
-        (column as any).type = arrowToCUDFType<T>(column.type);
+    public visit<T extends DataType>(col: Column<T>): Series<T> {
+      for (let i = -1, n = col.numChildren; ++i < n;) {
+        // Visit each child to ensure concrete dtypes
+        this.visit(col.getChild(i));
       }
-      return super.getVisitFn(column.type);
+      return super.visit(col);
     }
-    // public visitNull                 <T extends Null>(col: Column<T>) { return new (NullSeries as any)(col); }
-    public visitBool                 <T extends Bool8>(col: Column<T>) { return new (Bool8Series as any)(col); }
-    public visitInt8                 <T extends Int8>(col: Column<T>) { return new (Int8Series as any)(col); }
-    public visitInt16                <T extends Int16>(col: Column<T>) { return new (Int16Series as any)(col); }
-    public visitInt32                <T extends Int32>(col: Column<T>) { return new (Int32Series as any)(col); }
-    public visitInt64                <T extends Int64>(col: Column<T>) { return new (Int64Series as any)(col); }
-    public visitUint8                <T extends Uint8>(col: Column<T>) { return new (Uint8Series as any)(col); }
-    public visitUint16               <T extends Uint16>(col: Column<T>) { return new (Uint16Series as any)(col); }
-    public visitUint32               <T extends Uint32>(col: Column<T>) { return new (Uint32Series as any)(col); }
-    public visitUint64               <T extends Uint64>(col: Column<T>) { return new (Uint64Series as any)(col); }
-    // public visitFloat16              <T extends Float16>(_: T) { return new (Float16Series as any)(_); }
-    public visitFloat32              <T extends Float32>(col: Column<T>) { return new (Float32Series as any)(col); }
-    public visitFloat64              <T extends Float64>(col: Column<T>) { return new (Float64Series as any)(col); }
-    public visitUtf8                 <T extends Utf8String>(col: Column<T>) { return new (StringSeries as any)(col); }
+    public getVisitFn<T extends DataType>(column: Column<T>): (column: Column<T>) => Series<T> {
+      let {type} = column;
+      if (!(type instanceof arrow.DataType)) {
+        type = {...(<any>type), __proto__: arrow.DataType.prototype};
+      }
+      return super.getVisitFn(type);
+    }
+    public visitBool<T extends Bool8>(col: Column<T>) {
+      return new (<any>Bool8Series)(Object.assign(col, {type: new Bool8}));
+    }
+    public visitInt8<T extends Int8>(col: Column<T>) {
+      return new (<any>Int8Series)(Object.assign(col, {type: new Int8}));
+    }
+    public visitInt16<T extends Int16>(col: Column<T>) {
+      return new (<any>Int16Series)(Object.assign(col, {type: new Int16}));
+    }
+    public visitInt32<T extends Int32>(col: Column<T>) {
+      return new (<any>Int32Series)(Object.assign(col, {type: new Int32}));
+    }
+    public visitInt64<T extends Int64>(col: Column<T>) {
+      return new (<any>Int64Series)(Object.assign(col, {type: new Int64}));
+    }
+    public visitUint8<T extends Uint8>(col: Column<T>) {
+      return new (<any>Uint8Series)(Object.assign(col, {type: new Uint8}));
+    }
+    public visitUint16<T extends Uint16>(col: Column<T>) {
+      return new (<any>Uint16Series)(Object.assign(col, {type: new Uint16}));
+    }
+    public visitUint32<T extends Uint32>(col: Column<T>) {
+      return new (<any>Uint32Series)(Object.assign(col, {type: new Uint32}));
+    }
+    public visitUint64<T extends Uint64>(col: Column<T>) {
+      return new (<any>Uint64Series)(Object.assign(col, {type: new Uint64}));
+    }
+    public visitFloat32<T extends Float32>(col: Column<T>) {
+      return new (<any>Float32Series)(Object.assign(col, {type: new Float32}));
+    }
+    public visitFloat64<T extends Float64>(col: Column<T>) {
+      return new (<any>Float64Series)(Object.assign(col, {type: new Float64}));
+    }
+    public visitUtf8<T extends Utf8String>(col: Column<T>) {
+      return new (<any>StringSeries)(Object.assign(col, {type: new Utf8String}));
+    }
+    public visitDateDay<T extends TimestampDay>(col: Column<T>) {
+      return new (<any>TimestampDaySeries)(Object.assign(col, {type: new TimestampDay}));
+    }
+    public visitDateMillisecond<T extends TimestampMillisecond>(col: Column<T>) {
+      return new (<any>TimestampMillisecondSeries)(
+        Object.assign(col, {type: new TimestampMillisecond}));
+    }
+    public visitTimestampSecond<T extends TimestampSecond>(col: Column<T>) {
+      return new (<any>TimestampSecondSeries)(Object.assign(col, {type: new TimestampSecond}));
+    }
+    public visitTimestampMillisecond<T extends TimestampMillisecond>(col: Column<T>) {
+      return new (<any>TimestampMillisecondSeries)(
+        Object.assign(col, {type: new TimestampMillisecond}));
+    }
+    public visitTimestampMicrosecond<T extends TimestampMicrosecond>(col: Column<T>) {
+      return new (<any>TimestampMicrosecondSeries)(
+        Object.assign(col, {type: new TimestampMicrosecond}));
+    }
+    public visitTimestampNanosecond<T extends TimestampNanosecond>(col: Column<T>) {
+      return new (<any>TimestampNanosecondSeries)(
+        Object.assign(col, {type: new TimestampNanosecond}));
+    }
+    public visitList<T extends List>(col: Column<T>) {
+      const {type, nullable} = col.getChild(1);  // elements
+      const {name, metadata} = col.type.children[0];
+      const childField       = arrow.Field.new({name, type, nullable, metadata});
+      return new (<any>ListSeries)(Object.assign(col, {type: new List(childField)}));
+    }
+    public visitStruct<T extends Struct>(col: Column<T>) {
+      const childFields = col.type.children.map(({name, metadata}, i) => {
+        const {type, nullable} = col.getChild(i);
+        return arrow.Field.new({name, type, nullable, metadata});
+      });
+      return new (<any>StructSeries)(Object.assign(col, {type: new Struct(childFields)}));
+    }
+    public visitDictionary<T extends Categorical>(col: Column<T>) {
+      const {id, isOrdered}    = col.type;
+      const {type: dictionary} = col.getChild(1);  // categories
+      return new (<any>CategoricalSeries)(
+        Object.assign(col, {type: new Categorical(dictionary, id, isOrdered)}));
+    }
+    // clang-format off
     // public visitBinary               <T extends Binary>(col: Column<T>) { return new (BinarySeries as any)(col); }
     // public visitFixedSizeBinary      <T extends FixedSizeBinary>(col: Column<T>) { return new (FixedSizeBinarySeries as any)(col); }
-    public visitDateDay              <T extends TimestampDay>(col: Column<T>) { return new (TimestampDaySeries as any)(col); }
-    public visitDateMillisecond      <T extends TimestampMillisecond>(col: Column<T>) { return new (TimestampMillisecondSeries as any)(col); }
-    public visitTimestampSecond      <T extends TimestampSecond>(col: Column<T>) { return new (TimestampSecondSeries as any)(col); }
-    public visitTimestampMillisecond <T extends TimestampMillisecond>(col: Column<T>) { return new (TimestampMillisecondSeries as any)(col); }
-    public visitTimestampMicrosecond <T extends TimestampMicrosecond>(col: Column<T>) { return new (TimestampMicrosecondSeries as any)(col); }
-    public visitTimestampNanosecond  <T extends TimestampNanosecond>(col: Column<T>) { return new (TimestampNanosecondSeries as any)(col); }
     // public visitTimeSecond           <T extends TimeSecond>(col: Column<T>) { return new (TimeSecondSeries as any)(col); }
     // public visitTimeMillisecond      <T extends TimeMillisecond>(col: Column<T>) { return new (TimeMillisecondSeries as any)(col); }
     // public visitTimeMicrosecond      <T extends TimeMicrosecond>(col: Column<T>) { return new (TimeMicrosecondSeries as any)(col); }
     // public visitTimeNanosecond       <T extends TimeNanosecond>(col: Column<T>) { return new (TimeNanosecondSeries as any)(col); }
     // public visitDecimal              <T extends Decimal>(col: Column<T>) { return new (DecimalSeries as any)(col); }
-    public visitList                 <T extends List>(col: Column<T>) { return new (ListSeries as any)(col); }
-    public visitStruct               <T extends Struct>(col: Column<T>) { return new (StructSeries as any)(col); }
     // public visitDenseUnion           <T extends DenseUnion>(col: Column<T>) { return new (DenseUnionSeries as any)(col); }
     // public visitSparseUnion          <T extends SparseUnion>(col: Column<T>) { return new (SparseUnionSeries as any)(col); }
-    public visitDictionary           <T extends Categorical>(col: Column<T>) { return new (CategoricalSeries as any)(col); }
     // public visitIntervalDayTime      <T extends IntervalDayTime>(col: Column<T>) { return new (IntervalDayTimeSeries as any)(col); }
     // public visitIntervalYearMonth    <T extends IntervalYearMonth>(col: Column<T>) { return new (IntervalYearMonthSeries as any)(col); }
     // public visitFixedSizeList        <T extends FixedSizeList>(col: Column<T>) { return new (FixedSizeListSeries as any)(col); }
     // public visitMap                  <T extends Map>(col: Column<T>) { return new (MapSeries as any)(col); }
+    // clang-format on
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
-  // clang-format on
   const visitor = new ColumnToSeriesVisitor();
   return function columnToSeries<T extends DataType>(column: Column<T>) {
     return visitor.visit(column);
@@ -1771,4 +1832,20 @@ function _nLargestOrSmallest<T extends DataType>(
   } else {
     throw new TypeError('keep must be either "first" or "last"');
   }
+}
+
+function transferFields<T extends DataType>(lhs: T, rhs: T) {
+  const {children: lhsFields} = {} = lhs;
+  const {children: rhsFields} = {} = rhs;
+  if (lhsFields && rhsFields && lhsFields.length && rhsFields.length) {
+    lhsFields.forEach(({name, type, nullable, metadata}, i) => {
+      rhsFields[i] = arrow.Field.new({
+        name,
+        nullable,
+        metadata,
+        type: transferFields(type, rhsFields[i].type),
+      });
+    });
+  }
+  return rhs;
 }

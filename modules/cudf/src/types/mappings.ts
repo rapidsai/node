@@ -113,7 +113,12 @@ export type CommonTypes<T extends TypeMap, R extends TypeMap> =
 
 export function findCommonType<T extends DataType, R extends DataType>(lhs: T,
                                                                        rhs: R): CommonType<T, R> {
-  if (compareTypes(lhs, rhs)) { return arrowToCUDFType(lhs) as unknown as CommonType<T, R>; }
+  if (compareTypes(lhs, rhs)) {
+    if (!(rhs instanceof arrow.DataType)) {  //
+      return arrowToCUDFType(rhs as any) as CommonType<T, R>;
+    }
+    return rhs as unknown as CommonType<T, R>;
+  }
   return arrowToCUDFType(CUDF.findCommonType(lhs, rhs)) as CommonType<T, R>;
 }
 
@@ -177,10 +182,7 @@ export const arrowToCUDFType = (() => {
   class ArrowToCUDFTypeVisitor extends arrow.Visitor {
     getVisitFn<T extends arrow.DataType>(type: T): (type: T) => ArrowToCUDFType<T> {
       if (!(type instanceof arrow.DataType)) {
-        return super.getVisitFn({
-          ...(type as any),
-          __proto__: arrow.DataType.prototype
-        });
+        type = {...(<any>type), __proto__: arrow.DataType.prototype};
       }
       return super.getVisitFn(type);
     }
