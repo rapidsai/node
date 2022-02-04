@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -240,6 +240,7 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Napi::Value gather(Napi::CallbackInfo const& info);
   Napi::Value scatter_scalar(Napi::CallbackInfo const& info);
   Napi::Value scatter_table(Napi::CallbackInfo const& info);
+  Napi::Value apply_boolean_mask(Napi::CallbackInfo const& info);
   // table/concatenate.cpp
   static Napi::Value concat(Napi::CallbackInfo const& info);
   // table/join.cpp

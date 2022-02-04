@@ -937,9 +937,24 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
-   * Return a sub-selection of this Series using the specified integral indices.
+   * @summary Return sub-selection from a Series using the specified integral indices.
    *
-   * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
+   * @description Gathers the rows of the source columns according to `selection`, such that row "i"
+   * in the resulting Series's columns will contain row `selection[i]` from the source columns. The
+   * number of rows in the result series will be equal to the number of elements in selection. A
+   * negative value i in the selection is interpreted as i+n, where `n` is the number of rows in
+   * the source series.
+   *
+   * For dictionary columns, the keys column component is copied and not trimmed if the gather
+   * results in abandoned key elements.
+   *
+   * @param selection A Series of 8/16/32-bit signed or unsigned integer indices to gather.
+   * @param nullify_out_of_bounds If `true`, coerce rows that corresponds to out-of-bounds indices
+   *   in the selection to null. If `false`, skips all bounds checking for selection values. Pass
+   *   false if you are certain that the selection contains only valid indices for better
+   *   performance. If `false` and there are out-of-bounds indices in the selection, the behavior
+   *   is undefined. Defaults to `false`.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @example
    * ```typescript
@@ -955,8 +970,11 @@ export class AbstractSeries<T extends DataType = any> {
    * c.gather(selection) // Bool8Series [true, true]
    * ```
    */
-  gather<R extends IndexType>(selection: Series<R>): Series<T> {
-    return this.__construct(this._col.gather(selection._col));
+  gather<R extends IndexType>(selection: Series<R>,
+                              nullify_out_of_bounds = false,
+                              memoryResource?: MemoryResource): Series<T> {
+    return this.__construct(
+      this._col.gather(selection._col, nullify_out_of_bounds, memoryResource));
   }
 
   /**
@@ -1040,7 +1058,7 @@ export class AbstractSeries<T extends DataType = any> {
     if (n < 0) { throw new Error('Index provided is out of bounds'); }
     const selection = Series.sequence(
       {type: new Int32, size: n < this._col.length ? n : this._col.length, init: 0});
-    return this.__construct(this._col.gather(selection._col));
+    return this.__construct(this._col.gather(selection._col, false));
   }
 
   /**
@@ -1065,7 +1083,7 @@ export class AbstractSeries<T extends DataType = any> {
     const length = n < this._col.length ? n : this._col.length;
     const selection =
       Series.sequence({type: new Int32, size: length, init: this._col.length - length});
-    return this.__construct(this._col.gather(selection._col));
+    return this.__construct(this._col.gather(selection._col, false));
   }
 
   /**
@@ -1142,6 +1160,7 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @param mask A Series of boolean values for whose corresponding element in this Series
    *   will be selected or ignored.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @example
    * ```typescript
@@ -1156,7 +1175,9 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([false, true, true]).filter(mask) // [false, true]
    * ```
    */
-  filter(mask: Series<Bool8>): Series<T> { return this.__construct(this._col.gather(mask._col)); }
+  filter(mask: Series<Bool8>, memoryResource?: MemoryResource): Series<T> {
+    return this.__construct(this._col.applyBooleanMask(mask._col, memoryResource));
+  }
 
   /**
    * set values at the specified indices
@@ -1265,6 +1286,7 @@ export class AbstractSeries<T extends DataType = any> {
    *   Default: true
    * @param null_order whether nulls should sort before or after other values
    *   Default: before
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @returns Sorted values
    *
@@ -1293,8 +1315,10 @@ export class AbstractSeries<T extends DataType = any> {
    * 20, 10]
    * ```
    */
-  sortValues(ascending = true, null_order: keyof typeof NullOrder = 'after'): Series<T> {
-    return this.gather(this.orderBy(ascending, null_order));
+  sortValues(ascending                          = true,
+             null_order: keyof typeof NullOrder = 'after',
+             memoryResource?: MemoryResource): Series<T> {
+    return this.gather(this.orderBy(ascending, null_order), false, memoryResource);
   }
 
   /**

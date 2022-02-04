@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -146,11 +146,36 @@ export interface Column<T extends DataType = any> {
   dispose(): void;
 
   /**
+   * @summary Return sub-selection from a Column.
+   *
+   * @description Gathers the rows of the source columns according to `selection`, such that row "i"
+   * in the resulting Column's columns will contain row `selection[i]` from the source columns. The
+   * number of rows in the result column will be equal to the number of elements in selection. A
+   * negative value i in the selection is interpreted as i+n, where `n` is the number of rows in
+   * the source column.
+   *
+   * For dictionary columns, the keys column component is copied and not trimmed if the gather
+   * results in abandoned key elements.
+   *
+   * @param selection A Series of 8/16/32-bit signed or unsigned integer indices to gather.
+   * @param nullify_out_of_bounds If `true`, coerce rows that corresponds to out-of-bounds indices
+   *   in the selection to null. If `false`, skips all bounds checking for selection values. Pass
+   *   false if you are certain that the selection contains only valid indices for better
+   *   performance. If `false` and there are out-of-bounds indices in the selection, the behavior
+   *   is undefined. Defaults to `false`.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  gather(selection: Column<IndexType>,
+         nullify_out_of_bounds: boolean,
+         memoryResource?: MemoryResource): Column<T>;
+
+  /**
    * Return sub-selection from a Column
    *
-   * @param selection
+   * @param selection A Series of bools.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
-  gather(selection: Column<IndexType|Bool8>): Column<T>;
+  applyBooleanMask(selection: Column<Bool8>, memoryResource?: MemoryResource): Column<T>;
 
   /**
    * Return a copy of a Column

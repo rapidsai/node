@@ -637,9 +637,24 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
-   * Return sub-selection from a DataFrame from the specified indices
+   * @summary Return sub-selection from a DataFrame using the specified integral indices.
    *
-   * @param selection
+   * @description Gathers the rows of the source columns according to `selection`, such that row "i"
+   * in the resulting Table's columns will contain row `selection[i]` from the source columns. The
+   * number of rows in the result table will be equal to the number of elements in selection. A
+   * negative value i in the selection is interpreted as i+n, where `n` is the number of rows in
+   * the source table.
+   *
+   * For dictionary columns, the keys column component is copied and not trimmed if the gather
+   * results in abandoned key elements.
+   *
+   * @param selection A Series of 8/16/32-bit signed or unsigned integer indices to gather.
+   * @param nullify_out_of_bounds If `true`, coerce rows that corresponds to out-of-bounds indices
+   *   in the selection to null. If `false`, skips all bounds checking for selection values. Pass
+   *   false if you are certain that the selection contains only valid indices for better
+   *   performance. If `false` and there are out-of-bounds indices in the selection, the behavior
+   *   is undefined. Defaults to `false`.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @example
    * ```typescript
@@ -654,9 +669,11 @@ export class DataFrame<T extends TypeMap = any> {
    * df.gather(selection); // {a: [2, 4, 5], b: [2.0, 4.0, 5.0]}
    * ```
    */
-  gather<R extends IndexType>(selection: Series<R>, nullify_out_of_bounds = false) {
+  gather<R extends IndexType>(selection: Series<R>,
+                              nullify_out_of_bounds = false,
+                              memoryResource?: MemoryResource) {
     const temp       = new Table({columns: this._accessor.columns});
-    const columns    = temp.gather(selection._col, nullify_out_of_bounds);
+    const columns    = temp.gather(selection._col, nullify_out_of_bounds, memoryResource);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
       (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });
@@ -801,9 +818,9 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * ```
    */
-  filter(mask: Series<Bool8>) {
+  filter(mask: Series<Bool8>, memoryResource?: MemoryResource) {
     const temp       = new Table({columns: this._accessor.columns});
-    const columns    = temp.gather(mask._col, false);
+    const columns    = temp.applyBooleanMask(mask._col, memoryResource);
     const series_map = {} as SeriesMap<T>;
     this._accessor.names.forEach(
       (name, index) => { series_map[name] = Series.new(columns.getColumnByIndex(index)); });

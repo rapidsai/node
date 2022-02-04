@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::set_null_count>("setNullCount"),
                        // column/copying.cpp
                        InstanceMethod<&Column::gather>("gather"),
+                       InstanceMethod<&Column::apply_boolean_mask>("applyBooleanMask"),
                        InstanceMethod<&Column::copy>("copy"),
                        // column/filling.cpp
                        InstanceMethod<&Column::fill>("fill"),
@@ -458,7 +459,26 @@ Napi::Value Column::gather(Napi::CallbackInfo const& info) {
   if (!Column::IsInstance(info[0])) {
     throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
   }
-  return this->operator[](*Column::Unwrap(info[0].ToObject()));
+
+  CallbackArgs args{info};
+  Column::wrapper_t selection         = args[0].ToObject();
+  auto oob_policy                     = args[1].ToBoolean() ? cudf::out_of_bounds_policy::NULLIFY
+                                                            : cudf::out_of_bounds_policy::DONT_CHECK;
+  rmm::mr::device_memory_resource* mr = args[2];
+
+  return this->gather(selection, oob_policy, mr);
+}
+
+Napi::Value Column::apply_boolean_mask(Napi::CallbackInfo const& info) {
+  if (!Column::IsInstance(info[0])) {
+    throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
+  }
+
+  CallbackArgs args{info};
+  Column::wrapper_t selection         = args[0].ToObject();
+  rmm::mr::device_memory_resource* mr = args[1];
+
+  return this->apply_boolean_mask(selection, mr);
 }
 
 Napi::Value Column::get_child(Napi::CallbackInfo const& info) {
