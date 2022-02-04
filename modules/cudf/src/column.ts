@@ -132,6 +132,7 @@ export interface Column<T extends DataType = any> {
   readonly type: T;
   readonly data: DeviceBuffer;
   readonly mask: DeviceBuffer;
+  readonly disposed: boolean;
 
   readonly offset: number;
   readonly length: number;

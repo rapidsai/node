@@ -829,6 +829,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value size(Napi::CallbackInfo const& info);
   Napi::Value data(Napi::CallbackInfo const& info);
   Napi::Value null_mask(Napi::CallbackInfo const& info);
+  Napi::Value disposed(Napi::CallbackInfo const& info);
   Napi::Value has_nulls(Napi::CallbackInfo const& info);
   Napi::Value null_count(Napi::CallbackInfo const& info);
   Napi::Value is_nullable(Napi::CallbackInfo const& info);

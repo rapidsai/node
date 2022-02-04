@@ -29,6 +29,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceAccessor<&Column::type, &Column::type>("type"),
                        InstanceAccessor<&Column::data>("data"),
                        InstanceAccessor<&Column::null_mask>("mask"),
+                       InstanceAccessor<&Column::disposed>("disposed"),
                        InstanceAccessor<&Column::offset>("offset"),
                        InstanceAccessor<&Column::size>("length"),
                        InstanceAccessor<&Column::has_nulls>("hasNulls"),
@@ -308,6 +309,10 @@ void Column::dispose(Napi::Env env) {
 }
 
 void Column::dispose(Napi::CallbackInfo const& info) { dispose(info.Env()); }
+
+Napi::Value Column::disposed(Napi::CallbackInfo const& info) {
+  return Napi::Value::From(info.Env(), disposed_);
+}
 
 // If the null count is known, return it. Else, compute and return it
 cudf::size_type Column::null_count() const {
