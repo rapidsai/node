@@ -476,7 +476,7 @@ Napi::Value Column::gather(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::apply_boolean_mask(Napi::CallbackInfo const& info) {
   if (!Column::IsInstance(info[0])) {
-    throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
+    throw Napi::Error::New(info.Env(), "apply_boolean_mask selection argument expects a Column");
   }
 
   CallbackArgs args{info};
