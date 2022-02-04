@@ -391,7 +391,7 @@ function create_graph(edges: DataFrame, source: string, target: string): GraphCO
 function _prepend_str(series: Series, val: string, delim: string) {
   const prefix = val + delim;
   const suffix = series.cast(new Categorical(new Utf8String));
-  const codes  = Series.new(suffix.codes);
+  const codes  = suffix.codes;
   const categories =
     Series.new(suffix.categories.replaceNulls('null')._col.replaceSlice(prefix, 0, 0));
 
@@ -399,6 +399,5 @@ function _prepend_str(series: Series, val: string, delim: string) {
 }
 
 function _scalar_init(val: string, size: number): Series<Utf8String> {
-  const indices = Series.sequence({init: 0, size: size, step: 0, type: new Int32});
-  return Series.new([val]).gather(indices);
+  return Series.new([val]).gather(Series.sequence({size, step: 0}), false);
 }
