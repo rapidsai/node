@@ -16,8 +16,8 @@ import {MemoryResource} from '@rapidsai/rmm';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
 import {Column} from '../column';
-import {ColumnAccessor} from '../column_accessor';
 import {DataFrame} from '../data_frame';
+import {scope} from '../scope';
 import {Series} from '../series';
 import {
   Categorical,
@@ -152,60 +152,46 @@ export class CategoricalSeries<T extends DataType> extends Series<Categorical<T>
    */
   public setCategories(categories: Series<T>|(T['scalarType'][]),
                        memoryResource?: MemoryResource): Series<Categorical<T>> {
-    const cur_cats = this.categories._col as Column<T>;
-    // Pass the memoryResource here because the libcudf semantics are that it should only be used to
-    // allocate memory for the columns that are returned.
-    const new_cats = Series.new<T>(<any>categories).unique(true, memoryResource)._col as Column<T>;
+    return scope(() => {
+      const new_cats = scope(() => {
+        const uniq = scope(() => {
+          return new DataFrame({
+                   value: Series.new<T>(<any>categories),
+                   order: Series.sequence({size: categories.length})
+                 })
+            .groupBy({by: 'value'})
+            .nth(0);
+        });
+        return uniq.sortValues({order: {ascending: true}}, memoryResource).get('value');
+      });
 
-    const cur_codes = this.codes._col;
-    const old_codes =
-      Series.sequence({type: new Int32, init: 0, step: 1, size: cur_cats.length})._col;
-    const new_codes =
-      Series.sequence({type: new Int32, init: 0, step: 1, size: new_cats.length})._col;
-    const cur_index =
-      Series.sequence({type: new Int32, init: 0, step: 1, size: cur_codes.length})._col;
+      const new_codes = scope(() => {
+        // 1. Join the old and new categories to align their codes
+        const aligned = scope(() => {
+          const cur_cats  = this.categories;
+          const old_codes = Series.sequence({size: cur_cats.length});
+          const new_codes = Series.sequence({size: new_cats.length});
+          const old_df    = new DataFrame({old_codes, categories: cur_cats});
+          const new_df    = new DataFrame({new_codes, categories: new_cats});
 
-    const old_df = new DataFrame(new ColumnAccessor({old_codes: old_codes, categories: cur_cats}));
-    const cur_df = new DataFrame(new ColumnAccessor({old_codes: cur_codes, cur_index: cur_index}));
-    const new_df = new DataFrame(new ColumnAccessor({new_codes: new_codes, categories: new_cats}));
+          return old_df.join({how: 'left', on: ['categories'], other: new_df});
+        });
+        // 2. Join the old and new codes to "recode" the new categories
+        const cur_index = Series.sequence({size: this.codes.length});
+        const cur_df    = new DataFrame({old_codes: this.codes, cur_index});
 
-    // 1. Join the old and new categories to align their codes
-    const tmp1 = old_df.join({
-      how: 'left',
-      on: ['categories'],
-      // Pass the memoryResource here because the libcudf semantics are that it should only be
-      // used to allocate memory for the columns that are returned.
-      memoryResource,
-      other: new_df,
-    });
+        return cur_df.join({how: 'left', on: ['old_codes'], other: aligned})
+          .drop(['old_codes'])
+          .sortValues({cur_index: {ascending: true}}, memoryResource)
+          .get('new_codes');
+      }, [new_cats]);
 
-    old_df.drop(['categories']).dispose();
-    new_df.drop(['categories']).dispose();
-
-    // 2. Join the old and new codes to "recode" the new categories
-    const tmp2 = cur_df.join({
-      how: 'left',
-      on: ['old_codes'],
-      // Pass the memoryResource here because the libcudf semantics are that it should only be
-      // used to allocate memory for the columns that are returned.
-      memoryResource,
-      other: tmp1
-    });
-    tmp1.dispose();
-    cur_df.drop(['old_codes']).dispose();
-
-    const tmp3 = tmp2.sortValues({cur_index: {ascending: true}});
-    tmp2.dispose();
-
-    const out_codes = tmp3.get('new_codes')._col;
-
-    tmp3.drop(['new_codes']).dispose();
-
-    return Series.new(new Column({
-      type: this.type,
-      length: this.length,
-      nullMask: this.mask,
-      children: [out_codes, new_cats]
-    }));
+      return this.__construct(new Column({
+        type: this.type,
+        length: this.length,
+        nullMask: this.mask,
+        children: [new_codes._col, new_cats._col]
+      }));
+    }, [this.codes, this.categories, categories]);
   }
 }
