@@ -16,7 +16,7 @@
 
 const {performance}             = require('perf_hooks');
 const {SQLCluster}              = require('@rapidsai/sql');
-const {DataFrame, scope}        = require('@rapidsai/cudf');
+const {DataFrame}               = require('@rapidsai/cudf');
 const {RecordBatchStreamWriter} = require('apache-arrow');
 const fs                        = require('fs');
 
@@ -56,22 +56,24 @@ fastify.register((require('fastify-arrow')))
     fastify.next('/');
     fastify.post('/run_query', async function(request, reply) {
       try {
-        scope(async () => {
-          request.log.info({query: request.body}, `calling sqlCluster.sql()`);
-          const t0        = performance.now();
-          const dfs       = await sqlCluster.sql(request.body).catch((err) => {
-            request.log.error({err}, `Error calling sqlCluster.sql`);
-            return new DataFrame();
-          });
-          const t1        = performance.now();
-          const queryTime = t1 - t0;
-
-          const {results, resultCount} = head(dfs, 500);
-          const arrowTable             = results.toArrow();
-          arrowTable.schema.metadata.set('queryTime', queryTime);
-          arrowTable.schema.metadata.set('queryResults', resultCount);
-          RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
+        request.log.info({query: request.body}, `calling sqlCluster.sql()`);
+        const t0        = performance.now();
+        const dfs       = await sqlCluster.sql(request.body).catch((err) => {
+          request.log.error({err}, `Error calling sqlCluster.sql`);
+          return new DataFrame();
         });
+        const t1        = performance.now();
+        const queryTime = t1 - t0;
+
+        const {results, resultCount} = head(dfs, 500);
+        const arrowTable             = results.toArrow();
+        arrowTable.schema.metadata.set('queryTime', queryTime);
+        arrowTable.schema.metadata.set('queryResults', resultCount);
+        RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
+
+        // TODO: remove these calls to dispose once scope() supports async
+        results.dispose();
+        dfs.forEach((df) => df.dispose());
       } catch (err) {
         request.log.error({err}, '/run_query error');
         reply.code(500).send(err);
@@ -94,6 +96,8 @@ function head(dfs, rows) {
     if (result.numRows <= rows) {
       const head = dfs[i].head(rows - result.numRows);
       result     = result.concat(head);
+
+      // TODO: remove this call to dispose once scope() supports async
       head.dispose();
     }
   }
