@@ -634,8 +634,8 @@ export class DataFrame<T extends TypeMap = any> {
    * // {a: [null, 4, 3, 2, 1, 0], b: [0, 1, 2, 3, 4, 5]}
    * ```
    */
-  sortValues<R extends keyof T>(options: {[P in R]: OrderSpec}) {
-    return this.gather(this.orderBy(options));
+  sortValues<R extends keyof T>(options: {[P in R]: OrderSpec}, memoryResource?: MemoryResource) {
+    return this.gather(this.orderBy(options), false, memoryResource);
   }
 
   /**
