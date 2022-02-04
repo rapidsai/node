@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022, NVIDIA CORPORATION.
+// Copyright (c) 2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,52 +12,74 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Column} from './column';
 import {DataFrame} from './data_frame';
 import {Series} from './series';
+import {Table} from './table';
+
+type Resource = DataFrame|Series|Column|Table;
 
 export class Disposer {
-  private counter                                            = 0;
-  private id: number|null                                            = null;
-  private resources: {[key: number]: (Series<any>|DataFrame<any>)[]} = {};
+  private currentScopeId                 = -1;
+  private trackedResources: Resource[][] = [];
+  private ingoredResources: Resource[][] = [];
 
-  add(value: DataFrame|Series) {
-    if (this.id != null) { this.resources[this.id].push(value); }
+  add(value: Resource) {
+    const {currentScopeId} = this;
+    if (currentScopeId > -1) { this.trackedResources[currentScopeId].push(value); }
   }
 
-  enter(): [(value: any) => void, number|null] {
-    const old_id = this.id;
-    this.id      = this.counter++;
+  enter(doNotDispose: Resource[]) {
+    this.ingoredResources.push(doNotDispose);
+    this.currentScopeId = this.trackedResources.push([]) - 1;
+    return this;
+  }
 
-    const ID        = this.id;
-    const resources = this.resources;
-    resources[ID]   = [];
-
-    const cleanup = (value: any) => {
-      for (const resource of resources[ID]) {
-        if (resource !== value) { resource.dispose(); }
+  exit(result: any) {
+    if (this.currentScopeId > -1) {
+      this.currentScopeId -= 1;
+      const test = new Set(this.trackedResources.pop()!.flatMap(flattenColumns));
+      const keep = new Set([
+        result,
+        ...this.ingoredResources.pop()!,
+        ...this.ingoredResources.flat(1),
+        ...this.trackedResources.flat(1),
+      ].flatMap(flattenColumns));
+      for (const col of test) {
+        if (!keep.has(col)) { col.dispose(); }
       }
-      delete resources[ID];
-    };
-    return [cleanup, old_id];
+    }
+    return result;
   }
-
-  exit(old_id: number|null) { this.id = old_id; }
 }
 
 export const DISPOSER = new Disposer();
 
-export function scope<T extends DataFrame|Series, F extends(() => T | Promise<T>)>(cb: F):
-  ReturnType<F> {
-  const [cleanup, old_id] = DISPOSER.enter();
-  const result            = cb();
-  DISPOSER.exit(old_id);
-
-  if (result instanceof Promise) {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    result.then(cleanup);
-  } else {
-    cleanup(result);
+export function scope<T extends Resource, F extends(() => T | Promise<T>)>(
+  cb: F, doNotDispose: Resource[] = []) {
+  DISPOSER.enter(doNotDispose);
+  const result = cb();
+  if (result instanceof Promise) {  //
+    return result.then((x) => DISPOSER.exit(x)) as ReturnType<F>;
   }
+  return DISPOSER.exit(result) as ReturnType<F>;
+}
 
-  return result as any;
+function flattenColumns(input?: Resource): Column[] {
+  if (!input) { return []; }
+  if (Array.isArray(input)) { return input.flatMap(flattenColumns); }
+  if (input instanceof Series) { return flattenColumns(input._col); }
+  if (input instanceof DataFrame) { return flattenColumns(input.asTable()); }
+  let cols: Column<any>[] = [];
+  if (input instanceof Column) {
+    cols = [input];
+    for (let i = -1; ++i < input.numChildren;) {
+      cols = cols.concat(flattenColumns(input.getChild(i)));
+    }
+  } else if (input instanceof Table) {
+    for (let i = -1; ++i < input.numColumns;) {
+      cols = cols.concat(flattenColumns(input.getColumnByIndex(i)));
+    }
+  }
+  return cols;
 }

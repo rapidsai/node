@@ -567,12 +567,8 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /** @ignore */
-  public _col: Column<T>;
+  declare public _col: Column<T>;
 
-  protected constructor(input: AbstractSeries<T>|SeriesProps<T>|Column<T>|arrow.Vector<T>) {
-    this._col = asColumn<T>(input);
-    DISPOSER.add(this);
-  }
 
   /**
    * The data type of elements in the underlying data.

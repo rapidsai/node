@@ -201,7 +201,7 @@ export class DataFrame<T extends TypeMap = any> {
   constructor(data: any = {}) {
     this._accessor =
       (data instanceof ColumnAccessor) ? data : new ColumnAccessor(_seriesToColumns(data));
-    DISPOSER.add(this);
+    DISPOSER.add(this.asTable());
   }
 
   /**
