@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Field} from 'apache-arrow';
-
-import {Column} from '../column';
 import {Series} from '../series';
 import {DataType, Int32, List} from '../types/dtypes';
 
@@ -83,25 +80,4 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
     const value = this._col.getValue(index);
     return value === null ? null : Series.new(value);
   }
-
-  /** @ignore */
-  protected __construct(col: Column<List<T>>) {
-    return new ListSeries(Object.assign(col, {type: fixNames(this.type, col.type)}));
-  }
-}
-
-Object.defineProperty(ListSeries.prototype, '__construct', {
-  writable: false,
-  enumerable: false,
-  configurable: true,
-  value: (ListSeries.prototype as any).__construct,
-});
-
-function fixNames<T extends DataType>(lhs: T, rhs: T) {
-  if (lhs.children && rhs.children && lhs.children.length && rhs.children.length) {
-    lhs.children.forEach(({name, type}, idx) => {
-      rhs.children[idx] = Field.new({name, type: fixNames(type, rhs.children[idx].type)});
-    });
-  }
-  return rhs;
 }

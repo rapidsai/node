@@ -788,7 +788,7 @@ export class AbstractSeries<T extends DataType = any> {
    */
   fill(value: T['scalarType'], begin = 0, end = this.length, memoryResource?: MemoryResource):
     Series<T> {
-    return Series.new(
+    return this.__construct(
       this._col.fill(new Scalar({type: this.type, value}), begin, end, memoryResource));
   }
 
@@ -862,9 +862,9 @@ export class AbstractSeries<T extends DataType = any> {
 
   replaceNulls(value: any, memoryResource?: MemoryResource): Series<T> {
     if (value instanceof Series) {
-      return Series.new(this._col.replaceNulls(value._col, memoryResource));
+      return this.__construct(this._col.replaceNulls(value._col, memoryResource));
     } else {
-      return Series.new(
+      return this.__construct(
         this._col.replaceNulls(new Scalar({type: this.type, value}), memoryResource));
     }
   }
@@ -889,7 +889,7 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   replaceNullsFollowing(memoryResource?: MemoryResource): Series<T> {
-    return Series.new(this._col.replaceNulls(true, memoryResource));
+    return this.__construct(this._col.replaceNulls(true, memoryResource));
   }
 
   /**
@@ -912,11 +912,13 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   replaceNullsPreceding(memoryResource?: MemoryResource): Series<T> {
-    return Series.new(this._col.replaceNulls(false, memoryResource));
+    return this.__construct(this._col.replaceNulls(false, memoryResource));
   }
 
   /**
    * Returns a new series with reversed elements.
+   *
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    *
    * @example
    * ```typescript
@@ -930,9 +932,9 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.new([false, true]).reverse() // [true, false]
    * ```
    */
-  reverse(): Series<T> {
+  reverse(memoryResource?: MemoryResource): Series<T> {
     return this.gather(
-      Series.sequence({type: new Int32, size: this.length, step: -1, init: this.length - 1}));
+      Series.sequence({size: this.length, step: -1, init: this.length - 1}), false, memoryResource);
   }
 
   /**
@@ -989,7 +991,7 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   copy(memoryResource?: MemoryResource): Series<T> {
-    return Series.new(this._col.copy(memoryResource));
+    return this.__construct(this._col.copy(memoryResource));
   }
 
   /**
@@ -1146,11 +1148,11 @@ export class AbstractSeries<T extends DataType = any> {
     const idx = Series.new(indices).cast(new Int32)._col;
     if (source instanceof Series) {
       const src = new Table({columns: [source.cast(this.type)._col]});
-      return Series.new(
+      return this.__construct(
         dst.scatterTable(src, idx, check_bounds, memoryResource).getColumnByIndex(0));
     }
     const src = [new Scalar({type: this.type, value: source})];
-    return Series.new(
+    return this.__construct(
       dst.scatterScalar(src, idx, check_bounds, memoryResource).getColumnByIndex(0));
   }
 
@@ -1397,7 +1399,9 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * @summary Hook for specialized Series to override when constructing from a C++ Column.
    */
-  protected __construct(inp: Column<T>): Series<T> { return Series.new(inp); }
+  protected __construct(col: Column<T>): Series<T> {
+    return Series.new(Object.assign(col, {type: transferFields(this.type, col.type)}));
+  }
 
   /**
    * Returns an object with keys "value" and "count" whose respective values are new Series
@@ -1465,7 +1469,7 @@ export class AbstractSeries<T extends DataType = any> {
                  nullsEqual: boolean,
                  nullsFirst: boolean,
                  memoryResource?: MemoryResource) {
-    return Series.new<T>(
+    return this.__construct(
       new Table({columns: [this._col]})
         .dropDuplicates(
           [0], DuplicateKeepOption[keep ? 'first' : 'none'], nullsEqual, nullsFirst, memoryResource)
@@ -1475,13 +1479,6 @@ export class AbstractSeries<T extends DataType = any> {
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Series = AbstractSeries;
-
-Object.defineProperty(Series.prototype, '__construct', {
-  writable: false,
-  enumerable: false,
-  configurable: true,
-  value: (Series.prototype as any).__construct,
-});
 
 import {Bool8Series} from './series/bool';
 import {CategoricalSeries} from './series/categorical';
