@@ -1638,13 +1638,8 @@ function asColumn<T extends DataType>(value: AbstractSeries<T>|SeriesProps<T>  /
 function asColumn<T extends DataType>(value: any) {
   if (!value) { value = []; }
 
-  // If already a Series, extract the Column
-  if (value instanceof AbstractSeries) { value = value._col; }
-
-  // If Column or ColumnProps, ensure dtype is a concrete instance
-  if (value.type && !(value.type instanceof arrow.DataType)) {
-    value.type = arrowToCUDFType<T>(value.type);
-  }
+  // Return early if it's already a Series
+  if (value instanceof AbstractSeries) { return value._col; }
 
   // Return early if it's already a Column
   if (value instanceof Column) { return value as Column<T>; }
