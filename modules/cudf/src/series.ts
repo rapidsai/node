@@ -650,10 +650,21 @@ export class AbstractSeries<T extends DataType = any> {
   _castAsTimeStampMillisecond(_memoryResource?: MemoryResource): Series<TimestampMillisecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampMillisecond unimplemented`); }
   _castAsTimeStampMicrosecond(_memoryResource?: MemoryResource): Series<TimestampMicrosecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampMicrosecond unimplemented`); }
   _castAsTimeStampNanosecond(_memoryResource?: MemoryResource): Series<TimestampNanosecond> { throw new Error(`cast from ${arrow.Type[this.type.typeId]} to TimeStampNanosecond unimplemented`); }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+  // clang-format on
 
   _castAsCategorical<R extends Categorical>(type: R, memoryResource?: MemoryResource): Series<R> {
-    const categories = this.unique(true, memoryResource);
-    const codes      = this.encodeLabels(categories, undefined, undefined, memoryResource);
+    const categories = scope(() => {
+      const uniq = scope(() => {
+        return new DataFrame({value: this, order: Series.sequence({size: this.length})})
+          .groupBy({by: 'value'})
+          .nth(0);
+      });
+      return uniq.sortValues({order: {ascending: true}}, memoryResource).get('value');
+    }, [this]);
+
+    const codes = this.encodeLabels(categories, undefined, undefined, memoryResource);
+
     return Series.new<R>({
       type,
       length: codes.length,
@@ -661,9 +672,6 @@ export class AbstractSeries<T extends DataType = any> {
       children: [codes, categories.cast(type.dictionary)]
     });
   }
-
-  /* eslint-enable @typescript-eslint/no-unused-vars */
-  // clang-format on
 
   /**
    * Concat a Series to the end of the caller, returning a new Series of a common dtype.
