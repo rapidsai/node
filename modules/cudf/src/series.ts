@@ -37,7 +37,7 @@ import {fromArrow} from './column/from_arrow';
 import {DataFrame} from './data_frame';
 import {DisplayOptions} from './dataframe/print';
 import {Scalar} from './scalar';
-import {DISPOSER} from './scope';
+import {DISPOSER, scope} from './scope';
 import {Table} from './table';
 import {
   Bool8,
@@ -569,6 +569,7 @@ export class AbstractSeries<T extends DataType = any> {
   /** @ignore */
   declare public _col: Column<T>;
 
+  protected constructor(col: Column<T>) { DISPOSER.add(this._col = col); }
 
   /**
    * The data type of elements in the underlying data.
@@ -723,40 +724,34 @@ export class AbstractSeries<T extends DataType = any> {
                                             type: R                       = new Uint32 as R,
                                             nullSentinel: R['scalarType'] = -1,
                                             memoryResource?: MemoryResource): Series<R> {
-    try {
-      // If there is a failure casting to the current dtype, catch the exception and return
-      // encoded labels with all values set to `nullSentinel`, since this means the Column
-      // cannot contain any of the encoded categories.
-      if (!compareTypes(this.type, categories.type)) { categories = categories.cast(this.type); }
-    } catch {
-      return Series.sequence(
-        {type, init: nullSentinel, step: 0, memoryResource, size: this.length});
-    }
+    return scope(() => {
+      try {
+        // If there is a failure casting to the current dtype, catch the exception and return
+        // encoded labels with all values set to `nullSentinel`, since this means the Column
+        // cannot contain any of the encoded categories.
+        if (!compareTypes(this.type, categories.type)) { categories = categories.cast(this.type); }
+      } catch {
+        return Series.sequence(
+          {type, init: nullSentinel, step: 0, memoryResource, size: this.length});
+      }
 
-    const old_df = new DataFrame({
-      value: this._col,
-      order: Series.sequence({type: new Uint32, init: 0, step: 1, size: this.length})._col
-    });
+      // 1. Join this Series' values with the `categories` Series to determine the index
+      // positions (i.e. `codes`) of the values to keep.
+      const codes = scope(() => {
+        const lhs = new DataFrame(
+          {value: this, order: Series.sequence({type: new Uint32, size: this.length})});
+        const rhs = new DataFrame(
+          {value: categories, codes: Series.sequence({type, size: categories.length})});
+        return lhs.join({on: ['value'], how: 'left', nullEquality: true, other: rhs})
+          .drop(['value'])
+          // 2. Sort the codes by the original value's position in this Series.
+          .sortValues({order: {ascending: true}})
+          .get('codes');
+      });
 
-    const new_df = new DataFrame({
-      value: categories._col as Column<T>,
-      codes: Series.sequence({type, init: 0, step: 1, size: categories.length})._col
-    });
-
-    // 1. Join this Series' values with the `categories` Series to determine the index
-    // positions (i.e. `codes`) of the values to keep.
-    const tmp1 = old_df.join({on: ['value'], how: 'left', nullEquality: true, other: new_df});
-    old_df.drop(['value']).dispose();
-    new_df.drop(['value']).dispose();
-
-    // 2. Sort the codes by the original value's position in this Series.
-    const tmp2 = tmp1.sortValues({order: {ascending: true}});
-    tmp1.dispose();
-
-    // 3. Replace missing codes with `nullSentinel`.
-    const codes = tmp2.get('codes').replaceNulls(nullSentinel, memoryResource) as Series<R>;
-    tmp2.dispose();
-    return codes;
+      // 3. Replace missing codes with `nullSentinel`.
+      return codes.replaceNulls(nullSentinel, memoryResource) as Series<R>;
+    }, [this, categories]);
   }
 
   /**
