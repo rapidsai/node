@@ -537,3 +537,50 @@ jobs:
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+
+  build-and-publish-runtime-notebook-image:
+    needs:
+      - build-and-publish-runtime-demo-image
+    name: Build runtime notebook image
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+      matrix:
+        CUDA: ["11.6.0"]
+        LINUX: [ubuntu18.04, ubuntu20.04]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+          fetch-depth: 2
+      - name: Checkout LFS
+        run: git lfs checkout
+      - name: Check if files changed
+        id: files_changed
+        uses: tj-actions/changed-files@v9.1
+        with:
+          files: |
+            \.npmrc
+            modules
+            **/*\.ipynb
+            dev/dockerfiles/runtime/notebook\.Dockerfile
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
+      - name: Build and push image
+        uses: ./.github/actions/build-and-publish-image
+        if: ${{ steps.files_changed.outputs.any_changed == 'true' || steps.files_changed.outputs.any_deleted == 'true' }}
+        with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
+          push: ${{ github.event_name == 'push' }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          file: dev/dockerfiles/runtime/notebook.Dockerfile
+          tags: |
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-notebook
+          build-args: |
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
