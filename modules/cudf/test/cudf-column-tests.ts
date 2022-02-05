@@ -72,7 +72,7 @@ test('Column.gather', () => {
 
   const selection = new Column({type: new Int32, data: new Int32Buffer([2, 4, 5, 8])});
 
-  const result = col.gather(selection);
+  const result = col.gather(selection, false);
 
   expect(result.getValue(0)).toBe(2);
   expect(result.getValue(1)).toBe(4);
@@ -85,7 +85,7 @@ test('Column.gather (bad argument)', () => {
 
   const selection = [2, 4, 5];
 
-  expect(() => col.gather(<any>selection)).toThrow();
+  expect(() => col.gather(<any>selection, false)).toThrow();
 });
 
 test('Column null_mask, null_count', () => {
