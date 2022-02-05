@@ -49,7 +49,7 @@ if __name__ == \"__main__\":\n\
   \"theme\": \"JupyterLab Dark\"\n\
 }' > /home/node/.config/jupyterlab-desktop/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings" \
  \
- && chown -R node:node /home/node \
+ && chown -R node:node /home/node/.{local,config} \
  # Install Jupyter desktop
  && apt update \
  && DEBIAN_FRONTEND=noninteractive \
