@@ -311,6 +311,20 @@ void Column::dispose(Napi::Env env) {
 void Column::dispose(Napi::CallbackInfo const& info) { dispose(info.Env()); }
 
 Napi::Value Column::disposed(Napi::CallbackInfo const& info) {
+  auto disposed = disposed_;
+  if (!disposed) {
+    if (!data_.IsEmpty() && !data_.Value()->is_empty()) {
+      disposed = false;
+    } else if (!null_mask_.IsEmpty() && !null_mask_.Value()->is_empty()) {
+      disposed = false;
+    } else {
+      disposed = children_.size() == 0 ||
+                 std::all_of(children_.begin(), children_.end(), [&](auto const& child) {
+                   return child.Value()->disposed(info);
+                 });
+    }
+    if (disposed) { dispose(info.Env()); }
+  }
   return Napi::Value::From(info.Env(), disposed_);
 }
 
