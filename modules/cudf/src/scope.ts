@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {DeviceBuffer} from '@rapidsai/rmm';
+
 import {Column} from './column';
 import {DataFrame} from './data_frame';
 import {Series} from './series';
 import {Table} from './table';
 
-type Resource = DataFrame|Series|Column|Table;
+type Resource = DataFrame|Series|Column|Table|DeviceBuffer;
 
 export class Disposer {
   private currentScopeId                 = -1;
@@ -38,17 +40,19 @@ export class Disposer {
   exit(result: any) {
     if (this.currentScopeId > -1) {
       this.currentScopeId -= 1;
+      const flatten = (xs: Resource[]) => flattenDeviceBuffers(xs);
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const test = new Set(this.trackedResources.pop()!.flatMap(flattenColumns));
-      const keep = new Set([
+      const test = new Set(flatten(this.trackedResources.pop()!));
+      const keep = new Set(flatten([
         result,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         ...this.ingoredResources.pop()!,
         ...this.ingoredResources.flat(1),
         ...this.trackedResources.flat(1),
-      ].flatMap(flattenColumns));
-      for (const col of test) {
-        if (!keep.has(col)) { col.dispose(); }
+      ]));
+
+      for (const buf of test) {
+        if (!keep.has(buf)) { buf.dispose(); }
       }
     }
     return result;
@@ -67,21 +71,28 @@ export function scope<T extends Resource, F extends(() => T | Promise<T>)>(
   return DISPOSER.exit(result) as ReturnType<F>;
 }
 
-function flattenColumns(input?: Resource): Column[] {
+function flattenDeviceBuffers(input: Resource|null|undefined, visited = new Set): DeviceBuffer[] {
   if (!input) { return []; }
-  if (Array.isArray(input)) { return input.flatMap(flattenColumns); }
-  if (input instanceof Series) { return flattenColumns(input._col); }
-  if (input instanceof DataFrame) { return flattenColumns(input.asTable()); }
-  let cols: Column<any>[] = [];
+  if (input instanceof DeviceBuffer) { return [input]; }
+  if (input instanceof Series) { return flattenDeviceBuffers(input._col, visited); }
+  if (input instanceof DataFrame) { return flattenDeviceBuffers(input.asTable(), visited); }
+  if (Array.isArray(input)) { return input.flatMap((x) => flattenDeviceBuffers(x, visited)); }
   if (input instanceof Column) {
-    cols = [input];
+    let bufs = [input.data, input.mask];
     for (let i = -1; ++i < input.numChildren;) {
-      cols = cols.concat(flattenColumns(input.getChild(i)));
+      bufs = bufs.concat(flattenDeviceBuffers(input.getChild(i), visited));
     }
-  } else if (input instanceof Table) {
-    for (let i = -1; ++i < input.numColumns;) {
-      cols = cols.concat(flattenColumns(input.getColumnByIndex(i)));
-    }
+    return bufs;
   }
-  return cols;
+  if (input instanceof Table) {
+    let bufs: DeviceBuffer[] = [];
+    for (let i = -1; ++i < input.numColumns;) {
+      bufs = bufs.concat(flattenDeviceBuffers(input.getColumnByIndex(i), visited));
+    }
+    return bufs;
+  }
+  if (typeof input === 'object' && !visited.has(input)) {
+    return flattenDeviceBuffers(Object.values(input), visited);
+  }
+  return [];
 }
