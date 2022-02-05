@@ -278,9 +278,7 @@ export class DataFrame<T extends TypeMap = any> {
   get types() { return this._accessor.types; }
 
   /** @ignore */
-  asTable() {
-    return new Table({columns: this._accessor.columns.filter(({disposed}) => !disposed)});
-  }
+  asTable() { return new Table({columns: this._accessor.columns}); }
 
   /**
    * Return a string with a tabular representation of the DataFrame, pretty-printed according to the
