@@ -563,6 +563,7 @@ jobs:
           files: |
             \.npmrc
             modules
+            **/*\.ipynb
             dev/dockerfiles/runtime/notebook\.Dockerfile
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
