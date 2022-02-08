@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,13 +57,13 @@ struct GraphCOO : public EnvLocalObjectWrap<GraphCOO> {
    * @brief Get the number of edges in the graph
    *
    */
-  size_t num_edges();
+  int32_t num_edges();
 
   /**
    * @brief Get the number of nodes in the graph
    *
    */
-  size_t num_nodes();
+  int32_t num_nodes();
 
   /**
    * @brief Conversion operator to get a non-owning view of the GraphCOO
@@ -81,6 +81,8 @@ struct GraphCOO : public EnvLocalObjectWrap<GraphCOO> {
   Napi::Value num_edges(Napi::CallbackInfo const& info);
   Napi::Value num_nodes(Napi::CallbackInfo const& info);
   Napi::Value force_atlas2(Napi::CallbackInfo const& info);
+
+  Napi::Value degree(Napi::CallbackInfo const& info);
 
   bool directed_edges_{false};
 

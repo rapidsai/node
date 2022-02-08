@@ -15,6 +15,8 @@
 #include <node_cugraph/cugraph/algorithms.hpp>
 #include <node_cugraph/graph_coo.hpp>
 
+#include <node_cudf/utilities/buffer.hpp>
+
 #include <node_rmm/device_buffer.hpp>
 
 namespace nv {
@@ -38,8 +40,10 @@ float get_float(NapiToCPP const &opt, float const default_val) {
 Napi::Value GraphCOO::force_atlas2(Napi::CallbackInfo const &info) {
   CallbackArgs const args{info};
 
-  NapiToCPP::Object options           = args[0];
-  rmm::mr::device_memory_resource *mr = options.Get("memoryResource");
+  NapiToCPP::Object options = args[0];
+  auto mr                   = MemoryResource::IsInstance(options.Get("memoryResource"))
+                                ? MemoryResource::wrapper_t(options.Get("memoryResource"))
+                                : MemoryResource::Current(info.Env());
 
   auto max_iter              = get_int(options.Get("numIterations"), 1);
   auto outbound_attraction   = get_bool(options.Get("outboundAttraction"), true);
@@ -53,38 +57,28 @@ Napi::Value GraphCOO::force_atlas2(Napi::CallbackInfo const &info) {
   auto gravity               = get_float(options.Get("gravity"), 1.0);
   auto verbose               = get_bool(options.Get("verbose"), false);
 
-  float *s_positions{nullptr};
+  auto positions = data_to_devicebuffer(
+    info.Env(), options.Get("positions"), cudf::data_type{cudf::type_id::FLOAT32}, mr);
+
   float *x_positions{nullptr};
   float *y_positions{nullptr};
 
-  auto positions = [&](auto const &initial_positions) mutable -> Napi::Value {
-    if (initial_positions.IsObject()) {
-      auto pos = initial_positions.template As<Napi::Object>();
-      if (pos.Has("buffer") and pos.Get("buffer").IsObject()) {
-        auto buf = pos.Get("buffer").template As<Napi::Object>();
-        if (buf.Has("ptr") and buf.Get("ptr").IsNumber()) { pos = buf; }
-      }
-      if (pos.Has("ptr") and pos.Get("ptr").IsNumber()) {
-        auto ptr    = pos.Get("ptr").template As<Napi::Number>().Int64Value();
-        s_positions = reinterpret_cast<float *>(ptr);
-        x_positions = s_positions;
-        y_positions = x_positions + num_nodes();
-      }
-      return pos;
-    }
-    auto buf    = DeviceBuffer::New(info.Env(),
-                                 std::make_unique<rmm::device_buffer>(
-                                   num_nodes() * 2 * sizeof(float), rmm::cuda_stream_default, mr));
-    s_positions = static_cast<float *>(buf->data());
-    return buf;
-  }(options.Get("positions"));
+  if (positions->size() == (num_nodes() * 2 * sizeof(float))) {
+    x_positions = static_cast<float *>(positions->data());
+    y_positions = static_cast<float *>(positions->data()) + num_nodes();
+  } else {
+    positions =
+      DeviceBuffer::New(info.Env(),
+                        std::make_unique<rmm::device_buffer>(
+                          num_nodes() * 2 * sizeof(float), rmm::cuda_stream_default, *mr));
+  }
 
   auto graph  = this->view();
   auto handle = std::make_unique<raft::handle_t>();
 
   cugraph::force_atlas2(*handle,
                         graph,
-                        s_positions,
+                        static_cast<float *>(positions->data()),
                         max_iter,
                         x_positions,
                         y_positions,

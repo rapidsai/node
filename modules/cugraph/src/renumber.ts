@@ -38,26 +38,29 @@ export function renumberEdges<TSource extends DataType, TTarget extends DataType
       {src: src as any, dst: dst as any, idx});
     return renumberTargets(renumberSources(edges, nodes), nodes)
       .sortValues({idx: {ascending: true}})
-      .drop(['idx']);
+      .rename({idx: 'id'})
+      .select(['id', 'src', 'dst']);
   }, [src, dst]);
 }
 
 function renumberSources<TSource extends DataType, TTarget extends DataType>(
   edges: Edges<TSource, TTarget>, nodes: Nodes<TSource, TTarget>) {
   return scope(() => {
-    const tmp = edges.assign<{node: TSource}>({node: edges.get('src')} as any)
+    const src = edges.assign<{node: TSource}>({node: edges.get('src')} as any)
                   .join({other: nodes, on: ['node']})
-                  .sortValues({idx: {ascending: true}});
-    return edges.assign({src: tmp.get('id')}) as DataFrame<{src: Int32, dst: TTarget, idx: Int32}>;
+                  .sortValues({idx: {ascending: true}})
+                  .get('id');
+    return edges.assign({src}) as DataFrame<{src: Int32, dst: TTarget, idx: Int32}>;
   }, [edges, nodes]);
 }
 
 function renumberTargets<TSource extends DataType, TTarget extends DataType>(
   edges: Edges<Int32, TTarget>, nodes: Nodes<TSource, TTarget>) {
   return scope(() => {
-    const tmp = edges.assign<{node: TTarget}>({node: edges.get('dst')} as any)
+    const dst = edges.assign<{node: TTarget}>({node: edges.get('dst')} as any)
                   .join({other: nodes, on: ['node']})
-                  .sortValues({idx: {ascending: true}});
-    return edges.assign({dst: tmp.get('id')}) as DataFrame<{src: Int32, dst: Int32, idx: Int32}>;
+                  .sortValues({idx: {ascending: true}})
+                  .get('id');
+    return edges.assign({dst}) as DataFrame<{src: Int32, dst: Int32, idx: Int32}>;
   }, [edges, nodes]);
 }
