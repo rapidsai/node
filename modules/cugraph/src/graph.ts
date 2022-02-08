@@ -74,14 +74,15 @@ export class Graph<T extends DataType = any> {
       return lhs.join({on: ['id'], other: rhs});
     };
 
-    return scope(() => unnumber('src')
-                         .join({on: ['eid'], other: unnumber('dst')})  //
-                         .sortValues({eid: {ascending: true}})
-                         .drop(['eid']),
-                 [this._edges, this._nodes]);
+    return scope(() => unnumber('src')  //
+                         .join({on: ['eid'], other: unnumber('dst')})
+                         .sortValues({eid: {ascending: true}}),
+                 [this])
+      .rename({eid: 'id'})
+      .select(['id', 'src', 'dst']);
   }
 
-  public get nodeIds() { return this._nodes.select(['id', 'node']); }
+  public get nodeIds() { return this._nodes.select(['id']); }
 
   public get edgeIds() { return this._edges.select(['id', 'src', 'dst']); }
 
