@@ -1590,4 +1590,17 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
     }
     return this._col.any(memoryResource);
   }
+
+  /**
+   * @summary Scale values to [0, 1] in float64
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns Series with values scaled between [0, 1].
+   */
+  scale(memoryResource?: MemoryResource) {
+    const [min, max] = this.minmax() as [any, any];
+    return this.sub(min).div(max - min, memoryResource);
+  }
 }

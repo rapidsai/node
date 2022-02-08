@@ -669,6 +669,23 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::scalar const& step,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
+  inline static Column::wrapper_t sequence(
+    Napi::Env const& env,
+    cudf::size_type size,
+    Scalar::wrapper_t const& init,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) {
+    return sequence(env, size, init->operator cudf::scalar&(), mr);
+  }
+
+  inline static Column::wrapper_t sequence(
+    Napi::Env const& env,
+    cudf::size_type size,
+    Scalar::wrapper_t const& init,
+    Scalar::wrapper_t const& step,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) {
+    return sequence(env, size, init->operator cudf::scalar&(), step->operator cudf::scalar&(), mr);
+  }
+
   // column/transform.cpp
   std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> nans_to_nulls(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;

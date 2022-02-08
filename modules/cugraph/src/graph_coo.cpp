@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,13 +14,19 @@
 
 #include <node_cugraph/graph_coo.hpp>
 
+#include <node_cudf/table.hpp>
 #include <node_cudf/utilities/dtypes.hpp>
 
 #include <node_cuda/utilities/error.hpp>
 #include <node_cuda/utilities/napi_to_cpp.hpp>
 
+#include <cudf/column/column_factories.hpp>
+#include <cudf/filling.hpp>
 #include <cudf/reduction.hpp>
+#include <cudf/scalar/scalar_factories.hpp>
 #include <cudf/types.hpp>
+
+#include <rmm/device_buffer.hpp>
 
 #include <napi.h>
 
@@ -33,6 +39,7 @@ Napi::Function GraphCOO::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&GraphCOO::num_edges>("numEdges"),
                        InstanceMethod<&GraphCOO::num_nodes>("numNodes"),
                        InstanceMethod<&GraphCOO::force_atlas2>("forceAtlas2"),
+                       InstanceMethod<&GraphCOO::degree>("degree"),
                      });
 }
 
@@ -65,7 +72,7 @@ GraphCOO::GraphCOO(CallbackArgs const& args) : EnvLocalObjectWrap<GraphCOO>(args
   directed_edges_ = options.Get("directedEdges");
 }
 
-size_t GraphCOO::num_nodes() {
+int32_t GraphCOO::num_nodes() {
   if (!node_count_computed_) {
     auto max_id = [&](Napi::Reference<Column::wrapper_t> const& col) -> int32_t {
       return col.Value()->minmax().second->get_value().ToNumber();
@@ -76,7 +83,7 @@ size_t GraphCOO::num_nodes() {
   return node_count_;
 }
 
-size_t GraphCOO::num_edges() {
+int32_t GraphCOO::num_edges() {
   if (!edge_count_computed_) {
     auto const& src      = *src_.Value();
     auto const& dst      = *dst_.Value();
@@ -102,6 +109,18 @@ Napi::Value GraphCOO::num_nodes(Napi::CallbackInfo const& info) {
 
 Napi::Value GraphCOO::num_edges(Napi::CallbackInfo const& info) {
   return Napi::Value::From(info.Env(), num_edges());
+}
+
+Napi::Value GraphCOO::degree(Napi::CallbackInfo const& info) {
+  auto env    = info.Env();
+  auto zero   = Scalar::New(env, Napi::Number::New(env, 0), cudf::data_type{cudf::type_id::INT32});
+  auto degree = Column::sequence(
+    env, num_nodes(), zero->operator cudf::scalar&(), zero->operator cudf::scalar&());
+
+  view().degree(degree->mutable_view().begin<int32_t>(),
+                cugraph::legacy::DegreeDirection::IN_PLUS_OUT);
+
+  return degree;
 }
 
 }  // namespace nv

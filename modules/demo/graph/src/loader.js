@@ -14,7 +14,7 @@
 
 import {clampRange as clamp, Float32Buffer} from '@rapidsai/cuda';
 import {DataFrame, Float32, Int32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
-import {GraphCOO} from '@rapidsai/cugraph';
+import {Graph} from '@rapidsai/cugraph';
 import {DeviceBuffer} from '@rapidsai/rmm';
 import * as Arrow from 'apache-arrow';
 import {concat as concatAsync, zip as zipAsync} from 'ix/asynciterable';
@@ -159,7 +159,7 @@ export default async function* loadGraphData(props = {}) {
    */
   let edges = null;
   /**
-   * @type GraphCOO
+   * @type Graph
    */
   let graph = null;
   /**
@@ -189,52 +189,36 @@ export default async function* loadGraphData(props = {}) {
                             ? rendered
                             : Promise.race([rendered, nextFrames.then(({value} = {}) => value)]));
 
-    // If new nodes/edges, recreate the GraphCOO
+    // If new nodes/edges, recreate the Graph
     if (newDFs) {
       if (newDFs[0] !== nodes || newDFs[1] !== edges) {
         graphUpdated   = true;
         [nodes, edges] = newDFs;
         nextFrames     = dataframes.next();
-        graph          = new GraphCOO(     //
-          edges.get('src')._col,  //
-          edges.get('dst')._col,
-          {directedEdges: true});
+        graph = Graph.fromEdgeList(edges.get('src'), edges.get('dst'), {directedEdges: true});
       }
     }
 
-    const n = graph.numNodes();
-
-    // If new nodes, update existing positions
-    if (positions && positions.length < (n * 2)) {
-      // const p = new Float32Buffer(n * 2 * 4);
-      const p = new Float32Buffer(new DeviceBuffer(n * 2 * 4));
-      if (positions.length > 0) {
-        // copy X positions
-        p.copyFrom(positions, 0, 0, n);
-        // copy Y positions
-        p.copyFrom(positions, positions.length / 2, n);
-      }
-      positions = p;
-    }
+    const n = graph.numNodes;
 
     if (!layoutParams.simulating.val && !graphUpdated) {
       // If user paused rendering, wait a bit and continue
       rendered = new Promise((r) => (onAfterRender = () => setTimeout(r, 50)));
     } else {
       // Compute positions from the previous positions
-      positions = new Float32Buffer(graph.forceAtlas2({
-        positions: positions && positions.length === n * 2 ? positions.buffer : undefined,
+      positions = graph.forceAtlas2({
+        positions,
         ...layoutParamNames.reduce((params, name) => ({...params, [name]: layoutParams[name].val}),
                                    {})
-      }));
+      });
 
-      const positionSeries = Series.new({type: new Float32, data: positions});
+      const positionSeries = Series.new({type: new Float32, data: positions.buffer});
       if (positionSeries.isNaN().any()) { positions.copyFrom(positionSeries.replaceNaNs(0).data); }
 
       // Extract the x and y positions and assign them as columns in our nodes DF
       nodes = nodes.assign({
-        x: Series.new({type: new Float32, length: n, offset: 0, data: positions}),
-        y: Series.new({type: new Float32, length: n, offset: n, data: positions}),
+        x: Series.new({type: new Float32, length: n, offset: 0, data: positions.buffer}),
+        y: Series.new({type: new Float32, length: n, offset: n, data: positions.buffer}),
       });
 
       // Compute the positions minimum bounding box [xMin, xMax, yMin, yMax]
@@ -279,8 +263,8 @@ function promiseSubject() {
  * @param {*} graph
  */
 function createGraphRenderProps(nodes, edges, graph) {
-  const numNodes = graph.numNodes();
-  const numEdges = graph.numEdges();
+  const numNodes = graph.numNodes;
+  const numEdges = graph.numEdges;
   return {
     numNodes, numEdges, nodeRadiusScale: 1 / 75,
       // nodeRadiusScale: 1/255,

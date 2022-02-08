@@ -20,6 +20,7 @@
 #include <cudf/column/column.hpp>
 #include <cudf/filling.hpp>
 #include <cudf/types.hpp>
+
 #include <rmm/device_buffer.hpp>
 
 #include <napi.h>
@@ -89,7 +90,8 @@ Napi::Value Column::sequence(Napi::CallbackInfo const& info) {
   if (!Scalar::IsInstance(args[1])) {
     throw Napi::Error::New(info.Env(), "sequence init argument expects a scalar");
   }
-  auto& init = *Scalar::Unwrap(args[1]);
+
+  Scalar::wrapper_t init = args[1].As<Napi::Object>();
 
   if (args.Length() == 3) {
     rmm::mr::device_memory_resource* mr = args[2];
@@ -98,7 +100,7 @@ Napi::Value Column::sequence(Napi::CallbackInfo const& info) {
     if (!Scalar::IsInstance(args[2])) {
       throw Napi::Error::New(info.Env(), "sequence step argument expects a scalar");
     }
-    auto& step                          = *Scalar::Unwrap(args[2]);
+    Scalar::wrapper_t step              = args[2].As<Napi::Object>();
     rmm::mr::device_memory_resource* mr = args[3];
     return Column::sequence(info.Env(), size, init, step, mr);
   }
