@@ -1668,6 +1668,7 @@ function asColumn<T extends DataType>(value: any) {
     if (Array.isArray(data)) {
       return fromArrow<T>(arrow.Vector.from({
         highWaterMark: Infinity,
+        nullValues: [undefined, null, NaN],
         type: value.type ?? inferType(data),
         // Slice `offset` from the Array before converting so
         // we don't write unnecessary values with the Arrow builders.
