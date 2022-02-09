@@ -19,7 +19,7 @@ import {Column} from '../column';
 import {DataFrame} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
-import {Struct} from '../types/dtypes';
+import {DataType, Int32, Struct} from '../types/dtypes';
 import {ColumnsMap, Interpolation, TypeMap} from '../types/mappings';
 
 import {GroupByBase, GroupByBaseProps} from './base';
@@ -37,19 +37,16 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
     this.index_key = props.index_key;
   }
 
-  protected prepare_results(results: {keys: Table, cols: Column[]}) {
-    const {keys, cols} = results;
+  protected prepare_results<U extends {[P in keyof T]: DataType}>(results:
+                                                                    {keys: Table, cols: Column[]}) {
+    const {index_key, _values: {names}} = this;
+    const {keys, cols}                  = results;
 
-    type Subset        = Pick<T, R>;
-    type Index         = Struct<Subset>;
-    type RestTypeMap   = Omit<T, R>;
-    type RestSeriesMap = ColumnsMap<RestTypeMap>;
+    const rest_map =
+      names.reduce((xs, key, index) => ({...xs, [key]: cols[index]}), {} as ColumnsMap<Omit<U, R>>);
 
-    const rest_map = this._values.names.reduce((xs, key, index) => ({...xs, [key]: cols[index]}),
-                                               {} as RestSeriesMap);
-
-    if (this.index_key in rest_map) {
-      throw new Error(`Groupby column name ${this.index_key} already exists`);
+    if (index_key in rest_map) {
+      throw new Error(`Groupby column name ${index_key} already exists`);
     }
 
     const fields   = [];
@@ -60,9 +57,16 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
       children.push(series);
     }
 
-    const index = Series.new<Index>({type: new Struct(fields), children: children});
+    const index_map: any = {
+      [index_key]: Series.new({type: new Struct(fields), children: children})._col,
+    };
 
-    return new DataFrame({[this.index_key]: index._col, ...rest_map});
+    return new DataFrame(
+             {...index_map, ...rest_map} as ColumnsMap<                              //
+               {[P in IndexKey]: Struct<{[P in keyof Pick<U, R>]: Pick<U, R>[P]}>}&  //
+               Omit<U, R>>                                                           //
+             )
+      .select([index_key, ...names]);
   }
 
   /**
@@ -72,7 +76,8 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   argmax(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._argmax(this._values.asTable(), memoryResource));
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
+      this._cudf_groupby._argmax(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -82,7 +87,8 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   argmin(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._argmin(this._values.asTable(), memoryResource));
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
+      this._cudf_groupby._argmin(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -92,7 +98,8 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   count(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._count(this._values.asTable(), memoryResource));
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
+      this._cudf_groupby._count(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -102,7 +109,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   max(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._max(this._values.asTable(), memoryResource));
+    return this.prepare_results<T>(this._cudf_groupby._max(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -112,7 +119,8 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   mean(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._mean(this._values.asTable(), memoryResource));
+    return this.prepare_results<T>(
+      this._cudf_groupby._mean(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -122,7 +130,8 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   median(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._median(this._values.asTable(), memoryResource));
+    return this.prepare_results<T>(
+      this._cudf_groupby._median(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -132,7 +141,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   min(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._min(this._values.asTable(), memoryResource));
+    return this.prepare_results<T>(this._cudf_groupby._min(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -143,7 +152,8 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   nth(n: number, memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._nth(n, this._values.asTable(), memoryResource));
+    return this.prepare_results<T>(
+      this._cudf_groupby._nth(n, this._values.asTable(), memoryResource));
   }
 
   /**
@@ -153,7 +163,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   nunique(memoryResource?: MemoryResource) {
-    return this.prepare_results(
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
       this._cudf_groupby._nunique(this._values.asTable(), memoryResource));
   }
 
@@ -164,7 +174,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   std(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._std(this._values.asTable(), memoryResource));
+    return this.prepare_results<T>(this._cudf_groupby._std(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -174,7 +184,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   sum(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._sum(this._values.asTable(), memoryResource));
+    return this.prepare_results<T>(this._cudf_groupby._sum(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -184,7 +194,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
    *   device memory.
    */
   var(memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._var(this._values.asTable(), memoryResource));
+    return this.prepare_results<T>(this._cudf_groupby._var(this._values.asTable(), memoryResource));
   }
 
   /**
@@ -199,7 +209,7 @@ export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey exte
   quantile(q                                         = 0.5,
            interpolation: keyof typeof Interpolation = 'linear',
            memoryResource?: MemoryResource) {
-    return this.prepare_results(this._cudf_groupby._quantile(
+    return this.prepare_results<T>(this._cudf_groupby._quantile(
       q, this._values.asTable(), Interpolation[interpolation], memoryResource));
   }
 }
