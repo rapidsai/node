@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -142,17 +142,17 @@ export class Bool8Series extends NumericSeries<Bool8> {
 
   /** @inheritdoc */
   min(skipNulls = true, memoryResource?: MemoryResource) {
-    return super.min(skipNulls, memoryResource) as number;
+    return super.min(skipNulls, memoryResource) as boolean;
   }
 
   /** @inheritdoc */
   max(skipNulls = true, memoryResource?: MemoryResource) {
-    return super.max(skipNulls, memoryResource) as number;
+    return super.max(skipNulls, memoryResource) as boolean;
   }
 
   /** @inheritdoc */
   minmax(skipNulls = true, memoryResource?: MemoryResource) {
-    return super.minmax(skipNulls, memoryResource) as [number, number];
+    return super.minmax(skipNulls, memoryResource) as [boolean, boolean];
   }
 
   /** @inheritdoc */

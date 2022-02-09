@@ -334,6 +334,21 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
     return (dropna) ? this._col.nansToNulls(memoryResource).nunique(dropna, memoryResource)
                     : this._col.nunique(dropna, memoryResource);
   }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
+  }
 }
 
 /**

@@ -324,6 +324,21 @@ export class Int8Series extends IntSeries<Int8> {
   get data() {
     return new Int8Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
+  }
 }
 
 /**
@@ -336,6 +351,21 @@ export class Int16Series extends IntSeries<Int16> {
   get data() {
     return new Int16Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
+  }
 }
 
 /**
@@ -347,6 +377,21 @@ export class Int32Series extends IntSeries<Int32> {
    */
   get data() {
     return new Int32Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
   }
 }
 
@@ -363,6 +408,21 @@ export class Int64Series extends IntSeries<Int64> {
   get data() {
     return new Int64Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as bigint;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as bigint;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [bigint, bigint];
+  }
 }
 
 /**
@@ -374,6 +434,21 @@ export class Uint8Series extends IntSeries<Uint8> {
    */
   get data() {
     return new Uint8Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
   }
 }
 
@@ -387,6 +462,21 @@ export class Uint16Series extends IntSeries<Uint16> {
   get data() {
     return new Uint16Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
+  }
 }
 
 /**
@@ -398,6 +488,21 @@ export class Uint32Series extends IntSeries<Uint32> {
    */
   get data() {
     return new Uint32Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
   }
 }
 
@@ -413,5 +518,20 @@ export class Uint64Series extends IntSeries<Uint64> {
    */
   get data() {
     return new Uint64Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as bigint;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as bigint;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [bigint, bigint];
   }
 }

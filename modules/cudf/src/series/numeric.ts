@@ -171,17 +171,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   add(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   add(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  add<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  add<R extends Numeric>(rhs: NumericSeries<R>,
-                         memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  add<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  add<R extends Scalar<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  add<R extends Series<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  add(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.add(rhs, memoryResource));
       case 'number': return Series.new(this._col.add(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.add(rhs, memoryResource))
-                                 : Series.new(this._col.add(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.add(rhs._col, memoryResource));
   }
 
   /**
@@ -203,17 +204,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   sub(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   sub(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  sub<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  sub<R extends Numeric>(rhs: NumericSeries<R>,
-                         memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  sub<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  sub<R extends Scalar<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  sub<R extends Series<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  sub(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.sub(rhs, memoryResource));
       case 'number': return Series.new(this._col.sub(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.sub(rhs, memoryResource))
-                                 : Series.new(this._col.sub(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.sub(rhs._col, memoryResource));
   }
 
   /**
@@ -235,17 +237,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   mul(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   mul(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  mul<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  mul<R extends Numeric>(rhs: NumericSeries<R>,
-                         memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  mul<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  mul<R extends Scalar<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  mul<R extends Series<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  mul(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.mul(rhs, memoryResource));
       case 'number': return Series.new(this._col.mul(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.mul(rhs, memoryResource))
-                                 : Series.new(this._col.mul(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.mul(rhs._col, memoryResource));
   }
 
   /**
@@ -267,17 +270,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   div(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   div(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  div<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  div<R extends Numeric>(rhs: NumericSeries<R>,
-                         memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  div<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  div<R extends Scalar<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  div<R extends Series<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  div(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.div(rhs, memoryResource));
       case 'number': return Series.new(this._col.div(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.div(rhs, memoryResource))
-                                 : Series.new(this._col.div(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.div(rhs._col, memoryResource));
   }
 
   /**
@@ -299,20 +303,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   trueDiv(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   trueDiv(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  trueDiv<R extends Numeric>(rhs: Scalar<R>,
-                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  trueDiv<R extends Numeric>(rhs: NumericSeries<R>,
-                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  trueDiv<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                             memoryResource?: MemoryResource) {
+  trueDiv<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  trueDiv<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  trueDiv(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.trueDiv(rhs, memoryResource));
       case 'number': return Series.new(this._col.trueDiv(rhs, memoryResource));
       default: break;
     }
-    return rhs instanceof Scalar
-             ? Series.new(this._col.trueDiv(rhs, memoryResource))
-             : Series.new(this._col.trueDiv(rhs._col as Column<R>, memoryResource));
+    return rhs instanceof Scalar ? Series.new(this._col.trueDiv(rhs, memoryResource))
+                                 : Series.new(this._col.trueDiv(rhs._col, memoryResource));
   }
 
   /**
@@ -334,20 +336,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   floorDiv(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   floorDiv(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  floorDiv<R extends Numeric>(rhs: Scalar<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  floorDiv<R extends Numeric>(rhs: NumericSeries<R>,
-                              memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  floorDiv<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                              memoryResource?: MemoryResource) {
+  floorDiv<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  floorDiv<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  floorDiv(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.floorDiv(rhs, memoryResource));
       case 'number': return Series.new(this._col.floorDiv(rhs, memoryResource));
       default: break;
     }
-    return rhs instanceof Scalar
-             ? Series.new(this._col.floorDiv(rhs, memoryResource))
-             : Series.new(this._col.floorDiv(rhs._col as Column<R>, memoryResource));
+    return rhs instanceof Scalar ? Series.new(this._col.floorDiv(rhs, memoryResource))
+                                 : Series.new(this._col.floorDiv(rhs._col, memoryResource));
   }
 
   /**
@@ -369,17 +369,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   mod(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   mod(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  mod<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  mod<R extends Numeric>(rhs: NumericSeries<R>,
-                         memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  mod<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  mod<R extends Scalar<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  mod<R extends Series<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  mod(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.mod(rhs, memoryResource));
       case 'number': return Series.new(this._col.mod(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.mod(rhs, memoryResource))
-                                 : Series.new(this._col.mod(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.mod(rhs._col, memoryResource));
   }
 
   /**
@@ -401,17 +402,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   pow(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   pow(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  pow<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  pow<R extends Numeric>(rhs: NumericSeries<R>,
-                         memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  pow<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  pow<R extends Scalar<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  pow<R extends Series<Numeric>>(rhs: R,
+                                 memoryResource?: MemoryResource): Series<CommonType<T, R['type']>>;
+  pow(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.pow(rhs, memoryResource));
       case 'number': return Series.new(this._col.pow(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.pow(rhs, memoryResource))
-                                 : Series.new(this._col.pow(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.pow(rhs._col, memoryResource));
   }
 
   /**
@@ -433,16 +435,16 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   eq(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   eq(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
-  eq<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  eq<R extends Numeric>(rhs: NumericSeries<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  eq<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  eq<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  eq<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  eq(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.eq(rhs, memoryResource));
       case 'number': return Series.new(this._col.eq(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.eq(rhs, memoryResource))
-                                 : Series.new(this._col.eq(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.eq(rhs._col, memoryResource));
   }
 
   /**
@@ -464,16 +466,16 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   ne(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   ne(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
-  ne<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  ne<R extends Numeric>(rhs: NumericSeries<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  ne<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  ne<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  ne<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  ne(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.ne(rhs, memoryResource));
       case 'number': return Series.new(this._col.ne(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.ne(rhs, memoryResource))
-                                 : Series.new(this._col.ne(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.ne(rhs._col, memoryResource));
   }
 
   /**
@@ -495,16 +497,16 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   lt(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   lt(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
-  lt<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  lt<R extends Numeric>(rhs: NumericSeries<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  lt<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  lt<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  lt<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  lt(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.lt(rhs, memoryResource));
       case 'number': return Series.new(this._col.lt(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.lt(rhs, memoryResource))
-                                 : Series.new(this._col.lt(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.lt(rhs._col, memoryResource));
   }
 
   /**
@@ -526,16 +528,16 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   le(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   le(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
-  le<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  le<R extends Numeric>(rhs: NumericSeries<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  le<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  le<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  le<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  le(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.le(rhs, memoryResource));
       case 'number': return Series.new(this._col.le(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.le(rhs, memoryResource))
-                                 : Series.new(this._col.le(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.le(rhs._col, memoryResource));
   }
 
   /**
@@ -557,16 +559,16 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   gt(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   gt(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
-  gt<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  gt<R extends Numeric>(rhs: NumericSeries<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  gt<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  gt<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  gt<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  gt(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.gt(rhs, memoryResource));
       case 'number': return Series.new(this._col.gt(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.gt(rhs, memoryResource))
-                                 : Series.new(this._col.gt(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.gt(rhs._col, memoryResource));
   }
 
   /**
@@ -588,16 +590,16 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   ge(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   ge(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
-  ge<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  ge<R extends Numeric>(rhs: NumericSeries<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  ge<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>, memoryResource?: MemoryResource) {
+  ge<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  ge<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  ge(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.ge(rhs, memoryResource));
       case 'number': return Series.new(this._col.ge(rhs, memoryResource));
       default: break;
     }
     return rhs instanceof Scalar ? Series.new(this._col.ge(rhs, memoryResource))
-                                 : Series.new(this._col.ge(rhs._col as Column<R>, memoryResource));
+                                 : Series.new(this._col.ge(rhs._col, memoryResource));
   }
 
   /**
@@ -620,20 +622,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   logicalAnd(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   logicalAnd(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  logicalAnd<R extends Numeric>(rhs: Scalar<R>,
-                                memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  logicalAnd<R extends Numeric>(rhs: NumericSeries<R>,
-                                memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  logicalAnd<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                memoryResource?: MemoryResource) {
+  logicalAnd<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  logicalAnd<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  logicalAnd(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.logicalAnd(rhs, memoryResource));
       case 'number': return Series.new(this._col.logicalAnd(rhs, memoryResource));
       default: break;
     }
-    return rhs instanceof Scalar
-             ? Series.new(this._col.logicalAnd(rhs, memoryResource))
-             : Series.new(this._col.logicalAnd(rhs._col as Column<R>, memoryResource));
+    return rhs instanceof Scalar ? Series.new(this._col.logicalAnd(rhs, memoryResource))
+                                 : Series.new(this._col.logicalAnd(rhs._col, memoryResource));
   }
 
   /**
@@ -656,20 +656,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   logicalOr(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   logicalOr(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  logicalOr<R extends Numeric>(rhs: Scalar<R>,
-                               memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  logicalOr<R extends Numeric>(rhs: NumericSeries<R>,
-                               memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  logicalOr<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                               memoryResource?: MemoryResource) {
+  logicalOr<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  logicalOr<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  logicalOr(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.logicalOr(rhs, memoryResource));
       case 'number': return Series.new(this._col.logicalOr(rhs, memoryResource));
       default: break;
     }
-    return rhs instanceof Scalar
-             ? Series.new(this._col.logicalOr(rhs, memoryResource))
-             : Series.new(this._col.logicalOr(rhs._col as Column<R>, memoryResource));
+    return rhs instanceof Scalar ? Series.new(this._col.logicalOr(rhs, memoryResource))
+                                 : Series.new(this._col.logicalOr(rhs._col, memoryResource));
   }
 
   /**
@@ -691,20 +689,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   logBase(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   logBase(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  logBase<R extends Numeric>(rhs: Scalar<R>,
-                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  logBase<R extends Numeric>(rhs: NumericSeries<R>,
-                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  logBase<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                             memoryResource?: MemoryResource) {
+  logBase<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  logBase<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  logBase(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.logBase(rhs, memoryResource));
       case 'number': return Series.new(this._col.logBase(rhs, memoryResource));
       default: break;
     }
-    return rhs instanceof Scalar
-             ? Series.new(this._col.logBase(rhs, memoryResource))
-             : Series.new(this._col.logBase(rhs._col as Column<R>, memoryResource));
+    return rhs instanceof Scalar ? Series.new(this._col.logBase(rhs, memoryResource))
+                                 : Series.new(this._col.logBase(rhs._col, memoryResource));
   }
 
   /**
@@ -729,20 +725,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   atan2(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   atan2(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  atan2<R extends Numeric>(rhs: Scalar<R>,
-                           memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  atan2<R extends Numeric>(rhs: NumericSeries<R>,
-                           memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  atan2<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                           memoryResource?: MemoryResource) {
+  atan2<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  atan2<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  atan2(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.atan2(rhs, memoryResource));
       case 'number': return Series.new(this._col.atan2(rhs, memoryResource));
       default: break;
     }
-    return rhs instanceof Scalar
-             ? Series.new(this._col.atan2(rhs, memoryResource))
-             : Series.new(this._col.atan2(rhs._col as Column<R>, memoryResource));
+    return rhs instanceof Scalar ? Series.new(this._col.atan2(rhs, memoryResource))
+                                 : Series.new(this._col.atan2(rhs._col, memoryResource));
   }
 
   /**
@@ -765,19 +759,16 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   nullEquals(rhs: bigint, memoryResource?: MemoryResource): Series<Bool8>;
   nullEquals(rhs: number, memoryResource?: MemoryResource): Series<Bool8>;
-  nullEquals<R extends Numeric>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<Bool8>;
-  nullEquals<R extends Numeric>(rhs: NumericSeries<R>,
-                                memoryResource?: MemoryResource): Series<Bool8>;
-  nullEquals<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                                memoryResource?: MemoryResource) {
+  nullEquals<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  nullEquals<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource): Series<Bool8>;
+  nullEquals(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.nullEquals(rhs, memoryResource));
       case 'number': return Series.new(this._col.nullEquals(rhs, memoryResource));
       default: break;
     }
-    return rhs instanceof Scalar
-             ? Series.new(this._col.nullEquals(rhs, memoryResource))
-             : Series.new(this._col.nullEquals(rhs._col as Column<R>, memoryResource));
+    return rhs instanceof Scalar ? Series.new(this._col.nullEquals(rhs, memoryResource))
+                                 : Series.new(this._col.nullEquals(rhs._col, memoryResource));
   }
 
   /**
@@ -799,20 +790,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   nullMax(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   nullMax(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  nullMax<R extends Numeric>(rhs: Scalar<R>,
-                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  nullMax<R extends Numeric>(rhs: NumericSeries<R>,
-                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  nullMax<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                             memoryResource?: MemoryResource) {
+  nullMax<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  nullMax<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  nullMax(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.nullMax(rhs, memoryResource));
       case 'number': return Series.new(this._col.nullMax(rhs, memoryResource));
       default: break;
     }
-    return rhs instanceof Scalar
-             ? Series.new(this._col.nullMax(rhs, memoryResource))
-             : Series.new(this._col.nullMax(rhs._col as Column<R>, memoryResource));
+    return rhs instanceof Scalar ? Series.new(this._col.nullMax(rhs, memoryResource))
+                                 : Series.new(this._col.nullMax(rhs._col, memoryResource));
   }
 
   /**
@@ -834,20 +823,18 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   nullMin(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
   nullMin(rhs: number, memoryResource?: MemoryResource): Float64Series;
-  nullMin<R extends Numeric>(rhs: Scalar<R>,
-                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  nullMin<R extends Numeric>(rhs: NumericSeries<R>,
-                             memoryResource?: MemoryResource): Series<CommonType<T, R>>;
-  nullMin<R extends Numeric>(rhs: bigint|number|Scalar<R>|Series<R>,
-                             memoryResource?: MemoryResource) {
+  nullMin<R extends Scalar<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  nullMin<R extends Series<Numeric>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  nullMin(rhs: any, memoryResource?: MemoryResource) {
     switch (typeof rhs) {
       case 'bigint': return Series.new(this._col.nullMin(rhs, memoryResource));
       case 'number': return Series.new(this._col.nullMin(rhs, memoryResource));
       default: break;
     }
-    return rhs instanceof Scalar
-             ? Series.new(this._col.nullMin(rhs, memoryResource))
-             : Series.new(this._col.nullMin(rhs._col as Column<R>, memoryResource));
+    return rhs instanceof Scalar ? Series.new(this._col.nullMin(rhs, memoryResource))
+                                 : Series.new(this._col.nullMin(rhs._col, memoryResource));
   }
 
   /**
