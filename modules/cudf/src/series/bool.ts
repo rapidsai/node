@@ -16,7 +16,7 @@ import {Uint8ClampedBuffer} from '@rapidsai/cuda';
 import {MemoryResource} from '@rapidsai/rmm';
 
 import {Series, StringSeries} from '../series';
-import {Bool8, Int32, Int64} from '../types/dtypes';
+import {Bool8, Int64, Uint8} from '../types/dtypes';
 
 import {NumericSeries} from './numeric';
 
@@ -35,22 +35,7 @@ export class Bool8Series extends NumericSeries<Bool8> {
     return new Uint8ClampedBuffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
 
-  protected _prepare_scan_series(skipNulls: boolean) {
-    if (skipNulls || !this.hasNulls) { return this; }
-
-    const index = Series.sequence({type: new Int32, size: this.length, step: 1, init: 0});
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const first = index.filter(this.isNull()).getValue(0)!;
-    const slice =
-      Series.sequence({type: new Int32, size: this.length - first, step: 1, init: first});
-
-    const copy = this.cast(this.type);
-    const mask = [...index.cast(new Bool8).fill(true).scatter(false, slice)];
-    copy.setNullMask(mask as any);
-
-    return copy;
-  }
+  toBitMask() { return this._col.boolsToMask()[0]; }
 
   /**
    * Compute the cumulative max of all values in this Series.
@@ -70,8 +55,7 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * ```
    */
   cumulativeMax(skipNulls = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipNulls);
-    return Series.new(result_series._col.cumulativeMax(memoryResource));
+    return this.__construct(this._prepare_scan_series(skipNulls).cumulativeMax(memoryResource));
   }
 
   /**
@@ -92,8 +76,7 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * ```
    */
   cumulativeMin(skipNulls = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipNulls);
-    return Series.new(result_series._col.cumulativeMin(memoryResource));
+    return this.__construct(this._prepare_scan_series(skipNulls).cumulativeMin(memoryResource));
   }
 
   /**
@@ -110,12 +93,12 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new([true, false, true])
    *
-   * a.cumulativeProduct() // {1n, 0n, 0n}
+   * a.cumulativeProduct() // {1, 0, 0}
    * ```
    */
   cumulativeProduct(skipNulls = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipNulls).cast(new Int64, memoryResource);
-    return Series.new(result_series._col.cumulativeProduct(memoryResource));
+    return Series.new(
+      this._prepare_scan_series(skipNulls).cast(new Uint8).cumulativeProduct(memoryResource));
   }
 
   /**
@@ -136,8 +119,8 @@ export class Bool8Series extends NumericSeries<Bool8> {
    * ```
    */
   cumulativeSum(skipNulls = true, memoryResource?: MemoryResource) {
-    const result_series = this._prepare_scan_series(skipNulls).cast(new Int64, memoryResource);
-    return Series.new(result_series._col.cumulativeSum(memoryResource));
+    return Series.new(
+      this._prepare_scan_series(skipNulls).cast(new Int64).cumulativeSum(memoryResource));
   }
 
   /** @inheritdoc */

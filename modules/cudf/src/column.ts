@@ -1250,12 +1250,19 @@ export interface Column<T extends DataType = any> {
   dropNans(memoryResource?: MemoryResource): Column<T>;
 
   /**
+   * Compress the data from a Bool8 Column to bits and return a Buffer
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result column's device
+   *   memory.
+   */
+  boolsToMask(memoryResource?: MemoryResource): [DeviceBuffer, number];
+
+  /**
    * convert NaN values in the column with Null values,
    * while also updating the nullMask and nullCount values
    *
    * @param memoryResource The optional MemoryResource used to allocate the result column's device
    *   memory.
-   * @returns undefined if inplace=True, else updated column with Null values
    */
   nansToNulls(memoryResource?: MemoryResource): Column<T>;
 

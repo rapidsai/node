@@ -13,18 +13,37 @@
 // limitations under the License.
 
 #include <node_cudf/column.hpp>
+
 #include <node_rmm/device_buffer.hpp>
 
-#include <napi.h>
 #include <cudf/column/column.hpp>
 #include <cudf/column/column_view.hpp>
 #include <cudf/null_mask.hpp>
 #include <cudf/table/table_view.hpp>
 #include <cudf/transform.hpp>
 #include <cudf/types.hpp>
+
 #include <rmm/device_buffer.hpp>
 
+#include <napi.h>
+
 namespace nv {
+
+std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> Column::bools_to_mask(
+  rmm::mr::device_memory_resource* mr) const {
+  try {
+    return cudf::bools_to_mask(*this, mr);
+  } catch (std::exception const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+}
+
+Napi::Value Column::bools_to_mask(Napi::CallbackInfo const& info) {
+  rmm::mr::device_memory_resource* mr = CallbackArgs{info}[0];
+  auto result                         = bools_to_mask(mr);
+  auto ary                            = Napi::Array::New(Env(), 2);
+  ary.Set(0u, DeviceBuffer::New(Env(), std::move(result.first)));
+  ary.Set(1u, result.second);
+  return ary;
+}
 
 std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> Column::nans_to_nulls(
   rmm::mr::device_memory_resource* mr) const {

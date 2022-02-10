@@ -28,7 +28,6 @@ import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
 import {
-  Bool8,
   Int16,
   Int32,
   Int64,
@@ -40,6 +39,9 @@ import {
   Uint8,
 } from '../types/dtypes';
 
+import {CommonType} from '../types/mappings';
+
+import {Float64Series} from './float';
 import {NumericSeries} from './numeric';
 import {StringSeries} from './string';
 
@@ -57,10 +59,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  bitwiseAnd(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  bitwiseAnd(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwiseAnd<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwiseAnd<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseAnd(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  bitwiseAnd(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  bitwiseAnd<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  bitwiseAnd<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   bitwiseAnd<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                  memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -79,10 +83,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  bitwiseOr(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  bitwiseOr(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwiseOr<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwiseOr<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseOr(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  bitwiseOr(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  bitwiseOr<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  bitwiseOr<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   bitwiseOr<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                 memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -101,10 +107,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  bitwiseXor(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  bitwiseXor(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwiseXor<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwiseXor<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseXor(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  bitwiseXor(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  bitwiseXor<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  bitwiseXor<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   bitwiseXor<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                  memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -123,10 +131,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  shiftLeft(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  shiftLeft(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shiftLeft<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  shiftLeft<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  shiftLeft(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  shiftLeft(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  shiftLeft<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  shiftLeft<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   shiftLeft<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                 memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -146,10 +156,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  shiftRight(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  shiftRight(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shiftRight<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  shiftRight<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  shiftRight(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  shiftRight(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  shiftRight<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  shiftRight<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   shiftRight<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                  memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -169,12 +181,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  shiftRightUnsigned(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  shiftRightUnsigned(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shiftRightUnsigned<R extends Integral>(rhs: Scalar<R>,
-                                         memoryResource?: MemoryResource): Series<T>;
-  shiftRightUnsigned<R extends Integral>(rhs: IntSeries<R>,
-                                         memoryResource?: MemoryResource): Series<T>;
+  shiftRightUnsigned(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  shiftRightUnsigned(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  shiftRightUnsigned<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  shiftRightUnsigned<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   shiftRightUnsigned<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                          memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -194,24 +206,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @returns A Series of the same number of elements containing the result of the operation.
    */
   bitInvert(memoryResource?: MemoryResource): Series<T> {
-    return Series.new(this._col.bitInvert(memoryResource));
-  }
-
-  protected _prepare_scan_series(skipNulls: boolean): Column<T> {
-    if (skipNulls || !this.hasNulls) { return this._col; }
-
-    const index = Series.sequence({type: new Int32, size: this.length, step: 1, init: 0});
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const first = index.filter(this.isNull()).getValue(0)!;
-    const slice =
-      Series.sequence({type: new Int32, size: this.length - first, step: 1, init: first});
-
-    const copy = this.cast(this.type);
-    const mask = [...index.cast(new Bool8).fill(true).scatter(false, slice)];
-    copy.setNullMask(mask as any);
-
-    return copy._col as Column<T>;
+    return this.__construct(this._col.bitInvert(memoryResource));
   }
 
   /**

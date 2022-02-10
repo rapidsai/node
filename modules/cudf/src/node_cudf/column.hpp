@@ -699,6 +699,9 @@ struct Column : public EnvLocalObjectWrap<Column> {
   std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> nans_to_nulls(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> bools_to_mask(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
   // column/copying.cpp
   Column::wrapper_t gather(
     Column const& gather_map,
@@ -918,6 +921,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   static Napi::Value sequence(Napi::CallbackInfo const& info);
 
   // column/transform.cpp
+  Napi::Value bools_to_mask(Napi::CallbackInfo const& info);
   Napi::Value nans_to_nulls(Napi::CallbackInfo const& info);
 
   // column/reductions.cpp
