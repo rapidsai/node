@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
 import {Series} from '../series';
 import {Table} from '../table';
-import {DataType, Int32} from '../types/dtypes';
+import {DataType, Int32, List} from '../types/dtypes';
 import {Interpolation, TypeMap} from '../types/mappings';
 
 import {GroupByBase, GroupByBaseProps} from './base';
@@ -44,8 +44,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
   /**
    * Compute the index of the maximum value in each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
   argmax(memoryResource?: MemoryResource) {
     return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
@@ -55,8 +54,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
   /**
    * Compute the index of the minimum value in each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
   argmin(memoryResource?: MemoryResource) {
     return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
@@ -66,8 +64,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
   /**
    * Compute the size of each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
   count(memoryResource?: MemoryResource) {
     return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
@@ -77,8 +74,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
   /**
    * Compute the maximum value in each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
   max(memoryResource?: MemoryResource) {
     return this.prepare_results<T>(this._cudf_groupby._max(this._values.asTable(), memoryResource));
@@ -87,8 +83,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
   /**
    * Compute the average value each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
   mean(memoryResource?: MemoryResource) {
     return this.prepare_results<T>(
@@ -98,8 +93,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
   /**
    * Compute the median value in each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
   median(memoryResource?: MemoryResource) {
     return this.prepare_results<T>(
@@ -109,8 +103,7 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
   /**
    * Compute the minimum value in each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
   min(memoryResource?: MemoryResource) {
     return this.prepare_results<T>(this._cudf_groupby._min(this._values.asTable(), memoryResource));
@@ -120,40 +113,41 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    * Return the nth value from each group
    *
    * @param n the index of the element to return
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param {boolean} [include_nulls=true] Whether to include/exclude nulls in list elements.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
-  nth(n: number, memoryResource?: MemoryResource) {
+  nth(n: number, include_nulls = true, memoryResource?: MemoryResource) {
     return this.prepare_results<T>(
-      this._cudf_groupby._nth(n, this._values.asTable(), memoryResource));
+      this._cudf_groupby._nth(this._values.asTable(), memoryResource, n, include_nulls));
   }
 
   /**
    * Compute the number of unique values in each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param {boolean} [include_nulls=false] Whether to include/exclude nulls in list elements.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
-  nunique(memoryResource?: MemoryResource) {
+  nunique(include_nulls = false, memoryResource?: MemoryResource) {
     return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : Int32}>(
-      this._cudf_groupby._nunique(this._values.asTable(), memoryResource));
+      this._cudf_groupby._nunique(this._values.asTable(), memoryResource, include_nulls));
   }
 
   /**
    * Compute the standard deviation for each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param {number} [ddof=1] Delta Degrees of Freedom. The divisor used in calculations is N -
+   *   ddof, where N represents the number of elements in each group.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
-  std(memoryResource?: MemoryResource) {
-    return this.prepare_results<T>(this._cudf_groupby._std(this._values.asTable(), memoryResource));
+  std(ddof = 1, memoryResource?: MemoryResource) {
+    return this.prepare_results<T>(
+      this._cudf_groupby._std(this._values.asTable(), memoryResource, ddof));
   }
 
   /**
    * Compute the sum of values in each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
   sum(memoryResource?: MemoryResource) {
     return this.prepare_results<T>(this._cudf_groupby._sum(this._values.asTable(), memoryResource));
@@ -162,11 +156,13 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
   /**
    * Compute the variance for each group
    *
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param {number} [ddof=1] Delta Degrees of Freedom. The divisor used in calculations is N -
+   *   ddof, where N represents the number of elements in each group.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
-  var(memoryResource?: MemoryResource) {
-    return this.prepare_results<T>(this._cudf_groupby._var(this._values.asTable(), memoryResource));
+  var(ddof = 1, memoryResource?: MemoryResource) {
+    return this.prepare_results<T>(
+      this._cudf_groupby._var(this._values.asTable(), memoryResource, ddof));
   }
 
   /**
@@ -175,13 +171,43 @@ export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupBy
    * @param q the quantile to compute, 0 <= q <= 1
    * @param interpolation This optional parameter specifies the interpolation method to use,
    *  when the desired quantile lies between two data points i and j.
-   * @param memoryResource The optional MemoryResource used to allocate the result's
-   *   device memory.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
    */
   quantile(q                                         = 0.5,
            interpolation: keyof typeof Interpolation = 'linear',
            memoryResource?: MemoryResource) {
     return this.prepare_results<T>(this._cudf_groupby._quantile(
-      q, this._values.asTable(), Interpolation[interpolation], memoryResource));
+      this._values.asTable(), memoryResource, q, Interpolation[interpolation]));
+  }
+
+  /**
+   * Returns a list column of all included elements in the group.
+   *
+   * @param {boolean} [include_nulls=true] Whether to include/exclude nulls in list elements.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
+   */
+  collectList(include_nulls = true, memoryResource?: MemoryResource) {
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : List<T[P]>}>(
+      this._cudf_groupby._collect_list(this._values.asTable(), memoryResource, include_nulls));
+  }
+
+  /**
+   * Returns a lists column of all included elements in the group/series. Within each list, the
+   * duplicated entries are dropped out such that each entry appears only once.
+   *
+   * @param {boolean} [include_nulls=true] Whether to include/exclude nulls in list elements.
+   * @param {boolean} [nulls_equal=true] Whether null entries within each list should be considered
+   *   equal.
+   * @param {boolean} [nans_equal=false] Whether `NaN` values in floating point column should be
+   *   considered equal.
+   * @param memoryResource The optional MemoryResource used to allocate the result's device memory.
+   */
+  collectSet(include_nulls = true,
+             nulls_equal   = true,
+             nans_equal    = false,
+             memoryResource?: MemoryResource) {
+    return this.prepare_results<{[P in keyof T]: P extends R ? T[P] : List<T[P]>}>(
+      this._cudf_groupby._collect_set(
+        this._values.asTable(), memoryResource, include_nulls, nulls_equal, nans_equal));
   }
 }
