@@ -192,7 +192,7 @@ export interface Table {
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
   scatterScalar<T extends Scalar[]>(source: T,
-                                    indices: Column<Int32>,
+                                    indices: Column<IndexType>,
                                     check_bounds?: boolean,
                                     memoryResource?: MemoryResource): Table;
 
@@ -207,7 +207,7 @@ export interface Table {
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
   scatterTable(source: Table,
-               indices: Column<Int32>,
+               indices: Column<IndexType>,
                check_bounds?: boolean,
                memoryResource?: MemoryResource): Table;
 
