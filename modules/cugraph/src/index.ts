@@ -13,7 +13,6 @@
 // limitations under the License.
 
 export * as addon from './addon';
-export {GraphCOO} from './addon';
 export {Graph} from './graph';
 export {hypergraph, hypergraphDirect} from './hypergraph';
 export {renumberEdges, renumberNodes} from './renumber';

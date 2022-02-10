@@ -83,6 +83,7 @@
             let value = document.getElementById("box-select").checked;
             peer.send(JSON.stringify({type: 'pickingMode', data: value? "boxSelect" : "click"}));
         }
+
         function updateClearSelections(){
             peer.send(JSON.stringify({ type: 'clearSelections', data: true}));
         }

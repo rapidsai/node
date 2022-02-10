@@ -15,7 +15,6 @@
 import {clampRange as clamp, Float32Buffer} from '@rapidsai/cuda';
 import {DataFrame, Float32, Int32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
 import {Graph} from '@rapidsai/cugraph';
-import {DeviceBuffer} from '@rapidsai/rmm';
 import * as Arrow from 'apache-arrow';
 import {concat as concatAsync, zip as zipAsync} from 'ix/asynciterable';
 import {flatMap as flatMapAsync} from 'ix/asynciterable/operators';
@@ -195,7 +194,7 @@ export default async function* loadGraphData(props = {}) {
         graphUpdated   = true;
         [nodes, edges] = newDFs;
         nextFrames     = dataframes.next();
-        graph = Graph.fromEdgeList(edges.get('src'), edges.get('dst'), {directedEdges: true});
+        graph          = Graph.fromEdgeList(edges.get('src'), edges.get('dst'));
       }
     }
 

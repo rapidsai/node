@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "node_cugraph/graph_coo.hpp"
+#include "node_cugraph/graph.hpp"
 
 #include <nv_node/addon.hpp>
 
@@ -22,8 +22,7 @@ struct node_cugraph : public nv::EnvLocalAddon, public Napi::Addon<node_cugraph>
                 {
                   InstanceMethod("init", &node_cugraph::InitAddon),
                   InstanceValue("_cpp_exports", _cpp_exports.Value()),
-
-                  InstanceValue("GraphCOO", InitClass<nv::GraphCOO>(env, exports)),
+                  InstanceValue("Graph", InitClass<nv::Graph>(env, exports)),
                 });
   }
 };

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <node_cugraph/cugraph/algorithms.hpp>
-#include <node_cugraph/graph_coo.hpp>
+#include <node_cugraph/graph.hpp>
 
 #include <node_cudf/utilities/buffer.hpp>
 
@@ -37,13 +37,14 @@ float get_float(NapiToCPP const &opt, float const default_val) {
 
 }  // namespace
 
-Napi::Value GraphCOO::force_atlas2(Napi::CallbackInfo const &info) {
+Napi::Value Graph::force_atlas2(Napi::CallbackInfo const &info) {
+  auto env = info.Env();
   CallbackArgs const args{info};
 
   NapiToCPP::Object options = args[0];
   auto mr                   = MemoryResource::IsInstance(options.Get("memoryResource"))
                                 ? MemoryResource::wrapper_t(options.Get("memoryResource"))
-                                : MemoryResource::Current(info.Env());
+                                : MemoryResource::Current(env);
 
   auto max_iter              = get_int(options.Get("numIterations"), 1);
   auto outbound_attraction   = get_bool(options.Get("outboundAttraction"), true);
@@ -57,42 +58,47 @@ Napi::Value GraphCOO::force_atlas2(Napi::CallbackInfo const &info) {
   auto gravity               = get_float(options.Get("gravity"), 1.0);
   auto verbose               = get_bool(options.Get("verbose"), false);
 
-  auto positions = data_to_devicebuffer(
-    info.Env(), options.Get("positions"), cudf::data_type{cudf::type_id::FLOAT32}, mr);
-
   float *x_positions{nullptr};
   float *y_positions{nullptr};
+  DeviceBuffer::wrapper_t positions;
 
-  if (positions->size() == (num_nodes() * 2 * sizeof(float))) {
+  if (options.Has("positions") && options.Get("positions").IsObject()) {
+    positions = data_to_devicebuffer(
+      env, options.Get("positions"), cudf::data_type{cudf::type_id::FLOAT32}, mr);
     x_positions = static_cast<float *>(positions->data());
     y_positions = static_cast<float *>(positions->data()) + num_nodes();
   } else {
     positions =
-      DeviceBuffer::New(info.Env(),
+      DeviceBuffer::New(env,
                         std::make_unique<rmm::device_buffer>(
                           num_nodes() * 2 * sizeof(float), rmm::cuda_stream_default, *mr));
   }
 
-  auto graph  = this->view();
-  auto handle = std::make_unique<raft::handle_t>();
+  auto graph = this->coo_view();
 
-  cugraph::force_atlas2(*handle,
-                        graph,
-                        static_cast<float *>(positions->data()),
-                        max_iter,
-                        x_positions,
-                        y_positions,
-                        outbound_attraction,
-                        lin_log_mode,
-                        prevent_overlapping,
-                        edge_weight_influence,
-                        jitter_tolerance,
-                        true,
-                        barnes_hut_theta,
-                        scaling_ratio,
-                        strong_gravity_mode,
-                        gravity,
-                        verbose);
+  try {
+    cugraph::force_atlas2({rmm::cuda_stream_default},
+                          graph,
+                          static_cast<float *>(positions->data()),
+                          max_iter,
+                          x_positions,
+                          y_positions,
+                          outbound_attraction,
+                          lin_log_mode,
+                          prevent_overlapping,
+                          edge_weight_influence,
+                          jitter_tolerance,
+                          true,
+                          barnes_hut_theta,
+                          scaling_ratio,
+                          strong_gravity_mode,
+                          gravity,
+                          verbose);
+  } catch (raft::logic_error const &err) {
+    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
+  } catch (cugraph::logic_error const &err) {
+    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
+  }
 
   return positions;
 }

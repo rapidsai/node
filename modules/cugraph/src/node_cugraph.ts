@@ -13,11 +13,96 @@
 // limitations under the License.
 
 import {MemoryData, MemoryView} from '@rapidsai/cuda';
-import {Column, FloatingPoint, Integral} from '@rapidsai/cudf';
+import {Column, Float32, Int32} from '@rapidsai/cudf';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 
 /** @ignore */
 export declare const _cpp_exports: any;
+
+export declare class Graph {
+  constructor(props: {
+    src: Column<Int32>,
+    dst: Column<Int32>,
+    weight: Column<Float32>,
+    directed?: boolean,
+  });
+
+  /**
+   * @summary The number of edges in this Graph
+   */
+  numEdges(): number;
+
+  /**
+   * @summary The number of nodes in this Graph
+   */
+  numNodes(): number;
+
+  /**
+   * @summary ForceAtlas2 is a continuous graph layout algorithm for handy network visualization.
+   *
+   * @note Peak memory allocation occurs at 30*V.
+   *
+   * @param {ForceAtlas2Options} options
+   *
+   * @returns {DeviceBuffer} The new positions.
+   */
+  forceAtlas2(options: ForceAtlas2Options): DeviceBuffer;
+
+  /**
+   * @summary Compute the total number of edges incident to a vertex (both in and out edges).
+   */
+  degree(): Column<Int32>;
+
+  /**
+   * @summary Compute a clustering/partitioning of the given graph using the spectral modularity
+   * maximization method.
+   *
+   * @param {SpectralClusteringOptions} options
+   */
+  spectralModularityMaximizationClustering(options: SpectralClusteringOptions): Column<Int32>;
+
+  /**
+   * @summary Compute a clustering/partitioning of the given graph using the spectral balanced cut
+   * method.
+   *
+   * @param {SpectralClusteringOptions} options
+   */
+  spectralBalancedCutClustering(options: SpectralClusteringOptions): Column<Int32>;
+
+  /**
+   * @summary Compute the modularity score for a given partitioning/clustering. The assumption is
+   * that "clustering" is the results from a call from a special clustering algorithm and contains
+   * columns named "vertex" and "cluster".
+   *
+   * @param {number} num_clusters The number of clusters.
+   * @param {Column<Int32>} clusters The Column of cluster ids.
+   *
+   * @returns {number} The computed modularity score
+   */
+  analyzeModularityClustering(num_clusters: number, clusters: Column<Int32>): number;
+
+  /**
+   * @summary Compute the edge cut score for a partitioning/clustering The assumption is that
+   * "clustering" is the results from a call from a special clustering algorithm and contains
+   * columns named "vertex" and "cluster".
+   *
+   * @param {number} num_clusters The number of clusters.
+   * @param {Column<Int32>} clusters The Column of cluster ids.
+   *
+   * @returns {number} The computed edge cut score
+   */
+  analyzeEdgeCutClustering(num_clusters: number, clusters: Column<Int32>): number;
+
+  /**
+   * @summary Compute the ratio cut score for a partitioning/clustering.
+   *
+   * @param {number} num_clusters The number of clusters.
+   * @param {Column<Int32>} clusters The Column of cluster ids.
+   *
+   * @returns {number} The computed ratio cut score
+   */
+  analyzeRatioCutClustering(num_clusters: number, clusters: Column<Int32>): number;
+}
 
 export interface ForceAtlas2Options {
   /**
@@ -77,48 +162,30 @@ export interface ForceAtlas2Options {
   memoryResource?: MemoryResource;
 }
 
-export declare interface CUGraph {
+export interface SpectralClusteringOptions {
   /**
-   * @summary The number of edges in this Graph
+   * @summary Specifies the number of clusters to find
    */
-  numEdges(): number;
-
+  num_clusters: number;
   /**
-   * @summary The number of nodes in this Graph
+   * @summary Specifies the number of eigenvectors to use. Must be less than or equal to
+   * `num_clusters`. Default is 2.
    */
-  numNodes(): number;
-
+  num_eigen_vecs?: number;
   /**
-   * @summary ForceAtlas2 is a continuous graph layout algorithm for handy network visualization.
-   *
-   * @note Peak memory allocation occurs at 30*V.
-   *
-   * @param {ForceAtlas2Options} options
-   *
-   * @returns {DeviceBuffer} The new positions.
+   * @summary Specifies the tolerance to use in the eigensolver. Default is 0.00001.
    */
-  forceAtlas2(options: ForceAtlas2Options): DeviceBuffer;
-
+  evs_tolerance?: number;
   /**
-   * @summary Compute the total number of edges incident to a vertex (both in and out edges).
+   * @summary Specifies the maximum number of iterations for the eigensolver. Default is 100.
    */
-  degree(): Column;
-}
-
-export declare class GraphCOO implements CUGraph {
-  constructor(src: Column<Integral|FloatingPoint>,
-              dst: Column<Integral|FloatingPoint>,
-              options?: {directedEdges?: boolean});
-
-  /** @inheritdoc */
-  numEdges(): number;
-
-  /** @inheritdoc */
-  numNodes(): number;
-
-  /** @inheritdoc */
-  forceAtlas2(options: ForceAtlas2Options): DeviceBuffer;
-
-  /** @inheritdoc */
-  degree(): Column;
+  evs_max_iter?: number;
+  /**
+   * @summary Specifies the tolerance to use in the k-means solver. Default is 0.00001.
+   */
+  kmean_tolerance?: number;
+  /**
+   * @summary Specifies the maximum number of iterations for the k-means solver. Default is 100.
+   */
+  kmean_max_iter?: number;
 }

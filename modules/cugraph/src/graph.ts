@@ -13,44 +13,49 @@
 // limitations under the License.
 
 import {Float32Buffer, MemoryView} from '@rapidsai/cuda';
-import {DataFrame, DataType, Int32, scope, Series} from '@rapidsai/cudf';
+import {DataFrame, DataType, Float32, Int32, scope, Series} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
-import {GraphCOO} from './addon';
-import {CUGraph, ForceAtlas2Options} from './node_cugraph';
+import {Graph as CUGraph} from './addon';
+import {ForceAtlas2Options, SpectralClusteringOptions} from './node_cugraph';
 import {renumberEdges, renumberNodes} from './renumber';
 
 export interface GraphOptions {
-  directedEdges?: boolean;
+  directed?: boolean;
 }
 
 export class Graph<T extends DataType = any> {
-  public static fromEdgeList<T extends DataType>(src: Series<T>,
-                                                 dst: Series<T>,
-                                                 options: GraphOptions = {directedEdges: true}) {
+  public static fromEdgeList<T extends DataType>(
+    src: Series<T>,
+    dst: Series<T>,
+    weights = Series.sequence({type: new Float32, size: src.length, init: 1, step: 0}),
+    options: GraphOptions = {directed: true}) {
     const nodes = renumberNodes(src, dst);
-    const edges = renumberEdges(src, dst, nodes);
+    const edges = renumberEdges(src, dst, weights, nodes);
     return new Graph(nodes, edges, options);
   }
 
   protected constructor(nodes: DataFrame<{id: Int32, node: T}>,
-                        edges: DataFrame<{id: Int32, src: Int32, dst: Int32}>,
-                        options: GraphOptions = {directedEdges: true}) {
+                        edges: DataFrame<{id: Int32, src: Int32, dst: Int32, weight: Float32}>,
+                        options: GraphOptions = {directed: true}) {
     this._edges    = edges;
     this._nodes    = nodes;
-    this._directed = options?.directedEdges ?? true;
+    this._directed = options?.directed ?? true;
   }
 
   declare protected _nodes: DataFrame<{id: Int32, node: T}>;
-  declare protected _edges: DataFrame<{id: Int32, src: Int32, dst: Int32}>;
+  declare protected _edges: DataFrame<{id: Int32, src: Int32, dst: Int32, weight: Float32}>;
   declare protected _directed: boolean;
 
   declare protected _graph: CUGraph;
 
-  protected get graph(): CUGraph {
-    return this._graph || (this._graph = new GraphCOO(this._edges.get('src')._col,
-                                                      this._edges.get('dst')._col,
-                                                      {directedEdges: this._directed}));
+  protected get graph() {
+    return this._graph || (this._graph = new CUGraph({
+                             src: this._edges.get('src')._col,
+                             dst: this._edges.get('dst')._col,
+                             weight: this._edges.get('weight')._col,
+                             directed: this._directed,
+                           }));
   }
 
   /**
@@ -69,7 +74,7 @@ export class Graph<T extends DataType = any> {
     const unnumber = (typ: 'src'|'dst') => {
       const id  = this._edges.get(typ);
       const eid = this._edges.get('id');
-      const lhs = new DataFrame({id, eid});
+      const lhs = new DataFrame({id, eid, weight: this._edges.get('weight')});
       const rhs = this._nodes.rename({node: typ});
       return lhs.join({on: ['id'], other: rhs});
     };
@@ -79,7 +84,7 @@ export class Graph<T extends DataType = any> {
                          .sortValues({eid: {ascending: true}}),
                  [this])
       .rename({eid: 'id'})
-      .select(['id', 'src', 'dst']);
+      .select(['id', 'src', 'dst', 'weight']);
   }
 
   public get nodeIds() { return this._nodes.select(['id']); }
@@ -90,7 +95,7 @@ export class Graph<T extends DataType = any> {
    * @summary Compute the total number of edges incident to a vertex (both in and out edges).
    */
   public degree() {
-    return new DataFrame({id: this._nodes.get('id')._col, degree: this.graph.degree()});
+    return new DataFrame({vertex: this._nodes.get('id')._col, degree: this.graph.degree()});
   }
 
   /**
@@ -105,7 +110,7 @@ export class Graph<T extends DataType = any> {
   public forceAtlas2(options: ForceAtlas2Options = {}) {
     const {numNodes} = this;
     let positions: Float32Buffer|undefined;
-    if (options.positions) {
+    if (options.positions && typeof options.positions === 'object') {
       positions = options.positions ? new Float32Buffer(options.positions instanceof MemoryView
                                                           ? options.positions?.buffer
                                                           : options.positions)
@@ -125,4 +130,63 @@ export class Graph<T extends DataType = any> {
     }
     return new Float32Buffer(this.graph.forceAtlas2({...options, positions}));
   }
+
+  /**
+   * @summary Compute a clustering/partitioning of this graph using either the spectral balanced cut
+   * method, or the spectral modularity maximization method.
+   *
+   * @see https://en.wikipedia.org/wiki/Cluster_analysis
+   * @see https://en.wikipedia.org/wiki/Spectral_clustering
+   *
+   * @param {ClusteringOptions} options Options for the clustering method
+   */
+  public computeClusters(options: ClusteringOptions) {
+    Object.assign(options, {
+      num_eigen_vecs: Math.min(2, options.num_clusters),
+      evs_tolerance: 0.00001,
+      evs_max_iter: 100,
+      kmean_tolerance: 0.00001,
+      kmean_max_iter: 100,
+    });
+    const cluster = (() => {
+      switch (options.type) {
+        case 'balanced_cut': return this.graph.spectralBalancedCutClustering(options);
+        case 'modularity_maximization':
+          return this.graph.spectralModularityMaximizationClustering(options);
+        default: throw new Error(`Unrecognized clustering type "${options.type as string}"`);
+      }
+    })();
+    return new DataFrame({vertex: this._nodes.get('id')._col, cluster});
+  }
+
+  /**
+   * @summary Compute a score for a given partitioning/clustering. The assumption is
+   * that `options.clustering` is the results from a call to {@link computeClusters} and
+   * contains columns named `vertex` and `cluster`.
+   *
+   * @param {AnalyzeClusteringOptions} options
+   *
+   * @returns {number} The computed clustering score
+   */
+  public analyzeClustering(options: AnalyzeClusteringOptions) {
+    switch (options.type) {
+      case 'edge_cut':
+        return this.graph.analyzeEdgeCutClustering(options.num_clusters, options.cluster._col);
+      case 'ratio_cut':
+        return this.graph.analyzeRatioCutClustering(options.num_clusters, options.cluster._col);
+      case 'modularity':
+        return this.graph.analyzeModularityClustering(options.num_clusters, options.cluster._col);
+      default: throw new Error(`Unrecognized clustering type "${options.type as string}"`);
+    }
+  }
+}
+
+export interface ClusteringOptions extends SpectralClusteringOptions {
+  type: 'balanced_cut'|'modularity_maximization';
+}
+
+export interface AnalyzeClusteringOptions {
+  num_clusters: number;
+  cluster: Series<Int32>;
+  type: 'modularity'|'edge_cut'|'ratio_cut';
 }
