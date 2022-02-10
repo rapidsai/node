@@ -61,8 +61,12 @@ export class ColumnAccessor<T extends TypeMap = any> {
 
   addColumns<R extends TypeMap>(data: ColumnsMap<R>|ColumnAccessor<R>) {
     data = (data instanceof ColumnAccessor) ? data._data : data;
-    return new ColumnAccessor({...this._data, ...data} as
-                              ColumnsMap<{[P in keyof(T & R)]: (T & R)[P]}>);
+    return new ColumnAccessor(
+      {...this._data, ...data} as ColumnsMap<{
+        [P in keyof(T & R)]: P extends keyof R ? R[P]                      //
+                                               : P extends keyof T ? T[P]  //
+                                                                   : never
+      }>);
   }
 
   dropColumns<R extends keyof T>(names: readonly R[]) {

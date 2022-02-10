@@ -53,7 +53,7 @@ function renumberSources<TSource extends DataType, TTarget extends DataType>(
                   .join({other: nodes, on: ['node']})
                   .sortValues({idx: {ascending: true}})
                   .get('id');
-    return <DataFrame<{idx: Int32, src: Int32, dst: TTarget, weight: Float32}>>edges.assign({src});
+    return edges.assign({src});
   }, [edges, nodes]);
 }
 
@@ -64,6 +64,6 @@ function renumberTargets<TSource extends DataType, TTarget extends DataType>(
                   .join({other: nodes, on: ['node']})
                   .sortValues({idx: {ascending: true}})
                   .get('id');
-    return <DataFrame<{idx: Int32, src: Int32, dst: Int32, weight: Float32}>>edges.assign({dst});
+    return edges.assign({dst});
   }, [edges, nodes]);
 }
