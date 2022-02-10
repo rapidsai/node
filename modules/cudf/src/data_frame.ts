@@ -312,7 +312,8 @@ export class DataFrame<T extends TypeMap = any> {
   /**
    * Return a new DataFrame with new columns added.
    *
-   * @param data mapping of names to new columns to add
+   * @param {SeriesMap<R>|DataFrame<R>} data mapping of names to new columns to add, or a GPU
+   *   DataFrame object
    *
    * @example
    * ```typescript
@@ -323,13 +324,6 @@ export class DataFrame<T extends TypeMap = any> {
    * df.assign({b: Series.new(["foo", "bar", "bar"])})
    * // returns df {a: [1, 2, 3], b: ["foo", "bar", "bar"]}
    * ```
-   */
-  assign<R extends TypeMap>(data: SeriesMap<R>): DataFrame<Omit<T, keyof R&string>&R>;
-
-  /**
-   * Return a new DataFrame with new columns added.
-   *
-   * @param data a GPU DataFrame object
    *
    * @example
    * ```typescript
@@ -341,8 +335,6 @@ export class DataFrame<T extends TypeMap = any> {
    * df.assign(df1) // returns df {a: [1, 2, 3], b: ["foo", "bar", "bar"]}
    * ```
    */
-  assign<R extends TypeMap>(data: DataFrame<R>): DataFrame<Omit<T, keyof R&string>&R>;
-
   assign<R extends TypeMap>(data: SeriesMap<R>|DataFrame<R>) {
     const columns = (data instanceof DataFrame) ? data._accessor : _seriesToColumns(data);
     return new DataFrame(this._accessor.addColumns(columns));
