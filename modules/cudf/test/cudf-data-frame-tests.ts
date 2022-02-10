@@ -134,11 +134,11 @@ test('DataFrame.assign', () => {
   expect(table_1.names).toStrictEqual(['col_0', 'col_1', 'col_2', 'col_3']);
 
   // testing DataFrame.assign(DataFrame)
-  const table_2 = new DataFrame({'col_4': col_4});
+  const table_2 = new DataFrame({col_4});
   const table_3 = table_0.assign(table_2);
-  expect(table_3.numColumns).toBe(4);
+  expect(table_3.numColumns).toBe(5);
   expect(table_3.numRows).toBe(length);
-  expect(table_3.names).toStrictEqual(['col_0', 'col_1', 'col_2', 'col_4']);
+  expect(table_3.names).toStrictEqual(['col_0', 'col_1', 'col_2', 'col_3', 'col_4']);
 });
 
 test('DataFrame.drop', () => {
