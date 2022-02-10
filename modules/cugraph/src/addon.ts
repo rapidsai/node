@@ -19,7 +19,7 @@ import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
 
-export const {GraphCOO, _cpp_exports} = loadNativeModule<typeof import('./node_cugraph')>(
+export const {Graph, _cpp_exports} = loadNativeModule<typeof import('./node_cugraph')>(
   module, 'node_cugraph', init => init(CUDA, CUDF, RMM));
 
-export type GraphCOO = import('./node_cugraph').GraphCOO;
+export type Graph = import('./node_cugraph').Graph;

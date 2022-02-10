@@ -41,36 +41,47 @@ import {Int64Series} from './integral';
  * A base class for Series of fixed-width numeric values.
  */
 export abstract class NumericSeries<T extends Numeric> extends Series<T> {
+  /** @ignore */
   _castAsBool8(memoryResource?: MemoryResource): Series<Bool8> {  //
     return this._castNumeric(new Bool8, memoryResource);
   }
+  /** @ignore */
   _castAsInt8(memoryResource?: MemoryResource): Series<Int8> {  //
     return this._castNumeric(new Int8, memoryResource);
   }
+  /** @ignore */
   _castAsInt16(memoryResource?: MemoryResource): Series<Int16> {  //
     return this._castNumeric(new Int16, memoryResource);
   }
+  /** @ignore */
   _castAsInt32(memoryResource?: MemoryResource): Series<Int32> {  //
     return this._castNumeric(new Int32, memoryResource);
   }
+  /** @ignore */
   _castAsInt64(memoryResource?: MemoryResource): Series<Int64> {  //
     return this._castNumeric(new Int64, memoryResource);
   }
+  /** @ignore */
   _castAsUint8(memoryResource?: MemoryResource): Series<Uint8> {  //
     return this._castNumeric(new Uint8, memoryResource);
   }
+  /** @ignore */
   _castAsUint16(memoryResource?: MemoryResource): Series<Uint16> {  //
     return this._castNumeric(new Uint16, memoryResource);
   }
+  /** @ignore */
   _castAsUint32(memoryResource?: MemoryResource): Series<Uint32> {  //
     return this._castNumeric(new Uint32, memoryResource);
   }
+  /** @ignore */
   _castAsUint64(memoryResource?: MemoryResource): Series<Uint64> {  //
     return this._castNumeric(new Uint64, memoryResource);
   }
+  /** @ignore */
   _castAsFloat32(memoryResource?: MemoryResource): Series<Float32> {  //
     return this._castNumeric(new Float32, memoryResource);
   }
+  /** @ignore */
   _castAsFloat64(memoryResource?: MemoryResource): Series<Float64> {  //
     return this._castNumeric(new Float64, memoryResource);
   }
@@ -78,6 +89,29 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
   protected _castNumeric<R extends Numeric>(type: R, memoryResource?: MemoryResource): Series<R> {
     return Series.new<R>(compareTypes(this.type, type) ? this._col as any as Column<R>
                                                        : this._col.cast(type, memoryResource));
+  }
+
+  protected _prepare_scan_series(skipNulls: boolean) {
+    const self = this.nansToNulls();
+
+    if (skipNulls || !self.hasNulls) { return self._col as Column<T>; }
+
+    const index = Series.sequence({size: self.length});
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const first = index.filter(self.isNull()).getValue(0)!;
+    const slice = Series.sequence({size: self.length - first, init: first});
+    const [nullMask, nullCount] =
+      index.cast(new Bool8).fill(true).scatter(false, slice)._col.boolsToMask();
+
+    return new Column({
+      type: this._col.type ,
+      data: self._col.data,
+      offset: self._col.offset,
+      length: self._col.length,
+      nullMask,
+      nullCount,
+    });
   }
 
   /** @ignore */
@@ -1195,8 +1229,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * a.min() // [1]
    */
   min(skipNulls = true, memoryResource?: MemoryResource) {
-    const data = skipNulls ? this.nansToNulls().dropNulls() : this;
-    return data._col.min(memoryResource);
+    return (skipNulls ? this.nansToNulls().dropNulls() : this)._col.min(memoryResource);
   }
 
   /**
@@ -1215,8 +1248,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * a.max() // 5
    */
   max(skipNulls = true, memoryResource?: MemoryResource) {
-    const data = skipNulls ? this.nansToNulls().dropNulls() : this;
-    return data._col.max(memoryResource);
+    return (skipNulls ? this.nansToNulls().dropNulls() : this)._col.max(memoryResource);
   }
 
   /**
@@ -1235,8 +1267,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * a.minmax() // [1,5]
    */
   minmax(skipNulls = true, memoryResource?: MemoryResource) {
-    const data = skipNulls ? this.nansToNulls().dropNulls() : this;
-    return data._col.minmax(memoryResource);
+    return (skipNulls ? this.nansToNulls().dropNulls() : this)._col.minmax(memoryResource);
   }
 
   /**
@@ -1256,8 +1287,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   sum(skipNulls = true, memoryResource?: MemoryResource) {
-    const data = skipNulls ? this.nansToNulls().dropNulls() : this;
-    return data._col.sum(memoryResource);
+    return (skipNulls ? this.nansToNulls().dropNulls() : this)._col.sum(memoryResource);
   }
 
   /**
@@ -1278,8 +1308,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   product(skipNulls = true, memoryResource?: MemoryResource) {
-    const data = skipNulls ? this.nansToNulls().dropNulls() : this;
-    return data._col.product(memoryResource);
+    return (skipNulls ? this.nansToNulls().dropNulls() : this)._col.product(memoryResource);
   }
 
   /**
@@ -1300,8 +1329,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   sumOfSquares(skipNulls = true, memoryResource?: MemoryResource) {
-    const data = skipNulls ? this.nansToNulls().dropNulls() : this;
-    return data._col.sumOfSquares(memoryResource);
+    return (skipNulls ? this.nansToNulls().dropNulls() : this)._col.sumOfSquares(memoryResource);
   }
 
   /**
@@ -1323,8 +1351,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   mean(skipNulls = true, memoryResource?: MemoryResource) {
     if (!skipNulls && this.nullCount > 0) { return NaN; }
-    const data = skipNulls ? this.nansToNulls().dropNulls() : this;
-    return data._col.mean(memoryResource);
+    return (skipNulls ? this.nansToNulls().dropNulls() : this)._col.mean(memoryResource);
   }
 
   /**
@@ -1346,8 +1373,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    */
   median(skipNulls = true, memoryResource?: MemoryResource) {
     if (!skipNulls && this.nullCount > 0) { return NaN; }
-    const data = skipNulls ? this.nansToNulls().dropNulls() : this;
-    return data._col.median(memoryResource);
+    return (skipNulls ? this.nansToNulls().dropNulls() : this)._col.median(memoryResource);
   }
 
   /**
@@ -1393,8 +1419,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   var(skipNulls = true, ddof = 1, memoryResource?: MemoryResource) {
-    const data = skipNulls ? this.nansToNulls().dropNulls() : this;
-    return data._col.var(ddof, memoryResource);
+    return (skipNulls ? this.nansToNulls().dropNulls() : this)._col.var(ddof, memoryResource);
   }
 
   /**
@@ -1489,8 +1514,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    * ```
    */
   std(skipNulls = true, ddof = 1, memoryResource?: MemoryResource) {
-    const data = skipNulls ? this.nansToNulls().dropNulls() : this;
-    return data._col.std(ddof, memoryResource);
+    return (skipNulls ? this.nansToNulls().dropNulls() : this)._col.std(ddof, memoryResource);
   }
 
   /**
@@ -1586,7 +1610,7 @@ export abstract class NumericSeries<T extends Numeric> extends Series<T> {
    *
    * @returns Series with values scaled between [0, 1].
    */
-  scale(memoryResource?: MemoryResource) {
+  scale(memoryResource?: MemoryResource): Series<Float64> {
     const [min, max] = this.minmax() as [any, any];
     return this.sub(min).div(max - min, memoryResource);
   }

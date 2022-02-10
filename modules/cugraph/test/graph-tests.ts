@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {setDefaultAllocator} from '@rapidsai/cuda';
-import {DataFrame, Int32, Series} from '@rapidsai/cudf';
+import {DataFrame, Float32, Int32, Series} from '@rapidsai/cudf';
 import {Graph} from '@rapidsai/cugraph';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 
@@ -34,6 +34,8 @@ test(`Graph.fromEdgeList`, () => {
                                            id: Series.sequence({size: 4}),
                                            src,
                                            dst,
+                                           weight: Series.sequence(
+                                             {type: new Float32, size: 4, init: 1, step: 0}),
                                          }).toString());
 
   expect(graph.nodeIds.toString()).toEqual(new DataFrame({
@@ -52,7 +54,7 @@ test(`Graph.degree`, () => {
   const dst   = Series.new(['172.217.5.238', '216.228.121.209', '192.16.31.23', '192.168.1.1']);
   const graph = Graph.fromEdgeList(src, dst);
   expect(graph.degree().toString()).toEqual(new DataFrame({
-                                              id: Series.sequence({size: 4}),
+                                              vertex: Series.sequence({size: 4}),
                                               degree: Series.sequence({size: 4, init: 2, step: 0}),
                                             }).toString());
 });

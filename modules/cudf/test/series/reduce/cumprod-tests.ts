@@ -54,8 +54,8 @@ function testBigIntAny<T extends Int64|Uint64>(
 
 function testBooleanAny<T extends Bool8>(
   type: T, data: (T['scalarType']|null)[], skipNulls = true) {
-  const expected = skipNulls ? [1n, 0n, null, 0n, 0n]  //
-                             : [1n, 0n, null, null, null];
+  const expected = skipNulls ? [1, 0, null, 0, 0]  //
+                             : [1, 0, null, null, null];
   expect([...Series.new({type, data}).cumulativeProduct(skipNulls)]).toEqual(expected);
 }
 

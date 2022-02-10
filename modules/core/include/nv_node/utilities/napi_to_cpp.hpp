@@ -42,17 +42,23 @@ struct NapiToCPP {
     inline bool Has(Napi::Value key) const { return val.Has(key); }
     inline bool Has(const char* key) const { return val.Has(key); }
     inline bool Has(const std::string& key) const { return val.Has(key); }
-    inline NapiToCPP Get(napi_value key) const {
-      return Has(key) ? val.Get(key) : Env().Undefined();
-    }
-    inline NapiToCPP Get(Napi::Value key) const {
-      return Has(key) ? val.Get(key) : Env().Undefined();
-    }
-    inline NapiToCPP Get(const char* key) const {
-      return Has(key) ? val.Get(key) : Env().Undefined();
-    }
+    inline NapiToCPP Get(napi_value key) const { return GetOrDefault(key, Env().Undefined()); }
+    inline NapiToCPP Get(Napi::Value key) const { return GetOrDefault(key, Env().Undefined()); }
+    inline NapiToCPP Get(const char* key) const { return GetOrDefault(key, Env().Undefined()); }
     inline NapiToCPP Get(std::string const& key) const {
-      return Has(key) ? val.Get(key) : Env().Undefined();
+      return GetOrDefault(key, Env().Undefined());
+    }
+    inline NapiToCPP GetOrDefault(napi_value key, Napi::Value const& default_val) const {
+      return Has(key) ? val.Get(key) : default_val;
+    }
+    inline NapiToCPP GetOrDefault(Napi::Value key, Napi::Value const& default_val) const {
+      return Has(key) ? val.Get(key) : default_val;
+    }
+    inline NapiToCPP GetOrDefault(const char* key, Napi::Value const& default_val) const {
+      return Has(key) ? val.Get(key) : default_val;
+    }
+    inline NapiToCPP GetOrDefault(std::string const& key, Napi::Value const& default_val) const {
+      return Has(key) ? val.Get(key) : default_val;
     }
   };
 

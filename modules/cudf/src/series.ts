@@ -948,7 +948,7 @@ export class AbstractSeries<T extends DataType = any> {
    * For dictionary columns, the keys column component is copied and not trimmed if the gather
    * results in abandoned key elements.
    *
-   * @param selection A Series of 8/16/32-bit signed or unsigned integer indices to gather.
+   * @param indices A Series of 8/16/32-bit signed or unsigned integer indices to gather.
    * @param nullify_out_of_bounds If `true`, coerce rows that corresponds to out-of-bounds indices
    *   in the selection to null. If `false`, skips all bounds checking for selection values. Pass
    *   false if you are certain that the selection contains only valid indices for better
@@ -970,11 +970,11 @@ export class AbstractSeries<T extends DataType = any> {
    * c.gather(selection) // Bool8Series [true, true]
    * ```
    */
-  gather<R extends IndexType>(selection: Series<R>,
-                              nullify_out_of_bounds = false,
-                              memoryResource?: MemoryResource): Series<T> {
-    return this.__construct(
-      this._col.gather(selection._col, nullify_out_of_bounds, memoryResource));
+  gather(indices: Series<IndexType>|number[],
+         nullify_out_of_bounds = false,
+         memoryResource?: MemoryResource): Series<T> {
+    const map = Array.isArray(indices) ? Series.new(indices).cast(new Uint32) : indices;
+    return this.__construct(this._col.gather(map._col, nullify_out_of_bounds, memoryResource));
   }
 
   /**
@@ -1109,7 +1109,7 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   scatter(value: T['scalarType'],
-          indices: Series<Int32>|number[],
+          indices: Series<IndexType>|number[],
           check_bounds?: boolean,
           memoryResource?: MemoryResource): Series<T>;
   /**
@@ -1135,24 +1135,24 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   scatter(values: Series<T>,
-          indices: Series<Int32>|number[],
+          indices: Series<IndexType>|number[],
           check_bounds?: boolean,
           memoryResource?: MemoryResource): Series<T>;
 
   scatter(source: Series<T>|T['scalarType'],
-          indices: Series<Int32>|number[],
+          indices: Series<IndexType>|number[],
           check_bounds = false,
           memoryResource?: MemoryResource): Series<T> {
     const dst = new Table({columns: [this._col]});
-    const idx = Series.new(indices).cast(new Int32)._col;
+    const map = Array.isArray(indices) ? Series.new(indices).cast(new Uint32) : indices;
     if (source instanceof Series) {
       const src = new Table({columns: [source.cast(this.type)._col]});
       return this.__construct(
-        dst.scatterTable(src, idx, check_bounds, memoryResource).getColumnByIndex(0));
+        dst.scatterTable(src, map._col, check_bounds, memoryResource).getColumnByIndex(0));
     }
     const src = [new Scalar({type: this.type, value: source})];
     return this.__construct(
-      dst.scatterScalar(src, idx, check_bounds, memoryResource).getColumnByIndex(0));
+      dst.scatterScalar(src, map._col, check_bounds, memoryResource).getColumnByIndex(0));
   }
 
   /**
@@ -1668,7 +1668,6 @@ function asColumn<T extends DataType>(value: any) {
     if (Array.isArray(data)) {
       return fromArrow<T>(arrow.Vector.from({
         highWaterMark: Infinity,
-        nullValues: [undefined, null, NaN],
         type: value.type ?? inferType(data),
         // Slice `offset` from the Array before converting so
         // we don't write unnecessary values with the Arrow builders.
@@ -1677,12 +1676,14 @@ function asColumn<T extends DataType>(value: any) {
     }
 
     // If `data.buffer` is a ArrayBuffer, copy it to a DeviceBuffer
-    if (data.buffer instanceof ArrayBuffer) {
+    if (ArrayBuffer.isView(value) || (data.buffer instanceof ArrayBuffer)) {
+      if (typeof data.length === 'number') { value.length = data.length; }
       data   = new DeviceBuffer(typeof offset !== 'number' ? data : data.subarray(offset));
       offset = 0;
     }
     // If `data.buffer` is a DeviceBuffer, propagate its `byteOffset` to ColumnProps
     else if (data.buffer instanceof DeviceBuffer) {
+      if (typeof data.length === 'number') { value.length = data.length; }
       offset =
         (typeof offset !== 'number' ? 0 : offset) + (data.byteOffset / data.BYTES_PER_ELEMENT);
     }

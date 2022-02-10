@@ -13,9 +13,10 @@
 // limitations under the License.
 
 const wrtc            = require('wrtc');
+const {DeviceBuffer}  = require('@rapidsai/rmm');
 const {MemoryView}    = require('@rapidsai/cuda');
 const {Float32Buffer} = require('@rapidsai/cuda');
-const {GraphCOO}      = require('@rapidsai/cugraph');
+const {Graph}         = require('@rapidsai/cugraph');
 const {Series, Int32} = require('@rapidsai/cudf');
 
 const {loadNodes, loadEdges} = require('./loader');
@@ -147,14 +148,14 @@ function graphSSRClients(fastify) {
           edgeColors: asDeviceMemory(dataframes[1].get('color').data),
           edgeBundles: asDeviceMemory(dataframes[1].get('bundle').data),
         },
-        graph: new GraphCOO(src._col, dst._col, {directedEdges: true}),
+        graph: Graph.fromEdgeList(src, dst),
       };
     }
 
     ++graphs[id].refCount;
 
     const pos = new Float32Buffer(Array.from(
-      {length: graphs[id].graph.numNodes() * 2},
+      {length: graphs[id].graph.numNodes * 2},
       () => Math.random() * 1000 * (Math.random() < 0.5 ? -1 : 1),
       ));
 
@@ -169,13 +170,13 @@ function graphSSRClients(fastify) {
       graph: graphs[id].graph,
       nodes: {
         ...graphs[id].nodes,
-        length: graphs[id].graph.numNodes(),
+        length: graphs[id].graph.numNodes,
         nodeXPositions: pos.subarray(0, pos.length / 2),
         nodeYPositions: pos.subarray(pos.length / 2),
       },
       edges: {
         ...graphs[id].edges,
-        length: graphs[id].graph.numEdges(),
+        length: graphs[id].graph.numEdges,
       },
       dataframes: dataframes
     };
@@ -300,11 +301,12 @@ function getPaginatedRows(df, page = 1, rowsPerPage = 400) {
 
 function forceAtlas2({graph, nodes, edges, ...params}) {
   graph.forceAtlas2({...params, positions: nodes.nodeXPositions.buffer});
+
   return {
     graph,
     ...params,
-    nodes: {...nodes, length: graph.numNodes()},
-    edges: {...edges, length: graph.numEdges()},
+    nodes: {...nodes, length: graph.numNodes},
+    edges: {...edges, length: graph.numEdges},
   };
 }
 
