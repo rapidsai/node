@@ -85,6 +85,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        // column/filling.cpp
                        StaticMethod<&Column::sequence>("sequence"),
                        // column/transform.cpp
+                       InstanceMethod<&Column::bools_to_mask>("boolsToMask"),
                        InstanceMethod<&Column::nans_to_nulls>("nansToNulls"),
                        // column/reduction.cpp
                        InstanceMethod<&Column::min>("min"),
@@ -211,6 +212,8 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
               : props.Has("nullMask")   ? props.Get("nullMask").As<Napi::Value>()
                                         : env.Null();
 
+  auto has_length = props.Has("length") && props.Get("length").IsNumber();
+
   switch (type().id()) {
     case cudf::type_id::INT8:
     case cudf::type_id::INT16:
@@ -229,7 +232,10 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
     case cudf::type_id::TIMESTAMP_MICROSECONDS:
     case cudf::type_id::TIMESTAMP_NANOSECONDS: {
       data_ = Napi::Persistent(data_to_devicebuffer(env, props.Get("data"), type()));
-      size_ = std::max(0, cudf::size_type(data_.Value()->size() / cudf::size_of(type())) - offset_);
+      size_ =
+        has_length
+          ? props.Get("length")
+          : std::max(0, cudf::size_type(data_.Value()->size() / cudf::size_of(type())) - offset_);
       null_mask_ =
         Napi::Persistent(mask.IsNull() ? data_to_null_bitmask(env, props.Get("data"), size_)
                                        : mask_to_null_bitmask(env, mask, size_));
@@ -245,7 +251,8 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
         }
       }(props.Get("children").As<Napi::Array>());
       data_      = Napi::Persistent(DeviceBuffer::New(env));
-      size_      = std::max(0, (num_children() > 0 ? child(0)->size() - 1 : 0) - offset_);
+      size_      = has_length ? props.Get("length")
+                              : std::max(0, (num_children() > 0 ? child(0)->size() - 1 : 0) - offset_);
       null_mask_ = Napi::Persistent(mask_to_null_bitmask(env, mask, size_));
       break;
     }
@@ -258,10 +265,11 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
       }(props.Get("children").As<Napi::Array>());
       data_ = Napi::Persistent(DeviceBuffer::New(env));
       if (num_children() > 0) {
-        size_ = std::max(0, child(0)->size() - offset_);
+        size_ = has_length ? props.Get("length") : std::max(0, child(0)->size() - offset_);
         for (cudf::size_type i = 0; ++i < num_children();) {
-          NODE_CUDF_EXPECT(
-            child(i)->size() == size_, "Struct column children must be the same size", env);
+          NODE_CUDF_EXPECT((child(i)->size() - offset_) == size_,
+                           "Struct column children must be the same size",
+                           env);
         }
       }
       null_mask_ = Napi::Persistent(mask_to_null_bitmask(env, mask, size_));
@@ -270,7 +278,7 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
     default: break;
   }
 
-  size_ = props.Has("length") ? props.Get("length") : size_;
+  // size_ = props.Has("length") ? props.Get("length") : size_;
 
   set_null_count([&]() -> cudf::size_type {
     if (!nullable()) { return 0; }

@@ -1668,7 +1668,6 @@ function asColumn<T extends DataType>(value: any) {
     if (Array.isArray(data)) {
       return fromArrow<T>(arrow.Vector.from({
         highWaterMark: Infinity,
-        nullValues: [undefined, null, NaN],
         type: value.type ?? inferType(data),
         // Slice `offset` from the Array before converting so
         // we don't write unnecessary values with the Arrow builders.
@@ -1677,12 +1676,14 @@ function asColumn<T extends DataType>(value: any) {
     }
 
     // If `data.buffer` is a ArrayBuffer, copy it to a DeviceBuffer
-    if (data.buffer instanceof ArrayBuffer) {
+    if (ArrayBuffer.isView(value) || (data.buffer instanceof ArrayBuffer)) {
+      if (typeof data.length === 'number') { value.length = data.length; }
       data   = new DeviceBuffer(typeof offset !== 'number' ? data : data.subarray(offset));
       offset = 0;
     }
     // If `data.buffer` is a DeviceBuffer, propagate its `byteOffset` to ColumnProps
     else if (data.buffer instanceof DeviceBuffer) {
+      if (typeof data.length === 'number') { value.length = data.length; }
       offset =
         (typeof offset !== 'number' ? 0 : offset) + (data.byteOffset / data.BYTES_PER_ELEMENT);
     }
