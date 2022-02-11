@@ -60,6 +60,10 @@ Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
                        StaticMethod<&Table::left_join>("leftJoin"),
                        StaticMethod<&Table::left_semi_join>("leftSemiJoin"),
                        StaticMethod<&Table::left_anti_join>("leftAntiJoin"),
+                       InstanceMethod<&Table::explode>("explode"),
+                       InstanceMethod<&Table::explode_position>("explodePosition"),
+                       InstanceMethod<&Table::explode_outer>("explodeOuter"),
+                       InstanceMethod<&Table::explode_outer_position>("explodeOuterPosition"),
                      });
 }
 

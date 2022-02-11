@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {MemoryResource} from '@rapidsai/rmm';
+
 import {Series} from '../series';
+import {Table} from '../table';
 import {DataType, Int32, List} from '../types/dtypes';
 
 /**
@@ -79,5 +82,22 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
   getValue(index: number) {
     const value = this._col.getValue(index);
     return value === null ? null : Series.new(value);
+  }
+
+  /**
+   * @summary Flatten the list elements.
+   */
+  flatten(memoryResource?: MemoryResource): Series<T> {
+    return Series.new<T>(
+      new Table({columns: [this._col]}).explode(0, memoryResource).getColumnByIndex(0));
+  }
+
+  /**
+   * @summary Flatten the list elements and return a Series of each element's position in
+   * its original list.
+   */
+  flattenIndices(memoryResource?: MemoryResource): Series<Int32> {
+    return Series.new<Int32>(
+      new Table({columns: [this._col]}).explodePosition(0, memoryResource).getColumnByIndex(0));
   }
 }

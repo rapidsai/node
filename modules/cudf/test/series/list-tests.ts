@@ -137,6 +137,29 @@ describe('ListSeries', () => {
     const result = col.copy();
     expect([...result]).toEqual([...col]);
   });
+
+  test('Can flatten Lists', () => {
+    const vec = listsOfInt32s([[1, 2, 3], [4, 5, 6]]);
+    const col = Series.new(vec);
+
+    const result = col.flatten();
+    expect([...result]).toEqual([1, 2, 3, 4, 5, 6]);
+
+    const indices = col.flattenIndices();
+    expect([...indices]).toEqual([0, 1, 2, 0, 1, 2]);
+  });
+
+  test('Can flatten List of Lists', () => {
+    const vec = listsOfListsOfInt32s([[[0, 1, 2]], [[3, 4, 5], [7, 8, 9]]]);
+    const col = Series.new(vec);
+
+    const result = col.flatten();
+    expect([...result].map((xs) => xs ? [...xs] : null))  //
+      .toEqual([[0, 1, 2], [3, 4, 5], [7, 8, 9]]);
+
+    const indices = col.flattenIndices();
+    expect([...indices]).toEqual([0, 0, 1]);
+  });
 });
 
 type ListOfInt32 = arrow.List<arrow.Int32>;

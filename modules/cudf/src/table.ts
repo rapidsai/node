@@ -18,10 +18,11 @@ import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 import CUDF from './addon';
 import {Column} from './column';
 import {Scalar} from './scalar';
-import {CSVTypeMap, ReadCSVOptions} from './types/csv';
+import {ReadCSVOptions} from './types/csv';
 import {TableWriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
+import {TypeMap} from './types/mappings';
 import {ReadORCOptions, TableWriteORCOptions} from './types/orc';
 import {ReadParquetOptions, TableWriteParquetOptions} from './types/parquet';
 
@@ -37,8 +38,8 @@ interface TableConstructor {
    * @param options Settings for controlling reading behavior.
    * @return The CSV data as a Table and a list of column names.
    */
-  readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>):
-    {names: (keyof T)[], table: Table};
+  readCSV<T extends TypeMap = any>(options: ReadCSVOptions<T>):
+    {names: (string&keyof T)[], table: Table};
 
   /**
    * Reads an ORC dataset into a set of columns.
@@ -260,6 +261,164 @@ export interface Table {
                  nullsEqual: boolean,
                  nullsFirst: boolean,
                  memoryResource?: MemoryResource): Table;
+
+  /**
+   * @summary Explodes a list column's elements.
+   *
+   * Any list is exploded, which means the elements of the list in each row are expanded into new
+   * rows in the output. The corresponding rows for other columns in the input are duplicated.
+   *
+   * Example:
+   * ```
+   * [[5,10,15], 100],
+   * [[20,25],   200],
+   * [[30],      300],
+   * returns
+   * [5,         100],
+   * [10,        100],
+   * [15,        100],
+   * [20,        200],
+   * [25,        200],
+   * [30,        300],
+   * ```
+   *
+   * Nulls and empty lists propagate in different ways depending on what is null or empty.
+   * ```
+   * [[5,null,15], 100],
+   * [null,        200],
+   * [[],          300],
+   * returns
+   * [5,           100],
+   * [null,        100],
+   * [15,          100],
+   * ```
+   *
+   * @note null lists are not included in the resulting table, but nulls inside lists and empty
+   * lists will be represented with a null entry for that column in that row.
+   *
+   * @param {number} index Column index to explode inside the table.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  explode(index: number, memoryResource?: MemoryResource): Table;
+
+  /**
+   * @summary Explodes a list column's elements and includes a position column.
+   *
+   * Any list is exploded, which means the elements of the list in each row are expanded into new
+   * rows in the output. The corresponding rows for other columns in the input are duplicated. A
+   * position column is added that has the index inside the original list for each row.
+   *
+   * Example:
+   * ```
+   * [[5,10,15], 100],
+   * [[20,25],   200],
+   * [[30],      300],
+   * returns
+   * [0,   5,     100],
+   * [1,   10,    100],
+   * [2,   15,    100],
+   * [0,   20,    200],
+   * [1,   25,    200],
+   * [0,   30,    300],
+   * ```
+   *
+   * Nulls and empty lists propagate in different ways depending on what is null or empty.
+   * ```
+   * [[5,null,15], 100],
+   * [null,        200],
+   * [[],          300],
+   * returns
+   * [0,     5,    100],
+   * [1,  null,    100],
+   * [2,    15,    100],
+   * ```
+   *
+   * @note null lists are not included in the resulting table, but nulls inside lists and empty
+   * lists will be represented with a null entry for that column in that row.
+   *
+   * @param {number} index Column index to explode inside the table.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  explodePosition(index: number, memoryResource?: MemoryResource): Table;
+
+  /**
+   * @summary Explodes a list column's elements retaining any null entries or empty lists inside.
+   *
+   * Any list is exploded, which means the elements of the list in each row are expanded into new
+   * rows in the output. The corresponding rows for other columns in the input are duplicated.
+   *
+   * Example:
+   * ```
+   * [[5,10,15], 100],
+   * [[20,25],   200],
+   * [[30],      300],
+   * returns
+   * [5,         100],
+   * [10,        100],
+   * [15,        100],
+   * [20,        200],
+   * [25,        200],
+   * [30,        300],
+   * ```
+   *
+   * Nulls and empty lists propagate as null entries in the result.
+   * ```
+   * [[5,null,15], 100],
+   * [null,        200],
+   * [[],          300],
+   * returns
+   * [5,           100],
+   * [null,        100],
+   * [15,          100],
+   * [null,        200],
+   * [null,        300],
+   * ```
+   *
+   * @param {number} index Column index to explode inside the table.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  explodeOuter(index: number, memoryResource?: MemoryResource): Table;
+
+  /**
+   * @summary Explodes a list column's elements retaining any null entries or empty lists and
+   * includes a position column.
+   *
+   * Any list is exploded, which means the elements of the list in each row are expanded into new
+   * rows in the output. The corresponding rows for other columns in the input are duplicated. A
+   * position column is added that has the index inside the original list for each row.
+   *
+   * Example:
+   * ```
+   * [[5,10,15], 100],
+   * [[20,25],   200],
+   * [[30],      300],
+   * returns
+   * [0,   5,    100],
+   * [1,  10,    100],
+   * [2,  15,    100],
+   * [0,  20,    200],
+   * [1,  25,    200],
+   * [0,  30,    300],
+   * ```
+   *
+   * Nulls and empty lists propagate as null entries in the result.
+   * ```
+   * [[5,null,15], 100],
+   * [null,        200],
+   * [[],          300],
+   * returns
+   * [0,     5,    100],
+   * [1,  null,    100],
+   * [2,    15,    100],
+   * [0,  null,    200],
+   * [0,  null,    300],
+   * ```
+   *
+   * @param {number} index Column index to explode inside the table.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  explodeOuterPosition(index: number, memoryResource?: MemoryResource): Table;
+
   /**
    * Interleave Series columns of a table into a single column.
    * Converts the column major table `cols` into a row major column.

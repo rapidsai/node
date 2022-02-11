@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Categorical,
-  DataFrame,
-  Float64,
-  Int32,
-  Series,
-  Utf8String,
-} from '@rapidsai/cudf';
+import {setDefaultAllocator} from '@rapidsai/cuda';
+import {Categorical, DataFrame, Float64, Int32, Series, Utf8String} from '@rapidsai/cudf';
+import {DeviceBuffer} from '@rapidsai/rmm';
+
+setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
 describe('dataframe.concat', () => {
   test('zero series in common same types', () => {

@@ -28,7 +28,7 @@ import {Scalar} from './scalar';
 import {DISPOSER} from './scope';
 import {Series} from './series';
 import {Table, ToArrowMetadata} from './table';
-import {CSVTypeMap, ReadCSVOptions, WriteCSVOptions} from './types/csv';
+import {ReadCSVOptions, WriteCSVOptions} from './types/csv';
 import {
   Bool8,
   DataType,
@@ -39,6 +39,7 @@ import {
   Int64,
   Integral,
   IntegralTypes,
+  List,
   Numeric,
   NumericTypes,
 } from './types/dtypes';
@@ -102,6 +103,16 @@ function _throwIfNonNumeric(type: DataType, operationName: string) {
  */
 export class DataFrame<T extends TypeMap = any> {
   /**
+   * Construct a DataFrame from a Table and list of column names.
+   *
+   * @param table The cudf.Table instance
+   * @param names List of string Column names
+   */
+  public static fromTable<T extends TypeMap>(table: Table, names: readonly(string&keyof T)[]) {
+    return new DataFrame(names.reduce(
+      (map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}), {} as ColumnsMap<T>));
+  }
+  /**
    * Read CSV files from disk and create a cudf.DataFrame
    *
    * @example
@@ -120,11 +131,12 @@ export class DataFrame<T extends TypeMap = any> {
    * })
    * ```
    */
-  public static readCSV<T extends CSVTypeMap = any>(options: ReadCSVOptions<T>) {
+  public static readCSV<T extends TypeMap = any>(options: ReadCSVOptions<T>) {
     const {names, table} = Table.readCSV(options);
-    return new DataFrame(new ColumnAccessor(
-      names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}),
-                   {} as ColumnsMap<{[P in keyof T]: T[P]}>)));
+    return DataFrame.fromTable<T>(table, names);
+    // return new DataFrame(new ColumnAccessor(
+    //   names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}),
+    //                {} as ColumnsMap<{[P in keyof T]: T[P]}>)));
   }
 
   /**
@@ -511,6 +523,44 @@ export class DataFrame<T extends TypeMap = any> {
   }
 
   /**
+   * @summary Flatten the elements of this DataFrame's list columns, duplicating the corresponding
+   * rows for other columns in this DataFrame.
+   *
+   * @param {string[]} names Names of List Columns to flatten. Defaults to all list Columns.
+   * @param {boolean} [includeNulls=true] Whether to retain null entries and map empty lists to
+   *   null.
+   * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
+   */
+  flatten<R extends string&keyof T>(names: readonly R[] = this.names as any,
+                                    includeNulls        = true,
+                                    memoryResource?: MemoryResource) {
+    const listColumnIndices =
+      names.map((n) => [this.types[n], this.names.indexOf(n)] as [DataType, number])
+        .filter(([t]) => arrow.DataType.isList(t))
+        .map(([, i]) => i);
+
+    type ListChild<T extends DataType> = T extends List ? T['valueType'] : T;
+
+    return listColumnIndices.reduce(
+      (df, i, j, a) => {
+        const mr    = j === a.length - 1 ? memoryResource : undefined;
+        const table = includeNulls ? df.asTable().explodeOuter(i, mr)  //
+                                   : df.asTable().explode(i, mr);
+        return DataFrame.fromTable(table, this.names as any);
+      },
+      new DataFrame<{
+        // clang-format off
+        [P in R | keyof T]:
+          P extends R
+          ? T[P] extends List
+            ? ListChild<T[P]>
+            : T[P]
+          : T[P]
+        // clang-format on
+      }>(this._accessor as any));
+  }
+
+  /**
    * @summary Interleave columns of a DataFrame into a single Series.
    *
    * @param dataType The dtype of the result Series (required if the DataFrame has mixed dtypes).
@@ -520,7 +570,7 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @example
    * ```typescript
-   * import {DataFrame, Series }  from '@rapidsai/cudf';
+   * import {DataFrame, Series}  from '@rapidsai/cudf';
    *
    * new DataFrame({
    *  a: Series.new([1, 2, 3]),
