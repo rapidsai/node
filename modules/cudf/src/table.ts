@@ -175,9 +175,9 @@ export interface Table {
          memoryResource?: MemoryResource): Table;
 
   /**
-   * Return sub-selection from a Table
+   * Return sub-selection from a Table.
    *
-   * @param selection A Series of 8/16/32-bit signed or unsigned integer indices.
+   * @param selection A Column of booleans. Rows at true indices are returned, false are omitted.
    * @param memoryResource An optional MemoryResource used to allocate the result's device memory.
    */
   applyBooleanMask(selection: Column<Bool8>, memoryResource?: MemoryResource): Table;
