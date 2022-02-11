@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  DataType,
-} from './dtypes';
+import {TypeMap} from './mappings';
 
-export type CSVTypeMap = {
-  [key: string]: DataType;
-};
-
-export interface ReadCSVOptionsCommon<T extends CSVTypeMap = any> {
+export interface ReadCSVOptionsCommon<T extends TypeMap = any> {
   /**
      Names and types of all the columns; if empty then names and types are inferred/auto-generated
    */
@@ -83,18 +77,17 @@ export interface ReadCSVOptionsCommon<T extends CSVTypeMap = any> {
   byteRange?: number;
 }
 
-export interface ReadCSVFileOptions<T extends CSVTypeMap = any> extends ReadCSVOptionsCommon<T> {
+export interface ReadCSVFileOptions<T extends TypeMap = any> extends ReadCSVOptionsCommon<T> {
   sourceType: 'files';
   sources: string[];
 }
 
-export interface ReadCSVBufferOptions<T extends CSVTypeMap = any> extends ReadCSVOptionsCommon<T> {
+export interface ReadCSVBufferOptions<T extends TypeMap = any> extends ReadCSVOptionsCommon<T> {
   sourceType: 'buffers';
   sources: (Uint8Array|Buffer)[];
 }
 
-export type ReadCSVOptions<T extends CSVTypeMap = any> =
-  ReadCSVFileOptions<T>|ReadCSVBufferOptions<T>;
+export type ReadCSVOptions<T extends TypeMap = any> = ReadCSVFileOptions<T>|ReadCSVBufferOptions<T>;
 
 export interface WriteCSVOptions {
   /** The field delimiter to write. */

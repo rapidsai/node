@@ -28,6 +28,7 @@ import {
   // StructSeries
 } from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
+import * as arrow from 'apache-arrow';
 
 const mr = new CudaMemoryResource();
 
@@ -40,8 +41,8 @@ function makeBasicData(values: number[]) {
   return new DataFrame({a, b, 'c': c});
 }
 
-function basicAggCompare<T extends {a: DataType, b: DataType, c: DataType}>(
-  result: DataFrame<T>, expected: number[]): void {
+function basicAggCompare<T extends {a: DataType, b: DataType, c: DataType}, E extends any[]>(
+  result: DataFrame<T>, expected: E): void {
   const ra = result.get('a');
   const rb = result.get('b');
   const rc = result.get('c');
@@ -50,8 +51,26 @@ function basicAggCompare<T extends {a: DataType, b: DataType, c: DataType}>(
   expect([...ra]).toEqual([...a_expected]);
 
   const b_expected = Series.new({type: rb.type, data: expected});
-  expect(rb.toArrow().toArray()).toEqualTypedArray(b_expected.toArrow().toArray() as any);
-  expect(rc.toArrow().toArray()).toEqualTypedArray(b_expected.toArrow().toArray() as any);
+
+  expect(rb.type).toEqual(b_expected.type);
+  expect(rc.type).toEqual(b_expected.type);
+
+  if (arrow.DataType.isList(rb.type)) {
+    const isIterable = (x: any): x is Iterable<any> =>  //
+      (x && typeof x === 'object' && typeof x[Symbol.iterator]);
+    const unwrap = (xs: any[]): any[][] =>  //
+      xs.map((ys) => isIterable(ys) ? unwrap([...ys]) : ys);
+
+    const actual_rb_lists  = unwrap([...rb]);
+    const actual_rc_lists  = unwrap([...rc]);
+    const b_expected_lists = unwrap([...b_expected]);
+
+    expect(actual_rb_lists).toEqual(b_expected_lists);
+    expect(actual_rc_lists).toEqual(b_expected_lists);
+  } else {
+    expect(rb.toArray()).toEqualTypedArray(b_expected.toArray() as any);
+    expect(rc.toArray()).toEqualTypedArray(b_expected.toArray() as any);
+  }
 }
 
 test('getGroups basic', () => {
@@ -344,6 +363,26 @@ test('Groupby var basic', () => {
   const df  = makeBasicData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const grp = new GroupBySingle(df, {by: 'a'});
   basicAggCompare(grp.var(), [9, 131 / 12, 31 / 3]);
+});
+
+test('Groupby collectList basic', () => {
+  // keys=[[1, 1, 1], [2, 2, 2, 2], [3, 3, 3]]
+  // vals=[[0, 3, 6], [1, 4, 5, 9], [2, 7, 8]]
+  const df  = makeBasicData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  const grp = new GroupBySingle(df, {by: 'a'});
+  basicAggCompare(grp.collectList(), [[0, 3, 6], [1, 4, 5, 9], [2, 7, 8]]);
+});
+
+test('Groupby collectSet all unique', () => {
+  const df  = makeBasicData([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  const grp = new GroupBySingle(df, {by: 'a'});
+  basicAggCompare(grp.collectSet(), [[0, 3, 6], [1, 4, 5, 9], [2, 7, 8]]);
+});
+
+test('Groupby collectSet with duplicates', () => {
+  const df  = makeBasicData([0, 1, 2, 0, 1, 1, 6, 2, 8, 9]);
+  const grp = new GroupBySingle(df, {by: 'a'});
+  basicAggCompare(grp.collectSet(), [[0, 6], [1, 9], [2, 8]]);
 });
 
 export type BasicAggType =

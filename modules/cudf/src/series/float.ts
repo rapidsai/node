@@ -26,7 +26,7 @@ import {StringSeries} from './string';
 /**
  * A base class for Series of 32 or 64-bit floating-point values in GPU memory.
  */
-abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
+export abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   _castAsString(memoryResource?: MemoryResource): StringSeries {
     return StringSeries.new(this._col.stringsFromFloats(memoryResource));
   }
@@ -298,13 +298,13 @@ abstract class FloatSeries<T extends FloatingPoint> extends NumericSeries<T> {
   /** @inheritdoc */
   min(skipNulls = true, memoryResource?: MemoryResource) {
     return (skipNulls ? this.nansToNulls().dropNulls() : this.nansToNulls())
-             ._col.min(memoryResource) ;
+      ._col.min(memoryResource);
   }
 
   /** @inheritdoc */
   max(skipNulls = true, memoryResource?: MemoryResource) {
     return (skipNulls ? this.nansToNulls().dropNulls() : this.nansToNulls())
-             ._col.max(memoryResource) ;
+      ._col.max(memoryResource);
   }
 
   /** @inheritdoc */

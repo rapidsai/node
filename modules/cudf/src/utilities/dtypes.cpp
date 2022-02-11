@@ -228,7 +228,7 @@ Napi::Object cudf_scalar_type_to_arrow_type(Napi::Env const& env, cudf::data_typ
     // case cudf::type_id::DECIMAL64: // TODO
     default:
       throw Napi::Error::New(env,
-                             "cudf_scalar_type_id_to_arrow_type not implemented for type: " +
+                             "cudf_scalar_type_to_arrow_type not implemented for type: " +
                                cudf::type_dispatcher(type, cudf::type_to_name{}));
   }
   return arrow_type;

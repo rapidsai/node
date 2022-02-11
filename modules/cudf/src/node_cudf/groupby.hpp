@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
 
 #pragma once
 
+#include <node_cudf/table.hpp>
+
 #include <nv_node/objectwrap.hpp>
 #include <nv_node/utilities/args.hpp>
 
 #include <cudf/groupby.hpp>
-#include <node_cudf/table.hpp>
 
 #include <napi.h>
 
@@ -68,15 +69,17 @@ struct GroupBy : public EnvLocalObjectWrap<GroupBy> {
   Napi::Value sum(Napi::CallbackInfo const& info);
   Napi::Value var(Napi::CallbackInfo const& info);
   Napi::Value quantile(Napi::CallbackInfo const& info);
+  Napi::Value collect_list(Napi::CallbackInfo const& info);
+  Napi::Value collect_set(Napi::CallbackInfo const& info);
 
-  std::pair<nv::Table*, rmm::mr::device_memory_resource*> _get_basic_args(
+  std::pair<Table::wrapper_t, rmm::mr::device_memory_resource*> _get_basic_args(
     Napi::CallbackInfo const& info);
 
   template <typename MakeAggregation>
-  Napi::Value _single_aggregation(MakeAggregation const& make_aggregation,
-                                  const Table* const values_table,
+  Napi::Value _single_aggregation(Napi::CallbackInfo const& info,
+                                  Table::wrapper_t const& values_table,
                                   rmm::mr::device_memory_resource* const mr,
-                                  Napi::CallbackInfo const& info);
+                                  MakeAggregation const& make_aggregation);
 };
 
 }  // namespace nv
