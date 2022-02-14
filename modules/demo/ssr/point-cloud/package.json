@@ -17,6 +17,7 @@
     "@rapidsai/cuda": "0.0.1",
     "@rapidsai/deck.gl": "0.0.1",
     "@rapidsai/jsdom": "0.0.1",
+    "@rapidsai/ssr-render-cluster": "0.0.1",
     "fastify-plugin": "3.0.0",
     "fastify-socket.io": "2.0.0",
     "fastify-static": "4.2.3",
@@ -28,7 +29,6 @@
     "socket.io": "4.1.3"
   },
   "files": [
-    "render",
     "public",
     "plugins",
     "index.js",

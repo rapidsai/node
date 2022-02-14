@@ -11,97 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 const {IpcMemory, Uint8Buffer} = require('@rapidsai/cuda');
-const {RapidsJSDOM}            = require('@rapidsai/jsdom');
-const copyFramebuffer          = require('./copy')();
 
-class Renderer {
-  constructor() {
-    const onAnimationFrameRequested = immediateAnimationFrame(this);
-    const jsdom                     = new RapidsJSDOM({module, onAnimationFrameRequested});
-
-    const {deck, render} = jsdom.window.evalFn(makeDeck);
-
-    this.deck    = deck;
-    this.jsdom   = jsdom;
-    this._render = render;
-  }
-  async render(props = {}, graph = {}, state = {}, events = [], frame = 0) {
-    const window = this.jsdom.window;
-
-    graph = openGraphIpcHandles(graph);
-    props && this.deck.setProps(props);
-
-    state?.deck && this.deck.restore(state.deck);
-    state?.graph && Object.assign(graph, state.graph);
-    state?.window && Object.assign(window, state.window);
-
-    state?.selectedInfo && Object.assign(this.deck.selectedInfo, state.selectedInfo);
-    state?.boxSelectCoordinates &&
-      Object.assign(this.deck.boxSelectCoordinates, state.boxSelectCoordinates);
-
-    (events || []).forEach((event) => window.dispatchEvent(event));
-
-    await this._render(graph,
-                       this.deck.boxSelectCoordinates.rectdata,
-                       state.pickingMode === 'boxSelect' ? {controller: {dragPan: false}}
-                                                         : {controller: {dragPan: true}});
-
-    closeIpcHandles(graph.data.nodes);
-    closeIpcHandles(graph.data.edges);
-    return {
-      frame: copyFramebuffer(this.deck.animationLoop, frame),
-      state: {
-        deck: this.deck.serialize(),
-        graph: this.deck.layerManager.getLayers()
-                 ?.find((layer) => layer.id === 'GraphLayer')
-                 .serialize(),
-        window: {
-          x: window.x,
-          y: window.y,
-          title: window.title,
-          width: window.width,
-          height: window.height,
-          cursor: window.cursor,
-          mouseX: window.mouseX,
-          mouseY: window.mouseY,
-          buttons: window.buttons,
-          scrollX: window.scrollX,
-          scrollY: window.scrollY,
-          modifiers: window.modifiers,
-          mouseInWindow: window.mouseInWindow,
-        },
-        boxSelectCoordinates: this.deck.boxSelectCoordinates,
-        selectedInfo: this.deck.selectedInfo
-      }
-    };
-  }
-}
-
-module.exports.Renderer = Renderer;
-
-function immediateAnimationFrame(renderer) {
-  let request  = null;
-  let flushing = false;
-  const flush = () => {
-    flushing = true;
-    while (request && request.active) {
-      const f = request.flush;
-      request = null;
-      f();
-    }
-    flushing = false;
-  };
-  return (r) => {
-    if (flushing) { return request = r; }
-    if (renderer?.deck?.animationLoop?._initialized) {  //
-      return flush(request = r);
-    }
-    if (!request && (request = r)) { setImmediate(flush); }
-  };
-}
-
+/**
+ * makeDeck() returns a Deck and a render callable object to be consumed by the multi-worker
+ * Renderer class' JSDOM object
+ *
+ * @returns {
+ *            DeckSSR,
+ *            render(layers = {}, boxSelectRectData = [], props = {})
+ *          }
+ */
 function makeDeck() {
   const {log: deckLog} = require('@deck.gl/core');
   deckLog.level        = 0;
@@ -144,7 +64,7 @@ function makeDeck() {
     ];
   };
 
-  getPolygonLayer = (rectdata) => {
+  const getPolygonLayer = (rectdata) => {
     return new PolygonLayer({
       filled: true,
       stroked: true,
@@ -189,17 +109,13 @@ function makeDeck() {
         layerIds: ['GraphLayer']
       };
 
-      deck.selectedInfo.selectedNodes = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
-                                          .filter(selected => selected.hasOwnProperty('nodeId'))
-                                          .map(n => n.nodeId);
+      deck.selectedInfo.nodes = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
+                                  .filter(selected => selected.hasOwnProperty('nodeId'))
+                                  .map(n => n.nodeId);
 
-      deck.selectedInfo.selectedEdges = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
-                                          .filter(selected => selected.hasOwnProperty('edgeId'))
-                                          .map(n => n.edgeId);
-      console.log('selected Nodes',
-                  deck.selectedInfo.selectedNodes,
-                  '\nselected Edges',
-                  deck.selectedInfo.selectedEdges);
+      deck.selectedInfo.edges = deck.pickObjects(deck.selectedInfo.selectedCoordinates)
+                                  .filter(selected => selected.hasOwnProperty('edgeId'))
+                                  .map(n => n.edgeId);
     }
 
   const onDrag = (info, event) => {
@@ -219,12 +135,11 @@ function makeDeck() {
       y: info.y,
       radius: 1,
     };
-    deck.selectedInfo.selectedNodes =
-      [deck.pickObject(deck.selectedInfo.selectedCoordinates)]
-        .filter(selected => selected && selected.hasOwnProperty('nodeId'))
-        .map(n => n.nodeId);
+    deck.selectedInfo.nodes = [deck.pickObject(deck.selectedInfo.selectedCoordinates)]
+                                .filter(selected => selected && selected.hasOwnProperty('nodeId'))
+                                .map(n => n.nodeId);
 
-    console.log(deck.selectedInfo.selectedNodes, deck.selectedInfo.selectedCoordinates);
+    console.log(deck.selectedInfo.nodes, deck.selectedInfo.selectedCoordinates);
   };
 
   const deck = new DeckSSR({
@@ -259,11 +174,13 @@ function makeDeck() {
 
   return {
     deck,
-    render(graph, rectdata, cb_props = {}) {
+    render(layers = {}) {
       const done = deck.animationLoop.waitForRender();
       deck.setProps({
-        layers: makeLayers(deck, graph).concat(rectdata[0].show ? getPolygonLayer(rectdata) : []),
-        ...cb_props
+        layers: makeLayers(deck, layers)
+                  .concat(deck.boxSelectCoordinates.rectdata[0].show
+                            ? getPolygonLayer(deck.boxSelectCoordinates.rectdata)
+                            : []),
       });
       deck.animationLoop.start();
       return done;
@@ -291,6 +208,11 @@ function openGraphIpcHandles({nodes, edges, ...graphLayerProps} = {}) {
     numNodes: data.nodes.length,
     numEdges: data.edges.length,
   };
+}
+
+function closeGraphIpcHandles(graph) {
+  closeIpcHandles(graph.data.nodes);
+  closeIpcHandles(graph.data.edges);
 }
 
 function openNodeIpcHandles(attrs = {}) {
@@ -335,3 +257,14 @@ function closeIpcHandles(obj) {
     }
   }
 }
+
+function serializeCustomLayer(layers = []) {
+  return layers?.find((layer) => layer.id === 'GraphLayer').serialize();
+}
+
+module.exports = {
+  makeDeck: makeDeck,
+  openLayerIpcHandles: openGraphIpcHandles,
+  closeLayerIpcHandles: closeGraphIpcHandles,
+  serializeCustomLayer: serializeCustomLayer
+};

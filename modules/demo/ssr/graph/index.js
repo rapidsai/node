@@ -15,10 +15,22 @@
 // limitations under the License.
 
 const fastify = require('fastify')();
+const fs      = require('fs');
+const path    = require('path');
+
+// create `/data` directory if it does not exist
+const basePath = path.join(__dirname, 'data/');
+fs.access(basePath, fs.constants.F_OK, (err, _) => () => {
+  if (!err) { fs.mkdir(basePath); }
+});
 
 fastify  //
   .register(require('./plugins/webrtc'), require('./plugins/graph')(fastify))
   .register(require('fastify-static'), {root: require('path').join(__dirname, 'public')})
-  .get('/', (req, reply) => reply.sendFile('video.html'));
+  .register(require('fastify-multipart'))
+  .register(require('fastify-cors'), {})
+  .register((require('fastify-arrow')))
+  .register(require('./plugins/api'))
+  .get('/', (req, reply) => reply.sendFile('video.html'))
 
 fastify.listen(8080).then(() => console.log('server ready'));
