@@ -14,7 +14,7 @@
 
 import {setDefaultAllocator} from '@rapidsai/cuda';
 import {DataFrame, Float32, Int32, Series} from '@rapidsai/cudf';
-import {Graph} from '@rapidsai/cugraph';
+import {DedupedEdgesGraph, Graph} from '@rapidsai/cugraph';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 
 const mr = new CudaMemoryResource();
@@ -57,4 +57,48 @@ test(`Graph.degree`, () => {
                                               vertex: Series.sequence({size: 4}),
                                               degree: Series.sequence({size: 4, init: 2, step: 0}),
                                             }).toString());
+});
+
+test(`Graph.dedupeEdges`, () => {
+  const src   = Series.new(['1', '2', '2', '3', '4', '1']);
+  const dst   = Series.new(['2', '3', '3', '4', '1', '2']);
+  const graph = Graph.fromEdgeList(src, dst);
+  expect(graph.numNodes).toBe(4);
+  expect(graph.numEdges).toBe(6);
+  const dd_graph = graph.dedupeEdges();
+  expect(dd_graph).toBeInstanceOf(DedupedEdgesGraph);
+  expect(dd_graph.numNodes).toBe(4);
+  expect(dd_graph.numEdges).toBe(4);
+});
+
+test(`DedupedEdgesGraph.fromEdgeList`, () => {
+  const src = Series.new(['1', '2', '2', '3', '4', '1']);
+  const dst = Series.new(['2', '3', '3', '4', '1', '2']);
+
+  const dd_src = Series.new(['1', '2', '3', '4']);
+  const dd_dst = Series.new(['2', '3', '4', '1']);
+
+  const graph = DedupedEdgesGraph.fromEdgeList(src, dst);
+
+  expect(graph.nodes.toString()).toEqual(new DataFrame({
+                                           node: dd_src.concat(dd_dst).unique()
+                                         }).toString());
+
+  expect(graph.edges.toString()).toEqual(new DataFrame({
+                                           id: Series.sequence({size: 4}),
+                                           src: dd_src,
+                                           dst: dd_dst,
+                                           weight:
+                                             Series.new({type: new Float32, data: [2, 2, 1, 1]})
+                                         }).toString());
+
+  expect(graph.nodeIds.toString()).toEqual(new DataFrame({
+                                             id: Series.sequence({size: 4})
+                                           }).toString());
+
+  expect(graph.edgeIds.toString()).toEqual(new DataFrame({
+                                             id: Series.sequence({size: 4}),
+                                             src: Series.new({type: new Int32, data: [0, 1, 2, 3]}),
+                                             dst: Series.new({type: new Int32, data: [1, 2, 3, 0]}),
+                                           }).toString());
 });
