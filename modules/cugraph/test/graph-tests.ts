@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {setDefaultAllocator} from '@rapidsai/cuda';
-import {DataFrame, Float32, Int32, Series} from '@rapidsai/cudf';
+import {Series} from '@rapidsai/cudf';
 import {DedupedEdgesGraph, Graph} from '@rapidsai/cugraph';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 
@@ -21,84 +21,100 @@ const mr = new CudaMemoryResource();
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength, mr));
 
-test(`Graph.fromEdgeList`, () => {
+describe('Graph', () => {
   const src   = Series.new(['192.168.1.1', '172.217.5.238', '216.228.121.209', '192.16.31.23']);
   const dst   = Series.new(['172.217.5.238', '216.228.121.209', '192.16.31.23', '192.168.1.1']);
   const graph = Graph.fromEdgeList(src, dst);
 
-  expect(graph.nodes.toString()).toEqual(new DataFrame({
-                                           node: src.concat(dst).unique()
-                                         }).toString());
+  test('numNodes', () => {expect(graph.numNodes).toEqual(4);});
+  test('numEdges', () => {expect(graph.numNodes).toEqual(4);});
 
-  expect(graph.edges.toString()).toEqual(new DataFrame({
-                                           id: Series.sequence({size: 4}),
-                                           src,
-                                           dst,
-                                           weight: Series.sequence(
-                                             {type: new Float32, size: 4, init: 1, step: 0}),
-                                         }).toString());
+  test(`nodes`, () => {
+    const nodes    = graph.nodes;
+    const expected = src.concat(dst).unique();
+    expect([...nodes.get('node')]).toEqual([...expected]);
+  });
 
-  expect(graph.nodeIds.toString()).toEqual(new DataFrame({
-                                             id: Series.sequence({size: 4})
-                                           }).toString());
+  test(`edges`, () => {
+    const edges = graph.edges;
+    expect([...edges.get('id')]).toEqual([0, 1, 2, 3]);
+    expect([...edges.get('src')]).toEqual([...src]);
+    expect([...edges.get('dst')]).toEqual([...dst]);
 
-  expect(graph.edgeIds.toString()).toEqual(new DataFrame({
-                                             id: Series.sequence({size: 4}),
-                                             src: Series.new({type: new Int32, data: [2, 0, 3, 1]}),
-                                             dst: Series.new({type: new Int32, data: [0, 3, 1, 2]}),
-                                           }).toString());
+    expect([...edges.get('weight')]).toEqual([1.0, 1.0, 1.0, 1.0]);
+  });
+
+  test(`nodeIds`, () => {
+    const ids = graph.nodeIds.get('id');
+    expect([...ids]).toEqual([0, 1, 2, 3]);
+  });
+
+  test(`edgeIds`, () => {
+    const edgeIds = graph.edgeIds;
+    expect([...edgeIds.get('id')]).toEqual([0, 1, 2, 3]);
+    expect([...edgeIds.get('src')]).toEqual([2, 0, 3, 1]);
+    expect([...edgeIds.get('dst')]).toEqual([0, 3, 1, 2]);
+  });
+
+  test(`degree`, () => {
+    const degree = graph.degree();
+    expect([...degree.get('vertex')]).toEqual([0, 1, 2, 3]);
+    expect([...degree.get('degree')]).toEqual([2, 2, 2, 2]);
+  });
+
+  test(`dedupeEdges`, () => {
+    const src   = Series.new(['1', '2', '2', '3', '4', '1']);
+    const dst   = Series.new(['2', '3', '3', '4', '1', '2']);
+    const graph = Graph.fromEdgeList(src, dst);
+    expect(graph.numNodes).toBe(4);
+    expect(graph.numEdges).toBe(6);
+    const dd_graph = graph.dedupeEdges();
+    expect(dd_graph).toBeInstanceOf(DedupedEdgesGraph);
+    expect(dd_graph.numNodes).toBe(4);
+    expect(dd_graph.numEdges).toBe(4);
+  });
 });
 
-test(`Graph.degree`, () => {
-  const src   = Series.new(['192.168.1.1', '172.217.5.238', '216.228.121.209', '192.16.31.23']);
-  const dst   = Series.new(['172.217.5.238', '216.228.121.209', '192.16.31.23', '192.168.1.1']);
-  const graph = Graph.fromEdgeList(src, dst);
-  expect(graph.degree().toString()).toEqual(new DataFrame({
-                                              vertex: Series.sequence({size: 4}),
-                                              degree: Series.sequence({size: 4, init: 2, step: 0}),
-                                            }).toString());
-});
-
-test(`Graph.dedupeEdges`, () => {
-  const src   = Series.new(['1', '2', '2', '3', '4', '1']);
-  const dst   = Series.new(['2', '3', '3', '4', '1', '2']);
-  const graph = Graph.fromEdgeList(src, dst);
-  expect(graph.numNodes).toBe(4);
-  expect(graph.numEdges).toBe(6);
-  const dd_graph = graph.dedupeEdges();
-  expect(dd_graph).toBeInstanceOf(DedupedEdgesGraph);
-  expect(dd_graph.numNodes).toBe(4);
-  expect(dd_graph.numEdges).toBe(4);
-});
-
-test(`DedupedEdgesGraph.fromEdgeList`, () => {
-  const src = Series.new(['1', '2', '2', '3', '4', '1']);
-  const dst = Series.new(['2', '3', '3', '4', '1', '2']);
-
+describe('DedupedEdgesGraph', () => {
+  const src    = Series.new(['1', '2', '2', '3', '4', '1']);
+  const dst    = Series.new(['2', '3', '3', '4', '1', '2']);
   const dd_src = Series.new(['1', '2', '3', '4']);
   const dd_dst = Series.new(['2', '3', '4', '1']);
+  const graph  = DedupedEdgesGraph.fromEdgeList(src, dst);
 
-  const graph = DedupedEdgesGraph.fromEdgeList(src, dst);
+  test('numNodes', () => {expect(graph.numNodes).toEqual(4);});
+  test('numEdges', () => {expect(graph.numNodes).toEqual(4);});
 
-  expect(graph.nodes.toString()).toEqual(new DataFrame({
-                                           node: dd_src.concat(dd_dst).unique()
-                                         }).toString());
+  test(`nodes`, () => {
+    const nodes    = graph.nodes;
+    const expected = dd_src.concat(dd_dst).unique();
+    expect([...nodes.get('node')]).toEqual([...expected]);
+  });
 
-  expect(graph.edges.toString()).toEqual(new DataFrame({
-                                           id: Series.sequence({size: 4}),
-                                           src: dd_src,
-                                           dst: dd_dst,
-                                           weight:
-                                             Series.new({type: new Float32, data: [2, 2, 1, 1]})
-                                         }).toString());
+  test(`edges`, () => {
+    const edges = graph.edges;
+    expect([...edges.get('id')]).toEqual([0, 1, 2, 3]);
+    expect([...edges.get('src')]).toEqual([...dd_src]);
+    expect([...edges.get('dst')]).toEqual([...dd_dst]);
 
-  expect(graph.nodeIds.toString()).toEqual(new DataFrame({
-                                             id: Series.sequence({size: 4})
-                                           }).toString());
+    expect([...edges.get('weight')]).toEqual([2.0, 2.0, 1.0, 1.0]);
+  });
 
-  expect(graph.edgeIds.toString()).toEqual(new DataFrame({
-                                             id: Series.sequence({size: 4}),
-                                             src: Series.new({type: new Int32, data: [0, 1, 2, 3]}),
-                                             dst: Series.new({type: new Int32, data: [1, 2, 3, 0]}),
-                                           }).toString());
+  test(`nodeIds`, () => {
+    const ids = graph.nodeIds.get('id');
+    expect([...ids]).toEqual([0, 1, 2, 3]);
+  });
+
+  test(`edgeIds`, () => {
+    const edgeIds = graph.edgeIds;
+    expect([...edgeIds.get('id')]).toEqual([0, 1, 2, 3]);
+    expect([...edgeIds.get('src')]).toEqual([0, 1, 2, 3]);
+    expect([...edgeIds.get('dst')]).toEqual([1, 2, 3, 0]);
+  });
+
+  test(`degree`, () => {
+    const degree = graph.degree();
+    expect([...degree.get('vertex')]).toEqual([0, 1, 2, 3]);
+    expect([...degree.get('degree')]).toEqual([2, 2, 2, 2]);
+  });
 });
