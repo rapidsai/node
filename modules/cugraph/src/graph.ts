@@ -91,6 +91,13 @@ export class Graph<T extends DataType = any> {
 
   public get edgeIds() { return this._edges.select(['id', 'src', 'dst']); }
 
+  public dedupeEdges() {
+    const src    = this.edges.get('src');
+    const dst    = this.edges.get('dst');
+    const weight = this.edges.get('weight');
+    return DedupedEdgesGraph.fromEdgeList(src, dst, weight, {directed: this._directed});
+  }
+
   /**
    * @summary Compute the total number of edges incident to a vertex (both in and out edges).
    */
@@ -129,6 +136,44 @@ export class Graph<T extends DataType = any> {
       }
     }
     return new Float32Buffer(this.graph.forceAtlas2({...options, positions}));
+  }
+}
+
+export interface ClusteringOptions extends SpectralClusteringOptions {
+  type: 'balanced_cut'|'modularity_maximization';
+}
+
+export interface AnalyzeClusteringOptions {
+  num_clusters: number;
+  cluster: Series<Int32>;
+  type: 'modularity'|'edge_cut'|'ratio_cut';
+}
+
+export class DedupedEdgesGraph<T extends DataType = any> extends Graph<T> {
+  public static fromEdgeList<T extends DataType>(
+    src: Series<T>,
+    dst: Series<T>,
+    weights = Series.sequence({type: new Float32, size: src.length, init: 1, step: 0}),
+    options: GraphOptions = {directed: true}): DedupedEdgesGraph {
+    return scope(() => {
+      const ids = new DataFrame({src, dst, id: Series.sequence({size: src.length})})
+                    .groupBy({by: ['src', 'dst'], index_key: 'src_dst'})
+                    .min();
+
+      const weight = new DataFrame({src, dst, weights: weights.cast(new Float32)})
+                       .groupBy({by: ['src', 'dst'], index_key: 'src_dst'})
+                       .sum();
+
+      const edges = ids.join({on: ['src_dst'], other: weight}).sortValues({id: {ascending: true}});
+
+      const dd_src = edges.get('src_dst').getChild('src');
+      const dd_dst = edges.get('src_dst').getChild('dst');
+
+      const rn_nodes = renumberNodes(dd_src, dd_dst);
+      const rn_edges = renumberEdges(dd_src, dd_dst, edges.get('weights'), rn_nodes);
+
+      return new DedupedEdgesGraph(rn_nodes, rn_edges, options);
+    }, [src, dst, weights]);
   }
 
   /**
@@ -179,14 +224,4 @@ export class Graph<T extends DataType = any> {
       default: throw new Error(`Unrecognized clustering type "${options.type as string}"`);
     }
   }
-}
-
-export interface ClusteringOptions extends SpectralClusteringOptions {
-  type: 'balanced_cut'|'modularity_maximization';
-}
-
-export interface AnalyzeClusteringOptions {
-  num_clusters: number;
-  cluster: Series<Int32>;
-  type: 'modularity'|'edge_cut'|'ratio_cut';
 }
