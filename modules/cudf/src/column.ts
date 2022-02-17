@@ -860,6 +860,61 @@ export interface Column<T extends DataType = any> {
   stringsToIntegers<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
 
   /**
+   * Returns a boolean column identifying strings in which all characters are valid for conversion
+   * to integers from hex.
+   *
+   * The output row entry will be set to true if the corresponding string element has at least one
+   * character in [0-9A-Za-z]. Also, the string may start with '0x'.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `BOOL8` elements with `true` representing convertible
+   *   values
+   */
+  stringIsHex(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Returns a new strings column converting integer columns to hexadecimal characters.
+   *
+   * Any null entries will result in corresponding null entries in the output column.
+   *
+   * The output character set is '0'-'9' and 'A'-'F'. The output string width will be a multiple of
+   * 2 depending on the size of the integer type. A single leading zero is applied to the first
+   * non-zero output byte if it less than 0x10.
+   *
+   * Leading zeros are suppressed unless filling out a complete byte as in 1234 -> 04D2 instead of
+   * 000004D2 or 4D2.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns A string Column with integers as strings.
+   */
+  hexFromIntegers(memoryResource?: MemoryResource): Column<Utf8String>;
+
+  /**
+   * Returns a new integer numeric column parsing hexadecimal values from the provided strings
+   * column.
+   *
+   * Any null entries will result in corresponding null entries in the output column.
+   *
+   * Only characters [0-9] and [A-F] are recognized. When any other character is encountered,
+   * the parsing ends for that string. No interpretation is made on the sign of the integer.
+   *
+   * Overflow of the resulting integer type is not checked. Each string is converted using an
+   * int64 type and then cast to the target integer type before storing it into the output column.
+   * If the resulting integer type is too small to hold the value, the stored value will be
+   * undefined.
+   *
+   * @param dataType Type of integer numeric column to return.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns A Column of a the specified integral type with the results of the conversion.
+   */
+  hexToIntegers<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
+
+  /**
    * Compute the trigonometric sine for each value in this Column.
    *
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device

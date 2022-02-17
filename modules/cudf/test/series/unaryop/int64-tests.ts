@@ -77,6 +77,10 @@ describe('Series unaryops (Int64)', () => {
     const actual = makeTestData([null, 0n, 3n, 6n]);
     expect([...actual.cast(new Utf8String)]).toEqual([null, '0', '3', '6']);
   });
+  test('Series.toHexString', () => {
+    const actual = makeTestData([1234n, 0n, 27n, null]);
+    expect([...actual.toHexString()]).toEqual(['04D2', '00', '1B', null]);
+  });
   const clampValuesLikeUnaryCast = clampIntValuesLikeUnaryCast(new Int32Array([0]));
   testForEachNumericType(
     'Series.cast %p',

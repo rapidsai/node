@@ -25,6 +25,7 @@ import {
   Int32,
   Int64,
   Int8,
+  Integral,
   Uint16,
   Uint32,
   Uint64,
@@ -232,6 +233,57 @@ export class StringSeries extends Series<Utf8String> {
   countRe(pattern: string|RegExp, memoryResource?: MemoryResource): Series<Int32> {
     const pat_string = pattern instanceof RegExp ? pattern.source : pattern;
     return Series.new(this._col.countRe(pat_string, memoryResource));
+  }
+
+  /**
+   * Returns a boolean column identifying strings in which all characters are valid for conversion
+   * to integers from hex.
+   *
+   * The output row entry will be set to true if the corresponding string element has at least one
+   * character in [0-9A-Za-z]. Also, the string may start with '0x'.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(['123', '-456', '', 'AGE', '0x9EF']);
+   *
+   * a.isHex() // [true, false, false, false, true]
+   * ```
+   */
+  isHex(memoryResource?: MemoryResource): Series<Bool8> {
+    return Series.new(this._col.stringIsHex(memoryResource));
+  }
+
+  /**
+   * Returns a new integer numeric series parsing hexadecimal values.
+   *
+   * Any null entries will result in corresponding null entries in the output series.
+   *
+   * Only characters [0-9] and [A-F] are recognized. When any other character is encountered,
+   * the parsing ends for that string. No interpretation is made on the sign of the integer.
+   *
+   * Overflow of the resulting integer type is not checked. Each string is converted using an
+   * int64 type and then cast to the target integer type before storing it into the output series.
+   * If the resulting integer type is too small to hold the value, the stored value will be
+   * undefined.
+   *
+   * @param dataType Type of integer numeric series to return.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series' device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(['04D2', 'FFFFFFFF', '00', '1B', '146D7719', null]);
+   *
+   * a.toIntegers() // [1234, -1, 0, 27, 342718233, null]
+   * ```
+   */
+  hexToIntegers<R extends Integral>(dataType: R, memoryResource?: MemoryResource): Series<R> {
+    return Series.new(this._col.hexToIntegers(dataType, memoryResource));
   }
 
   /**

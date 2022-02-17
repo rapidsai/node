@@ -206,6 +206,27 @@ test('Column.stringsToIntegers', () => {
   expect([...Series.new(result)]).toEqual(expected);
 });
 
+test('Column.stringIsHex', () => {
+  const col      = Series.new(['123', '-456', '', 'AGE', '+17EA', '0x9EF', '123ABC', null])._col;
+  const result   = col.stringIsHex();
+  const expected = [true, false, false, false, false, true, true, null];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.hexFromIntegers', () => {
+  const col      = Series.new({type: new Int32, data: [1234, -1, 0, 27, 342718233, null]})._col;
+  const result   = col.hexFromIntegers();
+  const expected = ['04D2', 'FFFFFFFF', '00', '1B', '146D7719', null];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.hexToIntegers', () => {
+  const col      = Series.new(['04D2', 'FFFFFFFF', '00', '1B', '146D7719', null])._col;
+  const result   = col.hexToIntegers(new Int32);
+  const expected = [1234, -1, 0, 27, 342718233, null];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
 describe('Column.replaceSlice', () => {
   test('prepend', () => {
     const col      = Series.new(['foo', 'bar', 'abcdef'])._col;

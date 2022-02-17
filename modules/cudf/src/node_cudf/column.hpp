@@ -837,6 +837,16 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::data_type out_type,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  Column::wrapper_t string_is_hex(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t hex_from_integers(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t hex_to_integers(
+    cudf::data_type out_type,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
  private:
   cudf::size_type size_{};                         ///< The number of elements in the column
   cudf::size_type offset_{};                       ///< The offset of elements in the data
@@ -1008,6 +1018,9 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value string_is_integer(Napi::CallbackInfo const& info);
   Napi::Value strings_from_integers(Napi::CallbackInfo const& info);
   Napi::Value strings_to_integers(Napi::CallbackInfo const& info);
+  Napi::Value string_is_hex(Napi::CallbackInfo const& info);
+  Napi::Value hex_from_integers(Napi::CallbackInfo const& info);
+  Napi::Value hex_to_integers(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

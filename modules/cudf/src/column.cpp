@@ -162,6 +162,9 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::string_is_integer>("stringIsInteger"),
                        InstanceMethod<&Column::strings_from_integers>("stringsFromIntegers"),
                        InstanceMethod<&Column::strings_to_integers>("stringsToIntegers"),
+                       InstanceMethod<&Column::string_is_hex>("stringIsHex"),
+                       InstanceMethod<&Column::hex_from_integers>("hexFromIntegers"),
+                       InstanceMethod<&Column::hex_to_integers>("hexToIntegers"),
                      });
 }
 
