@@ -165,6 +165,9 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::string_is_hex>("stringIsHex"),
                        InstanceMethod<&Column::hex_from_integers>("hexFromIntegers"),
                        InstanceMethod<&Column::hex_to_integers>("hexToIntegers"),
+                       InstanceMethod<&Column::string_is_ipv4>("stringIsIpv4"),
+                       InstanceMethod<&Column::ipv4_from_integers>("ipv4FromIntegers"),
+                       InstanceMethod<&Column::ipv4_to_integers>("ipv4ToIntegers"),
                      });
 }
 

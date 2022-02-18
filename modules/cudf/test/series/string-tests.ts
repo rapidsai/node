@@ -242,3 +242,13 @@ describe('Series.hexToIntegers', () => {
   test('Uint32', () => { testIntegralHex(new Uint32); });
   test('Uint64', () => { testBigIntegralHex(new Uint64); });
 });
+
+test('Series.isIpv4', () => {
+  const a = Series.new(['123.255.0.7', '127.0.0.1', '', '1.2.34', '123.456.789.10', null]);
+  expect([...a.isIpv4()]).toStrictEqual([true, true, false, false, false, null]);
+});
+
+test('Series.ipv4ToIntegers', () => {
+  const a = Series.new(['123.255.0.7', '127.0.0.1', null]);
+  expect([...a.ipv4ToIntegers()]).toStrictEqual([2080309255n, 2130706433n, null]);
+});

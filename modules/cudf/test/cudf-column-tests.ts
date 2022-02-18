@@ -227,6 +227,27 @@ test('Column.hexToIntegers', () => {
   expect([...Series.new(result)]).toEqual(expected);
 });
 
+test('Column.stringIsIpv4', () => {
+  const col = Series.new(['123.255.0.7', '127.0.0.1', '', '1.2.34', '123.456.789.10', null])._col;
+  const result   = col.stringIsIpv4();
+  const expected = [true, true, false, false, false, null];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.ipv4FromIntegers', () => {
+  const col      = Series.new([2080309255n, 2130706433n, null])._col;
+  const result   = col.ipv4FromIntegers();
+  const expected = ['123.255.0.7', '127.0.0.1', null];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
+test('Column.ipv4ToIntegers', () => {
+  const col      = Series.new(['123.255.0.7', '127.0.0.1', null])._col;
+  const result   = col.ipv4ToIntegers();
+  const expected = [2080309255n, 2130706433n, null];
+  expect([...Series.new(result)]).toEqual(expected);
+});
+
 describe('Column.replaceSlice', () => {
   test('prepend', () => {
     const col      = Series.new(['foo', 'bar', 'abcdef'])._col;

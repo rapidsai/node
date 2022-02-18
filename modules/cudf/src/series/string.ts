@@ -279,11 +279,69 @@ export class StringSeries extends Series<Utf8String> {
    * import {Series} from '@rapidsai/cudf';
    * const a = Series.new(['04D2', 'FFFFFFFF', '00', '1B', '146D7719', null]);
    *
-   * a.toIntegers() // [1234, -1, 0, 27, 342718233, null]
+   * a.hexToIntegers() // [1234, -1, 0, 27, 342718233, null]
    * ```
    */
   hexToIntegers<R extends Integral>(dataType: R, memoryResource?: MemoryResource): Series<R> {
     return Series.new(this._col.hexToIntegers(dataType, memoryResource));
+  }
+
+  /**
+   * Returns a boolean column identifying strings in which all characters are valid for conversion
+   * to integers from IPv4 format.
+   *
+   * The output row entry will be set to true if the corresponding string element has the following
+   * format xxx.xxx.xxx.xxx where xxx is integer digits between 0-255.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Series's device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(['123.255.0.7', '127.0.0.1', '', '1.2.34', '123.456.789.10', null]);
+   *
+   * a.isIpv4() // [true, true, false, false, false, null]
+   * ```
+   */
+  isIpv4(memoryResource?: MemoryResource): Series<Bool8> {
+    return Series.new(this._col.stringIsIpv4(memoryResource));
+  }
+
+  /**
+   * Converts IPv4 addresses into integers.
+   *
+   * The IPv4 format is 1-3 character digits [0-9] between 3 dots (e.g. 123.45.67.890). Each section
+   * can have a value between [0-255].
+   *
+   * The four sets of digits are converted to integers and placed in 8-bit fields inside the
+   * resulting integer.
+   *
+   * i0.i1.i2.i3 -> (i0 << 24) | (i1 << 16) | (i2 << 8) | (i3)
+   *
+   * No checking is done on the format. If a string is not in IPv4 format, the resulting integer is
+   * undefined.
+   *
+   * The resulting 32-bit integer is placed in an int64_t to avoid setting the sign-bit in an
+   * int32_t type. This could be changed if cudf supported a UINT32 type in the future.
+   *
+   * Any null entries will result in corresponding null entries in the output column.Returns a new
+   * Int64 numeric series parsing hexadecimal values from the provided string series.
+   *
+   * @param dataType Type of integer numeric series to return.
+   * @param memoryResource The optional MemoryResource used to allocate the result Series' device
+   *   memory.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   * const a = Series.new(['123.255.0.7', '127.0.0.1', null]);
+   *
+   * a.ipv4ToIntegers() // [2080309255n, 2130706433n, null]
+   * ```
+   */
+  ipv4ToIntegers(memoryResource?: MemoryResource): Series<Int64> {
+    return Series.new(this._col.ipv4ToIntegers(memoryResource));
   }
 
   /**
