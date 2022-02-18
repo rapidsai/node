@@ -24,7 +24,7 @@ import {concat as concatDataFrames} from './dataframe/concat';
 import {Join, JoinResult} from './dataframe/join';
 import {DataFrameFormatter, DisplayOptions} from './dataframe/print';
 import {GroupByMultiple, GroupByMultipleProps, GroupBySingle, GroupBySingleProps} from './groupby';
-import {DISPOSER} from './scope';
+import {DISPOSER, scope} from './scope';
 import {Series} from './series';
 import {Table, ToArrowMetadata} from './table';
 import {ReadCSVOptions, WriteCSVOptions} from './types/csv';
@@ -540,23 +540,27 @@ export class DataFrame<T extends TypeMap = any> {
 
     type ListChild<T extends DataType> = T extends List ? T['valueType'] : T;
 
-    return listColumnIndices.reduce(
-      (df, i, j, a) => {
-        const mr    = j === a.length - 1 ? memoryResource : undefined;
-        const table = includeNulls ? df.asTable().explodeOuter(i, mr)  //
-                                   : df.asTable().explode(i, mr);
-        return DataFrame.fromTable(table, this.names as any);
-      },
-      new DataFrame<{
-        // clang-format off
-        [P in R | keyof T]:
-          P extends R
-          ? T[P] extends List
-            ? ListChild<T[P]>
-            : T[P]
+    return scope(() => {
+      return listColumnIndices.reduce(
+        (df, i, j, a) => {
+          return scope(() => {
+                   const mr    = j === a.length - 1 ? memoryResource : undefined;
+                   const table = includeNulls ? df.asTable().explodeOuter(i, mr)  //
+                                              : df.asTable().explode(i, mr);
+                   return DataFrame.fromTable(table, this.names as any);
+                 }, [this]) as any;
+        },
+        new DataFrame<{
+          // clang-format off
+      [P in R | keyof T]:
+        P extends R
+        ? T[P] extends List
+          ? ListChild<T[P]>
           : T[P]
-        // clang-format on
-      }>(this._accessor as any));
+        : T[P]
+          // clang-format on
+        }>(this._accessor as any));
+    }, [this]);
   }
 
   /**
