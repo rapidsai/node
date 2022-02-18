@@ -548,16 +548,16 @@ export class DataFrame<T extends TypeMap = any> {
                    const table = includeNulls ? df.asTable().explodeOuter(i, mr)  //
                                               : df.asTable().explode(i, mr);
                    return DataFrame.fromTable(table, this.names as any);
-                 }, [df]) as any;
+                 }, [this]) as any;
         },
         new DataFrame<{
           // clang-format off
-        [P in R | keyof T]:
-          P extends R
-          ? T[P] extends List
-            ? ListChild<T[P]>
-            : T[P]
+      [P in R | keyof T]:
+        P extends R
+        ? T[P] extends List
+          ? ListChild<T[P]>
           : T[P]
+        : T[P]
           // clang-format on
         }>(this._accessor as any));
     }, [this]);
