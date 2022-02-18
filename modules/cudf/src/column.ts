@@ -860,6 +860,122 @@ export interface Column<T extends DataType = any> {
   stringsToIntegers<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
 
   /**
+   * Returns a boolean column identifying strings in which all characters are valid for conversion
+   * to integers from hex.
+   *
+   * The output row entry will be set to true if the corresponding string element has at least one
+   * character in [0-9A-Za-z]. Also, the string may start with '0x'.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `BOOL8` elements with `true` representing convertible
+   *   values
+   */
+  stringIsHex(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Returns a new strings column converting integer columns to hexadecimal characters.
+   *
+   * Any null entries will result in corresponding null entries in the output column.
+   *
+   * The output character set is '0'-'9' and 'A'-'F'. The output string width will be a multiple of
+   * 2 depending on the size of the integer type. A single leading zero is applied to the first
+   * non-zero output byte if it less than 0x10.
+   *
+   * Leading zeros are suppressed unless filling out a complete byte as in 1234 -> 04D2 instead of
+   * 000004D2 or 4D2.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns A string Column with integers as strings.
+   */
+  hexFromIntegers(memoryResource?: MemoryResource): Column<Utf8String>;
+
+  /**
+   * Returns a new integer numeric column parsing hexadecimal values from the provided strings
+   * column.
+   *
+   * Any null entries will result in corresponding null entries in the output column.
+   *
+   * Only characters [0-9] and [A-F] are recognized. When any other character is encountered,
+   * the parsing ends for that string. No interpretation is made on the sign of the integer.
+   *
+   * Overflow of the resulting integer type is not checked. Each string is converted using an
+   * int64 type and then cast to the target integer type before storing it into the output column.
+   * If the resulting integer type is too small to hold the value, the stored value will be
+   * undefined.
+   *
+   * @param dataType Type of integer numeric column to return.
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns A Column of a the specified integral type with the results of the conversion.
+   */
+  hexToIntegers<R extends DataType>(dataType: R, memoryResource?: MemoryResource): Column<R>;
+
+  /**
+   * Returns a boolean column identifying strings in which all characters are valid for conversion
+   * to integers from IPv4 format.
+   *
+   * The output row entry will be set to true if the corresponding string element has the following
+   * format xxx.xxx.xxx.xxx where xxx is integer digits between 0-255.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns A non-nullable column of `BOOL8` elements with `true` representing convertible
+   *   values
+   */
+  stringIsIpv4(memoryResource?: MemoryResource): Column<Bool8>;
+
+  /**
+   * Converts integers into IPv4 addresses as strings.
+   *
+   * The IPv4 format is 1-3 character digits [0-9] between 3 dots (e.g. 123.45.67.890). Each section
+   * can have a value between [0-255].
+   *
+   * Each input integer is dissected into four integers by dividing the input into 8-bit sections.
+   * These sub-integers are then converted into [0-9] characters and placed between '.' characters.
+   *
+   * No checking is done on the input integer value. Only the lower 32-bits are used.
+   *
+   * Any null entries will result in corresponding null entries in the output column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns A string Column with ipv4 addresses as strings.
+   */
+  ipv4FromIntegers(memoryResource?: MemoryResource): Column<Utf8String>;
+
+  /**
+   * Converts IPv4 addresses into integers.
+   *
+   * The IPv4 format is 1-3 character digits [0-9] between 3 dots (e.g. 123.45.67.890). Each section
+   * can have a value between [0-255].
+   *
+   * The four sets of digits are converted to integers and placed in 8-bit fields inside the
+   * resulting integer.
+   *
+   * i0.i1.i2.i3 -> (i0 << 24) | (i1 << 16) | (i2 << 8) | (i3)
+   *
+   * No checking is done on the format. If a string is not in IPv4 format, the resulting integer is
+   * undefined.
+   *
+   * The resulting 32-bit integer is placed in an int64_t to avoid setting the sign-bit in an
+   * int32_t type. This could be changed if cudf supported a UINT32 type in the future.
+   *
+   * Any null entries will result in corresponding null entries in the output column.Returns a new
+   * Int64 numeric column parsing hexadecimal values from the provided strings column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   *
+   * @returns New INT64 column converted from strings.
+   */
+  ipv4ToIntegers(memoryResource?: MemoryResource): Column<Int64>;
+
+  /**
    * Compute the trigonometric sine for each value in this Column.
    *
    * @param memoryResource The optional MemoryResource used to allocate the result Column's device
