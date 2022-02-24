@@ -13,16 +13,17 @@
 // limitations under the License.
 
 import {DeckContext, DeckLayer, UpdateStateProps} from '../../deck.gl';
-const {Layer, project32, gouraudLighting, picking, UNIT} = require('@deck.gl/core');
+const {Layer, project32, gouraudLighting, UNIT} = require('@deck.gl/core');
+import GL from '@luma.gl/constants';
 import {Geometry, Model} from '@luma.gl/engine';
 
 import {pointColorAccessor, pointPositionAccessor} from './attributes';
 
-import pointFragmentShader from './point-cloud-layer-fragment.glsl';
-import pointVertexShader from './point-cloud-layer-vertex.glsl';
+import fs from './point-cloud-layer-fragment.glsl';
+import vs from './point-cloud-layer-vertex.glsl';
 
 // const DEFAULT_COLOR  = [0, 0, 0, 255];
-// const DEFAULT_NORMAL = [0, 0, 1];
+const DEFAULT_NORMAL = [0, 0, 1];
 
 function normalizeData(data: any) {
   const {header, attributes} = data;
@@ -37,25 +38,35 @@ function normalizeData(data: any) {
 
 export class PointCloudGPUBase extends (Layer as typeof DeckLayer) {
   static get layerName() { return 'PointCloudGPUBase'; }
-
+  getShaders() { return super.getShaders({vs, fs, modules: [project32, gouraudLighting]}); }
+  static use64bitPositions() { return false; }
   static get defaultProps() {
     return {
       sizeUnits: 'pixels',
+      opacity: {type: 'number', min: 0, max: 1, value: 0.5},
       pointSize: {type: 'number', min: 0, value: 10},  //  point radius in pixels
       material: true,
+      getPositionX: {type: 'accessor', value: (x: any) => x.positionX},
+      getPositionY: {type: 'accessor', value: (x: any) => x.positionY},
+      getPositionZ: {type: 'accessor', value: (x: any) => x.positionZ},
+      getColor: {type: 'accessor', value: [255, 255, 255, 255]},
+      getNormal: {type: 'accessor', value: DEFAULT_NORMAL},
       // Depreated
       radiusPixels: {deprecatedFor: 'pointSize'}
     };
   }
 
-  static getAccessors({gl}: {gl: WebGLRenderingContext}) {
+  static getAccessors({gl}: {gl: WebGL2RenderingContext}) {
     return {
-      instancePositionsX: {...pointPositionAccessor(gl), accessor: 'getPositionX'},
-      instancePositionsY: {...pointPositionAccessor(gl), accessor: 'getPositionY'},
-      instancePositionsZ: {...pointPositionAccessor(gl), accessor: 'getPositionZ'},
+      instancePositionsX:
+        {...pointPositionAccessor(gl), fp64: this.use64bitPositions(), accessor: 'getPositionX'},
+      instancePositionsY:
+        {...pointPositionAccessor(gl), fp64: this.use64bitPositions(), accessor: 'getPositionY'},
+      instancePositionsZ:
+        {...pointPositionAccessor(gl), fp64: this.use64bitPositions(), accessor: 'getPositionZ'},
       instanceColors: {...pointColorAccessor(gl), accessor: 'getColor'},
-      // instanceNormals:
-      //   {size: 3, transition: true, accessor: 'getNormal', defaultValue: DEFAULT_NORMAL},
+      instanceNormals:
+        {size: 3, transition: true, accessor: 'getNormal', defaultValue: DEFAULT_NORMAL},
     };
   }
 
@@ -69,7 +80,7 @@ export class PointCloudGPUBase extends (Layer as typeof DeckLayer) {
     super.updateState({props, oldProps, context, changeFlags});
     if (changeFlags.extensionsChanged) {
       this.state.model?.delete();
-      this.state.model = this._getModel(context);
+      this.state.model = this._getModel(context.gl);
       this.getAttributeManager().invalidateAll();
     }
     if (changeFlags.dataChanged) { normalizeData(props.data); }
@@ -77,27 +88,30 @@ export class PointCloudGPUBase extends (Layer as typeof DeckLayer) {
 
   draw({uniforms, ...rest}: {uniforms?: any, context?: DeckContext} = {}) {
     const {pointSize, sizeUnits} = this.props;
-
-    this.state.model.draw(
-      {...rest, uniforms: {sizeUnits: UNIT[sizeUnits], radiusPixels: pointSize, ...uniforms}});
+    this.state.model.draw({
+      ...rest,
+      uniforms: {
+        sizeUnits: UNIT[sizeUnits],
+        radiusPixels: pointSize,
+        ...uniforms,
+      }
+    });
   }
 
-  _getModel({gl, shaderCache}: DeckContext) {
-    return new Model(gl, <any>{
+  _getModel(gl: WebGL2RenderingContext) {
+    // a triangle that minimally cover the unit circle
+    const positions = [];
+    for (let i = 0; i < 3; i++) {
+      const angle = (i / 3) * Math.PI * 2;
+      positions.push(Math.cos(angle) * 2, Math.sin(angle) * 2, 0);
+    }
+
+    return new Model(gl, {
       id: this.props.id,
-      shaderCache,
-      modules: [project32, picking, gouraudLighting],
-      vs: pointVertexShader,
-      fs: pointFragmentShader,
-      // isIndexed: true,
+      ...this.getShaders(),
       isInstanced: true,
-      indexType: gl.UNSIGNED_INT,
-      geometry: new Geometry({
-        drawMode: gl.TRIANGLE_FAN,
-        vertexCount: 4,
-        attributes:
-          {positions: {size: 3, value: new Float32Array([-1, -1, 0, -1, 1, 0, 1, 1, 0, 1, -1, 0])}}
-      }),
+      geometry: new Geometry(
+        {drawMode: GL.TRIANGLES, attributes: {positions: new Float32Array(positions)}}),
     });
   }
 }

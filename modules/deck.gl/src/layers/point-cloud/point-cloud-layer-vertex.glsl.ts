@@ -29,6 +29,7 @@ uniform int sizeUnits;
 in vec3 positions;
 in vec4 instanceColors;
 in vec3 instancePickingColors;
+in vec3 instanceNormals;
 in float instancePositionsX;
 in float instancePositionsY;
 in float instancePositionsZ;
@@ -41,7 +42,7 @@ out vec2 unitPosition;
 
 void main(void) {
   geometry.worldPosition = vec3(instancePositionsX, instancePositionsY, instancePositionsZ);
-  geometry.normal = project_normal(vec3(0.,0.,1.0));
+  geometry.normal = project_normal(instanceNormals);
   // position on the containing square in [-1, 1] space
   unitPosition = positions.xy;
   geometry.uv = unitPosition;

@@ -19,8 +19,8 @@ export const pointPositionAccessor = (gl: WebGLRenderingContext) => ({size: 1, t
 export const pointColorAccessor = (gl: WebGLRenderingContext) =>
   ({size: 4, type: gl.UNSIGNED_BYTE, normalized: true});
 
-export const pointNormalizeAccessor = (gl: WebGLRenderingContext) =>
-  ({size: 3, type: gl.UNSIGNED_BYTE});
+// export const pointNormalizeAccessor = (gl: WebGLRenderingContext) =>
+//   ({size: 3, type: gl.UNSIGNED_BYTE});
 
 export class PointColorBuffer extends Buffer {
   constructor(gl: WebGLRenderingContext, byteLength = 0) {
@@ -36,9 +36,9 @@ export class PointPositionBuffer extends Buffer {
   }
 }
 
-export class PointNormalizeBuffer extends Buffer {
-  constructor(gl: WebGLRenderingContext, byteLength = 0) {
-    byteLength = Math.max(byteLength || 0, 1);
-    super(gl, {byteLength, accessor: pointNormalizeAccessor(gl)});
-  }
-}
+// export class PointNormalizeBuffer extends Buffer {
+//   constructor(gl: WebGLRenderingContext, byteLength = 0) {
+//     byteLength = Math.max(byteLength || 0, 1);
+//     super(gl, {byteLength, accessor: pointNormalizeAccessor(gl)});
+//   }
+// }

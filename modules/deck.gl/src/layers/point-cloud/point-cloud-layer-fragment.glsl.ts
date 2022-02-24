@@ -24,8 +24,9 @@ export default `\
 
 precision highp float;
 
-out vec4 vColor;
-out vec2 unitPosition;
+in vec4 vColor;
+in vec2 unitPosition;
+out vec4 fragColor;
 
 void main(void) {
   geometry.uv = unitPosition;
@@ -33,7 +34,7 @@ void main(void) {
   if (distToCenter > 1.0) {
     discard;
   }
-  gl_FragColor = vColor;
-  DECKGL_FILTER_COLOR(gl_FragColor, geometry);
+  fragColor = vColor;
+  DECKGL_FILTER_COLOR(fragColor, geometry);
 }
 `;

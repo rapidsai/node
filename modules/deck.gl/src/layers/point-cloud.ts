@@ -21,7 +21,6 @@ import {Buffer} from '../buffer';
 
 import {PointCloudGPUBase} from './point-cloud/point-cloud-base';
 import {PointColorBuffer, PointPositionBuffer} from './point-cloud/attributes';
-
 const pointBufferNames = ['pointPositionX', 'pointPositionY', 'pointPositionZ', 'pointColor'];
 
 export class PointCloudLayer extends (CompositeLayer as typeof DeckCompositeLayer) {
@@ -104,19 +103,15 @@ export class PointCloudLayer extends (CompositeLayer as typeof DeckCompositeLaye
         const length = Math.min(maxNumElements, numElements - offset);
         layers.push(new LayerClass(this.getSubLayerProps(getProps(index, offset, length))));
       }
-      console.log(layers, count);
     };
 
-    renderChunks(this.state.numPointsLoaded,
+    renderChunks(state.numPointsLoaded,
                  PointCloudGPUBase,
-                 (index, offset) => ({
+                 (index, offset, length) => ({
                    id: `${PointCloudGPUBase.layerName}-${index}`,
                    ...PointCloudGPUBaseProps(props, state, offset, length),
                  }));
-    // console.log(state.numPointsLoaded);
 
-    // layers.push(new PointCloudGPUBase(
-    //   this.getSubLayerProps(PointCloudGPUBaseProps(props, state, 0, state.numPointsLoaded))));
     return layers;
   }
 }
@@ -170,7 +165,8 @@ const PointCloudGPUBaseProps = (props: any, state: any, offset: number, length: 
   sizeUnits: props.sizeUnits,
   numInstances: length,
   getNormal: props.getNormal,
-  getColor: props.getColor,
+  opacity: props.opacity,
+  pointSize: props.pointSize,
   data: {
     attributes: {
       instancePositionsX: sliceLayerAttrib(offset, state.buffers.pointPositionX),
