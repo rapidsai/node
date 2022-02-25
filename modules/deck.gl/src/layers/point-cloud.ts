@@ -20,8 +20,13 @@ import {Accessor} from '@luma.gl/webgl';
 import {Buffer} from '../buffer';
 
 import {PointCloudGPUBase} from './point-cloud/point-cloud-base';
-import {PointColorBuffer, PointPositionBuffer} from './point-cloud/attributes';
-const pointBufferNames = ['pointPositionX', 'pointPositionY', 'pointPositionZ', 'pointColor'];
+import {
+  PointColorBuffer,
+  PointNormalizeBuffer,
+  PointPositionBuffer
+} from './point-cloud/attributes';
+const pointBufferNames =
+  ['pointPositionX', 'pointPositionY', 'pointPositionZ', 'pointColor', 'pointNormal'];
 
 export class PointCloudLayer extends (CompositeLayer as typeof DeckCompositeLayer) {
   static get layerName() { return 'PointCloudLayer'; }
@@ -42,6 +47,7 @@ export class PointCloudLayer extends (CompositeLayer as typeof DeckCompositeLaye
         pointPositionY: new PointPositionBuffer(gl),
         pointPositionZ: new PointPositionBuffer(gl),
         pointColor: new PointColorBuffer(gl),
+        pointNormal: new PointNormalizeBuffer(gl)
       },
     });
   }
@@ -161,21 +167,29 @@ const copyUpdatesIntoBuffers = ({buffers, updates, numPointsLoaded}: any) => {
 const sliceLayerAttrib = (multiplier: number, buffer: LumaBuffer, offset = 0) =>
   ({buffer, offset: (buffer.accessor as Accessor).BYTES_PER_VERTEX * multiplier + offset});
 
-const PointCloudGPUBaseProps = (props: any, state: any, offset: number, length: number) => ({
-  sizeUnits: props.sizeUnits,
-  numInstances: length,
-  getNormal: props.getNormal,
-  opacity: props.opacity,
-  pointSize: props.pointSize,
-  data: {
-    attributes: {
-      instancePositionsX: sliceLayerAttrib(offset, state.buffers.pointPositionX),
-      instancePositionsY: sliceLayerAttrib(offset, state.buffers.pointPositionY),
-      instancePositionsZ: sliceLayerAttrib(offset, state.buffers.pointPositionZ),
-      instancePositionsX64Low: sliceLayerAttrib(offset, state.buffers.pointPositionX),
-      instancePositionsY64Low: sliceLayerAttrib(offset, state.buffers.pointPositionY),
-      instancePositionsZ64Low: sliceLayerAttrib(offset, state.buffers.pointPositionZ),
-      instanceColors: sliceLayerAttrib(offset, state.buffers.pointColor)
-    }
-  },
-});
+const PointCloudGPUBaseProps = (props: any, state: any, offset: number, length: number) => {
+  const pointCloudProps = {
+    ...props,
+    numInstances: length,
+    data: {
+      attributes: {
+        instancePositionsX: sliceLayerAttrib(offset, state.buffers.pointPositionX),
+        instancePositionsY: sliceLayerAttrib(offset, state.buffers.pointPositionY),
+        instancePositionsZ: sliceLayerAttrib(offset, state.buffers.pointPositionZ),
+        instancePositionsX64Low: sliceLayerAttrib(offset, state.buffers.pointPositionX),
+        instancePositionsY64Low: sliceLayerAttrib(offset, state.buffers.pointPositionY),
+        instancePositionsZ64Low: sliceLayerAttrib(offset, state.buffers.pointPositionZ)
+      }
+    },
+  };
+
+  if (props.data.points.attributes.pointColor) {
+    pointCloudProps.data.attributes.instanceColors =
+      sliceLayerAttrib(offset, state.buffers.pointColor);
+  }
+  if (props.data.points.attributes.pointNormal) {
+    pointCloudProps.data.attributes.instanceNormals =
+      sliceLayerAttrib(offset, state.buffers.pointNormal);
+  }
+  return pointCloudProps;
+};
