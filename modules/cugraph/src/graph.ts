@@ -95,7 +95,7 @@ export class Graph<T extends DataType = any> {
     const src    = this.edges.get('src');
     const dst    = this.edges.get('dst');
     const weight = this.edges.get('weight');
-    return DedupedEdgesGraph.fromEdgeList(src, dst, weight, {directed: this._directed});
+    return DedupedEdgesGraph.fromEdgeList<T>(src, dst, weight, {directed: this._directed});
   }
 
   /**

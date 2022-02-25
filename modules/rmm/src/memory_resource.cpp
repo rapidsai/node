@@ -40,11 +40,11 @@ Napi::Function MemoryResource::Init(Napi::Env const& env, Napi::Object exports) 
 
 MemoryResource::MemoryResource(CallbackArgs const& args)
   : EnvLocalObjectWrap<MemoryResource>(args) {
-  auto env   = args.Env();
-  auto& arg0 = args[0];
-  auto& arg1 = args[1];
-  auto& arg2 = args[2];
-  auto& arg3 = args[3];
+  auto env  = args.Env();
+  auto arg0 = args[0];
+  auto arg1 = args[1];
+  auto arg2 = args[2];
+  auto arg3 = args[3];
 
   NODE_CUDA_EXPECT(arg0.IsNumber(),
                    "MemoryResource constructor expects a numeric MemoryResourceType argument.",
@@ -67,8 +67,8 @@ MemoryResource::MemoryResource(CallbackArgs const& args)
                        "which to allocate blocks for the pool.",
                        env);
       rmm::mr::device_memory_resource* mr = arg1;
-      size_t const initial_pool_size      = arg2.IsNumber() ? arg2 : -1;
-      size_t const maximum_pool_size      = arg3.IsNumber() ? arg3 : -1;
+      size_t const initial_pool_size      = arg2.IsNumber() ? arg2 : -1uL;
+      size_t const maximum_pool_size      = arg3.IsNumber() ? arg3 : -1uL;
       upstream_mr_                        = Napi::Persistent(arg1.ToObject());
       mr_ = std::make_shared<rmm::mr::pool_memory_resource<rmm::mr::device_memory_resource>>(
         mr,
