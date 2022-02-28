@@ -19,7 +19,7 @@ const {pipeline}        = require('stream')
 const pump              = util.promisify(pipeline)
 const glob              = require('glob');
 const {Float32Buffer}   = require('@rapidsai/cuda');
-const {GraphCOO}        = require('@rapidsai/cugraph');
+const {Graph}           = require('@rapidsai/cugraph');
 const {DataFrame, Series, Int32, Uint8, Uint32, Uint64, Float32, Float64} =
   require('@rapidsai/cudf');
 const {loadEdges, loadNodes}    = require('../graph/loader');
@@ -133,10 +133,10 @@ module.exports = function(fastify, opts, done) {
     const asDeviceMemory = (buf) => new (buf[Symbol.species])(buf);
     const src                    = data.edges.dataframe.get(data.edges.src);
     const dst                    = data.edges.dataframe.get(data.edges.dst);
-    const graph                  = new GraphCOO(src._col, dst._col, {directedEdges: true});
+    const graph                  = Graph.fromEdgeList(src, dst);
     fastify[graphs][id]          = {
       refCount: 0,
-      nodes: await getNodesForGraph(asDeviceMemory, data.nodes, graph.numNodes()),
+      nodes: await getNodesForGraph(asDeviceMemory, data.nodes, graph.numNodes),
       edges: await getEdgesForGraph(asDeviceMemory, data.edges),
       graph: graph,
     };
@@ -154,11 +154,11 @@ module.exports = function(fastify, opts, done) {
       graph: fastify[graphs][id].graph,
       nodes: {
         ...fastify[graphs][id].nodes,
-        length: fastify[graphs][id].graph.numNodes(),
+        length: fastify[graphs][id].graph.numNodes,
       },
       edges: {
         ...fastify[graphs][id].edges,
-        length: fastify[graphs][id].graph.numEdges(),
+        length: fastify[graphs][id].graph.numEdges,
       },
     };
   }

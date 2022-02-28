@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const wrtc            = require('wrtc');
-const {DeviceBuffer}  = require('@rapidsai/rmm');
-const {MemoryView}    = require('@rapidsai/cuda');
-const {Float32Buffer} = require('@rapidsai/cuda');
-const {Graph}         = require('@rapidsai/cugraph');
-const {Series, Int32} = require('@rapidsai/cudf');
+const wrtc         = require('wrtc');
+const {MemoryView} = require('@rapidsai/cuda');
+const {DataFrame}  = require('@rapidsai/cudf');
 
 const {RenderCluster} = require('../../render/cluster');
 
@@ -116,65 +113,11 @@ function graphSSRClients(fastify) {
       }
     }
   }
-
-  async function loadGraph(id) {
-    let dataframes = [];
-
-    if (!(id in graphs)) {
-      const asDeviceMemory = (buf) => new (buf[Symbol.species])(buf);
-      dataframes                   = await Promise.all([loadNodes(id), loadEdges(id)]);
-      const src                    = dataframes[1].get('src');
-      const dst                    = dataframes[1].get('dst');
-      graphs[id]                   = {
-        refCount: 0,
-        nodes: {
-          nodeRadius: asDeviceMemory(dataframes[0].get('size').data),
-          nodeFillColors: asDeviceMemory(dataframes[0].get('color').data),
-          nodeElementIndices: asDeviceMemory(dataframes[0].get('id').data),
-        },
-        edges: {
-          edgeList: asDeviceMemory(dataframes[1].get('edge').data),
-          edgeColors: asDeviceMemory(dataframes[1].get('color').data),
-          edgeBundles: asDeviceMemory(dataframes[1].get('bundle').data),
-        },
-        graph: Graph.fromEdgeList(src, dst),
-      };
-    }
-
-    ++graphs[id].refCount;
-
-    const pos = new Float32Buffer(Array.from(
-      {length: graphs[id].graph.numNodes * 2},
-      () => Math.random() * 1000 * (Math.random() < 0.5 ? -1 : 1),
-      ));
-
-    return {
-      gravity: 0.0,
-      linLogMode: false,
-      scalingRatio: 5.0,
-      barnesHutTheta: 0.0,
-      jitterTolerance: 0.05,
-      strongGravityMode: false,
-      outboundAttraction: false,
-      graph: graphs[id].graph,
-      nodes: {
-        ...graphs[id].nodes,
-        length: graphs[id].graph.numNodes,
-        nodeXPositions: pos.subarray(0, pos.length / 2),
-        nodeYPositions: pos.subarray(pos.length / 2),
-      },
-      edges: {
-        ...graphs[id].edges,
-        length: graphs[id].graph.numEdges,
-      },
-      dataframes: dataframes
-    };
-  }
 }
 
 function layoutAndRenderGraphs(clients) {
   const renderer = new RenderCluster(
-    {numWorkers: 1 && 4, renderClassPath: require('path').join(__dirname, 'deck')});
+    {numWorkers: 1 && 4, deckLayersPath: require('path').join(__dirname, 'deck')});
 
   return () => {
     for (const id in clients) {
