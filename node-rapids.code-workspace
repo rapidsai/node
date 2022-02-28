@@ -143,6 +143,12 @@
             "editor.formatOnSaveMode": "file",
             "editor.defaultFormatter": "xaver.clang-format"
         },
+        "[cuda-cpp]": {
+            "editor.tabSize": 2,
+            "editor.formatOnSave": true,
+            "editor.formatOnSaveMode": "file",
+            "editor.defaultFormatter": "xaver.clang-format"
+        },
         "[json]": {
             "editor.tabSize": 2,
             "editor.formatOnSave": true,
@@ -196,8 +202,8 @@
         "files.insertFinalNewline": true,
         "files.trimTrailingWhitespace": true,
         "files.associations": {
-            "*.cu": "cuda",
-            "*.cuh": "cuda",
+            "*.cu": "cuda-cpp",
+            "*.cuh": "cuda-cpp",
             "*.glsl.js": "glsl",
             "*.glsl.ts": "glsl"
         },

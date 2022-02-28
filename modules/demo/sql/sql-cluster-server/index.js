@@ -71,6 +71,7 @@ fastify.register((require('fastify-arrow')))
         arrowTable.schema.metadata.set('queryResults', resultCount);
         RecordBatchStreamWriter.writeAll(arrowTable).pipe(reply.stream());
 
+        // TODO: remove these calls to dispose once scope() supports async
         results.dispose();
         dfs.forEach((df) => df.dispose());
       } catch (err) {
@@ -94,7 +95,9 @@ function head(dfs, rows) {
     rowCount += dfs[i].numRows;
     if (result.numRows <= rows) {
       const head = dfs[i].head(rows - result.numRows);
-      result = result.concat(head);
+      result     = result.concat(head);
+
+      // TODO: remove this call to dispose once scope() supports async
       head.dispose();
     }
   }

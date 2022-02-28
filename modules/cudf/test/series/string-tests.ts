@@ -211,3 +211,44 @@ test('Series.zfill', () => {
   const a = Series.new(['1234', '-9876', '+0.34', '-342567', null]);
   expect([...a.zfill(6)]).toStrictEqual(['001234', '0-9876', '0+0.34', '-342567', null]);
 });
+
+test('Series.isHex', () => {
+  const a = Series.new(['123', '-456', '', 'AGE', '+17EA', '0x9EF', '123ABC', null]);
+  expect([...a.isHex()]).toStrictEqual([true, false, false, false, false, true, true, null]);
+});
+
+function testSmallIntegralHex<T extends Uint8|Int8>(type: T) {
+  const a = Series.new(['00', '1B', null]);
+  expect([...a.hexToIntegers(type)]).toStrictEqual([0, 27, null]);
+}
+
+function testIntegralHex<T extends Int16|Int32|Uint16|Uint32>(type: T) {
+  const a = Series.new(['04D2', '00', '1B', null]);
+  expect([...a.hexToIntegers(type)]).toStrictEqual([1234, 0, 27, null]);
+}
+
+function testBigIntegralHex<T extends Uint64|Int64>(type: T) {
+  const a = Series.new(['04D2', '00', '1B', null]);
+  expect([...a.hexToIntegers(type)]).toStrictEqual([1234n, 0n, 27n, null]);
+}
+
+describe('Series.hexToIntegers', () => {
+  test('Int8', () => { testSmallIntegralHex(new Int8); });
+  test('Int16', () => { testIntegralHex(new Int16); });
+  test('Int32', () => { testIntegralHex(new Int32); });
+  test('Int64', () => { testBigIntegralHex(new Int64); });
+  test('Uint8', () => { testSmallIntegralHex(new Uint8); });
+  test('Uint16', () => { testIntegralHex(new Uint16); });
+  test('Uint32', () => { testIntegralHex(new Uint32); });
+  test('Uint64', () => { testBigIntegralHex(new Uint64); });
+});
+
+test('Series.isIpv4', () => {
+  const a = Series.new(['123.255.0.7', '127.0.0.1', '', '1.2.34', '123.456.789.10', null]);
+  expect([...a.isIpv4()]).toStrictEqual([true, true, false, false, false, null]);
+});
+
+test('Series.ipv4ToIntegers', () => {
+  const a = Series.new(['123.255.0.7', '127.0.0.1', null]);
+  expect([...a.ipv4ToIntegers()]).toStrictEqual([2080309255n, 2130706433n, null]);
+});

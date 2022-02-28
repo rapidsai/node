@@ -28,7 +28,6 @@ import {Column} from '../column';
 import {Scalar} from '../scalar';
 import {Series} from '../series';
 import {
-  Bool8,
   Int16,
   Int32,
   Int64,
@@ -38,8 +37,12 @@ import {
   Uint32,
   Uint64,
   Uint8,
+  Utf8String
 } from '../types/dtypes';
 
+import {CommonType} from '../types/mappings';
+
+import {Float64Series} from './float';
 import {NumericSeries} from './numeric';
 import {StringSeries} from './string';
 
@@ -52,15 +55,36 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
   }
 
   /**
+   * Returns a new string Series converting integer columns to hexadecimal characters.
+   *
+   * Any null entries will result in corresponding null entries in the output series.
+   *
+   * The output character set is '0'-'9' and 'A'-'F'. The output string width will be a multiple of
+   * 2 depending on the size of the integer type. A single leading zero is applied to the first
+   * non-zero output byte if it less than 0x10.
+   *
+   * Leading zeros are suppressed unless filling out a complete byte as in 1234 -> 04D2 instead of
+   * 000004D2 or 4D2.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Series' device
+   *   memory.
+   */
+  toHexString(memoryResource?: MemoryResource): Series<Utf8String> {
+    return Series.new(this._col.hexFromIntegers(memoryResource));
+  }
+
+  /**
    * Perform a binary `&` operation between this Series and another Series or scalar value.
    *
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  bitwiseAnd(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  bitwiseAnd(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwiseAnd<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwiseAnd<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseAnd(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  bitwiseAnd(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  bitwiseAnd<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  bitwiseAnd<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   bitwiseAnd<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                  memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -79,10 +103,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  bitwiseOr(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  bitwiseOr(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwiseOr<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwiseOr<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseOr(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  bitwiseOr(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  bitwiseOr<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  bitwiseOr<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   bitwiseOr<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                 memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -101,10 +127,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  bitwiseXor(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  bitwiseXor(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  bitwiseXor<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  bitwiseXor<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  bitwiseXor(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  bitwiseXor(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  bitwiseXor<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  bitwiseXor<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   bitwiseXor<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                  memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -123,10 +151,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  shiftLeft(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  shiftLeft(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shiftLeft<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  shiftLeft<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  shiftLeft(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  shiftLeft(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  shiftLeft<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  shiftLeft<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   shiftLeft<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                 memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -146,10 +176,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  shiftRight(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  shiftRight(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shiftRight<R extends Integral>(rhs: Scalar<R>, memoryResource?: MemoryResource): Series<T>;
-  shiftRight<R extends Integral>(rhs: IntSeries<R>, memoryResource?: MemoryResource): Series<T>;
+  shiftRight(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  shiftRight(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  shiftRight<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  shiftRight<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   shiftRight<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                  memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -169,12 +201,12 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @param rhs The other Series or scalar to use.
    * @returns A Series of a common numeric type with the results of the binary operation.
    */
-  shiftRightUnsigned(rhs: bigint, memoryResource?: MemoryResource): Series<T>;
-  shiftRightUnsigned(rhs: number, memoryResource?: MemoryResource): Series<T>;
-  shiftRightUnsigned<R extends Integral>(rhs: Scalar<R>,
-                                         memoryResource?: MemoryResource): Series<T>;
-  shiftRightUnsigned<R extends Integral>(rhs: IntSeries<R>,
-                                         memoryResource?: MemoryResource): Series<T>;
+  shiftRightUnsigned(rhs: bigint, memoryResource?: MemoryResource): Int64Series;
+  shiftRightUnsigned(rhs: number, memoryResource?: MemoryResource): Float64Series;
+  shiftRightUnsigned<R extends Scalar<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
+  shiftRightUnsigned<R extends Series<Integral>>(rhs: R, memoryResource?: MemoryResource):
+    Series<CommonType<T, R['type']>>;
   shiftRightUnsigned<R extends Integral>(rhs: bigint|number|Scalar<R>|Series<R>,
                                          memoryResource?: MemoryResource) {
     switch (typeof rhs) {
@@ -194,24 +226,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * @returns A Series of the same number of elements containing the result of the operation.
    */
   bitInvert(memoryResource?: MemoryResource): Series<T> {
-    return Series.new(this._col.bitInvert(memoryResource));
-  }
-
-  protected _prepare_scan_series(skipNulls: boolean): Column<T> {
-    if (skipNulls || !this.hasNulls) { return this._col; }
-
-    const index = Series.sequence({type: new Int32, size: this.length, step: 1, init: 0});
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const first = index.filter(this.isNull()).getValue(0)!;
-    const slice =
-      Series.sequence({type: new Int32, size: this.length - first, step: 1, init: first});
-
-    const copy = this.cast(this.type);
-    const mask = [...index.cast(new Bool8).fill(true).scatter(false, slice)];
-    copy.setNullMask(mask as any);
-
-    return copy._col as Column<T>;
+    return this.__construct(this._col.bitInvert(memoryResource));
   }
 
   /**
@@ -232,8 +247,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cumulativeMax(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
-    const col = this._prepare_scan_series(skipNulls);
-    return Series.new(col.cumulativeMax(memoryResource));
+    return this.__construct(this._prepare_scan_series(skipNulls).cumulativeMax(memoryResource));
   }
 
   /**
@@ -254,8 +268,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cumulativeMin(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
-    const col = this._prepare_scan_series(skipNulls);
-    return Series.new(col.cumulativeMin(memoryResource));
+    return this.__construct(this._prepare_scan_series(skipNulls).cumulativeMin(memoryResource));
   }
 
   /**
@@ -276,8 +289,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cumulativeProduct(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
-    const col = this._prepare_scan_series(skipNulls);
-    return Series.new(col.cumulativeProduct(memoryResource));
+    return this.__construct(this._prepare_scan_series(skipNulls).cumulativeProduct(memoryResource));
   }
 
   /**
@@ -298,8 +310,7 @@ abstract class IntSeries<T extends Integral> extends NumericSeries<T> {
    * ```
    */
   cumulativeSum(skipNulls = true, memoryResource?: MemoryResource): Series<T> {
-    const col = this._prepare_scan_series(skipNulls);
-    return Series.new(col.cumulativeSum(memoryResource));
+    return this.__construct(this._prepare_scan_series(skipNulls).cumulativeSum(memoryResource));
   }
 
   /** @inheritdoc */
@@ -328,6 +339,21 @@ export class Int8Series extends IntSeries<Int8> {
   get data() {
     return new Int8Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
+  }
 }
 
 /**
@@ -340,6 +366,21 @@ export class Int16Series extends IntSeries<Int16> {
   get data() {
     return new Int16Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
+  }
 }
 
 /**
@@ -351,6 +392,21 @@ export class Int32Series extends IntSeries<Int32> {
    */
   get data() {
     return new Int32Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
   }
 }
 
@@ -367,6 +423,41 @@ export class Int64Series extends IntSeries<Int64> {
   get data() {
     return new Int64Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
+
+  /**
+   * Converts integers into IPv4 addresses as strings.
+   *
+   * The IPv4 format is 1-3 character digits [0-9] between 3 dots (e.g. 123.45.67.890). Each section
+   * can have a value between [0-255].
+   *
+   * Each input integer is dissected into four integers by dividing the input into 8-bit sections.
+   * These sub-integers are then converted into [0-9] characters and placed between '.' characters.
+   *
+   * No checking is done on the input integer value. Only the lower 32-bits are used.
+   *
+   * Any null entries will result in corresponding null entries in the output series.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Series' device
+   *   memory.
+   */
+  toIpv4String(memoryResource?: MemoryResource): Series<Utf8String> {
+    return Series.new(this._col.ipv4FromIntegers(memoryResource));
+  }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as bigint;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as bigint;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [bigint, bigint];
+  }
 }
 
 /**
@@ -378,6 +469,21 @@ export class Uint8Series extends IntSeries<Uint8> {
    */
   get data() {
     return new Uint8Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
   }
 }
 
@@ -391,6 +497,21 @@ export class Uint16Series extends IntSeries<Uint16> {
   get data() {
     return new Uint16Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
   }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
+  }
 }
 
 /**
@@ -402,6 +523,21 @@ export class Uint32Series extends IntSeries<Uint32> {
    */
   get data() {
     return new Uint32Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as number;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [number, number];
   }
 }
 
@@ -417,5 +553,20 @@ export class Uint64Series extends IntSeries<Uint64> {
    */
   get data() {
     return new Uint64Buffer(this._col.data).subarray(this.offset, this.offset + this.length);
+  }
+
+  /** @inheritdoc */
+  min(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.min(skipNulls, memoryResource) as bigint;
+  }
+
+  /** @inheritdoc */
+  max(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.max(skipNulls, memoryResource) as bigint;
+  }
+
+  /** @inheritdoc */
+  minmax(skipNulls = true, memoryResource?: MemoryResource) {
+    return super.minmax(skipNulls, memoryResource) as [bigint, bigint];
   }
 }

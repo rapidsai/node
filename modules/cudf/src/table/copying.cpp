@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,14 +56,30 @@ Napi::Value Table::gather(Napi::CallbackInfo const& info) {
   if (!Column::IsInstance(args[0])) {
     throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
   }
-  auto& selection = *Column::Unwrap(args[0]);
-  if (selection.type().id() == type_id::BOOL8) { return this->apply_boolean_mask(selection); }
-  auto oob_policy = out_of_bounds_policy::DONT_CHECK;
-  if (args.Length() == 2 and args[1].IsBoolean()) {
-    oob_policy =
-      args[1].ToBoolean() ? out_of_bounds_policy::NULLIFY : out_of_bounds_policy::DONT_CHECK;
+
+  Column::wrapper_t selection = args[0].ToObject();
+
+  auto oob_policy =
+    args[1].ToBoolean() ? out_of_bounds_policy::NULLIFY : out_of_bounds_policy::DONT_CHECK;
+
+  rmm::mr::device_memory_resource* mr = args[2];
+
+  return this->gather(selection, oob_policy, mr);
+}
+
+Napi::Value Table::apply_boolean_mask(Napi::CallbackInfo const& info) {
+  using namespace cudf;
+
+  CallbackArgs args{info};
+  if (!Column::IsInstance(args[0])) {
+    throw Napi::Error::New(info.Env(), "apply_boolean_mask selection argument expects a Column");
   }
-  return this->gather(selection, oob_policy);
+
+  Column::wrapper_t selection = args[0].ToObject();
+
+  rmm::mr::device_memory_resource* mr = args[1];
+
+  return this->apply_boolean_mask(selection, mr);
 }
 
 Napi::Value Table::scatter_scalar(Napi::CallbackInfo const& info) {

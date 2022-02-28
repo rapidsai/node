@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "node_cudf/groupby.hpp"
-#include "node_cudf/table.hpp"
-#include "node_cudf/utilities/error.hpp"
-#include "node_cudf/utilities/napi_to_cpp.hpp"
+#include <node_cudf/groupby.hpp>
+#include <node_cudf/table.hpp>
+#include <node_cudf/utilities/error.hpp>
+#include <node_cudf/utilities/napi_to_cpp.hpp>
 
 #include <cudf/groupby.hpp>
 #include <cudf/types.hpp>
@@ -48,6 +48,8 @@ Napi::Function GroupBy::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&GroupBy::sum>("_sum"),
                        InstanceMethod<&GroupBy::var>("_var"),
                        InstanceMethod<&GroupBy::quantile>("_quantile"),
+                       InstanceMethod<&GroupBy::collect_list>("_collect_list"),
+                       InstanceMethod<&GroupBy::collect_set>("_collect_set"),
                      });
 }
 
@@ -111,168 +113,147 @@ Napi::Value GroupBy::get_groups(Napi::CallbackInfo const& info) {
 }
 
 Napi::Value GroupBy::argmax(Napi::CallbackInfo const& info) {
-  auto args   = _get_basic_args(info);
-  auto values = args.first;
-  auto mr     = args.second;
+  auto [values, mr] = _get_basic_args(info);
   return _single_aggregation(
-    [&]() { return cudf::make_argmax_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
+    info, values, mr, []() { return cudf::make_argmax_aggregation<cudf::groupby_aggregation>(); });
 }
 
 Napi::Value GroupBy::argmin(Napi::CallbackInfo const& info) {
-  auto args   = _get_basic_args(info);
-  auto values = args.first;
-  auto mr     = args.second;
+  auto [values, mr] = _get_basic_args(info);
   return _single_aggregation(
-    [&]() { return cudf::make_argmin_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
+    info, values, mr, []() { return cudf::make_argmin_aggregation<cudf::groupby_aggregation>(); });
 }
 
 Napi::Value GroupBy::count(Napi::CallbackInfo const& info) {
-  auto args   = _get_basic_args(info);
-  auto values = args.first;
-  auto mr     = args.second;
+  auto [values, mr] = _get_basic_args(info);
   return _single_aggregation(
-    [&]() { return cudf::make_count_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
+    info, values, mr, []() { return cudf::make_count_aggregation<cudf::groupby_aggregation>(); });
 }
 
 Napi::Value GroupBy::max(Napi::CallbackInfo const& info) {
-  auto args   = _get_basic_args(info);
-  auto values = args.first;
-  auto mr     = args.second;
+  auto [values, mr] = _get_basic_args(info);
   return _single_aggregation(
-    [&]() { return cudf::make_max_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
+    info, values, mr, []() { return cudf::make_max_aggregation<cudf::groupby_aggregation>(); });
 }
 
 Napi::Value GroupBy::mean(Napi::CallbackInfo const& info) {
-  auto args   = _get_basic_args(info);
-  auto values = args.first;
-  auto mr     = args.second;
+  auto [values, mr] = _get_basic_args(info);
   return _single_aggregation(
-    [&]() { return cudf::make_mean_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
+    info, values, mr, []() { return cudf::make_mean_aggregation<cudf::groupby_aggregation>(); });
 }
 
 Napi::Value GroupBy::median(Napi::CallbackInfo const& info) {
-  auto args   = _get_basic_args(info);
-  auto values = args.first;
-  auto mr     = args.second;
+  auto [values, mr] = _get_basic_args(info);
   return _single_aggregation(
-    [&]() { return cudf::make_median_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
+    info, values, mr, []() { return cudf::make_median_aggregation<cudf::groupby_aggregation>(); });
 }
 
 Napi::Value GroupBy::min(Napi::CallbackInfo const& info) {
-  auto args   = _get_basic_args(info);
-  auto values = args.first;
-  auto mr     = args.second;
+  auto [values, mr] = _get_basic_args(info);
   return _single_aggregation(
-    [&]() { return cudf::make_min_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
+    info, values, mr, []() { return cudf::make_min_aggregation<cudf::groupby_aggregation>(); });
 }
 
 Napi::Value GroupBy::nth(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-
-  cudf::size_type n = args[0];
-
-  auto values = args[1];
-  NODE_CUDA_EXPECT(Table::IsInstance(values),
-                   "aggregation expects options to have a 'values' table");
-  nv::Table* values_table = Table::Unwrap(values.ToObject());
-
-  auto mr = MemoryResource::IsInstance(info[2]) ? *MemoryResource::Unwrap(info[2].ToObject())
-                                                : rmm::mr::get_current_device_resource();
-
-  return _single_aggregation(
-    [&]() { return cudf::make_nth_element_aggregation<cudf::groupby_aggregation>(n); },
-    values_table,
-    mr,
-    info);
+  auto [values, mr] = _get_basic_args(info);
+  cudf::size_type n = args[2];
+  auto include_nulls =
+    info[3].ToBoolean() ? cudf::null_policy::INCLUDE : cudf::null_policy::EXCLUDE;
+  return _single_aggregation(info, values, mr, [&]() {
+    return cudf::make_nth_element_aggregation<cudf::groupby_aggregation>(n, include_nulls);
+  });
 }
 
 Napi::Value GroupBy::nunique(Napi::CallbackInfo const& info) {
-  auto args   = _get_basic_args(info);
-  auto values = args.first;
-  auto mr     = args.second;
-  return _single_aggregation(
-    [&]() { return cudf::make_nunique_aggregation<cudf::groupby_aggregation>(); },
-    values,
-    mr,
-    info);
+  auto [values, mr] = _get_basic_args(info);
+  auto include_nulls =
+    info[3].ToBoolean() ? cudf::null_policy::INCLUDE : cudf::null_policy::EXCLUDE;
+  return _single_aggregation(info, values, mr, [&]() {
+    return cudf::make_nunique_aggregation<cudf::groupby_aggregation>(include_nulls);
+  });
 }
 
 Napi::Value GroupBy::std(Napi::CallbackInfo const& info) {
-  auto args   = _get_basic_args(info);
-  auto values = args.first;
-  auto mr     = args.second;
-  return _single_aggregation(
-    [&]() { return cudf::make_std_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
+  auto [values, mr]    = _get_basic_args(info);
+  cudf::size_type ddof = info[3].IsNumber() ? info[3].ToNumber() : 1;
+  return _single_aggregation(info, values, mr, [&]() {
+    return cudf::make_std_aggregation<cudf::groupby_aggregation>(ddof);
+  });
 }
 
 Napi::Value GroupBy::sum(Napi::CallbackInfo const& info) {
-  auto args   = _get_basic_args(info);
-  auto values = args.first;
-  auto mr     = args.second;
+  auto [values, mr] = _get_basic_args(info);
   return _single_aggregation(
-    [&]() { return cudf::make_sum_aggregation<cudf::groupby_aggregation>(); }, values, mr, info);
+    info, values, mr, []() { return cudf::make_sum_aggregation<cudf::groupby_aggregation>(); });
 }
 
 Napi::Value GroupBy::var(Napi::CallbackInfo const& info) {
-  auto args   = _get_basic_args(info);
-  auto values = args.first;
-  auto mr     = args.second;
-  return _single_aggregation(
-    [&]() { return cudf::make_variance_aggregation<cudf::groupby_aggregation>(); },
-    values,
-    mr,
-    info);
+  auto [values, mr]    = _get_basic_args(info);
+  cudf::size_type ddof = info[3].IsNumber() ? info[3].ToNumber() : 1;
+  return _single_aggregation(info, values, mr, [&]() {
+    return cudf::make_variance_aggregation<cudf::groupby_aggregation>(ddof);
+  });
 }
 
 Napi::Value GroupBy::quantile(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-
-  double q = args[0];
-  std::vector<double> qs{q};
-
-  auto values = args[1];
-  NODE_CUDA_EXPECT(Table::IsInstance(values),
-                   "GroupBy quantile_agg expects options to have a 'values' table");
-  nv::Table* values_table = Table::Unwrap(values.ToObject());
-
-  cudf::interpolation interpolation = args[2];
-
-  auto mr = MemoryResource::IsInstance(info[3]) ? *MemoryResource::Unwrap(info[3].ToObject())
-                                                : rmm::mr::get_current_device_resource();
-
-  return _single_aggregation(
-    [&]() { return cudf::make_quantile_aggregation<cudf::groupby_aggregation>(qs, interpolation); },
-    values_table,
-    mr,
-    info);
+  auto [values, mr] = _get_basic_args(info);
+  std::vector<double> quantiles{args[2]};
+  cudf::interpolation interp = args[3];
+  return _single_aggregation(info, values, mr, [&]() {
+    return cudf::make_quantile_aggregation<cudf::groupby_aggregation>(quantiles, interp);
+  });
 }
 
-std::pair<nv::Table*, rmm::mr::device_memory_resource*> GroupBy::_get_basic_args(
+Napi::Value GroupBy::collect_list(Napi::CallbackInfo const& info) {
+  auto [values, mr] = _get_basic_args(info);
+  auto include_nulls =
+    info[2].ToBoolean() ? cudf::null_policy::INCLUDE : cudf::null_policy::EXCLUDE;
+  return _single_aggregation(info, values, mr, [&]() {
+    return cudf::make_collect_list_aggregation<cudf::groupby_aggregation>(include_nulls);
+  });
+}
+
+Napi::Value GroupBy::collect_set(Napi::CallbackInfo const& info) {
+  auto [values, mr] = _get_basic_args(info);
+  auto include_nulls =
+    info[2].ToBoolean() ? cudf::null_policy::INCLUDE : cudf::null_policy::EXCLUDE;
+  auto nulls_equal =
+    info[3].ToBoolean() ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
+  auto nans_equal =
+    info[4].ToBoolean() ? cudf::nan_equality::UNEQUAL : cudf::nan_equality::ALL_EQUAL;
+  return _single_aggregation(info, values, mr, [&]() {
+    return cudf::make_collect_set_aggregation<cudf::groupby_aggregation>(
+      include_nulls, nulls_equal, nans_equal);
+  });
+}
+
+std::pair<Table::wrapper_t, rmm::mr::device_memory_resource*> GroupBy::_get_basic_args(
   Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
 
   auto values = args[0];
   NODE_CUDA_EXPECT(Table::IsInstance(values), "aggregation expects to have a 'values' table");
 
-  rmm::mr::device_memory_resource* mr = args[1];
-
-  return std::pair<Table*, rmm::mr::device_memory_resource*>(Table::Unwrap(values.ToObject()), mr);
+  return std::make_pair(values.ToObject(), args[1]);
 }
 
 template <typename MakeAggregation>
-Napi::Value GroupBy::_single_aggregation(MakeAggregation const& make_aggregation,
-                                         const nv::Table* const values_table,
+Napi::Value GroupBy::_single_aggregation(Napi::CallbackInfo const& info,
+                                         Table::wrapper_t const& values_table,
                                          rmm::mr::device_memory_resource* const mr,
-                                         Napi::CallbackInfo const& info) {
+                                         MakeAggregation const& make_aggregation) {
   auto env = info.Env();
 
   std::vector<cudf::groupby::aggregation_request> requests;
+  requests.reserve(values_table->num_columns());
 
   for (cudf::size_type i = 0; i < values_table->num_columns(); ++i) {
     auto request   = cudf::groupby::aggregation_request();
     request.values = values_table->get_column(i).view();
     request.aggregations.push_back(std::move(make_aggregation()));
-    requests.emplace_back(std::move(request));
+    requests.push_back(std::move(request));
   }
 
   std::pair<std::unique_ptr<cudf::table>, std::vector<cudf::groupby::aggregation_result>> result;

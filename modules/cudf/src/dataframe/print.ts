@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -144,9 +144,9 @@ export class DataFrameFormatter<T extends TypeMap> {
 
     const widths: {[key: string]: number} = {};
     for (const name of [...frame.names]) {
-      const lengths   = frame.get(name).len();
-      const truncated = lengths.scatter(3, inds.gather(lengths.gt(this.maxColWidth)));  // '...'
-      widths[name]    = Math.max(name.length, truncated.max());
+      const lengths   = (frame.get(name) as Series<Utf8String>).len();
+      const truncated = lengths.scatter(3, inds.filter(lengths.gt(this.maxColWidth)));  // '...'
+      widths[name]    = Math.max(name.length, Number(truncated.max()));
     }
     return widths;
   }

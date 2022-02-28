@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -135,32 +135,6 @@ struct Table : public EnvLocalObjectWrap<Table> {
    */
   inline Column const& get_column(cudf::size_type i) const { return *(columns_[i].Value()); }
 
-  // table/reshape.cpp
-  Column::wrapper_t interleave_columns(
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-
-  // table/stream_compaction.cpp
-  Table::wrapper_t apply_boolean_mask(
-    Column const& boolean_mask,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-
-  Table::wrapper_t drop_nulls(
-    std::vector<cudf::size_type> keys,
-    cudf::size_type threshold,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-
-  Table::wrapper_t drop_nans(
-    std::vector<cudf::size_type> keys,
-    cudf::size_type threshold,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-
-  Table::wrapper_t drop_duplicates(
-    std::vector<cudf::size_type> keys,
-    cudf::duplicate_keep_option keep,
-    bool nulls_equal,
-    bool is_nulls_first,
-    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
-
   // table/copying.cpp
   Table::wrapper_t gather(
     Column const& gather_map,
@@ -218,6 +192,42 @@ struct Table : public EnvLocalObjectWrap<Table> {
     bool null_equality,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
+  // table/explode.cpp
+  Table::wrapper_t explode(cudf::size_type explode_column_idx,
+                           rmm::mr::device_memory_resource* mr) const;
+  Table::wrapper_t explode_position(cudf::size_type explode_column_idx,
+                                    rmm::mr::device_memory_resource* mr) const;
+  Table::wrapper_t explode_outer(cudf::size_type explode_column_idx,
+                                 rmm::mr::device_memory_resource* mr) const;
+  Table::wrapper_t explode_outer_position(cudf::size_type explode_column_idx,
+                                          rmm::mr::device_memory_resource* mr) const;
+
+  // table/reshape.cpp
+  Column::wrapper_t interleave_columns(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  // table/stream_compaction.cpp
+  Table::wrapper_t apply_boolean_mask(
+    Column const& boolean_mask,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Table::wrapper_t drop_nulls(
+    std::vector<cudf::size_type> keys,
+    cudf::size_type threshold,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Table::wrapper_t drop_nans(
+    std::vector<cudf::size_type> keys,
+    cudf::size_type threshold,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Table::wrapper_t drop_duplicates(
+    std::vector<cudf::size_type> keys,
+    cudf::duplicate_keep_option keep,
+    bool nulls_equal,
+    bool is_nulls_first,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
  private:
   cudf::size_type num_columns_{};  ///< The number of columns in the table
   cudf::size_type num_rows_{};     ///< The number of rows
@@ -230,24 +240,36 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Napi::Value num_rows(Napi::CallbackInfo const& info);
   Napi::Value select(Napi::CallbackInfo const& info);
   Napi::Value get_column(Napi::CallbackInfo const& info);
-  // table/reshape.cpp
-  Napi::Value interleave_columns(Napi::CallbackInfo const& info);
-  // table/stream_compaction.cpp
-  Napi::Value drop_nulls(Napi::CallbackInfo const& info);
-  Napi::Value drop_nans(Napi::CallbackInfo const& info);
-  Napi::Value drop_duplicates(Napi::CallbackInfo const& info);
+
+  // table/concatenate.cpp
+  static Napi::Value concat(Napi::CallbackInfo const& info);
+
   // table/copying.cpp
   Napi::Value gather(Napi::CallbackInfo const& info);
   Napi::Value scatter_scalar(Napi::CallbackInfo const& info);
   Napi::Value scatter_table(Napi::CallbackInfo const& info);
-  // table/concatenate.cpp
-  static Napi::Value concat(Napi::CallbackInfo const& info);
+  Napi::Value apply_boolean_mask(Napi::CallbackInfo const& info);
+
   // table/join.cpp
   static Napi::Value full_join(Napi::CallbackInfo const& info);
   static Napi::Value inner_join(Napi::CallbackInfo const& info);
   static Napi::Value left_join(Napi::CallbackInfo const& info);
   static Napi::Value left_semi_join(Napi::CallbackInfo const& info);
   static Napi::Value left_anti_join(Napi::CallbackInfo const& info);
+
+  // table/explode.cpp
+  Napi::Value explode(Napi::CallbackInfo const& info);
+  Napi::Value explode_position(Napi::CallbackInfo const& info);
+  Napi::Value explode_outer(Napi::CallbackInfo const& info);
+  Napi::Value explode_outer_position(Napi::CallbackInfo const& info);
+
+  // table/reshape.cpp
+  Napi::Value interleave_columns(Napi::CallbackInfo const& info);
+
+  // table/stream_compaction.cpp
+  Napi::Value drop_nulls(Napi::CallbackInfo const& info);
+  Napi::Value drop_nans(Napi::CallbackInfo const& info);
+  Napi::Value drop_duplicates(Napi::CallbackInfo const& info);
 
   static Napi::Value read_csv(Napi::CallbackInfo const& info);
   void write_csv(Napi::CallbackInfo const& info);

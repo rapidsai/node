@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #include <cudf/binaryop.hpp>
 #include <cudf/column/column_view.hpp>
 #include <cudf/copying.hpp>
+#include <cudf/reduction.hpp>
 #include <cudf/replace.hpp>
 #include <cudf/stream_compaction.hpp>
 #include <cudf/strings/combine.hpp>
@@ -34,7 +35,6 @@
 #include <cudf/unary.hpp>
 
 #include <rmm/device_buffer.hpp>
-#include "cudf/reduction.hpp"
 
 #include <napi.h>
 
@@ -669,8 +669,37 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::scalar const& step,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource());
 
+  inline static Column::wrapper_t sequence(
+    Napi::Env const& env,
+    cudf::size_type size,
+    Scalar::wrapper_t const& init,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) {
+    return sequence(env, size, init->operator cudf::scalar&(), mr);
+  }
+
+  inline static Column::wrapper_t sequence(
+    Napi::Env const& env,
+    cudf::size_type size,
+    Scalar::wrapper_t const& init,
+    Scalar::wrapper_t const& step,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) {
+    return sequence(env, size, init->operator cudf::scalar&(), step->operator cudf::scalar&(), mr);
+  }
+
+  inline static Column::wrapper_t zeros(
+    Napi::Env const& env,
+    cudf::type_id type,
+    cudf::size_type size,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) {
+    auto zero = Scalar::New(env, Napi::Number::New(env, 0), cudf::data_type{type});
+    return sequence(env, size, zero->operator cudf::scalar&(), zero->operator cudf::scalar&(), mr);
+  }
+
   // column/transform.cpp
   std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> nans_to_nulls(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  std::pair<std::unique_ptr<rmm::device_buffer>, cudf::size_type> bools_to_mask(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
   // column/copying.cpp
@@ -808,6 +837,25 @@ struct Column : public EnvLocalObjectWrap<Column> {
     cudf::data_type out_type,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  Column::wrapper_t string_is_hex(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t hex_from_integers(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t hex_to_integers(
+    cudf::data_type out_type,
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t string_is_ipv4(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t ipv4_from_integers(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
+  Column::wrapper_t ipv4_to_integers(
+    rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
+
  private:
   cudf::size_type size_{};                         ///< The number of elements in the column
   cudf::size_type offset_{};                       ///< The offset of elements in the data
@@ -829,6 +877,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value size(Napi::CallbackInfo const& info);
   Napi::Value data(Napi::CallbackInfo const& info);
   Napi::Value null_mask(Napi::CallbackInfo const& info);
+  Napi::Value disposed(Napi::CallbackInfo const& info);
   Napi::Value has_nulls(Napi::CallbackInfo const& info);
   Napi::Value null_count(Napi::CallbackInfo const& info);
   Napi::Value is_nullable(Napi::CallbackInfo const& info);
@@ -837,6 +886,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   void dispose(Napi::CallbackInfo const&);
 
   Napi::Value gather(Napi::CallbackInfo const& info);
+  Napi::Value apply_boolean_mask(Napi::CallbackInfo const& info);
   Napi::Value copy(Napi::CallbackInfo const& info);
 
   Napi::Value get_child(Napi::CallbackInfo const& info);
@@ -890,6 +940,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
   static Napi::Value sequence(Napi::CallbackInfo const& info);
 
   // column/transform.cpp
+  Napi::Value bools_to_mask(Napi::CallbackInfo const& info);
   Napi::Value nans_to_nulls(Napi::CallbackInfo const& info);
 
   // column/reductions.cpp
@@ -976,6 +1027,12 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value string_is_integer(Napi::CallbackInfo const& info);
   Napi::Value strings_from_integers(Napi::CallbackInfo const& info);
   Napi::Value strings_to_integers(Napi::CallbackInfo const& info);
+  Napi::Value string_is_hex(Napi::CallbackInfo const& info);
+  Napi::Value hex_from_integers(Napi::CallbackInfo const& info);
+  Napi::Value hex_to_integers(Napi::CallbackInfo const& info);
+  Napi::Value string_is_ipv4(Napi::CallbackInfo const& info);
+  Napi::Value ipv4_from_integers(Napi::CallbackInfo const& info);
+  Napi::Value ipv4_to_integers(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

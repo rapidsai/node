@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,22 +41,57 @@ export type Groups<KeysMap extends TypeMap, ValuesMap extends TypeMap> = {
 
 interface CudfGroupBy {
   _getGroups(values?: Table,
-             memoryResource?: MemoryResource): {keys: Table, offsets: Int32Array, values?: Table};
+             memoryResource?: MemoryResource):  //
+    {keys: Table, offsets: Int32Array, values?: Table};
 
-  _argmax(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _argmin(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _count(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _max(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _mean(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _median(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _min(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _nth(n: number, values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _nunique(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _std(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _sum(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _var(values: Table, memoryResource?: MemoryResource): {keys: Table, cols: Column[]};
-  _quantile(q: number, values: Table, interpolation?: number, memoryResource?: MemoryResource):
+  _argmax(values: Table, memoryResource?: MemoryResource):  //
+    {keys: Table, cols: Column[]};
+
+  _argmin(values: Table, memoryResource?: MemoryResource):  //
+    {keys: Table, cols: Column[]};
+
+  _count(values: Table, memoryResource?: MemoryResource):  //
+    {keys: Table, cols: Column[]};
+
+  _max(values: Table, memoryResource?: MemoryResource):  //
+    {keys: Table, cols: Column[]};
+
+  _mean(values: Table, memoryResource?: MemoryResource):  //
+    {keys: Table, cols: Column[]};
+
+  _median(values: Table, memoryResource?: MemoryResource):  //
+    {keys: Table, cols: Column[]};
+
+  _min(values: Table, memoryResource?: MemoryResource):  //
+    {keys: Table, cols: Column[]};
+
+  _nth(values: Table, memoryResource?: MemoryResource, n?: number, include_nulls?: boolean):
+    {keys: Table, cols: Column[]};
+
+  _nunique(values: Table, memoryResource?: MemoryResource, include_nulls?: boolean):
+    {keys: Table, cols: Column[]};
+
+  _std(values: Table, memoryResource?: MemoryResource, ddof?: number):
+    {keys: Table, cols: Column[]};
+
+  _sum(values: Table, memoryResource?: MemoryResource):  //
+    {keys: Table, cols: Column[]};
+
+  _var(values: Table, memoryResource?: MemoryResource, ddof?: number):
+    {keys: Table, cols: Column[]};
+
+  _quantile(values: Table, memoryResource?: MemoryResource, q?: number, interpolation?: number):
     {keys: Table, cols: [Column]};
+
+  _collect_list(values: Table, memoryResource?: MemoryResource, include_nulls?: boolean):
+    {keys: Table, cols: Column[]};
+
+  _collect_set(values: Table,
+               memoryResource?: MemoryResource,
+               include_nulls?: boolean,
+               nulls_equal?: boolean,
+               nans_equal?: boolean):  //
+    {keys: Table, cols: Column[]};
 }
 
 export class GroupByBase<T extends TypeMap, R extends keyof T> {

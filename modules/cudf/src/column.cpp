@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceAccessor<&Column::type, &Column::type>("type"),
                        InstanceAccessor<&Column::data>("data"),
                        InstanceAccessor<&Column::null_mask>("mask"),
+                       InstanceAccessor<&Column::disposed>("disposed"),
                        InstanceAccessor<&Column::offset>("offset"),
                        InstanceAccessor<&Column::size>("length"),
                        InstanceAccessor<&Column::has_nulls>("hasNulls"),
@@ -43,6 +44,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::set_null_count>("setNullCount"),
                        // column/copying.cpp
                        InstanceMethod<&Column::gather>("gather"),
+                       InstanceMethod<&Column::apply_boolean_mask>("applyBooleanMask"),
                        InstanceMethod<&Column::copy>("copy"),
                        // column/filling.cpp
                        InstanceMethod<&Column::fill>("fill"),
@@ -83,6 +85,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        // column/filling.cpp
                        StaticMethod<&Column::sequence>("sequence"),
                        // column/transform.cpp
+                       InstanceMethod<&Column::bools_to_mask>("boolsToMask"),
                        InstanceMethod<&Column::nans_to_nulls>("nansToNulls"),
                        // column/reduction.cpp
                        InstanceMethod<&Column::min>("min"),
@@ -159,6 +162,12 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::string_is_integer>("stringIsInteger"),
                        InstanceMethod<&Column::strings_from_integers>("stringsFromIntegers"),
                        InstanceMethod<&Column::strings_to_integers>("stringsToIntegers"),
+                       InstanceMethod<&Column::string_is_hex>("stringIsHex"),
+                       InstanceMethod<&Column::hex_from_integers>("hexFromIntegers"),
+                       InstanceMethod<&Column::hex_to_integers>("hexToIntegers"),
+                       InstanceMethod<&Column::string_is_ipv4>("stringIsIpv4"),
+                       InstanceMethod<&Column::ipv4_from_integers>("ipv4FromIntegers"),
+                       InstanceMethod<&Column::ipv4_to_integers>("ipv4ToIntegers"),
                      });
 }
 
@@ -209,6 +218,8 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
               : props.Has("nullMask")   ? props.Get("nullMask").As<Napi::Value>()
                                         : env.Null();
 
+  auto has_length = props.Has("length") && props.Get("length").IsNumber();
+
   switch (type().id()) {
     case cudf::type_id::INT8:
     case cudf::type_id::INT16:
@@ -227,7 +238,10 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
     case cudf::type_id::TIMESTAMP_MICROSECONDS:
     case cudf::type_id::TIMESTAMP_NANOSECONDS: {
       data_ = Napi::Persistent(data_to_devicebuffer(env, props.Get("data"), type()));
-      size_ = std::max(0, cudf::size_type(data_.Value()->size() / cudf::size_of(type())) - offset_);
+      size_ =
+        has_length
+          ? props.Get("length")
+          : std::max(0, cudf::size_type(data_.Value()->size() / cudf::size_of(type())) - offset_);
       null_mask_ =
         Napi::Persistent(mask.IsNull() ? data_to_null_bitmask(env, props.Get("data"), size_)
                                        : mask_to_null_bitmask(env, mask, size_));
@@ -243,7 +257,8 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
         }
       }(props.Get("children").As<Napi::Array>());
       data_      = Napi::Persistent(DeviceBuffer::New(env));
-      size_      = std::max(0, (num_children() > 0 ? child(0)->size() - 1 : 0) - offset_);
+      size_      = has_length ? props.Get("length")
+                              : std::max(0, (num_children() > 0 ? child(0)->size() - 1 : 0) - offset_);
       null_mask_ = Napi::Persistent(mask_to_null_bitmask(env, mask, size_));
       break;
     }
@@ -256,10 +271,11 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
       }(props.Get("children").As<Napi::Array>());
       data_ = Napi::Persistent(DeviceBuffer::New(env));
       if (num_children() > 0) {
-        size_ = std::max(0, child(0)->size() - offset_);
+        size_ = has_length ? props.Get("length") : std::max(0, child(0)->size() - offset_);
         for (cudf::size_type i = 0; ++i < num_children();) {
-          NODE_CUDF_EXPECT(
-            child(i)->size() == size_, "Struct column children must be the same size", env);
+          NODE_CUDF_EXPECT((child(i)->size() - offset_) == size_,
+                           "Struct column children must be the same size",
+                           env);
         }
       }
       null_mask_ = Napi::Persistent(mask_to_null_bitmask(env, mask, size_));
@@ -268,7 +284,7 @@ Column::Column(CallbackArgs const& args) : EnvLocalObjectWrap<Column>(args) {
     default: break;
   }
 
-  size_ = props.Has("length") ? props.Get("length") : size_;
+  // size_ = props.Has("length") ? props.Get("length") : size_;
 
   set_null_count([&]() -> cudf::size_type {
     if (!nullable()) { return 0; }
@@ -307,6 +323,24 @@ void Column::dispose(Napi::Env env) {
 }
 
 void Column::dispose(Napi::CallbackInfo const& info) { dispose(info.Env()); }
+
+Napi::Value Column::disposed(Napi::CallbackInfo const& info) {
+  auto disposed = disposed_;
+  if (!disposed) {
+    if (!data_.IsEmpty() && !data_.Value()->is_empty()) {
+      disposed = false;
+    } else if (!null_mask_.IsEmpty() && !null_mask_.Value()->is_empty()) {
+      disposed = false;
+    } else {
+      disposed = children_.size() == 0 ||
+                 std::all_of(children_.begin(), children_.end(), [&](auto const& child) {
+                   return child.Value()->disposed(info);
+                 });
+    }
+    if (disposed) { dispose(info.Env()); }
+  }
+  return Napi::Value::From(info.Env(), disposed_);
+}
 
 // If the null count is known, return it. Else, compute and return it
 cudf::size_type Column::null_count() const {
@@ -458,7 +492,26 @@ Napi::Value Column::gather(Napi::CallbackInfo const& info) {
   if (!Column::IsInstance(info[0])) {
     throw Napi::Error::New(info.Env(), "gather selection argument expects a Column");
   }
-  return this->operator[](*Column::Unwrap(info[0].ToObject()));
+
+  CallbackArgs args{info};
+  Column::wrapper_t selection         = args[0].ToObject();
+  auto oob_policy                     = args[1].ToBoolean() ? cudf::out_of_bounds_policy::NULLIFY
+                                                            : cudf::out_of_bounds_policy::DONT_CHECK;
+  rmm::mr::device_memory_resource* mr = args[2];
+
+  return this->gather(selection, oob_policy, mr);
+}
+
+Napi::Value Column::apply_boolean_mask(Napi::CallbackInfo const& info) {
+  if (!Column::IsInstance(info[0])) {
+    throw Napi::Error::New(info.Env(), "apply_boolean_mask selection argument expects a Column");
+  }
+
+  CallbackArgs args{info};
+  Column::wrapper_t selection         = args[0].ToObject();
+  rmm::mr::device_memory_resource* mr = args[1];
+
+  return this->apply_boolean_mask(selection, mr);
 }
 
 Napi::Value Column::get_child(Napi::CallbackInfo const& info) {

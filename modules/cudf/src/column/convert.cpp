@@ -21,6 +21,7 @@
 #include <cudf/strings/convert/convert_booleans.hpp>
 #include <cudf/strings/convert/convert_floats.hpp>
 #include <cudf/strings/convert/convert_integers.hpp>
+#include <cudf/strings/convert/convert_ipv4.hpp>
 #include <cudf/unary.hpp>
 #include <rmm/mr/device/per_device_resource.hpp>
 
@@ -76,6 +77,39 @@ Column::wrapper_t Column::strings_to_integers(cudf::data_type out_type,
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
 }
 
+Column::wrapper_t Column::string_is_hex(rmm::mr::device_memory_resource* mr) const {
+  return Column::New(Env(), cudf::strings::is_hex(this->view(), mr));
+}
+
+Column::wrapper_t Column::hex_from_integers(rmm::mr::device_memory_resource* mr) const {
+  try {
+    return Column::New(Env(), cudf::strings::integers_to_hex(this->view(), mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+}
+
+Column::wrapper_t Column::hex_to_integers(cudf::data_type out_type,
+                                          rmm::mr::device_memory_resource* mr) const {
+  try {
+    return Column::New(Env(), cudf::strings::hex_to_integers(this->view(), out_type, mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+}
+
+Column::wrapper_t Column::string_is_ipv4(rmm::mr::device_memory_resource* mr) const {
+  return Column::New(Env(), cudf::strings::is_ipv4(this->view(), mr));
+}
+
+Column::wrapper_t Column::ipv4_from_integers(rmm::mr::device_memory_resource* mr) const {
+  try {
+    return Column::New(Env(), cudf::strings::integers_to_ipv4(this->view(), mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+}
+
+Column::wrapper_t Column::ipv4_to_integers(rmm::mr::device_memory_resource* mr) const {
+  try {
+    return Column::New(Env(), cudf::strings::ipv4_to_integers(this->view(), mr));
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(Env(), err.what())); }
+}
+
 Napi::Value Column::strings_from_booleans(Napi::CallbackInfo const& info) {
   CallbackArgs const args{info};
   rmm::mr::device_memory_resource* mr = args[0];
@@ -124,12 +158,52 @@ Napi::Value Column::strings_from_integers(Napi::CallbackInfo const& info) {
 
 Napi::Value Column::strings_to_integers(Napi::CallbackInfo const& info) {
   if (info.Length() < 1) {
-    NODE_CUDF_THROW("Column to_integer expects an output type and optional MemoryResource",
+    NODE_CUDF_THROW("Column to_integers expects an output type and optional MemoryResource",
                     info.Env());
   }
   CallbackArgs const args{info};
   rmm::mr::device_memory_resource* mr = args[1];
   return strings_to_integers(args[0], mr);
+}
+
+Napi::Value Column::string_is_hex(Napi::CallbackInfo const& info) {
+  CallbackArgs const args{info};
+  rmm::mr::device_memory_resource* mr = args[0];
+  return string_is_hex(mr);
+}
+
+Napi::Value Column::hex_from_integers(Napi::CallbackInfo const& info) {
+  CallbackArgs const args{info};
+  rmm::mr::device_memory_resource* mr = args[0];
+  return hex_from_integers(mr);
+}
+
+Napi::Value Column::hex_to_integers(Napi::CallbackInfo const& info) {
+  if (info.Length() < 1) {
+    NODE_CUDF_THROW("Column hex_to_integers expects an output type and optional MemoryResource",
+                    info.Env());
+  }
+  CallbackArgs const args{info};
+  rmm::mr::device_memory_resource* mr = args[1];
+  return hex_to_integers(args[0], mr);
+}
+
+Napi::Value Column::string_is_ipv4(Napi::CallbackInfo const& info) {
+  CallbackArgs const args{info};
+  rmm::mr::device_memory_resource* mr = args[0];
+  return string_is_ipv4(mr);
+}
+
+Napi::Value Column::ipv4_from_integers(Napi::CallbackInfo const& info) {
+  CallbackArgs const args{info};
+  rmm::mr::device_memory_resource* mr = args[0];
+  return ipv4_from_integers(mr);
+}
+
+Napi::Value Column::ipv4_to_integers(Napi::CallbackInfo const& info) {
+  CallbackArgs const args{info};
+  rmm::mr::device_memory_resource* mr = args[0];
+  return ipv4_to_integers(mr);
 }
 
 }  // namespace nv

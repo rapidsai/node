@@ -35,13 +35,14 @@ if __name__ == \"__main__\":\n\
     \"--hide-undefined\",\n\
     \"{connection_file}\",\n\
     \"--protocol=5.0\",\n\
-    \"--session-working-dir=/opt/rapids/node\"\n\
+    \"--session-working-dir=/opt/rapids\"\n\
   ],\n\
   \"name\": \"javascript\",\n\
   \"language\": \"javascript\",\n\
   \"display_name\": \"Javascript (Node.js)\"\n\
 }' > /opt/rapids/.local/share/jupyter/kernels/javascript/kernel.json" \
  && chmod 0644 /opt/rapids/.local/share/jupyter/kernels/javascript/logo-{32x32,64x64}.png \
+ && ln -s /opt/rapids/node/node_modules /opt/rapids/node_modules \
  && mkdir -p /opt/rapids/.jupyter \
  && mkdir -p /opt/rapids/.config/jupyterlab-desktop/lab/user-settings/@jupyterlab/apputils-extension \
  && bash -c "echo -e '{\n\

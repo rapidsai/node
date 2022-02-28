@@ -228,7 +228,7 @@ Napi::Object cudf_scalar_type_to_arrow_type(Napi::Env const& env, cudf::data_typ
     // case cudf::type_id::DECIMAL64: // TODO
     default:
       throw Napi::Error::New(env,
-                             "cudf_scalar_type_id_to_arrow_type not implemented for type: " +
+                             "cudf_scalar_type_to_arrow_type not implemented for type: " +
                                cudf::type_dispatcher(type, cudf::type_to_name{}));
   }
   return arrow_type;
@@ -240,23 +240,21 @@ Napi::Object cudf_to_arrow_type(Napi::Env const& env, cudf::data_type const& cud
 
 Napi::Object column_to_arrow_type(Napi::Env const& env,
                                   cudf::data_type const& cudf_type,
-                                  Napi::Array children_value) {
-  auto arrow_type                         = Napi::Object::New(env);
-  std::vector<Column::wrapper_t> children = NapiToCPP{children_value};
+                                  Napi::Array children) {
+  auto arrow_type = Napi::Object::New(env);
   switch (cudf_type.id()) {
     case cudf::type_id::DICTIONARY32: {
       arrow_type.Set("typeId", -1);
-      arrow_type.Set("indices", cudf_to_arrow_type(env, children[0]->type()));
-      arrow_type.Set("dictionary", cudf_to_arrow_type(env, children[1]->type()));
+      arrow_type.Set("indices", children.Get(0u).ToObject().Get("type"));
+      arrow_type.Set("dictionary", children.Get(1).ToObject().Get("type"));
       arrow_type.Set("isOrdered", false);
       break;
     }
     case cudf::type_id::LIST: {
       auto list_children = Napi::Array::New(env, 1);
-      if (children.size() > 1) {
-        auto field              = Napi::Object::New(env);
-        Column::wrapper_t child = children[1];
-        field.Set("type", column_to_arrow_type(env, child->type(), child->children()));
+      if (children.Length() > 1) {
+        auto field = Napi::Object::New(env);
+        field.Set("type", children.Get(1).ToObject().Get("type"));
         list_children.Set(0u, field);
       }
       arrow_type.Set("typeId", 12);
@@ -264,12 +262,11 @@ Napi::Object column_to_arrow_type(Napi::Env const& env,
       break;
     }
     case cudf::type_id::STRUCT: {
-      auto struct_children = Napi::Array::New(env, children.size());
-      for (unsigned int i = 0; i < children.size(); ++i) {
+      auto struct_children = Napi::Array::New(env, children.Length());
+      for (uint32_t i = 0; i < children.Length(); ++i) {
         Napi::HandleScope scope{env};
-        auto field                = Napi::Object::New(env);
-        Column::wrapper_t child_i = children[i];
-        field.Set("type", column_to_arrow_type(env, child_i->type(), child_i->children()));
+        auto field = Napi::Object::New(env);
+        field.Set("type", children.Get(i).ToObject().Get("type"));
         struct_children.Set(i, field);
       }
       arrow_type.Set("typeId", 13);

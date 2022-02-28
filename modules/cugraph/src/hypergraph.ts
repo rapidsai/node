@@ -14,9 +14,7 @@
 
 import {Categorical, DataFrame, Int32, Series, StringSeries, Utf8String} from '@rapidsai/cudf';
 import {TypeMap} from '@rapidsai/cudf';
-
-import {GraphCOO} from './addon';
-import {renumberEdges, renumberNodes} from './renumber';
+import {Graph} from './graph';
 
 export type HypergraphBaseProps<T extends TypeMap = any> = {
   /** An optional sequence of column names to process. */
@@ -67,7 +65,7 @@ export type HypergraphReturn = {
   /** A DataFrame of edge attributes. */
   edges: DataFrame,
   /**  Graph of the found entity nodes, hyper nodes, and edges. */
-  graph: GraphCOO,
+  graph: Graph,
   /** a DataFrame of hyper node attributes for direct graphs, else empty. */
   events: DataFrame,
   /** A DataFrame of the found entity node attributes. */
@@ -130,7 +128,7 @@ hypergraph<T extends TypeMap = any>(values: DataFrame<T>, {
   const events = _create_hyper_nodes(initial_events, nodeId, eventId, category, nodeType);
   const nodes  = entities.concat(events);
 
-  const graph = create_graph(edges, attribId, eventId);
+  const graph = Graph.fromEdgeList(edges.get(attribId), edges.get(eventId));
 
   return {nodes, edges, events, entities, graph};
 }
@@ -193,7 +191,7 @@ export function hypergraphDirect<T extends TypeMap = any>(values: DataFrame<T>, 
   const events = new DataFrame({});
   const nodes  = entities;
 
-  const graph = create_graph(edges, source, target);
+  const graph = Graph.fromEdgeList(edges.get(source), edges.get(target));
 
   return {nodes, edges, events, entities, graph};
 }
@@ -378,20 +376,10 @@ function _create_direct_edges(events: DataFrame,
   return new DataFrame().concat(...edge_dfs).select(cols);
 }
 
-function create_graph(edges: DataFrame, source: string, target: string): GraphCOO {
-  const src = edges.get(source);
-  const dst = edges.get(target);
-
-  const rnodes = renumberNodes(src, dst);
-  const redges = renumberEdges(src, dst, rnodes);
-
-  return new GraphCOO(redges.get('src')._col, redges.get('dst')._col, {directedEdges: true});
-}
-
 function _prepend_str(series: Series, val: string, delim: string) {
   const prefix = val + delim;
   const suffix = series.cast(new Categorical(new Utf8String));
-  const codes  = Series.new(suffix.codes);
+  const codes  = suffix.codes;
   const categories =
     Series.new(suffix.categories.replaceNulls('null')._col.replaceSlice(prefix, 0, 0));
 
@@ -399,6 +387,5 @@ function _prepend_str(series: Series, val: string, delim: string) {
 }
 
 function _scalar_init(val: string, size: number): Series<Utf8String> {
-  const indices = Series.sequence({init: 0, size: size, step: 0, type: new Int32});
-  return Series.new([val]).gather(indices);
+  return Series.new([val]).gather(Series.sequence({size, step: 0}), false);
 }

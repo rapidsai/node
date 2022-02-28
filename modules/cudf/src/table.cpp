@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Table::scatter_scalar>("scatterScalar"),
                        InstanceMethod<&Table::scatter_table>("scatterTable"),
                        InstanceMethod<&Table::gather>("gather"),
+                       InstanceMethod<&Table::apply_boolean_mask>("applyBooleanMask"),
                        InstanceMethod<&Table::get_column>("getColumnByIndex"),
                        InstanceMethod<&Table::to_arrow>("toArrow"),
                        InstanceMethod<&Table::order_by>("orderBy"),
@@ -59,6 +60,10 @@ Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
                        StaticMethod<&Table::left_join>("leftJoin"),
                        StaticMethod<&Table::left_semi_join>("leftSemiJoin"),
                        StaticMethod<&Table::left_anti_join>("leftAntiJoin"),
+                       InstanceMethod<&Table::explode>("explode"),
+                       InstanceMethod<&Table::explode_position>("explodePosition"),
+                       InstanceMethod<&Table::explode_outer>("explodeOuter"),
+                       InstanceMethod<&Table::explode_outer_position>("explodeOuterPosition"),
                      });
 }
 

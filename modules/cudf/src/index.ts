@@ -18,6 +18,7 @@ export * from './column';
 export * from './data_frame';
 export * from './groupby';
 export * from './series';
+export * from './scope';
 export * from './table';
 export * from './types/csv';
 export * from './types/enums';
