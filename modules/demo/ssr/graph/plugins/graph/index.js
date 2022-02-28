@@ -212,15 +212,19 @@ function forceAtlas2({graph, nodes, edges, ...params}) {
   if (graph == undefined) { return {}; }
   const asDeviceMemory = (buf) => new (buf[Symbol.species])(buf);
 
-  const positions = graph.forceAtlas2({...params, positions: nodes.nodeXPositions.data});
+  const tempPositions =
+    Series.new({type: new Float32, data: nodes.nodeXPositions.buffer})
+      .concat(Series.new({type: new Float32, data: nodes.nodeYPositions.buffer}));
+
+  const positions = graph.forceAtlas2({...params, positions: tempPositions.data});
 
   nodes.nodeXPositions = asDeviceMemory(
+    Series.new({type: new Float32, length: graph.numNodes, offset: 0, data: positions.buffer})
+      .data);
+  nodes.nodeYPositions = asDeviceMemory(
     Series
       .new(
         {type: new Float32, length: graph.numNodes, offset: graph.numNodes, data: positions.buffer})
-      .data);
-  nodes.nodeYPositions = asDeviceMemory(
-    Series.new({type: new Float32, length: graph.numNodes, offset: 0, data: positions.buffer})
       .data);
 
   return {
