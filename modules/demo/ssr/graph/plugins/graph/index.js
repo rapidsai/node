@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const wrtc         = require('wrtc');
-const {MemoryView} = require('@rapidsai/cuda');
-const {DataFrame}  = require('@rapidsai/cudf');
+const wrtc                         = require('wrtc');
+const {MemoryView}                 = require('@rapidsai/cuda');
+const {DataFrame, Series, Float32} = require('@rapidsai/cudf');
 
 const {RenderCluster} = require('../../render/cluster');
 
@@ -210,10 +210,21 @@ function layoutAndRenderGraphs(clients) {
 
 function forceAtlas2({graph, nodes, edges, ...params}) {
   if (graph == undefined) { return {}; }
-  graph.forceAtlas2({...params, positions: nodes.nodeXPositions.buffer});
+  const asDeviceMemory = (buf) => new (buf[Symbol.species])(buf);
+
+  const positions = graph.forceAtlas2({...params, positions: nodes.nodeXPositions.data});
+
+  nodes.nodeXPositions = asDeviceMemory(
+    Series
+      .new(
+        {type: new Float32, length: graph.numNodes, offset: graph.numNodes, data: positions.buffer})
+      .data);
+  nodes.nodeYPositions = asDeviceMemory(
+    Series.new({type: new Float32, length: graph.numNodes, offset: 0, data: positions.buffer})
+      .data);
 
   return {
-    graph,
+    graph: graph,
     ...params,
     nodes: {...nodes, length: graph.numNodes},
     edges: {...edges, length: graph.numEdges},
