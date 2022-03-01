@@ -67,7 +67,7 @@ export function RGBASeriestoIntSeries(r: Series<IndexType>|number,
  * @param rgba array of rgba value (a value is optional, default is 255)
  * @returns rgba 32 bit signed integer value
  */
-export function RGBAtoInt(rgba: number[]): number {
+function RGBAtoInt(rgba: number[]): number {
   rgba.forEach((value) => {
     if (value < 0 || value > 255) { throw new RangeError('rgba values expected within [0,255]'); }
   });

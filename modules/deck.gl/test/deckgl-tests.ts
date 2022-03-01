@@ -13,16 +13,9 @@
 // limitations under the License.
 
 import {Series, Uint32, Uint8} from '@rapidsai/cudf';
-import {mapValuesToColorSeries, RGBASeriestoIntSeries, RGBAtoInt} from '@rapidsai/deck.gl';
+import {mapValuesToColorSeries, RGBASeriestoIntSeries} from '@rapidsai/deck.gl';
 
 describe('DeckGL-color-utils', () => {
-  test('test RGBAtoInt', () => {
-    expect(RGBAtoInt([255, 255, 255, 255])).toEqual(4294967295);
-    expect(RGBAtoInt([167, 0, 125, 0])).toEqual(2801827072);
-    expect(RGBAtoInt([123, 123, 123, 125])).toEqual(2071690109);
-    expect(() => {RGBAtoInt([123, 123, 256, 125])}).toThrow(RangeError);
-  });
-
   test('test RGBASeriesToIntSeries', () => {
     const r    = Series.new({type: new Uint32, data: [255, 167, 123]});
     const g    = Series.new({type: new Uint32, data: [255, 0, 123]});
