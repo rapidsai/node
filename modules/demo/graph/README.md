@@ -13,9 +13,11 @@ Without passing data, graph demo will default to internal data. Passing graph da
 
 ## Start
 Example of starting the graph demo with selected data and preset parameters:
-`yarn start
+
+```bash
+yarn start
  --width=1920 --height=1080 \
  --nodes=data/netscience.nodes.csv \
  --edges=data/netscience.edges.csv \
  --params='"autoCenter":1,"outboundAttraction":1,"strongGravityMode":1,"jitterTolerance":0.02,"barnesHutTheta":0,"scalingRatio":2,"gravity":0.5,"controlsVisible":0'
- `
+```
