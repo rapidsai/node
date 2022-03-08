@@ -24,7 +24,7 @@ import {
 } from '@rapidsai/cudf';
 import {Quadtree} from '@rapidsai/cuspatial';
 import {Table} from 'apache-arrow';
-import {createReadStream} from 'fs';
+import {createReadStream, existsSync} from 'fs';
 import * as Path from 'path';
 
 import loadSpatialDataset from './data';
@@ -141,13 +141,15 @@ export async function loadPoints() {
   async function loadPointsTable(loadDatasetIfNotFound = true) {
     try {
       console.time(`load points Arrow table (${(168898952).toLocaleString()} points)`);
-      const table =
-        await Table.from(createReadStream(Path.join(__dirname, 'data', '168898952_points.arrow')));
+      const filePath = Path.join(__dirname, 'data', '168898952_points.arrow');
+      if (!existsSync(filePath)) { throw new Error('file not found'); }
+      const table = await Table.from(createReadStream(filePath));
       console.timeEnd(`load points Arrow table (${(168898952).toLocaleString()} points)`);
       return table;
     } catch (e) {
       if (loadDatasetIfNotFound) {
-        return await loadSpatialDataset().then(() => loadPointsTable(false));
+        console.log('dataset not found, now downloading...');
+        return await loadSpatialDataset().then(() => loadPointsTable(false))
       }
       console.error(`
   Point data not found! Run this to download the sample data from AWS S3 (1.3GiB):
