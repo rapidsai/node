@@ -93,11 +93,11 @@ readMortgageData() {
     sources: [path.resolve('./public', 'data/mortgage.csv')],
     dataTypes: {
       index: new Int16,
-      zip: new Int32,
+      zip: new Uint32,
       dti: new Float32,
       current_actual_upb: new Float32,
       borrower_credit_score: new Int16,
-      load_id: new Int32,
+      load_id: new Uint32,
       delinquency_12_prediction: new Float32,
       seller_name: new Int16
     }
