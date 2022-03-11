@@ -9,4 +9,4 @@
 *.so filter=lfs diff=lfs merge=lfs -text
 *.las filter=lfs diff=lfs merge=lfs -text
 *.laz filter=lfs diff=lfs merge=lfs -text
-modules/demo/umap/data/data.tar.xz filter=lfs diff=lfs merge=lfs -text
+*.tar.xz filter=lfs diff=lfs merge=lfs -text
