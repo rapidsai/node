@@ -18,17 +18,18 @@ export default class FileInput extends React.Component {
   constructor(props) {
     super(props)
     this.uploadFile = this.uploadFile.bind(this);
+    this.inputRef = React.createRef();
   }
 
   uploadFile(event) {
     let file = event.target.files[0];
-    this.props.onChange(file.name);
+    this.props.onChange(file, this.props.name);
   }
 
   render() {
     return <label style={{ width: 130, height: 0 }}>
       <p className={this.props?.useWhite ? "whiteTextButton" : "textButton"}>{this.props.children}</p>
-      <input type="file" style={{ display: "none" }} onChange={this.uploadFile} />
+      <input type="file" style={{ display: "none" }} onChange={this.uploadFile} ref={this.inputRef} />
     </label>
   }
 }

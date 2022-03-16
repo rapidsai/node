@@ -12,15 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const wrtc            = require('wrtc');
-const {DeviceBuffer}  = require('@rapidsai/rmm');
-const {MemoryView}    = require('@rapidsai/cuda');
-const {Float32Buffer} = require('@rapidsai/cuda');
-const {Graph}         = require('@rapidsai/cugraph');
-const {Series, Int32} = require('@rapidsai/cudf');
+const wrtc                         = require('wrtc');
+const {MemoryView}                 = require('@rapidsai/cuda');
+const {DataFrame, Series, Float32} = require('@rapidsai/cudf');
 
-const {loadNodes, loadEdges} = require('./loader');
-const {RenderCluster}        = require('../../render/cluster');
+const {RenderCluster} = require('../../render/cluster');
 
 const {create: shmCreate, detach: shmDetach} = require('shm-typed-array');
 
@@ -64,24 +60,14 @@ function graphSSRClients(fastify) {
       },
       event: {},
       props: {width, height, layout},
-      graph: await loadGraph(graphId),
+      graph: {},  // await loadGraph(graphId),
+      data: {
+        nodes: {dataframe: new DataFrame({}), color: '', size: '', id: '', x: 'x', y: 'y'},
+        edges: {dataframe: new DataFrame({}), color: '', id: '', bundle: '', src: 'src', dst: 'dst'}
+      },
       frame: shmCreate(width * height * 3 / 2),
       peer: peer,
     };
-    if (clients[stream.id].graph.dataframes[0]) {
-      const res = getPaginatedRows(clients[stream.id].graph.dataframes[0]);
-      peer.send(JSON.stringify({
-        type: 'data',
-        data: {nodes: {data: res, length: clients[stream.id].graph.dataframes[0].numRows}}
-      }));
-    }
-    if (clients[stream.id].graph.dataframes[1]) {
-      const res = getPaginatedRows(clients[stream.id].graph.dataframes[1]);
-      peer.send(JSON.stringify({
-        type: 'data',
-        data: {edges: {data: res, length: clients[stream.id].graph.dataframes[1].numRows}}
-      }));
-    }
 
     stream.addTrack(source.createTrack());
     peer.streams.push(stream);
@@ -127,79 +113,17 @@ function graphSSRClients(fastify) {
       }
     }
   }
-
-  async function loadGraph(id) {
-    let dataframes = [];
-
-    if (!(id in graphs)) {
-      const asDeviceMemory = (buf) => new (buf[Symbol.species])(buf);
-      dataframes                   = await Promise.all([loadNodes(id), loadEdges(id)]);
-      const src                    = dataframes[1].get('src');
-      const dst                    = dataframes[1].get('dst');
-      graphs[id]                   = {
-        refCount: 0,
-        nodes: {
-          nodeRadius: asDeviceMemory(dataframes[0].get('size').data),
-          nodeFillColors: asDeviceMemory(dataframes[0].get('color').data),
-          nodeElementIndices: asDeviceMemory(dataframes[0].get('id').data),
-        },
-        edges: {
-          edgeList: asDeviceMemory(dataframes[1].get('edge').data),
-          edgeColors: asDeviceMemory(dataframes[1].get('color').data),
-          edgeBundles: asDeviceMemory(dataframes[1].get('bundle').data),
-        },
-        graph: Graph.fromEdgeList(src, dst),
-      };
-    }
-
-    ++graphs[id].refCount;
-
-    const pos = new Float32Buffer(Array.from(
-      {length: graphs[id].graph.numNodes * 2},
-      () => Math.random() * 1000 * (Math.random() < 0.5 ? -1 : 1),
-      ));
-
-    return {
-      gravity: 0.0,
-      linLogMode: false,
-      scalingRatio: 5.0,
-      barnesHutTheta: 0.0,
-      jitterTolerance: 0.05,
-      strongGravityMode: false,
-      outboundAttraction: false,
-      graph: graphs[id].graph,
-      nodes: {
-        ...graphs[id].nodes,
-        length: graphs[id].graph.numNodes,
-        nodeXPositions: pos.subarray(0, pos.length / 2),
-        nodeYPositions: pos.subarray(pos.length / 2),
-      },
-      edges: {
-        ...graphs[id].edges,
-        length: graphs[id].graph.numEdges,
-      },
-      dataframes: dataframes
-    };
-  }
 }
 
 function layoutAndRenderGraphs(clients) {
-  const renderer = new RenderCluster({numWorkers: 1 && 4});
+  const renderer = new RenderCluster(
+    {numWorkers: 1 && 4, deckLayersPath: require('path').join(__dirname, 'deck')});
 
   return () => {
     for (const id in clients) {
       const client = clients[id];
-      const sendToClient =
-        ([nodes, edges]) => {
-          client.peer.send(JSON.stringify(
-            {type: 'data', data: {nodes: {data: getPaginatedRows(nodes), length: nodes.numRows}}}));
-          client.peer.send(JSON.stringify(
-            {type: 'data', data: {edges: {data: getPaginatedRows(edges), length: edges.numRows}}}));
-        }
 
-      if (client.isRendering) {
-        continue;
-      }
+      if (client.isRendering) { continue; }
 
       const state = {...client.state};
       const props = {...client.props};
@@ -247,7 +171,7 @@ function layoutAndRenderGraphs(clients) {
           props,
           event,
           frame: client.frame.key,
-          graph: {
+          layers: {
             ...client.graph,
             graph: undefined,
             edges: getIpcHandles(client.graph.edges),
@@ -263,26 +187,16 @@ function layoutAndRenderGraphs(clients) {
               result.state.clearSelections = false;
 
               // reset selected state
-              result.state.selectedInfo.selectedNodes       = [];
-              result.state.selectedInfo.selectedEdges       = [];
+              result.state.selectedInfo.nodes               = [];
+              result.state.selectedInfo.edges               = [];
               result.state.selectedInfo.selectedCoordinates = {};
               result.state.boxSelectCoordinates.rectdata    = [{polygon: [[]], show: false}];
 
               // send to client
-              if (client.graph.dataframes) { sendToClient(client.graph.dataframes); }
+              client.peer.send(JSON.stringify({type: 'data', data: 'newQuery'}));
             } else if (JSON.stringify(client.state.selectedInfo.selectedCoordinates) !==
                        JSON.stringify(result.state.selectedInfo.selectedCoordinates)) {
-              // selections updated
-              const nodes =
-                Series.new({type: new Int32, data: result.state.selectedInfo.selectedNodes});
-              const edges =
-                Series.new({type: new Int32, data: result.state.selectedInfo.selectedEdges});
-              if (client.graph.dataframes) {
-                sendToClient([
-                  client.graph.dataframes[0].gather(nodes),
-                  client.graph.dataframes[1].gather(edges)
-                ]);
-              }
+              client.peer.send(JSON.stringify({type: 'data', data: 'newQuery'}));
             }
             // copy result state to client's current state
             result?.state && Object.assign(client.state, result.state);
@@ -294,16 +208,27 @@ function layoutAndRenderGraphs(clients) {
   }
 }
 
-function getPaginatedRows(df, page = 1, rowsPerPage = 400) {
-  if (!df) { return {}; }
-  return df.head(page * rowsPerPage).tail(rowsPerPage).toArrow().toArray();
-}
-
 function forceAtlas2({graph, nodes, edges, ...params}) {
-  graph.forceAtlas2({...params, positions: nodes.nodeXPositions.buffer});
+  if (graph == undefined) { return {}; }
+  const asDeviceMemory = (buf) => new (buf[Symbol.species])(buf);
+
+  const tempPositions =
+    Series.new({type: new Float32, data: nodes.nodeXPositions.buffer})
+      .concat(Series.new({type: new Float32, data: nodes.nodeYPositions.buffer}));
+
+  const positions = graph.forceAtlas2({...params, positions: tempPositions.data});
+
+  nodes.nodeXPositions = asDeviceMemory(
+    Series.new({type: new Float32, length: graph.numNodes, offset: 0, data: positions.buffer})
+      .data);
+  nodes.nodeYPositions = asDeviceMemory(
+    Series
+      .new(
+        {type: new Float32, length: graph.numNodes, offset: graph.numNodes, data: positions.buffer})
+      .data);
 
   return {
-    graph,
+    graph: graph,
     ...params,
     nodes: {...nodes, length: graph.numNodes},
     edges: {...edges, length: graph.numEdges},

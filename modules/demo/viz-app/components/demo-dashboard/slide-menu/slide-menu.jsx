@@ -17,31 +17,50 @@ import FileInput from '../file-input/file-input';
 import HeaderUnderline from '../header-underline/header-underline';
 import { slide as Menu } from 'react-burger-menu';
 import { Row, Col } from 'react-bootstrap';
+import axios from 'axios';
 
 export default class SlideMenu extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedFilePath: "",
+      selectedFile: {},
+      fileUploadStatus: ""
     }
     this.onDataChange = this.onDataChange.bind(this);
     this.onLoadClick = this.onLoadClick.bind(this);
     this.onRenderClick = this.onRenderClick.bind(this);
   }
 
-  onDataChange(filePath) {
+  onDataChange(file) {
     this.setState({
-      selectedFilePath: filePath
+      selectedFile: file,
     });
   }
 
   onLoadClick() {
-    this.props.onLoadClick(this.state.selectedFilePath);
+    this.uploadFile(this.state.selectedFile);
   }
 
   onRenderClick() {
     this.props.onRenderClick();
   }
+
+  uploadFile(file) {
+    let formData = new FormData();
+    formData.append("id", this.props.id);
+    formData.append("file", file);
+    axios.post("/api/datasets/upload", formData, {
+    }).then(respone => {
+      this.setState({
+        fileUploadStatus: "file successfully uploaded"
+      });
+    }).catch(error => {
+      this.setState({
+        fileUploadStatus: error
+      });
+    });
+  }
+
 
   render() {
     return (
@@ -52,16 +71,18 @@ export default class SlideMenu extends React.Component {
               <FileInput onChange={this.onDataChange} useWhite={true}>
                 Select Data ▼
               </FileInput>
-              <p style={{ color: "white" }}>Selection: {this.state.selectedFilePath}</p>
             </Col>
+            <p style={{ color: "white" }}>Selection: {this.state.selectedFile.name}</p>
             <Col className={"max"} ><div className={"d-flex"} /></Col>
             <Col className={"col-auto"}>
-              <p className={"whiteTextButton"} onClick={this.onLoadClick}>[Load]</p>
+              <p className={"whiteTextButton"} onClick={this.onLoadClick}>[upload]</p>
             </Col>
           </Row>
+          <Row><Col className={"col-auto"}><p style={{ color: "white" }}>{this.state.fileUploadStatus}</p></Col></Row>
         </HeaderUnderline>
         <div style={{ height: 20 }} />
         <HeaderUnderline title={"Visualization"} color={"white"}>
+          {this.props.slideMenuCustomComponents}
           <p className={"whiteTextButton"} onClick={this.onRenderClick}>[Render]</p>
         </HeaderUnderline>
       </Menu >

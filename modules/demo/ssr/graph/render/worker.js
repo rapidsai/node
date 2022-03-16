@@ -18,8 +18,8 @@ const {tap, groupBy, mergeMap, concatMap} = require('rxjs/operators');
 const {Renderer} = require('./render');
 const renderer   = new Renderer();
 
-function render({props = {}, graph = {}, state = {}, event = [], frame = 0}) {
-  return renderer.render(props, graph, state, event, frame);
+function render({props = {}, layers = {}, state = {}, event = [], frame = 0}) {
+  return renderer.render(props, layers, state, event, frame);
 }
 
 fromEvent(process, 'message', (x) => x)
