@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {loadNativeModule} from '@rapidsai/core';
-
 export const isHeadless = typeof process.env.DISPLAY === 'undefined' ? true : false;
-export const GLFW =
-  loadNativeModule<any>(module, isHeadless ? 'node_glfw_eglheadless' : 'node_glfw_x11');
+export const GLFW: any =
+  require('bindings')(isHeadless ? 'node_glfw_eglheadless.node' : 'node_glfw_x11.node').init();
+
 export default GLFW;
 
 export type GLFWmonitor      = number;

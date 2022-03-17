@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {loadNativeModule} from '@rapidsai/core';
 import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
 
-export const CUML = loadNativeModule(module, 'node_cuml', init => init(CUDA, RMM, CUDF));
+export const {
+  _cpp_exports,
+  COO,
+  UMAP,
+  trustworthiness,
+} = require('bindings')('node_cuml.node').init(CUDA, RMM, CUDF) as typeof import('./node_cuml');
+
+export default {_cpp_exports, COO, UMAP, trustworthiness};

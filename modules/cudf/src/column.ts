@@ -15,7 +15,7 @@
 import {MemoryData} from '@rapidsai/cuda';
 import {DeviceBuffer, MemoryResource} from '@rapidsai/rmm';
 
-import CUDF from './addon';
+import * as CUDF from './addon';
 import {Scalar} from './scalar';
 import {Table} from './table';
 import {
@@ -73,7 +73,7 @@ export type ColumnProps<T extends DataType = any> = {
   children?: ReadonlyArray<Column>|null;
 };
 
-interface ColumnConstructor {
+export interface ColumnConstructor {
   readonly prototype: Column;
   new<T extends DataType = any>(props: ColumnProps<T>): Column<T>;
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
 
 /* eslint-disable @typescript-eslint/no-redeclare */
 
-import {loadNativeModule} from '@rapidsai/core';
 import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
 
-export const {readLasTable} = loadNativeModule<typeof import('./rapidsai_io')>(
-  module, 'rapidsai_io', init => init(CUDA, RMM, CUDF));
+export const {
+  _cpp_exports,
+  readLasTable,
+} = require('bindings')('rapidsai_io.node').init(CUDA, RMM, CUDF) as typeof import('./rapidsai_io');
 
-export type readLasTable = typeof import('./rapidsai_io').readLasTable;
+export default {_cpp_exports, readLasTable};

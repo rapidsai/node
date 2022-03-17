@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {CUDF as addon} from './addon';
+export * as addon from './addon';
 
 export * from './column';
 export * from './data_frame';

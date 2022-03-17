@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
 // limitations under the License.
 
 /* eslint-disable @typescript-eslint/no-redeclare */
-
-import {loadNativeModule} from '@rapidsai/core';
 
 export const {
   VERSION,
@@ -40,7 +38,7 @@ export const {
   IpcHandle,
   MappedGLMemory,
   _cpp_exports,
-} = loadNativeModule<typeof import('./node_cuda')>(module, 'node_cuda', init => init());
+} = require('bindings')('node_cuda.node').init() as typeof import('./node_cuda');
 
 export type getDriverVersion = typeof import('./node_cuda').getDriverVersion;
 export type rgbaMirror       = typeof import('./node_cuda').rgbaMirror;

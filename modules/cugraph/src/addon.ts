@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
 
 /* eslint-disable @typescript-eslint/no-redeclare */
 
-import {loadNativeModule} from '@rapidsai/core';
 import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
 
-export const {Graph, _cpp_exports} = loadNativeModule<typeof import('./node_cugraph')>(
-  module, 'node_cugraph', init => init(CUDA, CUDF, RMM));
+export const {
+  Graph,
+  _cpp_exports,
+} =
+  require('bindings')('node_cugraph.node').init(CUDA, RMM, CUDF) as typeof import('./node_cugraph');
 
 export type Graph = import('./node_cugraph').Graph;

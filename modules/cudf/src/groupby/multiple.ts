@@ -17,17 +17,19 @@ import {Field} from 'apache-arrow';
 
 import {Column} from '../column';
 import {DataFrame} from '../data_frame';
+import {GroupByBaseProps} from '../groupby';
 import {Series} from '../series';
 import {Table} from '../table';
 import {DataType, Int32, List, Struct} from '../types/dtypes';
 import {ColumnsMap, Interpolation, TypeMap} from '../types/mappings';
 
-import {GroupByBase, GroupByBaseProps} from './base';
+import {GroupByBase} from './base';
 
-export type GroupByMultipleProps<T extends TypeMap, R extends keyof T, IndexKey extends string> = {
-  by: R[],
-  index_key: IndexKey,
-}&GroupByBaseProps;
+export interface GroupByMultipleProps<
+  T extends TypeMap, R extends keyof T, IndexKey extends string> extends GroupByBaseProps {
+  by: R[];
+  index_key: IndexKey;
+}
 
 export class GroupByMultiple<T extends TypeMap, R extends keyof T, IndexKey extends string> extends
   GroupByBase<T, R> {
