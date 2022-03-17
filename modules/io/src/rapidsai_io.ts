@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
 
 import {Table} from '@rapidsai/cudf';
 import {MemoryResource} from '@rapidsai/rmm';
+
+/** @ignore */
+export declare const _cpp_exports: any;
 
 export declare function readLasTable(
   input: string, memoryResource?: MemoryResource): {names: string[], table: Table};

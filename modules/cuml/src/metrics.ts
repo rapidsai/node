@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import {DataFrame, Float32, Numeric, Series} from '@rapidsai/cudf';
+import {DeviceBuffer} from '@rapidsai/rmm';
 
-import {CUML} from './addon';
+import * as CUML from './addon';
 import {dataframeToSeries} from './utilities/array_utils';
 
 /**
@@ -37,9 +38,9 @@ export function trustworthinessSeries<T extends Numeric, R extends Numeric>(
   batch_size  = 512): number {
   const nSamples = Math.floor(features.length / nFeatures);
 
-  return CUML.trustworthiness(features.data.buffer,
+  return CUML.trustworthiness(features.data.buffer as DeviceBuffer,
                               features.type,
-                              embedded.data.buffer,
+                              embedded.data.buffer as DeviceBuffer,
                               embedded.type,
                               nSamples,
                               nFeatures,
@@ -67,9 +68,9 @@ export function trustworthinessDataFrame<T extends Numeric, R extends Numeric, K
 
   const nComponents = embedded.numColumns;
 
-  return CUML.trustworthiness(dataframeToSeries(features).data.buffer,
+  return CUML.trustworthiness(dataframeToSeries(features).data.buffer as DeviceBuffer,
                               features.get(features.names[0]).type,
-                              dataframeToSeries(embedded).data.buffer,
+                              dataframeToSeries(embedded).data.buffer as DeviceBuffer,
                               embedded.get(embedded.names[0]).type,
                               nSamples,
                               nFeatures,

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 
 /* eslint-disable @typescript-eslint/no-redeclare */
 
-import {loadNativeModule} from '@rapidsai/core';
 import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as CUDF} from '@rapidsai/cudf';
 import {addon as RMM} from '@rapidsai/rmm';
@@ -26,9 +25,8 @@ export const {
   Context,
   UcpContext,
   ExecutionGraph
-} =
-  loadNativeModule<typeof import('./rapidsai_sql')>(
-    module, 'rapidsai_sql', init => init(CUDA, RMM, CUDF));
+} = require('bindings')('rapidsai_sql.node').init(CUDA, RMM, CUDF) as
+    typeof import('./rapidsai_sql') ;
 
 export type getTableScanInfo         = typeof import('./rapidsai_sql').getTableScanInfo;
 export type runGeneratePhysicalGraph = typeof import('./rapidsai_sql').runGeneratePhysicalGraph;

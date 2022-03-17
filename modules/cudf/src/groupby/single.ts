@@ -16,16 +16,17 @@ import {MemoryResource} from '@rapidsai/rmm';
 
 import {Column} from '../column';
 import {DataFrame, SeriesMap} from '../data_frame';
+import {GroupByBaseProps} from '../groupby';
 import {Series} from '../series';
 import {Table} from '../table';
 import {DataType, Int32, List} from '../types/dtypes';
 import {Interpolation, TypeMap} from '../types/mappings';
 
-import {GroupByBase, GroupByBaseProps} from './base';
+import {GroupByBase} from './base';
 
-export type GroupBySingleProps<T extends TypeMap, R extends keyof T> = {
-  by: R,
-}&GroupByBaseProps;
+export interface GroupBySingleProps<T extends TypeMap, R extends keyof T> extends GroupByBaseProps {
+  by: R;
+}
 
 export class GroupBySingle<T extends TypeMap, R extends keyof T> extends GroupByBase<T, R> {
   constructor(obj: DataFrame<T>, props: GroupBySingleProps<T, R>) { super(props, [props.by], obj); }

@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CUML} from './addon';
+import * as CUML from './addon';
 
-interface COOConstructor {
+export interface COOConstructor {
   new(): COOInterface;
 }
+
 export interface COOInterface {
   getSize(): number;
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION.
+// Copyright (c) 2020-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {loadNativeModule} from '@rapidsai/core';
+/* eslint-disable @typescript-eslint/no-redeclare */
+
 import {addon as CUDA} from '@rapidsai/cuda';
 import {addon as RMM} from '@rapidsai/rmm';
 
-export const CUDF = loadNativeModule<any>(module, 'node_cudf', init => init(CUDA, RMM));
-export default CUDF;
+export const {
+  _cpp_exports,
+  Table,
+  Column,
+  Scalar,
+  GroupBy,
+  findCommonType,
+} = require('bindings')('node_cudf.node').init(CUDA, RMM) as typeof import('./node_cudf');
+
+export default {
+  _cpp_exports,
+  Table,
+  Column,
+  Scalar,
+  GroupBy,
+  findCommonType,
+};
