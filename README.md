@@ -28,7 +28,7 @@ Due to native dependency distribution complexity, pre-packaged builds of the `no
 See [DEVELOP.md](https://github.com/rapidsai/node/blob/main/DEVELOP.md) for details on setting up a local dev environment and building the code.
 
 We want your input! Join us in the [#node-rapids channel](https://rapids-goai.slack.com/archives/C0237JMVBRS) in the [RAPIDS-GoAI Slack workspace](https://rapids-goai.slack.com).
-  
+
 ## Tracking Progress
 
 You can review [BINDINGS.md](https://github.com/rapidsai/node/blob/main/BINDINGS.md) to see which bindings have been completed for each of the RAPIDS libraries.
@@ -37,10 +37,8 @@ You can review [BINDINGS.md](https://github.com/rapidsai/node/blob/main/BINDINGS
 
 Check out our [demos](https://github.com/rapidsai/node/tree/main/modules/demo) to see various visualization and compute capabilities:
 
-* [OpenGL lessons in luma.gl](https://github.com/rapidsai/node/tree/main/modules/demo/luma/)
 * [Library of deck.gl demos in OpenGL](https://github.com/rapidsai/node/tree/main/modules/demo/deck/)
-* [Rendering text via Xterm.js's WebGL addon](https://github.com/rapidsai/node/tree/main/modules/demo/xterm/)
-* [TensorFlow.js Examples](https://github.com/rapidsai/node/tree/main/modules/demo/tfjs/)
+* [Cross filtering millions of rows with cuDF](https://github.com/rapidsai/node/tree/main/modules/demo/client-server)
 * [Simulating & rendering with cuGraph](https://github.com/rapidsai/node/tree/main/modules/demo/graph/)
 * [Querying millions of points with cuSpatial](https://github.com/rapidsai/node/tree/main/modules/demo/spatial/)
 * [Multi-GPU SQL queries on GBs of CSVs](https://github.com/rapidsai/node/tree/main/modules/demo/sql/sql-cluster-server/)

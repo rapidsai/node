@@ -10,8 +10,7 @@ A UMAP visualization using cuML and deck.gl.
 
 ## Data requirements
 Make sure the `data.tar.xz` file has been pulled from git lfs. Extract it using the following command:
-
-```
+```bash
 tar -xf ./data/data.tar.xz -C ./data
 ```
 

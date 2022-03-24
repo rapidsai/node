@@ -70,7 +70,7 @@ Some demos require downloading datasets to run, while others have defaults inclu
 <br/><br/>
 
 ## [UMAP](https://github.com/rapidsai/node/tree/main/modules/demo/umap)
-### Using cuGraph bindings of UMAP to compute clusters
+### Using cuML bindings of UMAP to compute clusters
 ![UMAP](../../docs/images/demo-screenshots/umap-ss-sm.png)
 
 <br/><br/>

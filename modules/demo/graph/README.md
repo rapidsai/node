@@ -2,11 +2,11 @@
 A simple graph visualization powered by cuGraph and deck.gl, using a glfw instance. While running, you can select parameters by using the up/down arrow keys or 1-9 and adjust by using left/right arrow keys. Pan and zoom with a mouse.
 
 ## Featured Dependencies
-@rapidsai/cudf
-@rapidsai/cuspatial
-@rapidsai/jsdom
-@rapidsai/deckgl
-@rapidsai/glfw
+- @rapidsai/cudf
+- @rapidsai/cuspatial
+- @rapidsai/jsdom
+- @rapidsai/deckgl
+- @rapidsai/glfw
 
 ## Data Requirements
 Without passing data, graph demo will default to internal data. Passing graph data assumes a node and edge `.csv` format in `/data` folder.
