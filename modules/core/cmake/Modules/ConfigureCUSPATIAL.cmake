@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2021, NVIDIA CORPORATION.
+# Copyright (c) 2021-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,14 @@ function(find_and_configure_cuspatial VERSION)
 
     include(ConfigureCUDF)
 
-    _clean_build_dirs_if_not_fully_built(cuspatial libcuspatial.so)
+    _set_package_dir_if_exists(cudf cudf)
+    _set_package_dir_if_exists(cuco cuco)
+    _set_package_dir_if_exists(dlpack dlpack)
+    _set_package_dir_if_exists(jitify jitify)
+    _set_package_dir_if_exists(nvcomp nvcomp)
+    _set_package_dir_if_exists(Thrust thrust)
+
+    _clean_build_dirs_if_not_fully_built(cuspatial libcuspatial)
 
     _set_package_dir_if_exists(cuspatial cuspatial)
 
@@ -29,19 +36,31 @@ function(find_and_configure_cuspatial VERSION)
         _get_update_disconnected_state(cuspatial ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cuspatial
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/cuspatial.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
+            # GIT_REPOSITORY      https://github.com/rapidsai/cuspatial.git
+            # GIT_TAG             branch-${MAJOR_AND_MINOR}
+            GIT_REPOSITORY      https://github.com/trxcllnt/cuspatial.git
+            GIT_TAG             fea/use-rapids-cmake-22.04
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
+                                "BUILD_SHARED_LIBS OFF"
                                 "JITIFY_USE_CACHE ON"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
     endif()
     # Make sure consumers of our libs can see cuspatial::cuspatial
     _fix_cmake_global_defaults(cuspatial::cuspatial)
+
+    # _set_package_dir_if_exists(cuco cuco)
+
+    # if (NOT TARGET cuco::cuco)
+    #     find_package(cuco REQUIRED)
+    #     if(NOT TARGET cuco::cuco)
+    #         add_library(cuco::cuco ALIAS cuco)
+    #     endif()
+    # endif()
 endfunction()
 
 find_and_configure_cuspatial(${CUSPATIAL_VERSION})

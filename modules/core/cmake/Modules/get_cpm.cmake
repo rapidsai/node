@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2021, NVIDIA CORPORATION.
+# Copyright (c) 2021-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,27 +54,34 @@ if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
     set(FETCHCONTENT_BASE_DIR "${CPM_BINARY_CACHE}" CACHE STRING "" FORCE)
 endif()
 
-set(CPM_DOWNLOAD_VERSION 634800c61928d330a6e9559171509a5c3dd479d5) # 0.34.0
+file(DOWNLOAD https://raw.githubusercontent.com/rapidsai/rapids-cmake/branch-22.04/RAPIDS.cmake ${CMAKE_BINARY_DIR}/RAPIDS.cmake)
+include(${CMAKE_BINARY_DIR}/RAPIDS.cmake)
+include(rapids-cmake)
+include(rapids-cpm)
 
-if(CPM_SOURCE_CACHE)
-  # Expand relative path. This is important if the provided path contains a tilde (~)
-  get_filename_component(CPM_SOURCE_CACHE ${CPM_SOURCE_CACHE} ABSOLUTE)
-  set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-elseif(DEFINED ENV{CPM_SOURCE_CACHE})
-  set(CPM_DOWNLOAD_LOCATION "$ENV{CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-else()
-  set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-endif()
+rapids_cpm_init()
 
-if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
-  message(STATUS "get_cpm: Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
-  file(
-    DOWNLOAD
-    https://raw.githubusercontent.com/cpm-cmake/CPM.cmake/${CPM_DOWNLOAD_VERSION}/cmake/CPM.cmake
-    ${CPM_DOWNLOAD_LOCATION})
-endif()
+# set(CPM_DOWNLOAD_VERSION 634800c61928d330a6e9559171509a5c3dd479d5) # 0.34.0
 
-include(${CPM_DOWNLOAD_LOCATION})
+# if(CPM_SOURCE_CACHE)
+#   # Expand relative path. This is important if the provided path contains a tilde (~)
+#   get_filename_component(CPM_SOURCE_CACHE ${CPM_SOURCE_CACHE} ABSOLUTE)
+#   set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+# elseif(DEFINED ENV{CPM_SOURCE_CACHE})
+#   set(CPM_DOWNLOAD_LOCATION "$ENV{CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+# else()
+#   set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+# endif()
+
+# if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
+#   message(STATUS "get_cpm: Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
+#   file(
+#     DOWNLOAD
+#     https://raw.githubusercontent.com/cpm-cmake/CPM.cmake/${CPM_DOWNLOAD_VERSION}/cmake/CPM.cmake
+#     ${CPM_DOWNLOAD_LOCATION})
+# endif()
+
+# include(${CPM_DOWNLOAD_LOCATION})
 
 function(_set_package_dir_if_exists pkg dir)
     if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
@@ -87,14 +94,16 @@ function(_set_package_dir_if_exists pkg dir)
     endif()
 endfunction()
 
-function(_clean_build_dirs_if_not_fully_built dir soname)
+function(_clean_build_dirs_if_not_fully_built dir libname)
     if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
-        if (EXISTS "${CPM_BINARY_CACHE}/${dir}-build/${soname}")
-            message(STATUS "get_cpm: not clearing shared build dirs since '${CPM_BINARY_CACHE}/${dir}-build/${soname}' exists")
+        if (EXISTS "${CPM_BINARY_CACHE}/${dir}-build/${libname}.a")
+            message(STATUS "get_cpm: not clearing shared build dirs since '${CPM_BINARY_CACHE}/${dir}-build/${libname}.a' exists")
+        elseif (EXISTS "${CPM_BINARY_CACHE}/${dir}-build/${libname}.so")
+            message(STATUS "get_cpm: not clearing shared build dirs since '${CPM_BINARY_CACHE}/${dir}-build/${libname}.so' exists")
         else()
             file(REMOVE_RECURSE "${CPM_BINARY_CACHE}/${dir}-build")
             file(REMOVE_RECURSE "${CPM_BINARY_CACHE}/${dir}-subbuild")
-            message(STATUS "get_cpm: clearing shared build dirs since '${CPM_BINARY_CACHE}/${dir}-build/${soname}' does not exist")
+            message(STATUS "get_cpm: clearing shared build dirs since '${CPM_BINARY_CACHE}/${dir}-build/${libname}.(a|so)' does not exist")
         endif()
     endif()
 endfunction()

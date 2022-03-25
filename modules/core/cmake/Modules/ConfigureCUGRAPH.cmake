@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2021, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ function(find_and_configure_cugraph VERSION)
 
     include(get_cpm)
 
-    _clean_build_dirs_if_not_fully_built(cugraph libcugraph.so)
+    include(ConfigureRAFT)
+
+    _clean_build_dirs_if_not_fully_built(cugraph libcugraph)
 
     _set_package_dir_if_exists(cuco cuco)
     _set_package_dir_if_exists(raft raft)
@@ -34,13 +36,18 @@ function(find_and_configure_cugraph VERSION)
             # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
             # GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_REPOSITORY      https://github.com/trxcllnt/cugraph.git
-            GIT_TAG             fix/define-ptds
+            GIT_TAG             fea/use-rapids-cmake-22.04
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
+                                "BUILD_SHARED_LIBS OFF"
         )
+    endif()
+    if (TARGET cugraph)
+        set_target_properties(cugraph PROPERTIES POSITION_INDEPENDENT_CODE ON)
+        target_compile_options(cugraph PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-fPIC>)
     endif()
     # Make sure consumers of our libs can see cugraph::cugraph
     _fix_cmake_global_defaults(cugraph::cugraph)

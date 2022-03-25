@@ -29,8 +29,8 @@ function(find_and_configure_rmm VERSION)
         _get_update_disconnected_state(rmm ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     rmm
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/rmm.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
+            GIT_REPOSITORY      https://github.com/trxcllnt/rmm.git
+            GIT_TAG             fea/use-rapids-cmake-22.04
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             OPTIONS             "BUILD_TESTS OFF"

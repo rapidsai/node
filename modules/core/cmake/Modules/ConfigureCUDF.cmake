@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2021, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +20,10 @@ function(find_and_configure_cudf VERSION)
 
     include(ConfigureRMM)
 
-    _clean_build_dirs_if_not_fully_built(cudf libcudf.so)
+    _clean_build_dirs_if_not_fully_built(cudf libcudf)
 
     _set_package_dir_if_exists(cudf cudf)
+    _set_package_dir_if_exists(cuco cuco)
     _set_package_dir_if_exists(dlpack dlpack)
     _set_package_dir_if_exists(jitify jitify)
     _set_package_dir_if_exists(nvcomp nvcomp)
@@ -42,21 +43,24 @@ function(find_and_configure_cudf VERSION)
             # GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
             # GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_REPOSITORY      https://github.com/trxcllnt/cudf.git
-            GIT_TAG             fix/nvcomp-absolute-paths
+            GIT_TAG             fea/use-rapids-cmake-22.04
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
+                                "BUILD_SHARED_LIBS OFF"
                                 "JITIFY_USE_CACHE ON"
                                 "BOOST_SOURCE SYSTEM"
                                 "Thrift_SOURCE BUNDLED"
                                 "CUDA_STATIC_RUNTIME OFF"
-                                "CUDF_USE_ARROW_STATIC OFF"
+                                "CUDF_USE_ARROW_STATIC ON"
                                 "CUDF_ENABLE_ARROW_S3 OFF"
+                                # "CUDF_ENABLE_ARROW_S3 ON"
                                 "CUDF_ENABLE_ARROW_ORC OFF"
                                 "CUDF_ENABLE_ARROW_PYTHON OFF"
                                 "CUDF_ENABLE_ARROW_PARQUET ON"
+                                # "ARROW_DEPENDENCY_SOURCE AUTO"
                                 "PER_THREAD_DEFAULT_STREAM ON"
                                 "DISABLE_DEPRECATION_WARNING ON")
     endif()
@@ -65,6 +69,32 @@ function(find_and_configure_cudf VERSION)
     _fix_cmake_global_defaults(cudf::cudf)
     # Make sure consumers of our libs can see cudf::cudftestutil
     _fix_cmake_global_defaults(cudf::cudftestutil)
+
+    if (NOT TARGET ZLIB::ZLIB)
+        find_package(ZLIB REQUIRED)
+    endif()
+
+    if (NOT TARGET cuco::cuco)
+        _set_package_dir_if_exists(cuco cuco)
+        find_package(cuco 0.0.1 REQUIRED)
+        if(NOT TARGET cuco::cuco)
+            add_library(cuco::cuco ALIAS cuco)
+        endif()
+    endif()
+
+    if (NOT TARGET cuFile::cuFile_interface)
+        file(GLOB FindCuFile_cmake "${CPM_SOURCE_CACHE}/cudf/*/cpp/cmake/Modules/FindcuFile.cmake")
+        if (EXISTS "${FindCuFile_cmake}")
+            include("${FindCuFile_cmake}")
+        endif()
+    endif()
+
+    if (NOT TARGET nvcomp::nvcomp)
+        file(GLOB get_nvcomp_cmake "${CPM_SOURCE_CACHE}/cudf/*/cpp/cmake/thirdparty/get_nvcomp.cmake")
+        if (EXISTS "${get_nvcomp_cmake}")
+            include("${get_nvcomp_cmake}")
+        endif()
+    endif()
 endfunction()
 
 find_and_configure_cudf(${CUDF_VERSION})
