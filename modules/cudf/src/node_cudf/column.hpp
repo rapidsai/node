@@ -256,7 +256,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
    * @return Scalar
    */
   Scalar::wrapper_t reduce(
-    std::unique_ptr<cudf::aggregation> const& agg,
+    std::unique_ptr<cudf::reduce_aggregation> const& agg,
     cudf::data_type const& output_dtype,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
@@ -268,7 +268,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
    * @return Column
    */
   Column::wrapper_t scan(
-    std::unique_ptr<cudf::aggregation> const& agg,
+    std::unique_ptr<cudf::scan_aggregation> const& agg,
     cudf::scan_type inclusive,
     cudf::null_policy null_handling     = cudf::null_policy::EXCLUDE,
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;

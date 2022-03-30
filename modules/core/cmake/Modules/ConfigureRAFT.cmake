@@ -34,7 +34,7 @@ function(find_and_configure_raft VERSION)
         CPMFindPackage(NAME        raft
             VERSION                ${VERSION}
             GIT_REPOSITORY         https://github.com/trxcllnt/raft.git
-            GIT_TAG                fea/use-rapids-cmake-22.04
+            GIT_TAG                fea/enable-static-libs
             GIT_SHALLOW            TRUE
             SOURCE_SUBDIR          cpp
             FIND_PACKAGE_ARGUMENTS "COMPONENTS distance nn"
@@ -43,14 +43,14 @@ function(find_and_configure_raft VERSION)
                                    "BUILD_SHARED_LIBS OFF"
                                    "RAFT_USE_FAISS_STATIC ON")
     endif()
-    if (TARGET raft_nn_lib)
-        set_target_properties(raft_nn_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-        target_compile_options(raft_nn_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-fPIC>)
-    endif()
-    if (TARGET raft_distance_lib)
-        set_target_properties(raft_distance_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
-        target_compile_options(raft_distance_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-fPIC>)
-    endif()
+    # if (TARGET raft_nn_lib)
+    #     set_target_properties(raft_nn_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    #     target_compile_options(raft_nn_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-fPIC>)
+    # endif()
+    # if (TARGET raft_distance_lib)
+    #     set_target_properties(raft_distance_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    #     target_compile_options(raft_distance_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-fPIC>)
+    # endif()
     # Make sure consumers of our libs can see raft::raft
     _fix_cmake_global_defaults(raft::raft)
 endfunction()

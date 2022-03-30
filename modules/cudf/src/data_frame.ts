@@ -2085,8 +2085,6 @@ export class DataFrame<T extends TypeMap = any> {
    *
    * @param keep Determines whether to keep the first, last, or none of the duplicate items.
    * @param nullsEqual Determines whether nulls are handled as equal values.
-   * @param nullsFirst Determines whether null values are inserted before or after non-null
-   *   values.
    * @param subset List of columns to consider when dropping rows (all columns are considered by
    * default).
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
@@ -2096,7 +2094,6 @@ export class DataFrame<T extends TypeMap = any> {
    */
   dropDuplicates(keep: keyof typeof DuplicateKeepOption,
                  nullsEqual: boolean,
-                 nullsFirst: boolean,
                  subset = this.names,
                  memoryResource?: MemoryResource) {
     const column_indices: number[] = [];
@@ -2109,8 +2106,8 @@ export class DataFrame<T extends TypeMap = any> {
         throw new Error(`Unknown column name: ${col}`);
       }
     });
-    const table = this.asTable().dropDuplicates(
-      column_indices, DuplicateKeepOption[keep], nullsEqual, nullsFirst, memoryResource);
+    const table =
+      this.asTable().unique(column_indices, DuplicateKeepOption[keep], nullsEqual, memoryResource);
     return new DataFrame(allNames.reduce(
       (map, name, i) => ({...map, [name]: this.__constructChild(name, table.getColumnByIndex(i))}),
       {} as SeriesMap<T>));

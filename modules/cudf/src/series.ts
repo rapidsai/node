@@ -1433,7 +1433,7 @@ export class AbstractSeries<T extends DataType = any> {
    * ```
    */
   unique(nullsEqual = true, memoryResource?: MemoryResource) {
-    return this.dropDuplicates(true, nullsEqual, true, memoryResource);
+    return this.dropDuplicates(true, nullsEqual, memoryResource);
   }
 
   /**
@@ -1441,8 +1441,6 @@ export class AbstractSeries<T extends DataType = any> {
    *
    * @param keep Determines whether or not to keep the duplicate items.
    * @param nullsEqual Determines whether nulls are handled as equal values.
-   * @param nullsFirst Determines whether null values are inserted before or after non-null
-   *   values.
    * @param memoryResource Memory resource used to allocate the result Column's device memory.
    * @returns series without duplicate values
    *
@@ -1464,14 +1462,10 @@ export class AbstractSeries<T extends DataType = any> {
    * ) // [1, 2, 3]
    * ```
    */
-  dropDuplicates(keep: boolean,
-                 nullsEqual: boolean,
-                 nullsFirst: boolean,
-                 memoryResource?: MemoryResource) {
+  dropDuplicates(keep: boolean, nullsEqual: boolean, memoryResource?: MemoryResource) {
     return this.__construct(
       new Table({columns: [this._col]})
-        .dropDuplicates(
-          [0], DuplicateKeepOption[keep ? 'first' : 'none'], nullsEqual, nullsFirst, memoryResource)
+        .unique([0], DuplicateKeepOption[keep ? 'first' : 'none'], nullsEqual, memoryResource)
         .getColumnByIndex(0));
   }
 }

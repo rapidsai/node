@@ -39,7 +39,7 @@ function(find_and_configure_cuspatial VERSION)
             # GIT_REPOSITORY      https://github.com/rapidsai/cuspatial.git
             # GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_REPOSITORY      https://github.com/trxcllnt/cuspatial.git
-            GIT_TAG             fea/use-rapids-cmake-22.04
+            GIT_TAG             fea/enable-static-libs
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp

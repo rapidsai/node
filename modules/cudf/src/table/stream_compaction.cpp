@@ -61,25 +61,21 @@ Napi::Value Table::drop_nans(Napi::CallbackInfo const& info) {
   return drop_nans(args[0], args[1], args[2]);
 }
 
-Table::wrapper_t Table::drop_duplicates(std::vector<cudf::size_type> keys,
-                                        cudf::duplicate_keep_option keep,
-                                        bool is_nulls_equal,
-                                        bool is_nulls_first,
-                                        rmm::mr::device_memory_resource* mr) const {
+Table::wrapper_t Table::unique(std::vector<cudf::size_type> keys,
+                               cudf::duplicate_keep_option keep,
+                               bool is_nulls_equal,
+                               rmm::mr::device_memory_resource* mr) const {
   cudf::null_equality nulls_equal =
     is_nulls_equal ? cudf::null_equality::EQUAL : cudf::null_equality::UNEQUAL;
-  cudf::null_order nulls_first =
-    is_nulls_first ? cudf::null_order::BEFORE : cudf::null_order::AFTER;
 
   try {
-    return Table::New(Env(),
-                      cudf::drop_duplicates(*this, keys, keep, nulls_equal, nulls_first, mr));
+    return Table::New(Env(), cudf::unique(*this, keys, keep, nulls_equal, mr));
   } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
 }
 
-Napi::Value Table::drop_duplicates(Napi::CallbackInfo const& info) {
+Napi::Value Table::unique(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
-  return drop_duplicates(args[0], args[1], args[2], args[3], args[4]);
+  return unique(args[0], args[1], args[2], args[3]);
 }
 
 }  // namespace nv

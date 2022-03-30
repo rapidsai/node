@@ -43,7 +43,7 @@ function(find_and_configure_cudf VERSION)
             # GIT_REPOSITORY      https://github.com/rapidsai/cudf.git
             # GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_REPOSITORY      https://github.com/trxcllnt/cudf.git
-            GIT_TAG             fea/use-rapids-cmake-22.04
+            GIT_TAG             fea/enable-static-libs
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
@@ -70,31 +70,31 @@ function(find_and_configure_cudf VERSION)
     # Make sure consumers of our libs can see cudf::cudftestutil
     _fix_cmake_global_defaults(cudf::cudftestutil)
 
-    if (NOT TARGET ZLIB::ZLIB)
-        find_package(ZLIB REQUIRED)
-    endif()
+    # if (NOT TARGET ZLIB::ZLIB)
+    #     find_package(ZLIB REQUIRED)
+    # endif()
 
-    if (NOT TARGET cuco::cuco)
-        _set_package_dir_if_exists(cuco cuco)
-        find_package(cuco 0.0.1 REQUIRED)
-        if(NOT TARGET cuco::cuco)
-            add_library(cuco::cuco ALIAS cuco)
-        endif()
-    endif()
+    # if (NOT TARGET cuco::cuco)
+    #     _set_package_dir_if_exists(cuco cuco)
+    #     find_package(cuco 0.0.1 REQUIRED)
+    #     if(NOT TARGET cuco::cuco)
+    #         add_library(cuco::cuco ALIAS cuco)
+    #     endif()
+    # endif()
 
-    if (NOT TARGET cuFile::cuFile_interface)
-        file(GLOB FindCuFile_cmake "${CPM_SOURCE_CACHE}/cudf/*/cpp/cmake/Modules/FindcuFile.cmake")
-        if (EXISTS "${FindCuFile_cmake}")
-            include("${FindCuFile_cmake}")
-        endif()
-    endif()
+    # if (NOT TARGET cuFile::cuFile_interface)
+    #     file(GLOB FindCuFile_cmake "${CPM_SOURCE_CACHE}/cudf/*/cpp/cmake/Modules/FindcuFile.cmake")
+    #     if (EXISTS "${FindCuFile_cmake}")
+    #         include("${FindCuFile_cmake}")
+    #     endif()
+    # endif()
 
-    if (NOT TARGET nvcomp::nvcomp)
-        file(GLOB get_nvcomp_cmake "${CPM_SOURCE_CACHE}/cudf/*/cpp/cmake/thirdparty/get_nvcomp.cmake")
-        if (EXISTS "${get_nvcomp_cmake}")
-            include("${get_nvcomp_cmake}")
-        endif()
-    endif()
+    # if (NOT TARGET nvcomp::nvcomp)
+    #     file(GLOB get_nvcomp_cmake "${CPM_SOURCE_CACHE}/cudf/*/cpp/cmake/thirdparty/get_nvcomp.cmake")
+    #     if (EXISTS "${get_nvcomp_cmake}")
+    #         include("${get_nvcomp_cmake}")
+    #     endif()
+    # endif()
 endfunction()
 
 find_and_configure_cudf(${CUDF_VERSION})

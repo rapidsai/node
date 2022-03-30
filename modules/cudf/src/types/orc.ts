@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ export interface ReadORCOptionsCommon {
   numRows?: number;
   /** Use row index if available for faster seeking (default 'true') */
   useIndex?: boolean;
-  /** Names of the columns that should be converted from Decimal to Float64 */
-  decimalColsAsFloats?: string[];
+  /** Names of the columns that should be read as 128-bit Decimal */
+  decimalColumns?: string[];
 }
 
 export interface ReadORCFileOptions extends ReadORCOptionsCommon {

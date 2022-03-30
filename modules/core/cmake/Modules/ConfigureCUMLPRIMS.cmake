@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,33 +14,33 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_rmm VERSION)
+function(find_and_configure_cumlprims_mg VERSION)
 
     include(get_cpm)
 
-    include(ConfigureThrust)
+    include(ConfigureRAFT)
 
-    _set_package_dir_if_exists(rmm rmm)
-    _set_package_dir_if_exists(spdlog spdlog)
-    _set_package_dir_if_exists(Thrust thrust)
+    _clean_build_dirs_if_not_fully_built(cumlprims_mg libcumlprims_mg)
 
-    if(NOT TARGET rmm::rmm)
+    _set_package_dir_if_exists(cumlprims_mg cumlprims_mg)
+
+    if(NOT TARGET cumlprims_mg::cumlprims_mg)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
-        _get_update_disconnected_state(rmm ${VERSION} UPDATE_DISCONNECTED)
-        CPMFindPackage(NAME     rmm
+        _get_update_disconnected_state(cumlprims_mg ${VERSION} UPDATE_DISCONNECTED)
+        CPMFindPackage(NAME     cumlprims_mg
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://github.com/rapidsai/rmm.git
-            GIT_TAG             branch-${MAJOR_AND_MINOR}
+            GIT_REPOSITORY      https://$ENV{GH_ACCESS_TOKEN}@github.com/trxcllnt/cumlprims_mg.git
+            GIT_TAG             fea/enable-static-libs
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
+            SOURCE_SUBDIR       cpp
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
-                                "DISABLE_DEPRECATION_WARNING ${DISABLE_DEPRECATION_WARNINGS}")
+                                "DETECT_CONDA_ENV OFF"
+                                "BUILD_SHARED_LIBS OFF")
     endif()
-    # Make sure consumers of our libs can see rmm::rmm
-    _fix_cmake_global_defaults(rmm::rmm)
-    _fix_cmake_global_defaults(rmm::Thrust)
-    _fix_cmake_global_defaults(rmm::spdlog_header_only)
+    # Make sure consumers of our libs can see cumlprims_mg::cumlprims_mg
+    _fix_cmake_global_defaults(cumlprims_mg::cumlprims_mg)
 endfunction()
 
-find_and_configure_rmm(${RMM_VERSION})
+find_and_configure_cumlprims_mg(${RMM_VERSION})

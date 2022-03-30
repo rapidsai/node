@@ -16,7 +16,7 @@ jobs:
         LINUX: [ubuntu18.04, ubuntu20.04]
     env:
       NODE: 16.13.2
-      RAPIDS: 22.02.00
+      RAPIDS: 22.06.00
       REPOSITORY: ghcr.io/rapidsai/node
     steps:
       - name: Checkout

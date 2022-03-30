@@ -21,7 +21,7 @@ x-main-service-settings: &main_service_settings
   build: &main_build_settings
     <<: *base_build_settings
     args: &main_build_args
-      DEVEL_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-packages
+      DEVEL_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-packages
   environment: &main_environment_variables
     <<: *base_environment_settings
     # Use the host's X11 display
@@ -33,7 +33,7 @@ services:
 
   base:
     <<: *base_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
     build:
       <<: *base_build_settings
       dockerfile: dev/dockerfiles/runtime/base.Dockerfile
@@ -41,87 +41,87 @@ services:
         UID: ${UID:-1000}
         AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.0}-runtime-${LINUX_VERSION:-ubuntu20.04}
         ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-10.2.460}-runtime
-        DEVEL_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-main
+        DEVEL_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-main
 
   main:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-main
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-main
     build:
       <<: *main_build_settings
       dockerfile: dev/dockerfiles/runtime/main.Dockerfile
       args:
         <<: *main_build_args
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
 
   demo:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-demo
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-demo
     build:
       <<: *main_build_settings
       dockerfile: dev/dockerfiles/runtime/demo.Dockerfile
       args:
         <<: *main_build_args
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
 
   glfw:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-glfw
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-glfw
     build:
       <<: *main_build_settings
       dockerfile: dev/dockerfiles/runtime/glfw.Dockerfile
       args:
         <<: *main_build_args
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
 
   cudf:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-cudf
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-cudf
     build:
       <<: *main_build_settings
       dockerfile: dev/dockerfiles/runtime/cudf.Dockerfile
       args:
         <<: *main_build_args
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
 
   sql:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-sql
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-sql
     build:
       <<: *main_build_settings
       dockerfile: dev/dockerfiles/runtime/sql.Dockerfile
       args:
         <<: *main_build_args
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
 
   cuml:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-cuml
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-cuml
     build:
       <<: *main_build_settings
       dockerfile: dev/dockerfiles/runtime/cuml.Dockerfile
       args:
         <<: *main_build_args
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
 
   cugraph:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-cugraph
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-cugraph
     build:
       <<: *main_build_settings
       dockerfile: dev/dockerfiles/runtime/cugraph.Dockerfile
       args:
         <<: *main_build_args
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
 
   cuspatial:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-cuspatial
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-cuspatial
     build:
       <<: *main_build_settings
       dockerfile: dev/dockerfiles/runtime/cuspatial.Dockerfile
       args:
         <<: *main_build_args
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-base
 
   io:
     <<: *main_service_settings
@@ -135,13 +135,13 @@ services:
 
   notebook:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-notebook
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-notebook
     build:
       <<: *main_build_settings
       dockerfile: dev/dockerfiles/runtime/notebook.Dockerfile
       args:
         <<: *main_build_args
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-demo
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-runtime-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.0}-${LINUX_VERSION:-ubuntu20.04}-demo
     volumes:
       - "/etc/fonts:/etc/fonts:ro"
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"

@@ -18,7 +18,7 @@ function(find_and_configure_cuml VERSION)
 
     include(get_cpm)
 
-    include(ConfigureRAFT)
+    include(ConfigureCUMLPRIMS)
 
     _clean_build_dirs_if_not_fully_built(cuml libcuml++)
 
@@ -28,6 +28,7 @@ function(find_and_configure_cuml VERSION)
     _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(Treelite cuml)
     _set_package_dir_if_exists(GPUTreeShap cuml)
+    _set_package_dir_if_exists(cumlprims_mg cumlprims_mg)
 
     if(NOT TARGET cuml::cuml)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
@@ -37,7 +38,7 @@ function(find_and_configure_cuml VERSION)
             # GIT_REPOSITORY      https://github.com/rapidsai/cuml.git
             # GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_REPOSITORY      https://github.com/trxcllnt/cuml.git
-            GIT_TAG             fea/use-rapids-cmake-22.04
+            GIT_TAG             fea/enable-static-libs
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
@@ -47,9 +48,10 @@ function(find_and_configure_cuml VERSION)
                                 "BUILD_BENCHMARKS OFF"
                                 "DISABLE_OPENMP OFF"
                                 "DETECT_CONDA_ENV OFF"
-                                "ENABLE_CUMLPRIMS_MG OFF"
+                                "ENABLE_CUMLPRIMS_MG ON"
                                 "BUILD_SHARED_LIBS OFF"
                                 "BUILD_CUML_MG_TESTS OFF"
+                                "BUILD_CUML_MG_BENCH OFF"
                                 "BUILD_CUML_STD_COMMS OFF"
                                 "BUILD_CUML_MPI_COMMS OFF"
                                 "BUILD_CUML_TESTS OFF"
@@ -64,21 +66,21 @@ function(find_and_configure_cuml VERSION)
                                 "CUML_USE_TREELITE_STATIC ON"
         )
     endif()
-    if (TARGET cuml++)
-        set_target_properties(cuml++ PROPERTIES POSITION_INDEPENDENT_CODE ON)
-        target_compile_options(cuml++ PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-fPIC>)
-    endif()
+    # if (TARGET cuml++)
+    #     set_target_properties(cuml++ PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    #     target_compile_options(cuml++ PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-fPIC>)
+    # endif()
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
     # Make these -isystem so -Werror doesn't fail their builds
     _set_interface_include_dirs_as_system(faiss::faiss)
 
-    if (NOT TARGET GPUTreeShap::GPUTreeShap)
-        file(GLOB get_gputreeshap "${CPM_SOURCE_CACHE}/cuml/*/cpp/cmake/thirdparty/get_gputreeshap.cmake")
-        if (EXISTS "${get_gputreeshap}")
-            include("${get_gputreeshap}")
-        endif()
-    endif()
+    # if (NOT TARGET GPUTreeShap::GPUTreeShap)
+    #     file(GLOB get_gputreeshap "${CPM_SOURCE_CACHE}/cuml/*/cpp/cmake/thirdparty/get_gputreeshap.cmake")
+    #     if (EXISTS "${get_gputreeshap}")
+    #         include("${get_gputreeshap}")
+    #     endif()
+    # endif()
 endfunction()
 
 find_and_configure_cuml(${CUML_VERSION})

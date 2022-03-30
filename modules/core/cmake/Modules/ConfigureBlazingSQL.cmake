@@ -36,7 +36,7 @@ function(find_and_configure_blazingsql VERSION)
         CPMFindPackage(NAME     blazingsql-io
             VERSION             ${VERSION}
             GIT_REPOSITORY      https://github.com/trxcllnt/blazingsql.git
-            GIT_TAG             fea/use-rapids-cmake-22.04
+            GIT_TAG             fea/rapids-cmake-22.06
             SOURCE_SUBDIR       io
             OPTIONS             # "S3_SUPPORT ON"
                                 "S3_SUPPORT OFF"
@@ -63,7 +63,7 @@ function(find_and_configure_blazingsql VERSION)
         CPMFindPackage(NAME     blazingsql-engine
             VERSION             ${VERSION}
             GIT_REPOSITORY      https://github.com/trxcllnt/blazingsql.git
-            GIT_TAG             fea/use-rapids-cmake-22.04
+            GIT_TAG             fea/rapids-cmake-22.06
             SOURCE_SUBDIR       engine
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"

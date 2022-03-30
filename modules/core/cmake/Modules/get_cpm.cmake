@@ -54,34 +54,12 @@ if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
     set(FETCHCONTENT_BASE_DIR "${CPM_BINARY_CACHE}" CACHE STRING "" FORCE)
 endif()
 
-file(DOWNLOAD https://raw.githubusercontent.com/rapidsai/rapids-cmake/branch-22.04/RAPIDS.cmake ${CMAKE_BINARY_DIR}/RAPIDS.cmake)
+file(DOWNLOAD https://raw.githubusercontent.com/rapidsai/rapids-cmake/branch-22.06/RAPIDS.cmake ${CMAKE_BINARY_DIR}/RAPIDS.cmake)
 include(${CMAKE_BINARY_DIR}/RAPIDS.cmake)
 include(rapids-cmake)
 include(rapids-cpm)
 
 rapids_cpm_init()
-
-# set(CPM_DOWNLOAD_VERSION 634800c61928d330a6e9559171509a5c3dd479d5) # 0.34.0
-
-# if(CPM_SOURCE_CACHE)
-#   # Expand relative path. This is important if the provided path contains a tilde (~)
-#   get_filename_component(CPM_SOURCE_CACHE ${CPM_SOURCE_CACHE} ABSOLUTE)
-#   set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-# elseif(DEFINED ENV{CPM_SOURCE_CACHE})
-#   set(CPM_DOWNLOAD_LOCATION "$ENV{CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-# else()
-#   set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-# endif()
-
-# if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
-#   message(STATUS "get_cpm: Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
-#   file(
-#     DOWNLOAD
-#     https://raw.githubusercontent.com/cpm-cmake/CPM.cmake/${CPM_DOWNLOAD_VERSION}/cmake/CPM.cmake
-#     ${CPM_DOWNLOAD_LOCATION})
-# endif()
-
-# include(${CPM_DOWNLOAD_LOCATION})
 
 function(_set_package_dir_if_exists pkg dir)
     if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})

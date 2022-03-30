@@ -256,11 +256,19 @@ export interface Table {
 
   dropNans(keys: number[], threshold: number): Table;
   dropNulls(keys: number[], threshold: number): Table;
-  dropDuplicates(keys: number[],
-                 keep: DuplicateKeepOption,
-                 nullsEqual: boolean,
-                 nullsFirst: boolean,
-                 memoryResource?: MemoryResource): Table;
+
+  /**
+   * @summary Create a new table with consecutive duplicate rows removed.
+   *
+   * @param keys
+   * @param keep
+   * @param nullsEqual
+   * @param memoryResource
+   */
+  unique(keys: number[],
+         keep: DuplicateKeepOption,
+         nullsEqual: boolean,
+         memoryResource?: MemoryResource): Table;
 
   /**
    * @summary Explodes a list column's elements.
