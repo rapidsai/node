@@ -29,7 +29,7 @@ function(find_and_configure_cugraph_ops VERSION)
         _get_update_disconnected_state(cugraph-ops ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cugraph-ops
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://$ENV{GH_ACCESS_TOKEN}@github.com/trxcllnt/cugraph-ops.git
+            GIT_REPOSITORY      https://$ENV{GITHUB_TOKEN}@github.com/trxcllnt/cugraph-ops.git
             GIT_TAG             fea/enable-static-libs
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}

@@ -29,7 +29,7 @@ function(find_and_configure_cumlprims_mg VERSION)
         _get_update_disconnected_state(cumlprims_mg ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cumlprims_mg
             VERSION             ${VERSION}
-            GIT_REPOSITORY      https://$ENV{GH_ACCESS_TOKEN}@github.com/trxcllnt/cumlprims_mg.git
+            GIT_REPOSITORY      https://$ENV{GITHUB_TOKEN}@github.com/trxcllnt/cumlprims_mg.git
             GIT_TAG             fea/enable-static-libs
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
