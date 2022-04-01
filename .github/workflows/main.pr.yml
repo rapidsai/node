@@ -59,6 +59,9 @@ jobs:
         with:
           files: |
             dev/dockerfiles/devel/main.Dockerfile
+            \.github/workflows/main\.pr\.yml
+            \.github/workflows/merge\.pr\.yml
+            \.github/actions/build-and-publish-image/action\.yml
       - name: Build devel images and packages
         run: |
           echo "CUDAARCHS=ALL" >> .env
