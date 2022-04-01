@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020, NVIDIA CORPORATION.
+# Copyright (c) 2021-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -115,9 +115,12 @@ target_include_directories(blazingsql_wrapper
 )
 
 target_link_libraries(blazingsql_wrapper
-    PUBLIC  rmm::rmm
+    # PUBLIC  rmm::rmm
+    #         cudf::cudf
+    # PRIVATE blazingdb::blazingsql-engine
+    PRIVATE rmm::rmm
             cudf::cudf
-    PRIVATE blazingdb::blazingsql-engine
+            blazingdb::blazingsql-engine
     PUBLIC  "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
             "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
             "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node"
@@ -164,8 +167,6 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC CUDA_API_PER_THREAD_DEFAULT_ST
 
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
-                      rmm::rmm
-                      cudf::cudf
                       blazingsql_wrapper
                       ucp
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"

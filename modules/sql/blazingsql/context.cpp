@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
 
 #include "blazingsql_wrapper/context.hpp"
 #include "blazingsql_wrapper/api.hpp"
+#include "blazingsql_wrapper/async.hpp"
 #include "blazingsql_wrapper/cache.hpp"
-#include "nv_node/utilities/napi_to_cpp.hpp"
 
 #include <node_cudf/table.hpp>
 
+#include <nv_node/utilities/napi_to_cpp.hpp>
+
 #include <cudf/copying.hpp>
+#include <cudf/table/table.hpp>
+#include <cudf/table/table_view.hpp>
 
 #include <execution_graph/Context.h>
 

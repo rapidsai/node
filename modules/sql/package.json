@@ -11,7 +11,7 @@
   "scripts": {
     "clean": "rimraf build doc compile_commands.json",
     "doc": "rimraf doc && typedoc --options typedoc.js",
-    "test": "node -r dotenv/config node_modules/.bin/jest -c jest.config.js",
+    "test": "node -r dotenv/config node_modules/.bin/jest -i -c jest.config.js",
     "build": "yarn tsc:build && yarn cpp:build",
     "build:debug": "yarn tsc:build && yarn cpp:build:debug",
     "compile": "yarn tsc:build && yarn cpp:compile",
