@@ -37,10 +37,6 @@ inputs:
     default: ""
     required: false
     description: "Password used to log in to the container registry"
-  GITHUB_TOKEN:
-    default: ""
-    required: false
-    description: "GH token for cloning private RAPIDS repositories"
   AWS_ACCESS_KEY_ID:
     default: ""
     required: false
@@ -49,6 +45,10 @@ inputs:
     default: ""
     required: false
     description: "AWS secret key for writing to the shared sccache S3 bucket"
+  RAPIDSAI_GITHUB_ACCESS_TOKEN:
+    default: ""
+    required: false
+    description: "GH token for cloning private RAPIDS repositories"
 
 outputs:
   digest:
@@ -93,9 +93,9 @@ runs:
     - name: Initialize sccache_credentials
       shell: bash
       run: |
-        echo "GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}" >> /tmp/sccache_credentials
         echo "AWS_ACCESS_KEY_ID=${{ inputs.AWS_ACCESS_KEY_ID }}" >> /tmp/sccache_credentials
         echo "AWS_SECRET_ACCESS_KEY=${{ inputs.AWS_SECRET_ACCESS_KEY }}" >> /tmp/sccache_credentials
+        echo "RAPIDSAI_GITHUB_ACCESS_TOKEN=${{ inputs.RAPIDSAI_GITHUB_ACCESS_TOKEN }}" >> /tmp/sccache_credentials
     - name: Build image
       id: docker-build
       uses: docker/build-push-action@v2
