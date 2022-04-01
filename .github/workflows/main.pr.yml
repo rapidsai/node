@@ -86,7 +86,7 @@ jobs:
             -v "/tmp/.yarn:/.yarn:rw" \
             -v "/tmp/.cache:/.cache:rw" \
             -v "$(pwd):/opt/rapids/node:rw" \
-            -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+            -e GITHUB_TOKEN="${{ secrets.RAPIDSAI_ACCESS_TOKEN }}" \
             -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main \

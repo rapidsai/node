@@ -101,7 +101,7 @@ jobs:
           registry-password: ${{ github.token }}
           pull: true
           push: ${{ github.event_name == 'push' }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RAPIDSAI_ACCESS_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           file: dev/dockerfiles/devel/package.Dockerfile
