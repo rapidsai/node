@@ -332,7 +332,7 @@ const copyUpdatesIntoBuffers = ({
 }: any) => {
   const updatedBufferNames = (names: string[], {attributes = {}}: any) =>
     names.filter((name) => attributes[name]);
-  const copyUpdateIntoBuffer = (buffers: any, names: string[], update: any) => {
+  const copyUpdateIntoBuffers = (buffers: any, names: string[], update: any) => {
     for (const name of updatedBufferNames(names, update)) {
       copyIntoBuffer(buffers[name], update.attributes[name], update.offset);
     }
@@ -353,8 +353,8 @@ const copyUpdatesIntoBuffers = ({
     edges.offset = Math.max(0, edges.offset || 0);
     nodes.offset = Math.max(0, nodes.offset || 0);
     edges.length > 0 && edgePositionRanges.add([edges.offset, edges.length]);
-    edges.length > 0 && copyUpdateIntoBuffer(buffers, edgeBufferNames, edges);
-    nodes.length > 0 && copyUpdateIntoBuffer(buffers, nodeBufferNames, nodes);
+    edges.length > 0 && copyUpdateIntoBuffers(buffers, edgeBufferNames, edges);
+    nodes.length > 0 && copyUpdateIntoBuffers(buffers, nodeBufferNames, nodes);
     numEdgesLoaded = Math.max(numEdgesLoaded, (<number>edges.offset + <number>edges.length) || 0);
     numNodesLoaded = Math.max(numNodesLoaded, (<number>nodes.offset + <number>nodes.length) || 0);
   });
