@@ -19,12 +19,30 @@ jobs:
       RAPIDS: 22.06.00
       REPOSITORY: ghcr.io/rapidsai/node
     steps:
-      - name: Checkout
+      - name: Checkout node
         uses: actions/checkout@v2
         with:
           lfs: true
-      - name: Checkout LFS
+
+      - name: Checkout node LFS
         run: git lfs checkout
+
+      - name: Checkout cumlprims_mg
+        uses: actions/checkout@v2
+        persist-credentials: false
+        ref: fea/enable-static-libs
+        path: .cache/source/cumlprims_mg
+        repository: trxcllnt/cumlprims_mg
+        token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
+
+      - name: Checkout cugraph-ops
+        uses: actions/checkout@v2
+        persist-credentials: false
+        ref: fea/enable-static-libs
+        path: .cache/source/cugraph-ops
+        repository: trxcllnt/cugraph-ops
+        token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
+
       - name: Free up disk space
         run: |
           df -h
@@ -41,18 +59,21 @@ jobs:
           docker rmi $(docker image ls -aq) || true
           df -h
           docker images
+
       - name: Cache C++ dependencies
         uses: actions/cache@v2
         with:
           key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
           path: |
             .cache
+
       - name: Cache node_modules
         uses: actions/cache@v2
         with:
           key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           path: |
             node_modules
+
       - name: Check if devel dockerfiles changed
         id: devel_dockerfiles_changed
         uses: tj-actions/changed-files@v9.1
@@ -62,11 +83,11 @@ jobs:
             \.github/workflows/main\.pr\.yml
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
       - name: Build devel images and packages
         env:
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          RAPIDSAI_GITHUB_ACCESS_TOKEN: "${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}"
         run: |
           echo "CUDAARCHS=ALL" >> .env
           echo "PARALLEL_LEVEL=1" >> .env
@@ -79,9 +100,7 @@ jobs:
           echo "SCCACHE_REGION=us-west-2" >> .env
           echo "SCCACHE_BUCKET=node-rapids-sccache" >> .env
           if [[ "${{ steps.devel_dockerfiles_changed.outputs.any_changed }}" == "true" ]]; then
-            env AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
-                AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
-                yarn docker:build:devel:main
+            yarn docker:build:devel:main
           fi
           mkdir -p /tmp/.{yarn,cache}
           docker run --rm \
@@ -92,6 +111,7 @@ jobs:
             -v "$(pwd):/opt/rapids/node:rw" \
             -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
             -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
-            -e RAPIDSAI_GITHUB_ACCESS_TOKEN="$RAPIDSAI_GITHUB_ACCESS_TOKEN" \
+            -e CPM_cugraph-ops_SOURCE="/opt/rapids/node/.cache/source/cugraph-ops" \
+            -e CPM_cumlprims_mg_SOURCE="/opt/rapids/node/.cache/source/cumlprims_mg" \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main \
             bash -c 'set -ex; echo $PATH && echo $CUDA_HOME && which -a nvcc && nvcc --version && yarn && yarn rebuild'
