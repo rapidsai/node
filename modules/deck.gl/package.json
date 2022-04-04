@@ -25,7 +25,8 @@
     "@luma.gl/engine": "8.5.10",
     "@luma.gl/webgl": "8.5.10",
     "@rapidsai/cuda": "0.0.1",
-    "@rapidsai/core": "0.0.1"
+    "@rapidsai/core": "0.0.1",
+    "@rapidsai/cudf": "0.0.1"
   },
   "files": [
     "build",
