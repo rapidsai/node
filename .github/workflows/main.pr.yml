@@ -34,7 +34,7 @@ jobs:
           ref: fea/enable-static-libs
           path: .cache/source/cumlprims_mg
           repository: trxcllnt/cumlprims_mg
-          token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout cugraph-ops
         uses: actions/checkout@v2
@@ -43,7 +43,7 @@ jobs:
           ref: fea/enable-static-libs
           path: .cache/source/cugraph-ops
           repository: trxcllnt/cugraph-ops
-          token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Free up disk space
         run: |
