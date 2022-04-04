@@ -29,19 +29,21 @@ jobs:
 
       - name: Checkout cumlprims_mg
         uses: actions/checkout@v2
-        persist-credentials: false
-        ref: fea/enable-static-libs
-        path: .cache/source/cumlprims_mg
-        repository: trxcllnt/cumlprims_mg
-        token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
+        with:
+          persist-credentials: false
+          ref: fea/enable-static-libs
+          path: .cache/source/cumlprims_mg
+          repository: trxcllnt/cumlprims_mg
+          token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
 
       - name: Checkout cugraph-ops
         uses: actions/checkout@v2
-        persist-credentials: false
-        ref: fea/enable-static-libs
-        path: .cache/source/cugraph-ops
-        repository: trxcllnt/cugraph-ops
-        token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
+        with:
+          persist-credentials: false
+          ref: fea/enable-static-libs
+          path: .cache/source/cugraph-ops
+          repository: trxcllnt/cugraph-ops
+          token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
 
       - name: Free up disk space
         run: |
