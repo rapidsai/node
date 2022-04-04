@@ -25,9 +25,6 @@ function(find_and_configure_cumlprims_mg VERSION)
     _set_package_dir_if_exists(cumlprims_mg cumlprims_mg)
 
     if(NOT TARGET cumlprims_mg::cumlprims_mg)
-        if(DEFINED ENV{CPM_cumlprims_mg_SOURCE})
-            set(CPM_cumlprims_mg_SOURCE "$ENV{CPM_cumlprims_mg_SOURCE}")
-        endif()
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cumlprims_mg ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cumlprims_mg

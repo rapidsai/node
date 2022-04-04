@@ -19,31 +19,13 @@ jobs:
       RAPIDS: 22.06.00
       REPOSITORY: ghcr.io/rapidsai/node
     steps:
-      - name: Checkout node
+      - name: Checkout
         uses: actions/checkout@v2
         with:
           lfs: true
 
-      - name: Checkout node LFS
+      - name: Checkout LFS
         run: git lfs checkout
-
-      - name: Checkout cumlprims_mg
-        uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-          ref: fea/enable-static-libs
-          path: .cache/source/cumlprims_mg
-          repository: trxcllnt/cumlprims_mg
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout cugraph-ops
-        uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-          ref: fea/enable-static-libs
-          path: .cache/source/cugraph-ops
-          repository: trxcllnt/cugraph-ops
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Free up disk space
         run: |
@@ -87,9 +69,6 @@ jobs:
             \.github/actions/build-and-publish-image/action\.yml
 
       - name: Build devel images and packages
-        env:
-          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         run: |
           echo "CUDAARCHS=ALL" >> .env
           echo "PARALLEL_LEVEL=1" >> .env
@@ -111,9 +90,5 @@ jobs:
             -v "/tmp/.yarn:/.yarn:rw" \
             -v "/tmp/.cache:/.cache:rw" \
             -v "$(pwd):/opt/rapids/node:rw" \
-            -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
-            -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
-            -e CPM_cugraph-ops_SOURCE="/opt/rapids/node/.cache/source/cugraph-ops" \
-            -e CPM_cumlprims_mg_SOURCE="/opt/rapids/node/.cache/source/cumlprims_mg" \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main \
             bash -c 'set -ex; echo $PATH && echo $CUDA_HOME && which -a nvcc && nvcc --version && yarn && yarn rebuild'
