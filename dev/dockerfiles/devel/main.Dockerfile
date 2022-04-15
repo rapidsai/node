@@ -285,7 +285,9 @@ deb-src  http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -c
  && (git remote add origin https://github.com/trxcllnt/llnode.git 2>/dev/null || true) \
  && git fetch origin use-llvm-project-monorepo && git checkout use-llvm-project-monorepo \
  && cd / \
- && npm install --global --unsafe-perm --no-audit --no-fund /usr/local/lib/llnode \
+ && npm pack --pack-destination /usr/local/lib/llnode /usr/local/lib/llnode \
+ && npm install --global --unsafe-perm --no-audit --no-fund /usr/local/lib/llnode/llnode-3.2.0.tgz \
+ && rm -rf /usr/local/lib/llnode \
  && which -a llnode \
  \
  # Clean up

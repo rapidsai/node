@@ -1,8 +1,8 @@
-<div align="center">
-   <img width="150" heigth="150" src="https://webpack.js.org/assets/icon-square-big.svg" />
-</div>
 
-## Example: Use deck.gl with Interleaved Binary Data
+<img width="50" heigth="50" src="https://webpack.js.org/assets/icon-square-big.svg" />
+
+
+## Use deck.gl with Interleaved Binary Data
 
 ## Usage
 

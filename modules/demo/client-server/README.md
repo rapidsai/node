@@ -15,7 +15,7 @@ This demo showcases how to use cudf as a backend compute engine for a client-sid
 
 ## Data Requirements
 ### Uber Movement Dataset
-The data needs to be downloaded from [Uber Movements P](https://movement.uber.com/explore/san_francisco/travel-times) with the following sequence of actions:
+The data needs to be downloaded from [Uber Movements](https://movement.uber.com/explore/san_francisco/travel-times) with the following sequence of actions:
 - `Click 'Download data' > Click 'All data' > Slect '2020 Quarter' > Download 'Travel Times By Date By Hour Buckets (All Days).csv'`(1.7gb)
 - Save the file as `san_fran_uber.csv` in the folder `/public/data`
 - If not already included, also download the `san_francisco_censustracts.geojson`(3.8mb) file into `/public/data`. NOTE: you may have to rename from a .json to .geojson extension.
@@ -25,7 +25,7 @@ The data needs to be downloaded from [Uber Movements P](https://movement.uber.co
 - Save the file as `mortgage.csv` in the folder `/public/data`
 
 ## Start
-Example of starting the demo, then open `http://localhost:3000`,
+Start with the command below, then open `http://localhost:3000`
 ```bash
 yarn start
 ```
