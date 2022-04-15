@@ -15,6 +15,7 @@
     "modules/demo/ssr/*",
     "modules/demo/tfjs/*",
     "modules/demo/client-server",
+    "modules/demo/sigma-server",
     "modules/demo/viz-app",
     "modules/demo/sql/*"
   ]

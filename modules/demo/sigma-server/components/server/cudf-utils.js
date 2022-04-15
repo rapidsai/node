@@ -1,0 +1,165 @@
+// Copyright (c) 2021, NVIDIA CORPORATION.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+const { performance } = require('perf_hooks');
+const { RecordBatchStreamWriter } = require('apache-arrow');
+//A module method to pipe between streams and generators forwarding errors and properly cleaning up and provide a callback when the pipeline is complete.
+const pipeline = require('util').promisify(require('stream').pipeline);
+
+
+/**
+ * Computes cuDF.Column eq operation on given column and value.
+ *
+ * @param df cuDF.DataFrame
+ * @param column str, column name
+ * @param value number
+ * @returns Boolean mask result of column == value
+ */
+function filterByValue(df, column, value) { return df.get(column).eq(value); }
+
+/**
+ * Computes cuDF.Column gt, lt and eq operations on given column and min, max values.
+ *
+ * @param df cuDF.DataFrame
+ * @param column str, column name
+ * @param minMaxArray Array
+ * @returns Boolean mask result of min <= column <= max
+ */
+function filterByRange(df, column, minMaxArray) {
+  const [min, max] = minMaxArray;
+  const boolmask_gt_eq = (df.get(column).gt(min)).logicalOr(df.get(column).eq(min))
+  const boolmask_lt_eq = (df.get(column).lt(max)).logicalOr(df.get(column).eq(max))
+  return boolmask_gt_eq.logicalAnd(boolmask_lt_eq)
+}
+
+/**
+ * Computes cuDF.DataFrame.filter by parsing input query_dictionary, and performing filterByValue or
+ * filterByRange as needed.
+ *
+ * @param query_dict {}, where key is column name, and value is either scalar value, or a range of
+ *   scalar values
+ * @param ignore str, column name which is to be ignored (if any) from query compute
+ * @returns resulting cuDF.DataFrame
+ */
+function parseQuery(df, query_dict, ignore = null) {
+  let t0 = performance.now();
+  if (ignore && ignore in query_dict) { delete query_dict[ignore]; }
+
+  let boolmask = undefined;
+
+  Object.keys(query_dict)
+    .filter(key => df._accessor.names.includes(key))
+    .forEach(key => {
+      //check if query is range of values
+      if (Array.isArray(query_dict[key]) && query_dict[key].length == 2) {
+        boolmask = boolmask ? boolmask.logicalAnd(filterByRange(df, key, query_dict[key])) : filterByRange(df, key, query_dict[key]);
+      }
+      //check if query is a number
+      else if (typeof (query_dict[key]) == "number") {
+        boolmask = boolmask ? boolmask.logicalAnd(filterByValue(df, key, query_dict[key])) : filterByValue(df, key, query_dict[key]);
+      }
+    })
+
+
+  if (boolmask) { df = df.filter(boolmask); }
+  console.log(`Query ${JSON.stringify(query_dict)}  Time Taken: ${(performance.now() - t0).toFixed(2)}ms`);
+  return df;
+}
+
+async function groupBy(df, by, aggregation, columns, query_dict, res) {
+
+  console.log('\n\n');
+
+  // filter the dataframe as the query_dict & ignore the by column (to make sure chart selection doesn't filter self)
+  if (query_dict && Object.keys(query_dict).length > 0) {
+    df = parseQuery(df, query_dict, by);
+  }
+
+  // Perf: only include the subset of columns we want to return in `df.groupBy()[agg]()`
+  const colsToUse = columns || df.names.filter((n) => n !== by);
+  let t0;
+  try {
+
+    t0 = performance.now();
+
+    let trips = df.select([by, ...colsToUse]).groupBy({ by })[aggregation]();
+
+    console.log(`trips.groupBy({by:${by}}).${aggregation}() Time Taken: ${(performance.now() - t0).toFixed(2)}ms`);
+
+    t0 = performance.now();
+
+    trips = trips.sortValues({
+      [by]: {
+        ascending: true,
+        null_order: 'after'
+      }
+    });
+
+    console.log(`trips.sortValues({${by}}) Time Taken: ${(performance.now() - t0).toFixed(2)}ms`);
+
+    //stream data to client, where `arrow.Table(fetch(url, {method:'GET'}))` consumes it
+    await pipeline(
+      RecordBatchStreamWriter.writeAll(trips.toArrow()).toNodeStream(),
+      res.writeHead(200, 'Ok', { 'Content-Type': 'application/octet-stream' })
+    );
+
+    trips = null;
+
+  } catch (e) {
+    res.status(500).send(e ? `${(e.stack || e.message)}` : 'Unknown error');
+  }
+
+  // TODO in future, when binary data input to geoJSONLayer in deck.gl is implemented,
+  // offload the geojson geometry gather calculations to the server-side
+
+  // t0 = performance.now();
+
+  // const tracts = req.uberTracts.gather(trips.get(by))
+  //   .assign((columns || []).reduce((cols, col) => ({
+  //     ...cols, [col]: trips.get(col)
+  //   }), {}));
+
+  // console.log(`tracts.gather(trips.get(${by})) Time Taken: ${(performance.now() - t0).toFixed(2)}ms`);
+}
+
+
+async function numRows(df, query_dict, res) {
+  let t0 = performance.now();
+  console.log('\n\n');
+
+  // filter the dataframe as the query_dict & ignore the by column (to make sure chart selection doesn't filter self)
+  if (query_dict && Object.keys(query_dict).length > 0) {
+    df = parseQuery(df, query_dict);
+  }
+  console.log(`trips.query(${JSON.stringify(query_dict)}).numRows  Time Taken: ${(performance.now() - t0).toFixed(2)}ms`);
+  res.send(df.numRows);
+}
+
+
+/**
+ * get - return the whole dataframe
+ */
+async function get(df, res) {
+  let t0 = performance.now();
+  console.log('\n\n');
+  // The sigma demo is a preconfigured dataset, just send it.
+  console.log('yayayayayaya');
+  console.log(df);
+  res.send(df);
+}
+
+
+
+
+export { groupBy, numRows, get }
