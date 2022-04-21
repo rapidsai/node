@@ -84,14 +84,12 @@
     "cross-env": "7.0.3",
     "dotenv": "8.2.0",
     "eslint": "7.27.0",
-    "graphology": "0.24.1",
     "lerna": "3.22.1",
     "lint-staged": "10.5.1",
     "node-addon-api": "^3.1.0",
     "pre-git": "3.17.1",
     "rimraf": "3.0.0",
     "shx": "0.3.3",
-    "sigma": "2.3.0",
     "typedoc": "0.22.10"
   },
   "config": {
