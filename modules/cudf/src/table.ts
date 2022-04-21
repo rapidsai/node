@@ -22,6 +22,7 @@ import {ReadCSVOptions} from './types/csv';
 import {TableWriteCSVOptions} from './types/csv';
 import {Bool8, DataType, IndexType, Int32} from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
+import {ReadJSONOptions} from './types/json';
 import {TypeMap} from './types/mappings';
 import {ReadORCOptions, TableWriteORCOptions} from './types/orc';
 import {ReadParquetOptions, TableWriteParquetOptions} from './types/parquet';
@@ -39,6 +40,15 @@ export interface TableConstructor {
    * @return The CSV data as a Table and a list of column names.
    */
   readCSV<T extends TypeMap = any>(options: ReadCSVOptions<T>):
+    {names: (string&keyof T)[], table: Table};
+
+  /**
+   * Reads a JSON dataset into a set of columns.
+   *
+   * @param options Settings for controlling reading behavior.
+   * @return The JSON data as a Table and a list of column names.
+   */
+  readJSON<T extends TypeMap = any>(options: ReadJSONOptions<T>):
     {names: (string&keyof T)[], table: Table};
 
   /**

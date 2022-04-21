@@ -43,6 +43,7 @@ import {
   NumericTypes,
 } from './types/dtypes';
 import {DuplicateKeepOption, NullOrder} from './types/enums';
+import {ReadJSONOptions} from './types/json';
 import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 import {ReadORCOptions, WriteORCOptions} from './types/orc';
 import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
@@ -118,7 +119,6 @@ export class DataFrame<T extends TypeMap = any> {
    * ```typescript
    * import {DataFrame, Series, Int16, Bool, Float32, Utf8String}  from '@rapidsai/cudf';
    * const df = DataFrame.readCSV({
-   *  header: 0,
    *  sourceType: 'files',
    *  sources: ['test.csv'],
    *  dataTypes: {
@@ -136,6 +136,30 @@ export class DataFrame<T extends TypeMap = any> {
     // return new DataFrame(new ColumnAccessor(
     //   names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}),
     //                {} as ColumnsMap<{[P in keyof T]: T[P]}>)));
+  }
+
+  /**
+   * Read JSON files from disk and create a cudf.DataFrame
+   *
+   * @example
+   * ```typescript
+   * import {DataFrame, Series, Int16, Bool, Float32, Utf8String}  from '@rapidsai/cudf';
+   * const df = DataFrame.readJSON({
+   *  lines: true,
+   *  sourceType: 'files',
+   *  sources: ['test.csv'],
+   *  dataTypes: {
+   *    a: new Int16,
+   *    b: new Bool,
+   *    c: new Float32,
+   *    d: new Utf8String
+   *  }
+   * })
+   * ```
+   */
+  public static readJSON<T extends TypeMap = any>(options: ReadJSONOptions<T>) {
+    const {names, table} = Table.readJSON(options);
+    return DataFrame.fromTable<T>(table, names);
   }
 
   /**

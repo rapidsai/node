@@ -271,6 +271,8 @@ struct Table : public EnvLocalObjectWrap<Table> {
   Napi::Value drop_nans(Napi::CallbackInfo const& info);
   Napi::Value drop_duplicates(Napi::CallbackInfo const& info);
 
+  static Napi::Value read_json(Napi::CallbackInfo const& info);
+
   static Napi::Value read_csv(Napi::CallbackInfo const& info);
   void write_csv(Napi::CallbackInfo const& info);
 

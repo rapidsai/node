@@ -43,6 +43,7 @@ Napi::Function Table::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Table::get_column>("getColumnByIndex"),
                        InstanceMethod<&Table::to_arrow>("toArrow"),
                        InstanceMethod<&Table::order_by>("orderBy"),
+                       StaticMethod<&Table::read_json>("readJSON"),
                        StaticMethod<&Table::read_csv>("readCSV"),
                        InstanceMethod<&Table::write_csv>("writeCSV"),
                        StaticMethod<&Table::read_parquet>("readParquet"),
