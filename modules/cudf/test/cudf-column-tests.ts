@@ -22,6 +22,8 @@ import {
 import {Bool8, Column, Float32, Float64, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import {BoolVector} from 'apache-arrow';
+import {promises} from 'fs';
+import * as Path from 'path';
 
 const mr = new CudaMemoryResource();
 
@@ -346,5 +348,36 @@ describe('Column.setNullMask', () => {
 
   test('accepts CUDA MemoryView of DeviceMemory', () => {
     validateSetNullMask(makeTestColumn(4), 4, 4, new Uint8Buffer(new DeviceMemory(8)).fill(0));
+  });
+});
+
+describe('Column.read_text', () => {
+  test('can read a json file', async () => {
+    const rows = [
+      {a: 0, b: 1.0, c: '2'},
+      {a: 1, b: 2.0, c: '3'},
+      {a: 2, b: 3.0, c: '4'},
+    ];
+    const outputString = JSON.stringify(rows)
+    const path         = Path.join(readTextTmpDir, 'simple.txt');
+    await promises.writeFile(path, outputString);
+    const text = Column.read_text(path);
+    expect(text.getValue(0)).toEqual(outputString);
+    await new Promise<void>((resolve, reject) =>
+                              rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
+  });
+});
+
+let readTextTmpDir = '';
+
+const rimraf = require('rimraf');
+
+beforeAll(async () => {  //
+  readTextTmpDir = await promises.mkdtemp(Path.join('/tmp', 'node_cudf'));
+});
+
+afterAll(() => {
+  return new Promise<void>((resolve, reject) => {  //
+    rimraf(readTextTmpDir, (err?: Error|null) => err ? reject(err) : resolve());
   });
 });
