@@ -1033,6 +1033,9 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Napi::Value string_is_ipv4(Napi::CallbackInfo const& info);
   Napi::Value ipv4_from_integers(Napi::CallbackInfo const& info);
   Napi::Value ipv4_to_integers(Napi::CallbackInfo const& info);
+
+  // io/text.hpp
+  static Napi::Value read_text(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

@@ -148,6 +148,8 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        InstanceMethod<&Column::matches_re>("matchesRe"),
                        // column/strings/json.cpp
                        InstanceMethod<&Column::get_json_object>("getJSONObject"),
+                       // io/text/multibyte_split.cpp
+                       StaticMethod<&Column::read_text>("read_text"),
                        // column/strings/padding.cpp
                        InstanceMethod<&Column::pad>("pad"),
                        InstanceMethod<&Column::zfill>("zfill"),
