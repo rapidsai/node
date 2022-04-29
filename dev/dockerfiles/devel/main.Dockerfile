@@ -63,6 +63,11 @@ RUN --mount=type=cache,target=/var/lib/apt \
  \
  # Install compilers
     export DEBIAN_FRONTEND=noninteractive \
+ # Workaround for https://forums.developer.nvidia.com/t/notice-cuda-linux-repository-key-rotation/212772
+ && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/$( \
+    . /etc/os-release; echo $NAME$VERSION_ID | tr -d '.' | tr '[:upper:]' '[:lower:]' \
+ )/$(uname -p)/3bf863cc.pub \
+ \
  && apt update \
  && apt install --no-install-recommends -y \
     gpg wget software-properties-common \
