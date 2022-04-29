@@ -59,7 +59,7 @@ jobs:
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
-            "ARM64_BASE=nvcr.io/nvidia/l4t-cuda:10.2.460-runtime"
+            "ARM64_BASE=nvcr.io/nvidia/l4t-cuda:11.4.14-runtime"
             "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-devel-${{ matrix.LINUX }}"
 
   build-and-publish-devel-packages-image:
@@ -158,7 +158,7 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base
           build-args: |
             "UID=1000"
-            "ARM64_BASE=nvcr.io/nvidia/l4t-cuda:10.2.460-runtime"
+            "ARM64_BASE=nvcr.io/nvidia/l4t-cuda:11.4.14-runtime"
             "AMD64_BASE=nvidia/cuda:${{ matrix.CUDA }}-runtime-${{ matrix.LINUX }}"
             "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 

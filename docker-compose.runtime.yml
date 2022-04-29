@@ -40,7 +40,7 @@ services:
       args:
         UID: ${UID:-1000}
         AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-runtime-${LINUX_VERSION:-ubuntu20.04}
-        ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-10.2.460}-runtime
+        ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-11.4.14}-runtime
         DEVEL_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-18.0.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
 
   main:
