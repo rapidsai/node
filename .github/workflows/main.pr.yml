@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.6.0]
+        CUDA: [11.6.2]
         LINUX: [ubuntu18.04, ubuntu20.04]
     env:
       NODE: 16.13.2

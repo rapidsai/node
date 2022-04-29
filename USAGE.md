@@ -28,13 +28,13 @@ The following will retrieve the docker image with each library (+ its native and
 ```bash
 REPO=ghcr.io/rapidsai/node
 
-VERSIONS="22.02.00-runtime-node16.13.2-cuda11.6.0-ubuntu20.04"
+VERSIONS="22.02.00-runtime-node16.13.2-cuda11.6.2-ubuntu20.04"
 docker pull $REPO:$VERSIONS-cudf
 docker pull $REPO:$VERSIONS-cuml
 docker pull $REPO:$VERSIONS-cugraph
 docker pull $REPO:$VERSIONS-cuspatial
 
-VERSIONS="22.02.00-runtime-node16.13.2-cuda11.6.0-ubuntu20.04"
+VERSIONS="22.02.00-runtime-node16.13.2-cuda11.6.2-ubuntu20.04"
 docker pull $REPO:$VERSIONS-glfw
 
 # Includes all the above RAPIDS libraries in a single image
@@ -50,7 +50,7 @@ Like the official node images, the default command in the runtime images is `nod
 
 ```bash
 REPO=ghcr.io/rapidsai/node
-VERSIONS="22.02.00-runtime-node16.13.2-cuda11.6.0-ubuntu20.04"
+VERSIONS="22.02.00-runtime-node16.13.2-cuda11.6.2-ubuntu20.04"
 
 # Be sure to pass either the `--runtime=nvidia` or `--gpus` flag!
 docker run --rm --gpus=0 $REPO:$VERSIONS-cudf \
@@ -67,7 +67,7 @@ You can mount your host's X11 socket and `$DISPLAY` envvar, then launch demos th
 
 ```bash
 REPO=ghcr.io/rapidsai/node
-VERSIONS="22.02.00-runtime-node16.13.2-cuda11.6.0-ubuntu20.04"
+VERSIONS="22.02.00-runtime-node16.13.2-cuda11.6.2-ubuntu20.04"
 
 # Be sure to pass either the `--runtime=nvidia` or `--gpus` flag!
 docker run --rm \
@@ -94,7 +94,7 @@ You can use the following technique to install the npm-packed modules into anoth
 
 ```bash
 REPO=ghcr.io/rapidsai/node
-VERSIONS="22.02.00-devel-node16.13.2-cuda11.6.0-ubuntu20.04"
+VERSIONS="22.02.00-devel-node16.13.2-cuda11.6.2-ubuntu20.04"
 
 # Pull the latest image of the packaged .tgz artifacts
 docker pull $REPO:$VERSIONS-packages
