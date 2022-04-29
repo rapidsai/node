@@ -53,12 +53,12 @@ services:
 
   main:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-18.0.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
     build:
       <<: *base_build_settings
       dockerfile: dev/dockerfiles/devel/main.Dockerfile
       args:
-        NODE_VERSION: ${NODE_VERSION:-16.13.2}
+        NODE_VERSION: ${NODE_VERSION:-18.0.0}
         AMD64_BASE: nvidia/cuda:${CUDA_VERSION:-11.6.2}-devel-${LINUX_VERSION:-ubuntu20.04}
         ARM64_BASE: nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION:-10.2.460}-runtime
         SCCACHE_REGION: "${SCCACHE_REGION:-}"
@@ -69,7 +69,7 @@ services:
 
   packages:
     <<: *base_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-packages
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-18.0.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-packages
     build:
       <<: *base_build_settings
       dockerfile: dev/dockerfiles/devel/package.Dockerfile
@@ -82,16 +82,16 @@ services:
         SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-32768}"
         AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
         AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-18.0.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
 
   notebook:
     <<: *main_service_settings
-    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-notebook
+    image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-18.0.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-notebook
     build:
       <<: *base_build_settings
       dockerfile: dev/dockerfiles/devel/notebook.Dockerfile
       args:
-        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-16.13.2}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
+        FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-18.0.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
     environment:
       <<: *main_environment_settings
       QT_AUTO_SCREEN_SCALE_FACTOR: 0
