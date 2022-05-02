@@ -583,8 +583,7 @@ export class AbstractSeries<T extends DataType = any> {
    * Series.read_text('./inputAsciiFile.txt')
    * ```
    */
-  static read_text<U extends Numeric = Int32>(opts: {filepath: string, delimiter?: string}):
-    Series<U> {
+  static read_text<U extends DataType>(opts: {filepath: string, delimiter?: string}): Series<U> {
     return Series.new(Column.read_text<U>(opts.filepath, opts.delimiter));
   }
 

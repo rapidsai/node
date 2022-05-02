@@ -856,6 +856,8 @@ struct Column : public EnvLocalObjectWrap<Column> {
   Column::wrapper_t ipv4_to_integers(
     rmm::mr::device_memory_resource* mr = rmm::mr::get_current_device_resource()) const;
 
+  Column::wrapper_t read_text();
+
  private:
   cudf::size_type size_{};                         ///< The number of elements in the column
   cudf::size_type offset_{};                       ///< The offset of elements in the data
@@ -1036,6 +1038,7 @@ struct Column : public EnvLocalObjectWrap<Column> {
 
   // io/text.hpp
   static Napi::Value read_text(Napi::CallbackInfo const& info);
+  Napi::Value split(Napi::CallbackInfo const& info);
 };
 
 }  // namespace nv

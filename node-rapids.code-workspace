@@ -229,7 +229,12 @@
             "**/.cmake-js/**": true,
             "**/node_modules/**": true
         },
-        "typescript.tsdk": "node-rapids/node_modules/typescript/lib"
+        "typescript.tsdk": "node-rapids/node_modules/typescript/lib",
+        "workbench.colorCustomizations": {
+            "activityBar.background": "#193409",
+            "titleBar.activeBackground": "#23480C",
+            "titleBar.activeForeground": "#F5FCF0"
+        }
     },
     "tasks": {
         "version": "2.0.0",

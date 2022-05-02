@@ -1470,6 +1470,15 @@ export interface Column<T extends DataType = any> {
    */
   replaceSlice(repl: string, start: number, stop: number, memoryResource?: MemoryResource):
     Column<Utf8String>;
+
+  /**
+   * Splits a string column.
+   *
+   * @param memoryResource The optional MemoryResource used to allocate the result Column's device
+   *   memory.
+   * @returns New strings column
+   */
+  split(delimiter: string): Column<Utf8String>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
