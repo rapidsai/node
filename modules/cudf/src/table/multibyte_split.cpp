@@ -23,15 +23,40 @@ namespace nv {
 
 namespace {
 
-Napi::Value read_text_files(Napi::CallbackInfo const& info,
-                            std::string const& filename,
-                            std::string const& delimiter) {
-  auto env        = info.Env();
+Column::wrapper_t split_string_column(Napi::CallbackInfo const& info,
+                                      cudf::mutable_column_view const& col,
+                                      std::string const& delimiter) {
+  auto env = info.Env();
+  /* TODO: This only splits a string column. How to generalize */
+  // Check type
+  auto span = cudf::device_span<char const>(col.child(1).data<char const>(), col.child(1).size());
+
+  auto datasource = cudf::io::text::device_span_data_chunk_source(span);
+  return Column::New(env, cudf::io::text::multibyte_split(datasource, delimiter));
+}
+
+Column::wrapper_t read_text_files(Napi::CallbackInfo const& info,
+                                  std::string const& filename,
+                                  std::string const& delimiter) {
   auto datasource = cudf::io::text::make_source_from_file(filename);
-  return Column::New(env, cudf::io::text::multibyte_split(*datasource, delimiter));
+  auto text_data  = cudf::io::text::multibyte_split(*datasource, delimiter);
+  auto env        = info.Env();
+  return Column::New(env, std::move(text_data));
 }
 
 }  // namespace
+
+Napi::Value Column::split(Napi::CallbackInfo const& info) {
+  CallbackArgs args{info};
+
+  if (args.Length() != 1) { NAPI_THROW(Napi::Error::New(info.Env(), "split expects a delimiter")); }
+
+  auto delimiter = args[0];
+  auto col       = this->mutable_view();
+  try {
+    return split_string_column(info, col, delimiter);
+  } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(info.Env(), err.what())); }
+}
 
 Napi::Value Column::read_text(Napi::CallbackInfo const& info) {
   CallbackArgs args{info};
@@ -45,7 +70,8 @@ Napi::Value Column::read_text(Napi::CallbackInfo const& info) {
   auto delimiter = args[1];
 
   try {
-    return ::nv::read_text_files(info, source, delimiter);
+    return read_text_files(info, source, delimiter);
+
   } catch (cudf::logic_error const& err) { NAPI_THROW(Napi::Error::New(info.Env(), err.what())); }
 }
 
