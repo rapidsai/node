@@ -444,6 +444,32 @@ export class StringSeries extends Series<Utf8String> {
   zfill(width: number, memoryResource?: MemoryResource): Series<Utf8String> {
     return this.__construct(this._col.zfill(width, memoryResource));
   }
+  /* split
+   */
+  split(delimiter: string): Series<Utf8String> {
+    return this.__construct(this._col.split(delimiter));
+  }
+
+  /**
+   * Constructs a Series with an input filename as source.
+   *
+   * @note If delimiter is omitted, the default is ''.
+   *
+   * @param filepath Path of the input file.
+   * @param delimiter Optional delimiter.
+   *
+   * @returns Series with the sequence
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.read_text('./inputAsciiFile.txt')
+   * ```
+   */
+  public static read_text(filepath: string, delimiter: string): Series<Utf8String> {
+    return StringSeries.new(Column.read_text(filepath, delimiter));
+  }
 
   /**
    * Applies a JSONPath(string) where each row in the series is a valid json string. Returns New
@@ -468,8 +494,9 @@ export class StringSeries extends Series<Utf8String> {
    * [...a.getJSONObject("$.foo").map(JSON.parse)] // object [{ bar: 'baz' }, { baz: 'bar' }]
    * ```
    */
-  getJSONObject(jsonPath: string, memoryResource?: MemoryResource): Series<Utf8String> {
-    return this.__construct(this._col.getJSONObject(jsonPath, memoryResource));
+  public static getJSONObject(jsonPath: string,
+                              memoryResource?: MemoryResource): Series<Utf8String> {
+    return Series.new(this.getJSONObject(jsonPath, memoryResource));
   }
 
   /**

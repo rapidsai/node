@@ -565,28 +565,6 @@ export class AbstractSeries<T extends DataType = any> {
     const step = new Scalar({type, value: <any>opts.step ?? 1}) as Scalar<U>;
     return Series.new(Column.sequence<U>(opts.size, init, step, opts.memoryResource));
   }
-
-  /**
-   * Constructs a Series with an input filename as source.
-   *
-   * @note If delimiter is omitted, the default is ''.
-   *
-   * @param filepath Path of the input file.
-   * @param delimiter Optional delimiter.
-   *
-   * @returns Series with the sequence
-   *
-   * @example
-   * ```typescript
-   * import {Series} from '@rapidsai/cudf';
-   *
-   * Series.read_text('./inputAsciiFile.txt')
-   * ```
-   */
-  static read_text<U extends DataType>(opts: {filepath: string, delimiter?: string}): Series<U> {
-    return Series.new(Column.read_text<U>(opts.filepath, opts.delimiter));
-  }
-
   /** @ignore */
   declare public _col: Column<T>;
 
