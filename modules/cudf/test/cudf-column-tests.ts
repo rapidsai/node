@@ -41,14 +41,14 @@ import * as Path from 'path';
 /* TODO: How do I apply a list of dtypes?
  */
 function json_aos_to_dataframe(
-  str: StringSeries, columns: ReadonlyArray<string>, dtypes: ReadonlyArray<DataType>): DataFrame {
+  str: StringSeries, columns: ReadonlyArray<string>, _: ReadonlyArray<DataType>): DataFrame {
   const arr = {} as SeriesMap;
   columns.forEach((col, ix) => {
     const no_open_list = str.split('[\n').gather([1], false);
-    const tokenized    = no_open_list.split('},n');
+    const tokenized    = no_open_list.split('},');
     console.log(tokenized.toArray());
     const parse_result = tokenized._col.getJSONObject('.' + columns[ix]);
-    arr[col]           = Series.new({type: dtypes[ix], data: parse_result});
+    arr[col]           = Series.new(parse_result);
     console.log(Series.new(parse_result).toArray());
   });
   const result = new DataFrame(arr);
@@ -58,13 +58,12 @@ function json_aos_to_dataframe(
  */
 function json_aoa_to_dataframe(str: StringSeries, dtypes: ReadonlyArray<DataType>): DataFrame {
   const arr = {} as SeriesMap;
-  dtypes.forEach((dtype, ix) => {
+  dtypes.forEach((_, ix) => {
     const no_open_list = str.split('[\n').gather([1], false);
-    const tokenized    = no_open_list.split('],\n');
-    console.log(tokenized.toArray());
-    const parse_result = tokenized._col.getJSONObject(`[%ix]`);
+    const tokenized    = no_open_list.split('],');
+    const get_ix       = `[${ix}]`;
+    const parse_result = tokenized._col.getJSONObject(get_ix);
     arr[ix]            = Series.new(parse_result);
-    console.log(Series.new(parse_result).toArray());
   });
   const result = new DataFrame(arr);
   return result;
@@ -101,11 +100,11 @@ describe('Graphology dataset parsing', () => {
     const edges = json_aoa_to_dataframe(tedges, [new Utf8String, new Utf8String]);
     expect(nodes.names).toEqual(['key', 'label', 'tag', 'URL', 'cluster', 'x', 'y', 'score']);
     expect(nodes.numRows).toEqual(5);
-    expect(edges.numRows).toEqual(9);
+    expect(edges.numRows).toEqual(11);
     expect(clusters.names).toEqual(['key', 'color', 'clusterLabel']);
-    expect(clusters.numRows).toEqual(25);
+    expect(clusters.numRows).toEqual(24);
     expect(tags.names).toEqual(['key', 'image']);
-    expect(tags.numRows).toEqual(10);
+    expect(tags.numRows).toEqual(11);
   });
 });
 
