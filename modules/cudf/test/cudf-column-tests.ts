@@ -20,7 +20,6 @@ import {
   Uint8Buffer
 } from '@rapidsai/cuda';
 import {
-  arrowToCUDFType,
   Bool8,
   Column,
   DataFrame,
@@ -31,7 +30,6 @@ import {
   Series,
   SeriesMap,
   StringSeries,
-  TypeMap,
   Uint8,
   Utf8String
 } from '@rapidsai/cudf';
@@ -42,15 +40,30 @@ import * as Path from 'path';
 
 /* TODO: How do I apply a list of dtypes?
  */
-function json_aos_to_dataframe<T>(
-  str: StringSeries, columns: ReadonlyArray<string>, dtypes: ArrayLike<T>): DataFrame {
+function json_aos_to_dataframe(
+  str: StringSeries, columns: ReadonlyArray<string>, dtypes: ReadonlyArray<DataType>): DataFrame {
   const arr = {} as SeriesMap;
   columns.forEach((col, ix) => {
     const no_open_list = str.split('[\n').gather([1], false);
-    const tokenized    = no_open_list.split(',\n');
+    const tokenized    = no_open_list.split('},n');
     console.log(tokenized.toArray());
     const parse_result = tokenized._col.getJSONObject('.' + columns[ix]);
-    arr[col]           = Series.new(parse_result);
+    arr[col]           = Series.new({type: dtypes[ix], data: parse_result});
+    console.log(Series.new(parse_result).toArray());
+  });
+  const result = new DataFrame(arr);
+  return result;
+}
+/* TODO: How do I apply a list of dtypes?
+ */
+function json_aoa_to_dataframe(str: StringSeries, dtypes: ReadonlyArray<DataType>): DataFrame {
+  const arr = {} as SeriesMap;
+  dtypes.forEach((dtype, ix) => {
+    const no_open_list = str.split('[\n').gather([1], false);
+    const tokenized    = no_open_list.split('],\n');
+    console.log(tokenized.toArray());
+    const parse_result = tokenized._col.getJSONObject(`[%ix]`);
+    arr[ix]            = Series.new(parse_result);
     console.log(Series.new(parse_result).toArray());
   });
   const result = new DataFrame(arr);
@@ -72,8 +85,27 @@ describe('Graphology dataset parsing', () => {
     split           = rest.split('"nodes":');
     const tnodes    = split.gather([1], false);
     const tags = json_aos_to_dataframe(ttags, ['key', 'image'], [new Utf8String, new Utf8String]);
-    console.log(tags);
-    expect(tags).toEqual(tedges);
+    const clusters = json_aos_to_dataframe(
+      tclusters, ['key', 'color', 'clusterLabel'], [new Int32, new Utf8String, new Utf8String]);
+    const nodes =
+      json_aos_to_dataframe(tnodes, ['key', 'label', 'tag', 'URL', 'cluster', 'x', 'y', 'score'], [
+        new Utf8String,
+        new Utf8String,
+        new Utf8String,
+        new Utf8String,
+        new Int32,
+        new Float64,
+        new Float64,
+        new Int32
+      ]);
+    const edges = json_aoa_to_dataframe(tedges, [new Utf8String, new Utf8String]);
+    expect(nodes.names).toEqual(['key', 'label', 'tag', 'URL', 'cluster', 'x', 'y', 'score']);
+    expect(nodes.numRows).toEqual(5);
+    expect(edges.numRows).toEqual(9);
+    expect(clusters.names).toEqual(['key', 'color', 'clusterLabel']);
+    expect(clusters.numRows).toEqual(25);
+    expect(tags.names).toEqual(['key', 'image']);
+    expect(tags.numRows).toEqual(10);
   });
 });
 
