@@ -509,9 +509,8 @@ export class StringSeries extends Series<Utf8String> {
    * [...a.getJSONObject("$.foo").map(JSON.parse)] // object [{ bar: 'baz' }, { baz: 'bar' }]
    * ```
    */
-  public static getJSONObject(jsonPath: string,
-                              memoryResource?: MemoryResource): Series<Utf8String> {
-    return Series.new(this.getJSONObject(jsonPath, memoryResource));
+  getJSONObject(jsonPath: string, memoryResource?: MemoryResource): Series<Utf8String> {
+    return this.__construct(this._col.getJSONObject(jsonPath, memoryResource));
   }
 
   /**
