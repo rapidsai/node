@@ -123,6 +123,17 @@ export interface ColumnConstructor {
                                init: Scalar<U>,
                                step: Scalar<U>,
                                memoryResource?: MemoryResource): Column<U>;
+
+  /**
+   * Fills a column with the Utf-8 string located at filepath.
+   *
+   * @param filepath The location of the input file.
+   * @param delimiter Optional delimiter.
+   * @returns column with a single large string.
+   *
+   * @note The maximum size of a string read with this method is 2^30
+   */
+  read_text(filepath: string, delimiter: string): Column<Utf8String>;
 }
 
 /**
@@ -1459,17 +1470,6 @@ export interface Column<T extends DataType = any> {
    */
   replaceSlice(repl: string, start: number, stop: number, memoryResource?: MemoryResource):
     Column<Utf8String>;
-
-  /**
-   * Fills a string column with the Utf-8 string located at filepath.
-   *
-   * @param filepath The location of the input file.
-   * @param delimiter Optional delimiter.
-   * @returns column with a single large string.
-   *
-   * @note The maximum size of a string read with this method is 2^30
-   */
-  read_text(filepath: string, delimiter: string): Column<Utf8String>;
 
   /**
    * Splits a string column.

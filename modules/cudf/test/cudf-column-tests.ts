@@ -108,7 +108,7 @@ describe('Graphology dataset parsing', () => {
   });
 });
 
-describe('Column.read_text', () => {
+describe('StringSeries.read_text', () => {
   test('can read a json file', async () => {
     const rows = [
       {a: 0, b: 1.0, c: '2'},
