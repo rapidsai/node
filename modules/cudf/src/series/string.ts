@@ -468,7 +468,7 @@ export class StringSeries extends Series<Utf8String> {
    * ```
    */
   public static read_text(filepath: string, delimiter: string): Series<Utf8String> {
-    return StringSeries.new(Column.read_text(filepath, delimiter));
+    return StringSeries.new(Column.read_text(filepath, delimiter ?? ''));
   }
 
   /**

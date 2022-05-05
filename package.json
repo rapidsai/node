@@ -90,7 +90,6 @@
     "pre-git": "3.17.1",
     "rimraf": "3.0.0",
     "shx": "0.3.3",
-    "stream-json": "1.7.4",
     "typedoc": "0.22.10"
   },
   "config": {
