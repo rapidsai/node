@@ -444,7 +444,22 @@ export class StringSeries extends Series<Utf8String> {
   zfill(width: number, memoryResource?: MemoryResource): Series<Utf8String> {
     return this.__construct(this._col.zfill(width, memoryResource));
   }
-  /* split
+
+  /**
+   * Resplits a StringSeries along the delimiter.
+   *
+   * @note If delimiter is omitted, the default is ''.
+   *
+   * @param delimiter Optional delimiter.
+   *
+   * @returns Series with new splits determined by the delimiter.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.read_text('./inputAsciiFile.txt')
+   * ```
    */
   split(delimiter: string): Series<Utf8String> {
     return this.__construct(this._col.split(delimiter));
@@ -458,13 +473,13 @@ export class StringSeries extends Series<Utf8String> {
    * @param filepath Path of the input file.
    * @param delimiter Optional delimiter.
    *
-   * @returns Series with the sequence
+   * @returns StringSeries from the file, split by delimiter
    *
    * @example
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
-   * Series.read_text('./inputAsciiFile.txt')
+   * const infile = Series.read_text('./inputAsciiFile.txt')
    * ```
    */
   public static read_text(filepath: string, delimiter: string): Series<Utf8String> {

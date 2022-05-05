@@ -47,12 +47,6 @@ import {ColumnsMap, CommonType, TypeMap} from './types/mappings';
 import {ReadORCOptions, WriteORCOptions} from './types/orc';
 import {ReadParquetOptions, WriteParquetOptions} from './types/parquet';
 
-const fs             = require('fs');
-const zlib           = require('zlib');
-const {chain}        = require('stream-chain');
-const {parser}       = require('stream-json');
-const {streamObject} = require('stream-json/streamers/StreamObject');
-
 export type SeriesMap<T extends TypeMap = any> = {
   [P in keyof T]: {readonly type: T[P]}
 };
@@ -2120,39 +2114,5 @@ export class DataFrame<T extends TypeMap = any> {
     return new DataFrame(allNames.reduce(
       (map, name, i) => ({...map, [name]: this.__constructChild(name, table.getColumnByIndex(i))}),
       {} as SeriesMap<T>));
-  }
-
-  /**
-   * ```
-   */
-  public static hostReadJson(filepath: string): any {
-    /*
-    if (memory instanceof ArrayBuffer || ArrayBuffer.isView(memory)) {
-      memory = new Uint8Buffer(memory);
-    }
-    if (memory instanceof MemoryView) { memory = memory.buffer; }
-    */
-    console.log('hello');
-    const result: any[] = [];
-    (async () => {
-      try {
-        for await (const {value: row} of chain(
-          [fs.createReadStream(filepath), zlib.createGunzip(), parser(), streamObject()])) {
-          // for key in row:
-          // result[key].append(row[key])
-          result.push(row.toString());
-        }
-      } catch (e) { console.log('caught', e); }
-    })()
-      .then(
-        (msg: any) => {
-          console.log('done');
-          console.log(msg);
-        },
-        (err: any) => {
-          console.log('error');
-          console.log(err);
-        });
-    return result;
   }
 }

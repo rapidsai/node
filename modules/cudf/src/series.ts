@@ -565,6 +565,7 @@ export class AbstractSeries<T extends DataType = any> {
     const step = new Scalar({type, value: <any>opts.step ?? 1}) as Scalar<U>;
     return Series.new(Column.sequence<U>(opts.size, init, step, opts.memoryResource));
   }
+
   /** @ignore */
   declare public _col: Column<T>;
 
