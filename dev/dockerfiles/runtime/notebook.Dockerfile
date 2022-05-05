@@ -15,7 +15,7 @@ ADD --chown=node:node \
     /home/node/.local/share/jupyter/kernels/javascript/logo-64x64.png
 
 ADD --chown=root:root \
-    https://github.com/jupyterlab/jupyterlab-desktop/releases/latest/download/JupyterLab-Setup-Debian.deb \
+    https://github.com/jupyterlab/jupyterlab-desktop/releases/download/v3.3.2-1/JupyterLab-Setup-Debian.deb \
     /tmp/JupyterLab-Setup-Debian.deb
 
 USER root
