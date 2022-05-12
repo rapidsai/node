@@ -123,6 +123,20 @@ export interface ColumnConstructor {
                                init: Scalar<U>,
                                step: Scalar<U>,
                                memoryResource?: MemoryResource): Column<U>;
+
+  /**
+   * Fills a column with the Utf-8 string located at filepath. If a delimiter is included then
+   * the input string will be split into a sequence of strings. The delimiter will remain
+   * at the end of each string in the column, except for the last. If no delimiter is included,
+   * the input string will be read into a single string at element 0 of the Colum.
+   *
+   * @param filepath The location of the input file.
+   * @param delimiter Optional delimiter.
+   * @returns column containing one or more strings.
+   *
+   * @note The maximum size of a string read with this method is 2^30
+   */
+  read_text(filepath: string, delimiter: string): Column<Utf8String>;
 }
 
 /**
@@ -1459,6 +1473,26 @@ export interface Column<T extends DataType = any> {
    */
   replaceSlice(repl: string, start: number, stop: number, memoryResource?: MemoryResource):
     Column<Utf8String>;
+
+  /**
+   * Splits a string column by delimiter. The delimiter string will remain at the end of each
+   * string in the split column. This method will completely change the string boundaries of a
+   * string column according to the delimiter: old boundaries will be removed and new boundaries
+   * will be introduced according to the delimiter. In addition, if used without a delimiter,
+   * the string column will be combined from n string values into a single value.
+   *
+   * @example
+   * ```typescript
+   * let a = Series.new(['abcdefg', 'bcdefgh']);
+   * a.split('d');
+   * [ 'abcd', 'efgbcd', 'efgh' ]
+   * a.split('');
+   * [ 'abcdefgbcdefgh' ]
+   * ```
+   * @param delimiter split along the delimiter.
+   * @returns New strings column
+   */
+  split(delimiter: string): Column<Utf8String>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare

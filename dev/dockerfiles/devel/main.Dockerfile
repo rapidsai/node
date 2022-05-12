@@ -322,7 +322,7 @@ RUN --mount=type=cache,target=/var/lib/apt \
  \
  && apt update \
  && apt install --no-install-recommends -y \
-    jq entr ssh vim nano sudo bash-completion \
+    jq entr ssh vim nano sudo less bash-completion \
     # X11 dependencies
     libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev \
     # node-canvas dependencies
