@@ -8,8 +8,8 @@
   },
   "scripts": {
     "test": "tap \"test/**/*.test.js\"",
-    "build": "tsc -p tsconfig.json",
-    "start": "fastify start -l info app.js",
+    "build": "tsc -p ./tsconfig.json",
+    "start": "npm run build; fastify start -l info -P -w app.js",
     "dev": "fastify start -w -l info -P app.js"
   },
   "keywords": [],
@@ -25,6 +25,7 @@
     "typescript": "4.6.4"
   },
   "devDependencies": {
+    "path": "0.12.7",
     "tap": "^16.1.0"
   }
 }
