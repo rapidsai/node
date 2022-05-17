@@ -939,11 +939,11 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * @summary Return sub-selection from a Series using the specified integral indices.
    *
-   * @description Gathers the rows of the source columns according to `selection`, such that row
-   * "i" in the resulting Series's columns will contain row `selection[i]` from the source
-   * columns. The number of rows in the result series will be equal to the number of elements in
-   * selection. A negative value i in the selection is interpreted as i+n, where `n` is the number
-   * of rows in the source series.
+   * @description Gathers the rows of the source columns according to `selection`, such that row "i"
+   * in the resulting Series's columns will contain row `selection[i]` from the source columns. The
+   * number of rows in the result series will be equal to the number of elements in selection. A
+   * negative value i in the selection is interpreted as i+n, where `n` is the number of rows in
+   * the source series.
    *
    * For dictionary columns, the keys column component is copied and not trimmed if the gather
    * results in abandoned key elements.
