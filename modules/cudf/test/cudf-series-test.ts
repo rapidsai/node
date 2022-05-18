@@ -29,8 +29,6 @@ import {
 import {
   Bool8,
   Column,
-  DataFrame,
-  DataType,
   Float32,
   Float32Series,
   Float64,
@@ -44,7 +42,6 @@ import {
   Int8,
   Int8Series,
   Series,
-  SeriesMap,
   StringSeries,
   TimestampDay,
   TimestampMicrosecond,
