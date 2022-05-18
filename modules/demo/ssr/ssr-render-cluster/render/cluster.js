@@ -15,13 +15,15 @@
 const workerPath = require('path').join(__dirname, 'worker.js');
 
 class RenderCluster {
-  constructor({fps = 60, numWorkers = 4} = {}) {
-    this._fps      = fps;
-    this._timerId  = null;
-    this._workerId = 0;
-    this._reqs     = Object.create(null);
-    this._jobs     = Object.create(null);
-    this._workers  = this._createWorkers(numWorkers);
+  constructor({fps = 60, numWorkers = 4, deckLayersPath = require('path').join(__dirname)} = {}) {
+    console.log(deckLayersPath);
+    this._fps            = fps;
+    this._timerId        = null;
+    this._workerId       = 0;
+    this._reqs           = Object.create(null);
+    this._jobs           = Object.create(null);
+    this._deckLayersPath = deckLayersPath;
+    this._workers        = this._createWorkers(numWorkers);
 
     process.on('exit', killWorkers);
     process.on('beforeExit', killWorkers);
@@ -88,7 +90,7 @@ class RenderCluster {
 
   _createWorkers(numWorkers = 4) {
     return Array.from({length: numWorkers}).map((_, i) => {
-      const worker = require('child_process').fork(workerPath, {
+      const worker = require('child_process').fork(workerPath, [this._deckLayersPath], {
         cwd: __dirname,
         // serialization: 'advanced',
         execArgv: ['--trace-uncaught'],

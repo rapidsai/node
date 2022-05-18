@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION.
+// Copyright (c) 2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 
 const {RapidsJSDOM}   = require('@rapidsai/jsdom');
 const copyFramebuffer = require('./copy')();
+const {makeDeck, openLayerIpcHandles, closeLayerIpcHandles, serializeCustomLayer} =
+  require(process.argv[2]);
 
 class Renderer {
   constructor() {
@@ -26,21 +28,41 @@ class Renderer {
     this.jsdom   = jsdom;
     this._render = render;
   }
-  async render(props = {}, state = {}, events = [], frame = 0) {
+
+  async render(props = {}, layers = {}, state = {}, events = [], frame = 0) {
     const window = this.jsdom.window;
 
+    // get graph layer data, and ipc handles for the gpu buffers
+    layers = openLayerIpcHandles(layers);
+    state?.layers && Object.assign(layers, state.layers);
+
+    // update deck props as per current state
     props && this.deck.setProps(props);
     state?.deck && this.deck.restore(state.deck);
+
+    // restore current window state
     state?.window && Object.assign(window, state.window);
 
+    // restore current boxSelect state
+    state?.selectedInfo && Object.assign(this.deck.selectedInfo, state.selectedInfo);
+    state?.boxSelectCoordinates &&
+      Object.assign(this.deck.boxSelectCoordinates, state.boxSelectCoordinates);
+
+    // dipatch currently active events in the jsdom window
     (events || []).forEach((event) => window.dispatchEvent(event));
 
-    await this._render();
+    // render the deck.gl frame using the current layers
+    await this._render(layers);
 
+    // close the ipc handles for layer data
+    closeLayerIpcHandles(layers);
+
+    // return the frame to the main process along with the current state
     return {
       frame: copyFramebuffer(this.deck.animationLoop, frame),
       state: {
         deck: this.deck.serialize(),
+        layers: serializeCustomLayer(this.deck.layerManager.getLayers()),
         window: {
           x: window.x,
           y: window.y,
@@ -56,12 +78,12 @@ class Renderer {
           modifiers: window.modifiers,
           mouseInWindow: window.mouseInWindow,
         },
+        boxSelectCoordinates: this.deck.boxSelectCoordinates,
+        selectedInfo: this.deck.selectedInfo
       }
     };
   }
 }
-
-module.exports.Renderer = Renderer;
 
 function immediateAnimationFrame(renderer) {
   let request  = null;
@@ -84,66 +106,4 @@ function immediateAnimationFrame(renderer) {
   };
 }
 
-function makeDeck() {
-  const {log: deckLog} = require('@deck.gl/core');
-  deckLog.level        = 0;
-  deckLog.enable(false);
-
-  const {OrbitView, COORDINATE_SYSTEM, LinearInterpolator} = require('@deck.gl/core');
-  const {PointCloudLayer}                                  = require('@deck.gl/layers');
-  const {DeckSSR}                                          = require('@rapidsai/deck.gl');
-  const {LASLoader}                                        = require('@loaders.gl/las');
-  const {registerLoaders}                                  = require('@loaders.gl/core');
-
-  registerLoaders(LASLoader);
-
-  // Data source: kaarta.com
-  const LAZ_SAMPLE = 'http://localhost:8080/indoor.0.1.laz';
-
-  const transitionInterpolator = new LinearInterpolator(['rotationOrbit']);
-
-  const makeLayers = (deck) => {
-    return [
-      new PointCloudLayer({
-        id: 'laz-point-cloud-layer',
-        data: LAZ_SAMPLE,
-        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        getNormal: [0, 1, 0],
-        getColor: [255, 255, 255],
-        opacity: 0.5,
-        pointSize: 0.5
-      }),
-    ]
-  };
-
-  const deck = new DeckSSR({
-    createFramebuffer: true,
-    initialViewState: {
-      target: [0, 0, 0],
-      rotationX: 0,
-      rotationOrbit: 0,
-      orbitAxis: 'Y',
-      fov: 50,
-      minZoom: 0,
-      maxZoom: 10,
-      zoom: 1
-    },
-    layers: makeLayers(null),
-    views: [
-      new OrbitView({transitionInterpolator}),
-    ],
-    controller: true,
-    parameters: {clearColor: [0.93, 0.86, 0.81, 1]},
-    onAfterAnimationFrameRender({_loop}) { _loop.pause(); },
-  });
-
-  return {
-    deck,
-    render() {
-      const done = deck.animationLoop.waitForRender();
-      deck.setProps({layers: makeLayers(deck)});
-      deck.animationLoop.start();
-      return done;
-    },
-  };
-}
+module.exports.Renderer = Renderer;

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 const wrtc            = require('wrtc');
-const {RenderCluster} = require('../../render/cluster');
+const {RenderCluster} = require('@rapidsai/ssr-render-cluster');
 
 const {create: shmCreate, detach: shmDetach} = require('shm-typed-array');
 
@@ -82,7 +82,8 @@ function graphSSRClients(fastify) {
 }
 
 function layoutAndRenderPointCloud(clients) {
-  const renderer = new RenderCluster({numWorkers: 1 && 4});
+  const renderer = new RenderCluster(
+    {numWorkers: 1 && 4, deckLayersPath: require('path').join(__dirname, 'deck')});
 
   return () => {
     for (const id in clients) {

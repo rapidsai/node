@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@rapidsai/demo-graph-ssr",
+  "name": "@rapidsai/ssr-render-cluster",
   "main": "index.js",
   "version": "0.0.1",
   "license": "Apache-2.0",
@@ -17,26 +17,12 @@
     "@rapidsai/cuda": "0.0.1",
     "@rapidsai/deck.gl": "0.0.1",
     "@rapidsai/jsdom": "0.0.1",
-    "@rapidsai/ssr-render-cluster": "0.0.1",
-    "fastify-plugin": "3.0.0",
-    "fastify-socket.io": "2.0.0",
-    "fastify-static": "4.4.1",
-    "fastify": "3.20.2",
-    "fastify-multipart": "5.0.2",
-    "fastify-cors": "6.0.2",
-    "fastify-arrow": "0.1.0",
-    "apache-arrow": "^4.0.0",
-    "nanoid": "3.1.25",
+    "nanoid": "3.1.31",
     "rxjs": "6.6.7",
-    "shm-typed-array": "0.0.13",
-    "simple-peer": "9.11.0",
-    "socket.io": "4.1.3",
-    "glob": "7.2.0",
-    "sharp": "0.29.2"
+    "shm-typed-array": "0.0.13"
   },
   "files": [
-    "public",
-    "plugins",
+    "render",
     "index.js",
     "package.json"
   ]
