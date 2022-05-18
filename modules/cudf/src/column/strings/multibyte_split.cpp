@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cudf/io/text/data_chunk_source_factories.hpp>
-#include <cudf/io/text/multibyte_split.hpp>
 #include <node_cudf/column.hpp>
 #include <node_cudf/table.hpp>
 #include <node_cudf/utilities/metadata.hpp>
+
+#include <cudf/io/text/data_chunk_source_factories.hpp>
+#include <cudf/io/text/multibyte_split.hpp>
 
 namespace nv {
 
@@ -65,8 +66,8 @@ Napi::Value Column::read_text(Napi::CallbackInfo const& info) {
       Napi::Error::New(info.Env(), "read_text expects a filename and an optional delimiter"));
   }
 
-  auto source    = args[0];
-  auto delimiter = args[1];
+  std::string source    = args[0];
+  std::string delimiter = args[1];
 
   try {
     return read_text_files(info, source, delimiter);

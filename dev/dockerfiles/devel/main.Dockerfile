@@ -122,7 +122,7 @@ RUN --mount=type=cache,target=/var/lib/apt \
 fund=false\n\
 audit=false\n\
 save-prefix=\n\
-optional=false\n\
+--omit=optional\n\
 save-exact=true\n\
 package-lock=false\n\
 update-notifier=false\n\

@@ -530,6 +530,27 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * Constructs a Series from a text file path.
+   *
+   * @note If delimiter is omitted, the default is ''.
+   *
+   * @param filepath Path of the input file.
+   * @param delimiter Optional delimiter.
+   *
+   * @returns StringSeries from the file, split by delimiter.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const infile = Series.readText('./inputAsciiFile.txt')
+   * ```
+   */
+  public static readText(filepath: string, delimiter: string): Series<Utf8String> {
+    return Series.new(Column.readText(filepath, delimiter ?? ''));
+  }
+
+  /**
    * Constructs a Series with a sequence of values.
    *
    * @note If init is omitted, the default is 0.
@@ -939,11 +960,11 @@ export class AbstractSeries<T extends DataType = any> {
   /**
    * @summary Return sub-selection from a Series using the specified integral indices.
    *
-   * @description Gathers the rows of the source columns according to `selection`, such that row
-   * "i" in the resulting Series's columns will contain row `selection[i]` from the source
-   * columns. The number of rows in the result series will be equal to the number of elements in
-   * selection. A negative value i in the selection is interpreted as i+n, where `n` is the number
-   * of rows in the source series.
+   * @description Gathers the rows of the source columns according to `selection`, such that row "i"
+   * in the resulting Series's columns will contain row `selection[i]` from the source columns. The
+   * number of rows in the result series will be equal to the number of elements in selection. A
+   * negative value i in the selection is interpreted as i+n, where `n` is the number of rows in
+   * the source series.
    *
    * For dictionary columns, the keys column component is copied and not trimmed if the gather
    * results in abandoned key elements.

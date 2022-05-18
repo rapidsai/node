@@ -458,32 +458,11 @@ export class StringSeries extends Series<Utf8String> {
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
-   * Series.read_text('./inputAsciiFile.txt')
+   * Series.readText('./inputAsciiFile.txt')
    * ```
    */
   split(delimiter: string): Series<Utf8String> {
     return this.__construct(this._col.split(delimiter));
-  }
-
-  /**
-   * Constructs a Series with an input filename as source.
-   *
-   * @note If delimiter is omitted, the default is ''.
-   *
-   * @param filepath Path of the input file.
-   * @param delimiter Optional delimiter.
-   *
-   * @returns StringSeries from the file, split by delimiter
-   *
-   * @example
-   * ```typescript
-   * import {Series} from '@rapidsai/cudf';
-   *
-   * const infile = Series.read_text('./inputAsciiFile.txt')
-   * ```
-   */
-  public static read_text(filepath: string, delimiter: string): Series<Utf8String> {
-    return StringSeries.new(Column.read_text(filepath, delimiter ?? ''));
   }
 
   /**

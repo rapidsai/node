@@ -29,8 +29,6 @@ import {
 import {
   Bool8,
   Column,
-  DataFrame,
-  DataType,
   Float32,
   Float32Series,
   Float64,
@@ -44,7 +42,6 @@ import {
   Int8,
   Int8Series,
   Series,
-  SeriesMap,
   StringSeries,
   TimestampDay,
   TimestampMicrosecond,
@@ -869,77 +866,7 @@ ${false} | ${false}   | ${false}   | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3
   expect([...result]).toEqual(expected);
 });
 
-/* TODO: How do I apply a list of dtypes?
- */
-function json_aos_to_dataframe(
-  str: StringSeries, columns: ReadonlyArray<string>, _: ReadonlyArray<DataType>): DataFrame {
-  const arr = {} as SeriesMap;
-  columns.forEach((col, ix) => {
-    const no_open_list = str.split('[\n').gather([1], false);
-    const tokenized    = no_open_list.split('},');
-    console.log(tokenized.toArray());
-    const parse_result = tokenized._col.getJSONObject('.' + columns[ix]);
-    arr[col]           = Series.new(parse_result);
-    console.log(Series.new(parse_result).toArray());
-  });
-  const result = new DataFrame(arr);
-  return result;
-}
-/* TODO: How do I apply a list of dtypes?
- */
-function json_aoa_to_dataframe(str: StringSeries, dtypes: ReadonlyArray<DataType>): DataFrame {
-  const arr = {} as SeriesMap;
-  dtypes.forEach((_, ix) => {
-    const no_open_list = str.split('[\n').gather([1], false);
-    const tokenized    = no_open_list.split('],');
-    const get_ix       = `[${ix}]`;
-    const parse_result = tokenized._col.getJSONObject(get_ix);
-    arr[ix]            = Series.new(parse_result);
-  });
-  const result = new DataFrame(arr);
-  return result;
-}
-
-describe('Graphology dataset parsing', () => {
-  test('extracts four objects from the base object', () => {
-    const dataset   = StringSeries.read_text('dataset_small.json.txt', '');
-    let split       = dataset.split('"tags":');
-    const ttags     = split.gather([1], false);
-    let rest        = split.gather([0], false);
-    split           = rest.split('"clusters":');
-    const tclusters = split.gather([1], false);
-    rest            = split.gather([0], false);
-    split           = rest.split('"edges":');
-    const tedges    = split.gather([1], false);
-    rest            = split.gather([0], false);
-    split           = rest.split('"nodes":');
-    const tnodes    = split.gather([1], false);
-    const tags = json_aos_to_dataframe(ttags, ['key', 'image'], [new Utf8String, new Utf8String]);
-    const clusters = json_aos_to_dataframe(
-      tclusters, ['key', 'color', 'clusterLabel'], [new Int32, new Utf8String, new Utf8String]);
-    const nodes =
-      json_aos_to_dataframe(tnodes, ['key', 'label', 'tag', 'URL', 'cluster', 'x', 'y', 'score'], [
-        new Utf8String,
-        new Utf8String,
-        new Utf8String,
-        new Utf8String,
-        new Int32,
-        new Float64,
-        new Float64,
-        new Int32
-      ]);
-    const edges = json_aoa_to_dataframe(tedges, [new Utf8String, new Utf8String]);
-    expect(nodes.names).toEqual(['key', 'label', 'tag', 'URL', 'cluster', 'x', 'y', 'score']);
-    expect(nodes.numRows).toEqual(5);
-    expect(edges.numRows).toEqual(11);
-    expect(clusters.names).toEqual(['key', 'color', 'clusterLabel']);
-    expect(clusters.numRows).toEqual(24);
-    expect(tags.names).toEqual(['key', 'image']);
-    expect(tags.numRows).toEqual(11);
-  });
-});
-
-describe('StringSeries.read_text', () => {
+describe('Series.readText', () => {
   test('can read a json file', async () => {
     const rows = [
       {a: 0, b: 1.0, c: '2'},
@@ -949,7 +876,7 @@ describe('StringSeries.read_text', () => {
     const outputString = JSON.stringify(rows);
     const path         = Path.join(readTextTmpDir, 'simple.txt');
     await promises.writeFile(path, outputString);
-    const text = StringSeries.read_text(path, '');
+    const text = Series.readText(path, '');
     expect(text.getValue(0)).toEqual(outputString);
     await new Promise<void>((resolve, reject) =>
                               rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
@@ -958,7 +885,7 @@ describe('StringSeries.read_text', () => {
     const outputString = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
     const path         = Path.join(readTextTmpDir, 'simple.txt');
     await promises.writeFile(path, outputString);
-    const text = StringSeries.read_text(path, '');
+    const text = Series.readText(path, '');
     expect(text.getValue(0)).toEqual(outputString);
     await new Promise<void>((resolve, reject) =>
                               rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
@@ -967,7 +894,7 @@ describe('StringSeries.read_text', () => {
     const outputString = '';
     const path         = Path.join(readTextTmpDir, 'simple.txt');
     await promises.writeFile(path, outputString);
-    const text = StringSeries.read_text(path, '');
+    const text = Series.readText(path, '');
     expect(text.getValue(0)).toEqual(outputString);
     await new Promise<void>((resolve, reject) =>
                               rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
@@ -976,16 +903,12 @@ describe('StringSeries.read_text', () => {
 
 describe('StringSeries split', () => {
   test('split a basic string', () => {
-    const input   = StringSeries.new(['abcdefg']);
-    const example = StringSeries.new(['abcd', 'efg']);
-    const result  = StringSeries.new(input._col.split('d'));
-    expect(result).toEqual(example);
+    const input = Series.new(['abcdefg']).split('d');
+    expect(input.toArray()).toEqual(['abcd', 'efg']);
   });
   test('split a string twice', () => {
-    const input   = StringSeries.new(['abcdefgdcba']);
-    const example = StringSeries.new(['abcd', 'efgd', 'cba']);
-    const result  = StringSeries.new(input._col.split('d'));
-    expect(result).toEqual(example);
+    const input = Series.new(['abcdefgdcba']).split('d');
+    expect(input.toArray()).toEqual(['abcd', 'efgd', 'cba']);
   });
 });
 
