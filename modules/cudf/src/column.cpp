@@ -149,7 +149,7 @@ Napi::Function Column::Init(Napi::Env const& env, Napi::Object exports) {
                        // column/strings/json.cpp
                        InstanceMethod<&Column::get_json_object>("getJSONObject"),
                        // io/text/multibyte_split.cpp
-                       StaticMethod<&Column::read_text>("read_text"),
+                       StaticMethod<&Column::readText>("read_text"),
                        InstanceMethod<&Column::split>("split"),
                        // column/strings/padding.cpp
                        InstanceMethod<&Column::pad>("pad"),

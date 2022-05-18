@@ -136,7 +136,7 @@ export interface ColumnConstructor {
    *
    * @note The maximum size of a string read with this method is 2^30
    */
-  read_text(filepath: string, delimiter: string): Column<Utf8String>;
+  readText(filepath: string, delimiter: string): Column<Utf8String>;
 }
 
 /**
