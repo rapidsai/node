@@ -903,16 +903,12 @@ describe('Series.readText', () => {
 
 describe('StringSeries split', () => {
   test('split a basic string', () => {
-    const input   = StringSeries.new(['abcdefg']);
-    const example = StringSeries.new(['abcd', 'efg']);
-    const result  = StringSeries.new(input._col.split('d'));
-    expect(result).toEqual(example);
+    const input = Series.new(['abcdefg']).split('d');
+    expect(input.toArray()).toEqual(['abcd', 'efg']);
   });
   test('split a string twice', () => {
-    const input   = StringSeries.new(['abcdefgdcba']);
-    const example = StringSeries.new(['abcd', 'efgd', 'cba']);
-    const result  = StringSeries.new(input._col.split('d'));
-    expect(result).toEqual(example);
+    const input = Series.new(['abcdefgdcba']).split('d');
+    expect(input.toArray()).toEqual(['abcd', 'efgd', 'cba']);
   });
 });
 
