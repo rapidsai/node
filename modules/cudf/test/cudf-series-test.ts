@@ -869,7 +869,7 @@ ${false} | ${false}   | ${false}   | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3
   expect([...result]).toEqual(expected);
 });
 
-describe('StringSeries.read_text', () => {
+describe('Series.readText', () => {
   test('can read a json file', async () => {
     const rows = [
       {a: 0, b: 1.0, c: '2'},
@@ -879,7 +879,7 @@ describe('StringSeries.read_text', () => {
     const outputString = JSON.stringify(rows);
     const path         = Path.join(readTextTmpDir, 'simple.txt');
     await promises.writeFile(path, outputString);
-    const text = StringSeries.read_text(path, '');
+    const text = Series.readText(path, '');
     expect(text.getValue(0)).toEqual(outputString);
     await new Promise<void>((resolve, reject) =>
                               rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
@@ -888,7 +888,7 @@ describe('StringSeries.read_text', () => {
     const outputString = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
     const path         = Path.join(readTextTmpDir, 'simple.txt');
     await promises.writeFile(path, outputString);
-    const text = StringSeries.read_text(path, '');
+    const text = Series.readText(path, '');
     expect(text.getValue(0)).toEqual(outputString);
     await new Promise<void>((resolve, reject) =>
                               rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
@@ -897,7 +897,7 @@ describe('StringSeries.read_text', () => {
     const outputString = '';
     const path         = Path.join(readTextTmpDir, 'simple.txt');
     await promises.writeFile(path, outputString);
-    const text = StringSeries.read_text(path, '');
+    const text = Series.readText(path, '');
     expect(text.getValue(0)).toEqual(outputString);
     await new Promise<void>((resolve, reject) =>
                               rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));

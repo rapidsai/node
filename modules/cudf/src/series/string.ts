@@ -458,7 +458,7 @@ export class StringSeries extends Series<Utf8String> {
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
-   * Series.read_text('./inputAsciiFile.txt')
+   * Series.readText('./inputAsciiFile.txt')
    * ```
    */
   split(delimiter: string): Series<Utf8String> {
@@ -479,11 +479,11 @@ export class StringSeries extends Series<Utf8String> {
    * ```typescript
    * import {Series} from '@rapidsai/cudf';
    *
-   * const infile = Series.read_text('./inputAsciiFile.txt')
+   * const infile = Series.readText('./inputAsciiFile.txt')
    * ```
    */
-  public static read_text(filepath: string, delimiter: string): Series<Utf8String> {
-    return StringSeries.new(Column.read_text(filepath, delimiter ?? ''));
+  public static readText(filepath: string, delimiter: string): Series<Utf8String> {
+    return Series.new(Column.readText(filepath, delimiter ?? ''));
   }
 
   /**
