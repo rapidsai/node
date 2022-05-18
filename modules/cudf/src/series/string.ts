@@ -446,6 +446,26 @@ export class StringSeries extends Series<Utf8String> {
   }
 
   /**
+   * Resplits a StringSeries along the delimiter.
+   *
+   * @note If delimiter is omitted, the default is ''.
+   *
+   * @param delimiter Optional delimiter.
+   *
+   * @returns Series with new splits determined by the delimiter.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * Series.readText('./inputAsciiFile.txt')
+   * ```
+   */
+  split(delimiter: string): Series<Utf8String> {
+    return this.__construct(this._col.split(delimiter));
+  }
+
+  /**
    * Applies a JSONPath(string) where each row in the series is a valid json string. Returns New
    * StringSeries containing the retrieved json object strings
    *
