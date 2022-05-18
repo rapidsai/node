@@ -14,10 +14,10 @@
 
 #include <node_cudf/column.hpp>
 #include <node_cudf/table.hpp>
+#include <node_cudf/utilities/metadata.hpp>
 
 #include <cudf/io/text/data_chunk_source_factories.hpp>
 #include <cudf/io/text/multibyte_split.hpp>
-#include <node_cudf/utilities/metadata.hpp>
 
 namespace nv {
 
@@ -66,8 +66,8 @@ Napi::Value Column::read_text(Napi::CallbackInfo const& info) {
       Napi::Error::New(info.Env(), "read_text expects a filename and an optional delimiter"));
   }
 
-  auto source    = args[0];
-  auto delimiter = args[1];
+  std::string source    = args[0];
+  std::string delimiter = args[1];
 
   try {
     return read_text_files(info, source, delimiter);

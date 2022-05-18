@@ -22,107 +22,10 @@ import {
 import {Bool8, Column, Float32, Float64, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import {BoolVector} from 'apache-arrow';
-import {promises} from 'fs';
-import * as Path from 'path';
 
-/*
-const fs             = require('fs');
-const zlib           = require('zlib');
-const {chain}        = require('stream-chain');
-const {parser}       = require('stream-json');
-const {streamObject} = require('stream-json/streamers/StreamObject');
-describe('testing json stream', () => {
-  test('basic parsing', () => {
-    console.log('basic parsing');
-    (async () => {
-      for await (const {value: row} of chain([
-        fs.createReadStream(Path.join('/tmp/' +
-                                      'dataset_full.json.gz')),
-        zlib.createGunzip(),
-        parser(),
-        streamObject()
-      ])) {
-        console.log(row);
-      }
-    })()
-      .then(
-        (msg) => {
-          console.log('done');
-          console.log(msg);
-        },
-        (err) => {
-          console.log('error');
-          console.log(err);
-        })
-  });
-});
-*/
-describe('Column.read_text', () => {
-  test('can read a json file', async () => {
-    const rows = [
-      {a: 0, b: 1.0, c: '2'},
-      {a: 1, b: 2.0, c: '3'},
-      {a: 2, b: 3.0, c: '4'},
-    ];
-    const outputString = JSON.stringify(rows);
-    const path         = Path.join(readTextTmpDir, 'simple.txt');
-    await promises.writeFile(path, outputString);
-    const text = Column.read_text(path, '');
-    expect(text.getValue(0)).toEqual(outputString);
-    await new Promise<void>((resolve, reject) =>
-                              rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
-  });
-  test('can read a random file', async () => {
-    const outputString = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
-    const path         = Path.join(readTextTmpDir, 'simple.txt');
-    await promises.writeFile(path, outputString);
-    const text = Column.read_text(path, '');
-    expect(text.getValue(0)).toEqual(outputString);
-    await new Promise<void>((resolve, reject) =>
-                              rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
-  });
-  test('can read an empty file', async () => {
-    const outputString = '';
-    const path         = Path.join(readTextTmpDir, 'simple.txt');
-    await promises.writeFile(path, outputString);
-    const text = Column.read_text(path, '');
-    expect(text.getValue(0)).toEqual(outputString);
-    await new Promise<void>((resolve, reject) =>
-                              rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
-  });
-});
-
-let readTextTmpDir = '';
-
-const rimraf = require('rimraf');
-
-beforeAll(async () => {  //
-  readTextTmpDir = await promises.mkdtemp(Path.join('/tmp', 'node_cudf'));
-});
-
-afterAll(() => {
-  return new Promise<void>((resolve, reject) => {  //
-    rimraf(readTextTmpDir, (err?: Error|null) => err ? reject(err) : resolve());
-  });
-});
 const mr = new CudaMemoryResource();
 
 setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
-
-describe('Column split', () => {
-  test('split a basic string', () => {
-    const input   = Series.new(['abcdefg']);
-    const example = Series.new(['abcd', 'efg']);
-    const result  = Series.new(input._col.split('d'));
-    expect(result).toEqual(example);
-  });
-  test('split a string twice', () => {
-    const input   = Series.new(['abcdefgdcba']);
-    const example = Series.new(['abcd', 'efgd', 'cba']);
-    const result  = Series.new(input._col.split('d'));
-    expect(result).toEqual(example);
-  });
-});
 
 test('Column initialization', () => {
   const length = 100;
@@ -143,7 +46,6 @@ test('Column initialization with null_mask', () => {
     nullMask: new Uint8Buffer(64).fill(0),
   });
 
-  expect(col.type).toBeInstanceOf(Bool8);
   expect(col.length).toBe(length);
   expect(col.nullCount).toBe(100);
   expect(col.hasNulls).toBe(true);
