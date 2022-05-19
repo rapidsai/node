@@ -2,7 +2,7 @@
   "name": "test",
   "version": "1.0.0",
   "description": "This project was bootstrapped with Fastify-CLI.",
-  "main": "app.js",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },

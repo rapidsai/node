@@ -14,11 +14,10 @@
 
 const Fs                                                            = require('fs');
 const {Utf8String, Int32, DataFrame, StringSeries, Series, Float64} = require('@rapidsai/cudf');
-const {RecordBatchStreamWriter, Field, Vector, List}                = require('apache-arrow');
-const pipeline    = require('util').promisify(require('stream').pipeline);
-const Path        = require('path');
-const {promisify} = require('util');
-const Stat        = promisify(Fs.stat);
+const {RecordBatchStreamWriter, Field, Vector, List, Table}         = require('apache-arrow');
+const Path                                                          = require('path');
+const {promisify}                                                   = require('util');
+const Stat                                                          = promisify(Fs.stat);
 
 const fastify     = require('fastify');
 const arrowPlugin = require('fastify-arrow');
@@ -111,36 +110,17 @@ module.exports = async function(fastify, opts) {
     method: 'GET',
     url: '/get_column/:table/:column',
     schema: {querystring: {table: {type: 'string'}, 'column': {type: 'string'}}},
-    handler: (request, reply) => {
+    handler: async (request, reply) => {
       let message = 'Not Implemented';
       let result  = {'params': JSON.stringify(request.params), success: false, message: message};
-      console.log(request.params.table);
       const table = gpu_cache.getDataframe(request.params.table);
-      console.log(table);
       if (table == undefined) {
         result.message = 'Table not found';
         reply.code(404).send(result);
       } else {
-        const column = table.get(request.params.column);
-        console.log(column);
-        console.log(result);
-        console.log('reply.stream()');
-        console.log('reply.streamed');
-        console.log(column.toArrow());
-        console.log(column.toArrow().values.length);
-        // reply.code(200).send(column.toArray());
-        // reply.header('Content-Type', 'Application/octet-stream');
-        // reply.header('Accepts', 'Application/octet-stream');
-        // reply.code(200);
-        // reply.header('Content-Length', column.toArrow().values.length);
-        RecordBatchStreamWriter.writeAll(column.toArrow()).pipe(reply.stream({objectMode: false}));
+        const writer = RecordBatchStreamWriter.writeAll(table.toArrow());
+        reply.code(200).send(writer.toNodeStream());
       }
     }
   });
-  fastify.inject({
-    method: 'GET',
-    url: '/get_column/:table/:column',
-    headers: {'accepts': 'application/octet-stream'}
-  },
-                 (err, res) => {});
 }
