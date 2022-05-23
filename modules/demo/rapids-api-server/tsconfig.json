@@ -1,6 +1,7 @@
 {
     "include": [
-        "modules/*/src/**/*.ts",
+        "routes/**/*.ts",
+        "plugins/**/*.ts"
     ],
     "exclude": ["node_modules"],
     "compilerOptions": {

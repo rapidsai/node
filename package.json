@@ -74,8 +74,9 @@
     "modules/demo/ssr/*",
     "modules/demo/tfjs/*",
     "modules/demo/client-server",
+    "modules/demo/sigma.js",
+    "modules/demo/sigma.js/examples",
     "modules/demo/rapids-api-server",
-    "modules/demo/sigma-server",
     "modules/demo/viz-app",
     "modules/demo/sql/*"
   ],
@@ -144,7 +145,8 @@
     "**/gl-matrix": "3.3.0",
     "**/jsdom": "16.6.0",
     "**/math.gl": "3.5.7",
-    "**/react-map-gl": "5.3.16"
+    "**/react-map-gl": "5.3.16",
+    "**/react-scripts": "5.0.0"
   },
   "release": {
     "analyzeCommits": "simple-commit-message"

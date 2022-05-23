@@ -18,13 +18,15 @@ const {RecordBatchStreamWriter, Field, Vector, List, Table}         = require('a
 const Path                                                          = require('path');
 const {promisify}                                                   = require('util');
 const Stat                                                          = promisify(Fs.stat);
+const fastifyCors                                                   = require('@fastify/cors');
+const fastify                                                       = require('fastify');
 
-const fastify     = require('fastify');
 const arrowPlugin = require('fastify-arrow');
 const gpu_cache   = require('../../util/gpu_cache.js');
 
 module.exports = async function(fastify, opts) {
   fastify.register(arrowPlugin);
+  fastify.register(fastifyCors, {origin: 'http://localhost:3002'});
   fastify.get('/', async function(request, reply) {
     return {
       graphology: {
@@ -72,7 +74,6 @@ module.exports = async function(fastify, opts) {
         console.log(result);
       } else {
         message = 'File is not remote';
-        console.log(message);
         // does the file exist?
         const path = Path.join(__dirname, request.query.filename);
         console.log('Does the file exist?');
@@ -97,9 +98,9 @@ module.exports = async function(fastify, opts) {
             gpu_cache.setDataframe('tags', graphology['tags']);
             reply.code(200).send(result);
           }
-        } catch {
+        } catch (e) {
           message        = 'Exception reading file.';
-          result.message = message;
+          result.message = e;
           reply.code(200).send(result);
         };
       }
