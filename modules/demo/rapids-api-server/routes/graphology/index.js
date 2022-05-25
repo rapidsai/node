@@ -36,6 +36,11 @@ module.exports = async function(fastify, opts) {
             filename: 'A URI to a graphology json dataset file.',
             returns: 'Result OK/Not Found/Fail'
           },
+          read_large_demo: {
+            filename:
+              'A URI to a graphology json dataset file matching the examples/large-demos spec.',
+            returns: 'Result OK/Not Found/Fail'
+          },
           list_tables:
             {returns: 'An object containing graphology related datasets resident on GPU memory.'},
 
@@ -44,6 +49,70 @@ module.exports = async function(fastify, opts) {
             returns: 'An arrow buffer of the column contents.'
           }
         }
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/read_large_demo',
+    schema: {
+      querystring: {filename: {type: 'string'}, 'rootkeys': {type: 'array'}},
+
+      response: {
+        200: {
+          type: 'object',
+          properties:
+            {success: {type: 'boolean'}, message: {type: 'string'}, params: {type: 'string'}}
+        }
+      }
+    },
+    handler: async (request, reply) => {
+      // load the file via read_text
+      // is the file local or remote?
+      let message = 'Unknown error';
+      let result  = {'params': JSON.stringify(request.query), success: false, message: message};
+
+      console.log(result);
+      if (request.query.filename.search('http') != -1) {
+        message = 'Remote files not supported yet.'
+        console.log(result);
+      } else {
+        message = 'File is not remote';
+        // does the file exist?
+        const path = Path.join(__dirname, request.query.filename);
+        console.log('Does the file exist?');
+        try {
+          const stats = await Stat(path);
+          if (stats == null) {
+            message = 'File does not exist at ' + path;
+            console.log(message);
+            result.message = message;
+            reply.code(200).send(result);
+          } else {
+            // did the file read?
+            message = 'File is available';
+            console.log(message);
+            result.success = true;
+            message        = 'Successfully parsed json file onto GPU.';
+            result.message = message;
+            try {
+              const graphology = gpu_cache.readLargeGraphDemo(path);
+              gpu_cache.setDataframe('nodes', graphology['nodes']);
+              gpu_cache.setDataframe('edges', graphology['edges']);
+              gpu_cache.setDataframe('options', graphology['options']);
+              reply.code(200).send(result);
+            } catch (e) {
+              message        = 'Exception loading dataset onto gpu.';
+              result.message = message;
+              reply.code(500).send(result);
+            }
+          }
+        } catch (e) {
+          message        = 'Exception reading file.';
+          result.message = e;
+          reply.code(500).send(result);
+        };
       }
     }
   });
@@ -112,7 +181,25 @@ module.exports = async function(fastify, opts) {
     url: '/get_column/:table/:column',
     schema: {querystring: {table: {type: 'string'}, 'column': {type: 'string'}}},
     handler: async (request, reply) => {
-      let message = 'Not Implemented';
+      let message = 'Error';
+      let result  = {'params': JSON.stringify(request.params), success: false, message: message};
+      const table = gpu_cache.getDataframe(request.params.table);
+      if (table == undefined) {
+        result.message = 'Table not found';
+        reply.code(404).send(result);
+      } else {
+        const writer = RecordBatchStreamWriter.writeAll(table.toArrow());
+        reply.code(200).send(writer.toNodeStream());
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/get_table/:table',
+    schema: {querystring: {table: {type: 'string'}}},
+    handler: async (request, reply) => {
+      let message = 'Error';
       let result  = {'params': JSON.stringify(request.params), success: false, message: message};
       const table = gpu_cache.getDataframe(request.params.table);
       if (table == undefined) {

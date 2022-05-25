@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {Utf8String, Int32, DataFrame, StringSeries, Series, Float64} = require('@rapidsai/cudf');
+const {Bool8, Utf8String, Int32, Int64, DataFrame, StringSeries, Series, Float32, Float64} =
+  require('@rapidsai/cudf');
 
 let timeout  = -1;
 let datasets = {};
@@ -21,8 +22,21 @@ function clearCachedGPUData() {
   for (const key in datasets) { datasets[key] = null; }
 };
 
-/* TODO: How do I apply a list of dtypes?
- */
+function json_key_attributes_to_dataframe(str) {
+  let arr       = {};
+  const columns = ['cluster', 'x', 'y', 'size', 'label', 'color'];
+  const dtypes  = [new Int32, new Float32, new Float32, new Int32, new Utf8String, new Utf8String];
+  const no_open_list = str.split('[\n').gather([1], false);
+  const tokenized    = no_open_list.split('},');
+  columns.forEach((col, ix) => {
+    const parse_result = tokenized._col.getJSONObject('.attributes.' + columns[ix]);
+    const string_array = Series.new(parse_result);
+    arr[col]           = string_array.cast(dtypes[ix]);
+  });
+  const result = new DataFrame(arr);
+  return result;
+}
+
 function json_aos_to_dataframe(str, columns, _) {
   let arr = {};
   columns.forEach((col, ix) => {
@@ -34,19 +48,29 @@ function json_aos_to_dataframe(str, columns, _) {
   const result = new DataFrame(arr);
   return result;
 }
-/* TODO: How do I apply a list of dtypes?
- */
+
 function json_aoa_to_dataframe(str, dtypes) {
-  let arr = {};
+  let arr            = {};
+  const no_open_list = str.split('[\n').gather([1], false);
+  const tokenized    = no_open_list.split('],');
   dtypes.forEach((_, ix) => {
-    const no_open_list = str.split('[\n').gather([1], false);
-    const tokenized    = no_open_list.split('],');
     const get_ix       = `[${ix}]`;
     const parse_result = tokenized._col.getJSONObject(get_ix);
-    arr[ix]            = Series.new(parse_result);
+    const string_array = Series.new(parse_result);
+    arr[ix]            = string_array.cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
   return result;
+}
+
+function getGraphologyObjectOrder(json_dataset) {
+  const graphologyObjects =
+    ['"nodes:"', '"clusters:"', '"tags:"', '"edges:"', '"attributes:"', '"options:"'];
+  graphologyObjects.forEach((key, ix) => {
+    console.log(key);
+    console.log(ix);
+    console.log({key: key, ix: ix, pos: json_dataset._col.find(key)});
+  });
 }
 
 module.exports = {
@@ -57,9 +81,31 @@ module.exports = {
     console.log(datasets);
   },
   getDataframe(name) { return datasets[name] },
+  readLargeGraphDemo(path) {
+    console.log('readLargeGraphDemo');
+    const dataset  = StringSeries.readText(path, '');
+    let split      = dataset.split('"options":');
+    const toptions = split.gather([1], false);
+    let rest       = split.gather([0], false);
+    split          = rest.split('"edges":');
+    const tedges   = split.gather([1], false);
+    rest           = split.gather([0], false);
+    split          = rest.split('"nodes":');
+    const tnodes   = split.gather([1], false);
+    const nodes    = json_key_attributes_to_dataframe(tnodes);
+    const edges    = json_aos_to_dataframe(
+      tedges, ['key', 'source', 'target'], [new Utf8String, new Int32, new Int32]);
+    let optionsArr               = {};
+    optionsArr['type']           = Series.new(toptions._col.getJSONObject('.type'));
+    optionsArr['multi']          = Series.new(toptions._col.getJSONObject('.multi'));
+    optionsArr['allowSelfLoops'] = Series.new(toptions._col.getJSONObject('.allowSelfLoops'));
+    const options                = new DataFrame(optionsArr);
+    return {nodes: nodes, edges: edges, options: options};
+  },
   readGraphology(path) {
     console.log('readGraphology');
-    const dataset   = StringSeries.readText(path, '');
+    const dataset = StringSeries.readText(path, '');
+    getGraphologyObjectOrder(dataset);
     let split       = dataset.split('"tags":');
     const ttags     = split.gather([1], false);
     let rest        = split.gather([0], false);
