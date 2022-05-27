@@ -330,7 +330,7 @@ module.exports = async function(fastify, opts) {
         tiled        = tiled.scatter(Series.new(target_ymap),
                               Series.new(base_offset.mul(2).add(4)).cast(new Int32));
         tiled        = tiled.scatter(color, Series.new(base_offset.mul(2).add(5).cast(new Int32)));
-        const writer = RecordBatchStreamWriter.writeAll(new DataFrame({nodes: tiled}).toArrow());
+        const writer = RecordBatchStreamWriter.writeAll(new DataFrame({edges: tiled}).toArrow());
         reply.code(200).send(writer.toNodeStream());
       }
     }
