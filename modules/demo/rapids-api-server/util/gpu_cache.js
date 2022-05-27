@@ -37,13 +37,13 @@ function json_key_attributes_to_dataframe(str) {
   return result;
 }
 
-function json_aos_to_dataframe(str, columns, _) {
+function json_aos_to_dataframe(str, columns, dtypes) {
   let arr = {};
   columns.forEach((col, ix) => {
     const no_open_list = str.split('[\n').gather([1], false);
     const tokenized    = no_open_list.split('},');
     const parse_result = tokenized._col.getJSONObject('.' + columns[ix]);
-    arr[col]           = Series.new(parse_result);
+    arr[col]           = Series.new(parse_result).cast(dtypes[ix]);
   });
   const result = new DataFrame(arr);
   return result;

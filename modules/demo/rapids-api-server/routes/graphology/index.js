@@ -280,4 +280,59 @@ module.exports = async function(fastify, opts) {
       }
     }
   });
+
+  fastify.route({
+    method: 'GET',
+    url: '/edges/',
+    handler: async (request, reply) => {
+      let message = 'Error';
+      let result  = {success: false, message: message};
+      const df    = gpu_cache.getDataframe('nodes');
+      const edges = gpu_cache.getDataframe('edges');
+      if (df == undefined) {
+        result.message = 'Table not found';
+        reply.code(404).send(result);
+      } else {
+        // tile x, y, size, color
+        let tiled = Series.sequence({type: new Float32, init: 0.0, size: (6 * edges.numRows)});
+        let base_offset =
+          Series.sequence({type: new Int32, init: 0.0, size: edges.numRows})._col.mul(3);
+        //
+        // Duplicatin the sigma.j createNormalizationFunction here because there's no other way
+        // to let the Graph object compute it.
+        //
+        let source = edges.get('source');
+        let target = edges.get('target');
+        let x      = df.get('x');
+        let y      = df.get('y');
+        const ratio =
+          Series.new([x._col.max() - x._col.min(), y._col.max() - y._col.min()])._col.max();
+        const dX          = (x._col.max() + x._col.min()) / 2.0;
+        const dY          = (y._col.max() + y._col.min()) / 2.0;
+        x                 = x._col.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
+        y                 = y._col.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
+        const source_xmap = x.gather(source._col.cast(new Int32));
+        const source_ymap = y.gather(source._col.cast(new Int32));
+        const target_xmap = x.gather(target._col.cast(new Int32));
+        const target_ymap = y.gather(target._col.cast(new Int32));
+        const color       = Series.new(['#999'])
+                        .hexToIntegers(new Int32)
+                        .bitwiseOr(0xff000000)
+                        .view(new Float32)
+                        .toArray()[0];
+        tiled =
+          tiled.scatter(Series.new(source_xmap), Series.new(base_offset.mul(2)).cast(new Int32));
+        tiled        = tiled.scatter(Series.new(source_ymap),
+                              Series.new(base_offset.mul(2).add(1)).cast(new Int32));
+        tiled        = tiled.scatter(color, Series.new(base_offset.mul(2).add(2).cast(new Int32)));
+        tiled        = tiled.scatter(Series.new(target_xmap),
+                              Series.new(base_offset.mul(2).add(3)).cast(new Int32));
+        tiled        = tiled.scatter(Series.new(target_ymap),
+                              Series.new(base_offset.mul(2).add(4)).cast(new Int32));
+        tiled        = tiled.scatter(color, Series.new(base_offset.mul(2).add(5).cast(new Int32)));
+        const writer = RecordBatchStreamWriter.writeAll(new DataFrame({nodes: tiled}).toArrow());
+        reply.code(200).send(writer.toNodeStream());
+      }
+    }
+  });
 }
