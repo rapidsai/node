@@ -12,14 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const Fs                                                            = require('fs');
-const {Utf8String, Int32, DataFrame, StringSeries, Series, Float64} = require('@rapidsai/cudf');
-const {RecordBatchStreamWriter, Field, Vector, List, Table}         = require('apache-arrow');
-const Path                                                          = require('path');
-const {promisify}                                                   = require('util');
-const Stat                                                          = promisify(Fs.stat);
-const fastifyCors                                                   = require('@fastify/cors');
-const fastify                                                       = require('fastify');
+const Fs = require('fs');
+const {Utf8String, Int32, Uint32, Float32, DataFrame, StringSeries, Series, Float64} =
+  require('@rapidsai/cudf');
+const {RecordBatchStreamWriter, Field, Vector, List, Table} = require('apache-arrow');
+const Path                                                  = require('path');
+const {promisify}                                           = require('util');
+const Stat                                                  = promisify(Fs.stat);
+const fastifyCors                                           = require('@fastify/cors');
+const fastify                                               = require('fastify');
 
 const arrowPlugin = require('fastify-arrow');
 const gpu_cache   = require('../../util/gpu_cache.js');
@@ -207,6 +208,74 @@ module.exports = async function(fastify, opts) {
         reply.code(404).send(result);
       } else {
         const writer = RecordBatchStreamWriter.writeAll(table.toArrow());
+        reply.code(200).send(writer.toNodeStream());
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/nodes/bounds',
+    handler: async (request, reply) => {
+      let message = 'Error';
+      let result  = {success: false, message: message};
+      const df    = gpu_cache.getDataframe('nodes');
+      if (df == undefined) {
+        result.message = 'Table not found';
+        reply.code(404).send(result);
+      } else {
+        // compute xmin, xmax, ymin, ymax
+        const x = df.get('x');
+        const y = df.get('y');
+
+        result.bounds =
+          {xmin: x._col.min(), xmax: x._col.max(), ymin: y._col.min(), ymax: y._col.max()};
+        result.message = 'Success';
+        result.success = true;
+        reply.code(200).send(result);
+      }
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/nodes/',
+    handler: async (request, reply) => {
+      let message = 'Error';
+      let result  = {success: false, message: message};
+      const df    = gpu_cache.getDataframe('nodes');
+      if (df == undefined) {
+        result.message = 'Table not found';
+        reply.code(404).send(result);
+      } else {
+        // tile x, y, size, color
+        let tiled = Series.sequence({type: new Float32, init: 0.0, size: (4 * df.numRows)});
+        let base_offset =
+          Series.sequence({type: new Int32, init: 0.0, size: df.numRows})._col.mul(4);
+        //
+        // Duplicatin the sigma.j createNormalizationFunction here because there's no other way
+        // to let the Graph object compute it.
+        //
+        let x     = df.get('x');
+        let y     = df.get('y');
+        let color = df.get('color');
+        const ratio =
+          Series.new([x._col.max() - x._col.min(), y._col.max() - y._col.min()])._col.max();
+        const dX = (x._col.max() + x._col.min()) / 2.0;
+        const dY = (y._col.max() + y._col.min()) / 2.0;
+        x        = x._col.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
+        y        = y._col.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
+        // done with createNormalizationFunction
+        tiled = tiled.scatter(Series.new(x), Series.new(base_offset).cast(new Int32));
+        tiled = tiled.scatter(Series.new(y), Series.new(base_offset.add(1).cast(new Int32)));
+        tiled = tiled.scatter(Series.new(df.get('size')._col.mul(2)),
+                              Series.new(base_offset.add(2).cast(new Int32)));
+        color = color._col.hexToIntegers(new Uint32).bitwiseOr(0xff000000);
+        // color = Series.sequence({size: color.length, type: new Int32, init: 0xff0000ff, step:
+        // 0});
+        tiled        = tiled.scatter(Series.new(color).view(new Float32),
+                              Series.new(base_offset.add(3).cast(new Int32)));
+        const writer = RecordBatchStreamWriter.writeAll(new DataFrame({nodes: tiled}).toArrow());
         reply.code(200).send(writer.toNodeStream());
       }
     }
