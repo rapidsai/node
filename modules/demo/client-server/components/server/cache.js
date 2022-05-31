@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 const fs                                                = require('fs/promises');
 const {DataFrame, Series, Uint32, Int16, Int8, Float32} = require('@rapidsai/cudf');
-const {Field, Vector, List}                             = require('apache-arrow');
+const {Field, List, vectorFromArray}                    = require('apache-arrow');
 const path                                              = require('path');
 
 module.exports =
@@ -129,14 +129,13 @@ readUberTracts() {
   });
 
   function featureToVector(coordinates) {
-    return Vector.from({
-      values: coordinates,
-      highWaterMark: Number.POSITIVE_INFINITY,
-      type: new List(Field.new({
+    return vectorFromArray(
+      coordinates,
+      new List(Field.new({
         name: 'rings',
         type: new List(Field.new(
           {name: 'coords', type: new List(Field.new({name: 'points', type: new Float32()}))}))
       })),
-    });
+    );
   }
 }

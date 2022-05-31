@@ -23,7 +23,7 @@ import {
   Uint8,
 } from '@rapidsai/cudf';
 import {Quadtree} from '@rapidsai/cuspatial';
-import {Table} from 'apache-arrow';
+import {tableFromIPC} from 'apache-arrow';
 import {createReadStream, existsSync} from 'fs';
 import * as Path from 'path';
 
@@ -89,7 +89,7 @@ export async function loadTracts() {
   console.time(`load geometry Arrow table (${(263).toLocaleString()} polys)`);
 
   const table =
-    await Table.from(createReadStream(Path.join(__dirname, 'data', '263_tracts.arrow')));
+    await tableFromIPC(createReadStream(Path.join(__dirname, 'data', '263_tracts.arrow')));
 
   console.timeEnd(`load geometry Arrow table (${(263).toLocaleString()} polys)`);
 
@@ -143,7 +143,7 @@ export async function loadPoints() {
       console.time(`load points Arrow table (${(168898952).toLocaleString()} points)`);
       const filePath = Path.join(__dirname, 'data', '168898952_points.arrow');
       if (!existsSync(filePath)) { throw new Error('file not found'); }
-      const table = await Table.from(createReadStream(filePath));
+      const table = await tableFromIPC(createReadStream(filePath));
       console.timeEnd(`load points Arrow table (${(168898952).toLocaleString()} points)`);
       return table;
     } catch (e) {

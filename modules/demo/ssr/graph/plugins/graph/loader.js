@@ -1,4 +1,3 @@
-const {Utf8Vector}                               = require('apache-arrow');
 const {DataFrame, Series, Uint32, Uint64, Uint8} = require('@rapidsai/cudf');
 
 function loadNodes(graphId) {
@@ -16,7 +15,7 @@ module.exports.loadEdges = loadEdges;
 
 function getDefaultNodes() {
   return new DataFrame({
-    name: Series.new(Utf8Vector.from([
+    name: Series.new([
       'bool::False',
       'bool::True',
       'char::a',
@@ -57,7 +56,7 @@ function getDefaultNodes() {
       'ustr::b',
       'ustr::c',
       'ustr::d'
-    ])),
+    ]),
     id: Series.sequence({type: new Uint32, init: 0, step: 1, size: 40}),
     color: Series.new({
       type: new Uint32,
@@ -82,7 +81,7 @@ function getDefaultNodes() {
 
 function getDefaultEdges() {
   return new DataFrame({
-    name: Series.new(Utf8Vector.from(Array.from({length: 312}, (_, i) => `${i}`))),
+    name: Series.new(Array.from({length: 312}, (_, i) => `${i}`)),
     src: Series.new({
       type: new Uint32,
       data: [

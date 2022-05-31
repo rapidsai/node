@@ -17,7 +17,7 @@ import '../jest-extensions';
 import {setDefaultAllocator} from '@rapidsai/cuda';
 import {Categorical, Series, Utf8String} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
-import {Data, Dictionary, Int32, Utf8, Vector} from 'apache-arrow';
+import * as arrow from 'apache-arrow';
 
 const mr = new CudaMemoryResource();
 
@@ -25,10 +25,14 @@ setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
 
 describe('CategoricalSeries', () => {
   test('Constructs CategoricalSeries from Arrow Dictionary Vector', () => {
-    const codes      = Vector.from({type: new Int32(), values: [0, 1, 2, 2, 1, 0]});
-    const categories = Vector.from({type: new Utf8(), values: ['foo', 'bar', 'baz']});
-    const dictionary = Vector.new(Data.Dictionary(
-      new Dictionary(categories.type, codes.type), 0, codes.length, 0, null, codes, categories));
+    const codes      = arrow.vectorFromArray(new Int32Array([0, 1, 2, 2, 1, 0]));
+    const categories = arrow.vectorFromArray(['foo', 'bar', 'baz'], new arrow.Utf8);
+    const dictionary = arrow.makeVector(arrow.makeData({
+      type: new arrow.Dictionary(categories.type, codes.type),
+      length: codes.length,
+      data: codes.data[0].values,
+      dictionary: categories
+    }));
 
     const categorical = Series.new(dictionary);
 

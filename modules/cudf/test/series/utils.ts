@@ -54,8 +54,8 @@ export function makeTestBigInts(values: (number|bigint|null)[] = [0, 1, 2]) {
 export function makeTestSeries<T extends arrow.DataType>(
   type: T, [lhs, rhs]: [(number | bigint | null)[], (number | bigint | null)[]]) {
   return {
-    lhs: Series.new(arrow.Vector.from({type, values: lhs})),
-    rhs: Series.new(arrow.Vector.from({type, values: rhs})),
+    lhs: Series.new(arrow.vectorFromArray(lhs, type)),
+    rhs: Series.new(arrow.vectorFromArray(rhs, type)),
   };
 }
 

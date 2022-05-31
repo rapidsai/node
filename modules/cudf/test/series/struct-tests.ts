@@ -20,15 +20,14 @@ import {setDefaultAllocator} from '@rapidsai/cuda';
 import {Int32, Series} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
-import {VectorType} from 'apache-arrow/interfaces';
 
 const mr = new CudaMemoryResource();
 
 setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
 
 describe('StructSeries', () => {
-  const validateElements = (vec: VectorType<arrow.Int32>, col: Series<Int32>) => {
-    const expectedElements = vec.values.subarray(0, vec.length);
+  const validateElements = (vec: arrow.Vector<arrow.Int32>, col: Series<Int32>) => {
+    const expectedElements = vec.data[0].values.subarray(0, vec.length);
     const actualElements   = col.data.toArray();
     expect(expectedElements).toEqualTypedArray(actualElements);
   };
@@ -39,8 +38,8 @@ describe('StructSeries', () => {
       {x: 1, y: 4},
       {x: 2, y: 5},
     ]);
-    const xs  = vec.getChildAt<arrow.Int32>(0)! as VectorType<arrow.Int32>;
-    const ys  = vec.getChildAt<arrow.Int32>(1)! as VectorType<arrow.Int32>;
+    const xs  = vec.getChildAt<arrow.Int32>(0)! ;
+    const ys  = vec.getChildAt<arrow.Int32>(1)! ;
 
     const col = Series.new(vec);
 
@@ -54,9 +53,9 @@ describe('StructSeries', () => {
       {point: {x: 1, y: 4}},
       {point: {x: 2, y: 5}},
     ]);
-    const points = vec.getChildAt<StructOfInt32>(0)! as VectorType<StructOfInt32>;
-    const xs     = points.getChildAt<arrow.Int32>(0)! as VectorType<arrow.Int32>;
-    const ys     = points.getChildAt<arrow.Int32>(1)! as VectorType<arrow.Int32>;
+    const points = vec.getChildAt<StructOfInt32>(0)! ;
+    const xs     = points.getChildAt<arrow.Int32>(0)! ;
+    const ys     = points.getChildAt<arrow.Int32>(1)! ;
     const col    = Series.new(vec);
 
     validateElements(xs, col.getChild('point').getChild('x'));
@@ -75,9 +74,9 @@ describe('StructSeries', () => {
     expect(out.type.children[0].type.children[0].name).toEqual('x');
     expect(out.type.children[0].type.children[1].name).toEqual('y');
 
-    const points = vec.getChildAt<StructOfInt32>(0)! as VectorType<StructOfInt32>;
-    const xs     = points.getChildAt<arrow.Int32>(0)! as VectorType<arrow.Int32>;
-    const ys     = points.getChildAt<arrow.Int32>(1)! as VectorType<arrow.Int32>;
+    const points = vec.getChildAt<StructOfInt32>(0)! ;
+    const xs     = points.getChildAt<arrow.Int32>(0)! ;
+    const ys     = points.getChildAt<arrow.Int32>(1)! ;
 
     validateElements(xs, col.getChild('point').getChild('x'));
     validateElements(ys, col.getChild('point').getChild('y'));
@@ -115,24 +114,18 @@ type StructOfInt32   = arrow.Struct<{x: arrow.Int32, y: arrow.Int32}>;
 type StructOfStructs = arrow.Struct<{point: StructOfInt32}>;
 
 function structsOfInt32s(values: {x: number, y: number}[]) {
-  return arrow.Vector.from({
-    values,
+  return arrow.vectorFromArray(values, new arrow.Struct([
+    arrow.Field.new({name: 'x', type: new arrow.Int32}),
+    arrow.Field.new({name: 'y', type: new arrow.Int32})
+  ])) as arrow.Vector<StructOfInt32>;
+}
+
+function structsOfStructsOfInt32s(values: {point: {x: number, y: number}}[]) {
+  return arrow.vectorFromArray(values, new arrow.Struct([arrow.Field.new({
+    name: 'point',
     type: new arrow.Struct([
       arrow.Field.new({name: 'x', type: new arrow.Int32}),
       arrow.Field.new({name: 'y', type: new arrow.Int32})
     ]),
-  }) as VectorType<StructOfInt32>;
-}
-
-function structsOfStructsOfInt32s(values: {point: {x: number, y: number}}[]) {
-  return arrow.Vector.from({
-    values,
-    type: new arrow.Struct([arrow.Field.new({
-      name: 'point',
-      type: new arrow.Struct([
-        arrow.Field.new({name: 'x', type: new arrow.Int32}),
-        arrow.Field.new({name: 'y', type: new arrow.Int32})
-      ]),
-    })]),
-  }) as VectorType<StructOfStructs>;
+  })])) as arrow.Vector<StructOfStructs>;
 }
