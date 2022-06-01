@@ -23,7 +23,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -71,7 +71,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -125,7 +125,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -172,7 +172,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -219,7 +219,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -266,7 +266,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -313,7 +313,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -360,7 +360,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -407,7 +407,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -454,7 +454,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -501,7 +501,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -547,7 +547,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        LINUX: [ubuntu20.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
