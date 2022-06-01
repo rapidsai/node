@@ -46,7 +46,6 @@ test('Column initialization with null_mask', () => {
     nullMask: new Uint8Buffer(64).fill(0),
   });
 
-  expect(col.type).toBeInstanceOf(Bool8);
   expect(col.length).toBe(length);
   expect(col.nullCount).toBe(100);
   expect(col.hasNulls).toBe(true);

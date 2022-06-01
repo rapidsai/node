@@ -530,6 +530,27 @@ export class AbstractSeries<T extends DataType = any> {
   }
 
   /**
+   * Constructs a Series from a text file path.
+   *
+   * @note If delimiter is omitted, the default is ''.
+   *
+   * @param filepath Path of the input file.
+   * @param delimiter Optional delimiter.
+   *
+   * @returns StringSeries from the file, split by delimiter.
+   *
+   * @example
+   * ```typescript
+   * import {Series} from '@rapidsai/cudf';
+   *
+   * const infile = Series.readText('./inputAsciiFile.txt')
+   * ```
+   */
+  public static readText(filepath: string, delimiter: string): Series<Utf8String> {
+    return Series.new(Column.readText(filepath, delimiter ?? ''));
+  }
+
+  /**
    * Constructs a Series with a sequence of values.
    *
    * @note If init is omitted, the default is 0.

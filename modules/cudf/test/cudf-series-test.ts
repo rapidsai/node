@@ -42,6 +42,7 @@ import {
   Int8,
   Int8Series,
   Series,
+  StringSeries,
   TimestampDay,
   TimestampMicrosecond,
   TimestampMillisecond,
@@ -60,6 +61,8 @@ import {
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import {Uint8Vector, Utf8Vector} from 'apache-arrow';
 import {BoolVector} from 'apache-arrow';
+import {promises} from 'fs';
+import * as Path from 'path';
 
 const mr = new CudaMemoryResource();
 
@@ -861,4 +864,64 @@ ${false} | ${false}   | ${false}   | ${[4, null, 1, 2, null, 3, 4]} | ${[1, 2, 3
   const s      = Series.new({type: new Int32, data});
   const result = s.dropDuplicates(keep, nullsEqual, nullsFirst);
   expect([...result]).toEqual(expected);
+});
+
+describe('Series.readText', () => {
+  test('can read a json file', async () => {
+    const rows = [
+      {a: 0, b: 1.0, c: '2'},
+      {a: 1, b: 2.0, c: '3'},
+      {a: 2, b: 3.0, c: '4'},
+    ];
+    const outputString = JSON.stringify(rows);
+    const path         = Path.join(readTextTmpDir, 'simple.txt');
+    await promises.writeFile(path, outputString);
+    const text = Series.readText(path, '');
+    expect(text.getValue(0)).toEqual(outputString);
+    await new Promise<void>((resolve, reject) =>
+                              rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
+  });
+  test('can read a random file', async () => {
+    const outputString = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
+    const path         = Path.join(readTextTmpDir, 'simple.txt');
+    await promises.writeFile(path, outputString);
+    const text = Series.readText(path, '');
+    expect(text.getValue(0)).toEqual(outputString);
+    await new Promise<void>((resolve, reject) =>
+                              rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
+  });
+  test('can read an empty file', async () => {
+    const outputString = '';
+    const path         = Path.join(readTextTmpDir, 'simple.txt');
+    await promises.writeFile(path, outputString);
+    const text = Series.readText(path, '');
+    expect(text.getValue(0)).toEqual(outputString);
+    await new Promise<void>((resolve, reject) =>
+                              rimraf(path, (err?: Error|null) => err ? reject(err) : resolve()));
+  });
+});
+
+describe('StringSeries split', () => {
+  test('split a basic string', () => {
+    const input = Series.new(['abcdefg']).split('d');
+    expect(input.toArray()).toEqual(['abcd', 'efg']);
+  });
+  test('split a string twice', () => {
+    const input = Series.new(['abcdefgdcba']).split('d');
+    expect(input.toArray()).toEqual(['abcd', 'efgd', 'cba']);
+  });
+});
+
+let readTextTmpDir = '';
+
+const rimraf = require('rimraf');
+
+beforeAll(async () => {  //
+  readTextTmpDir = await promises.mkdtemp(Path.join('/tmp', 'node_cudf'));
+});
+
+afterAll(() => {
+  return new Promise<void>((resolve, reject) => {  //
+    rimraf(readTextTmpDir, (err?: Error|null) => err ? reject(err) : resolve());
+  });
 });
