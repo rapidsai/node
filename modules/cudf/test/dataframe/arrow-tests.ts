@@ -13,20 +13,18 @@
 // limitations under the License.
 
 import {DataFrame} from '@rapidsai/cudf';
-import {FloatVector, IntVector, Table} from 'apache-arrow';
+import * as arrow from 'apache-arrow';
 import {ChildProcessByStdio, spawn} from 'child_process';
 import {Readable, Writable} from 'stream';
 
 jest.setTimeout(60 * 1000);
 
 test(`fromArrow works from host memory`, () => {
-  const table = Table.new(
-    [
-      FloatVector.from(new Float64Array([1.1, 2.2, 0, -3.3, -4.4])),
-      IntVector.from(new Int32Array([1, 2, 0, -3, -4]))
-    ],
-    ['floats', 'ints']);
-  const serialized_table = table.serialize();  // Uint8Array
+  const table            = arrow.tableFromArrays({
+    floats: new Float64Array([1.1, 2.2, 0, -3.3, -4.4]),
+    ints: new Int32Array([1, 2, 0, -3, -4]),
+  });
+  const serialized_table = arrow.tableToIPC(table);  // Uint8Array
   const df               = DataFrame.fromArrow(serialized_table);
 
   expect([...df.names]).toStrictEqual(['floats', 'ints']);
@@ -77,16 +75,13 @@ function spawnIPCSourceSubprocess() {
                [
                  `-e`,
                  `
-const { Table, FloatVector, IntVector } = require('apache-arrow');
+const arrow = require('apache-arrow');
 const { Uint8Buffer } = require('@rapidsai/cuda');
-const table = Table.new(
-  [
-    FloatVector.from(new Float64Array([1.1, 2.2, 0, -3.3, -4.4])),
-    IntVector.from(new Int32Array([1, 2, 0, -3, -4]))
-  ],
-  ['floats', 'ints']
-);
-const serialized_table = table.serialize();  // Uint8Array
+const table = arrow.tableFromArrays({
+  floats: new Float64Array([1.1, 2.2, 0, -3.3, -4.4]),
+  ints: new Int32Array([1, 2, 0, -3, -4])
+});
+const serialized_table = arrow.tableToIPC(table);  // Uint8Array
 const device_buffer = new Uint8Buffer(serialized_table.length);
 device_buffer.copyFrom(serialized_table);
 const handle = device_buffer.getIpcHandle();

@@ -15,6 +15,7 @@
 import * as arrow from 'apache-arrow';
 
 import {Column} from '../column';
+import {Table} from '../table';
 import {
   Bool8,
   Categorical,
@@ -40,61 +41,60 @@ import {
 import {ArrowToCUDFType} from '../types/mappings';
 
 /** @ignore */
-interface VectorToColumnVisitor extends arrow.Visitor {
-  visit<T extends arrow.DataType>(node: arrow.Vector<T>): Column<ArrowToCUDFType<T>>;
-  visitMany<T extends arrow.DataType>(nodes: arrow.Vector<T>[]): Column<ArrowToCUDFType<T>>[];
-  getVisitFn<T extends arrow.DataType>(node: arrow.Vector<T>): () => Column<ArrowToCUDFType<T>>;
+interface DataToColumnVisitor extends arrow.Visitor {
+  visit<T extends arrow.DataType>(node: arrow.Data<T>): Column<ArrowToCUDFType<T>>;
+  visitMany<T extends arrow.DataType>(nodes: readonly arrow.Data<T>[]):
+    Column<ArrowToCUDFType<T>>[];
+  getVisitFn<T extends arrow.DataType>(node: arrow.Data<T>): () => Column<ArrowToCUDFType<T>>;
 }
 
-class VectorToColumnVisitor extends arrow.Visitor {
-  // visitNull<T extends arrow.Null>(vector: arrow.Vector<T>) {}
-  visitBool<T extends arrow.Bool>(vector: arrow.Vector<T>) {
-    const {nullBitmap: nullMask} = vector.data;
-    return new Column({type: new Bool8, data: new Uint8Array(vector), nullMask});
+class DataToColumnVisitor extends arrow.Visitor {
+  // visitNull<T extends arrow.Null>(data: arrow.Data<T>) {}
+  visitBool<T extends arrow.Bool>(data: arrow.Data<T>) {
+    const {values, nullBitmap: nullMask} = data;
+    return new Column({
+      type: new Bool8,
+      data:
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        new Uint8Array(new arrow.util.BitIterator(values, 0, data.length, null, arrow.util.getBit)),
+      nullMask
+    });
   }
-  visitInt8<T extends arrow.Int8>({length,
-                                   data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+  visitInt8<T extends arrow.Int8>({length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column({type: new Int8, length, data: data.subarray(0, length), nullMask});
   }
-  visitInt16<T extends arrow.Int16>({length,
-                                     data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+  visitInt16<T extends arrow.Int16>({length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column({type: new Int16, length, data: data.subarray(0, length), nullMask});
   }
-  visitInt32<T extends arrow.Int32>({length,
-                                     data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+  visitInt32<T extends arrow.Int32>({length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column({type: new Int32, length, data: data.subarray(0, length), nullMask});
   }
-  visitInt64<T extends arrow.Int64>({length,
-                                     data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+  visitInt64<T extends arrow.Int64>({length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column({type: new Int64, length, data: data.subarray(0, length * 2), nullMask});
   }
-  visitUint8<T extends arrow.Uint8>({length,
-                                     data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+  visitUint8<T extends arrow.Uint8>({length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column({type: new Uint8, length, data: data.subarray(0, length), nullMask});
   }
-  visitUint16<T extends arrow.Uint16>({length, data: {values: data, nullBitmap: nullMask}}:
-                                        arrow.Vector<T>) {
+  visitUint16<T extends arrow.Uint16>({length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column({type: new Uint16, length, data: data.subarray(0, length), nullMask});
   }
-  visitUint32<T extends arrow.Uint32>({length, data: {values: data, nullBitmap: nullMask}}:
-                                        arrow.Vector<T>) {
+  visitUint32<T extends arrow.Uint32>({length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column({type: new Uint32, length, data: data.subarray(0, length), nullMask});
   }
-  visitUint64<T extends arrow.Uint64>({length, data: {values: data, nullBitmap: nullMask}}:
-                                        arrow.Vector<T>) {
+  visitUint64<T extends arrow.Uint64>({length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column({type: new Uint64, length, data: data.subarray(0, length * 2), nullMask});
   }
-  // visitFloat16<T extends arrow.Float16>(vector: arrow.Vector<T>) {}
-  visitFloat32<T extends arrow.Float32>({length, data: {values: data, nullBitmap: nullMask}}:
-                                          arrow.Vector<T>) {
+  // visitFloat16<T extends arrow.Float16>(data: arrow.Data<T>) {}
+  visitFloat32<T extends arrow.Float32>({length, values: data, nullBitmap: nullMask}:
+                                          arrow.Data<T>) {
     return new Column({type: new Float32, length, data: data.subarray(0, length), nullMask});
   }
-  visitFloat64<T extends arrow.Float64>({length, data: {values: data, nullBitmap: nullMask}}:
-                                          arrow.Vector<T>) {
+  visitFloat64<T extends arrow.Float64>({length, values: data, nullBitmap: nullMask}:
+                                          arrow.Data<T>) {
     return new Column({type: new Float64, length, data: data.subarray(0, length), nullMask});
   }
-  visitUtf8<T extends arrow.Utf8>({length, data: {values, valueOffsets, nullBitmap: nullMask}}:
-                                    arrow.Vector<T>) {
+  visitUtf8<T extends arrow.Utf8>({length, values, valueOffsets, nullBitmap: nullMask}:
+                                    arrow.Data<T>) {
     return new Column({
       length,
       type: new Utf8String,
@@ -112,48 +112,48 @@ class VectorToColumnVisitor extends arrow.Visitor {
       ]
     });
   }
-  // visitBinary<T extends arrow.Binary>(vector: arrow.Vector<T>) {}
-  // visitFixedSizeBinary<T extends arrow.FixedSizeBinary>(vector: arrow.Vector<T>) {}
-  // visitDate<T extends arrow.Date_>(vector: arrow.Vector<T>) {}
-  visitDateDay<T extends arrow.DateDay>({length, data: {values: data, nullBitmap: nullMask}}:
-                                          arrow.Vector<T>) {
+  // visitBinary<T extends arrow.Binary>(data: arrow.Data<T>) {}
+  // visitFixedSizeBinary<T extends arrow.FixedSizeBinary>(data: arrow.Data<T>) {}
+  // visitDate<T extends arrow.Date_>(data: arrow.Data<T>) {}
+  visitDateDay<T extends arrow.DateDay>({length, values: data, nullBitmap: nullMask}:
+                                          arrow.Data<T>) {
     return new Column({type: new TimestampDay, length, data: data.subarray(0, length), nullMask});
   }
   visitDateMillisecond<T extends arrow.DateMillisecond>(
-    {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+    {length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column(
       {type: new TimestampMillisecond, length, data: data.subarray(0, length), nullMask});
   }
   visitTimestampSecond<T extends arrow.TimestampSecond>(
-    {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+    {length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column(
       {type: new TimestampSecond, length, data: data.subarray(0, length * 2), nullMask});
   }
   visitTimestampMillisecond<T extends arrow.TimestampMillisecond>(
-    {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+    {length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column(
       {type: new TimestampMillisecond, length, data: data.subarray(0, length * 2), nullMask});
   }
   visitTimestampMicrosecond<T extends arrow.TimestampMicrosecond>(
-    {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+    {length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column(
       {type: new TimestampMicrosecond, length, data: data.subarray(0, length * 2), nullMask});
   }
   visitTimestampNanosecond<T extends arrow.TimestampNanosecond>(
-    {length, data: {values: data, nullBitmap: nullMask}}: arrow.Vector<T>) {
+    {length, values: data, nullBitmap: nullMask}: arrow.Data<T>) {
     return new Column(
       {type: new TimestampNanosecond, length, data: data.subarray(0, length * 2), nullMask});
   }
-  // visitTimeSecond<T extends arrow.TimeSecond>(vector: arrow.Vector<T>) {}
-  // visitTimeMillisecond<T extends arrow.TimeMillisecond>(vector: arrow.Vector<T>) {}
-  // visitTimeMicrosecond<T extends arrow.TimeMicrosecond>(vector: arrow.Vector<T>) {}
-  // visitTimeNanosecond<T extends arrow.TimeNanosecond>(vector: arrow.Vector<T>) {}
-  // visitDecimal<T extends arrow.Decimal>(vector: arrow.Vector<T>) {}
-  visitList<T extends arrow.List>(vector: arrow.Vector<T>) {
-    const {type, length, data: {valueOffsets, nullBitmap: nullMask}} = vector;
+  // visitTimeSecond<T extends arrow.TimeSecond>(data: arrow.Data<T>) {}
+  // visitTimeMillisecond<T extends arrow.TimeMillisecond>(data: arrow.Data<T>) {}
+  // visitTimeMicrosecond<T extends arrow.TimeMicrosecond>(data: arrow.Data<T>) {}
+  // visitTimeNanosecond<T extends arrow.TimeNanosecond>(data: arrow.Data<T>) {}
+  // visitDecimal<T extends arrow.Decimal>(data: arrow.Data<T>) {}
+  visitList<T extends arrow.List>(data: arrow.Data<T>) {
+    const {type, length, valueOffsets, nullBitmap: nullMask} = data;
     const offsets =
       new Column({type: new Int32, length: length + 1, data: valueOffsets.subarray(0, length + 1)});
-    const elements = this.visit(vector.getChildAt(0) as arrow.Vector<T['valueType']>);
+    const elements = this.visit(data.children[0] as arrow.Data<T['valueType']>);
     return new Column({
       length,
       type: new List(type.children[0].clone({type: elements.type, nullable: elements.nullable})),
@@ -164,9 +164,9 @@ class VectorToColumnVisitor extends arrow.Visitor {
       ]
     });
   }
-  visitStruct<T extends arrow.Struct>(vector: arrow.Vector<T>) {
-    const {type, length, data: {nullBitmap: nullMask}} = vector;
-    const children = type.children.map((_, i) => this.visit(vector.getChildAt(i) as arrow.Vector));
+  visitStruct<T extends arrow.Struct>(data: arrow.Data<T>) {
+    const {type, length, nullBitmap: nullMask} = data;
+    const children = type.children.map((_, i) => this.visit(data.children[i]));
     return new Column({
       length,
       type: new Struct(children.map(
@@ -175,25 +175,28 @@ class VectorToColumnVisitor extends arrow.Visitor {
       children,
     });
   }
-  // visitDenseUnion<T extends arrow.DenseUnion>(vector: arrow.Vector<T>) {}
-  // visitSparseUnion<T extends arrow.SparseUnion>(vector: arrow.Vector<T>) {}
-  visitDictionary<T extends arrow.Dictionary>(vector: arrow.Vector<T>) {
-    const {type, length, data: {nullBitmap: nullMask}} = vector;
-    const codes = this.visit(arrow.Vector.new(vector.data.clone(type.indices))).cast(new Uint32);
+  // visitDenseUnion<T extends arrow.DenseUnion>(data: arrow.Data<T>) {}
+  // visitSparseUnion<T extends arrow.SparseUnion>(data: arrow.Data<T>) {}
+  visitDictionary<T extends arrow.Dictionary>(data: arrow.Data<T>) {
+    const {type, length, nullBitmap: nullMask} = data;
+    const codes = this.visit(data.clone(type.indices)).cast(new Uint32);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const categories = this.visit(vector.data.dictionary!);
+    const categories = fromArrow(data.dictionary!);
     return new Column(
       {length, type: new Categorical(categories.type), nullMask, children: [codes, categories]});
   }
-  // visitIntervalDayTime<T extends arrow.IntervalDayTime>(vector: arrow.Vector<T>) {}
-  // visitIntervalYearMonth<T extends arrow.IntervalYearMonth>(vector: arrow.Vector<T>) {}
-  // visitFixedSizeList<T extends arrow.FixedSizeList>(vector: arrow.Vector<T>) {}
-  // visitMap<T extends arrow.Map_>(vector: arrow.Vector<T>) {}
+  // visitIntervalDayTime<T extends arrow.IntervalDayTime>(data: arrow.Data<T>) {}
+  // visitIntervalYearMonth<T extends arrow.IntervalYearMonth>(data: arrow.Data<T>) {}
+  // visitFixedSizeList<T extends arrow.FixedSizeList>(data: arrow.Data<T>) {}
+  // visitMap<T extends arrow.Map_>(data: arrow.Data<T>) {}
 }
 
-const visitor = new VectorToColumnVisitor();
+const visitor = new DataToColumnVisitor();
 
 export function fromArrow<T extends arrow.DataType>(vector: arrow.Vector<T>):
   Column<ArrowToCUDFType<T>> {
-  return visitor.visit(vector);
+  const cols = visitor.visitMany(vector.data);
+  if (cols.length === 1) { return cols[0]; }
+  return Table.concat(cols.map((col) => new Table({columns: [col]}))).getColumnByIndex(0);
+  // return visitor.visit(vector);
 }
