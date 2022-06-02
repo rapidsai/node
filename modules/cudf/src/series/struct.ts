@@ -30,13 +30,13 @@ export class StructSeries<T extends TypeMap> extends Series<Struct<T>> {
    * import {Series} = require('@rapidsai/cudf');
    * import * as arrow from 'apache-arrow';
    *
-   * const vec = arrow.Vector.from({
-   *   values: [{ x: 0, y: 3 }, { x: 1, y: 4 }, { x: 2, y: 5 }],
-   *   type: new arrow.Struct([
+   * const vec = arrow.vectorFromArray(
+   *   [{ x: 0, y: 3 }, { x: 1, y: 4 }, { x: 2, y: 5 }],
+   *   new arrow.Struct([
    *     arrow.Field.new({ name: 'x', type: new arrow.Int32 }),
    *     arrow.Field.new({ name: 'y', type: new arrow.Int32 })
    *   ]),
-   * });
+   * );
    * const a = Series.new(vec);
    *
    * a.getChild('x') // Int32Series [0, 1, 2]

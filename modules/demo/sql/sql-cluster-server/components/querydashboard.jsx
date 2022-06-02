@@ -16,7 +16,7 @@ import Button from '@material-ui/core/Button';
 import React from 'react';
 import { Col, Container, FormControl, InputGroup, Row } from 'react-bootstrap';
 import { QueryBuilder } from './querybuilder';
-import { Table } from 'apache-arrow';
+import { tableFromIPC } from 'apache-arrow';
 import Paper from '@material-ui/core/Paper';
 import MatTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -92,7 +92,7 @@ export class QueryDashboard extends React.Component {
           'accepts': `application/octet-stream`
         },
         body: `${this.state.query}`
-      }).then((res) => Table.from(res)).then((table) => {
+      }).then((res) => tableFromIPC(res)).then((table) => {
         this.setState({
           queryResult: formatData(table),
           queryTime: table.schema.metadata.get('queryTime'),

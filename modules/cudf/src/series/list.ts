@@ -29,10 +29,10 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
    * import {Series} from '@rapidsai/cudf';
    * import * as arrow from 'apache-arrow';
    *
-   * const vec = arrow.Vector.from({
-   *   values: [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
-   *   type: new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
-   * });
+   * const vec = arrow.vectorFromArray(
+   *   [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+   *   new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
+   * );
    * const a = Series.new(vec);
    *
    * a.offsets // Int32Series [0, 3, 6, 9]
@@ -48,10 +48,10 @@ export class ListSeries<T extends DataType> extends Series<List<T>> {
    * import {Series} from '@rapidsai/cudf';
    * import * as arrow from 'apache-arrow';
    *
-   * const vec = arrow.Vector.from({
-   *   values: [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
-   *   type: new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
-   * });
+   * const vec = arrow.vectorFromArray(
+   *   [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+   *   new arrow.List(arrow.Field.new({ name: 'ints', type: new arrow.Int32 })),
+   * );
    * const a = Series.new(vec);
    *
    * a.elements // Int32Series [0, 1, 2, 3, 4, 5, 6, 7, 8]

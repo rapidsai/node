@@ -42,7 +42,6 @@ import {
   Int8,
   Int8Series,
   Series,
-  StringSeries,
   TimestampDay,
   TimestampMicrosecond,
   TimestampMillisecond,
@@ -59,8 +58,7 @@ import {
   Utf8String
 } from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
-import {Uint8Vector, Utf8Vector} from 'apache-arrow';
-import {BoolVector} from 'apache-arrow';
+import * as arrow from 'apache-arrow';
 import {promises} from 'fs';
 import * as Path from 'path';
 
@@ -469,7 +467,7 @@ describe('toArrow()', () => {
   test('converts Uint8 Series to Uint8Vector', () => {
     const uint8Col = Series.new({type: new Uint8, data: new Uint8Buffer(Buffer.from('hello'))});
     const uint8Vec = uint8Col.toArrow();
-    expect(uint8Vec).toBeInstanceOf(Uint8Vector);
+    expect(uint8Vec).toBeInstanceOf(arrow.Vector);
     expect([...uint8Vec]).toEqual([...Buffer.from('hello')]);
   });
   test('converts String Series to Utf8Vector', () => {
@@ -482,7 +480,7 @@ describe('toArrow()', () => {
       children: [offsetsCol, utf8Col],
     });
     const utf8Vec    = stringsCol.toArrow();
-    expect(utf8Vec).toBeInstanceOf(Utf8Vector);
+    expect(utf8Vec).toBeInstanceOf(arrow.Vector);
     expect([...utf8Vec]).toEqual(['hello']);
   });
 });
@@ -504,7 +502,7 @@ test('Series.orderBy (descending, non-null)', () => {
 });
 
 test('Series.orderBy (ascending, null before)', () => {
-  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const mask = arrow.vectorFromArray([1, 0, 1, 1, 1, 1], new arrow.Bool).data[0].values;
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const result = col.orderBy(true, 'before');
@@ -514,7 +512,7 @@ test('Series.orderBy (ascending, null before)', () => {
 });
 
 test('Series.orderBy (ascending, null after)', () => {
-  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const mask = arrow.vectorFromArray([1, 0, 1, 1, 1, 1], new arrow.Bool).data[0].values;
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const result = col.orderBy(true, 'after');
@@ -524,7 +522,7 @@ test('Series.orderBy (ascending, null after)', () => {
 });
 
 test('Series.orderBy (descendng, null before)', () => {
-  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const mask = arrow.vectorFromArray([1, 0, 1, 1, 1, 1], new arrow.Bool).data[0].values;
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const result = col.orderBy(false, 'before');
@@ -535,7 +533,7 @@ test('Series.orderBy (descendng, null before)', () => {
 });
 
 test('Series.orderBy (descending, null after)', () => {
-  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const mask = arrow.vectorFromArray([1, 0, 1, 1, 1, 1], new arrow.Bool).data[0].values;
   const col =
     Series.new({type: new Int32, data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const result = col.orderBy(false, 'after');
@@ -577,7 +575,7 @@ test('Series.isNotNull (numeric)', () => {
 });
 
 test('Series.dropNulls (drop nulls only)', () => {
-  const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
+  const mask = arrow.vectorFromArray([0, 1, 1, 1, 1, 0], new arrow.Bool).data[0].values;
   const col =
     Series.new({type: new Float32, data: new Float32Buffer([1, 3, NaN, 4, 2, 0]), nullMask: mask});
   const result = col.dropNulls();
@@ -587,7 +585,7 @@ test('Series.dropNulls (drop nulls only)', () => {
 });
 
 test('FloatSeries.dropNaNs (drop NaN values only)', () => {
-  const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
+  const mask = arrow.vectorFromArray([0, 1, 1, 1, 1, 0], new arrow.Bool).data[0].values;
   const col =
     Series.new({type: new Float32, data: new Float32Buffer([1, 3, NaN, 4, 2, 0]), nullMask: mask});
   const result = col.dropNaNs();

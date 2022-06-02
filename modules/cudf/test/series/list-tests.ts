@@ -20,21 +20,20 @@ import {setDefaultAllocator} from '@rapidsai/cuda';
 import {Int32, Int32Series, List, Series} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
 import * as arrow from 'apache-arrow';
-import {VectorType} from 'apache-arrow/interfaces';
 
 const mr = new CudaMemoryResource();
 
 setDefaultAllocator((byteLength) => new DeviceBuffer(byteLength, mr));
 
 describe('ListSeries', () => {
-  const validateOffsets = (vec: VectorType<arrow.List>, col: Series<List>) => {
-    const expectedOffsets = vec.valueOffsets.subarray(0, vec.length + 1);
+  const validateOffsets = (vec: arrow.Vector<arrow.List>, col: Series<List>) => {
+    const expectedOffsets = vec.data[0].valueOffsets.subarray(0, vec.length + 1);
     const actualOffsets   = col.offsets.data.toArray();
     expect(expectedOffsets).toEqualTypedArray(actualOffsets);
   };
 
-  const validateElements = (vec: VectorType<arrow.Int32>, col: Series<Int32>) => {
-    const expectedElements = vec.values.subarray(0, vec.length);
+  const validateElements = (vec: arrow.Vector<arrow.Int32>, col: Series<Int32>) => {
+    const expectedElements = vec.data[0].values.subarray(0, vec.length);
     const actualElements   = col.data.toArray();
     expect(expectedElements).toEqualTypedArray(actualElements);
   };
@@ -47,7 +46,7 @@ describe('ListSeries', () => {
 
   test('Can create from Arrow', () => {
     const vec  = listsOfInt32s([[0, 1, 2], [3, 4, 5]]);
-    const ints = vec.getChildAt<arrow.Int32>(0)! as VectorType<arrow.Int32>;
+    const ints = vec.getChildAt<arrow.Int32>(0)! ;
     const col  = Series.new(vec);
 
     validateOffsets(vec, col);
@@ -76,8 +75,8 @@ describe('ListSeries', () => {
 
   test('Can create a List of Lists from Arrow', () => {
     const vec  = listsOfListsOfInt32s([[[0, 1, 2]], [[3, 4, 5], [7, 8, 9]]]);
-    const list = vec.getChildAt<ListOfInt32>(0)! as VectorType<ListOfInt32>;
-    const ints = list.getChildAt<arrow.Int32>(0)! as VectorType<arrow.Int32>;
+    const list = vec.getChildAt<ListOfInt32>(0)! ;
+    const ints = list.getChildAt<arrow.Int32>(0)! ;
     const col  = Series.new(vec);
 
     validateOffsets(vec, col);
@@ -87,8 +86,8 @@ describe('ListSeries', () => {
 
   test('Can gather a List of Lists', () => {
     const vec  = listsOfListsOfInt32s([[[0, 1, 2]], [[3, 4, 5], [7, 8, 9]]]);
-    const list = vec.getChildAt<ListOfInt32>(0)! as VectorType<ListOfInt32>;
-    const ints = list.getChildAt<arrow.Int32>(0)! as VectorType<arrow.Int32>;
+    const list = vec.getChildAt<ListOfInt32>(0)! ;
+    const ints = list.getChildAt<arrow.Int32>(0)! ;
     const col  = Series.new(vec);
     const out  = col.gather(Series.new({type: new Int32, data: new Int32Array([0, 1, 2])}));
 
@@ -166,18 +165,14 @@ type ListOfInt32 = arrow.List<arrow.Int32>;
 type ListOfLists = arrow.List<ListOfInt32>;
 
 function listsOfInt32s(values: number[][]) {
-  return arrow.Vector.from({
-    values,
-    type: new arrow.List(arrow.Field.new({name: 'ints', type: new arrow.Int32})),
-  }) as VectorType<ListOfInt32>;
+  return arrow.vectorFromArray(
+           values, new arrow.List(arrow.Field.new({name: 'ints', type: new arrow.Int32}))) as
+         arrow.Vector<ListOfInt32>;
 }
 
 function listsOfListsOfInt32s(values: number[][][]) {
-  return arrow.Vector.from({
-    values,
-    type: new arrow.List(arrow.Field.new({
-      name: 'lists',
-      type: new arrow.List(arrow.Field.new({name: 'ints', type: new arrow.Int32}))
-    })),
-  }) as VectorType<ListOfLists>;
+  return arrow.vectorFromArray(values, new arrow.List(arrow.Field.new({
+    name: 'lists',
+    type: new arrow.List(arrow.Field.new({name: 'ints', type: new arrow.Int32}))
+  }))) as arrow.Vector<ListOfLists>;
 }

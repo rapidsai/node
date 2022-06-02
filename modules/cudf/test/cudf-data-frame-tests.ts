@@ -25,7 +25,7 @@ import {
   Table
 } from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
-import {BoolVector} from 'apache-arrow';
+import * as arrow from 'apache-arrow';
 
 const mr = new CudaMemoryResource();
 
@@ -200,7 +200,7 @@ test('DataFrame.orderBy (descending, non-null)', () => {
 });
 
 test('DataFrame.orderBy (ascending, null before)', () => {
-  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const mask = arrow.vectorFromArray([1, 0, 1, 1, 1, 1], new arrow.Bool).data[0].values;
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
@@ -211,7 +211,7 @@ test('DataFrame.orderBy (ascending, null before)', () => {
 });
 
 test('DataFrame.orderBy (ascending, null after)', () => {
-  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const mask = arrow.vectorFromArray([1, 0, 1, 1, 1, 1], new arrow.Bool).data[0].values;
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
@@ -222,7 +222,7 @@ test('DataFrame.orderBy (ascending, null after)', () => {
 });
 
 test('DataFrame.orderBy (descendng, null before)', () => {
-  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const mask = arrow.vectorFromArray([1, 0, 1, 1, 1, 1], new arrow.Bool).data[0].values;
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
@@ -234,7 +234,7 @@ test('DataFrame.orderBy (descendng, null before)', () => {
 });
 
 test('DataFrame.orderBy (descending, null after)', () => {
-  const mask = new Uint8Buffer(BoolVector.from([1, 0, 1, 1, 1, 1]).values);
+  const mask = arrow.vectorFromArray([1, 0, 1, 1, 1, 1], new arrow.Bool).data[0].values;
   const col =
     Series.new({type: new Int32(), data: new Int32Buffer([1, 3, 5, 4, 2, 0]), nullMask: mask});
   const df     = new DataFrame({'a': col});
