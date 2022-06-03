@@ -264,13 +264,13 @@ module.exports = async function(fastify, opts) {
           const [yMin, yMax] = y.minmax();
           Math.max(xMax - xMin, yMax - yMin);
         })();
-        const dX = (x._col.max() + x._col.min()) / 2.0;
-        const dY = (y._col.max() + y._col.min()) / 2.0;
-        x        = x._col.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
-        y        = y._col.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
+        const dX = x.minmax().reduce((min, max) => max + min, 0) / 2.0;
+        const dY = y.minmax().reduce((min, max) => max + min, 0) / 2.0;
+        x        = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
+        y        = y.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
         // done with createNormalizationFunction
-        tiled = tiled.scatter(Series.new(x), Series.new(base_offset).cast(new Int32));
-        tiled = tiled.scatter(Series.new(y), Series.new(base_offset.add(1).cast(new Int32)));
+        tiled = tiled.scatter(x, base_offset.cast(new Int32));
+        tiled = tiled.scatter(y, base_offset.add(1).cast(new Int32));
         tiled = tiled.scatter(Series.new(df.get('size')._col.mul(2)),
                               Series.new(base_offset.add(2).cast(new Int32)));
         color = color._col.hexToIntegers(new Uint32).bitwiseOr(0xff000000);
