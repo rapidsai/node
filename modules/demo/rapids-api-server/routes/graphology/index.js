@@ -271,13 +271,13 @@ module.exports = async function(fastify, opts) {
         // done with createNormalizationFunction
         tiled = tiled.scatter(x, base_offset.cast(new Int32));
         tiled = tiled.scatter(y, base_offset.add(1).cast(new Int32));
-        tiled = tiled.scatter(Series.new(df.get('size')._col.mul(2)),
-                              Series.new(base_offset.add(2).cast(new Int32)));
-        color = color._col.hexToIntegers(new Uint32).bitwiseOr(0xff000000);
+        tiled = tiled.scatter(df.get('size').mul(2),
+                              base_offset.add(2).cast(new Int32));
+        color = color.hexToIntegers(new Uint32).bitwiseOr(0xff000000);
         // color = Series.sequence({size: color.length, type: new Int32, init: 0xff0000ff, step:
         // 0});
-        tiled        = tiled.scatter(Series.new(color).view(new Float32),
-                              Series.new(base_offset.add(3).cast(new Int32)));
+        tiled        = tiled.scatter(color.view(new Float32),
+                              base_offset.add(3).cast(new Int32));
         const writer = RecordBatchStreamWriter.writeAll(new DataFrame({nodes: tiled}).toArrow());
         reply.code(200).send(writer.toNodeStream());
       }
