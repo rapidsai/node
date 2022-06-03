@@ -14,7 +14,7 @@
 
 import '../../jest-extensions';
 
-import {BigIntArray, setDefaultAllocator, TypedArray, Uint8Buffer} from '@rapidsai/cuda';
+import {BigIntArray, setDefaultAllocator, TypedArray} from '@rapidsai/cuda';
 import {
   Bool8,
   Float32,
@@ -31,7 +31,7 @@ import {
   Uint8
 } from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
-import {BoolVector} from 'apache-arrow';
+import * as arrow from 'apache-arrow';
 
 setDefaultAllocator((byteLength: number) => new DeviceBuffer(byteLength));
 
@@ -62,7 +62,7 @@ function testNumberSumOfSquares<T extends Numeric, R extends TypedArray>(type: T
 
 function testNumberSumOfSquaresskipNulls<T extends Numeric, R extends TypedArray>(
   type: T, data: R, mask_array: Array<number>) {
-  const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
+  const mask = arrow.vectorFromArray(mask_array, new arrow.Bool).data[0].values;
   if (!data.includes(NaN)) {
     const result = [...data].reduce((x, y, i) => {
       if (mask_array[i] == 1) { return x + Math.pow(y, 2); }
@@ -82,7 +82,7 @@ function testBigIntSumOfSquares<T extends Numeric, R extends BigIntArray>(type: 
 
 function testBigIntSumOfSquaresskipNulls<T extends Numeric, R extends BigIntArray>(
   type: T, data: R, mask_array: Array<number>) {
-  const mask = new Uint8Buffer(BoolVector.from(mask_array).values);
+  const mask = arrow.vectorFromArray(mask_array, new arrow.Bool).data[0].values;
   // skipNulls=false
   expect(Series.new({type, data, nullMask: mask}).sumOfSquares(false)).toEqual([
     ...data

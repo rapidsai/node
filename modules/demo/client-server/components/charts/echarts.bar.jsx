@@ -1,4 +1,4 @@
-// Copyright (c) 2021, NVIDIA CORPORATION.
+// Copyright (c) 2021-2022, NVIDIA CORPORATION.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
+import { tableFromIPC } from 'apache-arrow';
+import * as d3 from 'd3';
 import ReactECharts from 'echarts-for-react';
-import { Table } from 'apache-arrow';
-import * as d3 from "d3";
+import React from 'react';
 import { Card } from 'react-bootstrap';
 
 export default class CustomBar extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      options: {},
-      current_query: this.props.getquery(),
-      selected_range: false
-    }
+    this.state = { options: {}, current_query: this.props.getquery(), selected_range: false };
     this.echartRef = undefined;
     this._getOptions = this._getOptions.bind(this);
     this._onBrushSelected = this._onBrushSelected.bind(this);
@@ -39,10 +35,12 @@ export default class CustomBar extends React.Component {
   }
 
   componentDidUpdate() {
-    // if parent componet `getquery()` is updated, and is not the same as state.current_query, 
+    // if parent componet `getquery()` is updated, and is not the same as state.current_query,
     // refetch the data with current query
     if (this.props.getquery() !== this.state.current_query) {
-      let updateState = { current_query: this.props.getquery() }
+      let updateState = {
+        current_query: this.props.getquery()
+      }
 
       if (!this.props.getquery().hasOwnProperty(this.props.x)) {
         // if current chart selections have also been reset
@@ -66,7 +64,7 @@ export default class CustomBar extends React.Component {
       dataset = undefined,
       x = undefined,
       agg = undefined,
-      y = undefined //return all columns
+      y = undefined  // return all columns
     } = this.props;
 
     if (!dataset || !x || !agg) { return null; }
@@ -75,17 +73,16 @@ export default class CustomBar extends React.Component {
   }
 
   async _updateData() {
-    const url = this._generateApiUrl(); // `/uber/tracts/groupby/sourceid/mean?columns=travel_time`;
+    const url =
+      this._generateApiUrl();  // `/uber/tracts/groupby/sourceid/mean?columns=travel_time`;
     if (!url) { return null; }
-    const table = await Table.from(fetch(url, { method: 'GET' }));
+    const table = await tableFromIPC(fetch(url, { method: 'GET' }));
     return table.toArray();
   }
 
   _getOptions(data) {
     console.log(data);
-    this.setState({
-      'x_axis_indices': data.reduce((a, c) => { return [...a, c[this.props.x]] }, [])
-    })
+    this.setState({ 'x_axis_indices': data.reduce((a, c) => { return [...a, c[this.props.x]] }, []) })
     console.log(this.state.x_axis_indices);
     return {
       xAxis: {
@@ -110,13 +107,14 @@ export default class CustomBar extends React.Component {
         axisLabel: { formatter: d3.format('.2s'), color: 'white' },
         splitLine: { show: false },
       },
-      series:
-        [{ type: 'bar', id: this.props.x, data: data.reduce((a, c) => { return [...a, c[this.props.y]] }, []) }],
+      series: [{
+        type: 'bar',
+        id: this.props.x,
+        data: data.reduce((a, c) => { return [...a, c[this.props.y]] }, [])
+      }],
       tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
     };
   }
-
-
 
   _onBrushSelected(params) {
     if (params.batch.length > 0 && params.batch[0].areas.length > 0) {
@@ -131,21 +129,18 @@ export default class CustomBar extends React.Component {
     }
   }
 
-
   _onBrushReset(params) {
     if (!params || params.command == 'clear') {
       this.props.updatequery({ [this.props.x]: undefined });
-      this.setState({
-        selected_range: false
-      });
+      this.setState({ selected_range: false });
     }
   }
 
   render() {
     return (
-      <Card border="light" bg="secondary" text="light" className={this.props.className + " text-center"}>
-        <Card.Header className="h5"> Trips per {this.props.x}
-        </Card.Header>
+      <Card border='light' bg='secondary' text=
+        'light' className={this.props.className + ' text-center'}>
+        <Card.Header className='h5'>Trips per{this.props.x}</Card.Header>
         <Card.Body>
           <ReactECharts
             option={this.state.options}
@@ -157,7 +152,6 @@ export default class CustomBar extends React.Component {
             ref={(e) => { this.echartRef = e; }}
           />
         </Card.Body>
-      </Card>
-    )
+      </Card>)
   }
 }
