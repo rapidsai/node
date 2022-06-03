@@ -259,8 +259,11 @@ module.exports = async function(fastify, opts) {
         let x     = df.get('x');
         let y     = df.get('y');
         let color = df.get('color');
-        const ratio =
-          Series.new([x._col.max() - x._col.min(), y._col.max() - y._col.min()])._col.max();
+        const ratio = () => {
+          const [xMin, xMax] = x.minmax();
+          const [yMin, yMax] = y.minmax();
+          Math.max(xMax - xMin, yMax - yMin);
+        })();
         const dX = (x._col.max() + x._col.min()) / 2.0;
         const dY = (y._col.max() + y._col.min()) / 2.0;
         x        = x._col.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
