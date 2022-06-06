@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const Path                                = require('path');
-const https                               = require('https');
-const {createWriteStream}                 = require('fs');
-const {finished}                          = require('stream/promises');
-const {RecordBatchStreamWriter}           = require('apache-arrow');
-const {Series, DataFrame, Int32, Float32} = require('@rapidsai/cudf');
+const Path                                  = require('path');
+const https                                 = require('https');
+const {createWriteStream}                   = require('fs');
+const {finished}                            = require('stream/promises');
+const {tableToIPC, RecordBatchStreamWriter} = require('apache-arrow');
+const {Series, DataFrame, Int32, Float32}   = require('@rapidsai/cudf');
 
 module.exports = loadSpatialDataset;
 
@@ -30,7 +30,7 @@ async function loadSpatialDataset() {
     (await loadTables(1)).reduce((points, table) => points ? points.concat(table) : table, null);
 
   await finished(
-    RecordBatchStreamWriter.writeAll(DataFrame.fromArrow(points.serialize()).toArrow())
+    RecordBatchStreamWriter.writeAll(DataFrame.fromArrow(tableToIPC(points)).toArrow())
       .pipe(createWriteStream(Path.join(__dirname, 'data', `${points.length}_points.arrow`))));
 }
 
