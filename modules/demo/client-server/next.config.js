@@ -19,8 +19,6 @@ module.exports = {
         '@rapidsai/cuspatial': '@rapidsai/cuspatial',
         'apache-arrow': 'apache-arrow'
       });
-    } else {
-      config.resolve.alias['apache-arrow'] = require.resolve('apache-arrow/Arrow.es2015.min.js');
     }
     // console.log(require('util').inspect({ isServer, config }, false, Infinity, true));
     // Important: return the modified config
