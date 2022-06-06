@@ -8,8 +8,7 @@
   },
   "scripts": {
     "test": "tap \"test/**/*.test.js\"",
-    "build": "tsc -p ./tsconfig.json",
-    "start": "npm run build; fastify start -l info -P -w app.js",
+    "start": "fastify start -l info -P -w app.js",
     "dev": "fastify start -w -l info -P app.js"
   },
   "keywords": ["rapids.ai", "node", "NVIDIA", "gpu", "Dataframe", "pandas"],

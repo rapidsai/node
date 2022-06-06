@@ -249,21 +249,20 @@ module.exports = async function(fastify, opts) {
         reply.code(404).send(result);
       } else {
         // tile x, y, size, color
-        let tiled = Series.sequence({type: new Float32, init: 0.0, size: (4 * df.numRows)});
-        let base_offset =
-          Series.sequence({type: new Int32, init: 0.0, size: df.numRows}).mul(4);
+        let tiled       = Series.sequence({type: new Float32, init: 0.0, size: (4 * df.numRows)});
+        let base_offset = Series.sequence({type: new Int32, init: 0.0, size: df.numRows}).mul(4);
         //
         // Duplicatin the sigma.j createNormalizationFunction here because there's no other way
         // to let the Graph object compute it.
         //
-        let x     = df.get('x');
-        let y     = df.get('y');
-        let color = df.get('color');
+        let x       = df.get('x');
+        let y       = df.get('y');
+        let color   = df.get('color');
         const ratio = () => {
           const [xMin, xMax] = x.minmax();
           const [yMin, yMax] = y.minmax();
           Math.max(xMax - xMin, yMax - yMin);
-        })();
+        };
         const dX = x.minmax().reduce((min, max) => max + min, 0) / 2.0;
         const dY = y.minmax().reduce((min, max) => max + min, 0) / 2.0;
         x        = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
@@ -271,13 +270,11 @@ module.exports = async function(fastify, opts) {
         // done with createNormalizationFunction
         tiled = tiled.scatter(x, base_offset.cast(new Int32));
         tiled = tiled.scatter(y, base_offset.add(1).cast(new Int32));
-        tiled = tiled.scatter(df.get('size').mul(2),
-                              base_offset.add(2).cast(new Int32));
+        tiled = tiled.scatter(df.get('size').mul(2), base_offset.add(2).cast(new Int32));
         color = color.hexToIntegers(new Uint32).bitwiseOr(0xff000000);
         // color = Series.sequence({size: color.length, type: new Int32, init: 0xff0000ff, step:
         // 0});
-        tiled        = tiled.scatter(color.view(new Float32),
-                              base_offset.add(3).cast(new Int32));
+        tiled        = tiled.scatter(color.view(new Float32), base_offset.add(3).cast(new Int32));
         const writer = RecordBatchStreamWriter.writeAll(new DataFrame({nodes: tiled}).toArrow());
         reply.code(200).send(writer.toNodeStream());
       }
