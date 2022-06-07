@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const Path                                  = require('path');
-const https                                 = require('https');
-const {createWriteStream}                   = require('fs');
-const {finished}                            = require('stream/promises');
-const {tableToIPC, RecordBatchStreamWriter} = require('apache-arrow');
-const {Series, DataFrame, Int32, Float32}   = require('@rapidsai/cudf');
+const Path        = require('path');
+const https       = require('https');
+const {writeFile} = require('fs/promises');
+const {finished}  = require('stream/promises');
 
 module.exports = loadSpatialDataset;
 
@@ -26,42 +24,13 @@ if (require.main === module) {  //
 }
 
 async function loadSpatialDataset() {
-  const points =
-    (await loadTables(1)).reduce((points, table) => points ? points.concat(table) : table, null);
-
-  await finished(
-    RecordBatchStreamWriter.writeAll(DataFrame.fromArrow(tableToIPC(points)).toArrow())
-      .pipe(createWriteStream(Path.join(__dirname, 'data', `${points.length}_points.arrow`))));
+  await writeFile(Path.join(__dirname, 'data', `168898952_points.arrow`), await loadFile());
 }
 
-async function loadTables(numConcurrentRequests = 4) {
-  const tables = [];
-
-  for (let i = 0, n = 13; i < n;) {
-    const requests = [];
-    for (let j = -1; ++j < numConcurrentRequests && ++i < n;) { requests.push(loadFile(i)); }
-    tables.push(...(await Promise.all(requests)).map(reshapeFileToTable));
-  }
-
-  return tables;
-}
-
-function reshapeFileToTable(file) {
-  const size  = file.byteLength / 16;
-  const shape = {type: new Int32, step: 4, size};
-  const data  = Series.new({type: new Int32, data: file});
-  return new DataFrame({
-           x: data.gather(Series.sequence({...shape, init: 0})),
-           y: data.gather(Series.sequence({...shape, init: 1})),
-         })
-    .castAll(new Float32)
-    .toArrow();
-}
-
-function loadFile(i) {
+function loadFile() {
   const options = {
     method: `GET`,
-    path: `/spatial/2009${i < 10 ? '0' : ''}${i}.cny.gz`,
+    path: `/spatial/168898952_points.arrow.gz`,
     hostname: `node-rapids-data.s3.us-west-2.amazonaws.com`,
     headers: {
       [`Accept`]: `application/octet-stream`,
