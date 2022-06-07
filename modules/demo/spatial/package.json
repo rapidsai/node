@@ -28,6 +28,7 @@
   "files": [
     "app.js",
     "data.js",
+    "util.js",
     "color.js",
     "index.js",
     "data/263_tracts.arrow",
