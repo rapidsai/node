@@ -548,7 +548,7 @@ export class DataFrame<T extends TypeMap = any> {
                    const table = includeNulls ? df.asTable().explodeOuter(i, mr)  //
                                               : df.asTable().explode(i, mr);
                    return DataFrame.fromTable(table, this.names as any);
-                 }, [this]) ;
+                 }, [this]) as any;
         },
         new DataFrame<{
           // clang-format off

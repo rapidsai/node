@@ -258,15 +258,15 @@ module.exports = async function(fastify, opts) {
         let x       = df.get('x');
         let y       = df.get('y');
         let color   = df.get('color');
-        const ratio = () => {
+        const ratio = (() => {
           const [xMin, xMax] = x.minmax();
           const [yMin, yMax] = y.minmax();
-          Math.max(xMax - xMin, yMax - yMin);
-        };
-        const dX = x.minmax().reduce((min, max) => max + min, 0) / 2.0;
-        const dY = y.minmax().reduce((min, max) => max + min, 0) / 2.0;
-        x        = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
-        y        = y.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
+          return Math.max(xMax - xMin, yMax - yMin);
+        })();
+        const dX    = x.minmax().reduce((min, max) => max + min, 0) / 2.0;
+        const dY    = y.minmax().reduce((min, max) => max + min, 0) / 2.0;
+        x           = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
+        y           = y.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
         // done with createNormalizationFunction
         tiled = tiled.scatter(x, base_offset.cast(new Int32));
         tiled = tiled.scatter(y, base_offset.add(1).cast(new Int32));
