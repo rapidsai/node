@@ -18,6 +18,7 @@
     "modules/demo/sigma.js",
     "modules/demo/sigma.js/examples",
     "modules/demo/rapids-api-server",
+    "modules/demo/rapids-api-server",
     "modules/demo/viz-app",
     "modules/demo/sql/*"
   ]

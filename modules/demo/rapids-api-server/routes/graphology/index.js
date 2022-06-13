@@ -25,7 +25,44 @@ const fastify                                               = require('fastify')
 const arrowPlugin = require('fastify-arrow');
 const gpu_cache   = require('../../util/gpu_cache.js');
 
-module.exports = async function(fastify, opts) {
+const findLocalFile =
+  async function(query) {
+  let message = 'Unknown error';
+  let path    = undefined;
+  let result  = {'params': JSON.stringify(query), success: false, message: message};
+  if (query.filename === undefined) {
+    message        = 'Parameter filename is required'
+    result.message = message;
+  } else if (query.filename.search('http') != -1) {
+    message        = 'Remote files not supported yet.'
+    result.message = message;
+  } else {
+    message = 'File is not remote';
+    // does the file exist?
+    const path = Path.join(__dirname, query.filename);
+    console.log('Does the file exist?');
+    try {
+      const stats = await Stat(path);
+      if (stats == null) {
+        message = 'File does not exist at ' + path;
+        console.log(message);
+        result.message = message;
+      } else {
+        // did the file read?
+        message = 'File is available';
+        console.log(message);
+      }
+    } catch (e) {
+      message        = 'Exception finding file.';
+      result.message = message;
+      result.error   = e;
+      return result;
+    };
+  }
+  return {path: path, result: result};
+}
+
+  module.exports = async function(fastify, opts) {
   fastify.register(arrowPlugin);
   fastify.register(fastifyCors, {origin: 'http://localhost:3002'});
   fastify.get('/', async function(request, reply) {
@@ -35,20 +72,35 @@ module.exports = async function(fastify, opts) {
         schema: {
           read_json: {
             filename: 'A URI to a graphology json dataset file.',
+            result: `Causes the node-rapids backend to attempt to load the json object specified
+                     by :filename. The GPU with attempt to parse the json file asynchronously and will
+                     return OK/ Not Found/ or Fail based on the file status.
+                     If the load is successful, three tables will be created in the node-rapids backend:
+                     nodes, edges, clusters, and tags. The root objects in the json target must match
+                     these names and order.`,
             returns: 'Result OK/Not Found/Fail'
           },
           read_large_demo: {
             filename:
-              'A URI to a graphology json dataset file matching the examples/large-demos spec.',
+              'A URI to a graphology json dataset file matching the sigma.js/examples/large-demos spec.',
+            result: `Produces the same result as 'read_json'.
+                     If the load is successful, three tables will be created in the node-rapids backend:
+                     nodes, edges, and options.`,
             returns: 'Result OK/Not Found/Fail'
           },
-          list_tables:
-            {returns: 'An object containing graphology related datasets resident on GPU memory.'},
-
-          ':table': {
-            ':column': 'The name of the column you want to request.',
-            returns: 'An arrow buffer of the column contents.'
-          }
+          list_tables: {returns: 'Tables that are available presently in GPU memory.'},
+          get_table: {
+            ':table':
+              {table: 'The name of the table that has been allocated previously into GPU memory.'}
+          },
+          get_column: {':table': {':column': {table: 'The table name', column: 'The column name'}}},
+          nodes: {
+            returns:
+              'Returns the existing nodes table after applying normalization functions for sigma.js'
+          },
+          nodes: {bounds: {returns: 'Returns the x and y bounds to be used in rendering.'}},
+          edges:
+            {return: 'Returns the existing edges table after applying normalization for sigma.js'}
         }
       }
     }
@@ -71,49 +123,18 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       // load the file via read_text
       // is the file local or remote?
-      let message = 'Unknown error';
-      let result  = {'params': JSON.stringify(request.query), success: false, message: message};
-
-      console.log(result);
-      if (request.query.filename.search('http') != -1) {
-        message = 'Remote files not supported yet.'
-        console.log(result);
-      } else {
-        message = 'File is not remote';
-        // does the file exist?
-        const path = Path.join(__dirname, request.query.filename);
-        console.log('Does the file exist?');
-        try {
-          const stats = await Stat(path);
-          if (stats == null) {
-            message = 'File does not exist at ' + path;
-            console.log(message);
-            result.message = message;
-            reply.code(200).send(result);
-          } else {
-            // did the file read?
-            message = 'File is available';
-            console.log(message);
-            result.success = true;
-            message        = 'Successfully parsed json file onto GPU.';
-            result.message = message;
-            try {
-              const graphology = gpu_cache.readLargeGraphDemo(path);
-              gpu_cache.setDataframe('nodes', graphology['nodes']);
-              gpu_cache.setDataframe('edges', graphology['edges']);
-              gpu_cache.setDataframe('options', graphology['options']);
-              reply.code(200).send(result);
-            } catch (e) {
-              message        = 'Exception loading dataset onto gpu.';
-              result.message = message;
-              reply.code(500).send(result);
-            }
-          }
-        } catch (e) {
-          message        = 'Exception reading file.';
-          result.message = e;
-          reply.code(500).send(result);
-        };
+      const result = findLocalFile(request.query);
+      const path   = file.path;
+      try {
+        const graphology = gpu_cache.readLargeGraphDemo(path);
+        gpu_cache.setDataframe('nodes', graphology['nodes']);
+        gpu_cache.setDataframe('edges', graphology['edges']);
+        gpu_cache.setDataframe('options', graphology['options']);
+        result.message = 'Ok';
+        reply.code(200).send(result);
+      } catch (e) {
+        result.message = 'Exception loading dataset onto gpu.';
+        reply.code(500).send(result);
       }
     }
   });
@@ -133,47 +154,21 @@ module.exports = async function(fastify, opts) {
       }
     },
     handler: async (request, reply) => {
-      // load the file via read_text
-      // is the file local or remote?
-      let message = 'Unknown error';
-      let result  = {'params': JSON.stringify(request.query), success: false, message: message};
-
-      console.log(result);
-      if (request.query.filename.search('http') != -1) {
-        message = 'Remote files not supported yet.'
-        console.log(result);
-      } else {
-        message = 'File is not remote';
-        // does the file exist?
-        const path = Path.join(__dirname, request.query.filename);
-        console.log('Does the file exist?');
-        try {
-          const stats = await Stat(path);
-          if (stats == null) {
-            message = 'File does not exist at ' + path;
-            console.log(message);
-            result.message = message;
-            reply.code(200).send(result);
-          } else {
-            // did the file read?
-            message = 'File is available';
-            console.log(message);
-            result.success   = true;
-            message          = 'Successfully parsed json file onto GPU.';
-            result.message   = message;
-            const graphology = gpu_cache.readGraphology(path);
-            gpu_cache.setDataframe('nodes', graphology['nodes']);
-            gpu_cache.setDataframe('edges', graphology['edges']);
-            gpu_cache.setDataframe('clusters', graphology['clusters']);
-            gpu_cache.setDataframe('tags', graphology['tags']);
-            reply.code(200).send(result);
-          }
-        } catch (e) {
-          message        = 'Exception reading file.';
-          result.message = e;
-          reply.code(200).send(result);
-        };
-      }
+      const result = findLocalFile(request.query);
+      const path   = result.path;
+      try {
+        const graphology = gpu_cache.readGraphology(path);
+        gpu_cache.setDataframe('nodes', graphology['nodes']);
+        gpu_cache.setDataframe('edges', graphology['edges']);
+        gpu_cache.setDataframe('clusters', graphology['clusters']);
+        gpu_cache.setDataframe('tags', graphology['tags']);
+        reply.code(200).send(result);
+      } catch (e) {
+        message        = 'Exception reading file.';
+        result.message = message;
+        result.error   = e;
+        reply.code(500).send(result);
+      };
     }
   });
 
