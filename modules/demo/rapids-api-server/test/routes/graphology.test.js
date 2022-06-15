@@ -49,21 +49,19 @@ test('graphology root returns api description', async t => {
 test('read_json no filename', async t => {
   const app = await build(t);
   const res = await app.inject({url: '/graphology/read_json'})
-  t.same(
-    JSON.parse(res.payload),
-    {result: {message: 'Parameter filename is required', params: '{}', success: false, code: 400}})
+  t.same(JSON.parse(res.payload),
+         {success: false, message: 'Parameter filename is required', params: '{}'})
 });
 
 test('read_json no file', async (t) => {
   const app     = await build(t)
   const res     = await app.inject({url: '/graphology/read_json?filename=filenotfound.txt'});
-  const payload = JSON.parse(res.payload).result;
-  t.ok(payload.message.includes('File does not exist'))
-  t.equal(payload.code, 400)
-  t.equal(payload.success, false)
+  const payload = JSON.parse(res.payload)
+  t.ok(payload.message.includes('no such file or directory'))
+  t.equal(payload.statusCode, 500)
 });
 
-test('read_json incorrect format', async (t) => {
+test('read_json incorrect format', {saveFixtures: true}, async (t) => {
   const dir     = t.testdir({
     'json_bad.txt': ` {
           'nodes':
