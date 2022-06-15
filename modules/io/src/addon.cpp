@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cudf/io/datasource.hpp>
+#include "las.hpp"
+
 #include <node_cudf/table.hpp>
+
 #include <nv_node/utilities/args.hpp>
 
-#include <las.hpp>
-
-#include <fstream>
-#include <iterator>
-#include <vector>
+#include <cudf/io/datasource.hpp>
 
 struct rapidsai_io : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_io> {
   rapidsai_io(Napi::Env env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {

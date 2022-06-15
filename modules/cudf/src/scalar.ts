@@ -20,7 +20,7 @@ type ScalarProps<T extends DataType> = {
   value?: T['scalarType']|null
 };
 
-interface ScalarConstructor {
+export interface ScalarConstructor {
   readonly prototype: Scalar;
   new<T extends DataType = any>(props: ScalarProps<T>): Scalar<T>;
 }

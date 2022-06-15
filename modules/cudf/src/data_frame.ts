@@ -984,7 +984,7 @@ export class DataFrame<T extends TypeMap = any> {
       return [name, type.children.map((f) => toArrowMetadata(f.name, f.type))];
     };
     const names = this.names.map((name) => toArrowMetadata(<string|number>name, this.types[name]));
-    return arrow.Table.from<T>(this.asTable().toArrow(names));
+    return arrow.tableFromIPC<T>(this.asTable().toArrow(names));
   }
 
   protected __constructChild<P extends keyof T, R extends T[P]>(name: P,

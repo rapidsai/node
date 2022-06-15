@@ -14,7 +14,6 @@
 
 /* eslint-disable @typescript-eslint/no-redeclare */
 
-import {loadNativeModule} from '@rapidsai/core';
 import {addon as CUDA} from '@rapidsai/cuda';
 
 export const {
@@ -26,7 +25,7 @@ export const {
   setCurrentDeviceResource,
   _cpp_exports,
   per_device_resources
-} = loadNativeModule<typeof import('./node_rmm')>(module, 'node_rmm', init => init(CUDA));
+} = require('bindings')('node_rmm.node').init(CUDA) as typeof import('./node_rmm');
 
 export type DeviceBuffer   = import('./node_rmm').DeviceBuffer;
 export type MemoryResource = import('./node_rmm').MemoryResource;

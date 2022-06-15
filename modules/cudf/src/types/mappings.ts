@@ -15,7 +15,7 @@
 import * as arrow from 'apache-arrow';
 import {compareTypes} from 'apache-arrow/visitor/typecomparator';
 
-import CUDF from '../addon';
+import * as CUDF from '../addon';
 import {Column} from '../column';
 
 import {

@@ -28,8 +28,9 @@ const defaultLayoutParams = {
   supervised: {name: 'supervised', val: false},
   controlsVisible: {name: 'controls visible', val: true},
 };
+
 const df =
-  DataFrame.readCSV({header: 0, sourceType: 'files', sources: [`${__dirname}/data/data.csv`]})
+  DataFrame.readCSV({header: 0, sourceType: 'files', sources: [`${__dirname}/../data/data.csv`]})
     .castAll(new Float32);
 
 const layoutParamNames = Object.keys(defaultLayoutParams);

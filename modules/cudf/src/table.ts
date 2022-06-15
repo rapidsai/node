@@ -28,7 +28,7 @@ import {ReadParquetOptions, TableWriteParquetOptions} from './types/parquet';
 
 export type ToArrowMetadata = [string | number, ToArrowMetadata[]?];
 
-interface TableConstructor {
+export interface TableConstructor {
   readonly prototype: Table;
   new(props: {columns?: ReadonlyArray<Column>|null}): Table;
 

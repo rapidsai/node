@@ -82,7 +82,7 @@ export function concat<TFirst extends DataFrame, TRest extends DataFrame[]>(firs
       let data: any[]|undefined;
       return (type: DataType) => {
         // Lazily create and reuse the empty data Array
-        data = data || new Array(df.numRows);
+        data = data || new Array(df.numRows).fill(null);
         return Series.new({type, data})._col;
       };
     })();

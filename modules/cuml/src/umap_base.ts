@@ -15,7 +15,7 @@
 import {DataType, Numeric} from '@rapidsai/cudf';
 import {DeviceBuffer} from '@rapidsai/rmm';
 
-import {CUML} from './addon';
+import * as CUML from './addon';
 import {COOInterface} from './coo';
 import {CUMLLogLevels, MetricType} from './mappings';
 
@@ -90,7 +90,7 @@ export type transformProps<T extends Numeric = any> = {
   knnDists?: DeviceBuffer,
 };
 
-interface UMAPConstructor {
+export interface UMAPConstructor {
   new(options?: UMAPParams): UMAPInterface;
 }
 

@@ -21,7 +21,7 @@ import {
 } from '@rapidsai/cuda';
 import {Bool8, Column, Float32, Float64, Int32, Series, Uint8, Utf8String} from '@rapidsai/cudf';
 import {CudaMemoryResource, DeviceBuffer} from '@rapidsai/rmm';
-import {BoolVector} from 'apache-arrow';
+import * as arrow from 'apache-arrow';
 
 const mr = new CudaMemoryResource();
 
@@ -46,7 +46,6 @@ test('Column initialization with null_mask', () => {
     nullMask: new Uint8Buffer(64).fill(0),
   });
 
-  expect(col.type).toBeInstanceOf(Bool8);
   expect(col.length).toBe(length);
   expect(col.nullCount).toBe(100);
   expect(col.hasNulls).toBe(true);
@@ -131,7 +130,7 @@ test('Column.dropNans', () => {
 });
 
 test('Column.dropNulls', () => {
-  const mask = new Uint8Buffer(BoolVector.from([0, 1, 1, 1, 1, 0]).values);
+  const mask = arrow.vectorFromArray([0, 1, 1, 1, 1, 0], new arrow.Bool).data[0].values;
 
   const col = new Column(
     {type: new Float32(), data: new Float32Buffer([1, 3, NaN, 4, 2, 0]), nullMask: mask});
