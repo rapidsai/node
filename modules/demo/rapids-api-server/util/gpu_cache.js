@@ -63,25 +63,19 @@ function json_aoa_to_dataframe(str, dtypes) {
   return result;
 }
 
-function getGraphologyObjectOrder(json_dataset) {
-  const graphologyObjects =
-    ['"nodes:"', '"clusters:"', '"tags:"', '"edges:"', '"attributes:"', '"options:"'];
-  graphologyObjects.forEach((key, ix) => {
-    console.log(key);
-    console.log(ix);
-    console.log({key: key, ix: ix, pos: json_dataset._col.find(key)});
-  });
-}
-
 module.exports = {
-  setDataframe(name, dataframe) {
+  async setDataframe(name, dataframe) {
     if (timeout) { clearTimeout(timeout); }
-    timeout        = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
+    timeout        = setTimeout(clearCachedGPUData, 60 * 10 * 1000);
     datasets[name] = dataframe;
-    console.log(datasets);
   },
-  getDataframe(name) { return datasets[name] },
-  readLargeGraphDemo(path) {
+  async getDataframe(name) { return datasets[name] },
+  async clearDataframes() {
+    clearCachedGPUData();
+    clearTimeout(timeout);
+    datasets = null;
+  },
+  async readLargeGraphDemo(path) {
     console.log('readLargeGraphDemo');
     const dataset  = StringSeries.readText(path, '');
     let split      = dataset.split('"options":');
@@ -102,10 +96,9 @@ module.exports = {
     const options                = new DataFrame(optionsArr);
     return {nodes: nodes, edges: edges, options: options};
   },
-  readGraphology(path) {
+  async readGraphology(path) {
     console.log('readGraphology');
-    const dataset = StringSeries.readText(path, '');
-    getGraphologyObjectOrder(dataset);
+    const dataset   = StringSeries.readText(path, '');
     let split       = dataset.split('"tags":');
     const ttags     = split.gather([1], false);
     let rest        = split.gather([0], false);

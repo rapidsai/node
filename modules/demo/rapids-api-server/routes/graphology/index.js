@@ -25,46 +25,13 @@ const fastify                                               = require('fastify')
 const arrowPlugin = require('fastify-arrow');
 const gpu_cache   = require('../../util/gpu_cache.js');
 
-const findLocalFile =
-  async function(query) {
-  let message = 'Unknown error';
-  let path    = undefined;
-  let result  = {'params': JSON.stringify(query), success: false, message: message};
-  if (query.filename === undefined) {
-    message        = 'Parameter filename is required'
-    result.message = message;
-  } else if (query.filename.search('http') != -1) {
-    message        = 'Remote files not supported yet.'
-    result.message = message;
-  } else {
-    message = 'File is not remote';
-    // does the file exist?
-    const path = Path.join(__dirname, query.filename);
-    console.log('Does the file exist?');
-    try {
-      const stats = await Stat(path);
-      if (stats == null) {
-        message = 'File does not exist at ' + path;
-        console.log(message);
-        result.message = message;
-      } else {
-        // did the file read?
-        message = 'File is available';
-        console.log(message);
-      }
-    } catch (e) {
-      message        = 'Exception finding file.';
-      result.message = message;
-      result.error   = e;
-      return result;
-    };
-  }
-  return {path: path, result: result};
-}
-
-  module.exports = async function(fastify, opts) {
+module.exports = async function(fastify, opts) {
   fastify.register(arrowPlugin);
   fastify.register(fastifyCors, {origin: 'http://localhost:3002'});
+  fastify.decorate('setDataframe', gpu_cache.setDataframe)
+  fastify.decorate('getDataframe', gpu_cache.getDataframe)
+  fastify.decorate('readGraphology', gpu_cache.readGraphology)
+  fastify.decorate('readLargeGraphDemo', gpu_cache.readLargeGraphDemo)
   fastify.get('/', async function(request, reply) {
     return {
       graphology: {
@@ -123,13 +90,12 @@ const findLocalFile =
     handler: async (request, reply) => {
       // load the file via read_text
       // is the file local or remote?
-      const result = findLocalFile(request.query);
-      const path   = file.path;
+      const path = file.path;
       try {
-        const graphology = gpu_cache.readLargeGraphDemo(path);
-        gpu_cache.setDataframe('nodes', graphology['nodes']);
-        gpu_cache.setDataframe('edges', graphology['edges']);
-        gpu_cache.setDataframe('options', graphology['options']);
+        const graphology = fastify.readLargeGraphDemo(path);
+        fastify.setDataframe('nodes', graphology['nodes']);
+        fastify.setDataframe('edges', graphology['edges']);
+        fastify.setDataframe('options', graphology['options']);
         result.message = 'Ok';
         reply.code(200).send(result);
       } catch (e) {
@@ -154,21 +120,36 @@ const findLocalFile =
       }
     },
     handler: async (request, reply) => {
-      const result = findLocalFile(request.query);
-      const path   = result.path;
+      const query = request.query;
+      let result  = {'params': JSON.stringify(query), success: false, message: 'Finding file.'};
       try {
-        const graphology = gpu_cache.readGraphology(path);
-        gpu_cache.setDataframe('nodes', graphology['nodes']);
-        gpu_cache.setDataframe('edges', graphology['edges']);
-        gpu_cache.setDataframe('clusters', graphology['clusters']);
-        gpu_cache.setDataframe('tags', graphology['tags']);
-        reply.code(200).send(result);
-      } catch (e) {
-        message        = 'Exception reading file.';
-        result.message = message;
-        result.error   = e;
-        reply.code(500).send(result);
-      };
+        let path = undefined;
+        if (query.filename === undefined) {
+          result.message = 'Parameter filename is required'
+          result.code    = 400;
+        } else if (query.filename.search('http') != -1) {
+          result.message = 'Remote files not supported yet.'
+          result.code    = 406;
+        } else {
+          result.message = 'File is not remote';
+          // does the file exist?
+          const path = Path.join(__dirname, query.filename);
+          console.log('Does the file exist?');
+          const stats    = await Stat(path);
+          const message  = 'File is available';
+          result.message = message;
+          result.success = true;
+          console.log(message);
+          const graphology = fastify.readGraphology(path);
+          console.log(graphology);
+          fastify.setDataframe('nodes', graphology['nodes']);
+          fastify.setDataframe('edges', graphology['edges']);
+          fastify.setDataframe('clusters', graphology['clusters']);
+          fastify.setDataframe('tags', graphology['tags']);
+          result.message = 'File read onto GPU.'
+        }
+      } catch (e) { return e; };
+      return result;
     }
   });
 
@@ -179,7 +160,7 @@ const findLocalFile =
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {'params': JSON.stringify(request.params), success: false, message: message};
-      const table = gpu_cache.getDataframe(request.params.table);
+      const table = fastify.getDataframe(request.params.table);
       if (table == undefined) {
         result.message = 'Table not found';
         reply.code(404).send(result);
@@ -197,7 +178,7 @@ const findLocalFile =
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {'params': JSON.stringify(request.params), success: false, message: message};
-      const table = gpu_cache.getDataframe(request.params.table);
+      const table = fastify.getDataframe(request.params.table);
       if (table == undefined) {
         result.message = 'Table not found';
         reply.code(404).send(result);
@@ -214,7 +195,7 @@ const findLocalFile =
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {success: false, message: message};
-      const df    = gpu_cache.getDataframe('nodes');
+      const df    = fastify.getDataframe('nodes');
       if (df == undefined) {
         result.message = 'Table not found';
         reply.code(404).send(result);
@@ -238,7 +219,7 @@ const findLocalFile =
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {success: false, message: message};
-      const df    = gpu_cache.getDataframe('nodes');
+      const df    = fastify.getDataframe('nodes');
       if (df == undefined) {
         result.message = 'Table not found';
         reply.code(404).send(result);
@@ -282,8 +263,8 @@ const findLocalFile =
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {success: false, message: message};
-      const df    = gpu_cache.getDataframe('nodes');
-      const edges = gpu_cache.getDataframe('edges');
+      const df    = fastify.getDataframe('nodes');
+      const edges = fastify.getDataframe('edges');
       if (df == undefined) {
         result.message = 'Table not found';
         reply.code(404).send(result);
