@@ -73,7 +73,9 @@ module.exports = {
     datasets[name] = dataframe;
   },
 
-  async getDataframe(name) { return datasets[name] },
+  async getDataframe(name) { return datasets[name]; },
+
+  async listDataframes() { return datasets != null ? Object.keys(datasets) : []; },
 
   async clearDataframes() {
     clearCachedGPUData();

@@ -30,6 +30,7 @@ module.exports = async function(fastify, opts) {
   fastify.register(fastifyCors, {origin: 'http://localhost:3002'});
   fastify.decorate('setDataframe', gpu_cache.setDataframe);
   fastify.decorate('getDataframe', gpu_cache.getDataframe);
+  fastify.decorate('listDataframes', gpu_cache.listDataframes);
   fastify.decorate('readGraphology', gpu_cache.readGraphology);
   fastify.decorate('readLargeGraphDemo', gpu_cache.readLargeGraphDemo);
   fastify.decorate('clearDataFrames', gpu_cache.clearDataframes);
@@ -162,6 +163,17 @@ module.exports = async function(fastify, opts) {
         result.statusCode = 404;
       };
       await reply.code(result.statusCode).send(result);
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/list_tables',
+    handler: async (request, reply) => {
+      let message = 'Error';
+      let result  = {success: false, message: message};
+      const list  = await fastify.listDataframes();
+      return list;
     }
   });
 

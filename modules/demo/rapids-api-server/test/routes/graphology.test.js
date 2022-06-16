@@ -1,7 +1,51 @@
 'use strict'
 
+const {dir}   = require('console');
 const {test}  = require('tap')
 const {build} = require('../helper')
+
+const json_good = {
+  'json_good.txt':
+    ` {
+          "nodes":
+            [
+              {
+                "key": "customer data management",
+                "label": "Customer data management",
+                "tag": "Field",
+                "URL": "https://en.wikipedia.org/wiki/Customer%20data%20management",
+                "cluster": "7",
+                "x": -278.2200012207031,
+                "y": 436.0100402832031,
+                "score": 0
+              },
+              {
+                "key": "educational data mining",
+                "label": "Educational data mining",
+                "tag": "Field",
+                "URL": "https://en.wikipedia.org/wiki/Educational%20data%20mining",
+                "cluster": "7",
+                "x": -1.9823756217956543,
+                "y": 250.4990692138672,
+                "score": 0
+              },
+            ],
+            "edges":
+              [
+                ["office suite", "human interactome"],
+                ["educational data mining", "human interactome"],
+              ],
+            "clusters":
+              [
+                {"key": "0", "color": "#6c3e81", "clusterLabel": "human interactome"},
+                {"key": "1", "color": "#666666", "clusterLabel": "Spreadsheets"},
+              ],
+            "tags": [
+              {"key": "Chart type", "image": "charttype.svg"},
+              {"key": "Company", "image": "company.svg"},
+            ]
+        } `
+};
 
 test('graphology root returns api description', async t => {
   const app = await build(t);
@@ -110,53 +154,63 @@ test('read_json incorrect format', async (t) => {
 });
 
 test('read_json file good', async (t) => {
-  const dir   = t.testdir({
-    'json_good.txt': ` {
-          "nodes":
-            [
-              {
-                "key": "customer data management",
-                "label": "Customer data management",
-                "tag": "Field",
-                "URL": "https://en.wikipedia.org/wiki/Customer%20data%20management",
-                "cluster": "7",
-                "x": -278.2200012207031,
-                "y": 436.0100402832031,
-                "score": 0
-              },
-              {
-                "key": "educational data mining",
-                "label": "Educational data mining",
-                "tag": "Field",
-                "URL": "https://en.wikipedia.org/wiki/Educational%20data%20mining",
-                "cluster": "7",
-                "x": -1.9823756217956543,
-                "y": 250.4990692138672,
-                "score": 0
-              },
-            ],
-            "edges":
-              [
-                ["office suite", "human interactome"],
-                ["educational data mining", "human interactome"],
-              ],
-            "clusters":
-              [
-                {"key": "0", "color": "#6c3e81", "clusterLabel": "human interactome"},
-                {"key": "1", "color": "#666666", "clusterLabel": "Spreadsheets"},
-              ],
-            "tags": [
-              {"key": "Chart type", "image": "charttype.svg"},
-              {"key": "Company", "image": "company.svg"},
-            ]
-        } `
-  });
+  const dir   = t.testdir(json_good);
   const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_good.txt';
   const app   = await build(t);
   const res   = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
   const payload = JSON.parse(res.payload);
-  console.log(payload);
   t.equal(payload.message, 'File read onto GPU.');
   t.equal(payload.success, true);
+});
+
+test('list_tables', async (t) => {
+  const dir   = t.testdir(json_good);
+  const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_good.txt';
+  const app   = await build(t);
+  const load  = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
+  const res   = await app.inject({method: 'GET', url: '/graphology/list_tables'});
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  const payload = JSON.parse(res.payload);
+  t.ok(payload.includes('nodes'));
+});
+
+test('get_table', async (t) => {
+  const app     = await build(t);
+  const res     = await app.inject({method: 'GET', url: '/graphology/get_table/nodes'});
+  const payload = JSON.parse(res.payload);
+  t.ok(payload.message.includes('no such file or directory'));
+  t.equal(payload.statusCode, 404);
+});
+
+test('get_column', async (t) => {
+  const app     = await build(t);
+  const res     = await app.inject({method: 'GET', url: '/graphology/get_column/nodes/x'});
+  const payload = JSON.parse(res.payload);
+  t.ok(payload.message.includes('no such file or directory'));
+  t.equal(payload.statusCode, 404);
+});
+
+test('nodes', async (t) => {
+  const app     = await build(t);
+  const res     = await app.inject({method: 'GET', url: '/graphology/nodes'});
+  const payload = JSON.parse(res.payload);
+  t.ok(payload.message.includes('no such file or directory'));
+  t.equal(payload.statusCode, 404);
+});
+
+test('nodes/bounds', async (t) => {
+  const app     = await build(t);
+  const res     = await app.inject({method: 'GET', url: '/graphology/nodes/bounds'});
+  const payload = JSON.parse(res.payload);
+  t.ok(payload.message.includes('no such file or directory'));
+  t.equal(payload.statusCode, 404);
+});
+
+test('edges', async (t) => {
+  const app     = await build(t);
+  const res     = await app.inject({method: 'GET', url: '/graphology/edges'});
+  const payload = JSON.parse(res.payload);
+  t.ok(payload.message.includes('no such file or directory'));
+  t.equal(payload.statusCode, 404);
 });
