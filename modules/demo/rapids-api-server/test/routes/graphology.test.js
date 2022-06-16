@@ -49,8 +49,9 @@ test('graphology root returns api description', async t => {
 test('read_json no filename', async t => {
   const app = await build(t);
   const res = await app.inject({method: 'POST', url: '/graphology/read_json'});
-  t.same(JSON.parse(res.payload),
-         {success: false, message: 'Parameter filename is required', params: '{}'});
+  t.same(
+    JSON.parse(res.payload),
+    {success: false, message: 'Parameter filename is required', params: '{}', statusCode: 400});
 });
 
 test('read_json no file', async (t) => {
@@ -59,13 +60,12 @@ test('read_json no file', async (t) => {
     await app.inject({method: 'POST', url: '/graphology/read_json?filename=filenotfound.txt'});
   const payload = JSON.parse(res.payload);
   t.ok(payload.message.includes('no such file or directory'));
-  t.equal(payload.statusCode, 500);
+  t.equal(payload.statusCode, 404);
 });
 
-test('read_json incorrect format', {only: true, saveFixture: true}, async (t) => {
+test('read_json incorrect format', async (t) => {
   const dir   = t.testdir({
     'json_bad.txt': ` {
-          "nodes":
             [
               {
                 "key": "customer data management",
@@ -103,10 +103,10 @@ test('read_json incorrect format', {only: true, saveFixture: true}, async (t) =>
   const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_bad.txt';
   const app   = await build(t);
   const res   = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
-  const release = await app.inject({method: 'POST', url: '/release'});
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
   const payload = JSON.parse(res.payload);
-  t.equal(payload.message, 'File read onto GPU.');
-  t.equal(payload.success, true);
+  t.equal(payload.message, 'Bad graphology format: nodes not found.');
+  t.equal(payload.success, false);
 });
 
 test('read_json file good', async (t) => {
@@ -154,8 +154,9 @@ test('read_json file good', async (t) => {
   const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_good.txt';
   const app   = await build(t);
   const res   = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
-  const release = await app.inject({method: 'POST', url: '/release'});
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
   const payload = JSON.parse(res.payload);
+  console.log(payload);
   t.equal(payload.message, 'File read onto GPU.');
   t.equal(payload.success, true);
 });

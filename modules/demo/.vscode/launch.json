@@ -14,7 +14,7 @@
     ],
     "configurations": [
         {
-            "name": "Attach",
+            "name": "Attach Test",
             "port": 9229,
             "request": "attach",
             "skipFiles": [

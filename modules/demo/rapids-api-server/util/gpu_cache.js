@@ -66,28 +66,37 @@ function json_aoa_to_dataframe(str, dtypes) {
 module.exports = {
   async setDataframe(name, dataframe) {
     if (timeout) { clearTimeout(timeout); }
-    timeout        = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
+    timeout = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
+    if (datasets === null) {
+      datasets = {};
+    }
     datasets[name] = dataframe;
   },
+
   async getDataframe(name) { return datasets[name] },
+
   async clearDataframes() {
     clearCachedGPUData();
     clearTimeout(timeout);
     datasets = null;
   },
+
   async readLargeGraphDemo(path) {
     console.log('readLargeGraphDemo');
-    const dataset  = StringSeries.readText(path, '');
-    let split      = dataset.split('"options":');
+    const dataset = StringSeries.readText(path, '');
+    let split     = dataset.split('"options":');
+    if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: tags not found.'; }
     const toptions = split.gather([1], false);
     let rest       = split.gather([0], false);
     split          = rest.split('"edges":');
-    const tedges   = split.gather([1], false);
-    rest           = split.gather([0], false);
-    split          = rest.split('"nodes":');
-    const tnodes   = split.gather([1], false);
-    const nodes    = json_key_attributes_to_dataframe(tnodes);
-    const edges    = json_aos_to_dataframe(
+    if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: tags not found.'; }
+    const tedges = split.gather([1], false);
+    rest         = split.gather([0], false);
+    split        = rest.split('"nodes":');
+    if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: tags not found.'; }
+    const tnodes = split.gather([1], false);
+    const nodes  = json_key_attributes_to_dataframe(tnodes);
+    const edges  = json_aos_to_dataframe(
       tedges, ['key', 'source', 'target'], [new Utf8String, new Int32, new Int32]);
     let optionsArr               = {};
     optionsArr['type']           = Series.new(toptions._col.getJSONObject('.type'));
@@ -96,21 +105,26 @@ module.exports = {
     const options                = new DataFrame(optionsArr);
     return {nodes: nodes, edges: edges, options: options};
   },
+
   async readGraphology(path) {
     console.log('readGraphology');
-    const dataset   = StringSeries.readText(path, '');
-    let split       = dataset.split('"tags":');
-    const ttags     = split.gather([1], false);
-    let rest        = split.gather([0], false);
-    split           = rest.split('"clusters":');
+    const dataset = StringSeries.readText(path, '');
+    let split     = dataset.split('"tags":');
+    if (split.length <= 1) { throw 'Bad graphology format: tags not found.'; }
+    const ttags = split.gather([1], false);
+    let rest    = split.gather([0], false);
+    split       = rest.split('"clusters":');
+    if (split.length <= 1) { throw 'Bad graphology format: clusters not found.'; }
     const tclusters = split.gather([1], false);
     rest            = split.gather([0], false);
     split           = rest.split('"edges":');
-    const tedges    = split.gather([1], false);
-    rest            = split.gather([0], false);
-    split           = rest.split('"nodes":');
-    const tnodes    = split.gather([1], false);
-    const tags = json_aos_to_dataframe(ttags, ['key', 'image'], [new Utf8String, new Utf8String]);
+    if (split.length <= 1) { throw 'Bad graphology format: edges not found.'; }
+    const tedges = split.gather([1], false);
+    rest         = split.gather([0], false);
+    split        = rest.split('"nodes":');
+    if (split.length <= 1) { throw 'Bad graphology format: nodes not found.'; }
+    const tnodes = split.gather([1], false);
+    const tags   = json_aos_to_dataframe(ttags, ['key', 'image'], [new Utf8String, new Utf8String]);
     const clusters = json_aos_to_dataframe(
       tclusters, ['key', 'color', 'clusterLabel'], [new Int32, new Utf8String, new Utf8String]);
     const nodes =

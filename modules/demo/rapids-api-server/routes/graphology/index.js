@@ -32,7 +32,7 @@ module.exports = async function(fastify, opts) {
   fastify.decorate('getDataframe', gpu_cache.getDataframe);
   fastify.decorate('readGraphology', gpu_cache.readGraphology);
   fastify.decorate('readLargeGraphDemo', gpu_cache.readLargeGraphDemo);
-  fastify.decorate('release', gpu_cache.clearDataframes);
+  fastify.decorate('clearDataFrames', gpu_cache.clearDataframes);
   fastify.get('/', async function(request, reply) {
     return {
       graphology: {
@@ -92,10 +92,10 @@ module.exports = async function(fastify, opts) {
       // is the file local or remote?
       const path = file.path;
       try {
-        const graphology = fastify.readLargeGraphDemo(path);
-        fastify.setDataframe('nodes', graphology['nodes']);
-        fastify.setDataframe('edges', graphology['edges']);
-        fastify.setDataframe('options', graphology['options']);
+        const graphology = await fastify.readLargeGraphDemo(path);
+        await fastify.setDataframe('nodes', graphology['nodes']);
+        await fastify.setDataframe('edges', graphology['edges']);
+        await fastify.setDataframe('options', graphology['options']);
         result.message = 'Ok';
         reply.code(200).send(result);
       } catch (e) {
@@ -120,15 +120,20 @@ module.exports = async function(fastify, opts) {
     },
     handler: async (request, reply) => {
       const query = request.query;
-      let result  = {'params': JSON.stringify(query), success: false, message: 'Finding file.'};
+      let result  = {
+        'params': JSON.stringify(query),
+        success: false,
+        message: 'Finding file.',
+        statusCode: 200
+      };
       try {
         let path = undefined;
         if (query.filename === undefined) {
-          result.message = 'Parameter filename is required';
-          result.code    = 400;
+          result.message    = 'Parameter filename is required';
+          result.statusCode = 400;
         } else if (query.filename.search('http') != -1) {
-          result.message = 'Remote files not supported yet.';
-          result.code    = 406;
+          result.message    = 'Remote files not supported yet.';
+          result.statusCode = 406;
         } else {
           result.message = 'File is not remote';
           // does the file exist?
@@ -138,17 +143,25 @@ module.exports = async function(fastify, opts) {
           const message  = 'File is available';
           result.message = message;
           result.success = true;
-          console.log(message);
-          const graphology = fastify.readGraphology(path);
-          console.log(graphology);
-          fastify.setDataframe('nodes', graphology['nodes']);
-          fastify.setDataframe('edges', graphology['edges']);
-          fastify.setDataframe('clusters', graphology['clusters']);
-          fastify.setDataframe('tags', graphology['tags']);
-          result.message = 'File read onto GPU.';
+          try {
+            const graphology = await fastify.readGraphology(path);
+            await fastify.setDataframe('nodes', graphology['nodes']);
+            await fastify.setDataframe('edges', graphology['edges']);
+            await fastify.setDataframe('clusters', graphology['clusters']);
+            await fastify.setDataframe('tags', graphology['tags']);
+            result.message = 'File read onto GPU.';
+          } catch (e) {
+            result.success    = false;
+            result.message    = e;
+            result.statusCode = 500;
+          }
         }
-      } catch (e) { return e; };
-      return result;
+      } catch (e) {
+        result.success    = false;
+        result.message    = e.message;
+        result.statusCode = 404;
+      };
+      await reply.code(result.statusCode).send(result);
     }
   });
 
@@ -159,7 +172,7 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {'params': JSON.stringify(request.params), success: false, message: message};
-      const table = fastify.getDataframe(request.params.table);
+      const table = await fastify.getDataframe(request.params.table);
       if (table == undefined) {
         result.message = 'Table not found';
         reply.code(404).send(result);
@@ -177,7 +190,7 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {'params': JSON.stringify(request.params), success: false, message: message};
-      const table = fastify.getDataframe(request.params.table);
+      const table = await fastify.getDataframe(request.params.table);
       if (table == undefined) {
         result.message = 'Table not found';
         reply.code(404).send(result);
@@ -194,7 +207,7 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {success: false, message: message};
-      const df    = fastify.getDataframe('nodes');
+      const df    = await fastify.getDataframe('nodes');
       if (df == undefined) {
         result.message = 'Table not found';
         reply.code(404).send(result);
@@ -218,7 +231,7 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {success: false, message: message};
-      const df    = fastify.getDataframe('nodes');
+      const df    = await fastify.getDataframe('nodes');
       if (df == undefined) {
         result.message = 'Table not found';
         reply.code(404).send(result);
@@ -262,8 +275,8 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {success: false, message: message};
-      const df    = fastify.getDataframe('nodes');
-      const edges = fastify.getDataframe('edges');
+      const df    = await fastify.getDataframe('nodes');
+      const edges = await fastify.getDataframe('edges');
       if (df == undefined) {
         result.message = 'Table not found';
         reply.code(404).send(result);
@@ -311,6 +324,12 @@ module.exports = async function(fastify, opts) {
     }
   });
 
-  fastify.route(
-    {method: 'POST', url: '/release/', handler: async (request, reply) => { fastify.release(); }});
+  fastify.route({
+    method: 'POST',
+    url: '/release',
+    handler: async (request, reply) => {
+      await fastify.clearDataFrames();
+      reply.code(200).send({message: 'OK'})
+    }
+  });
 }
