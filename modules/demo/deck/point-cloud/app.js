@@ -4,15 +4,9 @@ import DeckGL from '@deck.gl/react';
 import {PointCloudLayer} from '@rapidsai/deck.gl';
 import React, {PureComponent, useEffect} from 'react';
 import {render} from 'react-dom';
+import {DataFrame, Float32, Series, Uint32} from '@rapidsai/cudf';
 
 const transitionInterpolator = new LinearInterpolator(['rotationOrbit']);
-
-// import {IO} from '@rapidsai/io';
-// let df = IO.readLas(`${__dirname}/../../../io/test/test.las`)
-//            .select(['x', 'y', 'z'])
-//            .castAll(new Float32);
-
-import {DataFrame, Float32, Series, Uint32} from '@rapidsai/cudf';
 
 const df = new DataFrame({
   'x': Series.new({
