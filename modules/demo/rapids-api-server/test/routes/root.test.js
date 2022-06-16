@@ -1,11 +1,11 @@
 'use strict'
 
-const {test}  = require('tap')
-const {build} = require('../helper')
+const {test}  = require('tap');
+const {build} = require('../helper');
 
 test('root returns API description', async (t) => {
-  const app = await build(t)
-  const res = await app.inject({url: '/'})
+  const app = await build(t);
+  const res = await app.inject({url: '/'});
   t.same(JSON.parse(res.payload), {
     'graphology': {
       'description': 'The graphology api provides GPU acceleration of graphology datasets.',
@@ -23,4 +23,4 @@ test('root returns API description', async (t) => {
       }
     }
   });
-})
+});

@@ -28,10 +28,11 @@ const gpu_cache   = require('../../util/gpu_cache.js');
 module.exports = async function(fastify, opts) {
   fastify.register(arrowPlugin);
   fastify.register(fastifyCors, {origin: 'http://localhost:3002'});
-  fastify.decorate('setDataframe', gpu_cache.setDataframe)
-  fastify.decorate('getDataframe', gpu_cache.getDataframe)
-  fastify.decorate('readGraphology', gpu_cache.readGraphology)
-  fastify.decorate('readLargeGraphDemo', gpu_cache.readLargeGraphDemo)
+  fastify.decorate('setDataframe', gpu_cache.setDataframe);
+  fastify.decorate('getDataframe', gpu_cache.getDataframe);
+  fastify.decorate('readGraphology', gpu_cache.readGraphology);
+  fastify.decorate('readLargeGraphDemo', gpu_cache.readLargeGraphDemo);
+  fastify.decorate('release', gpu_cache.clearDataframes);
   fastify.get('/', async function(request, reply) {
     return {
       graphology: {
@@ -74,11 +75,10 @@ module.exports = async function(fastify, opts) {
   });
 
   fastify.route({
-    method: 'GET',
+    method: 'POST',
     url: '/read_large_demo',
     schema: {
       querystring: {filename: {type: 'string'}, 'rootkeys': {type: 'array'}},
-
       response: {
         200: {
           type: 'object',
@@ -106,11 +106,10 @@ module.exports = async function(fastify, opts) {
   });
 
   fastify.route({
-    method: 'GET',
+    method: 'POST',
     url: '/read_json',
     schema: {
       querystring: {filename: {type: 'string'}, 'rootkeys': {type: 'array'}},
-
       response: {
         200: {
           type: 'object',
@@ -125,10 +124,10 @@ module.exports = async function(fastify, opts) {
       try {
         let path = undefined;
         if (query.filename === undefined) {
-          result.message = 'Parameter filename is required'
+          result.message = 'Parameter filename is required';
           result.code    = 400;
         } else if (query.filename.search('http') != -1) {
-          result.message = 'Remote files not supported yet.'
+          result.message = 'Remote files not supported yet.';
           result.code    = 406;
         } else {
           result.message = 'File is not remote';
@@ -146,7 +145,7 @@ module.exports = async function(fastify, opts) {
           fastify.setDataframe('edges', graphology['edges']);
           fastify.setDataframe('clusters', graphology['clusters']);
           fastify.setDataframe('tags', graphology['tags']);
-          result.message = 'File read onto GPU.'
+          result.message = 'File read onto GPU.';
         }
       } catch (e) { return e; };
       return result;
@@ -311,4 +310,7 @@ module.exports = async function(fastify, opts) {
       }
     }
   });
+
+  fastify.route(
+    {method: 'POST', url: '/release/', handler: async (request, reply) => { fastify.release(); }});
 }

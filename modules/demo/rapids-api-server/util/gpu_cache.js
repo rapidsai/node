@@ -66,7 +66,7 @@ function json_aoa_to_dataframe(str, dtypes) {
 module.exports = {
   async setDataframe(name, dataframe) {
     if (timeout) { clearTimeout(timeout); }
-    timeout        = setTimeout(clearCachedGPUData, 60 * 10 * 1000);
+    timeout        = setTimeout(clearCachedGPUData, 10 * 60 * 1000);
     datasets[name] = dataframe;
   },
   async getDataframe(name) { return datasets[name] },
