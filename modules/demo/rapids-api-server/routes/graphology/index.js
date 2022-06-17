@@ -89,20 +89,48 @@ module.exports = async function(fastify, opts) {
       }
     },
     handler: async (request, reply) => {
-      // load the file via read_text
-      // is the file local or remote?
-      const path = file.path;
+      const query = request.query;
+      let result  = {
+        'params': JSON.stringify(query),
+        success: false,
+        message: 'Finding file.',
+        statusCode: 200
+      };
       try {
-        const graphology = await fastify.readLargeGraphDemo(path);
-        await fastify.setDataframe('nodes', graphology['nodes']);
-        await fastify.setDataframe('edges', graphology['edges']);
-        await fastify.setDataframe('options', graphology['options']);
-        result.message = 'Ok';
-        reply.code(200).send(result);
+        let path = undefined;
+        if (query.filename === undefined) {
+          result.message    = 'Parameter filename is required';
+          result.statusCode = 400;
+        } else if (query.filename.search('http') != -1) {
+          result.message    = 'Remote files not supported yet.';
+          result.statusCode = 406;
+        } else {
+          result.message = 'File is not remote';
+          // does the file exist?
+          const path = Path.join(__dirname, query.filename);
+          console.log('Does the file exist?');
+          const stats    = await Stat(path);
+          const message  = 'File is available';
+          result.message = message;
+          result.success = true;
+          try {
+            const graphology = await fastify.readLargeGraphDemo(path);
+            await fastify.setDataframe('nodes', graphology['nodes']);
+            await fastify.setDataframe('edges', graphology['edges']);
+            await fastify.setDataframe('options', graphology['options']);
+            result.message = 'File read onto GPU.';
+          } catch (e) {
+            result.success    = false;
+            result.message    = e;
+            result.statusCode = 500;
+          }
+        }
       } catch (e) {
-        result.message = 'Exception loading dataset onto gpu.';
-        reply.code(500).send(result);
-      }
+        result.success    = false;
+        result.message    = e.message;
+        result.statusCode = 404;
+      };
+      await reply.code(result.statusCode).send(result);
     }
   });
 
