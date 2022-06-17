@@ -27,15 +27,15 @@ const json_large = {
             "cluster": 1,
             "x": 1.3836898237261988,
             "y": -11.536596764896206,
-            "size": 0,
+            "size": 1,
             "label": "Node n°292, in cluster n°1",
             "color": "#323455"
           }
         }
       ],
       "edges": [
-        {"key": "geid_115_98", "source": "128", "target": "193"},
-        {"key": "geid_115_99", "source": "269", "target": "93"}
+        {"key": "geid_115_98", "source": "0", "target": "1"},
+        {"key": "geid_115_99", "source": "1", "target": "0"}
       ],
       "options": {"type": "mixed", "multi": false, "allowSelfLoops": true}
     }`
@@ -256,6 +256,16 @@ test('nodes', async (t) => {
     {method: 'GET', url: '/graphology/nodes/', headers: {'accepts': 'application/octet-stream'}});
   const table = tableFromIPC(res.rawPayload);
   t.ok(table.getChild('nodes'));
+  t.same(table.getChild('nodes').toArray(), new Float32Array([
+           0.02944733388721943,
+           1,
+           0,
+           -1.4006860109112203e+29,
+           0.9705526828765869,
+           0,
+           2,
+           -5.515159729197043e+28
+         ]))
 });
 
 test('nodes/bounds', async (t) => {
@@ -287,5 +297,20 @@ test('edges', async (t) => {
     {method: 'GET', url: '/graphology/edges', header: {'accepts': 'application/octet-stream'}});
   const table   = tableFromIPC(res.rawPayload);
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  console.log(table.getChild('edges').toArray());
   t.ok(table.getChild('edges'));
+  t.same(table.getChild('edges').toArray(), new Float32Array([
+           0.02944733388721943,
+           1,
+           -1.701910173408654e+38,
+           0.9705526828765869,
+           0,
+           -1.701910173408654e+38,
+           0.9705526828765869,
+           0,
+           -1.701910173408654e+38,
+           0.02944733388721943,
+           1,
+           -1.701910173408654e+38
+         ]))
 });
