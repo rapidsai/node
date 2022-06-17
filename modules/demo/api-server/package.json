@@ -1,5 +1,5 @@
 {
-  "name": "rapids-api-server",
+  "name": "api-server",
   "version": "0.0.1",
   "description": "A fastify-based web server that provides browser-access to GPU resources.",
   "main": "index.js",
