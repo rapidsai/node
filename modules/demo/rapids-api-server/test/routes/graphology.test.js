@@ -65,7 +65,7 @@ const json_good = {
                 "x": -1.9823756217956543,
                 "y": 250.4990692138672,
                 "score": 0
-              },
+              }
             ],
             "edges":
               [
@@ -212,6 +212,40 @@ test('list_tables', async (t) => {
   t.ok(payload.includes('nodes'));
 });
 
+test('get_table', async (t) => {
+  const dir   = t.testdir(json_good);
+  const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_good.txt';
+  const app   = await build(t);
+  const load  = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
+  const res   = await app.inject({
+    method: 'GET',
+    url: '/graphology/get_table/nodes',
+    header: {'accepts': 'application/octet-stream'}
+  });
+  const table = tableFromIPC(res.rawPayload);
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  t.same(table.schema.names, ['key', 'label', 'tag', 'URL', 'cluster', 'x', 'y', 'score']);
+  t.equal(table.numRows, 2);
+  t.equal(table.numCols, 8);
+});
+
+test('get_column', async (t) => {
+  const dir   = t.testdir(json_good);
+  const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_good.txt';
+  const app   = await build(t);
+  const load  = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
+  const res   = await app.inject({
+    method: 'GET',
+    url: '/graphology/get_column/nodes/score',
+    header: {'accepts': 'application/octet-stream'}
+  });
+  const table = tableFromIPC(res.rawPayload);
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  t.same(table.schema.names, ['score']);
+  t.equal(table.numRows, 2);
+  t.equal(table.numCols, 1);
+});
+
 test('nodes', async (t) => {
   const dir   = t.testdir(json_large);
   const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_large.txt';
@@ -221,54 +255,37 @@ test('nodes', async (t) => {
   const res = await app.inject(
     {method: 'GET', url: '/graphology/nodes/', headers: {'accepts': 'application/octet-stream'}});
   const table = tableFromIPC(res.rawPayload);
-  console.log(table);
-  t.ok(payload.message.includes('no such file or directory'));
-  t.equal(payload.statusCode, 404);
+  t.ok(table.getChild('nodes'));
 });
 
-test('get_table', async (t) => {
+test('nodes/bounds', async (t) => {
   const dir   = t.testdir(json_good);
   const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_good.txt';
   const app   = await build(t);
   const load  = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
-  const res   = await app.inject({
-    method: 'GET',
-    url: '/graphology/get_table/nodes',
-  });
-  const table = await tableFromIPC(RecordBatchStreamWriter.writeAll(res.body).toNodeStream());
+  const res   = await app.inject({method: 'GET', url: '/graphology/nodes/bounds'});
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
-  console.log(res);
-  t.ok(payload.includes('nodes'));
-});
-
-test('get_column', async (t) => {
-  const app     = await build(t);
-  const res     = await app.inject({method: 'GET', url: '/graphology/get_column/nodes/x'});
-  const payload = JSON.parse(res.payload);
-  t.ok(payload.message.includes('no such file or directory'));
-  t.equal(payload.statusCode, 404);
-});
-
-test('nodes', async (t) => {
-  const app     = await build(t);
-  const res     = await app.inject({method: 'GET', url: '/graphology/nodes'});
-  const payload = JSON.parse(res.payload);
-  t.ok(payload.message.includes('no such file or directory'));
-  t.equal(payload.statusCode, 404);
-});
-
-test('nodes/bounds', async (t) => {
-  const app     = await build(t);
-  const res     = await app.inject({method: 'GET', url: '/graphology/nodes/bounds'});
-  const payload = JSON.parse(res.payload);
-  t.ok(payload.message.includes('no such file or directory'));
-  t.equal(payload.statusCode, 404);
+  t.same(JSON.parse(res.payload), {
+    'success': true,
+    'message': 'Success',
+    'bounds': {
+      'xmin': -278.2200012207031,
+      'xmax': -1.9823756217956543,
+      'ymin': 250.4990692138672,
+      'ymax': 436.01004028320307
+    }
+  });
 });
 
 test('edges', async (t) => {
-  const app     = await build(t);
-  const res     = await app.inject({method: 'GET', url: '/graphology/edges'});
-  const payload = JSON.parse(res.payload);
-  t.ok(payload.message.includes('no such file or directory'));
-  t.equal(payload.statusCode, 404);
+  const dir   = t.testdir(json_large);
+  const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_large.txt';
+  const app   = await build(t);
+  const load =
+    await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
+  const res = await app.inject(
+    {method: 'GET', url: '/graphology/edges', header: {'accepts': 'application/octet-stream'}});
+  const table   = tableFromIPC(res.rawPayload);
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  t.ok(table.getChild('edges'));
 });

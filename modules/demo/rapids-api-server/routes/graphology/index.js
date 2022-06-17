@@ -22,8 +22,9 @@ const Stat                                                  = promisify(Fs.stat)
 const fastifyCors                                           = require('@fastify/cors');
 const fastify                                               = require('fastify');
 
-const arrowPlugin = require('fastify-arrow');
-const gpu_cache   = require('../../util/gpu_cache.js');
+const arrowPlugin                                      = require('fastify-arrow');
+const gpu_cache                                        = require('../../util/gpu_cache.js');
+const {collapseTextChangeRangesAcrossMultipleVersions} = require('typescript');
 
 module.exports = async function(fastify, opts) {
   fastify.register(arrowPlugin);
@@ -217,8 +218,25 @@ module.exports = async function(fastify, opts) {
         result.message = 'Table not found';
         reply.code(404).send(result);
       } else {
-        const writer = RecordBatchStreamWriter.writeAll(table.toArrow());
-        reply.code(200).send(writer.toNodeStream());
+        try {
+          const name        = request.params.column;
+          const column      = table.get(name);
+          const newDfObject = {};
+          newDfObject[name] = column;
+          const result      = new DataFrame(newDfObject);
+          const writer      = RecordBatchStreamWriter.writeAll(result.toArrow());
+          reply.code(200).send(writer.toNodeStream());
+        } catch (e) {
+          if (e.substring('Unknown column name') != -1) {
+            result.message = e;
+            console.log(result);
+            reply.code(404).send(result);
+          } else {
+            result.message = e;
+            console.log(result);
+            reply.code(500).send(result);
+          }
+        }
       }
     }
   });
@@ -311,7 +329,7 @@ module.exports = async function(fastify, opts) {
 
   fastify.route({
     method: 'GET',
-    url: '/edges/',
+    url: '/edges',
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {success: false, message: message};
