@@ -27,6 +27,8 @@
   },
   "devDependencies": {
     "path": "0.12.7",
-    "tap": "^16.1.0"
+    "tap": "^16.1.0",
+    "randomatic": "*",
+    "node-fetch": "*"
   }
 }

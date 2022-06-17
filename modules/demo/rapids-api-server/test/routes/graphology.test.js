@@ -1,8 +1,45 @@
 'use strict'
 
-const {dir}   = require('console');
-const {test}  = require('tap')
-const {build} = require('../helper')
+const {dir}                                   = require('console');
+const {test}                                  = require('tap');
+const {build}                                 = require('../helper');
+const {tableFromIPC, RecordBatchStreamWriter} = require('apache-arrow');
+
+const json_large = {
+  'json_large.txt':
+    ` {
+      "attributes": {},
+      "nodes": [
+        {
+          "key": "290",
+          "attributes": {
+            "cluster": 0,
+            "x": -13.364310772761677,
+            "y": 4.134339113107921,
+            "size": 0,
+            "label": "Node n°291, in cluster n°0",
+            "color": "#e24b04"
+          }
+        },
+        {
+          "key": "291",
+          "attributes": {
+            "cluster": 1,
+            "x": 1.3836898237261988,
+            "y": -11.536596764896206,
+            "size": 0,
+            "label": "Node n°292, in cluster n°1",
+            "color": "#323455"
+          }
+        }
+      ],
+      "edges": [
+        {"key": "geid_115_98", "source": "128", "target": "193"},
+        {"key": "geid_115_99", "source": "269", "target": "93"}
+      ],
+      "options": {"type": "mixed", "multi": false, "allowSelfLoops": true}
+    }`
+};
 
 const json_good = {
   'json_good.txt':
@@ -175,12 +212,33 @@ test('list_tables', async (t) => {
   t.ok(payload.includes('nodes'));
 });
 
-test('get_table', async (t) => {
-  const app     = await build(t);
-  const res     = await app.inject({method: 'GET', url: '/graphology/get_table/nodes'});
-  const payload = JSON.parse(res.payload);
+test('nodes', async (t) => {
+  const dir   = t.testdir(json_large);
+  const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_large.txt';
+  const app   = await build(t);
+  const load =
+    await app.inject({method: 'POST', url: '/graphology/read_large_demo?filename=' + rpath});
+  const res = await app.inject(
+    {method: 'GET', url: '/graphology/nodes/', headers: {'accepts': 'application/octet-stream'}});
+  const table = tableFromIPC(res.rawPayload);
+  console.log(table);
   t.ok(payload.message.includes('no such file or directory'));
   t.equal(payload.statusCode, 404);
+});
+
+test('get_table', async (t) => {
+  const dir   = t.testdir(json_good);
+  const rpath = '../../test/routes/' + dir.substring(dir.lastIndexOf('/')) + '/json_good.txt';
+  const app   = await build(t);
+  const load  = await app.inject({method: 'POST', url: '/graphology/read_json?filename=' + rpath});
+  const res   = await app.inject({
+    method: 'GET',
+    url: '/graphology/get_table/nodes',
+  });
+  const table = await tableFromIPC(RecordBatchStreamWriter.writeAll(res.body).toNodeStream());
+  const release = await app.inject({method: 'POST', url: '/graphology/release'});
+  console.log(res);
+  t.ok(payload.includes('nodes'));
 });
 
 test('get_column', async (t) => {
