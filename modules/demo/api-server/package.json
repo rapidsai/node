@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "demo-api-server",
+  "name": "@rapidsai/demo-api-server",
   "main": "index.js",
   "version": "0.0.1",
   "license": "Apache-2.0",
