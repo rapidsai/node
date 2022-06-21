@@ -138,7 +138,7 @@
     "**/@luma.gl/gltools": "8.5.10",
     "**/@luma.gl/shadertools": "8.5.10",
     "**/@luma.gl/webgl": "8.5.10",
-    "**/apache-arrow": "^4.0.0",
+    "**/apache-arrow": "^8.0.0",
     "**/gl-matrix": "3.3.0",
     "**/jsdom": "16.6.0",
     "**/math.gl": "3.5.7",

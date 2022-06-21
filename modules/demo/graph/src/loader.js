@@ -15,7 +15,7 @@
 import {clampRange as clamp, Float32Buffer} from '@rapidsai/cuda';
 import {DataFrame, Float32, Int32, Series, Uint32, Uint64, Uint8, Utf8String} from '@rapidsai/cudf';
 import {Graph} from '@rapidsai/cugraph';
-import * as Arrow from 'apache-arrow';
+import * as arrow from 'apache-arrow';
 import {concat as concatAsync, zip as zipAsync} from 'ix/asynciterable';
 import {flatMap as flatMapAsync} from 'ix/asynciterable/operators';
 
@@ -298,7 +298,7 @@ function createGraphRenderProps(nodes, edges, graph) {
 
 function getDefaultNodes() {
   return new DataFrame({
-    name: Series.new(Arrow.Utf8Vector.from([
+    name: Series.new([
       'bool::False',
       'bool::True',
       'char::a',
@@ -339,7 +339,7 @@ function getDefaultNodes() {
       'ustr::b',
       'ustr::c',
       'ustr::d'
-    ])),
+    ]),
     id: Series.new({
       type: new Uint32,
       data: [
@@ -370,7 +370,7 @@ function getDefaultNodes() {
 
 function getDefaultEdges() {
   return new DataFrame({
-    name: Series.new(Arrow.Utf8Vector.from(Array.from({length: 312}, (_, i) => `${i}`))),
+    name: Series.new(Array.from({length: 312}, (_, i) => `${i}`)),
     src: Series.new({
       type: new Int32,
       data: [
