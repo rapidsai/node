@@ -85,3 +85,5 @@ Which will use parallel JSON parsing to load the graph onto the GPU.
 /graphology/nodes
 /graphology/edges
 /graphology/release
+```
+
