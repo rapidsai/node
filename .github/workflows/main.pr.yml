@@ -114,7 +114,7 @@ jobs:
             -v "$(pwd):/opt/rapids/node:rw" \
             -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
             -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
-            -e CPM_cugraph-ops_SOURCE="/opt/rapids/node/.cache/source/cugraph-ops" \
-            -e CPM_cumlprims_mg_SOURCE="/opt/rapids/node/.cache/source/cumlprims_mg" \
+            -e "CPM_cugraph-ops_SOURCE"="/opt/rapids/node/.cache/source/cugraph-ops" \
+            -e "CPM_cumlprims_mg_SOURCE"="/opt/rapids/node/.cache/source/cumlprims_mg" \
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main \
             bash -c 'set -ex; echo $PATH && echo $CUDA_HOME && which -a nvcc && nvcc --version && yarn && yarn rebuild'
