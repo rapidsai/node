@@ -1,19 +1,21 @@
 {
-  "name": "api-server",
-  "version": "0.0.1",
-  "description": "A fastify-based web server that provides browser-access to GPU resources.",
+  "private": true,
+  "name": "demo-api-server",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "author": "NVIDIA, Inc. (https://nvidia.com/)",
+  "maintainers": [
+    "Thomson Comer <thomcom@gmail.com>"
+  ],
+  "bin": "index.js",
+  "description": "A fastify-based web server that provides browser-access to GPU resources.",
   "scripts": {
     "test": "tap \"test/**/*.test.js\"",
     "start": "fastify start -l info -P -w app.js",
     "dev": "fastify start -w -l info -P app.js"
   },
   "keywords": ["rapids.ai", "node", "NVIDIA", "gpu", "Dataframe", "pandas"],
-  "author": "Thomson Comer",
-  "license": "MIT",
   "dependencies": {
     "@fastify/autoload": "^4.0.0",
     "@fastify/sensible": "^4.0.0",
@@ -27,8 +29,6 @@
   },
   "devDependencies": {
     "path": "0.12.7",
-    "tap": "^16.1.0",
-    "randomatic": "*",
-    "node-fetch": "*"
+    "tap": "^16.1.0"
   }
 }
