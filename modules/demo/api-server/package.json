@@ -24,8 +24,7 @@
     "fastify-arrow": "1.0.0",
     "fastify-cli": "^3.0.1",
     "fastify-plugin": "^3.0.0",
-    "@fastify/cors": "latest",
-    "typescript": "4.6.4"
+    "@fastify/cors": "latest"
   },
   "devDependencies": {
     "path": "0.12.7",
