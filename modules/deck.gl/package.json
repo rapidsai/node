@@ -26,7 +26,8 @@
     "@luma.gl/webgl": "8.5.10",
     "@rapidsai/cuda": "0.0.1",
     "@rapidsai/core": "0.0.1",
-    "@rapidsai/cudf": "0.0.1"
+    "@rapidsai/cudf": "0.0.1",
+    "mjolnir.js": "2.6.0"
   },
   "files": [
     "build",

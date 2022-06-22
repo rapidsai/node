@@ -24,6 +24,7 @@
     "@rapidsai/cugraph": "0.0.1",
     "@rapidsai/deck.gl": "0.0.1",
     "ix": "4.4.1",
+    "mjolnir.js": "2.6.0",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
