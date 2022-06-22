@@ -297,7 +297,6 @@ test('edges', async (t) => {
     {method: 'GET', url: '/graphology/edges', header: {'accepts': 'application/octet-stream'}});
   const table   = tableFromIPC(res.rawPayload);
   const release = await app.inject({method: 'POST', url: '/graphology/release'});
-  console.log(table.getChild('edges').toArray());
   t.ok(table.getChild('edges'));
   t.same(table.getChild('edges').toArray(), new Float32Array([
            0.02944733388721943,
