@@ -19,7 +19,8 @@
     "@luma.gl/constants": "8.5.10",
     "@luma.gl/core": "8.5.10",
     "@rapidsai/cuda": "0.0.1",
-    "@rapidsai/glfw": "0.0.1",
+    "@rapidsai/jsdom": "0.0.1",
+    "mjolnir.js": "2.6.0",
     "zeromq": "6.0.0-beta.6"
   },
   "files": [
