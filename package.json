@@ -54,7 +54,7 @@
     "docker:run:runtime:notebook": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm notebook",
     "docker:run:runtime:sql": "touch .env && docker-compose -f docker-compose.runtime.yml run --rm sql",
     "lint": "scripts/exec.js lint",
-    "nuke:from:orbit": "yarn cache clean && yarn clean && yarn && yarn rebuild",
+    "nuke:from:orbit": "yarn cache clean && yarn clean && yarn && yarn build",
     "postinstall": "yarn dev:relink-bin-dirs",
     "test": "scripts/exec.js test",
     "tsc:build": "scripts/exec.js run tsc:build",
