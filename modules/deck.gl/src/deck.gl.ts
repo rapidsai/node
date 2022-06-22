@@ -72,6 +72,7 @@ export declare class DeckLayer {
   getPickingInfo({info, mode}: {info: PickingInfo, mode: 'hover'|'click'}): void;
   onHover(info: PickingInfo, pickingEvent: any): void;
   getAttributeManager(): any;
+  getShaders(shaders: any): any;
 }
 
 export declare class DeckCompositeLayer extends DeckLayer {

@@ -32,7 +32,7 @@ if [[ "$DEMO" == "" ]]; then
     DEMOS="$(echo -e "$DEMOS" | grep -v node_modules | sort -Vr)";
     DEMOS=(${DEMOS});
     DEMOS=("${DEMOS[@]/%\/package.json}")
-    echo "Please select a demo to run out:"
+    echo "Please select a demo to run:"
     select DEMO in "${DEMOS[@]}" "Quit"; do
         if [[ $REPLY -lt $(( ${#DEMOS[@]}+1 )) ]]; then
             break;
@@ -46,12 +46,12 @@ if [[ "$DEMO" == "" ]]; then
     echo "\`yarn demo $DEMO${@:+ ${@:-}}\`"
 fi
 
-if [[ "$DEMO" =~ "modules/demo/deck" ]]; then
+if [[ "$DEMO" = "modules/demo/deck" ]]; then
     DEMOS="$(find modules/demo/deck -maxdepth 2 -type f -name 'package.json')"
     DEMOS="$(echo -e "$DEMOS" | grep -v node_modules | sort -Vr)";
     DEMOS=(${DEMOS});
     DEMOS=("${DEMOS[@]/%\/package.json}")
-    echo "Please select a deck.gl demo to run out:"
+    echo "Please select a deck.gl demo to run:"
     select DEMO in "${DEMOS[@]}" "Quit"; do
         if [[ $REPLY -lt $(( ${#DEMOS[@]}+1 )) ]]; then
             break;
