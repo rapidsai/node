@@ -36,10 +36,8 @@ function(find_and_configure_cuspatial VERSION)
         _get_update_disconnected_state(cuspatial ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cuspatial
             VERSION             ${VERSION}
-            # GIT_REPOSITORY      https://github.com/rapidsai/cuspatial.git
-            # GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_REPOSITORY      https://github.com/trxcllnt/cuspatial.git
-            GIT_TAG             fea/enable-static-libs
+            GIT_REPOSITORY      https://github.com/rapidsai/cuspatial.git
+            GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
@@ -52,15 +50,6 @@ function(find_and_configure_cuspatial VERSION)
     endif()
     # Make sure consumers of our libs can see cuspatial::cuspatial
     _fix_cmake_global_defaults(cuspatial::cuspatial)
-
-    # _set_package_dir_if_exists(cuco cuco)
-
-    # if (NOT TARGET cuco::cuco)
-    #     find_package(cuco REQUIRED)
-    #     if(NOT TARGET cuco::cuco)
-    #         add_library(cuco::cuco ALIAS cuco)
-    #     endif()
-    # endif()
 endfunction()
 
 find_and_configure_cuspatial(${CUSPATIAL_VERSION})

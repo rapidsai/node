@@ -34,10 +34,8 @@ function(find_and_configure_cugraph VERSION)
         _get_update_disconnected_state(cugraph ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cugraph
             VERSION             ${VERSION}
-            # GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
-            # GIT_TAG             branch-${MAJOR_AND_MINOR}
-            GIT_REPOSITORY      https://github.com/trxcllnt/cugraph.git
-            GIT_TAG             fea/enable-static-libs
+            GIT_REPOSITORY      https://github.com/rapidsai/cugraph.git
+            GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
@@ -47,13 +45,8 @@ function(find_and_configure_cugraph VERSION)
                                 "BUILD_CUGRAPH_MG_TESTS OFF"
         )
     endif()
-    # if (TARGET cugraph)
-    #     set_target_properties(cugraph PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    #     target_compile_options(cugraph PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-fPIC>)
-    # endif()
     # Make sure consumers of our libs can see cugraph::cugraph
     _fix_cmake_global_defaults(cugraph::cugraph)
-    # Make these -isystem so -Werror doesn't fail their builds
 endfunction()
 
 find_and_configure_cugraph(${CUGRAPH_VERSION})

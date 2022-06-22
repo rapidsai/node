@@ -25,15 +25,12 @@ function(find_and_configure_cumlprims_mg VERSION)
     _set_package_dir_if_exists(cumlprims_mg cumlprims_mg)
 
     if(NOT TARGET cumlprims_mg::cumlprims_mg)
-        if(DEFINED ENV{CPM_cumlprims_mg_SOURCE})
-            set(CPM_cumlprims_mg_SOURCE "$ENV{CPM_cumlprims_mg_SOURCE}")
-        endif()
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         _get_update_disconnected_state(cumlprims_mg ${VERSION} UPDATE_DISCONNECTED)
         CPMFindPackage(NAME     cumlprims_mg
             VERSION             ${VERSION}
-            GIT_REPOSITORY      "https://$ENV{RAPIDSAI_GITHUB_ACCESS_TOKEN}@github.com/trxcllnt/cumlprims_mg.git"
-            GIT_TAG             fea/enable-static-libs
+            GIT_REPOSITORY      "https://$ENV{RAPIDSAI_GITHUB_ACCESS_TOKEN}@github.com/rapidsai/cumlprims_mg.git"
+            GIT_TAG             branch-${MAJOR_AND_MINOR}
             GIT_SHALLOW         TRUE
             ${UPDATE_DISCONNECTED}
             SOURCE_SUBDIR       cpp
