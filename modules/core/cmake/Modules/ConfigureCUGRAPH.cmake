@@ -17,6 +17,7 @@
 function(find_and_configure_cugraph VERSION)
 
     include(get_cpm)
+    include(get_nccl)
 
     include(ConfigureCUGRAPHOPS)
 
@@ -47,6 +48,20 @@ function(find_and_configure_cugraph VERSION)
     endif()
     # Make sure consumers of our libs can see cugraph::cugraph
     _fix_cmake_global_defaults(cugraph::cugraph)
+
+    if(NOT TARGET cugraph::cuHornet AND
+      (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS}))
+        set(cuhornet_SOURCE_DIR "${CPM_BINARY_CACHE}/cuhornet-src")
+        if (EXISTS "${cuhornet_SOURCE_DIR}")
+            add_library(cugraph::cuHornet IMPORTED INTERFACE GLOBAL)
+            target_include_directories(cugraph::cuHornet INTERFACE
+                "${cuhornet_SOURCE_DIR}/hornet/include"
+                "${cuhornet_SOURCE_DIR}/hornetsnest/include"
+                "${cuhornet_SOURCE_DIR}/xlib/include"
+                "${cuhornet_SOURCE_DIR}/primitives"
+            )
+        endif()
+    endif()
 endfunction()
 
 find_and_configure_cugraph(${CUGRAPH_VERSION})
