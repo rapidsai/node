@@ -41,6 +41,7 @@ function(find_and_configure_raft VERSION)
             ${UPDATE_DISCONNECTED}
             OPTIONS                "BUILD_TESTS OFF"
                                    "BUILD_SHARED_LIBS OFF"
+                                   "CUDA_STATIC_RUNTIME OFF"
                                    "RAFT_USE_FAISS_STATIC ON"
                                    "RAFT_COMPILE_LIBRARIES ON")
     endif()

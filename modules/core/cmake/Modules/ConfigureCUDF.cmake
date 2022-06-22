@@ -59,8 +59,8 @@ function(find_and_configure_cudf VERSION)
                                 "CUDF_ENABLE_ARROW_PYTHON OFF"
                                 "CUDF_ENABLE_ARROW_PARQUET ON"
                                 # "ARROW_DEPENDENCY_SOURCE AUTO"
-                                "PER_THREAD_DEFAULT_STREAM ON"
-                                "DISABLE_DEPRECATION_WARNING ON")
+                                "DISABLE_DEPRECATION_WARNING ON"
+                                "CUDF_USE_PER_THREAD_DEFAULT_STREAM ON")
     endif()
 
     # Make sure consumers of our libs can see cudf::cudf
