@@ -47,6 +47,13 @@ export class NodeLayer extends (Layer as typeof DeckLayer) {
       highlightedNode: -1,
       highlightedSourceNode: -1,
       highlightedTargetNode: -1,
+      getRadius: {type: 'accessor', value: 5},
+      getFillColor: {type: 'accessor', value: [255, 255, 255, 255]},
+      getLineColor: {type: 'accessor', value: [255, 255, 255, 255]},
+      getXPosition: {type: 'accessor', value: (x: any) => x.positionX},
+      getYPosition: {type: 'accessor', value: (x: any) => x.positionY},
+      getNodeIndex: {type: 'accessor', value: (x: any) => x.index},
+      getElementIndex: {type: 'accessor', value: (x: any) => x.Elementindex}
     };
   }
   static getAccessors({gl}: {gl: WebGLRenderingContext}) {

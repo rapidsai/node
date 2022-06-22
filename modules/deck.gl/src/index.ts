@@ -14,6 +14,8 @@
 
 export * from './buffer';
 export * from './layers/graph';
+export * from './layers/point-cloud';
+export * from './utils/series-color-utils';
 
 export {Deck as DeckSSR} from './ssr/deck';
 export {AnimationLoop as AnimationLoopSSR} from './ssr/animation-loop';
