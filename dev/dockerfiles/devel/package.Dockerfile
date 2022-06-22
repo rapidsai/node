@@ -47,8 +47,7 @@ SCCACHE_BUCKET=$SCCACHE_BUCKET\n\
 SCCACHE_IDLE_TIMEOUT=$SCCACHE_IDLE_TIMEOUT\n\
 " > .env' \
  && yarn --pure-lockfile --network-timeout 1000000 \
- && yarn tsc:build \
- && yarn cpp:build \
+ && yarn build \
  && yarn dev:npm:pack \
  && yarn cache clean \
  && cp build/*.tgz ../ \

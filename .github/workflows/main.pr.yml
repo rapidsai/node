@@ -12,10 +12,10 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        CUDA: [11.6.0]
-        LINUX: [ubuntu18.04, ubuntu20.04]
+        CUDA: [11.6.2]
+        LINUX: [ubuntu20.04]
     env:
-      NODE: "16.13.2"
+      NODE: "18.2.0"
       RAPIDS: "22.06.00"
       REPOSITORY: "ghcr.io/rapidsai/node"
     steps:

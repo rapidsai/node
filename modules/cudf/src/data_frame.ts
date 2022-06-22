@@ -133,9 +133,6 @@ export class DataFrame<T extends TypeMap = any> {
   public static readCSV<T extends TypeMap = any>(options: ReadCSVOptions<T>) {
     const {names, table} = Table.readCSV(options);
     return DataFrame.fromTable<T>(table, names);
-    // return new DataFrame(new ColumnAccessor(
-    //   names.reduce((map, name, i) => ({...map, [name]: table.getColumnByIndex(i)}),
-    //                {} as ColumnsMap<{[P in keyof T]: T[P]}>)));
   }
 
   /**
