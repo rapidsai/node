@@ -143,8 +143,7 @@
     "**/gl-matrix": "3.3.0",
     "**/jsdom": "16.6.0",
     "**/math.gl": "3.5.7",
-    "**/react-map-gl": "5.3.16",
-    "**/typescript": "4.5.5"
+    "**/react-map-gl": "5.3.16"
   },
   "release": {
     "analyzeCommits": "simple-commit-message"

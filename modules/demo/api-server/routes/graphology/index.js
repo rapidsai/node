@@ -25,7 +25,7 @@ const fastify                                               = require('fastify')
 const arrowPlugin                                      = require('fastify-arrow');
 const gpu_cache                                        = require('../../util/gpu_cache.js');
 const {collapseTextChangeRangesAcrossMultipleVersions} = require('typescript');
-const root_schema = require('../../util/schema.js');
+const root_schema                                      = require('../../util/schema.js');
 
 module.exports = async function(fastify, opts) {
   fastify.register(arrowPlugin);
@@ -36,9 +36,7 @@ module.exports = async function(fastify, opts) {
   fastify.decorate('readGraphology', gpu_cache.readGraphology);
   fastify.decorate('readLargeGraphDemo', gpu_cache.readLargeGraphDemo);
   fastify.decorate('clearDataFrames', gpu_cache.clearDataframes);
-  fastify.get('/', async function(request, reply) {
-    return root_schema;
-  });
+  fastify.get('/', async function(request, reply) { return root_schema; });
 
   fastify.route({
     method: 'POST',
@@ -265,21 +263,18 @@ module.exports = async function(fastify, opts) {
         // Duplicatin the sigma.j createNormalizationFunction here because there's no other way
         // to let the Graph object compute it.
         //
-        let x       = df.get('x');
-        let y       = df.get('y');
-        let color   = df.get('color');
-        const ratio = (() => {
-          const [xMin, xMax] = x.minmax();
-          const [yMin, yMax] = y.minmax();
-          return Math.max(xMax - xMin, yMax - yMin);
-        })();
-        const dX    = x.minmax().reduce((min, max) => max + min, 0) / 2.0;
-        const dY    = y.minmax().reduce((min, max) => max + min, 0) / 2.0;
-        x           = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
-        y           = y.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
-        // done with createNormalizationFunction
-        tiled = tiled.scatter(x, base_offset.cast(new Int32));
-        tiled = tiled.scatter(y, base_offset.add(1).cast(new Int32));
+        let x              = df.get('x');
+        let y              = df.get('y');
+        let color          = df.get('color');
+        const [xMin, xMax] = x.minmax();
+        const [yMin, yMax] = y.minmax();
+        const ratio        = Math.max(xMax - xMin, yMax - yMin);
+        const dX           = (xMax + xMin) / 2.0;
+        const dY           = (yMax + yMin) / 2.0;
+        x                  = x.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
+        y                  = y.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
+        tiled              = tiled.scatter(x, base_offset.cast(new Int32));
+        tiled              = tiled.scatter(y, base_offset.add(1).cast(new Int32));
         tiled = tiled.scatter(df.get('size').mul(2), base_offset.add(2).cast(new Int32));
         color = color.hexToIntegers(new Uint32).bitwiseOr(0xef000000);
         // color = Series.sequence({size: color.length, type: new Int32, init: 0xff0000ff, step:
@@ -311,21 +306,22 @@ module.exports = async function(fastify, opts) {
         // Duplicatin the sigma.j createNormalizationFunction here because there's no other way
         // to let the Graph object compute it.
         //
-        let source = edges.get('source');
-        let target = edges.get('target');
-        let x      = df.get('x');
-        let y      = df.get('y');
-        const ratio =
-          Series.new([x._col.max() - x._col.min(), y._col.max() - y._col.min()])._col.max();
-        const dX          = (x._col.max() + x._col.min()) / 2.0;
-        const dY          = (y._col.max() + y._col.min()) / 2.0;
-        x                 = x._col.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
-        y                 = y._col.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
-        const source_xmap = x.gather(source._col.cast(new Int32));
-        const source_ymap = y.gather(source._col.cast(new Int32));
-        const target_xmap = x.gather(target._col.cast(new Int32));
-        const target_ymap = y.gather(target._col.cast(new Int32));
-        const color       = Series.new(['#999'])
+        let source         = edges.get('source');
+        let target         = edges.get('target');
+        let x              = df.get('x');
+        let y              = df.get('y');
+        const [xMin, xMax] = x.minmax();
+        const [yMin, yMax] = y.minmax();
+        const ratio        = Math.max(xMax - xMin, yMax - yMin);
+        const dX           = (xMax + xMin) / 2.0;
+        const dY           = (yMax + yMin) / 2.0;
+        x                  = x._col.add(-1.0 * dX).mul(1.0 / ratio).add(0.5);
+        y                  = y._col.add(-1.0 * dY).mul(1.0 / ratio).add(0.5);
+        const source_xmap  = x.gather(source._col.cast(new Int32));
+        const source_ymap  = y.gather(source._col.cast(new Int32));
+        const target_xmap  = x.gather(target._col.cast(new Int32));
+        const target_ymap  = y.gather(target._col.cast(new Int32));
+        const color        = Series.new(['#999'])
                         .hexToIntegers(new Int32)
                         .bitwiseOr(0xff000000)
                         .view(new Float32)
