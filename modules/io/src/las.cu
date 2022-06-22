@@ -192,11 +192,11 @@ std::unique_ptr<cudf::io::datasource::buffer> read(
   rmm::cuda_stream_view stream) {
   if (datasource->supports_device_read()) { return datasource->device_read(offset, size, stream); }
   auto device_buffer = rmm::device_buffer(size, stream);
-  CUDA_TRY(cudaMemcpyAsync(device_buffer.data(),
-                           datasource->host_read(offset, size)->data(),
-                           size,
-                           cudaMemcpyHostToDevice,
-                           stream.value()));
+  CUDF_CUDA_TRY(cudaMemcpyAsync(device_buffer.data(),
+                                datasource->host_read(offset, size)->data(),
+                                size,
+                                cudaMemcpyHostToDevice,
+                                stream.value()));
   return cudf::io::datasource::buffer::create(std::move(device_buffer));
 }
 
