@@ -46,7 +46,7 @@ describe('ListSeries', () => {
 
   test('Can create from Arrow', () => {
     const vec  = listsOfInt32s([[0, 1, 2], [3, 4, 5]]);
-    const ints = vec.getChildAt<arrow.Int32>(0)! ;
+    const ints = vec.getChildAt<arrow.Int32>(0)!;
     const col  = Series.new(vec);
 
     validateOffsets(vec, col);
@@ -75,8 +75,8 @@ describe('ListSeries', () => {
 
   test('Can create a List of Lists from Arrow', () => {
     const vec  = listsOfListsOfInt32s([[[0, 1, 2]], [[3, 4, 5], [7, 8, 9]]]);
-    const list = vec.getChildAt<ListOfInt32>(0)! ;
-    const ints = list.getChildAt<arrow.Int32>(0)! ;
+    const list = vec.getChildAt<ListOfInt32>(0)!;
+    const ints = list.getChildAt<arrow.Int32>(0)!;
     const col  = Series.new(vec);
 
     validateOffsets(vec, col);
@@ -86,8 +86,8 @@ describe('ListSeries', () => {
 
   test('Can gather a List of Lists', () => {
     const vec  = listsOfListsOfInt32s([[[0, 1, 2]], [[3, 4, 5], [7, 8, 9]]]);
-    const list = vec.getChildAt<ListOfInt32>(0)! ;
-    const ints = list.getChildAt<arrow.Int32>(0)! ;
+    const list = vec.getChildAt<ListOfInt32>(0)!;
+    const ints = list.getChildAt<arrow.Int32>(0)!;
     const col  = Series.new(vec);
     const out  = col.gather(Series.new({type: new Int32, data: new Int32Array([0, 1, 2])}));
 

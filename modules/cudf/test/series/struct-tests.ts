@@ -38,8 +38,8 @@ describe('StructSeries', () => {
       {x: 1, y: 4},
       {x: 2, y: 5},
     ]);
-    const xs  = vec.getChildAt<arrow.Int32>(0)! ;
-    const ys  = vec.getChildAt<arrow.Int32>(1)! ;
+    const xs  = vec.getChildAt<arrow.Int32>(0)!;
+    const ys  = vec.getChildAt<arrow.Int32>(1)!;
 
     const col = Series.new(vec);
 
@@ -53,9 +53,9 @@ describe('StructSeries', () => {
       {point: {x: 1, y: 4}},
       {point: {x: 2, y: 5}},
     ]);
-    const points = vec.getChildAt<StructOfInt32>(0)! ;
-    const xs     = points.getChildAt<arrow.Int32>(0)! ;
-    const ys     = points.getChildAt<arrow.Int32>(1)! ;
+    const points = vec.getChildAt<StructOfInt32>(0)!;
+    const xs     = points.getChildAt<arrow.Int32>(0)!;
+    const ys     = points.getChildAt<arrow.Int32>(1)!;
     const col    = Series.new(vec);
 
     validateElements(xs, col.getChild('point').getChild('x'));
@@ -74,9 +74,9 @@ describe('StructSeries', () => {
     expect(out.type.children[0].type.children[0].name).toEqual('x');
     expect(out.type.children[0].type.children[1].name).toEqual('y');
 
-    const points = vec.getChildAt<StructOfInt32>(0)! ;
-    const xs     = points.getChildAt<arrow.Int32>(0)! ;
-    const ys     = points.getChildAt<arrow.Int32>(1)! ;
+    const points = vec.getChildAt<StructOfInt32>(0)!;
+    const xs     = points.getChildAt<arrow.Int32>(0)!;
+    const ys     = points.getChildAt<arrow.Int32>(1)!;
 
     validateElements(xs, col.getChild('point').getChild('x'));
     validateElements(ys, col.getChild('point').getChild('y'));

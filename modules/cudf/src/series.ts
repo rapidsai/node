@@ -1220,7 +1220,7 @@ export class AbstractSeries<T extends DataType = any> {
    * Copy the underlying device memory to host, and return an Iterator of the values.
    */
   [Symbol.iterator](): IterableIterator<T['TValue']|null> {
-    return this.toArrow()[Symbol.iterator]() ;
+    return this.toArrow()[Symbol.iterator]();
   }
 
   /**

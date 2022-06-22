@@ -166,7 +166,7 @@ class DataToColumnVisitor extends arrow.Visitor {
   }
   visitStruct<T extends arrow.Struct>(data: arrow.Data<T>) {
     const {type, length, nullBitmap: nullMask} = data;
-    const children = type.children.map((_, i) => this.visit(data.children[i] ));
+    const children = type.children.map((_, i) => this.visit(data.children[i]));
     return new Column({
       length,
       type: new Struct(children.map(

@@ -53,7 +53,8 @@ export default class App extends React.Component {
 
         const { width, height } = bbox;
         const zoom = (() => {
-          const { outerWidth, outerHeight } = window;
+          const outerWidth = window.outerWidth * .75;
+          const outerHeight = window.outerHeight * .75;
           const world = (width > height ? width : height);
           const screen = (width > height ? outerWidth : outerHeight);
           const zoom = (world > screen ? -(world / screen) : (screen / world)) * 1.1;

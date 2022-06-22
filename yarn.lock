@@ -6292,9 +6292,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.3.723, electron-to-chromium@^1.4.164:
-  version "1.4.164"
-  resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.164.tgz#3d0f5c83557d8ec8a7faa531e498f198c3bd974a"
-  integrity sha512-K7iy5y6XyP9Pzh3uaDti0KC4JUNT6T1tLG5RTOmesqq2YgAJpYYYJ32m+anvZYjCV35llPTEh87kvEV/uSsiyQ==
+  version "1.4.165"
+  resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.165.tgz#a1ae079a4412b0c2d3bf6908e8db54511fb0bbac"
+  integrity sha512-DKQW1lqUSAYQvn9dnpK7mWaDpWbNOXQLXhfCi7Iwx0BKxdZOxkKcCyKw1l3ihWWW5iWSxKKbhEUoNRoHvl/hbA==
 
 elliptic@^6.5.3:
   version "6.5.4"
@@ -11854,16 +11854,6 @@ read-cmd-shim@^1.0.1:
     normalize-package-data "^2.0.0"
     npm-normalize-package-bin "^1.0.0"
 
-read-package-json@4.1.1:
-  version "4.1.1"
-  resolved "https://registry.npmjs.org/read-package-json/-/read-package-json-4.1.1.tgz#153be72fce801578c1c86b8ef2b21188df1b9eea"
-  integrity sha512-P82sbZJ3ldDrWCOSKxJT0r/CXMWR0OR3KRh55SgKo3p91GSIEEC32v3lSHAvO/UcH3/IoL7uqhOFBduAnwdldw==
-  dependencies:
-    glob "^7.1.1"
-    json-parse-even-better-errors "^2.3.0"
-    normalize-package-data "^3.0.0"
-    npm-normalize-package-bin "^1.0.0"
-
 read-package-tree@^5.1.6:
   version "5.3.1"
   resolved "https://registry.npmjs.org/read-package-tree/-/read-package-tree-5.3.1.tgz#a32cb64c7f31eb8a6f31ef06f9cedf74068fe636"
@@ -12666,10 +12656,10 @@ shiki@^0.9.12:
     vscode-oniguruma "^1.6.1"
     vscode-textmate "5.2.0"
 
-shm-typed-array@0.0.13:
-  version "0.0.13"
-  resolved "https://registry.npmjs.org/shm-typed-array/-/shm-typed-array-0.0.13.tgz#be79ce1d8543110ac90978bac0b7f51dca8d6030"
-  integrity sha512-kwkvIts46LwoaNBAAathvS6TbZSJJxb97sbis3a8f6yB9SZNQQzlZNsMZgPOpaXOa/LjZAb9r3KUeAxez8LVxg==
+shm-typed-array@0.0.16:
+  version "0.0.16"
+  resolved "https://registry.npmjs.org/shm-typed-array/-/shm-typed-array-0.0.16.tgz#e097a8a9d30038efe39f1a34e0a6cd5c82e7712f"
+  integrity sha512-wOCznpST+SVykm/JxSmCmpOqEqksTcrWKtqPuOm/UAva05FSXjbIxwJcR62LBEQOo2O2gtg3wgFtfgoulGyuhg==
   dependencies:
     nan "^2.13.2"
 
