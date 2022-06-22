@@ -292,7 +292,9 @@ module.exports = async function(fastify, opts) {
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {success: false, message: message};
-      const df    = await fastify.getDataframe('nodes');
+      /** @type DataFrame<{x: Float32, y: Float32}> */
+      const df = await fastify.getDataframe('nodes');
+      /** @type DataFrame<{x: Int32, y: Int32}> */
       const edges = await fastify.getDataframe('edges');
       if (df == undefined) {
         result.message = 'Table not found';
