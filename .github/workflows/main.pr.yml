@@ -62,8 +62,8 @@ jobs:
       - uses: nrwl/last-successful-commit-action@v1
         id: last_successful_main_commit
         with:
-          branch: main # Get the last successful commit for the main branch.
-          workflow_id: "main.pr.yml"
+          branch: main
+          workflow_id: "merge.pr.yml"
           github_token: "${{ github.token }}"
 
       - name: Check if GitHub Actions or devel Docker files changed
