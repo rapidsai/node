@@ -87,7 +87,13 @@ export class UMAP {
   constructor(input: UMAPParams = {}) { this._umap = new UMAPBase(input); }
 
   protected _generate_embeddings<D extends Numeric>(nSamples: number, dtype: D) {
-    return Series.sequence({type: dtype, size: nSamples * this._umap.nComponents, init: 0, step: 0})
+    return Series
+      .sequence({
+        type: dtype,
+        size: nSamples * this._umap.nComponents,
+        init: 0,
+        step: 0,
+      })
       ._col.data;
   }
 
@@ -100,7 +106,7 @@ export class UMAP {
   }
 
   protected _resolveType(convertDType: boolean, value: number|bigint|null|undefined) {
-    return (convertDType) ? new Float32 : (typeof value == 'bigint') ? new Int64 : new Float32;
+    return convertDType ? new Float32 : (typeof value === 'bigint') ? new Int64 : new Float32;
   }
 
   /**
@@ -136,7 +142,8 @@ export class UMAP {
     if (target !== null) {
       options = {...options, ...{ target: target._col.data, targetType: target.type }};
     }
-    return new FittedUMAP(this.getUMAPParams(), this._umap.fit(options));
+    const graph = this._umap.graph(options);
+    return new FittedUMAP(this.getUMAPParams(), this._umap.fit({...options, graph}), graph);
   }
 
   /**
@@ -149,9 +156,8 @@ export class UMAP {
    *   float32
    * @returns FittedUMAP object with updated embeddings
    */
-  fitDataFrame<T extends Numeric, K extends string, R extends Series<Numeric>,>(features: DataFrame<{[P in K]: T}>,
-                                                    target: null|R,
-                                                    convertDType = true) {
+  fitDataFrame<T extends Numeric, K extends string, R extends Series<Numeric>>(
+    features: DataFrame<{[P in K]: T}>, target: null|R, convertDType = true) {
     // runtime type check
     this._check_type(features.get(features.names[0]).type);
     return this.fitSeries(
@@ -190,9 +196,10 @@ export class UMAP {
                                       convertDType = true) {
     return this.fitSeries(
       Series.new({type: this._resolveType(convertDType, features[0]), data: features}) as T,
-      (target == null)
-        ? null
-        : Series.new({type: this._resolveType(convertDType, target[0]), data: target}),
+      target == null ? null : Series.new({
+        type: this._resolveType(convertDType, target[0]),
+        data: target,
+      }),
       nFeatures,
       convertDType);
   }
@@ -392,8 +399,8 @@ export class FittedUMAP extends UMAP {
     // runtime type check
     this._check_type(features.type);
     const nSamples = Math.floor(features.length / nFeatures);
-    if (this._coo.getSize() == 0) {
-      const target_ = (target !== null) ? {target: target._col.data, targetType: target.type} : {};
+    if (this._coo.getSize() === 0) {
+      const target_ = (target != null) ? {target: target._col.data, targetType: target.type} : {};
       this._coo     = this._umap.graph({
         features: features._col.data,
         featuresType: features.type,
@@ -424,8 +431,8 @@ export class FittedUMAP extends UMAP {
    * @param convertDType When set to True, the method will automatically convert the inputs to
    *   float32
    */
-  refineDataFrame<T extends Numeric, K extends string, R extends Series<Numeric>,>(features: DataFrame<{[P in K]: T}>,
-target: null|R, convertDType = true) {
+  refineDataFrame<T extends Numeric, K extends string, R extends Series<Numeric>>(
+    features: DataFrame<{[P in K]: T}>, target: null|R, convertDType = true) {
     // runtime type check
     this._check_type(features.get(features.names[0]).type);
     this.refineSeries(
@@ -463,9 +470,10 @@ target: null|R, convertDType = true) {
                                          convertDType = true) {
     this.refineSeries(
       Series.new({type: this._resolveType(convertDType, features[0]), data: features}) as T,
-      (target == null)
-        ? null
-        : Series.new({type: this._resolveType(convertDType, target[0]), data: target}),
+      target == null ? null : Series.new({
+        type: this._resolveType(convertDType, target[0]),
+        data: target,
+      }),
       nFeatures,
       convertDType);
   }
