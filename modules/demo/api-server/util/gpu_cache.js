@@ -87,15 +87,15 @@ module.exports = {
     console.log('readLargeGraphDemo');
     const dataset = StringSeries.readText(path, '');
     let split     = dataset.split('"options":');
-    if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: tags not found.'; }
+    if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: options not found.'; };
     const toptions = split.gather([1], false);
     let rest       = split.gather([0], false);
     split          = rest.split('"edges":');
-    if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: tags not found.'; }
+    if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: edges not found.'; };
     const tedges = split.gather([1], false);
     rest         = split.gather([0], false);
     split        = rest.split('"nodes":');
-    if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: tags not found.'; }
+    if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: nodes not found.'; };
     const tnodes = split.gather([1], false);
     const nodes  = json_key_attributes_to_dataframe(tnodes);
     const edges  = json_aos_to_dataframe(
@@ -111,7 +111,8 @@ module.exports = {
   async readGraphology(path) {
     console.log('readGraphology');
     const dataset = StringSeries.readText(path, '');
-    let split     = dataset.split('"tags":');
+    if (dataset.length == 0) { throw 'File does not exist or is empty.' }
+    let split = dataset.split('"tags":');
     if (split.length <= 1) { throw 'Bad graphology format: tags not found.'; }
     const ttags = split.gather([1], false);
     let rest    = split.gather([0], false);
