@@ -21,6 +21,7 @@
     "@loaders.gl/draco": "3.1.6",
     "@loaders.gl/3d-tiles": "3.1.6",
     "@rapidsai/jsdom": "0.0.1",
+    "mjolnir.js": "2.6.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-map-gl": "5.3.16"

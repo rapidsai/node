@@ -40,7 +40,8 @@
   "dependencies": {
     "@types/node": "^15.0.0",
     "bindings": "^1.5.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "cross-env": "7.0.3"
   },
   "devDependencies": {
     "@types/jest": "26.0.23",

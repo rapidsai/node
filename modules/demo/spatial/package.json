@@ -22,12 +22,14 @@
     "@rapidsai/cudf": "0.0.1",
     "@rapidsai/cuspatial": "0.0.1",
     "@rapidsai/jsdom": "0.0.1",
+    "mjolnir.js": "2.6.0",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
   "files": [
     "app.js",
     "data.js",
+    "util.js",
     "color.js",
     "index.js",
     "data/263_tracts.arrow",

@@ -9,9 +9,9 @@
   ],
   "bin": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=development node index.js",
-    "build": "next build",
-    "start": "next build && NODE_ENV=production node index.js"
+    "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=development node index.js",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider next build",
+    "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider next build && NODE_ENV=production node index.js"
   },
   "dependencies": {
     "@material-ui/core": "4.12.3",
