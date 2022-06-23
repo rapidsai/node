@@ -85,6 +85,7 @@ runs:
       with:
         buildkitd-flags: --debug
     - name: Login to container registry
+      if: ${{ inputs.push == 'true' }}
       uses: docker/login-action@v1
       with:
         registry: ${{ inputs.registry-url }}
