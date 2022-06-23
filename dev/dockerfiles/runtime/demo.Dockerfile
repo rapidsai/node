@@ -1,28 +1,29 @@
 ARG FROM_IMAGE
+ARG BUILD_IMAGE
 ARG DEVEL_IMAGE
 
+FROM ${BUILD_IMAGE} as build
 FROM ${DEVEL_IMAGE} as devel
 
 WORKDIR /home/node
 
-RUN cp                                   \
-    /opt/rapids/wrtc-0.4.7-dev.tgz       \
-    /opt/rapids/rapidsai-core-*.tgz      \
-    /opt/rapids/rapidsai-cuda-*.tgz      \
-    /opt/rapids/rapidsai-glfw-*.tgz      \
-    /opt/rapids/rapidsai-webgl-*.tgz     \
-    /opt/rapids/rapidsai-rmm-*.tgz       \
-    /opt/rapids/rapidsai-cudf-*.tgz      \
-    /opt/rapids/rapidsai-sql-*.tgz       \
-    /opt/rapids/rapidsai-cuml-*.tgz      \
-    /opt/rapids/rapidsai-cugraph-*.tgz   \
-    /opt/rapids/rapidsai-cuspatial-*.tgz \
-    /opt/rapids/rapidsai-io-*.tgz        \
-    /opt/rapids/rapidsai-deck.gl-*.tgz   \
-    /opt/rapids/rapidsai-jsdom-*.tgz     \
-    /opt/rapids/rapidsai-demo-*.tgz      \
-    . \
- && npm install --production --omit dev --omit peer --omit optional --legacy-peer-deps --force *.tgz
+RUN --mount=type=bind,from=build,source=/opt/rapids/,target=/tmp/rapids/ \
+    npm install --omit=dev --omit=peer --omit=optional --legacy-peer-deps --force \
+       /tmp/rapids/wrtc-0.4.7-dev.tgz       \
+       /tmp/rapids/rapidsai-core-*.tgz      \
+       /tmp/rapids/rapidsai-cuda-*.tgz      \
+       /tmp/rapids/rapidsai-glfw-*.tgz      \
+       /tmp/rapids/rapidsai-webgl-*.tgz     \
+       /tmp/rapids/rapidsai-rmm-*.tgz       \
+       /tmp/rapids/rapidsai-cudf-*.tgz      \
+       /tmp/rapids/rapidsai-sql-*.tgz       \
+       /tmp/rapids/rapidsai-cuml-*.tgz      \
+       /tmp/rapids/rapidsai-cugraph-*.tgz   \
+       /tmp/rapids/rapidsai-cuspatial-*.tgz \
+       /tmp/rapids/rapidsai-io-*.tgz      \
+       /tmp/rapids/rapidsai-deck.gl-*.tgz   \
+       /tmp/rapids/rapidsai-jsdom-*.tgz     \
+       /tmp/rapids/rapidsai-demo-*.tgz      ;
 
 FROM ${FROM_IMAGE}
 
@@ -87,11 +88,11 @@ RUN cd /usr/local/lib \
     /var/lib/apt/lists/* \
     /var/cache/apt/archives/*
 
-COPY --from=devel --chown=node:node /home/node/node_modules/ /home/node/node_modules/
-
 USER node
 
 WORKDIR /home/node
+
+COPY --from=devel --chown=node:node /home/node/node_modules .
 
 SHELL ["/bin/bash", "-l"]
 

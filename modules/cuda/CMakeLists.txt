@@ -15,7 +15,7 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
-project(node_cuda VERSION 0.0.1 LANGUAGES C CXX)
+project(rapidsai_cuda VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
@@ -39,7 +39,7 @@ include(ConfigureCUDA)
 include(ConfigureNapi)
 
 ###################################################################################################
-# - node_cuda target ------------------------------------------------------------------------------
+# - rapidsai_cuda target ------------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_CUDA_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 

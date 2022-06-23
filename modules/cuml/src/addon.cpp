@@ -18,16 +18,16 @@
 
 #include <nv_node/addon.hpp>
 
-struct node_cuml : public nv::EnvLocalAddon, public Napi::Addon<node_cuml> {
-  node_cuml(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
+struct rapidsai_cuml : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cuml> {
+  rapidsai_cuml(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
     DefineAddon(exports,
                 {
-                  InstanceMethod("init", &node_cuml::InitAddon),
+                  InstanceMethod("init", &rapidsai_cuml::InitAddon),
                   InstanceValue("_cpp_exports", _cpp_exports.Value()),
 
                   InstanceValue("COO", InitClass<nv::COO>(env, exports)),
                   InstanceValue("UMAP", InitClass<nv::UMAP>(env, exports)),
-                  InstanceMethod("trustworthiness", &node_cuml::trustworthiness),
+                  InstanceMethod("trustworthiness", &rapidsai_cuml::trustworthiness),
                 });
   }
 
@@ -37,4 +37,4 @@ struct node_cuml : public nv::EnvLocalAddon, public Napi::Addon<node_cuml> {
   }
 };
 
-NODE_API_ADDON(node_cuml);
+NODE_API_ADDON(rapidsai_cuml);

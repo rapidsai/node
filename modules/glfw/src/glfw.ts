@@ -14,7 +14,8 @@
 
 export const isHeadless = typeof process.env.DISPLAY === 'undefined' ? true : false;
 export const GLFW: any =
-  require('bindings')(isHeadless ? 'node_glfw_eglheadless.node' : 'node_glfw_x11.node').init();
+  require('bindings')(isHeadless ? 'rapidsai_glfw_eglheadless.node' : 'rapidsai_glfw_x11.node')
+    .init();
 
 export default GLFW;
 

@@ -25,7 +25,7 @@ export const {
   setCurrentDeviceResource,
   _cpp_exports,
   per_device_resources
-} = require('bindings')('node_rmm.node').init(CUDA) as typeof import('./node_rmm');
+} = require('bindings')('rapidsai_rmm.node').init(CUDA) as typeof import('./node_rmm');
 
 export type DeviceBuffer   = import('./node_rmm').DeviceBuffer;
 export type MemoryResource = import('./node_rmm').MemoryResource;

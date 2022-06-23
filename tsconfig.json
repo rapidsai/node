@@ -6,8 +6,8 @@
     "compilerOptions": {
         "baseUrl": "./",
         "paths": {
-            "@rapidsai/core":                         ["modules/rapids-core/src/index"],
-            "@rapidsai/core/*":                       ["modules/rapids-core/src/*"],
+            "@rapidsai/core":                         ["modules/core/src/index"],
+            "@rapidsai/core/*":                       ["modules/core/src/*"],
             "@rapidsai/cuda":                         ["modules/cuda/src/index"],
             "@rapidsai/cuda/*":                       ["modules/cuda/src/*"],
             "@rapidsai/rmm":                          ["modules/rmm/src/index"],

@@ -1,0 +1,83 @@
+name: Create GitHub release
+
+env:
+  NODE: "18.2.0"
+  RAPIDS: "22.02.00"
+  VERSION: "0.0.1"
+  REPOSITORY: "ghcr.io/rapidsai/node"
+
+concurrency:
+  group: create_github_release
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+
+  build-extract-and-release-packages:
+    name: Build, extract, and release packages
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+      matrix:
+        CUDA: ["11.6.2"]
+        LINUX: ["ubuntu20.04"]
+        GPU_ARCH: [60, 70, 80, 86, ALL]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+          fetch-depth: 2
+
+      - name: Checkout LFS
+        run: git lfs checkout
+
+      - name: Build packages for GPU arch ${{ matrix.GPU_ARCH }}
+        uses: ./.github/actions/build-and-publish-image
+        with:
+          registry-url: ghcr.io
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ github.token }}
+          pull: true
+          push: false
+          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          RAPIDSAI_GITHUB_ACCESS_TOKEN: "${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}"
+          file: dev/dockerfiles/devel/package.Dockerfile
+          tags: |
+            ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ matrix.GPU_ARCH }}
+          build-args: |
+            "CUDAARCHS=${{ matrix.GPU_ARCH }}-real"
+            "PARALLEL_LEVEL=1"
+            "SCCACHE_IDLE_TIMEOUT=32768"
+            "SCCACHE_REGION=us-west-2"
+            "SCCACHE_BUCKET=node-rapids-sccache"
+            "RAPIDS_VERSION=${{ env.RAPIDS }}"
+            "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
+
+      - name: Extract packages for GPU arch ${{ matrix.GPU_ARCH }}
+        run: |
+          mkdir -p build
+          docker run --rm -v "$PWD/build:/out" \
+              ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ matrix.GPU_ARCH }} \
+              sh -c "cp /opt/rapids/*.tgz /out/"
+          GPU_ARCH="$(echo "${{ matrix.GPU_ARCH }}" | tr '[:upper:]' '[:lower:]')"
+          for x in cuda cudf cugraph cuml cuspatial io rmm sql; do
+              tar -C build -zf build/rapidsai-$x-*.tgz --strip-components=3 -x package/build/Release/rapidsai_$x.node;
+              mv build/rapidsai_$x.node build/rapidsai_$x-$GPU_ARCH-${{ env.RAPIDS }}.node;
+          done;
+          rm -rf build/*.tgz;
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        with:
+          body: ""
+          draft: true
+          tag_name: "v${{ env.RAPIDS }}"
+          token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
+          files: |
+            build/*.node

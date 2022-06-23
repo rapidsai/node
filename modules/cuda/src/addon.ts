@@ -38,7 +38,7 @@ export const {
   IpcHandle,
   MappedGLMemory,
   _cpp_exports,
-} = require('bindings')('node_cuda.node').init() as typeof import('./node_cuda');
+} = require('bindings')('rapidsai_cuda.node').init() as typeof import('./node_cuda');
 
 export type getDriverVersion = typeof import('./node_cuda').getDriverVersion;
 export type rgbaMirror       = typeof import('./node_cuda').rgbaMirror;

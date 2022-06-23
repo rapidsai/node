@@ -15,7 +15,7 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
-project(node_glfw VERSION 0.0.1 LANGUAGES C CXX)
+project(rapidsai_glfw VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
@@ -59,11 +59,11 @@ _find_glfw(x11 OFF OFF)
 _find_glfw(eglheadless OFF ON)
 
 ###################################################################################################
-# - node_glfw target ------------------------------------------------------------------------------
+# - rapidsai_glfw target ------------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_GLFW_SRC_FILES "src/*.cpp")
 
-function(make_node_glfw_target VARIANT DEFINES)
+function(make_rapidsai_glfw_target VARIANT DEFINES)
     add_library(${PROJECT_NAME}_${VARIANT} SHARED ${NODE_GLFW_SRC_FILES} ${CMAKE_JS_SRC})
 
     set_target_properties(${PROJECT_NAME}_${VARIANT}
@@ -105,9 +105,9 @@ function(make_node_glfw_target VARIANT DEFINES)
                         OpenGL::OpenGL)
 endfunction()
 
-make_node_glfw_target(x11 "-DGLFW_EXPOSE_NATIVE_X11")
-# make_node_glfw_target(wayland "-DGLFW_EXPOSE_NATIVE_WAYLAND")
-make_node_glfw_target(eglheadless "-DGLFW_EXPOSE_NATIVE_EGL_EXT -D_GLFW_EGL_LIBRARY=libEGL_nvidia.so.0")
+make_rapidsai_glfw_target(x11 "-DGLFW_EXPOSE_NATIVE_X11")
+# make_rapidsai_glfw_target(wayland "-DGLFW_EXPOSE_NATIVE_WAYLAND")
+make_rapidsai_glfw_target(eglheadless "-DGLFW_EXPOSE_NATIVE_EGL_EXT -D_GLFW_EGL_LIBRARY=libEGL_nvidia.so.0")
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

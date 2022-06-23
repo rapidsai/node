@@ -21,7 +21,7 @@ import {addon as RMM} from '@rapidsai/rmm';
 export const {
   Graph,
   _cpp_exports,
-} =
-  require('bindings')('node_cugraph.node').init(CUDA, RMM, CUDF) as typeof import('./node_cugraph');
+} = require('bindings')('rapidsai_cugraph.node').init(CUDA, RMM, CUDF) as
+    typeof import('./node_cugraph');
 
 export type Graph = import('./node_cugraph').Graph;

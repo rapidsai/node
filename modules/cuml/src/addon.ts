@@ -21,6 +21,6 @@ export const {
   COO,
   UMAP,
   trustworthiness,
-} = require('bindings')('node_cuml.node').init(CUDA, RMM, CUDF) as typeof import('./node_cuml');
+} = require('bindings')('rapidsai_cuml.node').init(CUDA, RMM, CUDF) as typeof import('./node_cuml');
 
 export default {_cpp_exports, COO, UMAP, trustworthiness};
