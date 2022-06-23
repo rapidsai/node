@@ -19,22 +19,6 @@ jobs:
       RAPIDS: "22.06.00"
       REPOSITORY: "ghcr.io/rapidsai/node"
     steps:
-      - name: Free up disk space
-        run: |
-          df -h
-          docker images
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          sudo apt clean
-          sudo rm -rf /opt/ghc "$CONDA" \
-            /usr/share/swift \
-            /usr/share/dotnet \
-            /usr/local/lib/android \
-            /home/linuxbrew/.linuxbrew \
-            /opt/hostedtoolcache/CodeQL
-          docker rmi $(docker image ls -aq) || true
-          df -h
-          docker images
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -44,20 +28,6 @@ jobs:
 
       - name: Checkout LFS
         run: git lfs checkout
-
-      - name: Cache C++ dependencies
-        uses: actions/cache@v2
-        with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
-          path: |
-            .cache
-
-      - name: Cache node_modules
-        uses: actions/cache@v2
-        with:
-          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
-          path: |
-            node_modules
 
       - uses: nrwl/last-successful-commit-action@v1
         id: last_successful_main_commit
@@ -89,6 +59,40 @@ jobs:
             \.github/workflows/main\.pr\.yml
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
+
+      - name: Free up disk space
+        if: steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true' || steps.devel_dockerfiles_changed.outputs.any_changed == 'true'
+        run: |
+          df -h
+          docker images
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          sudo rm -rf /opt/ghc "$CONDA" \
+            /usr/share/swift \
+            /usr/share/dotnet \
+            /usr/local/lib/android \
+            /home/linuxbrew/.linuxbrew \
+            /opt/hostedtoolcache/CodeQL
+          docker rmi $(docker image ls -aq) || true
+          df -h
+          docker images
+
+      - name: Cache C++ dependencies
+        if: steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true' || steps.devel_dockerfiles_changed.outputs.any_changed == 'true'
+        uses: actions/cache@v2
+        with:
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cache-${{ hashFiles('**/modules/**/CMakeLists.txt', '**/modules/**/*.cmake') }}
+          path: |
+            .cache
+
+      - name: Cache node_modules
+        if: steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true' || steps.devel_dockerfiles_changed.outputs.any_changed == 'true'
+        uses: actions/cache@v2
+        with:
+          key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          path: |
+            node_modules
 
       - name: Build devel main image
         if: steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true' && steps.devel_dockerfiles_changed.outputs.any_changed == 'true'
