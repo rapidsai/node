@@ -60,24 +60,6 @@ jobs:
             \.github/workflows/merge\.pr\.yml
             \.github/actions/build-and-publish-image/action\.yml
 
-      - name: Free up disk space
-        if: steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true' || steps.devel_dockerfiles_changed.outputs.any_changed == 'true'
-        run: |
-          df -h
-          docker images
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          sudo apt clean
-          sudo rm -rf /opt/ghc "$CONDA" \
-            /usr/share/swift \
-            /usr/share/dotnet \
-            /usr/local/lib/android \
-            /home/linuxbrew/.linuxbrew \
-            /opt/hostedtoolcache/CodeQL
-          docker rmi $(docker image ls -aq) || true
-          df -h
-          docker images
-
       - name: Cache C++ dependencies
         if: steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true' || steps.devel_dockerfiles_changed.outputs.any_changed == 'true'
         uses: actions/cache@v2
@@ -93,6 +75,24 @@ jobs:
           key: ${{ runner.os }}-${{ env.RAPIDS }}-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-node_modules-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           path: |
             node_modules
+
+      - name: Free up disk space
+        if: steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true' && steps.devel_dockerfiles_changed.outputs.any_changed != 'true'
+        run: |
+          df -h
+          docker images
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          sudo rm -rf /opt/ghc "$CONDA" \
+            /usr/share/swift \
+            /usr/share/dotnet \
+            /usr/local/lib/android \
+            /home/linuxbrew/.linuxbrew \
+            /opt/hostedtoolcache/CodeQL
+          docker rmi $(docker image ls -aq) || true
+          df -h
+          docker images
 
       - name: Build devel main image
         if: steps.source_files_changed.outputs.any_changed == 'true' || steps.source_files_changed.outputs.any_deleted == 'true' && steps.devel_dockerfiles_changed.outputs.any_changed == 'true'
