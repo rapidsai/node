@@ -11,6 +11,7 @@
 **/compile_commands.json
 
 .env
+.creds
 .vscode
 .cmake-js
 modules/*/include/napi.h
