@@ -1,8 +1,37 @@
 name: Create GitHub release
 
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        type: string
+        required: true
+        default: "rapisdai/node"
+        description: "node-rapids repo to use"
+      branch-or-tag:
+        type: string
+        required: true
+        default: 'main'
+        description: "Branch or tag to checkout"
+      rapids-version:
+        type: string
+        required: true
+        default: "22.06.00"
+        description: "RAPIDS version"
+      make-release:
+        type: boolean
+        required: true
+        default: false
+        description: "Make Release"
+      release-type:
+        type: boolean
+        required: false
+        default: true
+        description: "Draft Release"
+
 env:
   NODE: "18.2.0"
-  RAPIDS: "22.06.00"
+  RAPIDS: "${{ inputs.rapids-version }}"
   REPOSITORY: "ghcr.io/rapidsai/node"
 
 concurrency:
@@ -29,6 +58,8 @@ jobs:
         with:
           lfs: true
           fetch-depth: 2
+          repository: ${{ inputs.repo }}
+          ref: ${{ inputs.branch-or-tag }}
 
       - name: Checkout LFS
         run: git lfs checkout
@@ -61,21 +92,29 @@ jobs:
           mkdir -p build
           docker run --rm -v "$PWD/build:/out" \
               ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages-${{ matrix.GPU_ARCH }} \
-              sh -c "cp /opt/rapids/*.tgz /out/"
-          GPU_ARCH="$(echo "${{ matrix.GPU_ARCH }}" | tr '[:upper:]' '[:lower:]')"
+              sh -c "cp /opt/rapids/*.tgz /out/";
+          GPU_TAG="gpu$(echo "${{ matrix.GPU_ARCH }}" | tr '[:upper:]' '[:lower:]')";
+          VER_TAG="${{ env.RAPIDS }}-cuda${{ matrix.CUDA }}-linux-x86_64-${GPU_TAG}";
           for x in cuda cudf cugraph cuml cuspatial io rmm sql; do
               tar -C build -zf build/rapidsai-$x-*.tgz --strip-components=3 -x package/build/Release/rapidsai_$x.node;
-              mv build/rapidsai_$x.node build/rapidsai_$x-$GPU_ARCH-${{ env.RAPIDS }}.node;
+              mv build/rapidsai_$x.node build/rapidsai_$x-${VER_TAG}.node;
           done;
           rm -rf build/*.tgz;
 
+      - name: Upload node native modules
+        uses: actions/upload-artifact@v2
+        with:
+          name: node-native-modules
+          path: build/*.node
+
       - name: Create GitHub release
+        if: ${{ inputs.make-release == 'true' }}
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
         with:
           body: ""
-          draft: true
+          draft: ${{ inputs.release-type }}
           tag_name: "v${{ env.RAPIDS }}"
           token: ${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}
           files: |
