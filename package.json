@@ -98,8 +98,12 @@
       ],
       "pre-push": [],
       "post-commit": [],
-      "post-checkout": [],
-      "post-merge": []
+      "post-checkout": [
+        "git update-index --assume-unchanged .creds"
+      ],
+      "post-merge": [
+        "git update-index --assume-unchanged .creds"
+      ]
     }
   },
   "lint-staged": {

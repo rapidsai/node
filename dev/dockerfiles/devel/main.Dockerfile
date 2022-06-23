@@ -37,7 +37,7 @@ ${CUDA_HOME}/nvvm/lib64:\
 ${CUDA_HOME}/lib64/stubs"
 
 ARG GCC_VERSION=9
-ARG CMAKE_VERSION=3.21.3
+ARG CMAKE_VERSION=3.23.2
 ARG SCCACHE_VERSION=0.2.15
 
 ARG NODE_VERSION=18.2.0
@@ -160,14 +160,14 @@ ARG TARGETARCH
 ARG SCCACHE_REGION
 ARG SCCACHE_BUCKET
 ARG SCCACHE_IDLE_TIMEOUT
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_SECRET_ACCESS_KEY
 
 RUN --mount=type=secret,id=sccache_credentials \
     --mount=type=cache,target=/opt/node-webrtc \
     \
     if [ ! -f /opt/node-webrtc/build/Release/wrtc.node ]; then \
-        if [ -f /run/secrets/sccache_credentials ]; then set -a; . /run/secrets/sccache_credentials; set +a; fi; \
+        if [ -f /run/secrets/sccache_credentials ]; then \
+            export $(grep -v '^#' /run/secrets/sccache_credentials | xargs -d '\n'); \
+        fi; \
         apt update \
          && DEBIAN_FRONTEND=noninteractive \
             apt install -y --no-install-recommends python \

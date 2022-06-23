@@ -2,7 +2,9 @@ version: "3.8"
 
 x-base-settings: &base_service_settings
   tty: true
-  env_file: .env
+  env_file:
+    - .env
+    - .creds
   network_mode: host
   build: &base_build_settings
     context: .
@@ -39,6 +41,7 @@ x-main-service-settings: &main_service_settings
     DISPLAY: "${DISPLAY:-}"
     XAUTHORITY: "${XAUTHORITY:-}"
     XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
+    RAPIDS_VERSION: "${RAPIDS_VERSION:-22.06.00}"
     XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR:-/run/user/$UID}"
     LIBCUDF_KERNEL_CACHE_PATH: "/opt/rapids/node/.cache/jit"
     DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$UID/bus}"
@@ -56,6 +59,8 @@ services:
     image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-18.2.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
     build:
       <<: *base_build_settings
+      secrets:
+        - sccache_credentials
       dockerfile: dev/dockerfiles/devel/main.Dockerfile
       args:
         NODE_VERSION: ${NODE_VERSION:-18.2.0}
@@ -64,14 +69,14 @@ services:
         SCCACHE_REGION: "${SCCACHE_REGION:-}"
         SCCACHE_BUCKET: "${SCCACHE_BUCKET:-}"
         SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-}"
-        AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
-        AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
 
   packages:
     <<: *base_service_settings
     image: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-18.2.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-packages
     build:
       <<: *base_build_settings
+      secrets:
+        - sccache_credentials
       dockerfile: dev/dockerfiles/devel/package.Dockerfile
       args:
         CUDAARCHS: "${CUDAARCHS:-ALL}"
@@ -81,8 +86,6 @@ services:
         SCCACHE_REGION: "${SCCACHE_REGION:-us-west-2}"
         SCCACHE_BUCKET: "${SCCACHE_BUCKET:-node-rapids-sccache}"
         SCCACHE_IDLE_TIMEOUT: "${SCCACHE_IDLE_TIMEOUT:-32768}"
-        AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
-        AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
         FROM_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.06.00}-devel-node${NODE_VERSION:-18.2.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
 
   notebook:
@@ -96,3 +99,7 @@ services:
     environment:
       <<: *main_environment_settings
       QT_AUTO_SCREEN_SCALE_FACTOR: 0
+
+secrets:
+  sccache_credentials:
+    file: .creds
