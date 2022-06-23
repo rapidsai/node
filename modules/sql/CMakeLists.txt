@@ -82,7 +82,7 @@ list(REMOVE_ITEM BLAZINGSQL_WRAPPER_CMAKE_CUDA_FLAGS -Werror)
 
 file(GLOB_RECURSE BLAZINGSQL_WRAPPER_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/blazingsql/*.cpp")
 
-add_library(blazingsql_wrapper SHARED ${BLAZINGSQL_WRAPPER_SRC_FILES})
+add_library(blazingsql_wrapper STATIC ${BLAZINGSQL_WRAPPER_SRC_FILES})
 
 set_target_properties(blazingsql_wrapper
     PROPERTIES PREFIX                              ""
@@ -115,9 +115,6 @@ target_include_directories(blazingsql_wrapper
 )
 
 target_link_libraries(blazingsql_wrapper
-    # PUBLIC  rmm::rmm
-    #         cudf::cudf
-    # PRIVATE blazingdb::blazingsql-engine
     PRIVATE rmm::rmm
             cudf::cudf
             blazingdb::blazingsql-engine
