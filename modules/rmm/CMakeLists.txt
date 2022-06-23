@@ -15,7 +15,7 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
-project(node_rmm VERSION 0.0.1 LANGUAGES C CXX)
+project(rapidsai_rmm VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
@@ -49,7 +49,7 @@ include(ConfigureNapi)
 include(ConfigureRMM)
 
 ###################################################################################################
-# - node_rmm target -------------------------------------------------------------------------------
+# - rapidsai_rmm target -------------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_CUDA_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
@@ -89,7 +89,7 @@ target_compile_definitions(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       rmm::rmm
-                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
+                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cuda.node")
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

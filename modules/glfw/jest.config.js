@@ -14,48 +14,29 @@
 
 try {
   require('dotenv').config();
-} catch (e) { }
+} catch (e) {}
 
 module.exports = {
-  "verbose": true,
-  "testEnvironment": "node",
-  "maxWorkers": process.env.PARALLEL_LEVEL || 1,
-  "globals": {
-    "ts-jest": {
-      "diagnostics": false,
-      "tsconfig": "test/tsconfig.json"
-    }
-  },
-  "rootDir": "./",
-  "roots": [
-    "<rootDir>/test/"
+  'verbose': true,
+  'testEnvironment': 'node',
+  'maxWorkers': process.env.PARALLEL_LEVEL || 1,
+  'globals': {'ts-jest': {'diagnostics': false, 'tsconfig': 'test/tsconfig.json'}},
+  'rootDir': './',
+  'roots': ['<rootDir>/test/'],
+  'moduleFileExtensions': ['js', 'ts', 'tsx'],
+  'coverageReporters': ['lcov'],
+  'coveragePathIgnorePatterns': ['test\\/.*\\.(ts|tsx|js)$', '/node_modules/'],
+  'transform': {'^.+\\.jsx?$': 'ts-jest', '^.+\\.tsx?$': 'ts-jest'},
+  'transformIgnorePatterns': [
+    '/build/(js|Debug|Release)/*$',
+    '/node_modules/(?!@tensorflow)/*$',
+    '/node_modules/(?!web-stream-tools).+\\.js$'
   ],
-  "moduleFileExtensions": [
-    "js",
-    "ts",
-    "tsx"
-  ],
-  "coverageReporters": [
-    "lcov"
-  ],
-  "coveragePathIgnorePatterns": [
-    "test\\/.*\\.(ts|tsx|js)$",
-    "/node_modules/"
-  ],
-  "transform": {
-    "^.+\\.jsx?$": "ts-jest",
-    "^.+\\.tsx?$": "ts-jest"
-  },
-  "transformIgnorePatterns": [
-    "/build/(js|Debug|Release)/*$",
-    "/node_modules/(?!@tensorflow)/*$",
-    "/node_modules/(?!web-stream-tools).+\\.js$"
-  ],
-  "testRegex": "(.*(-|\\.)(test|spec)s?)\\.(ts|tsx|js)$",
-  "preset": "ts-jest",
-  "testMatch": null,
-  "moduleNameMapper": {
-    "^@rapidsai\/glfw(.*)": "<rootDir>/src/$1",
-    "^\.\.\/(Debug|Release)\/(node_glfw.node)$": "<rootDir>/build/$1/$2",
+  'testRegex': '(.*(-|\\.)(test|spec)s?)\\.(ts|tsx|js)$',
+  'preset': 'ts-jest',
+  'testMatch': null,
+  'moduleNameMapper': {
+    '^@rapidsai\/glfw(.*)': '<rootDir>/src/$1',
+    '^\.\.\/(Debug|Release)\/(rapidsai_glfw.node)$': '<rootDir>/build/$1/$2',
   }
 };

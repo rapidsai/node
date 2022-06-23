@@ -21,8 +21,8 @@
 #include <nv_node/addon.hpp>
 #include <nv_node/macros.hpp>
 
-struct node_rmm : public nv::EnvLocalAddon, public Napi::Addon<node_rmm> {
-  node_rmm(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
+struct rapidsai_rmm : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_rmm> {
+  rapidsai_rmm(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
     auto const num_devices = nv::Device::get_num_devices();
     _per_device_resources  = Napi::Persistent(Napi::Array::New(env, num_devices));
     _after_init = Napi::Persistent(Napi::Function::New(env, [=](Napi::CallbackInfo const& info) {
@@ -34,14 +34,14 @@ struct node_rmm : public nv::EnvLocalAddon, public Napi::Addon<node_rmm> {
     DefineAddon(
       exports,
       {
-        InstanceMethod("init", &node_rmm::InitAddon),
+        InstanceMethod("init", &rapidsai_rmm::InitAddon),
         InstanceValue("_cpp_exports", _cpp_exports.Value()),
         InstanceValue("DeviceBuffer", InitClass<nv::DeviceBuffer>(env, exports)),
         InstanceValue("MemoryResource", InitClass<nv::MemoryResource>(env, exports)),
-        InstanceMethod<&node_rmm::get_per_device_resource>("getPerDeviceResource"),
-        InstanceMethod<&node_rmm::set_per_device_resource>("setPerDeviceResource"),
-        InstanceMethod<&node_rmm::get_current_device_resource>("getCurrentDeviceResource"),
-        InstanceMethod<&node_rmm::set_current_device_resource>("setCurrentDeviceResource"),
+        InstanceMethod<&rapidsai_rmm::get_per_device_resource>("getPerDeviceResource"),
+        InstanceMethod<&rapidsai_rmm::set_per_device_resource>("setPerDeviceResource"),
+        InstanceMethod<&rapidsai_rmm::get_current_device_resource>("getCurrentDeviceResource"),
+        InstanceMethod<&rapidsai_rmm::set_current_device_resource>("setCurrentDeviceResource"),
       });
   }
 
@@ -86,4 +86,4 @@ struct node_rmm : public nv::EnvLocalAddon, public Napi::Addon<node_rmm> {
   }
 };
 
-NODE_API_ADDON(node_rmm);
+NODE_API_ADDON(rapidsai_rmm);

@@ -25,5 +25,5 @@ export const {
   computePolylineBoundingBoxes,
   findPointsInPolygons,
   findPolylineNearestToEachPoint
-} = require('bindings')('node_cuspatial.node').init(CUDA, RMM, CUDF) as
+} = require('bindings')('rapidsai_cuspatial.node').init(CUDA, RMM, CUDF) as
     typeof import('./node_cuspatial');

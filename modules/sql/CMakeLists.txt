@@ -118,9 +118,9 @@ target_link_libraries(blazingsql_wrapper
     PUBLIC  rmm::rmm
             cudf::cudf
     PRIVATE blazingdb::blazingsql-engine
-    PUBLIC  "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
-            "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
-            "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node"
+    PUBLIC  "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cudf.node"
+            "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_rmm.node"
+            "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cuda.node"
 )
 
 ###################################################################################################
@@ -168,9 +168,9 @@ target_link_libraries(${PROJECT_NAME}
                       cudf::cudf
                       blazingsql_wrapper
                       ucp
-                      "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
-                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
-                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
+                      "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cudf.node"
+                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_rmm.node"
+                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cuda.node")
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

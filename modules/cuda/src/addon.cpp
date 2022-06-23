@@ -25,8 +25,8 @@
 
 #include <nppi.h>
 
-struct node_cuda : public nv::EnvLocalAddon, public Napi::Addon<node_cuda> {
-  node_cuda(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
+struct rapidsai_cuda : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cuda> {
+  rapidsai_cuda(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
     _driver     = Napi::Persistent(Napi::Object::New(env));
     _runtime    = Napi::Persistent(Napi::Object::New(env));
     _after_init = Napi::Persistent(Napi::Function::New(env, [](Napi::CallbackInfo const& info) {
@@ -49,7 +49,7 @@ struct node_cuda : public nv::EnvLocalAddon, public Napi::Addon<node_cuda> {
 
     DefineAddon(exports,
                 {
-                  InstanceMethod("init", &node_cuda::InitAddon),
+                  InstanceMethod("init", &rapidsai_cuda::InitAddon),
                   InstanceValue("_cpp_exports", _cpp_exports.Value()),
 
                   InstanceValue("driver", _driver.Value()),
@@ -58,9 +58,9 @@ struct node_cuda : public nv::EnvLocalAddon, public Napi::Addon<node_cuda> {
                   InstanceValue("VERSION", Napi::Number::New(env, CUDA_VERSION)),
                   InstanceValue("IPC_HANDLE_SIZE", Napi::Number::New(env, CU_IPC_HANDLE_SIZE)),
 
-                  InstanceMethod<&node_cuda::get_driver_version>("getDriverVersion"),
-                  InstanceMethod<&node_cuda::rgba_mirror>("rgbaMirror"),
-                  InstanceMethod<&node_cuda::bgra_to_ycrcb420>("bgraToYCrCb420"),
+                  InstanceMethod<&rapidsai_cuda::get_driver_version>("getDriverVersion"),
+                  InstanceMethod<&rapidsai_cuda::rgba_mirror>("rgbaMirror"),
+                  InstanceMethod<&rapidsai_cuda::bgra_to_ycrcb420>("bgraToYCrCb420"),
 
                   InstanceValue("Device", InitClass<nv::Device>(env, exports)),
                   InstanceValue("PinnedMemory", InitClass<nv::PinnedMemory>(env, exports)),
@@ -120,4 +120,4 @@ struct node_cuda : public nv::EnvLocalAddon, public Napi::Addon<node_cuda> {
   }
 };
 
-NODE_API_ADDON(node_cuda);
+NODE_API_ADDON(rapidsai_cuda);

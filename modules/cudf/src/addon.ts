@@ -24,7 +24,7 @@ export const {
   Scalar,
   GroupBy,
   findCommonType,
-} = require('bindings')('node_cudf.node').init(CUDA, RMM) as typeof import('./node_cudf');
+} = require('bindings')('rapidsai_cudf.node').init(CUDA, RMM) as typeof import('./node_cudf');
 
 export default {
   _cpp_exports,

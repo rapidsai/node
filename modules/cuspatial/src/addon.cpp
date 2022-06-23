@@ -17,23 +17,24 @@
 
 #include <nv_node/addon.hpp>
 
-struct node_cuspatial : public nv::EnvLocalAddon, public Napi::Addon<node_cuspatial> {
-  node_cuspatial(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
-    DefineAddon(exports,
-                {
-                  InstanceMethod("init", &node_cuspatial::InitAddon),
-                  InstanceValue("_cpp_exports", _cpp_exports.Value()),
-                  InstanceMethod<&node_cuspatial::create_quadtree>("createQuadtree"),
-                  InstanceMethod<&node_cuspatial::quadtree_bounding_box_intersections>(
-                    "findQuadtreeAndBoundingBoxIntersections"),
-                  InstanceMethod<&node_cuspatial::find_points_in_polygons>("findPointsInPolygons"),
-                  InstanceMethod<&node_cuspatial::find_polyline_nearest_to_each_point>(
-                    "findPolylineNearestToEachPoint"),
-                  InstanceMethod<&node_cuspatial::compute_polygon_bounding_boxes>(
-                    "computePolygonBoundingBoxes"),
-                  InstanceMethod<&node_cuspatial::compute_polyline_bounding_boxes>(
-                    "computePolylineBoundingBoxes"),
-                });
+struct rapidsai_cuspatial : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cuspatial> {
+  rapidsai_cuspatial(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
+    DefineAddon(
+      exports,
+      {
+        InstanceMethod("init", &rapidsai_cuspatial::InitAddon),
+        InstanceValue("_cpp_exports", _cpp_exports.Value()),
+        InstanceMethod<&rapidsai_cuspatial::create_quadtree>("createQuadtree"),
+        InstanceMethod<&rapidsai_cuspatial::quadtree_bounding_box_intersections>(
+          "findQuadtreeAndBoundingBoxIntersections"),
+        InstanceMethod<&rapidsai_cuspatial::find_points_in_polygons>("findPointsInPolygons"),
+        InstanceMethod<&rapidsai_cuspatial::find_polyline_nearest_to_each_point>(
+          "findPolylineNearestToEachPoint"),
+        InstanceMethod<&rapidsai_cuspatial::compute_polygon_bounding_boxes>(
+          "computePolygonBoundingBoxes"),
+        InstanceMethod<&rapidsai_cuspatial::compute_polyline_bounding_boxes>(
+          "computePolylineBoundingBoxes"),
+      });
   }
 
  private:
@@ -55,4 +56,4 @@ struct node_cuspatial : public nv::EnvLocalAddon, public Napi::Addon<node_cuspat
   }
 };
 
-NODE_API_ADDON(node_cuspatial);
+NODE_API_ADDON(rapidsai_cuspatial);

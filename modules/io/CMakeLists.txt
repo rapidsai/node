@@ -40,7 +40,7 @@ execute_process(COMMAND node -p
 
 execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@rapidsai/cuda'))"
-                rapidsai_io WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 OUTPUT_VARIABLE NODE_RAPIDS_CUDA_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -64,7 +64,7 @@ include(ConfigureNapi)
 include(ConfigureCUDF)
 
 ###################################################################################################
-# - rapidsai_io target -------------------------------------------------------------------------
+# - rapidsai_io target ------------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_IO_CPP_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE NODE_IO_CUDA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu")
@@ -106,9 +106,9 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       cudf::cudf
-                      "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
-                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
-                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
+                      "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cudf.node"
+                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_rmm.node"
+                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cuda.node")
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND

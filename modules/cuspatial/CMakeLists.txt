@@ -15,7 +15,7 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.18...3.20 FATAL_ERROR)
 
-project(node_cuspatial VERSION 0.0.1 LANGUAGES C CXX)
+project(rapidsai_cuspatial VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
@@ -63,7 +63,7 @@ include(ConfigureNapi)
 include(ConfigureCUSPATIAL)
 
 ###################################################################################################
-# - node_cuspatial target -------------------------------------------------------------------------
+# - rapidsai_cuspatial target -------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_CUSPATIAL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
@@ -101,9 +101,9 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
                       ${CMAKE_JS_LIB}
                       cuspatial::cuspatial
-                      "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cudf.node"
-                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_rmm.node"
-                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/node_cuda.node")
+                      "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cudf.node"
+                      "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_rmm.node"
+                      "${NODE_RAPIDS_CUDA_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cuda.node")
 
 # Create a symlink to compile_commands.json for the llvm-vs-code-extensions.vscode-clangd plugin
 execute_process(COMMAND
