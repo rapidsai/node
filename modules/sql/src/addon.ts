@@ -25,8 +25,8 @@ export const {
   Context,
   UcpContext,
   ExecutionGraph
-} = require('bindings')('rapidsai_sql.node').init(CUDA, RMM, CUDF) as
-    typeof import('./rapidsai_sql') ;
+} =
+  require('bindings')('rapidsai_sql.node').init(CUDA, RMM, CUDF) as typeof import('./rapidsai_sql');
 
 export type getTableScanInfo         = typeof import('./rapidsai_sql').getTableScanInfo;
 export type runGeneratePhysicalGraph = typeof import('./rapidsai_sql').runGeneratePhysicalGraph;

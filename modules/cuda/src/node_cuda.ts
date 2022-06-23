@@ -296,7 +296,7 @@ export declare class Device {
    * {@link enablePeerAccess}.
    *
    * @returns `true` if this Device's contexts are capable of directly
-   * accessing memory from contexts on `peerDevice` , otherwise `false`.
+   * accessing memory from contexts on `peerDevice`, otherwise `false`.
    */
   canAccessPeerDevice(peerDevice: Device): boolean;
 
