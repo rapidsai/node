@@ -31,16 +31,14 @@ cmake_policy(SET CMP0072 NEW)
 
 execute_process(COMMAND node -p
                 "require('@rapidsai/core').cmake_modules_path"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
-
-include(ConfigureCXX)
-include(ConfigureNapi)
-include(ConfigureOpenGL)
-include(ConfigureOpenGLFW)
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureOpenGL.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureOpenGLFW.cmake")
 
 function(_find_glfw VARIANT USE_WAYLAND USE_EGLHEADLESS)
     find_and_configure_glfw(
@@ -59,7 +57,7 @@ _find_glfw(x11 OFF OFF)
 _find_glfw(eglheadless OFF ON)
 
 ###################################################################################################
-# - rapidsai_glfw target ------------------------------------------------------------------------------
+# - rapidsai_glfw target --------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_GLFW_SRC_FILES "src/*.cpp")
 
@@ -99,8 +97,7 @@ function(make_rapidsai_glfw_target VARIANT DEFINES)
     )
 
     target_link_libraries(${PROJECT_NAME}_${VARIANT}
-                        ${CMAKE_JS_LIB}
-                        glfw::${VARIANT}
+                 PUBLIC glfw::${VARIANT}
                         OpenGL::EGL
                         OpenGL::OpenGL)
 endfunction()

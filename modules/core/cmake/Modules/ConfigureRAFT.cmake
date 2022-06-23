@@ -14,11 +14,13 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_raft VERSION)
+function(find_and_configure_raft)
 
-    include(get_cpm)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureRMM.cmake)
 
-    include(ConfigureRMM)
+    _get_rapidsai_module_version(raft VERSION)
 
     _clean_build_dirs_if_not_fully_built(raft libraft_nn)
     _clean_build_dirs_if_not_fully_built(raft libraft_distance)
@@ -49,6 +51,8 @@ function(find_and_configure_raft VERSION)
     _fix_cmake_global_defaults(raft::raft)
     # Make these -isystem so -Werror doesn't fail their builds
     _set_interface_include_dirs_as_system(faiss::faiss)
+
+    set(raft_VERSION "${raft_VERSION}" PARENT_SCOPE)
 endfunction()
 
-find_and_configure_raft(${RMM_VERSION})
+find_and_configure_raft()

@@ -1,0 +1,17 @@
+{
+  "packages": {
+    "nvcomp": {
+      "version": "2.3",
+      "git_url": "https://github.com/NVIDIA/nvcomp.git",
+      "git_tag": "v2.2.0",
+      "proprietary_binary": {
+        "x86_64-linux": "http://developer.download.nvidia.com/compute/nvcomp/${version}/local_installers/nvcomp_${version}_Linux_CUDA_11.x.tgz"
+      }
+    },
+    "Thrust": {
+      "version": "1.15.0",
+      "git_url": "https://github.com/NVIDIA/thrust.git",
+      "git_tag": "${version}"
+    }
+  }
+}

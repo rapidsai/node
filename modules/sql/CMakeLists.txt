@@ -23,48 +23,41 @@ unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
 option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
-option(DISABLE_DEPRECATION_WARNINGS "Disable warnings generated from deprecated declarations." ON)
-
-set(RMM_VERSION "22.06.00")
-set(CUDF_VERSION "22.06.00")
-set(BLAZINGSQL_VERSION "22.06.00")
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
 
 execute_process(COMMAND node -p
                 "require('@rapidsai/core').cmake_modules_path"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@rapidsai/cuda'))"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_CUDA_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@rapidsai/rmm'))"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_RMM_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND node -p
                 "require('path').dirname(require.resolve('@rapidsai/cudf'))"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_CUDF_MODULE_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
-
-include(ConfigureCXX)
-include(ConfigureCUDA)
-include(ConfigureNapi)
-include(ConfigureBlazingSQL)
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCUDA.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureBlazingSQL.cmake")
 
 ###################################################################################################
-# - blazingsql_wrapper target ------------------------------------------------------------------------------
+# - blazingsql_wrapper target ---------------------------------------------------------------------
 
 set(BLAZINGSQL_WRAPPER_CMAKE_C_FLAGS ${NODE_RAPIDS_CMAKE_C_FLAGS})
 set(BLAZINGSQL_WRAPPER_CMAKE_CXX_FLAGS ${NODE_RAPIDS_CMAKE_CXX_FLAGS})
@@ -86,7 +79,6 @@ add_library(blazingsql_wrapper STATIC ${BLAZINGSQL_WRAPPER_SRC_FILES})
 
 set_target_properties(blazingsql_wrapper
     PROPERTIES PREFIX                              ""
-               SUFFIX                              ".so"
                BUILD_RPATH                         "\$ORIGIN"
                INSTALL_RPATH                       "\$ORIGIN"
                CXX_STANDARD                        17
@@ -96,7 +88,6 @@ set_target_properties(blazingsql_wrapper
                NO_SYSTEM_FROM_IMPORTED             ON
                POSITION_INDEPENDENT_CODE           ON
                INTERFACE_POSITION_INDEPENDENT_CODE ON
-               LIBRARY_OUTPUT_DIRECTORY            lib
 )
 
 target_compile_options(blazingsql_wrapper
@@ -124,7 +115,7 @@ target_link_libraries(blazingsql_wrapper
 )
 
 ###################################################################################################
-# - rapidsai_sql target ------------------------------------------------------------------------------
+# - rapidsai_sql target ---------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_BLAZINGSQL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
@@ -163,8 +154,7 @@ target_include_directories(${PROJECT_NAME}
 target_compile_definitions(${PROJECT_NAME} PUBLIC CUDA_API_PER_THREAD_DEFAULT_STREAM)
 
 target_link_libraries(${PROJECT_NAME}
-                      ${CMAKE_JS_LIB}
-                      blazingsql_wrapper
+               PUBLIC blazingsql_wrapper
                       ucp
                       "${NODE_RAPIDS_CUDF_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_cudf.node"
                       "${NODE_RAPIDS_RMM_MODULE_PATH}/build/${CMAKE_BUILD_TYPE}/rapidsai_rmm.node"

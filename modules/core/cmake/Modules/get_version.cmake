@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2022, NVIDIA CORPORATION.
+# Copyright (c) 2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_thrust VERSION)
-    _get_update_disconnected_state(Thrust ${VERSION} UPDATE_DISCONNECTED)
-    CPMAddPackage(NAME  Thrust
-        VERSION         ${VERSION}
-        GIT_REPOSITORY  https://github.com/NVIDIA/thrust.git
-        GIT_TAG         ${VERSION}
-        GIT_SHALLOW     TRUE
-        ${UPDATE_DISCONNECTED}
-        PATCH_COMMAND   patch --reject-file=- -p1 -N < ${CMAKE_CURRENT_LIST_DIR}/thrust.patch || true
-    )
+function(_get_rapidsai_module_version pkg out_var_)
+  set(ver_ "22.06.00")
+  if(DEFINED ${pkg}_VERSION)
+    set(ver_ "${${pkg}_VERSION}")
+  elseif(DEFINED RAPIDS_VERSION)
+    set(ver_ "${RAPIDS_VERSION}")
+  elseif(DEFINED ENV{RAPIDS_VERSION})
+    set(ver_ "$ENV{RAPIDS_VERSION}")
+    set(RAPIDS_VERSION "${ver_}" PARENT_SCOPE)
+  endif()
+  set(${out_var_} "${ver_}" PARENT_SCOPE)
 endfunction()
-
-find_and_configure_thrust(1.15.0)

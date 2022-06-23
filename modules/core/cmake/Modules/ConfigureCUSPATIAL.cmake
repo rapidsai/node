@@ -14,11 +14,15 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_cuspatial VERSION)
+function(find_and_configure_cuspatial)
 
-    include(get_cpm)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureCUDF.cmake)
 
-    include(ConfigureCUDF)
+    _get_rapidsai_module_version(cuspatial VERSION)
+
+    _clean_build_dirs_if_not_fully_built(cuspatial libcuspatial)
 
     _set_package_dir_if_exists(cudf cudf)
     _set_package_dir_if_exists(cuco cuco)
@@ -26,9 +30,6 @@ function(find_and_configure_cuspatial VERSION)
     _set_package_dir_if_exists(jitify jitify)
     _set_package_dir_if_exists(nvcomp nvcomp)
     _set_package_dir_if_exists(Thrust thrust)
-
-    _clean_build_dirs_if_not_fully_built(cuspatial libcuspatial)
-
     _set_package_dir_if_exists(cuspatial cuspatial)
 
     if(NOT TARGET cuspatial::cuspatial)
@@ -50,6 +51,8 @@ function(find_and_configure_cuspatial VERSION)
     endif()
     # Make sure consumers of our libs can see cuspatial::cuspatial
     _fix_cmake_global_defaults(cuspatial::cuspatial)
+
+    set(cuspatial_VERSION "${cuspatial_VERSION}" PARENT_SCOPE)
 endfunction()
 
-find_and_configure_cuspatial(${CUSPATIAL_VERSION})
+find_and_configure_cuspatial()

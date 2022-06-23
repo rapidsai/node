@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2021, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
 # limitations under the License.
 #=============================================================================
 
-include(get_cpm)
-
-_set_package_dir_if_exists(glfw glfw)
-
 function(find_and_configure_glfw LIB_NAME VERSION REPO TAG USE_SHARED_LIBS USE_WAYLAND USE_EGLHEADLESS)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+
+    _set_package_dir_if_exists(${LIB_NAME} ${LIB_NAME})
+
     CPMFindPackage(NAME ${LIB_NAME}
         VERSION         ${VERSION}
         GIT_REPOSITORY  ${REPO}
@@ -33,4 +33,6 @@ function(find_and_configure_glfw LIB_NAME VERSION REPO TAG USE_SHARED_LIBS USE_W
                         "GLFW_USE_WAYLAND ${USE_WAYLAND}"
                         "GLFW_USE_EGLHEADLESS ${USE_EGLHEADLESS}"
     )
+
+    set(${LIB_NAME}_VERSION "${${LIB_NAME}_VERSION}" PARENT_SCOPE)
 endfunction()

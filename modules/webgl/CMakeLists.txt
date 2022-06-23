@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2021, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,43 +21,30 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE)
 
+option(NODE_RAPIDS_WEBGL_STATIC_LINK "Statically link GLEW libraries" ON)
 option(NODE_RAPIDS_USE_SCCACHE "Enable caching compilation results with sccache" ON)
-option(NODE_WEBGL_STATIC_LINK "Statically link GLEW and GLFW libraries" OFF)
 
 # Set OpenGL_GL_PREFERENCE to "GLVND"
 cmake_policy(SET CMP0072 NEW)
-
-set(GLEW_VERSION "2.1.0")
-set(GLFW_VERSION "3.3.2")
-
-set(GLEW_USE_SHARED_LIBS OFF)
-set(GLFW_USE_SHARED_LIBS OFF)
-set(GLEW_USE_STATIC_LIBS ${NODE_WEBGL_STATIC_LINK})
-set(GLFW_USE_STATIC_LIBS ${NODE_WEBGL_STATIC_LINK})
-
-if(NOT NODE_WEBGL_STATIC_LINK)
-    set(GLEW_USE_SHARED_LIBS ON)
-    set(GLFW_USE_SHARED_LIBS ON)
-endif(NOT NODE_WEBGL_STATIC_LINK)
 
 ###################################################################################################
 # - cmake modules ---------------------------------------------------------------------------------
 
 execute_process(COMMAND node -p
                 "require('@rapidsai/core').cmake_modules_path"
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-list(APPEND CMAKE_MODULE_PATH "${NODE_RAPIDS_CMAKE_MODULES_PATH}")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureCXX.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureNapi.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureOpenGL.cmake")
+include("${NODE_RAPIDS_CMAKE_MODULES_PATH}/ConfigureOpenGLEW.cmake")
 
-include(ConfigureCXX)
-include(ConfigureNapi)
-include(ConfigureOpenGL)
-include(ConfigureOpenGLEW)
+find_and_configure_glew(2.1.0 ${NODE_RAPIDS_WEBGL_STATIC_LINK})
 
 ###################################################################################################
-# - rapidsai_webgl target -----------------------------------------------------------------------------
+# - rapidsai_webgl target -------------------------------------------------------------------------
 
 file(GLOB_RECURSE NODE_WEBGL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
@@ -88,8 +75,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-                      ${CMAKE_JS_LIB}
-                      ${GLEW_LIBRARY}
+               PUBLIC ${GLEW_LIBRARY}
                       OpenGL::EGL
                       OpenGL::OpenGL)
 

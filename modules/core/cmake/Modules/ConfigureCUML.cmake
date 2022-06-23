@@ -14,11 +14,13 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_cuml VERSION)
+function(find_and_configure_cuml)
 
-    include(get_cpm)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureCUMLPRIMS.cmake)
 
-    include(ConfigureCUMLPRIMS)
+    _get_rapidsai_module_version(cuml VERSION)
 
     _clean_build_dirs_if_not_fully_built(cuml libcuml++)
 
@@ -66,6 +68,8 @@ function(find_and_configure_cuml VERSION)
     endif()
     # Make sure consumers of our libs can see cuml::cuml++
     _fix_cmake_global_defaults(cuml::cuml++)
+
+    set(cuml_VERSION "${cuml_VERSION}" PARENT_SCOPE)
 endfunction()
 
-find_and_configure_cuml(${CUML_VERSION})
+find_and_configure_cuml()

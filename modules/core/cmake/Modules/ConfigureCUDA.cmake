@@ -110,7 +110,7 @@ elseif(NODE_RAPIDS_CMAKE_BUILD_FOR_DETECTED_ARCHS)
     # Auto-detect available GPU compute architectures
     execute_process(COMMAND node -p
                     "require('@rapidsai/core').cmake_modules_path"
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                     OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
     include(${NODE_RAPIDS_CMAKE_MODULES_PATH}/EvalGpuArchs.cmake)

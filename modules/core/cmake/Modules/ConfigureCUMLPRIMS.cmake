@@ -14,11 +14,13 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_cumlprims_mg VERSION)
+function(find_and_configure_cumlprims_mg)
 
-    include(get_cpm)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureRAFT.cmake)
 
-    include(ConfigureRAFT)
+    _get_rapidsai_module_version(cumlprims_mg VERSION)
 
     _clean_build_dirs_if_not_fully_built(cumlprims_mg libcumlprims_mg)
 
@@ -41,6 +43,8 @@ function(find_and_configure_cumlprims_mg VERSION)
     endif()
     # Make sure consumers of our libs can see cumlprims_mg::cumlprims_mg
     _fix_cmake_global_defaults(cumlprims_mg::cumlprims_mg)
+
+    set(cumlprims_mg_VERSION "${cumlprims_mg_VERSION}" PARENT_SCOPE)
 endfunction()
 
-find_and_configure_cumlprims_mg(${RMM_VERSION})
+find_and_configure_cumlprims_mg()

@@ -14,14 +14,18 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_cugraph_ops VERSION)
+function(find_and_configure_cugraph_ops)
 
-    include(get_cpm)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureRAFT.cmake)
 
-    include(ConfigureRAFT)
+    _get_rapidsai_module_version(cugraph-ops VERSION)
 
     _clean_build_dirs_if_not_fully_built(cugraph-ops libcugraph-ops++)
 
+    _set_package_dir_if_exists(raft raft)
+    _set_package_dir_if_exists(Thrust thrust)
     _set_package_dir_if_exists(cugraph-ops cugraph-ops)
 
     if(NOT TARGET cugraph-ops::cugraph-ops++)
@@ -42,6 +46,8 @@ function(find_and_configure_cugraph_ops VERSION)
     _fix_cmake_global_defaults(cugraph-ops::Thrust)
     # Make sure consumers of our libs can see cugraph-ops::cugraph-ops++
     _fix_cmake_global_defaults(cugraph-ops::cugraph-ops++)
+
+    set(cugraph-ops_VERSION "${cugraph-ops_VERSION}" PARENT_SCOPE)
 endfunction()
 
-find_and_configure_cugraph_ops(${RMM_VERSION})
+find_and_configure_cugraph_ops()

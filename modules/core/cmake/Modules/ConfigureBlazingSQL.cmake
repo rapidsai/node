@@ -14,29 +14,34 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_blazingsql VERSION)
+function(find_and_configure_blazingsql)
 
-    include(get_cpm)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureCUDF.cmake)
 
-    include(ConfigureCUDF)
+    _get_rapidsai_module_version(blazingsql-io VERSION)
 
+    _clean_build_dirs_if_not_fully_built(absl absl/base/libabsl_base)
+    _clean_build_dirs_if_not_fully_built(blazingsql-io libblazingsql-io)
+    _clean_build_dirs_if_not_fully_built(blazingsql-engine libblazingsql-engine)
+
+    _set_package_dir_if_exists(absl absl)
+    _set_package_dir_if_exists(cudf cudf)
     _set_package_dir_if_exists(cuco cuco)
     _set_package_dir_if_exists(dlpack dlpack)
     _set_package_dir_if_exists(jitify jitify)
     _set_package_dir_if_exists(nvcomp nvcomp)
     _set_package_dir_if_exists(Thrust thrust)
-
-    _clean_build_dirs_if_not_fully_built(blazingsql-io libblazingsql-io)
-
-    _set_package_dir_if_exists(absl absl)
     _set_package_dir_if_exists(blazingsql-io blazingsql-io)
+    _set_package_dir_if_exists(blazingsql-engine blazingsql-engine)
 
     if(NOT TARGET blazingdb::blazingsql-io)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         CPMFindPackage(NAME     blazingsql-io
             VERSION             ${VERSION}
             GIT_REPOSITORY      https://github.com/trxcllnt/blazingsql.git
-            GIT_TAG             fea/rapids-cmake-22.06
+            GIT_TAG             fea/rapids-cmake-${MAJOR_AND_MINOR}
             SOURCE_SUBDIR       io
             OPTIONS             # "S3_SUPPORT ON"
                                 "S3_SUPPORT OFF"
@@ -54,16 +59,16 @@ function(find_and_configure_blazingsql VERSION)
     # Make sure consumers of our libs can see blazingdb::blazingsql-io
     _fix_cmake_global_defaults(blazingdb::blazingsql-io)
 
-    _clean_build_dirs_if_not_fully_built(blazingsql-engine libblazingsql-engine)
+    set(blazingsql-io_VERSION "${blazingsql-io_VERSION}" PARENT_SCOPE)
 
-    _set_package_dir_if_exists(blazingsql-engine blazingsql-engine)
+    _get_rapidsai_module_version(blazingsql-engine VERSION)
 
     if(NOT TARGET blazingdb::blazingsql-engine)
         _get_major_minor_version(${VERSION} MAJOR_AND_MINOR)
         CPMFindPackage(NAME     blazingsql-engine
             VERSION             ${VERSION}
             GIT_REPOSITORY      https://github.com/trxcllnt/blazingsql.git
-            GIT_TAG             fea/rapids-cmake-22.06
+            GIT_TAG             fea/rapids-cmake-${MAJOR_AND_MINOR}
             SOURCE_SUBDIR       engine
             OPTIONS             "BUILD_TESTS OFF"
                                 "BUILD_BENCHMARKS OFF"
@@ -90,6 +95,8 @@ function(find_and_configure_blazingsql VERSION)
 
     # Make sure consumers of our libs can see blazingdb::blazingsql-engine
     _fix_cmake_global_defaults(blazingdb::blazingsql-engine)
+
+    set(blazingsql-engine_VERSION "${blazingsql-engine_VERSION}" PARENT_SCOPE)
 
     if (NOT TARGET thrift::thrift)
         if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
@@ -127,7 +134,6 @@ function(find_and_configure_blazingsql VERSION)
     configure_file("${blazingsql-engine_BINARY_DIR}/blazingsql-algebra-core.jar"
                    "${CMAKE_CURRENT_BINARY_DIR}/blazingsql-algebra-core.jar"
                    COPYONLY)
-
 endfunction()
 
-find_and_configure_blazingsql(${BLAZINGSQL_VERSION})
+find_and_configure_blazingsql()

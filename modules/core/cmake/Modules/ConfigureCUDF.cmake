@@ -14,13 +14,16 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_cudf VERSION)
+function(find_and_configure_cudf)
 
-    include(get_cpm)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureRMM.cmake)
 
-    include(ConfigureRMM)
+    _get_rapidsai_module_version(cudf VERSION)
 
     _clean_build_dirs_if_not_fully_built(cudf libcudf)
+    _clean_build_dirs_if_not_fully_built(nvcomp libnvcomp)
 
     _set_package_dir_if_exists(cudf cudf)
     _set_package_dir_if_exists(cuco cuco)
@@ -66,8 +69,24 @@ function(find_and_configure_cudf VERSION)
 
     # Make sure consumers of our libs can see cudf::cudf
     _fix_cmake_global_defaults(cudf::cudf)
+    # Make sure consumers of our libs can see nvcomp::nvcomp
+    _fix_cmake_global_defaults(nvcomp::nvcomp)
     # Make sure consumers of our libs can see cudf::cudftestutil
     _fix_cmake_global_defaults(cudf::cudftestutil)
+
+    set(cudf_VERSION "${cudf_VERSION}" PARENT_SCOPE)
+
+    _set_package_dir_if_exists(nvcomp nvcomp)
+    set_target_properties(nvcomp
+        PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${nvcomp_ROOT}"
+                   LIBRARY_OUTPUT_DIRECTORY "${nvcomp_ROOT}")
+
+    include(CMakePackageConfigHelpers)
+    write_basic_package_version_file(
+      ${nvcomp_ROOT}/nvcomp-config-version.cmake
+      VERSION 2.3
+      COMPATIBILITY ExactVersion)
+
 endfunction()
 
-find_and_configure_cudf(${CUDF_VERSION})
+find_and_configure_cudf()

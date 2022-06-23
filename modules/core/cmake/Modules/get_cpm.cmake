@@ -32,7 +32,7 @@ endif()
 if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
     execute_process(COMMAND node -p
                     "require('@rapidsai/core').cpm_source_cache_path"
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                     OUTPUT_VARIABLE NODE_RAPIDS_CPM_SOURCE_CACHE
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -42,7 +42,7 @@ if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
 
     execute_process(COMMAND node -p
                     "require('@rapidsai/core').cpm_binary_cache_path"
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                     OUTPUT_VARIABLE NODE_RAPIDS_CPM_BINARY_CACHE
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -60,7 +60,13 @@ include(rapids-cmake)
 include(rapids-find)
 include(rapids-cpm)
 
-rapids_cpm_init()
+execute_process(COMMAND node -p
+                "require('@rapidsai/core').cmake_modules_path"
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                OUTPUT_VARIABLE NODE_RAPIDS_CMAKE_MODULES_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+rapids_cpm_init(OVERRIDE "${NODE_RAPIDS_CMAKE_MODULES_PATH}/../versions.json")
 
 function(_set_package_dir_if_exists pkg dir)
     if (NOT DEFINED ENV{NODE_RAPIDS_USE_LOCAL_DEPS_BUILD_DIRS})
@@ -97,7 +103,7 @@ function(_fix_cmake_global_defaults target)
             set_target_properties(${target} PROPERTIES IMPORTED_GLOBAL TRUE)
         endif()
         get_target_property(_aliased_target ${target} ALIASED_TARGET)
-        if (_aliased_target AND TARGET ${_aliased_target})
+        if (_aliased_target)
             _fix_cmake_global_defaults(${_aliased_target})
         endif()
     endif()

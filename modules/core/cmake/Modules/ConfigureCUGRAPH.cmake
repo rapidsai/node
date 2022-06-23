@@ -14,12 +14,14 @@
 # limitations under the License.
 #=============================================================================
 
-function(find_and_configure_cugraph VERSION)
+function(find_and_configure_cugraph)
 
-    include(get_cpm)
-    include(get_nccl)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_nccl.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_version.cmake)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ConfigureCUGRAPHOPS.cmake)
 
-    include(ConfigureCUGRAPHOPS)
+    _get_rapidsai_module_version(cugraph VERSION)
 
     _clean_build_dirs_if_not_fully_built(cugraph libcugraph)
 
@@ -62,6 +64,8 @@ function(find_and_configure_cugraph VERSION)
             )
         endif()
     endif()
+
+    set(cugraph_VERSION "${cugraph_VERSION}" PARENT_SCOPE)
 endfunction()
 
-find_and_configure_cugraph(${CUGRAPH_VERSION})
+find_and_configure_cugraph()

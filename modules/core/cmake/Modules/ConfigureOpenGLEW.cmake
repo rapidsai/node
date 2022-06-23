@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2020-2021, NVIDIA CORPORATION.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,19 +14,21 @@
 # limitations under the License.
 #=============================================================================
 
-include(get_cpm)
+function(find_and_configure_glew VERSION USE_STATIC)
+    if(USE_STATIC)
+        set(GLEW_USE_STATIC_LIBS ON)
+        set(GLEW_USE_SHARED_LIBS OFF)
+        set(GLEW_LIBRARY libglew_static)
+    else()
+        set(GLEW_USE_SHARED_LIBS ON)
+        set(GLEW_USE_STATIC_LIBS OFF)
+        set(GLEW_LIBRARY libglew_shared)
+    endif()
 
-if(GLEW_USE_STATIC_LIBS)
-    set(GLEW_LIBRARY libglew_static)
-else()
-    set(GLEW_LIBRARY libglew_shared)
-endif(GLEW_USE_STATIC_LIBS)
+    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/get_cpm.cmake)
 
-_set_package_dir_if_exists(${GLEW_LIBRARY} glew)
+    _set_package_dir_if_exists(${GLEW_LIBRARY} glew)
 
-add_compile_definitions(GLEW_EGL)
-
-function(find_and_configure_glew VERSION)
     if(NOT TARGET ${GLEW_LIBRARY})
         CPMFindPackage(NAME glew
             VERSION         ${VERSION}
@@ -43,6 +45,15 @@ function(find_and_configure_glew VERSION)
                             "glew-cmake_BUILD_STATIC ${GLEW_USE_STATIC_LIBS}"
         )
     endif()
-endfunction()
 
-find_and_configure_glew(${GLEW_VERSION})
+    # add_compile_definitions(GLEW_EGL)
+    target_compile_definitions(${GLEW_LIBRARY} PUBLIC GLEW_EGL)
+    if(USE_STATIC)
+        set_target_properties(${GLEW_LIBRARY}
+            PROPERTIES POSITION_INDEPENDENT_CODE           ON
+                       INTERFACE_POSITION_INDEPENDENT_CODE ON)
+    endif()
+
+    set(glew_VERSION "${glew_VERSION}" PARENT_SCOPE)
+    set(GLEW_LIBRARY "${GLEW_LIBRARY}" PARENT_SCOPE)
+endfunction()
