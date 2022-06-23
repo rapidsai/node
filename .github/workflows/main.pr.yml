@@ -94,6 +94,7 @@ jobs:
           echo "SCCACHE_REGION=us-west-2" >> .env
           echo "SCCACHE_BUCKET=node-rapids-sccache" >> .env
           if [[ "${{ steps.devel_dockerfiles_changed.outputs.any_changed }}" == "true" ]]; then
+            alias docker-compose='docker compose'
             yarn docker:build:devel:main
           fi
           mkdir -p /tmp/.{yarn,cache}
