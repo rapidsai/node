@@ -56,3 +56,6 @@ profile-*
 profile*
 *clinic*
 *flamegraph*
+
+# Node-rapids .cache symlink
+.cache

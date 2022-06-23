@@ -29,7 +29,7 @@ const root_schema                                      = require('../../util/sch
 
 module.exports = async function(fastify, opts) {
   fastify.register(arrowPlugin);
-  fastify.register(fastifyCors, {origin: 'http://localhost:3002'});
+  fastify.register(fastifyCors, {origin: 'http://localhost:3000'});
   fastify.decorate('setDataframe', gpu_cache.setDataframe);
   fastify.decorate('getDataframe', gpu_cache.getDataframe);
   fastify.decorate('listDataframes', gpu_cache.listDataframes);
@@ -247,7 +247,7 @@ module.exports = async function(fastify, opts) {
 
   fastify.route({
     method: 'GET',
-    url: '/nodes/',
+    url: '/nodes',
     handler: async (request, reply) => {
       let message = 'Error';
       let result  = {success: false, message: message};

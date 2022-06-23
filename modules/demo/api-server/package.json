@@ -12,8 +12,8 @@
   "description": "A fastify-based web server that provides browser-access to GPU resources.",
   "scripts": {
     "test": "tap \"test/**/*.test.js\"",
-    "start": "fastify start -l info -P -w app.js",
-    "dev": "fastify start -w -l info -P app.js"
+    "start": "fastify start -l info -P -p 3010 -w app.js",
+    "dev": "fastify start -w -l info -P -p 3010 app.js"
   },
   "keywords": ["rapids.ai", "node", "NVIDIA", "gpu", "Dataframe", "pandas"],
   "dependencies": {
