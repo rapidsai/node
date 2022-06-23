@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const gl: any = require('bindings')('node_webgl.node').init();
+export const gl: any = require('bindings')('rapidsai_webgl.node').init();
 export default gl;

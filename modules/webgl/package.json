@@ -31,7 +31,7 @@
     "cpp:reconfigure:debug": "yarn cpp:clean && nvidia-cmake-js configure -g -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
-    "dev:copy:libs": "nvidia-cmake-copy-libs node_webgl.node libglew.so"
+    "dev:copy:libs": "nvidia-cmake-copy-libs rapidsai_webgl.node libglew.so"
   },
   "dependencies": {
     "@rapidsai/core": "0.0.1"

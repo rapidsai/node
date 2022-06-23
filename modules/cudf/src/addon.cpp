@@ -23,14 +23,14 @@
 
 #include <napi.h>
 
-struct node_cudf : public nv::EnvLocalAddon, public Napi::Addon<node_cudf> {
-  node_cudf(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
+struct rapidsai_cudf : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cudf> {
+  rapidsai_cudf(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
     DefineAddon(exports,
                 {
-                  InstanceMethod("init", &node_cudf::InitAddon),
+                  InstanceMethod("init", &rapidsai_cudf::InitAddon),
                   InstanceValue("_cpp_exports", _cpp_exports.Value()),
 
-                  InstanceMethod<&node_cudf::find_common_type>("findCommonType"),
+                  InstanceMethod<&rapidsai_cudf::find_common_type>("findCommonType"),
 
                   InstanceValue("Column", InitClass<nv::Column>(env, exports)),
                   InstanceValue("Table", InitClass<nv::Table>(env, exports)),
@@ -45,4 +45,4 @@ struct node_cudf : public nv::EnvLocalAddon, public Napi::Addon<node_cudf> {
   }
 };
 
-NODE_API_ADDON(node_cudf);
+NODE_API_ADDON(rapidsai_cudf);

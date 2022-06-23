@@ -14,46 +14,24 @@
 
 try {
   require('dotenv').config();
-} catch (e) { }
+} catch (e) {}
 
 module.exports = {
-  "verbose": true,
-  "testEnvironment": "node",
-  "maxWorkers": process.env.PARALLEL_LEVEL || 1,
-  "globals": {
-    "ts-jest": {
-      "diagnostics": false,
-      "tsconfig": "test/tsconfig.json"
-    }
-  },
-  "rootDir": "./",
-  "roots": [
-    "<rootDir>/test/"
-  ],
-  "moduleFileExtensions": [
-    "js",
-    "ts",
-    "tsx"
-  ],
-  "coverageReporters": [
-    "lcov"
-  ],
-  "coveragePathIgnorePatterns": [
-    "test\\/.*\\.(ts|tsx|js)$",
-    "/node_modules/"
-  ],
-  "transform": {
-    "^.+\\.jsx?$": "ts-jest",
-    "^.+\\.tsx?$": "ts-jest"
-  },
-  "transformIgnorePatterns": [
-    "/lib/*$",
-    "/node_modules/(?!web-stream-tools).+\\.js$"
-  ],
-  "testRegex": "(.*(-|\\.)(test|spec)s?)\\.(ts|tsx|js)$",
-  "preset": "ts-jest",
-  "testMatch": null,
-  "moduleNameMapper": {
-    "^@rapidsai\/rapids-core(.*)": "<rootDir>/src/$1",
+  'verbose': true,
+  'testEnvironment': 'node',
+  'maxWorkers': process.env.PARALLEL_LEVEL || 1,
+  'globals': {'ts-jest': {'diagnostics': false, 'tsconfig': 'test/tsconfig.json'}},
+  'rootDir': './',
+  'roots': ['<rootDir>/test/'],
+  'moduleFileExtensions': ['js', 'ts', 'tsx'],
+  'coverageReporters': ['lcov'],
+  'coveragePathIgnorePatterns': ['test\\/.*\\.(ts|tsx|js)$', '/node_modules/'],
+  'transform': {'^.+\\.jsx?$': 'ts-jest', '^.+\\.tsx?$': 'ts-jest'},
+  'transformIgnorePatterns': ['/lib/*$', '/node_modules/(?!web-stream-tools).+\\.js$'],
+  'testRegex': '(.*(-|\\.)(test|spec)s?)\\.(ts|tsx|js)$',
+  'preset': 'ts-jest',
+  'testMatch': null,
+  'moduleNameMapper': {
+    '^@rapidsai\/core(.*)': '<rootDir>/src/$1',
   }
 };

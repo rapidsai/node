@@ -13,7 +13,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: [11.6.2]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     env:
       NODE: "18.2.0"
       RAPIDS: "22.06.00"

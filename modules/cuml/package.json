@@ -31,7 +31,7 @@
     "cpp:reconfigure:debug": "yarn cpp:clean && nvidia-cmake-js configure -g -D",
     "tsc:build": "rimraf build/js && tsc -p ./tsconfig.json",
     "tsc:watch": "rimraf build/js && tsc -p ./tsconfig.json -w",
-    "dev:copy:libs": "nvidia-cmake-copy-libs node_cuml.node"
+    "dev:copy:libs": "nvidia-cmake-copy-libs rapidsai_cuml.node"
   },
   "dependencies": {
     "@rapidsai/cudf": "0.0.1"

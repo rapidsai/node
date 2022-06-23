@@ -105,6 +105,7 @@ runs:
         push: ${{ inputs.push }}
         file: ${{ inputs.file }}
         tags: ${{ inputs.tags }}
+        load: ${{ inputs.push == 'false' }}
         platforms: ${{ inputs.platforms }}
         build-args: ${{ inputs.build-args }}
         labels: |

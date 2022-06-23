@@ -16,15 +16,15 @@
 
 #include <nv_node/addon.hpp>
 
-struct node_cugraph : public nv::EnvLocalAddon, public Napi::Addon<node_cugraph> {
-  node_cugraph(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
+struct rapidsai_cugraph : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_cugraph> {
+  rapidsai_cugraph(Napi::Env const& env, Napi::Object exports) : nv::EnvLocalAddon(env, exports) {
     DefineAddon(exports,
                 {
-                  InstanceMethod("init", &node_cugraph::InitAddon),
+                  InstanceMethod("init", &rapidsai_cugraph::InitAddon),
                   InstanceValue("_cpp_exports", _cpp_exports.Value()),
                   InstanceValue("Graph", InitClass<nv::Graph>(env, exports)),
                 });
   }
 };
 
-NODE_API_ADDON(node_cugraph);
+NODE_API_ADDON(rapidsai_cugraph);

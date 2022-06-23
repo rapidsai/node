@@ -22,14 +22,14 @@ std::ostream& operator<<(std::ostream& os, nv::NapiToCPP const& self) {
   return os << self.operator std::string();
 };
 
-struct node_rapids_core : public nv::EnvLocalAddon, public Napi::Addon<node_rapids_core> {
-  node_rapids_core(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
+struct rapidsai_core : public nv::EnvLocalAddon, public Napi::Addon<rapidsai_core> {
+  rapidsai_core(Napi::Env const& env, Napi::Object exports) : EnvLocalAddon(env, exports) {
     DefineAddon(exports,
                 {
                   InstanceValue("_cpp_exports", _cpp_exports.Value()),
-                  InstanceMethod("init", &node_rapids_core::InitAddon),
+                  InstanceMethod("init", &rapidsai_core::InitAddon),
                 });
   }
 };
 
-NODE_API_ADDON(node_rapids_core);
+NODE_API_ADDON(rapidsai_core);
