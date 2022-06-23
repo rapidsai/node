@@ -60,6 +60,7 @@ function(find_and_configure_cudf VERSION)
                                 "CUDF_ENABLE_ARROW_PARQUET ON"
                                 # "ARROW_DEPENDENCY_SOURCE AUTO"
                                 "DISABLE_DEPRECATION_WARNING ON"
+                                "CUDF_USE_PROPRIETARY_NVCOMP OFF"
                                 "CUDF_USE_PER_THREAD_DEFAULT_STREAM ON")
     endif()
 
