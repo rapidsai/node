@@ -23,7 +23,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -71,7 +71,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -125,7 +125,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -172,7 +172,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -207,7 +207,8 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cudf
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-cugraph-image:
     needs:
@@ -219,7 +220,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -254,7 +255,8 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cugraph
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-cuml-image:
     needs:
@@ -266,7 +268,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -301,7 +303,8 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuml
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-cuspatial-image:
     needs:
@@ -313,7 +316,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -348,7 +351,8 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-cuspatial
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-glfw-image:
     needs:
@@ -360,7 +364,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -395,7 +399,8 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-glfw
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-sql-image:
     needs:
@@ -407,7 +412,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -442,7 +447,8 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-sql
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-main-image:
     needs:
@@ -454,7 +460,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -489,7 +495,8 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-demo-image:
     needs:
@@ -501,7 +508,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -536,7 +543,8 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-base"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "BUILD_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"
+            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-main"
 
   build-and-publish-runtime-notebook-image:
     needs:
@@ -547,7 +555,7 @@ jobs:
       fail-fast: true
       matrix:
         CUDA: ["11.6.2"]
-        LINUX: [ubuntu20.04]
+        LINUX: ["ubuntu20.04"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -583,4 +591,3 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-notebook
           build-args: |
             "FROM_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-runtime-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-demo"
-            "DEVEL_IMAGE=${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages"

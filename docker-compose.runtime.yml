@@ -21,7 +21,8 @@ x-main-service-settings: &main_service_settings
   build: &main_build_settings
     <<: *base_build_settings
     args: &main_build_args
-      DEVEL_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-18.2.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-packages
+      DEVEL_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-18.2.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-main
+      BUILD_IMAGE: ${REPOSITORY:-ghcr.io/rapidsai/node}:${RAPIDS_VERSION:-22.02.00}-devel-node${NODE_VERSION:-18.2.0}-cuda${CUDA_VERSION:-11.6.2}-${LINUX_VERSION:-ubuntu20.04}-packages
   environment: &main_environment_variables
     <<: *base_environment_settings
     # Use the host's X11 display

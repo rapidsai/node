@@ -76,6 +76,7 @@ services:
       args:
         CUDAARCHS: "${CUDAARCHS:-ALL}"
         PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
+        NVCC_APPEND_FLAGS: "${NVCC_APPEND_FLAGS:-}"
         RAPIDS_VERSION: "${RAPIDS_VERSION:-22.02.00}"
         SCCACHE_REGION: "${SCCACHE_REGION:-us-west-2}"
         SCCACHE_BUCKET: "${SCCACHE_BUCKET:-node-rapids-sccache}"

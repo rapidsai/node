@@ -2,7 +2,7 @@
 
 ARG FROM_IMAGE
 
-FROM ${FROM_IMAGE}
+FROM ${FROM_IMAGE} as build
 
 WORKDIR /opt/rapids/node
 
@@ -10,6 +10,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES all
 
 ARG CUDAARCHS=ALL
 ARG PARALLEL_LEVEL
+ARG NVCC_APPEND_FLAGS
 ARG RAPIDS_VERSION
 ARG SCCACHE_REGION
 ARG SCCACHE_BUCKET
@@ -41,6 +42,7 @@ RUN --mount=type=secret,id=sccache_credentials \
  && bash -c 'echo -e "\
 CUDAARCHS=$CUDAARCHS\n\
 PARALLEL_LEVEL=$PARALLEL_LEVEL\n\
+NVCC_APPEND_FLAGS=$NVCC_APPEND_FLAGS\n\
 RAPIDS_VERSION=$RAPIDS_VERSION\n\
 SCCACHE_REGION=$SCCACHE_REGION\n\
 SCCACHE_BUCKET=$SCCACHE_BUCKET\n\
@@ -49,11 +51,9 @@ SCCACHE_IDLE_TIMEOUT=$SCCACHE_IDLE_TIMEOUT\n\
  && yarn --pure-lockfile --network-timeout 1000000 \
  && yarn build \
  && yarn dev:npm:pack \
- && yarn cache clean \
- && cp build/*.tgz ../ \
- && cd .. && rm -rf node \
- && chown -R rapids:rapids .
+ && chown rapids:rapids build/*.tgz \
+ && mv build/*.tgz ../
 
-USER rapids
+FROM alpine:latest
 
-WORKDIR /home/node
+COPY --from=build /opt/rapids/*.tgz /opt/rapids/
