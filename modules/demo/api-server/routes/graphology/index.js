@@ -13,7 +13,7 @@
 // limitations under the License.
 
 const Fs = require('fs');
-const {Utf8String, Int32, Uint32, Float32, DataFrame, StringSeries, Series, Float64} =
+const {Utf8String, Int32, Uint32, Float32, DataFrame, Series, Float64} =
   require('@rapidsai/cudf');
 const {RecordBatchStreamWriter, Field, Vector, List, Table} = require('apache-arrow');
 const Path                                                  = require('path');
