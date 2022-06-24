@@ -131,7 +131,7 @@ jobs:
           RAPIDSAI_GITHUB_ACCESS_TOKEN: "${{ secrets.RAPIDSAI_GITHUB_ACCESS_TOKEN }}"
         run: |
           echo "CUDAARCHS=ALL" >> .env
-          echo "PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}" >> .env
+          echo "PARALLEL_LEVEL=1" >> .env
           echo "REPOSITORY=${{ env.REPOSITORY }}" >> .env
           echo "NODE_VERSION=${{ env.NODE }}" >> .env
           echo "CUDA_VERSION=${{ matrix.CUDA }}" >> .env

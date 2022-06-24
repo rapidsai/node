@@ -123,7 +123,7 @@ jobs:
             ${{ env.REPOSITORY }}:${{ env.RAPIDS }}-devel-node${{ env.NODE }}-cuda${{ matrix.CUDA }}-${{ matrix.LINUX }}-packages
           build-args: |
             "CUDAARCHS=ALL"
-            "PARALLEL_LEVEL=${PARALLEL_LEVEL:-1}"
+            "PARALLEL_LEVEL=1"
             "SCCACHE_IDLE_TIMEOUT=32768"
             "SCCACHE_REGION=us-west-2"
             "SCCACHE_BUCKET=node-rapids-sccache"
