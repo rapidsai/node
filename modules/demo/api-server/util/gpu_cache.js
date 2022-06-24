@@ -85,7 +85,7 @@ module.exports = {
 
   async readLargeGraphDemo(path) {
     console.log('readLargeGraphDemo');
-    const dataset = StringSeries.readText(path, '');
+    const dataset = Series.readText(path, '');
     let split     = dataset.split('"options":');
     if (split.length <= 1) { throw 'Bad readLargeGraphDemo format: options not found.'; };
     const toptions = split.gather([1], false);
