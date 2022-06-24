@@ -94,11 +94,7 @@ Napi::Value Graph::force_atlas2(Napi::CallbackInfo const &info) {
                           strong_gravity_mode,
                           gravity,
                           verbose);
-  } catch (raft::logic_error const &err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  } catch (cugraph::logic_error const &err) {
-    NAPI_THROW(Napi::Error::New(info.Env(), err.what()));
-  }
+  } catch (std::exception const &e) { throw Napi::Error::New(info.Env(), e.what()); }
 
   return positions;
 }

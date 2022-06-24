@@ -64,7 +64,7 @@ Napi::Value Column::replace_nulls(Napi::CallbackInfo const& info) {
       cudf::replace_policy policy{static_cast<bool>(args[0])};
       return replace_nulls(policy, args[1]);
     }
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
   throw Napi::Error::New(info.Env(), "replace_nulls requires a Column, Scalar, or Boolean");
 }
 
@@ -73,7 +73,7 @@ Napi::Value Column::replace_nans(Napi::CallbackInfo const& info) {
   try {
     if (Column::IsInstance(info[0])) { return replace_nans(*Column::Unwrap(args[0]), args[1]); }
     if (Scalar::IsInstance(info[0])) { return replace_nans(*Scalar::Unwrap(args[0]), args[1]); }
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(info.Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(info.Env(), e.what()); }
   throw Napi::Error::New(info.Env(), "replace_nans requires a Column or Scalar");
 }
 

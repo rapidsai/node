@@ -22,7 +22,7 @@ namespace nv {
 Column::wrapper_t Table::interleave_columns(rmm::mr::device_memory_resource* mr) const {
   try {
     return Column::New(Env(), cudf::interleave_columns(*this, mr));
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Table::interleave_columns(Napi::CallbackInfo const& info) {

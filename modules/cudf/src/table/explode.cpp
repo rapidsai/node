@@ -23,7 +23,7 @@ Table::wrapper_t Table::explode(cudf::size_type explode_column_idx,
                                 rmm::mr::device_memory_resource* mr) const {
   try {
     return Table::New(Env(), cudf::explode(*this, explode_column_idx, mr));
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Table::explode(Napi::CallbackInfo const& info) {
@@ -35,7 +35,7 @@ Table::wrapper_t Table::explode_position(cudf::size_type explode_column_idx,
                                          rmm::mr::device_memory_resource* mr) const {
   try {
     return Table::New(Env(), cudf::explode_position(*this, explode_column_idx, mr));
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Table::explode_position(Napi::CallbackInfo const& info) {
@@ -47,7 +47,7 @@ Table::wrapper_t Table::explode_outer(cudf::size_type explode_column_idx,
                                       rmm::mr::device_memory_resource* mr) const {
   try {
     return Table::New(Env(), cudf::explode_outer(*this, explode_column_idx, mr));
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Table::explode_outer(Napi::CallbackInfo const& info) {
@@ -59,7 +59,7 @@ Table::wrapper_t Table::explode_outer_position(cudf::size_type explode_column_id
                                                rmm::mr::device_memory_resource* mr) const {
   try {
     return Table::New(Env(), cudf::explode_outer_position(*this, explode_column_idx, mr));
-  } catch (cudf::logic_error const& e) { NAPI_THROW(Napi::Error::New(Env(), e.what())); }
+  } catch (std::exception const& e) { throw Napi::Error::New(Env(), e.what()); }
 }
 
 Napi::Value Table::explode_outer_position(Napi::CallbackInfo const& info) {
